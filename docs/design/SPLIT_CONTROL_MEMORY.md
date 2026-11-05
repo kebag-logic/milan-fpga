@@ -22,7 +22,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
-- **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, and what a larger fetch L1 would save by the model.
+- **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
 - **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, and a save's worst case under any input, with one build a pass either way.
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
@@ -1794,16 +1794,240 @@ Passes that carry the store's step, every group: count, the longest pass and the
 |---:|---:|---:|---:|
 | 30477: 123,345 (1.233); 96,082 (0.961) / 26876: 123,539 (1.235); 96,486 (0.965) | 19050: 123,503 (1.235); 95,835 (0.958) / 19050: 121,294 (1.213); 96,041 (0.960) | 40537: 131,058 (1.311); 96,423 (0.964) / 35701: 127,174 (1.272); 96,571 (0.966) | 25115: 126,044 (1.260); 96,278 (0.963) / 25120: 125,953 (1.260); 96,126 (0.961) |
 
+### THE RETRY's age limit, THE TRANSMIT, THE TICK's cap and every pass class
+
+This subsection is the record of 2026-11-05 (#665) at the code head `65a56d02`. Its legs ran on clean clones of `12e5ec56`, whose firmware is `65a56d02`'s; the commits after it change tests, plants, the harness's new control, comments, one named constant and the compile-time check that reads it, and documents, and the images they build are the legs' byte for byte. The subsection above is the record of `5e2651d5`.
+Two of its statements no longer hold at this head. A retried notice is now inside its 20 ms under any input, by construction. And the least margin it states, 0.101 ms, was taken before a staging that composes every channel's burst under input that leaves no pass empty: that staging put the 8x8 last SRP record past its 18 ms and one pass over the share, from a cause that predates THE RETRY ([the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529)).
+
+**THE RETRY's age limit.**
+Under input that leaves no pass empty a held change-notice retry waited for the next aged step's pass, up to three ticks, on top of the 8 ms spacing, which put a retried notice past its 20 ms ([the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6630265194)).
+A held retry `CTRL_LOOP_RETRY_AGE_MS` (4 ms) past its time, on AECP's own millisecond clock from the earliest held retry, now takes the next pass whole, before any input (`aecp_retry_aged`, `ctrl_loop.h`).
+So a retry's round is committed within `CTRL_LOOP_RETRY_MS`, 4 + 3 x 2 = 10 ms, of its time, and a retried notice within 8 + 10 = 18 ms of its port's answer; `aecp_mbx.c` holds the sum to `AECP_NOTICE_MS` at compile time.
+`notice_window.py`'s groups time it from the port's answer, in the labelled `answering-later` arm, under `save-starved`'s input (every receive channel at its refill rate with its bursts, a grandmaster change as every pass starts) with a save in flight, at eight phases of the spacing, and each channel's longest record under that load is a row too:
+
+CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz; over the eight groups, the least to the most, ms, bold over the bound:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts | 8x8/2if, struct-ends layout |
+|---|---:|---:|---:|---:|---:|---:|
+| a retried notice, from its port's answer to its last recipient's commit | 20 | 12.30 to 12.41 | 12.32 to 13.20 | 12.54 to 12.99 | 12.47 to 13.51 | 12.77 to 12.84 |
+| ACMP record, the longest held | 20 | 5.35 to 6.14 | 4.85 to 5.16 | 9.14 to 9.84 | 8.49 to 9.04 | 9.09 to 9.93 |
+| ADP record, the longest held | 20 | 2.26 to 4.00 | 1.57 to 3.88 | 5.61 to 7.52 | 5.38 to 6.95 | 5.94 to 7.63 |
+| MAAP record, the longest held | 20 | 2.60 to 3.40 | 2.38 to 3.28 | 5.02 to 5.72 | 4.79 to 5.17 | 4.93 to 5.78 |
+| AECP record, the longest held | 20 | 10.03 to 10.81 | 9.39 to 9.77 | 15.76 to 16.43 | 14.77 to 15.53 | 15.75 to 16.45 |
+| SRP record, the longest held | 18 | 10.74 to 10.88 | 10.23 to 10.42 | 16.48 to 17.11 | 15.98 to 16.46 | 16.58 to 17.10 |
+
+With the age removed (`--mutation retry-ageless`, at this head's firmware) every group's notice is late, 30.29 to 30.32 ms at 1x1/1if and 30.66 to 30.88 ms at 8x8/2if, and the run prints `CONTROL retry-ageless caught` at both points.
+
+**The composed burst under input that leaves no pass empty.**
+The notice groups are the first to stage it: at the load's first instant every channel's bucket burst comes at once while a grandmaster change starts every pass, with a bound sink, 16 registrations an interface and a save in flight.
+At `d0eef1cb`, at 8x8/2if, every group's last record of SRP's first burst was 19.047 to 19.666 ms after its commit, 18.975 to 19.421 ms on `65251a2f`'s firmware, and one pass was 201,540 cycles.
+In `notice-retried-4` the 32 SRP records commit at +0.80 to +0.83 ms and the last is taken by the sixteenth pass that takes SRP's records, two a pass (D4(b)): 0.72 ms of the pass running, one pass of 1.23 ms that took no SRP record because a TICK record posted during it left the event level set at SRP's readiness check, the sixteen passes, 17.45 ms, and two aged retry rounds, 0.26 ms.
+Five of the sixteen carry an MRPDU build a centisecond's join timers start, about 2.4 to 2.9 ms in all, and the last AECP record (19.657 ms against 20) waits behind the same passes.
+So the lever that moves SRP, AECP and the heaviest pass together is to take the build out of every pass that takes a record.
+
+**THE TRANSMIT.**
+SRP's MRPDU build is now deferrable work of its own pass class (`ctrl_loop.h`, THE TRANSMIT; `srp_mbx.c`, `transmit`).
+The loop marks a pass that took no record, at most `CTRL_LOOP_TX_EVENTS` (one) events and no centisecond before its polls (`tx_pass`), and calls the build after them, before THE RETRY and THE STEP, whose deadline counts its time.
+SRP's poll builds nothing and declares nothing; the build's call makes the interface's declarations and then builds one MRPDU, the participants in turn, in the order the poll ran them before.
+A centisecond, a received record, a walk that changes a binding's declaration, an unbinding that withdraws one, a Domain change or a new participant holds a build, and the poll reports a held build owed.
+Once SRP's tick has counted more than `CTRL_LOOP_TX_AGE` (two) centiseconds while it is held, the next pass after one not given whole is the build's alone, before any input, with THE RETRY's round after it; no two passes given whole run back to back.
+Its bound, `CTRL_LOOP_TX_MS`, from the hold to the end of the pass that takes it, under any input: three ticks, then seven passes of the share, 30 + 7 x 2 = 44 ms; every participant's owed MRPDU, one a call, within 2 x `MBX_N_IF` x 44 = 176 ms at two interfaces, inside the 200 ms JoinTime (IEEE 802.1Q Table 10-7).
+A frame a build left owed stays the poll's (A3), one a pass, and a pass whose poll sent it builds no other.
+Three of the head's behaviours are kept by where the work now stands, each found against the head's own trace on the way: a Domain adopted in a record's pass would have left its VID unlicensed to the next poll, so the declarations run in the build's call, as they ran beside the build before (Milan 4.3.2); a reclaim before the declarations gave a retained receive's room to an adoption the head refused, so the reclaim follows them; and in a pass whose build does not follow, the poll reclaims, so a record the next pass takes finds the room.
+`LoopBring.L18TransmitBindingRefusals`, `Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord`, `Loop.L20AnAgedTransmitIsAPassOfItsOwn`, `Srp.TransmitWaitsForAPassThatTakesNoRecord`, `Srp.AHeldBuildTakesAPassOfItsOwnPastItsAge` and `Srp.AnOwedFrameComesBeforeTheBuild` hold the rule, with 43 planted defects, 24 in the loop and 19 in SRP's adapter, each failing its named test on its words.
+
+**SRP's bound, and what THE TRANSMIT gives its records.**
+`CTRL_LOOP_SRP_MS` states SRP's bound beside `CTRL_LOOP_STEP_AGE`, `CTRL_LOOP_RETRY_MS` and `CTRL_LOOP_TX_MS`: min(T_svc = 20 ms, its ceiling), 18 ms, THE SHARE's nine passes (FR_NFR.md 3.4.1).
+By pass class, no pass that takes a record carries a build.
+Beside the passes a record of SRP's admitted burst waits stand at most one pass given whole to an aged build, since two stand `CTRL_LOOP_TX_AGE` ticks apart, more than 18 ms (`srp_mbx.c` holds the two to each other at compile time), at most one given whole to an aged step, three ticks apart, and the aged retries' passes, at least a millisecond and `CTRL_LOOP_RETRY_AGE_MS` apart.
+That count does not reach the composed burst's own passes: its 32 SRP records at 8x8/2if, two a pass, are taken in sixteen, more than the nine THE SHARE counts, so that row fits by the measured cost of those sixteen passes, not by the constants.
+At this head it fits: in the notice groups the last record of SRP's first burst is 16.48 to 17.11 ms after its commit at 8x8/2if, 15.98 to 16.46 ms with both drafts, and 10.23 to 10.88 ms at 1x1/1if; over every window staged, the last SRP record is at most 17.765 ms, a save's verify window opened one short of the age limit, arm A (the tables below).
+A pass among those a record waits can still carry a build where it took no record at all: an event posted during it holds SRP's records back (`srp_mbx.c`, `rx_order_ready`), and no other channel's record waited. A frame SRP owes is sent in place of a build, and owed centiseconds are dispatched by a pass that builds none, so that is the one case, and the measured rows include it.
+The same holds of the four backlog windows, whose SRP ring is full: the row has fitted by measurement since the backlog windows were first staged, and this head does not change how it is bounded.
+
+**THE TICK's cap.**
+With THE TRANSMIT alone the notice groups' last SRP record fell to 16.790 ms and the last AECP record to 16.266 ms, but one pass was 195,756 cycles, 4,244 under the share: the pass that dispatches the 10 ms centisecond beside the burst's first records, about 43,000 cycles of the centisecond's consumers (lwSRP's timers and the walks after them) beside two records a channel (a labelled pre-check on the code head's working tree before this cap, not this head's measurement).
+So a pass that dispatches a centisecond takes one record of a channel, `CTRL_LOOP_RX_PER_TICK_PASS`, and the rest wait for the next pass; THE BOUND's passes grow by one for each such pass among them.
+`Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel` holds it, with three plants; `rx-pass-unbounded` now plants the receive loop's bound and the cap together, since either alone still stops a pass at two records.
+
+**The first registration.**
+The heaviest pass that takes a record at this head is 190,420 cycles, the third pass of `backlog-adp@verify-0`'s window (8x8/2if, arm A), with eight events and the burst's records.
+In the notice groups the heaviest is the burst's first pass that takes SRP's first two records, which register a Listener new to the participant: 188,980 cycles (`notice-retried-3`).
+Traced by committed PC (`BUDGET_TRACE_AFTER`, on the code head's working tree, whose pass is the same 188,980 cycles), it spends about 40,000 cycles more than a later burst pass with the same records: lwSRP's attribute searches (`memcmp` 12,663 against 992, `find_attr`, `mrp_attr_registered_ports`), the adapter's walk (`mrp_attr_visit`, `registrations`, `snapshot`) and a block from the pool.
+`memcmp` is already word-wise (`ctrl_mem.c`); the count is lwSRP's linear searches, which no pass class moves.
+
+**Every pass class.**
+THE SHARE's reason is that no pass may run past 2.0 ms; the ruling asks each kind of pass to sit at least 6,490 cycles under it, the swing the data layout alone made on the same records ([the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529)).
+A pass's class is read off its `PASS` line: what it wrote (an event's or a channel's tail) says what it took, and its modules say which callbacks ran.
+The heaviest measured pass of each class, CPU cycles and its margin under the 200,000-cycle share, over every group of every leg at this head, both arms pooled (CPU 100 MHz on sys, bus 100 MHz):
+
+| Class | What it holds | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts | 8x8/2if, struct-ends layout |
+|---|---|---:|---:|---:|---:|---:|
+| records | takes a record: its events, its records, two a channel (one in a pass that dispatches a centisecond), and the polls | 116,176 (83,824 under; backlog-adp@verify-5) | 105,756 (94,244 under; backlog-adp@verify-5) | 190,420 (9,580 under; backlog-adp@verify-0) | 182,362 (17,638 under; backlog-adp@blank-aged2-2) | 189,156 (10,844 under; notice-retried-3) |
+| events | takes events and no record: the polls, and at most one event beside THE TRANSMIT's build | 52,247 (147,753 under; notice-retried-0) | 50,444 (149,556 under; notice-retried-0) | 140,363 (59,637 under; save-starved) | 134,776 (65,224 under; save-starved) | 137,715 (62,285 under; save-starved) |
+| none | takes nothing and writes to the mailbox: the polls' owed output, THE TRANSMIT's build, THE RETRY's round, THE STEP before its deadline | 128,083 (71,917 under; backlog-adp@blank-aged1-7) | 115,948 (84,052 under; notice-retried-7) | 171,351 (28,649 under; srp) | 131,973 (68,027 under; save-held) | 135,904 (64,096 under; save-held) |
+| whole-step | given whole to an aged step: the step and THE RETRY's round | 97,378 (102,622 under; save-starved) | 97,160 (102,840 under; save-starved) | 97,347 (102,653 under; save-starved) | 97,806 (102,194 under; save-starved) | 98,174 (101,826 under; save-starved) |
+| whole | given whole to an aged retry: one round | 9,610 (190,390 under; notice-retried-0) | 9,378 (190,622 under; notice-retried-3) | 12,571 (187,429 under; notice-retried-0) | 12,419 (187,581 under; notice-retried-7) | 13,186 (186,814 under; notice-retried-0) |
+| whole-transmit | given whole to an aged build: one build and one round | - | - | - | - | - |
+| idle | writes nothing to the mailbox: the polls with nothing owed, or THE STEP before its deadline (a run's longest) | 106,887 (93,113 under; acmp-notk) | 106,401 (93,599 under; backlog-adp@verify-0) | 118,647 (81,353 under; acmp-notk) | 117,495 (82,505 under; save-held) | 117,708 (82,292 under; backlog-adp@verify-0) |
+| build | of the above, one that carries THE TRANSMIT's build or the poll's owed SRP frame | 128,083 (71,917 under; backlog-adp@blank-aged1-7) | 115,948 (84,052 under; notice-retried-7) | 171,351 (28,649 under; srp) | 134,776 (65,224 under; save-starved) | 137,715 (62,285 under; save-starved) |
+| step | of the above, one that carries the store's step | 128,083 (71,917 under; backlog-adp@blank-aged1-7) | 115,948 (84,052 under; notice-retried-7) | 130,212 (69,788 under; acmp-notk) | 127,428 (72,572 under; save-held) | 127,657 (72,343 under; save-held) |
+
+Every class sits at least 9,580 cycles under the share at both points, at the head's layout and at the struct-ends layout: the closest is a pass that takes a record at 8x8/2if, 190,420 cycles, 3,090 cycles more than the ruling's 6,490 under.
+No staged group holds a pass given whole to an aged build, since a pass that takes no record comes before a build ages in every staging; `Loop.L20AnAgedTransmitIsAPassOfItsOwn` and `Srp.AHeldBuildTakesAPassOfItsOwnPastItsAge` make one.
+It holds one build and one round and no poll, so at most the heaviest pass that carries a build and the heaviest round: 171,351 + 12,571 = 183,922 cycles at 8x8/2if and 128,083 + 9,610 = 137,693 at 1x1/1if.
+The struct-ends layout ran the 8x8 notice groups and arm A's backlog windows, a save's windows from idle, its aged windows at the limit and the three saves; the classes whose heaviest falls in groups outside them, a pass that takes nothing in `srp` (171,351 cycles), and one that writes nothing and one that carries the store's step in `acmp-notk` (118,647 and 130,212), sit 28,649 cycles or more under the share.
+The struct-ends layout moves THE RETRY's and THE TRANSMIT's fields to the ends of their structs, so the image's other data keep the offsets they had before them (a labelled scratch layout, not on this branch).
+
+**The controls.**
+
+- `--mutation transmit-beside-records` gives THE TRANSMIT's pass to every pass, so the build follows the polls of a pass that takes the composed burst's records, as before THE TRANSMIT. At 8x8/2if, in the eight notice groups, every group's longest held SRP record is 19.59 to 20.11 ms, over its 18 ms, the longest AECP record 18.40 to 19.17 ms, with no pass over the share, and the run prints `CONTROL transmit-beside-records caught`.
+- `--mutation retry-ageless`, above: `CONTROL retry-ageless caught` at both points.
+- `--mutation store-step-aged-heavier` holds the CPU 0.8 ms longer in the pass given whole to an aged step. On the verify's eight aged windows at the limit, 8x8, arm A, every window's last SRP record is over 18 ms, 18.137 to 18.568 ms, with no pass over the share, and the run prints `CONTROL store-step-aged-heavier caught`.
+
+**The rows at this head.**
+
+CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz. Cells are arm A / arm B, ms, bold over the bound.
+
+The four backlog windows:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 0.82 / 0.79 | 0.73 / 0.73 | 1.34 / 1.35 | 1.25 / 1.32 |
+| ADP record, first | 20 | 0.86 / 0.84 | 0.77 / 0.78 | 1.39 / 1.39 | 1.29 / 1.36 |
+| MAAP record, first | 20 | 0.84 / 0.82 | 0.75 / 0.76 | 1.37 / 1.37 | 1.27 / 1.34 |
+| AECP record, first | 20 | 0.86 / 0.83 | 0.77 / 0.77 | 1.38 / 1.38 | 1.28 / 1.36 |
+| SRP record, first | 18 | 3.05 / 2.96 | 2.76 / 2.78 | 5.49 / 5.42 | 5.10 / 5.36 |
+| ACMP record, last | 20 | 5.16 / 5.19 | 4.61 / 4.68 | 8.47 / 8.90 | 8.19 / 8.06 |
+| ADP record, last | 20 | 3.66 / 3.70 | 3.32 / 3.35 | 6.58 / 6.77 | 6.16 / 6.33 |
+| MAAP record, last | 20 | 3.65 / 3.74 | 3.31 / 3.39 | 5.49 / 5.43 | 5.11 / 5.36 |
+| AECP record, last | 20 | 10.01 / 10.27 | 9.39 / 9.62 | 14.21 / 15.28 | 13.55 / 13.98 |
+| SRP record, last | 18 | 10.81 / 10.55 | 10.18 / 9.89 | 16.45 / 15.72 | 14.68 / 15.15 |
+| an ACMP command behind a full acmp ring | 20 | 3.78 / 3.66 | 3.38 / 3.40 | 7.11 / 6.81 | 6.33 / 6.89 |
+| an ENTITY_AVAILABLE behind a full adp ring | 20 | 2.94 / 2.85 | 2.61 / 2.58 | 4.69 / 5.49 | 5.01 / 4.95 |
+| an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 20 | 0.08 / 0.14 | 0.09 / 0.05 | 0.09 / 0.18 | 0.08 / 0.09 |
+| an event behind 15 others | 20 | 0.97 / 0.94 | 0.88 / 0.89 | 1.51 / 1.51 | 1.40 / 1.50 |
+| AECP record, last, in the owed window | 20 | **63.03** / **62.97** | **62.91** / **63.00** | **64.81** / **64.87** | **64.78** / **64.96** |
+| a response with 7 frames owed ahead of it | 20 | **62.16** / **62.13** | **62.07** / **62.13** | **63.55** / **63.62** | **63.56** / **63.66** |
+| an ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+A save's windows opened from idle (save_window.py), 24 at each leg:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 1.52 / 1.45 | 1.44 / 1.42 | 1.86 / 1.83 | 1.77 / 1.87 |
+| ADP record, first | 20 | 1.51 / 1.44 | 1.43 / 1.41 | 1.85 / 1.82 | 1.76 / 1.86 |
+| MAAP record, first | 20 | 1.55 / 1.47 | 1.46 / 1.45 | 1.89 / 1.85 | 1.79 / 1.90 |
+| AECP record, first | 20 | 1.56 / 1.48 | 1.47 / 1.46 | 1.90 / 1.86 | 1.80 / 1.91 |
+| SRP record, first | 18 | 2.72 / 2.58 | 2.50 / 2.47 | 4.22 / 3.70 | 3.89 / 3.70 |
+| ACMP record, last | 20 | 6.12 / 5.89 | 5.59 / 5.45 | 9.35 / 9.26 | 8.42 / 8.57 |
+| ADP record, last | 20 | 4.68 / 4.41 | 4.17 / 4.12 | 7.02 / 7.13 | 6.45 / 6.62 |
+| MAAP record, last | 20 | 4.61 / 4.44 | 4.21 / 4.16 | 6.41 / 6.63 | 6.08 / 6.41 |
+| AECP record, last | 20 | 10.68 / 11.05 | 10.18 / 10.25 | 15.64 / 15.94 | 14.19 / 15.05 |
+| SRP record, last | 18 | 11.59 / 11.26 | 11.05 / 10.74 | 17.52 / 16.44 | 15.08 / 15.53 |
+| an ENTITY_AVAILABLE behind a full adp ring | 20 | 3.88 / 3.55 | 3.38 / 3.34 | 5.76 / 5.86 | 5.30 / 5.45 |
+
+A save's windows opened with the step's age at its limit, two (save_window.aged_window), 24 at each leg:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 1.17 / 0.79 | 1.02 / 1.09 | 1.28 / 1.65 | 1.52 / 1.62 |
+| ADP record, first | 20 | 1.16 / 0.78 | 1.01 / 1.08 | 1.27 / 1.64 | 1.51 / 1.61 |
+| MAAP record, first | 20 | 0.90 / 0.81 | 0.75 / 1.11 | 1.31 / 1.28 | 1.20 / 1.27 |
+| AECP record, first | 20 | 0.91 / 0.82 | 0.76 / 1.12 | 1.32 / 1.29 | 1.21 / 1.28 |
+| SRP record, first | 18 | 2.41 / 2.30 | 2.11 / 2.13 | 4.17 / 3.61 | 4.19 / 3.49 |
+| ACMP record, last | 20 | 6.79 / 6.57 | 6.19 / 6.02 | 10.16 / 10.06 | 9.19 / 9.34 |
+| ADP record, last | 20 | 5.37 / 5.20 | 4.87 / 4.78 | 7.97 / 7.92 | 7.40 / 7.39 |
+| MAAP record, last | 20 | 4.53 / 4.37 | 4.11 / 4.03 | 6.51 / 6.41 | 6.04 / 6.16 |
+| AECP record, last | 20 | 11.17 / 11.29 | 10.52 / 10.61 | 16.26 / 16.63 | 14.51 / 15.52 |
+| SRP record, last | 18 | 11.92 / 11.62 | 11.22 / 11.20 | 17.66 / 17.29 | 15.68 / 16.31 |
+| an ENTITY_AVAILABLE behind a full adp ring | 20 | 4.57 / 4.41 | 4.14 / 4.06 | 6.67 / 6.65 | 6.25 / 6.22 |
+
+The same one short of it, one, 24 at each leg that ran them (both arms, without the drafts):
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 1.17 / 1.12 | - / - | 1.28 / 1.64 | - / - |
+| ADP record, first | 20 | 1.16 / 1.11 | - / - | 1.27 / 1.63 | - / - |
+| MAAP record, first | 20 | 0.86 / 0.83 | - / - | 1.30 / 1.28 | - / - |
+| AECP record, first | 20 | 0.87 / 0.84 | - / - | 1.31 / 1.29 | - / - |
+| SRP record, first | 18 | 3.12 / 2.16 | - / - | 5.03 / 3.58 | - / - |
+| ACMP record, last | 20 | 6.01 / 5.93 | - / - | 9.30 / 9.08 | - / - |
+| ADP record, last | 20 | 4.58 / 4.56 | - / - | 7.05 / 6.95 | - / - |
+| MAAP record, last | 20 | 4.00 / 3.80 | - / - | 6.25 / 6.05 | - / - |
+| AECP record, last | 20 | 10.42 / 10.54 | - / - | 16.28 / 16.56 | - / - |
+| SRP record, last | 18 | 12.23 / 10.78 | - / - | 17.77 / 17.33 | - / - |
+| an ENTITY_AVAILABLE behind a full adp ring | 20 | 3.78 / 3.78 | - / - | 5.74 / 5.67 | - / - |
+
+save-held, every receive channel at its refill rate with its bursts:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ADP record, every channel at its refill rate, the longest | 20 | 2.78 / 2.72 | 2.29 / 2.28 | 4.65 / 4.61 | 4.25 / 4.42 |
+| ACMP record, every channel at its refill rate, the longest | 20 | 4.33 / 4.25 | 3.68 / 3.64 | 8.18 / 7.46 | 6.96 / 7.70 |
+| AECP record, every channel at its refill rate, the longest | 20 | 5.52 / 5.48 | 5.01 / 5.03 | 10.56 / 10.34 | 9.04 / 9.63 |
+| MAAP record, every channel at its refill rate, the longest | 20 | 2.97 / 2.75 | 2.50 / 2.55 | 5.14 / 5.09 | 4.62 / 4.82 |
+| SRP record, every channel at its refill rate, the longest | 18 | 8.49 / 8.02 | 7.11 / 7.05 | 14.53 / 14.32 | 12.74 / 13.59 |
+
+save-starved, the same and a grandmaster change as every pass starts:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ADP record, every channel at its refill rate, the longest | 20 | 2.86 / 2.81 | 2.37 / 2.60 | 4.74 / 4.70 | 4.34 / 4.63 |
+| ACMP record, every channel at its refill rate, the longest | 20 | 4.48 / 4.42 | 3.82 / 4.04 | 8.39 / 7.65 | 6.98 / 7.91 |
+| AECP record, every channel at its refill rate, the longest | 20 | 6.13 / 6.06 | 5.64 / 5.65 | 11.23 / 10.99 | 9.67 / 10.38 |
+| MAAP record, every channel at its refill rate, the longest | 20 | 2.92 / 2.87 | 2.68 / 2.59 | 5.27 / 5.22 | 4.73 / 4.94 |
+| SRP record, every channel at its refill rate, the longest | 18 | 8.65 / 8.61 | 8.00 / 7.94 | 15.08 / 14.90 | 13.59 / 14.26 |
+
+The share is 2.0 ms. Passes over it, of the work passes run, and the longest in ms, arm A / arm B:
+
+| Groups | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|
+| The four backlog windows | 0 of 1315, 1.14 / 0 of 1272, 1.11 | 0 of 1318, 1.04 / 0 of 1273, 1.03 | 0 of 1355, 1.63 / 0 of 1311, 1.85 | 0 of 1362, 1.53 / 0 of 1312, 1.81 |
+| A save's windows from idle | 0 of 12644, 1.16 / 0 of 8798, 1.12 | 0 of 12640, 1.13 / 0 of 8796, 1.12 | 0 of 22645, 1.90 / 0 of 11936, 1.86 | 0 of 22731, 1.77 / 0 of 11937, 1.81 |
+| Aged windows at the limit | 0 of 25748, 1.15 / 0 of 22572, 1.12 | 0 of 25715, 1.13 / 0 of 22195, 1.12 | 0 of 29414, 1.90 / 0 of 19133, 1.87 | 0 of 30654, 1.78 / 0 of 18234, 1.82 |
+| Aged windows one short of it | 0 of 23328, 1.28 / 0 of 20074, 1.20 | 0 of 0, 0.00 / 0 of 0, 0.00 | 0 of 28096, 1.90 / 0 of 17786, 1.87 | 0 of 0, 0.00 / 0 of 0, 0.00 |
+| save-held | 0 of 3426, 1.13 / 0 of 3429, 1.13 | 0 of 3439, 1.11 / 0 of 3433, 1.12 | 0 of 8623, 1.66 / 0 of 8638, 1.65 | 0 of 8678, 1.57 / 0 of 8665, 1.61 |
+| save-starved | 0 of 42843, 0.97 / 0 of 42843, 0.97 | 0 of 43204, 0.97 / 0 of 41993, 0.97 | 0 of 57407, 1.69 / 0 of 58001, 1.67 | 0 of 58295, 1.60 / 0 of 52030, 1.64 |
+| save-second | 0 of 81422, 0.96 / 0 of 81198, 0.97 | 0 of 81075, 0.97 / 0 of 78972, 0.96 | 0 of 129900, 1.31 / 0 of 0, 0.00 | 0 of 0, 0.00 / 0 of 0, 0.00 |
+| Every group run | 0 of 199801, 1.28 / 0 of 180796, 1.20 | 0 of 168001, 1.13 / 0 of 157272, 1.12 | 0 of 286852, 1.90 / 0 of 117430, 1.87 | 0 of 122348, 1.78 / 0 of 92803, 1.82 |
+
+Saves, ms from the change to durable against the stated worst case, arm A / arm B (steps; longest gap between flash steps, ms):
+
+| Group | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|
+| save | 2018.4 of 4,070 (102; 10.95) / 2018.5 of 4,070 (102; 10.988) | 2018.4 of 4,070 (102; 10.946) / 2018.5 of 4,070 (102; 10.843) | 4697.3 of 12,110 (370; 11.3) / 4698.2 of 12,110 (370; 11.367) | 4698.2 of 12,110 (370; 11.322) / 4697.3 of 12,110 (370; 11.28) |
+| save-held | 2018.2 of 4,070 (102; 14.206) / 2018.3 of 4,070 (102; 14.275) | 2018.2 of 4,070 (102; 13.966) / 2018.3 of 4,070 (102; 13.935) | 4696.9 of 12,110 (370; 18.923) / 4730.9 of 12,110 (370; 18.217) | 4707.9 of 12,110 (370; 17.255) / 4696.9 of 12,110 (370; 18.348) |
+| save-starved | 4048.1 of 4,070 (102; 31.043) / 4048.2 of 4,070 (102; 31.119) | 4048.1 of 4,070 (102; 30.893) / 4048.2 of 4,070 (102; 30.959) | 12087.0 of 12,110 (370; 31.092) / 12087.9 of 12,110 (370; 31.1) | 12087.9 of 12,110 (370; 31.115) / 12086.7 of 12,110 (370; 31.106) |
+| save-second | 6029.8 of 6,070 (102; 30.948) / 6029.9 of 6,070 (102; 30.937) | 6029.9 of 6,070 (102; 30.895) / 6029.8 of 6,070 (102; 30.927) | 22110.1 of 22,150 (370; 31.041) / - | - / - |
+
+Aged windows: the least margin and its row, the aged steps among their records (count, the longest aged pass, CPU cycles (ms), and the kinds), per age, arm A / arm B:
+
+| Age | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|
+| 2 | 6.077 (11.923, program-aged2-7); 24 aged in 24, longest 90,231 (0.902), issue/read-back / 6.380 (11.620, program-aged2-7); 24 aged in 24, longest 83,253 (0.833), issue/read-back | 6.776 (11.224, blank-aged2-7); 24 aged in 24, longest 89,359 (0.894), issue/read-back / 6.798 (11.202, blank-aged2-0); 24 aged in 24, longest 83,413 (0.834), issue/read-back | 0.335 (17.665, verify-aged2-4); 24 aged in 24, longest 85,164 (0.852), issue/read-back / 0.713 (17.287, verify-aged2-4); 24 aged in 24, longest 83,661 (0.837), issue/read-back | 2.318 (15.682, verify-aged2-7); 24 aged in 24, longest 85,683 (0.857), issue/read-back / 1.693 (16.307, verify-aged2-7); 24 aged in 24, longest 84,117 (0.841), issue/read-back |
+| 1 | 5.771 (12.229, blank-aged1-7); 0 aged in 24 / 7.218 (10.782, blank-aged1-5); 0 aged in 24 | - / - | 0.235 (17.765, verify-aged1-7); 14 aged in 24, longest 84,053 (0.841), issue/read-back / 0.674 (17.326, verify-aged1-7); 13 aged in 24, longest 83,311 (0.833), issue/read-back | - / - |
+
+Passes that carry the store's step, every group: count, the longest pass and the longest step, CPU cycles (ms), arm A / arm B:
+
+| 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---:|---:|---:|---:|
+| 30478: 128,083 (1.281); 96,212 (0.962) / 26876: 120,051 (1.201); 95,990 (0.960) | 19050: 113,084 (1.131); 96,078 (0.961) / 19050: 112,416 (1.124); 96,030 (0.960) | 40519: 130,212 (1.302); 95,999 (0.960) / 35688: 126,891 (1.269); 95,746 (0.957) | 25123: 125,743 (1.257); 95,873 (0.959) / 25120: 127,428 (1.274); 96,034 (0.960) |
+
+A window opened from idle still takes no aged step among its records at this head: its longest drain, from its opening to the end of the pass that releases its last record, is 17.559 ms (8x8/2if, arm A, `backlog-adp@program-2`), 2.441 ms short of the two ticks before its third centisecond.
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
-- **With the CPU on `sys` at 100 MHz** every row the CPU decides and every pass fits at both points, a save in progress, both links changing at once and every receive channel held at its refill rate through a whole save, with no pass empty or not, included, and a save's windows opened with the step's age at its limit, so an aged step among their records, included, with the least margin the 8x8 last SRP record's, 0.101 ms (17.899 ms, arm B, a save's verify window opened at the age limit) ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
+- **With the CPU on `sys` at 100 MHz** every row the CPU decides and every pass fits at both points, a save in progress, both links changing at once and every receive channel held at its refill rate through a whole save, with no pass empty or not, included, a save's windows opened with the step's age at its limit, so an aged step among their records, included, and every channel's burst composed under input that leaves no pass empty included, with the least margin the 8x8 last SRP record's, 0.235 ms (17.765 ms, arm A, a save's verify window opened one short of the age limit) ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
-- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,110 ms after it at 8x8/2if and 4,070 ms at 1x1 with no save in flight, and 22,150 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time; on the product's flash part at its datasheet maximum, 15,370 and 28,670 ms at 8x8/2if, 7,140 and 12,210 ms at 1x1 ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.274 ms, is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
-- **A change-notice retry** is taken only in a pass that took no input and dispatched no centisecond, or after an aged step (THE RETRY in `ctrl_loop.h`), so no pass of a burst holds one. A notice whose port answers is then built at its next retry where no input waits, inside its 20 ms bound. Behind a backlog it waits for the backlog, and under input that leaves no pass empty for the next aged step, so it can come later than 20 ms after its port answers (`aecp.h`).
-- **The margins at this head are the thinnest yet:** 0.101 ms on the 8x8 last SRP record (arm B) and 888 cycles on the share (the burst's heaviest pass, 1.991 ms). About 0.3 ms and 2,000 cycles of them went to the fetch L1's refills in this head's layout ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). A change that grows the hot code ahead of SRP's drain must measure them again.
+- **A save's progress** is bounded whatever the input: a step not run for more than two centiseconds is the next pass's alone, so a save advances at least one step every three ticks. A SET_NAME of the entity is durable at most 12,110 ms after it at 8x8/2if and 4,070 ms at 1x1 with no save in flight, and 22,150 ms and 6,070 ms when marked just after another's save in flight took its first record, on a flash with no busy time; on the product's flash part at its datasheet maximum, 15,370 and 28,670 ms at 8x8/2if, 7,140 and 12,210 ms at 1x1 ([above](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)). The contract's buckets bound the records' rate, and with every receive channel at its refill rate with its bursts the step is never held off to the limit (`save-held`, durable as fast as alone); the event sources are coalesced but not rated, and a grandmaster change as every pass starts holds every step to it (`save-starved`, `save-second`). Such input before a window can open it at the age limit, and it then takes one aged step among its records; a window opened from idle takes none, since its longest drain, 17.559 ms, is shorter than the two ticks before its third centisecond. #823's 0.5 s is the append-only design's writer's, through this same step; this image does not meet it.
+- **A change-notice retry** is taken only in a pass that took no input and dispatched no centisecond, after an aged step or an aged build, or, once held 4 ms past its time, in a pass of its own (THE RETRY in `ctrl_loop.h`), so no pass of a burst holds one, and a notice whose port answers is committed within 18 ms of the answer under any input, inside its 20 ms (`aecp.h`): 12.30 to 13.51 ms at both points under input that leaves no pass empty ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). Each notice owed ahead of it costs it its own round and the pass that sends it.
+- **SRP's MRPDU build is a pass class of its own** (THE TRANSMIT in `ctrl_loop.h`), taken only in a pass that took no record, at most one event and no centisecond, or once held past its age in a pass of its own, within `CTRL_LOOP_TX_MS`, 44 ms, so every participant's MRPDU is sent within the 200 ms JoinTime. A pass that dispatches a centisecond takes one record of a channel (THE TICK's cap).
+- **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
+- **The margins at this head:** 0.235 ms on the 8x8 last SRP record (arm A), and 9,580 cycles on the share (a pass that takes a record, 1.904 ms at 8x8/2if); every pass class sits at least 6,490 cycles, the data layout's measured swing, under the share at both points, at the head's layout and at the struct-ends layout ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
@@ -1819,36 +2043,38 @@ Each row's 8x8/2if measurement, with the CPU on `sys` at 100 MHz, is carried to 
 
 - **U** is the assigned derivation: four times the 8x8/2if figure, every cycle taken to grow with the streams.
 - **L** is the measured growth: the line through 1x1/1if (2 streams) and 8x8/2if (16), to 64.
-- **S** is the streams' own growth: the 8x8/2if figure plus the slope from 1x1/1if to 8x8/1if, which holds the interfaces at one. Its slope uses arm A at both ends, since the 8x8/1if point ran in arm A only: section 13's arm A 1x1/1if figures (the last AECP record's 10.32 ms), not the 1x1/1if column below, which is the worst of the arms. The 8x8/1if point is a labelled scratch arm, not on this branch.
+- **S** is the streams' own growth: the 8x8/2if figure plus the slope from 1x1/1if to 8x8/1if, which holds the interfaces at one. Its slope uses arm A at both ends, since the 8x8/1if point ran in arm A only: section 13's arm A 1x1/1if figures (the last AECP record's 10.01 ms), not the 1x1/1if column below, which is the worst of the arms. The 8x8/1if point is a labelled scratch arm, not on this branch.
 
-Worst of the arms measured at this head (2026-11-04, `5e2651d5`), over the four backlog windows, ms, over the bound in bold with the excess (estimates in the last three columns):
+Worst of the arms measured at this head (2026-11-05, the code head `65a56d02`), over the four backlog windows, ms, over the bound in bold with the excess (estimates in the last three columns):
 
 | Row | Bound, ms | 1x1/1if | 8x8/1if | 8x8/2if | U: 4 x 8x8/2if | L: the line, 1x1/1if to 8x8/2if | S: the streams alone |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| ACMP record, first | 20 | 0.79 | 1.16 | 1.32 | 5.3 | 3.1 | 2.6 |
-| ADP record, first | 20 | 0.83 | 1.21 | 1.36 | 5.4 | 3.2 | 2.7 |
-| MAAP record, first | 20 | 0.82 | 1.19 | 1.34 | 5.4 | 3.1 | 2.6 |
-| AECP record, first | 20 | 0.83 | 1.20 | 1.35 | 5.4 | 3.2 | 2.7 |
-| SRP record, first | 18 | 2.88 | 4.64 | 5.43 | **21.7** (+3.7) | 14.2 | 11.5 |
-| ACMP record, last | 20 | 5.32 | 7.43 | 8.54 | **34.1** (+14.1) | 19.6 | 15.8 |
-| ADP record, last | 20 | 3.77 | 5.19 | 6.07 | **24.3** (+4.3) | 14.0 | 10.9 |
-| MAAP record, last | 20 | 3.81 | 5.23 | 6.11 | **24.4** (+4.4) | 14.0 | 11.0 |
-| AECP record, last | 20 | 10.64 | 13.52 | 15.92 | **63.7** (+43.7) | **34.0** (+14.0) | **26.9** (+6.9) |
-| SRP record, last | 18 | 10.64 | 14.47 | 16.81 | **67.2** (+49.2) | **38.0** (+20.0) | **29.9** (+11.9) |
-| An ACMP command behind a full ACMP ring | 20 | 3.57 | 5.74 | 6.68 | **26.7** (+6.7) | 17.4 | 14.2 |
-| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.88 | 3.83 | 4.64 | 18.6 | 10.7 | 7.9 |
-| An event behind 15 others | 20 | 0.94 | 1.31 | 1.47 | 5.9 | 3.3 | 2.8 |
-| The longest work pass | 2 | 1.12 | 1.55 | 1.99 | **8.0** (+6.0) | **5.0** (+3.0) | **3.5** (+1.5) |
+| ACMP record, first | 20 | 0.82 | 1.18 | 1.35 | 5.4 | 3.1 | 2.6 |
+| ADP record, first | 20 | 0.86 | 1.22 | 1.39 | 5.6 | 3.2 | 2.6 |
+| MAAP record, first | 20 | 0.84 | 1.21 | 1.37 | 5.5 | 3.2 | 2.6 |
+| AECP record, first | 20 | 0.86 | 1.22 | 1.38 | 5.5 | 3.2 | 2.6 |
+| SRP record, first | 18 | 3.05 | 4.76 | 5.49 | **21.9** (+3.9) | 13.8 | 11.4 |
+| ACMP record, last | 20 | 5.19 | 7.81 | 8.90 | **35.6** (+15.6) | **21.6** (+1.6) | 18.0 |
+| ADP record, last | 20 | 3.70 | 5.66 | 6.77 | **27.1** (+7.1) | 17.3 | 13.6 |
+| MAAP record, last | 20 | 3.74 | 4.89 | 5.49 | **21.9** (+1.9) | 11.5 | 9.8 |
+| AECP record, last | 20 | 10.27 | 13.17 | 15.28 | **61.1** (+41.1) | **32.5** (+12.5) | **26.1** (+6.1) |
+| SRP record, last | 18 | 10.81 | 14.93 | 16.45 | **65.8** (+47.8) | **35.8** (+17.8) | **30.6** (+12.6) |
+| An ACMP command behind a full ACMP ring | 20 | 3.78 | 5.88 | 7.11 | **28.4** (+8.4) | 18.5 | 14.3 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.94 | 3.82 | 5.49 | **22.0** (+2.0) | 14.2 | 8.5 |
+| An event behind 15 others | 20 | 0.97 | 1.33 | 1.51 | 6.0 | 3.4 | 2.8 |
+| The longest work pass | 2 | 1.14 | 1.59 | 1.85 | **7.4** (+5.4) | **4.3** (+2.3) | **3.4** (+1.4) |
 
 The rows that would not fit, and by how much:
 
-- **AECP record, last, under S, L and U:** over by 6.9, 14.0 and 43.7 ms.
-- **SRP record, last, under S, L and U:** over by 11.9, 20.0 and 49.2 ms.
-- **The longest work pass, under S, L and U:** 3.5, 5.0 and 8.0 ms, over the 2.0 ms share by 1.5, 3.0 and 6.0 ms.
-- **Under U alone:** SRP record, first by 3.7 ms, ACMP record, last by 14.1 ms, ADP record, last by 4.3 ms, MAAP record, last by 4.4 ms, an ACMP command behind a full ACMP ring by 6.7 ms.
+- **AECP record, last, under S, L and U:** over by 6.1, 12.5 and 41.1 ms.
+- **SRP record, last, under S, L and U:** over by 12.6, 17.8 and 47.8 ms.
+- **The longest work pass, under S, L and U:** 3.4, 4.3 and 7.4 ms, over the 2.0 ms share by 1.4, 2.3 and 5.4 ms.
+- **ACMP record, last, under L and U:** over by 1.6 and 15.6 ms.
+- **Under U alone:** SRP record, first by 3.9 ms, ADP record, last by 7.1 ms, MAAP record, last by 1.9 ms, an ACMP command behind a full ACMP ring by 8.4 ms, an ENTITY_AVAILABLE behind a full ADP ring by 2.0 ms.
 
-So the last AECP and SRP records and the per-pass share miss whichever way the growth is read, and the rest of U's misses depend on how much of each row grows with the streams.
-The last SRP record waits for its channel's 32 records at two a pass, so its row is about sixteen passes, and every pass carries the polls' per-stream cost: an idle pass takes 8,253 CPU cycles at 1x1/1if and 16,310 at 8x8/2if, where the loop calls THE RETRY's client in every pass that takes nothing (7,657 and 15,535 at `a3f23bba`, 7,811 and 15,574 at `4f58214f`, 6,410 and 14,832 before the loop read the store's clock each pass, THE STEP).
+So the last AECP and SRP records and the per-pass share miss whichever way the growth is read, the last ACMP record under two of the three readings, and the rest of U's misses depend on how much of each row grows with the streams.
+Against `5e2651d5`'s estimate the longest pass is lower (1.85 ms at 8x8/2if against 1.99) and the other channels' last records are later (ACMP 8.90 ms against 8.54, ADP 6.77 against 6.07): THE TICK's cap gives a pass that dispatches a centisecond one record of a channel ([section 13](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), so those records wait a pass more for each such pass.
+The last SRP record waits for its channel's 32 records at two a pass, so its row is about sixteen passes, and every pass carries the polls' per-stream cost: an idle pass takes about 8,700 CPU cycles at 1x1/1if and 15,400 at 8x8/2if, where the loop calls THE TRANSMIT's and THE RETRY's clients in every pass that takes nothing (the commonest shortest pass of the four backlog windows' idle runs, arm A).
 The derivation has limits a measurement would not: 8x8/2if already holds its streams per interface, so a 32x32 interface holds twice its streams where the entity holds four times, which makes U an upper reading for the per-interface work (SRP); nothing here knows the cost of 64-stream tables that were never linked, and the Block RAM they need binds first ([the area plan](MARK_II_AREA_PLAN.md)).
 
 ### One CPU, measured
@@ -1904,10 +2130,10 @@ What that adds, from the same units (2026-11-02; the round before gave 1.6 ms on
 | To a row, bound | 20 | 8.0 (4.0 to 20.0) | Bound | All that can fall in one 18 ms: on each port one Sync, its Follow_Up and the servo run they start (Sync is 125 ms), one Announce, and one Pdelay exchange each way, three frames each (Pdelay is 1 s) |
 | To a pass, bound | 4 | 1.6 (0.8 to 4.0) | Bound | Two records a channel a pass (`CTRL_LOOP_RX_PER_PASS`), each a Follow_Up starting its servo run |
 
-At 8x8/2if the last SRP record takes 17.90 ms against 18 at its worst, in a save's verify window opened at the age limit, arm B ([section 13](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)): the mean, 0.45 ms, puts it 0.35 ms over, and the bottom of its range, 0.22 ms, 0.12 ms over; the top, 62 x 0.018 x 1.0 ms = 1.116 ms, puts it 1.02 ms over, and the bound 7.90 ms over. At `a3f23bba`, 17.23 ms in a window opened from idle, the mean left 0.32 ms.
-The longest pass, 1.99 ms, takes 3.59 ms under the pass's bound, 1.59 ms over the 2.0 ms share; so gPTP's records, when F6 links them, need their own room in the pass, which these figures do not give them.
-So the sustained share is small, and the bursts are what it touches: the longest 32x32 pass becomes 5.1 ms under S and 9.6 ms under U.
-A Pdelay response waits for the pass running when its request arrives, then its own, and Milan v1.2 4.2.6.2.6 allows 15 ms of turnaround: 10.2 ms under S fits, 19.1 ms under U does not.
+At 8x8/2if the last SRP record takes 17.77 ms against 18 at its worst, in a save's verify window opened one short of the age limit, arm A ([section 13](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)): the mean, 0.45 ms, puts it 0.21 ms over, and the bottom of its range, 0.22 ms, leaves it 0.01 ms under; the top, 62 x 0.018 x 1.0 ms = 1.116 ms, puts it 0.88 ms over, and the bound 7.77 ms over. At `5e2651d5`, 17.90 ms, the mean put it 0.35 ms over.
+The longest pass, 1.90 ms, takes 3.50 ms under the pass's bound, 1.50 ms over the 2.0 ms share; so gPTP's records, when F6 links them, need their own room in the pass, which these figures do not give them.
+So the sustained share is small, and the bursts are what it touches: the longest 32x32 pass becomes 5.0 ms under S and 9.0 ms under U.
+A Pdelay response waits for the pass running when its request arrives, then its own, and Milan v1.2 4.2.6.2.6 allows 15 ms of turnaround: 10.0 ms under S fits, 18.0 ms under U does not.
 
 **What would measure it:** F6's stack linked into this harness's image behind the HAL, the mailbox channel it takes in the contract, and a stimulus of these frames on both ports at their intervals, graded here for each frame's cost, the servo's, the pass and the Pdelay turnaround, at 8x8/2if first and at 32x32 when that shape exists.
 
