@@ -1,0 +1,6 @@
+ax7101_1x1_tdm8  all        T base=  8789 head= 16957 (1.93x)  P base=  65170 head= 246869 (3.79x)  C9 base=1.44271 ms  C16 head=5.18181 ms
+ax7101_8x8       all        T base=  8793 head= 16963 (1.93x)  P base=  65294 head= 247411 (3.79x)  C9 base=1.44431 ms  C16 head=5.18819 ms
+ax7101_1x1_tdm8  uart-paced T base= 12451 head= 22559 (1.81x)  P base=  65170 head= 246869 (3.79x)  C9 base=1.77229 ms  C16 head=6.07813 ms
+8x8 duty+UART from the page 118.58473 ms; charge must stay <= 6.41527 ms
+  head charge from the 'all' plan P/T: 5.18819 ms -> reserve 1.22708 ms
+  scaled as the page's plans exceeded the base 'all' plan (P x1.277, T x1.417): 7.00426 ms -> reserve -0.58899 ms

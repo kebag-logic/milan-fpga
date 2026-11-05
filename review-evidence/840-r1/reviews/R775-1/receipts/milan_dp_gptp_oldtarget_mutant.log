@@ -1,0 +1,109 @@
+verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 16 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GCLKV_QTICK_CYC_P=131072 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -CFLAGS "-DPP_MS_CYC_TB=100 -DCLKV_QTICK_CYC_TB=131072 -Wall -Wextra" --Mdir obj_gptp \
+  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+  ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_gptp.cpp -o Vmilan_dp_gptp
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DPP_MS_CYC_TB=100 -DCLKV_QTICK_CYC_TB=131072 -Wall -Wextra   -Os  -c -o sim_gptp.o ../sim_gptp.cpp
+g++    sim_gptp.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_gptp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.964 s (elab=0.000, cvt=0.000, bld=1.962); cpu 0.002 s on 16 threads; allocated 16.637 MB
+./obj_gptp/Vmilan_dp_gptp
+FAIL GET_AVB_INFO response length   got 0000000000000000 exp 000000000000003e
+FAIL GET_AVB_INFO SUCCESS           got ffffffffffffffff exp 0000000000000000
+FAIL GET_AVB_INFO cdl               got 0000000000000000 exp 0000000000000024
+FAIL GET_AVB_INFO descriptor        got 0000000000000000 exp 0000000000090000
+FAIL GET_AVB_INFO nonzero GM        got 0000000000000000 exp 00aaccfffe010203
+FAIL GET_AVB_INFO byte-exact negative-delay clamp got 00000000ffffffff exp 0000000000000000
+FAIL GET_AVB_INFO domain/flags/map  got 0000000000000000 exp 0000000000170001
+FAIL GET_AVB_INFO exact class mapping got 0000000000000000 exp 0000000006030002
+FAIL GET_AS_PATH full-tail wire length got 0000000000000000 exp 0000000000000052
+FAIL GET_AS_PATH SUCCESS            got ffffffffffffffff exp 0000000000000000
+FAIL GET_AS_PATH cdl                got 0000000000000000 exp 0000000000000038
+FAIL GET_AS_PATH count five         got 0000000000000000 exp 0000000000000005
+FAIL GET_AS_PATH ordered GM         got 0000000000000000 exp 00aaccfffe010203
+FAIL GET_AS_PATH ordered bridge one got 0000000000000000 exp 001122fffe000011
+FAIL GET_AS_PATH ordered bridge two got 0000000000000000 exp 001122fffe000022
+FAIL GET_AS_PATH ordered parent     got 0000000000000000 exp 0080e1fffe112233
+FAIL GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL REGISTER_UNSOLICITED_NOTIFICATION SUCCESS got ffffffffffffffff exp 0000000000000000
+FAIL retired writes leave AVB counters unchanged got 0000000000000000 exp 0000000000000001
+FAIL retired writes leave CLOCK counters unchanged got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN emits first AVB GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL first AVB limiter window contains one push got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN increments AVB counter got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL LINK_UP event is inside first one-second limiter window got 0000000000000000 exp 0000000000000001
+FAIL within-window LINK_UP push is suppressed got 0000000000000000 exp 0000000000000001
+FAIL pending LINK_UP releases when AVB limiter opens got 0000000000000000 exp 0000000000000001
+FAIL pending LINK_UP releases exactly one second push got 0000000000000000 exp 0000000000000002
+FAIL released LINK_UP increments AVB counter got 0000000000000000 exp 0000000000000001
+FAIL released state retains one LINK_DOWN got 0000000000000000 exp 0000000000000001
+FAIL released LINK_UP push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL pre-Sync CLOCK_DOMAIN counters SUCCESS got ffffffffffffffff exp 0000000000000000
+FAIL CLOCK_DOMAIN counters_valid    got 00000000deadbeef exp 0000000000000003
+FAIL CLKV lock emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL fabric lock increments CLOCK_DOMAIN.LOCKED got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL tail-only refresh emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL tail-only refresh reaches solicited path got 0000000000000000 exp 445566fffe000033
+FAIL changed push body equals current solicited path got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GET_AS_PATH serves the kept path B got 0000000000000000 exp 0000000000000001
+FAIL AVB_INTERFACE counters_valid   got 00000000deadbeef exp 0000000000000023
+FAIL TLV-less better Announce changes scalar GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+FAIL TLV-less GM switch keeps the path count got 0000000000000001 exp 0000000000000005
+FAIL TLV-less GM switch spends no path generation got 0000000000000006 exp 0000000000000005
+FAIL GM switch reaches AVB counter descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CLOCK_DOMAIN descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM switch emits one AVB_INTERFACE GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records fabric GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED got 0000000000000000 exp 0000000000000001
+FAIL AVB counter push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still emits one GET_AVB_INFO push got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still increments GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000000 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 0000000000000000 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL kept to explicit GM advances generation once got 0000000000000007 exp 0000000000000006
+FAIL kept to explicit GM emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL explicit one-entry GET_AS_PATH minimum-Ethernet wire length got 0000000000000000 exp 000000000000003c
+FAIL explicit one-entry GET_AS_PATH cdl got 0000000000000000 exp 0000000000000020
+FAIL explicit one-entry GET_AS_PATH count got 0000000000000000 exp 0000000000000002
+FAIL explicit one-entry GET_AS_PATH head got 0000000000000000 exp 00aaccfffe010204
+FAIL explicit one-entry GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL in-flight fabric response reached first-count snapshot got 0000000000000000 exp 0000000000000001
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old count two got 0000000000000000 exp 0000000000000002
+FAIL in-flight response remains wholly old GM got 0000000000000000 exp 00aaccfffe010204
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL explicit GM to empty path emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL post-cut response is wholly new count one got 00000000ffffffff exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL empty-path push body equals post-cut solicited response got 0000000000000000 exp 0000000000000001
+FAIL maximum path emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL maximum GET_AS_PATH wire length got 0000000000000000 exp 000000000000006a
+FAIL maximum GET_AS_PATH cdl        got 0000000000000000 exp 0000000000000050
+FAIL maximum GET_AS_PATH count      got 0000000000000000 exp 0000000000000008
+FAIL maximum GET_AS_PATH final identity got 0000000000000000 exp 0080e1fffe112233
+FAIL maximum push body equals solicited path got 0000000000000000 exp 0000000000000001
+[#207] full-queue window: level 1, rp 2->2, wp 3->3
+[T-LAT] ingress: boundary PHC 3325584 ns (cycle 27683081), t2 3325584 ns, gap 0 ns = 0 cycles (pinned digital 0 ns + configured 0 ns)
+[T-LAT] egress: observed launch 3328908 ns, t3 3328908 ns, gap 0 ns = 0 cycles (configured 0 ns)
+FAIL #88 path headed elsewhere keeps the scalar GM got 02a1b2fffe010204 exp 00aaccfffe010204
+FAIL #88 GET_AS_PATH count three    got 0000000000000000 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 0000000000000000 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000000 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 0000000000000000 exp 001122fffe000022
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+TX flags Sync: 92 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 92 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 32 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+210 checks: 121 PASS, 89 FAIL
+make: *** [Makefile:467: exec-gptp] Error 1

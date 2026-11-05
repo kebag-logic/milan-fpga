@@ -1,0 +1,65 @@
+USING RUNNER: behave.runner:Runner
+@aecp @matrix:AECP-3
+Feature: the AECP answer contract - served commands, fallback, and two silent cases # features/aecp_response_contract.feature:5
+  IEEE 1722.1-2021 9.3.5.3.3: "Any command that is received and not
+  implemented shall be responded to with a correctly sized response and a
+  status of NOT_IMPLEMENTED." NOT_IMPLEMENTED is an ANSWER, not silence, and
+  a correctly sized one - so an unimplemented opcode has to produce a
+  well-formed AECPDU, never a dropped frame and never a malformed one. The
+  protocol-processor's AECP engine satisfies that fallback for unsupported
+  opcodes and message types by copying the command payload into the response
+  buffer before the microprogram runs and emitting the command's own length
+  back. Served opcodes use their command-specific microprograms instead, and
+  so does the one served Milan Vendor Unique command, GET_MILAN_INFO.
+  ONE OPCODE IS NOT NOT_IMPLEMENTED. IEEE 7.4.39.2 is opcode-specific:
+  "IDENTIFY_NOTIFICATION is only ever sent as an unsolicited response ... If
+  an ATDECC Entity ever receives this as a command then it shall return a
+  response with the status code BAD_ARGUMENTS." An opcode-specific rule
+  governs over 9.3.5.3.3's fallback, so 0x0026 answers BAD_ARGUMENTS. This
+  was settled once already against a reading that made it NOT_IMPLEMENTED;
+  the scenario below is the standing oracle so it is not re-litigated.
+  TWO THINGS GET SILENCE, AND ONLY TWO. A command whose target_entity_id is
+  not ours is dropped on the F06.2 MATCHED arc. An AECP RESPONSE arriving as
+  input is freed without a reply, because this entity originates no AECP
+  command and answering a response is how a control plane builds a storm.
+  Both are COUNTED, not lost, and the scenarios below assert that NO frame is
+  produced - not that some status came back.
+  NOTE ON THE DECODE. The dispatch arms read the 14-bit command_type field at
+  AECPDU octets 22 and 23 without consulting the protocol, so a VENDOR_UNIQUE
+  command whose protocol_id began 0x00 0x04 would land on the READ_DESCRIPTOR
+  microprogram. Milan's protocol_id is 00-1B-C5-0A-C1-00 and does not, which
+  is why this is a note and not a scenario.
+  WHAT IS DELIBERATELY NOT HERE. This feature does not restore the D1 index
+  coverage and D2 non-success size cases the file of this name carried before
+  2026-08-12. Those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
+  per-command response-size table. GET_STREAM_INFO is served now, and those
+  exact response cases are graded by the processor and milan_dp RTL suites.
+  Nor does this feature cover ENTITY_AVAILABLE, CONTROLLER_AVAILABLE,
+  LOCK_ENTITY or the unsolicited registry. It does not duplicate other
+  served-command behavior, including GET_COUNTERS. Those paths are covered by
+  their command-specific BDD features and RTL suites.
+  CONTROLLER_AVAILABLE (0x0003) is TRANSMIT-ONLY here and never becomes a
+  SERVED row: the device ORIGINATES it toward a registered controller whose
+  monitor expired (Milan 5.4.5.3, since 0x0002_0055) and consumes any
+  response status as liveness, while an inbound CONTROLLER_AVAILABLE command
+  still draws the NOT_IMPLEMENTED echo this feature grades. Do not read the
+  echo as a gap in the monitor: the originated probe, its single retry and the
+  targeted deregistration are graded by the timed milan_dp leg and by the
+  processor's tb/ca_originator.
+  This is an OFFLINE model (tests/README.md T1); tests/steps/aecp_engine_steps.py
+  lists the submodule sources it mirrors.
+  @aecp @matrix:AECP-3
+  Feature: the AECP answer contract - served commands, fallback, and two silent cases  # features/aecp_response_contract.feature:5
+
+  @class:positive
+  Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification     # features/aecp_response_contract.feature:150
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                        # steps/aecp_engine_steps.py:315
+    When the controller sends Milan MVU command_type 0x0000 in its Figure 5.3 form to the AECP engine # steps/aecp_engine_steps.py:396
+    Then the GET_MILAN_INFO protocol_version is 1                                                     # steps/aecp_engine_steps.py:885
+    And the GET_MILAN_INFO features_flags is 0x00000000                                               # steps/aecp_engine_steps.py:885
+    And the GET_MILAN_INFO certification_version is 0x00000000                                        # steps/aecp_engine_steps.py:885
+
+1 feature passed, 0 failed, 0 skipped
+1 scenario passed, 0 failed, 58 skipped
+5 steps passed, 0 failed, 430 skipped
+Took 0min 0.000s
