@@ -1,0 +1,7 @@
+$ python3 -B tb/verilator/ctrl_service_hooks/hooks_selftest.py
+Traceback (most recent call last):
+  File "<checkout>/tb/verilator/ctrl_service_hooks/hooks_selftest.py", line 34, in <module>
+    HOOK_ROW = run.hook_row
+               ^^^^^^^^^^^^
+AttributeError: module 'run' has no attribute 'hook_row'
+rc=1

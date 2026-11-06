@@ -1,0 +1,59 @@
+PASS bounds pinned
+PASS an 18 to 20 ms SRP path misses
+PASS the exact bound fits and W adds
+PASS the hooks map
+PASS the clock labels
+PASS the plants apply
+PASS the testbench additions apply
+PASS own lines are split off
+PASS H-ADP ordering
+PASS H-DISC ordering
+PASS H-ACMP ordering
+PASS H-AECP ordering
+PASS H-NOTIFY ordering
+PASS H-COUNTERS spacing
+PASS the held push
+PASS H-MAAP ordering
+PASS H-SRP ordering
+PASS findings by hook
+PASS a fit under the layout swing is a finding
+PASS a refusal is superseded only by its own path
+PASS the aging window opens after the arm
+PASS a composed row opens on full buckets
+MUTANT bound: a stale T_svc of 10 ms: caught by bounds pinned
+MUTANT bound: SRP graded against T_svc alone: caught by an 18 to 20 ms SRP path misses
+MUTANT bound: the ceiling alone: caught by bounds pinned
+MUTANT bound: the normative wait is not added: caught by the exact bound fits and W adds
+MUTANT bound: the margin is not recorded: caught by the exact bound fits and W adds
+MUTANT map: the counter push is a notification: caught by the hooks map
+MUTANT map: no composed row of this harness is loaded: caught by the hooks map
+MUTANT label: the Milan clock labelled the product's (the earlier rule): caught by the clock labels
+MUTANT label: the Milan clock the default (the earlier rule): caught by the clock labels
+MUTANT split: the counter change is no pad: caught by own lines are split off
+MUTANT H-ADP: the grandmaster is not checked: caught by H-ADP ordering
+MUTANT H-DISC: the sink's PROBE_TX_COMMAND is never recognised: caught by H-DISC ordering
+MUTANT H-DISC: the window never ends (the earlier rule ended it at the next tagged record): caught by H-DISC ordering
+MUTANT H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule): caught by H-DISC ordering
+MUTANT H-ACMP: no response is matched to its command: caught by H-ACMP ordering
+MUTANT H-AECP: no face commit is recognised: caught by H-AECP ordering
+MUTANT H-NOTIFY: the notification is not found: caught by H-NOTIFY ordering
+MUTANT H-COUNTERS: spacing of 0.1 s accepted: caught by H-COUNTERS spacing
+MUTANT H-COUNTERS: the held push from its change: caught by the held push
+MUTANT H-MAAP: no allocation report is recognised: caught by H-MAAP ordering
+MUTANT H-MAAP: every AAF_CTRL store is a report (earlier rule): caught by H-MAAP ordering
+MUTANT H-SRP: the ADOPTED bit is never seen set: caught by H-SRP ordering
+MUTANT plants: a plant edits nothing: caught by the plants apply
+MUTANT supersede: any later group supersedes a refusal: caught by a refusal is superseded only by its own path
+MUTANT aging: the window opens before the arm (the earlier rule): caught by the aging window opens after the arm
+MUTANT aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule): caught by the aging window opens after the arm
+MUTANT aging: both sinks bound before either is answered (the earlier rule): caught by the aging window opens after the arm
+MUTANT buckets: the window opens right after the registrations (the earlier rule): caught by a composed row opens on full buckets
+MUTANT findings: a path over its bound is not a finding: caught by findings by hook
+MUTANT narrow: the layout swing is not applied: caught by a fit under the layout swing is a finding
+MUTANT narrow: the slack counted at the 50 MHz CPU (the earlier clock): caught by a fit under the layout swing is a finding
+ctrl_service_hooks self-test: 22 of 22 checks pass; 31 of 31 mutants caught
+
+real	0m0.340s
+user	0m0.287s
+sys	0m0.051s
+rc=0

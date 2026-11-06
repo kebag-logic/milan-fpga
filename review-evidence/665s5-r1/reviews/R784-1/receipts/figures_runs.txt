@@ -1,0 +1,52 @@
+== 1x1-idle: clock='CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz' cpu_hz=100000000 sys_hz=100000000 T_svc=20.0 paths=145 refusals=0 superseded=0 findings=28 LATE=28 NARROW=0 ORDER=0
+  H-ADP       paths= 28 misses= 1 alone=(0.63, 'adp.tmr_advertise.if0', True) loaded=(29.4, 'backlog-adp.service.adp.last.if0', False) applied=2 undecided=0 ord=0
+  H-DISC      paths=  8 misses= 1 alone=(8.4, 'acmp.entity_departing.if0', True) loaded=(24.78, 'backlog.adp_available.if0', False) applied=1 undecided=0 ord=0
+  H-ACMP      paths= 30 misses=11 alone=(8.16, 'acmp.probe_tx.if0', True) loaded=('never', 'backlog.owed_behind0.if0', False) applied=65 undecided=0 ord=0
+  H-AECP      paths= 36 misses= 5 alone=(1.89, 'aecp.set_name.if0', True) loaded=(159.48, 'backlog-adp-refill.service.aecp.last.if0', False) applied=7 undecided=0 ord=0
+  H-NOTIFY    paths= 11 misses= 1 alone=(3.78, 'aecp_fanout.set_name.if0', True) loaded=(59.38, 'hooks-load-notify.set_name.if0', False) applied=11 undecided=0 ord=0
+  H-COUNTERS  paths=  0 misses= 0 alone=None loaded=None applied=0 undecided=0 ord=0
+  H-MAAP      paths= 17 misses= 2 alone=(1.01, 'maap.announce.if0', True) loaded=(29.43, 'backlog-adp.service.maap.last.if0', False) applied=44 undecided=0 ord=0
+  H-SRP       paths= 15 misses= 7 alone=(1.81, 'srp.startup.if0', True) loaded=('never', 'backlog-adp-refill.service.srp.first.if0', False) applied=1 undecided=0 ord=0
+  AECP loaded .last range 48.47223 159.47908
+  ACMP owed rows [('backlog.owed.if0', 77.83654, False), ('backlog.owed_behind0.if0', 363.30711, True), ('backlog.owed_behind1.if0', 363.30636, True), ('backlog.owed_behind2.if0', 363.30561, True), ('backlog.owed_behind3.if0', 363.30486, True), ('backlog-owed.service.acmp.first.if0', 4.4354, False), ('backlog-owed.service.acmp.last.if0', 24.54209, False)]
+  SRP never served [('backlog-adp.service.srp.first.if0', 'backlog-adp', 524.82034), ('backlog-adp.service.srp.last.if0', 'backlog-adp', 524.80019), ('backlog-adp-refill.service.srp.first.if0', 'backlog-adp-refill', 548.78893), ('backlog-adp-refill.service.srp.last.if0', 'backlog-adp-refill', 548.76878)]
+  COUNTERS []
+== 1x1-ans: clock='CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz' cpu_hz=100000000 sys_hz=100000000 T_svc=20.0 paths=159 refusals=0 superseded=0 findings=29 LATE=29 NARROW=0 ORDER=0
+  H-ADP       paths= 30 misses= 1 alone=(0.63, 'adp.tmr_advertise.if0', True) loaded=(21.26, 'hooks-load-counters.service.adp.last.if0', False) applied=2 undecided=0 ord=0
+  H-DISC      paths=  8 misses= 0 alone=(0.81, 'acmp.tmr_no_adp.if0', True) loaded=(14.03, 'backlog.adp_available.if0', True) applied=1 undecided=0 ord=0
+  H-ACMP      paths= 32 misses=12 alone=(0.87, 'acmp.tmr_delay.if0', True) loaded=('never', 'backlog.owed_behind0.if0', False) applied=76 undecided=0 ord=0
+  H-AECP      paths= 38 misses= 6 alone=(1.88, 'aecp.get_counters.if0', True) loaded=(85.82, 'backlog-owed.service.aecp.last.if0', False) applied=7 undecided=0 ord=0
+  H-NOTIFY    paths= 11 misses= 1 alone=(3.78, 'aecp_fanout.set_name.if0', True) loaded=(59.38, 'hooks-load-notify.set_name.if0', False) applied=11 undecided=0 ord=0
+  H-COUNTERS  paths=  4 misses= 2 alone=(27.58, 'counters.all.if0', False) loaded=(20.76, 'counters.loaded.if0', False) applied=16 undecided=0 ord=0
+  H-MAAP      paths= 19 misses= 1 alone=(1.01, 'maap.announce.if0', True) loaded=(21.25, 'hooks-load-counters.service.maap.last.if0', False) applied=48 undecided=0 ord=0
+  H-SRP       paths= 17 misses= 6 alone=(1.81, 'srp.startup.if0', True) loaded=(68.05, 'hooks-load-counters.service.srp.last.if0', False) applied=1 undecided=0 ord=0
+  AECP loaded .last range 48.47223 85.81826
+  ACMP owed rows [('backlog.owed.if0', 77.83654, False), ('backlog.owed_behind0.if0', 363.30711, True), ('backlog.owed_behind1.if0', 363.30636, True), ('backlog.owed_behind2.if0', 363.30561, True), ('backlog.owed_behind3.if0', 363.30486, True), ('backlog-owed.service.acmp.first.if0', 4.4354, False), ('backlog-owed.service.acmp.last.if0', 24.54209, False)]
+  SRP never served []
+  COUNTERS [('counters.loaded.if0', 20.76085, 2076085, 0.0), ('counters.first.if0', 5.63826, 563826, 0.0), ('counters.all.if0', 27.58074, 2758074, 0.0), ('counters.held.if0', 5.18508, 518508, 896.25822)]
+== 8x8-idle: clock='CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz' cpu_hz=100000000 sys_hz=100000000 T_svc=20.0 paths=207 refusals=0 superseded=0 findings=38 LATE=38 NARROW=0 ORDER=0
+  H-ADP       paths= 44 misses= 5 alone=(3.37, 'adp.link_down.if1', True) loaded=(44.15, 'backlog-adp.service.adp.last.if0', False) applied=4 undecided=0 ord=0
+  H-DISC      paths= 13 misses= 2 alone=(15.93, 'acmp.entity_available.if1', True) loaded=(37.32, 'backlog.adp_available.if0', False) applied=2 undecided=0 ord=0
+  H-ACMP      paths= 43 misses=11 alone=(15.99, 'acmp.unbind_rx.if1', True) loaded=('never', 'backlog.owed_behind0.if0', False) applied=68 undecided=0 ord=0
+  H-AECP      paths= 50 misses= 5 alone=(2.4, 'aecp.set_name.if0', True) loaded=(205.2, 'backlog-adp-refill.service.aecp.last.if1', False) applied=14 undecided=0 ord=0
+  H-NOTIFY    paths= 15 misses= 1 alone=(6.85, 'aecp_fanout.set_name.if0', True) loaded=(84.07, 'hooks-load-notify.set_name.if0', False) applied=15 undecided=0 ord=0
+  H-COUNTERS  paths=  0 misses= 0 alone=None loaded=None applied=0 undecided=0 ord=0
+  H-MAAP      paths= 23 misses= 5 alone=(1.76, 'maap.announce.if1', True) loaded=(44.19, 'backlog-adp.service.maap.last.if0', False) applied=44 undecided=0 ord=0
+  H-SRP       paths= 19 misses= 9 alone=(4.04, 'srp.startup.if1', True) loaded=('never', 'backlog-adp-refill.service.srp.first.if0', False) applied=2 undecided=0 ord=0
+  AECP loaded .last range 79.58439 205.20283
+  ACMP owed rows [('backlog.owed.if0', 90.26153, False), ('backlog.owed_behind0.if0', 363.39967, True), ('backlog.owed_behind1.if0', 363.39892, True), ('backlog.owed_behind2.if0', 363.39817, True), ('backlog.owed_behind3.if0', 363.39742, True), ('backlog-owed.service.acmp.first.if0', 6.53303, False), ('backlog-owed.service.acmp.last.if0', 36.44574, False)]
+  SRP never served [('backlog-adp.service.srp.first.if0', 'backlog-adp', 537.35182), ('backlog-adp.service.srp.last.if1', 'backlog-adp', 537.33167), ('backlog-adp-refill.service.srp.first.if0', 'backlog-adp-refill', 567.49684), ('backlog-adp-refill.service.srp.last.if1', 'backlog-adp-refill', 567.47669)]
+  COUNTERS []
+== 8x8-ans: clock='CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz' cpu_hz=100000000 sys_hz=100000000 T_svc=20.0 paths=221 refusals=0 superseded=0 findings=42 LATE=42 NARROW=0 ORDER=0
+  H-ADP       paths= 46 misses= 5 alone=(3.37, 'adp.link_down.if1', True) loaded=(31.5, 'backlog.service.adp.last.if1', False) applied=4 undecided=0 ord=0
+  H-DISC      paths= 13 misses= 1 alone=(1.34, 'acmp.tmr_no_adp.if1', True) loaded=(21.79, 'backlog.adp_available.if0', False) applied=1 undecided=1 ord=0
+  H-ACMP      paths= 45 misses=12 alone=(1.64, 'acmp.tmr_no_resp1.if1', True) loaded=('never', 'backlog.owed_behind0.if0', False) applied=79 undecided=0 ord=0
+  H-AECP      paths= 52 misses= 6 alone=(2.4, 'aecp.set_name.if0', True) loaded=(102.26, 'backlog-owed.service.aecp.last.if1', False) applied=14 undecided=0 ord=0
+  H-NOTIFY    paths= 15 misses= 1 alone=(6.85, 'aecp_fanout.set_name.if0', True) loaded=(84.07, 'hooks-load-notify.set_name.if0', False) applied=15 undecided=0 ord=0
+  H-COUNTERS  paths=  4 misses= 2 alone=(218.71, 'counters.all.if0', False) loaded=(36.62, 'counters.loaded.if0', False) applied=32 undecided=0 ord=0
+  H-MAAP      paths= 25 misses= 6 alone=(1.76, 'maap.announce.if1', True) loaded=(31.48, 'backlog.service.maap.last.if0', False) applied=48 undecided=0 ord=0
+  H-SRP       paths= 21 misses= 9 alone=(4.04, 'srp.startup.if1', True) loaded=(102.31, 'hooks-load-counters.service.srp.last.if1', False) applied=2 undecided=0 ord=0
+  AECP loaded .last range 79.58439 102.26351
+  ACMP owed rows [('backlog.owed.if0', 90.26153, False), ('backlog.owed_behind0.if0', 363.39967, True), ('backlog.owed_behind1.if0', 363.39892, True), ('backlog.owed_behind2.if0', 363.39817, True), ('backlog.owed_behind3.if0', 363.39742, True), ('backlog-owed.service.acmp.first.if0', 6.53303, False), ('backlog-owed.service.acmp.last.if0', 36.44574, False)]
+  SRP never served []
+  COUNTERS [('counters.loaded.if0', 36.6234, 3662340, 0.0), ('counters.first.if0', 10.16443, 1016443, 0.0), ('counters.all.if0', 218.71183, 21871183, 0.0), ('counters.held.if0', 9.93084, 993084, 880.00227)]

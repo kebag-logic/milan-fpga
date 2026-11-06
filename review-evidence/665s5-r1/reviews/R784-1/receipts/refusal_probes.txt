@@ -1,0 +1,12 @@
+$ run.py --point 1x1
+REFUSED: --build-dir and --point (or --plant) are required
+rc=2
+$ run.py --point 1x1 --build-dir <checkout>/tmp-inside
+REFUSED: use an external scratch build directory
+rc=2
+$ run.py --point 1x1 --build-dir <packet>/scratch/nonexistent-build --regrade
+REFUSED: [Errno 2] No such file or directory: '<packet>/scratch/nonexistent-build/build.json'
+rc=2
+$ run.py --plant counters-late --build-dir <packet>/scratch/nonexistent-build --reuse-build
+REFUSED: [Errno 2] No such file or directory: '<packet>/scratch/nonexistent-build/build.json'
+rc=2
