@@ -10,9 +10,11 @@ policy, the console, MAAP's allocation port and SRP's sources. Its two
 generated headers come from ctrl_plat_gen.py: the policy from --config, the
 bus map from --csr-csv, the export of the SoC the image runs on (a split
 export with any image gives it; docs/design/SPLIT_CONTROL_MEMORY.md section 4).
-The mailbox's base is the map's. With --flash-map, F1's flash port uses the
-split SoC's generated addresses; without it, compilation uses the RV32
-stand-ins, as ctrl_srp_image.py does without --flash-map.
+The mailbox's base is the map's. --flash-map puts the saved-state store's flash
+port on the split SoC's generated addresses (gen_flash_port.py). A link without
+it is refused, so no split image carries the port's RV32 stand-ins (#665). Only
+a run whose runtime archives do not exist takes no map, the boundary gate's: it
+compiles on the stand-ins and stops at its link, with no ELF (ctrl_runs.py).
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
@@ -45,6 +47,16 @@ REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_
             "nvm_store_service", "ctrl_loop_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.RV32_FLAGS); the map's replaces it.
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
+#: Why a link needs the flash map: the words a run with runtime archives and no map is refused in.
+NO_FLASH_MAP = ("no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; "
+                "gen_flash_port.py writes the map from the split SoC's export")
+
+
+def refuse_placeholder(flash_map: Path | None, archives: tuple[Path, Path]) -> None:
+    """Refuse a link on the flash port's RV32 stand-ins (#665). Without a map only a run whose archives are both
+    absent goes on, and the link stops that one: it compiles every object and makes no ELF."""
+    if flash_map is None and any(path.exists() for path in archives):
+        raise Refusal(NO_FLASH_MAP)
 
 
 def generate(config: Path, csr_csv: Path, out: Path) -> None:
@@ -98,7 +110,8 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--ctrl-source", type=Path, default=CTRL,
                         help="the firmware tree to compile (a planted copy for a control; default the checkout's)")
     parser.add_argument("--csr-csv", type=Path, required=True)
-    parser.add_argument("--flash-map", type=Path, help="the split SoC generated flash port map")
+    parser.add_argument("--flash-map", type=Path,
+                        help="the split SoC's generated flash port map (gen_flash_port.py); a link needs it")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED),
@@ -147,6 +160,7 @@ def main() -> int:
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
     try:
+        refuse_placeholder(args.flash_map, (args.libc, args.compiler_runtime))
         cc = fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")
