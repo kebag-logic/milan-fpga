@@ -75,6 +75,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A link down or up ends every Talker registration.
 - A settled input's registration ends too.
 - It reports a timed-out registration and withdraws its declaration.
+- That input leaves the settled state (Milan v1.2 5.5.3.5.48).
+- Its three stream-valid flags clear.
+- `probing_status` becomes active when its talker is discovered, passive otherwise.
+- The talker's next declaration alone does not return it.
+- It must probe and settle again; a value registered meanwhile applies at that settle.
 - 802.1Q-2022 Table 10-4: Flush! and Begin! give MT.
 - LINK_DOWN is Flush!; LINK_UP is Begin!.
 - Both processor ROM digests match the `a9e84b66` rows.

@@ -76,7 +76,12 @@ Processor pin `92100657` (processor #212) changes the SRP listener.
 - At the latest, the talker re-joins after the next LeaveAll.
 - A re-bind to the same stream keeps its registration.
 - A link down or up ends every Talker registration.
-- A settled input then reports a timed-out registration.
+- A registered settled input then reports a timed-out registration.
+- It leaves the settled state (Milan v1.2 5.5.3.5.48).
+- Its three stream-valid flags clear.
+- `probing_status` becomes active when its talker is discovered, passive otherwise.
+- The talker's next declaration alone does not return it.
+- It must probe and settle again; a value registered meanwhile applies at that settle.
 - The [pin page](../reference/SUBMODULES.md) gives the cases.
 
 ## Wire every group

@@ -528,7 +528,7 @@ FPGA-gPTP stays at `135afd04`.
 
 | Processor issue | Merged PR | Parent-visible result |
 |---|---|---|
-| #212, a Talker registered before the settle | #213, merge commit `92100657` | A Stream Input that settles on a Talker Advertise or Talker Failed the port already registered applies it at the settle (Milan v1.2 5.3.8.5; 5.5.3.5.18 step 4; IEEE 802.1Q-2022 10.7, 10.7.8). It declares Listener Ready, or Asking Failed, within one T-MRP-JOIN, and its SRP state, GET_RX_STATE and GET_STREAM_INFO read at the settle. Before, it waited for the talker's next declaration. A link down or up now ends every Talker registration, a settled input's too (Table 10-4: Flush! at LINK_DOWN, Begin! at LINK_UP) |
+| #212, a Talker registered before the settle | #213, merge commit `92100657` | A Stream Input that settles on a Talker Advertise or Talker Failed the port already registered applies it at the settle (Milan v1.2 5.3.8.5; 5.5.3.5.18 step 4; IEEE 802.1Q-2022 10.7, 10.7.8). It declares Listener Ready, or Asking Failed, within one T-MRP-JOIN, and its SRP state, GET_RX_STATE and GET_STREAM_INFO read at the settle. Before, it waited for the talker's next declaration. A link down or up now ends every Talker registration, a settled input's too (Table 10-4: Flush! at LINK_DOWN, Begin! at LINK_UP), and a registered settled input leaves the settled state (Milan v1.2 5.5.3.5.48) |
 
 The listener keeps one port Talker registrar per Stream Input.
 
@@ -539,7 +539,8 @@ So the pre-settle path holds `N_STREAM_IN_P` Talker values.
 | The input settles on a value the port registered while one of its two registrars was free, still registered | applied at the settle |
 | The value arrived while both registrars held other values | not held: the first settle waits for the talker's next declaration, at the latest its re-join after the next LeaveAll (`leavealltimer` default 10 to 15 s, Milan v1.2 Table 4.3) |
 | A re-bind of an input to the stream it was bound to | keeps its registration while it lasts, whatever the port holds |
-| A link down or up | ends every Talker registration. A settled input reports it as a registration that timed out: `TK_ATTR_UNREGISTERED`, its Listener declaration withdrawn. Every input then waits for its talker's next declaration |
+| A link down or up, an input with no settled registration | ends every Talker registration. The input waits for its talker's next declaration |
+| A link down or up, a registered settled input | ends its registration and reports it as a registration that timed out: `TK_ATTR_UNREGISTERED`, its Listener declaration withdrawn. It leaves the settled state (Milan v1.2 5.5.3.5.48). STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 5.4.2.10.1, Table 5.9). `probing_status` becomes PROBING_ACTIVE when its talker is discovered, and the input probes it after a random delay of 0 to 1 s. It becomes PROBING_PASSIVE otherwise, and the input waits for discovery (Milan v1.2 Table 5.5). The talker's next declaration alone does not return it: it must probe and settle again, and a value the port registered meanwhile applies at that settle |
 
 A port receives every Talker declaration of its VLAN.
 
