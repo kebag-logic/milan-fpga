@@ -1,0 +1,12 @@
+PLACEMENT true-map: as required (deviations [])
+PLACEMENT register-moved: as required (deviations ['spiflash_master_cs is at 0xf0002810, the split SoC at 0xf0002814'])
+PLACEMENT register-absent: as required (deviations ['spiflash_absent is at no address, the split SoC at 0xf0002ff0'])
+PLACEMENT window-moved: as required (deviations ["the flash window is [(16777216, 16777216)], the split SoC's {'base': 16781312, 'size': 16777216}"])
+PLACEMENT window-resized: as required (deviations ["the flash window is [(16777216, 16777216)], the split SoC's {'base': 16777216, 'size': 8388608}"])
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; pass; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]), Path(sys.argv[6])))) <packet>/scratch/wt/tb/verilator/ctrl_split_boot <packet>/scratch/boot-8x8/placement-export endstation_ax7101_8x8 <packet>/scratch/boot-8x8/image/ctrl_app.elf 1 <packet>/scratch/boot-8x8/map-register-moved
+PLACEMENT export-refuses: as required (export REFUSED)
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; boot_soc.refuse_deviation = lambda *_: None; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]), Path(sys.argv[6])))) <packet>/scratch/wt/tb/verilator/ctrl_split_boot <packet>/scratch/boot-8x8/placement-guard-removed endstation_ax7101_8x8 <packet>/scratch/boot-8x8/image/ctrl_app.elf 1 <packet>/scratch/boot-8x8/map-register-moved
+PLANT guard-removed: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; boot_soc.split_soc.map_deviations = lambda *_: []; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]), Path(sys.argv[6])))) <packet>/scratch/wt/tb/verilator/ctrl_split_boot <packet>/scratch/boot-8x8/placement-deviations-empty endstation_ax7101_8x8 <packet>/scratch/boot-8x8/image/ctrl_app.elf 1 <packet>/scratch/boot-8x8/map-register-moved
+PLANT deviations-empty: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+ctrl_split_boot placement controls: 8 of 8 as required
