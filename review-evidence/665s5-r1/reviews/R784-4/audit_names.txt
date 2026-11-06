@@ -1,0 +1,15 @@
+mutants 96 unique 96 checks 28
+expect call sites 117 fired first by a mutant 69 fired by none 48
+not expect-failed: {}
+supersede: the table names another group -> ((595, 'check_superseded'), 'expect', 'a refusal is superseded only by its own path')
+supersede: the table names a second path -> ((600, 'check_superseded'), 'expect', 'a refusal is superseded only by its own path')
+supersede: a row of another path supersedes a refusal -> ((604, 'check_superseded'), 'expect', 'a refusal is superseded only by its own path')
+supersede: every refusal is superseded -> ((597, 'check_superseded'), 'expect', 'a refusal is superseded only by its own path')
+bound: the margin is taken from a timeout of zero -> ((123, 'check_exact_bound'), 'expect', 'the exact bound fits and W adds')
+held missing: its finding by name is dropped -> ((474, 'check_missing_held'), 'expect', 'a held push never sent')
+buckets: the window opens right after the registrations (the earlier rule) -> ((630, 'check_buckets_full'), 'expect', 'a composed row opens on full buckets')
+L638-site fired by: []
+README rows disagreeing with MUTANTS: []
+README mutant-like rows not in MUTANTS: []
+rules keys == MUTANTS: True order equal True
+author table: kinds {'constant': 16, 'stands': 22, 'wraps': 58} wraps 58 twins 61 fires disagreeing with mine: []

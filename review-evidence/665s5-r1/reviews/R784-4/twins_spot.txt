@@ -1,0 +1,33 @@
+KILLED | hook_row: W not added | rc=1 | ctrl_service_hooks self-test: 25 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: W + bound: {'hook': 'H-SRP', 'group': 'srp', 'probe': 'x.if0',
+    check fails: the worst path and the counts: 4 misses, not 3
+    check fails: the amended column grades nothing: W left off the column
+KILLED | hook_row: verdict drops unbounded | rc=1 | ctrl_service_hooks self-test: 26 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: a starved path fits
+    check fails: the worst path and the counts: 2 misses, not 3
+KILLED | hook_row: unanswered not unbounded | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: an unanswered path fits
+KILLED | hook_row: starved not unbounded | rc=1 | ctrl_service_hooks self-test: 26 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: a starved path fits
+    check fails: the worst path and the counts: the worst under load is loaded, not the path never served
+KILLED | hook_row: margin drops the wait | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: margin 170.0
+KILLED | hook_row: margin from zero | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the exact bound fits and W adds: margin -160.0
+KILLED | held_row: verdict always within | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the held push's grade: a held push past its bound fits
+KILLED | held_row: margin drops the wait | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: the held push's grade: the held margin is 980.0, not 1000 - 900 - 20
+KILLED | held missing: finding by name dropped | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a held push never sent: a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.
+SURVIVES | held missing: slack ignores missing | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+SURVIVES | slack ignores unbounded | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+KILLED | narrow: boundary <= | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a fit under the layout swing is a finding: ['NARROW H-MAAP: under.if0: 19.935 ms, within its bo
+KILLED | ordering findings dropped | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: findings by hook: ['LATE H-MAAP: x.if0: 25.000 ms against its bound 20 ms (maap)']
+KILLED | buckets: no wait in notify group | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a composed row opens on full buckets: loaded_notify_group: 0 bus cycles between the last regist
+KILLED | buckets: no wait in counters group | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a composed row opens on full buckets: loaded_counters_group: 0 bus cycles between the last regi
+survivors: 2 of 15

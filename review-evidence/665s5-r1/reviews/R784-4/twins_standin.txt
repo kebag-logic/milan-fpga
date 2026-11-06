@@ -1,0 +1,12 @@
+SURVIVES | next_adp_record: any interface | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+SURVIVES | next_adp_record: any channel | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+KILLED | next_adp_record: not after | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: H-DISC ordering: clean: Checked(applied=0, findings=[], undecided=1)
+SURVIVES | disc_decided_ms: one service | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+SURVIVES | disc_decided_ms: no service | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+SURVIVES | adopted: any bit of the word | rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+KILLED | plant_findings: no colon | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a plant is caught only by its own finding: adp-late: reported caught with no plant applied, rc 
+KILLED | gm_steps: id read in decimal | rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: H-ADP ordering: ValueError: invalid literal for int() with base 10: '00000000000000aa'
+survivors: 5 of 8

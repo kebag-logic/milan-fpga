@@ -1,0 +1,34 @@
+baseline: rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+sup-no-path: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: another path: {'rows': [{'hook': 'H-DISC', 'group
+sup-no-interface: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'gr
+sup-no-group: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: the table names another group
+sup-group-only: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'gr
+sup-no-row-needed: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'gr
+sup-table-guard-dropped: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: a path the table does not name: {'rows': [{'hook'
+sup-any-to-all: rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+sup-path-prefix: rc=1 | ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    check fails: a refusal is superseded only by its own path: another path: {'rows': [{'hook': 'H-DISC', 'group
+sup-group-other-than-own: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: the table names another group
+sup-group-prefix: rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-positive: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: the table names another group
+del-other-interface: rc=0 | ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-table: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: the table names a second path
+del-another-path: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: a row of another path supersedes a refusal
+del-other+table: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: the table names a second path
+del-other+table+path: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 93 of 96 mutants caught
+    mutant escapes: supersede: the table names a second path
+    mutant escapes: supersede: a row of another path supersedes a refusal
+    mutant escapes: supersede: every refusal is superseded
+no-path+del-another-path: rc=1 | ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    mutant escapes: supersede: a row of another path supersedes a refusal
