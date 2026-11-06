@@ -292,45 +292,47 @@ A mutant whose name ends in a bracket saying "earlier" restores a rule, or the c
 
 ## Results
 
-The four runs at the product clock, the CPU at 100 MHz on `sys` and the bus at 100 MHz, were measured at `fa925043`, each in a clean clone with its own build.
-That commit's harness, firmware, configurations and build inputs are this head's: only this README changed after it, and a regrade at the head on each reused build checks every input's digest ([Run and reproduce](#run-and-reproduce)).
+The four runs at the product clock, the CPU at 100 MHz on `sys` and the bus at 100 MHz, were measured at `d5add6f9`, each in a clean clone with its own build.
+That commit's firmware, configurations, group scripts and build inputs are this head's: after it only an escaped plant's printed line, its self-test check and this README changed, and a regrade at the head on each reused build checks every input's digest ([Run and reproduce](#run-and-reproduce)).
+Every verdict here is against the bounds in the tree at this base ([The bounds at this base](#the-f2-f5-timing-hooks-on-the-target-core-665-s5)); the amended column grades nothing.
+Every path of the earlier runs at `fa925043` is unchanged here to the CPU cycle: these runs add only the ALL push's rows per descriptor.
 Each run exits 0 with `--record-findings`: 0 refusals, nothing superseded, no ordering finding and no path within its bound by less than the layout swing.
 Every path over its bound is a `LATE` finding, listed in the run's `table.md`.
 
 | Point | Arm | Groups | Paths | Refusals | Ordering findings | `NARROW` | `LATE` |
 |---|---|---:|---:|---:|---:|---:|---:|
 | 1x1 | idle | 27 | 145 | 0 | 0 | 0 | 28 |
-| 1x1 | answering | 29 | 159 | 0 | 0 | 0 | 29 |
+| 1x1 | answering | 29 | 164 | 0 | 0 | 0 | 31 |
 | 8x8 | idle | 27 | 207 | 0 | 0 | 0 | 38 |
-| 8x8 | answering | 29 | 221 | 0 | 0 | 0 | 42 |
+| 8x8 | answering | 29 | 240 | 0 | 0 | 0 | 60 |
 
-Each hook's worst path alone and under the composed load, in ms against its bound; bold is over it, and "never served" is a command never answered or a record never released by the run's end.
+Each hook's worst path alone and under the composed load, in ms against its bound at this base; bold is over it, and "never served" is a command never answered or a record never released by the run's end.
 
 1x1, CPU 100 MHz on `sys`:
 
-| Hook | Bound | Alone, idle | Alone, answering | Under load, idle | Under load, answering |
-|---|---:|---:|---:|---:|---:|
-| H-ADP | 20 | 0.63 | 0.63 | **29.40** | **21.26** |
-| H-DISC | 20 | 8.40 | 0.81 | **24.78** | 14.03 |
-| H-ACMP | 20 | 8.16 | 0.87 | **never served** | **never served** |
-| H-AECP | 20 | 1.89 | 1.88 | **159.48** | **85.82** |
-| H-NOTIFY | 20 | 3.78 | 3.78 | **59.38** | **59.38** |
-| H-COUNTERS | 20 | - | **27.58** | - | **20.76** |
-| H-MAAP | 20 | 1.01 | 1.01 | **29.43** | **21.25** |
-| H-SRP | 18 | 1.81 | 1.81 | **never served** | **68.05** |
+| Hook | Bound at this base | Amended, for information | Alone, idle | Alone, answering | Under load, idle | Under load, answering |
+|---|---:|---:|---:|---:|---:|---:|
+| H-ADP | 20 | 20 | 0.63 | 0.63 | **29.40** | **21.26** |
+| H-DISC | 20 | 20 | 8.40 | 0.81 | **24.78** | 14.03 |
+| H-ACMP | 20 | 20 | 8.16 | 0.87 | **never served** | **never served** |
+| H-AECP | 20 | 20 | 1.89 | 1.88 | **159.48** | **85.82** |
+| H-NOTIFY | 20 | 20 | 3.78 | 3.78 | **59.38** | **59.38** |
+| H-COUNTERS | 20 | 20; ALL's rows 20 | - | **27.58** | - | **20.76** |
+| H-MAAP | 20 | 20 | 1.01 | 1.01 | **29.43** | **21.25** |
+| H-SRP | 18 | 20 | 1.81 | 1.81 | **never served** | **68.05** |
 
 8x8, CPU 100 MHz on `sys`:
 
-| Hook | Bound | Alone, idle | Alone, answering | Under load, idle | Under load, answering |
-|---|---:|---:|---:|---:|---:|
-| H-ADP | 20 | 3.37 | 3.37 | **44.15** | **31.50** |
-| H-DISC | 20 | 15.93 | 1.34 | **37.32** | **21.79** |
-| H-ACMP | 20 | 15.99 | 1.64 | **never served** | **never served** |
-| H-AECP | 20 | 2.40 | 2.40 | **205.20** | **102.26** |
-| H-NOTIFY | 20 | 6.85 | 6.85 | **84.07** | **84.07** |
-| H-COUNTERS | 20 | - | **218.71** | - | **36.62** |
-| H-MAAP | 20 | 1.76 | 1.76 | **44.19** | **31.48** |
-| H-SRP | 18 | 4.04 | 4.04 | **never served** | **102.31** |
+| Hook | Bound at this base | Amended, for information | Alone, idle | Alone, answering | Under load, idle | Under load, answering |
+|---|---:|---:|---:|---:|---:|---:|
+| H-ADP | 20 | 20 | 3.37 | 3.37 | **44.15** | **31.50** |
+| H-DISC | 20 | 20 | 15.93 | 1.34 | **37.32** | **21.79** |
+| H-ACMP | 20 | 20 | 15.99 | 1.64 | **never served** | **never served** |
+| H-AECP | 20 | 20 | 2.40 | 2.40 | **205.20** | **102.26** |
+| H-NOTIFY | 20 | 20 | 6.85 | 6.85 | **84.07** | **84.07** |
+| H-COUNTERS | 20 | 20; ALL's rows 60 | - | **218.71** | - | **36.62** |
+| H-MAAP | 20 | 20 | 1.76 | 1.76 | **44.19** | **31.48** |
+| H-SRP | 18 | 20 | 4.04 | 4.04 | **never served** | **102.31** |
 
 The paths over their bound of each hook's paths, and its ordering check: the instances it applied to, those it left undecided in brackets, and its findings.
 
@@ -341,7 +343,7 @@ The paths over their bound of each hook's paths, and its ordering check: the ins
 | H-ACMP | 11 of 30 | 12 of 32 | 11 of 43 | 12 of 45 | 65 (0), 0 / 76 (0), 0 | 68 (0), 0 / 79 (0), 0 |
 | H-AECP | 5 of 36 | 6 of 38 | 5 of 50 | 6 of 52 | 7 (0), 0 / 7 (0), 0 | 14 (0), 0 / 14 (0), 0 |
 | H-NOTIFY | 1 of 11 | 1 of 11 | 1 of 15 | 1 of 15 | 11 (0), 0 / 11 (0), 0 | 15 (0), 0 / 15 (0), 0 |
-| H-COUNTERS | - | 2 of 4 | - | 2 of 4 | not applied / 16 (0), 0 | not applied / 32 (0), 0 |
+| H-COUNTERS | - | 4 of 9 | - | 20 of 23 | not applied / 16 (0), 0 | not applied / 32 (0), 0 |
 | H-MAAP | 2 of 17 | 1 of 19 | 5 of 23 | 6 of 25 | 44 (0), 0 / 48 (0), 0 | 44 (0), 0 / 48 (0), 0 |
 | H-SRP | 7 of 15 | 6 of 17 | 9 of 19 | 9 of 21 | 1 (0), 0 / 1 (0), 0 | 2 (0), 0 / 2 (0), 0 |
 
@@ -366,16 +368,53 @@ Where each worst path is, with its margin to its family's normative timeout in m
 | H-SRP | 1x1 | `srp.startup.if0` / the same | 178 / 178 of 180 | `backlog-adp-refill.service.srp.first.if0` / `hooks-load-counters.service.srp.last.if0` | none / 112 of 180 |
 | H-SRP | 8x8 | `srp.startup.if1` / the same | 176 / 176 of 180 | `backlog-adp-refill.service.srp.first.if0` / `hooks-load-counters.service.srp.last.if1` | none / 78 of 180 |
 
-H-COUNTERS' paths on the answering arm, ms against 20:
+H-COUNTERS' paths on the answering arm, ms against 20; the ALL push's amended ceiling, for information, is 20 at 1x1 and 60 at 8x8:
 
 | Path | 1x1 | 8x8 | Notices pushed |
 |---|---:|---:|---|
 | `counters.first`, a change of STREAM_INPUT 0 | 5.64 | 10.16 | one a registration: 16 and 32 |
-| `counters.all`, ALL: every other served descriptor | **27.58** | **218.71** | 5 descriptors x 16 = 80, and 19 x 32 = 608 |
+| `counters.all`, ALL as one path: every other served descriptor | **27.58** | **218.71** | 5 descriptors x 16 = 80, and 19 x 32 = 608 |
 | `counters.held`, from its eligibility, W 896.26 and 880.00 | 5.19 | 9.93 | 16 and 32 |
 | `counters.loaded`, under the composed load | **20.76** | **36.62** | 16 and 32 |
 
-**The plants.** All 16, at `fa925043`, 1x1 and the product clock, each in a clean clone, each caught by its own words, exit 0:
+The ALL push per descriptor, on the answering arm, in push order, in ms from the change, against 20 at this base (bold is over it). Its own fan-out is that descriptor's first notice to its last; the rest of a row is the queue ahead of it, the descriptors pushed first and this one's window reads.
+
+1x1, amended ceiling 20:
+
+| Descriptor | Its first notice | Its last notice, the row | Its own fan-out, first to last |
+|---|---:|---:|---:|
+| `t6.i0` | 2.76 | 5.49 | 2.72 |
+| `t5.i1` | 8.36 | 11.08 | 2.71 |
+| `t6.i1` | 13.75 | 16.46 | 2.72 |
+| `t9.i0` | 19.34 | **22.07** | 2.72 |
+| `t36.i0` | 24.87 | **27.58** | 2.71 |
+
+8x8, amended ceiling 60:
+
+| Descriptor | Its first notice | Its last notice, the row | Its own fan-out, first to last |
+|---|---:|---:|---:|
+| `t6.i0` | 4.68 | 10.55 | 5.87 |
+| `t5.i1` | 15.85 | **21.70** | 5.85 |
+| `t5.i2` | 27.53 | **33.43** | 5.91 |
+| `t5.i3` | 39.00 | **44.89** | 5.89 |
+| `t5.i4` | 51.29 | **57.15** | 5.86 |
+| `t5.i5` | 62.73 | **68.58** | 5.85 |
+| `t5.i6` | 74.16 | **80.07** | 5.90 |
+| `t5.i7` | 85.65 | **91.53** | 5.88 |
+| `t5.i8` | 97.39 | **103.25** | 5.86 |
+| `t6.i1` | 108.85 | **114.70** | 5.85 |
+| `t6.i2` | 120.29 | **126.20** | 5.90 |
+| `t6.i3` | 131.80 | **137.68** | 5.88 |
+| `t6.i4` | 143.29 | **149.15** | 5.86 |
+| `t6.i5` | 154.76 | **160.60** | 5.85 |
+| `t6.i6` | 166.22 | **172.12** | 5.90 |
+| `t6.i7` | 177.99 | **183.87** | 5.88 |
+| `t6.i8` | 189.50 | **195.36** | 5.86 |
+| `t9.i0` | 200.98 | **206.83** | 5.84 |
+| `t36.i0` | 212.81 | **218.71** | 5.90 |
+
+**The plants.** All 16, at `78415f7a`, 1x1 and the product clock, each in a clean clone, each caught by its own words, a late plant on the path it delays, exit 0.
+A `counters-late` whose spin is replaced by a comment prints `PLANT counters-late ESCAPED: LATE H-COUNTERS: counters.first.if0 not found` and exits 1, though its run still has `LATE` findings on `counters.all`.
 
 | Plant | Its first finding |
 |---|---|
@@ -398,9 +437,11 @@ H-COUNTERS' paths on the answering arm, ms against 20:
 
 ## Findings
 
-At the product clock, alone, every hook is within its bound at both points and on both arms but H-COUNTERS, whose ALL push misses.
-Under the composed load every hook misses at both points and on both arms but one: H-DISC at 1x1 on the answering arm, 14.03 ms.
+At the product clock, alone, every hook is within its bound at both points and on both arms (H-COUNTERS on the answering arm only, where it runs) but H-COUNTERS, whose ALL push misses.
+Under the composed load every hook misses at both points and on both arms (H-COUNTERS on the answering arm only, where it runs) but one: H-DISC at 1x1 on the answering arm, 14.03 ms.
 So S5's acceptance, each hook within its bound and inside its normative timeout, is met alone but for H-COUNTERS and is not met under the composed load, on `dev-soft-core` as it is.
+It stays open on #665: [the round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6677495623) makes these misses measured results this harness reports, and names who closes them.
+These verdicts are against the bounds in the tree at this base. For information, the amended bounds would change none of them: no H-SRP path lies between 18 and 20 ms, and the ALL push stays over its ceiling at both points.
 The CPU budget harness's findings explain the composed misses, and their two starvations reproduce here on the platform's image at 100 MHz: SRP takes no record in the idle arm's ADP backlog windows, and the ACMP core drops the commands it cannot owe ([its Findings](../ctrl_service_budget/README.md#findings)).
 The firmware cuts that answer them are S2b's (#810), not merged at this base, so these figures are the hooks' before.
 No ordering check found a defect, every check applied at every point it can, and no path fits by less than the layout swing.
@@ -410,7 +451,7 @@ No ordering check found a defect, every check applied at every point it can, and
 - **H-ACMP.** Alone at most 15.99 ms (8x8, idle arm, UNBIND_RX). Under the composed load the four commands behind the owed one are never answered, at both points and on both arms, after at least 363 ms: their controller's 200 ms timeout (Milan v1.2 Table 5.26) expires. The owed command itself is answered after 77.84 ms (1x1) and 90.26 ms (8x8), inside 200 ms but over 20.
 - **H-AECP.** Alone at most 2.40 ms. Under the composed load the burst's last AECP response takes 48.47 to 205.20 ms. The idle arm's worst are `backlog-adp` and `backlog-adp-refill`, 159 ms at 1x1 and 205 ms at 8x8, where the change notices retry each millisecond after the bind ([Limits](#limits)); the answering arm's worst is 85.82 and 102.26 ms. The 8x8 idle worst leaves 35 ms of the 240 ms timeout.
 - **H-NOTIFY.** Alone a fan-out to every registration takes at most 3.78 ms at 1x1 (16) and 6.85 ms at 8x8 (32). Under the composed load, SET_NAME last of the AECP ring's burst reaches its last registration after 59.38 and 84.07 ms.
-- **H-COUNTERS.** A push costs about 32,000 to 36,000 CPU cycles a notice, with the CTR window answered at the slowest the contract allows. So one descriptor to every registration fits, 5.64 and 10.16 ms, and the held push fits from its eligibility. ALL, every other served descriptor to every registration, is 80 notices at 1x1 and 608 at 8x8, and takes 27.58 and 218.71 ms; 20 ms holds about 57 notices at 35,000 cycles each. Under the composed load the one-descriptor push takes 20.76 and 36.62 ms. The spacing check applied to 16 and 32 instances without a finding. Every figure is far inside the 1 s update.
+- **H-COUNTERS.** A push costs about 32,000 to 36,000 CPU cycles a notice, with the CTR window answered at the slowest the contract allows. So one descriptor to every registration fits, 5.64 and 10.16 ms, and the held push fits from its eligibility. ALL, every other served descriptor to every registration, is 80 notices at 1x1 and 608 at 8x8, and takes 27.58 and 218.71 ms as one path; 20 ms holds about 57 notices at 35,000 cycles each. Per descriptor, 2 of 5 rows at 1x1 and 18 of 19 at 8x8 are over 20 ms, though each descriptor's own fan-out takes about 2.7 ms and 5.9 ms: the rest of each row is the queue ahead of it. Its first notice leaves after 2.76 and 4.68 ms. Against the amended ceiling, for information, 2 of 5 rows at 1x1 and 14 of 19 at 8x8 are over it. Under the composed load the one-descriptor push takes 20.76 and 36.62 ms. The spacing check applied to 16 and 32 instances without a finding. Every figure is far inside the 1 s update.
 - **H-MAAP.** Alone at most 1.76 ms. Under the composed load its worst, the burst's last MAAP record, is 21.25 to 44.19 ms. The 500 ms probe interval leaves 456 ms or more.
 - **H-SRP.** Alone at most 4.04 ms (SRP's startup). Under the composed load, on the idle arm, SRP takes no record in `backlog-adp` and `backlog-adp-refill` at either point, its records waiting at least 524.8 to 567.5 ms by the run's end. Those are the windows where the CPU budget harness's formal arm starves SRP too: `srp_mbx.c` (`rx_order_ready`) takes a record only when no TICK is owed and no event is pending. On the answering arm SRP is served, its worst last record after 68.05 ms at 1x1 and 102.31 ms at 8x8, against 18 ms. These composed rows open with every bucket full and the grandmaster changes first, the burst in the SRP row's scope.
 
@@ -455,6 +496,7 @@ That head had neither the layout swing nor H-DISC's undecided rule. None of thes
 - The filter checks of the hook rows (tagged frames, wrong destinations, wrong subtypes, FILTER_MISMATCH) are lane FC's, in the mailbox suite (`tb/verilator/mbx`), and are not repeated here.
 - Not every required check of the hook rows is run: SHUTDOWN (the platform never disables ADP), every Table 5.54 cell, received validities of 10 and 31, reset and timer wrap, CPU stalls, both bus adapters, flash erase and program waits (zero here, as in the CPU budget harness), lock expiry and the Identify spacing are not.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the platform is linked.
+- The ALL push is measured alone, as one path and per descriptor. Under the composed load only the one-descriptor push is measured.
 - Each verdict is against the bounds in the tree at this base. The amended bounds are a column for information, at their ceiling for a queued notice, as the derived bound is #810's. This harness re-grades when #810 merges.
 - The plants run at 1x1 and the product clock only.
 - The CPU runs at 100 MHz behind this base's crossing to the bus. The product wiring of the 100 MHz decision has no crossing, so it is not measured here; it reaches this harness with S2b (#810), and these figures include the crossing's latency.
