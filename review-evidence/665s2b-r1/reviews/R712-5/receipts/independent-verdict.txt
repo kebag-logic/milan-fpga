@@ -1,0 +1,8 @@
+R712-5 independent pass, written before reading any prior review finding on PR #810.
+Exact head d930ea98f75be96f1062217d62bccd24dd291265, tree 76a51c452dc5f631981c40dcb95880460d24101d.
+Verdict: NEGATIVE.
+F1 MAJOR Conformance, Robustness, Docs - ctrl_loop.h:296-315 / ctrl_loop.h:62-69 - SRP's 18 ms row met by measurement, not derived from the constants (round 16 ruling item 1).
+F2 MAJOR Conformance, RTL, Tests, Docs - ctrl_loop.h:271-295, srp_mbx.c:35-43 - THE TRANSMIT defers an MRPDU owed at a timer's expiry up to 44 ms (176 ms for the fourth participant) by construction, graded against JoinTime, not the 18 ms MRP service bound of FR_NFR 3.4.1; no row times it under load.
+F3 MINOR Conformance, Robustness, Tests - aecp.h:30-36, aecp.c:631-693 - the 20 ms retried-notice bound holds only for the first of several retried notices answered together; by the stated constants the second is 22 ms.
+R1-R3 RESIDUE, S1-S3 SUGGESTION.
+Ledger: Conformance UNCLEAN, RTL UNCLEAN, Robustness UNCLEAN, Tests UNCLEAN, Docs UNCLEAN.

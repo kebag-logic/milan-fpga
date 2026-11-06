@@ -1,0 +1,95 @@
+sw/firmware/ctrl/aecp/aecp.c:629: // released only without aecp.retry_hold, which aecp_retry lifts for its round
+sw/firmware/ctrl/aecp/aecp.c:740: // What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it.
+sw/firmware/ctrl/aecp/aecp.c:765: // only a held retry, as arm left it, and only when the round would try it now
+sw/firmware/ctrl/aecp/aecp.h:32: // nothing waits ahead of its round: a response owed is committed first
+sw/firmware/ctrl/aecp/aecp.h:33: // (ctrl_loop.h, A3), a notice already built is sent first, each notice owed
+sw/firmware/ctrl/aecp/aecp.h:34: // ahead of it costing it its own round and the pass that sends it, and while a
+sw/firmware/ctrl/aecp/aecp.h:285: // THE RETRY's round (ctrl_loop.h, #665): every due retry released and its
+sw/firmware/ctrl/aecp/aecp.h:292: // round, so the loop gives the round a pass of its own.
+sw/firmware/ctrl/loop/ctrl_loop.c:189: // retry round at most
+sw/firmware/ctrl/loop/ctrl_loop.h:36: // counted: it costs the input one step's time and one retry round, one retry
+sw/firmware/ctrl/loop/ctrl_loop.h:37: // round, or one MRPDU build and one retry round. No two such passes run back
+sw/firmware/ctrl/loop/ctrl_loop.h:106: //     output, THE TRANSMIT's build, THE RETRY's round, THE STEP before its
+sw/firmware/ctrl/loop/ctrl_loop.h:108: //   * one given whole to an aged step (the step and one round): 97,806 and
+sw/firmware/ctrl/loop/ctrl_loop.h:110: //   * one given whole to an aged retry (one round): 12,571 and 9,610;
+sw/firmware/ctrl/loop/ctrl_loop.h:111: //   * one given whole to an aged build (one build and one round, no poll):
+sw/firmware/ctrl/loop/ctrl_loop.h:113: //     a build and the heaviest round, 171,351 + 12,571 = 183,922 and
+sw/firmware/ctrl/loop/ctrl_loop.h:138: // and one retry round at most. Under such input the client steps once every
+sw/firmware/ctrl/loop/ctrl_loop.h:143: // retry (aecp.h, AECP_RETRY_MAX_MS), a round of observation-port attempts
+sw/firmware/ctrl/loop/ctrl_loop.h:156: // nothing ahead of its round (aecp.c, aecp_retry_aged), the next pass is the
+sw/firmware/ctrl/loop/ctrl_loop.h:157: // round's alone. It calls the client before it takes any input and returns
+sw/firmware/ctrl/loop/ctrl_loop.h:159: // checks for first, takes the round after the step instead. The bound is
+sw/firmware/ctrl/loop/ctrl_loop.h:174: // sends only a frame already owed (A3). Input that never leaves such a pass
+sw/firmware/ctrl/loop/ctrl_loop.h:242: // the first poll after a retry comes due holds it before it ages. A round
+sw/firmware/ctrl/loop/ctrl_loop.h:243: // leaves no retry held, unless it built a notice, which its round's guard
+sw/firmware/ctrl/loop/ctrl_loop.h:248: // to the commit of what its round built: its age, then the pass running when
+sw/firmware/ctrl/loop/ctrl_loop.h:249: // it reaches it, the pass that takes the round (given whole to it, to an aged
+sw/firmware/ctrl/loop/ctrl_loop.h:250: // step and the round, or to an aged build and the round), and the next pass,
+sw/firmware/ctrl/loop/ctrl_loop.h:251: // which sends what the round
+sw/firmware/ctrl/loop/ctrl_loop.h:252: // built (aecp.c, transmit; A3), each within THE SHARE: 4 + 3 x 2 = 10 ms,
+sw/firmware/ctrl/loop/ctrl_loop.h:258: // sum to it). The pass that takes a round holds at most: one that took no
+sw/firmware/ctrl/loop/ctrl_loop.h:259: // input and dispatched no centisecond, its polls' owed output and one round,
+sw/firmware/ctrl/loop/ctrl_loop.h:260: // and THE STEP only before its deadline, which the round's time counts
+sw/firmware/ctrl/loop/ctrl_loop.h:261: // against; an aged step's pass, the step and one round; an aged build's
+sw/firmware/ctrl/loop/ctrl_loop.h:262: // pass, one build and one round; an aged retry's pass, one round. A round tries the notices of every event whose retry is due,
+sw/firmware/ctrl/loop/ctrl_loop.h:292: // polls' owed output, one build, THE RETRY's round where it took no input,
+sw/firmware/ctrl/loop/ctrl_loop.h:294: // and one round.
+sw/firmware/ctrl/loop/ctrl_loop.h:341: // CTRL_LOOP_RETRY_AGE_MS or more ago and nothing waits ahead of its round.
+sw/firmware/ctrl/srp/srp_mbx.c:986: // build left owed, one a pass and oldest first (A3), and while it holds a
+sw/firmware/ctrl/test/aecp_retry_mutants.py:4: retry held by the poll and the timer's sink for the loop's retry pass, the round that tries it, and the held retry's
+sw/firmware/ctrl/test/aecp_retry_mutants.py:5: age, which gives the round a pass of its own. aecp_mutants.py
+sw/firmware/ctrl/test/aecp_retry_mutants.py:40: ('retry-round-before-the-owed-response', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:44: 'the round waits while a response is owed')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:45: ('retry-round-before-the-owed-notice', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:49: 'the round waits while a notice is owed')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:50: ('retry-round-beside-a-waiting-command', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:54: 'the round waits while a command waits on its apply')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:55: ('retry-round-beside-a-pending-start', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:59: 'the round waits while a START or STOP is pending')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:60: ('retry-round-built-not-owed', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:64: 'a round that builds a notice asks for the pass that sends it')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:65: ('retry-round-before-the-open', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:69: 'a round before the open tries nothing')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:70: ('retry-round-keeps-the-hold-off', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:74: 'the round leaves the hold as it found it'),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:77: ('retry-round-arms-no-timer', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:83: 'the round arms the timer for the next retry')),
+sw/firmware/ctrl/test/aecp_retry_mutants.py:84: ('retry-round-unguarded', 'aecp.c',
+sw/firmware/ctrl/test/aecp_retry_mutants.py:95: # only while nothing waits ahead of the round
+sw/firmware/ctrl/test/aecp_retry_mutants.py:112: 'a round leaves no retry held, so none is aged')),
+sw/firmware/ctrl/test/loop_step_mutants.py:198: "L17 an aged step's pass, read first, takes the round after the step"),
+sw/firmware/ctrl/test/loop_step_mutants.py:278: "L20 an aged retry's pass, read first, takes its round alone"),
+sw/firmware/ctrl/test/srp_mbx.cpp:1573: // A frame a build left owed comes first (A3): while it is owed no held build
+sw/firmware/ctrl/test/test_aecp.cpp:1583: EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
+sw/firmware/ctrl/test/test_aecp.cpp:1585: EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
+sw/firmware/ctrl/test/test_aecp.cpp:1587: EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
+sw/firmware/ctrl/test/test_aecp.cpp:1589: EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
+sw/firmware/ctrl/test/test_aecp.cpp:1592: EXPECT_TRUE(timer_armed)<<"the round arms the timer for the next retry";
+sw/firmware/ctrl/test/test_aecp.cpp:1593: EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
+sw/firmware/ctrl/test/test_aecp.cpp:1594: // the next retry, 2 ms on, finds the port answering: the round builds the notice
+sw/firmware/ctrl/test/test_aecp.cpp:1596: EXPECT_TRUE(aecp_retry(&a))<<"a round that builds a notice asks for the pass that sends it";
+sw/firmware/ctrl/test/test_aecp.cpp:1598: // an instance not yet opened, as the loop may call the round before AECP opens, tries nothing
+sw/firmware/ctrl/test/test_aecp.cpp:1602: EXPECT_FALSE(aecp_retry(&other));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
+sw/firmware/ctrl/test/test_aecp.cpp:1607: // nothing waits ahead of the round, which then leaves none held.
+sw/firmware/ctrl/test/test_aecp.cpp:1632: ms=16;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a round leaves no retry held, so none is aged";
+sw/firmware/ctrl/test/test_aecp.cpp:2233: // its time, then the next pass is its round's alone and takes no input.
+sw/firmware/ctrl/test/test_aecp.cpp:2261: EXPECT_TRUE(adapter.armed&&adapter.deadline==mbx_now_ms()+2u)<<"its round arms the timer for the next retry";
+sw/firmware/ctrl/test/test_port_loop.cpp:1101: // each pass starts, after THE STEP's age, whose pass takes the round instead.
+sw/firmware/ctrl/test/test_port_loop.cpp:1134: // with THE STEP aged too, the step's pass takes the round after the step, and no pass of its own follows
+sw/firmware/ctrl/test/test_port_loop.cpp:1152: << "L17 an aged step's pass, read first, takes the round after the step";
+sw/firmware/ctrl/test/test_port_loop.cpp:1285: // an aged retry's pass, read first, takes its round alone, and the pass after it is not the build's
+sw/firmware/ctrl/test/test_port_loop.cpp:1290: EXPECT_EQ(probe.order_of, "R") << "L20 an aged retry's pass, read first, takes its round alone";
+tb/verilator/ctrl_service_budget/build.py:51: '\t// retry round at most\n'
+tb/verilator/ctrl_service_budget/grade.py:831: window_ms=round(grader.ms(end - start), 5), aged=aged)
+tb/verilator/ctrl_service_budget/notice_window.py:87: cycles = round(when * ms)
+tb/verilator/ctrl_service_budget/notice_window.py:92: g.add(f'wait cycles {round((ANSWER_MS + RUN_MS - LOAD_MS) * ms) - at}', 'flood gm 0',
+tb/verilator/ctrl_service_budget/run.py:158: budget_ms=tight['budget_ms'], margin_ms=round(tight['budget_ms'] - tight['ms'], 5)))
+tb/verilator/ctrl_service_budget/save_grade.py:99: waited_ms=round(log.ms_of(end - change), 3), image=image, records=records, flight=flight,
+tb/verilator/ctrl_service_budget/save_grade.py:214: return [dict(start_ms=round(log.ms_of(s - start), 3), cycles=c, ms=round(grader.cpu_ms(c), 5), store=st,
+tb/verilator/ctrl_service_budget/save_grade.py:258: after=[a for a in inside if not a['among']], last_release_ms=round(log.ms_of(last_release - start), 3))
+tb/verilator/ctrl_service_budget/save_window.py:280: f'frame 0 {set_name(p, b"again").hex()}', f'wait cycles {round(run_ms * ms)}', 'flood gm 0',
+tb/verilator/ctrl_service_budget/selftest_share.py:192: spread = [round((n + 0.5) * tick / 8, 6) for n in range(8)]
+tb/verilator/ctrl_service_budget/selftest_share.py:193: got = {key: [round(d, 6) for d in sorted(delays)] for key, delays in seen.items()}
+tb/verilator/ctrl_service_budget/selftest_share.py:239: # an aged step's pass that writes to the mailbox, as THE RETRY's round after the step does
+tb/verilator/ctrl_service_budget/selftest_share.py:259: at = round(1000 / sys_hz * 1000, 3)
+tb/verilator/ctrl_service_budget/sim_main.cpp:427: // aged=1 as on a STEPPASS line: an aged step's pass writes to the mailbox once THE RETRY's round after
