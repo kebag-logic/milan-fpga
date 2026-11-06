@@ -1,0 +1,28 @@
+head: --check rc 0, files ['archive', 'design', 'overview-and-guides', 'reference', 'testing-and-ci'], entries 76
+W11 one lane: --check rc 0, files ['one-lane'], entries 76
+W12 copy under its origin's lane: --check rc 0, files ['overview-and-guides', 'reference'], entries 76
+W11 one lane: 76 of 76 entries sit in another lane's file than at head
+    D0-001 README.md overview-and-guides -> one-lane
+    D0-002 README.md overview-and-guides -> one-lane
+    D0-003 README.md overview-and-guides -> one-lane
+    D0-004 README.md overview-and-guides -> one-lane
+    D0-005 README.md overview-and-guides -> one-lane
+    D0-006 docs/reference/REGISTER_MAP.md reference -> one-lane
+    D0-007 docs/reference/REGISTER_MAP.md reference -> one-lane
+    D0-008 docs/reference/REGISTER_MAP.md reference -> one-lane
+    D0-010 docs/integration/BOARD_PORTING_AX7101.md reference -> one-lane
+    D0-011 docs/integration/BAREMETAL_FIRMWARE.md reference -> one-lane
+    D0-012 docs/integration/BAREMETAL_FIRMWARE.md reference -> one-lane
+    D0-013 docs/integration/BAREMETAL_FIRMWARE.md reference -> one-lane
+W12 copy under its origin's lane: 11 of 76 entries sit in another lane's file than at head
+    D0-040 docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md archive -> reference
+    D0-040 docs/history/v1/reference/PROTOCOL_TRACEABILITY.md archive -> reference
+    D0-040 docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md archive -> reference
+    D0-040 docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md archive -> reference
+    D0-057 docs/fpga/FPGA_DESIGN.md design -> reference
+    D0-057 docs/history/v1/NXN_ARCHITECTURE.md archive -> reference
+    D0-057 docs/history/v1/SPEC_TRACEABILITY.md archive -> reference
+    D0-057 docs/history/v1/reference/PROTOCOL_TRACEABILITY.md archive -> reference
+    D0-057 docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md archive -> reference
+    D0-057 docs/history/v1/traceability/milan-v12.md archive -> reference
+    D0-057 docs/testing/TESTING.md testing-and-ci -> reference

@@ -1,0 +1,35 @@
+# before: 91c115b5
+SURVIVED rc=0 fails=0  W8/W11 every finding under one lane :: 
+SURVIVED rc=0 fails=0  W9/W12 a copy filed under its origin's lane :: 
+SURVIVED rc=0 fails=0  L1 a recorded finding filed under the copy's lane :: 
+SURVIVED rc=0 fails=0  L2 a copy filed under a named wrong lane :: 
+SURVIVED rc=0 fails=0  L3 lanes merged into one file, sections kept, appended :: 
+SURVIVED rc=0 fails=0  L4 lanes merged into one file, reference section first :: 
+killed   rc=1 fails=2  L5 every lane overwrites one file :: the README's statement copied onto the requirements page: generated output lacks '## D0-00
+SURVIVED rc=0 fails=0  L6 lane title names no lane :: 
+SURVIVED rc=0 fails=0  N14 window 14 :: 
+SURVIVED rc=0 fails=0  N16 window 16 :: 
+SURVIVED rc=0 fails=0  N17 window 17 :: 
+SURVIVED rc=0 fails=0  N18 window 18 :: 
+SURVIVED rc=0 fails=0  N19 window 19 :: 
+killed   rc=1 fails=1  N5 window 5 :: a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCU
+killed   rc=1 fails=1  N10000 window 10000 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+TOTAL 15 killed 3 not killed 12
+
+# after: 171fd56b2c50a44ed75a32c1b9bbd7ae818f2c22
+killed   rc=1 fails=1  W8/W11 every finding under one lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  W9/W12 a copy filed under its origin's lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  L1 a recorded finding filed under the copy's lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  L2 a copy filed under a named wrong lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  L3 lanes merged into one file, sections kept, appended :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  L4 lanes merged into one file, reference section first :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=2  L5 every lane overwrites one file :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  L6 lane title names no lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0
+killed   rc=1 fails=1  N14 window 14 :: a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inve
+killed   rc=1 fails=1  N16 window 16 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+killed   rc=1 fails=1  N17 window 17 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+killed   rc=1 fails=1  N18 window 18 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+killed   rc=1 fails=1  N19 window 19 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+killed   rc=1 fails=2  N5 window 5 :: a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCU
+killed   rc=1 fails=1  N10000 window 10000 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.
+TOTAL 15 killed 15 not killed 0

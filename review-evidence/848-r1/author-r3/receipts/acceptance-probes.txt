@@ -1,0 +1,19 @@
+ok  rc=0 want 0 :: one line appended to all 212 pages
+ok  rc=0 want 0 :: 500 lines appended to all 212 pages
+ok  rc=0 want 0 :: one blank line above every recorded finding (14 pages)
+ok  rc=1 want 1 :: supersession banner on a current page
+ok  rc=1 want 1 :: status recorded as a judgement, no document edit
+ok  rc=1 want 1 :: new tracked page
+ok  rc=1 want 1 :: page removed with git rm
+route rc=0; lane entries 76; page rows 76; one to one True; statements 76
+unlocated in lane files ['D0-001', 'D0-033', 'D0-056']; flagged on the page ['D0-001', 'D0-033', 'D0-056']; agree True
+page names the command True; literal re-verify phrase in the intro False
+ok  D0-057 docs/fpga/FPGA_DESIGN.md:196 :: presentation-time offset is pinned at the Milan 2 ms
+ok  D0-057 docs/history/v1/NXN_ARCHITECTURE.md:807 :: presentation-time offset is pinned at the Milan 2 ms
+ok  D0-040 docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:95 :: **Nothing in this device persists a binding across a power c
+ok  D0-040 docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:229 :: **Nothing in this device persists a binding across a power c
+ok  D0-057 docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:80 :: presentation-time offset is pinned at the Milan 2 ms
+ok  D0-040 docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:171 :: **Nothing in this device persists a binding across a power c
+ok  D0-057 docs/testing/TESTING.md:1904 :: presentation-time offset is pinned at the Milan 2 ms
+rows a text search misses 7; reached through the route 7
+7 probes, 0 bad
