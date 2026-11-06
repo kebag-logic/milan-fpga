@@ -1,0 +1,20 @@
+--- $REVIEWS/pp212-r769-3-packet/scratch/probe/hdl/srp/KL_srp_listener_fsm.sv	2026-11-06 02:47:17.155496987 +0100
++++ $REVIEWS/pp212-r769-3-packet/scratch/mutQ/hdl/srp/KL_srp_listener_fsm.sv	2026-11-06 03:26:37.390355974 +0100
+@@ -589,7 +589,7 @@
+                     || (exp_hit_w && (exp_idx_w == s)
+                         && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)
+                         && !(reg_rx_hit_w[s] && rx_registering_w))
+-                    || (link_ev_w && (reg_r[s] != R_MT_C));
++                    || (link_ev_w && (!link_up_i || !armed_r[s]) && (reg_r[s] != R_MT_C));
+     end
+   end
+ 
+@@ -1431,7 +1431,7 @@
+       // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-sink registrar events ------------------------------------
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+-        if (link_ev_w) begin
++        if (link_ev_w && (!link_up_i || !armed_r[s])) begin
+           // issue #212: LINK_DOWN (Flush!) and LINK_UP (Begin!) take the
+           // registrar to MT before every other event of the clock, the
+           // sink settled or not (802.1Q-2022 Table 10-4), so neither a

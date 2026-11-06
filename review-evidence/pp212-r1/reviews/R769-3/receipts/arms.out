@@ -1,0 +1,24 @@
+Verilator 5.050 2026-07-01 rev v5.050
+834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top link: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+keep-declares-seed-type: rc=2 failures=2 KILLED tags=PS20
+unarmed-indicates: rc=2 failures=1 KILLED tags=PS22
+unarmed-unregistered: rc=2 failures=1 KILLED tags=PS22
+unarmed-latency-strobe: rc=2 failures=1 KILLED tags=PS22
+pt-link-flush-dropped: rc=2 failures=6 KILLED tags=PS23,PS24
+link-begin-dropped: rc=2 failures=1 KILLED tags=PS23
+unarmed-link-flush-dropped: rc=2 failures=1 KILLED tags=PS23
+keep-on-link-clock: rc=2 failures=1 KILLED tags=PS23
+top-listener-link-unwired: rc=2 failures=1 KILLED tags=LK1
+settled-link-flush-dropped: rc=2 failures=11 KILLED tags=PS24
+settled-link-unpublished: rc=2 failures=5 KILLED tags=PS24
+link-withdraw-dropped: rc=2 failures=6 KILLED tags=PS24
+link-clock-indicates: rc=2 failures=1 KILLED tags=PS24
+settled-link-keeps-lv-slot: rc=2 failures=1 KILLED tags=PS24
+21 checks: 21 PASS, 0 FAIL
