@@ -34,10 +34,6 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 BUDGET = ROOT / 'tb/verilator/ctrl_service_budget'
 BOOT = ROOT / 'tb/verilator/ctrl_split_boot'
-FIRMWARE = ROOT / 'sw/firmware/ctrl'
-IMAGE = FIRMWARE / 'test/ctrl_plat_image.py'
-#: The platform's fixture map, the first link's (the split boot simulation's PROVISIONAL).
-PROVISIONAL = FIRMWARE / 'test/ctrl_plat_csr.csv'
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
 #: The one point the planner's ledger lets the platform image plan past 56 RAMB36 (ctrl_memory.LEDGERED, the
 #: ruling of 2026-10-29 on #665): its name for the image and the SoC's memory plan, at that point only.
@@ -94,6 +90,10 @@ def module(name: str, path: Path) -> object:
 sys.path.insert(0, str(BUDGET))
 s2build = module('budget_build', BUDGET / 'build.py')
 boot = module('split_boot_run', BOOT / 'run.py')
+FIRMWARE = boot.FIRMWARE_TEST.parent
+IMAGE = boot.FIRMWARE_TEST / 'ctrl_plat_image.py'
+#: The platform's fixture map, the first link's (the split boot simulation's PROVISIONAL).
+PROVISIONAL = boot.PROVISIONAL
 
 
 def ledgered_point(shape: str, n_if: int) -> str | None:

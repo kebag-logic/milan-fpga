@@ -215,12 +215,6 @@ OUTSIDE = {
                                                      "compiles off, and reads the image's placeholder addresses from "
                                                      "ctrl_build.RV32_FLAGS and the store's generated headers; it "
                                                      "compiles no firmware or stack source",
-    # the hook harness (#665): the CPU budget harness's prerequisites, so no hosted job can run its build either
-    "tb/verilator/ctrl_service_hooks/hooks_build.py": "delegates every compile of the firmware to "
-                                                      "ctrl_plat_image.py, run unchanged on the checkout's tree or "
-                                                      "on a plant's scratch copy of it outside the checkout, and the "
-                                                      "runtime to runtime_ssp.py; its own compiles build the hook "
-                                                      "SoC's Verilator model",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
