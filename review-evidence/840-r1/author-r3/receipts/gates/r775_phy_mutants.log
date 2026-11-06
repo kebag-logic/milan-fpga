@@ -1,0 +1,11 @@
+# head beb38447d07cceac5170ba0a35c7615f5714b7f7 gate r775_phy_mutants: python3 -I -B <packet>/scripts/r775_phy_extra_mutants.py <scratch>/gates/wt
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+R775_PHY_PROBE none                     PASS     PHY_ADVERTISEMENT writes=3 reg9=0x1e00 reg4=0x0c01 reg0=0x1200 restarts=1
+R775_PHY_PROBE drop-pause               CAUGHT   `pause_bits_kept' failed.
+R775_PHY_PROBE keep-reserved-4.14       CAUGHT   `reserved_bit_14_cleared' failed.
+R775_PHY_PROBE drop-master-slave        CAUGHT   `master_slave_kept' failed.
+R775_PHY_PROBE keep-test-mode           CAUGHT   `test_mode_cleared' failed.
+R775_PHY_PROBE restart-keeps-isolate    CAUGHT   `isolate_cleared' failed.
+R775_PHY_PROBE restart-sets-reset       CAUGHT   `reset_cleared' failed.
+R775_PHY_PROBE gate-on-half-duplex      CAUGHT   `no_write_without_1000base_t_full_ability' failed.
+R775_PHY_PROBE no-register-4-write      CAUGHT   `no_10base_t_advertised' failed.
