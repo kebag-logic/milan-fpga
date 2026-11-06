@@ -98,10 +98,10 @@ After booting and raising every link, each case but the planted guard asks two q
 | Case | Image | Journal | Must show |
 |---|---|---|---|
 | `commit` | `capture-all` | blank | Every record of the shape is marked changed once the boot releases. SET_NAME renames the entity and BIND_RX binds sink 0 to a talker. The store captures every record from its owners and commits: one erase and the container's pages. The journal it leaves decodes, by the reference codec, with the saved name and sink 0's binding; both questions answer them. |
-| `valid` | 44, 5,050,293 (101.0) | 133, 24,519,265 (490.4) |
-| `absent` | 0, 506,900 (10.1) | 0, 1,747,362 (34.9) |
-| `torn` | 44, 8,300,664 (166.0) | 133, 37,436,744 (748.7) |
-| `version` | 0, 504,932 (10.1) | 0, 1,745,393 (34.9) |
+| `valid` | fixture | the commit's | Both questions answer the saved values, the apply order is the container's, and nothing is written. |
+| `absent` | fixture | blank | No owner applies anything, the name is not a saved one, sink 0 is unbound, and nothing is written. |
+| `torn` | fixture | the commit's container in slot A; in slot B the next sequence renaming the entity, its last page never programmed | Slot A's values are applied in its order, the newer torn slot is refused, and nothing is written. |
+| `version` | fixture | the commit's container under the next major version in slot A, slot B blank | The slot is refused for its version: no owner applies anything, the name is not a saved one, sink 0 is unbound, and nothing is written, the refused slot included. |
 | `guard` | `guard-probe` | blank | After the boot the port is asked to erase four blocks outside the journal (the bitstream's first block, the block below the journal, the block above it and the one beyond) and to program three pages outside it. Every call reaches the port and is refused before the command master is touched. One erase inside the journal reaches the device, which sees it and nothing else. Then the boot opens the mailbox. |
 
 `capture-all` and `guard-probe` are labelled test-code arms: edits of the size fixture in a scratch copy (`build.Variant`), never the formal image.

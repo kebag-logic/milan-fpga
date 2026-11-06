@@ -4,12 +4,14 @@
 """The split boot simulation (#665): the platform image from reset to ready, its CSR trace and its UART.
 
 Builds, in order, all outside the checkout under --build-dir:
-  1. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
-  2. the platform image (ctrl_plat_image.py), first against the fixture map
+  1. the shape's flash port map, from the split SoC's export (the CPU budget harness's
+     build.flash_map); both links and both exports below use it;
+  2. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
+  3. the platform image (ctrl_plat_image.py), first against the fixture map
      (ctrl_plat_csr.csv), then against the boot SoC's own csr.csv, which an export with the
      first image gives (the map does not depend on the image: the two
      exports' csr.csv rows must be identical, or the run is refused);
-  3. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
+  4. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
 Then it runs the model, saves its exit status beside its log (sim.status), and grades the log:
   - NATIVE: the model's own verdict, which no observation before it discharges:
     its saved exit status is 0, and its checker's tally (verilator_harness.hpp),
