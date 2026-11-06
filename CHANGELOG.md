@@ -87,6 +87,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The shipping route grows 503 LUTs and 478 FFs.
 - Placement leaves 70 of 15,850 slices free.
 - WNS is +0.198 ns; every corner meets the floor.
+- The resource gate refuses this growth: `route-1x1` and `ooc-1x1` exit 1.
+- It selects ExtraTimingOpt: +0.373 ns, 15 of 15,850 slices free.
+- The owner decision is pending; the gate's records are not re-recorded.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
 
 ## Unreleased - gPTP on the MII port
 

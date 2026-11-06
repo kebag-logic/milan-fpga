@@ -154,6 +154,27 @@ That route's WNS, +0.107 ns, was 0.333 ns under the record's +0.440 ns; its wors
 The re-pin to processor `a9e84b66`, routed with the [#814](https://github.com/kebag-logic/milan-fpga/issues/814) cuts on the recipe's three directives, passes the [#818](https://github.com/kebag-logic/milan-fpga/issues/818) gate.
 Its best directive, AltSpreadLogic_high, has WNS +0.365 ns at every slow corner, 52,021 LUTs and 63 of 15,850 slices left.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
+The adoption of processor `92100657` ([#845](https://github.com/kebag-logic/milan-fpga/issues/845)) is that growth, and its owner decision is pending: it is requested, not made.
+The gate refuses that growth: `pp_resource_gate.py check` exits 1 on `route-1x1` and on `ooc-1x1`.
+Both ran in the gate's own form at lane commit `b16f0175`; later commits change no synthesis input.
+`ooc-8x8` was not measured.
+The records above are not re-recorded, so the table still holds the processor `f65c8ff7` route.
+On `route-1x1` the gate selects ExtraTimingOpt, the best of the three directives at WNS +0.373 ns.
+It refuses 52,529 LUTs (+517, tolerance +500) and 54,582 FFs (+875, tolerance +600).
+That route's 15,835 slices (+55, tolerance +80), block RAM, DSP, WNS and WHS pass; 15 slices are left.
+All three directives route without error and meet the build floor at every corner:
+
+| Directive, processor `92100657` | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.373 / +0.012 ns | 52,529 | 54,582 | 15,835 | 15 |
+| ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
+| AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
+
+On `ooc-1x1` it refuses 24,996 LUTs (+650, tolerance +250) and 20,934 FFs (+530, tolerance +250); RAMB36, RAMB18 and DSP are unchanged.
+These deltas are from the `f65c8ff7` records, so they include dev's own movement since then.
+On ExtraPostPlacementOpt dev `cc204c6f` reads 51,994 LUTs and 54,101 FFs, so the adoption's own share there is +503 LUTs and +478 FFs.
+No `ooc-1x1` figure exists at dev's pin `a9e84b66`; the latest measured, at processor `1be824fc`, was -53 LUTs and +7 FFs from the record.
+The gate's sub-block rows, which it does not judge, put the SRP listener at +416 LUTs and +523 FFs on `ooc-1x1`.
 The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
 The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
 It runs from the AXI-Lite-to-Wishbone bridge state `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]` to the SPI-flash PHY counter `milansoc_spiflash_phy_cnt_reg[8]`; its data delay is 9.531 ns, of which 6.252 ns is routing.

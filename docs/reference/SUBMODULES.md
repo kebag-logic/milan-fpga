@@ -584,6 +584,35 @@ It lies outside the processor and the datapath.
 
 Placement leaves 70 of 15,850 slices free.
 
+The resource gate refuses this growth, and the owner decision it needs is pending.
+
+The [area budget](../design/AREA_BUDGET.md) requires that decision for the next growth on the shipping image.
+
+It is requested, not made, and the gate's records are not re-recorded.
+
+The gate ran in its own form at lane commit `b16f0175`: the [baseline recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three placement directives and the 1x1 standalone synthesis.
+
+Later commits change no synthesis input.
+
+| Endpoint | Exit | Refused | Passed |
+|---|---:|---|---|
+| `route-1x1`, ExtraTimingOpt selected | 1 | 52,529 LUTs (+517 of +500), 54,582 FFs (+875 of +600) | 15,835 slices (+55 of +80), RAMB36, RAMB18, DSP, WNS +0.373 ns, WHS +0.012 ns |
+| `ooc-1x1` | 1 | 24,996 LUTs (+650 of +250), 20,934 FFs (+530 of +250) | RAMB36, RAMB18, DSP |
+
+`ooc-8x8` was not measured.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.373 / +0.012 ns | 52,529 | 54,582 | 15,835 | 15 |
+| ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
+| AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
+
+All three route without error and meet the build floor at every corner.
+
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds the shipping image from the selected directive, which leaves 15 slices, not the 70 above.
+
+The gate's deltas are from its records at processor `f65c8ff7`, so they include dev's own movement since then.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
