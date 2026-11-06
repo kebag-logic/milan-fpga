@@ -1,0 +1,48 @@
+===== tb/verilator/ctrl_service_budget/split_soc.py (merge-tree 1da946bb5ba042efd519380370c82c7b956a21b7, conflict markers: <<< a68536fa, >>> this lane's head)
+--- line 36
+<<<<<<< a68536fa4cf8ce65c513874722de2e3ba83c2d00
+LiteSPI's crossbar, memory-mapped reader and command master, with the master
+in its own CSR bank, and the serial device is the sibling service-budget
+harness's native model (fw_service_budget/flash.hpp). Its PHY boundary is
+staged as MilanSoC.add_spi_flash stages every SoC built from it
+(milan_soc.stage_spi_phy, #814), so a flash-window read and a command-master
+transfer pay the product's registered stage.
+=======
+LiteSPI's crossbar, memory-mapped reader and command master, in one CSR bank
+as add_spi_flash builds it, and the serial device is the sibling
+service-budget harness's native model (fw_service_budget/flash.hpp).
+>>>>>>> HEAD
+
+--- line 373
+<<<<<<< a68536fa4cf8ce65c513874722de2e3ba83c2d00
+        raise RuntimeError('fixture flash window size differs from the shipping part')
+    phy = milan_soc.stage_spi_phy(FlashBoundary(platform.request('flash'), module))
+    spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
+=======
+        raise RuntimeError("the split SoC's flash window size differs from the shipping part")
+    csr_base = soc.mem_map['csr']
+    for name in ('spiflash', 'timer0'):
+        if (addresses[name] - csr_base) % CSR_BANK_BYTES:
+            raise RuntimeError(f"the split SoC's {name} bank is not at a CSR bank boundary")
+    divisor = -(-int(soc.sys_clk_freq) // int(12.5e6))
+    phy = FlashBoundary(platform.request('flash'), module, divisor + divisor % 2)
+    spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=True)
+>>>>>>> HEAD
+
+===== tb/verilator/ctrl_service_budget/README.md (merge-tree 1da946bb5ba042efd519380370c82c7b956a21b7, conflict markers: <<< a68536fa, >>> this lane's head)
+--- line 129
+<<<<<<< a68536fa4cf8ce65c513874722de2e3ba83c2d00
+- **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master.
+  Its PHY boundary is staged with `milan_soc.stage_spi_phy`, as `MilanSoC.add_spi_flash` stages every SoC built from it (#814): `SPIPHYStage` costs one more bus cycle each way, two a word in a burst, eight a new burst.
+=======
+- **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master, in one CSR bank as `add_spi_flash` builds it.
+>>>>>>> HEAD
+
+--- line 150
+<<<<<<< a68536fa4cf8ce65c513874722de2e3ba83c2d00
+Each reaches the same kind of device over the same peripheral bus in both maps, and the flash through the product's PHY stage, so the address does not change an access's cost.
+=======
+The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured with the flash port on the RV32 stand-ins' placeholders (`ctrl_nvm/test/rv32/generated`: the master at `0xf000_3000`, `timer0` at `0xf000_3800`, the window at `0x2000_0000`).
+Each reaches the same kind of device over the same peripheral bus in both maps, so the address does not change an access's cost.
+>>>>>>> HEAD
+
