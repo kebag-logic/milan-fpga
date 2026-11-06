@@ -1,0 +1,63 @@
+killed   rc=1 fails=1   W01 lane keeps only its first finding :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=5   W02 lane drops its first finding :: unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+killed   rc=1 fails=1   W03 lane keeps only its last finding :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W04 statement dropped :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W05 source dropped :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W06 correction dropped :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=4   W07 line replaced by a question mark :: unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+killed   rc=1 fails=2   W08 only the first lane written :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=2   W09 only the last lane written :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=2   W10 every lane overwrites one file :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W11 every finding filed under one lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W12 a copy filed under its origin's lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W13 lane heading drops the baseline :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W14 lane heading drops the citation baseline :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W15 first finding of a lane loses its statement :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=3   W16 copies dropped from the lane files :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W17 unlocated findings dropped from the lane files :: fixed statement asks for re-verification: generated output lacks '## D0-001: docs/guides/A.md:?
+killed   rc=1 fails=1   P01 Located sentence dropped :: the page names a finding's line: generated output lacks '`Located`'
+killed   rc=1 fails=1   P02 command sentence dropped :: the page names a finding's line: generated output lacks '--findings-dir DIR'
+killed   rc=1 fails=1   P03 search sentence dropped :: the page names a finding's line: generated output lacks 'search misses'
+SURVIVED rc=0 fails=0   P04 reach sentence dropped :: 
+SURVIVED rc=0 fails=0   P05 command names no script :: 
+SURVIVED rc=0 fails=0   P06 sentence says the page carries the line :: 
+SURVIVED rc=0 fails=0   P07 reach sentence negated :: 
+killed   rc=1 fails=4   O01 own row dropped from the inventory :: the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+killed   rc=1 fails=35  O02 own row read from disk :: unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENTATIO
+killed   rc=1 fails=1   O03 own row hidden at render :: the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+killed   rc=1 fails=13  L01 Located shows the line :: a removed line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md
+killed   rc=1 fails=2   L02 banner evidence names a line :: a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTA
+killed   rc=1 fails=1   L03 summary shows a length :: the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+killed   rc=1 fails=2   L04 summary counts all pages per status :: a status change alone makes the page stale: generated output lacks '| superseded | 1 |'
+killed   rc=1 fails=14  L05 located inverted :: a line added above a finding leaves the page fresh: generated output lacks '| D0-001 | [docs/gu
+killed   rc=1 fails=2   L06 every row claims on page :: planted edited quote in the data file: generated output lacks 're-verify: quote not found'
+SURVIVED rc=0 fails=0   L07 Located heading reverted :: 
+killed   rc=1 fails=2   C01 status read from the wrong cell :: hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+killed   rc=1 fails=2   C02 inventory width stale :: hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+SURVIVED rc=0 fails=0   C03 check ignores the status rule :: 
+killed   rc=1 fails=48  C04 status rule lost in the generator :: unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENTATIO
+killed   rc=1 fails=12  C05 status rule lost and check ignores it :: the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+killed   rc=1 fails=1   B01 window 14 :: a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory
+killed   rc=1 fails=1   B02 window 16 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+killed   rc=1 fails=1   B03 window 19 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+killed   rc=1 fails=1   B04 window 20 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+killed   rc=1 fails=1   B05 window 21 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+killed   rc=1 fails=2   B06 window 6 :: a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTA
+killed   rc=1 fails=2   B07 window 5 :: a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTA
+killed   rc=1 fails=1   B08 whole page scanned :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+killed   rc=1 fails=3   N01 copy line off by one :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=8   N02 copy located literally :: the README's statement copied onto the requirements page: generated output lacks '| D0-002 | [R
+killed   rc=1 fails=2   N03 literal find line off by one :: unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+SURVIVED rc=0 fails=0   H01 grader reads the lane text for page needles :: 
+killed   rc=1 fails=5   H02 grader reads the page for lane needles :: unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+SURVIVED rc=0 fails=0   H03 grader never fails :: 
+killed   rc=1 fails=1   V01 page row loses the recording page :: the README's statement copied onto the requirements page: generated output lacks 'Copy of the D
+killed   rc=1 fails=1   V02 page drops the verified baseline :: the citations' baseline is on the page: generated output lacks 'at dev `0000000`'
+killed   rc=1 fails=1   V03 page correction cell blank :: finding marks its page stale: generated output lacks '| It resets to 0x0. |'
+killed   rc=1 fails=1   V04 line count reaches a heading-less purpose :: new tracked page without a row: generated output lacks '| NEW.md |'
+killed   rc=1 fails=1   W18 a copy's lane entry loses its statement :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+killed   rc=1 fails=1   W19 a lane entry loses the recording page :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 find
+SURVIVED rc=0 fails=0   W20 --findings-dir exits nonzero after writing :: 
+SURVIVED rc=0 fails=0   X01 old grading plus page row defect :: 
+killed   rc=1 fails=1   X02 new grading plus page row defect :: the README's statement copied onto the requirements page: generated output lacks 'Copy of the D
+TOTAL 62 killed 52 survived 10
