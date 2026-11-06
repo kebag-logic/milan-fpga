@@ -1,0 +1,115 @@
+diff --git a/tb/verilator/ctrl_service_hooks/README.md b/tb/verilator/ctrl_service_hooks/README.md
+index e04062fe8c..d7e3f8b6ab 100644
+--- a/tb/verilator/ctrl_service_hooks/README.md
++++ b/tb/verilator/ctrl_service_hooks/README.md
+@@ -212,7 +212,7 @@ Then it replaces each rule in turn, and a named check must fail:
+ | bound: SRP graded against T_svc alone | an 18 to 20 ms SRP path misses |
+ | bound: the ceiling alone | bounds pinned |
+ | bound: the normative wait is not added | the exact bound fits and W adds |
+-| bound: the margin is not recorded | the exact bound fits and W adds |
++| bound: the margin is taken from a timeout of zero | the exact bound fits and W adds |
+ | map: the counter push is a notification | the hooks map |
+ | map: no composed row of this harness is loaded | the hooks map |
+ | label: the Milan clock labelled the product's (the earlier rule) | the clock labels |
+@@ -232,7 +232,9 @@ Then it replaces each rule in turn, and a named check must fail:
+ | H-SRP: the ADOPTED bit is never seen set | H-SRP ordering |
+ | plants: a plant edits nothing | the plants apply |
+ | supersede: the table names another group | a refusal is superseded only by its own path |
+-| supersede: any later group supersedes a refusal | a refusal is superseded only by its own path |
++| supersede: the table names a second path | a refusal is superseded only by its own path |
++| supersede: a row of another path supersedes a refusal | a refusal is superseded only by its own path |
++| supersede: every refusal is superseded | a refusal is superseded only by its own path |
+ | aging: the window opens before the arm (the earlier rule) | the aging window opens after the arm |
+ | aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | the aging window opens after the arm |
+ | aging: both sinks bound before either is answered (the earlier rule) | the aging window opens after the arm |
+@@ -264,7 +266,7 @@ Then it replaces each rule in turn, and a named check must fail:
+ | held missing: silently accepted | a held push never sent |
+ | held missing: it fits | a held push never sent |
+ | held missing: it counts as served | a held push never sent |
+-| held missing: its finding is dropped | a held push never sent |
++| held missing: its finding by name is dropped | a held push never sent |
+ | held missing: its timeout is the notification family's | a held push never sent |
+ | held missing: it records CPU cycles | a held push never sent |
+ | held missing: it records a W | a held push never sent |
+diff --git a/tb/verilator/ctrl_service_hooks/hooks_selftest.py b/tb/verilator/ctrl_service_hooks/hooks_selftest.py
+index 6b68d14c59..21908ee4d1 100644
+--- a/tb/verilator/ctrl_service_hooks/hooks_selftest.py
++++ b/tb/verilator/ctrl_service_hooks/hooks_selftest.py
+@@ -585,7 +585,8 @@ def check_amended() -> None:
+ 
+ def check_superseded() -> None:
+     """An unmeasured probe of a path this harness measures again in its own group, on the same interface, is
+-    superseded; on another interface, or unmeasured there too, it stays a refusal."""
++    superseded; on another interface, or unmeasured there too beside a row of another path, it stays a refusal, and
++    so does a path the table does not name, though that group measured it."""
+     lost = dict(probe='acmp.tmr_no_adp.if1', path=['acmp.tmr_no_adp', 1], status='no start', reason='late')
+     again = dict(row('disc', 2.0, probe='hooks-disc-aging.tmr_no_adp.if1'), path=['acmp.tmr_no_adp', 1],
+                  interface=1, status='measured')
+@@ -594,8 +595,13 @@ def check_superseded() -> None:
+     expect(not got['refusals'] and len(got['superseded']) == 1, f'superseded: {got}')
+     got = graded_with({'acmp-disc': [lost], 'hooks-disc-aging': [other]})
+     expect(len(got['refusals']) == 1 and not got['superseded'], f'other interface: {got}')
+-    got = graded_with({'acmp-disc': [dict(lost, path=['acmp.bind_rx', 1])], 'hooks-disc-aging': [again]})
+-    expect(len(got['refusals']) == 1, f'another path: {got}')
++    unnamed = ['acmp.bind_rx', 1]
++    got = graded_with({'acmp-disc': [dict(lost, path=unnamed)], 'hooks-disc-aging': [dict(again, path=unnamed)]})
++    expect(len(got['refusals']) == 1 and not got['superseded'], f'a path the table does not name: {got}')
++    beside = dict(again, probe='hooks-disc-aging.available.if1', path=['acmp.entity_available', 1])
++    own = dict(lost, probe='hooks-disc-aging.tmr_no_adp.if1')
++    got = graded_with({'acmp-disc': [lost], 'hooks-disc-aging': [beside, own]})
++    expect(len(got['refusals']) == 2 and not got['superseded'], f'another path: {got}')
+ 
+ 
+ def check_aging_group() -> None:
+@@ -738,8 +744,15 @@ def findings_by_amended(*arguments: object) -> dict:
+                                   or x.split(': ')[1] in over])
+ 
+ 
+-def superseded_by_any_row(*arguments: object) -> dict:
+-    """A run's grade with every refusal superseded, whichever path or interface a later group measured."""
++def row_as_the_tabled_path(r: dict, group: str) -> dict:
++    """A path's row, its path read as the one the table has its group supersede: the rule's comparison of paths then
++    compares nothing, and any row of that group on the refusal's interface supersedes it."""
++    out = HOOK_ROW(r, group)
++    return dict(out, path=next((path for path, by in hooks.SUPERSEDED.items() if by == group), out['path']))
++
++
++def every_refusal_superseded(*arguments: object) -> dict:
++    """A run's grade with every refusal superseded, with no regard to any row."""
+     graded = GRADE_ALL(*arguments)
+     return dict(graded, refusals=[], superseded=[*graded['superseded'], *graded['refusals']])
+ 
+@@ -765,7 +778,7 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
+      'bounds pinned'),
+     ('bound: the normative wait is not added', mutant(run, 'hook_row', lambda r, g: dict(
+         HOOK_ROW(dict(r, wait_ms=0.0), g), wait_ms=r['wait_ms'])), 'the exact bound fits and W adds'),
+-    ('bound: the margin is not recorded', mutant(hooks, 'normative_ms', lambda hook, family: 0.0),
++    ('bound: the margin is taken from a timeout of zero', mutant(hooks, 'normative_ms', lambda hook, family: 0.0),
+      'the exact bound fits and W adds'),
+     ('map: the counter push is a notification', mutant(hooks, 'COUNTERS_PREFIX', '\0'), 'the hooks map'),
+     ('map: no composed row of this harness is loaded', mutant(run, 'LOADED', grade.BACKLOG_ROWS), 'the hooks map'),
+@@ -799,7 +812,12 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
+      'the plants apply'),
+     ('supersede: the table names another group', mutant(hooks, 'SUPERSEDED', {'acmp.tmr_no_adp': 'acmp-disc'}),
+      'a refusal is superseded only by its own path'),
+-    ('supersede: any later group supersedes a refusal', mutant(run, 'grade_all', superseded_by_any_row),
++    ('supersede: the table names a second path', mutant(hooks, 'SUPERSEDED', {**hooks.SUPERSEDED,
++                                                                              'acmp.bind_rx': 'hooks-disc-aging'}),
++     'a refusal is superseded only by its own path'),
++    ('supersede: a row of another path supersedes a refusal', mutant(run, 'hook_row', row_as_the_tabled_path),
++     'a refusal is superseded only by its own path'),
++    ('supersede: every refusal is superseded', mutant(run, 'grade_all', every_refusal_superseded),
+      'a refusal is superseded only by its own path'),
+     ('aging: the window opens before the arm (the earlier rule)', mutant(hooks, 'aging_group', window_before_arm),
+      'the aging window opens after the arm'),
+@@ -859,8 +877,8 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
+     ('held missing: it fits', held_fields(lambda h, r, s: dict(within=True), missing=True), MISSING_HELD),
+     ('held missing: it counts as served', held_fields(lambda h, r, s: dict(unbounded=False), missing=True),
+      MISSING_HELD),
+-    ('held missing: its finding is dropped', held_fields(lambda h, r, s: dict(missing=False), missing=True),
+-     MISSING_HELD),
++    ('held missing: its finding by name is dropped', held_fields(lambda h, r, s: dict(missing=False),
++                                                                   missing=True), MISSING_HELD),
+     ('held missing: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
+         normative_ms=hooks.NORMATIVE_MS['notify']), missing=True), MISSING_HELD),
+     ('held missing: it records CPU cycles', held_fields(lambda h, r, s: dict(cpu_cycles=1), missing=True),
