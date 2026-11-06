@@ -1,0 +1,45 @@
+# merge reconstruction
+c6b34bd08cd31b19bb7c7102ff0c195fb753339a cadb63b4985c0ad4fb7dc036a23bf9fe93eb6276 cc204c6fd2349b543d73f15c97162a2c4434c86e
+merge-tree: 9265b407e301856adadf8e78c4a3f53f6efe9fbe
+9265b407e301856adadf8e78c4a3f53f6efe9fbe
+# files changed by merge vs each parent
+ .github/ci-templates/docs.yml         |  18 +
+ .github/workflows/docs.yml            |  21 +-
+ ci/image/command-table.json           |  19 +
+ docs/DOCUMENTATION_AUDIT.md           | 739 ++++++++++++++++++-------
+ docs/README.md                        |   2 +-
+ docs/guides/VERIFICATION_DEVELOPER.md |   2 +-
+ docs/reference/REGISTER_MAP.md        |   2 +-
+ scripts/ci_events.py                  |  19 +-
+ scripts/docs_inventory.json           | 501 +++++++++++++++++
+ scripts/docs_inventory.py             | 999 ++++++++++++++++++++++++++++++++++
+ 10 files changed, 2096 insertions(+), 226 deletions(-)
+# both-side files
+ci/image/command-table.json
+docs/README.md
+# merge bases
+cc204c6fd2349b543d73f15c97162a2c4434c86e
+origin/dev
+cc204c6fd2349b543d73f15c97162a2c4434c86e	refs/heads/dev
+# af9a touches only
+docs/DOCUMENTATION_AUDIT.md
+# inventory json and audit differ from generator?
+af9a8a33ed Regenerate the documentation inventory through docs_inventory.py --write on the merge of dev cc204c6f: 214 pa
+430a077c0e Regenerate the documentation inventory on the merge of dev 604899c0: 213 pages, 176 current and 16 stale (#79
+e8ec8d209a Regenerate the documentation inventory on the merge of dev e61a4afa: 213 pages, 176 current and 16 stale (#79
+# gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# commit bodies not empty
+# diff --check
+rc 0

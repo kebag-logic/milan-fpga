@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<scratch>/840-r775-2-packet/scratch/devtree/scripts/ci_command_table.py", line 127, in <module>
+    from ci_python_walk import PythonWalk  # noqa: E402 - the mixin uses the helpers above
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/840-r775-2-packet/scratch/devtree/scripts/ci_python_walk.py", line 18, in <module>
+    from ci_command_table import TABLE, Refusal, Runtime, _dirname, _join, _normpath
+  File "<scratch>/840-r775-2-packet/scratch/devtree/scripts/ci_command_table.py", line 127, in <module>
+    from ci_python_walk import PythonWalk  # noqa: E402 - the mixin uses the helpers above
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'PythonWalk' from 'ci_python_walk' (consider renaming '<scratch>/840-r775-2-packet/scratch/devtree/scripts/ci_python_walk.py' if it has the same name as a library you intended to import)

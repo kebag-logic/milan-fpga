@@ -1,0 +1,9 @@
+R775_PHY_PROBE none                     PASS     PHY_ADVERTISEMENT writes=3 reg9=0x1e00 reg4=0x0c01 reg0=0x1200 restarts=1
+R775_PHY_PROBE drop-pause               CAUGHT   `pause_bits_kept' failed.
+R775_PHY_PROBE keep-reserved-4.14       CAUGHT   `reserved_bit_14_cleared' failed.
+R775_PHY_PROBE drop-master-slave        CAUGHT   `master_slave_kept' failed.
+R775_PHY_PROBE keep-test-mode           CAUGHT   `test_mode_cleared' failed.
+R775_PHY_PROBE restart-keeps-isolate    CAUGHT   `isolate_cleared' failed.
+R775_PHY_PROBE restart-sets-reset       CAUGHT   `reset_cleared' failed.
+R775_PHY_PROBE gate-on-half-duplex      CAUGHT   `no_write_without_1000base_t_full_ability' failed.
+R775_PHY_PROBE no-register-4-write      CAUGHT   `no_10base_t_advertised' failed.

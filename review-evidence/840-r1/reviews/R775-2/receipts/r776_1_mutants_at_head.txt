@@ -1,0 +1,9 @@
+PROBE none: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x1e00 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE clear-pause-bits: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:79: expect_gigabit_only_advertisement: Assertion `pause_bits_kept' failed.
+PROBE drop-master-slave: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:83: expect_gigabit_only_advertisement: Assertion `master_slave_kept' failed.
+PROBE keep-test-mode: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:84: expect_gigabit_only_advertisement: Assertion `test_mode_cleared' failed.
+PROBE keep-reserved-bit14: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:78: expect_gigabit_only_advertisement: Assertion `reserved_bit_14_cleared' failed.
+PROBE keep-reset-isolate: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:86: expect_gigabit_only_advertisement: Assertion `reset_cleared' failed.
+PROBE no-an-enable: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:88: expect_gigabit_only_advertisement: Assertion `auto_negotiation_enabled' failed.
+PROBE no-ability-retry-forever: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:298: main: Assertion `ability_read_once' failed.
+PROBE skip-register-4: CAUGHT rc=-6  phy: <scratch>/r775-2-840/sw/firmware/nvm_hosttest/phy_host.c:75: expect_gigabit_only_advertisement: Assertion `no_10base_t_advertised' failed.

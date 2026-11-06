@@ -1,0 +1,20 @@
+nak-reg4-not-checked: ESCAPED (rc 0)
+nak-reg9-not-checked: caught by no_write_before_its_read
+nak-reg0-not-checked: ESCAPED (rc 0)
+nak-retry-given-up: caught by no_10base_t_advertised
+nak-ability-given-up: caught by no_10base_t_advertised
+init-on-failed-bmsr: ESCAPED (rc 0)
+clear-next-page: ESCAPED (rc 0)
+clear-remote-fault: ESCAPED (rc 0)
+clear-selector: caught by selector_kept
+reg0-from-constant: ESCAPED (rc 0)
+write-4-before-9: ESCAPED (rc 0)
+force-pause-on: ESCAPED (rc 0)
+force-manual-master: ESCAPED (rc 0)
+force-manual-config-only: ESCAPED (rc 0)
+write-ta-11: caught by (write_bits >> 16) == 2u
+write-to-phy-0: caught by no_10base_t_advertised
+write-short-preamble: caught by value & 4u
+advertised-from-boot: caught by no_10base_t_advertised
+gate-on-an-done: caught by no_write_without_extended_status
+escaped: ['nak-reg4-not-checked', 'nak-reg0-not-checked', 'init-on-failed-bmsr', 'clear-next-page', 'clear-remote-fault', 'reg0-from-constant', 'write-4-before-9', 'force-pause-on', 'force-manual-master', 'force-manual-config-only']
