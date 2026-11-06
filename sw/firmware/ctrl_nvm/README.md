@@ -335,7 +335,7 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   - The 24.5 ms bound covers the current flash writer's capture only: the
     product firmware's, half its guaranteed 49 ms hold floor.
     `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of
-    13.863 ms stays gated.
+    13.861 ms stays gated.
 - **CPU time, measured on the split CPU.** The split placement's size
   fixture links the store, and
   [`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md#results)

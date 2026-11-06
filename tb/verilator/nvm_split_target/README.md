@@ -155,7 +155,7 @@ The owner's decision of 2026-10-29 19:05 on #665, option (c), restates the first
 - **The split writer F1 is not held to D5's 24.5 ms capture bound.** F1 holds no owner while it captures, and a change behind its cursor opens its own window (DR2a). So the hold the bound protects does not exist in the split.
 - **Each F1 step stays bounded by T_svc**, under FR_NFR 3.4.1 as amended (20 ms, graded per family). The cases grade it as described above.
 - **The total capture time has no bound of its own.** It is measured and recorded at both points ([Results](#results)). A power loss inside it loses at most the unsaved change, because the previous slot stays valid (the `torn` case).
-- **D5 on the current flash writer is unchanged.** The 24.5 ms bound covers the current flash writer's capture only: half that writer's guaranteed 49 ms hold floor (`nvm_capture_cpu/recipe.py`, `HOLD_FLOOR_MS`). `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of 13.863 ms stays gated. This harness's self-test fails if that writer's grader stops refusing a capture over 24.5 ms ([Controls and self-test](#controls-and-self-test)).
+- **D5 on the current flash writer is unchanged.** The 24.5 ms bound covers the current flash writer's capture only: half that writer's guaranteed 49 ms hold floor (`nvm_capture_cpu/recipe.py`, `HOLD_FLOOR_MS`). `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of 13.861 ms stays gated. This harness's self-test fails if that writer's grader stops refusing a capture over 24.5 ms ([Controls and self-test](#controls-and-self-test)).
 
 ## Results
 
