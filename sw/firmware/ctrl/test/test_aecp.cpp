@@ -2355,7 +2355,8 @@ TEST_F(Mailbox, ARoundTriesStreamInfoOnceAtEveryIndex)
 // refusal charges decides whether the next port is tried in that pass.
 TEST_F(Mailbox, ARefusedAttemptIsChargedToItsRound)
 {
-    unsigned avb=0,path=0;
+    unsigned avb=0;
+    unsigned path=0;
     ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){++avb;*v={};return false;});
     ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){++path;*n=0;return true;});
     receive(0);service();
