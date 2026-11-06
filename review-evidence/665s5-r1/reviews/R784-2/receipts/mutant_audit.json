@@ -1,0 +1,619 @@
+[
+ {
+  "mutant": "bound: a stale T_svc of 10 ms",
+  "check": "bounds pinned",
+  "kind": "RULE",
+  "why": "T_svc is 10.0",
+  "others": [
+   "a fit under the layout swing is a finding",
+   "a held push never sent",
+   "an 18 to 20 ms SRP path misses",
+   "findings by hook",
+   "the amended column grades nothing",
+   "the exact bound fits and W adds",
+   "the held push's grade",
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "bound: SRP graded against T_svc alone",
+  "check": "an 18 to 20 ms SRP path misses",
+  "kind": "RULE",
+  "why": "a 19 ms SRP path fits",
+  "others": [
+   "bounds pinned",
+   "the amended column grades nothing",
+   "the exact bound fits and W adds"
+  ]
+ },
+ {
+  "mutant": "bound: the ceiling alone",
+  "check": "bounds pinned",
+  "kind": "RULE",
+  "why": "bounds {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}",
+  "others": [
+   "a fit under the layout swing is a finding",
+   "a held push never sent",
+   "findings by hook",
+   "the amended column grades nothing",
+   "the exact bound fits and W adds",
+   "the held push's grade",
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "bound: the normative wait is not added",
+  "check": "the exact bound fits and W adds",
+  "kind": "RULE",
+  "why": "W + bound: {'hook': 'H-SRP', 'group': 'srp', 'probe': 'x.if0', 'path': 'x', 'row': 'r', 'interface': 0, 'family': 'srp', 'ms': 210.0, 'cpu_cycles': 21000000, 'wait_ms': 200.0, 'bound_ms': 18.0, 'within': False, 'unbounded': False, 'loaded': False, 'normative_ms': 180.0, 'margin_ms': -30.0, 'ahead': 0}",
+  "others": [
+   "the amended column grades nothing",
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "bound: the margin is not recorded",
+  "check": "the exact bound fits and W adds",
+  "kind": "RULE",
+  "why": "margin -160.0",
+  "others": [
+   "the hooks map"
+  ]
+ },
+ {
+  "mutant": "map: the counter push is a notification",
+  "check": "the hooks map",
+  "kind": "RULE",
+  "why": "counters",
+  "others": [
+   "the ALL push both ways",
+   "the amended column grades nothing"
+  ]
+ },
+ {
+  "mutant": "map: no composed row of this harness is loaded",
+  "check": "the hooks map",
+  "kind": "RULE",
+  "why": "the loaded fan-out is not loaded",
+  "others": []
+ },
+ {
+  "mutant": "label: the Milan clock labelled the product's (the earlier rule)",
+  "check": "the clock labels",
+  "kind": "RULE",
+  "why": "CPU 50 MHz on sys (the product split CPU clock)",
+  "others": []
+ },
+ {
+  "mutant": "label: the Milan clock the default (the earlier rule)",
+  "check": "the clock labels",
+  "kind": "RULE",
+  "why": "the default CPU clock is milan",
+  "others": [
+   "a plant is caught only by its own finding",
+   "the amended column grades nothing"
+  ]
+ },
+ {
+  "mutant": "split: the counter change is no pad",
+  "check": "own lines are split off",
+  "kind": "RULE",
+  "why": "pads []",
+  "others": []
+ },
+ {
+  "mutant": "H-ADP: the grandmaster is not checked",
+  "check": "H-ADP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=0, findings=['ORDER H-ADP: 1 grandmaster changes observed, 0 in the script'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-DISC: the sink's PROBE_TX_COMMAND is never recognised",
+  "check": "H-DISC ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILABLE at 200000 on interface 0, the sink never probed its talker: the departure was applied after the arrival'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-DISC: the window never ends (the earlier rule ended it at the next tagged record)",
+  "check": "H-DISC ordering",
+  "kind": "RULE",
+  "why": "a probe after the next record: Checked(applied=1, findings=[], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule)",
+  "check": "H-DISC ordering",
+  "kind": "RULE",
+  "why": "a probe after a next record inside the delay: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILABLE at 200000 on interface 0, the sink never probed its talker: the departure was applied after the arrival'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-ACMP: no response is matched to its command",
+  "check": "H-ACMP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=0, findings=[], undecided=0)",
+  "others": [
+   "H-AECP ordering",
+   "H-NOTIFY ordering"
+  ]
+ },
+ {
+  "mutant": "H-AECP: no face commit is recognised",
+  "check": "H-AECP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=1, findings=['ORDER H-AECP: aecp.lock_entity.if0: its response at 300 precedes any face commit since its receive commit at 100'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-NOTIFY: the notification is not found",
+  "check": "H-NOTIFY ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=0, findings=[], undecided=0)",
+  "others": [
+   "the ALL push both ways"
+  ]
+ },
+ {
+  "mutant": "H-COUNTERS: spacing of 0.1 s accepted",
+  "check": "H-COUNTERS spacing",
+  "kind": "RULE",
+  "why": "defective: Checked(applied=1, findings=[], undecided=0)",
+  "others": [
+   "bounds pinned",
+   "the held push"
+  ]
+ },
+ {
+  "mutant": "H-COUNTERS: the held push from its change",
+  "check": "the held push",
+  "kind": "RULE",
+  "why": "held {'probe': 'counters.held.if0', 'change': 10000000, 'eligible': 10000000, 'end': 101200000, 'wait_ms': 0.0, 'ms': 912.0}",
+  "others": [
+   "H-COUNTERS spacing",
+   "bounds pinned"
+  ]
+ },
+ {
+  "mutant": "H-MAAP: no allocation report is recognised",
+  "check": "H-MAAP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=0, findings=[], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-MAAP: every AAF_CTRL store is a report (earlier rule)",
+  "check": "H-MAAP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=2, findings=['ORDER H-MAAP: the allocation report at 70 follows no DA_GATE publication since 60'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "H-SRP: the ADOPTED bit is never seen set",
+  "check": "H-SRP ordering",
+  "kind": "RULE",
+  "why": "clean: Checked(applied=1, findings=['ORDER H-SRP: the MRPDU committed at 300 on interface 0 after the Domain record at 100 precedes its SR_DOMAIN publication (None)'], undecided=0)",
+  "others": []
+ },
+ {
+  "mutant": "plants: a plant edits nothing",
+  "check": "the plants apply",
+  "kind": "RULE",
+  "why": "adp-late: edits []",
+  "others": []
+ },
+ {
+  "mutant": "supersede: any later group supersedes a refusal",
+  "check": "a refusal is superseded only by its own path",
+  "kind": "RULE",
+  "why": "superseded: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if1', 'path': 'acmp.tmr_no_adp', 'row': 'r', 'interface': 1, 'family': 'disc', 'ms': 2.0, 'cpu_cycles': 200000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': True, 'unbounded': False, 'loaded': False, 'normative_ms': 200.0, 'margin_ms': 198.0, 'ahead': 0, 'slack_cycles': 1800000}], 'refusals': ['acmp.tmr_no_adp.if1: no start: late'], 'superseded': [], 'findings': [], 'checks': {'H-ADP': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-DISC': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-ACMP': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-AECP': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-NOTIFY': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-COUNTERS': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-MAAP': {'applied': 0, 'undecided': 0, 'findings': []}, 'H-SRP': {'applied': 0, 'undecided': 0, 'findings': []}}}",
+  "others": []
+ },
+ {
+  "mutant": "aging: the window opens before the arm (the earlier rule)",
+  "check": "the aging window opens after the arm",
+  "kind": "RULE",
+  "why": "the PROBE_TX answers [], the input 0",
+  "others": []
+ },
+ {
+  "mutant": "aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule)",
+  "check": "the aging window opens after the arm",
+  "kind": "RULE",
+  "why": "the PROBE_TX answers [], the input 22",
+  "others": []
+ },
+ {
+  "mutant": "aging: both sinks bound before either is answered (the earlier rule)",
+  "check": "the aging window opens after the arm",
+  "kind": "RULE",
+  "why": "each sink is not answered before the next is bound: binds [0, 1], answers [2, 3]",
+  "others": []
+ },
+ {
+  "mutant": "buckets: the window opens right after the registrations (the earlier rule)",
+  "check": "a composed row opens on full buckets",
+  "kind": "RULE",
+  "why": "refill wait 0 ms",
+  "others": []
+ },
+ {
+  "mutant": "findings: a path over its bound is not a finding",
+  "check": "findings by hook",
+  "kind": "RULE",
+  "why": "['NARROW H-MAAP: x.if0: 25.000 ms, within its bound 20 ms by -500,000 CPU cycles, under the layout swing of 6,490 (maap)', 'ORDER H-MAAP: x (maap)']",
+  "others": [
+   "a fit under the layout swing is a finding",
+   "an 18 to 20 ms SRP path misses",
+   "the ALL push both ways",
+   "the amended column grades nothing",
+   "the exact bound fits and W adds",
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "narrow: the layout swing is not applied",
+  "check": "a fit under the layout swing is a finding",
+  "kind": "RULE",
+  "why": "the layout swing is 0",
+  "others": [
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "narrow: the slack counted at the 50 MHz CPU (the earlier clock)",
+  "check": "a fit under the layout swing is a finding",
+  "kind": "RULE",
+  "why": "['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by -993,511 CPU cycles, under the layout swing of 6,490 (maap)', 'NARROW H-MAAP: at.if0: 19.935 ms, within its bound 20 ms by -993,510 CPU cycles, under the layout swing of 6,490 (maap)', 'NARROW H-MAAP: bound.if0: 20.000 ms, within its bound 20 ms by -1,000,000 CPU cycles, under the layout swing of 6,490 (maap)', 'LATE H-MAAP: over.if0: 21.000 ms against its bound 20 ms (maap)']",
+  "others": [
+   "the worst path and the counts"
+  ]
+ },
+ {
+  "mutant": "plant: any finding of the hook catches it (the earlier rule)",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its bound 20 ms (control)",
+  "others": []
+ },
+ {
+  "mutant": "plant: any finding of its kind catches it",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its bound 20 ms (control)",
+  "others": []
+ },
+ {
+  "mutant": "plant: a path that only starts with its own catches it",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: control.discover.if01: 27.581 ms against its bound 20 ms (control)",
+  "others": []
+ },
+ {
+  "mutant": "plant: a late plant names no path",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: names the path None",
+  "others": []
+ },
+ {
+  "mutant": "plant: every run is caught",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP",
+  "others": []
+ },
+ {
+  "mutant": "plant: an escape exits 0",
+  "check": "a plant is caught only by its own finding",
+  "kind": "RULE",
+  "why": "adp-late: reported caught with no plant applied, rc 0: PLANT adp-late ESCAPED: LATE H-ADP: control.discover.if0 not found",
+  "others": []
+ },
+ {
+  "mutant": "held: W added to its bound",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "the held bound includes W: 920.0",
+  "others": [
+   "the amended column grades nothing"
+  ]
+ },
+ {
+  "mutant": "held: the exact bound misses",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "a held push at its bound misses",
+  "others": []
+ },
+ {
+  "mutant": "held: the verdict is relaxed by 1 ms",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "a held push past its bound fits",
+  "others": []
+ },
+ {
+  "mutant": "held: W is not recorded",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "the held W is not recorded: 0.0",
+  "others": []
+ },
+ {
+  "mutant": "held: its cycles round down",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "3 bus cycles are 1 at the 50 MHz CPU, not 2",
+  "others": []
+ },
+ {
+  "mutant": "held: its cycles are the bus's",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "3 bus cycles are 3 at the 50 MHz CPU, not 2",
+  "others": []
+ },
+ {
+  "mutant": "held: its margin omits W",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "the held margin is 980.0, not 1000 - 900 - 20",
+  "others": []
+ },
+ {
+  "mutant": "held: its timeout is the notification family's",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "the held timeout is 240.0",
+  "others": []
+ },
+ {
+  "mutant": "held: it counts as under the composed load",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held until 1 s after the last departure, from its eligibility (H-COUNTERS)', 'interface': 0, 'family': 'notify', 'ms': 20.0, 'cpu_cycles': 1000000, 'wait_ms': 900.0, 'bound_ms': 20.0, 'within': True, 'unbounded': False, 'loaded': True, 'normative_ms': 1000.0, 'margin_ms': 80.0, 'ahead': 0}",
+  "others": []
+ },
+ {
+  "mutant": "held: it counts as never served",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held until 1 s after the last departure, from its eligibility (H-COUNTERS)', 'interface': 0, 'family': 'notify', 'ms': 20.0, 'cpu_cycles': 1000000, 'wait_ms': 900.0, 'bound_ms': 20.0, 'within': True, 'unbounded': True, 'loaded': False, 'normative_ms': 1000.0, 'margin_ms': 80.0, 'ahead': 0}",
+  "others": []
+ },
+ {
+  "mutant": "held: it is H-NOTIFY's",
+  "check": "the held push's grade",
+  "kind": "RULE",
+  "why": "held row ('H-NOTIFY', 'hooks-counters', 'counters.held', 'notify', 0)",
+  "others": []
+ },
+ {
+  "mutant": "held missing: silently accepted",
+  "check": "a held push never sent",
+  "kind": "RULE",
+  "why": "a held push never sent is no finding: []",
+  "others": []
+ },
+ {
+  "mutant": "held missing: it fits",
+  "check": "a held push never sent",
+  "kind": "RULE",
+  "why": "a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS)', 'interface': 0, 'family': 'notify', 'ms': 0.0, 'cpu_cycles': 0, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': True, 'unbounded': True, 'loaded': False, 'normative_ms': 1000.0, 'margin_ms': 0.0, 'ahead': 0, 'missing': True, 'slack_cycles': -1}",
+  "others": []
+ },
+ {
+  "mutant": "held missing: it counts as served",
+  "check": "a held push never sent",
+  "kind": "RULE",
+  "why": "a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS)', 'interface': 0, 'family': 'notify', 'ms': 0.0, 'cpu_cycles': 0, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': False, 'loaded': False, 'normative_ms': 1000.0, 'margin_ms': 0.0, 'ahead': 0, 'missing': True, 'slack_cycles': -1}",
+  "others": []
+ },
+ {
+  "mutant": "held missing: its finding is dropped",
+  "check": "a held push never sent",
+  "kind": "RULE",
+  "why": "a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served against its bound 20 ms (hooks-counters)']",
+  "others": []
+ },
+ {
+  "mutant": "held missing: its timeout is the notification family's",
+  "check": "a held push never sent",
+  "kind": "RULE",
+  "why": "missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS)', 'interface': 0, 'family': 'notify', 'ms': 0.0, 'cpu_cycles': 0, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': True, 'loaded': False, 'normative_ms': 240.0, 'margin_ms': 0.0, 'ahead': 0, 'missing': True, 'slack_cycles': -1}",
+  "others": []
+ },
+ {
+  "mutant": "summary: the fastest path is the worst",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst alone is fast, not slow",
+  "others": []
+ },
+ {
+  "mutant": "summary: W is left in the service",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst alone is waiting, not slow",
+  "others": []
+ },
+ {
+  "mutant": "summary: a path never served is not worst first",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst under load is loaded, not the path never served",
+  "others": []
+ },
+ {
+  "mutant": "summary: alone and under load are not apart",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst alone is starved, not slow",
+  "others": []
+ },
+ {
+  "mutant": "summary: alone and under load are swapped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst alone is starved, not slow",
+  "others": []
+ },
+ {
+  "mutant": "summary: another hook's paths are its own",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the worst alone is other, not slow",
+  "others": [
+   "the amended column grades nothing"
+  ]
+ },
+ {
+  "mutant": "summary: a miss counts as a narrow fit",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "4 narrow fits, not 1",
+  "others": []
+ },
+ {
+  "mutant": "summary: no narrow fit is counted",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "0 narrow fits, not 1",
+  "others": []
+ },
+ {
+  "mutant": "summary: no miss is counted",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "0 misses, not 3",
+  "others": []
+ },
+ {
+  "mutant": "summary: the path count is every hook's",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "a hook with no path has a worst",
+  "others": [
+   "the amended column grades nothing"
+  ]
+ },
+ {
+  "mutant": "summary: the applied count is dropped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 25.0, 'cpu_cycles': 2500000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': False, 'loaded': False, 'normative_ms': 500.0, 'margin_ms': 475.0, 'ahead': 0, 'slack_cycles': -500000}, 'loaded': {'hook': 'H-MAAP', 'group': 'backlog', 'probe': 'starved', 'path': 'starved', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 1.0, 'cpu_cycles': 100000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': True, 'loaded': True, 'normative_ms': 500.0, 'margin_ms': 499.0, 'ahead': 0, 'slack_cycles': -1}}, 'ordering': \"the talker DA gate is published before the allocation is reported to the CSR window (maap_mbx.c, range; Milan v1.2 4.3.3.1): every report the core makes follows its interface's DA_GATE publication\", 'applied': 0, 'undecided': 26, 'ordering_findings': ['ORDER H-MAAP'], 'clauses': 'IEEE 1722-2016 B.3.4.2, B.3.6.6, Table B.8; Milan v1.2 4.3.3.1'}",
+  "others": []
+ },
+ {
+  "mutant": "summary: the undecided count is dropped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 25.0, 'cpu_cycles': 2500000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': False, 'loaded': False, 'normative_ms': 500.0, 'margin_ms': 475.0, 'ahead': 0, 'slack_cycles': -500000}, 'loaded': {'hook': 'H-MAAP', 'group': 'backlog', 'probe': 'starved', 'path': 'starved', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 1.0, 'cpu_cycles': 100000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': True, 'loaded': True, 'normative_ms': 500.0, 'margin_ms': 499.0, 'ahead': 0, 'slack_cycles': -1}}, 'ordering': \"the talker DA gate is published before the allocation is reported to the CSR window (maap_mbx.c, range; Milan v1.2 4.3.3.1): every report the core makes follows its interface's DA_GATE publication\", 'applied': 8, 'undecided': 0, 'ordering_findings': ['ORDER H-MAAP'], 'clauses': 'IEEE 1722-2016 B.3.4.2, B.3.6.6, Table B.8; Milan v1.2 4.3.3.1'}",
+  "others": []
+ },
+ {
+  "mutant": "summary: the ordering findings are dropped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 25.0, 'cpu_cycles': 2500000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': False, 'loaded': False, 'normative_ms': 500.0, 'margin_ms': 475.0, 'ahead': 0, 'slack_cycles': -500000}, 'loaded': {'hook': 'H-MAAP', 'group': 'backlog', 'probe': 'starved', 'path': 'starved', 'row': 'r', 'interface': 0, 'family': 'maap', 'ms': 1.0, 'cpu_cycles': 100000, 'wait_ms': 0.0, 'bound_ms': 20.0, 'within': False, 'unbounded': True, 'loaded': True, 'normative_ms': 500.0, 'margin_ms': 499.0, 'ahead': 0, 'slack_cycles': -1}}, 'ordering': \"the talker DA gate is published before the allocation is reported to the CSR window (maap_mbx.c, range; Milan v1.2 4.3.3.1): every report the core makes follows its interface's DA_GATE publication\", 'applied': 8, 'undecided': 26, 'ordering_findings': [], 'clauses': 'IEEE 1722-2016 B.3.4.2, B.3.6.6, Table B.8; Milan v1.2 4.3.3.1'}",
+  "others": []
+ },
+ {
+  "mutant": "summary: the obligation is dropped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the obligation or clauses are not kept",
+  "others": []
+ },
+ {
+  "mutant": "summary: the clauses are dropped",
+  "check": "the worst path and the counts",
+  "kind": "RULE",
+  "why": "the obligation or clauses are not kept",
+  "others": []
+ },
+ {
+  "mutant": "ALL: the push ends at its first descriptor",
+  "check": "the ALL push both ways",
+  "kind": "RULE",
+  "why": "the ALL push ends at ['notify:2:0029:5:1']",
+  "others": []
+ },
+ {
+  "mutant": "ALL: no descriptor has a row",
+  "check": "the ALL push both ways",
+  "kind": "RULE",
+  "why": "a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): None}",
+  "others": []
+ },
+ {
+  "mutant": "ALL: a descriptor's row ends at the whole push",
+  "check": "the ALL push both ways",
+  "kind": "RULE",
+  "why": "counters.all.t5.i1.if0 ends at ['notify:2:0029:5:1', 'notify:2:0029:6:0', 'notify:2:0029:9:0', 'notify:2:0029:36:0']",
+  "others": []
+ },
+ {
+  "mutant": "ALL: a descriptor's row opens after the change",
+  "check": "the ALL push both ways",
+  "kind": "RULE",
+  "why": "counters.all.t5.i1.if0 opens after the change",
+  "others": []
+ },
+ {
+  "mutant": "amended: SRP keeps its ceiling",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "the amended bounds",
+  "others": []
+ },
+ {
+  "mutant": "amended: the ceiling at two interfaces is 20 ms",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "the amended bounds",
+  "others": []
+ },
+ {
+  "mutant": "amended: every counter push is queued",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "a path the decisions leave has another bound",
+  "others": []
+ },
+ {
+  "mutant": "amended: W is left off",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "W left off the column",
+  "others": []
+ },
+ {
+  "mutant": "amended: the column grades a path",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "SRP 22.0",
+  "others": [
+   "an 18 to 20 ms SRP path misses",
+   "the ALL push both ways",
+   "the exact bound fits and W adds"
+  ]
+ },
+ {
+  "mutant": "amended: the table does not say which bounds graded",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "the table does not say which bounds graded",
+  "others": []
+ },
+ {
+  "mutant": "amended: the column repeats the bound",
+  "check": "the amended column grades nothing",
+  "kind": "RULE",
+  "why": "SRP 18.0",
+  "others": []
+ }
+]

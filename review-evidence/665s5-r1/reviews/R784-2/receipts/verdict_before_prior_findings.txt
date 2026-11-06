@@ -1,0 +1,7 @@
+Written before any prior review report was opened. Exact head 26ba56e1d5749a71668f9e4436f28e8635f03f95.
+Verdict: NEGATIVE.
+Conformance CLEAN   hooks.py:71-103, run.py:190-215, four published table.md and results.json, this review's hooks-counters runs
+RTL         CLEAN   git diff 5b5f4336..head: no file under hdl/, hooks_soc.py unchanged since the round 1 head
+Robustness  CLEAN   run.py:251-259, hooks.py:347-356, hooks_build.py:93-96, the plant and refusal paths
+Tests       UNCLEAN F-1: two mutants never reach their rule; the rule deleted still gives 79 of 79
+Docs        UNCLEAN F-1 (the audit claim), F-2 (the amended bounds change no verdict: 4 rows at 8x8 do change)

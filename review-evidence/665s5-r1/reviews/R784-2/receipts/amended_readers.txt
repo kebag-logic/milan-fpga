@@ -1,0 +1,20 @@
+tb/verilator/ctrl_service_hooks/run.py:13:at this base; each table adds a column of the amended bounds (hooks.py), for
+tb/verilator/ctrl_service_hooks/run.py:47:BOUNDS_NOTE = ('Graded against the bounds in the tree at this base. The amended column g
+tb/verilator/ctrl_service_hooks/run.py:190:def amended_cell(name: str, graded: dict, interfaces: int) -> str:
+tb/verilator/ctrl_service_hooks/run.py:191:    """A hook's amended service bounds, for information: each distinct one, or - with n
+tb/verilator/ctrl_service_hooks/run.py:192:    bounds = {hooks.amended_service_ms(r, interfaces) for r in graded['rows'] if r['hoo
+tb/verilator/ctrl_service_hooks/run.py:206:                     f"{cell(s['worst'].get('loaded'))} | {amended_cell(name, graded, i
+tb/verilator/ctrl_service_hooks/run.py:215:                     f"{r['wait_ms']:g} | {r['bound_ms']:g} | {hooks.amended_ms(r, inte
+tb/verilator/ctrl_service_hooks/hooks.py:11:this base; the amended bounds of the decisions of 2026-11-06 on #665 are a
+tb/verilator/ctrl_service_hooks/hooks.py:71:#: The amended bounds of the owner's decisions of 2026-11-06 on #665, for information:
+tb/verilator/ctrl_service_hooks/hooks.py:75:AMENDED_SRP_MS = 20.0
+tb/verilator/ctrl_service_hooks/hooks.py:76:AMENDED_QUEUED_CEILING_MS = {1: 20.0, 2: 60.0}
+tb/verilator/ctrl_service_hooks/hooks.py:78:QUEUED_PATH = 'counters.all'
+tb/verilator/ctrl_service_hooks/hooks.py:92:def amended_service_ms(r: dict, interfaces: int) -> float:
+tb/verilator/ctrl_service_hooks/hooks.py:93:    """A graded path's service bound under the amended bounds, for information; its bo
+tb/verilator/ctrl_service_hooks/hooks.py:95:        return AMENDED_SRP_MS
+tb/verilator/ctrl_service_hooks/hooks.py:96:    if r['path'].startswith(QUEUED_PATH):
+tb/verilator/ctrl_service_hooks/hooks.py:97:        return AMENDED_QUEUED_CEILING_MS[interfaces]
+tb/verilator/ctrl_service_hooks/hooks.py:101:def amended_ms(r: dict, interfaces: int) -> float:
+tb/verilator/ctrl_service_hooks/hooks.py:102:    """A graded path's whole amended bound, for information: its service bound, and a
+tb/verilator/ctrl_service_hooks/hooks.py:103:    return r['bound_ms'] - bound_ms(r['family']) + amended_service_ms(r, interfaces)
