@@ -1,0 +1,11 @@
+# b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce in wt-boot: bash <reviews>/665s4-r737-4-packet/scripts/partial_map_probe.sh <scratch>/wt-boot <scratch>/boot-1x1 <scratch>/partial-map-probe-out
+# start 2026-11-06T18:37:54Z
+control-true-map: rc=0 elf=yes
+ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0
+json-only-map: rc=2 elf=no
+REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+partial-without-generated_csr_h: rc=2 elf=no
+REFUSED: the flash map lacks generated/csr.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+partial-without-generated_mem_h: rc=2 elf=no
+REFUSED: the flash map lacks generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+# end 2026-11-06T18:38:00Z

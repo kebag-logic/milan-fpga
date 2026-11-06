@@ -1,0 +1,23 @@
+# b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce in wt-boot: bash <output>/scripts/map_edges.sh <scratch>/wt-boot <scratch>/boot-1x1 <scratch>/map-edges-out
+# start 2026-11-06T18:38:00Z
+control: rc=0 elf=yes
+  ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0
+empty-csr: rc=2 elf=no
+  REFUSED: <scratch>/wt-boot/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c: In function ‘ls_timer’:
+empty-mem: rc=2 elf=no
+  REFUSED: <scratch>/wt-boot/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c: In function ‘ls_read’:
+dir-csr: rc=2 elf=no
+  REFUSED: the flash map lacks generated/csr.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+dangling-mem: rc=2 elf=no
+  REFUSED: the flash map lacks generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+flattened: rc=2 elf=no
+  REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+absent: rc=2 elf=no
+  REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+a-file: rc=2 elf=no
+  REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+no-json: rc=2 elf=no
+  REFUSED: [Errno 2] No such file or directory: '<scratch>/map-edges-out/maps/no-json/flash_port.json'
+relative: rc=0 elf=yes
+  ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0
+# end 2026-11-06T18:38:25Z

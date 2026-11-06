@@ -1,0 +1,21 @@
+# b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce in wt-mut: python3 -B <output>/scripts/mutants.py <scratch>/wt-mut <scratch>/mutants <scratch>/mutants.md
+# start 2026-11-06T18:40:02Z
+head: ctrl_image_selftest: rc 0; ctrl_image self-test: 40 checks PASS
+head: stopped_at_link: rc 0; ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 1 interface(s): exit 2; ELF present False; stopped_at_link True
+header-refusal-removed: CAUGHT, rc 1, by plat: lacking csr.h, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+csr-not-required: CAUGHT, rc 1, by plat: lacking csr.h, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+mem-not-required: CAUGHT, rc 1, by plat: lacking mem.h, 5 plat checks passed first: AssertionError: ('lacks-mem', '      |         ^~~~~~~~~~~~~~~~~~~')
+lone-json-accepted: CAUGHT, rc 1, by plat: JSON-only, 6 plat checks passed first: AssertionError: ('lacks-json-only', 'collect2: error: ld returned 1 exit status')
+one-header-accepted: CAUGHT, rc 1, by plat: lacking csr.h, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+names-every-header: CAUGHT, rc 1, by plat: lacking csr.h, 4 plat checks passed first: AssertionError: ('lacks-csr', "REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins
+complete-map-refused: CAUGHT, rc 1, by plat: complete map, 3 plat checks passed first: AssertionError: REFUSED: the flash map lacks : a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map
+fixture-json-only: CAUGHT, rc 1, by plat: complete map, 3 plat checks passed first: AssertionError: REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_por
+whole-refusal-after-compile: CAUGHT, rc 1, by plat: no map, nothing left, 0 plat checks passed first: AssertionError: ('both-archives', 'went on before its refusal', ['0-mbx.o', '0-mbx.su', '1-ctrl_loop.o', '1-ctrl_loop.su', '10-acmp.o', '10-acmp.su', '11-acmp_mbx.o', '11
+header-refusal-after-compile: CAUGHT, rc 1, by plat: lacking csr.h, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+json-only-refused-after-compile: CAUGHT, rc 1, by plat: JSON-only, nothing left, 6 plat checks passed first: AssertionError: ('lacks-json-only', 'went on before its refusal', ['0-mbx.o', '0-mbx.su', '1-ctrl_loop.o', '1-ctrl_loop.su', '10-acmp.o', '10-acmp.su', '11-acmp_mbx.o', '
+no-map-refusal-removed: CAUGHT, rc 1, by plat: no map, 0 plat checks passed first: AssertionError: ('both-archives', 'collect2: error: ld returned 1 exit status')
+any-archive-to-all: CAUGHT, rc 1, by plat: no map, 1 plat checks passed first: AssertionError: ('the-C-library-alone', 'collect2: error: ld returned 1 exit status')
+refused-with-a-map: CAUGHT, rc 1, by plat: complete map, 3 plat checks passed first: AssertionError: REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's 
+compile-only-refused: CAUGHT, rc 1, by ctrl_runs.stopped_at_link, 0 plat checks passed first: ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 1 interface(s): exit 2; ELF present False; stopped_at_link False
+mutants: 15 planted, 0 escaped; clone clean after: True
+# end 2026-11-06T18:44:29Z

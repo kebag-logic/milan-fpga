@@ -1,0 +1,30 @@
+# b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce in wt-mut: bash <output>/scripts/identity.sh <scratch>/wt-mut a68536fa4cf8ce65c513874722de2e3ba83c2d00
+# start 2026-11-06T19:10:17Z
+head b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+tree ffa577c3f64cf996b3561593ad02636ce2ce4ff9
+lane branch s4-f1-target at b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+origin https://github.com/kebag-logic/milan-fpga.git
+live refs/heads/665-s4-f1-target 37e0393094e62d395edc2798a6a6da2f34badbec
+live refs/heads/dev-soft-core a68536fa4cf8ce65c513874722de2e3ba83c2d00
+merge-base against a68536fa4cf8ce65c513874722de2e3ba83c2d00: a68536fa4cf8ce65c513874722de2e3ba83c2d00
+ancestor of head: 37e03930 yes
+ancestor of head: f4c9ad4f yes
+git diff --check a68536fa4cf8ce65c513874722de2e3ba83c2d00 rc=0
+git diff --check 37e03930 rc=0
+status lines: 0
+hdl files changed since a68536fa4cf8ce65c513874722de2e3ba83c2d00: 0
+sv/v/c/h files changed since 37e03930: 0
+gitlinks changed since 37e03930: 0
+files changed since 37e03930:
+   sw/firmware/ctrl/README.md                   |  9 +++--
+   sw/firmware/ctrl/plat/README.md              |  6 ++-
+   sw/firmware/ctrl/test/ctrl_image_selftest.py | 60 +++++++++++++++++++++-------
+   sw/firmware/ctrl/test/ctrl_plat_image.py     | 22 +++++++---
+   4 files changed, 71 insertions(+), 26 deletions(-)
+commits on 37e03930:
+  b7fe6a777e State the image self-test's 40 checks and its partial map refusals where its page lists them (#665)
+  81edf650cc Refuse a flash map that lacks a generated header before the compiler is called, test each missing header at the shape's clock, and state what the refusal holds (#665)
+commit bodies and trailers: 0 lines
+push-privacy-check: 0 private line(s) in a68536fa4cf8ce65c513874722de2e3ba83c2d00..HEAD
+privacy rc=0
+# end 2026-11-06T19:10:18Z
