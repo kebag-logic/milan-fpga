@@ -1,6 +1,6 @@
 {
-  "date": "2026-11-05",
-  "base": "d62417f1cd47d9c7a627d97482bc491d0dd801f7",
+  "date": "2026-11-06",
+  "base": "4ab1bca0116897c3e02bfe92206df0fd81d6dcb9",
   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
   "soc_component_revisions": {
     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
@@ -16,7 +16,7 @@
   "simulator": "Verilator 5.052",
   "network": "disabled; offline dependency resolution",
   "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
-  "product_firmware_sha256": "1071b45eeff888bc9483f22f6fc5bba2d30e5ed86ffa5c899b20eb2f07ad524d",
+  "product_firmware_sha256": "09c5d481bc4205b57a64e90e6e846292bdcfa1c79ee6b873a930a3b6ac904467",
   "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
   "python_hash_seed": "0",
   "phase": "CPU rising edges aligned with sys; audio starts at half-period",
@@ -256,10 +256,10 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-1x1-50-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "b8eb0b84a9465a7af801913714ba8e83a5d73e11421cc0fc593799ca256a2869",
-      "bios_sha256": "ee186359af2ee7b6efafb790fdfa9e8435e6b5f55057b589d19c7b0f1f803441",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "c8fe4310af707a56893f7037c1c31f71c479269d3d1c6e2789e14f444848bf60"
+      "instrumented_firmware_sha256": "440b1cd0d397d6f8437f921cbc137ed437e4f36cbdcc798e5c7e0325a28493be",
+      "bios_sha256": "272603b2d6023a3cdc6be6434d0ca59d82a2e9f94dafd5e8525ea9fdb95289cd",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "e04bbe49fd24545eaee657ee1c1cc0456d0725104c1ff87d9cfc06ef712c450f"
     },
     {
       "shape": "endstation_ax7101_1x1_tdm8",
@@ -471,10 +471,10 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-1x1-50-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "50f1c55d0f205dfeeeff5244c21dab314fdf6819fdccd42babdb6137815f6682",
-      "bios_sha256": "8fb163d7cd1e3c5b5ca01c28360062c4f2c61529a423896a5d47d7127152f62e",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "c8fe4310af707a56893f7037c1c31f71c479269d3d1c6e2789e14f444848bf60"
+      "instrumented_firmware_sha256": "48ddda802668219db4b86c45d453e015525444ee45a0847431857c4c8384e310",
+      "bios_sha256": "dae1047d2015f0c7ba67d95fac93d85cbeb49cd0dbc24bd7b12a925d74b1d54e",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "e04bbe49fd24545eaee657ee1c1cc0456d0725104c1ff87d9cfc06ef712c450f"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -484,170 +484,14 @@
       "configured_cpu_hz": 50000000,
       "phase": "aligned rising edges",
       "traffic": "on",
-      "minimum_ms": 13.8424,
-      "maximum_ms": 13.85922,
+      "minimum_ms": 13.84694,
+      "maximum_ms": 13.86384,
       "hold_ms": 50,
       "hold_floor_ms": 49,
-      "margin": 3.5355525058408768,
+      "margin": 3.5343743147641637,
       "rows": [
         {
           "index": 0,
-          "ok": 1,
-          "sys_cycles": 1385809,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86526,
-          "responses": 91,
-          "reads": 3549
-        },
-        {
-          "index": 1,
-          "ok": 1,
-          "sys_cycles": 1385026,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86477,
-          "responses": 91,
-          "reads": 3549
-        },
-        {
-          "index": 2,
-          "ok": 1,
-          "sys_cycles": 1384240,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86428,
-          "responses": 92,
-          "reads": 3564
-        },
-        {
-          "index": 3,
-          "ok": 1,
-          "sys_cycles": 1385410,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86500,
-          "responses": 92,
-          "reads": 3563
-        },
-        {
-          "index": 4,
-          "ok": 1,
-          "sys_cycles": 1385710,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86520,
-          "responses": 91,
-          "reads": 3554
-        },
-        {
-          "index": 5,
-          "ok": 1,
-          "sys_cycles": 1385264,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86492,
-          "responses": 92,
-          "reads": 3582
-        },
-        {
-          "index": 6,
-          "ok": 1,
-          "sys_cycles": 1385710,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86520,
-          "responses": 91,
-          "reads": 3554
-        },
-        {
-          "index": 7,
-          "ok": 1,
-          "sys_cycles": 1385264,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86493,
-          "responses": 92,
-          "reads": 3582
-        },
-        {
-          "index": 8,
-          "ok": 1,
-          "sys_cycles": 1385922,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86533,
-          "responses": 92,
-          "reads": 3570
-        },
-        {
-          "index": 9,
-          "ok": 1,
-          "sys_cycles": 1385790,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86525,
-          "responses": 91,
-          "reads": 3549
-        },
-        {
-          "index": 10,
-          "ok": 1,
-          "sys_cycles": 1385710,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86520,
-          "responses": 91,
-          "reads": 3554
-        },
-        {
-          "index": 11,
-          "ok": 1,
-          "sys_cycles": 1385534,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86509,
-          "responses": 92,
-          "reads": 3564
-        },
-        {
-          "index": 12,
-          "ok": 1,
-          "sys_cycles": 1384552,
-          "raw": 13210,
-          "records": 164,
-          "mismatches": 0,
-          "open": 0,
-          "requests": 86449,
-          "responses": 92,
-          "reads": 3570
-        },
-        {
-          "index": 13,
           "ok": 1,
           "sys_cycles": 1385200,
           "raw": 13210,
@@ -659,37 +503,193 @@
           "reads": 3557
         },
         {
-          "index": 14,
+          "index": 1,
           "ok": 1,
-          "sys_cycles": 1384530,
+          "sys_cycles": 1385534,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86447,
+          "requests": 86509,
           "responses": 92,
           "reads": 3564
         },
         {
-          "index": 15,
+          "index": 2,
           "ok": 1,
-          "sys_cycles": 1384552,
+          "sys_cycles": 1385488,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 86448,
+          "requests": 86506,
           "responses": 92,
-          "reads": 3570
+          "reads": 3563
+        },
+        {
+          "index": 3,
+          "ok": 1,
+          "sys_cycles": 1385710,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86520,
+          "responses": 91,
+          "reads": 3554
+        },
+        {
+          "index": 4,
+          "ok": 1,
+          "sys_cycles": 1385264,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86492,
+          "responses": 92,
+          "reads": 3582
+        },
+        {
+          "index": 5,
+          "ok": 1,
+          "sys_cycles": 1385710,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86520,
+          "responses": 91,
+          "reads": 3554
+        },
+        {
+          "index": 6,
+          "ok": 1,
+          "sys_cycles": 1385228,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86491,
+          "responses": 91,
+          "reads": 3579
+        },
+        {
+          "index": 7,
+          "ok": 1,
+          "sys_cycles": 1385218,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86489,
+          "responses": 91,
+          "reads": 3549
+        },
+        {
+          "index": 8,
+          "ok": 1,
+          "sys_cycles": 1384694,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86457,
+          "responses": 91,
+          "reads": 3577
+        },
+        {
+          "index": 9,
+          "ok": 1,
+          "sys_cycles": 1385809,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86526,
+          "responses": 91,
+          "reads": 3549
+        },
+        {
+          "index": 10,
+          "ok": 1,
+          "sys_cycles": 1385488,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86506,
+          "responses": 92,
+          "reads": 3563
+        },
+        {
+          "index": 11,
+          "ok": 1,
+          "sys_cycles": 1385264,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86492,
+          "responses": 92,
+          "reads": 3582
+        },
+        {
+          "index": 12,
+          "ok": 1,
+          "sys_cycles": 1385218,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86489,
+          "responses": 91,
+          "reads": 3549
+        },
+        {
+          "index": 13,
+          "ok": 1,
+          "sys_cycles": 1385809,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86526,
+          "responses": 91,
+          "reads": 3549
+        },
+        {
+          "index": 14,
+          "ok": 1,
+          "sys_cycles": 1386384,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86562,
+          "responses": 92,
+          "reads": 3588
+        },
+        {
+          "index": 15,
+          "ok": 1,
+          "sys_cycles": 1385218,
+          "raw": 13210,
+          "records": 164,
+          "mismatches": 0,
+          "open": 0,
+          "requests": 86490,
+          "responses": 91,
+          "reads": 3549
         }
       ],
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-50-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "b8eb0b84a9465a7af801913714ba8e83a5d73e11421cc0fc593799ca256a2869",
-      "bios_sha256": "21964f1f1f92e9f744943bb72e46ef3a52d9c1f3047d93b57ae1cdb5d46a70e9",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "d2237dba7f3a9e75f1e35f49a014e8a179b39658da2dcee3153c43a0ac50062b"
+      "instrumented_firmware_sha256": "440b1cd0d397d6f8437f921cbc137ed437e4f36cbdcc798e5c7e0325a28493be",
+      "bios_sha256": "2131cc08f67c53352f80365bc67bc1f773c0ddcf050d8916b5566cfca8c1f36c",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "800afecca339ed3ec1c5e4c0d8c1a794011bd3148ee7a7c751dade26440fd652"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -708,7 +708,7 @@
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1367538,
+          "sys_cycles": 1367682,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -901,10 +901,10 @@
       "clock_role": "contract",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-50-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "50f1c55d0f205dfeeeff5244c21dab314fdf6819fdccd42babdb6137815f6682",
-      "bios_sha256": "124bf2bc6159c908a1b20fee94e87e11707c8d8f00f734d451a10e0a012bec32",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "d2237dba7f3a9e75f1e35f49a014e8a179b39658da2dcee3153c43a0ac50062b"
+      "instrumented_firmware_sha256": "48ddda802668219db4b86c45d453e015525444ee45a0847431857c4c8384e310",
+      "bios_sha256": "5d69ed7ef29e5e26d19a2fa9a736f795606c1d00466a3f27387f037de3c7a130",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "800afecca339ed3ec1c5e4c0d8c1a794011bd3148ee7a7c751dade26440fd652"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -940,7 +940,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130288,
+          "requests": 130287,
           "responses": 91,
           "reads": 3538
         },
@@ -952,7 +952,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130143,
+          "requests": 130142,
           "responses": 90,
           "reads": 3526
         },
@@ -964,7 +964,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130253,
+          "requests": 130254,
           "responses": 90,
           "reads": 3510
         },
@@ -976,7 +976,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130190,
+          "requests": 130189,
           "responses": 91,
           "reads": 3538
         },
@@ -988,7 +988,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130214,
+          "requests": 130215,
           "responses": 90,
           "reads": 3528
         },
@@ -1012,7 +1012,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130208,
+          "requests": 130209,
           "responses": 91,
           "reads": 3518
         },
@@ -1048,7 +1048,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130190,
+          "requests": 130189,
           "responses": 91,
           "reads": 3538
         },
@@ -1096,7 +1096,7 @@
           "records": 164,
           "mismatches": 0,
           "open": 0,
-          "requests": 130254,
+          "requests": 130253,
           "responses": 90,
           "reads": 3510
         },
@@ -1116,10 +1116,10 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir \"$SCRATCH/capture-8x8-100-on\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "b8eb0b84a9465a7af801913714ba8e83a5d73e11421cc0fc593799ca256a2869",
-      "bios_sha256": "21964f1f1f92e9f744943bb72e46ef3a52d9c1f3047d93b57ae1cdb5d46a70e9",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "d2237dba7f3a9e75f1e35f49a014e8a179b39658da2dcee3153c43a0ac50062b"
+      "instrumented_firmware_sha256": "440b1cd0d397d6f8437f921cbc137ed437e4f36cbdcc798e5c7e0325a28493be",
+      "bios_sha256": "2131cc08f67c53352f80365bc67bc1f773c0ddcf050d8916b5566cfca8c1f36c",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "800afecca339ed3ec1c5e4c0d8c1a794011bd3148ee7a7c751dade26440fd652"
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -1138,7 +1138,7 @@
         {
           "index": 0,
           "ok": 1,
-          "sys_cycles": 1041594,
+          "sys_cycles": 1041789,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1150,7 +1150,7 @@
         {
           "index": 1,
           "ok": 1,
-          "sys_cycles": 1041789,
+          "sys_cycles": 1041594,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1162,7 +1162,7 @@
         {
           "index": 2,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1174,7 +1174,7 @@
         {
           "index": 3,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041594,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1186,7 +1186,7 @@
         {
           "index": 4,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1198,7 +1198,7 @@
         {
           "index": 5,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041594,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1210,7 +1210,7 @@
         {
           "index": 6,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1222,7 +1222,7 @@
         {
           "index": 7,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1234,7 +1234,7 @@
         {
           "index": 8,
           "ok": 1,
-          "sys_cycles": 1041733,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1246,7 +1246,7 @@
         {
           "index": 9,
           "ok": 1,
-          "sys_cycles": 1041591,
+          "sys_cycles": 1041899,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1258,7 +1258,7 @@
         {
           "index": 10,
           "ok": 1,
-          "sys_cycles": 1041899,
+          "sys_cycles": 1041591,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1270,7 +1270,7 @@
         {
           "index": 11,
           "ok": 1,
-          "sys_cycles": 1041899,
+          "sys_cycles": 1041730,
           "raw": 13210,
           "records": 164,
           "mismatches": 0,
@@ -1331,10 +1331,10 @@
       "clock_role": "non-contract comparison",
       "command": "unshare -Urn \"$PRODUCT_PYTHON\" -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir \"$SCRATCH/capture-8x8-100-off\"",
       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
-      "instrumented_firmware_sha256": "50f1c55d0f205dfeeeff5244c21dab314fdf6819fdccd42babdb6137815f6682",
-      "bios_sha256": "124bf2bc6159c908a1b20fee94e87e11707c8d8f00f734d451a10e0a012bec32",
-      "gptp_ucode_sha256": "04c9adb122deec3511c79723cd3486f085cd1663b80c39a69df92ead7ae3c5b0",
-      "config_sha256": "d2237dba7f3a9e75f1e35f49a014e8a179b39658da2dcee3153c43a0ac50062b"
+      "instrumented_firmware_sha256": "48ddda802668219db4b86c45d453e015525444ee45a0847431857c4c8384e310",
+      "bios_sha256": "5d69ed7ef29e5e26d19a2fa9a736f795606c1d00466a3f27387f037de3c7a130",
+      "gptp_ucode_sha256": "04b5944706675dcf49219316c65de6e191e352e3d5c7d83d20d2860d53db9fc1",
+      "config_sha256": "800afecca339ed3ec1c5e4c0d8c1a794011bd3148ee7a7c751dade26440fd652"
     }
   ],
   "maxima": [
@@ -1347,8 +1347,8 @@
     {
       "shape": "endstation_ax7101_8x8",
       "cpu_hz": 50000000,
-      "maximum_ms": 13.85922,
-      "margin": 3.5355525058408768
+      "maximum_ms": 13.86384,
+      "margin": 3.5343743147641637
     },
     {
       "shape": "endstation_ax7101_8x8",
@@ -1357,13 +1357,13 @@
       "margin": 4.696730213106944
     }
   ],
-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/840#issuecomment-6654606193",
+  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/840#issuecomment-6670627857",
   "processor_pins": {
     "protocol-processor": "a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645",
     "gptp-processor": "135afd043309369a87ddbc8d6550aff8ec52a157",
     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
   },
-  "tree": "9ba1866d6b618eab9b36c28dd153a311efe3a589",
+  "tree": "5d2dfb0098ccebbcef4df2591c19d849220eed1d",
   "reproduction_environment": {
     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
     "PYTHONHASHSEED": "0",
@@ -1374,6 +1374,6 @@
     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
     "SCRATCH": "external build directory, outside the repository; one per arm"
   },
-  "provenance": "All six arms measure d62417f1, the #840 firmware on dev 604899c0: on a PHY reporting 1000BASE-T full duplex ability the PHY init advertises that mode only and restarts auto-negotiation once, and the configs carry the locally administered station MACs 02:4B:4C:00:00:01 and 02:4B:4C:00:00:02. The capture harness now addresses its controller traffic to the configured station MAC and its MAC-derived entity_id. nvm_capture() and the census are unchanged, and so is the RTL. Processor pins a9e84b66 (protocol) and 135afd04 (gPTP). 23 of 96 captures repeat the previous receipt's system-cycle counts (c71364bd). The six arms ran in five drivers side by side, the two 1x1 arms in one. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+  "provenance": "All six arms measure 4ab1bca0, the #840 firmware and identity on dev 604899c0: on a PHY reporting 1000BASE-T full duplex ability the PHY init advertises that mode only and restarts auto-negotiation once, the MDIO bit routine is inlined into both frame loops, and the configs carry the locally administered station MACs 02:4B:4C:4B:4C:01 and 02:4B:4C:4B:4C:02. The capture harness addresses its controller traffic to the configured station MAC and its MAC-derived entity_id. nvm_capture() and the census are unchanged, and so is the RTL. Processor pins a9e84b66 (protocol) and 135afd04 (gPTP). 67 of 96 captures repeat the previous receipt's system-cycle counts (d62417f1). The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
 }
