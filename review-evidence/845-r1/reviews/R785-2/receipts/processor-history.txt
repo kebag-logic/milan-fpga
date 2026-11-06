@@ -1,0 +1,14 @@
+# commits touching the listener, f65c8ff7..a9e84b66
+# a9e84b66..92100657
+ hdl/srp/KL_srp_listener_fsm.sv | 437 ++++++++++++++++++++++++++++++++++++++---
+ hdl/srp/KL_srp_top.sv          |   1 +
+ 2 files changed, 409 insertions(+), 29 deletions(-)
+# hdl stat f65c8ff7..a9e84b66
+ hdl/adp/KL_adp_engine.sv              |   5 +
+ hdl/aecp/KL_aecp_engine.sv            |  71 ++++++++++--
+ hdl/aecp/KL_aecp_notify.sv            |   5 +
+ hdl/aecp/ucode/aecp_commands.json     |  12 ++
+ hdl/aecp/ucode/gen_ucode.py           |  44 ++++++++
+ hdl/packet_engine/KL_pp_tx_arbiter.sv |   6 +
+ hdl/top/protocol_processor_top.sv     | 202 +++++++++++++++++++++++++++++++---
+ 7 files changed, 322 insertions(+), 23 deletions(-)
