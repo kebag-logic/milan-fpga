@@ -22,6 +22,7 @@ Keep the build directory outside the checkout:
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-8x8 --shape endstation_ax7101_8x8
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --regrade
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --placement-controls
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-native --native-controls
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
 ```
@@ -68,6 +69,7 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and T_svc = 10 ms.
 - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
 - **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 700,000 turns, about 0.7 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+- **Placement controls** (`--placement-controls` on a finished run, and last in `--self-test`): `split_soc.map_deviations` must find nothing on the true flash map, and must name a moved register, a register the SoC lacks, a moved window and a resized window. `boot_soc.build` must refuse, in its own words, an export given the map with `spiflash_master_cs` moved four bytes. Each planted defect of that refusal must then let the same map through: the refusal taken out of the build (`guard-removed`), and a `map_deviations` that finds nothing (`deviations-empty`). They need the product LiteX tree, as the boot does, and no hosted job runs them.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
 ## Results

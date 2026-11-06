@@ -58,6 +58,14 @@ class CsrWindow(LiteXModule):
                       self.bus.dat_r.eq(pads.dat_r), self.bus.ack.eq(pads.ack)]
 
 
+def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
+    """Refuse an export that places a device of the flash port elsewhere than the split SoC's map, which is where
+    the image addresses it."""
+    deviations = split_soc.map_deviations(csr_csv.read_text(), flash_map)
+    if deviations:
+        raise RuntimeError(f"the boot SoC does not place the flash port's devices as the split SoC does: {deviations}")
+
+
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
     """Export the boot SoC's Verilog and csr.csv; return the native build's inputs."""
     addresses = split_soc.fixture_addresses(flash_map)
@@ -93,9 +101,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
         sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
         builder.build(run=False, sim_config=sim_config)
-    deviations = split_soc.map_deviations((build_dir / 'csr.csv').read_text(), flash_map)
-    if deviations:
-        raise RuntimeError(f"the boot SoC does not place the flash port's devices as the split SoC does: {deviations}")
+    refuse_deviation(build_dir / 'csr.csv', flash_map)
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
