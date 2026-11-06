@@ -2192,9 +2192,11 @@ That path also installs the console idle hook; the writer behind it is never adm
 After an identity mismatch nothing touches the MDIO pins.
 `sw/firmware/nvm_hosttest/test_phy_firmware.py` boots all three paths against a pin-level peer.
 Its peer starts every bit the PHY init clears at one.
-Two gigabit arms start each bit it keeps in opposite states, so forcing or dropping one fails.
+Two gigabit arms start the selector, pause, MASTER-SLAVE, power-down and loopback bits in opposite states.
+Forcing or dropping any of those twelve bits fails.
+The init's other pass-through bits are unmodified by construction and not graded: register 4 bits 15, 13 and 12, and register 0 bits 13 and 8 to 0.
 The peer refuses registers 15, 9, 4 and 0 in turn, and each refusal must leave no write.
-The host driver grades each property by name, and forty-seven planted mutants each fail one.
+The host driver grades each property by name, and fifty-one planted mutants each fail one.
 Two PHYs without 1000BASE-T full duplex ability are discovered afresh and must stay unwritten.
 The one with register 15 must have it read once per boot, not on every poll.
 A gigabit PHY with auto-negotiation disabled must have it enabled by the restart.

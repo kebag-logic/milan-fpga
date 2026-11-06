@@ -77,25 +77,33 @@ READ_GUARD = "\tif (advertisement < 0 || gigabit < 0 || control < 0)\n\t\treturn
 REGISTER_4_VALUE = ("(unsigned int)advertisement &\n"
                     "\t\t       ~(PHY_ANAR_BELOW_GIGABIT | PHY_ANAR_RESERVED)")
 REGISTER_9_KEEP = "((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |"
-#: #840: each field the PHY init keeps: its register, its bits and the assertion
-#: that grades it
+#: the register 0 value the PHY init writes, as it spells it
+REGISTER_0_VALUE = ("((unsigned int)control | PHY_BMCR_AN_ENABLE |\n"
+                    "\t\t\t   PHY_BMCR_AN_RESTART) &\n"
+                    "\t\t       ~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE)")
+#: #840: each kept field the peer grades: its register, its bits and the
+#: assertion that grades it. The init's other pass-through bits in registers
+#: 4 and 0 are unmodified by construction and not graded.
 KEPT_FIELDS = ((4, range(0, 5), "selector_kept"),
                (4, range(10, 12), "pause_bits_kept"),
-               (9, range(10, 13), "master_slave_kept"))
+               (9, range(10, 13), "master_slave_kept"),
+               (0, range(11, 12), "power_down_kept"),
+               (0, range(14, 15), "loopback_kept"))
 
 
 def kept_bit_mutants() -> dict[str, tuple[str, str, str]]:
-    """Each kept bit forced on and dropped, one mutant each: a keep is an identity."""
+    """Each bit of a graded field forced on and dropped, one mutant each: a keep is an identity."""
     mutants = {}
     for register, bits, assertion in KEPT_FIELDS:
         for bit in bits:
             mask = f"0x{1 << bit:04x}u"
-            if register == 4:
-                forced = (REGISTER_4_VALUE, f"{mask} | ({REGISTER_4_VALUE})")
-                dropped = (REGISTER_4_VALUE, REGISTER_4_VALUE.replace("~(", f"~({mask} | "))
-            else:
+            if register == 9:
                 forced = (REGISTER_9_KEEP, f"{REGISTER_9_KEEP} {mask} |")
                 dropped = (REGISTER_9_KEEP, REGISTER_9_KEEP.replace("MASTER_SLAVE)", f"MASTER_SLAVE & ~{mask})"))
+            else:
+                value = REGISTER_4_VALUE if register == 4 else REGISTER_0_VALUE
+                forced = (value, f"{mask} | ({value})")
+                dropped = (value, value.replace("~(", f"~({mask} | "))
             mutants[f"force-bit-{register}.{bit}"] = (*forced, assertion)
             mutants[f"drop-bit-{register}.{bit}"] = (*dropped, assertion)
     return mutants

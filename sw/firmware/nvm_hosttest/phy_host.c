@@ -46,7 +46,8 @@ static int last_write(unsigned int reg, unsigned int first)
  * register 4 carry the advertisement (IEEE 802.3-2022 Table 40-3, Table
  * 28B-1, Table 28-2, 28.2.4.1.3), and register 0 then enables (22.2.4.1.4)
  * and restarts (22.2.4.1.7) auto-negotiation once, after both, with reset
- * and isolate clear (22.2.4.1.1, 22.2.4.1.6). */
+ * and isolate clear (22.2.4.1.1, 22.2.4.1.6) and power-down (22.2.4.1.5)
+ * and loopback (22.2.4.1.2) as read. */
 static void expect_gigabit_only_advertisement(unsigned int first, unsigned int restarts_expected)
 {
 	const int at4 = last_write(4, first);
@@ -70,6 +71,8 @@ static void expect_gigabit_only_advertisement(unsigned int first, unsigned int r
 	const int reset_cleared = at0 >= 0 && !(ctl & 0x8000u);
 	const int isolate_cleared = at0 >= 0 && !(ctl & 0x0400u);
 	const int auto_negotiation_enabled = at0 >= 0 && (ctl & 0x1000u);
+	const int power_down_kept = at0 >= 0 && (ctl & 0x0800u) == (initial[0] & 0x0800u);
+	const int loopback_kept = at0 >= 0 && (ctl & 0x4000u) == (initial[0] & 0x4000u);
 	const int restart_after_advertisement = at0 > at4 && at0 > at9;
 
 	assert(no_10base_t_advertised);
@@ -86,6 +89,8 @@ static void expect_gigabit_only_advertisement(unsigned int first, unsigned int r
 	assert(reset_cleared);
 	assert(isolate_cleared);
 	assert(auto_negotiation_enabled);
+	assert(power_down_kept);
+	assert(loopback_kept);
 	assert(restart_after_advertisement);
 	printf("PHY_ADVERTISEMENT writes=%u reg9=0x%04x reg4=0x%04x reg0=0x%04x restarts=%u\n",
 	       writes - first, gig, adv, ctl, restarts);
@@ -121,11 +126,13 @@ int main(void)
 	 * its test-mode, half duplex and reserved bits; register 0 sets reset
 	 * and isolate. A keep is an identity, so one start value cannot grade
 	 * it (#840): this arm and the arm below without auto-negotiation
-	 * enabled start each kept bit in opposite states, the selector 00001
-	 * then 11110, pause 10 then 01, MASTER-SLAVE 101 then 010, so forcing
-	 * or dropping any kept bit changes it in one arm. That arm also grades
-	 * the auto-negotiation enable bit. */
-	registers[0] = 0x9400;
+	 * enabled start twelve bits in opposite states, the selector 00001
+	 * then 11110, pause 10 then 01, MASTER-SLAVE 101 then 010, power-down
+	 * 1 then 0, loopback 0 then 1, so forcing or dropping one of these
+	 * changes it in one arm. The init's other pass-through bits in
+	 * registers 4 and 0 are unmodified by construction and not graded.
+	 * That arm also grades the auto-negotiation enable bit. */
+	registers[0] = 0x9c00;
 	registers[1] = 0x0124;
 	registers[2] = 0x001c;
 	registers[4] = 0x4be1;
@@ -325,13 +332,15 @@ int main(void)
 	 * to 100 Mb/s full duplex. The PHY init sets bit 0.12 (22.2.4.1.4),
 	 * which leaves Figure 28-18's AUTO-NEGOTIATION ENABLE state, so
 	 * negotiation starts even where the PHY ignores the bit 0.9 written
-	 * with it (22.2.4.1.7); the poll then publishes 1000BASE-T full duplex. */
+	 * with it (22.2.4.1.7); the poll then publishes 1000BASE-T full duplex.
+	 * Bit 0.14 starts set only to grade its keep: the peer stores it and
+	 * models no loopback. */
 	{
 		const unsigned int writes_before = writes;
 		const unsigned int restarts_before = restarts;
 		unsigned int before;
 
-		registers[0] = 0x2100;
+		registers[0] = 0x6100;
 		registers[1] = 0x0124;
 		registers[4] = 0x47fe;
 		registers[5] = 0x01e1;

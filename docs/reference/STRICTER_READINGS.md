@@ -70,7 +70,7 @@ A PHY lacking 1000BASE-T full duplex keeps its advertisement.
 The retired Arty has such a 10/100 PHY. Its MII MAC runs 10 and 100 Mb/s.
 
 - Where: `phy_advertise_gigabit_only()` in `sw/firmware/milan_baremetal/milan_baremetal.c`.
-- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with forty-seven named mutants.
+- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with fifty-one named mutants.
 - The [firmware guide](../integration/BAREMETAL_FIRMWARE.md) describes the PHY poll.
 
 ## The certification_version field
