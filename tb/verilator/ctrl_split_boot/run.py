@@ -4,12 +4,14 @@
 """The split boot simulation (#665): the platform image from reset to ready, its CSR trace and its UART.
 
 Builds, in order, all outside the checkout under --build-dir:
-  1. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
-  2. the platform image (ctrl_plat_image.py), first against the fixture map
+  1. the shape's flash port map, from the split SoC's export (the CPU budget harness's
+     build.flash_map); both links and both exports below use it;
+  2. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
+  3. the platform image (ctrl_plat_image.py), first against the fixture map
      (ctrl_plat_csr.csv), then against the boot SoC's own csr.csv, which an export with the
      first image gives (the map does not depend on the image: the two
      exports' csr.csv rows must be identical, or the run is refused);
-  3. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
+  4. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
 Then it runs the model, saves its exit status beside its log (sim.status), and grades the log:
   - NATIVE: the model's own verdict, which no observation before it discharges:
     its saved exit status is 0, and its checker's tally (verilator_harness.hpp),
@@ -33,7 +35,11 @@ as each control says, and each must be graded as it requires, on its run and
 on its regrade. --self-test grades them first, then builds and runs each
 planted control (PLANTS) and requires the grade to report it as a finding of
 its own kind: a CSR write skipped as TRACE, a console that holds the loop past
-the tick rule as UART.
+the tick rule as UART. It then runs the placement controls on one of those
+builds; --placement-controls runs them alone, on a finished run in --build-dir:
+split_soc.map_deviations gives nothing on the true flash map and names each
+edit of PLACEMENTS, boot_soc.build refuses an export given the map with a
+register moved, and each of GUARD_PLANTS must let that map through its export.
 
 Exit 0 when NATIVE, BOOT and TRACE pass, every UART duty is within its bounds,
 the grader's firmware checks pass and its one listed difference
@@ -46,6 +52,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -92,6 +99,24 @@ PLANTS = {
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
+}
+#: The words boot_soc.build refuses a deviating flash map in, and the register its export control moves.
+DEVIATES = "the boot SoC does not place the flash port's devices as the split SoC does"
+MOVED = 'spiflash_master_cs'
+#: The placement controls of map_deviations: each edit of a true flash map, and the words its one deviation must
+#: hold. The window's edits are read from the export's own csr.csv and never exported: the SoC places the window
+#: from the map, so only a register can deviate in a real export.
+PLACEMENTS = {
+    'register-moved': (lambda port: port['registers'].update({MOVED: port['registers'][MOVED] + 4}), MOVED),
+    'register-absent': (lambda port: port['registers'].update(spiflash_absent=0xf0002ff0), 'spiflash_absent'),
+    'window-moved': (lambda port: port['flash'].update(base=port['flash']['base'] + 0x1000), 'the flash window'),
+    'window-resized': (lambda port: port['flash'].update(size=port['flash']['size'] // 2), 'the flash window'),
+}
+#: The planted defects of boot_soc.build's refusal, each a statement its export runs before the build: the refusal
+#: taken out of the build, and a map_deviations that finds nothing. Under each, the moved register must get through.
+GUARD_PLANTS = {
+    'guard-removed': 'boot_soc.refuse_deviation = lambda *_: None',
+    'deviations-empty': 'boot_soc.split_soc.map_deviations = lambda *_: []',
 }
 #: The first link's map: the platform's fixture, at placeholder addresses.
 PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
@@ -155,24 +180,40 @@ def runtime(out: Path) -> tuple[Path, Path]:
     return out / 'runtime/libc.a', out / 'runtime/libcompiler_rt.a'
 
 
-def image(out: Path, name: str, point: tuple[str, int], csr_csv: Path, archives: tuple[Path, Path],
+class ImageMaps(NamedTuple):
+    """The platform bus map and the generated flash port map for one link."""
+
+    csr_csv: Path
+    flash_map: Path
+
+
+def image(out: Path, name: str, point: tuple[str, int], maps: ImageMaps, archives: tuple[Path, Path],
           source: Path | None = None) -> Path:
     """The platform image of one point (shape, interfaces) against one map, from the checkout's tree or a
     planted copy."""
     shape, n_if = point
     run([sys.executable, '-B', str(FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
-         str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(csr_csv),
-         '--output', str(out / name), '--libc', str(archives[0]), '--compiler-runtime', str(archives[1]),
+         str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(maps.csr_csv),
+         '--flash-map', str(maps.flash_map), '--output', str(out / name), '--libc', str(archives[0]),
+         '--compiler-runtime', str(archives[1]),
          *([] if source is None else ['--ctrl-source', str(source)])], out / f'{name}.log', cwd=ROOT)
     return out / name / 'ctrl_app.elf'
 
 
-def export(out: Path, name: str, shape: str, elf: Path, n_if: int) -> dict:
-    """The boot SoC's export for one image, in a child process (the CPU generator patches its class)."""
+def exported(out: Path, name: str, point: tuple[str, int], elf: Path, flash_map: Path, plant: str = 'pass') -> None:
+    """The boot SoC's export of one point (shape, interfaces) for one image, in a child process (the CPU generator
+    patches its class); `plant`, a statement, runs before the build."""
+    shape, n_if = point
     code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; '
-            'print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]))))')
-    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if)],
+            f'{plant}; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), '
+            'int(sys.argv[5]), Path(sys.argv[6]))))')
+    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if), str(flash_map)],
         out / f'{name}.log', cwd=ROOT)
+
+
+def export(out: Path, name: str, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
+    """The boot SoC's export for one image, and its spec."""
+    exported(out, name, (shape, n_if), elf, flash_map)
     return json.loads((out / name / 'soc.json').read_text())
 
 
@@ -204,7 +245,6 @@ def rows(csr_csv: Path) -> list[str]:
 
 def planted(out: Path, plant: str) -> Path:
     """A copy of the firmware's tree with one plant written into it."""
-    import shutil
     path, old, new, _ = PLANTS[plant]
     copy = out / 'ctrl'
     shutil.copytree(ROOT / 'sw/firmware/ctrl', copy, ignore=shutil.ignore_patterns('__pycache__'))
@@ -218,12 +258,16 @@ def planted(out: Path, plant: str) -> Path:
 def build(out: Path, shape: str, n_if: int, plant: str | None = None) -> tuple[Path, dict]:
     """Every build step; the native model and the boot SoC's spec."""
     out.mkdir(parents=True, exist_ok=True)
+    sys.path.insert(0, str(BUDGET))
+    import build as budget_build
+    flash_map = budget_build.flash_map(out / 'split-soc/flash-map', shape)
     archives = runtime(out)
-    first = image(out, 'image-provisional', (shape, n_if), PROVISIONAL, archives)
-    export(out, 'soc-provisional', shape, first, n_if)
+    first = image(out, 'image-provisional', (shape, n_if), ImageMaps(PROVISIONAL, flash_map), archives)
+    export(out, 'soc-provisional', shape, first, n_if, flash_map)
     csr_csv = out / 'soc-provisional/csr.csv'
-    elf = image(out, 'image', (shape, n_if), csr_csv, archives, None if plant is None else planted(out, plant))
-    spec = export(out, 'soc', shape, elf, n_if)
+    elf = image(out, 'image', (shape, n_if), ImageMaps(csr_csv, flash_map), archives,
+                None if plant is None else planted(out, plant))
+    spec = export(out, 'soc', shape, elf, n_if, flash_map)
     if rows(out / 'soc/csr.csv') != rows(csr_csv):
         raise RuntimeError('the boot SoC\'s csr.csv depends on the image; the map cannot be generated from it')
     spec['elf'] = str(elf)
@@ -406,9 +450,64 @@ def native_controls(out: Path, shape: str, n_if: int) -> int:
     return wrong
 
 
+def edited_map(out: Path, name: str) -> Path:
+    """A copy of a finished run's flash map, with one placement control's edit."""
+    edited = out / f'map-{name}'
+    shutil.rmtree(edited, ignore_errors=True)
+    shutil.copytree(out / 'split-soc/flash-map', edited)
+    port = json.loads((edited / 'flash_port.json').read_text())
+    PLACEMENTS[name][0](port)
+    (edited / 'flash_port.json').write_text(json.dumps(port))
+    return edited
+
+
+def export_verdict(out: Path, point: tuple[str, int], name: str, plant: str = 'pass') -> str:
+    """How boot_soc.build ends on a finished run's image and the map with MOVED moved: REFUSED in its own words and
+    naming the register, TAKEN, or OTHER for an export that failed in any other way."""
+    try:
+        exported(out, name, point, out / 'image/ctrl_app.elf', edited_map(out, 'register-moved'), plant)
+    except RuntimeError:
+        said = (out / f'{name}.log').read_text()
+        return 'REFUSED' if DEVIATES in said and MOVED in said else 'OTHER'
+    return 'TAKEN'
+
+
+def placement_controls(out: Path, shape: str, n_if: int) -> int:
+    """Each placement control on a finished run in `out`; the number not as required. map_deviations gives nothing
+    on the true map and names each edit, and the export refuses the moved register. Each planted defect of that
+    refusal must then let the same map through, which shows the export control can fail."""
+    sys.path.insert(0, str(BUDGET))
+    import split_soc
+    csr = (out / 'soc/csr.csv').read_text()
+    wrong = 0
+
+    def said(name: str, ok: bool, detail: object) -> None:
+        """One control's line; a control not as required counts."""
+        nonlocal wrong
+        wrong += not ok
+        print(f'PLACEMENT {name}: {"as required" if ok else "WRONG"} ({detail})')
+
+    found = split_soc.map_deviations(csr, out / 'split-soc/flash-map')
+    said('true-map', not found, f'deviations {found}')
+    for name, (_, words) in PLACEMENTS.items():
+        found = split_soc.map_deviations(csr, edited_map(out, name))
+        said(name, len(found) == 1 and words in found[0], f'deviations {found}')
+    verdict_of = export_verdict(out, (shape, n_if), 'placement-export')
+    said('export-refuses', verdict_of == 'REFUSED', f'export {verdict_of}')
+    for plant, statement in GUARD_PLANTS.items():
+        verdict_of = export_verdict(out, (shape, n_if), f'placement-{plant}', statement)
+        wrong += verdict_of != 'TAKEN'
+        print(f'PLANT {plant}: {"caught" if verdict_of == "TAKEN" else "ESCAPED"} (PLACEMENT; the export of the moved '
+              f'{MOVED} ended {verdict_of})')
+    total = 1 + len(PLACEMENTS) + 1 + len(GUARD_PLANTS)
+    print(f'ctrl_split_boot placement controls: {total - wrong} of {total} as required')
+    return wrong
+
+
 def self_test(out: Path, shape: str, n_if: int) -> int:
     """Every native control graded as it requires, then every plant graded a finding of its own kind in a run the
-    model completed (no NATIVE finding), so its observations are a whole run's; 0 when each is."""
+    model completed (no NATIVE finding), so its observations are a whole run's, then the placement controls on the
+    first plant's build; 0 when each is."""
     wrong = native_controls(out / 'native', shape, n_if)
     escaped = 0
     for plant, (_, _, _, kind) in PLANTS.items():
@@ -418,9 +517,10 @@ def self_test(out: Path, shape: str, n_if: int) -> int:
         escaped += not caught
         print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}; '
               f'{"the run completed" if completed else "the model did not complete its run"}); findings: {findings}')
+    misplaced = placement_controls(out / f'plant-{next(iter(PLANTS))}', shape, n_if)
     print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
-          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
-    return 1 if escaped or wrong else 0
+          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught; {misplaced} placement controls wrong')
+    return 1 if escaped or wrong or misplaced else 0
 
 
 def main() -> int:
@@ -432,14 +532,18 @@ def main() -> int:
     parser.add_argument('--regrade', action='store_true', help='grade the log of an earlier run in --build-dir')
     parser.add_argument('--native-controls', action='store_true',
                         help='grade every native control (NATIVE_CONTROLS) under --build-dir, with no build')
+    parser.add_argument('--placement-controls', action='store_true',
+                        help='run the placement controls on the finished run in --build-dir')
     parser.add_argument('--self-test', action='store_true',
-                        help='grade every native control, then build and run every planted control (PLANTS) under '
-                             '--build-dir; each must be graded as it requires')
+                        help='grade every native control, build and run every planted control (PLANTS) under '
+                             '--build-dir, then run the placement controls; each must be graded as it requires')
     args = parser.parse_args()
     out = args.build_dir.resolve()
     try:
         if args.native_controls:
             return 1 if native_controls(out, args.shape, args.interfaces) else 0
+        if args.placement_controls:
+            return 1 if placement_controls(out, args.shape, args.interfaces) else 0
         if args.self_test:
             return self_test(out, args.shape, args.interfaces)
         findings, report = point(out, args.shape, args.interfaces, args.regrade)

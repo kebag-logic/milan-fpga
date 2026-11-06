@@ -6,7 +6,12 @@
 // the committed PCs, the CPU's fetch bus (cacheless, or its instruction
 // cache's refills) and cacheless data bus, the mailbox host port, the
 // receive commit and the event-ring writes. Every figure it prints is an
-// observed clock count; run.py grades them.
+// observed clock count; run.py grades them. It also reports each call of a
+// traced function (SPAN: the commit of its entry to the commit of its return
+// address) and each entry of a called one (CALL), the saved-state store's
+// steps and the owners they reach (#665). BUDGET_JOURNAL_IN, a file of the
+// journal's bytes, is loaded over the flash image at the journal; at the end
+// the journal's bytes are written to BUDGET_JOURNAL_OUT.
 #include "Vsim.h"
 #include "budget_config.hpp"
 #include "verilator_harness.hpp"
@@ -76,6 +81,7 @@ class Bench {
 public:
     Bench(const char* script, const char* flash_image) : flash_(0, 0) {
         if (flash_image[0] != '-') flash_.load(flash_image, 0);
+        if (const char* journal = std::getenv("BUDGET_JOURNAL_IN")) flash_.load(journal, journal_offset);
         std::ifstream input(script);
         if (!input) throw std::runtime_error("cannot open stimulus script");
         std::string line;
@@ -142,6 +148,12 @@ public:
 
     void report() const {
         flush_idle();
+        if (const char* path = std::getenv("BUDGET_JOURNAL_OUT")) {
+            std::ofstream out(path, std::ios::binary);
+            for (std::uint32_t a = journal_offset; a < journal_offset + journal_size; ++a)
+                out.put(static_cast<char>(flash_.byte(a)));
+            if (!out) throw std::runtime_error("cannot write the journal");
+        }
         std::string text = "SUMMARY";
         text += " sys=" + std::to_string(sys_) + " cpu=" + std::to_string(cpu_) + " passes=" + std::to_string(passes_);
         text += " instr=" + std::to_string(instr_) + " bus_errors=" + std::to_string(bus_errors_) + " traps=" + std::to_string(traps_);
@@ -246,8 +258,10 @@ private:
         if (commit_valid(dut)) {
             ++instr_;
             ++pass_.instr;
+            const std::uint32_t prev_pc = last_pc_;
             last_pc_ = commit_pc(dut);
             module_ = module_of(last_pc_);
+            trace_commit(prev_pc);
             if (trace_left_ && (tracing_ || (trace_from && last_pc_ == trace_from) || (trace_after_ && sys_ >= trace_after_))) {
                 tracing_ = true;
                 --trace_left_;
@@ -303,6 +317,24 @@ private:
             if (at.region == MBX) (at.write ? mbx_write_ : mbx_read_).add(wait);
             pass_.lsu_wait[at.region] += wait;
         }
+    }
+
+    // A traced call ends at the first commit of its return address, the instruction after the
+    // call (prev_pc + 4: the commit before an entry is the call that reached it); its SPAN line
+    // names the call's pc, so the grader can hold it to a linking call. CALL lines give each
+    // entry of a called function.
+    void trace_commit(std::uint32_t prev_pc) {
+        for (unsigned s = 0; s < n_spans; ++s) {
+            auto& open = spans_[s];
+            if (open.active && last_pc_ == open.ret) {
+                std::printf("SPAN %llu %llu %llu %08x %s\n", ull(open.sys), ull(open.cpu), ull(cpu_ - open.cpu),
+                            open.ret - 4u, span_name[s]);
+                open.active = false;
+            }
+            if (last_pc_ == span_pc[s]) open = {true, prev_pc + 4u, sys_, cpu_};
+        }
+        for (unsigned c = 0; c < n_calls; ++c)
+            if (last_pc_ == call_pc[c]) std::printf("CALL %llu %llu %s\n", ull(sys_), ull(cpu_), call_name[c]);
     }
 
     // The code words fetched before the mailbox opened (boot) and after it (service).
@@ -484,6 +516,8 @@ private:
     std::uint64_t sys_ = 0, cpu_ = 0, instr_ = 0, passes_ = 0, wait_from_ = 0;
     unsigned now_ms_ = 0;
     std::uint32_t last_pc_ = 0;
+    struct OpenSpan { bool active; std::uint32_t ret; std::uint64_t sys, cpu; };
+    std::array<OpenSpan, n_spans> spans_{};
     unsigned module_ = n_modules;
     std::array<std::uint64_t, n_modules + 1> module_total_{};
     // An optional trace of committed PCs from the first commit at trace_from (a debugging aid).

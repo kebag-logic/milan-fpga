@@ -6,6 +6,8 @@ Both traffic arms contribute to the published maximum.
 The 8x8 maximum must remain at or below 24.5 ms.
 This is half the unchanged hold's guaranteed 49 ms floor.
 The free-running tick makes the effective hold 49-50 ms.
+This bound is D5's on the current flash writer, the product firmware measured here.
+The split writer F1 is not held to it ([owner decision 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000)): each of its steps is held to T_svc instead ([`nvm_split_target`](../nvm_split_target/README.md#the-captures-timing)).
 
 ## Contents
 

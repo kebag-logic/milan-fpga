@@ -313,12 +313,12 @@ This is the ledgered point, so both commands name its override.
 Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
 Every other point takes no override, and refuses one.
 
-Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`):
+Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
 
 ```sh
 python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml \
-  --interfaces 2 --ledgered-point platform-8x8-two-interfaces --csr-csv "$SOC/csr.csv" --output "$OUT" \
-  --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+  --interfaces 2 --ledgered-point platform-8x8-two-interfaces --csr-csv "$SOC/csr.csv" --flash-map "$FLASH_MAP" \
+  --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
 
 It names the platform's own override, and is refused at 59.0 RAMB36 without it or with the fixture's.
