@@ -1,0 +1,39 @@
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 77d9ad8..354a498 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -10616,12 +10616,14 @@ struct AcmpPathPhase {
+   }
+   //! the MRPDU carries Listener value sid with event ev and FourPacked fp
+   static bool listener_is(const std::vector<uint8_t>& f, uint64_t sid, int ev, int fp) {
+-    int e = -1, q = -1;
++    int e = -1;
++    int q = -1;
+     return listener_value(f, sid, e, q) && e == ev && q == fp;
+   }
+   //! the MRPDU carries Listener value sid at all
+   static bool listener_any(const std::vector<uint8_t>& f, uint64_t sid) {
+-    int e = -1, q = -1;
++    int e = -1;
++    int q = -1;
+     return listener_value(f, sid, e, q);
+   }
+   //! GET_STREAM_INFO of STREAM_INPUT LS, the solicited response (seq)
+diff --git a/tb/srp_stream_fsms/sim_main.cpp b/tb/srp_stream_fsms/sim_main.cpp
+index 726aeaf..a211728 100644
+--- a/tb/srp_stream_fsms/sim_main.cpp
++++ b/tb/srp_stream_fsms/sim_main.cpp
+@@ -2892,10 +2892,11 @@ void SrpStreamFsmsSuite::pre_registered_streams_keep_one_declaration_per_stream(
+   h.ctl(true, 0, SID0, DA0, VID0);
+   h.ctl(true, 3, SID0, DA0, VID0);
+   const bool both = h.l_reg[0] == 1 && h.l_reg[3] == 1;
+-  const int sinks[] = {0, 3};
++  const int sink_a = 0;
++  const int sink_b = 3;
+   CHECK(both && ticks_follow_the_model(VN, 2, 3, "PS12: two sinks settled on one "
+         "pre-registered stream: each tx! sends what ONE applicant sends") == QA
+-        && h.l_app(3) == VO && h.l_decl(sinks[0]) == 2 && h.l_decl(sinks[1]) == 2,
++        && h.l_app(3) == VO && h.l_decl(sink_a) == 2 && h.l_decl(sink_b) == 2,
+         "PS12: both register at the settle, one applicant (sink 0) declares "
+         "Ready for both, the rider is VO (both %d, rider %s)", both, SN[h.l_app(3)]);
+ 

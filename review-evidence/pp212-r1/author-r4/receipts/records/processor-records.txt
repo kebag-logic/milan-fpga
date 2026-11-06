@@ -1,0 +1,9 @@
+# processor lane
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+212-srp-presettle-talker
+6162885 Declare one variable per statement in the pp_top Listener helpers and the srp_stream_fsms PS12 sink pair, Rule 11 (issue #212)
+834cc88 Give 10 §5.1 the measured cost of the issue #212 head, its flip-flops unchanged by the settled sink's link flush (issue #212)
+# round 4 diffstat
+ tb/pp_top/sim_main.cpp          | 6 ++++--
+ tb/srp_stream_fsms/sim_main.cpp | 5 +++--
+ 2 files changed, 7 insertions(+), 4 deletions(-)

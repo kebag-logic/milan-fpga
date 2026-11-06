@@ -1,0 +1,1 @@
+env PATH=<toolchain>/sv2v-v0.0.12:<toolchain>/verilator-v5.050/bin:/usr/local/bin:/usr/bin:/bin SV2V=<toolchain>/sv2v-v0.0.12/sv2v YOSYS=/usr/bin/yosys TMPDIR=<scratch>/pp212d-tmp ./syn/yosys/ooc.sh --record-rom-digests
