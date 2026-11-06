@@ -34,6 +34,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import mrpdu_grade
 import save_grade
 import save_window
 import scenario
@@ -277,11 +278,20 @@ def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int,
     return out
 
 
+#: GET_AS_PATH's command_type (IEEE 1722.1-2021 Table 7-126).
+GET_AS_PATH = 0x28
+
+
 def causal(frame: bytes, command: int, descriptor_type: int, descriptor_index: int) -> bool:
-    """An unsolicited AEM_RESPONSE (IEEE 1722.1-2021 7.5.2) of that command and descriptor."""
-    return (len(frame) > 41 and frame[14] == 0xFB and frame[15] & 0xF == 1 and bool(frame[36] & 0x80)
-            and int.from_bytes(frame[36:38], 'big') & 0x7FFF == command
-            and int.from_bytes(frame[38:40], 'big') == descriptor_type
+    """An unsolicited AEM_RESPONSE (IEEE 1722.1-2021 7.5.2) of that command and descriptor. GET_AS_PATH names its
+    descriptor by index alone (7.4.41)."""
+    if len(frame) <= 41 or frame[14] != 0xFB or frame[15] & 0xF != 1 or not frame[36] & 0x80:
+        return False
+    if int.from_bytes(frame[36:38], 'big') & 0x7FFF != command:
+        return False
+    if command == GET_AS_PATH:
+        return int.from_bytes(frame[38:40], 'big') == descriptor_index
+    return (int.from_bytes(frame[38:40], 'big') == descriptor_type
             and int.from_bytes(frame[40:42], 'big') == descriptor_index)
 
 
@@ -900,6 +910,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
     if window is not None:
         rows += service(grader, group, marks['composed'], marks['composed_end'])
     rows += save_grade.held(grader, group)
+    rows += mrpdu_grade.rows(grader, group)
     # The script's end closes the pass in progress: the run it flushes holds that cut pass, so
     # neither its minimum nor its maximum is a whole idle pass's.
     whole = log.idle[:-1] if log.cut_idle else log.idle

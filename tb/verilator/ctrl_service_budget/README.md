@@ -74,8 +74,8 @@ The earlier `--cpu-hz` option, which ran the CPU on its own clock at a labelled 
 **The per-pass share.**
 Apart from the rows, every work pass of every group is held to the per-pass share ([`share.py`](share.py), `grade.pass_share`).
 An input waits for the pass running when it arrives and is answered in a later pass.
-The deepest wait the loop admits is seven owed frames, answered in pass 8 after the room returns, so nine passes must fit the smallest bound every input shares (`ctrl_loop.h`, THE SHARE).
-That bound is SRP's 18 ms, min(T_svc, its ceiling), so the share is 18 / 9 = 2.0 ms: 200,000 CPU cycles at the product's 100 MHz.
+The deepest wait the loop admits is nine passes, THE DRAIN's and THE TRANSMIT's at two interfaces and seven owed frames answered in pass 8 after the room returns, and the share is the smallest bound every input shares over ten, a pass to spare (`ctrl_loop.h`, THE SHARE).
+That bound is T_svc, SRP's own since the owner's ruling of 2026-11-06, so the share is 20 / 10 = 2.0 ms: 200,000 CPU cycles at the product's 100 MHz.
 A pass that writes nothing to the mailbox is not printed, only the longest of each run of them (`sim_main.cpp`'s `IDLE` line), and the saved-state store's step can be all such a pass does (`ctrl_loop.h`, THE STEP): a run whose longest is over the share is one pass over it, and the `SHARE` line names it.
 Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
 The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
@@ -118,6 +118,10 @@ Every pass that carries the store's step is printed, a `STEPPASS` line or `step=
 **A retried notice under sustained input.**
 [`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
 The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
+Groups `notice-every-<k>` and `notice-burst-<k>` run every notice the model holds pending at once, each its own row, in the `answering-every-port` arm: 40 at 8x8/2if and 12 at 1x1/1if, the second with the composed burst 6 ms after the answer.
+The first commit is held to 20 ms from its port's answer and every row to `AECP_QUEUED_MS` (`notice_window.queued_ms` reads it from the headers), and `run.notice_misses` fails the run on either whatever its options record.
+[`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
+A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
 They run in the labelled `answering-later` arm, at each point:
 
 ```sh
@@ -171,6 +175,8 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   It runs the `adp-shutdown` and `control-shutdown` groups only.
 - `answering-later` keeps the face block's stream observation unanswered until an attempt at or after NOW_MS 3,150 fails, then answers (above, "A retried notice under sustained input").
   It runs the `notice-retried-<k>` groups only.
+- `answering-every-port` holds every observation port unanswered until the first attempt at or after NOW_MS 3,150 fails, marks every notice the model holds as the first waits, then answers on all of them.
+  It runs the `notice-every-<k>` and `notice-burst-<k>` groups only.
 
 As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
 With `--fetch-l1 none` they are S2's arms in [Results](#results).
@@ -309,8 +315,8 @@ While any of those windows left its load unreleased, the composed maximum is a l
 A run that did not include every backlog row names the rows not run, and its figure is labelled partial: the longest pass of the windows it ran, not the composed maximum.
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
-The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
-Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 18 ms for SRP, 20 ms for every other family.
+The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 20 ms.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family.
 A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
 A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 
@@ -1033,8 +1039,8 @@ Its checks:
 - a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
 - every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
 - an exact-budget path passes and one bus cycle more misses;
-- each family against min(T_svc, its ceiling): an SRP instance at its 18 ms ceiling fits, and one cycle over it and one at 19 ms miss, though under T_svc; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
-- W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 18 ms misses both;
+- each family against min(T_svc, its ceiling): an SRP instance at its 20 ms bound fits, and one cycle over it and one at 21 ms miss; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+- W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 20 ms misses both;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
@@ -1054,13 +1060,13 @@ Its checks:
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
 - the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
-- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
+- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
 - the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
-- the per-pass share is SRP's 18 ms over nine passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
+- the per-pass share is T_svc's 20 ms over ten passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
 - each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
 - a save's stated worst case, restated, at both points; a save is timed from its change to the read-back that completes its verify, within it, over it, or never in the run, and one not within it fails the run whatever the options record; the age limit's plant is caught by `save-starved`'s save not durable within it, and escapes with every save within it, only `save-held`'s late, or a refusal; every receive channel of the held groups is at its contract refill rate with its bursts through the worst case, AECP's from one refill period after the change, and `save-starved` alone has the grandmaster flood; a held group that commits fewer records than its load offered is refused; every pass that carries the store's step is counted, idle or work, with the longest and the longest step;
 - a save's window is refused outside its flash phase, the verify's ending when its read-backs have read back every programmed byte;
@@ -1127,7 +1133,6 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
 | notify: the fan-out registers one controller an interface (earlier rule) | the fan-out group registers the firmware's capacity, every registration a recipient |
 | deadline: T_svc pinned at the 10 ms proposal (earlier rule) | fixture row fixture.service.srp.first.if0 |
-| deadline: SRP graded against T_svc alone, not its 18 ms ceiling | an SRP instance one cycle over 18 ms misses, under T_svc |
 | deadline: each family graded against its ceiling alone, not T_svc | an AECP instance at 22 ms misses T_svc, within its ceiling |
 | deadline: strictly below the budget | exact budget passes |
 | deadline: the normative wait is not added | W + T_svc passes |
@@ -1155,10 +1160,9 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the hot code and the rest stay in rom | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
-| share: T_svc over the passes, not the tightest family bound | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
-| share: the bound over eight passes | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
-| share: a pass at the share is over it | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
-| share: in bus cycles, not CPU time | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: the bound over eight passes | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: a pass at the share is over it | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
+| share: in bus cycles, not CPU time | the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz |
 | share: the passes are not held to it | a work pass at the share fits it and one a cycle over it does not |
 | share: a pass over it is no finding | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
 | share: the rows option records the passes too | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
@@ -1208,8 +1212,12 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | notice: a retried notice is held to its ceiling, not its bound | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
 | notice: the age-less plant is judged as a budget control | the age-less plant is caught only when every group's retried notice is later than its bound |
 | notice: the port answers before the load | every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark |
-| transmit: the build-beside-records plant is judged as a budget control | the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's |
-| transmit: any channel's held record over its bound catches the build-beside-records plant | the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's |
+| transmit: the aged build's plant is judged as a budget control | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+| transmit: any row over its bound catches the aged build's plant | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
+| transmit: a timer's row ends at the first build, with no frame | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
+| transmit: a timer's row starts at its entry, not at the deadline | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
+| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 20 ms at one interface and 58 ms at two |
+| notice: the first of a queue is held to the queue's bound | a queue's first notice is held to T_svc and every other to the queue's bound |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1251,7 +1259,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 Some aged window's row must go over its budget, with no refusal: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget, a miss outside the aged windows only, or a refusal is `ESCAPED`.
 
-The planted retry age's removal runs the retried notice's groups with a change-notice retry taken only in a pass that took no input and dispatched no centisecond, or after an aged step, as before THE RETRY had an age limit:
+The planted round without a pass given whole runs the retried notice's groups with a change notice taken only in a pass that took no input and dispatched no centisecond, or beside an aged step or a build:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
@@ -1260,15 +1268,14 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, with no refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
 
-The planted build beside records runs the same groups with THE TRANSMIT's pass every pass, so SRP's MRPDU build and the declarations it sends follow the polls of a pass that takes the composed burst's records, as before THE TRANSMIT (`ctrl_loop.h`):
+The planted age on the build runs the same groups with an MRPDU owed held thirty passes before THE TRANSMIT's pass:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
-  --build-dir /tmp/budget-transmit --variant answering-later --mutation transmit-beside-records
+  --build-dir /tmp/budget-transmit --variant answering-later --mutation transmit-aged
 ```
 
-The builds a centisecond's join timers start then stand among the passes the last SRP record of the load's first burst waits, so every group's longest held SRP record must be over its 18 ms, with no refusal: it prints `CONTROL transmit-beside-records caught`, naming the groups; any group within its bound, a miss in another channel only, or a refusal is `ESCAPED`.
-At 1x1 the burst's drain is short enough that its rows fit either way, so the control runs at 8x8.
+Every group's timer-driven MRPDU must then be over its 20 ms, with no refusal: it prints `CONTROL transmit-aged caught`, naming the groups; any group within its bound, a miss in another row, or a refusal is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

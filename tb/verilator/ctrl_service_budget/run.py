@@ -194,14 +194,28 @@ def notices(results: list[dict]) -> list[dict]:
     """Every retried notice's row (notice_window.py), measured, with its group."""
     import notice_window
     return [dict(r, group=g['group']) for g in results for r in g['probes']
-            if r.get('status') == 'measured' and r['path'][0] == notice_window.PATH]
+            if r.get('status') == 'measured' and r['path'][0] in (notice_window.PATH, notice_window.QUEUED)]
 
 
 def notice_misses(results: list[dict]) -> list[str]:
     """Each retried notice committed later than its bound after its port's answer: a failure whatever the options
     record, since the bound is the construction's (ctrl_loop.h, THE RETRY; aecp.h)."""
-    return [f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
-            for n in notices(results) if not n['within_budget']]
+    import notice_window
+    import scenario
+    rows = notices(results)
+    late = [f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
+            for n in rows if not n['within_budget']]
+    # a group that holds its load across the timers times an MRPDU they owe (mrpdu_grade.py)
+    for g in results:
+        if g['group'].startswith('notice-retried-') and not any(r['path'][0] == 'mrpdu' for r in g['probes']):
+            late.append(f"{g['group']}: no timer-driven MRPDU under its load")
+    # the first of a queue keeps the retried notice's own bound (FR_NFR.md 3.4.1), and those behind it the queue's
+    for group in {n['group'] for n in rows if n['path'][0] == notice_window.QUEUED}:
+        first = min(n['ms'] for n in rows if n['group'] == group)
+        if first > scenario.T_SVC_MS:
+            late.append(f"{group}: its first notice committed {first:.3f} ms after its port's answer, "
+                        f'over its bound {scenario.T_SVC_MS:g} ms')
+    return late
 
 
 def notice_table(results: list[dict]) -> list[str]:
@@ -455,10 +469,10 @@ def as_built_faults(refusals: list) -> list:
     return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
 
 
-def held_srp_groups(misses: list[str]) -> set[str]:
-    """The groups whose longest held SRP record is over its bound, from the run's misses (a probe's name starts with
-    its group's)."""
-    return {m.partition(':')[0].partition('.')[0] for m in misses if '.held.srp.' in m.partition(':')[0]}
+def mrpdu_groups(misses: list[str]) -> set[str]:
+    """The groups with a timer-driven MRPDU over its bound, from the run's misses (a probe's name starts with its
+    group's)."""
+    return {m.partition(':')[0].partition('.')[0] for m in misses if '.mrpdu.' in m.partition(':')[0]}
 
 
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
@@ -512,13 +526,12 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'refusal(s)')
         return 0 if caught else 1
     if args.mutation in builder.SRP_CONTROLS:
-        # caught where every group's longest held SRP record is over its bound, each named by its group
+        # caught where every group's longest timer-driven MRPDU is over its bound, each named by its group
         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
-        named = sorted(held_srp_groups(misses) & set(want))
+        named = sorted(mrpdu_groups(misses) & set(want))
         caught = named == want and not refusals
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
-              f'with the longest held SRP record over its bound ({", ".join(named) or "none"}), {len(refusals)} '
-              f'refusal(s)')
+              f'with a timer-driven MRPDU over its bound ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
         return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
@@ -539,6 +552,8 @@ def all_groups(point: object, spec: dict) -> list:
     """Every group of a point's build; the answering-later variant has only the retried notice's (notice_window)."""
     import notice_window
     import scenario
+    if spec.get('variant') == 'answering-every-port':
+        return notice_window.every_groups(point, spec)
     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 

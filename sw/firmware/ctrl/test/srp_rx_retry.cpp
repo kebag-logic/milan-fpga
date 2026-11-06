@@ -66,6 +66,7 @@ TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
     EXPECT_CALL(licence,Change(i,0,false));
     ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.pending_rx.len,0u);
+    settle(); // the adoption is THE TRANSMIT's, the pass after the record
     EXPECT_FALSE(adapter.ifs[i].active[0]);
     EXPECT_EQ(adapter.ifs[i].domain.vid,7u);
     EXPECT_EQ(adapter.received,before+1);
@@ -89,6 +90,7 @@ TEST_F(SrpRetry, PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop) {
     for(unsigned n=0;n<3;++n) ctrl_loop_service(&loop);
     recover(); ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.pending_rx.len,0u);
+    settle(); // the adoption is THE TRANSMIT's, the pass after the record
     EXPECT_EQ(adapter.ifs[0].domain.vid,8u);
     EXPECT_EQ(adapter.ifs[0].domain.priority,5u);
     EXPECT_EQ(adapter.received,2u);

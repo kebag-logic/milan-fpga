@@ -5,6 +5,12 @@
 #include "wire.h"
 #include <string.h>
 
+// Fields in 32-bit arithmetic: wire_put_be shifts its value as 64 bits, a runtime
+// call a byte on RV32 (#665: a notice's build sets how many a pass carries).
+void aecp_put16(uint8_t *, uint32_t);
+void aecp_put32(uint8_t *, uint32_t);
+void aecp_put48(uint8_t *, uint64_t);
+void aecp_put64(uint8_t *, uint64_t);
 bool aecp_enter(struct aecp *);
 void aecp_port_begin(struct aecp *);
 void aecp_port_end(struct aecp *);

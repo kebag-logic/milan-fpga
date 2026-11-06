@@ -330,13 +330,14 @@ flowchart TB
   ran or owed nothing, the next pass is the step's alone, before any input,
   so input that leaves no pass empty holds the store to one step every three
   ticks and itself waits one step at most.
-  THE TRANSMIT, SRP's MRPDU build and the declarations it sends, is taken
-  after the polls and before THE RETRY (AECP's change-notice retry) and THE
-  STEP, only in a pass that took no record, at most one event and no
-  centisecond (`ctrl_loop.h`; #665): built beside the composed burst's records
-  it put the last SRP record past its 18 ms at 8x8/2if. Once SRP's adapter has
-  held a build more than two centiseconds, the next pass after one not given
-  whole is the build's alone, before any input.
+  THE TRANSMIT, SRP's MRPDU build and the declarations it sends, has a pass
+  given whole, the first the loop can give once SRP's adapter owes one, before
+  an aged step and THE RETRY, AECP's round of change notices, which fills what
+  the pass leaves (`ctrl_loop.h`; #665): built beside the composed burst's
+  records it put the last SRP record past its bound at 8x8/2if. Up to three
+  such passes stand in a row, one while an event or a record of THE DRAIN's
+  channel waits. THE DRAIN takes SRP's records first, past two, while the pass
+  has spent less than 1.3 ms of its 2.0 ms share.
   A pass that dispatches a centisecond takes one record of a channel, not
   two (THE TICK's cap): the centisecond's consumers cost about 43,000 CPU
   cycles at 8x8/2if, and beside two records a channel that pass was the

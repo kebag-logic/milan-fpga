@@ -47,24 +47,36 @@ static inline volatile uint32_t *mbx_dma_reg(uint32_t reg)
 	return (volatile uint32_t *)(uintptr_t)((uintptr_t)(CTRL_MBX_DMA_BASE) + reg);
 }
 
-// Move len bytes between the ring of `words` words at window byte offset
-// `base`, from ring index `index` on, and the word-aligned buffer at p;
-// to_ring moves memory to the ring. Returns once the move has ended, true
-// unless it ended with ERR. The mover takes CMD the cycle after its write
-// and is BUSY the cycle after that, well before the STATUS read that
+// Start moving len bytes between the ring of `words` words at window byte
+// offset `base`, from ring index `index` on, and the word-aligned buffer at p;
+// to_ring moves memory to the ring. The mover takes CMD the cycle after its
+// write and is BUSY the cycle after that, well before the STATUS read that
 // follows the write on the bus reaches it.
-static inline bool mbx_dma_move(uint32_t base, uint32_t words, uint32_t index, const void *p, uint32_t len,
-				bool to_ring)
+static inline void mbx_dma_start(uint32_t base, uint32_t words, uint32_t index, const void *p, uint32_t len,
+				 bool to_ring)
 {
 	*mbx_dma_reg(MBX_DMA_REG_CFG) = (base >> 2) | ((words - 1u) << MBX_DMA_CFG_MASK_LSB);
 	*mbx_dma_reg(MBX_DMA_REG_MEM) = (uint32_t)(uintptr_t)p;
 	*mbx_dma_reg(MBX_DMA_REG_CMD) = (index & 0xFFFFu) | (len << MBX_DMA_CMD_LEN_LSB) |
 					(to_ring ? MBX_DMA_CMD_TO_RING : 0u);
+}
+
+// Wait for the move started last; true unless it ended with ERR.
+static inline bool mbx_dma_wait(void)
+{
 	uint32_t status;
 	do {
 		status = *mbx_dma_reg(MBX_DMA_REG_STATUS);
 	} while ((status & MBX_DMA_STATUS_BUSY) != 0u);
 	return (status & MBX_DMA_STATUS_ERR) == 0u;
+}
+
+// A move, returning once it has ended, true unless it ended with ERR.
+static inline bool mbx_dma_move(uint32_t base, uint32_t words, uint32_t index, const void *p, uint32_t len,
+				bool to_ring)
+{
+	mbx_dma_start(base, words, index, p, len, to_ring);
+	return mbx_dma_wait();
 }
 
 #endif // MBX_DMA_H

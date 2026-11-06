@@ -107,12 +107,11 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     const auto f=frame(4,{6,3,0,7},0);
     mbx_frame rx{};
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),MBX_N_IF-1u));
+    loop.rx_order=mbx_rx_mark(MBX_CH_SRP);
+    const auto ready=cost([&]{ASSERT_TRUE(loop.rx[MBX_CH_SRP].ready(&adapter));});
     ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&rx),MBX_STATUS_OK);
     calloc_before_failure=0;
-    const auto receive=cost([&] {
-        ASSERT_TRUE(loop.rx[MBX_CH_SRP].ready(&adapter));
-        loop.rx[MBX_CH_SRP].fn(&adapter,&rx);
-    });
+    const auto receive=ready+cost([&]{loop.rx[MBX_CH_SRP].fn(&adapter,&rx);});
     ASSERT_EQ(adapter.pending_rx.len,rx.len);
     check("SRP refused receive bound",receive,SRP_MBX_RX_MAX);
     const auto refused_poll=cost([&]{loop.polls[0].fn(loop.polls[0].ctx);});
@@ -122,21 +121,15 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     // Mature the real Applicant's transmit opportunity without polling it.
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
     const auto sent=adapter.transmitted;
-    // The pass's frame padded to the channel's maximum (srp_cost_probe.hpp), so
-    // the measurement holds the poll's whole transmit term (#665: one frame a
-    // poll fits inside the publication term otherwise). THE TRANSMIT's call
-    // builds it after the poll in the same pass (ctrl_loop.h), so the term is
-    // the two together.
+    // The pass's frames padded to the channel's maximum (srp_cost_probe.hpp), so the measurement holds the whole
+    // transmit term. THE TRANSMIT's call has a pass of its own, with no poll beside it (ctrl_loop.h).
     srp_probe={&model,0,0,0,true};
-    const auto transmit_poll=cost([&]{
-        loop.polls[0].fn(loop.polls[0].ctx);
-        loop.transmit(loop.transmit_ctx);
-    });
+    const auto transmit_pass=cost([&]{loop.transmit(loop.transmit_ctx);});
     const auto observed=srp_probe;
     srp_probe={};
     ASSERT_GT(adapter.transmitted,sent);
-    ASSERT_EQ(observed.sends,SRP_MBX_POLL_FRAMES);
-    check("SRP transmitting poll bound",transmit_poll,SRP_MBX_POLL_MAX);
+    ASSERT_EQ(observed.sends,SRP_MBX_TRANSMIT_FRAMES);
+    check("SRP transmitting pass bound",transmit_pass,SRP_MBX_PASS_MAX);
     // Per-frame bound independently measures the actual TX driver, at the
     // channel's maximum payload, so a one-access understatement is visible.
     std::vector<uint8_t> large(MBX_CH_SRP_MAX_FRAME_BYTES);
@@ -152,6 +145,7 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     const auto record=cost([&]{ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&taken),MBX_STATUS_OK);});
     check("SRP maximum RX record bound",record,SRP_MBX_RX_RECORD_MAX);
     ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
+    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
     const auto pass=cost([&]{ctrl_loop_service(&loop);});
     ASSERT_GT(pass,record);
     check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
@@ -176,7 +170,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     uint64_t reopen_pub=0;
     // Reset and retained reception are mutually exclusive on one interface.
     // Measure both branches separately, then add their increments to the one
-    // common link read. This reaches the conservative four-read envelope;
+    // common link read. This reaches three reads, one under the bound's four;
     // the reset's publication writes are the publication term's, counted apart,
     // the withdrawal's in its poll and the new participants' in the next.
     for (unsigned i=0;i<MBX_N_IF;++i) {
@@ -204,7 +198,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
         calloc_before_failure=-1; settle();
     }
     const uint64_t fixed=idle+reset_extra+retry_extra;
-    EXPECT_EQ(fixed,MBX_N_IF*4u) << "fixed poll branch envelope";
+    EXPECT_EQ(fixed,MBX_N_IF*3u) << "fixed poll branch envelope";
     EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_WITHDRAW) << "a reset publishes LICENCE and TALKER_DECL, once each";
     EXPECT_EQ(reopen_pub,MBX_N_IF*SRP_MBX_PUB_REOPEN)
         << "the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
@@ -213,9 +207,8 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
               static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-SRP_MBX_POLL_FRAMES*SRP_MBX_TX_MAX)
         << "poll fixed term is funded independently";
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
-    // Every participant now owes a frame. The poll sends none of them: THE
-    // TRANSMIT's call does, SRP_MBX_POLL_FRAMES of them, and the next resumes
-    // at the next participant (#665, the share; ctrl_loop.h).
+    // Every participant now owes a frame. The poll sends none of them: THE TRANSMIT's call does, both of an
+    // interface's, in a pass of its own, and the next takes the next interface (#665, the share; ctrl_loop.h).
     srp_probe={&model,0,0,0,true};
     EXPECT_EQ(poll(),idle) << "the poll builds no MRPDU";
     EXPECT_EQ(srp_probe.sends,0u) << "the poll builds no MRPDU";
@@ -223,18 +216,18 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     auto build=[&] { return srp_cost(model,[&]{loop.transmit(loop.transmit_ctx);}); };
     unsigned sends=0;
     uint64_t most=0;
-    for (unsigned n=0;n<2u*MBX_N_IF;++n) {
+    // a declaration made after a build owes the participant whose join timer is idle a pass of its own
+    for (unsigned n=0;n<4u*MBX_N_IF && adapter.tx_due!=0u;++n) {
         srp_probe={&model,0,0,0,true};
         const auto transmitting=build();
         const auto observed=srp_probe;
         srp_probe={};
-        EXPECT_EQ(observed.sends,SRP_MBX_POLL_FRAMES) << "one MRPDU a call, the next participant's on the next";
-        EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
+        EXPECT_TRUE(observed.sends==0u || observed.sends==SRP_MBX_TRANSMIT_FRAMES)
+            << "both of an interface's MRPDUs a call, the next's on the next";
+        EXPECT_EQ(observed.calls,SRP_MBX_TRANSMIT_FRAMES) << "every call reached mrp_transmit";
         EXPECT_EQ(transmitting,observed.accesses) << "a build's call adds only measured sends";
-        EXPECT_LE(static_cast<int64_t>(observed.sends),
-                  (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed)-pub_term)/SRP_MBX_TX_MAX)
-            << "poll transmit count is funded independently";
-        EXPECT_LE(fixed+reset_pub+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
+        EXPECT_LE(observed.sends*SRP_MBX_TX_MAX,SRP_MBX_PASS_MAX) << "a pass given whole funds its frames";
+        EXPECT_LE(observed.accesses,SRP_MBX_PASS_MAX) << "measured complete build envelope";
         sends+=observed.sends;
         most=std::max<uint64_t>(most,observed.accesses);
     }
@@ -297,12 +290,14 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto events0=loop.stats.events;
     const auto events=srp_cost(model,[&]{ctrl_loop_service(&loop);});
     ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
-    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u+SRP_MBX_PUB_WITHDRAW));
+    // and the ring's mark, read once a pass, with the read that gives a pass whole its row (ctrl_loop.c)
+    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u+SRP_MBX_PUB_WITHDRAW)+2u);
     EXPECT_LE(static_cast<int64_t>(events),static_cast<int64_t>(SRP_MBX_PASS_MAX)-
               CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+SRP_MBX_RX_MAX)-SRP_MBX_POLL_MAX)
         << "pass event records are funded independently";
     // Those resets' polls: receive waits until the new participants are built.
     for (unsigned n=0;n<2u;++n) loop.polls[0].fn(loop.polls[0].ctx);
+    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
     // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
     // Ethernet padding needs no allocation; the real readiness check runs.
     loop.rx[MBX_CH_SRP]=receive;
@@ -313,12 +308,12 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto rx0=loop.stats.rx_records;
     const auto rx=srp_cost(model,[&]{ctrl_loop_service(&loop);});
     ASSERT_EQ(loop.stats.rx_records-rx0,CTRL_LOOP_RX_PER_PASS);
-    // One empty event-head read, then each record and its one readiness read.
-    EXPECT_EQ(rx,1u+CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+1u));
+    // The loop's reads, then each record, whose readiness reads nothing: the head the ring's mark read stands.
+    EXPECT_EQ(rx,SRP_MBX_LOOP_READS+CTRL_LOOP_RX_PER_PASS*SRP_MBX_RX_RECORD_MAX);
     // Retained allocation refusal needs one further clock read, measured by
     // EventReceiveAndTransmitPollFitTheirMeasuredBounds. Fund that alternative
     // for each record; it cannot be hidden by a short frame or a quiet poll.
-    const auto receive_envelope=rx-1u+CTRL_LOOP_RX_PER_PASS;
+    const auto receive_envelope=rx-SRP_MBX_LOOP_READS+CTRL_LOOP_RX_PER_PASS;
     EXPECT_LE(static_cast<int64_t>(receive_envelope),static_cast<int64_t>(SRP_MBX_PASS_MAX)-events-SRP_MBX_POLL_MAX)
         << "pass receive count is funded independently";
     // The poll's: its fixed and publication terms on every interface, and one
@@ -341,26 +336,35 @@ void count_domain_writes(void*, bool write, uint32_t off, uint32_t) {
     if (write && off==domain_reg) ++domain_writes;
 }
 
+// The next pass with a poll: THE TRANSMIT's pass, which what a build declared owes, comes between two.
+void ordinary(ctrl_loop &loop) {
+    unsigned given=0;
+    do {
+        given=loop.stats.transmit_passes;
+        ctrl_loop_service(&loop);
+    } while (loop.stats.transmit_passes!=given);
+}
+
 TEST_F(Srp, LinkChangeBuildsTheNewParticipantsOnTheNextPass) {
     settle();
     const unsigned last=MBX_N_IF-1u;
     domain_reg=MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_SR_DOMAIN; domain_writes=0;
     mbx_host_trace(count_domain_writes,nullptr);
     mbx_model_set_link(&model,last,false); mbx_model_set_link(&model,last,true);
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_EQ(adapter.ifs[last].msrp,nullptr) << "the pass that takes the link change withdraws";
     EXPECT_EQ(adapter.ifs[last].mvrp,nullptr) << "the pass that takes the link change withdraws";
     EXPECT_EQ(domain_writes,0u) << "the pass that takes the link change builds nothing";
     const auto f=frame(4,{6,3,0,7},0);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),last));
     const auto taken=loop.stats.rx_records; const auto received=adapter.received; const auto refused=adapter.refused;
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_NE(adapter.ifs[last].msrp,nullptr) << "the next pass's poll builds the new participants";
     EXPECT_NE(adapter.ifs[last].mvrp,nullptr) << "the next pass's poll builds the new participants";
     EXPECT_EQ(domain_writes,1u) << "the next pass's poll builds the new participants";
     EXPECT_EQ(loop.stats.rx_records,taken) << "receive waits until the new participants are built";
     EXPECT_EQ(adapter.refused,refused) << "a record that waits is not a refusal";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     mbx_host_trace(nullptr,nullptr);
     EXPECT_EQ(loop.stats.rx_records,taken+1u) << "the record that waited is taken on the pass after";
     EXPECT_EQ(adapter.received,received+1u) << "the record that waited is taken on the pass after";
@@ -375,7 +379,7 @@ TEST_F(Srp, LinkEdgesOfOnePassBuildOnce) {
     mbx_host_trace(count_domain_writes,nullptr);
     for (unsigned n=0;n<CTRL_LOOP_EVENTS_PER_PASS;++n) mbx_model_set_link(&model,0,(n%2u)!=0u);
     const auto events0=loop.stats.events;
-    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    ordinary(loop); ordinary(loop);
     mbx_host_trace(nullptr,nullptr);
     ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
     EXPECT_NE(adapter.ifs[0].msrp,nullptr) << "a pass of link edges builds once";
@@ -391,34 +395,34 @@ TEST_F(Srp, JointLinkChangeBuildsOneInterfaceAPass) {
     settle();
     auto built=[this](unsigned n) { return adapter.ifs[n].msrp!=nullptr && adapter.ifs[n].mvrp!=nullptr; };
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,1,false);
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     ASSERT_TRUE(!built(0) && !built(1)) << "(both interfaces withdraw in the pass that takes the changes)";
     const auto f=frame(4,{6,3,0,7},0);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
     const auto taken=loop.stats.rx_records;
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_TRUE(built(0) && !built(1)) << "a pass builds one interface at most";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
     EXPECT_EQ(loop.stats.rx_records,taken) << "receive waits until both are built";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_EQ(loop.stats.rx_records,taken+1u) << "the record that waited is taken on the pass after";
     settle();
     // interface 1 built last, so interface 0 has the turn; interface 0 rebuilt alone gives it to interface 1
-    mbx_model_set_link(&model,0,true); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,0,true); ordinary(loop); ordinary(loop);
     ASSERT_TRUE(built(0) && built(1)) << "(interface 0 rebuilt alone)";
     settle();
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,1,true);
-    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    ordinary(loop); ordinary(loop);
     EXPECT_TRUE(built(1) && !built(0)) << "the interface whose turn it is is built first";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
     settle();
     // interface 1 has the turn and withdraws in the pass interface 0 is due
-    mbx_model_set_link(&model,0,true); ctrl_loop_service(&loop);
-    mbx_model_set_link(&model,1,false); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,0,true); ordinary(loop);
+    mbx_model_set_link(&model,1,false); ordinary(loop);
     EXPECT_TRUE(built(0) && !built(1)) << "an interface due beside one still withdrawing is built at once";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
 }
 
@@ -428,16 +432,16 @@ TEST_F(Srp, JointLinkChangeBuildsInterfaceOneBesideAWithdrawal) {
     settle();
     auto built=[this](unsigned n) { return adapter.ifs[n].msrp!=nullptr && adapter.ifs[n].mvrp!=nullptr; };
     // interface 1 rebuilt alone last, so interface 0 has the turn
-    mbx_model_set_link(&model,1,false); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,1,false); ordinary(loop); ordinary(loop);
     ASSERT_TRUE(built(0) && built(1)) << "(interface 1 rebuilt alone)";
     ASSERT_EQ(adapter.build_turn,0u) << "(interface 0 has the turn)";
     settle();
-    mbx_model_set_link(&model,1,true); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,1,true); ordinary(loop);
     ASSERT_TRUE(built(0) && !built(1)) << "(interface 1 withdrew and is due)";
-    mbx_model_set_link(&model,0,false); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,0,false); ordinary(loop);
     EXPECT_TRUE(built(1) && !built(0))
         << "interface 1, due beside interface 0 still withdrawing with the turn, is built at once";
-    ctrl_loop_service(&loop);
+    ordinary(loop);
     EXPECT_TRUE(built(0) && built(1)) << "interface 0 is built on the next pass";
 }
 #endif

@@ -51,10 +51,10 @@ static struct aecp_mapping decode(const uint8_t *p)
 
 static void encode(uint8_t *p, const struct aecp_mapping *r)
 {
-	wire_put_be(p, r->stream, 2);
-	wire_put_be(p + 2, r->channel, 2);
-	wire_put_be(p + 4, r->cluster, 2);
-	wire_put_be(p + 6, r->cluster_channel, 2);
+	aecp_put16(p, r->stream);
+	aecp_put16(p + 2, r->channel);
+	aecp_put16(p + 4, r->cluster);
+	aecp_put16(p + 6, r->cluster_channel);
 }
 
 static bool equal(const struct aecp_mapping *a, const struct aecp_mapping *b)
@@ -199,7 +199,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 		if (pages == 0u) {
 			pages = 1u;
 		}
-		wire_put_be(out + 6, pages, 2);
+		aecp_put16(out + 6, pages);
 		size_t page = (size_t)wire_be16(in + 4), count = 0;
 		if (page >= pages) {
 			return AECP_BAD_ARGUMENTS;
@@ -209,7 +209,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 				encode(out + 12u + 8u * count++, &m->rows[n]);
 			}
 		}
-		wire_put_be(out + 8, count, 2);
+		aecp_put16(out + 8, count);
 		*bytes += count * 8u;
 		return AECP_SUCCESS;
 	}
@@ -220,7 +220,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	if (count > AECP_MAP_PAGE || count * 8u > len - 8u) {
 		return AECP_BAD_ARGUMENTS;
 	}
-	wire_put_be(out + 4, count, 2);
+	aecp_put16(out + 4, count);
 	memcpy(out + 8, in + 8, count * 8u);
 	*bytes = 8u + count * 8u;
 	size_t additions = 0;

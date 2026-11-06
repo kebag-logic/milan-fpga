@@ -27,20 +27,26 @@ load is a row too (save_grade.held, from the mark notice.load).
 """
 from __future__ import annotations
 
+import re
+
 import frames as f
 import save_window
 import scenario
+import share
 
 #: NOW_MS from which the variant's stream observation answers, after the attempt there or next fails.
 ANSWER_MS = 3150
 #: NOW_MS of the SET_NAME, the first BIND_RX (notice-retried-0) and the load's start.
-SET_MS, BIND_MS, LOAD_MS = 1700, 3000, 3050
-#: How long the load runs past ANSWER_MS, in ms: the bound by construction, 18 ms, with room for the row to show it.
-RUN_MS = 60
+SET_MS, BIND_MS, LOAD_MS = 1700, 3000, 3010
+#: How long the load runs past ANSWER_MS, in ms: the longest bound by construction, with room for the row to show it.
+RUN_MS = 80
 #: The groups, one a millisecond across the retry's 8 ms spacing.
 PHASES = 8
 #: The row's path: run.notice_misses holds every instance of it to its bound.
 PATH = 'notice.retried'
+QUEUED = 'notice.queued'
+BURST_MS = ANSWER_MS + 6
+ROUND_MS = 2
 #: The first sequence_id of the registrations.
 SEQ = 0x5300
 
@@ -50,16 +56,25 @@ def names() -> list[str]:
     return [f'notice-retried-{k}' for k in range(PHASES)]
 
 
+def queued_ms(interfaces: int) -> int:
+    """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h, aecp.h, ctrl_loop.h): the bound every queued notice meets."""
+    ctrl = scenario.ROOT / 'sw/firmware/ctrl'
+    mailbox = (ctrl / 'aecp/aecp_mbx.h').read_text()
+    one, two = re.search(r'#define AECP_QUEUED_PASSES \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', mailbox).groups()
+    spacing = int(re.search(r'#define AECP_RETRY_MAX_MS (\d+)u', (ctrl / 'aecp/aecp.h').read_text()).group(1))
+    return spacing + int(one if interfaces == 1 else two) * int(share.share_ms())
+
+
 def wait_ms(now_ms: int) -> str:
     """A step that waits for NOW_MS to reach now_ms (sim_main.cpp's `wait ms`)."""
     return f'wait ms {now_ms}'
 
 
-def group(p: scenario.Point, k: int) -> scenario.Group:
+def group(p: scenario.Point, k: int, load_ms: int = LOAD_MS) -> scenario.Group:
     """notice-retried-<k>: the registrations, a save, the bind k ms after BIND_MS, and the load past the answer."""
     ms, aecp, acmp = scenario.MS, scenario.CH['aecp'], scenario.CH['acmp']
     paced = f'wait cycles {scenario.CONTRACT.channels[aecp].refill_ms * ms}'
-    load = save_window.arrivals(p, ANSWER_MS + RUN_MS - LOAD_MS)
+    load = save_window.arrivals(p, ANSWER_MS + RUN_MS - load_ms)
     offered = {name: sum(1 for _, channel, _ in load if channel == name) for name in scenario.CH}
     g = scenario.Group(f'notice-retried-{k}', sim_ms=ANSWER_MS + RUN_MS + 200,
                        save=dict(loaded=True, offered=offered, origin='notice.load'))
@@ -76,7 +91,7 @@ def group(p: scenario.Point, k: int) -> scenario.Group:
     g.add(wait_ms(SET_MS), f'frame 0 {save_window.set_name(p).hex()}',
           f'wait tx {aecp} {1 + len(everyone)} within {200 * ms}', 'wait quiet 3 within 2000000',
           wait_ms(BIND_MS + k), f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x5f00).hex()}',
-          f'wait tx {acmp} 2 within {20 * ms}', wait_ms(LOAD_MS))
+          f'wait tx {acmp} 2 within {20 * ms}', wait_ms(load_ms))
     probe = scenario.Probe(f'{g.name}.stream_info.if0', "a retried notice, from its port's answer (THE RETRY)",
                            'notify', 'entry:retry_port_answers', [f'notify:{aecp}:000f:5:0'], recipients=everyone,
                            until='notice.end', path=PATH)
@@ -89,7 +104,7 @@ def group(p: scenario.Point, k: int) -> scenario.Group:
             g.add(f'wait cycles {cycles - at}')
             at = cycles
         g.add(step)
-    g.add(f'wait cycles {round((ANSWER_MS + RUN_MS - LOAD_MS) * ms) - at}', 'flood gm 0',
+    g.add(f'wait cycles {round((ANSWER_MS + RUN_MS - load_ms) * ms) - at}', 'flood gm 0',
           'wait quiet 3 within 2000000', 'mark notice.end')
     return g
 
@@ -97,3 +112,53 @@ def group(p: scenario.Point, k: int) -> scenario.Group:
 def groups(p: scenario.Point) -> list[scenario.Group]:
     """Every phase's group."""
     return [group(p, k) for k in range(PHASES)]
+
+
+def every_notice(build: dict) -> list[tuple[int, int, int]]:
+    """Each notice the model can hold: (command_type, descriptor_type, descriptor_index), in aecp.c's scan order."""
+    out = []
+    for kind, commands in ((5, (15, 41)), (6, (15, 41)), (9, (39, 40, 41)), (36, (41,))):
+        index = 0
+        while True:
+            try:
+                scenario.descriptor_value(build, kind, index)
+            except KeyError:
+                break
+            out += [(command, kind, index) for command in commands]
+            index += 1
+    return out
+
+
+def notices_most(interfaces: int) -> int:
+    """AECP_NOTICES_MOST at that many interfaces (aecp.h): the most notices a reset can leave pending."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
+    one, two = re.search(r'#define AECP_NOTICES_MOST \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
+    return int(one if interfaces == 1 else two)
+
+
+def every_group(p: scenario.Point, build: dict, k: int, name: str = 'notice-every',
+                load_ms: int = LOAD_MS) -> scenario.Group:
+    """notice-every-<k>: group(), with every notice the model holds pending at once, each its own row."""
+    if len(every_notice(build)) != notices_most(p.interfaces):
+        raise RuntimeError(f'the model holds {len(every_notice(build))} notices, not AECP_NOTICES_MOST at {p.label}')
+    g = group(p, k, load_ms)
+    g.name = f'{name}-{k}'
+    aecp = scenario.CH['aecp']
+    template = g.probes.pop()
+    everyone = template.recipients
+    probes = [scenario.Probe(f'{g.name}.notices.{command:x}.{kind}.{index}.if0',
+                             "a queued notice, from its port's answer", 'notify', 'entry:retry_port_answers',
+                             [f'notify:{aecp}:{command:04x}:{kind}:{index}'], recipients=everyone,
+                             until='notice.end', path=QUEUED, wait_ms=queued_ms(p.interfaces) - scenario.T_SVC_MS)
+              for command, kind, index in every_notice(build)]
+    g.steps.remove(f'mark {template.name}')
+    at = g.steps.index(wait_ms(load_ms))
+    g.steps[at:at] = [f'mark {probe.name}' for probe in probes]
+    g.probes.extend(probes)
+    return g
+
+
+def every_groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+    """The arm's groups: every notice pending across the spacing, and again with the composed burst past the answer."""
+    return ([every_group(p, build, k) for k in range(PHASES)] +
+            [every_group(p, build, k, 'notice-burst', BURST_MS) for k in range(PHASES)])

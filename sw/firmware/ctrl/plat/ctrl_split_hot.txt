@@ -13,13 +13,15 @@
 # its entry is gone; the face's own port stays with the rest. The traces ran
 # AECP's event scan inside aecp_poll, between mbx_now_ms and arm; THE RETRY
 # (ctrl_loop.h) gives it a second caller, aecp_retry, so it is a function of its
-# own, aecp scan, and stands where its code ran. THE RETRY's age limit asks
-# AECP's adapter as each pass starts, so its two functions, aecp_mbx
+# own, aecp scan, and stands where its code ran. THE RETRY's pace asks
+# AECP's adapter as a pass given whole may start, so its two functions, aecp_mbx
 # retry_aged and aecp aecp_retry_aged, stand after ctrl_loop_service, which
 # calls them before it takes any input. THE TRANSMIT takes SRP's MRPDU build
 # out of srp_mbx poll into a function of its own, srp_mbx transmit, which
-# stands where its code ran, before mrp_mad mrp_transmit; its age, srp_mbx
-# transmit_aged, stands after THE RETRY's, as ctrl_loop_service reads it.
+# stands where its code ran, before mrp_mad mrp_transmit; its due, srp_mbx
+# transmit_aged, stands after THE RETRY's, as ctrl_loop_service reads it. A
+# notice's fan-out, aecp_mbx fan and fan_end over mbx mbx_tx_begin and
+# mbx_tx_commit, stands where the send it replaced ran.
 # The traces' sha256:
 #   backlog      869b1aca4b0e1ecc5be8b30d3f5bebd9ba4c8a5b0829595697c618cfa494a753
 #   backlog-adp  d2c80da7ea69b4f97b1b65babc52c7f9f3822f12e4a0efeedc6de77e03cbb21a
@@ -28,8 +30,7 @@
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
-mbx mbx_irq_status
-srp_mbx rx_order_ready
+mbx mbx_rx_waiting
 ctrl_loop ctrl_loop_service
 aecp_mbx retry_aged
 aecp aecp_retry_aged
@@ -124,8 +125,8 @@ aecp aecp_rx
 aecp wire_be32
 aecp wire_be64
 aecp header
-aecp put48
-aecp put64
+aecp aecp_put48
+aecp aecp_put64
 aecp_commands aecp_command
 aecp_commands body
 aecp_commands aecp_find
@@ -133,14 +134,17 @@ aecp aecp_port_begin
 aecp_mbx available_index
 ctrl_app_aecp available_index
 aecp aecp_port_end
-aecp_commands wire_put_be
 maap_mbx receive
 maap maap_rx
 maap mac_at
 maap enqueue
 maap wire_put_be
 maap_mbx send_frame
-aecp send
+aecp transmit
+aecp_mbx fan
+aecp_mbx fan_end
+mbx mbx_tx_begin
+mbx mbx_tx_commit
 aecp_mbx send
 mbx_plat_mmio mbx_hal_read32
 srp_mbx reset_interface
@@ -176,10 +180,9 @@ msrp msrp_attr_mem_len
 mrp_mad deliver_event_changed
 mrp_mad reg_event
 mrp_mad observe.isra.0
-srp_mbx msrp_moved
+srp_mbx moved
 mvrp mvrp_declare
 mvrp mvrp_attr_len
-srp_mbx mvrp_moved
 srp_mbx declare_sources
 msrp msrp_attr_cmp
 ctrl_mem memcmp
@@ -202,7 +205,6 @@ mbx mbx_pub_da_gate
 ctrl_aecp_image allocation
 srp_mbx receive
 aecp aecp_tx_complete
-aecp wire_put_be
 aecp_commands aecp_stream_read
 aecp_mbx stream
 ctrl_app_aecp stream

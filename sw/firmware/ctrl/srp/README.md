@@ -217,14 +217,17 @@ An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
 The poll builds no MRPDU and declares nothing: THE TRANSMIT does both (`ctrl_loop.h`, #665).
-The loop calls the adapter's build after its polls only in a pass that took no record, at most one event and no centisecond, so no pass that takes the composed burst's records carries a build.
-A centisecond, a received record, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a Domain change or a new participant holds a build (a binding itself holds none: the walk that finds its declaration does), and the poll reports it owed so the loop passes on to the pass that takes it.
-Once held more than `CTRL_LOOP_TX_AGE` centiseconds, counted on SRP's own tick, a build takes a pass of its own, before any input, unless a frame is owed ahead of it.
-The call makes the interface's declarations, then builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`); the participant that sent ends the call, and the next call resumes at the next participant.
-Its owed result runs the next pass at once, so every participant is reached in turn, and every participant's owed MRPDU is sent within `2 x MBX_N_IF x CTRL_LOOP_TX_MS`, inside the 200 ms JoinTime (`srp_mbx.c` holds it at compile time).
+An MRPDU owed takes a pass given whole, the first the loop can give, so no pass that takes a record carries a build.
+What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
+lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
+The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
+An MRPDU a join, periodic or LeaveAll timer owes is committed within `CTRL_LOOP_TX_MS` of its deadline, inside T_svc ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); `ctrl_loop.c` holds it at compile time).
 A Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit (Milan 4.3.2).
-A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and a pass whose poll sent it builds no other.
-The reclaim of attributes lwSRP may free comes after the declarations in the build's pass, as the poll ran them before the build moved out of it, and in the poll in every other pass, so a record the next pass takes finds the room.
+No declaration is made while a retained receive waits, so none takes the room it waits for, and a refused or waiting one is tried again when the join count ends.
+A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and no pass goes to a build until it is sent.
+The poll reclaims the attributes lwSRP may free, so a record the next pass takes finds the room.
+SRP's records go first (THE DRAIN, `ctrl_loop.h`): a pass takes them past two, while it has spent less than `CTRL_LOOP_DRAIN_US`, and a record follows only the events posted before it, by ring position.
+The composed burst's last record is taken within `CTRL_LOOP_SRP_MS` of its arrival.
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
@@ -338,7 +341,7 @@ action. It records full elapsed time and subtracts only the applicable normative
 Join wait; periodic and Leave expiry start at their original deadlines.
 All overhead shares one 10 ms service allowance, the T_svc first proposed in
 [FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing),
-tighter than the 18 ms bound SRP has under the approved budget.
+tighter than the 20 ms bound SRP has under the approved budget.
 An 11 ms full-ring stall deliberately fails that budget predicate without
 restarting the origin when space becomes available.
 These are explicit host-envelope assumptions, not measured target execution or

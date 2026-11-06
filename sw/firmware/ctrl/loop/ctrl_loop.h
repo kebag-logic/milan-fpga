@@ -15,8 +15,10 @@
 //      to every sink; a TICK record's centiseconds go to the centisecond
 //      consumers, at most CTRL_LOOP_TICKS_PER_PASS per pass, the rest carried
 //      to the next pass;
-//   2. receive rings: each bound channel in channel order, at most
-//      CTRL_LOOP_RX_PER_PASS records, each to its handler;
+//   2. receive rings: THE DRAIN's channel, then each bound channel in channel
+//      order, at most CTRL_LOOP_RX_PER_PASS records, each to its handler, then
+//      what the pass has left to the records still waiting, one a channel in
+//      turn;
 //   3. polls: every module once; a poll returns true while its module still
 //      owes output (a frame its transmit ring had no room for).
 // A pass that handled anything, or after which output or centiseconds are
@@ -31,14 +33,13 @@
 // CTRL_LOOP_RX_PER_TICK_PASS records of a channel (THE TICK), counted from the
 // first pass that starts after the fabric posted it, and the module's
 // response is committed in the pass that takes it (A3 says when it is
-// not). A pass given whole to an aged step (THE STEP), an aged retry (THE
-// RETRY) or an aged transmit (THE TRANSMIT) takes no input and is not
-// counted: it costs the input one step's time and one retry round, one retry
-// round, or one MRPDU build and one retry round. No two such passes run back
-// to back, so one at most stands before each counted pass, and their ages
-// space them in time. A pass costs at most the
-// budgets below times the modules' stated costs. That holds under four
-// assumptions:
+// not). A pass given whole (THE STEP, THE RETRY, THE TRANSMIT) takes no input
+// and is not counted: it costs the input the step's, the round's or the
+// build's time, and it holds no more than THE SHARE. At most
+// CTRL_LOOP_WHOLE_RUN stand in a row, and one between two ordinary passes while
+// an event or a record of THE DRAIN's channel waits, or while records wait and
+// the client yields. A pass costs at most the budgets below times the modules'
+// stated costs. That holds under four assumptions:
 //   A1 backlog: at most a full event ring (CTRL_LOOP_EVT_BACKLOG records,
 //      the ring holds no more) and at most a full receive ring per channel
 //      (CTRL_LOOP_RX_BACKLOG records: the smallest record the filter passes
@@ -60,34 +61,30 @@
 // A protocol composes its own figures from these (ADP_MBX_PASS_MAX).
 //
 // THE SHARE (#665, #397's one-hart rule). A pass is the only opportunity to
-// take an input, and the smallest bound every input shares is SRP's 18 ms,
-// min(T_svc = 20 ms, its ceiling) (FR_NFR.md 3.4.1). An input waits for the
-// pass running when it arrives, then is taken N passes later and answered in
-// that pass, so (N + 1) passes must fit that bound. The deepest admitted wait
-// is the A3 row of seven owed frames, answered in pass 8 after the room
-// returns. So no pass may exceed 18 ms / 9 = 2.0 ms of CPU time: 200,000
-// cycles of the split CPU's own clock, the 100 MHz bus clock it runs on
-// (#665, owner decision 2026-10-30). Every slice serves that share, and each
-// module's work in one pass is bounded, the rest resumed on the next pass:
+// take an input, and the smallest bound every input shares is T_svc, 20 ms
+// (FR_NFR.md 3.4.1; SRP's own since the owner's ruling of 2026-11-06). An input
+// waits for the pass running when it arrives, then is taken N passes later and
+// answered in that pass, so (N + 1) passes must fit that bound. The deepest
+// admitted wait is nine passes: THE DRAIN's and THE TRANSMIT's at two
+// interfaces, and the A3 row of seven owed frames, answered in pass 8 after the
+// room returns. So no pass may exceed 20 ms / 10 = 2.0 ms of CPU time, a pass
+// to spare: 200,000 cycles of the split CPU's own clock, the 100 MHz bus clock
+// it runs on (#665, owner decision 2026-10-30). Every slice serves that share,
+// and each module's work in one pass is bounded, the rest resumed on the next
+// pass:
 //   * the loop: the events, records and centiseconds per pass above, and one
-//     clock read a pass when a step is bound (THE STEP);
+//     clock read a pass when a clock is bound (THE STEP);
 //   * ADP and ACMP: the records the loop hands them, and one owed frame per
 //     interface (adp_mbx.h, acmp_mbx.h);
 //   * MAAP: its records, and at most two queued frames per interface
 //     (tsn-c-stack maap.c, pump);
-//   * AECP: one record, taken only while no response or notice is owed, and
-//     one notice built, sent to every registered recipient the transmit ring
-//     has room for (aecp.c, transmit); its change-notice retries only in a
-//     pass that takes no input and dispatches no centisecond, or in a pass
-//     given whole to an aged retry (THE RETRY);
-//   * SRP: its records, and one MRPDU built and sent a pass over every
-//     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
-//     #665: lwSRP's periodic transmission had built all four at two
-//     interfaces in one pass), only in a pass that took no record, at most
-//     CTRL_LOOP_TX_EVENTS events and no centisecond, or in a pass given whole
-//     to an aged transmit (THE TRANSMIT); a link change withdraws in the pass
-//     that takes it and builds in the next, and a pass builds one interface
-//     at most (srp_bounds.h);
+//   * AECP: the records the loop hands it, each answered in its pass and taken
+//     only while no response or notice is owed; its change notices only in
+//     THE RETRY's round, as many as the pass has room for;
+//   * SRP: its records (THE DRAIN), and an interface's two MRPDUs in a pass
+//     given whole (THE TRANSMIT); a link change withdraws in the pass that
+//     takes it and builds in the next, and a pass builds one interface at most
+//     (srp_bounds.h);
 //   * the saved-state store: one service step, taken only in a pass that
 //     took no input and has room for it, or as the whole of a pass once it
 //     has waited past its age limit (THE STEP, nvm_store.h).
@@ -139,45 +136,46 @@
 // CTRL_LOOP_STEP_AGE + 1 centiseconds, and nvm_store.h states the worst case
 // that makes of a save.
 //
-// THE RETRY (#665). One client's deferrable retry: AECP's change-notice
-// retry (aecp.h, AECP_RETRY_MAX_MS), a round of observation-port attempts
-// that answers no input. Taken beside a full backlog's records and a
-// centisecond it put a pass over THE SHARE, so no pass that takes an input
-// (an event or a record) or dispatches a centisecond takes it: its module's
-// poll and sinks hold a due retry, arm no timer for it and report it owed,
-// and only the loop calls the client, in four kinds of pass that take
-// neither. A pass that took no input and dispatched no centisecond calls it
-// after its polls and before THE STEP, and the passes given whole to an aged
-// step or an aged build (THE TRANSMIT) call it after the step or the
-// build. A backlog, or input that never leaves a pass
-// empty, would hold a due retry past its notice's bound, so it has an age
-// limit too: once the client reports a retry it has held
-// CTRL_LOOP_RETRY_AGE_MS past the time it came due, by its own clock, and
-// nothing ahead of its round (aecp.c, aecp_retry_aged), the next pass is the
-// round's alone. It calls the client before it takes any input and returns
-// one, as an aged step's pass does; an aged step's pass, which the loop
-// checks for first, takes the round after the step instead. The bound is
-// stated beside CTRL_LOOP_STEP_AGE.
+// THE RETRY (#665). One client's deferrable round: AECP's change notices and
+// their retries (aecp.h), which answer no input. Its module's poll and sinks
+// build no notice, arm no timer for a due retry and report it owed, and only
+// the loop calls the client, in three kinds of pass: one that took no input and
+// dispatched no centisecond, after its polls and before THE STEP; one given
+// whole to an aged step or a build, after it; and one given whole to the round,
+// which the client asks for as each pass given whole may start (aecp.c,
+// aecp_retry_aged): a notice waits, nothing waits ahead of its round, and the
+// pace the last round set has passed. The loop tells the client what the pass
+// has left of THE SHARE under CTRL_LOOP_SHARE_MARGIN_US, and the client fills
+// it with as many notices as their stated cost allows (aecp_mbx.c, retry), so a
+// round takes no pass over THE SHARE by construction.
+// While records wait a round yields, one notice at a slower pace, so the CPU
+// they wait for is not spent on notices; a queue's first AECP_ROUND_YIELDS
+// rounds beside records do, and then the client stands firm (retry_firm), so
+// input that never lets up holds no notice past its bound. aecp.h states that
+// bound and derives it.
 //
-// THE TRANSMIT (#665). One client's deferrable build: SRP's MRPDU build
-// (srp_mbx.c, transmit): a pass that carries one takes up to 171,351 CPU
-// cycles at 8x8/2if. Built in
-// a pass that takes records, it lengthened every record still waiting: when
-// every channel's burst arrives at once, SRP's 32 records wait sixteen passes
-// at two a pass, and the builds a centisecond's join timers start stood among
-// them, which put the last SRP record past its 18 ms. A pass takes the
-// build only once its input is taken: the loop calls the client after its
-// polls, before THE RETRY and THE STEP, whose deadline counts its time, in a
-// pass that took no record, at most CTRL_LOOP_TX_EVENTS events and dispatched
-// no centisecond, which the loop marks before its polls (tx_pass), so the
-// client's poll knows the call follows. Its module's poll builds nothing; it
-// sends only a frame already owed (A3). Input that never leaves such a pass
-// would hold the build off for good, so it has an age limit too: once the
-// client reports a build held more than CTRL_LOOP_TX_AGE centiseconds,
-// counted on the centiseconds the loop dispatches to it, the next pass after
-// one not given whole is the build's alone. It calls the client before it takes any input, then THE
-// RETRY's client, and returns one. The age is read as each pass starts, after
-// THE STEP's and THE RETRY's. The bound is stated beside CTRL_LOOP_RETRY_MS.
+// THE TRANSMIT (#665). One client's build: SRP's MRPDUs (srp_mbx.c, transmit).
+// Built in a pass that takes records, it lengthened every record still waiting,
+// and it is the one thing the join, periodic and LeaveAll timers wait for, so
+// a build has a pass given whole of its own, the first the loop can give once
+// the client reports one owed. That pass makes every interface's declarations
+// and sends both MRPDUs of the first interface that owes one, then THE RETRY's
+// client fills what is left of it. Its module's poll builds nothing; it sends
+// only a frame already owed (A3), and no build is owed ahead of that frame. The
+// client owes a pass for a join timer's end, a LeaveAll timer's where no join
+// timer holds it, or an Applicant that moves with its join timer idle, and for
+// a declaration, which while notices are queued waits for the join timer, so
+// each comes at most once a JoinTime a participant and THE RETRY's bound can
+// count them. CTRL_LOOP_TX_MS states the bound.
+//
+// THE DRAIN (#665). One channel's records go first, past
+// CTRL_LOOP_RX_PER_PASS, to CTRL_LOOP_DRAIN_RECORDS, while the pass has spent
+// less than CTRL_LOOP_DRAIN_US: SRP's, whose burst is twice any other's and
+// whose bound the composed burst would pass at two a pass. A pass that took
+// more than CTRL_LOOP_RX_PER_PASS of them takes no other channel's, and a
+// record follows only the events posted before it (rx_order, read before the
+// pass's events): an event posted during every pass holds it back no longer.
+// CTRL_LOOP_SRP_MS states the bound.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -222,11 +220,26 @@ extern "C" {
 // CPU cycles at 8x8/2if (lwSRP's timers and the walks after them), and beside
 // the composed burst's records, two a channel, that pass was the heaviest the
 // burst made before this cap, 195,756 cycles, 4,244 under THE SHARE. With one
-// record a channel
-// it holds a channel's record fewer than any other pass of the burst.
+// record a channel it holds a channel's record fewer than any other pass of
+// the burst.
 #define CTRL_LOOP_RX_PER_TICK_PASS 1u
-// THE SHARE in microseconds: SRP's 18 ms over nine passes.
-#define CTRL_LOOP_SHARE_US 2000u
+// THE DRAIN: the records of its channel a pass takes at most, and what the pass
+// may have spent, in microseconds, for it to take another past
+// CTRL_LOOP_RX_PER_PASS.
+#define CTRL_LOOP_DRAIN_RECORDS 12u
+#define CTRL_LOOP_DRAIN_US 1300u
+// The passes given whole that may stand in a row. Three carry a queue of notices
+// past the two a row would, at no record's cost, since none stands in a row
+// beside a record of THE DRAIN's channel or a full pass's events.
+#define CTRL_LOOP_WHOLE_RUN 3u
+// THE SHARE in microseconds: T_svc's 20 ms over ten passes, one more than the
+// deepest wait the loop admits.
+#define CTRL_LOOP_T_SVC_MS 20u
+#define CTRL_LOOP_SHARE_PASSES 10u
+#define CTRL_LOOP_SHARE_US (1000u * CTRL_LOOP_T_SVC_MS / CTRL_LOOP_SHARE_PASSES)
+// What a round leaves of THE SHARE in microseconds: the 6,490 cycles the data
+// layout alone moved a pass by, which every pass class keeps.
+#define CTRL_LOOP_SHARE_MARGIN_US 65u
 // THE STEP's age limit in centiseconds. Two. A window that opens with the
 // age at the limit, after input that left no pass empty, takes an aged step
 // among its records at its next centisecond, at any limit; none drains in two
@@ -238,81 +251,46 @@ extern "C" {
 // save would take a step every four ticks under such input (nvm_store.h)
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
-// THE RETRY's age limit in milliseconds (#665): two passes of THE SHARE, so
-// the first poll after a retry comes due holds it before it ages. A round
-// leaves no retry held, unless it built a notice, which its round's guard
-// then waits behind, so the pass after an aged retry's is an ordinary one,
-// and the next aged retry comes at least a millisecond and the age later.
-#define CTRL_LOOP_RETRY_AGE_MS 4u
-// THE RETRY's bound in milliseconds (#665), from the time a retry comes due
-// to the commit of what its round built: its age, then the pass running when
-// it reaches it, the pass that takes the round (given whole to it, to an aged
-// step and the round, or to an aged build and the round), and the next pass,
-// which sends what the round
-// built (aecp.c, transmit; A3), each within THE SHARE: 4 + 3 x 2 = 10 ms,
-// under any input, a backlog or input that leaves no pass empty included. A
-// pass that took no input and dispatched no centisecond takes it sooner.
-// With AECP's spacing a retried notice is built and committed within
-// AECP_RETRY_MAX_MS + CTRL_LOOP_RETRY_MS = 8 + 10 = 18 ms of its port's
-// answer, inside its 20 ms of FR_NFR.md 3.4.1 (aecp.h; aecp_mbx.c holds the
-// sum to it). The pass that takes a round holds at most: one that took no
-// input and dispatched no centisecond, its polls' owed output and one round,
-// and THE STEP only before its deadline, which the round's time counts
-// against; an aged step's pass, the step and one round; an aged build's
-// pass, one build and one round; an aged retry's pass, one round. A round tries the notices of every event whose retry is due,
-// one observation-port call each, and builds the first its port answers
-// (aecp.c, aecp_retry).
-#define CTRL_LOOP_RETRY_MS (CTRL_LOOP_RETRY_AGE_MS + 3u * CTRL_LOOP_SHARE_US / 1000u)
-// THE TRANSMIT's pass (#665): the events a pass may take and still carry the
-// build. One: input that leaves no pass empty, a grandmaster change as every
-// pass starts, is one event a pass, and a pass that takes more takes a
-// backlog, whose event sinks would stand beside the build.
-#define CTRL_LOOP_TX_EVENTS 1u
-// THE TRANSMIT's age limit in centiseconds (#665). Two: a held build takes a
-// pass of its own once more than two centiseconds have been dispatched to its
-// client while it is held, so two such passes stand at least two ticks apart,
-// 20 ms, more than SRP's 18 ms (THE SHARE): at most one aged build stands
-// among the passes any record waits, the last of SRP's admitted burst among
-// them (srp_mbx.c holds the two to each other).
-#define CTRL_LOOP_TX_AGE 2u
-// THE TRANSMIT's bound in milliseconds (#665), from the time the client holds
-// a build to the end of the pass that takes it, under any input, a backlog or
-// input that leaves no pass empty included: the age's CTRL_LOOP_TX_AGE + 1
-// ticks, 30 ms, then seven passes of THE SHARE: the one running at that tick,
-// the one that dispatches its centisecond, and the five after it at most, an
-// aged retry's pass, an ordinary one, an aged step's, which a centisecond the
-// ordinary one dispatches can age, another ordinary one, and the build's own,
-// since no two passes given whole run back to back:
-// 30 + 7 x 2 = 44 ms. A pass that takes no record, at most CTRL_LOOP_TX_EVENTS
-// events and no centisecond takes it sooner. Each such pass builds one MRPDU,
-// the participants in turn, so every participant's owed MRPDU is sent within
-// 2 x MBX_N_IF x CTRL_LOOP_TX_MS, 176 ms at two interfaces, inside lwSRP's
-// 200 ms JoinTime (IEEE 802.1Q Table 10-7; srp_mbx.c holds it). The pass that
-// takes a build holds at most: one that took no record, its events, its
-// polls' owed output, one build, THE RETRY's round where it took no input,
-// and THE STEP only before its deadline; an aged transmit's pass, one build
-// and one round.
-#define CTRL_LOOP_TX_MS ((CTRL_LOOP_TX_AGE + 1u) * MBX_TICK_MS + 7u * CTRL_LOOP_SHARE_US / 1000u)
-// SRP's bound in milliseconds (#665): min(T_svc = 20 ms, its ceiling)
-// (FR_NFR.md 3.4.1), THE SHARE's nine passes, the smallest bound every input
-// shares. What THE TRANSMIT gives SRP's records, by pass class: no pass that
-// takes a record carries a build. A pass among those a record of SRP's
-// admitted burst waits carries one only where it took no record at all,
-// because an event posted during it held SRP's records back (srp_mbx.c,
-// rx_order_ready) and no other channel's record waited; a frame SRP owes is
-// sent in place of a build, and owed centiseconds are dispatched by a pass
-// that builds none. Beside them stand at most one pass given whole to an aged
-// build, since two stand CTRL_LOOP_TX_AGE ticks apart, more than this bound
-// (srp_mbx.c holds the two to each other), at most one given whole to an aged
-// step, CTRL_LOOP_STEP_AGE + 1 ticks apart, and the aged retries' passes, at
-// least a millisecond and CTRL_LOOP_RETRY_AGE_MS apart. This bound does not
-// count the composed burst's passes: its 32 SRP records at 8x8/2if, two a
-// pass, are taken in sixteen, more than the nine it counts at THE SHARE, so
-// that row fits by those passes' measured cost: its last record at most 17.106
-// ms after its commit at 8x8/2if under input that leaves no pass empty, and
-// every SRP row the budget stages at most 17.765 ms, 0.235 ms inside it
-// (docs/design/SPLIT_CONTROL_MEMORY.md section 13).
-#define CTRL_LOOP_SRP_MS (9u * CTRL_LOOP_SHARE_US / 1000u)
+// The measured costs the bounds below rest on, in microseconds, each the
+// heaviest at 8x8/2if rounded up (CPU budget harness; 100 cycles a microsecond):
+// a pass given whole to an aged step, to a build of both of an interface's
+// MRPDUs, and to a build of one; one record of SRP's burst; the first
+// registration of a burst; and a centisecond's consumers.
+#define CTRL_LOOP_STEP_PASS_US 980u
+#define CTRL_LOOP_BUILD_PASS_US 1250u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 980u
+#define CTRL_LOOP_SRP_RECORD_US 123u
+#define CTRL_LOOP_SRP_FIRST_US 400u
+#define CTRL_LOOP_TICK_US 430u
+// THE TRANSMIT's bound (#665), every MRPDU a join, periodic or LeaveAll timer
+// makes owed, from the deadline to its commit, by pass class, each within THE
+// SHARE under any input: the pass running when the centisecond's TICK is
+// posted; a row of passes given whole; the ordinary pass that takes
+// CTRL_LOOP_EVENTS_PER_PASS events ahead of the TICK, a full ring's half; the
+// one pass given whole that may follow it, since events still wait; the
+// ordinary pass that takes the TICK and dispatches the centisecond, which owes
+// the build; and one pass given whole a build first, an interface each. 18 ms at
+// two interfaces, 16 ms at one, inside T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds
+// it).
+#define CTRL_LOOP_TX_PASSES (1u + CTRL_LOOP_WHOLE_RUN + 1u + 1u + 1u + MBX_N_IF)
+#define CTRL_LOOP_TX_MS (CTRL_LOOP_TX_PASSES * CTRL_LOOP_SHARE_US / 1000u)
+// THE DRAIN's bound (#665), the composed burst's last SRP record from its
+// arrival to the pass that takes it, by pass class, each within THE SHARE under
+// any input: the pass running at its arrival, then a pass given whole and an
+// ordinary pass, CTRL_LOOP_SRP_DRAINS times, none in a row while a record waits.
+// An ordinary pass takes the records it starts before CTRL_LOOP_DRAIN_US: the
+// fewest in the four the burst needs are one beside a centisecond and the first
+// registration, one alone, one beside the next centisecond, 10 ms on, and one
+// alone. 18 ms, inside T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds the sum to the
+// burst).
+#define CTRL_LOOP_DRAIN_TAKES(spent_us) \
+	((CTRL_LOOP_DRAIN_US - (spent_us) + CTRL_LOOP_SRP_RECORD_US - 1u) / CTRL_LOOP_SRP_RECORD_US)
+#define CTRL_LOOP_SRP_DRAINS 4u
+#define CTRL_LOOP_SRP_DRAINED \
+	(CTRL_LOOP_DRAIN_TAKES(CTRL_LOOP_TICK_US + CTRL_LOOP_SRP_FIRST_US) + CTRL_LOOP_DRAIN_TAKES(0u) + \
+	 CTRL_LOOP_DRAIN_TAKES(CTRL_LOOP_TICK_US) + CTRL_LOOP_DRAIN_TAKES(0u))
+#define CTRL_LOOP_SRP_PASSES (1u + 2u * CTRL_LOOP_SRP_DRAINS)
+#define CTRL_LOOP_SRP_MS (CTRL_LOOP_SRP_PASSES * CTRL_LOOP_SHARE_US / 1000u)
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
@@ -334,17 +312,16 @@ typedef bool (*ctrl_poll_fn)(void *ctx);   // true while the module still owes o
 // share; true while the client still owes a step it had no room for.
 typedef bool (*ctrl_step_fn)(void *ctx, uint32_t deadline);
 typedef uint32_t (*ctrl_clock_fn)(void *ctx);   // microseconds, counting up; differences wrap
-// THE RETRY: true while the client still owes, a retry still due or what it
+// THE RETRY: what the pass has left of THE SHARE under its margin, which the
+// round fills; true while the client still owes, a retry still due or what it
 // built not yet sent.
-typedef bool (*ctrl_retry_fn)(void *ctx);
-// THE RETRY's age: true when the client holds a retry that came due
-// CTRL_LOOP_RETRY_AGE_MS or more ago and nothing waits ahead of its round.
+typedef bool (*ctrl_retry_fn)(void *ctx, unsigned left_us);
+// THE RETRY's pace: true when a notice waits, nothing waits ahead of its round
+// and the pace the last round set has passed.
 typedef bool (*ctrl_retry_aged_fn)(void *ctx);
-// THE TRANSMIT: true while the client still owes, a build it may hold or a
-// frame it built not yet sent.
-typedef bool (*ctrl_transmit_fn)(void *ctx);
-// THE TRANSMIT's age: true when the client holds a build more than
-// CTRL_LOOP_TX_AGE centiseconds and nothing waits ahead of it.
+// THE TRANSMIT: the build of a pass given whole.
+typedef void (*ctrl_transmit_fn)(void *ctx);
+// THE TRANSMIT's due: true when the client owes a build and no frame ahead of it.
 typedef bool (*ctrl_transmit_aged_fn)(void *ctx);
 
 struct ctrl_loop_rx {
@@ -372,9 +349,7 @@ struct ctrl_loop_stats {
 	uint32_t owed_passes;   // passes after which output or centiseconds were still owed
 	uint32_t aged_passes;   // passes given whole to an aged step (THE STEP)
 	uint32_t retry_passes;  // passes that called THE RETRY's client
-	uint32_t retry_aged_passes;  // passes given whole to an aged retry (THE RETRY)
-	uint32_t transmit_passes;    // passes that called THE TRANSMIT's client
-	uint32_t transmit_aged_passes;  // passes given whole to an aged transmit (THE TRANSMIT)
+	uint32_t transmit_passes;    // passes given whole to THE TRANSMIT's client
 };
 
 struct ctrl_loop {
@@ -399,9 +374,15 @@ struct ctrl_loop {
 	ctrl_transmit_fn transmit;      // THE TRANSMIT's client, or NULL
 	ctrl_transmit_aged_fn transmit_aged;  // its age
 	void *transmit_ctx;
-	uint32_t ordinary;              // stats.passes at the end of the last pass not given whole
-	bool tx_pass;                   // set before the polls: this pass calls THE TRANSMIT's client after them
 	uint32_t rx_cap;                // the records of a channel this pass takes at most (THE TICK)
+	uint32_t run;                   // ordinary passes since the last pass given whole
+	uint32_t whole;                 // passes given whole since the last ordinary one
+	bool backlog;                   // the last ordinary pass left a record it could have taken
+	bool retry_firm;                // THE RETRY's client takes its rounds whatever waits
+	bool retry_queued;              // THE RETRY's client has notices queued
+	unsigned drain_ch;              // THE DRAIN's channel + 1, 0 when none
+	bool events_left;               // the last pass that took events took all it may
+	uint16_t rx_order;              // the records before this follow only events already taken
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);

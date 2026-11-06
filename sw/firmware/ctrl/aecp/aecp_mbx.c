@@ -8,21 +8,29 @@ static uint16_t tx_count(uint32_t reg)
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
 }
 
-// i % AECP_MBX_COMPLETIONS for i below twice it, without a divide: the
-// queue's size is no power of two, and a divide is a runtime call on RV32I (#665).
-static unsigned wrapped(unsigned i)
-{
-	return i - (AECP_MBX_COMPLETIONS & (0u - (unsigned)(i >= AECP_MBX_COMPLETIONS)));
-}
-
+// A completion is kept for a notice's last frame alone (fan_end): only a counter notice waits on one.
 static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len, uint32_t cookie)
 {
+	(void)ctx;
+	(void)cookie;
+	return mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) == MBX_STATUS_OK;
+}
+
+static bool fan(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
+{
+	(void)ctx;
+	return mbx_tx_begin(MBX_CH_AECP, interface, frame, (uint16_t)len) == MBX_STATUS_OK;
+}
+
+// What the last fan call started, and the completion of the notice it ended.
+static bool fan_end(void *ctx, uint32_t cookie)
+{
 	struct aecp_mbx *m = ctx;
-	if (m->completion_count == AECP_MBX_COMPLETIONS ||
-	    mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) != MBX_STATUS_OK) {
+	(void)mbx_tx_commit(MBX_CH_AECP);
+	if (m->completion_count == AECP_MBX_COMPLETIONS) {
 		return false;
 	}
-	unsigned n = wrapped(m->completion_head + m->completion_count);
+	unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;
 	m->completions[n] = (struct aecp_mbx_completion){cookie, tx_count(MBX_CH_REG_TX_HEAD)};
 	++m->completion_count;
 	return true;
@@ -120,7 +128,7 @@ bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 	m->slot = timer_slot;
 	m->environment = environment;
 	m->ports = (struct aecp_ports){m, send, now, random_value, timer,
-		stream, avb, path, counters, changed, start, format, available_index, applied};
+		stream, avb, path, counters, changed, start, format, available_index, applied, fan, fan_end};
 	return aecp_init(&m->core, cfg, &m->ports);
 }
 
@@ -161,7 +169,7 @@ static bool poll(void *ctx)
 				break;
 			}
 			aecp_tx_complete(&m->core, c->cookie, observed);
-			m->completion_head = wrapped(m->completion_head + 1u);
+			m->completion_head = (m->completion_head + 1u) % AECP_MBX_COMPLETIONS;
 			--m->completion_count;
 		}
 	}
@@ -169,24 +177,32 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
-// A retried notice, from its port's answer: its next retry within AECP_RETRY_MAX_MS, then THE RETRY's bound
-// (ctrl_loop.h) to its last recipient's commit, within its notification bound (FR_NFR.md 3.4.1; #665).
-_Static_assert(AECP_RETRY_MAX_MS + CTRL_LOOP_RETRY_MS <= AECP_NOTICE_MS, "a retried notice must keep its bound");
+_Static_assert(AECP_QUEUED_MS <= AECP_QUEUED_CEILING_MS, "every queued notice must keep its ceiling");
 
-// THE RETRY's client (ctrl_loop.h, #665): the loop calls it only in a pass that
-// took no input and dispatched no centisecond, after an aged step, or in a
-// pass of its own once retry_aged reports the held retry aged.
-static bool retry(void *ctx)
+// THE RETRY's client (ctrl_loop.h, #665): the notices the pass has room for, and the fewer while records wait.
+static bool retry(void *ctx, unsigned left_us)
 {
 	struct aecp_mbx *m = ctx;
-	return aecp_retry(&m->core);
+	struct ctrl_loop *l = m->loop;
+	unsigned most = left_us / AECP_NOTICE_US;
+	if (l->backlog && !l->retry_firm && most > AECP_ROUND_YIELD_NOTICES) {
+		most = AECP_ROUND_YIELD_NOTICES;
+	}
+	const uint32_t sent = m->core.tx_cookie;
+	bool owed = aecp_retry(&m->core, most);
+	// a round that built beside records spends a yield, and a queue served to its end starts the next with them all
+	m->yields = owed ? m->yields + (l->backlog && m->core.tx_cookie != sent ? 1u : 0u) : 0u;
+	l->retry_firm = m->yields + 1u > AECP_ROUND_YIELDS;
+	l->retry_queued = owed;
+	return owed;
 }
 
-// THE RETRY's age, which the loop reads as each pass starts.
+// THE RETRY's pace, which the loop reads as each pass given whole starts.
 static bool retry_aged(void *ctx)
 {
 	struct aecp_mbx *m = ctx;
-	return aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS);
+	struct ctrl_loop *l = m->loop;
+	return aecp_retry_aged(&m->core, l->backlog && !l->retry_firm ? AECP_ROUND_YIELD_PACE_MS : AECP_ROUND_PACE_MS);
 }
 
 bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
@@ -197,6 +213,7 @@ bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 	}
 	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it
 	m->core.retry_hold = true;
+	l->retry_firm = AECP_ROUND_YIELDS == 0u;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_AECP, frame, m);

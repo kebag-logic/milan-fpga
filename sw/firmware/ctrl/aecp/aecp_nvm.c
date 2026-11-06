@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // KLJ2 adaptation only; the core owns all live values, maps and validation.
 #include "aecp_nvm.h"
+#include "aecp_internal.h"
 #include "nvm_store.h"
 #include "wire.h"
 #include <string.h>
@@ -97,10 +98,10 @@ static int latch(void *ctx, unsigned group, unsigned index, uint8_t *p, unsigned
 		memset(p, 0xff, len);
 		for (size_t k = 0; k < m->count; ++k) {
 			const struct aecp_mapping *r = &m->rows[k];
-			wire_put_be(p + 8u*k, r->stream, 2);
-			wire_put_be(p + 8u*k + 2u, r->channel, 2);
-			wire_put_be(p + 8u*k + 4u, r->cluster, 2);
-			wire_put_be(p + 8u*k + 6u, r->cluster_channel, 2);
+			aecp_put16(p + 8u*k, r->stream);
+			aecp_put16(p + 8u*k + 2u, r->channel);
+			aecp_put16(p + 8u*k + 4u, r->cluster);
+			aecp_put16(p + 8u*k + 6u, r->cluster_channel);
 		}
 		return 1;
 	}

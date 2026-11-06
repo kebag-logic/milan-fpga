@@ -14,15 +14,15 @@ from ctrl_mutant import Mutant
 MBX_C = "mbx/mbx.c"
 MBX_DMA_H = "plat/mbx_dma.h"
 RX_MOVE = "\tif (!mbx_dma_move(rx_base[ch], rx_words[ch], (uint32_t)tail + MBX_RX_HDR_WORDS, f->bytes, len, false)) {\n"
-TX_MOVE = "\t\tif (!mbx_dma_move(tx_base[ch], tx_words[ch], at, frame, len, true)) {\n\t\t\treturn MBX_STATUS_BAD;\n"
+TX_WAIT = "\tif (!mbx_dma_wait()) {\n\t\treturn false;\n\t}\n"
+TX_MOVE = "\t\tmbx_dma_start(base, words, at, frame, len, true);\n"
 
 MUTANTS = (
     Mutant("mover-receive-error-trusted", MBX_C, RX_MOVE, RX_MOVE.replace("false)) {", "false) && false) {"),
            "unit", "MbxDma.R2AMoveEndingInErrorResynchronises", "R2 a move that ends in ERR leaves no record"),
     Mutant("mover-receive-index-at-the-header", MBX_C, RX_MOVE, RX_MOVE.replace(" + MBX_RX_HDR_WORDS,", ","),
            "unit", "MbxDma.R1ARecordsPayloadIsMovedAndReleased", "R1 the move starts at the payload's first ring word"),
-    Mutant("mover-transmit-error-committed", MBX_C, TX_MOVE,
-           TX_MOVE.replace("\t\t\treturn MBX_STATUS_BAD;\n", "\t\t\t;\n"),
+    Mutant("mover-transmit-error-committed", MBX_C, TX_WAIT, "\t(void)mbx_dma_wait();\n",
            "unit", "MbxDma.T2AMoveEndingInErrorIsNotCommitted", "T2 a move that ends in ERR is refused"),
     Mutant("mover-transmit-frame-off-a-word-moved", MBX_C, "\tif (((uintptr_t)frame & 3u) == 0u) {\n" + TX_MOVE,
            "\tif (true) {\n" + TX_MOVE,

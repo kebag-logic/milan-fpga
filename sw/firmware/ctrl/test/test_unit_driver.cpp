@@ -104,11 +104,19 @@ TEST(DriverUnit, D8TransmitRefusals) {
     ASSERT_TRUE(mbx_open());
     static const std::uint8_t frame[82] = {};
     EXPECT_EQ(mbx_tx_send(MBX_N_CH, 0, frame, sizeof frame), MBX_STATUS_BAD) << "D8 a channel past the contract's is refused";
+    // the room the tail last read shows only grows, so the register is read when that room runs short
     w.words[ch_reg(kAdp, MBX_CH_REG_TX_TAIL)] = 0x8000u;
-    EXPECT_EQ(mbx_tx_send(kAdp, 0, frame, sizeof frame), MBX_STATUS_FULL)
+    constexpr std::uint32_t record = MBX_TX_HDR_WORDS + (sizeof frame + 3u) / 4u;
+    std::uint32_t sent = 0;
+    while (sent <= MBX_CH_ADP_TX_WORDS / record && mbx_tx_send(kAdp, 0, frame, sizeof frame) == MBX_STATUS_OK) {
+        ++sent;
+    }
+    EXPECT_EQ(sent, MBX_CH_ADP_TX_WORDS / record)
         << "D8 a TX_TAIL more than a ring behind TX_HEAD is no room, never a negative fill";
     std::uint32_t head = 0;
-    EXPECT_FALSE(w.wrote(ch_reg(kAdp, MBX_CH_REG_TX_HEAD), &head)) << "D8 and nothing is committed";
+    ASSERT_TRUE(w.wrote(ch_reg(kAdp, MBX_CH_REG_TX_HEAD), &head));
+    EXPECT_EQ(head, sent * record) << "D8 and nothing past the room the ring had is committed";
+    EXPECT_EQ(mbx_tx_send(kAdp, 0, frame, sizeof frame), MBX_STATUS_FULL) << "D8 and the tail it read refuses the next";
 }
 
 TEST(DriverUnit, D9UnknownEventTypeGrandmasterAndInterrupt) {

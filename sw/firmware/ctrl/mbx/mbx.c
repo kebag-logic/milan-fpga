@@ -68,7 +68,18 @@ static const uint32_t tx_words[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
 static const uint32_t max_frame[MBX_N_CH] = MBX_CH_MAX_FRAME_BYTES_TBL;
 
 static uint16_t rx_tail[MBX_N_CH];
-static uint16_t tx_head[MBX_N_CH];
+// What a record's commit reads, together in one line of the data cache: the
+// tables above sit in rom and, direct-mapped, a table's line and the counters'
+// took each other's place every record (#665).
+struct tx_ring {
+	uint32_t base;
+	uint16_t words;
+	uint16_t max_frame;
+	uint16_t head;
+	uint16_t tail;   // TX_TAIL as last read: the room it shows only grows
+	uint16_t moving; // the words of the record mbx_tx_begin started, 0 when none
+};
+static struct tx_ring tx[MBX_N_CH];
 static uint16_t tx_seq;
 static uint16_t evt_tail;
 
@@ -114,7 +125,12 @@ bool mbx_open(void)
 	}
 	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
 		rx_tail[ch] = counter(ch_reg(ch, MBX_CH_REG_RX_TAIL));
-		tx_head[ch] = counter(ch_reg(ch, MBX_CH_REG_TX_HEAD));
+		struct tx_ring *t = &tx[ch];
+		t->base = tx_base[ch];
+		t->words = (uint16_t)tx_words[ch];
+		t->max_frame = (uint16_t)max_frame[ch];
+		t->head = counter(ch_reg(ch, MBX_CH_REG_TX_HEAD));
+		t->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));
 	}
 	evt_tail = counter(MBX_REG_EVT_TAIL);
 	return true;
@@ -461,9 +477,9 @@ bool mbx_rx_before(unsigned ch, uint16_t mark)
     return ch < MBX_N_CH && (uint16_t)(mark - rx_tail[ch]) < 0x8000u;
 }
 
-static void tx_word(unsigned ch, uint32_t index, uint32_t value)
+bool mbx_rx_waiting(unsigned ch, uint16_t mark)
 {
-	mbx_bus_write32(tx_base[ch] + 4u * (index & (tx_words[ch] - 1u)), value);
+    return (uint16_t)(mark - rx_tail[ch] - 1u) < 0x7fffu;
 }
 
 // The payload's words in ring order from ring index at, each whole word but a
@@ -475,11 +491,14 @@ static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, ui
 	const uint32_t base = tx_base[ch];
 	const uint32_t mask = tx_words[ch] - 1u;
 	const uint8_t *p = frame;
+#ifndef CTRL_MBX_DMA_BASE
 	if (((uintptr_t)frame & 3u) == 0u) {
 		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
 			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(p));
 		}
-	} else {
+	} else
+#endif
+	{
 		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
 			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_pack4(p));
 		}
@@ -489,41 +508,79 @@ static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, ui
 	}
 }
 
-enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
+bool mbx_tx_commit(unsigned ch)
 {
-	if (ch >= MBX_N_CH || interface >= MBX_N_IF || len < 14u || len > max_frame[ch]) {
+	struct tx_ring *t = &tx[ch];
+	if (t->moving == 0u) {
+		return true;
+	}
+	const uint16_t record = t->moving;
+	t->moving = 0u;
+#ifdef CTRL_MBX_DMA_BASE
+	// a record whose payload did not reach the ring is not committed
+	if (!mbx_dma_wait()) {
+		return false;
+	}
+#endif
+	t->head = (uint16_t)(t->head + record);
+	tx_seq = (uint16_t)(tx_seq + 1u);
+	mbx_bus_write32(ch_reg(ch, MBX_CH_REG_TX_HEAD), t->head);
+	return true;
+}
+
+enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
+{
+	if (ch >= MBX_N_CH) {
 		return MBX_STATUS_BAD;
 	}
-	uint32_t payload = ((uint32_t)len + 3u) / 4u;
-	uint32_t record = MBX_TX_HDR_WORDS + payload;
-	uint16_t head = tx_head[ch];
-	uint16_t tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));
-	uint32_t used = (uint16_t)(head - tail);
-	if (used > tx_words[ch] || record > tx_words[ch] - used) {
-		return MBX_STATUS_FULL;
+	struct tx_ring *t = &tx[ch];
+	if (interface >= MBX_N_IF || len < 14u || len > t->max_frame) {
+		return MBX_STATUS_BAD;
 	}
-	tx_word(ch, head, mbx_place(len, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH) |
-				  mbx_place(interface, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) |
-				  mbx_place(MBX_TX_KIND, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH));
-	tx_word(ch, (uint32_t)head + 1u, mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
-	const uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
-#ifdef CTRL_MBX_DMA_BASE
-	// The split placement's record mover takes a frame on a word (mbx_dma.h);
-	// a record whose payload did not reach the ring is not committed.
-	if (((uintptr_t)frame & 3u) == 0u) {
-		if (!mbx_dma_move(tx_base[ch], tx_words[ch], at, frame, len, true)) {
-			return MBX_STATUS_BAD;
+	// the record before it, which also ends its move: a window access waits for a move, and that wait can hold the
+	// move up
+	if (!mbx_tx_commit(ch)) {
+		return MBX_STATUS_BAD;
+	}
+	const uint32_t words = t->words;
+	const uint32_t base = t->base;
+	const uint32_t mask = words - 1u;
+	const uint32_t record = MBX_TX_HDR_WORDS + ((uint32_t)len + 3u) / 4u;
+	const uint16_t head = t->head;
+	// The room the tail last read shows only grows, so the register is read only
+	// when that room is short (#665: a notice's recipients each paid for it).
+	uint32_t used = (uint16_t)(head - t->tail);
+	if (used > words || record > words - used) {
+		t->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));
+		used = (uint16_t)(head - t->tail);
+		if (used > words || record > words - used) {
+			return MBX_STATUS_FULL;
 		}
+	}
+	mbx_bus_write32(base + 4u * (head & mask), mbx_place(len, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH) |
+						   mbx_place(interface, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) |
+						   mbx_place(MBX_TX_KIND, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH));
+	mbx_bus_write32(base + 4u * (((uint32_t)head + 1u) & mask),
+			mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
+	const uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
+	t->moving = (uint16_t)record;
+#ifdef CTRL_MBX_DMA_BASE
+	// The split placement's record mover takes a frame on a word (mbx_dma.h)
+	if (((uintptr_t)frame & 3u) == 0u) {
+		mbx_dma_start(base, words, at, frame, len, true);
 	} else {
 		tx_payload(ch, at, frame, len);
 	}
 #else
 	tx_payload(ch, at, frame, len);
 #endif
-	tx_head[ch] = (uint16_t)(head + record);
-	tx_seq = (uint16_t)(tx_seq + 1u);
-	mbx_bus_write32(ch_reg(ch, MBX_CH_REG_TX_HEAD), tx_head[ch]);
 	return MBX_STATUS_OK;
+}
+
+enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
+{
+	enum mbx_status status = mbx_tx_begin(ch, interface, frame, len);
+	return status != MBX_STATUS_OK || mbx_tx_commit(ch) ? status : MBX_STATUS_BAD;
 }
 
 static uint32_t evt_word(uint32_t index)

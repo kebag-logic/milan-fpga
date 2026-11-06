@@ -162,7 +162,7 @@ static unsigned descriptor(struct aecp *a, unsigned interface, const uint8_t *in
 		aecp_port_begin(a);
 		uint32_t available = a->ports->available_index(a->ports->ctx, interface);
 		aecp_port_end(a);
-		wire_put_be(out + 40, available, 4u);
+		aecp_put32(out + 40, available);
 	}
 	*bytes = 4u + d->length;
 	return AECP_SUCCESS;
@@ -194,7 +194,7 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 				struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 				if (d->type == 0u && d->length >= 312u) {
 					aecp_keep(a, d->value + 310, 2u);
-					wire_put_be(d->value + 310, a->configuration, 2);
+					aecp_put16(d->value + 310, a->configuration);
 				}
 			}
 			if (changed) {
@@ -202,7 +202,7 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 			}
 		}
 	}
-	wire_put_be(out + 2, a->configuration, 2);
+	aecp_put16(out + 2, a->configuration);
 	return status;
 }
 
@@ -368,16 +368,16 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 		flags |= 0x80000000u; // The descriptor supplies the current format.
 		if (type == 6u) flags &= ~0x08000000u; // Failure information is input-only.
 	}
-	wire_put_be(out + 4, flags, 4);
+	aecp_put32(out + 4, flags);
 	memcpy(out + 8, d->value + 74, 8u);
-	wire_put_be(out + 16, info.stream_id, 8);
-	wire_put_be(out + 24, type == 6u && aecp_overridden(a, d, 2u) ? a->cfg.latency[index] : info.latency, 4);
-	wire_put_be(out + 28, info.dest_mac, 6);
+	aecp_put64(out + 16, info.stream_id);
+	aecp_put32(out + 24, type == 6u && aecp_overridden(a, d, 2u) ? a->cfg.latency[index] : info.latency);
+	aecp_put48(out + 28, info.dest_mac);
 	if (!set || type == 5u) {
 		out[34] = info.failure_code;
-		wire_put_be(out + 36, info.failure_bridge_id, 8);
+		aecp_put64(out + 36, info.failure_bridge_id);
 	}
-	wire_put_be(out + 44, info.vlan, 2);
+	aecp_put16(out + 44, info.vlan);
 	if (set) {
 		if (type == 5u) {
 			return AECP_NOT_SUPPORTED;
@@ -395,7 +395,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			return AECP_NOT_SUPPORTED;
 		}
 		if ((requested & 0x20000000u) == 0u) {
-			wire_put_be(out + 4, flags & ~0x20000000u, 4);
+			aecp_put32(out + 4, flags & ~0x20000000u);
 			return AECP_SUCCESS;
 		}
 		uint32_t latency = (uint32_t)wire_be32(in + 24);
@@ -408,11 +408,11 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			aecp_override(a, d, 2u);
 			aecp_note(a, AECP_CHANGE_LATENCY, type, index);
 		}
-		wire_put_be(out + 4, flags | 0x20000000u, 4);
-		wire_put_be(out + 24, latency, 4); // Milan preserves the requested latency.
+		aecp_put32(out + 4, flags | 0x20000000u);
+		aecp_put32(out + 24, latency); // Milan preserves the requested latency.
 		return AECP_SUCCESS;
 	}
-	wire_put_be(out + 48, info.flags_ex, 4);
+	aecp_put32(out + 48, info.flags_ex);
 	out[52] = (uint8_t)((info.probing_status << 5) | (info.acmp_status & 31u));
 	return AECP_SUCCESS;
 }
@@ -443,9 +443,9 @@ static unsigned counters(struct aecp *a, const uint8_t *in, size_t len, uint8_t 
 	if (!ok) {
 		return AECP_ENTITY_MISBEHAVING;
 	}
-	wire_put_be(out + 4, snapshot.valid, 4);
+	aecp_put32(out + 4, snapshot.valid);
 	for (unsigned n = 0; n < 32u; ++n) {
-		wire_put_be(out + 8u + 4u * n, snapshot.value[n], 4);
+		aecp_put32(out + 8u + 4u * n, snapshot.value[n]);
 	}
 	return AECP_SUCCESS;
 }
@@ -476,9 +476,9 @@ static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, ui
 		if (!ok || count > AECP_PATH_ITEMS) {
 			return AECP_ENTITY_MISBEHAVING;
 		}
-		wire_put_be(out + 2, count, 2);
+		aecp_put16(out + 2, count);
 		for (size_t n = 0; n < count; ++n) {
-			wire_put_be(out + 4u + 8u * n, sequence[n], 8);
+			aecp_put64(out + 4u + 8u * n, sequence[n]);
 		}
 		*bytes += 8u * count;
 	} else {
@@ -489,14 +489,14 @@ static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, ui
 		if (!ok) {
 			return AECP_ENTITY_MISBEHAVING;
 		}
-		wire_put_be(out + 4, info.gm_id, 8);
-		wire_put_be(out + 12, info.propagation_delay, 4);
+		aecp_put64(out + 4, info.gm_id);
+		aecp_put32(out + 12, info.propagation_delay);
 		out[16] = info.domain;
 		out[17] = info.flags;
-		wire_put_be(out + 18, 1, 2);
+		aecp_put16(out + 18, 1);
 		out[20] = 6u; // IEEE 802.1Q SR Class A traffic class
 		out[21] = info.class_priority;
-		wire_put_be(out + 22, info.class_vlan, 2);
+		aecp_put16(out + 22, info.class_vlan);
 		*bytes = 24u;
 	}
 	return AECP_SUCCESS;
@@ -529,7 +529,7 @@ static unsigned lock(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out
 			aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
 		}
 	}
-	wire_put_be(out + 4, a->lock_owner, 8);
+	aecp_put64(out + 4, a->lock_owner);
 	return status;
 }
 
@@ -613,9 +613,9 @@ static unsigned dynamic(struct aecp *a, unsigned interface, const uint8_t *in, s
 		}
 		if (*bytes + 8u + result_bytes <= 512u) {
 			memset(out + *bytes, 0, 8u);
-			wire_put_be(out + *bytes, result_bytes, 2);
+			aecp_put16(out + *bytes, result_bytes);
 			out[*bytes + 4] = (uint8_t)status;
-			wire_put_be(out + *bytes + 6, cmd, 2);
+			aecp_put16(out + *bytes + 6, cmd);
 			memcpy(out + *bytes + 8, result, result_bytes);
 			*bytes += 8u + result_bytes;
 		}
@@ -641,8 +641,8 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 	case 2:
 		// the lock in force (aecp_other_lock)
 		body(out, bytes, 20u);
-		wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);
-		wire_put_be(out + 12, a->lock_owner, 8);
+		aecp_put32(out, a->locked || a->unlocked ? 2u : 0u);
+		aecp_put64(out + 12, a->lock_owner);
 		return AECP_SUCCESS;
 	case 4: return descriptor(a, interface, in, len, out, bytes);
 	case 6: case 7: return configuration(a, cmd == 6u, in, len, out, bytes);

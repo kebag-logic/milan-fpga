@@ -25,18 +25,13 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 
 // The JoinTime every participant is configured with, in centiseconds (create_participants).
 #define SRP_JOIN_CS 20u
-// THE TRANSMIT (ctrl_loop.h, #665): two aged builds stand further apart than the 18 ms of SRP's records
-// (CTRL_LOOP_SRP_MS, THE SHARE's nine passes), so at most one stands among the passes a record waits; and every
-// participant's owed MRPDU, one a build, is sent within the JoinTime (IEEE 802.1Q Table 10-7).
-_Static_assert(CTRL_LOOP_TX_AGE * MBX_TICK_MS > CTRL_LOOP_SRP_MS,
-               "two aged builds stand further apart than SRP's bound");
-_Static_assert(2u * MBX_N_IF * CTRL_LOOP_TX_MS <= SRP_JOIN_CS * MBX_TICK_MS,
-               "every participant's owed MRPDU is sent within the JoinTime");
+// A participant's slot: MSRP then MVRP of each interface.
+#define SRP_SLOTS (2u * MBX_N_IF)
 
 static struct srp_mbx *timer_owner;
 static void tick(void);
 static bool poll(void *ctx);
-static bool transmit(void *ctx);
+static void transmit(void *ctx);
 static bool transmit_aged(void *ctx);
 static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
@@ -56,6 +51,12 @@ static bool enter(struct srp_mbx *m)
     return true;
 }
 
+// A slot's participant: each interface's MSRP, then its MVRP.
+static struct mrp_app *participant(const struct srp_interface *i, unsigned slot)
+{
+    return slot % 2u ? i->mvrp : i->msrp;
+}
+
 static void tick(void)
 {
     struct srp_mbx *m = timer_owner;
@@ -63,16 +64,36 @@ static void tick(void)
         return;
     }
     shlan_timer_tick();
+    // lwSRP arms a participant's join timer as it sends and reports no expiry: join_left keeps the same count, so
+    // the centisecond that ends it is the one an MRPDU waiting on it became owed in, as a LeaveAll Active state owes
+    // its LeaveAll once no join timer holds it, IEEE 802.1Q 10.7.4.1 and Table 10-5 (THE TRANSMIT in ctrl_loop.h).
+    for (unsigned slot = 0; slot < SRP_SLOTS; ++slot) {
+        struct srp_interface *i = &m->ifs[slot / 2u];
+        enum mrp_la_state la = MRP_LA_STATE_PASSIVE;
+        if (i->msrp) {
+            (void)mrp_port_status(participant(i,slot),0,&la,NULL);
+        }
+        if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0u : la == MRP_LA_STATE_ACTIVE) {
+            m->tx_due |= (uint8_t)(1u << (slot / 2u));
+        }
+    }
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         if (m->ifs[n].msrp) {
             snapshot(&m->ifs[n]);
         }
     }
-    // A centisecond's timers can make an MRPDU owed: the build is held for THE TRANSMIT, and its age counts the
-    // centiseconds dispatched while it is held (ctrl_loop.h).
-    m->tx_age += m->tx_held ? 1u : 0u;
-    m->tx_held = true;
     m->busy = false;
+}
+
+// A declaration the interface's participants must send, owed a pass given whole. While notices are queued it waits for
+// the join timer, which holds the frame back anyway and whose end owes the pass that declares and sends: what a peer's
+// records make owed then comes at the JoinTime's rate, whatever their rate, and THE RETRY's bound can count it.
+static void hold(struct srp_interface *i)
+{
+    struct srp_mbx *m = i->owner;
+    if (m->join_left[2u * i->index] == 0u || !m->loop->retry_queued) {
+        m->tx_due |= (uint8_t)(1u << i->index);
+    }
 }
 
 // The interface's licences as the fabric datapath reads them (the publication
@@ -169,7 +190,7 @@ static void domain(struct msrp_ctx *ctx, uint8_t port, const struct msrp_domain 
     if (memcmp(&i->domain,value,sizeof(*value)) != 0) {
         i->next_domain = *value;
         i->domain_owed = true;
-        i->owner->tx_held = true;
+        hold(i);
     }
 }
 
@@ -262,22 +283,29 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
 }
 
 // lwSRP reports every Applicant or Registrar state change of a participant
-// here. A Registrar change is a change of what snapshot copies; any change
-// can leave an attribute mrp_reclaim frees (#665).
-static void msrp_moved(void *ctx, const struct mrp_transition *t)
+// here.
+// A Registrar change is a change of what snapshot copies; any change can leave an attribute mrp_reclaim frees (#665).
+// An Applicant that moves may request a transmit (Table 10-3 note 6), owed now when its participant's join timer is
+// idle: a build arms that timer, so this owes a participant one pass a JoinTime, and one that moves in the build that
+// sent it owes nothing past that pass, whose end clears its interface.
+static void moved(struct srp_interface *i, unsigned slot, const struct mrp_transition *t)
 {
-    struct srp_interface *i = ctx;
+    struct srp_mbx *m = i->owner;
     i->reclaim = true;
-    if (t->reg_from != t->reg_to) {
-        i->stale = true;
+    i->stale = i->stale || t->reg_from != t->reg_to;
+    if (t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u) {
+        m->tx_due |= (uint8_t)(1u << i->index);
     }
 }
 
-static void mvrp_moved(void *ctx, const struct mrp_transition *t)
+static void moved_msrp(void *ctx, const struct mrp_transition *t)
 {
-    (void)t;
-    struct srp_interface *i = ctx;
-    i->reclaim = true;
+    moved(ctx, 0u, t);
+}
+
+static void moved_mvrp(void *ctx, const struct mrp_transition *t)
+{
+    moved(ctx, 1u, t);
 }
 
 static bool create_participants(struct srp_interface *i)
@@ -289,8 +317,8 @@ static bool create_participants(struct srp_interface *i)
     if (!i->msrp || !i->mvrp) {
         return false;
     }
-    mrp_set_observer(i->msrp,msrp_moved,i);
-    mrp_set_observer(i->mvrp,mvrp_moved,i);
+    mrp_set_observer(i->msrp,moved_msrp,i);
+    mrp_set_observer(i->mvrp,moved_mvrp,i);
     i->stale = true;
     i->reclaim = true;
     // These valid constants are installed before creating any attribute.
@@ -313,7 +341,7 @@ static bool open_interface(struct srp_interface *i)
 {
     if (create_participants(i)) {
         // its declarations are owed: THE TRANSMIT builds them
-        i->owner->tx_held = true;
+        hold(i);
         return true;
     }
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
@@ -483,21 +511,26 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
         // a declaration withdrawn here is sent by THE TRANSMIT's call
         if (!has_sink(i,&old,true)) {
             (void)msrp_withdraw_listener(i->msrp,0,&old.stream_id);
-            m->tx_held = m->tx_held || old.declared != 0u;
+            if (old.declared != 0u) {
+                hold(i);
+            }
         }
         if (old.vid != i->domain.vid && !has_sink(i,&old,false)) {
             (void)mvrp_withdraw(i->mvrp,0,old.vid);
-            m->tx_held = m->tx_held || old.vlan_requested;
+            if (old.vlan_requested) {
+                hold(i);
+            }
         }
     }
     m->busy = false;
     return true;
 }
 
+// Older output, and the events posted before the record: THE DRAIN's order (ctrl_loop.h) keeps the ring's
+// position against the events a pass took, so an event posted after a record holds it back no more.
 static bool rx_order_ready(struct srp_mbx *m)
 {
-    return m->owed_len == 0 && m->loop->ticks_owed == 0 &&
-           !(mbx_irq_status() & (1u << MBX_IRQ_STATUS_EVT_LSB));
+    return m->owed_len == 0 && m->loop->ticks_owed == 0;
 }
 
 static bool rx_ready(void *ctx)
@@ -508,7 +541,7 @@ static bool rx_ready(void *ctx)
             return false;
         }
     }
-    return m->pending_rx.len == 0 && rx_order_ready(m);
+    return m->pending_rx.len == 0 && rx_order_ready(m) && mbx_rx_waiting(MBX_CH_SRP,m->loop->rx_order);
 }
 
 // Return false only for local storage refusal. Earlier events
@@ -580,8 +613,6 @@ static void receive(void *ctx, const struct mbx_frame *frame)
         m->pending_rx = *frame;
         expire_receive(m);
     }
-    // a received record can make an MRPDU owed: THE TRANSMIT builds it once the pass's input is taken
-    m->tx_held = true;
     m->busy = false;
 }
 
@@ -706,7 +737,9 @@ static void snapshot(struct srp_interface *i)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         capture(&i->sinks[k],previous[k]);
         // a binding's declaration changed: THE TRANSMIT's call declares and sends it
-        i->owner->tx_held = i->owner->tx_held || i->sinks[k].desired != previous[k];
+        if (i->sinks[k].desired != previous[k]) {
+            hold(i);
+        }
     }
 }
 
@@ -831,6 +864,9 @@ static void reset_interface(struct srp_interface *i)
     withdraw_declared(i->index);
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
     i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
+    m->join_left[2u * i->index] = 0u;
+    m->join_left[2u * i->index + 1u] = 0u;
+    m->tx_due &= (uint8_t)~(1u << i->index);
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         uint8_t previous = i->sinks[k].desired;
         i->sinks[k].desired = 0; i->sinks[k].declared = 0;
@@ -856,6 +892,8 @@ static void on_event(void *ctx, const struct mbx_event *event)
         // initial UP uses the already clean startup participants.
         if (i->link_seen || !event->link_up) {
             reset_interface(i);
+        } else {
+            hold(i);
         }
         i->link_seen = true;
         i->link = event->link_up;
@@ -878,13 +916,24 @@ static bool turn_builds(const struct srp_mbx *m, const bool link[MBX_N_IF])
 // A participant may hold an attribute mrp_reclaim frees (#665). lwSRP reclaims
 // nothing on a participant holding a prepared PDU: while a frame is owed, its
 // interface's reclaim is owed after it.
-static void reclaim(struct srp_interface *i)
+static __attribute__((noinline)) void reclaim(struct srp_interface *i)
 {
     if (i->reclaim) {
         (void)mrp_reclaim(i->msrp,0);
         (void)mrp_reclaim(i->mvrp,0);
         i->reclaim = i->owner->owed_len != 0u;
     }
+}
+
+// One participant's MRPDU: lwSRP's result, with its join timer's shadow (tick) restarted by what it sent.
+static __attribute__((noinline)) int build_mrpdu(struct srp_mbx *m, struct srp_interface *i, unsigned slot)
+{
+    struct send_context send = {i,participant(i,slot)};
+    int result = mrp_transmit(send.app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);
+    if (result > 0) {
+        m->join_left[slot] = SRP_JOIN_CS;
+    }
+    return result;
 }
 
 static bool poll(void *ctx)
@@ -942,10 +991,9 @@ static bool poll(void *ctx)
         }
         // Retry only after lifecycle reconciliation and older output/events.
         // One attempt per poll; the fabric tick also wakes an idle loop.
-        if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m)) {
+        if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m) && !m->loop->events_left) {
             if (apply_receive(m,&m->pending_rx)) {
                 m->pending_rx.len = 0;
-                m->tx_held = true;
             } else {
                 expire_receive(m);
             }
@@ -970,110 +1018,68 @@ static bool poll(void *ctx)
             }
         }
     }
-    // In a pass whose build follows (tx_pass), the build's call reclaims after
-    // its declarations, as this poll did before the build moved out of it; in
-    // any other pass the poll does, so a record the next pass takes finds the
-    // room (#665).
-    if (!m->loop->tx_pass) {
-        for (unsigned n = 0; n < MBX_N_IF; ++n) {
-            if (m->ifs[n].msrp) {
-                reclaim(&m->ifs[n]);
-            }
+    // The poll reclaims, so a record the next pass takes finds the room (#665).
+    for (unsigned n = 0; n < MBX_N_IF; ++n) {
+        if (m->ifs[n].msrp) {
+            reclaim(&m->ifs[n]);
         }
     }
-    // The poll declares nothing and builds no MRPDU: THE TRANSMIT does both,
-    // once a pass's input is taken (ctrl_loop.h). It sends only the frame a
-    // build left owed, one a pass and oldest first (A3), and while it holds a
-    // build it reports it owed, so the loop passes on to the pass that takes it.
+    // The poll declares nothing and builds no MRPDU: THE TRANSMIT does both, in a
+    // pass of its own (ctrl_loop.h). It sends only the frame a build left owed,
+    // one a pass and oldest first (A3), and reports what the build owes, so the
+    // loop passes on to that pass.
     if (m->owed_len) {
         struct srp_interface *i = &m->ifs[m->owed_if];
-        struct mrp_app *app = m->owed_ethertype == MRP_ETHERTYPE_MVRP ? i->mvrp : i->msrp;
-        struct send_context send = {i,app};
-        if (i->msrp && i->link &&
-            mrp_transmit(app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send) != 0) {
+        unsigned mvrp = m->owed_ethertype == MRP_ETHERTYPE_MVRP;
+        if (i->msrp && i->link && build_mrpdu(m,i,2u * m->owed_if + mvrp) != 0) {
             owed = true;
         }
-        if (!m->owed_len) {
-            // the frame this pass carries (SRP_MBX_POLL_FRAMES): THE TRANSMIT builds none beside it
-            m->resent_pass = m->loop->stats.passes;
-        }
     }
-    owed = owed || m->tx_held;
+    owed = owed || m->tx_due != 0u;
     m->busy = false;
     return owed;
 }
 
-// THE TRANSMIT's client (ctrl_loop.h, #665): the declarations, then at most
-// SRP_MBX_POLL_FRAMES MRPDUs a call (srp_bounds.h), in the order the poll took
-// them before the build moved out of it. A Domain adopted here is sent in this
-// call, so no poll sees its VID unlicensed between them (Milan 4.3.2), and a
-// reclaim comes after the declarations, so a refused declaration does not take
-// the room a retained receive waits for. A call that visits every participant
-// and sends nothing holds no build until a centisecond, a record or a
-// declaration may owe one.
-static bool transmit(void *ctx)
+// THE TRANSMIT's client (ctrl_loop.h, #665), called in a pass given whole to what an interface owes: every interface's
+// declarations, then both participants' MRPDUs of the first interface that owes one, and the next such pass takes the
+// rest; then that interface's declarations again, for what a first VLAN send licensed. A Domain adopted here is sent in
+// this call, so no poll sees its VID unlicensed between them (Milan 4.3.2). No declaration is made while a retained
+// receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again when the join
+// count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay what THE
+// RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.
+static void transmit(void *ctx)
 {
     struct srp_mbx *m = ctx;
     if (!enter(m)) {
-        return false;
+        return;
     }
-    bool reclaims = false;
-    for (unsigned n = 0; n < MBX_N_IF; ++n) {
-        reclaims = reclaims || (m->ifs[n].msrp && m->ifs[n].reclaim);
-    }
-    if (m->resent_pass == m->loop->stats.passes || (!m->tx_held && !m->owed_len && !reclaims)) {
-        // the pass's frame is the owed one the poll sent, or nothing is held and nothing waits to be reclaimed
-        m->busy = false;
-        return m->tx_held;
-    }
-    m->tx_age = 0;
-    bool owed = false;
-    if (!m->owed_len) {
-        for (unsigned n = 0; n < MBX_N_IF; ++n) {
-            if (m->ifs[n].msrp) {
-                owed = prepare_declarations(&m->ifs[n]) || owed;
+    const unsigned first = (m->tx_due & 1u) != 0u ? 0u : 1u;
+    for (unsigned k = 0; k <= MBX_N_IF; ++k) {
+        const unsigned n = k < MBX_N_IF ? k : first;
+        struct srp_interface *i = &m->ifs[n];
+        if (k == MBX_N_IF) {
+            for (unsigned slot = 2u * n; i->msrp && slot < 2u * n + 2u && !m->owed_len; ++slot) {
+                reclaim(i);
+                if (i->link) {
+                    (void)build_mrpdu(m,i,slot);
+                }
+            }
+            if (!m->owed_len) {
+                m->tx_due &= (uint8_t)~(1u << n);
             }
         }
-    }
-    // A participant that sent ends the call's transmissions, and the cursor
-    // resumes at the next participant on the next call, which the owed result
-    // runs at once.
-    unsigned sent = 0;
-    for (unsigned attempt = 0; attempt < 2u * MBX_N_IF && sent < SRP_MBX_POLL_FRAMES; ++attempt) {
-        unsigned slot = m->owed_len ? 2u * m->owed_if + (m->owed_ethertype == MRP_ETHERTYPE_MVRP) : m->cursor;
-        struct srp_interface *i = &m->ifs[slot / 2u];
-        struct mrp_app *app = slot % 2u ? i->mvrp : i->msrp;
-        struct send_context send = {i,app};
-        if (!i->msrp) {
-            m->cursor = (slot + 1u) % (2u * MBX_N_IF);
-            continue;
-        }
-        reclaim(i);
-        if (i->link) {
-            int result = mrp_transmit(app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);
-            if (result != 0) {
-                owed = true;
-            }
-            sent += result > 0 ? 1u : 0u;
-        }
-        if (!m->owed_len) {
-            m->cursor = (slot + 1u) % (2u * MBX_N_IF);
-        }
-        if (m->owed_len) {
-            break;
+        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) && m->join_left[2u * n] == 0u) {
+            m->join_left[2u * n] = SRP_JOIN_CS;
         }
     }
-    m->tx_held = owed;
     m->busy = false;
-    return owed;
 }
 
-// THE TRANSMIT's age: a held build past CTRL_LOOP_TX_AGE centiseconds, with
-// no frame owed ahead of it, takes a pass of its own (ctrl_loop.h).
+// THE TRANSMIT's due: an owed MRPDU, with no frame owed ahead of it, takes a pass of its own (ctrl_loop.h).
 static bool transmit_aged(void *ctx)
 {
     const struct srp_mbx *m = ctx;
-    return m->tx_held && !m->owed_len && m->tx_age > CTRL_LOOP_TX_AGE;
+    return m->tx_due != 0u && !m->owed_len;
 }
 
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
@@ -1089,7 +1095,6 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
             m->ifs[n].link = mbx_link_up(n);
         }
         m->loop = loop;
-        m->resent_pass = loop->stats.passes - 1u;
         timer_owner = m;
         (void)ctrl_loop_bind_rx(loop,MBX_CH_SRP,receive,m);
         (void)ctrl_loop_add_sink(loop,on_event,m);
@@ -1097,6 +1102,7 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
         (void)ctrl_loop_add_poll(loop,poll,m);
         (void)ctrl_loop_set_transmit(loop,transmit,transmit_aged,m);
         ctrl_loop_set_rx_ready(loop,MBX_CH_SRP,rx_ready);
+        loop->drain_ch = MBX_CH_SRP + 1u;
     }
     m->busy = false;
     return ok;

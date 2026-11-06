@@ -8,9 +8,34 @@
 extern "C" {
 #endif
 
-// Every core frame is at least 38 bytes: two header words plus ten payload
-// words. One extra entry distinguishes a full completion queue from empty.
-#define AECP_MBX_COMPLETIONS (MBX_CH_AECP_TX_WORDS / 12u + 1u)
+// A notice's last frame keeps a completion (aecp_ports.fan_end), and a notice
+// waits while the queue is full; a power of two, so its wrap is a mask.
+#define AECP_MBX_COMPLETIONS 32u
+// THE RETRY's notices (ctrl_loop.h, #665), each to every registration of every interface: a notice's heaviest measured
+// cost, cold after a pass of records, 38,000 CPU cycles to 32 recipients and 23,400 to 16, as a recipient's share and
+// the notice's own. A round takes as many as what its pass has left holds (aecp_mbx.c, retry): five in a pass of its
+// own at 8x8/2if, eight at 1x1/1if.
+#define AECP_RECIPIENT_US 9u
+#define AECP_NOTICE_US (MBX_N_IF * AECP_REGISTRATIONS * AECP_RECIPIENT_US + 91u)
+// A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
+// While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
+// composed burst holds have the CPU those passes leave. Each round that builds beside records spends a yield, whatever
+// else its pass carried, and with AECP_ROUND_YIELDS spent the client stands firm. One interface yields none: its bound
+// has no room for a yield, and its records wait no longer than two interfaces'.
+#define AECP_ROUND_PACE_MS 2u
+#define AECP_ROUND_YIELD_PACE_MS 4u
+#define AECP_ROUND_YIELD_NOTICES 1u
+#define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
+// The bound of FR_NFR.md 3.4.1 on notices queued behind one another (the owner's ruling of 2026-11-06, #665), every
+// constant above in it. The first retried notice commits within AECP_NOTICE_MS of its port's answer. Every notice
+// queued behind it commits within AECP_QUEUED_MS: the 8 ms spacing, then AECP_QUEUED_PASSES passes of THE SHARE for
+// AECP_NOTICES_MOST notices at the point's own recipient count, 60 ms at 8x8/2if and 20 ms at 1x1/1if, each its
+// ceiling. The passes come from a search of what the loop may be made to do (ctrl_retry_search.py, a gate): each pass
+// charged all of THE SHARE, at most THE DRAIN's passes, an interface's builds, the aged steps and a retry's due time
+// anywhere in the spacing. aecp_mbx.c holds AECP_QUEUED_MS to its ceiling.
+#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 6u : 25u)
+#define AECP_QUEUED_MS (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)
+#define AECP_QUEUED_CEILING_MS (MBX_N_IF == 1u ? 20u : 60u)
 struct aecp_mbx_completion {
 	uint32_t cookie;
 	uint16_t end;
@@ -27,6 +52,7 @@ struct aecp_mbx {
 	struct aecp_mbx_completion completions[AECP_MBX_COMPLETIONS];
 	unsigned completion_head, completion_count;
 	uint32_t stale_expiries;
+	unsigned yields;         // the rounds of this queue that gave way to waiting records
 };
 
 // Does not touch the mailbox. environment supplies the observation, change

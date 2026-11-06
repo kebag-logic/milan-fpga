@@ -43,85 +43,8 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
         raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
 
 
-#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass and THE RETRY's
-#: among them.
-STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
-             "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
-             '\t// whole pass, before any input, with THE RETRY after it, so an input waits one step and one\n'
-             '\t// retry round at most\n'
-             '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n'
-             '\t\tl->step_age = 0u;\n'
-             '\t\t(void)l->step(l->step_ctx, deadline);\n'
-             '\t\t// THE RETRY after the step: under input that leaves no pass empty, no other pass is free\n'
-             '\t\t// of input\n'
-             '\t\tif (l->retry != NULL) {\n'
-             '\t\t\t(void)l->retry(l->retry_ctx);\n'
-             '\t\t\tl->stats.retry_passes++;\n'
-             '\t\t}\n'
-             '\t\tl->stats.passes++;\n'
-             '\t\tl->stats.aged_passes++;\n'
-             '\t\treturn 1u;\n'
-             '\t}\n'
-             "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past "
-             'the time it came due is this\n'
-             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty '
-             'holds it off no longer\n'
-             '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n'
-             '\t\t(void)l->retry(l->retry_ctx);\n'
-             '\t\tl->stats.retry_passes++;\n'
-             '\t\tl->stats.passes++;\n'
-             '\t\tl->stats.retry_aged_passes++;\n'
-             '\t\treturn 1u;\n'
-             '\t}\n'
-             "\t// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE "
-             'centiseconds is this whole\n'
-             '\t// pass, before any input, with THE RETRY after it, once the pass before was not given whole\n'
-             '\tif (l->transmit != NULL && l->ordinary == l->stats.passes && '
-             'l->transmit_aged(l->transmit_ctx)) {\n'
-             '\t\t(void)l->transmit(l->transmit_ctx);\n'
-             '\t\tif (l->retry != NULL) {\n'
-             '\t\t\t(void)l->retry(l->retry_ctx);\n'
-             '\t\t\tl->stats.retry_passes++;\n'
-             '\t\t}\n'
-             '\t\tl->stats.transmit_passes++;\n'
-             '\t\tl->stats.transmit_aged_passes++;\n'
-             '\t\tl->stats.passes++;\n'
-             '\t\treturn 1u;\n'
-             '\t}\n'
-             '\tconst uint32_t events = l->stats.events;\n'
-             '\tconst uint32_t records = l->stats.rx_records;\n'
-             '\tconst uint32_t ticks = l->stats.ticks;\n'
-             '\tunsigned work = service_events(l);\n'
-             '\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
-             '\t\tif (l->rx[ch].fn != NULL) {\n'
-             '\t\t\twork += service_rx(l, ch);\n'
-             '\t\t}\n'
-             '\t}\n'
-             "\t// THE TRANSMIT's pass, which its client's poll reads: one that took no record, at "
-             'most CTRL_LOOP_TX_EVENTS\n'
-             '\t// events and no centisecond\n'
-             '\tl->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
-             '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;\n'
-             '\tbool owed = l->ticks_owed != 0u;\n'
-             '\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
-             '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n'
-             '\t}\n'
-             '\t// THE TRANSMIT, only in its pass, after the polls and before THE RETRY and THE '
-             'STEP, whose deadline counts its\n'
-             '\t// time\n'
-             '\tif (l->tx_pass) {\n'
-             '\t\towed = l->transmit(l->transmit_ctx) || owed;\n'
-             '\t\tl->stats.transmit_passes++;\n'
-             '\t}\n'
-             '\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, '
-             'before THE STEP, whose\n'
-             '\t// deadline counts its time\n'
-             '\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n'
-             '\t\towed = l->retry(l->retry_ctx) || owed;\n'
-             '\t\tl->stats.retry_passes++;\n'
-             '\t}\n'
-             "\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
-             '\tif (l->step != NULL && work == 0u) {\n')
+#: THE STEP's call in a pass that takes nothing (ctrl_loop.c).
+STEP_SPAN = '\tif (l->step != NULL && work == 0u) {\n\t\tbool waits = l->step(l->step_ctx, deadline);\n'
 #: Planted firmware defects for the controls: each is (source file, unique anchor, replacement),
 #: the control group its control paths are in, and the variant it needs.
 MUTATIONS = {
@@ -142,7 +65,7 @@ MUTATIONS = {
     # ctrl_loop.h's THE STEP. A pass of a save's windows must then exceed the share while every row fits
     # (save_window.py).
     'store-step-unbounded': ('loop/ctrl_loop.c', STEP_SPAN, STEP_SPAN.replace(
-        'CTRL_LOOP_SHARE_US : 0u', '0x40000000u : 0u').replace('l->step != NULL && work == 0u', 'l->step != NULL'),
+        'deadline);', 'deadline + 0x40000000u);').replace('l->step != NULL && work == 0u', 'l->step != NULL'),
                              ','.join(save_window.row_names()), 'none'),
     # #665's planted age limit removed: the step is taken only in a pass that took no input, as before
     # ctrl_loop.h's age limit, so under input that leaves no pass empty (save-starved) the save never advances
@@ -153,30 +76,23 @@ MUTATIONS = {
     # by the step's own clock, about one read-back step more, so a row of an aged window (save_window.aged_window)
     # whose aged step lands among its records must go over its budget while the pass stays within the share.
     'store-step-aged-heavier': ('loop/ctrl_loop.c',
-                                '\t\t(void)l->step(l->step_ctx, deadline);\n\t\t// THE RETRY after the step',
-                                '\t\t(void)l->step(l->step_ctx, deadline);\n'
-                                '\t\tfor (uint32_t at = l->clock(l->clock_ctx);'
+                                '\t\t\t(void)l->step(l->step_ctx, deadline);\n',
+                                '\t\t\t(void)l->step(l->step_ctx, deadline);\n'
+                                '\t\t\tfor (uint32_t at = l->clock(l->clock_ctx);'
                                 ' l->clock(l->clock_ctx) - at < 800u;) {\n'
-                                '\t\t}\n\t\t// THE RETRY after the step',
+                                '\t\t\t}\n',
                                 ','.join(g for g in save_window.aged_names() if '@verify-aged2-' in g), 'none'),
-    # #665's planted retry age removed: a change-notice retry is taken only in a pass that took no input and
-    # dispatched no centisecond or after an aged step, as before ctrl_loop.h's THE RETRY had an age limit, so under
-    # input that leaves no pass empty the retried notice waits for the next aged step and is committed later than
-    # its 20 ms after its port's answer (notice_window.py).
+    # #665's planted round without a pass given whole: a change notice is taken only in a pass that took no input and
+    # dispatched no centisecond or beside an aged step or a build, so under input that leaves no pass empty the
+    # retried notice is committed later than its 20 ms after its port's answer (notice_window.py).
     'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
                       'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
-    # #665's planted build beside records: THE TRANSMIT's pass is every pass, so SRP's MRPDU build and the
-    # declarations it sends run after the polls of a pass that takes the composed burst's records, as before
-    # ctrl_loop.h's THE TRANSMIT, and the builds a centisecond's join timers start stand among the passes the last
-    # SRP record of the burst waits, which puts it past its 18 ms at 8x8/2if (notice_window.py). The pass's counts
-    # stay read, so the image builds under -Werror.
-    'transmit-beside-records': ('loop/ctrl_loop.c',
-                                'l->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
-                                '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && '
-                                'l->stats.ticks == ticks;',
-                                '(void)records;\n\t(void)events;\n\tl->tx_pass = l->transmit != NULL;',
-                                ','.join(notice_window.names()), 'answering-later'),
+    # #665's planted age on the build: an MRPDU owed waits thirty passes before THE TRANSMIT's pass, so an MRPDU a
+    # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
+    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
+                      '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
+                      '    return held > 30u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -186,8 +102,8 @@ SAVE_CONTROLS = ('store-step-ageless',)
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
 NOTICE_CONTROLS = ('retry-ageless',)
-#: The controls whose finding is every group's longest held SRP record over its bound, with no refusal.
-SRP_CONTROLS = ('transmit-beside-records',)
+#: The controls whose finding is every group's longest timer-driven MRPDU over its bound, with no refusal.
+SRP_CONTROLS = ('transmit-aged',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -256,9 +172,55 @@ VARIANTS = {
          '    face_stream=image_face.ports.stream;\n'
          '    image_face.ports.stream=l_stream;\n'),
     ],
+    'answering-every-port': [
+        ('static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n',
+         '// Every notice pending at once (#665, the amended notice bound): every observation port stays unanswered,\n'
+         '// and the first notice to wait marks every notice the model holds. From the first attempt at or after\n'
+         '// NOW_MS ANSWER_MS to fail, whose entry marks the moment, the ports answer once its round is over; each\n'
+         '// reader has zeroed what it reads, so an answer writes nothing.\n'
+         'static uint32_t answer_from = UINT32_MAX;\n'
+         'static bool answering;\n'
+         'void retry_port_answers(void);\n'
+         '__attribute__((noinline)) void retry_port_answers(void) { __asm__ volatile(""); }\n'
+         'static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)\n'),
+        ('{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }',
+         '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return answering; }'),
+        ('static struct aecp_face image_face;\n',
+         'static struct aecp_face image_face;\n'
+         'static bool l_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
+         '{\n'
+         '    (void)ctx; (void)i; (void)t; (void)n; (void)v;\n'
+         '    if (answer_from == UINT32_MAX && image_aecp.core.now >= ANSWER_MS) {\n'
+         '        retry_port_answers();\n'
+         '        answer_from = image_aecp.core.now + ROUND_MS;\n'
+         '    }\n'
+         '    answering = image_aecp.core.now >= answer_from;\n'
+         '    return answering;\n'
+         '}\n'
+         'static bool answers(void) { return answering; }\n'
+         'static bool every_notice(void *ctx)\n'
+         '{\n'
+         '    (void)ctx;\n'
+         '    if (image_aecp.core.notices) {\n'
+         '        --image_app.loop.n_polls;\n'
+         '        for (size_t n = 0; n < image_model.count; ++n)\n'
+         '            aecp_changed(&image_aecp.core, image_model.descriptors[n].type,\n'
+         '                         image_model.descriptors[n].index, 15u);\n'
+         '    }\n'
+         '    return false;\n'
+         '}\n'),
+        ('    aecp_face_init(&image_face,&image_platform);\n',
+         '    aecp_face_init(&image_face,&image_platform);\n'
+         '    image_face.ports.stream=l_stream;\n'
+         '    image_face.ports.avb=(__typeof__(image_face.ports.avb))(void (*)(void))answers;\n'
+         '    image_face.ports.counters=(__typeof__(image_face.ports.counters))(void (*)(void))answers;\n'),
+        ('    ctrl_loop_run(&image_app.loop);',
+         '    (void)ctrl_loop_add_poll(&image_app.loop, every_notice, NULL);\n'
+         '    ctrl_loop_run(&image_app.loop);'),
+    ],
 }
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
-VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',)}
+VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 
 
 def variant_fixture(out: Path, variant: str) -> Path:
@@ -275,7 +237,8 @@ def variant_fixture(out: Path, variant: str) -> Path:
         if source.count(anchor) != 1:
             raise RuntimeError(f'variant {variant}: an anchor is not unique in ctrl_aecp_image.c: {anchor!r}')
         source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u')
-                                .replace('ANSWER_MS', f'{notice_window.ANSWER_MS}u'))
+                                .replace('ANSWER_MS', f'{notice_window.ANSWER_MS}u')
+                                .replace('ROUND_MS', f'{notice_window.ROUND_MS}u'))
     path.write_text(source)
     return scratch
 
@@ -402,7 +365,7 @@ def xip_image(out: Path, elf: Path, window: int) -> tuple[Path, Path, Path]:
 
 
 def symbols(elf: Path) -> dict[str, int]:
-    """The linked image's text symbols, each defined once."""
+    """The linked image's text symbols: every global one, each defined once, and each static one no other shares."""
     sys.path.insert(0, str(ROOT / 'sw/firmware/gtest'))
     import fw_rv32
     cc = fw_rv32.compiler()
@@ -420,6 +383,9 @@ def symbols(elf: Path) -> dict[str, int]:
                     raise RuntimeError(f'global text symbol {fields[3]} is defined twice')
                 table[fields[3]] = int(fields[0], 16)
     (elf.parent / 'functions.json').write_text(json.dumps(sorted(functions, key=lambda f: f[1])) + '\n')
+    # a static function a timer calls back, or a probe starts at, has its name once
+    names = [f[0] for f in functions]
+    table.update({name: start for name, start, _ in functions if name not in table and names.count(name) == 1})
     return table
 
 
@@ -563,7 +529,7 @@ def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[s
 
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
-ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+ENTRY_SYMBOLS = ('adp_mbx_set_enable', 'on_join_timer', 'on_pt_timer', 'on_la_timer', 'build_mrpdu')
 
 
 def entry_symbols(variant: str) -> tuple[str, ...]:

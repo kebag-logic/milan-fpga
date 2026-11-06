@@ -91,7 +91,7 @@ CEILING_MS = {
     'aecp': 24.0,     # IEEE 1722.1-2021 9.3.2.6: 240 ms response x 10 %
     'notify': 24.0,   # Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: the related 240 ms interval
     'maap': 50.0,     # IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms probe interval x 10 %
-    'srp': 18.0,      # IEEE 802.1Q-2018 10.7.11, Milan v1.2 Table 4.3: JoinTime 180 ms x 10 %
+    'srp': 20.0,      # T_svc, the owner's ruling of 2026-11-06 (#665): over the 18 ms of JoinTime 180 ms x 10 %
 }
 
 

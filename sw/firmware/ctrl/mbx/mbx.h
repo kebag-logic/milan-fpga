@@ -173,12 +173,22 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f);
 // pass; comparison is modulo 2^16 and must not span 32768 consumed words.
 uint16_t mbx_rx_mark(unsigned ch);
 bool mbx_rx_before(unsigned ch, uint16_t mark);
+// A record not yet taken stands before mark.
+bool mbx_rx_waiting(unsigned ch, uint16_t mark);
 
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the
 // channel's max_frame_bytes or an unknown interface. Frames leave in the
 // order they were committed, across every channel.
 enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len);
+// mbx_tx_send in two halves (#665: a notice to every recipient): mbx_tx_begin
+// commits the record before it and starts this one, and mbx_tx_commit, or the
+// next mbx_tx_begin, commits it. Between them the mover may be reading frame,
+// so the caller leaves it alone, and makes no other access to the channel or
+// the window: a window access waits for the move and can hold it up. A frame
+// the mover cannot take in one go, and a record the move failed, as mbx_tx_send.
+enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len);
+bool mbx_tx_commit(unsigned ch);
 
 // Take the next fabric event and release it (EVT_TAIL); false when none.
 bool mbx_event_take(struct mbx_event *ev);

@@ -78,6 +78,9 @@ LOOP_OPEN = ("\tmbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_EN
 #: ctrl_loop_service's polls and THE STEP after them.
 #: The model arm's test of one suite group.
 MODEL_GROUP = "Suite/MbxModelGroup.PassesOnTheModel/"
+#: The room the driver reads TX_TAIL for, once the room the last read showed runs short.
+TX_ROOM = ("\t\tt->tail = counter(ch_reg(ch, MBX_CH_REG_TX_TAIL));\n\t\tused = (uint16_t)(head - t->tail);\n"
+           "\t\tif (used > words || record > words - used) {\n")
 #: The same with the pool bound only once the mailbox is open.
 APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
     "\tshlan_port_bind_pool(&app->pool);\n"
@@ -230,7 +233,10 @@ MUTANTS = (
     # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
     # CTRL_LOOP_RX_PER_PASS records (#665)
     Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
-           "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {\n\t\tif (k >= l->rx_cap) {\n\t\t\tbreak;\n\t\t}\n",
+           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL ||\n"
+           "\t\t    (int32_t)(deadline - l->clock(l->clock_ctx)) < "
+           "(int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {\n"
+           "\t\t\tbreak;\n\t\t}\n",
            "for (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",
@@ -241,10 +247,9 @@ MUTANTS = (
            "F2 all 16 event records are taken by pass",
            (("acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F1 every event is taken by pass 2"),)),
     Mutant("rx-before-events", "loop/ctrl_loop.c",
-           "\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n",
-           "\tunsigned work = 0;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n"
+           "\tunsigned work = service_events(l);\n\tl->backlog = false;\n",
+           "\tunsigned work = 0;\n\tl->backlog = false;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline);\n\t\t}\n\t}\n"
            "\twork += service_events(l);\n", "adp", "AdpBacklog.F0toF7FullBacklogs", "F1 events first"),
     Mutant("carried-ticks-overwritten", "loop/ctrl_loop.c", "l->ticks_owed += ev.tick_count;",
            "l->ticks_owed = ev.tick_count;",
@@ -265,7 +270,8 @@ MUTANTS = (
            "D1 and the ring is resynchronised",
            (("unit", "Records/DriverMalformed.D7RefusedAndResynchronised/",
              "and the ring is resynchronised to RX_HEAD"),)),
-    Mutant("tx-overfills", "mbx/mbx.c", "record > tx_words[ch] - used", "record > tx_words[ch] - used + 23u",
+    Mutant("tx-overfills", "mbx/mbx.c", TX_ROOM,
+           TX_ROOM.replace("record > words - used", "record > words - used + 23u"),
            "port", "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
            "D3 a held merge fills the ring"),
     Mutant("lanes-big-endian", "mbx/mbx_wire.h", "\t\tword |= (uint32_t)p[i] << (8u * i);",
@@ -352,8 +358,7 @@ MUTANTS = (
     Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
            "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
            "unit", "DriverUnit.D6MaapRangeWritten", "D6 MAAP_BASE_LO holds the base's low word"),
-    Mutant("tx-negative-fill", "mbx/mbx.c", "if (used > tx_words[ch] || record > tx_words[ch] - used) {",
-           "if (record > tx_words[ch] - used) {",
+    Mutant("tx-negative-fill", "mbx/mbx.c", TX_ROOM, TX_ROOM.replace("used > words || ", ""),
            "unit", "DriverUnit.D8TransmitRefusals", "D8 a TX_TAIL more than a ring behind TX_HEAD is no room"),
     Mutant("unknown-event-decoded-as-tick", "mbx/mbx.c", "\t} else if (ev->type == MBX_EV_TYPE_TICK) {",
            "\t} else if (ev->type == MBX_EV_TYPE_TICK || ev->type > MBX_EV_TYPE_AMAP_LIVE_WRITE) {",

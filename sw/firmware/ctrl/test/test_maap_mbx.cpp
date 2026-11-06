@@ -547,7 +547,7 @@ TEST_F(MaapHost, CallbackWorkAndEveryOutputCount) {
             loop.sinks[0].fn(loop.sinks[0].ctx, &ev);
             EXPECT_LE(accesses() - before, MAAP_MBX_EVENT_MAX) << "callback work bound";
             if (retry == 2) {
-                EXPECT_EQ(accesses() - before, 49u) << "final probe and ANNOUNCE cost, DA_GATE included";
+                EXPECT_EQ(accesses() - before, 47u) << "final probe and ANNOUNCE cost, DA_GATE included";
             }
         }
         EXPECT_TRUE(valid[0]) << "every output count acquired";

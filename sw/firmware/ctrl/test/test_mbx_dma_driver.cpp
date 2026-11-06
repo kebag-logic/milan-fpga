@@ -292,6 +292,11 @@ TEST_F(MbxDma, T2AMoveEndingInErrorIsNotCommitted) {
         << "T2 the next frame is written at the same head with the same sequence";
     EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), head + MBX_TX_HDR_WORDS + sizeof frame / 4u)
         << "T2 and committed there";
+    mover.fail = true;
+    ASSERT_EQ(mbx_tx_begin(kCh, 0, frame, sizeof frame), MBX_STATUS_OK);
+    EXPECT_EQ(mbx_tx_begin(kCh, 0, frame, sizeof frame), MBX_STATUS_BAD)
+        << "T2 a begin that finds the record before it ended in ERR is refused";
+    mover.fail = false;
 }
 
 TEST_F(MbxDma, T3AFrameOffAWordTakesTheWordLoop) {

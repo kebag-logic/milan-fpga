@@ -103,12 +103,8 @@ struct srp_mbx {
     uint32_t transmitted;
     uint32_t stops;
     uint32_t walks;        // registrar walks snapshot made (#665)
-    // THE TRANSMIT (ctrl_loop.h, #665): a centisecond, a record or a
-    // declaration may have made an MRPDU owed, which only the loop's call to
-    // the build takes, and the centiseconds dispatched while it is held.
-    bool tx_held;
-    uint32_t tx_age;
-    uint32_t resent_pass;  // the loop's pass whose poll last sent an owed frame
+    uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
+    uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
 };
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.

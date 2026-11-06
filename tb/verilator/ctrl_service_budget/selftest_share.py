@@ -3,7 +3,7 @@
 """The budget grader self-test's checks of the per-pass share and of the CPU clock (#665), which
 selftest.py runs.
 
-The share (share.py) is SRP's 18 ms, the tightest family bound, over nine passes. Synthetic passes
+The share (share.py) is T_svc's 20 ms, the tightest family bound, over ten passes. Synthetic passes
 at it and a cycle over it check grade.pass_share, and the run fails on a pass over it even when
 every row fits, unless --record-share-findings records it; --record-budget-findings, the rows'
 option, does not. The clock checks build through run.main with build.build's toolchain steps
@@ -52,8 +52,8 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     """The share's value, a pass at it and a cycle over it, and the run's verdict and table on them."""
     out = []
     got = (share.bound_ms(), share.share_ms(), {hz: share.share_cycles(hz) for hz in SHARE_CYCLES})
-    out.append(("the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, "
-                "200,000 CPU cycles at the product's 100 MHz", got == (18.0, SHARE_MS, SHARE_CYCLES), str(got)))
+    out.append(("the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, "
+                "200,000 CPU cycles at the product's 100 MHz", got == (20.0, SHARE_MS, SHARE_CYCLES), str(got)))
     limit = SHARE_CYCLES[cpu_hz]
     lines = [f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
              in enumerate(((1000, limit), (400_000, limit + 1), (900_000, 50)), 1)]
@@ -268,7 +268,7 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     control = argparse.Namespace(cpu_regions='cover', mutation='store-step-aged-heavier', record_budget_findings=False,
                                  record_share_findings=False)
     groups = [scenario.Group('backlog-adp@verify-aged2-3'), scenario.Group('backlog')]
-    miss = 'backlog-adp@verify-aged2-3.service.srp.last.if0: 0.4 ms over its budget 18 ms'
+    miss = 'backlog-adp@verify-aged2-3.service.srp.last.if0: 0.4 ms over its budget 20 ms'
     cases = (([miss], []), ([], []), (['backlog.service.srp.last.if0: x'], []), ([miss], ['refused']))
     verdicts = [run.verdict(control, groups, refusals, misses, [], []) for misses, refusals in cases]
     out.append(("the heavier aged step's plant is caught by an aged window's row over its budget, and escapes with "

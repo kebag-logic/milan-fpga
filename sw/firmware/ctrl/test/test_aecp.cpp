@@ -115,7 +115,8 @@ struct Core : testing::Test {
           [](void*p,uint16_t d,bool b){static_cast<Ports*>(p)->Start(d,b);},
           [](void*p,uint16_t t,uint16_t d,uint64_t f){return static_cast<Ports*>(p)->Format(t,d,f);},
           [](void*p,unsigned i){return static_cast<Ports*>(p)->AvailableIndex(i);},
-          [](void*p){return static_cast<Ports*>(p)->Applied();}};
+          [](void*p){return static_cast<Ports*>(p)->Applied();},
+          nullptr,nullptr};
         ON_CALL(mock,Format).WillByDefault([this](uint16_t type,uint16_t index,uint64_t proposed){
             auto &d=desc(type,index);uint64_t declared=get(d.defaults+74,8);
             if((declared>>56)!=2)return proposed==declared;
@@ -1565,71 +1566,79 @@ TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
     EXPECT_GT(reads,before)<<"a delivered notice starts the next backoff at 1 ms";
 }
 
-// THE RETRY (#665, ctrl_loop.h): with retry_hold, aecp_poll holds a due retry,
-// arms no timer for it and reports it owed, and aecp_retry tries it, once
-// nothing aecp_poll sends or answers first is owed, leaving the hold set.
+// THE RETRY (#665, ctrl_loop.h): with retry_hold, aecp_poll builds no notice, holds a due retry, arms no timer for it
+// and reports it owed, and aecp_retry tries it, once nothing aecp_poll sends or answers first is owed, leaving the
+// hold set, and sends what it built before it returns.
 TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
 {
-    unsigned reads=0;bool timer_armed=false,answers=false;
+    register_controller();sent.clear();
+    unsigned reads=0;uint32_t timer_at=0;bool answers=false;
     ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return answers;});
-    ON_CALL(mock,Timer).WillByDefault([&](bool armed,uint32_t){timer_armed=armed;});
+    ON_CALL(mock,Timer).WillByDefault([&](bool armed,uint32_t at){timer_at=armed?at:0u;});
     a.retry_hold=true;
-    aecp_changed(&a,5,0,1);EXPECT_FALSE(aecp_poll(&a));
-    const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_TRUE(timer_armed);
+    aecp_changed(&a,5,0,1);EXPECT_TRUE(aecp_poll(&a))<<"a notice not yet tried is reported owed";
+    EXPECT_EQ(reads,0u)<<"aecp_poll builds no notice: it waits for the round";
+    EXPECT_FALSE(aecp_retry(&a,1u));const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_EQ(timer_at,1u);
     ms=1;EXPECT_TRUE(aecp_poll(&a))<<"a held retry is reported owed";
     EXPECT_EQ(reads,first)<<"aecp_poll holds a due retry";
-    EXPECT_FALSE(timer_armed)<<"a held retry arms no timer";
+    EXPECT_GT(timer_at,1u)<<"a held retry arms no timer: only the registration's deadline stands";
     a.response_owed=true;
-    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
+    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
     a.response_owed=false;a.notify=true;
-    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
+    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
     a.notify=false;a.waiting=true;
-    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
+    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
     a.waiting=false;a.start_pending=true;
-    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
+    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
     a.start_pending=false;
-    EXPECT_FALSE(aecp_retry(&a));EXPECT_GT(reads,first)<<"and tries the retry once none is";
-    EXPECT_TRUE(timer_armed)<<"the round arms the timer for the next retry";
+    EXPECT_FALSE(aecp_retry(&a,1u));EXPECT_GT(reads,first)<<"and tries the retry once none is";
+    EXPECT_EQ(timer_at,3u)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
-    // the next retry, 2 ms on, finds the port answering: the round builds the notice
+    // the next retry, 2 ms on, finds the port answering: the round builds the notice and sends it
     answers=true;ms=3;
-    EXPECT_TRUE(aecp_retry(&a))<<"a round that builds a notice asks for the pass that sends it";
-    EXPECT_TRUE(a.notify)<<"(the notice built)";
+    EXPECT_FALSE(aecp_retry(&a,1u))<<"a round that builds a notice owes nothing once it is sent";
+    EXPECT_FALSE(a.notify)<<"(the notice sent in the round)";
+    EXPECT_EQ(sent.size(),1u)<<"to its recipient";
+    // the next finds no room for its frame: it stays owed, for the pass that sends it
+    ON_CALL(mock,Send).WillByDefault([](unsigned,const uint8_t*,size_t,uint32_t){return false;});
+    ms=4;aecp_changed(&a,5,0,1);
+    EXPECT_TRUE(aecp_retry(&a,2u))<<"a round whose notice the ring refused stays owed";
+    EXPECT_TRUE(a.notify)<<"(the notice it built, still to send)";
+    a.notify=false;
     // an instance not yet opened, as the loop may call the round before AECP opens, tries nothing
     aecp other{};auto other_events=events;auto other_cfg=cfg;other_cfg.events=other_events.data();
     ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));other.retry_hold=true;
     aecp_changed(&other,5,0,1);const unsigned before=reads;
-    EXPECT_FALSE(aecp_retry(&other));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
+    EXPECT_FALSE(aecp_retry(&other,1u));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
 }
 
-// THE RETRY's age (#665, ctrl_loop.h): aecp_retry_aged is true only for a held
-// retry age_ms or more past the earliest held retry's time, and only while
-// nothing waits ahead of the round, which then leaves none held.
-TEST_F(Core, HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt)
+// THE RETRY's pace (#665, ctrl_loop.h): aecp_retry_aged is true for a notice that waits, a held retry or one no retry
+// holds, only while nothing waits ahead of the round and past the pace the round before it set, and a round leaves none
+// held until the next comes due.
+TEST_F(Core, HeldRetryIsAgedAtTheRoundsPaceWhenTheRoundCouldTakeIt)
 {
+    register_controller();sent.clear();
     unsigned reads=0;
     ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
-    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){++reads;*v={};return false;});
     a.retry_hold=true;
-    // three notices, in the order arm visits them (descriptor order), whose retries fall due at 12, 13 and 11 ms:
-    // the earliest held time is the last one's, after one later and one earlier than the first's
-    struct Notice {uint16_t type;unsigned events;} n[3]={{5,1},{6,1},{9,2}};
-    std::sort(n,n+3,[&](const Notice &x,const Notice &y){return &desc(x.type)<&desc(y.type);});
-    ms=10;aecp_changed(&a,n[2].type,0,n[2].events);(void)aecp_poll(&a);
-    EXPECT_FALSE(aecp_retry_aged(&a,0))<<"a retry not yet due is not aged";
-    ms=11;aecp_changed(&a,n[0].type,0,n[0].events);(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held);
-    ms=12;aecp_changed(&a,n[1].type,0,n[1].events);(void)aecp_poll(&a);
-    ms=13;(void)aecp_poll(&a);
-    ms=14;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a held retry is not aged before its age";
-    ms=15;EXPECT_TRUE(aecp_retry_aged(&a,4))<<"its age runs from the earliest held retry's time";
-    a.response_owed=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"no retry is aged while a response is owed";
-    a.response_owed=false;a.notify=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a notice is owed";
-    a.notify=false;a.waiting=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a command waits on its apply";
+    EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"nothing held, nothing aged";
+    ms=10;aecp_changed(&a,5,0,1);(void)aecp_poll(&a);
+    EXPECT_TRUE(a.retry_held)<<"a notice no retry holds waits as a held one does";
+    EXPECT_TRUE(aecp_retry_aged(&a,3u))<<"and the first round has no pace before it";
+    EXPECT_FALSE(aecp_retry_aged(&a,3u))<<"an aged round sets the pace, which holds the next off";
+    ms=12;EXPECT_FALSE(aecp_retry_aged(&a,3u))<<"for all of pace_ms";
+    ms=13;a.response_owed=true;EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"no retry is aged while a response is owed";
+    a.response_owed=false;a.notify=true;EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"nor while a notice is owed";
+    a.notify=false;a.waiting=true;EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"nor while a command waits on its apply";
     a.waiting=false;a.start_pending=true;
-    EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a START or STOP is pending";
+    EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"nor while a START or STOP is pending";
     a.start_pending=false;
-    const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a));ASSERT_GT(reads,tried);
-    ms=16;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a round leaves no retry held, so none is aged";
+    EXPECT_TRUE(aecp_retry_aged(&a,0u))<<"until the pace has passed and nothing waits";
+    const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a,1u));ASSERT_GT(reads,tried);
+    EXPECT_FALSE(a.retry_held)<<"a round leaves no retry held until the next comes due";
+    EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"so none is aged";
+    ms=14;(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held)<<"(the retry 1 ms on is held again)";
+    EXPECT_TRUE(aecp_retry_aged(&a,0u))<<"and aged at the pace";
 }
 
 // #665: the event and registry scans walk aecp.live and aecp.used only, so
@@ -2176,7 +2185,7 @@ TEST_F(Mailbox, TimerIdentityAndAttachRefusals)
     ctrl_loop full{};ctrl_loop_init(&full);full.n_sinks=CTRL_LOOP_MAX_SINKS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));full.n_sinks=0;full.n_polls=CTRL_LOOP_MAX_POLLS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));
-    full.n_polls=0;ASSERT_TRUE(ctrl_loop_set_retry(&full,[](void*){return false;},[](void*){return false;},nullptr));
+    full.n_polls=0;ASSERT_TRUE(ctrl_loop_set_retry(&full,[](void*,uint32_t){return false;},[](void*){return false;},nullptr));
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full))<<"attach is refused when the loop has a retry client";
     EXPECT_TRUE(full.n_sinks==0u&&full.n_polls==0u&&full.rx[MBX_CH_AECP].fn==nullptr)<<"and binds nothing";
     aecp_mbx other{};EXPECT_FALSE(aecp_mbx_init(&other,&cfg,&ports,MBX_N_TIMERS));
@@ -2184,11 +2193,10 @@ TEST_F(Mailbox, TimerIdentityAndAttachRefusals)
     bad=cfg;bad.interfaces=0;EXPECT_FALSE(aecp_mbx_init(&other,&bad,&ports,0));
 }
 
-// THE RETRY (#665, ctrl_loop.h): a due change-notice retry is held by the
-// adapter's poll and its timer's sink, which arm no timer for it and report
-// it owed, and is tried only in the loop's retry pass, one that took no input
-// and dispatched no centisecond, which arms the timer for the next one.
-TEST_F(Mailbox, RetryWaitsForAPassThatTakesNothing)
+// THE RETRY (#665, ctrl_loop.h): a due change-notice retry is held by the adapter's poll and its timer's sink, which
+// arm no timer for it and report it owed, and is tried only in a round: the pass given whole after an ordinary one, or
+// a pass that took nothing.
+TEST_F(Mailbox, RetryWaitsForARoundsPass)
 {
     unsigned reads=0;
     ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
@@ -2204,64 +2212,154 @@ TEST_F(Mailbox, RetryWaitsForAPassThatTakesNothing)
     (void)ctrl_loop_service(&loop);
     EXPECT_EQ(loop.stats.events,taken+1u)<<"a held retry arms no timer";
     EXPECT_EQ(reads,first)<<"a pass that takes the retry's timer and a record does not try it";
-    // a held retry arms no timer, so each pass takes only the event it is given, and tries nothing
-    for(uint16_t n=0;n<4u;++n){
-        mbx_timer_arm(0,static_cast<uint16_t>(0x100u+n),mbx_now_ms());mbx_model_advance_ms(&fabric,0);
-        const unsigned before=loop.stats.events;
-        EXPECT_NE(ctrl_loop_service(&loop),0u);
-        EXPECT_EQ(loop.stats.events,before+1u)<<"a held retry arms no timer";
-    }
-    EXPECT_EQ(reads,first)<<"nor does a pass that takes an event";
     ASSERT_EQ(adapter.completion_count,0u);
     EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx))<<"a held retry is reported owed";
     const unsigned passes=loop.stats.retry_passes;
-    (void)ctrl_loop_service(&loop);
+    mbx_timer_arm(0,0x100u,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
+    const unsigned before=loop.stats.events;
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
     EXPECT_EQ(loop.stats.retry_passes,passes+1u);
-    EXPECT_GT(reads,first)<<"the next pass that takes nothing tries it";
+    EXPECT_GT(reads,first)<<"the pass after is its round's though input waits";
+    EXPECT_EQ(loop.stats.events,before)<<"and takes none of it";
     EXPECT_TRUE(adapter.armed&&adapter.deadline==mbx_now_ms()+2u)<<"and arms the timer for its next retry";
-    // due again two milliseconds on, beside a record: held again, and tried by the next pass that takes nothing
+    (void)ctrl_loop_service(&loop);
+    EXPECT_EQ(loop.stats.events,before+1u)<<"(the next pass takes the event it held off)";
+    // due again two milliseconds on, beside a record: held again, and tried by the next round
     const unsigned second=reads;
     mbx_model_advance_ms(&fabric,2);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));
     (void)ctrl_loop_service(&loop);
     EXPECT_EQ(reads,second)<<"a retry due again is held again";
-    service();EXPECT_GT(reads,second)<<"(and tried by the next pass that takes nothing)";
+    service();EXPECT_GT(reads,second)<<"(and tried by the next round)";
     EXPECT_EQ(fabric.ch[MBX_CH_AECP].tx_err,0u);EXPECT_EQ(fabric.bus_err,0u);
 }
 
-// THE RETRY's age limit (#665, ctrl_loop.h): under input that leaves no pass
-// empty, a held retry waits beside it until it is CTRL_LOOP_RETRY_AGE_MS past
-// its time, then the next pass is its round's alone and takes no input.
-TEST_F(Mailbox, AgedRetryTakesAPassOfItsOwn)
+// THE RETRY (#665, ctrl_loop.h): under input that leaves no pass empty, a held retry waits beside it for one ordinary
+// pass, whose poll holds it, and the next pass is given whole to its round and takes no input.
+TEST_F(Mailbox, HeldRetryTakesThePassGivenWhole)
 {
     unsigned reads=0;
     ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
     aecp_changed(&adapter.core,5,0,1);service();
     const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_TRUE(adapter.armed);
-    const uint32_t due=adapter.deadline;
-    // an event before every pass, a millisecond apart: no pass takes nothing
-    const auto busy=[&](uint16_t tag){
-        mbx_timer_arm(0,tag,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
-        const unsigned events=loop.stats.events;
-        EXPECT_NE(ctrl_loop_service(&loop),0u);
-        return loop.stats.events>events;
-    };
-    mbx_model_advance_ms(&fabric,due-mbx_now_ms());
-    for(uint16_t k=0;k<CTRL_LOOP_RETRY_AGE_MS;++k){
-        EXPECT_TRUE(busy(static_cast<uint16_t>(0x200u+k)))<<"(each pass takes its input)";
-        mbx_model_advance_ms(&fabric,1);
-    }
-    EXPECT_EQ(reads,first)<<"a held retry waits beside input until it is CTRL_LOOP_RETRY_AGE_MS past its time";
-    ASSERT_EQ(mbx_now_ms(),due+CTRL_LOOP_RETRY_AGE_MS);
+    mbx_model_advance_ms(&fabric,adapter.deadline-mbx_now_ms());
+    // an event before every pass: no pass takes nothing
+    mbx_timer_arm(0,0x200u,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
+    const unsigned taken=loop.stats.events;
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
+    EXPECT_GT(loop.stats.events,taken)<<"(the pass takes its input)";
+    EXPECT_EQ(reads,first)<<"a held retry waits beside the input of the pass that holds it";
     mbx_timer_arm(0,0x2ffu,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
-    const unsigned events=loop.stats.events;
-    EXPECT_NE(ctrl_loop_service(&loop),0u)<<"the aged retry's pass asks for the next pass at once";
+    const unsigned events=loop.stats.events,rounds=loop.stats.retry_passes;
+    EXPECT_NE(ctrl_loop_service(&loop),0u)<<"the round's pass asks for the next pass at once";
     EXPECT_GT(reads,first)<<"then the next pass tries it though input waits";
     EXPECT_EQ(loop.stats.events,events)<<"a pass of its own, which takes no input";
-    EXPECT_EQ(loop.stats.retry_aged_passes,1u)<<"counted as an aged retry's";
+    EXPECT_EQ(loop.stats.retry_passes,rounds+1u)<<"counted as a round";
     EXPECT_TRUE(adapter.armed&&adapter.deadline==mbx_now_ms()+2u)<<"its round arms the timer for the next retry";
     (void)ctrl_loop_service(&loop);
     EXPECT_EQ(loop.stats.events,events+1u)<<"the next pass takes the input it held off";
     EXPECT_EQ(fabric.ch[MBX_CH_AECP].tx_err,0u);EXPECT_EQ(fabric.bus_err,0u);
+}
+
+// A round fills what its pass has left (THE RETRY, aecp_mbx.h): what the pass keeps, then a notice's stated cost each.
+TEST_F(Mailbox, ARoundFillsWhatItsPassHasLeft)
+{
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return true;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return true;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return true;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return true;});
+    receive(0);service();
+    for(const auto &d:descriptors)aecp_changed(&adapter.core,d.type,d.index,15u);
+    const auto built=[&](unsigned left){
+        const uint32_t before=adapter.core.tx_cookie;
+        static_cast<void>(loop.retry(loop.retry_ctx,left));
+        return adapter.core.tx_cookie-before;
+    };
+    loop.retry_firm=true;
+    EXPECT_EQ(built(0u),0u)<<"a pass with nothing left builds none";
+    EXPECT_EQ(built(AECP_NOTICE_US-1u),0u)<<"nor one with a microsecond less than a notice";
+    EXPECT_EQ(built(AECP_NOTICE_US),1u)<<"a notice's room builds one";
+    EXPECT_EQ(built(2u*AECP_NOTICE_US),2u)<<"and two's two";
+    EXPECT_TRUE(loop.retry_queued)<<"the loop knows notices are queued";
+    // beside records a round yields, and one that builds spends a yield
+    loop.backlog=true;loop.retry_firm=false;adapter.yields=0;
+    EXPECT_EQ(built(0u+AECP_ROUND_YIELD_NOTICES*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"a round beside records builds its yield";
+    EXPECT_EQ(adapter.yields,1u)<<"and spends one";
+    loop.retry_firm=false;
+    EXPECT_EQ(built(2u*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"however much of the pass is left";
+    loop.retry_firm=false;
+    const unsigned spent=adapter.yields;
+    EXPECT_EQ(built(0u),0u);
+    EXPECT_EQ(adapter.yields,spent)<<"a round that built nothing spends none";
+    loop.retry_firm=true;
+    EXPECT_EQ(built(2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
+    loop.backlog=false;loop.retry_firm=true;
+    for(unsigned n=0;n<AECP_NOTICES_MOST&&built(CTRL_LOOP_SHARE_US)!=0u;++n){}
+    EXPECT_EQ(adapter.yields,0u)<<"a queue served to its end starts the next with them all";
+    EXPECT_FALSE(loop.retry_queued)<<"and the loop knows none is queued";
+}
+
+// A notice with no room goes on owing: a ring that refuses its frame, or a queue that has no room for its completion.
+TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
+{
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return true;});
+    receive(36);service();
+    Bytes filler(60);filler[14]=0xfb;
+    mbx_model_tx_pause(&fabric,true);
+    while(mbx_tx_send(MBX_CH_AECP,0,filler.data(),filler.size())==MBX_STATUS_OK){}
+    aecp_changed(&adapter.core,5,0,1);
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_NOTICE_US))<<"a notice the ring has no room for stays owed";
+    EXPECT_TRUE(adapter.core.notify);
+    mbx_model_tx_pause(&fabric,false);service(100);
+    EXPECT_FALSE(adapter.core.notify)<<"and goes when it has";
+    for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n){
+        ASSERT_TRUE(adapter.ports.fan(&adapter,0,filler.data(),filler.size())&&adapter.ports.fan_end(&adapter,n));
+    }
+    aecp_changed(&adapter.core,5,0,1);
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_NOTICE_US))<<"a notice with no room for its completion stays owed";
+    EXPECT_TRUE(adapter.core.notify);
+    service(100);
+    EXPECT_FALSE(adapter.core.notify)<<"until the queue has";
+}
+
+// The bound on notices queued behind one another (FR_NFR.md 3.4.1, aecp_mbx.h): every notice the model holds pending at
+// once, a record before every pass, each pass charged all of THE SHARE, from the port's answer. The first keeps its
+// own bound and every other the queue's.
+TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
+{
+    bool answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return answers;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return answers;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return answers;});
+    receive(0);service();
+    for(const auto &d:descriptors)aecp_changed(&adapter.core,d.type,d.index,15u);
+    // the first attempts fail, and each retry backs off to the 8 ms spacing
+    for(unsigned k=0;k<16u;++k){mbx_model_advance_ms(&fabric,2);service();}
+    const auto pending=[&]{
+        unsigned n=0;
+        for(const auto &e:events)n+=static_cast<unsigned>(__builtin_popcount(e.pending));
+        return n;
+    };
+    answers=true;
+    const uint32_t from=mbx_now_ms();
+    EXPECT_GT(pending(),1u)<<"a queue of notices";
+    EXPECT_LE(pending(),AECP_NOTICES_MOST)<<"no more than the most a reset leaves";
+    auto p=command(36);
+    uint32_t first=0,last=0;
+    while(pending()!=0u&&mbx_now_ms()-from<2u*AECP_QUEUED_MS){
+        mbx_model_advance_ms(&fabric,CTRL_LOOP_SHARE_US/1000u);
+        static_cast<void>(mbx_model_rx(&fabric,p.data(),p.size(),0)); // as its rate admits
+        const unsigned before=pending();
+        (void)ctrl_loop_service(&loop);
+        if(pending()!=before){
+            last=mbx_now_ms()-from+CTRL_LOOP_SHARE_US/1000u;
+            first=first!=0?first:last;
+        }
+    }
+    EXPECT_EQ(pending(),0u);
+    EXPECT_NE(first,0u);
+    EXPECT_LE(first,AECP_NOTICE_MS)<<"the first queued notice within its own bound";
+    EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
 }
 
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
@@ -2271,13 +2369,16 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     receive(2);EXPECT_TRUE(adapter.core.response_owed);auto before=fabric.tx_sent;
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
-    for(unsigned n=0;n<5;++n)ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),200+n));
+    const auto notice=[&](uint32_t cookie){
+        return adapter.ports.fan(&adapter,0,filler.data(),filler.size())&&adapter.ports.fan_end(&adapter,cookie);
+    };
+    for(unsigned n=0;n<5;++n)ASSERT_TRUE(notice(200+n));
     service(100);ASSERT_EQ(adapter.completion_count,0u);
     const unsigned head=adapter.completion_head;
     ASSERT_NE(head,0u)<<"the head has moved, so the full queue below wraps";
     for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n)
-        ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),n));
-    EXPECT_FALSE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),100));
+        ASSERT_TRUE(notice(n));
+    EXPECT_FALSE(notice(100));
     EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);
     for(unsigned k=0;k<AECP_MBX_COMPLETIONS;++k)
         EXPECT_EQ(adapter.completions[(head+k)%AECP_MBX_COMPLETIONS].cookie,k)

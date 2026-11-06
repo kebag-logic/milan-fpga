@@ -6,12 +6,11 @@ even when every row fits, unless --record-share-findings is given.
 
 A pass is the only opportunity to take an input. An input waits for the pass running when it
 arrives, is taken in a later pass and answered in the pass that takes it. The deepest wait the loop
-admits is A3's row of seven owed frames, answered in pass 8 after the room returns, so the input's
-own pass and those eight, nine passes, must fit the smallest bound every input shares
-(sw/firmware/ctrl/loop/ctrl_loop.h, THE SHARE; #397's one-hart rule). That bound is the least over
-the families of min(T_svc, the family's ceiling) (FR_NFR.md 3.4.1), SRP's 18 ms. The share is that
-bound over the nine passes, 2.0 ms of CPU time at whatever clock the build runs the CPU: 200,000
-CPU cycles at the product's split CPU clock, sys, 100 MHz.
+admits is ten passes (sw/firmware/ctrl/loop/ctrl_loop.h, THE SHARE; #397's one-hart rule), which must
+fit the smallest bound every input shares. That bound is the least over the families of
+min(T_svc, the family's ceiling) (FR_NFR.md 3.4.1), T_svc's 20 ms since the owner's ruling of
+2026-11-06 relaxed SRP's. The share is that bound over the ten passes, 2.0 ms of CPU time at whatever
+clock the build runs the CPU: 200,000 CPU cycles at the product's split CPU clock, sys, 100 MHz.
 """
 from __future__ import annotations
 
@@ -19,8 +18,8 @@ from fractions import Fraction
 
 import scenario
 
-#: The passes that must fit the tightest bound: the input's own and A3's eight (ctrl_loop.h).
-SHARE_PASSES = 9
+#: The passes that must fit the tightest bound (ctrl_loop.h, THE SHARE).
+SHARE_PASSES = 10
 
 
 def bound_ms() -> float:

@@ -69,8 +69,8 @@ PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'w
 #: FR_NFR.md 3.4.1's approved T_svc (owner, 2026-10-29), its ceilings, and each family's budget,
 #: min(T_svc, ceiling), restated here on purpose: a changed value or table must fail.
 T_SVC = 20.0
-CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
-BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 18.0}
+CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 20.0}
+BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0}
 #: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
 #: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
@@ -281,14 +281,14 @@ def marker_checks() -> list[Check]:
 
 
 def budget_checks(frame_lines: list[str]) -> list[Check]:
-    """Each family against min(T_svc, its ceiling) (FR_NFR.md 3.4.1, owner 2026-10-29): SRP's 18 ms
-    ceiling is tighter than T_svc, so an SRP instance between 18 and 20 ms misses; AECP's 24 ms and
-    MAAP's 50 ms are looser, so T_svc grades them; then the whole budget table."""
+    """Each family against min(T_svc, its ceiling) (FR_NFR.md 3.4.1, owner 2026-11-06): SRP's is T_svc,
+    so an SRP instance at 20 ms fits and one a cycle over it misses; AECP's 24 ms and MAAP's 50 ms are
+    looser, so T_svc grades them; then the whole budget table."""
     out = []
     for family, delta, within, ceiling, name in (
-            ('srp', 1_800_000, True, True, 'an SRP instance at its 18 ms ceiling fits'),
-            ('srp', 1_800_001, False, False, 'an SRP instance one cycle over 18 ms misses, under T_svc'),
-            ('srp', 1_900_000, False, False, 'an SRP instance at 19 ms misses its 18 ms budget'),
+            ('srp', 2_000_000, True, True, 'an SRP instance at its 20 ms bound fits'),
+            ('srp', 2_000_001, False, False, 'an SRP instance one cycle over 20 ms misses'),
+            ('srp', 2_100_000, False, False, 'an SRP instance at 21 ms misses its 20 ms budget'),
             ('aecp', 2_200_000, False, True, 'an AECP instance at 22 ms misses T_svc, within its ceiling'),
             ('maap', 3_000_000, False, True, 'a MAAP instance at 30 ms misses T_svc, within its ceiling')):
         probe = scenario.Probe('s.cmd.if0', 'budget', family, f'rxc:{ACMP}', [f'resp:{ACMP}:41'])
@@ -322,14 +322,14 @@ def timing_checks() -> list[Check]:
                 str(r)))
     # A normative wait W extends the budget to W + min(T_svc, ceiling) and the ceiling to W + ceiling
     # (3.4.1), and nothing more: an AECP path's budget, W + 20 ms, is under its ceiling, W + 24 ms; SRP's
-    # Domain path's budget is its ceiling, W + 18 ms.
+    # Domain path's budget is its ceiling, W + 20 ms.
     frame_lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
     for family, delta, within, ceiling, name in (
             ('aecp', 22_000_000, True, True, 'W + T_svc passes'),
             ('aecp', 22_000_001, False, True, 'W + T_svc + 1 misses, within W + ceiling'),
             ('aecp', 22_400_001, False, False, 'W + ceiling + 1 is over the ceiling'),
-            ('srp', 21_800_000, True, True, "W + SRP's ceiling passes, its budget"),
-            ('srp', 21_800_001, False, False, "W + SRP's ceiling + 1 misses its budget and its ceiling")):
+            ('srp', 22_000_000, True, True, "W + SRP's ceiling passes, its budget"),
+            ('srp', 22_000_001, False, False, "W + SRP's ceiling + 1 misses its budget and its ceiling")):
         waited = scenario.Probe('s.cmd.if0', 'Domain', family, f'rxc:{ACMP}', [f'resp:{ACMP}:41'], wait_ms=200.0)
         r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), waited)
         out.append((name, r.get('within_budget') is within and r.get('within_ceiling') is ceiling, str(r)))

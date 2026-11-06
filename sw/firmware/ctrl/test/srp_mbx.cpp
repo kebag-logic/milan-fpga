@@ -466,7 +466,7 @@ TEST_F(Srp, ReentryFromOutputIsRefusedAndCounted) {
         mbx_frame f{}; f.len=17; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         f.len=0; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         EXPECT_FALSE(loop.polls[loop.n_polls-1].fn(&adapter));
-        EXPECT_FALSE(loop.transmit(loop.transmit_ctx));
+        loop.transmit(loop.transmit_ctx);
         loop.ticks[loop.n_ticks-1]();
         EXPECT_FALSE(srp_mbx_init(&adapter,&config));
         EXPECT_EQ(adapter.reentries,before+10);
@@ -528,7 +528,7 @@ TEST_F(Srp, AttachmentFailureIsAtomicAndDetachesAfterLoopReset) {
     ctrl_loop_init(&loop); ctrl_loop_bind_rx(&loop,MBX_CH_SRP,[](void*,const mbx_frame*){},nullptr);
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop));
     ctrl_loop_init(&loop);
-    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*){return false;},[](void*){return false;},nullptr));
+    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*){},[](void*){return false;},nullptr));
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop))<<"a loop whose THE TRANSMIT client is bound is refused";
     EXPECT_EQ(loop.n_polls,0u);
     ctrl_loop_init(&loop);
@@ -630,10 +630,12 @@ TEST_F(Srp, DomainExhaustionPreservesOldDeclarationUntilRetry) {
     receive_before_poll(frame(4,{6,4,0,3},0));
     std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) { held.push_back(p); }
     ASSERT_GE(held.size(),2u);
+    adapter.join_left[0]=0;
     ctrl_loop_service(&loop);
     EXPECT_GT(adapter.refused,0u); EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
     EXPECT_TRUE(adapter.ifs[0].domain_owed);
-    ctrl_pool_free(&pool,held.back()); held.pop_back(); settle();
+    EXPECT_NE(adapter.join_left[0],0u)<<"a refused declaration is tried again when the join count ends";
+    ctrl_pool_free(&pool,held.back()); held.pop_back(); advance(200); // one JoinTime
     EXPECT_EQ(adapter.ifs[0].domain.vid,3u); EXPECT_FALSE(adapter.ifs[0].domain_owed);
     for(void *p:held) { ctrl_pool_free(&pool,p); }
 }
@@ -650,7 +652,7 @@ TEST_F(Srp, SinkDeclarationExhaustionRetriesWithoutLosingBinding) {
     ctrl_loop_service(&loop);
     EXPECT_GT(adapter.refused,0u); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,0u);
     EXPECT_TRUE(adapter.ifs[0].sinks[0].bound);
-    ctrl_pool_free(&pool,held.back()); held.pop_back(); settle();
+    ctrl_pool_free(&pool,held.back()); held.pop_back(); advance(200); // one JoinTime
     EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u);
     for(void *p:held) { ctrl_pool_free(&pool,p); }
 }
@@ -1475,104 +1477,132 @@ std::vector<uint8_t> runt() {
     return f;
 }
 
-// THE TRANSMIT (ctrl_loop.h, #665): the poll builds no MRPDU, the loop's call
-// to the build does, in a pass that took no record. A pass that takes a record
-// builds none of the MRPDUs a centisecond made owed, and holds them, reported
-// owed; the next pass that takes no record builds one, and the passes after it
-// one each until a call that sends nothing holds no build.
-TEST_F(Srp, TransmitWaitsForAPassThatTakesNoRecord) {
+// THE TRANSMIT (ctrl_loop.h, #665): the poll builds no MRPDU, and an MRPDU a timer, a record or a declaration makes
+// owed takes a pass of its own, in place of any input: both participants of the first interface that owes one. The
+// join timer's end is the adapter's own count (tick), which restarts on what a build sent.
+TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     settle();
-    EXPECT_FALSE(adapter.tx_held)<<"a settled adapter holds no build";
+    EXPECT_EQ(adapter.tx_due,0u)<<"a settled adapter owes no MRPDU";
     // every participant now owes an MRPDU (Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks)
-    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
-    EXPECT_TRUE(adapter.tx_held)<<"a centisecond holds a build";
-    adapter.tx_age=0;   // a build just held
+    for (unsigned n=0;n<19u;++n) loop.ticks[0]();
+    EXPECT_EQ(adapter.tx_due,0u)<<"no centisecond before a join timer's end owes one";
+    loop.ticks[0]();
+    EXPECT_NE(adapter.tx_due,0u)<<"the centisecond that ends a join timer owes its interface's MRPDUs";
+    const uint32_t unbuilt=adapter.transmitted;
+    EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx))<<"an owed MRPDU is reported owed";
+    EXPECT_EQ(adapter.transmitted,unbuilt)<<"and no poll builds it";
     const auto f=runt();
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
     const uint32_t sent=adapter.transmitted;
     const uint32_t rx=loop.stats.rx_records;
+    const uint32_t passes=loop.stats.transmit_passes;
     EXPECT_NE(ctrl_loop_service(&loop),0u);
-    ASSERT_EQ(loop.stats.rx_records,rx+1u);
-    EXPECT_EQ(adapter.transmitted,sent)<<"a pass that takes a record builds no MRPDU";
-    EXPECT_TRUE(adapter.tx_held)<<"and holds the build";
-    EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx))<<"a held build is reported owed";
-    EXPECT_NE(ctrl_loop_service(&loop),0u);
-    EXPECT_EQ(adapter.transmitted,sent+1u)<<"the next pass that takes no record builds one";
+    EXPECT_EQ(loop.stats.transmit_passes,passes+1u)<<"the pass goes to the build";
+    EXPECT_EQ(loop.stats.rx_records,rx)<<"it takes no record";
+    EXPECT_EQ(adapter.transmitted,sent+2u)<<"and sends both participants' MRPDUs of the first interface that owes";
     settle();
-    EXPECT_EQ(adapter.transmitted,sent+2u*MBX_N_IF)<<"and the passes after it one each, every participant's";
-    EXPECT_FALSE(adapter.tx_held)<<"a call that sends nothing holds no build";
-    EXPECT_EQ(loop.stats.transmit_aged_passes,0u)<<"no pass was given whole to the build";
-    // a received record holds a build too (a Listener of a stream the entity does not source changes nothing)
-    receive_before_poll(frame(3,{9,9,9,9,9,9,0,1},1,2));
-    EXPECT_TRUE(adapter.tx_held)<<"a received record holds a build";
-    // a binding holds no build itself: the walk that finds its declaration does, and an unbinding that withdraws a
-    // declaration does
-    settle();
+    EXPECT_EQ(adapter.transmitted,sent+2u*MBX_N_IF)<<"the next such pass the next interface's";
+    EXPECT_EQ(loop.stats.rx_records,rx+1u)<<"and the pass after them takes the record";
+    EXPECT_EQ(adapter.tx_due,0u)<<"nothing is owed once every interface has built";
+    // a binding owes nothing itself: the walk that finds its declaration does, and an unbinding that withdraws one
     msrp_stream_id sid{{2,1,2,3,4,5,6,7}}; uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,2));
     std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
     std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,2,2);
     wire_put_be(talker.data()+16,224,2); wire_put_be(talker.data()+18,1,2); talker[20]=0x60;
     offer(frame(1,talker,0)); advance(200);
-    ASSERT_FALSE(adapter.tx_held);
+    settle();
+    adapter.tx_due=0u;
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2));
-    EXPECT_FALSE(adapter.tx_held)<<"a binding holds no build itself";
+    EXPECT_EQ(adapter.tx_due,0u)<<"a binding owes no MRPDU itself";
     static_cast<void>(loop.polls[0].fn(loop.polls[0].ctx));
-    EXPECT_TRUE(adapter.tx_held)<<"the walk that finds its declaration holds the build that declares it";
+    EXPECT_NE(adapter.tx_due,0u)<<"the walk that finds its declaration owes the MRPDU that declares it";
     settle();
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
-    adapter.tx_held=false;
+    adapter.tx_due=0u;
     ASSERT_NE(adapter.ifs[0].sinks[1].declared,0u);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
-    EXPECT_TRUE(adapter.tx_held)<<"an unbinding that withdraws a declaration holds the build that sends it";
+    EXPECT_NE(adapter.tx_due,0u)<<"an unbinding that withdraws a declaration owes the MRPDU that sends it";
     settle();
 }
 
-// THE TRANSMIT's age (ctrl_loop.h, #665): under a record and a centisecond
-// before every pass, no pass takes no record; the build is held while the
-// centiseconds dispatched to SRP's tick count past CTRL_LOOP_TX_AGE, and the
-// pass after that is the build's alone: it sends one MRPDU and takes no
-// record, and the pass after it takes the record it held off. Two such passes
-// stand more than CTRL_LOOP_TX_AGE centiseconds apart.
-TEST_F(Srp, AHeldBuildTakesAPassOfItsOwnPastItsAge) {
+// A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a
+// build of a participant that sends nothing leaves it, and an Applicant moved while it runs owes nothing before it
+// ends. LeaveAll's timer owes its LeaveAll whatever the join timer's count (802.1Q Table 10-5).
+TEST_F(Srp, TheJoinCountFollowsWhatABuildSent) {
     settle();
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
-    // lwSRP owes, and the build is not yet held: the next centisecond holds it
-    adapter.tx_held=false; adapter.tx_age=0;
-    const auto f=runt();
-    const auto busy=[&](unsigned aged) {
-        unsigned passes=0;
-        while (loop.stats.transmit_aged_passes==aged && passes<16u) {
-            EXPECT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
-            mbx_model_advance_ms(&model,MBX_TICK_MS);
-            const uint32_t rx=loop.stats.rx_records;
-            const uint32_t before=adapter.transmitted;
-            static_cast<void>(ctrl_loop_service(&loop));
-            ++passes;
-            if (loop.stats.transmit_aged_passes==aged) {
-                EXPECT_EQ(adapter.transmitted,before)<<"a record before every pass holds the build off";
-                EXPECT_EQ(loop.stats.rx_records,rx+1u);
-            } else {
-                EXPECT_EQ(loop.stats.rx_records,rx)<<"the build's pass takes no record";
-                EXPECT_EQ(adapter.transmitted,before+1u)<<"and sends one MRPDU";
-            }
+    settle();
+    const uint8_t left=adapter.join_left[0];
+    EXPECT_EQ(left,20u)<<"a sent MRPDU restarts its participant's count at the JoinTime";
+    EXPECT_EQ(adapter.tx_due,0u);
+    for (unsigned n=0;n<5u;++n) loop.ticks[0]();
+    EXPECT_EQ(adapter.join_left[0],left-5u)<<"each centisecond takes one off it";
+    EXPECT_EQ(adapter.tx_due,0u);
+    adapter.tx_due=1u;
+    settle();
+    EXPECT_EQ(adapter.join_left[0],left-5u)<<"a build that sends nothing leaves the count";
+    EXPECT_GT(adapter.transmitted,0u);
+    bool active=false;
+    for (unsigned n=0;n<1600u && !active;++n) {
+        const uint32_t sent=adapter.transmitted;
+        loop.ticks[0]();
+        enum mrp_la_state la=MRP_LA_STATE_PASSIVE;
+        (void)mrp_port_status(adapter.ifs[0].msrp,0,&la,nullptr);
+        active=la==MRP_LA_STATE_ACTIVE;
+        if (active) {
+            EXPECT_NE(adapter.tx_due,0u)<<"a LeaveAll timer's end owes its LeaveAll";
+            settle();
+            EXPECT_GT(adapter.transmitted,sent)<<"which its pass sends";
         }
-        return passes;
-    };
-    EXPECT_EQ(busy(0u),CTRL_LOOP_TX_AGE+3u)
-        <<"the build's pass follows the one that dispatches the centisecond past its age, counted from its hold";
-    EXPECT_EQ(loop.stats.transmit_aged_passes,1u)
-        <<"a build held past CTRL_LOOP_TX_AGE centiseconds takes a pass of its own";
-    const uint32_t rx=loop.stats.rx_records;
-    static_cast<void>(ctrl_loop_service(&loop));
-    EXPECT_EQ(loop.stats.rx_records,rx+1u)<<"the next pass takes the record it held off";
-    EXPECT_EQ(busy(1u),CTRL_LOOP_TX_AGE+1u)<<"two builds' passes stand more than CTRL_LOOP_TX_AGE centiseconds apart";
+        settle();
+    }
+    EXPECT_TRUE(active)<<"LeaveAll's timer ran out within its 10 to 15 s";
+}
+
+// What THE RETRY's bound counts (aecp_mbx.h): while notices are queued, under records that move Applicants, an interface
+// takes a pass given whole for a join timer's end and one for each participant moved with its join timer idle.
+TEST_F(Srp, AJoinTimeOwesAnInterfaceAPass) {
+    settle(); advance(1000);
+    loop.retry_queued=true;
+    const uint32_t passes=loop.stats.transmit_passes;
+    for (unsigned n=0;n<20u;++n) {
+        offer(frame(4,{6,static_cast<uint8_t>(3u+n%2u),0,static_cast<uint8_t>(2u+n%2u)},0)); advance(10);
+    }
+    loop.retry_queued=false;
+    EXPECT_LE(loop.stats.transmit_passes-passes,2u*MBX_N_IF)<<"an interface's passes given whole, a JoinTime";
+}
+
+// An Applicant that moves owes a pass only with its own participant's join timer idle (THE TRANSMIT).
+TEST_F(Srp, AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle) {
+    settle(); advance(400);
+    adapter.tx_due=0u; adapter.join_left[0]=0u; adapter.join_left[1]=10u;
+    ASSERT_EQ(mvrp_declare(adapter.ifs[0].mvrp,0,9),0);
+    EXPECT_EQ(adapter.tx_due,0u)<<"not while its own runs, the other's idle or not";
+    adapter.join_left[1]=0u;
+    ASSERT_EQ(mvrp_declare(adapter.ifs[0].mvrp,0,10),0);
+    EXPECT_NE(adapter.tx_due,0u)<<"an Applicant moved with its own join timer idle owes a pass";
     settle();
 }
 
-// A frame a build left owed comes first (A3): while it is owed no held build
-// takes a pass of its own, and the pass whose poll sends it builds no other,
-// one frame a pass (SRP_MBX_POLL_FRAMES).
+// What a first VLAN send licenses is declared in the pass that sent it, not at the join timer's end after it.
+TEST_F(Srp, AFirstVlanSendDeclaresWhatItLicensesInItsPass) {
+    settle(); advance(400);
+    msrp_stream_id sid{{2,1,2,3,4,5,6,7}}; uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,7));
+    std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
+    std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,7,2);
+    wire_put_be(talker.data()+16,224,2); wire_put_be(talker.data()+18,1,2); talker[20]=0x60;
+    offer(frame(1,talker,0));
+    for (unsigned n=0;n<400u && !adapter.ifs[0].sinks[0].vlan_sent;++n) {
+        mbx_model_advance_ms(&model,1); ctrl_loop_service(&loop);
+    }
+    ASSERT_TRUE(adapter.ifs[0].sinks[0].vlan_sent);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u)<<"the pass that sent it declares what it licensed";
+}
+
+// A frame a build left owed comes first (A3): while it is owed no pass is given to the build, and the interface stays
+// due, so the pass after the poll sends it builds what is left.
 TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
     settle();
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
@@ -1580,25 +1610,23 @@ TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
     std::vector<uint8_t> filler(60); wire_put_be(filler.data(),0x0180c200000eull,6);
     wire_put_be(filler.data()+12,0x22ea,2);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
-    adapter.tx_age=0;   // a build just held
     for (unsigned n=0;n<8u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
-    const uint32_t aged=loop.stats.transmit_aged_passes;
-    for (unsigned n=0;n<4u*(CTRL_LOOP_TX_AGE+2u);++n) {
+    const uint32_t whole=loop.stats.transmit_passes;
+    for (unsigned n=0;n<8u;++n) {
         mbx_model_advance_ms(&model,MBX_TICK_MS);
         ctrl_loop_service(&loop);
     }
     ASSERT_GT(adapter.owed_len,0u);
-    EXPECT_GT(adapter.tx_age,CTRL_LOOP_TX_AGE)<<"the held build is past its age";
-    EXPECT_EQ(loop.stats.transmit_aged_passes,aged)<<"no held build takes a pass of its own while a frame is owed";
+    EXPECT_NE(adapter.tx_due&(1u<<adapter.owed_if),0u)<<"the interface stays due";
+    EXPECT_EQ(loop.stats.transmit_passes,whole)<<"no pass goes to the build while a frame is owed";
     mbx_model_tx_pause(&model,false);
     const uint32_t sent=adapter.transmitted;
     EXPECT_NE(ctrl_loop_service(&loop),0u);
     EXPECT_EQ(adapter.owed_len,0u);
     EXPECT_EQ(adapter.transmitted,sent+1u)<<"the pass whose poll sends the owed frame builds no other";
-    EXPECT_NE(ctrl_loop_service(&loop),0u);
-    EXPECT_EQ(adapter.transmitted,sent+2u)<<"the next pass builds the next";
     settle();
+    EXPECT_EQ(adapter.tx_due,0u)<<"then the build takes what is left";
 }
 
 }

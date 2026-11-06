@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Planted defects of the SRP adapter's side of THE TRANSMIT (#665, ctrl_loop.h): the MRPDU build, and the
-declarations it sends, out of the poll and into the loop's call, which takes no pass that takes a record; the hold
-a centisecond, a record or a binding makes, reported owed; its age, counted on the centiseconds dispatched while it
-is held and never beside an owed frame; one frame a pass; and the reclaim, after the declarations in the build's
-pass and in the poll in every other pass.
+declarations it sends, out of the poll and into a pass given whole; what owes that pass, a join count's end, a LeaveAll
+with no join timer running, a declaration or an Applicant moved with its own join timer idle, each reported owed; the
+count, restarted by what a build sent; a frame owed ahead of a build; both of an interface's MRPDUs a pass.
 
 srp_mutants.py plants them with the rest of its table: each must fail its named observable, never only a build.
 """
@@ -14,76 +13,99 @@ from typing import Callable, TypeVar
 
 T = TypeVar("T")
 
-WAITS = "TransmitWaitsForAPassThatTakesNoRecord"
-AGES = "AHeldBuildTakesAPassOfItsOwnPastItsAge"
+WAITS = "AnOwedMrpduTakesAPassOfItsOwn"
+COUNT = "TheJoinCountFollowsWhatABuildSent"
 OWED = "AnOwedFrameComesBeforeTheBuild"
 RETAINED = "SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding"
-#: The binding's end, after the withdrawals it holds a build for.
-BIND_END = "    m->busy = false;\n    return true;\n}\n\nstatic bool rx_order_ready"
-#: The poll's end: a held build reported owed.
-POLL_END = "    owed = owed || m->tx_held;\n    m->busy = false;\n    return owed;\n}\n"
-#: The build's declarations, which run in its call, before its MRPDU.
-DECLARE = ("    if (!m->owed_len) {\n        for (unsigned n = 0; n < MBX_N_IF; ++n) {\n"
-           "            if (m->ifs[n].msrp) {\n"
-           "                owed = prepare_declarations(&m->ifs[n]) || owed;\n"
-           "            }\n        }\n    }\n")
-#: The poll's reclaim, in a pass whose build does not follow.
-POLL_RECLAIM = ("    if (!m->loop->tx_pass) {\n        for (unsigned n = 0; n < MBX_N_IF; ++n) {\n"
-                "            if (m->ifs[n].msrp) {\n                reclaim(&m->ifs[n]);\n            }\n"
-                "        }\n    }\n")
+#: The poll's end: an owed build reported owed.
+POLL_END = "    owed = owed || m->tx_due != 0u;\n    m->busy = false;\n    return owed;\n}\n"
+#: The centisecond's end of a join count, and a LeaveAll's.
+ENDS = "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0u : la == MRP_LA_STATE_ACTIVE) {"
+#: An interface's declarations, which wait for a retained receive and are tried again at the JoinTime.
+DECLARE = ("        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) && "
+           "m->join_left[2u * n] == 0u) {\n            m->join_left[2u * n] = SRP_JOIN_CS;\n        }\n")
+#: A build's result, which restarts the count of the participant that sent.
+SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the adapter's side of THE TRANSMIT, built with srp_mutants.Defect."""
     return (
         kind("transmit-built-by-the-poll", WAITS, POLL_END,
-             "    m->busy = false;\n    owed = transmit(m) || owed || m->tx_held;\n    return owed;\n}\n",
-             "a pass that takes a record builds no MRPDU"),
-        kind("transmit-hold-unreported", WAITS, "    owed = owed || m->tx_held;\n", "",
-             "a held build is reported owed"),
-        kind("transmit-centisecond-holds-nothing", WAITS,
-             "    m->tx_age += m->tx_held ? 1u : 0u;\n    m->tx_held = true;\n",
-             "    m->tx_age += m->tx_held ? 1u : 0u;\n", "a centisecond holds a build"),
-        kind("transmit-record-holds-nothing", WAITS,
-             "    // a received record can make an MRPDU owed: THE TRANSMIT builds it once the pass's input is taken\n"
-             "    m->tx_held = true;\n", "", "a received record holds a build"),
+             "    m->busy = false;\n    transmit(m);\n    return owed || m->tx_due != 0u;\n}\n",
+             "and no poll builds it"),
+        kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_due != 0u;\n", "",
+             "an owed MRPDU is reported owed"),
+        kind("transmit-join-end-owes-nothing", WAITS, ENDS,
+             "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0xffu : la == MRP_LA_STATE_ACTIVE) {",
+             "the centisecond that ends a join timer owes its interface's MRPDUs"),
+        kind("transmit-leaveall-owes-nothing", COUNT, ENDS,
+             "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0u : false) {",
+             "a LeaveAll timer's end owes its LeaveAll"),
+        kind("transmit-every-centisecond-owes", WAITS, ENDS, "if (m->join_left[slot] != 0u ? true : true) {",
+             "no centisecond before a join timer's end owes one"),
         kind("transmit-unbinding-holds-nothing", WAITS,
-             "            m->tx_held = m->tx_held || old.declared != 0u;\n", "",
-             "an unbinding that withdraws a declaration holds the build that sends it"),
-        kind("transmit-binding-holds-a-build", WAITS, BIND_END, "    m->tx_held = true;\n" + BIND_END,
-             "a binding holds no build itself"),
+             "            if (old.declared != 0u) {\n                hold(i);\n            }\n", "",
+             "an unbinding that withdraws a declaration owes the MRPDU that sends it"),
+        kind("transmit-binding-holds-a-build", WAITS,
+             "    i->stale = true; // snapshot matches registrations against the bindings (#665)\n",
+             "    i->stale = true; // snapshot matches registrations against the bindings (#665)\n    hold(i);\n",
+             "a binding owes no MRPDU itself"),
         kind("transmit-walk-holds-nothing", WAITS,
-             "        i->owner->tx_held = i->owner->tx_held || i->sinks[k].desired != previous[k];\n", "",
-             "the walk that finds its declaration holds the build that declares it"),
+             "        if (i->sinks[k].desired != previous[k]) {\n            hold(i);\n        }\n", "",
+             "the walk that finds its declaration owes the MRPDU that declares it"),
+        kind("transmit-first-link-up-owes-nothing", "StartupDeclaresTalkersDomainAndVlan",
+             "        } else {\n            hold(i);\n        }\n        i->link_seen = true;\n",
+             "        }\n        i->link_seen = true;\n", "adapter.transmitted"),
         kind("transmit-reentry-unguarded", "ReentryFromOutputIsRefusedAndCounted",
-             "    if (!enter(m)) {\n        return false;\n    }\n    bool reclaims = false;\n",
-             "    bool reclaims = false;\n", "adapter.reentries"),
+             "    if (!enter(m)) {\n        return;\n    }\n    const unsigned first =",
+             "    const unsigned first =",
+             "adapter.reentries"),
+        kind("transmit-second-interface-starved", WAITS, "const unsigned first = (m->tx_due & 1u) != 0u ? 0u : 1u;",
+             "const unsigned first = 0u;", "the next such pass the next interface's"),
         kind("transmit-not-bound", WAITS, "        (void)ctrl_loop_set_transmit(loop,transmit,transmit_aged,m);\n",
-             "        (void)transmit; (void)transmit_aged;\n", "the next pass that takes no record builds one"),
+             "        (void)transmit; (void)transmit_aged;\n", "the pass goes to the build"),
         kind("transmit-attaches-over-a-bound-client", "AttachmentFailureIsAtomicAndDetachesAfterLoopReset",
              " &&\n              !loop->transmit;", ";", "a loop whose THE TRANSMIT client is bound is refused"),
         kind("transmit-kept-by-destroy", "AttachmentFailureIsAtomicAndDetachesAfterLoopReset",
              "        if (l->transmit_ctx == m) {\n            l->transmit = NULL;\n",
              "        if (l->transmit_ctx == NULL) {\n            l->transmit = NULL;\n",
              "destroy detaches THE TRANSMIT's client"),
-        # the age (ctrl_loop.h, CTRL_LOOP_TX_AGE): counted while held, past the limit, restarted by a build
-        kind("transmit-age-counts-unheld", AGES, "    m->tx_age += m->tx_held ? 1u : 0u;\n", "    m->tx_age += 1u;\n",
-             "the build's pass follows the one that dispatches the centisecond past its age, counted from its hold"),
-        kind("transmit-aged-at-its-limit", AGES, "m->tx_age > CTRL_LOOP_TX_AGE;", "m->tx_age >= CTRL_LOOP_TX_AGE;",
-             "the build's pass follows the one that dispatches the centisecond past its age, counted from its hold"),
-        kind("transmit-age-kept-by-a-build", AGES, "    m->tx_age = 0;\n    bool owed = false;\n",
-             "    bool owed = false;\n", "two builds' passes stand more than CTRL_LOOP_TX_AGE centiseconds apart"),
-        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_held && !m->owed_len && m->tx_age >",
-             "return m->tx_held && m->tx_age >", "no held build takes a pass of its own while a frame is owed"),
-        kind("transmit-builds-beside-the-owed-frame", OWED, "    if (m->resent_pass == m->loop->stats.passes || (",
-             "    if ((", "the pass whose poll sends the owed frame builds no other"),
-        # the declarations with the build: a Domain adopted in the poll leaves its VID unlicensed to the next poll
-        kind("transmit-declarations-in-the-poll", "OwnDeclarationsThatRewriteARegisteredValueAreCopied", DECLARE, "",
-             "over-saturated", also=((POLL_RECLAIM, DECLARE + POLL_RECLAIM),)),
-        # the reclaim: after the declarations in the build's pass, in the poll in every other
-        kind("transmit-reclaim-before-the-declarations", RETAINED, POLL_RECLAIM,
-             POLL_RECLAIM.replace("    if (!m->loop->tx_pass) {", "    if (true) {"),
+        # the count: restarted by what a build sent, and by nothing else
+        kind("transmit-count-unset", COUNT, SENT, "    (void)slot;\n",
+             "a sent MRPDU restarts its participant's count at the JoinTime"),
+        kind("transmit-count-from-any-build", COUNT, SENT, "    m->join_left[slot] = SRP_JOIN_CS;\n",
+             "a build that sends nothing leaves the count"),
+        kind("transmit-count-not-kept", COUNT, ENDS,
+             "if (m->join_left[slot] != 0u ? (m->join_left[slot] = 0u) != 0u : la == MRP_LA_STATE_ACTIVE) {",
+             "each centisecond takes one off it"),
+        # a pass a JoinTime: an Applicant moved owes one only with its own join timer idle, a first VLAN send one
+        kind("transmit-moved-by-either-timer", "AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle",
+             "t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u",
+             "t->appl_from != t->appl_to && (m->join_left[2u * i->index] == 0u || "
+             "m->join_left[2u * i->index + slot] == 0u)", "not while its own runs, the other's idle or not"),
+        kind("transmit-moved-owes-nothing", "AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle",
+             "t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u",
+             "t->appl_from == t->appl_to && m->join_left[2u * i->index + slot] == 0u",
+             "an Applicant moved with its own join timer idle owes a pass"),
+        kind("transmit-first-vlan-send-declares-nothing", "AFirstVlanSendDeclaresWhatItLicensesInItsPass",
+             "        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) &&",
+             "        if (k < MBX_N_IF && i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) &&",
+             "the pass that sent it declares what it licensed"),
+        kind("transmit-hold-beside-a-join-timer", "AJoinTimeOwesAnInterfaceAPass",
+             "if (m->join_left[2u * i->index] == 0u || !m->loop->retry_queued) {", "if (m != NULL) {",
+             "an interface's passes given whole, a JoinTime"),
+        # a frame owed comes first
+        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_due != 0u && !m->owed_len;",
+             "return m->tx_due != 0u;", "no pass goes to the build while a frame is owed"),
+        kind("transmit-due-cleared-with-a-frame-owed", OWED,
+             "            if (!m->owed_len) {\n                m->tx_due &= (uint8_t)~(1u << n);\n            }\n",
+             "            m->tx_due &= (uint8_t)~(1u << n);\n", "the interface stays due"),
+        # the declarations with the build, none while a retained receive waits, a refusal tried again at the JoinTime
+        kind("transmit-declares-beside-a-retained-receive", RETAINED, DECLARE,
+             DECLARE.replace("(m->pending_rx.len != 0u || prepare_declarations(i))", "prepare_declarations(i)"),
              "a refused adoption takes no room a retained receive waits for", suite="srp_rx_retry.cpp"),
-        kind("transmit-reclaim-only-with-the-build", RETAINED, POLL_RECLAIM, "", "adapter.received",
-             suite="srp_rx_retry.cpp"),
+        kind("transmit-refusal-tried-no-more", "DomainExhaustionPreservesOldDeclarationUntilRetry", DECLARE,
+             DECLARE.replace("            m->join_left[2u * n] = SRP_JOIN_CS;\n", ""),
+             "a refused declaration is tried again when the join count ends"),
     )

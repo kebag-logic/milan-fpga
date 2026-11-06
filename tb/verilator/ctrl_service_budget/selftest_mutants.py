@@ -19,6 +19,7 @@ from unittest.mock import patch
 
 import build
 import grade
+import mrpdu_grade
 import notice_window
 import run
 import save_grade
@@ -514,8 +515,6 @@ MUTANTS: dict[str, Patches] = {
     'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
         scenario, 'registrations', lambda: 1)],
     'deadline: T_svc pinned at the 10 ms proposal (earlier rule)': lambda: [patch.object(scenario, 'T_SVC_MS', 10.0)],
-    'deadline: SRP graded against T_svc alone, not its 18 ms ceiling': lambda: [patch.object(
-        grade, 'budget_ms', lambda probe: scenario.T_SVC_MS + probe.wait_ms)],
     'deadline: each family graded against its ceiling alone, not T_svc': lambda: [patch.object(
         grade, 'budget_ms', lambda probe: scenario.CEILING_MS[probe.family] + probe.wait_ms)],
     'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_budget=ms < v['budget_ms'])),
@@ -572,8 +571,6 @@ MUTANTS: dict[str, Patches] = {
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
     'xip: the hot code and the rest stay in rom': lambda: [patch.object(
         build, 'XIP_END', (build.XIP_END[0], build.XIP_END[0]))],
-    'share: T_svc over the passes, not the tightest family bound': lambda: [patch.object(
-        share, 'bound_ms', lambda: scenario.T_SVC_MS)],
     'share: the bound over eight passes': lambda: [patch.object(share, 'SHARE_PASSES', 8)],
     'share: a pass at the share is over it': lambda: [patch.object(
         share, 'share_cycles', lambda hz, f=share.share_cycles: f(hz) - 1)],
@@ -662,10 +659,18 @@ MUTANTS: dict[str, Patches] = {
     "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
     "notice: the port answers before the load": lambda: [patch.object(
         notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
-    "transmit: the build-beside-records plant is judged as a budget control": lambda: [patch.object(
+    "transmit: the aged build's plant is judged as a budget control": lambda: [patch.object(
         build, 'SRP_CONTROLS', ())],
-    "transmit: any channel's held record over its bound catches the build-beside-records plant": lambda: [
-        patch.object(run, 'held_srp_groups', lambda misses: {m.partition(':')[0].partition('.')[0] for m in misses})],
+    "transmit: any row over its bound catches the aged build's plant": lambda: [
+        patch.object(run, 'mrpdu_groups', lambda misses: {m.partition(':')[0].partition('.')[0] for m in misses})],
+    "transmit: a timer's row ends at the first build, with no frame": lambda: [patch.object(
+        mrpdu_grade, 'commits', lambda grader, entry: [])],
+    "transmit: a timer's row starts at its entry, not at the deadline": lambda: [patch.object(
+        mrpdu_grade, 'ticks', lambda log: [c for c, _ in log.entries])],
+    "notice: a queued notice's bound is the first's": lambda: [patch.object(
+        notice_window, 'queued_ms', lambda interfaces: scenario.T_SVC_MS)],
+    "notice: the first of a queue is held to the queue's bound": lambda: [patch.object(
+        scenario, 'T_SVC_MS', 60.0)],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],

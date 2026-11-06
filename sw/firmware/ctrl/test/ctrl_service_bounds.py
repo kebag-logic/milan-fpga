@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 import sys
 
+import ctrl_retry_search
 import fw_gtest
 from ctrl_build import ROOT, Outcome, Refusal, Tree, includes, run
 
@@ -105,8 +106,11 @@ def arm_service_bounds(tree: Tree) -> Outcome:
     lines = expected(counts)
     found = findings(text, lines)
     bad, total = controls(text, lines)
-    failures = len(found) + bad
-    log = "\n".join([*lines, *found, f"service bounds: {total - bad}/{total} planted controls caught",
-                     f"== ctrl service bounds: checks: {len(lines) + total}   failures: {failures} ==",
+    searched = [ctrl_retry_search.findings(interfaces) for interfaces in (1, 2)]
+    wrong = [item for _, found_at in searched for item in found_at]
+    failures = len(found) + bad + len(wrong)
+    log = "\n".join([*lines, *found, *[line for log_at, _ in searched for line in log_at], *wrong,
+                     f"service bounds: {total - bad}/{total} planted controls caught",
+                     f"== ctrl service bounds: checks: {len(lines) + total + 2}   failures: {failures} ==",
                      "RESULT: FAIL" if failures else "RESULT: PASS"])
     return Outcome("service_bounds", int(bool(failures)), log)
