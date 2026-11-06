@@ -1,0 +1,2 @@
+# head 27df6e08cf157b9c5e4b0fdb7da2fa28d8ab83fa gate merge_bases: git merge-base --all HEAD origin/dev; test $(git merge-base --all HEAD origin/dev | wc -l) -eq 1 && test $(git merge-base HEAD origin/dev) = 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+87e9d03aa2a4797957ac0124d0c7851a2eec234c

@@ -1,0 +1,154 @@
+# head 27df6e08cf157b9c5e4b0fdb7da2fa28d8ab83fa gate r775_3_probe: python3 -I -B <reviews>/840-r775-3-packet/scripts/phy_probe.py <scratch>/gates/wt <scratch>/gates/r775-3-work 8
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+head	none	ESCAPED	-	
+head	advertise-100base-tx	no_100base_tx_advertised	no_100base_tx_advertised	named
+head	advertise-10base-t	no_10base_t_advertised	no_10base_t_advertised	named
+head	advertise-100base-t4	no_100base_t4_advertised	no_100base_t4_advertised	named
+head	advertise-1000base-t-half	no_gigabit_half_duplex_advertised	no_gigabit_half_duplex_advertised	named
+head	no-1000base-t-full	gigabit_full_duplex_advertised	gigabit_full_duplex_advertised	named
+head	no-restart	auto_negotiation_restarted	auto_negotiation_restarted	named
+head	restart-first	restart_after_advertisement	restart_after_advertisement	named
+head	write-unread	no_write_before_its_read	no_write_before_its_read	named
+head	nak-reg4-not-checked	no_write_before_its_register_4_read	no_write_before_its_register_4_read	named
+head	nak-reg0-not-checked	no_write_before_its_register_0_read	no_write_before_its_register_0_read	named
+head	write-unread-ability	no_write_before_its_ability_read	no_write_before_its_ability_read	named
+head	advertise-every-poll	advertised_once	advertised_once	named
+head	advertise-without-extended-status	no_write_without_extended_status	no_write_without_extended_status	named
+head	advertise-without-1000base-t-full	no_write_without_1000base_t_full_ability	no_write_without_1000base_t_full_ability	named
+head	gate-on-1000base-t-half	no_write_without_1000base_t_full_ability	no_write_without_1000base_t_full_ability	named
+head	ability-reread-every-poll	ability_read_once	ability_read_once	named
+head	no-register-4-write	no_10base_t_advertised	no_10base_t_advertised	named
+head	clear-pause-bits	pause_bits_kept	pause_bits_kept	named
+head	keep-reserved-bit-14	reserved_bit_14_cleared	reserved_bit_14_cleared	named
+head	drop-master-slave	master_slave_kept	master_slave_kept	named
+head	keep-test-mode	test_mode_cleared	test_mode_cleared	named
+head	restart-keeps-reset	reset_cleared	reset_cleared	named
+head	restart-keeps-isolate	isolate_cleared	isolate_cleared	named
+head	no-auto-negotiation-enable	auto_negotiation_enabled	auto_negotiation_enabled	named
+head	force-pause-on	pause_bits_kept	pause_bits_kept	named
+head	force-manual-master	master_slave_kept	master_slave_kept	named
+head	force-manual-config-only	master_slave_kept	master_slave_kept	named
+head	force-bit-4.0	selector_kept	selector_kept	named
+head	drop-bit-4.0	selector_kept	selector_kept	named
+head	force-bit-4.1	selector_kept	selector_kept	named
+head	drop-bit-4.1	selector_kept	selector_kept	named
+head	force-bit-4.2	selector_kept	selector_kept	named
+head	drop-bit-4.2	selector_kept	selector_kept	named
+head	force-bit-4.3	selector_kept	selector_kept	named
+head	drop-bit-4.3	selector_kept	selector_kept	named
+head	force-bit-4.4	selector_kept	selector_kept	named
+head	drop-bit-4.4	selector_kept	selector_kept	named
+head	force-bit-4.10	pause_bits_kept	pause_bits_kept	named
+head	drop-bit-4.10	pause_bits_kept	pause_bits_kept	named
+head	force-bit-4.11	pause_bits_kept	pause_bits_kept	named
+head	drop-bit-4.11	pause_bits_kept	pause_bits_kept	named
+head	force-bit-9.10	master_slave_kept	master_slave_kept	named
+head	drop-bit-9.10	master_slave_kept	master_slave_kept	named
+head	force-bit-9.11	master_slave_kept	master_slave_kept	named
+head	drop-bit-9.11	master_slave_kept	master_slave_kept	named
+head	force-bit-9.12	master_slave_kept	master_slave_kept	named
+head	drop-bit-9.12	master_slave_kept	master_slave_kept	named
+head	force-bit-0.11	power_down_kept	power_down_kept	named
+head	drop-bit-0.11	power_down_kept	power_down_kept	named
+head	force-bit-0.14	loopback_kept	loopback_kept	named
+head	drop-bit-0.14	loopback_kept	loopback_kept	named
+head	x-force-4.15	ESCAPED	-	
+head	x-drop-4.15	ESCAPED	-	
+head	x-force-4.13	ESCAPED	-	
+head	x-drop-4.13	ESCAPED	-	
+head	x-force-4.12	ESCAPED	-	
+head	x-drop-4.12	ESCAPED	-	
+head	x-force-0.14	loopback_kept	-	
+head	x-drop-0.14	loopback_kept	-	
+head	x-force-0.13	ESCAPED	-	
+head	x-drop-0.13	ESCAPED	-	
+head	x-force-0.11	power_down_kept	-	
+head	x-drop-0.11	power_down_kept	-	
+head	x-force-0.8	ESCAPED	-	
+head	x-drop-0.8	ESCAPED	-	
+head	x-force-0.7	ESCAPED	-	
+head	x-drop-0.7	ESCAPED	-	
+head	x-force-0.6	ESCAPED	-	
+head	x-drop-0.6	ESCAPED	-	
+head	x-force-0.5	ESCAPED	-	
+head	x-drop-0.5	ESCAPED	-	
+head	x-force-0.0	ESCAPED	-	
+head	x-drop-0.0	ESCAPED	-	
+head	x-nak-reg9-not-checked	no_write_before_its_read	-	
+head	x-nak-gives-up	no_10base_t_advertised	-	
+head	x-reg4-check-after-reg9-write	no_write_before_its_register_4_read	-	
+head	x-reg0-check-after-reg9-write	no_write_before_its_register_0_read	-	
+head	x-selector-constant	selector_kept	-	
+head	x-selector-low-bit-only	selector_kept	-	
+head	x-pause-swapped	pause_bits_kept	-	
+head	x-ms-constant-101	master_slave_kept	-	
+head	x-ms-constant-010	master_slave_kept	-	
+head	x-ms-inverted	master_slave_kept	-	
+head	x-wrong-read-reg5-for-reg4	no_write_before_its_register_4_read	-	
+head	x-wrong-read-reg10-for-reg9	no_write_before_its_read	-	
+head	x-drop-pause10-when-an-on	ESCAPED	-	
+head	x-force-pause10-when-an-off	pause_bits_kept	-	
+prior-starts	none	ESCAPED	-	
+prior-starts	clear-pause-bits	pause_bits_kept	pause_bits_kept	named
+prior-starts	drop-master-slave	master_slave_kept	master_slave_kept	named
+prior-starts	force-pause-on	ESCAPED	pause_bits_kept	NOT-NAMED
+prior-starts	force-manual-master	ESCAPED	master_slave_kept	NOT-NAMED
+prior-starts	force-manual-config-only	ESCAPED	master_slave_kept	NOT-NAMED
+prior-starts	force-bit-4.0	ESCAPED	selector_kept	NOT-NAMED
+prior-starts	drop-bit-4.0	selector_kept	selector_kept	named
+prior-starts	force-bit-4.1	selector_kept	selector_kept	named
+prior-starts	drop-bit-4.1	ESCAPED	selector_kept	NOT-NAMED
+prior-starts	force-bit-4.2	selector_kept	selector_kept	named
+prior-starts	drop-bit-4.2	ESCAPED	selector_kept	NOT-NAMED
+prior-starts	force-bit-4.3	selector_kept	selector_kept	named
+prior-starts	drop-bit-4.3	ESCAPED	selector_kept	NOT-NAMED
+prior-starts	force-bit-4.4	selector_kept	selector_kept	named
+prior-starts	drop-bit-4.4	ESCAPED	selector_kept	NOT-NAMED
+prior-starts	force-bit-4.10	ESCAPED	pause_bits_kept	NOT-NAMED
+prior-starts	drop-bit-4.10	pause_bits_kept	pause_bits_kept	named
+prior-starts	force-bit-4.11	ESCAPED	pause_bits_kept	NOT-NAMED
+prior-starts	drop-bit-4.11	pause_bits_kept	pause_bits_kept	named
+prior-starts	force-bit-9.10	ESCAPED	master_slave_kept	NOT-NAMED
+prior-starts	drop-bit-9.10	master_slave_kept	master_slave_kept	named
+prior-starts	force-bit-9.11	ESCAPED	master_slave_kept	NOT-NAMED
+prior-starts	drop-bit-9.11	master_slave_kept	master_slave_kept	named
+prior-starts	force-bit-9.12	ESCAPED	master_slave_kept	NOT-NAMED
+prior-starts	drop-bit-9.12	master_slave_kept	master_slave_kept	named
+prior-starts	force-bit-0.11	power_down_kept	power_down_kept	named
+prior-starts	drop-bit-0.11	power_down_kept	power_down_kept	named
+prior-starts	force-bit-0.14	loopback_kept	loopback_kept	named
+prior-starts	drop-bit-0.14	loopback_kept	loopback_kept	named
+arm2-equals-arm1	none	ESCAPED	-	
+arm2-equals-arm1	clear-pause-bits	pause_bits_kept	pause_bits_kept	named
+arm2-equals-arm1	drop-master-slave	master_slave_kept	master_slave_kept	named
+arm2-equals-arm1	force-pause-on	pause_bits_kept	pause_bits_kept	named
+arm2-equals-arm1	force-manual-master	master_slave_kept	master_slave_kept	named
+arm2-equals-arm1	force-manual-config-only	ESCAPED	master_slave_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.0	ESCAPED	selector_kept	NOT-NAMED
+arm2-equals-arm1	drop-bit-4.0	selector_kept	selector_kept	named
+arm2-equals-arm1	force-bit-4.1	selector_kept	selector_kept	named
+arm2-equals-arm1	drop-bit-4.1	ESCAPED	selector_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.2	selector_kept	selector_kept	named
+arm2-equals-arm1	drop-bit-4.2	ESCAPED	selector_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.3	selector_kept	selector_kept	named
+arm2-equals-arm1	drop-bit-4.3	ESCAPED	selector_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.4	selector_kept	selector_kept	named
+arm2-equals-arm1	drop-bit-4.4	ESCAPED	selector_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.10	pause_bits_kept	pause_bits_kept	named
+arm2-equals-arm1	drop-bit-4.10	ESCAPED	pause_bits_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-4.11	ESCAPED	pause_bits_kept	NOT-NAMED
+arm2-equals-arm1	drop-bit-4.11	pause_bits_kept	pause_bits_kept	named
+arm2-equals-arm1	force-bit-9.10	ESCAPED	master_slave_kept	NOT-NAMED
+arm2-equals-arm1	drop-bit-9.10	master_slave_kept	master_slave_kept	named
+arm2-equals-arm1	force-bit-9.11	master_slave_kept	master_slave_kept	named
+arm2-equals-arm1	drop-bit-9.11	ESCAPED	master_slave_kept	NOT-NAMED
+arm2-equals-arm1	force-bit-9.12	ESCAPED	master_slave_kept	NOT-NAMED
+arm2-equals-arm1	drop-bit-9.12	master_slave_kept	master_slave_kept	named
+arm2-equals-arm1	force-bit-0.11	power_down_kept	power_down_kept	named
+arm2-equals-arm1	drop-bit-0.11	power_down_kept	power_down_kept	named
+arm2-equals-arm1	force-bit-0.14	loopback_kept	loopback_kept	named
+arm2-equals-arm1	drop-bit-0.14	loopback_kept	loopback_kept	named
+no-reg4-arm	none	ESCAPED	-	
+no-reg4-arm	nak-reg4-not-checked	ESCAPED	no_write_before_its_register_4_read	NOT-NAMED
+no-reg0-arm	none	ESCAPED	-	
+no-reg0-arm	nak-reg0-not-checked	ESCAPED	no_write_before_its_register_0_read	NOT-NAMED
