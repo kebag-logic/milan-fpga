@@ -1,0 +1,12 @@
+test_gptp_dataset_matches_engine_announce:
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-6/sw/builder/test_builder.py", line 29752, in <module>
+    fn()
+    ~~^^
+  File "<packet>/scratch/mut-6/sw/builder/test_builder.py", line 26573, in test_gptp_dataset_matches_engine_announce
+    _assert_avb_interface_is_the_wire(wire)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<packet>/scratch/mut-6/sw/builder/test_builder.py", line 26501, in _assert_avb_interface_is_the_wire
+    assert avbi[86:96] == want, (
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError: ax7101_1x1_tdm8: AVB_INTERFACE clock dataset f8f8436afef800fd0000 != the engine's Announce dataset f8f8436a22f800fd0000 (1722.1-2021 7.2.8 bytes 86..96) - the descriptor claims a clock the wire does not carry ([R-parallel] on #228)
