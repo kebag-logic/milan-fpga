@@ -1,0 +1,18 @@
+ok  killed   want killed   rc=1 :: R787-F1/R788-F1 page row loses the recording page :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks 'Copy of the D
+ok  killed   want killed   rc=1 :: R787-F2 own Inventory row dropped while counted :: selftest: FAIL the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+ok  killed   want killed   rc=1 :: R787-F3 lane keeps only its first finding :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+ok  killed   want killed   rc=1 :: R787-F3 lane keeps only its last finding :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002: RE
+ok  killed   want killed   rc=1 :: R787-F3 lane file drops the statement :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+ok  killed   want killed   rc=1 :: R788-F2 lane file drops the source :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+ok  killed   want killed   rc=1 :: R788-F2 lane file drops the correction :: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+ok  killed   want killed   rc=1 :: R787-F4 page loses the Located sentence :: selftest: FAIL the page names a finding's line: generated output lacks '`Located` says'
+ok  killed   want killed   rc=1 :: R787-F4 page loses the route to a line :: selftest: FAIL the page names a finding's line: generated output lacks '--findings-dir DIR'
+ok  killed   want killed   rc=1 :: harness: every needle graded on the page alone :: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+ok  killed   want killed   rc=1 :: harness: every needle graded on the lane files alone :: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '| D0-001 |'
+ok  killed   want killed   rc=1 :: harness: the two outputs swapped :: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '| D0-001 |'
+ok  SURVIVED want SURVIVED rc=0 :: attribution: old grading + page row mutant :: documentation inventory selftest: OK (55 controls)
+ok  SURVIVED want SURVIVED rc=0 :: attribution: old grading alone is otherwise green :: documentation inventory selftest: OK (55 controls)
+ok  killed   want killed   rc=1 :: vacuity: Located always says on page :: selftest: FAIL planted edited quote in the data file: generated output lacks 're-verify: quote not found'
+ok  killed   want killed   rc=1 :: vacuity: Located always says re-verify :: selftest: FAIL a line added above a finding leaves the page fresh: generated output lacks '| D0-001 | [docs/gu
+ok  killed   want killed   rc=1 :: vacuity: lost quote cell blank :: selftest: FAIL planted edited quote in the data file: generated output lacks 're-verify: quote not found'
+17 mutants, 0 missed their expectation

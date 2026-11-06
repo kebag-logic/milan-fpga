@@ -1,0 +1,13 @@
+KILLED rc=1 fails=13 :: findings cell shows the line :: a removed line leaves the page fresh: --check exited 1, expected 0: docs/DO
+KILLED rc=1 fails=2 :: banner evidence names a line :: a line added above a banner leaves the page fresh: --check exited 1, expect
+KILLED rc=1 fails=2 :: inventory row counts lines :: the audit page lists itself: generated output lacks '| maintainer | Documen
+KILLED rc=1 fails=2 :: status reader keeps the old width :: hand-edited status hides a finding: --check did not print 'docs/guides/A.md
+KILLED rc=1 fails=2 :: status reader keeps the old index :: hand-edited status hides a finding: --check did not print 'docs/guides/A.md
+KILLED rc=1 fails=3 :: copy line off by one :: the README's statement copied onto the requirements page: generated output 
+KILLED rc=1 fails=2 :: locate off by one :: unchanged tree is fresh through `git ls-files`: generated output lacks '## 
+KILLED rc=1 fails=1 :: summary keeps a Lines header :: the summary counts pages by status and no lines: generated output lacks '| 
+KILLED rc=1 fails=2 :: summary total ignores the set :: new tracked page without a row: generated output lacks '| **total** | **11*
+KILLED rc=1 fails=2 :: summary counts by status wrong :: a status change alone makes the page stale: generated output lacks '| super
+KILLED rc=1 fails=4 :: findings-dir omits the line :: unchanged tree is fresh through `git ls-files`: generated output lacks '## 
+KILLED rc=1 fails=19 :: page length reaches the page via purpose :: an added line leaves the page fresh: --check exited 1, expected 0: docs/DOC
+KILLED rc=1 fails=47 :: status ignored by the render :: unchanged tree is fresh through `git ls-files`: --check exited 1, expected 
