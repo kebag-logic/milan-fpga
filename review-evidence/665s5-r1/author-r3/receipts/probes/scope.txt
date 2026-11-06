@@ -1,0 +1,28 @@
+HEAD 3f8caae5eca7e681c3452eacdd818d1033a89f8d
+$ git diff --stat 26ba56e1 HEAD
+ tb/verilator/ctrl_service_hooks/README.md         |  21 ++++-
+ tb/verilator/ctrl_service_hooks/hooks_selftest.py | 105 ++++++++++++++++++----
+ 2 files changed, 105 insertions(+), 21 deletions(-)
+$ git diff --name-only 5b5f4336 HEAD
+tb/verilator/ctrl_service_hooks/README.md
+tb/verilator/ctrl_service_hooks/hooks.py
+tb/verilator/ctrl_service_hooks/hooks_build.py
+tb/verilator/ctrl_service_hooks/hooks_selftest.py
+tb/verilator/ctrl_service_hooks/hooks_soc.py
+tb/verilator/ctrl_service_hooks/run.py
+$ blobs at 26ba56e1 and HEAD
+hooks.py 765bcc09d39b9cd240adbe99a2136d8a755ef4fa same
+run.py faf9e609aa33803379b103aeda932349706cea56 same
+hooks_build.py 402c421745665e1f48719cb45daa4709abd24d38 same
+hooks_soc.py a84ac7c05c42c32fe74937e72c625aabb438c046 same
+$ git diff --check 5b5f4336 HEAD
+rc=0
+$ git diff --check 26ba56e1 HEAD
+rc=0
+$ gitlinks at 5b5f4336 and HEAD
+external same
+protocol-processor same
+gptp-processor same
+third_party/lwSRP same
+third_party/tsn-c-stack same
+third_party/verilog-axis same

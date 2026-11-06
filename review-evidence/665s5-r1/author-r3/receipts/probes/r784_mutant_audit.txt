@@ -1,0 +1,99 @@
+HEAD 3f8caae5eca7e681c3452eacdd818d1033a89f8d
+$ python3 -B <reviews>/665s5-r784-2-packet/scripts/mutant_audit.py <tmp>/probes-3f8caae5 <tmp>/r784-audit.json
+BASE 28 of 28
+RULE   bound: a stale T_svc of 10 ms -> [bounds pinned] T_svc is 10.0 | also: 8
+RULE   bound: SRP graded against T_svc alone -> [an 18 to 20 ms SRP path misses] a 19 ms SRP path fits | also: 3
+RULE   bound: the ceiling alone -> [bounds pinned] bounds {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0} | also: 7
+RULE   bound: the normative wait is not added -> [the exact bound fits and W adds] W + bound: {'hook': 'H-SRP', 'group': 'srp', 'probe': 'x.if0', 'path': 'x', 'row': 'r', 'interface': 0, 'family': 'srp', 'ms': 210.0, 'cpu_cycles': 21000000, 'wait_ms': 2 | also: 2
+RULE   bound: the margin is not recorded -> [the exact bound fits and W adds] margin -160.0 | also: 1
+RULE   map: the counter push is a notification -> [the hooks map] counters | also: 2
+RULE   map: no composed row of this harness is loaded -> [the hooks map] the loaded fan-out is not loaded | also: 0
+RULE   label: the Milan clock labelled the product's (the earlier rule) -> [the clock labels] CPU 50 MHz on sys (the product split CPU clock) | also: 0
+RULE   label: the Milan clock the default (the earlier rule) -> [the clock labels] the default CPU clock is milan | also: 2
+RULE   split: the counter change is no pad -> [own lines are split off] pads [] | also: 0
+RULE   H-ADP: the grandmaster is not checked -> [H-ADP ordering] clean: Checked(applied=0, findings=['ORDER H-ADP: 1 grandmaster changes observed, 0 in the script'], undecided=0) | also: 0
+RULE   H-DISC: the sink's PROBE_TX_COMMAND is never recognised -> [H-DISC ordering] clean: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILABLE at 200000 on interface 0, the sink never probed its talke | also: 0
+RULE   H-DISC: the window never ends (the earlier rule ended it at the next tagged record) -> [H-DISC ordering] a probe after the next record: Checked(applied=1, findings=[], undecided=0) | also: 0
+RULE   H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule) -> [H-DISC ordering] a probe after a next record inside the delay: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILABLE at 200000 on inter | also: 0
+RULE   H-ACMP: no response is matched to its command -> [H-ACMP ordering] clean: Checked(applied=0, findings=[], undecided=0) | also: 2
+RULE   H-AECP: no face commit is recognised -> [H-AECP ordering] clean: Checked(applied=1, findings=['ORDER H-AECP: aecp.lock_entity.if0: its response at 300 precedes any face commit since its receive commit at 100'], undecided=0) | also: 0
+RULE   H-NOTIFY: the notification is not found -> [H-NOTIFY ordering] clean: Checked(applied=0, findings=[], undecided=0) | also: 1
+RULE   H-COUNTERS: spacing of 0.1 s accepted -> [H-COUNTERS spacing] defective: Checked(applied=1, findings=[], undecided=0) | also: 2
+RULE   H-COUNTERS: the held push from its change -> [the held push] held {'probe': 'counters.held.if0', 'change': 10000000, 'eligible': 10000000, 'end': 101200000, 'wait_ms': 0.0, 'ms': 912.0} | also: 2
+RULE   H-MAAP: no allocation report is recognised -> [H-MAAP ordering] clean: Checked(applied=0, findings=[], undecided=0) | also: 0
+RULE   H-MAAP: every AAF_CTRL store is a report (earlier rule) -> [H-MAAP ordering] clean: Checked(applied=2, findings=['ORDER H-MAAP: the allocation report at 70 follows no DA_GATE publication since 60'], undecided=0) | also: 0
+RULE   H-SRP: the ADOPTED bit is never seen set -> [H-SRP ordering] clean: Checked(applied=1, findings=['ORDER H-SRP: the MRPDU committed at 300 on interface 0 after the Domain record at 100 precedes its SR_DOMAIN publication (None)'], un | also: 0
+RULE   plants: a plant edits nothing -> [the plants apply] adp-late: edits [] | also: 0
+RULE   supersede: the table names another group -> [a refusal is superseded only by its own path] superseded: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if1', 'path': 'acmp.tmr_no_adp', 'row': 'r', 'interface': 1, ' | also: 0
+RULE   supersede: any later group supersedes a refusal -> [a refusal is superseded only by its own path] other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if1', 'path': 'acmp.tmr_no_adp', 'row': 'r', 'interface': | also: 0
+RULE   aging: the window opens before the arm (the earlier rule) -> [the aging window opens after the arm] interface 0: the window opens before the arm (25 > 23) | also: 0
+RULE   aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) -> [the aging window opens after the arm] the PROBE_TX answers [], the input 22 | also: 0
+RULE   aging: both sinks bound before either is answered (the earlier rule) -> [the aging window opens after the arm] each sink is not answered before the next is bound: binds [0, 1], answers [2, 3] | also: 0
+RULE   buckets: the window opens right after the registrations (the earlier rule) -> [a composed row opens on full buckets] refill wait 0 ms | also: 0
+RULE   findings: a path over its bound is not a finding -> [findings by hook] ['NARROW H-MAAP: x.if0: 25.000 ms, within its bound 20 ms by -500,000 CPU cycles, under the layout swing of 6,490 (maap)', 'ORDER H-MAAP: x (maap)'] | also: 6
+RULE   narrow: the layout swing is not applied -> [a fit under the layout swing is a finding] the layout swing is 0 | also: 1
+RULE   narrow: the slack counted at the 50 MHz CPU (the earlier clock) -> [a fit under the layout swing is a finding] ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by -993,511 CPU cycles, under the layout swing of 6,490 (maap)', 'NARROW H-MAAP: at.if0: 19.935 ms, within i | also: 1
+RULE   plant: any finding of the hook catches it (the earlier rule) -> [a plant is caught only by its own finding] adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its bound 20 ms (control) | also: 0
+RULE   plant: any finding of its kind catches it -> [a plant is caught only by its own finding] adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its bound 20 ms (control) | also: 0
+RULE   plant: a path that only starts with its own catches it -> [a plant is caught only by its own finding] adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: control.discover.if01: 27.581 ms against its bound 20 ms (control) | also: 0
+RULE   plant: a late plant names no path -> [a plant is caught only by its own finding] adp-late: names the path None | also: 0
+RULE   plant: every run is caught -> [a plant is caught only by its own finding] adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP | also: 0
+RULE   plant: an escape exits 0 -> [a plant is caught only by its own finding] adp-late: reported caught with no plant applied, rc 0: PLANT adp-late ESCAPED: LATE H-ADP: control.discover.if0 not found | also: 0
+RULE   held: W added to its bound -> [the held push's grade] the held bound includes W: 920.0 | also: 1
+RULE   held: the exact bound misses -> [the held push's grade] a held push at its bound misses | also: 0
+RULE   held: the verdict is relaxed by 1 ms -> [the held push's grade] a held push past its bound fits | also: 0
+RULE   held: its row reports no time -> [the held push's grade] the held row reports 0.0 ms, not its service | also: 0
+RULE   held: its row reports a millisecond more -> [the held push's grade] the held row reports 21.0 ms, not its service | also: 0
+RULE   held: W is not recorded -> [the held push's grade] the held W is not recorded: 0.0 | also: 0
+RULE   held: its cycles round down -> [the held push's grade] 3 bus cycles are 1 at the 50 MHz CPU, not 2 | also: 0
+RULE   held: its cycles are the bus's -> [the held push's grade] 3 bus cycles are 3 at the 50 MHz CPU, not 2 | also: 0
+RULE   held: its margin omits W -> [the held push's grade] the held margin is 980.0, not 1000 - 900 - 20 | also: 0
+RULE   held: its margin is rounded to the millisecond -> [the held push's grade] the held margin is 80, not 1000 - 900 - 20.00002 | also: 0
+RULE   held: its timeout is the notification family's -> [the held push's grade] the held timeout is 240.0 | also: 0
+RULE   held: it counts as under the composed load -> [the held push's grade] held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held until 1 s | also: 0
+RULE   held: it counts as never served -> [the held push's grade] held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held until 1 s | also: 0
+RULE   held: it is H-NOTIFY's -> [the held push's grade] held row ('H-NOTIFY', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 0) | also: 0
+RULE   held: it names another probe -> [the held push's grade] held row ('H-COUNTERS', 'hooks-counters', 'counters.first.if0', 'counters.held', 'notify', 0) | also: 0
+RULE   held missing: silently accepted -> [a held push never sent] a held push never sent is no finding: [] | also: 0
+RULE   held missing: it fits -> [a held push never sent] a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS) | also: 0
+RULE   held missing: it counts as served -> [a held push never sent] a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS) | also: 0
+RULE   held missing: its finding is dropped -> [a held push never sent] a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served against its bound 20 ms (hooks-counters)'] | also: 0
+RULE   held missing: its timeout is the notification family's -> [a held push never sent] missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, held (H-COUNTERS)', 'inter | also: 0
+RULE   held missing: it records CPU cycles -> [a held push never sent] a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, h | also: 0
+RULE   held missing: it records a W -> [a held push never sent] a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, h | also: 0
+RULE   held missing: it records a margin -> [a held push never sent] a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_COUNTERS push, h | also: 0
+RULE   held missing: it is another group's -> [a held push never sent] missing row ('H-COUNTERS', 'hooks-x', 'counters.held.if0', 'counters.held', 'notify', 0) | also: 0
+RULE   held missing: it is another path's -> [a held push never sent] missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.x', 'notify', 0) | also: 0
+RULE   held missing: it is another interface's -> [a held push never sent] missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 1) | also: 0
+RULE   held missing: it is another family's -> [a held push never sent] missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp', 0) | also: 0
+RULE   summary: the fastest path is the worst -> [the worst path and the counts] the worst alone is fast, not slow | also: 0
+RULE   summary: W is left in the service -> [the worst path and the counts] the worst alone is waiting, not slow | also: 0
+RULE   summary: a path never served is not worst first -> [the worst path and the counts] the worst under load is loaded, not the path never served | also: 0
+RULE   summary: alone and under load are not apart -> [the worst path and the counts] the worst alone is starved, not slow | also: 0
+RULE   summary: alone and under load are swapped -> [the worst path and the counts] the worst alone is starved, not slow | also: 0
+RULE   summary: another hook's paths are its own -> [the worst path and the counts] the worst alone is other, not slow | also: 1
+RULE   summary: a miss counts as a narrow fit -> [the worst path and the counts] 4 narrow fits, not 1 | also: 0
+RULE   summary: no narrow fit is counted -> [the worst path and the counts] 0 narrow fits, not 1 | also: 0
+RULE   summary: a fit by the swing itself is narrow -> [the worst path and the counts] 2 narrow fits, not 1 | also: 0
+RULE   summary: a fit one cycle under the swing is not narrow -> [the worst path and the counts] 0 narrow fits, not 1 | also: 0
+RULE   summary: no miss is counted -> [the worst path and the counts] 0 misses, not 3 | also: 0
+RULE   summary: the path count is every hook's -> [the worst path and the counts] a hook with no path has a worst | also: 1
+RULE   summary: the applied count is dropped -> [the worst path and the counts] the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': ' | also: 0
+RULE   summary: the undecided count is dropped -> [the worst path and the counts] the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': ' | also: 0
+RULE   summary: the ordering findings are dropped -> [the worst path and the counts] the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', 'probe': 'slow', 'path': 'slow', 'row': ' | also: 0
+RULE   summary: the obligation is dropped -> [the worst path and the counts] the obligation or clauses are not kept | also: 0
+RULE   summary: the clauses are dropped -> [the worst path and the counts] the obligation or clauses are not kept | also: 0
+RULE   ALL: the push ends at its first descriptor -> [the ALL push both ways] the ALL push ends at ['notify:2:0029:5:1'] | also: 0
+RULE   ALL: no descriptor has a row -> [the ALL push both ways] a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): None} | also: 0
+RULE   ALL: a descriptor's row ends at the whole push -> [the ALL push both ways] counters.all.t5.i1.if0 ends at ['notify:2:0029:5:1', 'notify:2:0029:6:0', 'notify:2:0029:9:0', 'notify:2:0029:36:0'] | also: 0
+RULE   ALL: a descriptor's row opens after the change -> [the ALL push both ways] counters.all.t5.i1.if0 opens after the change | also: 0
+RULE   amended: SRP keeps its ceiling -> [the amended column grades nothing] the amended bounds | also: 0
+RULE   amended: the ceiling at two interfaces is 20 ms -> [the amended column grades nothing] the amended bounds | also: 0
+RULE   amended: every counter push is queued -> [the amended column grades nothing] a path the decisions leave has another bound | also: 0
+RULE   amended: W is left off -> [the amended column grades nothing] W left off the column | also: 0
+RULE   amended: the column grades a path -> [the amended column grades nothing] the amended bounds graded a path | also: 1
+RULE   amended: a finding reads the column -> [the amended column grades nothing] findings [] | also: 1
+RULE   amended: the table does not say which bounds graded -> [the amended column grades nothing] the table does not say which bounds graded | also: 0
+RULE   amended: the column repeats the bound -> [the amended column grades nothing] SRP 18.0 | also: 0
+TOTAL 94 {'RULE': 94, 'RAISED': 0, 'NONE': 0}
+rc=0
