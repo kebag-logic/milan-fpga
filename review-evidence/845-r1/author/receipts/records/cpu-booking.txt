@@ -1,0 +1,5 @@
+cpu_ranges.py pick at sweep launch (2026-11-06 08:07 CET): 16-31 (show: busy 112 cpus; free16 ['16-31'] free12 [])
+sweep shard units: shard0 16-19, shard1 20-23, shard2 24-27 (holds capture_coherence), shard3 28-31; MemoryMax 10G each, -j4
+this lane's own unit: 112-127; every other unit of this lane (route, campaigns, rtl, fw, builder, builder-litex, docsyml) ran with taskset -c 112-127
+exact head 519d9c2b: this session's unit holds 40-47. Route, campaigns, rtl, fw, builder and docs ran with taskset -c 40-47.
+sweep at 519d9c2b: shard0 44-47 (own range, 13:55); cpu_ranges.py pick at 14:05 returned 48-55: shard2 48-51 (holds capture_coherence, dedicated), shard1 52-55; shard3 40-43 (own range).

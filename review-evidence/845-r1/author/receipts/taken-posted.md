@@ -1,0 +1,6 @@
+[A738] TAKEN
+Branch: 845-adopt-pp-92100657 (from dev cc204c6f)
+Authoritative references: processor #212 / PR #213 (merge 92100657, tree equal to the reviewed head 6162885); Milan v1.2 5.3.8.5 and 5.5.3.5.18; IEEE 802.1Q-2022 10.7 and Table 10-4; docs/reference/SUBMODULES.md; CHANGELOG.md
+Interpreted scope: move the protocol-processor gitlink a9e84b66 -> 92100657 and re-record its pin-derived records (ROM digest ledger through ./syn/yosys/ooc.sh --record-rom-digests, the pin table and the boundary diagram through their generator). Re-run the parent gates that read the SRP listener (milan_dp, the SRP campaigns, rtl-fast) and check_cpp_idiom.py, and re-record any campaign count the new rows move through its own recorder. Record on the pin page, in the CHANGELOG and in the integrator-facing text the pre-settle path's reach at the shipping N (2 Stream Inputs: the AAF input and the CRF input) and the link-change behaviour. Measure the shipping route at this head and record it. Nothing outside this adoption.
+Validation plan: the full suite sweep (4 shards), the firmware self-test, fw_coverage.py --check, test_builder.py --require-rv32, behave, every run: step of docs.yml, docs_inventory.py --check, git diff --check against the merge base, all on a clean clone of the committed head; the shipping route against the WNS floor.
+Blockers: none

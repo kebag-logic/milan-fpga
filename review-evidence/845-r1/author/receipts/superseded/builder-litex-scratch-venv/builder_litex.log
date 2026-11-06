@@ -1,0 +1,122 @@
+# head 0d9c942e94ff97d8889f568dd18ed2661f14bb71 gate builder_litex: MILAN_LITEX_PYTHON=<scratch>/venv-docs/bin/python3 python3 sw/builder/test_builder.py --require-rv32
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+[constraints] <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit as <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/alinx_ax7101.bit.rejected
+[constraints] <scratch>/tmp/builder-litex/constraint-log-v2lxhx0q/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+Traceback (most recent call last):
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_clock_constraints.py", line 360, in <module>
+    test_shipping_constraints()
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_shipping_clock_constraints.py", line 135, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+/bin/sh: line 1: cd: <scratch>/venv-docs/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv: No such file or directory
+Traceback (most recent call last):
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_shipping_clock_constraints.py", line 151, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_shipping_clock_constraints.py", line 119, in elaborate_shipping
+    milan_soc.main()
+  File "<scratch>/gate-builder-litex-wt/sw/litex/milan_soc.py", line 4439, in main
+    soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/gate-builder-litex-wt/sw/litex/milan_soc.py", line 3144, in __init__
+    VexiiRiscv.args_read(_vex_args)
+  File "<scratch>/venv-docs/lib/python3.12/site-packages/litex/soc/cores/cpu/vexiiriscv/core.py", line 312, in args_read
+    subprocess.check_call(cmd, shell=True)
+  File "<toolchain>/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command 'cd <scratch>/venv-docs/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv && sbt "runMain vexiiriscv.soc.litex.PythonArgsGen  --with-mul --with-div --allow-bypass-from=0 --fetch-l1 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-ways=2  --with-lsu-bypass --relaxed-branch --with-isa=zicntr,zihpm,m --xlen=32 --cpu-count=1 --with-cpu-clk --with-dma --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0 --python-file=<scratch>/venv-docs/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/630754a7299ff2f4e8f2c7f162151a0f.py"' returned non-zero exit status 1.
+
+test_soc_option_refusals:
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_rom_clock_skip_reaches_the_ledger:
+  [clock contract] SKIP: tmp2xcmx1ls: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_sim_clock:
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+test_extra_sweep_invocation:
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+test_builder_clock_source:
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals
+[495 MAC] 9 named shape rules, 30 spellings refused
+[595 uint] OUI and capabilities strings preserve values; all non-strings refuse
+[495 hex] 10 hex fields: 8 named shape rules and the width refused
+[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_clock_crossing_constraints:
+Traceback (most recent call last):
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_builder.py", line 29617, in <module>
+    fn()
+  File "<scratch>/gate-builder-litex-wt/sw/builder/test_builder.py", line 29200, in test_clock_crossing_constraints
+    subprocess.run([python, str(ROOT / "sw/builder/test_clock_constraints.py")],
+  File "<toolchain>/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['<scratch>/venv-docs/bin/python3', '<scratch>/gate-builder-litex-wt/sw/builder/test_clock_constraints.py']' returned non-zero exit status 1.

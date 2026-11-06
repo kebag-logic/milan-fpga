@@ -1,0 +1,22 @@
+15c15
+< cpus = sys.argv[5:]
+---
+> chosen = dict(a.split('=') for a in sys.argv[5:])  # shard index = cpu range
+17d16
+< assert len(cpus) == n, 'one cpu list per shard'
+23c22
+< out.mkdir(parents=True, exist_ok=False)
+---
+> out.mkdir(parents=True, exist_ok=True)
+25c24
+< RUNNER = Path(__file__).resolve().parent.parent / '2026-09-21' / 'run-recorded-gates.py'
+---
+> RUNNER = Path('<mgmt>').parent / '2026-09-21' / 'run-recorded-gates.py'
+36c35
+< for k in range(n):
+---
+> for k in map(int, chosen):
+60c59
+<                     '/usr/bin/taskset', '-c', cpus[k], '/usr/bin/python3', str(RUNNER), str(shard_spec)], check=True)
+---
+>                     '/usr/bin/taskset', '-c', chosen[str(k)], '/usr/bin/python3', str(RUNNER), str(shard_spec)], check=True)

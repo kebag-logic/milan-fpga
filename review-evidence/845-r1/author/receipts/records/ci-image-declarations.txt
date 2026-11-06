@@ -1,0 +1,14 @@
+ci/image declarations at dev cc204c6f and at head 519d9c2be139d2f777127a4aa19ea9ed251392a5 (no workflow runs these checks)
+
+python3 scripts/ci_tool_inventory.py --check, with the checksum-pinned parser:
+at head:
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+at dev:
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+
+head: reviewed pins 150, differing from the tree 35; inventory inputs 378, stale 88
+head: unb_mutants.py pin differs: True; gsi_mutants.py pin differs: True
+dev: reviewed pins 150, differing from the tree 34; inventory inputs 378, stale 87
+dev: unb_mutants.py pin differs: False; gsi_mutants.py pin differs: True

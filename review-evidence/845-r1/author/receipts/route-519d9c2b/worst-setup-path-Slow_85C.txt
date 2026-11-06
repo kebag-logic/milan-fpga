@@ -1,0 +1,15 @@
+Slack (MET) :             0.198ns  (required time - arrival time)
+  Source:                 milansoc_sdram_bankmachine3_pipe_valid_source_payload_addr_reg[15]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_twtrcon_count_reg[0]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.177ns  (logic 2.919ns (31.808%)  route 6.258ns (68.192%))
+  Logic Levels:           16  (CARRY4=2 LUT2=5 LUT3=2 LUT4=1 LUT5=1 LUT6=4 MUXF7=1)
+  Clock Path Skew:        -0.046ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.807ns = ( 16.807 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.239ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
