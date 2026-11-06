@@ -1,0 +1,36 @@
+ok  nvm_split_target capture row 1x1: 55 | 1,367,366 | 27.347 | 542.977 | 0.818 |
+ok  ctrl_nvm cycles 1x1: 1,367,366
+ok  phase capture 1x1: 55, 40,906 (0.818)
+ok  phase erase 1x1: 1, 12,431 (0.249)
+ok  phase idle 1x1: 203, 10,012 (0.200)
+ok  phase poll 1x1: 15, 11,727 (0.235)
+ok  phase program 1x1: 14, 101,139 (2.023)
+ok  phase read 1x1: 28, 96,248 (1.925)
+ok  phase seal 1x1: 14, 34,468 (0.689)
+ok  boot valid 1x1: 44, 5,050,293 (101.0)
+ok  boot absent 1x1: 0, 506,900 (10.1)
+ok  boot torn 1x1: 44, 8,300,664 (166.0)
+ok  boot version 1x1: 0, 504,932 (10.1)
+ok  slow-step 1x1: step 0 (idle) takes 30.2028 ms of CPU time, over T_svc 10.0 ms
+ok  nvm_split_target capture row 8x8: 165 | 5,168,647 | 103.373 | 1,641.818 | 2.641 |
+ok  ctrl_nvm cycles 8x8: 5,168,647
+ok  phase capture 8x8: 165, 132,073 (2.641)
+ok  phase erase 8x8: 1, 12,537 (0.251)
+ok  phase idle 8x8: 216, 10,248 (0.205)
+ok  phase poll 8x8: 53, 12,168 (0.243)
+ok  phase program 8x8: 52, 101,549 (2.031)
+ok  phase read 8x8: 104, 96,789 (1.936)
+ok  phase seal 8x8: 52, 34,862 (0.697)
+ok  boot valid 8x8: 133, 24,519,265 (490.4)
+ok  boot absent 8x8: 0, 1,747,362 (34.9)
+ok  boot torn 8x8: 133, 37,436,744 (748.7)
+ok  boot version 8x8: 0, 1,745,393 (34.9)
+ok  slow-step 8x8: step 0 (idle) takes 30.2724 ms of CPU time, over T_svc 10.0 ms
+ok  architecture: 103.4 ms of CPU time over 1.64 s elapsed
+ok  ctrl_split_boot 1x1: | staged | 84.372 ms | 4,218,617 | 18 of 18 equal | 21.546 / 1.963 / 1.266 ms | 2.527 / 1.239 / 1.268 ms |
+ok  ctrl_split_boot 1x1: | none | 84.362 ms | 4,218,076 | 18 of 18 equal | 21.547 / 1.963 / 1.267 ms | 2.526 / 1.239 / 1.267 ms |
+ok  stage cost 1x1: 541
+ok  ctrl_split_boot 8x8: | staged | 184.622 ms | 9,231,088 | 18 of 18 equal | 40.224 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms |
+ok  ctrl_split_boot 8x8: | none | 184.611 ms | 9,230,556 | 18 of 18 equal | 40.225 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms |
+ok  stage cost 8x8: 532
+mismatches: 0
