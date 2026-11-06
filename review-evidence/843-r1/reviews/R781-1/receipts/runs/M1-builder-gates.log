@@ -1,0 +1,12 @@
+test_gptp_dataset_matches_engine_announce:
+Traceback (most recent call last):
+  File "<packet>/scratch/m1/sw/builder/test_builder.py", line 29752, in <module>
+    fn()
+    ~~^^
+  File "<packet>/scratch/m1/sw/builder/test_builder.py", line 26573, in test_gptp_dataset_matches_engine_announce
+    _assert_avb_interface_is_the_wire(wire)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<packet>/scratch/m1/sw/builder/test_builder.py", line 26489, in _assert_avb_interface_is_the_wire
+    assert cfg["gptp"]["clock_accuracy"] == accuracy, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ax7101_1x1_tdm8: gptp.clock_accuracy 0x21, the board's decided value is 0x22 (#843)

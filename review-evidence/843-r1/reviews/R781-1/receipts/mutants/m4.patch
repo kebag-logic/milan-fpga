@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/gptp_plane/Makefile b/tb/verilator/gptp_plane/Makefile
+index c3f85a1b25..66195011da 100644
+--- a/tb/verilator/gptp_plane/Makefile
++++ b/tb/verilator/gptp_plane/Makefile
+@@ -38,7 +38,7 @@ run: gptp_ucode.hex
+ 	./obj_dir/Vgptp_plane_sim
+ 
+ gptp_ucode.hex: $(UCODE_GEN)
+-	python3 $< --clk-hz 2000000 -o $@
++	python3 $< --clk-hz 2000000 --clock-accuracy 0xFE -o $@
+ 
+ clean:
+ 	rm -rf obj_dir gptp_ucode.hex

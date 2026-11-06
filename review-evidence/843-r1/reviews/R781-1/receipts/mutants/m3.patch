@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/gptp_shadow/Makefile b/tb/verilator/gptp_shadow/Makefile
+index 06d2c05751..7835764de6 100644
+--- a/tb/verilator/gptp_shadow/Makefile
++++ b/tb/verilator/gptp_shadow/Makefile
+@@ -61,7 +61,7 @@ mutants: run
+ 	python3 mutants.py
+ 
+ gptp_ucode.hex: $(UCODE_GEN)
+-	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
++	python3 $< --clk-hz 2000000 --cease-ms 3000 --clock-accuracy 0xFE -o $@
+ 
+ #: The tracked files `run` reads, relative to this directory. `mutants.py`
+ #: verifies and copies exactly these (and the local headers they include)

@@ -1,0 +1,13 @@
+diff --git a/configs/endstation_ax7101_1x1_tdm8.yaml b/configs/endstation_ax7101_1x1_tdm8.yaml
+index 703a85b3db..a18c3f20c5 100644
+--- a/configs/endstation_ax7101_1x1_tdm8.yaml
++++ b/configs/endstation_ax7101_1x1_tdm8.yaml
+@@ -95,7 +95,7 @@ gptp:
+   # AVB_INTERFACE (#843). 0x22 is IEEE 1588-2008 Table 6's "within 250 ns",
+   # the maintainer's 2026-11-05 decision for the AX7101's characterised
+   # oscillator, under 802.1AS-2011 8.6.2.3 a).
+-  clock_accuracy: 0x22
++  clock_accuracy: 0x21
+   domain: 0
+   log_sync_interval: -3
+   log_announce_interval: 0

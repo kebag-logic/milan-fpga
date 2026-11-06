@@ -1,0 +1,13 @@
+gptp-processor 135afd04..1616fc8f, hdl/ diff stat:
+ hdl/top/KL_gptp_engine.sv     | 213 +++++++++++++++++++++++++++++++++++++++++-
+ hdl/ucode/gen_gptp_ucode.py   | 152 +++++++++++++++++++++++++-----
+ hdl/wire/KL_gptp_rx_parser.sv | 159 +++++++++++++++++++++++--------
+ 3 files changed, 458 insertions(+), 66 deletions(-)
+hdl/top/KL_gptp_engine.sv: module header (module .. first ');') byte-identical
+hdl/wire/KL_gptp_rx_parser.sv: module header (module .. first ');') byte-identical
+hdl/ucpu/gptp_ucpu_pkg.sv changed lines: 0
+ROM digest at pin (default args): e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+donor tracked syn/ooc/work/gptp_ucode.hex: e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+ledger row: 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp_ucode.hex	e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+routed builder image (AX7101 1x1, receipt route-head/large-files.sha256): 5a1d6d197588bb01b3dd3eea9f4334b4fbd6e0af3547301f44bbb8f4452a7c08
+reviewer regeneration of gptp_ucode_args(AX7101 1x1) image: 5a1d6d197588bb01b3dd3eea9f4334b4fbd6e0af3547301f44bbb8f4452a7c08
