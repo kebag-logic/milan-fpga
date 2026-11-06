@@ -212,7 +212,7 @@ Then it replaces each rule in turn, and a named check must fail:
 | bound: SRP graded against T_svc alone | an 18 to 20 ms SRP path misses |
 | bound: the ceiling alone | bounds pinned |
 | bound: the normative wait is not added | the exact bound fits and W adds |
-| bound: the margin is not recorded | the exact bound fits and W adds |
+| bound: the margin is taken from a timeout of zero | the exact bound fits and W adds |
 | map: the counter push is a notification | the hooks map |
 | map: no composed row of this harness is loaded | the hooks map |
 | label: the Milan clock labelled the product's (the earlier rule) | the clock labels |
@@ -266,7 +266,7 @@ Then it replaces each rule in turn, and a named check must fail:
 | held missing: silently accepted | a held push never sent |
 | held missing: it fits | a held push never sent |
 | held missing: it counts as served | a held push never sent |
-| held missing: its finding is dropped | a held push never sent |
+| held missing: its finding by name is dropped | a held push never sent |
 | held missing: its timeout is the notification family's | a held push never sent |
 | held missing: it records CPU cycles | a held push never sent |
 | held missing: it records a W | a held push never sent |

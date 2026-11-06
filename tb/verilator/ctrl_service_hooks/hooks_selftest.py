@@ -778,7 +778,7 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'bounds pinned'),
     ('bound: the normative wait is not added', mutant(run, 'hook_row', lambda r, g: dict(
         HOOK_ROW(dict(r, wait_ms=0.0), g), wait_ms=r['wait_ms'])), 'the exact bound fits and W adds'),
-    ('bound: the margin is not recorded', mutant(hooks, 'normative_ms', lambda hook, family: 0.0),
+    ('bound: the margin is taken from a timeout of zero', mutant(hooks, 'normative_ms', lambda hook, family: 0.0),
      'the exact bound fits and W adds'),
     ('map: the counter push is a notification', mutant(hooks, 'COUNTERS_PREFIX', '\0'), 'the hooks map'),
     ('map: no composed row of this harness is loaded', mutant(run, 'LOADED', grade.BACKLOG_ROWS), 'the hooks map'),
@@ -877,8 +877,8 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('held missing: it fits', held_fields(lambda h, r, s: dict(within=True), missing=True), MISSING_HELD),
     ('held missing: it counts as served', held_fields(lambda h, r, s: dict(unbounded=False), missing=True),
      MISSING_HELD),
-    ('held missing: its finding is dropped', held_fields(lambda h, r, s: dict(missing=False), missing=True),
-     MISSING_HELD),
+    ('held missing: its finding by name is dropped', held_fields(lambda h, r, s: dict(missing=False),
+                                                                   missing=True), MISSING_HELD),
     ('held missing: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
         normative_ms=hooks.NORMATIVE_MS['notify']), missing=True), MISSING_HELD),
     ('held missing: it records CPU cycles', held_fields(lambda h, r, s: dict(cpu_cycles=1), missing=True),
