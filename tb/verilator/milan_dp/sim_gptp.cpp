@@ -841,6 +841,13 @@ class GptpPlaneHarness {
     for (int i = 0; i < 16; i++) tick(dut);
     dut->axis_resetn = 1;
     dut->gtx_resetn = 1;
+    //! #839: the fabric holds every CSR-addressed transmitter (the
+    //! processor's AECP answers and pushes, AAF, CRF) until both halves of
+    //! the station MAC are written, as configure_fabric() does first thing.
+    //! This leg keeps the reset address (all zero) its stream IDs root in;
+    //! the gPTP plane's own address is its program's.
+    axi_write(dut, 0x108, 0x0);
+    axi_write(dut, 0x10C, 0x0);
   }
 
   // Match the generated product identity. AECP targets the entity id, while
