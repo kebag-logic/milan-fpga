@@ -1,0 +1,24 @@
+=== S4 1x1, verified pinned SDK against the gate environment's
+table.md byte-identical
+results.json equal: True
+--- fixture ctrl_app.elf
+allocated sections differing: 0
+symbols: 1108 and 1108; same order False; same set True
+--- capture-all ctrl_app.elf
+allocated sections differing: 0
+symbols: 1108 and 1108; same order False; same set True
+--- guard-probe ctrl_app.elf
+allocated sections differing: 0
+symbols: 1109 and 1109; same order False; same set True
+=== S4 8x8, verified pinned SDK against the gate environment's
+table.md byte-identical
+results.json equal: True
+--- fixture ctrl_app.elf
+allocated sections differing: 0
+symbols: 1108 and 1108; same order False; same set True
+--- capture-all ctrl_app.elf
+allocated sections differing: 0
+symbols: 1108 and 1108; same order False; same set True
+--- guard-probe ctrl_app.elf
+allocated sections differing: 0
+symbols: 1109 and 1109; same order False; same set True

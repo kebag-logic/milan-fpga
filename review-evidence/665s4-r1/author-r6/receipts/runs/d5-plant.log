@@ -1,0 +1,22 @@
+# 7643aef613c5b87a246544f57d23ad9f1bf8311e in wt-run: python3 -B <output>/scripts/plant_d5_removed.py <scratch>/wt-run <scratch>/d5
+head 7643aef613c5b87a246544f57d23ad9f1bf8311e
+== unplanted: rc=0
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+CONTROL receipt-opt-out: production bound applied despite a control field
+PASS: capture census, clocks, both timing arms and receipt agree
+
+== planted (the 24.5 ms check removed from grade_rows): rc=1
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+FAIL: OFF timing limit was ignored
+
+PLANT CAUGHT

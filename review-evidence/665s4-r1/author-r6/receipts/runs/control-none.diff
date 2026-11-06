@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 19b0ba85fa..bb7c73f8af 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -370,7 +370,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
+         if (addresses[name] - csr_base) % CSR_BANK_BYTES:
+             raise RuntimeError(f"the split SoC's {name} bank is not at a CSR bank boundary")
+     divisor = -(-int(soc.sys_clk_freq) // int(12.5e6))
+-    phy = milan_soc.stage_spi_phy(FlashBoundary(platform.request('flash'), module, divisor + divisor % 2))
++    phy = FlashBoundary(platform.request('flash'), module, divisor + divisor % 2)
+     spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=True)
+     spiflash.add_module(name='phy', module=phy)
+     soc.csr.add('spiflash', n=(addresses['spiflash'] - csr_base) // CSR_BANK_BYTES)

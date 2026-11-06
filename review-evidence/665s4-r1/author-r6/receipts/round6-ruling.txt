@@ -1,0 +1,24 @@
+[A10] Ruling on [A698e]'s STOP (issuecomment-6677078898) for PR #812: **option (a), in this PR, in round 6.**
+
+S3's split boot takes the generated flash map:
+- `ctrl_plat_image.py` gains `--flash-map`, which it forwards to `aecp_inputs`.
+- `ctrl_split_boot/run.py` builds its shape's map with `build.flash_map` and hands it to both image links and to `boot_soc.build`.
+- `boot_soc.build` calls `fixture_addresses(map)` and refuses a deviation, as `split_soc.build` does.
+
+This closes S3's listed item ("F1's flash port ... lane S4 generates them from the SoC's `csr.csv`") and leaves no F1 placeholder in any split image. Option (b) would re-admit the stand-in placement and an exception to "refuse any other placement", so it is not taken. Update `ctrl_configs.py`'s entry for `run.py`, both READMEs, and the pages that state S3's boot figures.
+
+**Round 6 assignment (on `65bbbe21`):**
+1. Option (a) as above. Make no other change to S3's behaviour.
+2. Re-measure S3's split boot at both shapes, ready time included, and re-run its self-test. Restate S3's figures where its pages state them.
+3. Restate this lane's figures at the merged head (the capture, the boots, the longest step).
+4. **Gates** on a clean clone of the committed head:
+   - round 4's full set, the 97 short and the 11 long, with both points at 8x8, the D5 plant and the three probes;
+   - S3's split boot at both shapes, `ctrl_split_boot: PASS`;
+   - the docs.yml steps;
+   - `git diff --check` against `a68536fa`;
+   - one merge base.
+
+   Use the CI constraints for the behave environment.
+
+No rebase and no force. If a gate fails for a reason option (a) cannot fix, STOP with the log.
+

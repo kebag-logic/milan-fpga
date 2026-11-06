@@ -1,0 +1,4 @@
+# 7643aef613c5b87a246544f57d23ad9f1bf8311e in wt-run: python3 -B <output>/scripts/map_probe.py <scratch>/wt-run <scratch>/splitboot-1x1 <scratch>/map-probe
+guard: rc=1; shifted register caught=True
+removed-guard: rc=0; shifted register caught=False
+map probe: PASS; removing the guard lets the shifted register escape

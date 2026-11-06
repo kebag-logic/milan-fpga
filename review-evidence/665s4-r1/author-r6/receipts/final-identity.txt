@@ -1,0 +1,43 @@
+$ git remote get-url origin
+https://github.com/kebag-logic/milan-fpga.git
+rc 0
+
+$ git rev-parse HEAD
+7643aef613c5b87a246544f57d23ad9f1bf8311e
+rc 0
+
+$ git branch --show-current
+s4-f1-target
+rc 0
+
+$ git rev-parse origin/dev-soft-core
+a68536fa4cf8ce65c513874722de2e3ba83c2d00
+rc 0
+
+$ git ls-remote origin refs/heads/dev-soft-core
+a68536fa4cf8ce65c513874722de2e3ba83c2d00	refs/heads/dev-soft-core
+rc 0
+
+$ git merge-base --all HEAD origin/dev-soft-core
+a68536fa4cf8ce65c513874722de2e3ba83c2d00
+rc 0
+
+$ git merge-base --is-ancestor f4c9ad4f HEAD
+rc 0
+
+$ git diff --check a68536fa
+rc 0
+
+$ git diff --stat a68536fa HEAD -- hdl
+rc 0
+
+$ git status --porcelain --untracked-files=all
+rc 0
+
+$ git log --format=%h\ %s 65bbbe21..HEAD
+7643aef613 Restore the saved-state case table and the split boot's PHY stage control rows, and list the flash map among its build steps (#665)
+1de390e104 Restate saved-state capture and boot measurements after the split base merge (#665)
+400c7ca712 Group the split boot link maps within the parameter limit and record its measured boot times (#665)
+93c6e9a544 Use the generated flash map in both split boot image links and verify its device placement (#665)
+rc 0
+
