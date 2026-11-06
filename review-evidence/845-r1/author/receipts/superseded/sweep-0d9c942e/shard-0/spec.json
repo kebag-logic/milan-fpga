@@ -1,0 +1,21 @@
+{
+ "cwd": "<lanes>/845-a738-shard0",
+ "head": "0d9c942e94ff97d8889f568dd18ed2661f14bb71",
+ "base": "cc204c6f",
+ "commands": [
+  [
+   "env",
+   "PATH=<toolchain>/pinned-verilator-5.050:<toolchain>/sv2v-v0.0.12:<make-4.3>/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<toolchain>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<mgmt-root>/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-0d9c942e/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

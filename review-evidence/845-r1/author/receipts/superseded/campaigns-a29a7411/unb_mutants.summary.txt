@@ -1,0 +1,8 @@
+checks: 499   failures: 0
+[PASS] the unmutated gateware still passes the obj_notify leg
+[FAIL] mutation 'the processor holds every ACMP frame 6000 cycles, so the push overtakes the response': a pattern appears 0 time(s) in protocol_processor_top.sv, expected exactly 1. The RTL moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[PASS] mutant caught: the CRF unbind does not count its unlock (the engine before #653) - breaks [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED; [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED (its tallies report 2 failure(s) across 499 checks)
+[PASS] mutant caught: the CRF unbind keeps the lock, so the silence timeout counts the unlock again - breaks [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED; [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED (its tallies report 2 failure(s) across 499 checks)
+[PASS] mutant caught: the CRF unbind also counts a STREAM_INTERRUPTED - breaks [UNB] CRF sink 1 U3 right after the response: STREAM_INTERRUPTED; [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED (its tallies report 2 failure(s) across 499 checks)
+[PASS] mutant caught: the CRF unbind counts its unlock but arms no push - breaks [UNB] CRF sink 1 U2 a push reporting the unlock reached A (its tallies report 2 failure(s) across 499 checks)
+6 checks: 5 PASS, 1 FAIL

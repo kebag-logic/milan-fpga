@@ -1,0 +1,8 @@
+00-preflight ok console=/dev/null tag=meas845a738
+01-clone ok head=a29a74115cabddcb2eaeb76fa6893c39a47d6d21 tree=164cc8093f19249582db4c1a7080bee5ac01a019
+02-shape ok 1 jobs, num-streams 1, 32 threads, 1x1_tdm8, render 8
+03-sweep ok launched TAG=meas845a738 (detached, 90s stagger)
+03b-render ok 1/3 seeds bound AUDIO_IF_RENDER_SLOTS_P=8
+04-wait ok 1/1 bitstreams
+05-select ok best=eppo wns=0.198 dir=build_ax7101_eppo_meas845a738
+06-capture skip --no-capture

@@ -1,0 +1,14 @@
+# head 519d9c2be139d2f777127a4aa19ea9ed251392a5 gate unb_arm1_names: python3 -B <scratch>/tools/arm_failures.py <scratch>/h-camp-wt/tb/verilator/milan_dp 1 <scratch>/camp-logs-519d9c2be139d2f777127a4aa19ea9ed251392a5/unb_arm1_leg.log
+[PASS] mutant caught: the processor holds every ACMP frame 6000 cycles, so the push overtakes the response - breaks [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response; [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response (its tallies report 4 failure(s) across 499 checks)
+arm 1: the processor holds every ACMP frame 6000 cycles, so the push overtakes the response
+driver verdict: caught; leg rc 1
+[FAIL] lines in the mutated leg: 4
+[FAIL] [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response got=0x0 exp=0x1
+[FAIL] [UNB] AAF sink 0 U2 every push reporting the unlock to B left after the UNBIND_RX response got=0x0 exp=0x1
+[FAIL] [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response got=0x0 exp=0x1
+[FAIL] [UNB] CRF sink 1 U2 every push reporting the unlock to B left after the UNBIND_RX response got=0x0 exp=0x1
+hold [ok]: [UNB] AAF sink 0 U1 UNBIND_RX: the ACMP response is SUCCESS
+hold [ok]: [UNB] AAF sink 0 U2 a push reporting the unlock reached A
+hold [ok]: [UNB] CRF sink 1 U1 UNBIND_RX: the ACMP response is SUCCESS
+hold [ok]: [UNB] CRF sink 1 U2 a push reporting the unlock reached A
+checks: 499   failures: 4

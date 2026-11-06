@@ -1,0 +1,118 @@
+vivado-slot: slot 0 ($VIVADO_LOCK), MemAvailable 45 GB, 2026-11-06T12:05:39+01:00
+[11:05:39Z] build-flash-post450 sha=519d9c2be139d2f777127a4aa19ea9ed251392a5 tag=meas845a738h519d9c out=<scratch>/route-519d9c2b/out
+[11:05:39Z] 00-preflight: running
+sha        519d9c2be139d2f777127a4aa19ea9ed251392a5
+tag        meas845a738h519d9c
+clone      <worktrees>/build-845a738-519d9c2be139
+console    /dev/null
+litex work <litex>/work
+WARNING: /dev/null is already held by pid(s): /dev/null:            2432  2434  2440  2449  2450  2452  2454  2512 1118785 1143522 1199144 1199765 1199769 1212733 1213198 1213213 1232328 1236190 1236497 1236503 1240583 1240584 1240623 1242153 1242172 1242182 1253617 1253956 1279012 1352104 1352108 1352117 1520437 1522625 1522726 1523054 1536243 1550800 1645080 1645081 1645700 1746801 1748304 1748319 1748323 1750872 1765872 1765873 1768137 1771982 1773551 1775943 1798706 1805445 1836073 1836074 1853159 1880229 1885072 1893824 1893825 1893901 1893903 1895694 1895696 1896231 1896233 1896577 1896581 1896662 1896746 1896748 1896820 1896833 1896906 1896925 1896928 1896930 1896932 1896933 1896935 1896937 1896938 2464209 2512938 2512998 2571468
+WARNING: FTDI <cable> not seen in /dev/serial/by-id
+free on /home: 92G (3 builds need ~30G)
+cpus: 8 (3 x 32 threads per vivado-96-core-builds)
+[11:05:39Z] 00-preflight: ok
+[11:05:39Z] 01-clone: running
+reusing <worktrees>/build-845a738-519d9c2be139
+head 519d9c2be139d2f777127a4aa19ea9ed251392a5
+tree a1ecb92da3fb5780c9e6d08854e4f6b8f6d3eaf1
+porcelain 0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (remotes/origin/640-m7-53-g135afd0)
+ 9210065779b0f698fd7bdb22323a1ed5b8482677 protocol-processor (v2.0-879-g9210065)
+-08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+-70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+== VERSION parameter at this head ==
+201:  parameter logic [31:0] VERSION = 32'h0002_0060
+[11:05:44Z] 01-clone: ok
+[11:05:44Z] 02-shape: running
+401:SWEEP_DIRECTIVES="ExtraPostPlacementOpt"
+
+== pre-build: tracked definition vs endstation_ax7101_1x1_tdm8 ==
+  [ok]   tracked ADP shape is endstation_ax7101_1x1_tdm8's = True
+----------------------------------------------------------------------
+checks: 1   failures: 0
+RESULT: PASS
+[ax7101] design argv from <worktrees>/build-845a738-519d9c2be139/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json (regenerated from configs/endstation_ax7101_1x1_tdm8.yaml); flow flags from cfg_ax7101
+DRY [ax7101_eppo] -> <litex>/work/build_ax7101_eppo_meas845a738h519d9c
+ cd <worktrees>/build-845a738-519d9c2be139/sw/litex && source <home>/Xilinx2/2026.1/Vivado/settings64.sh && export PATH=<litex>/venv/bin:$PATH && export PYTHONHASHSEED=0 && exec python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <worktrees>/build-845a738-519d9c2be139/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --vivado-max-threads 32 --build --output-dir <litex>/work/build_ax7101_eppo_meas845a738h519d9c
+dry jobs: 1
+== generated fragment in the worktree ==
+15:OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1"
+[11:05:45Z] 02-shape: ok
+[11:05:45Z] 03-sweep: running
+
+== pre-build: tracked definition vs endstation_ax7101_1x1_tdm8 ==
+  [ok]   tracked ADP shape is endstation_ax7101_1x1_tdm8's = True
+----------------------------------------------------------------------
+checks: 1   failures: 0
+RESULT: PASS
+[ax7101] design argv from <worktrees>/build-845a738-519d9c2be139/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json (regenerated from configs/endstation_ax7101_1x1_tdm8.yaml); flow flags from cfg_ax7101
+LAUNCHED [ax7101_eppo] pid=1901150 out=<litex>/work/build_ax7101_eppo_meas845a738h519d9c log=<litex>/work/build_ax7101_eppo_meas845a738h519d9c.launch.log
+1901150 python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lp
+<litex>/work/build_ax7101_eppo_meas845a738h519d9c
+[11:06:06Z] 03-sweep: ok
+[11:06:06Z] 03b-render: running
+eppo argv: --audio-interface-render 8
+eppo AUDIO_IF_RENDER_SLOTS_P bound to: 8
+[11:36:14Z] 03b-render: ok
+[11:36:14Z] 04-wait: running
+  10m eppo  Phase 1 Build RT Design
+  20m eppo  Phase 13 Post-Route Event Processing | Checksum: 1087d591a
+ALL-BIT-READY after 21m
+eppo  bit=<litex>/work/build_ax7101_eppo_meas845a738h519d9c/gateware/alinx_ax7101.bit
+[11:56:18Z] 04-wait: ok
+[11:56:18Z] 05-select: running
+VERSION in the clone: 0x0002_0060 (expected 0x0002_0060)
+eppo  wns=0.198    lutpct=82.80   n_streams=1   render_slots=8
+BEST eppo WNS 0.198
+[11:56:18Z] 05-select: ok
+[11:56:18Z] 06-capture: running
+capture disabled by --no-capture
+[11:56:18Z] 06-capture: ok
+[11:56:18Z] 07-next: running
+
+================================================================================
+ STOP.  Nothing below has been run.  This script never writes to the board.
+================================================================================
+ best seed      : eppo   WNS 0.198   (build_ax7101_eppo_meas845a738h519d9c)
+ shape proven   : N_STREAMS=1, AUDIO_IF_RENDER_SLOTS_P=8
+                  (a render lane of 0 would park tdm_dout_o at 1'b0; deploy.sh:88
+                  MILAN_OPTS still omits --audio-interface-render, so never build
+                  the flashed image with `deploy.sh build`)
+ expected CSR   : VERSION 0x0002_0060  (hdl/common/csr/milan_csr.sv:136 --
+                  #450/#360 does NOT bump it, so VERSION cannot tell the new
+                  image from the installed one; the flash-pair readback and the
+                  post-boot QSPI dump are the identity proof)
+ installed now  : build_ax7101_asl_tdm8dev0a3a78a9   (pass --installed to correct it)
+ console capture: <scratch>/route-519d9c2b/out/06-console-capture.log  (must stay open across the boot)
+
+ 1) #366 BEFORE-state, JTAG READ ONLY (no bitstream is loaded):
+      openFPGALoader --ftdi-serial <cable> -c ft232 --read-register BOOTSTS
+      openFPGALoader --ftdi-serial <cable> -c ft232 --read-register STAT
+
+ 2) flash-pair (bitstream @0 + AEM @0x400000, each written and verified):
+      cd <worktrees>/build-845a738-519d9c2be139/sw/litex && \
+      INSTALLED_BUILD=build_ax7101_asl_tdm8dev0a3a78a9 SERIAL=<cable> AX_FTDI=<cable> \
+        ./build.sh flash ax7101:build_ax7101_eppo_meas845a738h519d9c
+
+ 3) cold power cycle - NEVER a JTAG warm reload:
+      ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 <bench-host> \
+        'powerstrip off 0; sleep 6; powerstrip on 0; echo ---; powerstrip status'
+
+ 4) #366 AFTER-state, immediately once the console settles (still JTAG READ ONLY):
+      openFPGALoader --ftdi-serial <cable> -c ft232 --read-register BOOTSTS
+      openFPGALoader --ftdi-serial <cable> -c ft232 --read-register STAT
+    Then power-cycle once more (a clean, non-post-flash boot) and read BOOTSTS
+    again.  A differing IPROG/FALLBACK history between the two proves the
+    configuration logic reloaded; an identical history proves the CPU restarted
+    with the fabric still configured.
+
+ 5) console check once booted (the capture above already has it timestamped):
+      picocom -b 115200 /dev/null     # milan_status -> ID=MILN VERSION=00020058 AEM=loaded
+
+ 6) stop the capture when the evidence is recorded:
+      kill $(cat <scratch>/route-519d9c2b/out/06-console-capture.pid)
+================================================================================
+[11:56:18Z] 07-next: ok
+[11:56:18Z] done; the flash is the operator's next step

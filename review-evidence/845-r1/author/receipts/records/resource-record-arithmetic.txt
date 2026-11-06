@@ -1,0 +1,13 @@
+The exact-head route (one directive, ExtraPostPlacementOpt) against syn/ooc/pp_resource_baseline.json route-1x1.
+ARITHMETIC ONLY, NOT A GATE VERDICT. pp_resource_gate.py check <gateware> --endpoint route-1x1 --shipping-selection
+exits 2, NOT COMPARABLE: the route holds no recipe scripts (route-519d9c2b/resource-gate.txt). The record was measured
+with explicit single-thread synthesis, so these figures can differ from a recipe measurement of the same head.
+
+figure   record   dev same recipe   this head   head - record   tolerance   result of the arithmetic
+LUT      52,012   51,994            52,497      +485            +500        inside, by 15
+FF       53,707   54,101            54,579      +872            +600        OUTSIDE, by 272 (dev alone +394; this adoption +478)
+Slice    15,780   15,841            15,780      0               +80         inside
+DSP      13       13                13          0               +0          inside
+BRAM t.  87.5     87.5              87.5        0               121.5 ceil  inside
+WNS      +0.440   +0.236            +0.198      -0.242 ns       floor +0.03 above the floor; fall 0.242 under the 0.25 warning
+WHS      +0.036   +0.036            +0.015      -0.021 ns       floor 0     above the floor
