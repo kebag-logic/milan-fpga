@@ -1,0 +1,13 @@
+# mutants: python3 -B <packet>/scripts/mutants.py <packet>/scratch/real <packet>/scratch/mut
+# head b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+# start 2026-11-06T19:48:11Z
+is-file-to-exists: ESCAPED, rc 0, 7 plat checks passed first: plat checks 7
+partial-only-with-archives: ESCAPED, rc 0, 7 plat checks passed first: plat checks 7
+refusal-after-generators: CAUGHT, rc 1, 0 plat checks passed first: AssertionError: ('both-archives', 'went on before its refusal', ['adp_entity_gen.h', 'aecp_entity_gen.h', 'ctrl_plat_map_gen.h', 'ctrl_plat_policy_gen.h', 'gen', 'nvm-sha
+headers-reversed: CAUGHT, rc 1, 6 plat checks passed first: AssertionError: ('lacks-json-only', "REFUSED: the flash map lacks generated/mem.h and generated/csr.h: a split platform image is never linked on the flash port's RV32 sta
+header-refusal-removed: CAUGHT, rc 1, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+mem-not-required: CAUGHT, rc 1, 5 plat checks passed first: AssertionError: ('lacks-mem', '      |         ^~~~~~~~~~~~~~~~~~~')
+refused-only-when-both-missing: CAUGHT, rc 1, 4 plat checks passed first: AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+refused-only-when-one-missing: CAUGHT, rc 1, 6 plat checks passed first: AssertionError: ('lacks-json-only', 'collect2: error: ld returned 1 exit status')
+mutants: 8 planted, 2 escaped
+# end 2026-11-06T19:48:30Z rc=0
