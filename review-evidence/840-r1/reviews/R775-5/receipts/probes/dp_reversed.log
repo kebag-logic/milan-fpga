@@ -1,0 +1,106 @@
+bootsa: 2 MHz fabric, one processor ms = 100 cycles, station MAC 024b4c4b4c01
+[BOOTSA] BIOS window: 400 processor ms with no CSR access
+[BOOTSA] milan_init(): configure_fabric()
+[BOOTSA] configure_fabric() completed the station MAC at cycle 40088
+[BOOTSA] milan_init(): load_aem_image()
+[BOOTSA] milan_init(): nvm_boot()
+  [ ok ] [BOOTSA] nvm_boot(): the restore walk ends COMPLETE (done 1, CLOSED 0) got=0x4 exp=0x4
+[BOOTSA] milan_init(): entity_advertise()
+Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.
+  [ ok ] [BOOTSA] the first ENTITY_AVAILABLE leaves after entity_advertise()
+[BOOTSA] first ENTITY_AVAILABLE at cycle 196252, frame #3
+  [ ok ] [BOOTSA] the processor answers READ_DESCRIPTOR (an AECP frame leaves)
+  [ ok ] [BOOTSA] the processor answers GET_TX_STATE_COMMAND (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE
+  [ ok ] [BOOTSA] the talker answers PROBE_TX_COMMAND with SUCCESS (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the probed talker joins its VLAN by MVRP (an MVRP frame leaves)
+[BOOTSA] 999 frames: MSRP 39 MVRP 2 gPTP 1 ADP 5 AECP 1 ACMP 3 MAAP 5 AAF 162 CRF 781
+[BOOTSA]   #0 MSRP  cycle    40112 source 014c4b4c4b02
+[BOOTSA]   #1 MAAP  cycle    40632 source 014c4b4c4b02
+[BOOTSA]   #2 MSRP  cycle   100199 source 014c4b4c4b02
+[BOOTSA]   #3 ADP   cycle   196252 source 014c4b4c4b02
+[BOOTSA]   #4 AECP  cycle   198034 source 014c4b4c4b02
+[BOOTSA]   #5 ACMP  cycle   198617 source 014c4b4c4b02
+[BOOTSA]   #6 CRF   cycle   200074 source 024b4c4b4c01
+[BOOTSA]   #8 CRF   cycle   204074 source 024b4c4b4c01
+[BOOTSA]   #158 ADP   cycle   781352 source 014c4b4c4b02
+[BOOTSA]   #241 MAAP  cycle  1096073 source 014c4b4c4b02
+[BOOTSA]   #587 gPTP  cycle  2400692 source 024b4c4b4c01
+[BOOTSA]   #803 AAF   cycle  3216658 source 024b4c4b4c01
+[BOOTSA]   #804 ACMP  cycle  3217176 source 014c4b4c4b02
+[BOOTSA]   #805 AAF   cycle  3217300 source 024b4c4b4c01
+[BOOTSA]   #811 MVRP  cycle  3220184 source 014c4b4c4b02
+[BOOTSA]   #998 MVRP  cycle  3320184 source 014c4b4c4b02
+[BOOTSA] first frame not from the station MAC: #0 MSRP at cycle 40112, source 014c4b4c4b02, after the station MAC was written
+  [ ok ] [BOOTSA] the processor offered a frame before the station MAC was written
+  [ ok ] [BOOTSA] no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [FAIL] [BOOTSA] every MSRP frame's source address is the station MAC got=39 exp=0
+  [FAIL] [BOOTSA] every MVRP frame's source address is the station MAC got=2 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's source address is the station MAC got=0 exp=0
+  [FAIL] [BOOTSA] every ADP frame's source address is the station MAC got=5 exp=0
+  [FAIL] [BOOTSA] every AECP frame's source address is the station MAC got=1 exp=0
+  [FAIL] [BOOTSA] every ACMP frame's source address is the station MAC got=3 exp=0
+  [FAIL] [BOOTSA] every MAAP frame's source address is the station MAC got=5 exp=0
+  [ ok ] [BOOTSA] every AAF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every CRF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every other frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's destination address is the controller's MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's got=0 exp=0
+  [ ok ] [BOOTSA] MSRP frames were sent and graded
+  [ ok ] [BOOTSA] MVRP frames were sent and graded
+  [ ok ] [BOOTSA] gPTP frames were sent and graded
+  [ ok ] [BOOTSA] ADP frames were sent and graded
+  [ ok ] [BOOTSA] AECP frames were sent and graded
+  [ ok ] [BOOTSA] ACMP frames were sent and graded
+  [ ok ] [BOOTSA] MAAP frames were sent and graded
+  [ ok ] [BOOTSA] AAF frames were sent and graded
+  [ ok ] [BOOTSA] CRF frames were sent and graded
+  [ ok ] [BOOTSA] A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_LO releases the processor's frame
+  [FAIL] [BOOTSA] pair: every frame of the MAC_ADDR_LO boot carries the station MAC got=1 exp=0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_HI releases the processor's frame
+  [FAIL] [BOOTSA] pair: every frame of the MAC_ADDR_HI boot carries the station MAC got=1 exp=0
+[BOOTSA] early-enable, MAAP on: MAAP_CTRL 0x00000201, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 3440959, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP on: offered with the pair unwritten: MAAP yes, AAF no, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP on: the station MAC is complete at cycle 3480963
+[BOOTSA] early-enable, MAAP on: 847 frames after the pair: MSRP 35 gPTP 1 MAAP 5 AAF 1 CRF 805
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: no frame carries the all-zero source address got=0 exp=0
+  [FAIL] [BOOTSA] early-enable, MAAP on: every frame of the boot carries the station MAC got=40 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] early-enable, MAAP off: MAAP_CTRL 0x00000000, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 6699671, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP off: offered with the pair unwritten: MAAP no, AAF yes, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP off: the station MAC is complete at cycle 6739675
+[BOOTSA] early-enable, MAAP off: 3 frames after the pair: MSRP 1 AAF 1 CRF 1
+  [ ok ] [BOOTSA] early-enable, MAAP off: the AAF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: no frame carries the all-zero source address got=0 exp=0
+  [FAIL] [BOOTSA] early-enable, MAAP off: every frame of the boot carries the station MAC got=1 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] control lane through the stamp: 98 frames, 3775 octets outside 6 to 11 compared, 0 changed
+  [ ok ] [BOOTSA] control-lane frames passed through the stamp
+  [ ok ] [BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered got=0 exp=0
+simulated_cycles=6739724
+== bootsa: checks: 67   failures: 10 ==
+RESULT: FAIL

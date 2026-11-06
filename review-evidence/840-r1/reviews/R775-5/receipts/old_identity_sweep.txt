@@ -1,0 +1,74 @@
+# tracked first-party files at 8ab3a930 naming a retired board identity
+docs/findings/117_AUDIO_CONTINUITY.md:78:| Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI, `0x110` (312 bytes
+docs/findings/117_AUDIO_CONTINUITY.md:588:- entity `020000fffe000001`, firmware `2.96.0`;
+docs/findings/117_AUDIO_CONTINUITY.md:890:CONFIGURATION byte-equal to the QSPI AEM bytes, entity `020000fffe000001`,
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:252:| Pdelay_Req | DUT to switch | 566 intervals | every interval 1000.002 ms; `logMessageInterval` 0; sour
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:336:  - GM identity replaced by its own, `020000fffe000001`, 3.01 to 3.08 s after the switch's last Announc
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:347:- GM and parent read `020000fffe000001`, path count 1. The first reachable GET_AS_PATH read `[020000fff
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:349:- Holdover (`CLKV_STAT` bit 3) is set again at the identity change: 3 to 5 consecutive 0.1 s samples, 0
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:450:| Grandmaster loss | `0x624`/`0x628` and `0x730`/`0x734` read `020000fffe000001` 3.01 to 3.08 s after t
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:452:| asCapable return | `CLKV_STAT[16]` 1 at 38.78 to 39.91 s, with `GPTP_PDELAY` 377 to 389 ns | within o
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:468:| ADP discovery from the controller host | two entities: the DUT (`020000fffe000001`, model `0x001BC5C4
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:576:The entity is `020000fffe000001`, model `001bc5c40236ba0e`, firmware `2.96.0`.
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:839:- **Identity gate, 03:37:20 to 03:37:26 UTC: PASS, 11 of 11 checks**, by lane B18's method and tools. A
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:915:| Pdelay_Req, source `020000fffe000001:0001` | DUT to switch | 298 | 1000.003, 1000.002, 1000.003 | 298
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:951:- **Absent.** GM and parent `020000fffe000001`, path count 1, `SYNC=0`, `TU=1`, `RST_EPOCH` 1.
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:977:| Grandmaster loss | GM and parent `020000fffe000001`, path generation +1, holdover set again, between 
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:1047:2. **The DUT put its own identity in an ADPDU.** In cycles 1 and 6, one ADPDU after the link's return 
+docs/findings/451_TDM8_TIMING_SOC_BOARD.md:67:| Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI (312 and 106 b
+docs/findings/451_USB_AUDIO_CAPTURE.md:42:`020000fffe000001`. The [#617 page](617_DIN_FRAME_COHERENCE_BENCH.md#identity-and-setup)
+docs/findings/599_394_E1_LINK_CYCLES.md:45:| Live ENTITY and CONFIGURATION | Byte-exact matches to the AEM image; entity `020000fffe000001` |
+docs/findings/606_FIRST_BIND_MEASUREMENT.md:52:| Live ENTITY and CONFIGURATION | Byte-exact to the AEM image at `0x110` (312 bytes) and `0x248` (106 b
+docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md:47:| Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI, `0x110` (
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:105:| Live ENTITY and CONFIGURATION | Byte-equal to the AEM bytes the console dumps from QSPI (312 an
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:1945:| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPG
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2343:| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPG
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4656:| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPG
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:5028:| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPG
+docs/findings/653_DISCONNECT_ORDER_BENCH.md:62:| Entity ID, entity name, firmware version and serial over ATDECC | `020000fffe000001`, "Milan FPGA 1x1
+docs/findings/B14_BENCH_5603C353.md:41:| 1 Identity | - | PASS | entity_id `020000fffe000001`, "Milan FPGA 1x1 TDM8", firmware_version 2.96.0, serial 
+docs/history/v1/NXN_ARCHITECTURE.md:652:| ProfiShark inline, licensed stream running | MSRP Talker Advertise for `{02:00:00:00:00:02, uid 0}` and `{…,
+docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md:113:`02:00:00:00:00:01`, destination `91:e0:f0:00:b0:83`, every ~2 ms, captured on
+docs/history/v1/traceability/milan-v12.md:183:| M-DEV-13d | 5.3.7.3 + 5.3.7.2 | **The licence to stream is CONDITIONAL.** Verbatim: *"As long as a PAA
+docs/reference/REGISTER_MAP.md:369:| `0x004` | `VERSION` | RO | `0x0002_0060` | `[31:16]` major, `[15:0]` minor. **Versioning policy (2026-08-11): MAJ
+docs/reference/REGISTER_MAP.md:1708:  `{02:00:00:00:00:02, uid 0x0000}` and `{…, uid 0x0004}` — uid 4 is
+sw/builder/README-parameters.md:173:For example, `"020000000002"`, `"0x0200_0000_0002"`, `"02:00:00:00:00:02"` and `"02-00-00-00-00-02"` name the same
+sw/builder/test_builder.py:21169:                                        "0x020000000001"), "MULTICAST"),
+sw/builder/test_declarations.py:211:                ("0x020000000002", 0x020000000002),
+sw/builder/test_declarations.py:212:                ("020000000002", 0x020000000002),
+sw/builder/test_declarations.py:213:                ("02:00:00:00:00:02", 0x020000000002),
+sw/builder/test_declarations.py:214:                ("02-00-00-00-00-02", 0x020000000002),
+sw/builder/test_declarations.py:215:                ("0x0200_0000_0002", 0x020000000002),
+sw/builder/test_declarations.py:219:                ("0X020000000002", 0x020000000002),
+sw/builder/test_declarations.py:220:                ("0200_0000_0002", 0x020000000002),
+sw/builder/test_declarations.py:221:                ("02_00_00_00_00_02", 0x020000000002),
+sw/builder/test_declarations.py:228:        for spelling in ("0x000000F42402", "0x020000000002", "020000000002",
+sw/builder/test_declarations.py:249:    ("sign", ("+020000000002", "-020000000002", "+02:00:00:00:00:02", "-2")),
+sw/builder/test_declarations.py:251:     (" 020000000002", "020000000002 ", "\t02:00:00:00:00:02", "02-00-00-00-00-02\n")),
+sw/builder/test_declarations.py:261:    ("prefix on octets", ("0x02:00:00:00:00:02",)),
+sw/firmware/ctrl/test/test_aecp.cpp:46:constexpr uint64_t ENTITY=0x020000fffe000001;
+sw/firmware/ctrl/test/test_aecp.cpp:47:constexpr uint64_t MAC=0x020000000001;
+tb/tools/avtp_wire_truth_frames.py:254:                    eid: int = 0x020000FFFE000002, available_index: int = 1,
+tb/verilator/avtp_parser/sim_tbl.cpp:59://! §21): 02:00:00:00:00:02 + uid 0
+tb/verilator/maap/sim_integration.cpp:153:    // The fixed adjacent pair 02:00:00:00:00:01 and :02: their 8-address
+tb/verilator/milan_dp/reference/stream_output_counters_response.hex:1:6805ca95b2d100000000000022f0fb010094020000fffe0000016805cafffe95
+tb/verilator/milan_dp/sim_aclk.cpp:1008:        axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
+tb/verilator/milan_dp/sim_main.cpp:370:        // ALO/AHI hold 02:00:00:00:00:01 with [7:0] = first wire byte). This is
+tb/verilator/milan_dp/sim_main.cpp:769:        // the station MAC, {02:00:00:00:00:01, uid 0} - which is bit-identical
+tb/verilator/milan_dp/sim_main.cpp:1228:    // AAF PDU on the bound stream_id {02:00:00:00:00:02, uid 0} with the
+tb/verilator/milan_dp/sim_main.cpp:1509:                // stream_id in WF = 02:00:00:00:00:01 (the AX talker) but the
+tb/verilator/milan_dp/sim_main.cpp:1511:                // to the TB's bound stream {02:00:00:00:00:02, uid 0}
+tb/verilator/milan_dp/sim_main.cpp:1798:        // provision the sink: stream_id 02:00:00:00:00:02 uid 1, enable
+tb/verilator/milan_dp/sim_main.cpp:1997:        // provision: sid {02:00:00:00:00:01, uid 1}, DMAC 91:E0:F0:00:2A:07
+tb/verilator/milan_dp/sim_prune.cpp:286:        axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
+tb/verilator/milan_dp_mclk/sim_mclk.cpp:514:    axi_write(kStrmwSidLo, 0x00020000u | uid);            // 02:00:00:00:00:02:00:uid
+tb/verilator/pp_shadow/sim_main.cpp:832:    // 02:00:00:00:00:01 on the wire — the swapped form is 01:.. = a multicast
+tb/verilator/tsn_fuzz/wire.py:39:ENTITY_ID = 0x020000FFFE000001
+tb/verilator/tsn_fuzz/wire.py:722:    exp = ("020000fffe016805ca95b2d122f0fb000014020000fffe0000016805ca95"
+tests/features/gptp_announce_receipt_timeout.feature:51:    Given grandmaster "020000fffe000001" with priority1 238
+tests/features/gptp_announce_receipt_timeout.feature:54:    Then the selected grandmaster is "020000fffe000001"
+tests/features/gptp_announce_receipt_timeout.feature:61:    Given grandmaster "020000fffe000001" with priority1 238
+tests/features/gptp_announce_receipt_timeout.feature:64:    Then the selected grandmaster is "020000fffe000001"
+tests/features/gptp_announce_receipt_timeout.feature:69:    Given grandmaster "020000fffe000001" with priority1 238
+tests/features/gptp_announce_receipt_timeout.feature:81:    Given grandmaster "020000fffe000001" with priority1 238
+tests/features/gptp_announce_receipt_timeout.feature:86:    Then the selected grandmaster is "020000fffe000001"
