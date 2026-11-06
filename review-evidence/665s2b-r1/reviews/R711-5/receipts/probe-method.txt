@@ -1,0 +1,16 @@
+Probes P1 and P2 (reviewer, disposable; never part of the tree).
+Tree: a byte copy of the reviewed head d930ea98f75be96f1062217d62bccd24dd291265 (tracked files and checked-out
+submodules, no .git), with only sw/firmware/ctrl/test/test_aecp.cpp changed by receipts/probe-test_aecp.diff
+(four TEST_Fs appended to the Mailbox fixture; nothing else edited).
+Build/run: scripts/run_aecp_mailbox_arm.py <copy> <out> 'Mailbox.Probe*'   (AECP mailbox arm of the firmware host
+gtests: aecp.c, aecp_mbx.c, ctrl_loop.c and the mailbox model, 1x1 shipping contract). The probe copy has no git
+metadata, so the driver calls aecp_arms.core_arm directly instead of the stack-pin check in aecp_arms.py's main();
+the stack sources are byte copies of the pinned submodule.
+P1 (probe-two-notices.log): two change notices (STREAM_INPUT 0 and STREAM_OUTPUT 0, GET_STREAM_INFO) fail together
+and so share their retry time; the port then answers; one timer event before every pass, so no pass takes nothing;
+the model clock advances 2 ms (THE SHARE) a pass. Result: aged retry passes at +4 and +8 ms, notices committed in the
+passes starting +6 and +10 ms: the second notice costs two more passes.
+P2 (probe-aged-build-behind-notices.log): a stub THE TRANSMIT client whose build is held and reports aged from the
+first pass; two timer events before every pass, so no ordinary pass is THE TRANSMIT's (CTRL_LOOP_TX_EVENTS = 1).
+Result: with 0, 1 and 2 retried notices held the aged build's pass is the 1st, 3rd and 5th pass (sequences T, RET,
+RERET): each queued retried notice puts one aged retry's pass and one ordinary pass ahead of the aged build.

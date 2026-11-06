@@ -1,0 +1,12 @@
+[       OK ] Mailbox.AgedRetryTakesAPassOfItsOwn (0 ms)
+PROBE pass 0 start=+0 ms events=2 aged_retry=0 tx=0
+PROBE pass 1 start=+2 ms events=1 aged_retry=0 tx=0
+PROBE pass 2 start=+4 ms events=0 aged_retry=1 tx=0
+PROBE pass 3 start=+6 ms events=2 aged_retry=0 tx=1
+PROBE notice GET_STREAM_INFO descriptor_type=5 committed in the pass starting +6 ms
+PROBE pass 4 start=+8 ms events=0 aged_retry=1 tx=0
+PROBE pass 5 start=+10 ms events=2 aged_retry=0 tx=1
+PROBE notice GET_STREAM_INFO descriptor_type=6 committed in the pass starting +10 ms
+PROBE second notice minus first: 4 ms (2 passes of THE SHARE)
+[       OK ] Mailbox.ProbeTwoRetriedNoticesUnderSustainedInput (0 ms)
+[  PASSED  ] 2 tests.
