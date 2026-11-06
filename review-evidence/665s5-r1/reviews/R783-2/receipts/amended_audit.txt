@@ -1,0 +1,54 @@
+1x1-idle: rows 145, amended differs on 15 rows, hooks ['H-SRP'], non-SRP changed []
+   verdict would flip on 0 rows
+   summary worst {}
+   H-SRP rows in (18,20]: []
+1x1-ans: rows 164, amended differs on 17 rows, hooks ['H-SRP'], non-SRP changed []
+   verdict would flip on 0 rows
+   per-descriptor 5, over bound 2
+    counters.held.if0              grp hooks-counters       ms     5.185 d   5.185 cyc     518508 bound 20 within True wait 896.25822
+    counters.all.t6.i0.if0         grp hooks-counters       ms     5.486 d   0.301 cyc     548617 bound 20 within True wait 0.0
+    counters.first.if0             grp hooks-counters       ms     5.638 d   0.152 cyc     563826 bound 20 within True wait 0.0
+    counters.all.t5.i1.if0         grp hooks-counters       ms    11.075 d   5.437 cyc    1107501 bound 20 within True wait 0.0
+    counters.all.t6.i1.if0         grp hooks-counters       ms    16.465 d   5.390 cyc    1646480 bound 20 within True wait 0.0
+    counters.loaded.if0            grp hooks-load-counters  ms    20.761 d   4.296 cyc    2076085 bound 20 within False wait 0.0
+    counters.all.t9.i0.if0         grp hooks-counters       ms    22.065 d   1.305 cyc    2206548 bound 20 within False wait 0.0
+    counters.all.if0               grp hooks-counters       ms    27.581 d   5.515 cyc    2758074 bound 20 within False wait 0.0
+    counters.all.t36.i0.if0        grp hooks-counters       ms    27.581 d   0.000 cyc    2758074 bound 20 within False wait 0.0
+   summary worst {'alone': ('counters.all.if0', 27.58074), 'loaded': ('counters.loaded.if0', 20.76085)}
+   H-SRP rows in (18,20]: []
+8x8-idle: rows 207, amended differs on 19 rows, hooks ['H-SRP'], non-SRP changed []
+   verdict would flip on 0 rows
+   summary worst {}
+   H-SRP rows in (18,20]: []
+8x8-ans: rows 240, amended differs on 41 rows, hooks ['H-COUNTERS', 'H-SRP'], non-SRP changed ['counters.all', 'counters.all.t36.i0', 'counters.all.t5.i1', 'counters.all.t5.i2', 'counters.all.t5.i3', 'counters.all.t5.i4', 'counters.all.t5.i5', 'counters.all.t5.i6', 'counters.all.t5.i7', 'counters.all.t5.i8', 'counters.all.t6.i0', 'counters.all.t6.i1', 'counters.all.t6.i2', 'counters.all.t6.i3', 'counters.all.t6.i4', 'counters.all.t6.i5', 'counters.all.t6.i6', 'counters.all.t6.i7', 'counters.all.t6.i8', 'counters.all.t9.i0']
+   verdict would flip on 4 rows
+    FLIP ('counters.all.t5.i1.if0', 21.699, 20.0, 60.0, False, True)
+    FLIP ('counters.all.t5.i2.if0', 33.434, 20.0, 60.0, False, True)
+    FLIP ('counters.all.t5.i3.if0', 44.89, 20.0, 60.0, False, True)
+    FLIP ('counters.all.t5.i4.if0', 57.15, 20.0, 60.0, False, True)
+   per-descriptor 19, over bound 18
+    counters.held.if0              grp hooks-counters       ms     9.931 d   9.931 cyc     993084 bound 20 within True wait 880.00227
+    counters.first.if0             grp hooks-counters       ms    10.164 d   0.234 cyc    1016443 bound 20 within True wait 0.0
+    counters.all.t6.i0.if0         grp hooks-counters       ms    10.551 d   0.386 cyc    1055053 bound 20 within True wait 0.0
+    counters.all.t5.i1.if0         grp hooks-counters       ms    21.699 d  11.148 cyc    2169871 bound 20 within False wait 0.0
+    counters.all.t5.i2.if0         grp hooks-counters       ms    33.434 d  11.736 cyc    3343421 bound 20 within False wait 0.0
+    counters.loaded.if0            grp hooks-load-counters  ms    36.623 d   3.189 cyc    3662340 bound 20 within False wait 0.0
+    counters.all.t5.i3.if0         grp hooks-counters       ms    44.890 d   8.267 cyc    4489005 bound 20 within False wait 0.0
+    counters.all.t5.i4.if0         grp hooks-counters       ms    57.150 d  12.260 cyc    5715022 bound 20 within False wait 0.0
+    counters.all.t5.i5.if0         grp hooks-counters       ms    68.580 d  11.430 cyc    6857973 bound 20 within False wait 0.0
+    counters.all.t5.i6.if0         grp hooks-counters       ms    80.066 d  11.487 cyc    8006635 bound 20 within False wait 0.0
+    counters.all.t5.i7.if0         grp hooks-counters       ms    91.535 d  11.468 cyc    9153484 bound 20 within False wait 0.0
+    counters.all.t5.i8.if0         grp hooks-counters       ms   103.252 d  11.717 cyc   10325175 bound 20 within False wait 0.0
+    counters.all.t6.i1.if0         grp hooks-counters       ms   114.696 d  11.444 cyc   11469575 bound 20 within False wait 0.0
+    counters.all.t6.i2.if0         grp hooks-counters       ms   126.196 d  11.500 cyc   12619556 bound 20 within False wait 0.0
+    counters.all.t6.i3.if0         grp hooks-counters       ms   137.678 d  11.482 cyc   13767770 bound 20 within False wait 0.0
+    counters.all.t6.i4.if0         grp hooks-counters       ms   149.146 d  11.468 cyc   14914595 bound 20 within False wait 0.0
+    counters.all.t6.i5.if0         grp hooks-counters       ms   160.605 d  11.459 cyc   16060462 bound 20 within False wait 0.0
+    counters.all.t6.i6.if0         grp hooks-counters       ms   172.118 d  11.513 cyc   17211764 bound 20 within False wait 0.0
+    counters.all.t6.i7.if0         grp hooks-counters       ms   183.874 d  11.756 cyc   18387375 bound 20 within False wait 0.0
+    counters.all.t6.i8.if0         grp hooks-counters       ms   195.356 d  11.482 cyc   19535580 bound 20 within False wait 0.0
+    counters.all.t9.i0.if0         grp hooks-counters       ms   206.826 d  11.470 cyc   20682606 bound 20 within False wait 0.0
+    counters.all.if0               grp hooks-counters       ms   218.712 d  11.886 cyc   21871183 bound 20 within False wait 0.0
+    counters.all.t36.i0.if0        grp hooks-counters       ms   218.712 d   0.000 cyc   21871183 bound 20 within False wait 0.0
+   summary worst {'alone': ('counters.all.if0', 218.71183), 'loaded': ('counters.loaded.if0', 36.6234)}
+   H-SRP rows in (18,20]: []

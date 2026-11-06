@@ -1,0 +1,23 @@
+ok  adp-late        rc 0 unplanted match 0 unplanted row (0.132, 20.0, True) | LATE H-ADP: control.discover.if0: 74.532 ms against its bound 20 ms (control) | readme True
+ok  adp-order       rc 0 unplanted match 0 unplanted row None | ORDER H-ADP: the ENTITY_AVAILABLE committed at bus cycle 184748560 on interface  | readme False
+ok  disc-late       rc 0 unplanted match 0 unplanted row (8.403, 20.0, True) | LATE H-DISC: hooks-late-disc.entity_departing.if0: 129.678 ms against its bound  | readme True
+ok  disc-order      rc 0 unplanted match 0 unplanted row None | ORDER H-DISC: after the ENTITY_DEPARTING at 73700102 and the ENTITY_AVAILABLE at | readme False
+ok  acmp-late       rc 0 unplanted match 0 unplanted row (0.357, 20.0, True) | LATE H-ACMP: hooks-late-acmp.get_rx_state.if0: 74.760 ms against its bound 20 ms | readme True
+ok  acmp-order      rc 0 unplanted match 0 unplanted row None | ORDER H-ACMP: on interface 0 the command 0x7401 received at 69623957 after 0x740 | readme False
+ok  aecp-late       rc 0 unplanted match 0 unplanted row (1.67, 20.0, True) | LATE H-AECP: hooks-late-aecp.read_descriptor.if0: 76.069 ms against its bound 20 | readme True
+ok  aecp-order      rc 0 unplanted match 0 unplanted row None | ORDER H-AECP: aecp.lock_entity.if0: its response at 79355294 precedes any face c | readme False
+ok  notify-late     rc 0 unplanted match 0 unplanted row (3.778, 20.0, True) | LATE H-NOTIFY: hooks-late-notify.set_name.if0: 79.352 ms against its bound 20 ms | readme True
+ok  notify-order    rc 0 unplanted match 0 unplanted row None | ORDER H-NOTIFY: aecp_fanout.set_name.if0: a notification at 75477884 precedes it | readme False
+ok  counters-late   rc 0 unplanted match 0 unplanted row (5.638, 20.0, True) | LATE H-COUNTERS: counters.first.if0: 81.819 ms against its bound 20 ms (hooks-co | readme True
+ok  counters-order  rc 0 unplanted match 0 unplanted row None | ORDER H-COUNTERS: descriptor 0x0005 0 to 0a0b0c0d0e0f1000 on interface 0: pushes | readme False
+ok  maap-late       rc 0 unplanted match 0 unplanted row (0.292, 20.0, True) | LATE H-MAAP: hooks-late-maap.defend.if0: 74.690 ms against its bound 20 ms (hook | readme True
+ok  maap-order      rc 0 unplanted match 0 unplanted row None | ORDER H-MAAP: the allocation report at 9496149 follows no DA_GATE publication si | readme False
+ok  srp-late        rc 0 unplanted match 0 unplanted row (1.241, 18.0, True) | LATE H-SRP: hooks-late-srp.listener_ready.if0: 75.638 ms against its bound 18 ms | readme True
+ok  srp-order       rc 0 unplanted match 0 unplanted row None | ORDER H-SRP: the MRPDU committed at 276780935 on interface 0 after the Domain re | readme False
+plants ok 16 of 16
+noop: PLANT counters-late ESCAPED: LATE H-COUNTERS: counters.first.if0 not found ['rc=1']
+1x1-idle table.md byte-equal to the head render: True rows 145 note present True whole+descriptor rows in table: 0
+1x1-ans table.md byte-equal to the head render: True rows 164 note present True whole+descriptor rows in table: 7
+8x8-idle table.md byte-equal to the head render: True rows 207 note present True whole+descriptor rows in table: 0
+8x8-ans table.md byte-equal to the head render: True rows 240 note present True whole+descriptor rows in table: 21
+mutants 79 readme rows 79 missing [] extra [] named check differs []
