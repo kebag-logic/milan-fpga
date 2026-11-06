@@ -46,7 +46,14 @@
 
 constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
-constexpr uint32_t OUR_CQ = 0xF8FE436A;
+//! This plane's clockQuality, from the build (#843): the Makefile reads the
+//! generator's CQ_C, whose clockAccuracy is 0x22 since FPGA-gPTP #100. The
+//! peer Announces below carry it too, so they tie the plane on clockQuality
+//! and priority1 decides.
+#ifndef OUR_CQ_TB
+#error "Makefile must pass OUR_CQ_TB, the clockQuality of the image it builds"
+#endif
+constexpr uint32_t OUR_CQ = OUR_CQ_TB;
 constexpr uint64_t GMID = 0x00AACCFFFE010203ull;
 
 constexpr uint32_t FL_PRESENT = 1;
@@ -499,6 +506,7 @@ class GptpPlaneHarness {
   void prove_grandmaster_follow_up_rides_the_real_counter() {
     expect("quiet ride to grandmaster",
            wait_flags(FL_AMGM, FL_AMGM, kGrandmasterTicks), 1);
+    const size_t gm_first = txf.size();
     tx_seen = txf.size();
     std::vector<uint8_t> sy = wait_tx(0x0, kTxWaitTicks);
     expect("sync long enough to parse", sy.size() >= 58, 1);
@@ -515,6 +523,25 @@ class GptpPlaneHarness {
       expect("follow_up origin is the real counter",
              d >= 0 && d < 300000, 1);
     }
+    prove_the_grandmaster_announces_this_image_clock_quality(gm_first);
+  }
+
+  //! #843: as grandmaster the plane's Announce carries its own clockQuality
+  //! in grandmasterClockQuality, message offset 48 (IEEE 802.1AS-2011
+  //! 10.5.3.2.3, Table 10-7), frame octets 62..65.
+  void prove_the_grandmaster_announces_this_image_clock_quality(
+      size_t first) {
+    const size_t resume = tx_seen;
+    tx_seen = first;
+    std::vector<uint8_t> an = wait_tx(0xB, kGrandmasterTicks);
+    if (tx_seen < resume) tx_seen = resume;
+    expect("grandmaster Announce long enough to parse", an.size() >= 66, 1);
+    if (an.size() < 66) return;
+    const uint32_t cq = (static_cast<uint32_t>(an[62]) << 24)
+                      | (static_cast<uint32_t>(an[63]) << 16)
+                      | (static_cast<uint32_t>(an[64]) << 8) | an[65];
+    expect("grandmaster Announce carries this image's clockQuality", cq,
+           OUR_CQ);
   }
 
   // The existing behavior checks above make a bad tag operationally red:
