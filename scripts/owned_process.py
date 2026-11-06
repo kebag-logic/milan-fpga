@@ -27,8 +27,22 @@ from types import FrameType
 from typing import BinaryIO
 
 PROC = Path("/proc")
-GRACE_SECONDS = 2.0
-REAP_SECONDS = 2.0
+# Cleanup stages (#833). A SIGKILLed process can sit in uninterruptible sleep on
+# the locks of a mapping it shares with the host: seen for 1.91 s in dup_mmap at
+# load 250. In 121660 direct kills at load up to 111 the longest took 0.23 s, so
+# such stalls come in episodes: one held an owner for 3.04 s and four process
+# starts for 7.96 s at one moment, neither with a named cause. Each window after
+# a signal outlasts them, so a stalled process is not judged. A true survivor is
+# only reported later, and still fails the run.
+GRACE_SECONDS = 2.0  # SIGTERM until the first SIGKILL of a stubborn leaf.
+KILL_ALL_SECONDS = 2.0  # After grace, SIGKILL reaches every other descendant.
+TRAP_SECONDS = 10.0  # A resumed shell's window to finish its terminal trap.
+REAP_SECONDS = 10.0  # The last SIGKILL until a remaining descendant fails the run.
+# A census scans every process on the host, so a starved owner can spend whole
+# seconds on one pass: 1.75 s at 16 runnable tasks per CPU. A pass advances the
+# deadlines by at most this, so a descendant is only judged after the owner has
+# really looked: the 2 + 2 s to the last SIGKILL alone span at least 8 passes.
+MAX_PASS_SECONDS = 0.5
 # prctl(2) options. None of them needs privilege.
 PR_SET_PDEATHSIG = 1
 PR_GET_PDEATHSIG = 2
@@ -63,19 +77,57 @@ def _prctl():
     return prctl
 
 
-def _identity(pid: int) -> tuple[int, str] | None:
+def _stat(pid: int) -> list[str] | None:
+    """One process's stat fields after its name, or None once it is gone.
+
+    The census reads this for every process on the host, so it avoids pathlib:
+    the direct calls measured 13 ms a pass against 30 ms for 1300 processes.
+    """
     try:
-        fields = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
-        return int(fields[1]), fields[19]
+        fd = os.open(f"{PROC}/{pid}/stat", os.O_RDONLY)
     except (FileNotFoundError, ProcessLookupError):
         return None
+    try:
+        # The census reads every process on the host, and a name is not always text.
+        return os.read(fd, 4096).rsplit(b")", 1)[1].decode().split()
+    except ProcessLookupError:
+        return None
+    finally:
+        os.close(fd)
+
+
+def _identity(pid: int) -> tuple[int, str] | None:
+    fields = _stat(pid)
+    return None if fields is None else (int(fields[1]), fields[19])
 
 
 def _live(pid: int) -> bool:
+    fields = _stat(pid)
+    return fields is not None and fields[0] != "Z"
+
+
+def _describe(pid: int, first_parent: int | None, killed_ago: float | None) -> str:
+    """Name what one remaining descendant is doing, for a failed cleanup (#833).
+
+    State D is uninterruptible sleep, Z a zombie awaiting its parent, and R or S
+    after SIGKILL a process not yet scheduled to act on the signal. A parent
+    that differs from the first census means the process was re-parented.
+    """
     try:
-        return (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()[0] != "Z"
+        name, rest = (PROC / str(pid) / "stat").read_text(errors="replace").rsplit(")", 1)
     except (FileNotFoundError, ProcessLookupError):
-        return False
+        return f"pid {pid} exited during this report"
+    uptime = float((PROC / "uptime").read_text().split()[0])
+    fields = rest.split()
+    try:
+        wchan = (PROC / str(pid) / "wchan").read_text().strip()
+    except OSError:
+        wchan = "unreadable"
+    origin = "new since the first census" if first_parent is None else f"first parent {first_parent}"
+    kill = "not sent SIGKILL" if killed_ago is None else f"sent SIGKILL {killed_ago:.2f} s ago"
+    return (f"pid {pid} ({name.split('(', 1)[1]}) state {fields[0]} wchan {wchan} parent {fields[1]} "
+            f"({origin}) age {uptime - int(fields[19]) / os.sysconf('SC_CLK_TCK'):.2f} s "
+            f"start {fields[19]}, {kill}")
 
 
 class OwnedProcesses:
@@ -156,12 +208,13 @@ class OwnedProcesses:
 
     def _descendants(self) -> dict[int, tuple[int, str]]:
         population = {}
-        for entry in PROC.iterdir():
-            if entry.name.isdecimal():
-                pid = int(entry.name)
-                identity = _identity(pid)
-                if identity is not None:
-                    population[pid] = identity
+        with os.scandir(PROC) as entries:
+            for entry in entries:
+                if entry.name.isdecimal():
+                    pid = int(entry.name)
+                    identity = _identity(pid)
+                    if identity is not None:
+                        population[pid] = identity
         owned = {os.getpid()}
         while True:
             more = {pid for pid, (parent, _start) in population.items()
@@ -170,75 +223,119 @@ class OwnedProcesses:
                 return {pid: population[pid] for pid in owned if pid != os.getpid()}
             owned.update(more)
 
-    def _reap(self) -> None:
+    def _reap(self) -> set[int]:
+        """Collect every exited child; return the PIDs collected."""
+        reaped = set()
         while True:
             try:
                 pid, status = os.waitpid(-1, os.WNOHANG)
             except ChildProcessError:
-                return
+                return reaped
             if not pid:
-                return
+                return reaped
+            reaped.add(pid)
             if self.process is not None and pid == self.process.pid:
                 self.process.returncode = os.waitstatus_to_exitcode(status)
 
+    def _send(self, pid: int, start: str, signum: int) -> bool:
+        """Signal one census entry only if its identity still holds."""
+        try:
+            fd = os.pidfd_open(pid)
+        except ProcessLookupError:
+            return False
+        try:
+            identity = _identity(pid)
+            if identity is None or identity[1] != start:
+                return False
+            self._signal(fd, signum)
+            self._signal(fd, signal.SIGCONT)
+            return True
+        finally:
+            os.close(fd)
+
     def _cleanup(self) -> None:
         # Never signal a numeric PID from a stale census. Open an identity
-        # handle and recheck its start time before sending any signal.
-        deadline = time.monotonic() + GRACE_SECONDS
-        hard_deadline = deadline + REAP_SECONDS
+        # handle and recheck its start time before sending any signal. Its
+        # parent is not its identity: re-parenting does not make it new (#833).
+        started = last = time.monotonic()
+        clock = 0.0
+        deadline = GRACE_SECONDS
+        kill_all = deadline + KILL_ALL_SECONDS
         notified = set()
-        initial = None
+        initial = {}
         resumed = None
+        killed = {}
+        passes = 0
+        slowest = 0.0
         while True:
             self._reap()
-            owned = self._descendants()
-            if not owned:
+            pass_started = time.monotonic()
+            census = self._descendants()
+            passes += 1
+            # Only a census taken after the reap proves nothing remains.
+            if not census:
                 return
-            if initial is None:
-                initial = set(owned.items())
+            # A child that exited during this census is dead and collected here,
+            # so it does not remain, and the next census confirms the rest (#833).
+            reaped = self._reap()
+            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}
             now = time.monotonic()
-            if now >= hard_deadline:
-                raise RuntimeError(f"CLEANUP FAILED: owned descendants remain: {owned}")
+            slowest = max(slowest, now - pass_started)
+            clock += min(now - last, MAX_PASS_SECONDS)
+            last = now
+            if not initial:
+                initial = {(pid, start): parent for pid, (parent, start) in owned.items()}
+            # A child that exits inside every census cannot hold cleanup open either.
+            limit = kill_all + REAP_SECONDS
+            if clock >= limit and (owned or clock >= limit + REAP_SECONDS):
+                first = {pid: parent for (pid, _start), parent in initial.items()}
+                remaining = "; ".join(
+                    _describe(pid, first.get(pid), now - killed[pid] if pid in killed else None)
+                    for pid in sorted(owned or census))
+                # Never leave what this message reports as a live process, including
+                # a stopped shell that was never resumed.
+                for pid, (_parent, start) in owned.items():
+                    self._send(pid, start, signal.SIGKILL)
+                raise RuntimeError(
+                    f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+                    f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
             root_pid = self.process.pid if self.process is not None else None
             live = {pid for pid in owned if _live(pid)}
-            if self.root_notified and resumed is None and not (live - {root_pid}):
+            if self.root_notified and resumed is None and root_pid in owned and not (live - {root_pid}):
                 # The stopped shell cannot advance the sweep while descendants
                 # shut down. Resume it only when its pending terminal trap can
                 # finish; it may need to reap zombies before its EXIT cleanup.
+                # A shell already collected has no trap left, so a cancel during
+                # cleanup gives the rest no window of its own (#833).
                 self._signal(self.root_fd, signal.SIGCONT)
-                resumed = now
-            signum = signal.SIGKILL if now >= deadline else signal.SIGTERM
-            for pid, identity in owned.items():
-                if pid == root_pid and self.root_notified and now < hard_deadline - 0.2:
+                resumed = clock
+                kill_all = max(kill_all, clock + TRAP_SECONDS)
+            signum = signal.SIGKILL if clock >= deadline else signal.SIGTERM
+            for pid, (_parent, start) in owned.items():
+                # A notified shell is SIGKILLed only after its own window: never
+                # in the pass that resumes it, whatever the time then (#833).
+                if pid == root_pid and self.root_notified and (resumed is None or clock < kill_all):
                     continue
                 if signum != signal.SIGKILL:
                     # Let terminal traps run their cleanup commands during
                     # grace. New descendants still face the hard deadline.
-                    if (pid, identity) not in initial:
+                    if (pid, start) not in initial:
                         continue
-                elif now < hard_deadline - 0.2:
+                elif clock < kill_all:
                     # Kill stubborn leaves first, so cooperative intermediate
                     # owners can reap and remove private work before exiting.
-                    if now < deadline + 1.0 and any(parent == pid for _child, (parent, _start) in initial):
+                    if clock < deadline + 1.0 and pid in initial.values():
                         continue
                     if any(parent == pid and child in live for child, (parent, _start) in owned.items()):
                         continue
-                    if (pid, identity) not in initial and resumed is not None and now < resumed + 1.0:
+                    # A command the resumed shell's trap started shares its window.
+                    if (pid, start) not in initial and resumed is not None:
                         continue
-                key = (pid, identity, signum)
-                if key in notified:
-                    continue
-                try:
-                    fd = os.pidfd_open(pid)
-                except ProcessLookupError:
-                    continue
-                try:
-                    if _identity(pid) == identity:
-                        self._signal(fd, signum)
-                        self._signal(fd, signal.SIGCONT)
-                        notified.add(key)
-                finally:
-                    os.close(fd)
+                key = (pid, start, signum)
+                if key not in notified and self._send(pid, start, signum):
+                    notified.add(key)
+                    if signum == signal.SIGKILL:
+                        killed.setdefault(pid, time.monotonic())
             time.sleep(0.02)
 
     def run(self, argv: list[str], cwd: Path | None = None, capture: bool = True,
