@@ -1,0 +1,63 @@
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index c1fa20c292..b6817deecd 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1180,8 +1180,11 @@ the AAF talker and the CRF talker offer frames inside the held window. Each
+ source that offered must not have sent, and each must send from the station
+ MAC once the pair is written.
+ 
+-It grades every frame on valid/ready at `m_axis_mac_tx`:
++It grades every frame of the first boot (through the controller's and the
++listener's exchanges) on valid/ready at `m_axis_mac_tx`:
+ 
++- the processor offered a frame before the station MAC was written, so the
++  leg reached the defect's precondition;
+ - no frame carries the all-zero source address;
+ - no CSR-addressed transmitter's frame leaves before both halves are written;
+ - each protocol's frames carry the station MAC as source address;
+@@ -1192,8 +1195,6 @@ It grades every frame on valid/ready at `m_axis_mac_tx`:
+   kinds;
+ - MSRP, MVRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent, and
+   CRF frames too where the config declares the CRF Media Clock Output;
+-- the processor offered a frame before the station MAC was written, so the
+-  leg reached the defect's precondition;
+ - `A_TXARB_DIAG` reads no arbiter stall or abort.
+ 
+ On the stamp's own valid/ready, in every boot, it compares each control-lane
+@@ -1201,13 +1202,15 @@ octet outside octets 6 to 11 with the same octet entering the stamp (the IFG
+ gasket's output). Every one must leave unchanged. The octet's position is the
+ leg's own count of the frame's kept octets.
+ 
+-In each early-enable boot it also grades:
++In each early-enable boot it grades instead:
+ 
+ - that each source it requires offered a frame while the pair was unwritten
+   (its own `tvalid`, ahead of the transmit gate): MAAP and the CRF talker in
+-  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot;
++  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot
++  (CRF where the config declares the CRF Media Clock Output);
+ - that no frame of that source left before the pair was written;
+-- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it;
++- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it
++  (CRF where the config declares the CRF Media Clock Output);
+ - that no CSR-addressed frame left early, no frame carried the all-zero
+   address, every frame carried the station MAC, and `A_TXARB_DIAG` is clean.
+ 
+diff --git a/tb/verilator/milan_dp/sim_boot_sa.cpp b/tb/verilator/milan_dp/sim_boot_sa.cpp
+index 152146c896..69918ea082 100644
+--- a/tb/verilator/milan_dp/sim_boot_sa.cpp
++++ b/tb/verilator/milan_dp/sim_boot_sa.cpp
+@@ -809,10 +809,11 @@ void BootSaHarness::grade() {
+                          Kind::Acmp, Kind::Maap}) {
+         const auto i = static_cast<size_t>(k);
+         const std::string what = std::string("[BOOTSA] every ") + kKindName[i]
+-            + " frame's destination address is its protocol's (octets 0 to 5 untouched)";
++            + (k == Kind::Aecp ? " frame's destination address is the controller's MAC"
++                               : " frame's destination address is its protocol's");
+         check_.dec(what.c_str(), wrong_da[i], 0);
+     }
+-    check_.dec("[BOOTSA] every frame is a known protocol's (octets 12 and 13 untouched)",
++    check_.dec("[BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's",
+                seen[static_cast<size_t>(Kind::Other)], 0);
+     std::vector<Kind> required = {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
+                                   Kind::Acmp, Kind::Maap, Kind::Aaf};
