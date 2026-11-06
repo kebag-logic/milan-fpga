@@ -1,0 +1,39 @@
+# mutant | head result | base result | what | head note
+L1 | killed | killed | Findings cell shows the line number again | 13 fail; first: selftest: FAIL a removed line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md
+L2 | killed | killed | banner evidence names a line again | 2 fail; first: selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTA
+L3 | killed | killed | a per-page line count leaks through the evidence cell | 23 fail; first: selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md:
+L4 | killed | killed | a per-page byte count leaks through the purpose cell | 21 fail; first: selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md:
+L5 | killed | killed | summary total shows a size | 1 fail; first: selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+F1 | killed | killed | Located always says on page | 2 fail; first: selftest: FAIL planted edited quote in the data file: generated output lacks 're-verify: quote not found'
+F2 | killed | killed | Located always says re-verify | 13 fail; first: selftest: FAIL a line added above a finding leaves the page fresh: generated output lacks '| D0-001 | [docs/gu
+R1 | killed | killed | Findings row loses the recording page (source_of bypassed on the page only) | 1 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks 'Copy of the D
+R2 | killed | killed | copy rows dropped from the page | 11 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '| D0-002 | [R
+O1 | killed | killed | the page's own inventory row is dropped from the table while still counted | 1 fail; first: selftest: FAIL the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+O2 | killed | killed | the page is left out of the population | 4 fail; first: selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+O3 | killed | killed | the page's own row reads the file on disk | FileNotFoundError: [Errno 2] No such file or directory: 'TMPDIR/docs/DOCUMENTATION_AUDIT.md'
+O4 | killed | killed | the page's own row is rendered from a short header | 1 fail; first: selftest: FAIL the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+C1 | killed | killed | status-rule reader expects the old 9-cell row | 2 fail; first: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+C2 | killed | killed | status-rule reader reads the wrong cell | 2 fail; first: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+C3 | killed | killed | status-rule reader ignores the Findings table | 2 fail; first: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+C4 | killed | killed | status-rule reader reads the wrong Findings cell | 2 fail; first: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open fin
+W1 | killed | killed | --findings-dir prints None for a lost statement | 1 fail; first: selftest: FAIL fixed statement asks for re-verification: generated output lacks '## D0-001: docs/guides/A.md:?
+W2 | killed | killed | --findings-dir names no line | 4 fail; first: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+W3 | killed | killed | locate is off by one | 2 fail; first: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+W4 | killed | killed | carried_line is off by one | 3 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002: RE
+W5 | killed | killed | --findings-dir omits copy rows | 3 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002: RE
+W6 | killed | killed | --findings-dir keeps only the last finding of a lane | 1 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002: RE
+W7 | killed | SURVIVED | --findings-dir keeps only the first finding of a lane | 1 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+W8 | killed | SURVIVED | --findings-dir omits the statement | 1 fail; first: selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001: do
+W9 | killed | killed | --findings-dir writes no files | 5 fail; first: selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guides/
+S1 | killed | killed | a recorded judgement is ignored | 1 fail; first: selftest: FAIL a status change alone makes the page stale: --check exited 0, expected 1: documentation invento
+S2 | killed | killed | a banner is never read | 2 fail; first: selftest: FAIL a line added above a banner leaves the page fresh: generated output lacks '| superseded | banne
+S3 | killed | killed | the status rule is dropped | 48 fail; first: selftest: FAIL unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENTATIO
+S4 | killed | n/a | summary counts every page under every status | 2 fail; first: selftest: FAIL a status change alone makes the page stale: generated output lacks '| superseded | 1 |'
+S5 | killed | killed | the status column is dropped from the summary | 1 fail; first: selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\n|-
+S6 | killed | SURVIVED | banner window grows past the rule | 1 fail; first: selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: S
+S7 | killed | killed | banner window shrinks | 2 fail; first: selftest: FAIL a line added above a banner leaves the page fresh: generated output lacks '| superseded | banne
+S8 | killed | killed | the gate passes a stale page | 20 fail; first: selftest: FAIL a status change alone makes the page stale: --check exited 0, expected 1: documentation invento
+S9 | SURVIVED | SURVIVED | the gate ignores the status rule | documentation inventory selftest: OK (56 controls)
+S10 | killed | killed | untracked pages join the population | 2 fail; first: selftest: FAIL untracked page stays out of the population: --check exited 1, expected 0: docs/DOCUMENTATION_AU
+S11 | killed | killed | a removed page keeps its row | FileNotFoundError: [Errno 2] No such file or directory: 'TMPDIR/docs/guides/B.md'
+# total 37, head survivors ['S9'], killed at base but surviving at head []
