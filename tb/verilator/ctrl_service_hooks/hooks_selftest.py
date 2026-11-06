@@ -39,8 +39,10 @@ HOOK_ROW = run.hook_row
 SLACK = run.slack_cycles
 HELD_ROW = run.held_row
 SUMMARY = run.summary
+GRADE_ALL = run.grade_all
 MAIN = run.main
 COUNTERS_GROUPS = hooks.counters_groups
+AGING_GROUP = hooks.aging_group
 #: The plants as written, which a mutant strips.
 PLANTS = hooks.plants()
 #: What a check's synthetic log carries, fixed here so a mutant of the rule reading it meets a well-formed log.
@@ -57,6 +59,9 @@ FAMILIES = {'adp': 'H-ADP', 'disc': 'H-DISC', 'acmp': 'H-ACMP', 'aecp': 'H-AECP'
 #: The shipping point, and a served-descriptor list for hooks-counters: the real one needs a build's descriptors.
 POINT = scenario.Point('1x1', 'endstation_ax7101_1x1_tdm8', 1, 1, 2, 1, 1)
 SERVED = [(5, 0), (5, 1), (6, 0), (9, 0), (0x24, 0)]
+#: The fields that label the held push's row, and their values, whether the push was sent or not.
+HELD_FIELDS = ('hook', 'group', 'probe', 'path', 'family', 'interface')
+HELD_LABELS = ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 0)
 
 
 class Failed(AssertionError):
@@ -433,8 +438,9 @@ def check_plant_verdict() -> None:
 
 def check_held_grade() -> None:
     """The held push has one service bound: W, the time it was held, is recorded beside it and never added. It fits
-    at that bound and not past it. Its cycles are the CPU clock's, rounded up, and its margin is the 1 s counter
-    update less W and the service. It is a lone path of H-COUNTERS."""
+    at that bound and not past it, and its row reports the service that was graded. Its cycles are the CPU clock's,
+    rounded up, and its margin is the 1 s counter update less W and the service, to the hundredth of a microsecond.
+    It is a lone path of H-COUNTERS."""
     spec = dict(cpu_hz=50_000_000, sys_hz=SYS_HZ)
     held = lambda ms, span: dict(probe='counters.held.if0', eligible=1000 * MS, end=1000 * MS + span, ms=ms,
                                  wait_ms=900.0)
@@ -442,18 +448,21 @@ def check_held_grade() -> None:
     expect(at['bound_ms'] == 20.0 and past['bound_ms'] == 20.0, f'the held bound includes W: {at["bound_ms"]}')
     expect(at['within'], 'a held push at its bound misses')
     expect(not past['within'], 'a held push past its bound fits')
+    expect((at['ms'], past['ms']) == (20.0, 20.00002), f'the held row reports {at["ms"]} ms, not its service')
     expect(at['wait_ms'] == 900.0, f'the held W is not recorded: {at["wait_ms"]}')
     cycles = run.held_row(held(0.00003, 3), spec)['cpu_cycles']
     expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
     expect(at['normative_ms'] == 1000.0, f'the held timeout is {at["normative_ms"]}')
     expect(at['margin_ms'] == 80.0, f'the held margin is {at["margin_ms"]}, not 1000 - 900 - 20')
-    identity = tuple(at[k] for k in ('hook', 'group', 'path', 'family', 'interface'))
-    expect(identity == ('H-COUNTERS', 'hooks-counters', 'counters.held', 'notify', 0), f'held row {identity}')
+    expect(past['margin_ms'] == 79.99998, f'the held margin is {past["margin_ms"]}, not 1000 - 900 - 20.00002')
+    identity = tuple(at[k] for k in HELD_FIELDS)
+    expect(identity == HELD_LABELS, f'held row {identity}')
     expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
 
 
 def check_missing_held() -> None:
-    """A held push never sent is a row that never fits, at its one service bound, and a finding by name."""
+    """A held push never sent is a row that never fits, at its one service bound, and a finding by name. It records
+    no service, no W and no margin, under the labels of the held push."""
     with tempfile.TemporaryDirectory() as folder:
         out = Path(folder)
         text = out / 'input.log'
@@ -467,20 +476,30 @@ def check_missing_held() -> None:
     r = got['rows'][0]
     expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
     expect((r['bound_ms'], r['normative_ms'], r['ms'], r['loaded']) == (20.0, 1000.0, 0.0, False), f'missing row {r}')
+    expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0),
+           f'a push never sent records a service: {r}')
+    identity = tuple(r[k] for k in HELD_FIELDS)
+    expect(identity == HELD_LABELS, f'missing row {identity}')
 
 
 def check_summary() -> None:
     """A hook's worst path is the longest service, W taken off, a path never served before any; alone and under the
-    composed load apart, and only its own paths. Its counts are its own, a path over its bound no narrow fit, and
-    its ordering results and clauses are kept."""
+    composed load apart, and only its own paths. Its counts are its own, a path over its bound no narrow fit, a path
+    one cycle under the layout swing a narrow fit and a path at the swing none, and its ordering results and clauses
+    are kept."""
+    swing = hooks.LAYOUT_SWING_CYCLES * 1000 / CPU_HZ
     made = [run.hook_row(row(family, ms, wait=wait, probe=name, starved=starved), group)
             for name, family, ms, wait, starved, group in (
                 ('fast', 'maap', 2.0, 0.0, False, 'maap'), ('slow', 'maap', 25.0, 0.0, False, 'maap'),
-                ('waiting', 'maap', 210.0, 200.0, False, 'maap'), ('near', 'maap', 19.99, 0.0, False, 'maap'),
+                ('waiting', 'maap', 210.0, 200.0, False, 'maap'),
+                ('at-swing', 'maap', 20.0 - swing, 0.0, False, 'maap'),
+                ('under-swing', 'maap', 20.0 - swing + 1e-5, 0.0, False, 'maap'),
                 ('loaded', 'maap', 30.0, 0.0, False, 'backlog'), ('starved', 'maap', 1.0, 0.0, True, 'backlog'),
                 ('other', 'srp', 500.0, 0.0, False, 'srp'), ('other-loaded', 'srp', 900.0, 0.0, True, 'backlog'))]
     for r in made:
         r['slack_cycles'] = run.slack_cycles(r, CPU_HZ)
+    slack = {r['probe']: r['slack_cycles'] for r in made}
+    expect((slack['at-swing'], slack['under-swing']) == (6490, 6489), f'the rows are not at the swing: {slack}')
     checks = {h: dict(applied=n + 2, undecided=n + 20, findings=[f'ORDER {h}']) for n, h in enumerate(hooks.HOOKS)}
     summaries = run.summary(dict(rows=made, checks=checks))
     got = summaries['H-MAAP']
@@ -488,7 +507,7 @@ def check_summary() -> None:
     expect(got['worst']['loaded']['probe'] == 'starved',
            f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
     expect(summaries['H-ADP']['worst'] == {} and summaries['H-ADP']['paths'] == 0, 'a hook with no path has a worst')
-    expect(got['paths'] == 6, f'{got["paths"]} paths, not 6')
+    expect(got['paths'] == 7, f'{got["paths"]} paths, not 7')
     expect(got['misses'] == 3, f'{got["misses"]} misses, not 3')
     expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
     n = list(hooks.HOOKS).index('H-MAAP')
@@ -664,6 +683,13 @@ def worst_by(key: Callable[[dict], object]) -> Callable[[], AbstractContextManag
                                              for h, v in SUMMARY(g).items()})
 
 
+def narrow_under(limit: int) -> Callable[[], AbstractContextManager]:
+    """The summaries with each hook's narrow fits counted under `limit`, not the layout swing."""
+    return mutant(run, 'summary', lambda g: {h: {**v, 'narrow': sum(r['within'] and r['slack_cycles'] < limit
+                                                                    for r in g['rows'] if r['hook'] == h)}
+                                             for h, v in SUMMARY(g).items()})
+
+
 def counters_edited(edit: Callable[[Group], None]) -> Callable[[], AbstractContextManager]:
     """hooks-counters with `edit` made to its group."""
     def made(p: scenario.Point, build: dict) -> list[Group]:
@@ -698,10 +724,34 @@ def change_before_rows(g: Group) -> None:
 
 
 def graded_by_amended(r: dict, group: str) -> dict:
-    """A path graded against its amended bound."""
+    """A path's verdict read from its amended bound at one interface, its bound as written: only SRP's verdict moves,
+    so the rule that fails is the verdict's, not the column's arithmetic or the table's."""
     out = HOOK_ROW(r, group)
-    bound = hooks.amended_ms(out, 2)
-    return dict(out, bound_ms=bound, within=not out['unbounded'] and out['ms'] <= bound)
+    return dict(out, within=not out['unbounded'] and out['ms'] <= hooks.amended_ms(out, 1))
+
+
+def findings_by_amended(*arguments: object) -> dict:
+    """A run's grade with a LATE finding only on a path over its amended bound, every verdict as written."""
+    graded = GRADE_ALL(*arguments)
+    over = {r['probe'] for r in graded['rows'] if r['ms'] > hooks.amended_ms(r, 2)}
+    return dict(graded, findings=[x for x in graded['findings'] if not x.startswith('LATE ')
+                                  or x.split(': ')[1] in over])
+
+
+def superseded_by_any_row(*arguments: object) -> dict:
+    """A run's grade with every refusal superseded, whichever path or interface a later group measured."""
+    graded = GRADE_ALL(*arguments)
+    return dict(graded, refusals=[], superseded=[*graded['superseded'], *graded['refusals']])
+
+
+def window_before_arm(p: scenario.Point) -> Group:
+    """The aging group as written, but for each TMR_NO_ADP mark, moved before its arm to beside the input's mark."""
+    g = AGING_GROUP(p)
+    for i in range(p.interfaces):
+        mark = f'mark hooks-disc-aging.tmr_no_adp.if{i}'
+        g.steps.remove(mark)
+        g.steps.insert(g.steps.index(f'mark hooks-disc-aging.available.if{i}') + 1, mark)
+    return g
 
 
 HELD_GRADE, MISSING_HELD = 'the held push\'s grade', 'a held push never sent'
@@ -747,13 +797,11 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('H-SRP: the ADOPTED bit is never seen set', mutant(hooks, 'adopted', lambda v: False), 'H-SRP ordering'),
     ('plants: a plant edits nothing', mutant(hooks_build, 'plant_text', lambda src, edits: {}),
      'the plants apply'),
-    ('supersede: any later group supersedes a refusal', mutant(hooks, 'SUPERSEDED', {'acmp.tmr_no_adp': 'acmp-disc',
-                                                                                  'acmp.bind_rx': 'hooks-disc-aging'}),
+    ('supersede: the table names another group', mutant(hooks, 'SUPERSEDED', {'acmp.tmr_no_adp': 'acmp-disc'}),
      'a refusal is superseded only by its own path'),
-    ('aging: the window opens before the arm (the earlier rule)', mutant(hooks, 'aging_group', lambda p: Group(
-        'hooks-disc-aging', steps=[*[f'mark hooks-disc-aging.available.if{i}' for i in range(2)],
-                                   *[f'mark hooks-disc-aging.tmr_no_adp.if{i}' for i in range(2)],
-                                   *[f'wait tmr {2 + i} 1 within 1' for i in range(2)]])),
+    ('supersede: any later group supersedes a refusal', mutant(run, 'grade_all', superseded_by_any_row),
+     'a refusal is superseded only by its own path'),
+    ('aging: the window opens before the arm (the earlier rule)', mutant(hooks, 'aging_group', window_before_arm),
      'the aging window opens after the arm'),
     ('aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule)', mutant(scenario, 'probe_answer',
                                                                                      lambda i, status=0: 'gap 20'),
@@ -789,6 +837,8 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('held: the exact bound misses', held_fields(lambda h, r, s: dict(within=h['ms'] < r['bound_ms'])), HELD_GRADE),
     ('held: the verdict is relaxed by 1 ms', held_fields(lambda h, r, s: dict(within=h['ms'] <= r['bound_ms'] + 1)),
      HELD_GRADE),
+    ('held: its row reports no time', held_fields(lambda h, r, s: dict(ms=0.0)), HELD_GRADE),
+    ('held: its row reports a millisecond more', held_fields(lambda h, r, s: dict(ms=h['ms'] + 1)), HELD_GRADE),
     ('held: W is not recorded', held_fields(lambda h, r, s: dict(wait_ms=0.0)), HELD_GRADE),
     ('held: its cycles round down', held_fields(lambda h, r, s: dict(
         cpu_cycles=(h['end'] - h['eligible']) * s['cpu_hz'] // s['sys_hz'])), HELD_GRADE),
@@ -796,11 +846,14 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      HELD_GRADE),
     ('held: its margin omits W', held_fields(lambda h, r, s: dict(margin_ms=round(r['normative_ms'] - h['ms'], 5))),
      HELD_GRADE),
+    ('held: its margin is rounded to the millisecond', held_fields(lambda h, r, s: dict(
+        margin_ms=round(r['margin_ms']))), HELD_GRADE),
     ('held: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
         normative_ms=hooks.NORMATIVE_MS['notify'])), HELD_GRADE),
     ('held: it counts as under the composed load', held_fields(lambda h, r, s: dict(loaded=True)), HELD_GRADE),
     ('held: it counts as never served', held_fields(lambda h, r, s: dict(unbounded=True)), HELD_GRADE),
     ('held: it is H-NOTIFY\'s', held_fields(lambda h, r, s: dict(hook='H-NOTIFY')), HELD_GRADE),
+    ('held: it names another probe', held_fields(lambda h, r, s: dict(probe='counters.first.if0')), HELD_GRADE),
     ('held missing: silently accepted', held_fields(lambda h, r, s: dict(missing=False, within=True, unbounded=False),
                                                     missing=True), MISSING_HELD),
     ('held missing: it fits', held_fields(lambda h, r, s: dict(within=True), missing=True), MISSING_HELD),
@@ -810,6 +863,18 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      MISSING_HELD),
     ('held missing: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
         normative_ms=hooks.NORMATIVE_MS['notify']), missing=True), MISSING_HELD),
+    ('held missing: it records CPU cycles', held_fields(lambda h, r, s: dict(cpu_cycles=1), missing=True),
+     MISSING_HELD),
+    ('held missing: it records a W', held_fields(lambda h, r, s: dict(wait_ms=9.0), missing=True), MISSING_HELD),
+    ('held missing: it records a margin', held_fields(lambda h, r, s: dict(margin_ms=5.0), missing=True), MISSING_HELD),
+    ('held missing: it is another group\'s', held_fields(lambda h, r, s: dict(group='hooks-x'), missing=True),
+     MISSING_HELD),
+    ('held missing: it is another path\'s', held_fields(lambda h, r, s: dict(path='counters.x'), missing=True),
+     MISSING_HELD),
+    ('held missing: it is another interface\'s', held_fields(lambda h, r, s: dict(interface=1), missing=True),
+     MISSING_HELD),
+    ('held missing: it is another family\'s', held_fields(lambda h, r, s: dict(family='aecp'), missing=True),
+     MISSING_HELD),
     ('summary: the fastest path is the worst', worst_by(lambda r: -r['ms']), SUMMARY_CHECK),
     ('summary: W is left in the service', worst_by(lambda r: (r['unbounded'], r['ms'])), SUMMARY_CHECK),
     ('summary: a path never served is not worst first', worst_by(lambda r: r['ms'] - r['wait_ms']), SUMMARY_CHECK),
@@ -822,6 +887,9 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('summary: a miss counts as a narrow fit', summary_fields(lambda v, g: dict(narrow=v['narrow'] + v['misses'])),
      SUMMARY_CHECK),
     ('summary: no narrow fit is counted', summary_fields(lambda v, g: dict(narrow=0)), SUMMARY_CHECK),
+    ('summary: a fit by the swing itself is narrow', narrow_under(hooks.LAYOUT_SWING_CYCLES + 1), SUMMARY_CHECK),
+    ('summary: a fit one cycle under the swing is not narrow', narrow_under(hooks.LAYOUT_SWING_CYCLES - 1),
+     SUMMARY_CHECK),
     ('summary: no miss is counted', summary_fields(lambda v, g: dict(misses=0)), SUMMARY_CHECK),
     ('summary: the path count is every hook\'s', summary_fields(lambda v, g: dict(paths=len(g['rows']))),
      SUMMARY_CHECK),
@@ -841,6 +909,7 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('amended: every counter push is queued', mutant(hooks, 'QUEUED_PATH', 'counters.'), AMENDED),
     ('amended: W is left off', mutant(hooks, 'amended_ms', lambda r, n: hooks.amended_service_ms(r, n)), AMENDED),
     ('amended: the column grades a path', mutant(run, 'hook_row', graded_by_amended), AMENDED),
+    ('amended: a finding reads the column', mutant(run, 'grade_all', findings_by_amended), AMENDED),
     ('amended: the table does not say which bounds graded', mutant(run, 'BOUNDS_NOTE', ''), AMENDED),
     ('amended: the column repeats the bound', mutant(hooks, 'amended_ms', lambda r, n: r['bound_ms']), AMENDED),
 ]

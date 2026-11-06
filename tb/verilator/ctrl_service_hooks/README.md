@@ -203,7 +203,7 @@ At the product clock `acmp-disc` measures that probe itself at both points, so n
 It runs each ordering check on a clean synthetic log, which it must apply to and pass, and on a defective one, which it must report by its hook's words; H-DISC's also on a log it must leave undecided.
 It checks every plant's and testbench addition's anchors against the checkout, the held push's eligibility, the findings by hook, a fit under the layout swing, the superseded rule, the aging window and the composed rows' full buckets.
 It runs `run.main` on every plant with no plant applied, its group's other paths over their bounds, and each must print `ESCAPED` and exit 1; with the plant's own finding, each must be caught and exit 0.
-It pins every rule of the held push's row and of each hook's summary, the ALL push's rows both ways, and that the amended column grades nothing.
+It pins every field of the held push's row that a verdict, a count or a table reads, whether the push was sent or not; every rule of each hook's summary, its narrow count at a slack of the layout swing and one cycle below it; the ALL push's rows both ways; and that no path's verdict and no `LATE` finding reads the amended column.
 Then it replaces each rule in turn, and a named check must fail:
 
 | Mutant | Caught by |
@@ -231,6 +231,7 @@ Then it replaces each rule in turn, and a named check must fail:
 | H-MAAP: every AAF_CTRL store is a report (earlier rule) | H-MAAP ordering |
 | H-SRP: the ADOPTED bit is never seen set | H-SRP ordering |
 | plants: a plant edits nothing | the plants apply |
+| supersede: the table names another group | a refusal is superseded only by its own path |
 | supersede: any later group supersedes a refusal | a refusal is superseded only by its own path |
 | aging: the window opens before the arm (the earlier rule) | the aging window opens after the arm |
 | aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | the aging window opens after the arm |
@@ -248,19 +249,30 @@ Then it replaces each rule in turn, and a named check must fail:
 | held: W added to its bound | the held push's grade |
 | held: the exact bound misses | the held push's grade |
 | held: the verdict is relaxed by 1 ms | the held push's grade |
+| held: its row reports no time | the held push's grade |
+| held: its row reports a millisecond more | the held push's grade |
 | held: W is not recorded | the held push's grade |
 | held: its cycles round down | the held push's grade |
 | held: its cycles are the bus's | the held push's grade |
 | held: its margin omits W | the held push's grade |
+| held: its margin is rounded to the millisecond | the held push's grade |
 | held: its timeout is the notification family's | the held push's grade |
 | held: it counts as under the composed load | the held push's grade |
 | held: it counts as never served | the held push's grade |
 | held: it is H-NOTIFY's | the held push's grade |
+| held: it names another probe | the held push's grade |
 | held missing: silently accepted | a held push never sent |
 | held missing: it fits | a held push never sent |
 | held missing: it counts as served | a held push never sent |
 | held missing: its finding is dropped | a held push never sent |
 | held missing: its timeout is the notification family's | a held push never sent |
+| held missing: it records CPU cycles | a held push never sent |
+| held missing: it records a W | a held push never sent |
+| held missing: it records a margin | a held push never sent |
+| held missing: it is another group's | a held push never sent |
+| held missing: it is another path's | a held push never sent |
+| held missing: it is another interface's | a held push never sent |
+| held missing: it is another family's | a held push never sent |
 | summary: the fastest path is the worst | the worst path and the counts |
 | summary: W is left in the service | the worst path and the counts |
 | summary: a path never served is not worst first | the worst path and the counts |
@@ -269,6 +281,8 @@ Then it replaces each rule in turn, and a named check must fail:
 | summary: another hook's paths are its own | the worst path and the counts |
 | summary: a miss counts as a narrow fit | the worst path and the counts |
 | summary: no narrow fit is counted | the worst path and the counts |
+| summary: a fit by the swing itself is narrow | the worst path and the counts |
+| summary: a fit one cycle under the swing is not narrow | the worst path and the counts |
 | summary: no miss is counted | the worst path and the counts |
 | summary: the path count is every hook's | the worst path and the counts |
 | summary: the applied count is dropped | the worst path and the counts |
@@ -285,6 +299,7 @@ Then it replaces each rule in turn, and a named check must fail:
 | amended: every counter push is queued | the amended column grades nothing |
 | amended: W is left off | the amended column grades nothing |
 | amended: the column grades a path | the amended column grades nothing |
+| amended: a finding reads the column | the amended column grades nothing |
 | amended: the table does not say which bounds graded | the amended column grades nothing |
 | amended: the column repeats the bound | the amended column grades nothing |
 
@@ -441,7 +456,7 @@ At the product clock, alone, every hook is within its bound at both points and o
 Under the composed load every hook misses at both points and on both arms (H-COUNTERS on the answering arm only, where it runs) but one: H-DISC at 1x1 on the answering arm, 14.03 ms.
 So S5's acceptance, each hook within its bound and inside its normative timeout, is met alone but for H-COUNTERS and is not met under the composed load, on `dev-soft-core` as it is.
 It stays open on #665: [the round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6677495623) makes these misses measured results this harness reports, and names who closes them.
-These verdicts are against the bounds in the tree at this base. For information, the amended bounds would change none of them: no H-SRP path lies between 18 and 20 ms, and the ALL push stays over its ceiling at both points.
+These verdicts are against the bounds in the tree at this base. For information, the amended bounds would change no hook's verdict: no H-SRP path lies between 18 and 20 ms, and the ALL push as one path stays over its ceiling at both points. Per descriptor, four 8x8 rows would move inside the 60 ms ceiling: `t5.i1` to `t5.i4`, 21.70 to 57.15 ms. That is the whole difference between the two readings of the ALL push: read as one path nothing moves, and read per descriptor those four rows do.
 The CPU budget harness's findings explain the composed misses, and their two starvations reproduce here on the platform's image at 100 MHz: SRP takes no record in the idle arm's ADP backlog windows, and the ACMP core drops the commands it cannot owe ([its Findings](../ctrl_service_budget/README.md#findings)).
 The firmware cuts that answer them are S2b's (#810), not merged at this base, so these figures are the hooks' before.
 No ordering check found a defect, every check applied at every point it can, and no path fits by less than the layout swing.
@@ -451,7 +466,7 @@ No ordering check found a defect, every check applied at every point it can, and
 - **H-ACMP.** Alone at most 15.99 ms (8x8, idle arm, UNBIND_RX). Under the composed load the four commands behind the owed one are never answered, at both points and on both arms, after at least 363 ms: their controller's 200 ms timeout (Milan v1.2 Table 5.26) expires. The owed command itself is answered after 77.84 ms (1x1) and 90.26 ms (8x8), inside 200 ms but over 20.
 - **H-AECP.** Alone at most 2.40 ms. Under the composed load the burst's last AECP response takes 48.47 to 205.20 ms. The idle arm's worst are `backlog-adp` and `backlog-adp-refill`, 159 ms at 1x1 and 205 ms at 8x8, where the change notices retry each millisecond after the bind ([Limits](#limits)); the answering arm's worst is 85.82 and 102.26 ms. The 8x8 idle worst leaves 35 ms of the 240 ms timeout.
 - **H-NOTIFY.** Alone a fan-out to every registration takes at most 3.78 ms at 1x1 (16) and 6.85 ms at 8x8 (32). Under the composed load, SET_NAME last of the AECP ring's burst reaches its last registration after 59.38 and 84.07 ms.
-- **H-COUNTERS.** A push costs about 32,000 to 36,000 CPU cycles a notice, with the CTR window answered at the slowest the contract allows. So one descriptor to every registration fits, 5.64 and 10.16 ms, and the held push fits from its eligibility. ALL, every other served descriptor to every registration, is 80 notices at 1x1 and 608 at 8x8, and takes 27.58 and 218.71 ms as one path; 20 ms holds about 57 notices at 35,000 cycles each. Per descriptor, 2 of 5 rows at 1x1 and 18 of 19 at 8x8 are over 20 ms, though each descriptor's own fan-out takes about 2.7 ms and 5.9 ms: the rest of each row is the queue ahead of it. Its first notice leaves after 2.76 and 4.68 ms. Against the amended ceiling, for information, 2 of 5 rows at 1x1 and 14 of 19 at 8x8 are over it. Under the composed load the one-descriptor push takes 20.76 and 36.62 ms. The spacing check applied to 16 and 32 instances without a finding. Every figure is far inside the 1 s update.
+- **H-COUNTERS.** A push costs about 32,000 to 36,000 CPU cycles a notice, with the CTR window answered at the slowest the contract allows. So one descriptor to every registration fits, 5.64 and 10.16 ms, and the held push fits from its eligibility. ALL, every other served descriptor to every registration, is 80 notices at 1x1 and 608 at 8x8, and takes 27.58 and 218.71 ms as one path; 20 ms holds about 57 notices at 35,000 cycles each. Per descriptor, 2 of 5 rows at 1x1 and 18 of 19 at 8x8 are over 20 ms, though each descriptor's own fan-out takes about 2.7 ms and 5.9 ms: the rest of each row is the queue ahead of it. Its first notice is committed after 2.76 and 4.68 ms, inside the 20 ms the amended bounds give a first notice. Against the amended ceiling, for information, 2 of 5 rows at 1x1 and 14 of 19 at 8x8 are over it. Under the composed load the one-descriptor push takes 20.76 and 36.62 ms. The spacing check applied to 16 and 32 instances without a finding. Every figure is far inside the 1 s update.
 - **H-MAAP.** Alone at most 1.76 ms. Under the composed load its worst, the burst's last MAAP record, is 21.25 to 44.19 ms. The 500 ms probe interval leaves 456 ms or more.
 - **H-SRP.** Alone at most 4.04 ms (SRP's startup). Under the composed load, on the idle arm, SRP takes no record in `backlog-adp` and `backlog-adp-refill` at either point, its records waiting at least 524.8 to 567.5 ms by the run's end. Those are the windows where the CPU budget harness's formal arm starves SRP too: `srp_mbx.c` (`rx_order_ready`) takes a record only when no TICK is owed and no event is pending. On the answering arm SRP is served, its worst last record after 68.05 ms at 1x1 and 102.31 ms at 8x8, against 18 ms. These composed rows open with every bucket full and the grandmaster changes first, the burst in the SRP row's scope.
 
