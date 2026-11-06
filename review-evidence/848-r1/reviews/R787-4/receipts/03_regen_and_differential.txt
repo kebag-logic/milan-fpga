@@ -1,0 +1,19 @@
+Python 3.14.8
+# in-clone --check
+documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+# scratch clone (submodules unpopulated) --check
+documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+# scratch --write then diff
+wrote docs/DOCUMENTATION_AUDIT.md
+rc=0
+f1b9f3c0b764e196057fafaff889e167a30853837cc920666663a099ef2d3d9a  docs/DOCUMENTATION_AUDIT.md
+# blob at head
+fd7e9edfeff08a77784c59d94db4ad9fa926f517
+f1b9f3c0b764e196057fafaff889e167a30853837cc920666663a099ef2d3d9a  -
+# hash of regenerated
+fd7e9edfeff08a77784c59d94db4ad9fa926f517
+# --write in review clone is not run; ci_differential --check
+PASS: 224 differential fixtures meet their expectations; 185 census shapes proven at image sha256:68331c7908fcf2c1c6226c621bcd48287916ff20bac23f1f2b7279dffab94e08
+rc=0

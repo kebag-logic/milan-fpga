@@ -1,0 +1,15 @@
+## python3 scripts/check_doc_style.py
+documentation style: OK (24 current documents)
+rc=0
+## python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+## python3 scripts/check_em_dash.py --base 3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+## python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+## python3 scripts/ci_tool_inventory.py --check
+REFUSED: CI_IMAGE_SHFMT must name the checksum-pinned Bash parser
+rc=2
