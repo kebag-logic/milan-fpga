@@ -1,0 +1,14 @@
+json-only rc=0
+no-map (refusal removed in a copy) rc=0
+true map rc=0
+json-only image 52c20cff92aa4125c1260a0f491b1d5899d69096d4766bef897d6089eb85d3b4
+no-map image    52c20cff92aa4125c1260a0f491b1d5899d69096d4766bef897d6089eb85d3b4
+true-map image  834f484b3ea9189e2c2bbc5dcfd932452b044a06e493b8a5dc48dbd4fab4397a
+json-only == no-map: BYTE-IDENTICAL
+json-only != true map
+relative complete map rc=0
+relative map == true map
+no map, real archives rc=2 elf=no
+REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+no map, no archives rc=2 elf=no
+1

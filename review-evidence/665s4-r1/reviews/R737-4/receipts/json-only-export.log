@@ -1,0 +1,2 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; pass; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]), Path(sys.argv[6])))) <packet>/scratch/wt/tb/verilator/ctrl_split_boot <packet>/scratch/boot-1x1/probe-json-only endstation_ax7101_1x1_tdm8 <packet>/scratch/boot-1x1/image/ctrl_app.elf 1 <packet>/scratch/json-only-export
+export of a JSON-only map: TAKEN (no refusal)

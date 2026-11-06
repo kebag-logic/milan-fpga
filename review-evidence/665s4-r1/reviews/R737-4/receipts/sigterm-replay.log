@@ -1,0 +1,2 @@
+argv ['strace', '-f', '--seccomp-bpf', '-qq', '-e', 'trace=kill,tkill,tgkill,pidfd_send_signal,rt_sigqueueinfo,rt_tgsigqueueinfo', '-e', 'signal=none', '-o', '<packet>/scratch/replay-kills.strace', '<home>/litex-milan/venv/bin/python3', 'sw/firmware/ctrl/test/test_ctrl_firmware.py', '--require-rv32', '--build-only', '--jobs', '4']
+exit 0 after 414 s
