@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<scratch>/r775-2-840/tb/verilator/fw_service_budget/run.py", line 775, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/r775-2-840/tb/verilator/fw_service_budget/run.py", line 756, in main
+    require(native.returncode == 0, 'native simulation failed')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/r775-2-840/tb/verilator/fw_service_budget/run.py", line 44, in require
+    raise RuntimeError(message)
+RuntimeError: native simulation failed
