@@ -1,0 +1,28 @@
+Each round-4 mutant applied alone: every self-test check it fails (its named check first).
+
+reuse: an earlier run's results and refusal left in place (names: a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left)
+  FAILS: a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+  FAILS: a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+  FAILS: a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+  FAILS: a success, then results misconverted in the same directory: the refusal alone, no table or results left
+  FAILS: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+  FAILS: refuse removes a pair already written and leaves its refusal alone
+
+reuse: an earlier refusal left beside a success (names: a refusal, then a success in the same directory: the success's pair alone, no refusal left)
+  FAILS: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+
+reuse: results.json written before its record is validated (names: accept writes nothing for a record it refuses)
+  FAILS: accept writes nothing for a record it refuses
+
+reuse: a refusal leaves a pair already written (names: refuse removes a pair already written and leaves its refusal alone)
+  FAILS: refuse removes a pair already written and leaves its refusal alone
+
+reuse: the refused record written as results.json (names: a success, then results misconverted in the same directory: the refusal alone, no table or results left)
+  FAILS: a success, then results misconverted in the same directory: the refusal alone, no table or results left
+  FAILS: run.py refuses results graded at another CPU clock than their record names, writing no table
+  FAILS: run.py refuses a run whose clocks are not its builds', writing no table
+  FAILS: a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+  FAILS: a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+  FAILS: a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+  FAILS: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+  FAILS: refuse removes a pair already written and leaves its refusal alone

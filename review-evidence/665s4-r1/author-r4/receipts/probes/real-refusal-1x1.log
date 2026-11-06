@@ -1,0 +1,10 @@
+fresh run: table.md 794f9da82a0f066420303f5679e6f6806ec9107394954a2b305c58afa9947421, results.json c06d75f59ff4c31d6e76975feb84ed0a86757dc303fce18161d649c000484dbd
+COMMAND -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir <build-dir> --regrade --jobs 8
+REFUSED: the builds record different clocks (CPU Hz, bus Hz): {'capture-all': (None, 100000000), 'fixture': (50000000, 100000000), 'guard-probe': (50000000, 100000000), 'fixture+settle-after-names': (50000000, 100000000), 'fixture+bindings-after-d3': (50000000, 100000000), 'guard-probe+guard-removed': (50000000, 100000000), 'fixture+slow-step': (50000000, 100000000)}
+missing cpu_hz: rc 2; left ['refused.json']; refused.json top keys ['record', 'refused']
+build.json restored: True
+COMMAND -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir <build-dir> --regrade --jobs 8
+(no REFUSED line)
+restored: rc 0; left ['results.json', 'table.md']; table.md and results.json byte-identical to the fresh run: True
+PROBE PASS
+rc=0

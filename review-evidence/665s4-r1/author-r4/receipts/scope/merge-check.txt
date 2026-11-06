@@ -1,0 +1,38 @@
+head 4d9b901cd42fb21ac7c05432b88bb6c00061064a
+
+## git merge-tree --write-tree 5b5f433698d8832b63573b8d106f10e839a4210e HEAD
+merge base: f4c9ad4f06f185378fd2646298aab51dd108e86f
+48bb5d60d1b071f4defbe03f017724918c212dfe
+rc=0
+
+## git merge-tree --write-tree a68536fa4cf8ce65c513874722de2e3ba83c2d00 HEAD
+merge base: f4c9ad4f06f185378fd2646298aab51dd108e86f
+1da946bb5ba042efd519380370c82c7b956a21b7
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/split_soc.py
+
+Auto-merging docs/ARCHITECTURE_HW_SW_SPLIT.md
+Auto-merging sw/firmware/ctrl/test/ctrl_configs.py
+Auto-merging sw/firmware/ctrl/test/ctrl_srp_image.py
+Auto-merging tb/verilator/ctrl_service_budget/README.md
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+Auto-merging tb/verilator/ctrl_service_budget/split_soc.py
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/split_soc.py
+rc=1
+
+## files both sides changed since the merge base f4c9ad4f (a68536fa side vs this lane)
+docs/ARCHITECTURE_HW_SW_SPLIT.md
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_srp_image.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/split_soc.py
+
+## the a68536fa commits that change the two conflicted files
+b2a1d67745 Round one window's length once, and say what the stage adds to the ring (#665)
+fa01979959 Label the CPU budget harness's two 1x1, 4 KiB composed maxima as partial, say why both refused windows are refused at each stage setting, and give all four windows' measured figures (#665, #814)
+dcd567038d Stage the CPU budget harness's LiteSPI PHY as MilanSoC stages every SoC since #814, and re-measure its flash-window, refill and hybrid-XIP arms against a no-stage control, correcting the same-access-cost claim and the figures (#665, #814)
+7333801943 Connect KL_mbx's pub_src_sid_o in the CPU budget harness's own mailbox as CtrlMailbox connects it, named and unread: dev's #799 port left it unconnected and the build refused (#665, #799)
+99de3a023a Record the platform's 8x8 two-interface image as ledgered at 59.0 beside the fixture's 57.5, its four points beside the fixture's and its added bytes by part (#665)
+
+## files changed under tb/verilator/nvm_split_target and sw/firmware/ctrl_nvm by f4c9ad4f..a68536fa
+(end)
