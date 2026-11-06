@@ -39,6 +39,7 @@ import save_grade
 import save_window
 import scenario
 import share
+import whole_grade
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
@@ -102,6 +103,7 @@ class Log:
     records: list[tuple[int, list[int]]] = field(default_factory=list)
     writes: list[tuple[int, int, int]] = field(default_factory=list)
     tx: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
+    commits: list[tuple[int, int, int]] = field(default_factory=list)    # cycle, channel, head of each TX_HEAD write
     wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     passes: list[Pass] = field(default_factory=list)
     idle: list[tuple[int, int, int]] = field(default_factory=list)
@@ -242,6 +244,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
     log.writes.sort()
     log.reads.sort()
     log.tx = tx_records(log.writes, commits)
+    log.commits = commits
     return log
 
 
@@ -885,7 +888,7 @@ def pass_share(log: Log) -> dict:
                 idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2) -> dict:
     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
     log = parse(text, sys_hz, cpu_hz)
     refuse_run(log, group)
@@ -923,6 +926,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=window, share=pass_share(log), steps=save_grade.step_figures(grader)),
+                            composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
+                            stated=whole_grade.held(log, interfaces)),
                 save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)

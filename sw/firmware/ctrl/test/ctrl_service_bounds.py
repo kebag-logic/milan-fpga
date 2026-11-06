@@ -108,6 +108,7 @@ def arm_service_bounds(tree: Tree) -> Outcome:
     bad, total = controls(text, lines)
     searched = [ctrl_retry_search.findings(interfaces) for interfaces in (1, 2)]
     wrong = [item for _, found_at in searched for item in found_at]
+    wrong += [f"THE RETRY search: planted {escaped} escaped" for escaped in ctrl_retry_search.controls()]
     failures = len(found) + bad + len(wrong)
     log = "\n".join([*lines, *found, *[line for log_at, _ in searched for line in log_at], *wrong,
                      f"service bounds: {total - bad}/{total} planted controls caught",

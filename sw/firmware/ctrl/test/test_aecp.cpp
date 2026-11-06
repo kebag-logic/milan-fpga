@@ -1578,38 +1578,43 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     a.retry_hold=true;
     aecp_changed(&a,5,0,1);EXPECT_TRUE(aecp_poll(&a))<<"a notice not yet tried is reported owed";
     EXPECT_EQ(reads,0u)<<"aecp_poll builds no notice: it waits for the round";
-    EXPECT_FALSE(aecp_retry(&a,1u));const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_EQ(timer_at,1u);
+    EXPECT_FALSE(aecp_retry(&a,1u,0u));const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_EQ(timer_at,1u);
     ms=1;EXPECT_TRUE(aecp_poll(&a))<<"a held retry is reported owed";
     EXPECT_EQ(reads,first)<<"aecp_poll holds a due retry";
     EXPECT_GT(timer_at,1u)<<"a held retry arms no timer: only the registration's deadline stands";
     a.response_owed=true;
-    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
     a.response_owed=false;a.notify=true;
-    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
     a.notify=false;a.waiting=true;
-    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
     a.waiting=false;a.start_pending=true;
-    EXPECT_TRUE(aecp_retry(&a,1u));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
     a.start_pending=false;
-    EXPECT_FALSE(aecp_retry(&a,1u));EXPECT_GT(reads,first)<<"and tries the retry once none is";
+    EXPECT_FALSE(aecp_retry(&a,1u,0u));EXPECT_GT(reads,first)<<"and tries the retry once none is";
     EXPECT_EQ(timer_at,3u)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
     // the next retry, 2 ms on, finds the port answering: the round builds the notice and sends it
     answers=true;ms=3;
-    EXPECT_FALSE(aecp_retry(&a,1u))<<"a round that builds a notice owes nothing once it is sent";
+    EXPECT_FALSE(aecp_retry(&a,1u,0u))<<"a round that builds a notice owes nothing once it is sent";
     EXPECT_FALSE(a.notify)<<"(the notice sent in the round)";
     EXPECT_EQ(sent.size(),1u)<<"to its recipient";
     // the next finds no room for its frame: it stays owed, for the pass that sends it
     ON_CALL(mock,Send).WillByDefault([](unsigned,const uint8_t*,size_t,uint32_t){return false;});
     ms=4;aecp_changed(&a,5,0,1);
-    EXPECT_TRUE(aecp_retry(&a,2u))<<"a round whose notice the ring refused stays owed";
+    EXPECT_TRUE(aecp_retry(&a,2u,0u))<<"a round whose notice the ring refused stays owed";
     EXPECT_TRUE(a.notify)<<"(the notice it built, still to send)";
+    a.notify=false;
+    ms=5;aecp_changed(&a,5,0,1);aecp_changed(&a,6,0,1);
+    const unsigned tried=reads;
+    (void)aecp_retry(&a,2u,0u);
+    EXPECT_EQ(reads,tried+1u)<<"and a round builds nothing over the notice it owes";
     a.notify=false;
     // an instance not yet opened, as the loop may call the round before AECP opens, tries nothing
     aecp other{};auto other_events=events;auto other_cfg=cfg;other_cfg.events=other_events.data();
     ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));other.retry_hold=true;
     aecp_changed(&other,5,0,1);const unsigned before=reads;
-    EXPECT_FALSE(aecp_retry(&other,1u));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
+    EXPECT_FALSE(aecp_retry(&other,1u,0u));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
 }
 
 // THE RETRY's pace (#665, ctrl_loop.h): aecp_retry_aged is true for a notice that waits, a held retry or one no retry
@@ -1634,7 +1639,7 @@ TEST_F(Core, HeldRetryIsAgedAtTheRoundsPaceWhenTheRoundCouldTakeIt)
     EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"nor while a START or STOP is pending";
     a.start_pending=false;
     EXPECT_TRUE(aecp_retry_aged(&a,0u))<<"until the pace has passed and nothing waits";
-    const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a,1u));ASSERT_GT(reads,tried);
+    const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a,1u,0u));ASSERT_GT(reads,tried);
     EXPECT_FALSE(a.retry_held)<<"a round leaves no retry held until the next comes due";
     EXPECT_FALSE(aecp_retry_aged(&a,0u))<<"so none is aged";
     ms=14;(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held)<<"(the retry 1 ms on is held again)";
@@ -2276,26 +2281,109 @@ TEST_F(Mailbox, ARoundFillsWhatItsPassHasLeft)
     };
     loop.retry_firm=true;
     EXPECT_EQ(built(0u),0u)<<"a pass with nothing left builds none";
-    EXPECT_EQ(built(AECP_NOTICE_US-1u),0u)<<"nor one with a microsecond less than a notice";
-    EXPECT_EQ(built(AECP_NOTICE_US),1u)<<"a notice's room builds one";
-    EXPECT_EQ(built(2u*AECP_NOTICE_US),2u)<<"and two's two";
+    EXPECT_EQ(built(AECP_NOTICE_US),0u)<<"nor one with a notice's time and no cold round's";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+AECP_NOTICE_US-1u),0u)<<"nor one with a microsecond less than both";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+AECP_NOTICE_US),1u)<<"a notice's room builds one";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),2u)<<"and two's two";
     EXPECT_TRUE(loop.retry_queued)<<"the loop knows notices are queued";
     // beside records a round yields, and one that builds spends a yield
     loop.backlog=true;loop.retry_firm=false;adapter.yields=0;
-    EXPECT_EQ(built(0u+AECP_ROUND_YIELD_NOTICES*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"a round beside records builds its yield";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+AECP_ROUND_YIELD_NOTICES*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"a round beside records builds its yield";
     EXPECT_EQ(adapter.yields,1u)<<"and spends one";
     loop.retry_firm=false;
-    EXPECT_EQ(built(2u*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"however much of the pass is left";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),AECP_ROUND_YIELD_NOTICES)<<"however much of the pass is left";
     loop.retry_firm=false;
     const unsigned spent=adapter.yields;
     EXPECT_EQ(built(0u),0u);
     EXPECT_EQ(adapter.yields,spent)<<"a round that built nothing spends none";
     loop.retry_firm=true;
-    EXPECT_EQ(built(2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
+    EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
     loop.backlog=false;loop.retry_firm=true;
     for(unsigned n=0;n<AECP_NOTICES_MOST&&built(CTRL_LOOP_SHARE_US)!=0u;++n){}
     EXPECT_EQ(adapter.yields,0u)<<"a queue served to its end starts the next with them all";
     EXPECT_FALSE(loop.retry_queued)<<"and the loop knows none is queued";
+}
+
+// A round tries a port once (AECP_ROUND_PORTS, aecp.h): a port that refused refuses the rest of the round, and what it
+// skipped stays due, so the next round tries the next of them.
+TEST_F(Mailbox, ARoundTriesAPortOnceAndItsNextRoundTheNext)
+{
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    receive(0);service();
+    aecp_changed(&adapter.core,5,0,1u);aecp_changed(&adapter.core,6,0,1u);
+    reads=0;
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,CTRL_LOOP_SHARE_US))<<"what the refusal skipped stays due";
+    EXPECT_EQ(reads,1u)<<"one attempt of a port a round, however much of the pass is left";
+    EXPECT_FALSE(loop.retry(loop.retry_ctx,CTRL_LOOP_SHARE_US))<<"a refused attempt waits for its retry";
+    EXPECT_EQ(reads,2u)<<"and the next round tries what the refusal skipped";
+    EXPECT_FALSE(loop.retry(loop.retry_ctx,CTRL_LOOP_SHARE_US));
+    EXPECT_EQ(reads,2u)<<"each once, until its retry";
+}
+
+// An AVB interface's GET_AVB_INFO and GET_AS_PATH read through its own window, every other notice through the first
+// interface's, so only those two are a port at even and at odd indices (aecp.c, scan).
+TEST_F(Mailbox, ARoundTriesAPortOfEachWindow)
+{
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return false;});
+    receive(0);service();
+    aecp_changed(&adapter.core,9,0,2u);aecp_changed(&adapter.core,6,0,1u);
+    auto &odd=desc(6,0);
+    const auto event=static_cast<size_t>(&odd-descriptors.data());
+    const auto even=static_cast<size_t>(&desc(9,0)-descriptors.data());
+    odd.index=1u;events[event].pending=2u; // this model's odd index, as a second interface's would be
+    static_cast<void>(loop.retry(loop.retry_ctx,CTRL_LOOP_SHARE_US));
+    odd.index=0u;
+    EXPECT_NE(events[event].retry_pending,0u);
+    EXPECT_NE(events[even].retry_pending,0u)<<"GET_AVB_INFO's odd index is another window's, each tried beside the other's refusal";
+}
+
+TEST_F(Mailbox, ARoundTriesStreamInfoOnceAtEveryIndex)
+{
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return false;});
+    receive(0);service();
+    aecp_changed(&adapter.core,5,0,1u);aecp_changed(&adapter.core,6,0,1u);
+    auto &odd=desc(6,0);
+    const auto event=static_cast<size_t>(&odd-descriptors.data());
+    odd.index=1u; // an odd index reads the same window
+    static_cast<void>(loop.retry(loop.retry_ctx,CTRL_LOOP_SHARE_US));
+    odd.index=0u;
+    EXPECT_EQ(events[event].retry_pending,0u)<<"the odd index is the same port, skipped beside the even one's refusal";
+}
+
+// A refused attempt costs its round (AECP_ATTEMPT_US, aecp.h): an attempt starts with a notice's time left, and what a
+// refusal charges decides whether the next port is tried in that pass.
+TEST_F(Mailbox, ARefusedAttemptIsChargedToItsRound)
+{
+    unsigned avb=0,path=0;
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){++avb;*v={};return false;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){++path;*n=0;return true;});
+    receive(0);service();
+    aecp_changed(&adapter.core,9,0,6u);
+    avb=path=0;
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US-1u));
+    EXPECT_EQ(avb,0u)<<"a round with less than a notice's time left tries nothing";
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US+AECP_ATTEMPT_US-1u))<<"the notice beside a refused one stays due";
+    EXPECT_EQ(avb,1u);
+    EXPECT_EQ(path,0u)<<"a refusal charged below a notice's time ends the round";
+    const uint32_t before=adapter.core.tx_cookie;
+    static_cast<void>(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US));
+    EXPECT_EQ(path,1u)<<"the next round goes on to the next port";
+    EXPECT_EQ(adapter.core.tx_cookie-before,1u);
+}
+
+TEST_F(Mailbox, ARoundWithRoomPastARefusalGoesOnToTheNextPort)
+{
+    unsigned path=0;
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return false;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){++path;*n=0;return true;});
+    receive(0);service();
+    aecp_changed(&adapter.core,9,0,6u);
+    path=0;
+    const uint32_t before=adapter.core.tx_cookie;
+    static_cast<void>(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US+AECP_ATTEMPT_US));
+    EXPECT_EQ(path,1u)<<"a notice's time left after the refusal's charge";
+    EXPECT_EQ(adapter.core.tx_cookie-before,1u);
 }
 
 // A notice with no room goes on owing: a ring that refuses its frame, or a queue that has no room for its completion.
@@ -2307,7 +2395,7 @@ TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
     mbx_model_tx_pause(&fabric,true);
     while(mbx_tx_send(MBX_CH_AECP,0,filler.data(),filler.size())==MBX_STATUS_OK){}
     aecp_changed(&adapter.core,5,0,1);
-    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_NOTICE_US))<<"a notice the ring has no room for stays owed";
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US))<<"a notice the ring has no room for stays owed";
     EXPECT_TRUE(adapter.core.notify);
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.notify)<<"and goes when it has";
@@ -2315,7 +2403,7 @@ TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
         ASSERT_TRUE(adapter.ports.fan(&adapter,0,filler.data(),filler.size())&&adapter.ports.fan_end(&adapter,n));
     }
     aecp_changed(&adapter.core,5,0,1);
-    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_NOTICE_US))<<"a notice with no room for its completion stays owed";
+    EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US))<<"a notice with no room for its completion stays owed";
     EXPECT_TRUE(adapter.core.notify);
     service(100);
     EXPECT_FALSE(adapter.core.notify)<<"until the queue has";

@@ -77,10 +77,10 @@ def queue_checks() -> list[Check]:
     """The queued notices' bound: read from the headers, each point's own, and the first of a queue held to T_svc."""
     got = notice_window.queued_ms(1), notice_window.queued_ms(2)
     rows = lambda first, last: [dict(group='g', probes=[
-        dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=58.0, within_budget=True),
-        dict(status='measured', path=[notice_window.QUEUED, 0], ms=last, budget_ms=58.0, within_budget=last <= 58.0)])]
-    verdicts = tuple(len(run.notice_misses(rows(*r))) for r in ((19.0, 57.0), (21.0, 57.0), (19.0, 59.0)))
-    return [("a queued notice's bound is the constants', 20 ms at one interface and 58 ms at two", got == (20, 58),
+        dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=60.0, within_budget=True),
+        dict(status='measured', path=[notice_window.QUEUED, 0], ms=last, budget_ms=60.0, within_budget=last <= 60.0)])]
+    verdicts = tuple(len(run.notice_misses(rows(*r))) for r in ((19.0, 57.0), (21.0, 57.0), (19.0, 61.0)))
+    return [("a queued notice's bound is the constants', 20 ms at one interface and 60 ms at two", got == (20, 60),
              str(got)),
             ("a queue's first notice is held to T_svc and every other to the queue's bound", verdicts == (0, 1, 1),
              str(verdicts))]

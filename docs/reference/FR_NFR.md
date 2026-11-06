@@ -367,7 +367,8 @@ At most 16 controllers register per AVB Interface (Milan v1.2 5.3.4.2), and each
 A datapath reset can leave a notice pending for every observation of every descriptor that has one: 12 at 1x1/1if and 40 at 8x8/2if.
 The first retried notice is committed within 20 ms of its port's answer.
 Every notice queued behind it is committed within a bound derived from constants: the 8 ms retry spacing, the notices a pass carries at the measured fan-out cost, and the passes that carry them.
-Derived per point at its own recipient count, that bound is 20 ms at 1x1/1if and 58 ms at 8x8/2if, under ceilings of 20 ms and 60 ms (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`).
+Derived per point at its own recipient count, that bound is 20 ms at 1x1/1if and 60 ms at 8x8/2if, each its ceiling (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`).
+Both bounds hold with other ports still refusing: each refused attempt is charged to its round, on the assumption that a port, one window read, answers for all it serves or for none.
 A zero random draw gives `W=0`.
 For a periodic expiry alone, the deadline starts the service interval.
 State-machine inputs requiring no transmission finish at state/timer commitment.

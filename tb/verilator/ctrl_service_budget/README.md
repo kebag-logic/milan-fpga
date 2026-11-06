@@ -1216,7 +1216,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | transmit: any row over its bound catches the aged build's plant | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
 | transmit: a timer's row ends at the first build, with no frame | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
 | transmit: a timer's row starts at its entry, not at the deadline | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
-| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 20 ms at one interface and 58 ms at two |
+| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 20 ms at one interface and 60 ms at two |
 | notice: the first of a queue is held to the queue's bound | a queue's first notice is held to T_svc and every other to the queue's bound |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.

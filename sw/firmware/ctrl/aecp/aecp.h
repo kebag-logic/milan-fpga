@@ -47,8 +47,14 @@ extern "C" {
 #define AECP_RETRY_MAX_MS 8u
 // The longest frame the fan port takes: every notice's but a long GET_AS_PATH's.
 #define AECP_FAN_BYTES 256u
-// The failed attempts a call of the round makes before it asks for room again.
-#define AECP_ROUND_TRIES 8u
+// What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500 CPU
+// cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it is
+// given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+#define AECP_ATTEMPT_US 34u
+// The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the first
+// interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window read,
+// which answers for all it serves or for none (#665).
+#define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
 // The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
 // each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each
 // clock domain's GET_COUNTERS, at the fixture's two shapes. The CPU budget harness holds the model to it.
@@ -251,6 +257,9 @@ struct aecp {
 	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
 	bool retry_hold; // a due retry waits for aecp_retry (THE RETRY, ctrl_loop.h; #665)
 	bool retry_held; // with retry_hold, a notice waits for aecp_retry: arm armed no timer for it
+	uint8_t refused; // the ports that refused this round (AECP_ROUND_PORTS), one bit each
+	int32_t round_us; // what this round has left, in microseconds
+	int32_t notice_us; // what a notice costs a round, set by its owner with retry_hold
 	uint32_t retry_pace; // when the next round given a pass may start
 	// The events holding a notice or a retry, in descriptor order, linked through
 	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
@@ -301,11 +310,12 @@ void aecp_open(struct aecp *);
 bool aecp_ready(struct aecp *);
 void aecp_rx(struct aecp *, unsigned interface, const uint8_t *, size_t);
 bool aecp_poll(struct aecp *);
-// THE RETRY's round (ctrl_loop.h, #665): every due retry released and its
-// notices tried, the first its port answers built, then the timer armed for
-// the next. Only while no response or notice is owed, as aecp_poll builds
-// one. True while a due retry still waits or the built notice is owed.
-bool aecp_retry(struct aecp *, unsigned notices);
+// THE RETRY's round (ctrl_loop.h, #665): at most `notices` notices built from
+// what its pass has left, left_us, each charged notice_us and each refused
+// attempt AECP_ATTEMPT_US, one attempt a port, then the timer armed for the
+// next. Only while no response or notice is owed, as aecp_poll builds one. True
+// while a notice or a due retry still waits or the built notice is owed.
+bool aecp_retry(struct aecp *, unsigned notices, int32_t left_us);
 // THE RETRY's age (ctrl_loop.h, #665): true when a held retry's time is age_ms
 // or more past, on the now_ms port, and nothing waits ahead of aecp_retry's
 // round, so the loop gives the round a pass of its own.

@@ -187,19 +187,22 @@ static void arm(struct aecp *a)
 		}
 	}
 	bool left = false;
-	a->retry_held = false;
+	bool held = false;
 	for (unsigned k = a->notices ? a->live : 0u; k != 0u; k = a->cfg.events[k - 1u].next) {
 		struct aecp_event *e = &a->cfg.events[k - 1u];
 		left = true;
-		if (e->retry_pending != 0u && (!a->retry_hold || !due(a->now, e->retry_at))) {
-			if (!armed || due(deadline, e->retry_at)) {
-				deadline = e->retry_at;
-				armed = true;
+		// held for aecp_retry (THE RETRY): a notice no retry holds, which a round may not have reached beside a retry
+		// of its event, and a due retry, since a timer already due would post an event every pass
+		held = held || (e->pending & ~e->retry_pending & 7u) != 0u;
+		if (e->retry_pending != 0u) {
+			if (!a->retry_hold || !due(a->now, e->retry_at)) {
+				if (!armed || due(deadline, e->retry_at)) {
+					deadline = e->retry_at;
+					armed = true;
+				}
+			} else {
+				held = true;
 			}
-		} else if (a->retry_hold) {
-			// held for aecp_retry (THE RETRY): a due retry or a notice no retry holds; a timer already due would
-			// post an event every pass
-			a->retry_held = a->retry_held || (e->pending & ~e->retry_pending & 7u) != 0u || e->retry_pending != 0u;
 		}
 		if ((e->pending & 8u) != 0u && (e->retry_pending & 8u) == 0u && !e->awaiting_output) {
 			if (e->counter_sent && !due(a->now, e->counter_at)) {
@@ -208,10 +211,11 @@ static void arm(struct aecp *a)
 					armed = true;
 				}
 			} else {
-				a->retry_held = a->retry_held || a->retry_hold;
+				held = true;
 			}
 		}
 	}
+	a->retry_held = held && a->retry_hold;
 	a->notices = left;
 	aecp_port_begin(a);
 	a->ports->timer(a->ports->ctx, armed, deadline);
@@ -683,14 +687,13 @@ static bool asynchronous(struct aecp *a)
 }
 
 // The event scan: each event holding a notice or a retry, in descriptor order, its notices tried and the first built
-// returned. With aecp.retry_hold only aecp_retry's round calls it, with the hold lifted (THE RETRY, ctrl_loop.h; #665).
+// returned. With aecp.retry_hold only aecp_retry's round calls it (THE RETRY, ctrl_loop.h; #665).
 static bool scan(struct aecp *a)
 {
 	static const uint16_t commands[4] = {
 		15u, 39u, 40u, 41u
 	};
 	bool left = false;
-	unsigned failed = 0;
 	for (uint16_t *link = a->notices ? &a->live : NULL; link != NULL && *link != 0u;
 	     link = &a->cfg.events[*link - 1u].next) {
 		size_t n = *link - 1u;
@@ -704,6 +707,15 @@ static bool scan(struct aecp *a)
 			    (e->retry_pending & (1u << bit)) != 0u ||
 			    (bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, e->counter_at))))) {
 				continue;
+			}
+			// A port that refused this round refuses the rest of it: one attempt a port (AECP_ROUND_PORTS), and what it
+			// skipped stays due, so the next round tries the next of them. A round's time ends before an attempt.
+			const unsigned port = 1u << (bit + (bit == 1u || bit == 2u ? 4u * (d->index & 1u) : 0u));
+			if ((a->refused & port) != 0u) {
+				continue;
+			}
+			if (a->round_us < a->notice_us) {
+				return false;
 			}
 			uint8_t input[4] = {0};
 			aecp_put16(input, bit == 2u ? d->index : d->type);
@@ -740,15 +752,14 @@ static bool scan(struct aecp *a)
 				e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);
 			}
 			e->retry_pending |= (uint8_t)(1u << bit);
-			++failed;
+			if (a->retry_hold) {
+				a->round_us -= AECP_ATTEMPT_US;
+				a->refused |= (uint8_t)port;
+			}
 		}
 		// Only a built notice clears its pending bit, and that returns above;
 		// a retry bit is set only on a pending one. So this event still holds one.
 		left = true;
-		// A round's call ends on its failed attempts: its next call passes what failed, whose retry is not due.
-		if (failed >= AECP_ROUND_TRIES) {
-			return false;
-		}
 	}
 	a->notices = left;
 	return false;
@@ -805,7 +816,7 @@ static bool round_waits(const struct aecp *a)
 	return a->response_owed || a->notify || a->waiting || a->start_pending;
 }
 
-bool aecp_retry(struct aecp *a, unsigned notices)
+bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)
 {
 	if (!aecp_enter(a) || !a->open) {
 		return false;
@@ -814,14 +825,14 @@ bool aecp_retry(struct aecp *a, unsigned notices)
 		return a->retry_held;
 	}
 	(void)now(a);
-	bool hold = a->retry_hold;
 	bool owed = false;
-	a->retry_hold = false;
-	// a scan that built nothing costs a walk of events whose retries are not due, and no attempt
-	for (unsigned n = 0; n < notices && !owed; ++n) {
-		owed = scan(a) && transmit(a);
+	a->round_us = left_us;
+	a->refused = 0u;
+	// every attempt starts with a notice's time left, and a refused one is charged to the round (scan)
+	for (unsigned n = 0; n < notices && !owed && scan(a); ++n) {
+		a->round_us -= a->notice_us;
+		owed = transmit(a);
 	}
-	a->retry_hold = hold;
 	arm(a);
 	return owed || a->retry_held;
 }

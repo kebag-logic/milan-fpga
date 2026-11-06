@@ -26,6 +26,7 @@ import save_grade
 import save_window
 import scenario
 import share
+import whole_grade
 
 Patches = Callable[[], list]
 
@@ -582,6 +583,24 @@ MUTANTS: dict[str, Patches] = {
     'share: the planted store step is judged as a budget control': lambda: [patch.object(build, 'SHARE_CONTROLS', ())],
     'share: a pass with no mailbox write is not held to it': lambda: [patch.object(
         grade, 'pass_share', lambda log, f=grade.pass_share: f(dataclasses.replace(log, idle=[])))],
+    'stated: no pass is held to its cost': lambda: [patch.object(
+        whole_grade, 'held', lambda log, n, f=whole_grade.held: dict(f(log, n), over=[]))],
+    'stated: a pass over its cost is no finding': lambda: [patch.object(run, 'stated_misses', lambda results: [])],
+    "stated: one point's costs at both": lambda: [patch.object(
+        whole_grade, 'stated_us', lambda interfaces, f=whole_grade.stated_us: f(2))],
+    "stated: a build of one is held to a build of two's cost": lambda: [patch.object(
+        whole_grade, 'COSTS', dict(whole_grade.COSTS, **{'build-one': whole_grade.COSTS['build']}))],
+    'stated: a pass whose round did something is held too': lambda: [patch.object(
+        whole_grade, 'round_idle', lambda modules: True)],
+    'stated: a round that found nothing leaves no work alone': lambda: [patch.object(
+        whole_grade, 'ROUND_IDLE_CYCLES', 0)],
+    "stated: an aged step's silent pass is not held": lambda: [patch.object(
+        whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(
+            log, stepped=[s for s in log.stepped if s[1] in {p.start_sys for p in log.passes}]), n))],
+    'stated: an aged step is not held': lambda: [patch.object(
+        whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, stepped=[]), n))],
+    'stated: in bus cycles, not CPU time': lambda: [patch.object(
+        whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
     "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
     'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
     'save: the phase read off the last save, not the first': lambda: [patch.object(

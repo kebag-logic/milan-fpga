@@ -139,6 +139,14 @@ def share_misses(results: list[dict]) -> list[str]:
     return out
 
 
+def stated_misses(results: list[dict]) -> list[str]:
+    """Each pass given whole to a build or an aged step dearer than the cost THE RETRY's search counts from
+    (whole_grade.held)."""
+    return [f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
+            f"{g['passes']['stated']['limits'][o['kind']]:,}"
+            for g in results for o in g['passes'].get('stated', {}).get('over', [])]
+
+
 def saves(results: list[dict]) -> list[dict]:
     """Every group's timed save (save_grade.save_time), with its group."""
     return [dict(g['save'], group=g['group']) for g in results if g.get('save')]
@@ -441,7 +449,7 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'])
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
         except grade.Refusal as error:
             refusals.append(str(error))
             continue
@@ -657,7 +665,11 @@ def main() -> int:
           f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
           + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
-    return verdict(args, groups, refusals, misses, shares, late + notice_misses(results))
+    stated = stated_misses(results)
+    for line in stated:
+        print('STATED', line)
+    return verdict(args, groups, refusals, misses, shares,
+                   late + notice_misses(results) + (stated if args.mutation == 'none' else []))
 
 
 if __name__ == '__main__':

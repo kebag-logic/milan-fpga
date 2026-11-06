@@ -36,6 +36,7 @@ import save_grade
 import save_window
 import scenario
 import share
+import whole_grade
 
 ROOT = Path(__file__).resolve().parents[3]
 #: The share and the product's split CPU clock, the bus clock, restated here on purpose (#665, owner
@@ -98,6 +99,52 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                 and table.startswith('### 1x1\n\nClock: CPU 50 MHz.\n'))
     out.append(('the table names the clock and each group against the share, and results.json keeps the passes over it',
                 rendered and saved == shares, table[:400]))
+    return out
+
+
+def stated_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int) -> list[Check]:
+    """A pass given whole to a build or an aged step against the cost THE RETRY's search counts from, and what is not
+    held to one: a pass whose round did something, and a pass that built nothing."""
+    limits = {kind: us * cpu_hz // 1_000_000 for kind, us in whole_grade.stated_us(2).items()}
+
+    def held(cycles: int, builds: int = 0, aged: bool = False, aecp: int = 0) -> dict:
+        """The grade of a pass of those cycles, its builds, whether an aged step's, its AECP modules' cycles."""
+        step = 'step=1 store=5 aged=1 ' if aged else ''
+        lines = [f'PASS 1 1000 500 {cycles} instr=10 store_mbx=1 {step}mods=aecp:{aecp},srp_mbx:9 W 1001:1:0']
+        lines += [f'ENTRY {1002 + k} build_mrpdu' for k in range(builds)]
+        return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz)['passes']['stated']
+
+    kinds = lambda s: [o['kind'] for o in s['over']]
+    out = [("a build of one MRPDU has a cost of its own, under a build of two's", limits['build-one'] < limits['build'],
+            str(limits)),
+           ('each point has its own stated costs', whole_grade.stated_us(1)['build'] < whole_grade.stated_us(2)['build'],
+            '')]
+    for kind, flags in (('build', dict(builds=2)), ('build-one', dict(builds=1)), ('step', dict(aged=True))):
+        at, over = held(limits[kind], **flags), held(limits[kind] + 1, **flags)
+        out.append((f'a {kind} pass at its stated cost fits it and one a cycle over it does not',
+                    kinds(at) == [] and kinds(over) == [kind] and over['heaviest'][kind] == limits[kind] + 1,
+                    str((at, over))))
+    heavy = max(limits.values()) + 1
+    idle = whole_grade.ROUND_IDLE_CYCLES
+    out.append(("a pass whose round did something is not its work alone, and a pass that neither built nor stepped has "
+                "no stated cost",
+                kinds(held(heavy, builds=2, aecp=idle + 1)) == [] and kinds(held(heavy, aged=True, aecp=idle + 1)) == []
+                and kinds(held(heavy)) == [], ''))
+    out.append(('a round that found nothing to do leaves the pass its work alone',
+                kinds(held(heavy, builds=2, aecp=500)) == ['build'], ''))
+    quiet = [f'STEPPASS 2 2000 1000 {limits["step"] + 1} store=5 aged=1']
+    alone = grade.grade(synthetic(quiet), scenario.Group('g'), sys_hz, cpu_hz)['passes']['stated']
+    out.append(('an aged step in a pass that wrote nothing to the mailbox is held too', kinds(alone) == ['step'],
+                str(alone)))
+    over = held(limits['build'] + 1, builds=2)
+    named = run.stated_misses([dict(group='g', passes=dict(stated=over))])
+    out.append(('a pass over its stated cost is named, with the cost it passed',
+                named == [f"g: a build pass of {limits['build'] + 1:,} CPU cycles, over its stated "
+                          f"{limits['build']:,}"], str(named)))
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    out.append(('a pass over its stated cost fails a run whatever findings it records',
+                run.verdict(args, [scenario.Group('g')], [], [], [], named) == 1, ''))
     return out
 
 

@@ -145,9 +145,10 @@
 // which the client asks for as each pass given whole may start (aecp.c,
 // aecp_retry_aged): a notice waits, nothing waits ahead of its round, and the
 // pace the last round set has passed. The loop tells the client what the pass
-// has left of THE SHARE under CTRL_LOOP_SHARE_MARGIN_US, and the client fills
-// it with as many notices as their stated cost allows (aecp_mbx.c, retry), so a
-// round takes no pass over THE SHARE by construction.
+// has left of THE SHARE under CTRL_LOOP_SHARE_MARGIN_US, and the client spends it
+// at the stated cost of each notice and each refused attempt, one attempt a port
+// and none with less than a notice's time left (aecp.c, scan), so a round takes
+// no pass over THE SHARE by construction.
 // While records wait a round yields, one notice at a slower pace, so the CPU
 // they wait for is not spent on notices; a queue's first AECP_ROUND_YIELDS
 // rounds beside records do, and then the client stands firm (retry_firm), so
@@ -252,13 +253,15 @@ extern "C" {
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
 // The measured costs the bounds below rest on, in microseconds, each the
-// heaviest at 8x8/2if rounded up (CPU budget harness; 100 cycles a microsecond):
+// heaviest at its point rounded up (CPU budget harness; 100 cycles a microsecond):
 // a pass given whole to an aged step, to a build of both of an interface's
-// MRPDUs, and to a build of one; one record of SRP's burst; the first
-// registration of a burst; and a centisecond's consumers.
-#define CTRL_LOOP_STEP_PASS_US 980u
-#define CTRL_LOOP_BUILD_PASS_US 1250u
-#define CTRL_LOOP_BUILD_ONE_PASS_US 980u
+// MRPDUs, and to a build of one, the harness holding each to its figure
+// (whole_grade.py); and at 8x8/2if, the point THE DRAIN's sum binds, one record
+// of SRP's burst, the first registration of a burst and a centisecond's
+// consumers.
+#define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 980u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 900u : 1250u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 700u : 980u)
 #define CTRL_LOOP_SRP_RECORD_US 123u
 #define CTRL_LOOP_SRP_FIRST_US 400u
 #define CTRL_LOOP_TICK_US 430u

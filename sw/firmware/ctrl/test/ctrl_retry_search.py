@@ -11,6 +11,12 @@ The counts, at a window of ms milliseconds: THE DRAIN's passes (ctrl_loop.h); a 
 once an interface, or of one of them twice, since a participant sends once a JoinTime and owes one pass for an
 Applicant that moves with its join timer idle; and an aged step each CTRL_LOOP_STEP_AGE + 1 centiseconds dispatched,
 which lag their ticks by at most the eighteen milliseconds THE TRANSMIT's bound allows them.
+
+A notice whose port refuses is not in the queue, and costs a round AECP_ATTEMPT_US: a round tries each of
+AECP_ROUND_PORTS ports once (aecp.c, scan). So each search also runs with every count of refusing ports, its notices
+out of the queue and its attempts charged to every round ahead of the notices, whether or not they are due, which no
+round can exceed. Where two counts leave a round, a step and a build the same room, the fewer refusals leave the longer
+queue, so only that one is searched.
 """
 from __future__ import annotations
 
@@ -18,7 +24,7 @@ import ast
 import operator
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
@@ -61,9 +67,10 @@ def constants(interfaces: int) -> dict[str, int]:
 
     names = ('CTRL_LOOP_WHOLE_RUN', 'CTRL_LOOP_SHARE_US', 'CTRL_LOOP_SHARE_MARGIN_US', 'CTRL_LOOP_STEP_PASS_US',
              'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SRP_DRAINS', 'CTRL_LOOP_STEP_AGE',
-             'CTRL_LOOP_T_SVC_MS', 'AECP_RETRY_MAX_MS', 'AECP_REGISTRATIONS', 'AECP_RECIPIENT_US', 'AECP_NOTICE_US',
+             'CTRL_LOOP_T_SVC_MS', 'AECP_RETRY_MAX_MS', 'AECP_REGISTRATIONS', 'AECP_NOTICE_US',
              'AECP_ROUND_PACE_MS', 'AECP_ROUND_YIELD_PACE_MS', 'AECP_ROUND_YIELD_NOTICES', 'AECP_ROUND_YIELDS',
-             'AECP_QUEUED_PASSES', 'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_NOTICES_MOST')
+             'AECP_QUEUED_PASSES', 'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_NOTICES_MOST', 'AECP_ATTEMPT_US',
+             'AECP_ROUND_PORTS', 'AECP_ROUND_COLD_US')
     return {name: value(name) for name in names}
 
 
@@ -151,28 +158,37 @@ def latest(w: Window, target: int) -> int:
 
 
 def windows(c: dict[str, int], interfaces: int) -> list[Window]:
-    """The searches of a point: its builds of both MRPDUs, and its builds of one."""
-    margin = c['CTRL_LOOP_SHARE_US'] - c['CTRL_LOOP_SHARE_MARGIN_US']
-    carries = lambda spent_us: (margin - spent_us) // c['AECP_NOTICE_US']
+    """The searches of a point: its builds of both MRPDUs and its builds of one, at each count of refusing ports."""
+    margin = c['CTRL_LOOP_SHARE_US'] - c['CTRL_LOOP_SHARE_MARGIN_US'] - c['AECP_ROUND_COLD_US']
     centiseconds = (c['AECP_QUEUED_MS'] + TICK_LAG_MS) // 10
     steps = 1 + (centiseconds - 1) // (c['CTRL_LOOP_STEP_AGE'] + 1)
-    common = dict(notices=c['AECP_NOTICES_MOST'], round_carries=carries(0),
-                  step_carries=carries(c['CTRL_LOOP_STEP_PASS_US']), steps=steps, drains=c['CTRL_LOOP_SRP_DRAINS'],
+    common = dict(notices=c['AECP_NOTICES_MOST'], steps=steps, drains=c['CTRL_LOOP_SRP_DRAINS'],
                   yields=c['AECP_ROUND_YIELDS'], yield_notices=c['AECP_ROUND_YIELD_NOTICES'],
                   pace_ms=c['AECP_ROUND_PACE_MS'], yield_pace_ms=c['AECP_ROUND_YIELD_PACE_MS'],
                   whole_run=c['CTRL_LOOP_WHOLE_RUN'], spacing_ms=c['AECP_RETRY_MAX_MS'],
                   pass_ms=c['CTRL_LOOP_SHARE_US'] // 1000)
-    return [Window(build_carries=carries(c['CTRL_LOOP_BUILD_PASS_US']), builds=interfaces, **common),
-            Window(build_carries=carries(c['CTRL_LOOP_BUILD_ONE_PASS_US']), builds=2 * interfaces, **common)]
+    out = []
+    for build_us, builds in ((c['CTRL_LOOP_BUILD_PASS_US'], interfaces),
+                             (c['CTRL_LOOP_BUILD_ONE_PASS_US'], 2 * interfaces)):
+        rooms = {}
+        for refused in range(c['AECP_ROUND_PORTS'] + 1):
+            carries = lambda spent_us, k=refused: (margin - spent_us - k * c['AECP_ATTEMPT_US']) // c['AECP_NOTICE_US']
+            rooms.setdefault((carries(0), carries(c['CTRL_LOOP_STEP_PASS_US']), carries(build_us)), refused)
+        for (whole, step, build), refused in rooms.items():
+            window = Window(round_carries=whole, step_carries=step, build_carries=build, builds=builds, **common)
+            out.append(replace(window, notices=c['AECP_NOTICES_MOST'] - refused))
+    return out
 
 
-def findings(interfaces: int) -> tuple[list[str], list[str]]:
-    """What the search found at a point, and every way it exceeds what aecp_mbx.h states."""
-    c = constants(interfaces)
+def findings(interfaces: int, planted: dict[str, int] | None = None) -> tuple[list[str], list[str]]:
+    """What the search found at a point, and every way it exceeds what aecp_mbx.h states, or a planted restatement."""
+    c = {**constants(interfaces), **(planted or {})}
     log, wrong, longest = [], [], 0
     for w in windows(c, interfaces):
         first, last = latest(w, 1), latest(w, w.notices)
         longest = max(longest, last)
+        if min(w.round_carries, w.step_carries, w.build_carries) == 0:
+            wrong.append(f'a pass given whole at {interfaces} interface(s) has no room for a notice past its attempts')
         log.append(f'{interfaces} interface(s): {w.notices} notices, {w.round_carries}/{w.step_carries}/'
                    f'{w.build_carries} a round, step and build, {w.builds} builds, {w.steps} steps: first {first} ms, '
                    f'last {last} ms (stated {c["AECP_QUEUED_MS"]} ms)')
@@ -185,6 +201,16 @@ def findings(interfaces: int) -> tuple[list[str], list[str]]:
     if c['AECP_QUEUED_MS'] > c['AECP_QUEUED_CEILING_MS']:
         wrong.append(f'AECP_QUEUED_MS over its ceiling at {interfaces} interface(s)')
     return log, wrong
+
+
+#: The search's planted controls at two interfaces: a constant restated, and the words its finding must carry.
+CONTROLS = (({'AECP_ATTEMPT_US': 0}, 'is not the search'), ({'AECP_ATTEMPT_US': 40}, 'has no room for a notice'),
+            ({'AECP_QUEUED_MS': 58}, 'over AECP_QUEUED_MS'), ({'AECP_QUEUED_CEILING_MS': 58}, 'over its ceiling'))
+
+
+def controls() -> list[str]:
+    """Each planted control the search did not catch."""
+    return [str(planted) for planted, words in CONTROLS if not any(words in w for w in findings(2, planted)[1])]
 
 
 def main() -> int:

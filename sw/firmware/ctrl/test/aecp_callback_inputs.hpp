@@ -29,7 +29,7 @@ static void callback_input(unsigned entry, aecp &a, const aecp_config &cfg,
     case 12:(void)aecp_map_restore(&a,&map,nullptr,0);break;
     case 13:aecp_map_refused(&a,&map);break;
     case 14:(void)aecp_restore_settle(&a);break;
-    case 15:(void)aecp_retry(&a,1u);break;
+    case 15:(void)aecp_retry(&a,1u,0u);break;
     case 16:(void)aecp_retry_aged(&a,0);break;
     }
 }

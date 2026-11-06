@@ -179,17 +179,14 @@ static bool poll(void *ctx)
 
 _Static_assert(AECP_QUEUED_MS <= AECP_QUEUED_CEILING_MS, "every queued notice must keep its ceiling");
 
-// THE RETRY's client (ctrl_loop.h, #665): the notices the pass has room for, and the fewer while records wait.
+// THE RETRY's client (ctrl_loop.h, #665): what the pass has left holds the round, and fewer notices while records wait.
 static bool retry(void *ctx, unsigned left_us)
 {
 	struct aecp_mbx *m = ctx;
 	struct ctrl_loop *l = m->loop;
-	unsigned most = left_us / AECP_NOTICE_US;
-	if (l->backlog && !l->retry_firm && most > AECP_ROUND_YIELD_NOTICES) {
-		most = AECP_ROUND_YIELD_NOTICES;
-	}
 	const uint32_t sent = m->core.tx_cookie;
-	bool owed = aecp_retry(&m->core, most);
+	bool owed = aecp_retry(&m->core, l->backlog && !l->retry_firm ? AECP_ROUND_YIELD_NOTICES : AECP_NOTICES_MOST,
+			       (int32_t)left_us - (int32_t)AECP_ROUND_COLD_US);
 	// a round that built beside records spends a yield, and a queue served to its end starts the next with them all
 	m->yields = owed ? m->yields + (l->backlog && m->core.tx_cookie != sent ? 1u : 0u) : 0u;
 	l->retry_firm = m->yields + 1u > AECP_ROUND_YIELDS;
@@ -213,6 +210,7 @@ bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 	}
 	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it
 	m->core.retry_hold = true;
+	m->core.notice_us = AECP_NOTICE_US;
 	l->retry_firm = AECP_ROUND_YIELDS == 0u;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
