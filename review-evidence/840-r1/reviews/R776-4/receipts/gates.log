@@ -1,0 +1,49 @@
+## docs_inventory --check
+documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+## docs_inventory --selftest
+documentation inventory selftest: OK (50 controls)
+rc=0
+## git diff --check 87e9d03a..head
+rc=0
+## merge base
+87e9d03aa2a4797957ac0124d0c7851a2eec234c
+## delta tree scope
+docs/DOCUMENTATION_AUDIT.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/reference/STRICTER_READINGS.md
+sw/firmware/nvm_hosttest/phy_host.c
+sw/firmware/nvm_hosttest/test_phy_firmware.py
+## submodule gitlinks delta
+0
+fatal: path 'gptp-processor/scripts/check_docs.py' exists on disk, but not in '87e9d03aa2a4797957ac0124d0c7851a2eec234c'
+fatal: path 'gptp-processor/scripts/check_source_evidence.py' exists on disk, but not in '87e9d03aa2a4797957ac0124d0c7851a2eec234c'
+fatal: path 'gptp-processor/scripts/generate_diagrams.py' exists on disk, but not in '87e9d03aa2a4797957ac0124d0c7851a2eec234c'
+fatal: path 'protocol-processor/hdl/aecp/desc/gen_desc_image.py' exists on disk, but not in '87e9d03aa2a4797957ac0124d0c7851a2eec234c'
+fatal: path 'tb/verilator/render_setpoint/mutants.py' does not exist in '87e9d03aa2a4797957ac0124d0c7851a2eec234c'
+fatal: path 'gptp-processor/scripts/check_docs.py' exists on disk, but not in '27df6e08'
+fatal: path 'gptp-processor/scripts/check_source_evidence.py' exists on disk, but not in '27df6e08'
+fatal: path 'gptp-processor/scripts/generate_diagrams.py' exists on disk, but not in '27df6e08'
+fatal: path 'protocol-processor/hdl/aecp/desc/gen_desc_image.py' exists on disk, but not in '27df6e08'
+fatal: path 'tb/verilator/render_setpoint/mutants.py' does not exist in '27df6e08'
+## changed files pinned in command table scripts: []
+## changed in python_imports: []
+87e9d03a table rows 151 mismatches 41
+27df6e08 table rows 151 mismatches 41
+added at head []
+removed at head []
+## exec-audit-receipt source {'base': 'fa7347fc59173f90e4feec2df207692e6e6e72ec', 'checkout': '/work', 'commit': '54fbcba6ac004cad7ce00a52428ebb29a66f62bc', 'submodules': ['-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external', ' e
+## docs_check
+docs_check: 0 finding(s) across 214 md files + 1443 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## check_feature_status
+feature_status: 0 finding(s)
+rc=0
+## out-of-scope paths unchanged in delta
+rc=0
+## PR files pinned in table: [('sw/builder/endstation_builder.py', 'stale'), ('sw/builder/test_builder.py', 'stale'), ('tb/verilator/fw_service_budget/run.py', 'match'), ('tb/verilator/nvm_capture_cpu/run.py', 'match'), ('tb/verilator/nvm_capture_cpu/soc.py', 'match')]
+## table mismatches using working-tree bytes incl. submodule paths: 39
+## absent rows ['tb/verilator/render_setpoint/mutants.py']
+## stale rows with bytes on disk 38
+## non-sha rows []
+## submodule stale ['gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py']

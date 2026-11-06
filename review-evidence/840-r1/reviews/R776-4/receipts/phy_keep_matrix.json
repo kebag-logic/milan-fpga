@@ -1,0 +1,134 @@
+{
+ "rows": 50,
+ "caught": 24,
+ "escaped": 26,
+ "escaped_names": [
+  "force-4.12",
+  "drop-4.12",
+  "force-4.13",
+  "drop-4.13",
+  "force-4.15",
+  "drop-4.15",
+  "force-0.13",
+  "drop-0.13",
+  "force-0.0",
+  "drop-0.0",
+  "force-0.1",
+  "drop-0.1",
+  "force-0.2",
+  "drop-0.2",
+  "force-0.3",
+  "drop-0.3",
+  "force-0.4",
+  "drop-0.4",
+  "force-0.5",
+  "drop-0.5",
+  "force-0.6",
+  "drop-0.6",
+  "force-0.7",
+  "drop-0.7",
+  "force-0.8",
+  "drop-0.8"
+ ],
+ "disagrees_with_stated_bits": [],
+ "caught_by": {
+  "force-4.0": "selector_kept",
+  "drop-4.0": "selector_kept",
+  "force-4.1": "selector_kept",
+  "drop-4.1": "selector_kept",
+  "force-4.2": "selector_kept",
+  "drop-4.2": "selector_kept",
+  "force-4.3": "selector_kept",
+  "drop-4.3": "selector_kept",
+  "force-4.4": "selector_kept",
+  "drop-4.4": "selector_kept",
+  "force-4.10": "pause_bits_kept",
+  "drop-4.10": "pause_bits_kept",
+  "force-4.11": "pause_bits_kept",
+  "drop-4.11": "pause_bits_kept",
+  "force-9.10": "master_slave_kept",
+  "drop-9.10": "master_slave_kept",
+  "force-9.11": "master_slave_kept",
+  "drop-9.11": "master_slave_kept",
+  "force-9.12": "master_slave_kept",
+  "drop-9.12": "master_slave_kept",
+  "force-0.14": "loopback_kept",
+  "drop-0.14": "loopback_kept",
+  "force-0.11": "power_down_kept",
+  "drop-0.11": "power_down_kept"
+ },
+ "necessity": {
+  "arm1-power-down-clear": {
+   "name": "arm1-power-down-clear",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "arm2-power-down-set": {
+   "name": "arm2-power-down-set",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "arm1-loopback-set": {
+   "name": "arm1-loopback-set",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "arm2-loopback-clear": {
+   "name": "arm2-loopback-clear",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "no-assert-force-power_down_kept": {
+   "name": "no-assert-force-power_down_kept",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "no-assert-drop-power_down_kept": {
+   "name": "no-assert-drop-power_down_kept",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "no-assert-force-loopback_kept": {
+   "name": "no-assert-force-loopback_kept",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "no-assert-drop-loopback_kept": {
+   "name": "no-assert-drop-loopback_kept",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "cond-drop-0.11-when-an-off": {
+   "name": "cond-drop-0.11-when-an-off",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "cond-force-0.11-when-an-on": {
+   "name": "cond-force-0.11-when-an-on",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "cond-force-0.14-when-an-off": {
+   "name": "cond-force-0.14-when-an-off",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  },
+  "cond-drop-0.14-when-an-on": {
+   "name": "cond-drop-0.14-when-an-on",
+   "rc": 0,
+   "ok": true,
+   "assertion": null
+  }
+ }
+}
