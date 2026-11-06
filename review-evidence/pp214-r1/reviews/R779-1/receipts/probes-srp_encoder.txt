@@ -1,0 +1,20 @@
+rv-key-uid-only rc=2 692 checks: 688 PASS, 4 FAIL first=FAIL: PV10 three Domain values pending
+rv-key-low-mac-ignored rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-search-stops-one-early rc=2 692 checks: 690 PASS, 2 FAIL first=FAIL: PV9 three re-join walks of VID 2 and VID 7: one each: length got 36 exp 31
+rv-key-mac-only rc=2 692 checks: 670 PASS, 22 FAIL first=FAIL: E3 four events pending
+rv-merge-keeps-old-value rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-mvrp-no-merge rc=2 692 checks: 690 PASS, 2 FAIL first=FAIL: PV9 VID 2 New then two re-joins: New: byte-exact against the independent packer
+rv-search-steals-other-read rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-hit-still-counts-mvrp rc=2 692 checks: 686 PASS, 6 FAIL first=FAIL: PV9 VID 2 New then two re-joins: New: length got 31 exp 26
+rv-search-steals-other-read-mvrp rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-hit-still-counts rc=2 692 checks: 652 PASS, 40 FAIL first=FAIL: PV1 two re-joins of one Domain value: one JoinIn: length got 48 exp 30
+rv-hit-writes-append-slot rc=2 692 checks: 680 PASS, 12 FAIL first=FAIL: PV3 JoinMt then JoinIn: JoinIn: byte-exact against the independent packer
+rv-join-over-lv-kept-lv rc=2 692 checks: 691 PASS, 1 FAIL first=FAIL: PV4 Lv then a join: JoinMt: byte-exact against the independent packer
+rv-join-keeps-older-reading rc=2 692 checks: 688 PASS, 4 FAIL first=FAIL: PV3 JoinMt then JoinIn: JoinIn: byte-exact against the independent packer
+rv-s-keeps-older-reading rc=2 692 checks: 691 PASS, 1 FAIL first=FAIL: PV5 Mt then In: In: byte-exact against the independent packer
+rv-new-does-not-replace-lv rc=2 692 checks: 691 PASS, 1 FAIL first=FAIL: PV4 Lv then New: New: byte-exact against the independent packer
+rv-fp-s-takes-new rc=2 692 checks: 691 PASS, 1 FAIL first=FAIL: PV6 Listener New Ready then Mt Ignore: New Ready: byte-exact against the independent
+rv-fp-keeps-old-under-kept-new rc=2 692 checks: 691 PASS, 1 FAIL first=FAIL: PV6 Listener New Ready then a re-join AskingFailed: New AskingFailed: byte-exact aga
+rv-sr-on-survives-accept rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-search-ignores-start rc=0 692 checks: 692 PASS, 0 FAIL first=
+rv-full-table-merges-blocked-removed rc=2 692 checks: 689 PASS, 3 FAIL first=FAIL: E12 13th push backpressured while full

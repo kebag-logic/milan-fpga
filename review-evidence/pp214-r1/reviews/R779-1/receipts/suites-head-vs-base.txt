@@ -1,0 +1,68 @@
+== head tb/srp_encoder
+692 checks: 692 PASS, 0 FAIL
+== head tb/srp_top
+TOTAL_CLOCKS 227128039
+8683 checks: 8683 PASS, 0 FAIL
+== head rc: encoder 0, top 0
+== base RTL with the head testbench: tb/srp_encoder
+692 checks: 644 PASS, 48 FAIL
+FAIL: O8: MSRP preparation leaves MVRP intake open on its join clock (VID 3 taken after one search clock)
+FAIL: O8: deferred MVRP frame contains both accepted VIDs
+FAIL: PV1 two re-joins of one Domain value: one JoinIn: length got 37 exp 30
+FAIL: PV1 two re-joins of one Domain value: one JoinIn: byte-exact against the independent packer
+FAIL: PV2 New then a re-join: New: length got 37 exp 30
+FAIL: PV2 New then a re-join: New: byte-exact against the independent packer
+FAIL: PV3 JoinMt then JoinIn: JoinIn: length got 37 exp 30
+FAIL: PV3 JoinMt then JoinIn: JoinIn: byte-exact against the independent packer
+FAIL: PV4 a re-join then Lv: Lv: length got 37 exp 30
+FAIL: PV4 a re-join then Lv: Lv: byte-exact against the independent packer
+FAIL: PV4 Lv then New: New: length got 37 exp 30
+FAIL: PV4 Lv then New: New: byte-exact against the independent packer
+FAIL: PV4 New then Lv: Lv: length got 37 exp 30
+FAIL: PV4 New then Lv: Lv: byte-exact against the independent packer
+FAIL: PV4 Lv then a join: JoinMt: length got 37 exp 30
+FAIL: PV4 Lv then a join: JoinMt: byte-exact against the independent packer
+FAIL: PV5 In then JoinMt: JoinMt: length got 37 exp 30
+FAIL: PV5 In then JoinMt: JoinMt: byte-exact against the independent packer
+FAIL: PV5 JoinIn then Mt: JoinIn: length got 37 exp 30
+FAIL: PV5 JoinIn then Mt: JoinIn: byte-exact against the independent packer
+FAIL: PV5 Lv then Mt: Lv: length got 37 exp 30
+FAIL: PV5 Lv then Mt: Lv: byte-exact against the independent packer
+FAIL: PV5 Mt then In: In: length got 37 exp 30
+FAIL: PV5 Mt then In: In: byte-exact against the independent packer
+FAIL: PV6 Listener Ready then AskingFailed: AskingFailed: length got 47 exp 35
+FAIL: PV6 Listener Ready then AskingFailed: AskingFailed: byte-exact against the independent packer
+FAIL: PV6 Listener New Ready then a re-join AskingFailed: New AskingFailed: length got 47 exp 35
+FAIL: PV6 Listener New Ready then a re-join AskingFailed: New AskingFailed: byte-exact against the independent packer
+FAIL: PV6 Listener New Ready then Mt Ignore: New Ready: length got 47 exp 35
+FAIL: PV6 Listener New Ready then Mt Ignore: New Ready: byte-exact against the independent packer
+FAIL: PV7 a value again after its successor: one run of two: length got 47 exp 35
+FAIL: PV7 a value again after its successor: one run of two: byte-exact against the independent packer
+FAIL: PV9 VID 2 New then two re-joins: New: length got 36 exp 26
+FAIL: PV9 VID 2 New then two re-joins: New: byte-exact against the independent packer
+FAIL: PV9 three re-join walks of VID 2 and VID 7: one each: length got 46 exp 31
+FAIL: PV9 three re-join walks of VID 2 and VID 7: one each: byte-exact against the independent packer
+FAIL: PV10 a value offered after another searched past its entry merges into it (taken after 1 clocks, 6 pending)
+FAIL: PV10: length got 65 exp 44
+FAIL: PV10: byte-exact against the independent packer
+FAIL: PV11 the re-join merged (3 pending)
+FAIL: PV11 own LeaveAll MRPDU: the Domain once, JoinMt: length got 130 exp 123
+FAIL: PV11 own LeaveAll MRPDU: the Domain once, JoinMt: byte-exact against the independent packer
+FAIL: PV12 LINK_UP and periodic! in one window: Domain New once: length got 37 exp 30
+FAIL: PV12 LINK_UP and periodic! in one window: Domain New once: byte-exact against the independent packer
+FAIL: PV12 a received LeaveAll and periodic! in one window: Domain JoinIn once: length got 37 exp 30
+FAIL: PV12 a received LeaveAll and periodic! in one window: Domain JoinIn once: byte-exact against the independent packe
+FAIL: PV12 New, periodic! and a LeaveAll in one window: VID 4 New once: length got 36 exp 26
+FAIL: PV12 New, periodic! and a LeaveAll in one window: VID 4 New once: byte-exact against the independent packer
+== base RTL with the head testbench: tb/srp_top
+TOTAL_CLOCKS 227168277
+8683 checks: 8675 PASS, 8 FAIL
+FAIL: OV1: a received MSRP LeaveAll and periodic! in one transmission window: no MRPDU carries Domain {6,3,2} twice (7 of 63 frames carrying it; 7 of 34 windows held a periodic!)
+FAIL: OV2: a received MVRP LeaveAll and periodic! in one transmission window: no MRPDU carries VID 2 twice (7 of 63 frames carrying it; 7 of 34 windows held a periodic!)
+FAIL: OV3: the same LeaveAlls: no MRPDU carries the Talker Advertise or the Listener twice, nor any other value (0, 0; 175 frames)
+FAIL: OV4: the own MSRP LeaveAll in each tenth of the periodic! second: no MRPDU carries a value twice (4 of 443 frames; 10 placed, 10 fired, 2 with a periodic! in the window)
+FAIL: OV5: the own MVRP LeaveAll in each tenth of the periodic! second: its LeaveAll MRPDU carries VID 2 once and no MRPDU carries a value twice (9 of 408 frames; 10 placed, 10 fired, 2 with a periodi
+FAIL: OV6: LINK_UP in each tenth of the periodic! second: the first MRPDU carrying Domain {6,3,2} carries it New, and no MRPDU carries it twice (2 of 15 frames; New first 8 of 10)
+FAIL: OV7: a differing Domain adopted in each tenth of the periodic! second: Lv {6,3,2} and New {6,5,5}, and no MRPDU carries a value twice (2 of 16 frames; 8 of 10 with the Lv and the New first)
+FAIL: OV0: every MRPDU of the run carries each attribute value in at most one VectorAttribute (69 of 17650 frames carry one twice)
+== base rc: encoder 2, top 2

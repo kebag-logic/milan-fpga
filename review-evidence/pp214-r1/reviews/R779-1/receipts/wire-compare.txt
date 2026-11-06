@@ -1,0 +1,22 @@
+share: head 90 frames, base 90 frames, same ms and bytes in order: False
+  frame 55
+    head 2401 ms 0180c20000210a0b0c0d0e0f88f5000102000100020000000000
+    base 2401 ms 0180c20000210a0b0c0d0e0f88f500010200010002b4000100020000000000
+  frame 56
+    head 2402 ms 0180c200000e0a0b0c0d0e0f22ea000308000e00011122334455660001008000000000
+    base 2403 ms 0180c200000e0a0b0c0d0e0f22ea000308000e00011122334455660001008000000000
+  frame 73
+    head 2401 ms 0180c20000210a0b0c0d0e0f88f5000102000100020000000000
+    base 2401 ms 0180c20000210a0b0c0d0e0f88f500010200010002b4000100020000000000
+  frame 74
+    head 2402 ms 0180c200000e0a0b0c0d0e0f22ea000308000e00011122334455660001008000000000
+    base 2403 ms 0180c200000e0a0b0c0d0e0f22ea000308000e00011122334455660001008000000000
+link: head 7 frames, base 7 frames, same ms and bytes in order: True
+domjoin: head 6 frames, base 6 frames, same ms and bytes in order: True
+head share: 10 checks: 10 PASS, 0 FAIL
+base-rtl share: 10 checks: 9 PASS, 1 FAIL
+head link: 3 checks: 3 PASS, 0 FAIL
+base-rtl link: 3 checks: 3 PASS, 0 FAIL
+head domjoin: 5 checks: 5 PASS, 0 FAIL
+base-rtl domjoin: 5 checks: 5 PASS, 0 FAIL
+  doubled at 2401 ms: MVRP type 1 value 2 x2 (events 5 0)

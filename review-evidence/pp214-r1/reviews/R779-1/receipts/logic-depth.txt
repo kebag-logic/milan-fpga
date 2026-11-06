@@ -1,0 +1,5 @@
+KL_srp_encoder alone, sv2v then yosys "synth; abc -lut 6; ltp -noff" (generic 6-LUT mapping, memories as logic):
+  main 92100657: Longest topological path in KL_srp_encoder (length=12):
+  head cc92e90a: Longest topological path in KL_srp_encoder (length=12):
+This is a depth count, not timing. The encoder's inputs are ports here, so the intake mux of KL_srp_top is not on the path.
+Flip-flops, yosys synth_xilinx: main  1280 FDRE, head  1358 FDRE

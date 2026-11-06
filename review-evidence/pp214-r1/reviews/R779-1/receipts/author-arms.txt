@@ -1,0 +1,21 @@
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top share: rc=0 PASS
+round-completion-lost: rc=2 failures=6 KILLED tags=N13,N3,N4,N5,N6,N8
+listener-settle-compare-dropped: rc=2 failures=3 KILLED tags=SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=45 KILLED tags=PS12,PS13,PS20,PS21,SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-settle-skips-leave-copies: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+listener-settle-skips-leave-copies: rc=2 failures=2 KILLED tags=SW4,SW6
+second-queueing: rc=2 failures=8 KILLED tags=OV0,OV1,OV2,OV3,OV4,OV5,OV6,OV7
+second-queueing: rc=2 failures=46 KILLED tags=PV1 two re-joins of one Domain value,PV10,PV10 a value offered after another searched past its entry merges into it (taken after 4 clocks, 4 pending),PV11 own LeaveAll MRPDU,PV11 the re-join merged (3 pending),PV12
+join-displaces-new: rc=2 failures=2 KILLED tags=OV6,OV7
+join-displaces-new: rc=2 failures=5 KILLED tags=PV12 LINK_UP and periodic! in one window,PV12 New, periodic! and a LeaveAll in one window,PV2 New then a re-join,PV6 Listener New Ready then a re-join AskingFailed,PV9 VID 2 New then two re-joins
+leave-does-not-replace: rc=2 failures=2 KILLED tags=PV4 New then Lv,PV4 a re-join then Lv
+s-displaces-declaration: rc=2 failures=3 KILLED tags=PV5 JoinIn then Mt,PV5 Lv then Mt,PV6 Listener New Ready then Mt Ignore
+listener-type-oldest: rc=2 failures=2 KILLED tags=PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed
+merge-ignores-type: rc=2 failures=2 KILLED tags=PV8 three types of one StreamID
+search-no-restart: rc=2 failures=3 KILLED tags=PV10,PV10 a value offered after another searched past its entry merges into it (taken after 2 clocks, 4 pending)
+listener-shares-nothing-encoder-appends: rc=2 failures=6 KILLED tags=OV0,SW1,SW2,SW3
+20 checks: 20 PASS, 0 FAIL
