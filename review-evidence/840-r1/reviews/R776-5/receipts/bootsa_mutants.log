@@ -1,0 +1,26 @@
+positive control: pass
+[PASS] mutant caught: MAC_ADDR_LO alone completes the pair - fails "[BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter"
+[PASS] mutant caught: no hold: the stamp alone - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: no stamp: the hold alone releases the MSRP PDU built from the reset address - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: the defect as shipped: no hold and no stamp - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: the stamp lands on the destination, octets 0 to 5 - fails "[BOOTSA] every MSRP frame's destination address is its protocol's"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept) - fails "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
+[PASS] mutant caught: MAC_ADDR_HI alone completes the pair - fails "[BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter"
+[PASS] mutant caught: the stamp's beat position survives a frame's last beat - fails "[BOOTSA] every ADP frame's destination address is its protocol's"
+[PASS] mutant caught: no hold on MAAP alone - fails "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"
+[PASS] mutant caught: no hold on the AAF talkers alone - fails "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
+[PASS] mutant caught: no hold on the CRF talker alone - fails "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written"
+[PASS] mutant caught: the stamp's beat position wraps past the source address instead of saturating - fails "[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered"
+mutants: 12, caught 12, survived or invalid 0
+CAUGHT   the defect as shipped: no hold and no stamp
+CAUGHT   no hold: the stamp alone
+CAUGHT   no stamp: the hold alone releases the MSRP PDU built from the reset address
+CAUGHT   MAC_ADDR_LO alone completes the pair
+CAUGHT   MAC_ADDR_HI alone completes the pair
+CAUGHT   the stamp lands on the destination, octets 0 to 5
+CAUGHT   the stamp's beat position survives a frame's last beat
+CAUGHT   no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept)
+CAUGHT   no hold on MAAP alone
+CAUGHT   no hold on the AAF talkers alone
+CAUGHT   no hold on the CRF talker alone
+CAUGHT   the stamp's beat position wraps past the source address instead of saturating

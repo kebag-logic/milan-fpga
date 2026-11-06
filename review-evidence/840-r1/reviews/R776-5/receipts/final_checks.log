@@ -1,0 +1,31 @@
+== clone state
+HEAD 8ab3a930d6e2d217caf729d38c5ef17e98e292b3
+tree 050690f80b699e9e85d9782313c341552c627ecc
+porcelain lines: 0
+ignored lines: 1
+!! scripts/__pycache__/
+index digest  b5c9ba6baa4563a1
+HEAD digest   b5c9ba6baa4563a1
+worktree equals HEAD (tracked)
+== gitlinks
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+== composition
+auto three-way merge 27df6e08 + 3f6bef88 differs from head only in:
+docs/DOCUMENTATION_AUDIT.md
+merge of live dev 3f6bef88 with head gives tree: 050690f80b699e9e85d9782313c341552c627ecc
+paths under sw configs avdecc ci changed since 27df6e08: 0
+command-table stale rows dev/head: 36/36, newly stale 0
+== after removing the ignored scripts/__pycache__ this review's one in-clone run created
+porcelain incl. ignored: 0
+index digest b5c9ba6baa4563a1  HEAD digest b5c9ba6baa4563a1

@@ -1,0 +1,20 @@
+documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+inventory_check rc=0
+documentation inventory selftest: OK (50 controls)
+inventory_selftest rc=0
+documentation style: OK (24 current documents)
+doc_style rc=0
+diffcheck rc=0
+diffcheck_base rc=0
+3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf
+rc=0  scripts/docs_check.py  :: docs_check: 0 finding(s) across 214 md files + 1447 scrubbed text files, scrub self-test 23/23, routing arms 4
+rc=0  scripts/check_feature_status.py  :: feature_status: 0 finding(s)
+rc=2  scripts/check_em_dash.py --base 3f6bef88  :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip ins
+rc=2  scripts/check_em_dash.py --base 87e9d03a  :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip ins
+rc=0  scripts/check_doc_style.py --selftest  :: documentation style selftest: OK
+rc=0  scripts/check_wire_accountability.py  :: RESULT: PASS
+rc=2  scripts/check_baremetal_only.py  :: check_baremetal_only.py: error: pick a mode: --check (scan the tree) or --selftest
+rc=0  docs/traceability/gen_module_matrix.py --check  :: traceability matrix up to date (80 modules, 0 untested <= ratchet 0, 0 archived)
+check_baremetal_only --check rc=0
+em dash in added lines of delta: 0
+scripts/check_em_dash.py NOT RUN: pinned renderer absent; direct count above is a substitute only
