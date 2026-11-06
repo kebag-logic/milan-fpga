@@ -1,0 +1,160 @@
+001 ok  top/KL_gptp_engine.sv [1] slew level tied low
+002 ok  ucode/gen_gptp_ucode.py [1] slew clears at the first in-band pair
+003 ok  ucode/gen_gptp_ucode.py [1] the tracking band is empty
+004 ok  top/KL_gptp_engine.sv [1] slew clears before the replacement rate
+005 ok  top/KL_gptp_engine.sv [1] slew idle lapse arms qualification
+006 ok  top/KL_gptp_engine.sv [1] slew idle asCapable loss arms qualification
+007 ok  top/KL_gptp_engine.sv [1] slew mastership keeps qualification
+008 ok  top/KL_gptp_engine.sv [1] result face always ready
+009 ok  top/KL_gptp_engine.sv [1] result value taken without an accepted beat
+010 ok  top/KL_gptp_engine.sv [1] result tag taken without an accepted beat
+011 ok  top/KL_gptp_engine.sv [1] recorded t1 survives reset
+012 ok  wire/KL_gptp_tx_slot.sv [1] byte face advances without ready
+013 ok  ucode/gen_gptp_ucode.py [1] lost t1 fabricates a time and a companion
+014 ok  ucode/gen_gptp_ucode.py [1] lost Sync cancels the requester exchange
+015 ok  ucode/gen_gptp_ucode.py [1] lost response cancels the requester exchange
+016 ok  ucode/gen_gptp_ucode.py [1] a later response re-arms the frozen pair
+017 ok  ucode/gen_gptp_ucode.py [1] the tail runs before its own t1
+018 ok  ucode/gen_gptp_ucode.py [1] a new request leaves the old pair live
+019 ok  ucode/gen_gptp_ucode.py [1] credit gate removed from the Pdelay_Req leg
+020 ok  ucode/gen_gptp_ucode.py [1] credit gate removed from the Sync leg
+021 ok  ucode/gen_gptp_ucode.py [1] credit gate removed from the Announce leg
+022 ok  ucode/gen_gptp_ucode.py [1] every pair uses the locked threshold
+023 ok  ucode/gen_gptp_ucode.py [1] every pair uses the link-up threshold
+024 ok  ucode/gen_gptp_ucode.py [1] exactly the threshold steps
+025 ok  ucode/gen_gptp_ucode.py [1] the step arm is unreachable
+026 ok  ucode/gen_gptp_ucode.py [1] a grandmaster change unlocks the servo
+027 ok  ucode/gen_gptp_ucode.py [1] a receipt timeout unlocks the servo
+028 ok  ucode/gen_gptp_ucode.py [1] becoming grandmaster unlocks the servo
+029 ok  ucode/gen_gptp_ucode.py [1] the locked threshold is 200 us
+030 ok  ucode/gen_gptp_ucode.py [1] asCapable's rise keeps the lock
+031 ok  ucode/gen_gptp_ucode.py [1] the whole trim is not clamped
+032 ok  ucode/gen_gptp_ucode.py [1] the trim clamp is one unit wider than the envelope
+033 ok  ucode/gen_gptp_ucode.py [1] the integrator is not clamped
+034 ok  top/KL_gptp_engine.sv [1] reset leaves the grandmaster zero
+035 ok  top/KL_gptp_engine.sv [1] reset keeps the elected grandmaster
+036 ok  ucode/gen_gptp_ucode.py [1] the thisClock words are read swapped
+037 ok  top/KL_gptp_engine.sv [1] reset leaves the path empty
+038 ok  top/KL_gptp_engine.sv [1] reset keeps the elected tail
+039 ok  top/KL_gptp_engine.sv [1] no engine commit after reset
+040 ok  top/KL_gptp_engine.sv [1] the boot commit fires twice
+041 ok  top/KL_gptp_engine.sv [1] the boot commit never retires
+042 ok  top/KL_gptp_engine.sv [1] the boot commit waits for the timer bootstrap
+043 ok  top/KL_gptp_engine.sv [1] a warm reset keeps the retained best record
+044 ok  top/KL_gptp_engine.sv [1] an unwritten best record reads as the best vector
+045 ok  ucode/gen_gptp_ucode.py [1] a winning peer's grandmaster is not published
+046 ok  ucode/gen_gptp_ucode.py [1] a winning peer's path is not staged
+047 ok  ucode/gen_gptp_ucode.py [1] the self publication keeps the departed grandmaster
+048 ok  ucode/gen_gptp_ucode.py [1] the self publication keeps the departed path
+049 ok  ucode/gen_gptp_ucode.py [1] the self publication keeps the departed record
+050 ok  top/KL_gptp_engine.sv [1] an asCapable fall leaves the receipt watch running
+051 ok  ucode/gen_gptp_ucode.py [1] an incapable receipt timeout keeps the elected peer
+052 ok  ucode/gen_gptp_ucode.py [1] an incapable port's Announces still compete
+053 ok  ucode/gen_gptp_ucode.py [1] the asCapable drop keeps the flags word
+054 ok  ucode/gen_gptp_ucode.py [1] an incapable port's receipt watch is not re-armed
+055 ok  top/KL_gptp_engine.sv [1] the published flags leave gmPresent to the microcode
+056 ok  ucode/gen_gptp_ucode.py [1] the image does not mark thisClock grandmaster-capable
+057 ok  ucode/gen_gptp_ucode.py [1] the capability mark ignores priority1
+058 ok  ucode/gen_gptp_ucode.py [1] mastership sets the microcode's presence bit
+059 ok  ucode/gen_gptp_ucode.py [1] becoming grandmaster clears sync-ok
+060 ok  ucode/gen_gptp_ucode.py [1] a queued receipt timeout clears a master's sync-ok
+061 ok  ucode/gen_gptp_ucode.py [1] an expiry takes a master's own vector for a peer's
+062 ok  ucode/gen_gptp_ucode.py [1] a sync receipt timeout only clears sync-ok
+063 ok  ucode/gen_gptp_ucode.py [1] only an expiry that ages a slave marks the port
+064 ok  ucode/gen_gptp_ucode.py [1] sync receipt ageing ignores gmPresent
+065 ok  ucode/gen_gptp_ucode.py [1] a sync receipt timeout that ages nothing keeps sync-ok
+066 ok  ucode/gen_gptp_ucode.py [1] a consumed pair leaves sync-ok down
+067 ok  ucode/gen_gptp_ucode.py [1] adoption leaves the Sync receipt watch off
+068 ok  ucode/gen_gptp_ucode.py [1] an aged port takes Announces
+069 ok  ucode/gen_gptp_ucode.py [1] an aged port refuses a priority1 255 grandmaster
+070 ok  ucode/gen_gptp_ucode.py [1] an aged Announce is dropped rather than aged
+071 ok  ucode/gen_gptp_ucode.py [1] mastership stops the Sync receipt watch
+072 ok  ucode/gen_gptp_ucode.py [1] mastership stops the Follow_Up watch
+073 ok  ucode/gen_gptp_ucode.py [1] mastership voids the parked Sync
+074 ok  ucode/gen_gptp_ucode.py [1] a master steers on its aged peer's Sync
+075 ok  ucode/gen_gptp_ucode.py [1] a master hears no Sync
+076 ok  ucode/gen_gptp_ucode.py [1] the Sync receipt watch is 100 ms
+077 ok  ucode/gen_gptp_ucode.py [1] the Sync receipt watch is 500 ms
+078 ok  ucode/gen_gptp_ucode.py [1] a parent refresh expires the Sync watch
+079 ok  ucode/gen_gptp_ucode.py [1] the adoption watch is 100 ms
+080 ok  ucode/gen_gptp_ucode.py [1] a Follow_Up pairs whatever its sequenceId
+081 ok  ucode/gen_gptp_ucode.py [1] the Follow_Up watch is 50 ms
+082 ok  ucode/gen_gptp_ucode.py [1] lost responses clear asCapable at the first
+083 ok  ucode/gen_gptp_ucode.py [1] the fifth loss stops the requests
+084 ok  ucode/gen_gptp_ucode.py [1] same-identity duplicates are a storm
+085 ok  ucode/gen_gptp_ucode.py [1] lost responses clear asCapable at the fourth
+086 ok  ucode/gen_gptp_ucode.py [1] lost responses clear asCapable at the sixth
+087 ok  ucode/gen_gptp_ucode.py [1] a second response re-arms the pairing
+088 ok  ucode/gen_gptp_ucode.py [1] a third response re-arms the reset exchange
+089 ok  ucode/gen_gptp_ucode.py [1] a portEnabled edge keeps the cease
+090 ok  ucode/gen_gptp_ucode.py [1] slot 6 runs no NOT_ENABLED leg
+091 ok  ucode/gen_gptp_ucode.py [1] a portEnabled edge keeps the ladder
+092 ok  ucode/gen_gptp_ucode.py [1] a portEnabled edge leaves the interval unanswered
+093 ok  ucode/gen_gptp_ucode.py [1] the countdown loads one beat less
+094 ok  ucode/gen_gptp_ucode.py [1] the cease entry ends the cease at once
+095 ok  ucode/gen_gptp_ucode.py [1] the cease entry keeps asCapable
+096 ok  ucode/gen_gptp_ucode.py [1] the ladder raises asCapable at the first exchange
+097 ok  top/KL_gptp_engine.sv [1] the falling edge raises no event
+098 ok  top/KL_gptp_engine.sv [1] a rise sends no request at once
+099 ok  top/KL_gptp_engine.sv [1] a disabled port keeps its transmit credit
+100 ok  top/KL_gptp_engine.sv [1] a disabled port starts an unstarted frame
+101 ok  top/KL_gptp_engine.sv [1, 1] a disabled port keeps its credit and starts its frames
+102 ok  top/KL_gptp_engine.sv [1] egress claims survive the fall
+103 ok  top/KL_gptp_engine.sv [1] the request claim survives the fall
+104 ok  top/KL_gptp_engine.sv [1] the first enable since reset raises events
+105 ok  wire/KL_gptp_tx_slot.sv [1] the withdrawn frame stays offered for a cycle
+106 ok  wire/KL_gptp_tx_slot.sv [1] a disabled port tears a started frame
+107 ok  top/KL_gptp_engine.sv [1] NOT_ENABLED waits for the serializer
+108 ok  top/KL_gptp_engine.sv [1, 1] a stalled frame holds NOT_ENABLED back
+109 ok  ucode/gen_gptp_ucode.py [1] NOT_ENABLED keeps the armed response
+110 ok  top/KL_gptp_engine.sv [1, 1, 1] NOT_ENABLED queues behind earlier events
+111 ok  top/KL_gptp_engine.sv [1] the first rise after a disabled release raises nothing
+112 ok  ucode/gen_gptp_ucode.py [1] the Follow_Up TLV is sent zero
+113 ok  top/KL_gptp_engine.sv [1] gmTimeBaseIndicator does not count mastership
+114 ok  top/KL_gptp_engine.sv [1] lastGmPhaseChange is zero
+115 ok  top/KL_gptp_engine.sv [1] lastGmPhaseChange is not ScaledNs
+116 ok  top/KL_gptp_engine.sv [1] lastGmPhaseChange drops the offset's high word
+117 ok  top/KL_gptp_engine.sv [1] scaledLastGmFreqChange is zero
+118 ok  top/KL_gptp_engine.sv [1] scaledLastGmFreqChange is the rate estimate
+119 ok  top/KL_gptp_engine.sv [1] a slewing mastership reports its last trim
+120 ok  top/KL_gptp_engine.sv [1] a rate unknown since reset is taken as zero
+121 ok  top/KL_gptp_engine.sv [1] the watch ignores the received interval
+122 ok  top/KL_gptp_engine.sv [1] a negative interval lengthens the watch
+123 ok  top/KL_gptp_engine.sv [1] the watch counts from the handler
+124 ok  top/KL_gptp_engine.sv [1] a late Announce runs before the expiry
+125 ok  top/KL_gptp_engine.sv [1] an Announce at the instant refreshes the port
+126 ok  top/KL_gptp_engine.sv [1] lateness is judged at dispatch
+127 ok  top/KL_gptp_engine.sv [1] a dispatched expiry leaves its watch armed
+128 ok  top/KL_gptp_engine.sv [1] a stale expiry dispatches
+129 ok  ucode/gen_gptp_ucode.py [1] a late response completes its exchange
+130 ok  ucode/gen_gptp_ucode.py [1] the late bound is one nanosecond short
+131 ok  ucode/gen_gptp_ucode.py [1] the late bound leaves out the clock tolerance
+132 ok  ucode/gen_gptp_ucode.py [1] the late bound leaves out the link
+133 ok  ucode/gen_gptp_ucode.py [1] the late bound leaves out the timestamp granules
+134 ok  ucode/gen_gptp_ucode.py [1] the default clockAccuracy is unknown
+135 ok  ucode/gen_gptp_ucode.py [1] --clock-accuracy is ignored
+136 ok  top/KL_gptp_engine.sv [1] dispatch ignores a busy serializer
+137 ok  ucode/gen_gptp_ucode.py [1] mastership never publishes the master bit
+138 ok  ucode/gen_gptp_ucode.py [1] a handover to a peer keeps sync-ok
+139 ok  top/KL_gptp_engine.sv [1] the received path is published without thisClock
+140 ok  top/KL_gptp_engine.sv [1] eight received entries take a ninth
+141 ok  top/KL_gptp_engine.sv [1] seven received entries leave thisClock out
+142 ok  top/KL_gptp_engine.sv [1] an empty path takes no thisClock
+143 ok  top/KL_gptp_engine.sv [1] thisClock lands one slot early
+144 ok  top/KL_gptp_engine.sv [1] thisClock fills every later slot
+145 ok  top/KL_gptp_engine.sv [1] the appended entry is the announcing source
+146 ok  top/KL_gptp_engine.sv [1] the received entries are not copied
+147 ok  top/KL_gptp_engine.sv [1] every received path is published as {thisClock}
+148 ok  wire/KL_gptp_rx_parser.sv [1] the path-count refusal restored
+149 ok  wire/KL_gptp_rx_parser.sv [1, 1, 1] the path-head refusal restored
+150 ok  wire/KL_gptp_rx_parser.sv [1] the empty-path refusal restored
+151 ok  top/KL_gptp_engine.sv [1] the received head replaced by the grandmaster
+152 ok  top/KL_gptp_engine.sv [1] the received head is not published
+153 ok  top/KL_gptp_engine.sv [1] the empty sequence published without a TLV
+154 ok  top/KL_gptp_engine.sv [1] a TLV-less Announce publishes {thisClock}
+155 ok  top/KL_gptp_engine.sv [1] the self path leaves entry 0 empty
+156 ok  ucode/gen_gptp_ucode.py [1] (a) the own-source refusal removed
+157 ok  ucode/gen_gptp_ucode.py [1] (b) the stepsRemoved refusal removed
+158 ok  ucode/gen_gptp_ucode.py [1] (c) the PathTrace loop refusal removed
+159 ok  ucode/gen_gptp_ucode.py [1] a parent update must beat the best
+159 mutants, 0 with a pattern not exactly once

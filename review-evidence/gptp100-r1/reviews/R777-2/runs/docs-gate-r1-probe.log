@@ -1,0 +1,13 @@
+== A: R777-1 R1 exact text in place of lines 328-330
+docs check: FAIL (1 findings)
+  docs/HDL_DEVELOPER.md:328: 13 words: Region 6 serves gmTimeBaseIndicator, lastGmPhaseChange as ScaledNs and scaledLastGmFreqChange scaled by 2^41.
+rc=1
+== B: proposed residue fix
+ docs/HDL_DEVELOPER.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+docs check: PASS (14 current pages, 18 historical pages)
+rc=0
+== C: restored
+0
+docs check: PASS (14 current pages, 18 historical pages)
+rc=0
