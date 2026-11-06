@@ -294,7 +294,10 @@ def selftest(shipping: Path) -> int:
                 ("rtl.yml", "full-ci-gate", "gate"),
                 ("rtl-fast.yml", "changes", "scope"),
                 ("elaborate.yml", "elaborate-gates-0", "scope"),
-                ("elaborate.yml", "elaborate-gates-1", "scope")):
+                ("elaborate.yml", "elaborate-gates-1", "scope"),
+                ("elaborate.yml", "elaborate-gates-2", "scope"),
+                ("elaborate.yml", "elaborate-gates-3", "scope"),
+                ("elaborate.yml", "elaborate-gates-4", "scope")):
             script = scope_script(shipping, workflow, job, step)
             for case in cases:
                 merge = merge_checkout(root, case)

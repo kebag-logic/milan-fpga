@@ -5,6 +5,9 @@
 
 Use this page for delivery decisions.
 
+This guide covers the fabric plane until F6.
+The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
+
 ## Contents
 
 - **[Value](#value)** — Understand product ownership and benefits.

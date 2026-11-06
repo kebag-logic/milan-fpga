@@ -126,7 +126,7 @@ behave -f plain
 Activate the documented [LiteX environment](../litex/LITEX_SOC.md#7-reproducibility---versions).
 
 ```sh
-python3 sw/litex/test_ring_dma.py
+python3 sw/litex/test_gmii_rx_capture.py
 ```
 
 ### Donor repositories

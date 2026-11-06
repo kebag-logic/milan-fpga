@@ -57,6 +57,8 @@
                 number of register stages after the launch:
 
                   (delta + OBS_LAT_E_CYC_P) transmit cycles  observer pipeline
+                  ETH_CYC_PER_OCTET_P - 1 transmit cycles    first symbol to the
+                                                         octet's transfer
                   CDC_LAT_D_CYC_P fabric cycles              crossing pipeline
                   half a fabric tick                     mean of the uniform
                                                          sampling phase
@@ -94,8 +96,13 @@ module KL_gptp_txret #(
     parameter int unsigned TXTS_OIDX_W_P    = 12,
     parameter int unsigned TXTS_GEN_W_P     = 4,
     parameter int unsigned TXTS_DELTA_W_P   = 8,
-    //! transmit-clock period, nanoseconds: the 1 Gb/s GMII shape
+    //! transmit-clock period, nanoseconds: 8 is the 1 Gb/s GMII shape, 40 the
+    //! 100 Mb/s MII shape (issue #829)
     parameter int unsigned ETH_TICK_NS_P    = 8,
+    //! transmit clocks one octet holds at the observer's seam: 1 on GMII, 2 on
+    //! MII, where the octet is counted on the clock that registers its high
+    //! nibble, this many clocks less one after its first symbol left
+    parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
     //! fabric clock period, nanoseconds: MILAN_CLK_FREQ_HZ = 50 MHz
     parameter int unsigned DP_TICK_NS_P     = 20,
     //! observer pipeline, transmit cycles, from the tag octet to the cycle
@@ -106,11 +113,12 @@ module KL_gptp_txret #(
     parameter int unsigned CDC_LAT_D_CYC_P  = 2,
     //! the only cycle distance a whole frame can produce
     parameter int unsigned TXTS_DELTA_EXP_P = 45,
-    //! consecutive ELIGIBLE fabric cycles a capture needs behind it. It
-    //! has to cover the whole reconstructed interval plus every
-    //! synchroniser stage between a control change and its effect, so a
-    //! trajectory the model does not describe can never be inside the
-    //! window a timestamp was reconstructed across.
+    //! the least number of consecutive ELIGIBLE fabric cycles a capture
+    //! needs behind it. The guard has to cover the whole reconstructed
+    //! interval plus every synchroniser stage between a control change and
+    //! its effect, so a trajectory the model does not describe can never be
+    //! inside the window a timestamp was reconstructed across; a longer
+    //! interval raises it (RECON_GUARD_CYC_C).
     parameter int unsigned RECON_GUARD_CYC_P = 64,
     //! the relative frequency envelope, in parts per million, the
     //! published error budget's two frequency terms are computed at. It is
@@ -270,9 +278,15 @@ module KL_gptp_txret #(
   //! than written down. Removing any term changes this number, which is what
   //! makes a dropped stage a measurable bias instead of a comment.
   localparam int unsigned TXTS_CORR_NS_P =
-      (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) * ETH_TICK_NS_P
+      (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P + ETH_CYC_PER_OCTET_P - 1) * ETH_TICK_NS_P
     + CDC_LAT_D_CYC_P * DP_TICK_NS_P
     + DP_TICK_NS_P / 2;
+  //! The guard the reconstructed interval needs: the interval in fabric cycles
+  //! and fifteen for the synchronisers. Every GMII interval stays at or under
+  //! the floor; the MII one, 3770 ns at 50 MHz, does not (issue #829).
+  localparam int unsigned RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 15;
+  localparam int unsigned RECON_GUARD_CYC_C =
+      (RECON_NEED_CYC_C > RECON_GUARD_CYC_P) ? RECON_NEED_CYC_C : RECON_GUARD_CYC_P;
   //! ...and what the single subtraction below actually removes: the digital
   //! correction MINUS the board's egress latency (issue #358), because
   //! subtracting less is adding. Kept as one SIGNED constant so a board
@@ -287,7 +301,7 @@ module KL_gptp_txret #(
   localparam int unsigned AGE_W_C = $clog2(STALL_AGE_CYC_P + 1);
   localparam int unsigned SRT_W_C = $clog2(SEAL_RETRY_CYC_P + 1);
   localparam int unsigned RTW_C   = $clog2(RECOV_RETRY_CYC_P + 1);
-  localparam int unsigned GDW_C   = $clog2(RECON_GUARD_CYC_P + 1);
+  localparam int unsigned GDW_C   = $clog2(RECON_GUARD_CYC_C + 1);
   //! THE NOMINAL INCREMENT, DERIVED. `timestamp_counter` adds a Q8.24
   //! nanosecond step every enabled tick, so at this plane's tick the
   //! nominal step is the tick itself in that format. A mirrored literal
@@ -456,12 +470,12 @@ module KL_gptp_txret #(
 
   always_ff @(posedge clk_i) begin : phc_history
     if (!rst_n) begin
-      phc_dirty_r  <= GDW_C'(RECON_GUARD_CYC_P);
+      phc_dirty_r  <= GDW_C'(RECON_GUARD_CYC_C);
       phc_en_d_r   <= 1'b0;
       phc_incr_d_r <= 32'd0;
       phc_adj_d_r  <= 32'sd0;
       elig_d_r     <= 1'b0;
-      dirty_d_r    <= GDW_C'(RECON_GUARD_CYC_P);
+      dirty_d_r    <= GDW_C'(RECON_GUARD_CYC_C);
     end else begin
       phc_en_d_r   <= phc_en_eff_i;
       phc_incr_d_r <= phc_incr_eff_ns_i;
@@ -469,13 +483,13 @@ module KL_gptp_txret #(
       elig_d_r     <= elig_now_w & ~phc_chg_w;
       dirty_d_r    <= phc_dirty_r;
 
-      if (!elig_now_w || phc_chg_w)  phc_dirty_r <= GDW_C'(RECON_GUARD_CYC_P);
+      if (!elig_now_w || phc_chg_w)  phc_dirty_r <= GDW_C'(RECON_GUARD_CYC_C);
       else if (|phc_dirty_r)         phc_dirty_r <= phc_dirty_r - GDW_C'(1);
 
 `ifndef SYNTHESIS
       //! the two behaviours the guard exists for, asserted directly rather
       //! than argued from the code above
-      if (!elig_d_r && (phc_dirty_r != GDW_C'(RECON_GUARD_CYC_P)))
+      if (!elig_d_r && (phc_dirty_r != GDW_C'(RECON_GUARD_CYC_C)))
         $error("KL_gptp_txret: the PHC history guard did not reload while ineligible");
       if (!elig_d_r && (phc_dirty_r < dirty_d_r))
         $error("KL_gptp_txret: the PHC history guard decremented while ineligible");

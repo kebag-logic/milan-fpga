@@ -1,17 +1,26 @@
 # Mark II area plan
 
-Stage 1 of [#640](https://github.com/kebag-logic/milan-fpga/issues/640) plans the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) redesign.
-Round 1d uses records committed on dev `5603c353`.
-It incorporates the [recorded decisions](#recorded-decisions).
-The original 2026-10-05 inventory remains labelled measurement history.
-This stage changes documentation only.
-Milestone 12 precedes P3, with delivery planned by 2026-12-15.
-The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaigns run on the qualified redesigned image.
+This page plans [#640](https://github.com/kebag-logic/milan-fpga/issues/640): Mark II under 20,000 LUTs.
+The owner decided that target and its means on 2026-10-31.
+
+The Mark II sections come first and govern.
+The Mark I sections after them are measurement history.
+
+Each figure is marked as a measurement or an estimate.
+This page changes documentation only.
 
 ## Contents
 
-- **[Summary](#summary)** -- The recorded baseline, split estimate, remaining savings and qualification risk.
-- **[Target](#target)** -- The LUT bar, accepted margin, timing requirements and delivery date.
+- **[Summary](#summary)** -- Target, basis, estimates and the binding Block RAM.
+- **[Target](#target)** -- Mark II ceiling, shape, timing and the shipping image.
+- **[Mark II measured basis](#mark-ii-measured-basis)** -- The 2026-10-31 route and its rows.
+- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.45k.
+- **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
+- **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
+- **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
+- **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
+- **[Open owner decisions](#open-owner-decisions)** -- Questions that wait for the owner.
+- **[Mark I plan history](#mark-i-plan-history)** -- Why the sections below are history.
 - **[Baseline recorded on dev 5603c353](#baseline-recorded-on-dev-5603c353)** -- The committed endpoint records and their measured source revision.
 - **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- Historical measurements and hierarchy from the original plan.
 - **[Inventory](#inventory)** -- Historical hierarchy functions, clauses, construction and implementation choices.
@@ -24,42 +33,293 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 
 ## Summary
 
-- **Recorded start:** 50,267 routed LUTs, 12,227 above 38,040.
-  The [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) record already includes the third processor adoption.
-  Its +0.299/+0.031 ns setup/hold slacks meet the build gate.
-- **Default split:** ADP, ACMP, MAAP, SRP and AECP move to firmware.
-  F1 supplies saved-state read, apply and write-back.
-  Shipping defaults wait for F2-F5 suites and bench acceptance.
-- **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
-  This includes the measured 3,102-LUT mailbox cost.
-  The complete split has no integrated area measurement yet.
-- **Estimated finish:** the [ledger](#ledger) reaches 31,667 LUTs centrally.
-  Its conservative combined estimate is 35,867, below 38,040.
-  These arithmetic scenarios are not fit or timing evidence.
-- **No double counting:** M3/M10 receive zero default-image credit.
-  Their AECP hardware leaves with F5.
-  M4 is replaced by the split; diagnostics remain enabled.
-- **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 54 at the largest shape.
-  The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
-  Its reuse and packing assumptions require routed confirmation.
-- **Qualification risk:** F5, target service timing and bench acceptance remain.
-  M8's smaller core must pass capture, boot and split-load bounds.
-  Every function lacking qualification retains its fabric placement.
+- **Target:** under 20,000 LUTs at 32x32.
+  Below 20,000 is a ceiling, not the goal ([D10](#mark-ii-decisions)).
+- **Measured basis:** 52,008 LUTs, 87.5 tiles, 13 DSP.
+  Placed and routed at the 1x1 shipping shape, 2026-10-31.
+- **Owner estimate:** about 34.2k LUTs once the processor leaves.
+  The six owner levers then reach about 20.7k centrally.
+- **The 32x32 shape adds** a second port and shared engines.
+  That adds about 2.75k LUTs (estimate).
+- **LiteX stages 2 and 3** and small trims recover some.
+  The central estimate lands near 21.45k, above the ceiling.
+- **Block RAM binds first.** The 32x32 estimate is 144.5 tiles.
+  The usable ceiling is 121.5 tiles.
+- **No fabric fallback.** The processor and fabric gPTP are deleted.
+  Each goes at its own switch-over ([split](../ARCHITECTURE_HW_SW_SPLIT.md#transition-and-deletion)).
 
 ## Target
 
 | Item | Value |
 |---|---|
-| [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
-| Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
-| Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
+| [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest), Mark II | Fewer than 20,000 LUTs on `xc7a100t` (about 31.5 % of 63,400) at 32x32, as few as possible |
+| Shape | 32x32: 16x16 logical streams, each redundant on both networks, one TDM8 bus |
+| Block RAM | The routed image fits the device's Block RAM with the 13.5-tile reserve intact |
+| Timing | The build's timing gate at every signoff corner |
 | Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.440 ns record is a warning |
-| Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
-| Delivery | Milestone 12 by 2026-12-15, before P3 |
+| Talker latency | Target: below 65 µs for every talker stream, as short as possible ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)); derived as met with one base format at 16 reservations per port; not met with mixed formats, whose derived bounds the [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030); not met by some cases with [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), where no maximum is derived and 143.347 µs is reached, not a limit |
+| Save | Durable within 0.5 s worst case at 32x32 (NFR-REL-03) |
+| Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
+| Gate | The resource gate's baseline is re-recorded by the change that reaches the target |
+| Start | Right after the current release tasks: the merge train and the qualification pre-run |
+| Shipping image until Mark II | Held at its recorded figures by the resource gate (#638); no other LUT bound |
 
-The [owner retained the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
-D8 replaces the initial 5 percent planning margin.
+The [owner kept the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) on 2026-10-03.
+This redesign was to meet it.
+
+The [2026-10-31 target](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624) replaces it as the Mark II goal.
+The shipping image measures 52,008 LUTs, 82.03 percent.
+
 The [resource policy](AREA_BUDGET.md#the-resource-gate) remains unchanged.
+
+## Mark II measured basis
+
+**Measurement, 2026-10-31.**
+The routed build `build_ax7101_asl_e240b77bbd`: AX7101, shipping 1x1 TDM8.
+
+Its source is the qualification-image commit `40b77bbd`, not on dev.
+Vivado 2026.1 build 6511674 placed and routed it.
+
+| Item | Value |
+|---|---|
+| Directives | `AreaOptimized_high` synthesis, `ExploreArea` optimization, `AltSpreadLogic_high` placement, `AggressiveExplore` physical optimization and routing |
+| Route status | 103,262 of 103,262 routable nets routed, none with an error |
+| Signoff timing | WNS +0.129 ns at the slow corners, WHS +0.036 ns at the fast corners; all four corners meet |
+| Slice LUTs | 52,008 (82.03 %): 48,172 logic, 3,836 memory |
+| Registers | 54,104 |
+| Slices | 15,800 of 15,850 (99.68 %) |
+| Block RAM | 87.5 tiles: 74 RAMB36 and 27 RAMB18 |
+| DSP | 13 |
+
+The figures come from the post-placement utilization reports.
+Routing does not change them.
+
+| Report | SHA-256 |
+|---|---|
+| `alinx_ax7101_utilization_place.rpt` | `d9561a05dee55ef0c0f8f9350bfe27ea63b215639afdf708f2f4f00aba70356e` |
+| `alinx_ax7101_utilization_hierarchical_place.rpt` | `ec345a49f14e03038c428bb23029872639085de825038b8a99539e0fee08f42d` |
+| `alinx_ax7101_route_status.rpt` | `22ed0c58b84876ae9ac2253b8291a1d760aa95f3f9d1d78112679dc5e8e42378` |
+| `alinx_ax7101_signoff_all_timing.rpt` | `3632d97a686d8ace0a874bfa49af79a71089538eccfa3bef51e3e8afe4a37cef` |
+
+The reports stay outside the repository.
+These hierarchical rows are read from them:
+
+| Instance (placed) | LUT | FF | RAMB36 | RAMB18 | DSP | Mark II disposition |
+|---|---:|---:|---:|---:|---:|---|
+| `alinx_ax7101` (whole image) | 52,008 | 54,104 | 74 | 27 | 13 | - |
+| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
+| `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Kept; lever 4 removes the second split CPU instead |
+| `KL_gptp_gmii_launch` | 192 | 317 | 0 | 0 | 0 | Kept, one per port |
+| `KL_mac_rmon_events` | 51 | 78 | 0 | 0 | 0 | Kept |
+| `milan_datapath` | 43,425 | 42,689 | 25 | 12 | 13 | Rows below |
+| `milan_datapath/pp_shadow` | 24,354 | 19,439 | 16 | 3 | 8 | Removed ([D11](#mark-ii-decisions)) |
+| `milan_datapath/g_maap.maap_engine` | 481 | 339 | 0 | 0 | 0 | Removed; MAAP is firmware |
+| `milan_datapath/g_gptp_plane.u_gptp_shadow` | 5,194 | 4,874 | 3 | 1 | 4 | Removed by lever 6; its timestamp return (`u_txret` 218, `u_txticket` 32) stays |
+| `milan_datapath/csr` | 3,014 | 2,105 | 0 | 2 | 0 | Lever 3: information and diagnostics only |
+| `milan_datapath/g_mmcm_servo.mmcm_servo` | 1,281 | 1,014 | 0 | 0 | 0 | Lever 5 |
+| Crossbar and stream endpoints, eight rows | 3,289 | 5,161 | 6 | 4 | 0 | Replaced by the [shared engines](MARK_II_STREAM_ENGINES.md#shared-engines) |
+| Diagnostics, four rows | 2,204 | 2,352 | 0 | 1 | 0 | Kept by D2 |
+| `milan_datapath/g_rx_filter.rx_filter` | 506 | 1,570 | 0 | 0 | 0 | Kept, one per port |
+| `(milan_datapath)`, own logic | 1,066 | 3,208 | 0 | 0 | 0 | Shrinks with the per-stream registers |
+| Other datapath rows, by difference | 2,036 | - | - | - | - | Media clock, CRF, PTP time and arbiters; kept |
+
+The eight crossbar and endpoint rows are these instances.
+`chan_map_capture` 835, `chan_map_render` 143, `aaf_capture` 77, `tdm_render` 499.
+
+The rest: `render_queue` 368, `aaf_packetizer` 627, `aaf_rx_depkt` 265, `avtp_rx_parser` 475.
+Their sum is 3,289, the owner's "about 3.3k".
+
+The four diagnostic rows are `aaf_latency_tap_bank` 671 and `talker_diag` 285.
+They also include `avtp_rx_monitor` 721 and `aaf_clock_meter` 527.
+
+The report warns that cross-hierarchy LUT combining makes sums inexact.
+So the last row is a difference, not reported.
+
+## Mark II levers
+
+The [owner's estimate](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624) starts from the basis above.
+It is estimated from measured parts, not one routed image.
+
+```
+52,008  placed 1x1 image (measured)
+-24,354 pp_shadow (measured row)
+-   481 MAAP (measured row)
++ 3,948 split CPU with 16 KiB instruction cache (measured, #640)
++ 3,102 packet mailboxes (measured, MAILBOX_SPLIT.md)
+=34,223 about 34.2k LUTs (estimate)
+```
+
+The [owner's lever order](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394), least risky first.
+Each saving is the middle of its estimate.
+
+| # | Lever | Risk | Why | Saving | Running total |
+|---|---|---|---|---:|---:|
+| 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~33.2k |
+| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~32.2k |
+| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~30.5k |
+| 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | ~3.55k | ~26.9k |
+| 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~25.9k |
+| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~20.7k |
+
+Lever 6 is decided ([D13](#mark-ii-decisions)).
+A routed image measures each lever before the next.
+
+The owner's ranges put all six at 19k to 22k.
+That estimate is for the 1x1 shape.
+
+The 32x32 shape then adds and recovers these estimates:
+
+| Step | Central | Range | Basis (estimate) |
+|---|---:|---|---|
+| Owner levers 1 to 6 | ~20.7k | 19.1k to 22.4k | The owner's table and ranges |
+| Lever 6 keeps the timestamp return | +0.25k | +0.25k | Measured rows `u_txret` 218 and `u_txticket` 32 stay; lever 6 nets 4,944 of 5,194 |
+| Second port: MAC, filter, timestamp unit | +1.75k | +1.25k to +2.25k | TCAM 494 and timestamp units 442 placed; MAC core not yet measured |
+| Shared engines beyond today's 3,289 | +1.0k | +0.5k to +1.75k | Stagger scheduler, two shapers, merge and context arbitration |
+| LiteX stages 2 and 3 beyond levers 1 and 2 | -1.75k | -1.0k to -2.5k | Rest of the 5,119-LUT LiteX top, less replacement cores |
+| Retained tables, widths and FIFO trims (L3, L4) | -0.5k | -0.2k to -0.8k | Earlier L3 estimate; M2 measured 34 |
+| **32x32 estimate** | **~21.45k** | **17.8k to 25.45k** | Sum |
+
+Centrally, the image misses the ceiling by about 1.45k.
+It needs the ranges' top end or new levers.
+
+Candidate further levers, all unmeasured:
+
+- A smaller control core (D5, L11b), very high risk.
+- Fewer mailbox rings at 3,102 LUTs measured.
+- Diagnostics shared across both ports, still kept by D2.
+
+## LiteX removal stages
+
+The [owner removed LiteX in three stages](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204).
+A routed-image measurement follows each stage.
+
+| Stage | Change | Removes | Credited as |
+|---|---|---|---|
+| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware from flash into Block RAM | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
+| 2 | Replace LiteEth and LiteSPI with proven open-source cores on AXI-Stream and AXI4-Lite | LiteEth MAC and LiteSPI, inside the 5,119-LUT LiteX top | Part of the -1.75k above; the second port needs the new MAC |
+| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
+
+Stage 2 candidates follow the owner's criteria:
+
+- the 1G GMII MAC from verilog-ethernet, MIT-licensed;
+- that is the sibling of the `verilog-axis` submodule;
+- a QSPI controller chosen by a survey;
+- a licence compatible with CERN-OHL-W;
+- the core's own testbench or CI;
+- use on 7-series silicon.
+
+Each core enters as a pinned donor submodule.
+Its PR needs two reviews.
+
+The QSPI core must meet the 0.5 s bound.
+The [save-path derivation](MARK_II_STREAM_ENGINES.md#the-05-s-save-path) states that budget.
+
+Stage 3's top puts the CPU on fixed AXI4-Lite.
+It also holds clocking, reset, constraints and the boot loader.
+
+The LiteX simulation gates are rewritten on the new top.
+The gPTP timestamps already sit at the GMII level.
+
+So they carry over to the new MAC unchanged.
+Both ports stay timestamped for redundancy.
+
+## Mark II Block RAM ledger
+
+Today's image uses 87.5 tiles, measured above.
+The LiteX top holds 47 RAMB36 of them.
+
+Of those, 29 are generated FIFOs, 18 BIOS memory.
+All 47 leave with the three LiteX stages.
+
+The [stream-engine ledger](MARK_II_STREAM_ENGINES.md#block-ram-ledger-at-32x32) estimates the 32x32 image.
+
+| Part | Tiles (estimate) | Basis |
+|---|---:|---|
+| Fabric at 32x32 | 27.0 | Stream engines, two ports, mailboxes, CSR and CPU; the render buffer sized for 192 kHz |
+| Firmware memory at 64 streams | 113.0 | Linear from the measured M8a-1 two-interface points |
+| No whole-image save staging | -11.5 | Append-only save path |
+| gPTP daemon allowance | 16.0 | Not measured |
+| **Total** | **144.5** | 23 tiles over the usable 121.5 |
+
+Firmware memory, not LUTs, binds first at 32x32.
+Measure its reductions before any lane relies on them.
+
+## Mark II decisions
+
+| Decision | Recorded outcome | Plan consequence |
+|---|---|---|
+| D10, target | [Owner, 2026-10-31 16:39](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624): below 20,000 LUTs at 32x32, whatever it takes | Replaces NFR-RES-01's 60 percent as the Mark II goal |
+| D11, processor | [Owner, 16:33](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321): removed; ADP, ACMP, MAAP, SRP, AECP and saved state are firmware only | No retained-fabric option; deleted at the switch-over; supersedes D9's all-fabric option |
+| D12, shape | [Owner, 16:47](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753): 32x32, 16x16 logical streams, each redundant | Shared stream engines and a second port |
+| D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flexptpd`, its source and licence confirmed before adoption; timestamps in fabric on both ports. Not decided: the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) proposes `kebag-logic/flexPTP` (MIT, a fork of `epagris/flexPTP`), branch `gptp` at `d116d3d` | Lever 6 taken; #665 F6; the surveyed fork serves one port per image, so one instance per port is [open decision 3](#open-owner-decisions) |
+| D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs; [owner, 2026-11-01](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030): 65 µs is a target | NFR-LAT-03; met with one base format at 16 reservations per port; exceeded by mixed formats, whose derived bounds are accepted and published; exceeded by some cases with [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), where no maximum is derived and 143.347 µs is reached, not a limit; no connection is refused because of these figures |
+| D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
+| D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
+| D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
+
+## Mark II lane sequence
+
+Work starts after the merge train and the qualification pre-run.
+Release fixes keep priority.
+
+Each lane needs its own settled public scope and review.
+Measurements queue serially; no heavy builds overlap.
+
+| Order | Lane | Scope | Depends on | Saving, central (estimate) | Evidence |
+|---:|---|---|---|---:|---|
+| 0 | Charter | This plan, the requirements, the split and the stream-engine design | Owner approval of the requirement text | 0 | Documentation gates |
+| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~34.2k | Routed image; suites; bench; NFR-REL-03 |
+| 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; boot loader | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
+| 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
+| 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
+| 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
+| 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | Talker latency taps on all talker streams, measured against the 65 µs target; cable pulls; the [open design items](MARK_II_STREAM_ENGINES.md#open-design-items) |
+| 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
+| 8 | Lever 5 | MMCM servo in firmware | Lane 7 | ~1.0k | CRF lock and audio soak |
+| 9 | Lever 6, F6 | `flexptpd` on the core, serving both ports; fabric engine deleted | Lane 7; open decision 3; the source and licence confirmed | ~5.2k | Whole gPTP qualification re-run |
+| 10 | Close-out | Route at 32x32, timing, Block RAM, gate re-record | All above | No assumed saving | NFR-RES-01, NFR-LAT-03, NFR-REL-03 on the bench |
+
+Dependencies put lanes 4 and 6 before lever 4.
+The second port needs the new MAC.
+
+Levers 4 to 6 keep the owner's least-risky-first order.
+Each starts only after the previous routed measurement.
+
+Lane 5 takes lever 2 after lever 3's lane 3.
+That departs from D16; open decision 2 gives the reason.
+
+## Open owner decisions
+
+These Mark II questions wait for the owner.
+No lane may assume an answer.
+
+1. **Lever 5 against media ownership.**
+   - Lever 5 moves the MMCM servo loop into firmware.
+   - [NFR-SCOUT-02](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) keeps media fabric-owned.
+   - NFR-SCOUT-03 keeps audio deadlines on fabric handshakes.
+   - The owner decides: amend those rows, or drop lever 5.
+2. **Lever 2 through LiteX stage 3.**
+   - D16 orders the levers 1, 2, 3.
+   - Stage 3 replaces the bus and CSR banks.
+   - Lever 2 would only slim them first.
+   - So this plan credits lever 2 through stage 3.
+   - Lever 2 then lands after lever 3.
+   - That is a proposal, pending the owner's approval.
+3. **`flexptpd` on two ports, and its source.**
+   - The owner chose `flexptpd` on 2026-10-31.
+   - The [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) proposes `kebag-logic/flexPTP`.
+   - Its surveyed revision is branch `gptp` at `d116d3d`.
+   - It keeps one global core state: one port per image.
+   - Redundancy needs gPTP on both ports (#665 F6). One instance per port is one way.
+   - The owner decides how, and confirms source and licence.
+
+## Mark I plan history
+
+Below is the Mark I plan against 38,040 LUTs.
+They are measurement and decision history.
+
+The Mark II sections supersede their target and lane order.
+Levers L2, L6, L8 and L10 carry 2026-10-31 notes.
 
 ## Baseline recorded on dev `5603c353`
 
@@ -451,6 +711,9 @@ Retain all-fabric suites and compare reused stimuli at unchanged counts.
 Bench acceptance covers every stream, counters and audio soak.
 Unqualified functions remain all-fabric until their acceptance passes.
 
+**2026-10-31, [D11](#mark-ii-decisions):** the processor is then deleted.
+No fabric placement survives the switch-over; nothing is maintained twice.
+
 ### L3 RAM-friendly retained tables
 
 M2 covers retained SoC FIFOs, identified below after D4.
@@ -524,6 +787,9 @@ The split's integration allowance includes retained control observability.
 **Verification:** diagnostic readback, counter coherence and builder presence checks.
 No implementation lane is opened to disable them.
 
+**2026-10-31:** the [measured basis](#mark-ii-measured-basis) keeps 2,204 diagnostic LUTs.
+They stay by D2, read through `milan_csr`.
+
 ### L7 SRP shared evaluator
 
 F4 replaces M4 and L1b/L7 in the default plan.
@@ -546,6 +812,9 @@ M5 saved 121 LUTs routed and 127 post-synthesis in its scope ([M5 intermediate m
 **Verification:** CSR, `tcam_csr`, `milan_dp`, firmware host tests,
 register-map checks and boot readback in both placements.
 Register addresses, widths and reset values remain unchanged by M5.
+
+**2026-10-31, lever 3:** `milan_csr` keeps only information and diagnostics.
+The owner estimates 1.75k LUTs saved, after a census.
 
 ### L9 Media context tables
 
@@ -575,6 +844,12 @@ F5 already removes the AECP engine in the split.
 `gptp_txts`, `milan_dp_gptp`, timestamp/CDC checks and [#117](https://github.com/kebag-logic/milan-fpga/issues/117) bench evidence.
 M10 additionally proves arbitration and worst-case gPTP turnaround.
 Audio and gPTP deadlines remain independent of firmware service.
+
+**2026-10-31, [D13](#mark-ii-decisions):** the fabric gPTP engine leaves, 5,194 LUTs.
+Both ports keep timestamps; M7 and M10 earn nothing more.
+
+The gPTP deadline rule above holds only until F6.
+F6 then states each path's firmware service bound.
 
 ### L11 The SoC side
 
@@ -1254,11 +1529,14 @@ M0s changes measurement support only; acceptance schema and policy stay fixed.
   D1 permits reviewed retargeting of cycle checks, never their deletion.
 - **ATDECC state authority.** ATDECC remains the control-state authority.
   Each selected placement has one authoritative protocol owner.
-  Firmware owns moved protocol state; fabric owns media and gPTP.
+
+  Firmware owns protocol state, and gPTP after F6.
+  Fabric owns media and the timestamps of both ports.
+
   Snapshot publication and saved-state restore create no competing owner.
 - **Future interfaces.** Keep interface indices in contexts and mailboxes.
-  The one-port release does not enable Milan Section 8 redundancy.
-  Neither redesign nor filtering closes the later second-port seam.
+  Mark II adopts Section 8 redundancy at 32x32 (D12).
+  The current one-port release stays non-redundant.
 - **D7 resource policy.** Intermediate lanes publish measured deltas here.
   Use M0s figures against the last accepted resource record.
   Publish subsequent lane deltas separately; growth stays visible.
@@ -1299,7 +1577,7 @@ They authorize future implementation lanes, not RTL changes here.
 | D6, engine sharing | Initially deferred by the manager; then [owner made M10 planned](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637) | Retain M10 for fabric AECP; the later split removes its default-image credit |
 | D7, re-record | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): intermediate measurements enter this ledger | Gate against the last record; M9 re-records at the target |
 | D8, margin | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): 38,040 LUT with timing is the bar | Aim at least 1 percent below it: <= 37,659 LUT; 5 percent was planning guidance |
-| D9, placement | Initially excluded by the [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637); subsequently made the [Mark II default](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991745829) | L2/F0-F5 replaces ACMP/ADP M3 work and M4; all-fabric stays supported |
+| D9, placement | Initially excluded by the [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637); subsequently made the [Mark II default](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991745829) | L2/F0-F5 replaces ACMP/ADP M3 work and M4; all-fabric stays supported until D11 deletes it at the switch-over |
 
 The placement decisions progressed as follows:
 
