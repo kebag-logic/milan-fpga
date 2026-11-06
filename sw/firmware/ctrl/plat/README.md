@@ -99,7 +99,9 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
 
 After a run, the [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md)'s build directory holds these inputs: the export in `split-soc/mapped/soc`, the same map in `split-soc/flash-map` and the archives in `runtime`.
 A link without `--flash-map`, or with a map that lacks `generated/csr.h` or `generated/mem.h`, is refused by name before the compiler is called.
-The compiler would otherwise find the port's RV32 stand-ins in their place, with no diagnostic, and on the boot SoC such an image hangs before its banner.
+The compiler would otherwise find the port's RV32 stand-ins in their place, with no diagnostic.
+On the boot SoC, an image on the stand-in `generated/mem.h`, or with no map, hangs before its banner.
+An image on the stand-in `generated/csr.h` alone boots to ready and passes the split boot, so this refusal is the only thing that stops it.
 The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
