@@ -1,0 +1,56 @@
+## AST delta 212b7d6e -> head
+definitions compared: 102
+only in old: []
+only in new: []
+AST changed: ['control', 'copy_controls', 'render', 'selftest']
+
+## line counts
+   999 $REVIEWS/848-r788-2-packet/scratch/old_docs_inventory.py
+  1000 $REVIEWS/848-r788-2-packet/scratch/head_docs_inventory.py
+  1999 total
+
+## digest
+25dda680bf0738b805117a6ed9e6cc8a6813a819a3a69c56ed862eb7fb551556  scripts/docs_inventory.py
+1	1	ci/image/command-table.json
+1	1	ci/image/command-table.json
+
+## idiom gate
+py idiom: 525 first-party modules, 275866 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+54 checks: 54 PASS, 0 FAIL
+rc=0
+8:long module                  = 10
+
+## doc style
+documentation style: OK (23 current documents)
+rc=0
+documentation style selftest: OK
+
+## docs_check
+docs_check: 0 finding(s) across 213 md files + 1442 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+## em dash
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+## tool inventory
+  File "$REVIEWS/r788-2-848/scripts/ci_tool_inventory.py", line 23, in <module>
+    from ci_command_table import Audit, Refusal, Runtime
+ModuleNotFoundError: No module named 'ci_command_table'
+rc=1

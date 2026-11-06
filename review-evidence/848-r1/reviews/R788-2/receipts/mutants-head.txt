@@ -1,0 +1,60 @@
+SURVIVED   IDENTITY                             rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   G0_union_grading                     rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     P1_page_drops_copy_source            rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks 'Copy of th
+SURVIVED   P1+G0                                rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     P2_page_drops_correction             rc=1 fails=1 selftest: FAIL finding marks its page stale: generated output lacks '| It resets to 0x0. |'
+KILLED     P2+G0                                rc=1 fails=1 selftest: FAIL finding marks its page stale: generated output lacks '| It resets to 0x0. |'
+KILLED     P3_page_drops_statement              rc=1 fails=2 selftest: FAIL a spelling found only through `also` gets a row: --check exited 0, expected 1: documentation
+KILLED     P4_always_on_page                    rc=1 fails=2 selftest: FAIL planted edited quote in the data file: generated output lacks 're-verify: quote not found'
+KILLED     P5_always_reverify                   rc=1 fails=13 selftest: FAIL a line added above a finding leaves the page fresh: generated output lacks '| D0-001 | [doc
+KILLED     P6_line_number_back                  rc=1 fails=13 selftest: FAIL a removed line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDI
+KILLED     P6b_banner_line_back                 rc=1 fails=2 selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUME
+KILLED     P6c_length_in_evidence               rc=1 fails=23 selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT
+KILLED     O1_population_drops_own              rc=1 fails=4 selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\
+KILLED     O2_render_hides_own_row              rc=1 fails=1 selftest: FAIL the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+KILLED     O3_own_row_wrong_title               rc=1 fails=1 selftest: FAIL the audit page lists itself: generated output lacks '| maintainer | Documentation audit |'
+KILLED     W1_first_entry_only                  rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001:
+KILLED     W2_last_entry_only                   rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002:
+KILLED     W3_drop_statement                    rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001:
+KILLED     W4_drop_source                       rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001:
+KILLED     W5_drop_correction                   rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001:
+KILLED     W6_first_lane_only                   rc=1 fails=2 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002:
+KILLED     W7_last_lane_only                    rc=1 fails=2 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002:
+SURVIVED   W8_one_file_for_all_lanes            rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   W9_copy_filed_in_origin_lane         rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     W10_lines_always_unknown             rc=1 fails=4 selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guid
+KILLED     W11_line_always_one                  rc=1 fails=4 selftest: FAIL unchanged tree is fresh through `git ls-files`: generated output lacks '## D0-001: docs/guid
+KILLED     W12_copy_names_origin_page           rc=1 fails=3 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002:
+SURVIVED   W13_lane_copy_loses_copy_note        rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     W14_statement_wrong_field            rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-001:
+SURVIVED   W15_drop_verified_header             rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   W16_drop_cited_header                rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   W17_lane_title_loses_lane            rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     W18_only_located_entries             rc=1 fails=1 selftest: FAIL fixed statement asks for re-verification: generated output lacks '## D0-001: docs/guides/A.m
+KILLED     W19_only_recorded_not_copies         rc=1 fails=3 selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '## D0-002:
+KILLED     T1_drop_located_sentence             rc=1 fails=1 selftest: FAIL the page names a finding's line: generated output lacks '`Located`'
+KILLED     T2_drop_command_sentence             rc=1 fails=1 selftest: FAIL the page names a finding's line: generated output lacks '--findings-dir DIR'
+KILLED     T3_drop_search_sentence              rc=1 fails=1 selftest: FAIL the page names a finding's line: generated output lacks 'search misses'
+SURVIVED   T4_drop_route_sentence               rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     T5_both_route_sentences              rc=1 fails=1 selftest: FAIL the page names a finding's line: generated output lacks 'search misses'
+SURVIVED   B1_baselines_swapped                 rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     B2_drop_verified                     rc=1 fails=1 selftest: FAIL the citations' baseline is on the page: generated output lacks 'at dev `0000000`'
+KILLED     B3_drop_cited                        rc=1 fails=1 selftest: FAIL the citations' baseline is on the page: generated output lacks 'at dev `1111111`'
+SURVIVED   S9_check_ignores_rule                rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     S9b_rule_lost                        rc=1 fails=48 selftest: FAIL unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENT
+KILLED     S9c_rule_lost_and_check_ignores      rc=1 fails=12 selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |
+KILLED     S10_broken_empty                     rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open 
+KILLED     S11_status_col_index                 rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open 
+KILLED     S12_inventory_width                  rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open 
+KILLED     S13_findings_width                   rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open 
+KILLED     C1_summary_stale_off_by_one          rc=1 fails=1 selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\
+KILLED     C2_total_off_by_one                  rc=1 fails=3 selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\
+KILLED     C3_summary_header_lines_back         rc=1 fails=1 selftest: FAIL the summary counts pages by status and no lines: generated output lacks '| Status | Pages |\
+KILLED     H1_heading_less_purpose              rc=1 fails=1 selftest: FAIL new tracked page without a row: generated output lacks '| NEW.md |'
+KILLED     H2_line_count_in_headless_purpose    rc=1 fails=1 selftest: FAIL new tracked page without a row: generated output lacks '| NEW.md |'
+SURVIVED   N14_window_14                        rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   N16_window_16                        rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+SURVIVED   N19_window_19                        rc=0 fails=0 documentation inventory selftest: OK (56 controls)
+KILLED     N20_window_20                        rc=1 fails=1 selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md
+KILLED     N21_window_21                        rc=1 fails=1 selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md
+KILLED     N5_window_5                          rc=1 fails=1 selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUME
