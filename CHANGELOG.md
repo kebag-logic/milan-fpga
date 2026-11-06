@@ -10,6 +10,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+- **[Unreleased - gPTP pin 1616fc8f](#unreleased---gptp-pin-1616fc8f)** -- clockAccuracy per board.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
@@ -97,6 +98,30 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each soft reset grades its exchange and the gPTP relock.
 - The UART smoke grades a reboot with `--after-reboot`.
 - The behave SERVED table lists REBOOT.
+
+## Unreleased - gPTP pin 1616fc8f
+
+- Issue #843 adopts gPTP `1616fc8f`, PRs #99 and #101.
+- An unknown TLV may precede the Follow_Up information TLV.
+- A mastership sets the TLV values (11.4.4.3).
+- Announce timeout follows the received interval (10.3.9.1).
+- An Announce at the timeout instant ages the port first.
+- A Pdelay response past Milan's 15 ms bound counts lost.
+- clockAccuracy is per board: AX7101 `0x22`, Arty `0xFE`.
+- The builder passes `gptp.clock_accuracy` to `--clock-accuracy`.
+- An omitted key is `0xFE` (8.6.2.3 b).
+- The AX7101 model ids move; the Arty's stay.
+- The milan_dp gptp legs grade both values on the wire.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- route-1x1 is 701 LUTs and 187 FFs over dev.
+- It adds two DSPs; 4 of 15,850 slices remain.
+- Its slow corners reach +0.018 ns WNS.
+- That is under the +0.03 ns build floor.
+- The resource gate refuses the LUT, DSP and WNS figures.
+- Only the shipping directive was routed.
+- The decision on the route is open on #843.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin 135afd04
 
