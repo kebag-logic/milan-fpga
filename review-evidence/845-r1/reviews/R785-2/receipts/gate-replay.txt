@@ -1,0 +1,13 @@
+route-1x1: twelfth exit 1: ['LUT 500', 'FF 600']; thirteenth exit 0
+  order: scopes in report order True; record keys in gate order True; figure types as the twelfth True; figure key order True
+ooc-1x1: twelfth exit 1: ['LUT 250', 'FF 250']; thirteenth exit 0
+  order: scopes in report order True; record keys in gate order True; figure types as the twelfth True; figure key order True
+ooc-8x8: twelfth exit 1: ['LUT 316', 'FF 339']; thirteenth exit 0
+  order: scopes in report order True; record keys in gate order True; figure types as the twelfth True; figure key order True
+comparable across directive: exit 0
+directive outside the recipe: exit 2 NOT COMPARABLE: tool or recipe change in flow; measure the b
+check-baseline tolerance LUT 500->520: exit 2
+check-baseline ooc-8x8 tolerance FF 339->400: exit 2
+check-baseline ceiling 121.5->130: exit 2
+check-baseline record BRAM over ceiling: exit 2
+RESULT PASS
