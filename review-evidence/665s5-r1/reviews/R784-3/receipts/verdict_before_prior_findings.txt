@@ -1,0 +1,8 @@
+R784-3 verdict and ledger as written after the independent pass and before any prior review finding was read.
+No reviewer report on this PR was opened up to this point, and the report at this head by the other reviewer stays unread until REPORT.md is final.
+
+Verdict: NEGATIVE - exact head 3f8caae5eca7e681c3452eacdd818d1033a89f8d
+
+Open finding: MINOR, lenses Tests, Conformance, Docs. The mutant `supersede: any later group supersedes a refusal` clears every refusal, varies no group, and fires `other interface`. The check named `a refusal is superseded only by its own path` has no case with a row of another path in the named group on the same interface, so dropping the path from the comparison at run.py survives 28 of 28 checks and 94 of 94 mutants.
+
+Ledger: Conformance UNCLEAN | RTL CLEAN | Robustness CLEAN | Tests UNCLEAN | Docs UNCLEAN.

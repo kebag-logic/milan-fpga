@@ -1,0 +1,59 @@
+killed    hm-group                     FAIL a held push never sent: missing row ('H-COUNTERS', 'hooks-x', 'counters.held.if0', 'counters.held', 'notify', 0)
+killed    hm-path                      FAIL a held push never sent: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.x', 'notify', 0)
+killed    hm-interface                 FAIL a held push never sent: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 1)
+killed    hm-family                    FAIL a held push never sent: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp', 0)
+killed    hm-ms                        FAIL a held push never sent: missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row
+killed    hm-cycles                    FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+killed    hm-wait                      FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+killed    hm-bound                     FAIL a held push never sent: missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row
+killed    hm-loaded                    FAIL a held push never sent: missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row
+killed    hm-margin                    FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+SURVIVED  hm-ahead                     
+killed    hp-eligible-end              FAIL the held push's grade: 3 bus cycles are 50000002 at the 50 MHz CPU, not 2
+killed    hp-hz-swap                   FAIL the held push's grade: 3 bus cycles are 6 at the 50 MHz CPU, not 2
+killed    hp-interface                 FAIL the held push's grade: held row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 1)
+killed    hp-family                    FAIL the held push's grade: held row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp', 0)
+killed    hp-ms                        FAIL the held push's grade: the held row reports 21.0 ms, not its service
+killed    hp-margin-ms                 FAIL the held push's grade: the held margin is 100.0, not 1000 - 900 - 20
+killed    hp-margin-round              FAIL the held push's grade: the held margin is 80.0, not 1000 - 900 - 20.00002
+SURVIVED  hp-ahead                     
+killed    hp-group                     FAIL the held push's grade: held row ('H-COUNTERS', 'hooks-x', 'counters.held.if0', 'counters.held', 'notify', 0)
+killed    hp-row-ms-zero               FAIL the held push's grade: the held row reports 0.0 ms, not its service
+killed    s-narrow-within              FAIL the worst path and the counts: 4 narrow fits, not 1
+killed    s-narrow-le                  FAIL the worst path and the counts: 2 narrow fits, not 1
+killed    s-misses-unbounded           FAIL the worst path and the counts: 2 misses, not 3
+killed    s-loaded-only                FAIL the worst path and the counts: KeyError: 'alone'
+killed    s-alone-only                 FAIL the worst path and the counts: KeyError: 'loaded'
+killed    s-key-wait                   FAIL the worst path and the counts: the worst alone is waiting, not slow
+killed    s-key-min                    FAIL the worst path and the counts: the worst alone is fast, not slow
+killed    n-finding-le                 FAIL a fit under the layout swing is a finding: ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by 6,489 CPU cycles, under the layout sw
+killed    p-no-colon                   FAIL a plant is caught only by its own finding: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: control.disc
+SURVIVED  p-contains                   
+killed    p-rc-escape                  FAIL a plant is caught only by its own finding: adp-late: reported caught with no plant applied, rc 2: PLANT adp-late ESCAPED: LATE H-ADP: control.dis
+killed    p-main-reads-words           FAIL a plant is caught only by its own finding: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.
+killed    p-wrong-probe-disc           FAIL a plant is caught only by its own finding: disc-late: hooks-disc-aging.available.if0 is no path of hooks-late-disc
+killed    p-arm-dropped                FAIL the plants apply: counters-late: arm idle
+SURVIVED  p-counters-probe-all         
+killed    a-within-reads-column        FAIL an 18 to 20 ms SRP path misses: a 19 ms SRP path fits ; FAIL the amended column grades nothing: the amended bounds graded a path
+killed    a-queued-within-reads-column FAIL the ALL push both ways: a row is not graded at its own bound ; FAIL the amended column grades nothing: the amended bounds graded a path
+killed    a-finding-reads-column       FAIL the amended column grades nothing: findings [] ; MUTANT findings: a path over its bound is not a finding: ESCAPED findings by hook
+killed    a-summary-reads-column       FAIL the worst path and the counts: 2 misses, not 3
+SURVIVED  a-exit-reads-column          
+SURVIVED  a-slack-reads-column         
+SURVIVED  a-hook-srp-all               
+killed    a-order                      FAIL the amended column grades nothing: a queued notice's ceiling
+SURVIVED  a-loaded-queued              
+killed    a-held-queued                FAIL the amended column grades nothing: the column adds W the held bound does not
+killed    a-notify-queued              FAIL the amended column grades nothing: a path the decisions leave has another bound
+killed    a-cell-bound                 FAIL the amended column grades nothing: the hook table's amended figures: | H-COUNTERS | 3 | 2 | 0 | 40.000 (20) **over its bound**, `counters.all.if0
+killed    a-cell-gone                  FAIL the amended column grades nothing: the hook table's amended figures: | H-COUNTERS | 3 | 2 | 0 | 40.000 (20) **over its bound**, `counters.all.if0
+killed    a-row-cell-interfaces        FAIL the amended column grades nothing: the path table's amended figure
+killed    a-row-cell-bound             FAIL the amended column grades nothing: the path table's amended figure
+killed    a-table-interfaces           FAIL the amended column grades nothing: the path table's amended figure
+killed    c-row-recipients             FAIL the ALL push both ways: counters.all.t5.i1.if0 is not the ALL push's path
+SURVIVED  c-whole-last                 
+killed    c-first-row-dropped          FAIL the ALL push both ways: a descriptor has no row of its own: {(5, 1): None, (6, 0): Probe(name='counters.all.t6.i0.if0', row='GET_COUNTERS push, d
+SURVIVED  c-wait-count                 
+killed    c-row-family                 FAIL the ALL push both ways: counters.all.t5.i1.if0 is not the ALL push's path
+killed    c-row-name                   FAIL the ALL push both ways: a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): None}
+total 58 killed 48 survived 10 anchor 0

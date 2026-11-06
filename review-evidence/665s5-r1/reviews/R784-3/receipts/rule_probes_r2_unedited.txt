@@ -1,0 +1,8 @@
+A. head, unaltered: 28 of 28 checks; 94 of 94 mutants caught; escaped []
+B. the arm rule (armed < mark) deleted from its check: 28 of 28 checks; 93 of 94 mutants caught; escaped ['aging: the window opens before the arm (the earlier rule)']
+C. both grades-nothing assertions deleted from check_amended: 28 of 28 checks; 92 of 94 mutants caught; escaped ['amended: the column grades a path', 'amended: a finding reads the column']
+D1 real aging group, each TMR_NO_ADP mark moved before its arm: named check -> interface 0: the window opens before the arm (25 > 23); failing checks: ['the aging window opens after the arm']
+D2 a verdict reads the amended bound, bound_ms left as it is: named check -> the amended bounds graded a path; failing checks: ['an 18 to 20 ms SRP path misses', 'the ALL push both ways', 'the amended column grades nothing']
+D3 a LATE finding reads the amended bound: named check -> findings []; failing checks: ['a held push never sent', 'the amended column grades nothing']
+D4 a hook's over-its-bound count reads the amended bound: named check -> None; failing checks: ['the worst path and the counts']
+D5 NARROW slack reads the amended bound: named check -> None; failing checks: []
