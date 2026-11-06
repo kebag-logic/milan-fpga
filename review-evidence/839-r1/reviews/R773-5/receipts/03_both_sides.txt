@@ -1,0 +1,50 @@
+# independent replay tree (conflict markers stay in audit only)
+replay=17ddfd6b08c6d57b2a3a6281fad21b0374b6bebe
+merge=5056f5b7a2bf36e5789adea09185dfba2e910bf2
+# replay vs recorded merge: paths differing
+docs/DOCUMENTATION_AUDIT.md
+# dev side patch-id (B..D excl audit) vs merge delta (P..H excl audit)
+a5e12980a28b73885022d9b0d029df8f1555af6e
+a5e12980a28b73885022d9b0d029df8f1555af6e
+# per-file blob: dev-only paths at H equal dev blob
+scripts/owned_process.py 6495a47b2c462cf17d1d9f1ed0d827dc1768a5c7 6495a47b2c462cf17d1d9f1ed0d827dc1768a5c7
+scripts/process_test_support.py a981083efe9bd513c8d50e11fcf9d735dd7959bc a981083efe9bd513c8d50e11fcf9d735dd7959bc
+scripts/test_suite_cancellation.py 537058eb22b52d59c439fec46ee46b6f14fbf513 537058eb22b52d59c439fec46ee46b6f14fbf513
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py a4baf97225af24ce8da740bef7d11909a381db7a a4baf97225af24ce8da740bef7d11909a381db7a
+# PR-only paths at H equal P blob, and overlap between sides
+docs/DOCUMENTATION_AUDIT.md
+docs/testing/TESTING.md
+# non-audit, non-TESTING PR paths blob identity P vs H
+same CHANGELOG.md
+same docs/integration/BAREMETAL_FIRMWARE.md
+same docs/reference/REGISTER_MAP.md
+same hdl/milan/milan_datapath.sv
+same scripts/measure_test_evidence_readers.py
+same tb/verilator/capture_coherence/sim_dp.cpp
+same tb/verilator/milan_dp/Makefile
+same tb/verilator/milan_dp/README.md
+same tb/verilator/milan_dp/bootsa_mutants.py
+same tb/verilator/milan_dp/bootsa_probes.vlt
+same tb/verilator/milan_dp/gen_boot_fw.py
+same tb/verilator/milan_dp/sim_boot_sa.cpp
+same tb/verilator/milan_dp/sim_gptp.cpp
+same tb/verilator/milan_dp/sim_nxn.cpp
+same tb/verilator/milan_dp/test_sim_pool.py
+same tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+# gitlinks P vs H vs D
+27a947348415b25546e8da7cee02d4d7396e240a6d33a3d7a786efc2dc1cbd8b  -
+27a947348415b25546e8da7cee02d4d7396e240a6d33a3d7a786efc2dc1cbd8b  -
+27a947348415b25546e8da7cee02d4d7396e240a6d33a3d7a786efc2dc1cbd8b  -
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# modes changed P..H
+# docs_inventory.json/py blobs
+cc204c6fd2 json=242c0553d4e5f94702ead9b3a25480eabbf10297 py=fe9cbbc5183a43d82a08cef66ed662d41a9075ad
+4f210018e6 json=242c0553d4e5f94702ead9b3a25480eabbf10297 py=fe9cbbc5183a43d82a08cef66ed662d41a9075ad
+87e9d03aa2 json=242c0553d4e5f94702ead9b3a25480eabbf10297 py=fe9cbbc5183a43d82a08cef66ed662d41a9075ad
+19f4c0b4ee json=242c0553d4e5f94702ead9b3a25480eabbf10297 py=fe9cbbc5183a43d82a08cef66ed662d41a9075ad
+cf4120f4cf json=242c0553d4e5f94702ead9b3a25480eabbf10297 py=fe9cbbc5183a43d82a08cef66ed662d41a9075ad

@@ -1,0 +1,18 @@
+# 18444ac64e placement
+18444ac64e467dcca0c3c18fb7f7620290f7af00 Stamp each talker source's current Stream ID from the processor's src_stream_id_o on the AAF and CRF frames a
+introducing commit IS an ancestor of dev 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+and of the PR's earlier base cc204c6fd2349b543d73f15c97162a2c4434c86e
+fatal: invalid --pretty format: first PR-only commit base:
+and of the PR round-1 head 992c3d7b
+# does the introducing commit touch the test?
+(empty line above = test untouched)
+ed07eea3f0   18444ac64e^ rc=0 17 checks: 17 PASS, 0 FAIL | n_expected 39 n_got 39 | 
+18444ac64e   18444ac64e rc=1 17 checks: 16 PASS, 1 FAIL | n_expected 39 n_got 45 | [FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs 
+cc204c6fd2   cc204c6fd2349b543d73f15c97162a2c4434c86e rc=1 17 checks: 16 PASS, 1 FAIL | n_expected 39 n_got 45 | [FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs 
+87e9d03aa2   87e9d03aa2a4797957ac0124d0c7851a2eec234c rc=1 17 checks: 16 PASS, 1 FAIL | n_expected 39 n_got 45 | [FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs 
+4f210018e6   4f210018e6556a9753ed409885d82744c8f5effa rc=1 17 checks: 16 PASS, 1 FAIL | n_expected 42 n_got 48 | [FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs 
+cf4120f4cf   cf4120f4cf6c711781b9e4aa24173691dcce0a95 rc=1 17 checks: 16 PASS, 1 FAIL | n_expected 42 n_got 48 | [FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs 
+# backpressure companion at H
+[PASS] direct-flush-SIGTERM-repeated
+[PASS] direct-flush-SIGTERM-child-exit
+[PASS] direct-flush-normal-drain

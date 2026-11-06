@@ -1,0 +1,56 @@
+# D0-062 line evidence at H
+2294:The measured cell is commit `1e80a106`, configuration
+492:| D0-062 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 2289 | record below is the 
+# merged TESTING table rows
+360:| #839 station MAC from reset, twelve controls on the `bootsa` leg: the defect as ship
+361:| #658 power-on audio maps and #637 map records, the 66 planted controls (on the `dynm
+490:The `milan_dp` default `run` retains eighteen ordinary commands in this order:
+495:#839's `obj_bootsa`.
+505:The other eight legs write no data files.
++| A run that fails first sends `SIGKILL` to every descendant it reports that it has not collected, so it take
++| The failure message prints each remaining process's scheduler state, wait channel, current parent apart fro
++| #833 owned-process cleanup: every published mutant of `scripts/owned_process.py`, each against the control 
+| #647 render pull-in, eighteen boot phases and the standing
+| #447/#657 TDM8 render lane, the full mutant/control invent
+| #530 streaming licence, the three gate mutants, and the #7
+| #508 GET_STREAM_INFO seam, the eight field and notificatio
+| #653 unbind order and Table 5.6 pair, the five unbind muta
+| #839 station MAC from reset, twelve controls on the `boots
+| #658 power-on audio maps and #637 map records, the 66 plan
+| #387/#602 GM step re-base and #545 slew coverage: sixteen 
+| #632/#764 media phase: one planted defect per loop term, p
+| #545 servo slew: eight defects and two positive controls |
+| #833 owned-process cleanup: every published mutant of `scr
+
+The default sweep still runs both render legs and the leg-si
+which need no elaboration.
+The long `[PULLIN]` history runs through its explicit campai
+The gateware and shape mutants also run in full through thei
+
+`tb/verilator/milan_dp_render` is that suite, split out of `
+# table-column uniformity around #839 row
+357 4
+358 4
+359 4
+360 4
+361 4
+362 4
+363 4
+# commit shape
+19f4c0b4ee lines=1 trailers=[]
+cf4120f4cf lines=1 trailers=[]
+- **Commits: one line, no trailers.** The private bench suite is referenced
+  only as *the bench suite* (evidence token `BENCH`) in committed text —
+  never by any external name.
+- PRs use the template: Status / Description / how-to-reproduce / how-to-
+  validate / DoD. **Self-test results go in a PR comment** — a comment is
+  evidence, not approval. Maintainer merges by default.
+- **`LAYOUTS`-style merges in [`tests/steps/`](tests/steps) are semantic, never
+  marker-union**: rebuild each command's block from its owning commit
+  verbatim (naive unions broke main twice; a third time gets you named in
+# comment rule, added lines in delta, source files only
+count: 0
+# same scan on what the two manager commits added beyond dev
+(empty above = zero bytes beyond dev in those four)
+# regen lines carry no label
+0
