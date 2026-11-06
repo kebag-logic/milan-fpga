@@ -1,0 +1,53 @@
+unmutated failing checks: []
+KILLED   hp-row-ms-zero | 1 failure(s) | the held push's grade | the held row reports 0.0 ms, not its service
+KILLED   hp-ms | 1 failure(s) | the held push's grade | the held row reports 21.0 ms, not its service
+KILLED   s-narrow-le | 1 failure(s) | the worst path and the counts | 2 narrow fits, not 1
+KILLED   hm-cycles | 1 failure(s) | a held push never sent | a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'pr
+KILLED   hm-wait | 1 failure(s) | a held push never sent | a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'pr
+KILLED   hm-margin | 1 failure(s) | a held push never sent | a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'pr
+KILLED   s-narrow-minus1 | 1 failure(s) | the worst path and the counts | 0 narrow fits, not 1
+KILLED   s-narrow-plus2 | 1 failure(s) | the worst path and the counts | 2 narrow fits, not 1
+KILLED   s-narrow-no-within | 1 failure(s) | the worst path and the counts | 4 narrow fits, not 1
+KILLED   g-narrow-le | 1 failure(s) | a fit under the layout swing is a finding | ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by 6,489 CPU cycles, under t
+KILLED   hp-within-lt | 1 failure(s) | the held push's grade | a held push at its bound misses
+KILLED   hp-within-true | 1 failure(s) | the held push's grade | a held push past its bound fits
+KILLED   hp-unbounded | 1 failure(s) | the held push's grade | held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counte
+KILLED   hp-loaded | 1 failure(s) | the held push's grade | held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counte
+KILLED   hp-bound | 2 failure(s) | the held push's grade | the held bound includes W: 920.0
+KILLED   hp-interface | 1 failure(s) | the held push's grade | held row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 
+KILLED   hp-family | 1 failure(s) | the held push's grade | held row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp', 0)
+KILLED   hp-wait | 1 failure(s) | the held push's grade | the held W is not recorded: 0.0
+SURVIVED hp-rowlabel | 0 failure(s) | - | 
+SURVIVED hp-ahead | 0 failure(s) | - | 
+KILLED   hp-margin-round0 | 1 failure(s) | the held push's grade | the held margin is 80.0, not 1000 - 900 - 20.00002
+KILLED   hp-margin-round4 | 1 failure(s) | the held push's grade | the held margin is 80.0, not 1000 - 900 - 20.00002
+SURVIVED hp-margin-noround | 0 failure(s) | - | 
+KILLED   hm-ms | 1 failure(s) | a held push never sent | missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0'
+KILLED   hm-interface | 1 failure(s) | a held push never sent | missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify
+KILLED   hm-family | 1 failure(s) | a held push never sent | missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp',
+KILLED   hm-within | 1 failure(s) | a held push never sent | a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.
+KILLED   hm-unbounded | 1 failure(s) | a held push never sent | a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.
+KILLED   hm-loaded | 1 failure(s) | a held push never sent | missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0'
+KILLED   hm-bound | 1 failure(s) | a held push never sent | missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0'
+KILLED   hm-normative | 1 failure(s) | a held push never sent | missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0'
+SURVIVED hm-ahead | 0 failure(s) | - | 
+KILLED   hm-not-missing | 1 failure(s) | a held push never sent | a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served a
+KILLED   hm-hook | 1 failure(s) | a held push never sent | a held push never sent is no finding: ['LATE H-NOTIFY: counters.held.if0: the held push wa
+KILLED   hm-group | 1 failure(s) | a held push never sent | missing row ('H-COUNTERS', 'x', 'counters.held.if0', 'counters.held', 'notify', 0)
+KILLED   hm-probe | 1 failure(s) | a held push never sent | a held push never sent is no finding: ['LATE H-COUNTERS: x: the held push was never sent']
+KILLED   hm-path | 1 failure(s) | a held push never sent | missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'x', 'notify', 0)
+SURVIVED hm-rowlabel | 0 failure(s) | - | 
+KILLED   sup-no-interface | 1 failure(s) | a refusal is superseded only by its own path | other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks
+SURVIVED sup-no-path | 0 failure(s) | - | 
+KILLED   sup-no-group | 1 failure(s) | MUTANT ESCAPED: supersede: the table names another group | a refusal is superseded only by its own path
+KILLED   sup-any-row | 1 failure(s) | a refusal is superseded only by its own path | other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks
+KILLED   sup-table-empty | 1 failure(s) | a refusal is superseded only by its own path | superseded: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc
+SURVIVED sup-second-entry | 0 failure(s) | - | 
+KILLED   am-verdict-1if | 2 failure(s) | an 18 to 20 ms SRP path misses | a 19 ms SRP path fits
+KILLED   am-verdict-queued-60 | 2 failure(s) | the ALL push both ways | a row is not graded at its own bound
+KILLED   am-bound-field-srp | 3 failure(s) | an 18 to 20 ms SRP path misses | a 19 ms SRP path fits
+SURVIVED am-slack-reads-column | 0 failure(s) | - | 
+SURVIVED am-misses-read-column | 0 failure(s) | - | 
+KILLED   am-table-verdict-reads-column | 1 failure(s) | the amended column grades nothing | the path table's amended figure
+SURVIVED am-cell-reads-column | 0 failure(s) | - | 
+41 of 51 killed; survivors ['hp-rowlabel', 'hp-ahead', 'hp-margin-noround', 'hm-ahead', 'hm-rowlabel', 'sup-no-path', 'sup-second-entry', 'am-slack-reads-column', 'am-misses-read-column', 'am-cell-reads-column']
