@@ -1,0 +1,28 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+head unmutated rc=0 assertion=- arms_passed=2
+head force-bit-0.11 rc=-6 assertion=power_down_kept arms_passed=1 expected=caught AS-PREDICTED
+head drop-bit-0.11 rc=-6 assertion=power_down_kept arms_passed=0 expected=caught AS-PREDICTED
+head force-bit-0.14 rc=-6 assertion=loopback_kept arms_passed=0 expected=caught AS-PREDICTED
+head drop-bit-0.14 rc=-6 assertion=loopback_kept arms_passed=1 expected=caught AS-PREDICTED
+arm1-power-down-clear-0x9400 unmutated rc=0 assertion=- arms_passed=2
+arm1-power-down-clear-0x9400 force-bit-0.11 rc=-6 assertion=power_down_kept arms_passed=0 expected=caught AS-PREDICTED
+arm1-power-down-clear-0x9400 drop-bit-0.11 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+arm2-power-down-set-0x6900 unmutated rc=0 assertion=- arms_passed=2
+arm2-power-down-set-0x6900 force-bit-0.11 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+arm2-power-down-set-0x6900 drop-bit-0.11 rc=-6 assertion=power_down_kept arms_passed=0 expected=caught AS-PREDICTED
+arm1-loopback-set-0xdc00 unmutated rc=0 assertion=- arms_passed=2
+arm1-loopback-set-0xdc00 force-bit-0.14 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+arm1-loopback-set-0xdc00 drop-bit-0.14 rc=-6 assertion=loopback_kept arms_passed=0 expected=caught AS-PREDICTED
+arm2-loopback-clear-0x2100 unmutated rc=0 assertion=- arms_passed=2
+arm2-loopback-clear-0x2100 force-bit-0.14 rc=-6 assertion=loopback_kept arms_passed=0 expected=caught AS-PREDICTED
+arm2-loopback-clear-0x2100 drop-bit-0.14 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+power-down-assert-removed unmutated rc=0 assertion=- arms_passed=2
+power-down-assert-removed force-bit-0.11 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+power-down-assert-removed drop-bit-0.11 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+loopback-assert-removed unmutated rc=0 assertion=- arms_passed=2
+loopback-assert-removed force-bit-0.14 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+loopback-assert-removed drop-bit-0.14 rc=0 assertion=- arms_passed=2 expected=escape AS-PREDICTED
+extra rebuild-register-0-from-constants rc=-6 assertion=power_down_kept arms_passed=0 AS-PREDICTED
+extra clear-power-down-and-loopback-together rc=-6 assertion=power_down_kept arms_passed=0 AS-PREDICTED
+extra force-power-down-and-loopback-together rc=-6 assertion=loopback_kept arms_passed=0 AS-PREDICTED
+UNEXPECTED_ROWS 0
