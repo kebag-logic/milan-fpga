@@ -1,0 +1,29 @@
+as expected: head (no mutant): rc 0
+    ctrl_split_boot placement controls: 8 of 8 as required
+as expected: register-absent-ignored: rc 1
+    PLACEMENT register-absent: WRONG (deviations [])
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: window-base-only: rc 1
+    PLACEMENT window-resized: WRONG (deviations [])
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: window-size-only: rc 1
+    PLACEMENT window-moved: WRONG (deviations [])
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: true-map-always-deviates: rc 1
+    PLACEMENT true-map: WRONG (deviations ['always'])
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: refusal-words-changed: rc 1
+    PLACEMENT export-refuses: WRONG (export OTHER)
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: refusal-names-nothing: rc 1
+    PLACEMENT export-refuses: WRONG (export OTHER)
+    ctrl_split_boot placement controls: 7 of 8 as required
+as expected: other-failure-first: rc 1
+    PLACEMENT export-refuses: WRONG (export OTHER)
+    PLANT guard-removed: ESCAPED (PLACEMENT; the export of the moved spiflash_master_cs ended OTHER)
+    PLANT deviations-empty: ESCAPED (PLACEMENT; the export of the moved spiflash_master_cs ended OTHER)
+    ctrl_split_boot placement controls: 5 of 8 as required
+as expected: plant-inert: rc 1
+    PLANT guard-removed: ESCAPED (PLACEMENT; the export of the moved spiflash_master_cs ended REFUSED)
+    ctrl_split_boot placement controls: 7 of 8 as required
+placement mutants: 8 planted, 0 not as expected

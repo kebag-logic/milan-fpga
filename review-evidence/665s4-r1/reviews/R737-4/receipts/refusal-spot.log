@@ -1,0 +1,3 @@
+head: selftest (0, 'ctrl_image self-test: 37 checks PASS') | exit 2 stopped_at_link True
+refusal-removed: selftest (1, "AssertionError: ('both archives', 'collect2: error: ld returned 1 exit status')")
+refusal-always: boundary run exit 2 stopped_at_link False
