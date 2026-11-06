@@ -1,0 +1,50 @@
+| Mutant | Fails check | Failing words |
+|---|---|---|
+| plant: any finding of the hook catches it (the earlier rule) | a plant is caught only by its own finding | `adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP` |
+| plant: any finding of its kind catches it | a plant is caught only by its own finding | `adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP` |
+| plant: a path that only starts with its own catches it | a plant is caught only by its own finding | `adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP` |
+| plant: a late plant names no path | a plant is caught only by its own finding | `adp-late: names the path None` |
+| plant: every run is caught | a plant is caught only by its own finding | `adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP` |
+| plant: an escape exits 0 | a plant is caught only by its own finding | `adp-late: reported caught with no plant applied, rc 0: PLANT adp-late ESCAPED: LATE H-AD` |
+| held: W added to its bound | the held push's grade | `the held bound includes W: 920.0` |
+| held: the exact bound misses | the held push's grade | `a held push at its bound misses` |
+| held: the verdict is relaxed by 1 ms | the held push's grade | `a held push past its bound fits` |
+| held: W is not recorded | the held push's grade | `the held W is not recorded: 0.0` |
+| held: its cycles round down | the held push's grade | `3 bus cycles are 1 at the 50 MHz CPU, not 2` |
+| held: its cycles are the bus's | the held push's grade | `3 bus cycles are 3 at the 50 MHz CPU, not 2` |
+| held: its margin omits W | the held push's grade | `the held margin is 980.0, not 1000 - 900 - 20` |
+| held: its timeout is the notification family's | the held push's grade | `the held timeout is 240.0` |
+| held: it counts as under the composed load | the held push's grade | `held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'coun` |
+| held: it counts as never served | the held push's grade | `held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'coun` |
+| held: it is H-NOTIFY's | the held push's grade | `held row ('H-NOTIFY', 'hooks-counters', 'counters.held', 'notify', 0)` |
+| held missing: silently accepted | a held push never sent | `a held push never sent is no finding: []` |
+| held missing: it fits | a held push never sent | `a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counter` |
+| held missing: it counts as served | a held push never sent | `a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counter` |
+| held missing: its finding is dropped | a held push never sent | `a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served` |
+| held missing: its timeout is the notification family's | a held push never sent | `missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if` |
+| summary: the fastest path is the worst | the worst path and the counts | `the worst alone is fast, not slow` |
+| summary: W is left in the service | the worst path and the counts | `the worst alone is waiting, not slow` |
+| summary: a path never served is not worst first | the worst path and the counts | `the worst under load is loaded, not the path never served` |
+| summary: alone and under load are not apart | the worst path and the counts | `the worst alone is starved, not slow` |
+| summary: alone and under load are swapped | the worst path and the counts | `the worst alone is starved, not slow` |
+| summary: another hook's paths are its own | the worst path and the counts | `the worst alone is other, not slow` |
+| summary: a miss counts as a narrow fit | the worst path and the counts | `4 narrow fits, not 1` |
+| summary: no narrow fit is counted | the worst path and the counts | `0 narrow fits, not 1` |
+| summary: no miss is counted | the worst path and the counts | `0 misses, not 3` |
+| summary: the path count is every hook's | the worst path and the counts | `a hook with no path has a worst` |
+| summary: the applied count is dropped | the worst path and the counts | `the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alo` |
+| summary: the undecided count is dropped | the worst path and the counts | `the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alo` |
+| summary: the ordering findings are dropped | the worst path and the counts | `the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alo` |
+| summary: the obligation is dropped | the worst path and the counts | `the obligation or clauses are not kept` |
+| summary: the clauses are dropped | the worst path and the counts | `the obligation or clauses are not kept` |
+| ALL: the push ends at its first descriptor | the ALL push both ways | `the ALL push ends at ['notify:2:0029:5:1']` |
+| ALL: no descriptor has a row | the ALL push both ways | `a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): ` |
+| ALL: a descriptor's row ends at the whole push | the ALL push both ways | `counters.all.t5.i1.if0 ends at ['notify:2:0029:5:1', 'notify:2:0029:6:0', 'notify:2:0029` |
+| ALL: a descriptor's row opens after the change | the ALL push both ways | `counters.all.t5.i1.if0 opens after the change` |
+| amended: SRP keeps its ceiling | the amended column grades nothing | `the amended bounds` |
+| amended: the ceiling at two interfaces is 20 ms | the amended column grades nothing | `the amended bounds` |
+| amended: every counter push is queued | the amended column grades nothing | `a path the decisions leave has another bound` |
+| amended: W is left off | the amended column grades nothing | `W left off the column` |
+| amended: the column grades a path | the amended column grades nothing | `SRP 22.0` |
+| amended: the table does not say which bounds graded | the amended column grades nothing | `the table does not say which bounds graded` |
+| amended: the column repeats the bound | the amended column grades nothing | `SRP 18.0` |

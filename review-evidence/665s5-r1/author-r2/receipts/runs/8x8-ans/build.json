@@ -1,0 +1,193 @@
+{
+  "sources": [
+    "<tmp>/hr-8x8-ans/soc/mbx-variant/KL_mbx_pkg.sv",
+    "<tmp>/c-runB/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "<tmp>/c-runB/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "<tmp>/c-runB/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "<tmp>/c-runB/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "<tmp>/hr-8x8-ans/soc/mbx-variant/KL_mbx.sv",
+    "<tmp>/c-runB/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v",
+    "<tmp>/hr-8x8-ans/soc/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 100000000,
+  "product_cpu_hz": 100000000,
+  "milan_hz": 50000000,
+  "cpu_clock": "sys",
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "arm": "answering",
+  "ledgered": "platform-8x8-two-interfaces",
+  "addresses": {
+    "mailbox": 2147483648,
+    "master": 4026544128,
+    "timer0": 4026546176,
+    "flash": 536870912,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "csr_base": 2415919104,
+  "csr_size": 65536,
+  "netlist": "VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      262144,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "fetch_l1": "split",
+  "fetch_l1_geometry": [
+    64,
+    1
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 125048,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113936,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "platform-8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  },
+  "elf": "<tmp>/hr-8x8-ans/image/ctrl_app.elf",
+  "point": "8x8",
+  "plant": null,
+  "channels": 5,
+  "filter_en": 40,
+  "tmr_cmd": 60,
+  "ch_base": 256,
+  "ch_stride": 32,
+  "tx_head": 8,
+  "symbols": {
+    "ctrl_loop_service": 4904,
+    "main": 33768,
+    "adp_mbx_set_enable": 10544
+  },
+  "inputs": {
+    "build:image/ctrl_app.elf": "f706dee6007abca6837187190e1ec5b91bb29fadd11f70c6e2c82c0f989b7934",
+    "build:runtime/libc.a": "36bbbf2fa42c9214b24864ea178caa8a578c3c5eaa27683b530f755e8babeac5",
+    "build:runtime/libcompiler_rt.a": "996102f3ed96e4df235b60e31927be61681e9cf868ee3c27f48d60759f180823",
+    "build:soc/gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+    "build:soc/gateware/sim_mem_1.init": "953a6bf497956186f44664c132f3dd834c0170deabfb854c3db1e512014a3ade",
+    "build:soc/gateware/sim_rom_bank0.init": "7505aa665c0093dfce59df227e16cc93062e0c7cacb22e3804980fc03fe6d96d",
+    "build:soc/gateware/sim_rom_bank1.init": "36f63b9955c8da035a54483d07c53c594eab7d7118d17ff93cb829de69703ef2",
+    "build:soc/gateware/sim_rom_bank2.init": "f8a385350ba5b904d8812d5c459c3dca2a54c1ef6afb4109674c06dc86924c45",
+    "build:soc/gateware/sim_rom_bank3.init": "78a412e065409c90cbb730fc371856df421cd40dffe2e56da99069feb9b0427e",
+    "build:soc/gateware/sim_rom_bank4.init": "fbd43f51d1800e66b614f69249e90fc324a878a4879ba6638b56cededf5dc968",
+    "build:budget_config.hpp": "fa593243c17157e37338f1c0bf3f967b6eabff7a4c5b153b3970c67d63918a60",
+    "build:sim_main.cpp": "743decf05f80ee098bde7a68376c47e515233a88a3b89c73ef9097ec14cdf83c",
+    "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "da2c39adbb81537978c09c72986f044372ab68a687be1112be4ff85c6eb98697",
+    "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "5fd41b8b405fc3951832ebc058ed971f893c470489eb29592d27d230d9f97c72",
+    "checkout:tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "checkout:tb/verilator/ctrl_service_hooks/hooks_soc.py": "6ef029c4ba8a55be35de164a74dd7a52c24e92daae450b26fb4debeaf9eed4b9",
+    "checkout:tb/verilator/ctrl_service_hooks/hooks_build.py": "179bd4b3a0d58254e57b2c2a4850b8569db494e2ac28fb6cc1ef7be3535a4925",
+    "build:soc/mbx-variant/KL_mbx_pkg.sv": "fb884980cb6822988eeace0e1e2ca1f0ec22b323d17871b07049170bb4cdb737",
+    "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+    "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+    "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+    "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "8e25fb3fb873a8a7dd1f6b187332ee4da2ee5d6207286412b90bb5d8c7150d58",
+    "build:soc/mbx-variant/KL_mbx.sv": "08f654bf8e62a99cd868ca572ab06abe07dc9d6aa4735d43789b8651204cbe4b",
+    "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+    "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+    "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+    "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v": "14718a28e7eec3346bcfd8f97f846494ee4be6961635cc4cd6c3bbddd063f44c",
+    "build:soc/gateware/sim.v": "6fd91c6c005664fd8ab858c6f00b2b20eee86f2f28e59b232411ce9895fd5564",
+    "tree:firmware": "275d73bb87ce162a5839ca0170bb06b3a2f1df9c03f016e1725135c30956dd82",
+    "tree:config": "ecc56aae9390d1b512b3cb37498d34d59b0cd281eb4d5afcdf915bb7276a5e2c"
+  },
+  "executable_sha256": "48255c7217cc01f6e176f59a0a57839506754b722f4b53300fdd0c18218c68af"
+}

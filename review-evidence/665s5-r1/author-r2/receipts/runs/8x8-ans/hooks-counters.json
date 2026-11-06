@@ -1,0 +1,1622 @@
+{
+ "group": "hooks-counters",
+ "probes": [
+  {
+   "probe": "counters.first.if0",
+   "row": "GET_COUNTERS push, a change (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.first",
+    0
+   ],
+   "start_sys": 107496722,
+   "end_sys": 108513165,
+   "sys_cycles": 1016443,
+   "cpu_cycles": 1016443,
+   "ms": 10.16443,
+   "wait_ms": 0.0,
+   "passes": 3,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 107924439,
+    "last_sys": 108513165,
+    "per_recipient_cpu_cycles": 18991
+   },
+   "bound_cpu_cycles": 1118586,
+   "bound_ms": 11.18586,
+   "bound_within_t_svc": false,
+   "pass_cycles": 737219,
+   "pass_instr": 140230,
+   "pass_mbx_accesses": 1577,
+   "pass_fetch_share": 0.0358,
+   "pass_fetch_wait_share": 0.0908,
+   "pass_regions": {
+    "rom": [
+     874,
+     3026,
+     0
+    ],
+    "sram": [
+     0,
+     13263,
+     5669
+    ],
+    "mbx": [
+     0,
+     73,
+     1504
+    ],
+    "csr": [
+     0,
+     1,
+     0
+    ]
+   },
+   "pass_modules": {
+    "mbx": 418251,
+    "aecp": 112388,
+    "mbx_plat_mmio": 61639,
+    "rt_lshrdi3": 32416,
+    "aecp_mbx": 17375,
+    "aecp_nvm": 13700
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.if0",
+   "row": "GET_COUNTERS push, every served descriptor (ALL; H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 142384348,
+   "sys_cycles": 21871183,
+   "cpu_cycles": 21871183,
+   "ms": 218.71183,
+   "wait_ms": 0.0,
+   "passes": 20,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 141794542,
+    "last_sys": 142384348,
+    "per_recipient_cpu_cycles": 19026
+   },
+   "bound_cpu_cycles": 22102151,
+   "bound_ms": 221.02151,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1027570,
+   "pass_instr": 182150,
+   "pass_mbx_accesses": 1585,
+   "pass_fetch_share": 0.0304,
+   "pass_fetch_wait_share": 0.0784,
+   "pass_regions": {
+    "rom": [
+     1051,
+     3030,
+     0
+    ],
+    "sram": [
+     0,
+     22377,
+     6490
+    ],
+    "mbx": [
+     0,
+     80,
+     1505
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 419283,
+    "aecp": 351171,
+    "mbx_plat_mmio": 62057,
+    "rt_lshrdi3": 32416,
+    "aecp_mbx": 22976,
+    "rt_clzsi2": 18217
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i1.if0",
+   "row": "GET_COUNTERS push, descriptor 5 1 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i1",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 122683036,
+   "sys_cycles": 2169871,
+   "cpu_cycles": 2169871,
+   "ms": 21.69871,
+   "wait_ms": 0.0,
+   "passes": 3,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 122098381,
+    "last_sys": 122683036,
+    "per_recipient_cpu_cycles": 18859
+   },
+   "bound_cpu_cycles": 2520014,
+   "bound_ms": 25.20014,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1114743,
+   "pass_instr": 193978,
+   "pass_mbx_accesses": 1809,
+   "pass_fetch_share": 0.0306,
+   "pass_fetch_wait_share": 0.0803,
+   "pass_regions": {
+    "rom": [
+     1171,
+     3292,
+     0
+    ],
+    "sram": [
+     0,
+     21781,
+     10214
+    ],
+    "mbx": [
+     0,
+     206,
+     1603
+    ],
+    "csr": [
+     0,
+     1,
+     0
+    ]
+   },
+   "pass_modules": {
+    "mbx": 439623,
+    "aecp": 322386,
+    "rt_memset": 99025,
+    "mbx_plat_mmio": 72129,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23129
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i2.if0",
+   "row": "GET_COUNTERS push, descriptor 5 2 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i2",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 123856586,
+   "sys_cycles": 3343421,
+   "cpu_cycles": 3343421,
+   "ms": 33.43421,
+   "wait_ms": 0.0,
+   "passes": 4,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 123266004,
+    "last_sys": 123856586,
+    "per_recipient_cpu_cycles": 19051
+   },
+   "bound_cpu_cycles": 3693984,
+   "bound_ms": 36.93984,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1173970,
+   "pass_instr": 203328,
+   "pass_mbx_accesses": 1821,
+   "pass_fetch_share": 0.0346,
+   "pass_fetch_wait_share": 0.091,
+   "pass_regions": {
+    "rom": [
+     1395,
+     3300,
+     0
+    ],
+    "sram": [
+     0,
+     22723,
+     11029
+    ],
+    "mbx": [
+     0,
+     216,
+     1605
+    ],
+    "csr": [
+     0,
+     3,
+     2
+    ]
+   },
+   "pass_modules": {
+    "mbx": 443135,
+    "aecp": 322645,
+    "rt_memset": 103965,
+    "mbx_plat_mmio": 72799,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23185
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i3.if0",
+   "row": "GET_COUNTERS push, descriptor 5 3 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i3",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 125002170,
+   "sys_cycles": 4489005,
+   "cpu_cycles": 4489005,
+   "ms": 44.89005,
+   "wait_ms": 0.0,
+   "passes": 5,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 124413630,
+    "last_sys": 125002170,
+    "per_recipient_cpu_cycles": 18985
+   },
+   "bound_cpu_cycles": 4839878,
+   "bound_ms": 48.39878,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1145894,
+   "pass_instr": 198694,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0331,
+   "pass_fetch_wait_share": 0.0868,
+   "pass_regions": {
+    "rom": [
+     1300,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22270,
+     10623
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 441698,
+    "aecp": 322904,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i4.if0",
+   "row": "GET_COUNTERS push, descriptor 5 4 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i4",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 126228187,
+   "sys_cycles": 5715022,
+   "cpu_cycles": 5715022,
+   "ms": 57.15022,
+   "wait_ms": 0.0,
+   "passes": 6,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 125641836,
+    "last_sys": 126228187,
+    "per_recipient_cpu_cycles": 18914
+   },
+   "bound_cpu_cycles": 6066290,
+   "bound_ms": 60.6629,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1226412,
+   "pass_instr": 211621,
+   "pass_mbx_accesses": 1871,
+   "pass_fetch_share": 0.0345,
+   "pass_fetch_wait_share": 0.0912,
+   "pass_regions": {
+    "rom": [
+     1462,
+     3410,
+     0
+    ],
+    "sram": [
+     0,
+     23343,
+     12244
+    ],
+    "mbx": [
+     0,
+     225,
+     1646
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 453145,
+    "aecp": 323163,
+    "rt_memset": 128240,
+    "mbx_plat_mmio": 74751,
+    "rt_lshrdi3": 43390,
+    "aecp_mbx": 23410
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i5.if0",
+   "row": "GET_COUNTERS push, descriptor 5 5 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i5",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 127371138,
+   "sys_cycles": 6857973,
+   "cpu_cycles": 6857973,
+   "ms": 68.57973,
+   "wait_ms": 0.0,
+   "passes": 7,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 126786529,
+    "last_sys": 127371138,
+    "per_recipient_cpu_cycles": 18858
+   },
+   "bound_cpu_cycles": 7209461,
+   "bound_ms": 72.09461,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1143171,
+   "pass_instr": 198440,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0321,
+   "pass_fetch_wait_share": 0.0843,
+   "pass_regions": {
+    "rom": [
+     1261,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22294,
+     10625
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440273,
+    "aecp": 323422,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i6.if0",
+   "row": "GET_COUNTERS push, descriptor 5 6 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i6",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 128519800,
+   "sys_cycles": 8006635,
+   "cpu_cycles": 8006635,
+   "ms": 80.06635,
+   "wait_ms": 0.0,
+   "passes": 8,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 127929412,
+    "last_sys": 128519800,
+    "per_recipient_cpu_cycles": 19044
+   },
+   "bound_cpu_cycles": 8358590,
+   "bound_ms": 83.5859,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1149129,
+   "pass_instr": 199249,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0335,
+   "pass_fetch_wait_share": 0.0878,
+   "pass_regions": {
+    "rom": [
+     1318,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22306,
+     10626
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 442448,
+    "aecp": 323681,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23118
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i7.if0",
+   "row": "GET_COUNTERS push, descriptor 5 7 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i7",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 129666649,
+   "sys_cycles": 9153484,
+   "cpu_cycles": 9153484,
+   "ms": 91.53484,
+   "wait_ms": 0.0,
+   "passes": 9,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 129078308,
+    "last_sys": 129666649,
+    "per_recipient_cpu_cycles": 18978
+   },
+   "bound_cpu_cycles": 9505749,
+   "bound_ms": 95.05749,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1147159,
+   "pass_instr": 198926,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.033,
+   "pass_fetch_wait_share": 0.0866,
+   "pass_regions": {
+    "rom": [
+     1298,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22318,
+     10627
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 441623,
+    "aecp": 323940,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t5.i8.if0",
+   "row": "GET_COUNTERS push, descriptor 5 8 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t5.i8",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 130838340,
+   "sys_cycles": 10325175,
+   "cpu_cycles": 10325175,
+   "ms": 103.25175,
+   "wait_ms": 0.0,
+   "passes": 10,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 130252188,
+    "last_sys": 130838340,
+    "per_recipient_cpu_cycles": 18908
+   },
+   "bound_cpu_cycles": 10678043,
+   "bound_ms": 106.78043,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1172294,
+   "pass_instr": 203148,
+   "pass_mbx_accesses": 1821,
+   "pass_fetch_share": 0.0335,
+   "pass_fetch_wait_share": 0.0883,
+   "pass_regions": {
+    "rom": [
+     1353,
+     3300,
+     0
+    ],
+    "sram": [
+     0,
+     22819,
+     11036
+    ],
+    "mbx": [
+     0,
+     216,
+     1605
+    ],
+    "csr": [
+     0,
+     3,
+     2
+    ]
+   },
+   "pass_modules": {
+    "mbx": 441410,
+    "aecp": 324482,
+    "rt_memset": 103965,
+    "mbx_plat_mmio": 72799,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23263
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i0.if0",
+   "row": "GET_COUNTERS push, descriptor 6 0 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i0",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 121568218,
+   "sys_cycles": 1055053,
+   "cpu_cycles": 1055053,
+   "ms": 10.55053,
+   "wait_ms": 0.0,
+   "passes": 2,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": true,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 120981648,
+    "last_sys": 121568218,
+    "per_recipient_cpu_cycles": 18921
+   },
+   "bound_cpu_cycles": 1405271,
+   "bound_ms": 14.05271,
+   "bound_within_t_svc": false,
+   "pass_cycles": 881497,
+   "pass_instr": 160968,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.04,
+   "pass_fetch_wait_share": 0.1045,
+   "pass_regions": {
+    "rom": [
+     1204,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     13598,
+     10208
+    ],
+    "mbx": [
+     0,
+     209,
+     1606
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 441302,
+    "rt_memset": 101495,
+    "aecp": 83511,
+    "mbx_plat_mmio": 72471,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 17734
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i1.if0",
+   "row": "GET_COUNTERS push, descriptor 6 1 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i1",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 131982740,
+   "sys_cycles": 11469575,
+   "cpu_cycles": 11469575,
+   "ms": 114.69575,
+   "wait_ms": 0.0,
+   "passes": 11,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 131398177,
+    "last_sys": 131982740,
+    "per_recipient_cpu_cycles": 18856
+   },
+   "bound_cpu_cycles": 11822710,
+   "bound_ms": 118.2271,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1144667,
+   "pass_instr": 198685,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.032,
+   "pass_fetch_wait_share": 0.0842,
+   "pass_regions": {
+    "rom": [
+     1261,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22346,
+     10626
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440273,
+    "aecp": 324741,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i2.if0",
+   "row": "GET_COUNTERS push, descriptor 6 2 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i2",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 133132721,
+   "sys_cycles": 12619556,
+   "cpu_cycles": 12619556,
+   "ms": 126.19556,
+   "wait_ms": 0.0,
+   "passes": 12,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 132542527,
+    "last_sys": 133132721,
+    "per_recipient_cpu_cycles": 19038
+   },
+   "bound_cpu_cycles": 12973158,
+   "bound_ms": 129.73158,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1150448,
+   "pass_instr": 199443,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0334,
+   "pass_fetch_wait_share": 0.0876,
+   "pass_regions": {
+    "rom": [
+     1316,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22358,
+     10627
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 442373,
+    "aecp": 325000,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23118
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i3.if0",
+   "row": "GET_COUNTERS push, descriptor 6 3 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i3",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 134280935,
+   "sys_cycles": 13767770,
+   "cpu_cycles": 13767770,
+   "ms": 137.6777,
+   "wait_ms": 0.0,
+   "passes": 13,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 133692793,
+    "last_sys": 134280935,
+    "per_recipient_cpu_cycles": 18972
+   },
+   "bound_cpu_cycles": 14121682,
+   "bound_ms": 141.21682,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1148524,
+   "pass_instr": 199191,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0329,
+   "pass_fetch_wait_share": 0.0863,
+   "pass_regions": {
+    "rom": [
+     1296,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22370,
+     10628
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 441548,
+    "aecp": 325259,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i4.if0",
+   "row": "GET_COUNTERS push, descriptor 6 4 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i4",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 135427760,
+   "sys_cycles": 14914595,
+   "cpu_cycles": 14914595,
+   "ms": 149.14595,
+   "wait_ms": 0.0,
+   "passes": 14,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 134841807,
+    "last_sys": 135427760,
+    "per_recipient_cpu_cycles": 18901
+   },
+   "bound_cpu_cycles": 15268855,
+   "bound_ms": 152.68855,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1147173,
+   "pass_instr": 199107,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0323,
+   "pass_fetch_wait_share": 0.0849,
+   "pass_regions": {
+    "rom": [
+     1274,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22382,
+     10629
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440723,
+    "aecp": 325518,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i5.if0",
+   "row": "GET_COUNTERS push, descriptor 6 5 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i5",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 136573627,
+   "sys_cycles": 16060462,
+   "cpu_cycles": 16060462,
+   "ms": 160.60462,
+   "wait_ms": 0.0,
+   "passes": 15,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 135989107,
+    "last_sys": 136573627,
+    "per_recipient_cpu_cycles": 18855
+   },
+   "bound_cpu_cycles": 16414989,
+   "bound_ms": 164.14989,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1146134,
+   "pass_instr": 198938,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.032,
+   "pass_fetch_wait_share": 0.0841,
+   "pass_regions": {
+    "rom": [
+     1261,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22394,
+     10630
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440273,
+    "aecp": 325777,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i6.if0",
+   "row": "GET_COUNTERS push, descriptor 6 6 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i6",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 137724929,
+   "sys_cycles": 17211764,
+   "cpu_cycles": 17211764,
+   "ms": 172.11764,
+   "wait_ms": 0.0,
+   "passes": 16,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 137134929,
+    "last_sys": 137724929,
+    "per_recipient_cpu_cycles": 19032
+   },
+   "bound_cpu_cycles": 17566758,
+   "bound_ms": 175.66758,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1151769,
+   "pass_instr": 199714,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0333,
+   "pass_fetch_wait_share": 0.0873,
+   "pass_regions": {
+    "rom": [
+     1314,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22406,
+     10631
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 442298,
+    "aecp": 326036,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23118
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i7.if0",
+   "row": "GET_COUNTERS push, descriptor 6 7 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i7",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 138900540,
+   "sys_cycles": 18387375,
+   "cpu_cycles": 18387375,
+   "ms": 183.87375,
+   "wait_ms": 0.0,
+   "passes": 17,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 138312597,
+    "last_sys": 138900540,
+    "per_recipient_cpu_cycles": 18965
+   },
+   "bound_cpu_cycles": 18742679,
+   "bound_ms": 187.42679,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1175921,
+   "pass_instr": 203736,
+   "pass_mbx_accesses": 1821,
+   "pass_fetch_share": 0.0339,
+   "pass_fetch_wait_share": 0.0891,
+   "pass_regions": {
+    "rom": [
+     1369,
+     3300,
+     0
+    ],
+    "sram": [
+     0,
+     22883,
+     11035
+    ],
+    "mbx": [
+     0,
+     216,
+     1605
+    ],
+    "csr": [
+     0,
+     3,
+     2
+    ]
+   },
+   "pass_modules": {
+    "mbx": 442085,
+    "aecp": 326295,
+    "rt_memset": 103965,
+    "mbx_plat_mmio": 72799,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23263
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t6.i8.if0",
+   "row": "GET_COUNTERS push, descriptor 6 8 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t6.i8",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 140048745,
+   "sys_cycles": 19535580,
+   "cpu_cycles": 19535580,
+   "ms": 195.3558,
+   "wait_ms": 0.0,
+   "passes": 18,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 139462991,
+    "last_sys": 140048745,
+    "per_recipient_cpu_cycles": 18895
+   },
+   "bound_cpu_cycles": 19891043,
+   "bound_ms": 198.91043,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1148364,
+   "pass_instr": 199348,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0323,
+   "pass_fetch_wait_share": 0.0847,
+   "pass_regions": {
+    "rom": [
+     1272,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     22417,
+     10633
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440648,
+    "aecp": 326554,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t9.i0.if0",
+   "row": "GET_COUNTERS push, descriptor 9 0 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t9.i0",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 141195771,
+   "sys_cycles": 20682606,
+   "cpu_cycles": 20682606,
+   "ms": 206.82606,
+   "wait_ms": 0.0,
+   "passes": 19,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 140611294,
+    "last_sys": 141195771,
+    "per_recipient_cpu_cycles": 18854
+   },
+   "bound_cpu_cycles": 21074581,
+   "bound_ms": 210.74581,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1183538,
+   "pass_instr": 204991,
+   "pass_mbx_accesses": 1815,
+   "pass_fetch_share": 0.0309,
+   "pass_fetch_wait_share": 0.0814,
+   "pass_regions": {
+    "rom": [
+     1261,
+     3296,
+     0
+    ],
+    "sram": [
+     0,
+     23640,
+     10735
+    ],
+    "mbx": [
+     0,
+     211,
+     1604
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 440273,
+    "aecp": 355396,
+    "rt_memset": 101495,
+    "mbx_plat_mmio": 72473,
+    "rt_lshrdi3": 40628,
+    "aecp_mbx": 23196
+   },
+   "status": "measured"
+  },
+  {
+   "probe": "counters.all.t36.i0.if0",
+   "row": "GET_COUNTERS push, descriptor 36 0 of ALL (H-COUNTERS)",
+   "family": "notify",
+   "interface": 0,
+   "path": [
+    "counters.all.t36.i0",
+    0
+   ],
+   "start_sys": 120513165,
+   "end_sys": 142384348,
+   "sys_cycles": 21871183,
+   "cpu_cycles": 21871183,
+   "ms": 218.71183,
+   "wait_ms": 0.0,
+   "passes": 20,
+   "ring": "events",
+   "ahead": 0,
+   "t_svc_ms": 10.0,
+   "ceiling_ms": 24.0,
+   "within_t_svc": false,
+   "within_ceiling": false,
+   "fanout": {
+    "recipients": 32,
+    "first_sys": 141794542,
+    "last_sys": 142384348,
+    "per_recipient_cpu_cycles": 19026
+   },
+   "bound_cpu_cycles": 22102151,
+   "bound_ms": 221.02151,
+   "bound_within_t_svc": false,
+   "pass_cycles": 1027570,
+   "pass_instr": 182150,
+   "pass_mbx_accesses": 1585,
+   "pass_fetch_share": 0.0304,
+   "pass_fetch_wait_share": 0.0784,
+   "pass_regions": {
+    "rom": [
+     1051,
+     3030,
+     0
+    ],
+    "sram": [
+     0,
+     22377,
+     6490
+    ],
+    "mbx": [
+     0,
+     80,
+     1505
+    ],
+    "csr": [
+     0,
+     2,
+     1
+    ]
+   },
+   "pass_modules": {
+    "mbx": 419283,
+    "aecp": 351171,
+    "mbx_plat_mmio": 62057,
+    "rt_lshrdi3": 32416,
+    "aecp_mbx": 22976,
+    "rt_clzsi2": 18217
+   },
+   "status": "measured"
+  }
+ ],
+ "timeouts": [
+  "wait quiet TIMEOUT"
+ ],
+ "passes": {
+  "count": 1787,
+  "work": 303,
+  "idle_min": 122984,
+  "idle_max": 137702,
+  "worst": {
+   "cycles": 1226412,
+   "ms": 12.26412,
+   "instr": 211621,
+   "start_sys": 125224304,
+   "modules": {
+    "aecp_mbx": 23410,
+    "ctrl_app_aecp": 4674,
+    "mbx": 453145,
+    "ctrl_loop": 6451,
+    "adp": 576,
+    "adp_mbx": 627,
+    "maap": 11015,
+    "maap_mbx": 5895,
+    "acmp": 10569,
+    "acmp_mbx": 493,
+    "mbx_plat_mmio": 74751,
+    "ctrl_plat_mmio": 6,
+    "ctrl_plat_console": 711,
+    "ctrl_plat": 7503,
+    "ctrl_plat_main": 63,
+    "aecp": 323163,
+    "aecp_commands": 10285,
+    "aecp_nvm": 13700,
+    "aecp_face": 8868,
+    "nvm_store": 1630,
+    "nvm_flash_litespi": 618,
+    "ctrl_app_srp": 5301,
+    "srp_mbx": 17061,
+    "mrp_mad": 15025,
+    "timer": 1926,
+    "rt_memcpy": 269,
+    "rt_memset": 128240,
+    "rt_umodsi3": 9049,
+    "rt_udivsi3": 16319,
+    "rt_lshrdi3": 43390,
+    "rt_muldi3": 812,
+    "rt_clzsi2": 19346,
+    "rt_udivdi3": 14,
+    "rt_umoddi3": 175,
+    "rt_mulsi3": 8233,
+    "rt_udivmoddi4": 3099
+   }
+  },
+  "composed": null
+ },
+ "summary": {
+  "sys": "273815380",
+  "cpu": "273815316",
+  "passes": "1787",
+  "instr": "40243756",
+  "bus_errors": "0",
+  "traps": "0",
+  "mbx_read": "24232/600068/13/64",
+  "mbx_write": "35848/503487/13/64",
+  "host_cycles": "60080/60080/1/1",
+  "fetch_rom": "473630/36292988/76/84",
+  "load_rom": "171524/2259015/13/76",
+  "store_rom": "0/0/0/0",
+  "fetch_sram": "0/0/0/0",
+  "load_sram": "6785352/98617829/13/78",
+  "store_sram": "2852644/43105752/13/79",
+  "fetch_mbx": "0/0/0/0",
+  "load_mbx": "24232/600068/13/64",
+  "store_mbx": "35848/503487/13/64",
+  "fetch_flash": "0/0/0/0",
+  "load_flash": "160/84252/271/624",
+  "store_flash": "0/0/0/0",
+  "fetch_csr": "0/0/0/0",
+  "load_csr": "2123/28391/13/16",
+  "store_csr": "341/4493/13/69",
+  "fetch_other": "0/0/0/0",
+  "load_other": "10/307/13/72",
+  "store_other": "55/932/13/73"
+ },
+ "modules": {
+  "ctrl_split_start": 531252,
+  "aecp_mbx": 1977397,
+  "ctrl_app_aecp": 5028856,
+  "mbx": 14907514,
+  "ctrl_loop": 6201713,
+  "ctrl_pool": 55369,
+  "ctrl_debug": 41,
+  "shlan_port": 3510,
+  "adp": 1045235,
+  "adp_mbx": 528698,
+  "maap": 2616384,
+  "maap_mbx": 4211959,
+  "maap_csr": 8999,
+  "acmp": 9675379,
+  "acmp_mbx": 199084,
+  "acmp_nvm": 387,
+  "ctrl_app": 2732,
+  "mbx_plat_mmio": 2609941,
+  "ctrl_plat_mmio": 13202,
+  "ctrl_plat_csr": 904,
+  "ctrl_plat_console": 1290644,
+  "ctrl_plat": 4719877,
+  "ctrl_plat_main": 112734,
+  "aecp": 99524273,
+  "aecp_commands": 586513,
+  "aecp_image": 4277680,
+  "aecp_nvm": 24468827,
+  "aecp_face": 1566648,
+  "nvm_klj2": 1910344,
+  "nvm_store": 458439,
+  "nvm_flash_litespi": 252936,
+  "ctrl_app_srp": 6908579,
+  "srp_mbx": 22084287,
+  "mrp_mad": 23413277,
+  "mrp_pdu": 40488,
+  "timer": 501517,
+  "msrp": 67786,
+  "mvrp": 6663,
+  "rt_memcpy": 1147470,
+  "rt_memset": 26158182,
+  "rt_memcmp": 183426,
+  "rt_umodsi3": 239467,
+  "rt_udivsi3": 549270,
+  "rt_lshrdi3": 945932,
+  "rt_muldi3": 214140,
+  "rt_clzsi2": 707438,
+  "rt_udivdi3": 3696,
+  "rt_umoddi3": 46190,
+  "rt_mulsi3": 980794,
+  "rt_udivmoddi4": 829080,
+  "unmapped": 163
+ },
+ "code": {
+  "boot_bytes": "17408",
+  "service_bytes": "46336",
+  "service_only_bytes": "41216",
+  "aecp_mbx": "888",
+  "ctrl_app_aecp": "1652",
+  "mbx": "3280",
+  "ctrl_loop": "1056",
+  "ctrl_pool": "644",
+  "shlan_port": "72",
+  "adp": "2148",
+  "adp_mbx": "700",
+  "maap": "2388",
+  "maap_mbx": "1532",
+  "maap_csr": "660",
+  "acmp": "2776",
+  "acmp_mbx": "348",
+  "ctrl_app": "184",
+  "mbx_plat_mmio": "36",
+  "ctrl_plat_mmio": "16",
+  "ctrl_plat_csr": "20",
+  "ctrl_plat_console": "684",
+  "ctrl_plat": "1020",
+  "ctrl_plat_main": "44",
+  "aecp": "5612",
+  "aecp_commands": "1280",
+  "aecp_state": "44",
+  "aecp_nvm": "184",
+  "aecp_face": "1852",
+  "nvm_klj2": "28",
+  "nvm_store": "548",
+  "nvm_flash_litespi": "416",
+  "ctrl_app_srp": "1052",
+  "srp_mbx": "4552",
+  "mrp_mad": "5968",
+  "mrp_pdu": "1248",
+  "timer": "140",
+  "msrp": "1024",
+  "mvrp": "568",
+  "rt_memcpy": "36",
+  "rt_memmove": "92",
+  "rt_memset": "28",
+  "rt_memcmp": "48",
+  "rt_umodsi3": "60",
+  "rt_udivsi3": "192",
+  "rt_lshrdi3": "60",
+  "rt_muldi3": "288",
+  "rt_clzsi2": "144",
+  "rt_udivdi3": "8",
+  "rt_umoddi3": "36",
+  "rt_mulsi3": "40",
+  "rt_udivmoddi4": "640"
+ }
+}

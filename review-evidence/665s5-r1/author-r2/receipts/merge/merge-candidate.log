@@ -1,0 +1,21 @@
+HEAD 4a8cb57641c0018e6e1f2c50736c41e62d1330aa
+$ git merge --no-edit <dev-soft-core>   (a scratch clone of the code head; never pushed)
+parents: 78415f7a7dd044a84e3e84edf90ca4b8ed8a6a08 a68536fa4cf8ce65c513874722de2e3ba83c2d00
+lane head 78415f7a7dd044a84e3e84edf90ca4b8ed8a6a08 onto dev-soft-core a68536fa
+files this merge adds to dev-soft-core:
+ tb/verilator/ctrl_service_hooks/README.md         | 462 +++++++++++
+ tb/verilator/ctrl_service_hooks/hooks.py          | 923 ++++++++++++++++++++++
+ tb/verilator/ctrl_service_hooks/hooks_build.py    | 258 ++++++
+ tb/verilator/ctrl_service_hooks/hooks_selftest.py | 883 +++++++++++++++++++++
+ tb/verilator/ctrl_service_hooks/hooks_soc.py      | 255 ++++++
+ tb/verilator/ctrl_service_hooks/run.py            | 343 ++++++++
+ 6 files changed, 3124 insertions(+)
+submodules:
+ efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (remotes/orig
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (hea
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (he
+tree: 0 changed path(s)
+rc=0

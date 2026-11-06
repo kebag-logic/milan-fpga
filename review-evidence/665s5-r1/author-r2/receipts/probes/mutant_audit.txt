@@ -1,0 +1,81 @@
+HEAD 26ba56e1d5749a71668f9e4436f28e8635f03f95
+ok | bound: a stale T_svc of 10 ms | T_svc is 10.0
+ok | bound: SRP graded against T_svc alone | a 19 ms SRP path fits
+ok | bound: the ceiling alone | bounds {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
+ok | bound: the normative wait is not added | W + bound: {'hook': 'H-SRP', 'group': 'srp', 'probe': 'x.if0', 'path': 'x', 'row': 'r', 'interface': 0, 'famil
+ok | bound: the margin is not recorded | margin -160.0
+ok | map: the counter push is a notification | counters
+ok | map: no composed row of this harness is loaded | the loaded fan-out is not loaded
+ok | label: the Milan clock labelled the product's (the earlier rule) | CPU 50 MHz on sys (the product split CPU clock)
+ok | label: the Milan clock the default (the earlier rule) | the default CPU clock is milan
+ok | split: the counter change is no pad | pads []
+ok | H-ADP: the grandmaster is not checked | clean: Checked(applied=0, findings=['ORDER H-ADP: 1 grandmaster changes observed, 0 in the script'], undecided
+ok | H-DISC: the sink's PROBE_TX_COMMAND is never recognised | clean: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILAB
+ok | H-DISC: the window never ends (the earlier rule ended it at the next tagged record) | a probe after the next record: Checked(applied=1, findings=[], undecided=0)
+ok | H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule) | a probe after a next record inside the delay: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEP
+ok | H-ACMP: no response is matched to its command | clean: Checked(applied=0, findings=[], undecided=0)
+ok | H-AECP: no face commit is recognised | clean: Checked(applied=1, findings=['ORDER H-AECP: aecp.lock_entity.if0: its response at 300 precedes any face
+ok | H-NOTIFY: the notification is not found | clean: Checked(applied=0, findings=[], undecided=0)
+ok | H-COUNTERS: spacing of 0.1 s accepted | defective: Checked(applied=1, findings=[], undecided=0)
+ok | H-COUNTERS: the held push from its change | held {'probe': 'counters.held.if0', 'change': 10000000, 'eligible': 10000000, 'end': 101200000, 'wait_ms': 0.0
+ok | H-MAAP: no allocation report is recognised | clean: Checked(applied=0, findings=[], undecided=0)
+ok | H-MAAP: every AAF_CTRL store is a report (earlier rule) | clean: Checked(applied=2, findings=['ORDER H-MAAP: the allocation report at 70 follows no DA_GATE publication 
+ok | H-SRP: the ADOPTED bit is never seen set | clean: Checked(applied=1, findings=['ORDER H-SRP: the MRPDU committed at 300 on interface 0 after the Domain r
+ok | plants: a plant edits nothing | adp-late: edits []
+ok | supersede: any later group supersedes a refusal | superseded: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if
+ok | aging: the window opens before the arm (the earlier rule) | the PROBE_TX answers [], the input 0
+ok | aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | the PROBE_TX answers [], the input 22
+ok | aging: both sinks bound before either is answered (the earlier rule) | each sink is not answered before the next is bound: binds [0, 1], answers [2, 3]
+ok | buckets: the window opens right after the registrations (the earlier rule) | refill wait 0 ms
+ok | findings: a path over its bound is not a finding | ['NARROW H-MAAP: x.if0: 25.000 ms, within its bound 20 ms by -500,000 CPU cycles, under the layout swing of 6,
+ok | narrow: the layout swing is not applied | the layout swing is 0
+ok | narrow: the slack counted at the 50 MHz CPU (the earlier clock) | ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by -993,511 CPU cycles, under the layout swing o
+ok | plant: any finding of the hook catches it (the earlier rule) | adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.
+ok | plant: any finding of its kind catches it | adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.
+ok | plant: a path that only starts with its own catches it | adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: control.discover.if0
+ok | plant: a late plant names no path | adp-late: names the path None
+ok | plant: every run is caught | adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP
+ok | plant: an escape exits 0 | adp-late: reported caught with no plant applied, rc 0: PLANT adp-late ESCAPED: LATE H-ADP: control.discover.if
+ok | held: W added to its bound | the held bound includes W: 920.0
+ok | held: the exact bound misses | a held push at its bound misses
+ok | held: the verdict is relaxed by 1 ms | a held push past its bound fits
+ok | held: W is not recorded | the held W is not recorded: 0.0
+ok | held: its cycles round down | 3 bus cycles are 1 at the 50 MHz CPU, not 2
+ok | held: its cycles are the bus's | 3 bus cycles are 3 at the 50 MHz CPU, not 2
+ok | held: its margin omits W | the held margin is 980.0, not 1000 - 900 - 20
+ok | held: its timeout is the notification family's | the held timeout is 240.0
+ok | held: it counts as under the composed load | held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path'
+ok | held: it counts as never served | held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path'
+ok | held: it is H-NOTIFY's | held row ('H-NOTIFY', 'hooks-counters', 'counters.held', 'notify', 0)
+ok | held missing: silently accepted | a held push never sent is no finding: []
+ok | held missing: it fits | a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': '
+ok | held missing: it counts as served | a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': '
+ok | held missing: its finding is dropped | a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served against its bound 20 
+ok | held missing: its timeout is the notification family's | missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.
+ok | summary: the fastest path is the worst | the worst alone is fast, not slow
+ok | summary: W is left in the service | the worst alone is waiting, not slow
+ok | summary: a path never served is not worst first | the worst under load is loaded, not the path never served
+ok | summary: alone and under load are not apart | the worst alone is starved, not slow
+ok | summary: alone and under load are swapped | the worst alone is starved, not slow
+ok | summary: another hook's paths are its own | the worst alone is other, not slow
+ok | summary: a miss counts as a narrow fit | 4 narrow fits, not 1
+ok | summary: no narrow fit is counted | 0 narrow fits, not 1
+ok | summary: no miss is counted | 0 misses, not 3
+ok | summary: the path count is every hook's | a hook with no path has a worst
+ok | summary: the applied count is dropped | the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP'
+ok | summary: the undecided count is dropped | the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP'
+ok | summary: the ordering findings are dropped | the ordering results are not kept: {'paths': 6, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP'
+ok | summary: the obligation is dropped | the obligation or clauses are not kept
+ok | summary: the clauses are dropped | the obligation or clauses are not kept
+ok | ALL: the push ends at its first descriptor | the ALL push ends at ['notify:2:0029:5:1']
+ok | ALL: no descriptor has a row | a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): None}
+ok | ALL: a descriptor's row ends at the whole push | counters.all.t5.i1.if0 ends at ['notify:2:0029:5:1', 'notify:2:0029:6:0', 'notify:2:0029:9:0', 'notify:2:0029:
+ok | ALL: a descriptor's row opens after the change | counters.all.t5.i1.if0 opens after the change
+ok | amended: SRP keeps its ceiling | the amended bounds
+ok | amended: the ceiling at two interfaces is 20 ms | the amended bounds
+ok | amended: every counter push is queued | a path the decisions leave has another bound
+ok | amended: W is left off | W left off the column
+ok | amended: the column grades a path | SRP 22.0
+ok | amended: the table does not say which bounds graded | the table does not say which bounds graded
+ok | amended: the column repeats the bound | SRP 18.0
+rc=0

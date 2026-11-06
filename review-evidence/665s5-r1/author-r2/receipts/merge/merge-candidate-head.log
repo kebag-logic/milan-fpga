@@ -1,0 +1,14 @@
+HEAD 1281508ad613bfbce8c51218390f0ce7a7833fd7
+$ git merge --no-edit <lane head>   (the scratch merge candidate brought to the lane's final head; never pushed)
+parents: 4a8cb57641c0018e6e1f2c50736c41e62d1330aa 26ba56e1d5749a71668f9e4436f28e8635f03f95
+lane head 26ba56e1d5749a71668f9e4436f28e8635f03f95; dev-soft-core a68536fa
+files outside the merge base's dev-soft-core tree that this candidate changes:
+ tb/verilator/ctrl_service_hooks/README.md         | 504 ++++++++++++
+ tb/verilator/ctrl_service_hooks/hooks.py          | 923 ++++++++++++++++++++++
+ tb/verilator/ctrl_service_hooks/hooks_build.py    | 258 ++++++
+ tb/verilator/ctrl_service_hooks/hooks_selftest.py | 883 +++++++++++++++++++++
+ tb/verilator/ctrl_service_hooks/hooks_soc.py      | 255 ++++++
+ tb/verilator/ctrl_service_hooks/run.py            | 343 ++++++++
+ 6 files changed, 3166 insertions(+)
+tree: 0 changed path(s)
+rc=0
