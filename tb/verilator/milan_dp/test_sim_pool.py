@@ -101,6 +101,9 @@ LEGACY_LEGS = (
      "./obj_maprec8/Vmilan_dp_maprec8"),
     ("---- #637 the map records across the 4x4 shape's four input ports ----",
      "./obj_maprec4/Vmilan_dp_maprec4"),
+    ("---- #839 every frame from reset carries the station MAC, through milan_init()'s "
+     "own boot order ----",
+     "./obj_bootsa/Vmilan_dp_bootsa"),
 )
 
 #: the fake leg every arm runs; a leg's executable imports it with its config

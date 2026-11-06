@@ -109,8 +109,11 @@ stays live at every incomplete prefix. Layouts naming a retired boot image
 before any programmer I/O. At build time the firmware receives the image
 length, CRC32 and DRAM destination as generated constants. The PHC is enabled by the CSR reset and the
 option-on fabric gPTP plane starts independently of the AVDECC AEM image.
-Firmware therefore does not gate either one on AEM verification. It performs
-this order:
+Firmware therefore does not gate either one on AEM verification. The fabric
+holds every transmitter that takes its source address from `MAC_ADDR_LO/HI`
+until step 2 has written both words (#839); the gPTP plane's address is the
+same station MAC, written into its program ROM by the builder, so it is not
+held. Firmware performs this order:
 
 1. Keep both compatibility enable bits clear, leaving the shared AVDECC
    control plane disabled while the PHC and fabric gPTP plane remain active.
@@ -211,7 +214,7 @@ shipping 1x1 with its CRF output off, and holds the ordered list below (#398).
 | `PP_CTRL` (`0x920`) | read, bit 0 cleared | firmware-internal, for the same reason |
 | `ADP_ENTITY_ID_LO/HI` (`0x604`, `0x608`) | `MILAN_ENTITY_ID_LO/HI` | generated from `entity.entity_id`, which defaults to the EUI-64 of `platform.mac_address` |
 | `ADP_MODEL_ID_LO/HI` (`0x60C`, `0x610`) | `MILAN_MODEL_ID_LO/HI` | generated from `entity.entity_model_id` and `entity.model_id_pin` |
-| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address` |
+| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address`, which the builder refuses when it is zero or a group address. The fabric holds the processor's control lane, MAAP, the AAF talkers and the CRF talker at frame start until both words are written, and stamps the control lane's source address from them (#839) |
 | `MAC_CTRL` (`0x100`) | read, bit 3 (all-multicast) set | pending #403, which decides the receive-filter posture |
 | `AAF_CTRL` (`0x654`) | `MILAN_SR_VID` in `[27:16]`, talker enable `[0]`, bypass `[1]` clear | VID generated from `srp.vid`; the enable is firmware-internal bring-up sequencing |
 | `LWSRP_VID` (`0x684`) | `MILAN_SR_VID` | generated from `srp.vid` |
