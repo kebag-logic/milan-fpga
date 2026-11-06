@@ -1,0 +1,14 @@
+# head 3d1ca52f8e9a3ec59076b423c0812982945c7a8b gate arm_probe: python3 -I -B <packet>/scripts/arm_probe.py <scratch>/gates/wt
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+VARIANT as committed: firmware rc 0 PHY_OK
+  escaped 0 of 25: []
+VARIANT first arm at its beb38447 values: firmware rc 0 PHY_OK
+  escaped 2 of 25: ['force-bit-4.10', 'force-bit-9.11']
+VARIANT second arm at its beb38447 values: firmware rc 0 PHY_OK
+  escaped 9 of 25: ['force-manual-config-only', 'force-bit-4.0', 'drop-bit-4.1', 'drop-bit-4.2', 'drop-bit-4.3', 'drop-bit-4.4', 'force-bit-4.11', 'force-bit-9.10', 'force-bit-9.12']
+VARIANT both arms at their beb38447 values: firmware rc 0 PHY_OK
+  escaped 13 of 25: ['force-pause-on', 'force-manual-master', 'force-manual-config-only', 'force-bit-4.0', 'drop-bit-4.1', 'drop-bit-4.2', 'drop-bit-4.3', 'drop-bit-4.4', 'force-bit-4.10', 'force-bit-4.11', 'force-bit-9.10', 'force-bit-9.11', 'force-bit-9.12']
+VARIANT no register 4 refusal: firmware rc 0 PHY_OK
+  escaped 1 of 25: ['nak-reg4-not-checked']
+VARIANT no register 0 refusal: firmware rc 0 PHY_OK
+  escaped 1 of 25: ['nak-reg0-not-checked']

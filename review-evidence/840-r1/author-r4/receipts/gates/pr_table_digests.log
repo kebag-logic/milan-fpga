@@ -1,0 +1,8 @@
+# head 3d1ca52f8e9a3ec59076b423c0812982945c7a8b gate pr_table_digests: python3 -I -B <packet>/scripts/pr_table_digests.py <scratch>/gates/wt $(git merge-base HEAD origin/dev)
+files this PR changes: 39
+DEV-STALE sw/builder/endstation_builder.py pinned 84878e539e61c1e2f1f057c63ea390ce6e707d475d1d68d4816ae917c9e3fcc6, stale at the merge base too (#838)
+DEV-STALE sw/builder/test_builder.py pinned e6c3c1097eabb3836d2c40f61f25283afabe09e947fd40568e227790987745dd, stale at the merge base too (#838)
+MATCH tb/verilator/fw_service_budget/run.py d9914cd7facb97057863db0c5516367ca232ac5978cf787bf61bd2706ae644ec
+MATCH tb/verilator/nvm_capture_cpu/run.py 4b8d85bd4f4fee4fb755fb0f871e7899f0486d5e88e74a9b549ee954533ce758
+MATCH tb/verilator/nvm_capture_cpu/soc.py f1fe0da5de47387b633a03345d4359e5ceaac591d4743cf284d68f4080d05395
+rows this PR made stale: 0

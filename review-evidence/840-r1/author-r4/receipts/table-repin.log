@@ -1,0 +1,11 @@
+# re-pin reproduced on a clean clone of the commit before it, 25902fe527
+tb/verilator/fw_service_budget/run.py: 5c2a6477f3172ff241c549828604c40fa5230d49b86d4b2093fc16d2ee6d9058 -> d9914cd7facb97057863db0c5516367ca232ac5978cf787bf61bd2706ae644ec
+tb/verilator/nvm_capture_cpu/run.py: c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659 -> 4b8d85bd4f4fee4fb755fb0f871e7899f0486d5e88e74a9b549ee954533ce758
+tb/verilator/nvm_capture_cpu/soc.py: e782993b5affe15fa8c368bb0a52873d185a7d9ce0e7ffd1fcb838060be27b02 -> f1fe0da5de47387b633a03345d4359e5ceaac591d4743cf284d68f4080d05395
+repin rc=0
+## table bytes against commit 87c9f81f
+2da42c050cf981a1f278f91fadf242adc32d3605ce38f1117073de5830b42832  -
+2da42c050cf981a1f278f91fadf242adc32d3605ce38f1117073de5830b42832  -
+ ci/image/command-table.json | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+EQUAL: the tool's output is the committed table
