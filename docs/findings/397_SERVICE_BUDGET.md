@@ -9,6 +9,7 @@ This refresh follows the [combined assignment](https://github.com/kebag-logic/mi
 and [round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/590#issuecomment-5865679172).
 #70 lane 2 re-measured it after the [AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475).
 Its firmware loads the AEM image before `nvm_boot()` and walks on every boot path.
+The [#840 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/840#issuecomment-6670627857) re-measured the PHY poll figures, for the PHY init.
 Physical switch-cycle acceptance remains a later lane.
 The future-duty inventory and physical torture remain open under #397.
 
@@ -256,24 +257,53 @@ The steady-state rows grade the derived bound and the 500 ms heartbeat bound.
 The target grader also refuses observed publication-readback gaps over 250 ms.
 This measured bound covers executed duties, not arbitrary new work.
 
-Each MDIO transfer is a full Clause-22 read with a 32-bit preamble.
+Each MDIO transfer is a full Clause-22 frame with a 32-bit preamble.
+It is a read, or one of the PHY init's three writes (#840).
 The poll envelope begins at retired heartbeat entry and includes clock acquisition,
 transactions, negotiation resolution and publication bookkeeping.
-The scheduling charge is `C = P + 9*T`, where P is the largest measured complete poll
+The scheduling charge is `C = P + 16*T`, where P is the largest measured complete poll
 and T is the largest measured transaction. Nine reads cover discovery, two BMSR reads,
 BMCR, extended status and both local/peer negotiation pairs.
+The discovery poll adds the PHY init's four reads and three writes (#840): sixteen transactions.
 Using the complete observed poll as bookkeeping allowance deliberately counts observed
 transaction time twice; the longer fallback path is bounded, not claimed as target-measured.
 
 | Shape | One transaction ms | Complete poll ms | Scheduling charge ms | 50 ms page-poll margin |
 | --- | --- | --- | --- | --- |
-| 1x1 | 0.12455 | 0.65040 | 1.77135 | 48.22865 |
-| 8x8 | 0.12457 | 0.83375 | 1.95488 | 48.04512 |
+| 1x1 | 0.12451 | 1.31480 | 3.30696 | 46.69304 |
+| 8x8 | 0.12457 | 1.31864 | 3.31176 | 46.68824 |
 
 | Shape | Worst duty + UART + charge ms | Maximum permissible trigger ms | Selected trigger ms | Remaining reserve ms |
 | --- | --- | --- | --- | --- |
-| 1x1 | 81.18406 | 168.81594 | 125.00000 | 43.81594 |
-| 8x8 | 120.53961 | 129.46039 | 125.00000 | 4.46039 |
+| 1x1 | 83.17883 | 166.82117 | 125.00000 | 41.82117 |
+| 8x8 | 121.80864 | 128.19136 | 125.00000 | 3.19136 |
+
+These figures were re-measured at `4ab1bca0116897c3e02bfe92206df0fd81d6dcb9` for #840.
+All six plans ran on both shapes; the duty tables above remain the `18199bac` measurement.
+T and P are maxima across the six plans of a shape.
+Worst duty plus UART is the largest steady-state armed bound less 250 ms.
+P is the discovery poll, which now carries the PHY init.
+The MDIO bit routine is inlined into both frame loops.
+At `dd764ed7` a call and return per bit doubled every transaction on the cacheless core.
+That firmware measured 16963 cycles per 8x8 transaction, a 247411-cycle poll and a 5.18819 ms charge.
+Every `--enforce-service` plan on both shapes reports no service finding.
+Each run grades its own charge, so its largest PHY publication bound is:
+(The `all` and `uart-paced` rows apply the same grading to measurement runs.)
+
+| Shape | Plan | Transactions | Largest transaction cycles | Largest poll cycles | Own charge ms | Largest publication bound ms, duty | Service findings |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1x1 | all | 69 | 9474 | 131480 | 2.83064 | 179.60865 (milan_nvm) | none |
+| 1x1 | uart-paced | 62 | 12451 | 131480 | 3.30696 | 186.35603 (milan_nvm) | none |
+| 1x1 | queued-input | 116 | 9474 | 131480 | 2.83064 | 180.24829 (milan_nvm) | none |
+| 1x1 | queued-short | 140 | 9474 | 131480 | 2.83064 | 164.78454 (milan_status) | none |
+| 1x1 | queued-builtins | 387 | 9474 | 131480 | 2.83064 | 207.70251 (mem_read 0x40000000 128) | none |
+| 1x1 | device-wait | 159 | 9474 | 131480 | 2.83064 | 167.71401 (milan_nvm commit) | none |
+| 8x8 | all | 217 | 9534 | 131864 | 2.84408 | 246.34096 (milan_nvm) | none |
+| 8x8 | uart-paced | 224 | 12457 | 131864 | 3.31176 | 246.80864 (milan_nvm) | none |
+| 8x8 | queued-input | 499 | 9534 | 131864 | 2.84408 | 246.34096 (milan_nvm) | none |
+| 8x8 | queued-short | 151 | 9534 | 131864 | 2.84408 | 164.79798 (milan_status) | none |
+| 8x8 | queued-builtins | 396 | 9534 | 131864 | 2.84408 | 207.25985 (mem_read 0x40000000 128) | none |
+| 8x8 | device-wait | 231 | 9534 | 131864 | 2.84408 | 234.55950 (milan_nvm commit) | none |
 
 
 Both Clause-22 peers follow IEEE 802.3 section 22.3.4.

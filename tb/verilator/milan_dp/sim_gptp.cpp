@@ -659,7 +659,7 @@ class GptpPlaneHarness {
     const uint16_t cdl = static_cast<uint16_t>(12 + pl.size());
     f[16] = static_cast<uint8_t>((cdl >> 8) & 7); f[17] = static_cast<uint8_t>(cdl);
     const uint8_t target[8] = {
-        0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+        0x02,0x4B,0x4C,0xFF,0xFE,0x4B,0x4C,0x01};
     const uint8_t controller[8] = {
         0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
     memcpy(f.data() + 18, target, 8);
@@ -851,10 +851,11 @@ class GptpPlaneHarness {
   }
 
   // Match the generated product identity. AECP targets the entity id, while
-  // the descriptor image supplies the same identity to the processor store.
+  // the descriptor image supplies the same identity to the processor store:
+  // the AX7101 configs' MAC-derived 024B4CFFFE4B4C01 (#840).
   void prove_the_retired_publication_writes_are_inert(Vmilan_datapath *dut) {
-    axi_write(dut, 0x608, 0x020000FF);
-    axi_write(dut, 0x604, 0xFE000001);
+    axi_write(dut, 0x608, 0x024B4CFF);
+    axi_write(dut, 0x604, 0xFE4B4C01);
     axi_write(dut, 0x504, 8u << 24);       // 8.0 ns; matches sim_cyc model
 
     // The option is omitted from this elaboration: these are assertions about
