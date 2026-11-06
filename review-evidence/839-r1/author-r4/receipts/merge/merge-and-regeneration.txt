@@ -1,0 +1,13 @@
+merge commit dc7eebff351074991e8b4cae9f0f866608a3e8d9
+parents 3c22947861e5c057a6195ad46e1a379d67592559 cc204c6fd2349b543d73f15c97162a2c4434c86e
+subject Merge dev cc204c6f into 839-boot-source-address
+body-lines 
+branch side (round-3 head) vs merge: files changed = dev's files since base?
+SAME FILE SET (10 files): the merge brings exactly dev's changes
+SAME FILE SET: on dev, the merge adds exactly this PR's files
+conflicts: none (ort strategy, auto-merged docs/reference/REGISTER_MAP.md: dev changed line 428, this PR lines 414-415)
+regeneration commit 4f210018e6556a9753ed409885d82744c8f5effa:
+subject Regenerate the documentation audit through docs_inventory.py --write so its counts include this PR's #839 page edits on the merged dev (#839)
+ docs/DOCUMENTATION_AUDIT.md | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+1
