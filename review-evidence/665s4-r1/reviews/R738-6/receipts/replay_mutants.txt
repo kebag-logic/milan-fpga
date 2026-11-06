@@ -1,0 +1,4 @@
+csr-not-required rc=1 plat_green=4 last=AssertionError: ('lacks-csr', '      |                     ^~~~~~~~~~~~~')
+fixture-json-only rc=1 plat_green=3 last=AssertionError: REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the fl
+lone-json-accepted rc=1 plat_green=6 last=AssertionError: ('lacks-json-only', 'collect2: error: ld returned 1 exit status')
+mem-not-required rc=1 plat_green=5 last=AssertionError: ('lacks-mem', '      |         ^~~~~~~~~~~~~~~~~~~')
