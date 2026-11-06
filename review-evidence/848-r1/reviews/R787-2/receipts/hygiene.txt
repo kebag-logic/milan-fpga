@@ -1,0 +1,46 @@
+== commit subjects, body lines and trailers since base
+f5ccb318 lines=1  Drop line counts and line numbers from the generated documentation aud
+212b7d6e lines=1  Carry the finding-line arms on the existing controls, so the inventory
+e3aec77d lines=1  Grade page and lane-file needles apart, require the page's own row and
+2344d147 lines=1  Say how to reach a copy row a text search misses, pin both baselines, 
+91c115b5 lines=1  Split the route to a finding's line into two short paragraphs, so the 
+== comment-rule scan of lines added since the previous reviewed head
+25
+label-like tokens:
+(end)
+em dash in added lines: 0
+issue references: #848 
+== files changed since the previous reviewed head
+ ci/image/command-table.json |  2 +-
+ docs/DOCUMENTATION_AUDIT.md |  6 ++++++
+ scripts/docs_inventory.py   | 47 +++++++++++++++++++++++----------------------
+ 3 files changed, 31 insertions(+), 24 deletions(-)
+:100644 100644 fd1a39ef05 0d8e355c9b M	.github/ci-templates/docs.yml
+:100644 100644 d9db695dcf 62e25e1e39 M	ci/image/command-table.json
+:100644 100644 9fdb8bf4d6 44118c4e72 M	docs/DOCUMENTATION_AUDIT.md
+:100755 100755 fe9cbbc518 11e29149cf M	scripts/docs_inventory.py
+== data file and page delta
+scripts/docs_inventory.json unchanged
++`Located` says whether the quote is still on its page.
++`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.
++
++A text search misses a wrapped or marked-up copy.
++That command still names its line.
++
+== page rows
+76
+   546 docs/DOCUMENTATION_AUDIT.md
+  1000 scripts/docs_inventory.py
+  1546 total
+== ratchet
+scripts/py_idiom.budget unchanged
+10:  long module: 10 <= 10
+== stale lane file in a reused directory
+archive.md design.md old-lane.md overview-and-guides.md reference.md testing-and-ci.md 
+== renderer gates in the private venv
+TOC gate: OK (151 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+anchor check: 582 existing cross-page fragment links reproduced
+check_em_dash: 0 finding(s) over 350 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [87e9d03a..HEAD]
+== no-git walk
+documentation inventory: OK (546 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+nogit_rc=0
