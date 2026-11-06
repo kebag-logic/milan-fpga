@@ -1,0 +1,77 @@
+## image rows vs ledger
+ledger rows for pin ['ltn_rom.hex', 'ucode.hex']
+route-1x1-EPPO-baseline_images.json ['alinx_ax7101_rom.init', 'alinx_ax7101_sram.init', 'alinx_ax7101_mem.init', 'ltn_rom.hex', 'ucode.hex', 'gptp_ucode.hex'] {'ltn_rom.hex': True, 'ucode.hex': True}
+ooc-1x1-baseline_images.json ['alinx_ax7101_rom.init', 'alinx_ax7101_sram.init', 'alinx_ax7101_mem.init', 'ltn_rom.hex', 'ucode.hex', 'gptp_ucode.hex'] {'ltn_rom.hex': True, 'ucode.hex': True}
+ooc-8x8-baseline_images.json ['alinx_ax7101_rom.init', 'alinx_ax7101_sram.init', 'alinx_ax7101_mem.init', 'ltn_rom.hex', 'ucode.hex', 'gptp_ucode.hex'] {'ltn_rom.hex': True, 'ucode.hex': True}
+{
+  "TDATA_WIDTH_P": 64,
+  "CLK_HZ_P": 50000000,
+  "N_STREAM_IN_P": 9,
+  "N_STREAM_OUT_P": 9,
+  "SRP_DOM_DEF_VID_P": 2,
+  "TIM_DIV_US_P": 50,
+  "TIM_DIV_MS_P": 1000,
+  "TROM_HEX_P": "<scratch>/clone/configs/generated/ltn_rom.hex",
+  "UCODE_HEX_P": "<scratch>/clone/configs/generated/ucode.hex",
+  "DESC_BASE_P": 2138046464,
+  "DESC_LINE_BYTES_P": 576,
+  "DESC_IDX_ENTRIES_P": 32,
+  "DESC_NAME_ENTRIES_P": 107,
+  "DESC_ME
+TDATA_WIDTH_P=64 CLK_HZ_P=50000000 N_STREAM_IN_P=9 N_STREAM_OUT_P=9 SRP_DOM_DEF_VID_P=2 TIM_DIV_US_P=50 TIM_DIV_MS_P=1000 DESC_BASE_P=2138046464 DESC_LINE_BYTES_P=576 DESC_IDX_ENTRIES_P=32 DESC_NAME_ENTRIES_P=107 DESC_MEM_TMO_CYC_P=4096 RESP_BASE_P=2139090944 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 N_AUDIO_U
+## route-selected equals round 2 ETO
+same baseline_hierarchy.rpt
+same baseline_utilization.rpt
+same route_status.rpt
+same timing-design-tables.txt
+## route status and DRC
+ # of fully routed nets............. : 104173 :; # of nets with routing errors.......... : 0 :;
+| Rule      | Severity | Description                                         | Checks |
+PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0
+PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE 
+PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_
+ # of fully routed nets............. : 104075 :; # of nets with routing errors.......... : 0 :;
+| Rule      | Severity | Description                                         | Checks |
+PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0
+PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE 
+PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_
+ # of fully routed nets............. : 104159 :; # of nets with routing errors.......... : 0 :;
+| Rule      | Severity | Description                                         | Checks |
+PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0
+PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE 
+PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_
+## fuzz
+resource gate fuzz: control: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: 1500 cases at seed 786 on the self-test fixtures: 0 failures; case digest 2732ec70492d5d19
+rc=0
+## stale current-record scan
+HEAD:docs/design/AREA_BUDGET.md:122:Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-28-processor-f65c8ff7) retain the preceding record.
+HEAD:docs/design/AREA_BUDGET.md:125:That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-06-processor-92100
+HEAD:docs/design/AREA_BUDGET.md:151:The table is the gate's record.
+HEAD:docs/design/AREA_BUDGET.md:453:D7 compares M0s figures against the last accepted gate record.
+HEAD:docs/design/AREA_BUDGET.md:551:M0s supplies measured placement figures against the last gate record.
+HEAD:docs/design/AREA_BUDGET.md:596:The [twelfth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-28-processor-f65c8ff7) records [#799](https://github.com/kebag-logic/milan
+HEAD:docs/design/AREA_BUDGET.md:656:For Mark II, D7 instead retains the last gate record until M9.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:370:These are the source-scope references of [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [first-draw re-baseline of 2026-10-10](../fi
+HEAD:docs/design/MARK_II_AREA_PLAN.md:407:[#696](https://github.com/kebag-logic/milan-fpga/issues/696) changed MAAP again before the current record.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:415:### What changed since the gate's record
+HEAD:docs/design/MARK_II_AREA_PLAN.md:417:At `e6172750`, the gate's record described dev `54643724`.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:433:Against the gate's record the route exits 0 (`pp_resource_gate.py check --endpoint route-1x1`): 65 fewer LUTs, 43 more FFs and 4 fewer slices, block
+HEAD:docs/design/MARK_II_AREA_PLAN.md:557:| Endpoint | LUT | FF | Slice | RAMB36 | WNS / WHS ns | Against the gate's record |
+HEAD:docs/design/MARK_II_AREA_PLAN.md:569:| Processor `main` before the area lanes, with the parent patches, against the gate's record | 50,767 / 59,634 | 51,434 / 59,691 | +667 | +57 | C7, 
+HEAD:docs/design/MARK_II_AREA_PLAN.md:932:At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:938:[#845](https://github.com/kebag-logic/milan-fpga/issues/845) has since re-recorded it at processor `92100657`, under a [maintainer decision](https:/
+HEAD:docs/design/MARK_II_AREA_PLAN.md:977:The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logi
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1036:The gate record stays unchanged under D7.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1430:The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-log
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1507:Compare whole-image resources against the last accepted gate record.
+## docs receipts head at 519
+head 519d9c2be139d2f777127a4aa19ea9ed251392a5
+status:
+
+0
+156:- [ ] R310-1 S1: `docs/guides/integrator.md:290`. Say that the processor now notifies input latency changes from the raw `srp_acc_latency_o` latch, so the integrator's STREAM_INPUT selector 3 answ
+1341:- [ ] Optional: `docs/guides/SYSTEM_INTEGRATOR.md:95` and `docs/BUILD_FLASH_BOOT.gen.py:44` (R757-10-S1).

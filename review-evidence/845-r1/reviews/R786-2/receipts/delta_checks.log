@@ -1,0 +1,57 @@
+## commit shapes b16..HEAD
+853ca25ae0 parents=23c34dded2 body_bytes=|Regenerate the documentation audit through docs_inventory.py on the thirteenth record (#845)
+23c34dded2 parents=83d837c05d body_bytes=|Document the thirteenth resource record, processor 92100657 under the maintainer decision of 2026-11-06, wit
+83d837c05d parents=bf6c5a6777 body_bytes=|Re-record route-1x1, ooc-1x1 and ooc-8x8 at processor 92100657 under the maintainer decision of 2026-11-06 (
+bf6c5a6777 parents=d0fb7b4576 body_bytes=|Regenerate the documentation audit through docs_inventory.py on the sentence-limit rewrite (#845)
+d0fb7b4576 parents=2b1cc6ef95 body_bytes=|Keep the round 2 link-change and gate statements inside the audience pages' sentence limit (#845)
+2b1cc6ef95 parents=151dc9ec19 body_bytes=|Regenerate the documentation audit through docs_inventory.py on the round 2 record (#845)
+151dc9ec19 parents=bf0d7d103d body_bytes=|Record the adoption's growth, the gate's exit 1 on route-1x1 and ooc-1x1, and the owner decision as pending 
+bf0d7d103d parents=c85cc44153 body_bytes=|Make group U's comment state what row U states: a sink reports only once armed and settled, and a value regi
+c85cc44153 parents=b16f0175ac body_bytes=|State what a registered settled input does at a link change: it leaves settled, its stream-valid flags clear
+83d837c05d
+
+ syn/ooc/pp_resource_baseline.json | 450 +++++++++++++++++++-------------------
+ 1 file changed, 225 insertions(+), 225 deletions(-)
+## sim_main comment-only b16..HEAD
+code equal after comment strip: True
+bf0d7d103d
+ce30f6b468
+rc grep=1
+## row U
+200:| U | **a registered Talker attribute, as a bound sink reads it** | `STREAM_INPUT` 0 is bound over ACMP the way a controller does it (`BIND_RX`, then the talker that answers the listener's probe), because a sink reports a Talker registration only once it is armed and settled on the exact {stream_id, DA, VID}; since processor `92100657` (processor #212) a value the port registered before the settle is applied at t
+## private/label scan of delta added lines
+## docs.yml receipts
+164
+0
+
+head 853ca25ae00fe26b09e019fbfe70893666617fc1
+status:
+nonzero=0
+| Job | Step | Name | rc | Log |
+|---|---|---|---:|---|
+| wire-accountability | ci_step_1 | Set CPU-derived job budgets | 0 | `wire-accountability__ci_step_1.log` |
+| wire-accountability | ci_step_3 | Fetch the engine authority the builder derives from | 0 | `wire-accountability__ci_step_3.log` |
+| wire-accountability | ci_step_4 | Advertised-vs-emitted gate (green since 2026-07-28, item 00) | 0 | `wire-accountability__ci_step_4.log` |
+| wire-accountability | ci_record | Record actual job execution | NOT RUN | records GitHub's own step results (CI_STEP_RESULTS is toJSON(steps)); needs the hosted step context |
+| docs-check-no-git | ci_step_1 | Retain checkout identity before removing metadata | 0 | `docs-check-no-git__ci_step_1.log` |
+| docs-check-no-git | ci_step_2 | Set CPU-derived job budgets | 0 | `docs-check-no-git__ci_step_2.log` |
+ci-cancel-tail__step1	rc=0
+ci-cancel-tail done, failed 0
+ci-cancel-tail runner rc=0
+push-privacy-check: 0 private line(s) in 87e9d03aa2a4797957ac0124d0c7851a2eec234c..HEAD
+rc=0
+baseline PASS: 3 endpoints
+route-1x1 before==round2 log
+ooc-1x1 before==round2 log
+2383:pp_shadow: 719 checks, 0 failures
+2384:RESULT: PASS
+2568:pp_shadow: 317 checks, 0 failures
+2569:RESULT: PASS
+2765:pp_shadow: 759 checks, 0 failures
+2766:RESULT: PASS
+2867:pp_shadow: 719 checks, 0 failures
+2868:RESULT: PASS
+Measured head (gate, three directives and ooc-1x1): b16f0175ac402e124314a40d1ea9573e431684dc
+Final head: bf6c5a67778a5e5d479ae51b3b4377ad4f763801
+git diff --stat b16f0175 bf6c5a67778a5e5d479ae51b3b4377ad4f763801 -- hdl syn sw configs protocol-processor gptp-processor third_party: empty
+Gate script and baseline at the measured head equal those at the final head: syn/ is in the list above
