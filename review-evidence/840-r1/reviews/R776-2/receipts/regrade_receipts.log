@@ -1,0 +1,9 @@
+| receipt | plan | transactions | T cycles | P cycles | charge ms | largest bound ms | duty | service findings |
+| fw-1x1-all+uart-paced--servi | all | 69 | 9474 | 131480 | 2.83064 | 179.60865 | milan_nvm | none |
+| fw-1x1-all+uart-paced--servi | uart-paced | 62 | 12451 | 131480 | 3.30696 | 186.35603 | milan_nvm | none |
+| fw-1x1-device-wait--service- | device-wait | 159 | 9474 | 131480 | 2.83064 | 167.71401 | milan_nvm commit | none |
+| fw-1x1-queued-input--service | queued-input | 116 | 9474 | 131480 | 2.83064 | 180.24829 | milan_nvm | none |
+| fw-8x8-all--service-all-1-0- | all | 217 | 9534 | 131864 | 2.84408 | 246.34096 | milan_nvm | none |
+| fw-8x8-device-wait--service- | device-wait | 231 | 9534 | 131864 | 2.84408 | 234.55950 | milan_nvm commit | none |
+| fw-8x8-queued-input--service | queued-input | 499 | 9534 | 131864 | 2.84408 | 246.34096 | milan_nvm | none |
+| fw-8x8-uart-paced--service-u | uart-paced | 224 | 12457 | 131864 | 3.31176 | 246.80864 | milan_nvm | none |
