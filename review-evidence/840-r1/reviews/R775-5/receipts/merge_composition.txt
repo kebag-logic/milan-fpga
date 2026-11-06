@@ -1,0 +1,49 @@
+# independent replay of the merge at 8ab3a930d6e2d217caf729d38c5ef17e98e292b3
+git version 2.56.0
+--- parents
+3670da882c0803899de8324c86e5fd134a0414b8 27df6e08cf157b9c5e4b0fdb7da2fa28d8ab83fa 3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf
+8ab3a930d6e2d217caf729d38c5ef17e98e292b3 3670da882c0803899de8324c86e5fd134a0414b8
+--- git merge-tree replay of 27df6e08 x 3f6bef88
+merge-tree rc=1
+542a047c521aa2365f13e1bba97ee8df80186a94
+docs/DOCUMENTATION_AUDIT.md
+
+Auto-merging docs/DOCUMENTATION_AUDIT.md
+CONFLICT (content): Merge conflict in docs/DOCUMENTATION_AUDIT.md
+Auto-merging docs/integration/BAREMETAL_FIRMWARE.md
+Auto-merging tb/verilator/milan_dp/Makefile
+Auto-merging tb/verilator/milan_dp/sim_gptp.cpp
+--- replay tree vs merge commit tree (non-conflicted paths must agree)
+replay tree: 542a047c521aa2365f13e1bba97ee8df80186a94
+3670da88 tree: 668ffcb4728f48ee27e4ab0b92b32ec99be2e757
+M	docs/DOCUMENTATION_AUDIT.md
+--- 3670da88 vs 8ab3a930
+M	docs/DOCUMENTATION_AUDIT.md
+--- files changed by merge vs first parent, and whether each equals dev's blob
+EQ_DEV CHANGELOG.md
+COMPOSED docs/DOCUMENTATION_AUDIT.md
+COMPOSED docs/integration/BAREMETAL_FIRMWARE.md
+EQ_DEV docs/reference/REGISTER_MAP.md
+EQ_DEV docs/testing/TESTING.md
+EQ_DEV hdl/milan/milan_datapath.sv
+EQ_DEV scripts/measure_test_evidence_readers.py
+EQ_DEV tb/verilator/capture_coherence/sim_dp.cpp
+COMPOSED tb/verilator/milan_dp/Makefile
+EQ_DEV tb/verilator/milan_dp/README.md
+EQ_DEV tb/verilator/milan_dp/bootsa_mutants.py
+EQ_DEV tb/verilator/milan_dp/bootsa_probes.vlt
+EQ_DEV tb/verilator/milan_dp/gen_boot_fw.py
+EQ_DEV tb/verilator/milan_dp/sim_boot_sa.cpp
+COMPOSED tb/verilator/milan_dp/sim_gptp.cpp
+EQ_DEV tb/verilator/milan_dp/sim_nxn.cpp
+EQ_DEV tb/verilator/milan_dp/test_sim_pool.py
+EQ_DEV tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+--- gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+aa4397e7f6690dbeafe871aa767f27ad1593f8a98ec1a618eb7c1519e4f8c937  -
+aa4397e7f6690dbeafe871aa767f27ad1593f8a98ec1a618eb7c1519e4f8c937  -
+--- remote tips
+8ab3a930d6e2d217caf729d38c5ef17e98e292b3	refs/heads/840-identity-link-cert
+3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf	refs/heads/dev

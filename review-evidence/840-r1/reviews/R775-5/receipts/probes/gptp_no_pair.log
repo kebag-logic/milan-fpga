@@ -1,0 +1,97 @@
+FAIL GET_AVB_INFO response length   got 0000000000000000 exp 000000000000003e
+FAIL GET_AVB_INFO SUCCESS           got ffffffffffffffff exp 0000000000000000
+FAIL GET_AVB_INFO cdl               got 0000000000000000 exp 0000000000000024
+FAIL GET_AVB_INFO descriptor        got 0000000000000000 exp 0000000000090000
+FAIL GET_AVB_INFO nonzero GM        got 0000000000000000 exp 00aaccfffe010203
+FAIL GET_AVB_INFO byte-exact negative-delay clamp got 00000000ffffffff exp 0000000000000000
+FAIL GET_AVB_INFO domain/flags/map  got 0000000000000000 exp 0000000000170001
+FAIL GET_AVB_INFO exact class mapping got 0000000000000000 exp 0000000006030002
+FAIL GET_AS_PATH full-tail wire length got 0000000000000000 exp 0000000000000052
+FAIL GET_AS_PATH SUCCESS            got ffffffffffffffff exp 0000000000000000
+FAIL GET_AS_PATH cdl                got 0000000000000000 exp 0000000000000038
+FAIL GET_AS_PATH count five         got 0000000000000000 exp 0000000000000005
+FAIL GET_AS_PATH ordered GM         got 0000000000000000 exp 00aaccfffe010203
+FAIL GET_AS_PATH ordered bridge one got 0000000000000000 exp 001122fffe000011
+FAIL GET_AS_PATH ordered bridge two got 0000000000000000 exp 001122fffe000022
+FAIL GET_AS_PATH ordered parent     got 0000000000000000 exp 0080e1fffe112233
+FAIL GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL fabric tu reaches AAF before Sync got 0000000000000000 exp 0000000000000001
+FAIL fabric tu reaches CRF before Sync got 0000000000000000 exp 0000000000000001
+FAIL REGISTER_UNSOLICITED_NOTIFICATION SUCCESS got ffffffffffffffff exp 0000000000000000
+FAIL retired writes leave AVB counters unchanged got 0000000000000000 exp 0000000000000001
+FAIL retired writes leave CLOCK counters unchanged got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN emits first AVB GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL first AVB limiter window contains one push got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN increments AVB counter got 0000000000000000 exp 0000000000000001
+FAIL LINK_DOWN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL LINK_UP event is inside first one-second limiter window got 0000000000000000 exp 0000000000000001
+FAIL within-window LINK_UP push is suppressed got 0000000000000000 exp 0000000000000001
+FAIL pending LINK_UP releases when AVB limiter opens got 0000000000000000 exp 0000000000000001
+FAIL pending LINK_UP releases exactly one second push got 0000000000000000 exp 0000000000000002
+FAIL released LINK_UP increments AVB counter got 0000000000000000 exp 0000000000000001
+FAIL released state retains one LINK_DOWN got 0000000000000000 exp 0000000000000001
+FAIL released LINK_UP push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL pre-Sync CLOCK_DOMAIN counters SUCCESS got ffffffffffffffff exp 0000000000000000
+FAIL CLOCK_DOMAIN counters_valid    got 00000000deadbeef exp 0000000000000003
+FAIL fabric certainty reaches AAF tu got 0000000000000000 exp 0000000000000001
+FAIL fabric certainty reaches CRF tu got 0000000000000000 exp 0000000000000001
+FAIL CLKV lock emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL fabric lock increments CLOCK_DOMAIN.LOCKED got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL tail-only refresh emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL tail-only refresh reaches solicited path got 0000000000000000 exp 445566fffe000033
+FAIL changed push body equals current solicited path got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GET_AS_PATH serves the kept path B got 0000000000000000 exp 0000000000000001
+FAIL AVB_INTERFACE counters_valid   got 00000000deadbeef exp 0000000000000023
+FAIL GM-switch tu reaches AAF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CRF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM switch emits one AVB_INTERFACE GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records fabric GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED got 0000000000000000 exp 0000000000000001
+FAIL AVB counter push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still emits one GET_AVB_INFO push got 0000000000000000 exp 0000000000000001
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000000 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 0000000000000000 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL kept to explicit GM emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL explicit one-entry GET_AS_PATH minimum-Ethernet wire length got 0000000000000000 exp 000000000000003c
+FAIL explicit one-entry GET_AS_PATH cdl got 0000000000000000 exp 0000000000000020
+FAIL explicit one-entry GET_AS_PATH count got 0000000000000000 exp 0000000000000002
+FAIL explicit one-entry GET_AS_PATH head got 0000000000000000 exp 00aaccfffe010204
+FAIL explicit one-entry GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL in-flight fabric response reached first-count snapshot got 0000000000000000 exp 0000000000000001
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old count two got 0000000000000000 exp 0000000000000002
+FAIL in-flight response remains wholly old GM got 0000000000000000 exp 00aaccfffe010204
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL explicit GM to empty path emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL post-cut response is wholly new count one got 00000000ffffffff exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL empty-path push body equals post-cut solicited response got 0000000000000000 exp 0000000000000001
+FAIL maximum path emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL maximum GET_AS_PATH wire length got 0000000000000000 exp 000000000000006a
+FAIL maximum GET_AS_PATH cdl        got 0000000000000000 exp 0000000000000050
+FAIL maximum GET_AS_PATH count      got 0000000000000000 exp 0000000000000008
+FAIL maximum GET_AS_PATH final identity got 0000000000000000 exp 0080e1fffe112233
+FAIL maximum push body equals solicited path got 0000000000000000 exp 0000000000000001
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+[T-LAT] ingress: boundary PHC 3325584 ns (cycle 31903631), t2 3325584 ns, gap 0 ns = 0 cycles (pinned digital 0 ns + configured 0 ns)
+[T-LAT] egress: observed launch 3328908 ns, t3 3328908 ns, gap 0 ns = 0 cycles (configured 0 ns)
+FAIL #88 GET_AS_PATH count three    got 0000000000000000 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 0000000000000000 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000000 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 0000000000000000 exp 001122fffe000022
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+TX flags Sync: 101 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 101 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 35 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+210 checks: 123 PASS, 87 FAIL

@@ -1,0 +1,32 @@
+== mentions of the datapath in the two measured benches
+tb/verilator/fw_service_budget/phy.hpp:60:            const auto up = fabric.__PVT__milan_datapath__DOT__ctr_linkup_r;
+tb/verilator/fw_service_budget/phy.hpp:61:            const auto down = fabric.__PVT__milan_datapath__DOT__ctr_linkdn_r;
+tb/verilator/fw_service_budget/sim_main.cpp:41:            const bool backed = dut.rootp->sim->__PVT__milan_datapath__DOT__pp_shadow__DOT__u_nvm__DOT__backed_r;
+== datapath mentions inside the two artifacts
+tb/verilator/fw_service_budget/oracle.json:0
+tb/verilator/nvm_capture_cpu/measurements.json:0
+== how the firmware under test sees the fabric
+# Firmware service-budget measurement
+
+This is the measurement harness for [issue #397](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5855879265).
+It runs unchanged firmware on the shipping cacheless CPU.
+The CPU runs at 50 MHz; the system runs at 100 MHz.
+[Findings](../../../docs/findings/397_SERVICE_BUDGET.md) separate duties, schedules and liveness.
+The service checks cover [#590](https://github.com/kebag-logic/milan-fpga/issues/590) and PHY publication under [#599](https://github.com/kebag-logic/milan-fpga
+
+## Contents
+
+- **[Run and reproduce](#run-and-reproduce)** -- Build prerequisites, named command plans, supported device waits and receipt handling.
+- **[Markers and heartbeat opportunities](#markers-and-heartbeat-opportunities)** -- External duty boundaries, passive tick observation and schedule-dependent l
+- **[Timing limits and controls](#timing-limits-and-controls)** -- Clock conversion, deadlines, substitution bias and mutation-sensitive controls.
+- **[PHY publication and firmware controls](#phy-publication-and-firmware-controls)** -- Clause-22 pin transactions, real status readback, fabric counters and m
+
+## Run and reproduce
+
+The portable gate requires Python, PyYAML and a C++17 compiler.
+Image generation also needs the initialized processor submodules:
+
+```sh
+make -C tb/verilator/fw_service_budget
+python3 -B tb/verilator/fw_service_budget/run.py --self-test
+```
