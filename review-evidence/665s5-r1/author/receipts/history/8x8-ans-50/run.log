@@ -1,0 +1,63 @@
+HEAD 86392bd21856f18d6b573caf35ca0aa4f0da2a5d
+$ (cd .) python3 -B tb/verilator/ctrl_service_hooks/run.py --point 8x8 --arm answering --build-dir <tmp>/hb-8x8-ans-50 --record-findings --jobs 8
+COMMAND <home>/litex-milan/venv/bin/python3 -B <tmp>/c-h8x8-ans-50/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <tmp>/hb-8x8-ans-50/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <tmp>/c-h8x8-ans-50/sw/firmware/ctrl/test/ctrl_plat_image.py --config <tmp>/c-h8x8-ans-50/configs/endstation_ax7101_8x8.yaml --interfaces 2 --csr-csv <tmp>/c-h8x8-ans-50/sw/firmware/ctrl/test/ctrl_plat_csr.csv --output <tmp>/hb-8x8-ans-50/image-provisional --libc <tmp>/hb-8x8-ans-50/runtime/libc.a --compiler-runtime <tmp>/hb-8x8-ans-50/runtime/libcompiler_rt.a --ledgered-point platform-8x8-two-interfaces
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import hooks_soc; s = json.loads(sys.argv[3]); s["elf"] = Path(s["elf"]); hooks_soc.build(Path(sys.argv[2]), hooks_soc.Build(**s)) <tmp>/c-h8x8-ans-50/tb/verilator/ctrl_service_hooks <tmp>/hb-8x8-ans-50/soc-provisional {"shape": "endstation_ax7101_8x8", "n_if": 2, "arm": "answering", "cpu_hz": null, "ledgered": "platform-8x8-two-interfaces", "elf": "<tmp>/hb-8x8-ans-50/image-provisional/ctrl_app.elf"}
+COMMAND <home>/litex-milan/venv/bin/python3 -B <tmp>/c-h8x8-ans-50/sw/firmware/ctrl/test/ctrl_plat_image.py --config <tmp>/c-h8x8-ans-50/configs/endstation_ax7101_8x8.yaml --interfaces 2 --csr-csv <tmp>/hb-8x8-ans-50/soc-provisional/csr.csv --output <tmp>/hb-8x8-ans-50/image --libc <tmp>/hb-8x8-ans-50/runtime/libc.a --compiler-runtime <tmp>/hb-8x8-ans-50/runtime/libcompiler_rt.a --ledgered-point platform-8x8-two-interfaces
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import hooks_soc; s = json.loads(sys.argv[3]); s["elf"] = Path(s["elf"]); hooks_soc.build(Path(sys.argv[2]), hooks_soc.Build(**s)) <tmp>/c-h8x8-ans-50/tb/verilator/ctrl_service_hooks <tmp>/hb-8x8-ans-50/soc {"shape": "endstation_ax7101_8x8", "n_if": 2, "arm": "answering", "cpu_hz": null, "ledgered": "platform-8x8-two-interfaces", "elf": "<tmp>/hb-8x8-ans-50/image/ctrl_app.elf"}
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <tmp>/hb-8x8-ans-50/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<tmp>/c-h8x8-ans-50/tb/common -I<tmp>/hb-8x8-ans-50 -I<tmp>/c-h8x8-ans-50/tb/verilator/fw_service_budget' <tmp>/c-h8x8-ans-50/tb/verilator/ctrl_service_budget/observe.vlt <tmp>/hb-8x8-ans-50/soc/mbx-variant/KL_mbx_pkg.sv <tmp>/c-h8x8-ans-50/hdl/milan/mailbox/KL_mbx_ring.sv <tmp>/c-h8x8-ans-50/hdl/milan/mailbox/KL_mbx_rx.sv <tmp>/c-h8x8-ans-50/hdl/milan/mailbox/KL_mbx_tx.sv <tmp>/c-h8x8-ans-50/hdl/milan/mailbox/KL_mbx_evt.sv <tmp>/hb-8x8-ans-50/soc/mbx-variant/KL_mbx.sv <tmp>/c-h8x8-ans-50/hdl/milan/mailbox/KL_mbx_wb.sv <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v <tmp>/hb-8x8-ans-50/soc/gateware/sim.v <tmp>/hb-8x8-ans-50/sim_main.cpp
+COMMAND make -j16 -C <tmp>/hb-8x8-ans-50/native -f Vsim.mk Vsim
+REFUSED hooks-disc-aging.tmr_no_adp.if0: no end: missing ['arm:2']
+REFUSED hooks-disc-aging.tmr_no_adp.if1: no end: missing ['arm:3']
+FINDING LATE H-NOTIFY: hooks-load-notify.set_name.if0: 130.845 ms against its bound 20 ms (hooks-load-notify)
+FINDING LATE H-ADP: hooks-load-notify.service.adp.last.if1: 39.444 ms against its bound 20 ms (hooks-load-notify)
+FINDING LATE H-ACMP: hooks-load-notify.service.acmp.last.if0: 56.175 ms against its bound 20 ms (hooks-load-notify)
+FINDING LATE H-AECP: hooks-load-notify.service.aecp.last.if0: 133.748 ms against its bound 20 ms (hooks-load-notify)
+FINDING LATE H-MAAP: hooks-load-notify.service.maap.last.if0: 39.439 ms against its bound 20 ms (hooks-load-notify)
+FINDING LATE H-SRP: hooks-load-notify.service.srp.first.if0: 64.213 ms against its bound 18 ms (hooks-load-notify)
+FINDING LATE H-SRP: hooks-load-notify.service.srp.last.if1: 178.261 ms against its bound 18 ms (hooks-load-notify)
+FINDING LATE H-DISC: hooks-disc-aging.available.if0: 161.664 ms against its bound 20 ms (hooks-disc-aging)
+FINDING LATE H-DISC: hooks-disc-aging.available.if1: 192.300 ms against its bound 20 ms (hooks-disc-aging)
+FINDING LATE H-COUNTERS: counters.loaded.if0: 50.186 ms against its bound 20 ms (hooks-load-counters)
+FINDING LATE H-ADP: hooks-load-counters.service.adp.last.if1: 52.000 ms against its bound 20 ms (hooks-load-counters)
+FINDING LATE H-ACMP: hooks-load-counters.service.acmp.last.if0: 75.967 ms against its bound 20 ms (hooks-load-counters)
+FINDING LATE H-AECP: hooks-load-counters.service.aecp.last.if1: 152.107 ms against its bound 20 ms (hooks-load-counters)
+FINDING LATE H-MAAP: hooks-load-counters.service.maap.last.if0: 51.985 ms against its bound 20 ms (hooks-load-counters)
+FINDING LATE H-SRP: hooks-load-counters.service.srp.first.if0: 51.984 ms against its bound 18 ms (hooks-load-counters)
+FINDING LATE H-SRP: hooks-load-counters.service.srp.last.if1: 177.028 ms against its bound 18 ms (hooks-load-counters)
+FINDING LATE H-ACMP: backlog.acmp_command.if0: 59.382 ms against its bound 20 ms (backlog)
+FINDING LATE H-ADP: backlog.service.adp.last.if1: 48.610 ms against its bound 20 ms (backlog)
+FINDING LATE H-ACMP: backlog.service.acmp.last.if0: 65.203 ms against its bound 20 ms (backlog)
+FINDING LATE H-AECP: backlog.service.aecp.last.if1: 125.509 ms against its bound 20 ms (backlog)
+FINDING LATE H-MAAP: backlog.service.maap.last.if0: 48.595 ms against its bound 20 ms (backlog)
+FINDING LATE H-SRP: backlog.service.srp.first.if0: 71.996 ms against its bound 18 ms (backlog)
+FINDING LATE H-SRP: backlog.service.srp.last.if1: 155.552 ms against its bound 18 ms (backlog)
+FINDING LATE H-DISC: backlog.adp_available.if0: 34.209 ms against its bound 20 ms (backlog-adp)
+FINDING LATE H-ADP: backlog-adp.service.adp.last.if0: 43.946 ms against its bound 20 ms (backlog-adp)
+FINDING LATE H-ACMP: backlog-adp.service.acmp.last.if0: 62.642 ms against its bound 20 ms (backlog-adp)
+FINDING LATE H-AECP: backlog-adp.service.aecp.last.if1: 134.944 ms against its bound 20 ms (backlog-adp)
+FINDING LATE H-MAAP: backlog-adp.service.maap.last.if0: 43.983 ms against its bound 20 ms (backlog-adp)
+FINDING LATE H-SRP: backlog-adp.service.srp.first.if0: 33.216 ms against its bound 18 ms (backlog-adp)
+FINDING LATE H-SRP: backlog-adp.service.srp.last.if1: 166.506 ms against its bound 18 ms (backlog-adp)
+FINDING LATE H-ADP: backlog-adp-refill.service.adp.last.if0: 23.654 ms against its bound 20 ms (backlog-adp-refill)
+FINDING LATE H-ACMP: backlog-adp-refill.service.acmp.last.if0: 63.611 ms against its bound 20 ms (backlog-adp-refill)
+FINDING LATE H-AECP: backlog-adp-refill.service.aecp.last.if1: 138.612 ms against its bound 20 ms (backlog-adp-refill)
+FINDING LATE H-MAAP: backlog-adp-refill.service.maap.last.if0: 43.756 ms against its bound 20 ms (backlog-adp-refill)
+FINDING LATE H-SRP: backlog-adp-refill.service.srp.first.if0: 33.216 ms against its bound 18 ms (backlog-adp-refill)
+FINDING LATE H-SRP: backlog-adp-refill.service.srp.last.if1: 159.715 ms against its bound 18 ms (backlog-adp-refill)
+FINDING LATE H-ACMP: backlog.owed.if0: 119.606 ms against its bound 20 ms (backlog-owed)
+FINDING LATE H-ACMP: backlog.owed_behind0.if0: never served against its bound 20 ms (backlog-owed)
+FINDING LATE H-ACMP: backlog.owed_behind1.if0: never served against its bound 20 ms (backlog-owed)
+FINDING LATE H-ACMP: backlog.owed_behind2.if0: never served against its bound 20 ms (backlog-owed)
+FINDING LATE H-ACMP: backlog.owed_behind3.if0: never served against its bound 20 ms (backlog-owed)
+FINDING LATE H-ADP: backlog-owed.service.adp.last.if1: 43.350 ms against its bound 20 ms (backlog-owed)
+FINDING LATE H-ACMP: backlog-owed.service.acmp.last.if0: 60.869 ms against its bound 20 ms (backlog-owed)
+FINDING LATE H-AECP: backlog-owed.service.aecp.last.if1: 143.372 ms against its bound 20 ms (backlog-owed)
+FINDING LATE H-MAAP: backlog-owed.service.maap.last.if0: 43.335 ms against its bound 20 ms (backlog-owed)
+FINDING LATE H-SRP: backlog-owed.service.srp.first.if0: 33.094 ms against its bound 18 ms (backlog-owed)
+FINDING LATE H-SRP: backlog-owed.service.srp.last.if1: 160.504 ms against its bound 18 ms (backlog-owed)
+FINDING LATE H-COUNTERS: counters.all.if0: 371.618 ms against its bound 20 ms (hooks-counters)
+8x8, CPU 50 MHz (the product split CPU clock), bus 100 MHz, face arm answering: 29 groups, 219 paths, 2 refusals, 48 findings
+elapsed=1923s
+tree: 0 changed path(s) after the gate
+rc=1
