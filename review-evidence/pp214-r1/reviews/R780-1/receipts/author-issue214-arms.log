@@ -1,0 +1,18 @@
+control srp_encoder : rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top share: rc=0 PASS
+second-queueing: rc=2 failures=8 KILLED tags=OV0,OV1,OV2,OV3,OV4,OV5,OV6,OV7
+second-queueing: rc=2 failures=46 KILLED tags=PV1 two re-joins of one Domain value,PV10,PV10 a value offered after another searched past its entry merges into it (taken after 4 clocks, 4 pending),PV11 own LeaveAll MRPDU,PV11 the re-join merged (3 pending),PV12 LINK_UP and periodic! in one window,PV12 New, periodic! and a LeaveAll in one window,PV12 a received LeaveAll and periodic! in one window,PV2 New then a re-join,PV3 JoinMt then JoinIn,PV4 Lv then New,PV4 Lv then a join,PV4 New then Lv,PV4 a re-join then Lv,PV5 In then JoinMt,PV5 JoinIn then Mt,PV5 Lv then Mt,PV5 Mt then In,PV6 Listener New Ready then Mt Ignore,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed,PV7 a value again after its successor,PV9 VID 2 New then two re-joins,PV9 three re-join walks of VID 2 and VID 7
+join-displaces-new: rc=2 failures=2 KILLED tags=OV6,OV7
+join-displaces-new: rc=2 failures=5 KILLED tags=PV12 LINK_UP and periodic! in one window,PV12 New, periodic! and a LeaveAll in one window,PV2 New then a re-join,PV6 Listener New Ready then a re-join AskingFailed,PV9 VID 2 New then two re-joins
+leave-does-not-replace: rc=2 failures=2 KILLED tags=PV4 New then Lv,PV4 a re-join then Lv
+s-displaces-declaration: rc=2 failures=3 KILLED tags=PV5 JoinIn then Mt,PV5 Lv then Mt,PV6 Listener New Ready then Mt Ignore
+listener-type-oldest: rc=2 failures=2 KILLED tags=PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed
+merge-ignores-type: rc=2 failures=2 KILLED tags=PV8 three types of one StreamID
+search-no-restart: rc=2 failures=3 KILLED tags=PV10,PV10 a value offered after another searched past its entry merges into it (taken after 2 clocks, 4 pending)
+listener-shares-nothing-encoder-appends: rc=2 failures=6 KILLED tags=OV0,SW1,SW2,SW3
+13 checks: 13 PASS, 0 FAIL
+
+real	1m56.344s
+user	9m7.926s
+sys	0m31.478s

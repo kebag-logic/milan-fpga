@@ -1,0 +1,39 @@
+== head-srp_encoder rc=0
+692 checks: 692 PASS, 0 FAIL
+== head-srp_top rc=0
+TOTAL_CLOCKS 227128039
+8683 checks: 8683 PASS, 0 FAIL
+== baseenc-srp_encoder rc=2
+692 checks: 644 PASS, 48 FAIL
+== baseenc-srp_top rc=2
+TOTAL_CLOCKS 227168277
+8683 checks: 8675 PASS, 8 FAIL
+FAIL: OV1: a received MSRP LeaveAll and periodic! in one transmission window: no MRPDU carries Domain {6,3,2} twice (7 of 63 frames carrying it; 7 of 34 windows held a pe
+FAIL: OV2: a received MVRP LeaveAll and periodic! in one transmission window: no MRPDU carries VID 2 twice (7 of 63 frames carrying it; 7 of 34 windows held a periodic!)
+FAIL: OV3: the same LeaveAlls: no MRPDU carries the Talker Advertise or the Listener twice, nor any other value (0, 0; 175 frames)
+FAIL: OV4: the own MSRP LeaveAll in each tenth of the periodic! second: no MRPDU carries a value twice (4 of 443 frames; 10 placed, 10 fired, 2 with a periodic! in the wi
+FAIL: OV5: the own MVRP LeaveAll in each tenth of the periodic! second: its LeaveAll MRPDU carries VID 2 once and no MRPDU carries a value twice (9 of 408 frames; 10 plac
+FAIL: OV6: LINK_UP in each tenth of the periodic! second: the first MRPDU carrying Domain {6,3,2} carries it New, and no MRPDU carries it twice (2 of 15 frames; New first
+FAIL: OV7: a differing Domain adopted in each tenth of the periodic! second: Lv {6,3,2} and New {6,5,5}, and no MRPDU carries a value twice (2 of 16 frames; 8 of 10 with 
+FAIL: OV0: every MRPDU of the run carries each attribute value in at most one VectorAttribute (69 of 17650 frames carry one twice)
+== rv-fp-s-replaces-kept full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-invalid-type-searches full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-key-top-mac-octet-ignored full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-msrp-port-taken-by-any-search full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-mvrp-hit-appends-addr full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-mvrp-key-low-byte full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-mvrp-port-taken-by-any-search full srp_top rc=2
+8683 checks: 8682 PASS, 1 FAIL
+FAIL: OV0: every MRPDU of the run carries each attribute value in at most one VectorAttribute (1 of 17646 frames carry o
+== rv-push-on-drain-start full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-search-survives-accept full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL
+== rv-value-keeps-oldest full srp_top rc=0
+8683 checks: 8683 PASS, 0 FAIL

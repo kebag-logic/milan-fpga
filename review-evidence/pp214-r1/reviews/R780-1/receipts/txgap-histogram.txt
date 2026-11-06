@@ -1,0 +1,38 @@
+clocks from tx! to the MSRP drain tick, count by gap and table count at tx!
+== default bench shape 8x8
+   1045 TXGAP 11 cnt_at_tx=0
+     19 TXGAP 11 cnt_at_tx=1
+     18 TXGAP 11 cnt_at_tx=2
+      1 TXGAP 11 cnt_at_tx=3
+    534 TXGAP 12 cnt_at_tx=0
+      4 TXGAP 12 cnt_at_tx=1
+      3 TXGAP 12 cnt_at_tx=2
+      4 TXGAP 13 cnt_at_tx=1
+    235 TXGAP 14 cnt_at_tx=0
+     55 TXGAP 17 cnt_at_tx=0
+      2 TXGAP 18 cnt_at_tx=0
+      8 TXGAP 20 cnt_at_tx=0
+      6 TXGAP 22 cnt_at_tx=0
+      7 TXGAP 50 cnt_at_tx=0
+      1 TXGAP 113 cnt_at_tx=3
+      1 TXGAP 4011 cnt_at_tx=0
+      1 TXGAP 12011 cnt_at_tx=0
+== 2x2 scratch build
+   1043 TXGAP 5 cnt_at_tx=0
+     21 TXGAP 5 cnt_at_tx=1
+     18 TXGAP 5 cnt_at_tx=2
+      1 TXGAP 5 cnt_at_tx=3
+    534 TXGAP 6 cnt_at_tx=0
+      4 TXGAP 6 cnt_at_tx=1
+      3 TXGAP 6 cnt_at_tx=2
+      4 TXGAP 7 cnt_at_tx=1
+    235 TXGAP 8 cnt_at_tx=0
+     55 TXGAP 11 cnt_at_tx=0
+      2 TXGAP 12 cnt_at_tx=0
+      8 TXGAP 14 cnt_at_tx=0
+      6 TXGAP 16 cnt_at_tx=0
+      7 TXGAP 44 cnt_at_tx=0
+      1 TXGAP 107 cnt_at_tx=3
+      1 TXGAP 4005 cnt_at_tx=0
+      1 TXGAP 12005 cnt_at_tx=0
+12 checks: 12 PASS, 0 FAIL
