@@ -7,7 +7,9 @@ scenario.Probe.family), plus the counter push, which that harness does not
 run. Each path is graded against its hook's bound, min(T_svc, the family's
 ceiling) plus any normative wait W (FR_NFR.md 3.4.1, the per-family rule of
 the owner's decision of 2026-10-29 on #665), and its margin to the family's
-normative timeout is recorded beside it.
+normative timeout is recorded beside it. Those are the bounds in the tree at
+this base; the amended bounds of the decisions of 2026-11-06 on #665 are a
+column for information and grade nothing, until #810 brings them.
 
 Each hook's ordering obligation is checked apart from the budget (#664,
 ruling of 2026-10-06, item 4), on the same logs: a check reads the order of
@@ -19,7 +21,8 @@ Each hook has two plants, each a scratch copy of the firmware's tree with
 one defect (hooks_build.planted): a late service, a spin in the hook's
 service path that the hook's bound must catch, and an ordering defect that
 the hook's ordering check must catch. Each names the group it runs in and
-the words its finding must start with.
+the words its finding must start with, and a late plant the path it delays,
+which that finding must name.
 """
 from __future__ import annotations
 
@@ -65,6 +68,14 @@ COUNTER_TYPES = (0x0005, 0x0006, 0x0009, 0x0024)
 UNKEPT_TYPE = 0x0002
 #: The bus cycles of a millisecond at the 100 MHz bus (the CPU budget harness's MS).
 BUS_MS = MS
+#: The amended bounds of the owner's decisions of 2026-11-06 on #665, for information: a table's column, never a
+#: grade, as they reach the tree with #810 and this harness re-grades then. SRP/MRP's service is T_svc, no longer
+#: min(T_svc, its ceiling). A notice queued behind others is within a bound #810 derives at its point's recipients
+#: (Milan v1.2 5.3.4.2: 16 controllers per AVB interface), at most this ceiling, by the point's interfaces.
+AMENDED_SRP_MS = 20.0
+AMENDED_QUEUED_CEILING_MS = {1: 20.0, 2: 60.0}
+#: The paths whose notices queue behind other descriptors' (the ALL push, as one path and per descriptor).
+QUEUED_PATH = 'counters.all'
 
 
 def bound_ms(family: str) -> float:
@@ -78,15 +89,31 @@ def normative_ms(hook: str, family: str) -> float:
     return COUNTERS_NORMATIVE_MS if hook == 'H-COUNTERS' else NORMATIVE_MS[family]
 
 
+def amended_service_ms(r: dict, interfaces: int) -> float:
+    """A graded path's service bound under the amended bounds, for information; its bound where they leave it."""
+    if r['hook'] == 'H-SRP':
+        return AMENDED_SRP_MS
+    if r['path'].startswith(QUEUED_PATH):
+        return AMENDED_QUEUED_CEILING_MS[interfaces]
+    return bound_ms(r['family'])
+
+
+def amended_ms(r: dict, interfaces: int) -> float:
+    """A graded path's whole amended bound, for information: its service bound, and any W its own bound adds."""
+    return r['bound_ms'] - bound_ms(r['family']) + amended_service_ms(r, interfaces)
+
+
 @dataclasses.dataclass(frozen=True)
 class Plant:
     """One planted defect: its edits, each (file in the firmware's tree, unique anchor, replacement), the group
-    it runs in, the face arm it needs and the words its hook's finding starts with."""
+    it runs in, the face arm it needs, the words its hook's finding starts with and, for a late plant, the path it
+    delays, which that finding must name: a path its group already misses unplanted cannot catch it."""
 
     edits: tuple[tuple[str, str, str], ...]
     group: str
     words: str
     arm: str = 'idle'
+    probe: str | None = None
 
 
 #: A spin of 120,000 turns, each a load and a store of the counter in sram, well past every bound: 60,000 took
@@ -99,9 +126,9 @@ SPIN = '\tfor (volatile uint32_t n = 0; n < 120000u; ++n) {\n\t}\n'
 NOTIFY_LOOP = '\twhile (a->notify && a->recipient < a->cfg.interfaces * AECP_REGISTRATIONS) {'
 
 
-def late(path: str, anchor: str, group: str, hook: str, arm: str = 'idle') -> Plant:
-    """A late service: the spin, then the anchor."""
-    return Plant(((path, anchor, SPIN + anchor),), group, f'LATE {hook}', arm)
+def late(path: str, anchor: str, group: str, hook: str, probe: str) -> Plant:
+    """A late service of the path `probe`: the spin, then the anchor."""
+    return Plant(((path, anchor, SPIN + anchor),), group, f'LATE {hook}', probe=probe)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -123,7 +150,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'an ENTITY_AVAILABLE carries the grandmaster in force when it is built: after a grandmaster change, the '
          'first ENTITY_AVAILABLE carries the new one (Milan v1.2 5.6.3.5.7; IEEE 1722.1-2021 6.2.2.16)',
          'adp_grandmaster',
-         late('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'H-ADP'),
+         late('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'H-ADP', 'control.discover.if0'),
          Plant((('adp/adp_mbx.c', '\t(void)ctx;\n\t*gm_id = mbx_gm_id(interface, domain);\n}',
                  '\tstatic uint64_t before[MBX_N_IF];\n\t(void)ctx;\n\tuint64_t now = mbx_gm_id(interface, domain);'
                  '\n\t*gm_id = before[interface];\n\tbefore[interface] = now;\n}'),),
@@ -134,7 +161,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          '(Milan v1.2 5.6.4.5.1, 5.6.4.5.3, Table 5.54)',
          'discovery_order',
          late('acmp/acmp_mbx.c', '\t\tacmp_adp_rx(&m->acmp, f->interface, f->bytes, f->len);\n\t\treturn;',
-              'hooks-late-disc', 'H-DISC'),
+              'hooks-late-disc', 'H-DISC', 'hooks-late-disc.entity_departing.if0'),
          Plant((('acmp/acmp_mbx.c',
                  '\tstruct acmp_mbx *m = ctx;\n\tif ((f->bytes[ACMP_HEADER_BYTES + 1u] & 0x0Fu) <= '
                  'ACMP_ADP_MSG_ENTITY_DEPARTING) {\n\t\tacmp_adp_rx(&m->acmp, f->interface, f->bytes, f->len);\n'
@@ -156,7 +183,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          '(MAILBOX_SPLIT.md, ACMP service latency)',
          'acmp_order',
          late('acmp/acmp_mbx.c', '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}', 'hooks-late-acmp',
-              'H-ACMP'),
+              'H-ACMP', 'hooks-late-acmp.get_rx_state.if0'),
          Plant((('acmp/acmp_mbx.c',
                  '\tstruct acmp_mbx *m = ctx;\n\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}',
                  '\tstruct acmp_mbx *m = ctx;\n\tstatic struct mbx_frame held;\n\tstatic bool holding;\n'
@@ -170,7 +197,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'the face block between the command\'s receive commit and its response',
          'face_before_response',
          late('aecp/aecp_mbx.c', '\taecp_rx(&m->core, f->interface, f->bytes, f->len);\n}', 'hooks-late-aecp',
-              'H-AECP'),
+              'H-AECP', 'hooks-late-aecp.read_descriptor.if0'),
          Plant((('aecp/aecp_face.c',
                  '\t\t\tpublish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);',
                  '\t\t\tf->owed[i] = true;'),
@@ -182,7 +209,8 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'IEEE 1722.1-2021 7.5.2; FR_NFR.md 3.4.1)',
          'response_before_notice',
          Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (a->notify && a->recipient == 0u) {\n' + SPIN.replace('\t', '\t\t')
-                 + '\t}\n' + NOTIFY_LOOP),), 'hooks-late-notify', 'LATE H-NOTIFY'),
+                 + '\t}\n' + NOTIFY_LOOP),), 'hooks-late-notify', 'LATE H-NOTIFY',
+               probe='hooks-late-notify.set_name.if0'),
          Plant((('aecp/aecp.c', 'static bool transmit(struct aecp *a)\n{\n\tif (a->response_owed) {\n',
                  'static bool transmit(struct aecp *a)\n{\n\tstatic uint8_t solicited[AECP_FRAME_BYTES];\n'
                  '\tstatic size_t solicited_bytes;\n\tstatic unsigned solicited_interface;\n\tstatic bool reorder;\n'
@@ -203,7 +231,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          Plant((('app/ctrl_app_aecp.c',
                  '\tif (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {\n',
                  '\tif (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {\n' + SPIN),),
-               'hooks-counters', 'LATE H-COUNTERS', 'answering'),
+               'hooks-counters', 'LATE H-COUNTERS', 'answering', 'counters.first.if0'),
          Plant((('aecp/aecp.c', '(bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, '
                  'e->counter_at)))))', '(bit == 3u && e->awaiting_output))'),),
                'hooks-counters', 'ORDER H-COUNTERS', 'answering')),
@@ -212,7 +240,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'Milan v1.2 4.3.3.1): every report the core makes follows its interface\'s DA_GATE publication',
          'maap_gate_before_report',
          late('maap/maap_mbx.c', '\trefresh_demand(m);\n\tmaap_rx(&m->ifs[f->interface].core, f->bytes, f->len);',
-              'hooks-late-maap', 'H-MAAP'),
+              'hooks-late-maap', 'H-MAAP', 'hooks-late-maap.defend.if0'),
          Plant((('maap/maap_mbx.c',
                  '\tm->published_gate[interface] = declaring(m, interface, count, valid);\n'
                  '\t(void)mbx_pub_da_gate(interface, m->published_gate[interface]);\n'
@@ -227,7 +255,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'interface\'s SR_DOMAIN publication with ADOPTED set',
          'domain_before_mrpdu',
          late('srp/srp_mbx.c', '    if (!apply_receive(m,frame)) {\n        m->pending_rx = *frame;',
-              'hooks-late-srp', 'H-SRP'),
+              'hooks-late-srp', 'H-SRP', 'hooks-late-srp.listener_ready.if0'),
          Plant((('srp/srp_mbx.c',
                  '    // The adopted Domain, before the declarations that carry it (SR_DOMAIN).\n'
                  '    (void)mbx_pub_domain(i->index,true,i->domain.priority,i->domain.vid);\n',
@@ -303,6 +331,10 @@ def counters_groups(p: Point, build: dict) -> list[Group]:
     every served descriptor may have moved, so each is pushed (the ALL push), but STREAM_INPUT 0, whose push is
     held until 1 s after its last departure and then sent (the held push, which run.py grades from that
     eligibility). The spacing check reads every push's departure.
+
+    The ALL push is reported both ways until #665 decides between them: as one path, from the change to its last
+    push, and as a path per descriptor, from the same change to that descriptor's last push. Every row's mark comes
+    before the change, so each starts there; the last descriptor's row ties the whole push's, which is listed first.
     """
     aecp = CH['aecp']
     g = Group('hooks-counters', sim_ms=3600)
@@ -314,9 +346,14 @@ def counters_groups(p: Point, build: dict) -> list[Group]:
             'ctrchg 0 5 0', wait=f'tx {aecp} {len(everyone)} within {500 * MS}')
     g.add(f'wait cycles {100 * MS}')
     others = [(k, n) for k, n in served if (k, n) != (5, 0)]
-    g.probe(Probe('counters.all.if0', 'GET_COUNTERS push, every served descriptor (ALL; H-COUNTERS)', 'notify',
-                  'pad:CTR:0', [notify_end(k, n) for k, n in others], recipients=everyone, path='counters.all'),
-            f'ctrchg 0 {UNKEPT_TYPE:x} 0', wait=f'tx {aecp} {len(everyone) * len(others)} within {900 * MS}')
+    rows = [(Probe(f'counters.all.t{k}.i{n}.if0', f'GET_COUNTERS push, descriptor {k} {n} of ALL (H-COUNTERS)',
+                   'notify', 'pad:CTR:0', [notify_end(k, n)], recipients=everyone, path=f'counters.all.t{k}.i{n}'), [])
+            for k, n in others]
+    whole = Probe('counters.all.if0', 'GET_COUNTERS push, every served descriptor (ALL; H-COUNTERS)', 'notify',
+                  'pad:CTR:0', [notify_end(k, n) for k, n in others], recipients=everyone, path='counters.all')
+    entries = [(whole, []), *rows]
+    entries[-1][1].append(f'ctrchg 0 {UNKEPT_TYPE:x} 0')
+    g.together(entries, [f'tx {aecp} {len(everyone) * len(others)} within {900 * MS}'])
     g.add(f'wait cycles {1300 * MS}', 'wait quiet 3 within 2000000')
     return [g]
 
@@ -442,8 +479,9 @@ def aging_group(p: Point) -> Group:
 
 
 def late_groups(p: Point) -> list[Group]:
-    """One path of each hook with a wait long enough to see a late service end, for the late plants: S2's
-    groups wait as long as their paths take unplanted. H-ADP's is the CPU budget harness's own control group."""
+    """One path of each hook with a wait long enough to see a late service end, for the late plants: the CPU
+    budget harness's groups wait as long as their paths take unplanted. H-ADP's is that harness's own control
+    group."""
     adp, acmp, aecp, maap, srp = (CH[c] for c in ('adp', 'acmp', 'aecp', 'maap', 'srp'))
     talker = f.adp(f.ADP_AVAILABLE, scenario.TALKER_A, scenario.TALKER_A_MAC,
                    f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001))

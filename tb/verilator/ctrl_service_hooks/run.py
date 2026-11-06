@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The F2-F5 timing hooks on the target core (#665): the eight NFR-SCOUT-03 hooks, measured and ordered.
+"""The control-plane timing hooks on the target core (#665): the eight NFR-SCOUT-03 hooks, measured and ordered.
 
 The split platform's image (ctrl_plat_image.py), linked unmodified, runs on
 the CPU budget harness's split SoC with the platform's CSR window
@@ -9,15 +9,18 @@ the CPU budget harness's split SoC with the platform's CSR window
 budget harness's groups, graded by its grader, and this harness's
 (hooks.py). Each measured path is graded against its hook's bound,
 min(T_svc, its family's ceiling) plus any normative wait, and its margin to
-the family's normative timeout is recorded. Each hook's ordering check reads
-the same logs, apart from the budget.
+the family's normative timeout is recorded. Those are the bounds in the tree
+at this base; each table adds a column of the amended bounds (hooks.py), for
+information, which grades nothing. Each hook's ordering check reads the same
+logs, apart from the budget.
 
 Exit 0 when every selected group was graded, every path was measured,
 every ordering check that applied found nothing and, unless
 --record-findings is given, every path is within its hook's bound by at
 least the layout swing (hooks.LAYOUT_SWING_CYCLES); 1 otherwise. With
---plant, 0 when the plant's own words are found in its run and 1 when it
-escapes. 2 refuses the command or the build.
+--plant, 0 when the plant's own words are found in its run, on the path it
+delays for a late plant, and 1 when it escapes. 2 refuses the command or the
+build.
 """
 from __future__ import annotations
 
@@ -40,6 +43,9 @@ import scenario  # noqa: E402  its stimulus, read only
 #: The groups whose paths run under the composed load: the CPU budget harness's backlog rows and this
 #: harness's composed rows.
 LOADED = (*grade.BACKLOG_ROWS, *hooks.composed_rows())
+#: What a table's bounds are, under its heading.
+BOUNDS_NOTE = ('Graded against the bounds in the tree at this base. The amended column gives the owner\'s decisions of '
+               '2026-11-06 on #665, for information: it grades nothing, and this harness re-grades when #810 merges.')
 
 
 def run_group(build_dir: Path, out: Path, group: scenario.Group) -> Path:
@@ -181,23 +187,33 @@ def cell(r: dict | None) -> str:
     return f"{ms} ({r['bound_ms']:g}){verdict}, `{r['probe']}`, margin {r['margin_ms']:.1f} of {r['normative_ms']:g}"
 
 
+def amended_cell(name: str, graded: dict, interfaces: int) -> str:
+    """A hook's amended service bounds, for information: each distinct one, or - with no path."""
+    bounds = {hooks.amended_service_ms(r, interfaces) for r in graded['rows'] if r['hook'] == name}
+    return ', '.join(f'{ms:g}' for ms in sorted(bounds)) or '-'
+
+
 def table(point: str, spec: dict, graded: dict) -> str:
     """The Markdown summary of one run: each hook, then every path, then the refusals and findings."""
-    lines = [f'### {point}, {clock_label(spec)}, face arm {spec["arm"]}', '',
+    interfaces = spec['interfaces']
+    lines = [f'### {point}, {clock_label(spec)}, face arm {spec["arm"]}', '', BOUNDS_NOTE, '',
              '| Hook | Paths | Over its bound | Within it by less than the layout swing | Worst alone, ms (bound) '
-             '| Worst under the composed load, ms (bound) | Ordering check applied (undecided) | Ordering findings |',
-             '|---|---:|---:|---:|---|---|---:|---:|']
+             '| Worst under the composed load, ms (bound) | Amended service bound, ms, for information '
+             '| Ordering check applied (undecided) | Ordering findings |',
+             '|---|---:|---:|---:|---|---|---:|---:|---:|']
     for name, s in summary(graded).items():
         lines.append(f"| {name} | {s['paths']} | {s['misses']} | {s['narrow']} | {cell(s['worst'].get('alone'))} | "
-                     f"{cell(s['worst'].get('loaded'))} | {s['applied']} ({s['undecided']}) | "
-                     f"{len(s['ordering_findings'])} |")
-    lines += ['', '| Hook | Path | Group | Interface | ms | CPU cycles | W ms | Bound ms | Within | Slack, CPU cycles '
+                     f"{cell(s['worst'].get('loaded'))} | {amended_cell(name, graded, interfaces)} | "
+                     f"{s['applied']} ({s['undecided']}) | {len(s['ordering_findings'])} |")
+    lines += ['', '| Hook | Path | Group | Interface | ms | CPU cycles | W ms | Bound at this base, ms '
+              '| Amended bound, ms, for information | Within | Slack, CPU cycles '
               '| Under load | Margin to the normative timeout, ms |',
-              '|---|---|---|---:|---:|---:|---:|---:|---|---:|---|---:|']
+              '|---|---|---|---:|---:|---:|---:|---:|---:|---|---:|---|---:|']
     for r in sorted(graded['rows'], key=lambda r: (r['hook'], r['probe'])):
         lines.append(f"| {r['hook']} | `{r['probe']}` | {r['group']} | {r['interface']} | "
                      f"{'never' if r['unbounded'] else format(r['ms'], '.3f')} | {r['cpu_cycles']:,} | "
-                     f"{r['wait_ms']:g} | {r['bound_ms']:g} | {'yes' if r['within'] else 'NO'} | "
+                     f"{r['wait_ms']:g} | {r['bound_ms']:g} | {hooks.amended_ms(r, interfaces):g} | "
+                     f"{'yes' if r['within'] else 'NO'} | "
                      f"{r['slack_cycles']:,} | {'yes' if r['loaded'] else 'no'} | "
                      f"{r['margin_ms']:.3f} of {r['normative_ms']:g} |")
     lines += ['', 'Refusals:', '', *(f'- {x}' for x in graded['refusals'] or ['none']), '',
@@ -230,6 +246,15 @@ def arguments() -> argparse.Namespace:
                         'caught by its own words')
     parser.add_argument('--self-test', action='store_true')
     return parser.parse_args()
+
+
+def plant_findings(plant: hooks.Plant, findings: list[str]) -> list[str]:
+    """The findings that catch a plant: its words, on the path it delays when it names one, so a path its group
+    already misses unplanted cannot catch it (#665)."""
+    prefix = plant.words + ':'
+    if plant.probe is not None:
+        prefix += ' ' + plant.probe + ':'
+    return [finding for finding in findings if finding.startswith(prefix)]
 
 
 def main() -> int:
@@ -299,7 +324,7 @@ def main() -> int:
           f'{len(graded["refusals"])} refusals, {len(graded["findings"])} findings')
     if plant:
         words = plant[1].words
-        caught = [x for x in graded['findings'] if x.startswith(words + ':')]
+        caught = plant_findings(plant[1], graded['findings'])
         found = caught[0] if caught else f'{words} not found'
         print(f'PLANT {args.plant} {"caught" if caught else "ESCAPED"}: {found}')
         return 0 if caught else 1

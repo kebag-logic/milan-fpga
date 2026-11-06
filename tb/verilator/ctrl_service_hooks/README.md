@@ -8,11 +8,12 @@ It runs on the [CPU budget harness](../ctrl_service_budget/README.md)'s split So
 Each path is measured in target cycles, from its RX_HEAD commit or triggering event to its last TX commit.
 Each is graded against its hook's bound, at the shipping shape and the largest, alone and under the composed load.
 Each hook's ordering obligation is checked on the same logs, apart from the budget.
-Each hook has a planted late service and a planted ordering defect, and each must be caught by its own words.
+Each hook has a planted late service and a planted ordering defect, and each must be caught by its own words, a late plant on the path it delays.
 
 Its contract is the [S5 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6513150371) on #665, which amends the plan's S5:
 
-- **The bound.** T_svc = 20 ms (owner, 2026-10-29). Each path is graded against min(T_svc, its family's ceiling), per [the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075): 18 ms for SRP, 20 ms for every other hook. A path with a normative wait W is bounded by W plus that.
+- **The bound.** T_svc = 20 ms (owner, 2026-10-29). [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing) at this base still reads the proposed 10 ms; its approved text arrives with #810. Each path is graded against min(T_svc, its family's ceiling), per [the ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075): 18 ms for SRP, 20 ms for every other hook. A path with a normative wait W is bounded by W plus that.
+- **The bounds at this base.** Those are the bounds in the tree at this PR's base, and every verdict below is theirs. [The maintainer's decisions of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), [answered for this lane](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6682851386), amend two of them, and those amendments arrive with #810: SRP/MRP becomes T_svc = 20 ms, and a notice queued behind others gets a bound derived at its point's recipients, 16 per AVB interface (Milan v1.2 5.3.4.2), at most 20 ms at 1x1 and 60 ms at 8x8. So this PR changes no numerical grading rule. The tables add one column of the amended bounds, for information, and this harness re-grades when #810 merges.
 - **The clock.** The split CPU's product clock is 100 MHz, the SoC's `sys` clock, which is also its bus clock ([the owner's decision of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)). That decision supersedes the 50 MHz Milan clock that [the correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508196970) named as the product's. Every hook is graded at 100 MHz. This base's `MilanSoC` still drives the CPU from the Milan clock; lane S2b (#810) moves it to `sys`. The 50 MHz figures are history: the clock stays selectable, labelled so, and is never graded as the product's.
 - **The firmware.** `dev-soft-core` as it is: S2b's firmware cuts are not merged.
 
@@ -70,10 +71,11 @@ python3 -B tb/verilator/ctrl_service_hooks/run.py --plant adp-late --build-dir /
 ```
 
 The plants are `adp`, `disc`, `acmp`, `aecp`, `notify`, `counters`, `maap` and `srp`, each `-late` and `-order`.
-The run prints `PLANT <name> caught: <its finding>` and exits 0 when its hook's finding starts with the plant's words, and `ESCAPED` and 1 otherwise.
+The run prints `PLANT <name> caught: <its finding>` and exits 0 when its hook's finding starts with the plant's words, on the path it delays for a late plant, and `ESCAPED` and 1 otherwise.
+So a path the plant's group already misses unplanted cannot catch it: `hooks-counters` misses on `counters.all` with no plant at all, and that finding does not catch `counters-late`, which must be found on `counters.first`.
 
 The directory has no Makefile, for the CPU budget harness's reason: the serial sweep discovers every Makefile, and registering a suite is a CI change.
-The TSN stack boundary gate finds `hooks_build.py` by text, because it names the firmware's tree; it is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) `OUTSIDE` with its reason.
+[`hooks_build.py`](hooks_build.py) takes the firmware tree's path from the [split boot harness](../ctrl_split_boot/run.py) and delegates every firmware compile to `ctrl_plat_image.py`, so the TSN stack boundary gate's search by text does not list it.
 
 ## The SoC and the testbench
 
@@ -107,21 +109,21 @@ Its parser refuses a line it does not know, so this harness takes its own lines 
 
 ## The hooks
 
-| Hook | Its paths | Bound | Normative timeout (margin) | Ordering obligation, checked apart from the budget |
-|---|---|---:|---|---|
-| H-ADP | family `adp`: DISCOVER, the timers, GM, link, the event row, ADP records under load | 20 ms | 2 s random window (Milan v1.2 5.6.3.5.2) | An ENTITY_AVAILABLE carries the grandmaster in force when it is built: the first after a grandmaster change carries the new one (Milan v1.2 5.6.3.5.7; IEEE 1722.1-2021 6.2.2.16) |
-| H-DISC | family `disc`: ENTITY_AVAILABLE and ENTITY_DEPARTING from RX_HEAD, TMR_NO_ADP, the bound-talker rows | 20 ms | 200 ms (Milan v1.2 5.5.2.3, Table 5.26) | Discovery records are applied in arrival order: a bound talker's DEPARTING then AVAILABLE leaves its sink discovered, so its PROBE_TX_COMMAND follows (Milan v1.2 5.6.4.5.1, 5.6.4.5.3, Table 5.54) |
-| H-ACMP | family `acmp`: every listener and talker command, the timers, the ring and owed rows | 20 ms | 200 ms (Milan v1.2 5.5.2.3, Table 5.26) | The commands of one controller are answered in arrival order |
-| H-AECP | family `aecp`: every solicited response, AECP records under load | 20 ms | 240 ms (IEEE 1722.1-2021 9.3.2.6) | Every face value a response promises is committed before the response ([`ARCHITECTURE_HW_SW_SPLIT.md` section 1](../../../docs/ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule); Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2) |
-| H-NOTIFY | family `notify`: every fan-out at registration capacity, alone and under load | 20 ms | 240 ms, shared with AECP | The successful command's response is committed before any of its notifications (Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2) |
-| H-COUNTERS | the counter push (answering arm): a change, every served descriptor (ALL), the held push, under load | 20 ms | counters update within 1 s (Milan v1.2 5.3.7.7, 5.3.8.10) | One descriptor's pushes to one recipient leave at least 1 s apart at the wire (Milan v1.2 5.4.5.2, Table 5.22) |
-| H-MAAP | family `maap`: the PROBEs, ANNOUNCE, DEFEND, MAAP records under load | 20 ms | 500 ms probe interval (IEEE 1722-2016 B.3.4.2, Table B.8) | The talker DA gate is published before the allocation is reported (Milan v1.2 4.3.3.1; `maap_mbx.c`, `range`) |
-| H-SRP | family `srp`: startup, Listener Ready, malformed, Domain, SRP records under load | 18 ms (+ W) | 180 ms JoinTime (IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3) | The adopted Domain is published (SR_DOMAIN) before the MRPDUs that carry it (`srp_mbx.c`, `change_domain`; contract 2.2) |
+| Hook | Its paths | Bound at this base | Amended, for information | Normative timeout (margin) | Ordering obligation, checked apart from the budget |
+|---|---|---:|---:|---|---|
+| H-ADP | family `adp`: DISCOVER, the timers, GM, link, the event row, ADP records under load | 20 ms | 20 ms | 2 s random window (Milan v1.2 5.6.3.5.2) | An ENTITY_AVAILABLE carries the grandmaster in force when it is built: the first after a grandmaster change carries the new one (Milan v1.2 5.6.3.5.7; IEEE 1722.1-2021 6.2.2.16) |
+| H-DISC | family `disc`: ENTITY_AVAILABLE and ENTITY_DEPARTING from RX_HEAD, TMR_NO_ADP, the bound-talker rows | 20 ms | 20 ms | 200 ms (Milan v1.2 5.5.2.3, Table 5.26) | Discovery records are applied in arrival order: a bound talker's DEPARTING then AVAILABLE leaves its sink discovered, so its PROBE_TX_COMMAND follows (Milan v1.2 5.6.4.5.1, 5.6.4.5.3, Table 5.54) |
+| H-ACMP | family `acmp`: every listener and talker command, the timers, the ring and owed rows | 20 ms | 20 ms | 200 ms (Milan v1.2 5.5.2.3, Table 5.26) | The commands of one controller are answered in arrival order |
+| H-AECP | family `aecp`: every solicited response, AECP records under load | 20 ms | 20 ms | 240 ms (IEEE 1722.1-2021 9.3.2.6) | Every face value a response promises is committed before the response ([`ARCHITECTURE_HW_SW_SPLIT.md` section 1](../../../docs/ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule); Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2) |
+| H-NOTIFY | family `notify`: every fan-out at registration capacity, alone and under load | 20 ms | 20 ms | 240 ms, shared with AECP | The successful command's response is committed before any of its notifications (Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2) |
+| H-COUNTERS | the counter push (answering arm): a change, every served descriptor (ALL) as one path and per descriptor, the held push, under load | 20 ms | 20 ms; ALL's rows, the queued ceiling: 20 ms at 1x1, 60 ms at 8x8 | counters update within 1 s (Milan v1.2 5.3.7.7, 5.3.8.10) | One descriptor's pushes to one recipient leave at least 1 s apart at the wire (Milan v1.2 5.4.5.2, Table 5.22) |
+| H-MAAP | family `maap`: the PROBEs, ANNOUNCE, DEFEND, MAAP records under load | 20 ms | 20 ms | 500 ms probe interval (IEEE 1722-2016 B.3.4.2, Table B.8) | The talker DA gate is published before the allocation is reported (Milan v1.2 4.3.3.1; `maap_mbx.c`, `range`) |
+| H-SRP | family `srp`: startup, Listener Ready, malformed, Domain, SRP records under load | 18 ms (+ W) | 20 ms (+ W) | 180 ms JoinTime (IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3) | The adopted Domain is published (SR_DOMAIN) before the MRPDUs that carry it (`srp_mbx.c`, `change_domain`; contract 2.2) |
 
 The CPU budget harness's groups carry seven hooks' paths, graded by its own grader, but its fixture and boot-fault groups.
 This harness adds, in [`hooks.py`](hooks.py):
 
-- `hooks-counters` and `hooks-load-counters` (answering arm): every registration a recipient; a change of STREAM_INPUT 0's counters, then 100 ms later a change of a descriptor the source keeps no bit for, which posts ALL; then the held push; and the push under the composed load, sixteenth on the event ring;
+- `hooks-counters` and `hooks-load-counters` (answering arm): every registration a recipient; a change of STREAM_INPUT 0's counters, then 100 ms later a change of a descriptor the source keeps no bit for, which posts ALL, reported as one path and per descriptor ([Grading](#grading)); then the held push; and the push under the composed load, sixteenth on the event ring;
 - `hooks-load-notify`: a SET_NAME fan-out to every registration, last of the AECP ring's burst, while every other channel carries its admitted burst and fifteen grandmaster changes fill the event ring;
 - `hooks-disc-aging`: H-DISC's aging, its window opened after the arm ([Grading](#grading));
 - `hooks-order-adp` and `hooks-order-acmp`: the instances H-ADP's and H-ACMP's ordering checks apply to;
@@ -139,21 +141,21 @@ A late plant spins 120,000 turns in the hook's service path, each a load and a s
 
 | Plant | Its defect | Group | Its words |
 |---|---|---|---|
-| `adp-late` | `adp_mbx.c`: the receive handler spins before `adp_rx` | `control` | `LATE H-ADP` |
+| `adp-late` | `adp_mbx.c`: the receive handler spins before `adp_rx` | `control` | `LATE H-ADP` on `control.discover.if0` |
 | `adp-order` | `adp_mbx.c` `port_gptp`: each read returns the grandmaster of the read before | `hooks-order-adp` | `ORDER H-ADP` |
-| `disc-late` | `acmp_mbx.c` `on_adp_frame`: spins before `acmp_adp_rx` | `hooks-late-disc` | `LATE H-DISC` |
+| `disc-late` | `acmp_mbx.c` `on_adp_frame`: spins before `acmp_adp_rx` | `hooks-late-disc` | `LATE H-DISC` on `hooks-late-disc.entity_departing.if0` |
 | `disc-order` | `acmp_mbx.c` `on_adp_frame`: an ENTITY_DEPARTING is held and applied after the next AVAILABLE | `acmp-disc` | `ORDER H-DISC` |
-| `acmp-late` | `acmp_mbx.c` `on_frame`: spins before `acmp_rx` | `hooks-late-acmp` | `LATE H-ACMP` |
+| `acmp-late` | `acmp_mbx.c` `on_frame`: spins before `acmp_rx` | `hooks-late-acmp` | `LATE H-ACMP` on `hooks-late-acmp.get_rx_state.if0` |
 | `acmp-order` | `acmp_mbx.c` `on_frame`: a command is held and taken after the next | `hooks-order-acmp` | `ORDER H-ACMP` |
-| `aecp-late` | `aecp_mbx.c` `frame`: spins before `aecp_rx` | `hooks-late-aecp` | `LATE H-AECP` |
+| `aecp-late` | `aecp_mbx.c` `frame`: spins before `aecp_rx` | `hooks-late-aecp` | `LATE H-AECP` on `hooks-late-aecp.read_descriptor.if0` |
 | `aecp-order` | `aecp_face.c` `changed` defers the publication to the face's poll, and `aecp.c` no longer waits for it | `aecp` | `ORDER H-AECP` |
-| `notify-late` | `aecp.c` `transmit`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` |
+| `notify-late` | `aecp.c` `transmit`: spins once before a fan-out's first recipient | `hooks-late-notify` | `LATE H-NOTIFY` on `hooks-late-notify.set_name.if0` |
 | `notify-order` | `aecp.c` `transmit`: the notifications are sent before the owed response | `aecp-fanout` | `ORDER H-NOTIFY` |
-| `counters-late` | `ctrl_app_aecp.c` `face_event`: spins on COUNTERS_CHANGED | `hooks-counters` | `LATE H-COUNTERS` |
+| `counters-late` | `ctrl_app_aecp.c` `face_event`: spins on COUNTERS_CHANGED | `hooks-counters` | `LATE H-COUNTERS` on `counters.first.if0` |
 | `counters-order` | `aecp.c` `asynchronous`: the 1 s spacing after a counter push's departure is dropped | `hooks-counters` | `ORDER H-COUNTERS` |
-| `maap-late` | `maap_mbx.c` `receive`: spins before `maap_rx` | `hooks-late-maap` | `LATE H-MAAP` |
+| `maap-late` | `maap_mbx.c` `receive`: spins before `maap_rx` | `hooks-late-maap` | `LATE H-MAAP` on `hooks-late-maap.defend.if0` |
 | `maap-order` | `maap_mbx.c` `range`: the allocation is reported before the DA gate is published | `maap` | `ORDER H-MAAP` |
-| `srp-late` | `srp_mbx.c` `receive`: spins before `apply_receive` | `hooks-late-srp` | `LATE H-SRP` |
+| `srp-late` | `srp_mbx.c` `receive`: spins before `apply_receive` | `hooks-late-srp` | `LATE H-SRP` on `hooks-late-srp.listener_ready.if0` |
 | `srp-order` | `srp_mbx.c`: the adopted Domain is published after the next MRPDU is sent | `srp` | `ORDER H-SRP` |
 
 ## Grading
@@ -162,7 +164,8 @@ A late plant spins 120,000 turns in the hook's service path, each a load and a s
 Then, for each measured path:
 
 - its hook is its family's, but a counter push, whose probe names start `counters.`;
-- its bound is min(T_svc, its family's ceiling) plus its normative wait W; it fits at its bound and not one hundredth of a microsecond past it; a record never released or a command never answered never fits;
+- its bound is the tree's at this base, min(T_svc, its family's ceiling), plus its normative wait W; it fits at its bound and not one hundredth of a microsecond past it; a record never released or a command never answered never fits;
+- its amended bound is a column for information, and no verdict, finding or count reads it. It is its bound but for two rules: a path of H-SRP has T_svc, 20 ms plus its W; and `counters.all`, as one path or per descriptor, has the queued notice's ceiling, 20 ms at 1x1 and 60 ms at 8x8. The derived bound under that ceiling is #810's, so this column gives the ceiling. Those are the rows [the assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6677495623) ties to the queued-notice question, so any other notification path keeps its bound here;
 - its slack is its bound in CPU cycles less its own CPU cycles. A path within its bound by fewer CPU cycles than the layout swing, 6,490, is a finding, `NARROW`, as a path over it is `LATE`. That swing is one pass's measured spread from data layout alone, 195,050 to 201,540 cycles on the same records, and a fit by less than it fits by chance ([the ruling of 2026-11-04](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6634982529), item 2). This harness takes that figure as given and does not measure a swing of its own;
 - its margin is its family's normative timeout less W and the path, the allowance left for ingress, egress and the network, which this harness does not measure;
 - it is under the composed load when its group is one of the CPU budget harness's backlog rows or one of this harness's composed rows.
@@ -171,6 +174,11 @@ Each hook's figure is its worst path alone and its worst under the composed load
 
 H-COUNTERS' held push is graded from its eligibility, as the hook row says ("previous notification wire time supplies eligibility"): from 1 s after the first push's last departure at the wire, or from the change if later, to its last recipient's commit.
 The time it was held after the change is its W, recorded beside it.
+
+H-COUNTERS' ALL push is reported both ways until the question of one path against one per descriptor is decided ([the assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6677495623)).
+`counters.all` is one path, from the change to the last push of every other served descriptor, as the H-COUNTERS row reads.
+`counters.all.t<type>.i<index>` is that descriptor's path, from the same change to its own last recipient's commit.
+A descriptor's row therefore includes the descriptors pushed ahead of it, and both kinds are graded against the same bound.
 
 Each ordering check reads the order of the hook's outputs and the state they carry, never their latency, and counts the instances it applied to.
 A check that applied to nothing is reported as not applied, never as passed.
@@ -194,6 +202,8 @@ At the product clock `acmp-disc` measures that probe itself at both points, so n
 [`hooks_selftest.py`](hooks_selftest.py) (`run.py --self-test`) pins the bounds, the normative timeouts, the layout swing, the clock labels and the product clock as the default.
 It runs each ordering check on a clean synthetic log, which it must apply to and pass, and on a defective one, which it must report by its hook's words; H-DISC's also on a log it must leave undecided.
 It checks every plant's and testbench addition's anchors against the checkout, the held push's eligibility, the findings by hook, a fit under the layout swing, the superseded rule, the aging window and the composed rows' full buckets.
+It runs `run.main` on every plant with no plant applied, its group's other paths over their bounds, and each must print `ESCAPED` and exit 1; with the plant's own finding, each must be caught and exit 0.
+It pins every rule of the held push's row and of each hook's summary, the ALL push's rows both ways, and that the amended column grades nothing.
 Then it replaces each rule in turn, and a named check must fail:
 
 | Mutant | Caught by |
@@ -229,6 +239,54 @@ Then it replaces each rule in turn, and a named check must fail:
 | findings: a path over its bound is not a finding | findings by hook |
 | narrow: the layout swing is not applied | a fit under the layout swing is a finding |
 | narrow: the slack counted at the 50 MHz CPU (the earlier clock) | a fit under the layout swing is a finding |
+| plant: any finding of the hook catches it (the earlier rule) | a plant is caught only by its own finding |
+| plant: any finding of its kind catches it | a plant is caught only by its own finding |
+| plant: a path that only starts with its own catches it | a plant is caught only by its own finding |
+| plant: a late plant names no path | a plant is caught only by its own finding |
+| plant: every run is caught | a plant is caught only by its own finding |
+| plant: an escape exits 0 | a plant is caught only by its own finding |
+| held: W added to its bound | the held push's grade |
+| held: the exact bound misses | the held push's grade |
+| held: the verdict is relaxed by 1 ms | the held push's grade |
+| held: W is not recorded | the held push's grade |
+| held: its cycles round down | the held push's grade |
+| held: its cycles are the bus's | the held push's grade |
+| held: its margin omits W | the held push's grade |
+| held: its timeout is the notification family's | the held push's grade |
+| held: it counts as under the composed load | the held push's grade |
+| held: it counts as never served | the held push's grade |
+| held: it is H-NOTIFY's | the held push's grade |
+| held missing: silently accepted | a held push never sent |
+| held missing: it fits | a held push never sent |
+| held missing: it counts as served | a held push never sent |
+| held missing: its finding is dropped | a held push never sent |
+| held missing: its timeout is the notification family's | a held push never sent |
+| summary: the fastest path is the worst | the worst path and the counts |
+| summary: W is left in the service | the worst path and the counts |
+| summary: a path never served is not worst first | the worst path and the counts |
+| summary: alone and under load are not apart | the worst path and the counts |
+| summary: alone and under load are swapped | the worst path and the counts |
+| summary: another hook's paths are its own | the worst path and the counts |
+| summary: a miss counts as a narrow fit | the worst path and the counts |
+| summary: no narrow fit is counted | the worst path and the counts |
+| summary: no miss is counted | the worst path and the counts |
+| summary: the path count is every hook's | the worst path and the counts |
+| summary: the applied count is dropped | the worst path and the counts |
+| summary: the undecided count is dropped | the worst path and the counts |
+| summary: the ordering findings are dropped | the worst path and the counts |
+| summary: the obligation is dropped | the worst path and the counts |
+| summary: the clauses are dropped | the worst path and the counts |
+| ALL: the push ends at its first descriptor | the ALL push both ways |
+| ALL: no descriptor has a row | the ALL push both ways |
+| ALL: a descriptor's row ends at the whole push | the ALL push both ways |
+| ALL: a descriptor's row opens after the change | the ALL push both ways |
+| amended: SRP keeps its ceiling | the amended column grades nothing |
+| amended: the ceiling at two interfaces is 20 ms | the amended column grades nothing |
+| amended: every counter push is queued | the amended column grades nothing |
+| amended: W is left off | the amended column grades nothing |
+| amended: the column grades a path | the amended column grades nothing |
+| amended: the table does not say which bounds graded | the amended column grades nothing |
+| amended: the column repeats the bound | the amended column grades nothing |
 
 A mutant whose name ends in a bracket saying "earlier" restores a rule, or the clock, this harness had before its check, so that check is the test that fails on it.
 
@@ -397,6 +455,7 @@ That head had neither the layout swing nor H-DISC's undecided rule. None of thes
 - The filter checks of the hook rows (tagged frames, wrong destinations, wrong subtypes, FILTER_MISMATCH) are lane FC's, in the mailbox suite (`tb/verilator/mbx`), and are not repeated here.
 - Not every required check of the hook rows is run: SHUTDOWN (the platform never disables ADP), every Table 5.54 cell, received validities of 10 and 31, reset and timer wrap, CPU stalls, both bus adapters, flash erase and program waits (zero here, as in the CPU budget harness), lock expiry and the Identify spacing are not.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the platform is linked.
+- Each verdict is against the bounds in the tree at this base. The amended bounds are a column for information, at their ceiling for a queued notice, as the derived bound is #810's. This harness re-grades when #810 merges.
 - The plants run at 1x1 and the product clock only.
 - The CPU runs at 100 MHz behind this base's crossing to the bus. The product wiring of the 100 MHz decision has no crossing, so it is not measured here; it reaches this harness with S2b (#810), and these figures include the crossing's latency.
 - The retried change notice's row, graded from its port's answer against 20 ms ([the ruling of 2026-11-04](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6630265194)), belongs to S2b's firmware, which bounds the retry, and to its harness. At this base the notice retries each millisecond while its window is unanswered (above). Neither arm here switches from unanswered to answering, so that row is not measured.

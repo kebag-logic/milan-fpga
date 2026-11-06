@@ -12,10 +12,12 @@ must fail; a mutant no check catches fails the self-test.
 """
 from __future__ import annotations
 
+import dataclasses
+import io
 import sys
 import tempfile
 from collections.abc import Callable
-from contextlib import AbstractContextManager, ExitStack
+from contextlib import AbstractContextManager, ExitStack, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,6 +25,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hooks  # noqa: E402
 import hooks_build  # noqa: E402
+# Those two put the CPU budget harness first, and it has a run.py of its own.
+sys.path.insert(0, str(HERE))
 import run  # noqa: E402
 import grade  # noqa: E402  the CPU budget harness's grader, read only
 import scenario  # noqa: E402
@@ -33,6 +37,15 @@ MS = hooks.BUS_MS
 #: The path grade and the slack as written, which mutants wrap.
 HOOK_ROW = run.hook_row
 SLACK = run.slack_cycles
+HELD_ROW = run.held_row
+SUMMARY = run.summary
+MAIN = run.main
+COUNTERS_GROUPS = hooks.counters_groups
+#: The plants as written, which a mutant strips.
+PLANTS = hooks.plants()
+#: What a check's synthetic log carries, fixed here so a mutant of the rule reading it meets a well-formed log.
+PROBE_TX = f.ACMP['PROBE_TX']
+FACE_COMMIT = min(hooks.face_commit_words({'interfaces': 1}))
 #: The product clocks (the owner's decision of 2026-10-30 on #665): the split CPU on sys, at the bus's 100 MHz.
 CPU_HZ = SYS_HZ = 100_000_000
 #: The bounds the owner's decision of 2026-10-29 on #665 gives, restated.
@@ -41,6 +54,9 @@ NORMATIVE = {'adp': 2000.0, 'disc': 200.0, 'acmp': 200.0, 'aecp': 240.0, 'notify
              'srp': 180.0}
 FAMILIES = {'adp': 'H-ADP', 'disc': 'H-DISC', 'acmp': 'H-ACMP', 'aecp': 'H-AECP', 'notify': 'H-NOTIFY',
             'maap': 'H-MAAP', 'srp': 'H-SRP'}
+#: The shipping point, and a served-descriptor list for hooks-counters: the real one needs a build's descriptors.
+POINT = scenario.Point('1x1', 'endstation_ax7101_1x1_tdm8', 1, 1, 2, 1, 1)
+SERVED = [(5, 0), (5, 1), (6, 0), (9, 0), (0x24, 0)]
 
 
 class Failed(AssertionError):
@@ -180,7 +196,7 @@ def check_disc_order() -> None:
     rxc = [(MS, CH['adp'], 0, 'acmp.entity_departing.if0', 82),
            (available, CH['adp'], 0, 'acmp.entity_available.if0', 82)]
     probe = bytearray(70)
-    probe[14], probe[15] = 0xFC, f.ACMP['PROBE_TX']
+    probe[14], probe[15] = 0xFC, PROBE_TX
     far, near = available + 1100 * MS, available + 500 * MS
     sent = lambda c: [(c, CH['acmp'], 0, bytes(probe))]
     record = lambda c: (c, CH['adp'], 0, '-', 82)
@@ -230,10 +246,9 @@ def check_aecp_order() -> None:
     reported."""
     g = Group('g', probes=[Probe('aecp.lock_entity.if0', 'lock', 'aecp', 'rxc:2', ['resp:2:10'])])
     rxc = [(100, CH['aecp'], 0, 'aecp.lock_entity.if0', 60)]
-    word = min(hooks.face_commit_words({'interfaces': 1}))
     tx = [(300, CH['aecp'], 0, aem_response(0x10))]
-    good = log(rxc=rxc, tx=tx, writes=[(200, word, 1)])
-    bad = log(rxc=rxc, tx=tx, writes=[(400, word, 1)])
+    good = log(rxc=rxc, tx=tx, writes=[(200, FACE_COMMIT, 1)])
+    bad = log(rxc=rxc, tx=tx, writes=[(400, FACE_COMMIT, 1)])
     ok, wrong = (hooks.face_before_response(x, g, [], {'interfaces': 1}) for x in (good, bad))
     expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
     expect(wrong.findings and wrong.findings[0].startswith('ORDER H-AECP:'), f'defective: {wrong}')
@@ -254,11 +269,11 @@ def check_notify_order() -> None:
     expect(wrong.findings and wrong.findings[0].startswith('ORDER H-NOTIFY:'), f'defective: {wrong}')
 
 
-def counter_frame(recipient: int = 2) -> bytes:
-    """An unsolicited GET_COUNTERS of STREAM_INPUT 0 to the recipient."""
+def counter_frame(recipient: int = 2, kind: int = 5, index: int = 0) -> bytes:
+    """An unsolicited GET_COUNTERS of a descriptor, STREAM_INPUT 0 by default, to the recipient."""
     frame = bytearray(aem_response(0, True, hooks.GET_COUNTERS))
     frame[26:34] = recipient.to_bytes(8, 'big')
-    frame[38:40], frame[40:42] = (5).to_bytes(2, 'big'), (0).to_bytes(2, 'big')
+    frame[38:40], frame[40:42] = kind.to_bytes(2, 'big'), index.to_bytes(2, 'big')
     return bytes(frame)
 
 
@@ -361,6 +376,194 @@ def graded_with(probes: dict[str, list[dict]], keep_ordering: bool = False) -> d
         return run.grade_all([Group(n) for n in probes], [Text(n) for n in probes], {'cpu_hz': CPU_HZ}, Path(out))
 
 
+def counters_group() -> Group:
+    """hooks-counters at the shipping point, over SERVED."""
+    with patch.object(hooks, 'counter_descriptors', lambda build: SERVED):
+        return hooks.counters_groups(POINT, {})[0]
+
+
+def plant_group(name: str) -> Group:
+    """The group a late plant runs in."""
+    made = [*scenario.control_groups(POINT), *hooks.late_groups(POINT), counters_group()]
+    return next(g for g in made if g.name == name)
+
+
+def plant_verdict(name: str, findings: list[str]) -> tuple[int, str]:
+    """run.main's verdict on one plant, its build, simulation and grade replaced by the given findings: its exit
+    status and its PLANT line."""
+    plant = hooks.plants()[name][1]
+    spec = dict(point='1x1', interfaces=1, arm=plant.arm, cpu_clock='sys', plant=None, cpu_hz=CPU_HZ, sys_hz=SYS_HZ,
+                executable_sha256='0')
+    graded = dict(rows=[], refusals=[], superseded=[], findings=findings,
+                  checks={h: dict(applied=0, undecided=0, findings=[]) for h in hooks.HOOKS})
+    printed = io.StringIO()
+    with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+        for target, attribute, value in ((sys, 'argv', ['run.py', '--plant', name, '--build-dir', folder]),
+                                         (hooks_build, 'build', lambda *a: spec),
+                                         (scenario, 'point', lambda point, build: None),
+                                         (hooks, 'groups', lambda p, build: [Group(plant.group)]),
+                                         (run, 'run_group', lambda b, out, g: out / f'{g.name}.log'),
+                                         (run, 'grade_all', lambda *a: graded)):
+            stack.enter_context(patch.object(target, attribute, value))
+        stack.enter_context(redirect_stdout(printed))
+        status = run.main()
+    return status, next((x for x in printed.getvalue().splitlines() if x.startswith('PLANT ')), '')
+
+
+def check_plant_verdict() -> None:
+    """A plant is reported caught only by a finding its defect causes. run.main, on what an unplanted run of each
+    plant's group can report, every other path of the group over its bound under the plant's own words, says
+    ESCAPED and exits 1; with the plant's own finding it says caught and exits 0. Each late plant names a path of
+    its group, and that path alone catches it."""
+    for name, (hook, plant) in hooks.plants().items():
+        late_plant = name.endswith('-late')
+        expect(late_plant == (plant.probe is not None), f'{name}: names the path {plant.probe}')
+        paths = [p.name for p in plant_group(plant.group).probes] if late_plant else []
+        expect(not late_plant or plant.probe in paths, f'{name}: {plant.probe} is no path of {plant.group}')
+        words = plant.words if late_plant else f'LATE {hook}'
+        others = [x for x in paths if x != plant.probe] + ['another.if0', *([f'{plant.probe}1'] if late_plant else [])]
+        unplanted = [f'{words}: {x}: 27.581 ms against its bound 20 ms ({plant.group})' for x in others]
+        status, line = plant_verdict(name, unplanted)
+        expect(status == 1 and line.startswith(f'PLANT {name} ESCAPED'),
+               f'{name}: reported caught with no plant applied, rc {status}: {line}')
+        own = f'{plant.words}: {plant.probe or "the defect"}: 81.819 ms against its bound 20 ms ({plant.group})'
+        status, line = plant_verdict(name, [*unplanted, own])
+        expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+
+
+def check_held_grade() -> None:
+    """The held push has one service bound: W, the time it was held, is recorded beside it and never added. It fits
+    at that bound and not past it. Its cycles are the CPU clock's, rounded up, and its margin is the 1 s counter
+    update less W and the service. It is a lone path of H-COUNTERS."""
+    spec = dict(cpu_hz=50_000_000, sys_hz=SYS_HZ)
+    held = lambda ms, span: dict(probe='counters.held.if0', eligible=1000 * MS, end=1000 * MS + span, ms=ms,
+                                 wait_ms=900.0)
+    at, past = run.held_row(held(20.0, 20 * MS), spec), run.held_row(held(20.00002, 20 * MS + 2), spec)
+    expect(at['bound_ms'] == 20.0 and past['bound_ms'] == 20.0, f'the held bound includes W: {at["bound_ms"]}')
+    expect(at['within'], 'a held push at its bound misses')
+    expect(not past['within'], 'a held push past its bound fits')
+    expect(at['wait_ms'] == 900.0, f'the held W is not recorded: {at["wait_ms"]}')
+    cycles = run.held_row(held(0.00003, 3), spec)['cpu_cycles']
+    expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
+    expect(at['normative_ms'] == 1000.0, f'the held timeout is {at["normative_ms"]}')
+    expect(at['margin_ms'] == 80.0, f'the held margin is {at["margin_ms"]}, not 1000 - 900 - 20')
+    identity = tuple(at[k] for k in ('hook', 'group', 'path', 'family', 'interface'))
+    expect(identity == ('H-COUNTERS', 'hooks-counters', 'counters.held', 'notify', 0), f'held row {identity}')
+    expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
+
+
+def check_missing_held() -> None:
+    """A held push never sent is a row that never fits, at its one service bound, and a finding by name."""
+    with tempfile.TemporaryDirectory() as folder:
+        out = Path(folder)
+        text = out / 'input.log'
+        text.write_text('')
+        with patch.object(hooks, 'graded', return_value={'probes': []}), \
+                patch.object(hooks, 'ordering', return_value={}), \
+                patch.object(hooks, 'held_push', return_value=dict(probe='counters.held.if0', missing=True)):
+            got = run.grade_all([Group('hooks-counters')], [text], dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ), out)
+    expect('LATE H-COUNTERS: counters.held.if0: the held push was never sent' in got['findings'],
+           f'a held push never sent is no finding: {got["findings"]}')
+    r = got['rows'][0]
+    expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+    expect((r['bound_ms'], r['normative_ms'], r['ms'], r['loaded']) == (20.0, 1000.0, 0.0, False), f'missing row {r}')
+
+
+def check_summary() -> None:
+    """A hook's worst path is the longest service, W taken off, a path never served before any; alone and under the
+    composed load apart, and only its own paths. Its counts are its own, a path over its bound no narrow fit, and
+    its ordering results and clauses are kept."""
+    made = [run.hook_row(row(family, ms, wait=wait, probe=name, starved=starved), group)
+            for name, family, ms, wait, starved, group in (
+                ('fast', 'maap', 2.0, 0.0, False, 'maap'), ('slow', 'maap', 25.0, 0.0, False, 'maap'),
+                ('waiting', 'maap', 210.0, 200.0, False, 'maap'), ('near', 'maap', 19.99, 0.0, False, 'maap'),
+                ('loaded', 'maap', 30.0, 0.0, False, 'backlog'), ('starved', 'maap', 1.0, 0.0, True, 'backlog'),
+                ('other', 'srp', 500.0, 0.0, False, 'srp'), ('other-loaded', 'srp', 900.0, 0.0, True, 'backlog'))]
+    for r in made:
+        r['slack_cycles'] = run.slack_cycles(r, CPU_HZ)
+    checks = {h: dict(applied=n + 2, undecided=n + 20, findings=[f'ORDER {h}']) for n, h in enumerate(hooks.HOOKS)}
+    summaries = run.summary(dict(rows=made, checks=checks))
+    got = summaries['H-MAAP']
+    expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+    expect(got['worst']['loaded']['probe'] == 'starved',
+           f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
+    expect(summaries['H-ADP']['worst'] == {} and summaries['H-ADP']['paths'] == 0, 'a hook with no path has a worst')
+    expect(got['paths'] == 6, f'{got["paths"]} paths, not 6')
+    expect(got['misses'] == 3, f'{got["misses"]} misses, not 3')
+    expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+    n = list(hooks.HOOKS).index('H-MAAP')
+    expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']),
+           f'the ordering results are not kept: {got}')
+    hook = hooks.HOOKS['H-MAAP']
+    expect((got['ordering'], got['clauses']) == (hook.ordering, hook.clauses), 'the obligation or clauses are not kept')
+
+
+def check_counter_rows() -> None:
+    """The ALL push is reported both ways: as one path, ending at its last push, and as a path per descriptor, each
+    ending at its own last push, all from the same change to the same recipients in the same window."""
+    g = counters_group()
+    others = [d for d in SERVED if d != (5, 0)]
+    whole = next(p for p in g.probes if p.name == 'counters.all.if0')
+    rows = {(k, n): next((p for p in g.probes if p.name == f'counters.all.t{k}.i{n}.if0'), None) for k, n in others}
+    expect(whole.ends == [hooks.notify_end(k, n) for k, n in others], f'the ALL push ends at {whole.ends}')
+    expect(None not in rows.values(), f'a descriptor has no row of its own: {rows}')
+    expect(len([p for p in g.probes if p.path.startswith('counters.all')]) == len(others) + 1, 'more rows than paths')
+    change = g.steps.index(f'ctrchg 0 {hooks.UNKEPT_TYPE:x} 0')
+    for (k, n), p in rows.items():
+        expect(p.ends == [hooks.notify_end(k, n)], f'{p.name} ends at {p.ends}')
+        expect((p.start, p.family, p.recipients, p.until) == (whole.start, 'notify', whole.recipients, whole.until)
+               and p.until, f'{p.name} is not the ALL push\'s path')
+        expect(g.steps.index(f'mark {p.name}') < change, f'{p.name} opens after the change')
+    expect(g.steps.index(f'mark {whole.name}') < change, 'the ALL push opens after the change')
+    gaps = {(5, 1): 10 * MS, (6, 0): 30 * MS, (9, 0): 50 * MS, (0x24, 0): 70 * MS}
+    grader = grade.Grader(log(pads=[(100, 'CTR', 0)], tx=[(100 + c, CH['aecp'], 0, counter_frame(2, k, n))
+                                                          for (k, n), c in gaps.items()]))
+    graded = lambda p: run.hook_row(dict(grade.grade_probe(grader, dataclasses.replace(p, recipients=((2, 0),)), 100,
+                                                           1 << 62, {}), status='measured'), 'hooks-counters')
+    first, later, all_of = graded(rows[(5, 1)]), graded(rows[(6, 0)]), graded(whole)
+    expect((first['ms'], later['ms'], all_of['ms']) == (10.0, 30.0, 70.0), f'{first} {later} {all_of}')
+    expect(first['within'] and not later['within'] and not all_of['within'], 'a row is not graded at its own bound')
+    expect({first['hook'], later['hook'], all_of['hook']} == {'H-COUNTERS'}, 'a row is not H-COUNTERS\'')
+
+
+def check_amended() -> None:
+    """The amended column gives SRP T_svc, and a queued notice its point's ceiling, 20 ms at one interface and 60 ms
+    at two; any other path its bound. It grades nothing: the same paths are over the same bounds, and a table says
+    which bounds it graded by."""
+    expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
+    graded = graded_with({'srp': [dict(row('srp', 19.0, probe='srp.x.if0'), status='measured')],
+                          'hooks-counters': [dict(row('notify', 40.0, probe='counters.all.if0'), status='measured'),
+                                             dict(row('notify', 40.0, probe='counters.all.t5.i1.if0'),
+                                                  status='measured'),
+                                             dict(row('notify', 3.0, probe='counters.first.if0'), status='measured')],
+                          'aecp-fanout': [dict(row('notify', 3.0, probe='aecp_fanout.set_name.if0'),
+                                               status='measured')]})
+    by = {r['probe']: r for r in graded['rows']}
+    srp, whole, each, first = (by[x] for x in ('srp.x.if0', 'counters.all.if0', 'counters.all.t5.i1.if0',
+                                               'counters.first.if0'))
+    expect(hooks.amended_ms(srp, 1) == 20.0 and hooks.amended_ms(srp, 2) == 20.0, f'SRP {hooks.amended_ms(srp, 1)}')
+    expect(hooks.amended_ms(run.hook_row(row('srp', 210.0, wait=200.0), 'srp'), 1) == 220.0, 'W left off the column')
+    expect([hooks.amended_ms(x, n) for x in (whole, each) for n in (1, 2)] == [20.0, 60.0, 20.0, 60.0],
+           'a queued notice\'s ceiling')
+    expect(hooks.amended_ms(first, 2) == 20.0 and hooks.amended_ms(by['aecp_fanout.set_name.if0'], 2) == 20.0,
+           'a path the decisions leave has another bound')
+    held = run.held_row(dict(probe='counters.held.if0', eligible=0, end=MS, ms=1.0, wait_ms=900.0),
+                        dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ))
+    expect(hooks.amended_ms(held, 2) == 20.0, 'the column adds W the held bound does not')
+    expect((srp['bound_ms'], srp['within'], whole['bound_ms'], whole['within']) == (18.0, False, 20.0, False),
+           'the amended bounds graded a path')
+    late = [x.split(':')[1].strip() for x in graded['findings'] if x.startswith('LATE ')]
+    expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0', 'srp.x.if0'], f'findings {late}')
+    spec = dict(interfaces=2, arm='idle', cpu_clock='sys', cpu_hz=CPU_HZ, sys_hz=SYS_HZ)
+    text = run.table('8x8', spec, graded)
+    expect('Graded against the bounds in the tree at this base.' in text, 'the table does not say which bounds graded')
+    expect('| Bound at this base, ms | Amended bound, ms, for information |' in text, 'the path table\'s columns')
+    expect('| 40.000 | 4,000,000 | 0 | 20 | 60 | NO |' in text, 'the path table\'s amended figure')
+    expect('| Amended service bound, ms, for information |' in text, 'the hook table\'s column')
+    line = next(x for x in text.splitlines() if x.startswith('| H-COUNTERS | 3 |'))
+    expect('| 20, 60 |' in line, f'the hook table\'s amended figures: {line}')
+
+
 def check_superseded() -> None:
     """An unmeasured probe of a path this harness measures again in its own group, on the same interface, is
     superseded; on another interface, or unmeasured there too, it stays a refusal."""
@@ -379,7 +582,7 @@ def check_superseded() -> None:
 def check_aging_group() -> None:
     """The aging group answers each sink's PROBE_TX before its input, and its window opens after the arm: its
     TMR_NO_ADP marks follow the ENTITY_AVAILABLE's wait for the arm, on every interface."""
-    point = scenario.Point('8x8', 'endstation_ax7101_8x8', 2, 1, 2, 1, 1)
+    point = dataclasses.replace(POINT, label='8x8', shape='endstation_ax7101_8x8', interfaces=2)
     steps = hooks.aging_group(point).steps
     answered = [n for n, s in enumerate(steps) if s.startswith('reply ')]
     discovered = min(n for n, s in enumerate(steps) if s.startswith('mark hooks-disc-aging.available'))
@@ -401,9 +604,8 @@ def check_buckets_full() -> None:
     token bucket to refill from empty (burst x refill_ms, mailbox.yaml)."""
     expect(hooks.refilled_ms() >= max(ch.burst * ch.refill_ms for ch in scenario.CONTRACT.channels),
            f'refill wait {hooks.refilled_ms()} ms')
-    point = scenario.Point('1x1', 'endstation_ax7101_1x1_tdm8', 1, 1, 2, 1, 1)
     for make in (hooks.loaded_notify_group, hooks.loaded_counters_group):
-        steps = make(point).steps
+        steps = make(POINT).steps
         opened = steps.index('mark composed')
         last = max(n for n, s in enumerate(steps) if s.startswith('frame ') and n < opened)
         waits = [s for s in steps[last:opened] if s.startswith('wait cycles ')]
@@ -424,6 +626,9 @@ CHECKS: dict[str, Callable[[], None]] = {
     'a refusal is superseded only by its own path': check_superseded,
     'the aging window opens after the arm': check_aging_group,
     'a composed row opens on full buckets': check_buckets_full,
+    'a plant is caught only by its own finding': check_plant_verdict, 'the held push\'s grade': check_held_grade,
+    'a held push never sent': check_missing_held, 'the worst path and the counts': check_summary,
+    'the ALL push both ways': check_counter_rows, 'the amended column grades nothing': check_amended,
 }
 
 
@@ -434,6 +639,74 @@ def mutant(target: object, name: str, value: object) -> Callable[[], AbstractCon
     return lambda: patch.object(target, name, value)
 
 
+def held_fields(change: Callable[[dict, dict, dict], dict],
+                missing: bool = False) -> Callable[[], AbstractContextManager]:
+    """The held push's row with the fields `change` gives, from the held push, the row as written and the spec: a
+    measured push's, or with `missing` one never sent."""
+    def changed(held: dict, spec: dict) -> dict:
+        """The row as written, changed where the mutant applies."""
+        r = HELD_ROW(held, spec)
+        return {**r, **change(held, r, spec)} if bool(held.get('missing')) == missing else r
+    return mutant(run, 'held_row', changed)
+
+
+def summary_fields(change: Callable[[dict, dict], dict]) -> Callable[[], AbstractContextManager]:
+    """Each hook's summary with the fields `change` gives, from that summary and the run's grade."""
+    return mutant(run, 'summary', lambda g: {h: {**v, **change(v, g)} for h, v in SUMMARY(g).items()})
+
+
+def worst_by(key: Callable[[dict], object]) -> Callable[[], AbstractContextManager]:
+    """The summaries with each worst path chosen by `key`."""
+    def top(g: dict, hook: str, part: str) -> dict:
+        """The hook's path of that part `key` puts last."""
+        return max((r for r in g['rows'] if r['hook'] == hook and r['loaded'] == (part == 'loaded')), key=key)
+    return mutant(run, 'summary', lambda g: {h: {**v, 'worst': {k: top(g, h, k) for k in v['worst']}}
+                                             for h, v in SUMMARY(g).items()})
+
+
+def counters_edited(edit: Callable[[Group], None]) -> Callable[[], AbstractContextManager]:
+    """hooks-counters with `edit` made to its group."""
+    def made(p: scenario.Point, build: dict) -> list[Group]:
+        """The groups as written, edited."""
+        out = COUNTERS_GROUPS(p, build)
+        edit(out[0])
+        return out
+    return mutant(hooks, 'counters_groups', made)
+
+
+def first_descriptor_only(g: Group) -> None:
+    """The ALL push ends at its first descriptor."""
+    g.probes = [dataclasses.replace(x, ends=x.ends[:1]) if x.path == 'counters.all' else x for x in g.probes]
+
+
+def no_descriptor_rows(g: Group) -> None:
+    """The ALL push has no row per descriptor."""
+    g.probes = [x for x in g.probes if not x.path.startswith('counters.all.')]
+
+
+def rows_end_with_the_push(g: Group) -> None:
+    """Each descriptor's row ends where the ALL push does."""
+    whole = next(x for x in g.probes if x.path == 'counters.all')
+    g.probes = [dataclasses.replace(x, ends=whole.ends) if x.path.startswith('counters.all.') else x for x in g.probes]
+
+
+def change_before_rows(g: Group) -> None:
+    """The change comes before the rows' marks, so they open after it."""
+    step = f'ctrchg 0 {hooks.UNKEPT_TYPE:x} 0'
+    g.steps.remove(step)
+    g.steps.insert(min(n for n, s in enumerate(g.steps) if s.startswith('mark counters.all')), step)
+
+
+def graded_by_amended(r: dict, group: str) -> dict:
+    """A path graded against its amended bound."""
+    out = HOOK_ROW(r, group)
+    bound = hooks.amended_ms(out, 2)
+    return dict(out, bound_ms=bound, within=not out['unbounded'] and out['ms'] <= bound)
+
+
+HELD_GRADE, MISSING_HELD = 'the held push\'s grade', 'a held push never sent'
+SUMMARY_CHECK, COUNTER_ROWS = 'the worst path and the counts', 'the ALL push both ways'
+AMENDED, PLANT_VERDICT = 'the amended column grades nothing', 'a plant is caught only by its own finding'
 MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('bound: a stale T_svc of 10 ms', mutant(hooks, 'T_SVC_MS', 10.0), 'bounds pinned'),
     ('bound: SRP graded against T_svc alone', mutant(hooks, 'bound_ms', lambda family: hooks.T_SVC_MS),
@@ -501,6 +774,75 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'a fit under the layout swing is a finding'),
     ('narrow: the slack counted at the 50 MHz CPU (the earlier clock)', mutant(run, 'slack_cycles', lambda r, hz: (
         SLACK(r, hz // 2))), 'a fit under the layout swing is a finding'),
+    ('plant: any finding of the hook catches it (the earlier rule)', mutant(run, 'plant_findings', lambda p, found: [
+        x for x in found if x.startswith(p.words + ':')]), PLANT_VERDICT),
+    ('plant: any finding of its kind catches it', mutant(run, 'plant_findings', lambda p, found: [
+        x for x in found if x.startswith(p.words.split()[0])]), PLANT_VERDICT),
+    ('plant: a path that only starts with its own catches it', mutant(run, 'plant_findings', lambda p, found: [
+        x for x in found if x.startswith(f'{p.words}: {p.probe}')]), PLANT_VERDICT),
+    ('plant: a late plant names no path', mutant(hooks, 'plants', lambda: {
+        k: (h, dataclasses.replace(p, probe=None)) for k, (h, p) in PLANTS.items()}), PLANT_VERDICT),
+    ('plant: every run is caught', mutant(run, 'plant_findings', lambda p, found: [p.words]), PLANT_VERDICT),
+    ('plant: an escape exits 0', mutant(run, 'main', lambda: MAIN() and 0), PLANT_VERDICT),
+    ('held: W added to its bound', held_fields(lambda h, r, s: dict(
+        bound_ms=r['bound_ms'] + h['wait_ms'], within=h['ms'] <= r['bound_ms'] + h['wait_ms'])), HELD_GRADE),
+    ('held: the exact bound misses', held_fields(lambda h, r, s: dict(within=h['ms'] < r['bound_ms'])), HELD_GRADE),
+    ('held: the verdict is relaxed by 1 ms', held_fields(lambda h, r, s: dict(within=h['ms'] <= r['bound_ms'] + 1)),
+     HELD_GRADE),
+    ('held: W is not recorded', held_fields(lambda h, r, s: dict(wait_ms=0.0)), HELD_GRADE),
+    ('held: its cycles round down', held_fields(lambda h, r, s: dict(
+        cpu_cycles=(h['end'] - h['eligible']) * s['cpu_hz'] // s['sys_hz'])), HELD_GRADE),
+    ('held: its cycles are the bus\'s', held_fields(lambda h, r, s: dict(cpu_cycles=h['end'] - h['eligible'])),
+     HELD_GRADE),
+    ('held: its margin omits W', held_fields(lambda h, r, s: dict(margin_ms=round(r['normative_ms'] - h['ms'], 5))),
+     HELD_GRADE),
+    ('held: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
+        normative_ms=hooks.NORMATIVE_MS['notify'])), HELD_GRADE),
+    ('held: it counts as under the composed load', held_fields(lambda h, r, s: dict(loaded=True)), HELD_GRADE),
+    ('held: it counts as never served', held_fields(lambda h, r, s: dict(unbounded=True)), HELD_GRADE),
+    ('held: it is H-NOTIFY\'s', held_fields(lambda h, r, s: dict(hook='H-NOTIFY')), HELD_GRADE),
+    ('held missing: silently accepted', held_fields(lambda h, r, s: dict(missing=False, within=True, unbounded=False),
+                                                    missing=True), MISSING_HELD),
+    ('held missing: it fits', held_fields(lambda h, r, s: dict(within=True), missing=True), MISSING_HELD),
+    ('held missing: it counts as served', held_fields(lambda h, r, s: dict(unbounded=False), missing=True),
+     MISSING_HELD),
+    ('held missing: its finding is dropped', held_fields(lambda h, r, s: dict(missing=False), missing=True),
+     MISSING_HELD),
+    ('held missing: its timeout is the notification family\'s', held_fields(lambda h, r, s: dict(
+        normative_ms=hooks.NORMATIVE_MS['notify']), missing=True), MISSING_HELD),
+    ('summary: the fastest path is the worst', worst_by(lambda r: -r['ms']), SUMMARY_CHECK),
+    ('summary: W is left in the service', worst_by(lambda r: (r['unbounded'], r['ms'])), SUMMARY_CHECK),
+    ('summary: a path never served is not worst first', worst_by(lambda r: r['ms'] - r['wait_ms']), SUMMARY_CHECK),
+    ('summary: alone and under load are not apart', mutant(run, 'summary', lambda g: SUMMARY(
+        dict(g, rows=[dict(r, loaded=False) for r in g['rows']]))), SUMMARY_CHECK),
+    ('summary: alone and under load are swapped', summary_fields(lambda v, g: dict(
+        worst={'alone' if k == 'loaded' else 'loaded': r for k, r in v['worst'].items()})), SUMMARY_CHECK),
+    ('summary: another hook\'s paths are its own', mutant(run, 'summary', lambda g: {
+        h: SUMMARY(dict(g, rows=[dict(r, hook=h) for r in g['rows']]))[h] for h in hooks.HOOKS}), SUMMARY_CHECK),
+    ('summary: a miss counts as a narrow fit', summary_fields(lambda v, g: dict(narrow=v['narrow'] + v['misses'])),
+     SUMMARY_CHECK),
+    ('summary: no narrow fit is counted', summary_fields(lambda v, g: dict(narrow=0)), SUMMARY_CHECK),
+    ('summary: no miss is counted', summary_fields(lambda v, g: dict(misses=0)), SUMMARY_CHECK),
+    ('summary: the path count is every hook\'s', summary_fields(lambda v, g: dict(paths=len(g['rows']))),
+     SUMMARY_CHECK),
+    ('summary: the applied count is dropped', summary_fields(lambda v, g: dict(applied=0)), SUMMARY_CHECK),
+    ('summary: the undecided count is dropped', summary_fields(lambda v, g: dict(undecided=0)), SUMMARY_CHECK),
+    ('summary: the ordering findings are dropped', summary_fields(lambda v, g: dict(ordering_findings=[])),
+     SUMMARY_CHECK),
+    ('summary: the obligation is dropped', summary_fields(lambda v, g: dict(ordering='')), SUMMARY_CHECK),
+    ('summary: the clauses are dropped', summary_fields(lambda v, g: dict(clauses='')), SUMMARY_CHECK),
+    ('ALL: the push ends at its first descriptor', counters_edited(first_descriptor_only), COUNTER_ROWS),
+    ('ALL: no descriptor has a row', counters_edited(no_descriptor_rows), COUNTER_ROWS),
+    ('ALL: a descriptor\'s row ends at the whole push', counters_edited(rows_end_with_the_push), COUNTER_ROWS),
+    ('ALL: a descriptor\'s row opens after the change', counters_edited(change_before_rows), COUNTER_ROWS),
+    ('amended: SRP keeps its ceiling', mutant(hooks, 'AMENDED_SRP_MS', 18.0), AMENDED),
+    ('amended: the ceiling at two interfaces is 20 ms', mutant(hooks, 'AMENDED_QUEUED_CEILING_MS', {1: 20.0, 2: 20.0}),
+     AMENDED),
+    ('amended: every counter push is queued', mutant(hooks, 'QUEUED_PATH', 'counters.'), AMENDED),
+    ('amended: W is left off', mutant(hooks, 'amended_ms', lambda r, n: hooks.amended_service_ms(r, n)), AMENDED),
+    ('amended: the column grades a path', mutant(run, 'hook_row', graded_by_amended), AMENDED),
+    ('amended: the table does not say which bounds graded', mutant(run, 'BOUNDS_NOTE', ''), AMENDED),
+    ('amended: the column repeats the bound', mutant(hooks, 'amended_ms', lambda r, n: r['bound_ms']), AMENDED),
 ]
 
 
