@@ -1,0 +1,20 @@
+### 212b7d6e -> head
+arms: old 53, new 56
+removed:
+added:
+  + a banner past line 15 is not read
+  + the audit page lists itself
+  + the page names a finding's line
+changed:
+  ~ finding marks its page stale
+    old: ('finding marks its page stale', lambda root: None, 0, stale_cell)
+    new: ('finding marks its page stale', lambda root: None, 0, (stale_cell, '| It resets to 0x0. |'))
+  ~ new tracked page without a row
+    old: ('new tracked page without a row', add_tracked('docs/guides/NEW.md', '# New\n'), 1, ('| [docs/guides/NEW.md](guides/NEW.md) |', '| **total** | **11** |'), 'STALE')
+    new: ('new tracked page without a row', add_tracked('docs/guides/NEW.md', 'No heading.\n'), 1, ('| [docs/guides/NEW.md](guides/NEW.md) |', '| **total** | **11** |', '| NEW.md |'), 'STALE')
+  ~ the README's statement copied onto the requirements page
+    old: ("the README's statement copied onto the requirements page", plant_copy(), 1, (copy_row, copy_status, '| D0-002 | [README.md](../README.md) | on page |', 'Copy of the D0-002 statement on `README.md`.', '## D0-002: README.md:5\n', '## D0-002: REQUIREMENTS.md:3\
+    new: ("the README's statement copied onto the requirements page", plant_copy(), 1, (copy_row, copy_status, '| D0-002 | [README.md](../README.md) | on page |', 'Copy of the D0-002 statement on `README.md`.', '## D0-002: README.md:5\n', '## D0-002: REQUIREMENTS.md:3\
+  ~ the citations' baseline is on the page
+    old: ("the citations' baseline is on the page", lambda root: None, 0, 'at dev `1111111`')
+    new: ("the citations' baseline is on the page", lambda root: None, 0, ('at dev `1111111`', 'at dev `0000000`'))

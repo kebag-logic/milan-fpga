@@ -1,0 +1,61 @@
+mutant	verdict	detail
+IDENTITY	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+G0_union_grading	BADMUTANT	matches=0 for 'if text not in (listed if text.startswith("## D0-") else ren'
+P1_page_drops_copy_source	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+P1+G0	BADMUTANT	matches=0 for 'if text not in (listed if text.startswith("## D0-") else ren'
+P2_page_drops_correction	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+P2+G0	BADMUTANT	matches=0 for 'if text not in (listed if text.startswith("## D0-") else ren'
+P3_page_drops_statement	KILLED	rc=1 fails=2 selftest: FAIL a spelling found only through `also` gets a row: --check exited 0, expected 1: documentation inventory: OK (131 lines, docs/DOCUMENTATION_AUDIT.md is fresh
+P4_always_on_page	KILLED	rc=1 fails=2 selftest: FAIL planted edited quote in the data file: rendered page lacks 're-verify: quote not found'
+P5_always_reverify	KILLED	rc=1 fails=13 selftest: FAIL a line added above a finding leaves the page fresh: rendered page lacks '| D0-001 | [docs/guides/A.md](guides/A.md) | on page |'
+P6_line_number_back	KILLED	rc=1 fails=13 selftest: FAIL a removed line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 127:
+P6b_banner_line_back	KILLED	rc=1 fails=2 selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at l
+P6c_length_in_evidence	KILLED	rc=1 fails=22 selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 92:
+O1_population_drops_own	KILLED	rc=1 fails=3 selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n|
+O2_render_hides_own_row	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+O3_own_row_wrong_title	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W1_first_entry_only	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W2_last_entry_only	KILLED	rc=1 fails=1 selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: README.md:5\n'
+W3_drop_statement	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W4_drop_source	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W5_drop_correction	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W6_first_lane_only	KILLED	rc=1 fails=2 selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: REQUIREMENTS.md:3\n'
+W7_last_lane_only	KILLED	rc=1 fails=2 selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: README.md:5\n'
+W8_one_file_for_all_lanes	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W9_copy_filed_in_origin_lane	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W10_lines_always_unknown	KILLED	rc=1 fails=4 selftest: FAIL unchanged tree is fresh through `git ls-files`: rendered page lacks '## D0-001: docs/guides/A.md:3\n'
+W11_line_always_one	KILLED	rc=1 fails=4 selftest: FAIL unchanged tree is fresh through `git ls-files`: rendered page lacks '## D0-001: docs/guides/A.md:3\n'
+W12_copy_names_origin_page	KILLED	rc=1 fails=3 selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: REQUIREMENTS.md:3\n'
+W13_lane_copy_loses_copy_note	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W14_statement_wrong_field	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W15_drop_verified_header	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W16_drop_cited_header	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W17_lane_title_loses_lane	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+W18_only_located_entries	KILLED	rc=1 fails=1 selftest: FAIL fixed statement asks for re-verification: rendered page lacks '## D0-001: docs/guides/A.md:?\n'
+W19_only_recorded_not_copies	KILLED	rc=1 fails=3 selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: REQUIREMENTS.md:3\n'
+T1_drop_located_sentence	BADMUTANT	matches=0 for '"`Located` says whether the quote is still on its page.",\n'
+T2_drop_command_sentence	BADMUTANT	matches=0 for '"`python3 scripts/docs_inventory.py --findings-dir DIR` writ'
+T3_drop_search_sentence	BADMUTANT	matches=0 for '"A text search misses a wrapped or marked-up copy.", '
+T4_drop_route_sentence	BADMUTANT	matches=0 for '"That command still names its line.", '
+T5_both_route_sentences	BADMUTANT	matches=0 for '"A text search misses a wrapped or marked-up copy.", "That c'
+B1_baselines_swapped	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+B2_drop_verified	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+B3_drop_cited	KILLED	rc=1 fails=1 selftest: FAIL the citations' baseline is on the page: rendered page lacks 'at dev `1111111`'
+S9_check_ignores_rule	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+S9b_rule_lost	KILLED	rc=1 fails=45 selftest: FAIL unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is 
+S9c_rule_lost_and_check_ignores	KILLED	rc=1 fails=12 selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n|
+S10_broken_empty	KILLED	rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+S11_status_col_index	KILLED	rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+S12_inventory_width	KILLED	rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+S13_findings_width	KILLED	rc=1 fails=2 selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+C1_summary_stale_off_by_one	KILLED	rc=1 fails=1 selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n|
+C2_total_off_by_one	KILLED	rc=1 fails=3 selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n|
+C3_summary_header_lines_back	KILLED	rc=1 fails=1 selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n|
+H1_heading_less_purpose	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+H2_line_count_in_headless_purpose	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N14_window_14	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N16_window_16	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N19_window_19	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N20_window_20	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N21_window_21	SURVIVED	rc=0 fails=0 documentation inventory selftest: OK (53 controls)
+N5_window_5	KILLED	rc=1 fails=1 selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference at l
