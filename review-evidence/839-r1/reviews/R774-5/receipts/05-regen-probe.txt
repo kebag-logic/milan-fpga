@@ -1,0 +1,39 @@
+head audit sha256 1d66bb1cd748b13bb9b8e5fc3356fca6dca1472fe4c54a2cfe47b9d9b9f3f99f
+head data  sha256 6b53c9b32dab7c3a8cb629f6572cf36933c9d6a8ddf29bd248a262b40984aaca
+== A: head, Git population, submodules not populated
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check rc=0
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+A audit: BYTE-IDENTICAL
+A data: BYTE-IDENTICAL
+porcelain lines after write: 0
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check-after-write rc=0
+== B: head, no Git metadata (filesystem walk)
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check rc=0
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+B audit: BYTE-IDENTICAL
+B data: BYTE-IDENTICAL
+== C: merge commit before the regeneration commit
+  committed: | current | 176 | 73,487 |
+  generated: | current | 176 | 73,640 |
+regenerate with: python3 scripts/docs_inventory.py --write
+check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+C audit: BYTE-IDENTICAL
+C data: BYTE-IDENTICAL
+files changed by write at the merge commit:
+ M docs/DOCUMENTATION_AUDIT.md
+== D: negative controls on a head copy; each must exit 1
+extra TESTING.md line rc=1
+edited total rc=1
+edited current-lines rc=1
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored rc=0
+== E: generator self-test on the head copy
+documentation inventory selftest: OK (50 controls)
+selftest rc=0

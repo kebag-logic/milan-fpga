@@ -1,0 +1,14 @@
+make rc 0 
+runner lines 1
+legs expected 16 words expected 42 words got 48
+--- expected
++++ make -n
+@@ -10,2 +10,8 @@
+ ./obj_tspec8/Vmilan_dp_tspec8
++--banner
++---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----
++./obj_sidmove/Vmilan_dp_sidmove
++--banner
++---- processor #202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----
++./obj_sidmove8/Vmilan_dp_sidmove8
+ --banner

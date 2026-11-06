@@ -1,0 +1,16 @@
+## Makefile lines naming the recipe, per revision
+cc204c6f: 1
+87e9d03a: 1
+4f210018: 1
+cf4120f4: 1
+## first commit
+9e53b1164d 2026-09-29 Derive the AX 1x1 gPTP simulation clock from the contract clock
+ancestor of merge base cc204c6f: yes
+## backpressure test blob: dev, prior head, this head
+2e876751dba2 2e876751dba2 2e876751dba2
+## fixture make error (paths neutralised)
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/bp-out/nvm_capture_cpu/recipe.py'
+Makefile:588: *** ../nvm_capture_cpu/recipe.py did not yield CPU_HZ; the AX 1x1 simulation clock could not be derived.  Stop.
+## test: does the fixture provide the recipe
+tb/verilator/milan_dp/test_sim_pool_backpressure.py:0
+tb/verilator/milan_dp/test_sim_pool.py:0
