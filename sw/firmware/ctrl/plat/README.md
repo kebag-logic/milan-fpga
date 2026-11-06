@@ -98,7 +98,9 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
 ```
 
 After a run, the [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md)'s build directory holds these inputs: the export in `split-soc/mapped/soc`, the same map in `split-soc/flash-map` and the archives in `runtime`.
-A link without `--flash-map` is refused by name, because no split image is linked on the port's RV32 stand-ins: on the boot SoC, such an image hangs before its banner.
+A link without `--flash-map`, or with a map that lacks `generated/csr.h` or `generated/mem.h`, is refused by name before the compiler is called.
+The compiler would otherwise find the port's RV32 stand-ins in their place, with no diagnostic, and on the boot SoC such an image hangs before its banner.
+The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
 At 8x8 with two interfaces the image plans 59.0 RAMB36.
@@ -121,7 +123,7 @@ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) 
 
 The split boot simulation generates F1's flash map from the split SoC's `csr.csv` and passes it to both platform links and boot exports.
 Each export checks the placement against that map.
-The refusal of a link without the map is a control of [`ctrl_image_selftest.py`](../test/ctrl_image_selftest.py), which the boundary gate runs.
+The refusal of a link without the map, or with a map that lacks a header, is a control of [`ctrl_image_selftest.py`](../test/ctrl_image_selftest.py), which the boundary gate runs.
 
 ## Not yet done
 

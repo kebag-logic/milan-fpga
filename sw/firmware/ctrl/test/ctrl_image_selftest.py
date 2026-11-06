@@ -27,12 +27,15 @@ soft-float ILP32 ABI. Each part of that is shown to hold and to fail:
            the audit; from one built for the pinned SDK's own multilib
            (rv32imafd, ilp32d), refused at the link; with a helper that calls
            itself, refused by the leaf check;
-  plat     ctrl_plat_image.py never links a split image on the flash port's
-           RV32 stand-ins: with no --flash-map, a runtime archive that exists
-           is refused by name before anything compiles, and no ELF is left;
-           with a map the run gets past that refusal, to the map's own clock
-           check. The run with no archives at all, which compiles and stops
-           at its link, is the boundary gate's (ctrl_runs.stopped_at_link).
+  plat     ctrl_plat_image.py links no image that takes a header of the flash
+           port's RV32 stand-ins: with no --flash-map, a runtime archive that
+           exists is refused by name, and so is a map that lacks
+           generated/csr.h, generated/mem.h or both, at the shape's own clock.
+           Each is refused before the compiler is called: no ELF, and nothing
+           in its output directory. A complete map gets past those refusals,
+           to its own clock check. The run with no archives at all, which
+           compiles and stops at its link, is the boundary gate's
+           (ctrl_runs.stopped_at_link).
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_image_selftest.py [--require-rv32]
@@ -45,6 +48,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import struct
 import subprocess
 import sys
@@ -62,9 +66,13 @@ from ctrl_build import RV32_FLAGS, Refusal  # noqa: E402
 
 SHIPPING = ctrl_image.SHAPES[0]
 FIRMWARE = ctrl_image.ROOT / "sw/firmware"
-#: The words ctrl_plat_image.py refuses a link with no flash map in, and a map at another clock.
+#: The words ctrl_plat_image.py refuses a link with no flash map in, a map that lacks a header, and a map at another
+#: clock.
 NO_MAP = "no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins"
+LACKS = "the flash map lacks {}: a split platform image is never linked on the flash port's RV32 stand-ins"
 OTHER_CLOCK = "the flash map's SoC runs at 1 Hz"
+#: The headers a flash map holds beside its flash_port.json, as gen_flash_port.py lays them out.
+MAP_CSR, MAP_MEM = "generated/csr.h", "generated/mem.h"
 START = ctrl_image.IMAGE / "image_start.S"
 SCRIPT = ctrl_image.IMAGE / "image.ld"
 ASM_FLAGS = ("-march=rv32i", "-mabi=ilp32")
@@ -429,20 +437,42 @@ def plat_link(work: Path, name: str, archives: tuple[Path, Path], *extra: str) -
     return said.rsplit("\n", 1)[-1]
 
 
+def plat_refused(work: Path, name: str, archives: tuple[Path, Path], words: str, *extra: str) -> None:
+    """plat_link for a run refused in `words` before the compiler is called: its output directory holds nothing."""
+    said = plat_link(work, name, archives, *extra)
+    assert words in said, (name, said)
+    left = sorted(path.name for path in (work / name).iterdir())
+    assert not left, (name, "went on before its refusal", left)
+
+
+def flash_map(path: Path, clock_hz: int, headers: tuple[str, ...]) -> str:
+    """A flash map directory laid out as gen_flash_port.py lays one out, at `clock_hz`, holding only `headers`."""
+    for name in headers:
+        written(path / name, "")
+    return str(written(path / "flash_port.json", json.dumps({"clock_hz": clock_hz})).parent)
+
+
 def plat_cases(work: Path) -> int:
-    """The split platform's link needs the flash map (#665): each run with an archive that exists and no map is
-    refused by name, and a run given a map is not."""
+    """The split platform's link needs the whole flash map (#665): each run with an archive that exists and no map,
+    and each map that lacks a header, is refused by name before the compiler is called, and a complete map is not.
+    The partial maps are at the shape's own clock, read from the clock check's words, so only their refusal keeps
+    them from the compiler."""
     present, absent = written(work / "libc.a", ""), work / "absent.a"
     for name, archives in (("both archives", (present, present)), ("the C library alone", (present, absent)),
                            ("the compiler runtime alone", (absent, present))):
-        said = plat_link(work, name.replace(" ", "-"), archives)
-        assert NO_MAP in said, (name, said)
+        plat_refused(work, name.replace(" ", "-"), archives, NO_MAP)
         print(f"PASS: plat: no map with {name}: refused by name")
-    written(work / "map/flash_port.json", json.dumps({"clock_hz": 1}))
-    said = plat_link(work, "map", (present, present), "--flash-map", str(work / "map"))
+    said = plat_link(work, "complete", (present, present), "--flash-map",
+                     flash_map(work / "maps/complete", 1, (MAP_CSR, MAP_MEM)))
     assert OTHER_CLOCK in said, said
-    print("PASS: plat: a run given a map gets past that refusal, to its clock check")
-    return 4
+    print("PASS: plat: a run given a complete map gets past those refusals, to its clock check")
+    clock_hz = int(re.search(r"the shape at (\d+) Hz", said)[1])
+    for name, holds, lacks in (("csr", (MAP_MEM,), MAP_CSR), ("mem", (MAP_CSR,), MAP_MEM),
+                               ("json-only", (), f"{MAP_CSR} and {MAP_MEM}")):
+        plat_refused(work, f"lacks-{name}", (present, present), LACKS.format(lacks), "--flash-map",
+                     flash_map(work / "maps" / name, clock_hz, holds))
+        print(f"PASS: plat: a map at the shape's clock lacking {lacks}: refused by name")
+    return 7
 
 
 def main(argv: list[str] | None = None) -> int:

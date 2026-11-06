@@ -12,9 +12,11 @@ bus map from --csr-csv, the export of the SoC the image runs on (a split
 export with any image gives it; docs/design/SPLIT_CONTROL_MEMORY.md section 4).
 The mailbox's base is the map's. --flash-map puts the saved-state store's flash
 port on the split SoC's generated addresses (gen_flash_port.py). A link without
-it is refused, so no split image carries the port's RV32 stand-ins (#665). Only
-a run whose runtime archives do not exist takes no map, the boundary gate's: it
-compiles on the stand-ins and stops at its link, with no ELF (ctrl_runs.py).
+it, or with a map that lacks generated/csr.h or generated/mem.h, is refused
+before the compiler is called, so a linked platform image takes no header of the
+port's RV32 stand-ins (#665). Only a run whose runtime archives do not exist
+takes no map, the boundary gate's: it compiles on the stand-ins and stops at its
+link, with no ELF (ctrl_runs.py).
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
@@ -50,13 +52,23 @@ PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
 #: Why a link needs the flash map: the words a run with runtime archives and no map is refused in.
 NO_FLASH_MAP = ("no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; "
                 "gen_flash_port.py writes the map from the split SoC's export")
+#: What a flash map must hold: the compiler finds the port's RV32 stand-in behind either header it lacks, silently.
+MAP_HEADERS = ("generated/csr.h", "generated/mem.h")
+#: The words a map that lacks a header is refused in, naming what it lacks.
+PARTIAL_MAP = ("the flash map lacks {}: a split platform image is never linked on the flash port's RV32 stand-ins; "
+               "gen_flash_port.py writes the whole map")
 
 
 def refuse_placeholder(flash_map: Path | None, archives: tuple[Path, Path]) -> None:
-    """Refuse a link on the flash port's RV32 stand-ins (#665). Without a map only a run whose archives are both
-    absent goes on, and the link stops that one: it compiles every object and makes no ELF."""
+    """Refuse a link on the flash port's RV32 stand-ins (#665), before the compiler is called. Without a map only a
+    run whose archives are both absent goes on, and the link stops that one: it compiles every object and makes no
+    ELF. A map must hold both generated headers; this reads that they are there, not what they say."""
     if flash_map is None and any(path.exists() for path in archives):
         raise Refusal(NO_FLASH_MAP)
+    if flash_map is not None:
+        missing = [name for name in MAP_HEADERS if not (flash_map / name).is_file()]
+        if missing:
+            raise Refusal(PARTIAL_MAP.format(" and ".join(missing)))
 
 
 def generate(config: Path, csr_csv: Path, out: Path) -> None:
