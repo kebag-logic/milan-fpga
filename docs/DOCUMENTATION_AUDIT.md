@@ -462,6 +462,7 @@ An archive copy stays as written.
 
 `Located` says whether the quote is still on its page.
 `python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.
+Use it for a copy row that a text search misses, because its page wraps or marks up the words.
 
 | ID | Page | Located | Statement | Contradicted by | Correction |
 |---|---|---|---|---|---|

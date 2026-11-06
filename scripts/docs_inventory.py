@@ -591,7 +591,8 @@ def render(tree: Tree, paths: list[str]) -> str:
             "A copy row shows the recorded spelling.", "It names the recording page.", "",
             "Remove an entry once no copy row remains.", "An archive copy stays as written.", "",
             "`Located` says whether the quote is still on its page.",
-            "`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.", "",
+            "`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.",
+            "Use it for a copy row that a text search misses, because its page wraps or marks up the words.", "",
             "| ID | Page | Located | Statement | Contradicted by | Correction |", "|---|---|---|---|---|---|"]
     for finding, line in located:
         where = "on page" if line else "re-verify: quote not found"
@@ -638,8 +639,7 @@ def cells(row: str) -> list[str]:
 def current_with_findings(page: str) -> list[str]:
     """Pages an audit page marks current although its own Findings table lists them.
 
-    Read from the page text alone, so it judges the committed page whatever
-    generator produced it.
+    Read from the page text alone, so it judges the committed page whatever generator produced it.
     """
     states: dict[str, str] = {}
     listed: set[str] = set()
@@ -732,9 +732,8 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
             absent: str | tuple[str, ...] = "") -> str | None:
     """One planted control on a fresh Git fixture; the failure message, or None when it held.
 
-    The fixture's page is written with `--write`, the mutation applied, and
-    `--check`, the workflow's own command, must exit `want` and print `says`.
-    Unless it refused (2), `--write` must then heal the tree, and the page it
+    The fixture's page is written with `--write`, the mutation applied, and `--check`, the workflow's own command,
+    must exit `want` and print `says`. Unless it refused (2), `--write` must then heal the tree, and the page it
     regenerates must carry every `needle`, lack `absent` and carry no em dash.
     A `needle` opening `## D0-` is graded on the `--findings-dir` files alone, the only output naming a finding's line.
     """
@@ -925,8 +924,8 @@ def selftest() -> int:
          1, "re-verify: quote not found", "STALE"),
         ("fixed statement asks for re-verification", replace("docs/guides/A.md", "0x1", "0x0"), 1,
          ("re-verify: quote not found", "## D0-001: docs/guides/A.md:?\n"), "STALE"),
-        ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
-         ("| [docs/guides/NEW.md](guides/NEW.md) |", "| **total** | **11** |"), "STALE"),
+        ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "No heading.\n"), 1,
+         ("| [docs/guides/NEW.md](guides/NEW.md) |", "| **total** | **11** |", "| NEW.md |"), "STALE"),
         ("untracked page stays out of the population", append("docs/guides/UNTRACKED.md", "# Untracked\n"), 0,
          "", "is fresh", "UNTRACKED"),
         ("tracked page removed", lambda root: (root / "docs/guides/B.md").unlink(), 1, "| **total** | **9** |", "STALE",
@@ -935,16 +934,17 @@ def selftest() -> int:
         ("hand-edited status hides a finding",
          replace(OUTPUT, stale_cell, "| current | no recorded contradiction |"), 1, stale_cell,
          "docs/guides/A.md carries an open finding but is marked current"),
-        ("finding marks its page stale", lambda root: None, 0, stale_cell),
+        ("finding marks its page stale", lambda root: None, 0, (stale_cell, "| It resets to 0x0. |")),
         ("a recorded current judgement cannot hide a finding", edit_data(lambda d: d.update(
             judged={"docs/guides/A.md": {"status": "current", "evidence": "judged"}})), 0, stale_cell),
         ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
         ("the audit page lists itself", lambda root: None, 0, "| maintainer | Documentation audit |"),
-        ("the page names a finding's line", lambda root: None, 0, ("`Located` says", "--findings-dir DIR")),
+        ("the page names a finding's line", lambda root: None, 0, ("`Located`", "--findings-dir DIR", "search misses")),
         ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
          "", "is fresh", "protocol-processor/README.md"),
         ("supersession banner", append("docs/guides/B.md", banner), 1,
          "| superseded | banner names `docs/guides/A.md` |", "STALE"),
+        ("a banner past line 15 is not read", append("docs/guides/B.md", "\n" * 15 + banner), 0, "", "is fresh"),
         ("archive page is obsolete with its successor", lambda root: None, 0,
          "| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) |"),
         ("archive index stays current", lambda root: None, 0, "archive index"),
@@ -960,7 +960,7 @@ def selftest() -> int:
         ("finding without a correction", edit_data(lambda d: d["findings"][0].update(correction="")), 2, "", "REFUSED"),
         ("judgement with an unknown status", edit_data(lambda d: d.update(
             judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), 2, "", "REFUSED"),
-        ("the citations' baseline is on the page", lambda root: None, 0, "at dev `1111111`"),
+        ("the citations' baseline is on the page", lambda root: None, 0, ("at dev `1111111`", "at dev `0000000`")),
         ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), 2, "", "REFUSED"),
     ) + copy_controls()
     failures = [message for message in (control(*arm) for arm in controls) if message]
