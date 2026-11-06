@@ -2191,8 +2191,10 @@ The poll runs on every boot path that passed the CSR identity check ([#70](https
 That path also installs the console idle hook; the writer behind it is never admitted.
 After an identity mismatch nothing touches the MDIO pins.
 `sw/firmware/nvm_hosttest/test_phy_firmware.py` boots all three paths against a pin-level peer.
-Its peer starts each bit the PHY init keeps or clears in the other state.
-The host driver grades each such bit by name, and twenty-two planted mutants each fail one.
+Its peer starts every bit the PHY init clears at one.
+Two gigabit arms start each bit it keeps in opposite states, so forcing or dropping one fails.
+The peer refuses registers 15, 9, 4 and 0 in turn, and each refusal must leave no write.
+The host driver grades each property by name, and forty-seven planted mutants each fail one.
 Two PHYs without 1000BASE-T full duplex ability are discovered afresh and must stay unwritten.
 The one with register 15 must have it read once per boot, not on every poll.
 A gigabit PHY with auto-negotiation disabled must have it enabled by the restart.

@@ -71,6 +71,36 @@ ADVERTISEMENT_WRITES = ("\tphy_mdio_write(9, ((unsigned int)gigabit & PHY_GBCR_M
 RESTART_WRITE = ("\tphy_mdio_write(0, ((unsigned int)control | PHY_BMCR_AN_ENABLE |\n"
                  "\t\t\t   PHY_BMCR_AN_RESTART) &\n"
                  "\t\t       ~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE));\n")
+#: the PHY init's check that its three reads were acknowledged
+READ_GUARD = "\tif (advertisement < 0 || gigabit < 0 || control < 0)\n\t\treturn 0;\n"
+#: the register 4 and register 9 values the PHY init writes, as it spells them
+REGISTER_4_VALUE = ("(unsigned int)advertisement &\n"
+                    "\t\t       ~(PHY_ANAR_BELOW_GIGABIT | PHY_ANAR_RESERVED)")
+REGISTER_9_KEEP = "((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |"
+#: #840: each field the PHY init keeps: its register, its bits and the assertion
+#: that grades it
+KEPT_FIELDS = ((4, range(0, 5), "selector_kept"),
+               (4, range(10, 12), "pause_bits_kept"),
+               (9, range(10, 13), "master_slave_kept"))
+
+
+def kept_bit_mutants() -> dict[str, tuple[str, str, str]]:
+    """Each kept bit forced on and dropped, one mutant each: a keep is an identity."""
+    mutants = {}
+    for register, bits, assertion in KEPT_FIELDS:
+        for bit in bits:
+            mask = f"0x{1 << bit:04x}u"
+            if register == 4:
+                forced = (REGISTER_4_VALUE, f"{mask} | ({REGISTER_4_VALUE})")
+                dropped = (REGISTER_4_VALUE, REGISTER_4_VALUE.replace("~(", f"~({mask} | "))
+            else:
+                forced = (REGISTER_9_KEEP, f"{REGISTER_9_KEEP} {mask} |")
+                dropped = (REGISTER_9_KEEP, REGISTER_9_KEEP.replace("MASTER_SLAVE)", f"MASTER_SLAVE & ~{mask})"))
+            mutants[f"force-bit-{register}.{bit}"] = (*forced, assertion)
+            mutants[f"drop-bit-{register}.{bit}"] = (*dropped, assertion)
+    return mutants
+
+
 #: #840: the PHY init defects the pin-level peer must catch, each planted into
 #: a copy of the firmware, and the assertion that must name it
 ADVERTISEMENT_MUTANTS = {
@@ -100,8 +130,13 @@ ADVERTISEMENT_MUTANTS = {
     "restart-first": (ADVERTISEMENT_WRITES + RESTART_WRITE, RESTART_WRITE + ADVERTISEMENT_WRITES,
                       "restart_after_advertisement"),
     # a register written from a read that was not acknowledged
-    "write-unread": ("\tif (advertisement < 0 || gigabit < 0 || control < 0)\n\t\treturn 0;\n",
-                     "", "no_write_before_its_read"),
+    "write-unread": (READ_GUARD, "", "no_write_before_its_read"),
+    # register 4 written from a read that was not acknowledged
+    "nak-reg4-not-checked": (READ_GUARD, READ_GUARD.replace("advertisement < 0 || ", ""),
+                             "no_write_before_its_register_4_read"),
+    # register 0 written from a read that was not acknowledged
+    "nak-reg0-not-checked": (READ_GUARD, READ_GUARD.replace(" || control < 0", ""),
+                             "no_write_before_its_register_0_read"),
     # the advertisement written though the ability read was not acknowledged
     "write-unread-ability": ("\tif (extended < 0)\n\t\treturn 0;\n", "",
                              "no_write_before_its_ability_read"),
@@ -152,6 +187,13 @@ ADVERTISEMENT_MUTANTS = {
     # the restart leaves auto-negotiation disabled (bit 0.12) as read
     "no-auto-negotiation-enable": ("((unsigned int)control | PHY_BMCR_AN_ENABLE |\n",
                                    "((unsigned int)control |\n", "auto_negotiation_enabled"),
+    # register 4 always written with both pause bits set
+    "force-pause-on": (REGISTER_4_VALUE, f"0x0c00u | ({REGISTER_4_VALUE})", "pause_bits_kept"),
+    # register 9 always written with manual MASTER-SLAVE, overriding automatic resolution
+    "force-manual-master": (REGISTER_9_KEEP, f"{REGISTER_9_KEEP} 0x1c00u |", "master_slave_kept"),
+    # register 9 always written with bit 12, manual configuration, set
+    "force-manual-config-only": (REGISTER_9_KEEP, f"{REGISTER_9_KEEP} 0x1000u |", "master_slave_kept"),
+    **kept_bit_mutants(),
 }
 
 
@@ -274,7 +316,7 @@ def main() -> None:
                             "status_word == expected")
                 if result.returncode == 0 or f"Assertion `{expected}' failed" not in result.stderr:
                     raise RuntimeError(mutant + " escaped its named assertion " + expected)
-                print("PHY_MUTANT " + mutant + ": caught")
+                print("PHY_MUTANT " + mutant + ": caught by " + expected)
         cfg = nvm.ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
         findings = boot_path_findings(cfg, work / "boot", source)
         if findings:

@@ -116,18 +116,21 @@ int main(void)
 	unsigned int down_before;
 
 	/* Standard 1000BASE-T full-duplex negotiation, at a nonzero address.
-	 * Each bit the PHY init must clear or keep starts in the other state:
-	 * register 4 advertises every 10/100 mode, 100BASE-T4, both pause bits
-	 * and reserved bit 14; register 9 sets every bit but 1000BASE-T full
-	 * duplex, so its MASTER-SLAVE, test-mode, half duplex and reserved bits;
-	 * register 0 sets reset and isolate. The arm below without
-	 * auto-negotiation enabled grades that bit. */
+	 * Each bit the PHY init must clear starts set: register 4 advertises
+	 * every 10/100 mode, 100BASE-T4 and reserved bit 14; register 9 sets
+	 * its test-mode, half duplex and reserved bits; register 0 sets reset
+	 * and isolate. A keep is an identity, so one start value cannot grade
+	 * it (#840): this arm and the arm below without auto-negotiation
+	 * enabled start each kept bit in opposite states, the selector 00001
+	 * then 11110, pause 10 then 01, MASTER-SLAVE 101 then 010, so forcing
+	 * or dropping any kept bit changes it in one arm. That arm also grades
+	 * the auto-negotiation enable bit. */
 	registers[0] = 0x9400;
 	registers[1] = 0x0124;
 	registers[2] = 0x001c;
-	registers[4] = 0x4fe1;
+	registers[4] = 0x4be1;
 	registers[5] = 0x01e1;
-	registers[9] = 0xfdff;
+	registers[9] = 0xf5ff;
 	registers[10] = 0x0c00;
 	registers[15] = 0x3000;
 	memcpy(initial, registers, sizeof(initial));
@@ -135,7 +138,8 @@ int main(void)
 		expect_poll(now++, 0);
 	/* #840: a register the PHY init reads is not acknowledged, so the init
 	 * writes nothing and the next poll retries it: first the ability
-	 * register 15, then the 1000BASE-T control register 9. */
+	 * register 15, then the 1000BASE-T control register 9, the advertisement
+	 * register 4 and the control register 0. */
 	nak_register = 15;
 	expect_poll(now, 0);
 	{
@@ -150,6 +154,25 @@ int main(void)
 		const int no_write_before_its_read = writes == 0u;
 
 		assert(no_write_before_its_read);
+	}
+	/* The gigabit resolution reads no register 4, so this poll resolves
+	 * the peer's unwritten register 9 and publishes a link: only the
+	 * absent write is the property here. */
+	nak_register = 4;
+	now += 125000000u;
+	phy_link_tick(now);
+	{
+		const int no_write_before_its_register_4_read = writes == 0u;
+
+		assert(no_write_before_its_register_4_read);
+	}
+	nak_register = 0;
+	now += 125000000u;
+	expect_poll(now, 0);
+	{
+		const int no_write_before_its_register_0_read = writes == 0u;
+
+		assert(no_write_before_its_register_0_read);
 	}
 	nak_register = 32;
 	now += 125000000u;
@@ -310,9 +333,9 @@ int main(void)
 
 		registers[0] = 0x2100;
 		registers[1] = 0x0124;
-		registers[4] = 0x4fe1;
+		registers[4] = 0x47fe;
 		registers[5] = 0x01e1;
-		registers[9] = 0xfdff;
+		registers[9] = 0xe9ff;
 		registers[10] = 0x0c00;
 		registers[15] = 0x3000;
 		rediscover(&now);
