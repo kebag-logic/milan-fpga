@@ -1,0 +1,11 @@
+int 0x22        : accepted, resolves to 0x22
+int 0xFE        : accepted, resolves to 0xFE
+omitted         : accepted, resolves to 0xFE
+int 0x31        : accepted, resolves to 0x31
+int 0x1F        : ConfigError: gptp.clock_accuracy 0x1F is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value
+int 0xFF        : ConfigError: gptp.clock_accuracy 0xFF is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value
+string '0x22'   : UNNAMED ValueError: invalid literal for int() with base 10: '0x22'
+string '34'     : accepted, resolves to 0x22
+bool true       : ConfigError: gptp.clock_accuracy 0x1 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value 
+float 34.7      : accepted, resolves to 0x22
+null            : UNNAMED TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'

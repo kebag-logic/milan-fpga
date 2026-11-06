@@ -1,0 +1,12 @@
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+test_gptp_dataset_matches_engine_announce:
+  [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockClass 0xF8, variance 0x436A, clockAccuracy per board (AX7101 0x22, Arty 0xFE), log intervals -3/0/0; omitted keys fill from the engine and clockAccuracy from 8.6.2.3 b); the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+test_gptp_clock_accuracy_per_board:
+  [gate 26c] clockAccuracy per board (#843): the AX7101 build's image carries --clock-accuracy 0x22 and the Arty's 0xFE, each byte-equal to the generator's image for gptp_ucode_args() and different under the other value; values outside IEEE 1588-2008 Table 6 refused; milan_dp's gptp and gptp-lat legs run those two configs and grade the Announce octet on the wire
+test_builder_doc_key_map:
+  [gate 32] 114 loader keys == 114 keys across 66 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1539 endstation_builder.py:1619 endstation_builder.py:1623 endstation_builder.py:1986 endstation_builder.py:1990 endstation_builder.py:3318 endstation_builder.py:3407 endstation_builder.py:3509 endstation_builder.py:3786 endstation_builder.py:3795 endstation_builder.py:3832 endstation_builder.py:3851 endstation_builder.py:3888 endstation_builder.py:4247 endstation_builder.py:4343 endstation_builder.py:4370 endstation_builder.py:4542 endstation_builder.py:4548
+
+SUBSET: 4 of 108 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
