@@ -1,0 +1,8 @@
+real: rc=0 elf=yes
+  ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0
+link-standin: rc=0 elf=yes
+  ls_ lines 356; lui 0xf0004: 3; lui 0x20000: 1
+copy-standin: rc=0 elf=yes
+  ls_ lines 356; lui 0xf0004: 3; lui 0x20000: 1
+lacks-mem: rc=2 elf=no
+  REFUSED: the flash map lacks generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the whole map

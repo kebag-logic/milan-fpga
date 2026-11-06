@@ -1,0 +1,14 @@
+shape clock: 100000000 Hz
+head-dir-both: rc=2 elf=no files=0
+  REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the 
+mutant-dir-both: rc=2 elf=no files=91
+  flash port object compiled; lui 0xf0004: 4; lui 0x20000: 1
+  REFUSED: <sdk>/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: <reviews>/665s4-r73
+head-link-standin: rc=2 elf=no files=91
+  flash port object compiled; lui 0xf0004: 4; lui 0x20000: 1
+  REFUSED: <sdk>/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: <reviews>/665s4-r73
+head-copy-standin: rc=2 elf=no files=91
+  flash port object compiled; lui 0xf0004: 4; lui 0x20000: 1
+  REFUSED: <sdk>/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: <reviews>/665s4-r73
+head-standin-dir-as-map: rc=2 elf=no files=7
+  REFUSED: [Errno 2] No such file or directory: '<clone>/sw/firmware/ctrl_nvm/test/rv32/flash_port.json'
