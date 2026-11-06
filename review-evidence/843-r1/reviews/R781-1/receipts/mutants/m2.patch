@@ -1,0 +1,13 @@
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index bd3cd9de7d..dbb6f6afa0 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -3711,7 +3711,7 @@ def gptp_ucode_args(cfg: dict[str, Any]) -> list[str]:
+     return ["--mac", f"0x{mac:012x}",
+             "--p1", str(cfg["gptp"]["priority1"]),
+             "--clk-hz", str(cfg["constraints"]["milan_clk_hz"]),
+-            "--clock-accuracy", f"0x{cfg['gptp']['clock_accuracy']:02X}"]
++            "--clock-accuracy", "0x22"]
+ 
+ 
+ def _gptp_clock_accuracy_key(gp_raw: dict[str, Any]) -> int:

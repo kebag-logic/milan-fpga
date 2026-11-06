@@ -1,0 +1,11 @@
+int 0x22                               -> accepted, resolved 0x22, args ['--clock-accuracy', '0x22']
+int 34                                 -> accepted, resolved 0x22, args ['--clock-accuracy', '0x22']
+float 34.9                             -> accepted, resolved 0x22, args ['--clock-accuracy', '0x22']
+string '0x22'                          -> ValueError (not ConfigError): invalid literal for int() with base 10: '0x22'
+bool true                              -> ConfigError: gptp.clock_accuracy 0x1 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.
+null                                   -> TypeError (not ConfigError): int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+int 0x20 low end                       -> accepted, resolved 0x20, args ['--clock-accuracy', '0x20']
+int 0x31 high end                      -> accepted, resolved 0x31, args ['--clock-accuracy', '0x31']
+int 0xFE                               -> accepted, resolved 0xFE, args ['--clock-accuracy', '0xFE']
+int 0x21 (valid, not the board's)      -> accepted, resolved 0x21, args ['--clock-accuracy', '0x21']
+negative -1                            -> ConfigError: gptp.clock_accuracy 0x-1 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6
