@@ -585,7 +585,8 @@ def check_amended() -> None:
 
 def check_superseded() -> None:
     """An unmeasured probe of a path this harness measures again in its own group, on the same interface, is
-    superseded; on another interface, or unmeasured there too, it stays a refusal."""
+    superseded; on another interface, or unmeasured there too beside a row of another path, it stays a refusal, and
+    so does a path the table does not name, though that group measured it."""
     lost = dict(probe='acmp.tmr_no_adp.if1', path=['acmp.tmr_no_adp', 1], status='no start', reason='late')
     again = dict(row('disc', 2.0, probe='hooks-disc-aging.tmr_no_adp.if1'), path=['acmp.tmr_no_adp', 1],
                  interface=1, status='measured')
@@ -594,8 +595,13 @@ def check_superseded() -> None:
     expect(not got['refusals'] and len(got['superseded']) == 1, f'superseded: {got}')
     got = graded_with({'acmp-disc': [lost], 'hooks-disc-aging': [other]})
     expect(len(got['refusals']) == 1 and not got['superseded'], f'other interface: {got}')
-    got = graded_with({'acmp-disc': [dict(lost, path=['acmp.bind_rx', 1])], 'hooks-disc-aging': [again]})
-    expect(len(got['refusals']) == 1, f'another path: {got}')
+    unnamed = ['acmp.bind_rx', 1]
+    got = graded_with({'acmp-disc': [dict(lost, path=unnamed)], 'hooks-disc-aging': [dict(again, path=unnamed)]})
+    expect(len(got['refusals']) == 1 and not got['superseded'], f'a path the table does not name: {got}')
+    beside = dict(again, probe='hooks-disc-aging.available.if1', path=['acmp.entity_available', 1])
+    own = dict(lost, probe='hooks-disc-aging.tmr_no_adp.if1')
+    got = graded_with({'acmp-disc': [lost], 'hooks-disc-aging': [beside, own]})
+    expect(len(got['refusals']) == 2 and not got['superseded'], f'another path: {got}')
 
 
 def check_aging_group() -> None:
@@ -738,8 +744,15 @@ def findings_by_amended(*arguments: object) -> dict:
                                   or x.split(': ')[1] in over])
 
 
-def superseded_by_any_row(*arguments: object) -> dict:
-    """A run's grade with every refusal superseded, whichever path or interface a later group measured."""
+def row_as_the_tabled_path(r: dict, group: str) -> dict:
+    """A path's row, its path read as the one the table has its group supersede: the rule's comparison of paths then
+    compares nothing, and any row of that group on the refusal's interface supersedes it."""
+    out = HOOK_ROW(r, group)
+    return dict(out, path=next((path for path, by in hooks.SUPERSEDED.items() if by == group), out['path']))
+
+
+def every_refusal_superseded(*arguments: object) -> dict:
+    """A run's grade with every refusal superseded, with no regard to any row."""
     graded = GRADE_ALL(*arguments)
     return dict(graded, refusals=[], superseded=[*graded['superseded'], *graded['refusals']])
 
@@ -799,7 +812,12 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'the plants apply'),
     ('supersede: the table names another group', mutant(hooks, 'SUPERSEDED', {'acmp.tmr_no_adp': 'acmp-disc'}),
      'a refusal is superseded only by its own path'),
-    ('supersede: any later group supersedes a refusal', mutant(run, 'grade_all', superseded_by_any_row),
+    ('supersede: the table names a second path', mutant(hooks, 'SUPERSEDED', {**hooks.SUPERSEDED,
+                                                                              'acmp.bind_rx': 'hooks-disc-aging'}),
+     'a refusal is superseded only by its own path'),
+    ('supersede: a row of another path supersedes a refusal', mutant(run, 'hook_row', row_as_the_tabled_path),
+     'a refusal is superseded only by its own path'),
+    ('supersede: every refusal is superseded', mutant(run, 'grade_all', every_refusal_superseded),
      'a refusal is superseded only by its own path'),
     ('aging: the window opens before the arm (the earlier rule)', mutant(hooks, 'aging_group', window_before_arm),
      'the aging window opens after the arm'),

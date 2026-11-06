@@ -232,7 +232,9 @@ Then it replaces each rule in turn, and a named check must fail:
 | H-SRP: the ADOPTED bit is never seen set | H-SRP ordering |
 | plants: a plant edits nothing | the plants apply |
 | supersede: the table names another group | a refusal is superseded only by its own path |
-| supersede: any later group supersedes a refusal | a refusal is superseded only by its own path |
+| supersede: the table names a second path | a refusal is superseded only by its own path |
+| supersede: a row of another path supersedes a refusal | a refusal is superseded only by its own path |
+| supersede: every refusal is superseded | a refusal is superseded only by its own path |
 | aging: the window opens before the arm (the earlier rule) | the aging window opens after the arm |
 | aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | the aging window opens after the arm |
 | aging: both sinks bound before either is answered (the earlier rule) | the aging window opens after the arm |
