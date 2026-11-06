@@ -1,0 +1,34 @@
+adp-late        group control            unplanted rows   3; unplanted findings matching 'LATE H-ADP:' 0
+    planted receipt: PLANT adp-late caught: LATE H-ADP: control.discover.if0: 74.532 ms against its bound 20 ms (control)
+adp-order       group hooks-order-adp    unplanted rows   2; unplanted findings matching 'ORDER H-ADP:' 0
+    planted receipt: PLANT adp-order caught: ORDER H-ADP: the ENTITY_AVAILABLE committed at bus cycle 184748560 on interface 0 carries grandmaster 0000000000000000, not the one in force, [723685419392041216] (hooks-order-adp)
+disc-late       group hooks-late-disc    unplanted rows   1; unplanted findings matching 'LATE H-DISC:' 0
+    planted receipt: PLANT disc-late caught: LATE H-DISC: hooks-late-disc.entity_departing.if0: 129.678 ms against its bound 20 ms (hooks-late-disc)
+disc-order      group acmp-disc          unplanted rows   3; unplanted findings matching 'ORDER H-DISC:' 0
+    planted receipt: PLANT disc-order caught: ORDER H-DISC: after the ENTITY_DEPARTING at 73700102 and the ENTITY_AVAILABLE at 90700102 on interface 0, the sink never probed its talker: the departure was applied after the arrival (acmp-disc)
+acmp-late       group hooks-late-acmp    unplanted rows   1; unplanted findings matching 'LATE H-ACMP:' 0
+    planted receipt: PLANT acmp-late caught: LATE H-ACMP: hooks-late-acmp.get_rx_state.if0: 74.760 ms against its bound 20 ms (hooks-late-acmp)
+acmp-order      group hooks-order-acmp   unplanted rows   0; unplanted findings matching 'ORDER H-ACMP:' 0
+    planted receipt: PLANT acmp-order caught: ORDER H-ACMP: on interface 0 the command 0x7401 received at 69623957 after 0x7400 at 69623866 was answered first (69737433 before 69777771) (hooks-order-acmp)
+aecp-late       group hooks-late-aecp    unplanted rows   1; unplanted findings matching 'LATE H-AECP:' 0
+    planted receipt: PLANT aecp-late caught: LATE H-AECP: hooks-late-aecp.read_descriptor.if0: 76.069 ms against its bound 20 ms (hooks-late-aecp)
+aecp-order      group aecp               unplanted rows  25; unplanted findings matching 'ORDER H-AECP:' 0
+    planted receipt: PLANT aecp-order caught: ORDER H-AECP: aecp.lock_entity.if0: its response at 79355294 precedes any face commit since its receive commit at 79223329 (aecp)
+notify-late     group hooks-late-notify  unplanted rows   1; unplanted findings matching 'LATE H-NOTIFY:' 0
+    planted receipt: PLANT notify-late caught: LATE H-NOTIFY: hooks-late-notify.set_name.if0: 79.352 ms against its bound 20 ms (hooks-late-notify)
+notify-order    group aecp-fanout        unplanted rows   9; unplanted findings matching 'ORDER H-NOTIFY:' 0
+    planted receipt: PLANT notify-order caught: ORDER H-NOTIFY: aecp_fanout.set_name.if0: a notification at 75477884 precedes its response at 75694414 (aecp-fanout)
+counters-late   group hooks-counters     unplanted rows   3; unplanted findings matching 'LATE H-COUNTERS:' 1 -> CANNOT ESCAPE
+    unplanted: LATE H-COUNTERS: counters.all.if0: 27.581 ms against its bound 20 ms (hooks-counters)
+    planted receipt: PLANT counters-late caught: LATE H-COUNTERS: counters.first.if0: 81.819 ms against its bound 20 ms (hooks-counters)
+counters-order  group hooks-counters     unplanted rows   3; unplanted findings matching 'ORDER H-COUNTERS:' 0
+    planted receipt: PLANT counters-order caught: ORDER H-COUNTERS: descriptor 0x0005 0 to 0a0b0c0d0e0f1000 on interface 0: pushes 115.251 ms apart at the wire, under 1000 ms (hooks-counters)
+maap-late       group hooks-late-maap    unplanted rows   1; unplanted findings matching 'LATE H-MAAP:' 0
+    planted receipt: PLANT maap-late caught: LATE H-MAAP: hooks-late-maap.defend.if0: 74.690 ms against its bound 20 ms (hooks-late-maap)
+maap-order      group maap               unplanted rows   6; unplanted findings matching 'ORDER H-MAAP:' 0
+    planted receipt: PLANT maap-order caught: ORDER H-MAAP: the allocation report at 9496149 follows no DA_GATE publication since 4934743 (maap)
+srp-late        group hooks-late-srp     unplanted rows   1; unplanted findings matching 'LATE H-SRP:' 0
+    planted receipt: PLANT srp-late caught: LATE H-SRP: hooks-late-srp.listener_ready.if0: 75.638 ms against its bound 18 ms (hooks-late-srp)
+srp-order       group srp                unplanted rows   4; unplanted findings matching 'ORDER H-SRP:' 0
+    planted receipt: PLANT srp-order caught: ORDER H-SRP: the MRPDU committed at 276780935 on interface 0 after the Domain record at 276575280 precedes its SR_DOMAIN publication (276781521) (srp)
+plants whose catch rule already matches unplanted: 1

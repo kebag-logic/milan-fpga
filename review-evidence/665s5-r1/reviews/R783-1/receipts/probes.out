@@ -1,0 +1,14 @@
+control (unmodified copy): rc=0; ctrl_service_hooks self-test: 22 of 22 checks pass; 31 of 31 mutants caught
+P1 summary picks the best path, not the worst: ESCAPED (rc=0)
+P2 H-DISC counts a PROBE_TX on any interface: ESCAPED (rc=0)
+P3 H-SRP accepts an SR_DOMAIN publication made before the Domain record: ESCAPED (rc=0)
+P4 the loaded fan-out group is dropped: ESCAPED (rc=0)
+P5 a plant is caught by any finding of its kind (LATE/ORDER), not its own hook: ESCAPED (rc=0)
+P6 the composed window opens after burst x refill_ms, without the extra period: ESCAPED (rc=0)
+P7 counter spacing of exactly 1 s is reported: CAUGHT (rc=1); FAIL H-COUNTERS spacing: clean: Checked(applied=1, findings=['ORDER H-COUNTERS: descriptor 0x0005 0 to 0000000000000002 on interface 0: pushes 1000.00
+P8 every bound relaxed by 1 ms: CAUGHT (rc=1); FAIL an 18 to 20 ms SRP path misses: a 19 ms SRP path fits
+P9 H-MAAP: a gate publication counts for every later report: ESCAPED (rc=0)
+P10 the late groups are counted as under the composed load: CAUGHT (rc=1); MUTANT map: no composed row of this harness is loaded: ESCAPED the hooks map
+P11 a run with a check that applied to nothing exits 1 (control: changes no rule the self-test reads): ESCAPED (rc=0)
+P12 the ALL push is graded per descriptor (only its first descriptor ends it): ESCAPED (rc=0)
+work copy restored to the pristine harness

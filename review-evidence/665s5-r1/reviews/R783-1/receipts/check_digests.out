@@ -1,0 +1,9 @@
+1x1-ans   cpu_clock sys cpu_hz 100000000 sys_hz 100000000 milan_hz 50000000 arm answering point 1x1 ledgered None plant None: 12 checkout inputs; tree:firmware equal; tree:config equal
+1x1-idle  cpu_clock sys cpu_hz 100000000 sys_hz 100000000 milan_hz 50000000 arm idle point 1x1 ledgered None plant None: 12 checkout inputs; tree:firmware equal; tree:config equal
+8x8-ans   cpu_clock sys cpu_hz 100000000 sys_hz 100000000 milan_hz 50000000 arm answering point 8x8 ledgered platform-8x8-two-interfaces plant None: 10 checkout inputs; tree:firmware equal; tree:config equal
+8x8-idle  cpu_clock sys cpu_hz 100000000 sys_hz 100000000 milan_hz 50000000 arm idle point 8x8 ledgered platform-8x8-two-interfaces plant None: 10 checkout inputs; tree:firmware equal; tree:config equal
+DIFFERS  merge checkout:hdl/milan/mailbox/KL_mbx_pkg.sv
+DIFFERS  merge checkout:hdl/milan/mailbox/KL_mbx.sv
+merge     cpu_clock sys cpu_hz 100000000 sys_hz 100000000 milan_hz 50000000 arm idle point 1x1 ledgered None plant None: 12 checkout inputs; tree:firmware DIFFERS; tree:config equal
+differences at the head (merge receipt excluded, it is another tree): 0
+rc=0

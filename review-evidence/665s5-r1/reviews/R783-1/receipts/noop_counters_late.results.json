@@ -1,0 +1,231 @@
+{
+ "point": "1x1",
+ "clock": "CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz",
+ "cpu_clock": "sys",
+ "cpu_hz": 100000000,
+ "sys_hz": 100000000,
+ "arm": "answering",
+ "plant": "counters-late",
+ "build": "d0f0aba0b3d123256f0a554f08a1dfb2ae62f5b488db215331739dbcff9cd128",
+ "t_svc_ms": 20.0,
+ "summary": {
+  "H-ADP": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "an ENTITY_AVAILABLE carries the grandmaster in force when it is built: after a grandmaster change, the first ENTITY_AVAILABLE carries the new one (Milan v1.2 5.6.3.5.7; IEEE 1722.1-2021 6.2.2.16)",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "Milan v1.2 5.6.3.5; IEEE 1722.1-2021 6.2"
+  },
+  "H-DISC": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "discovery records are applied in their arrival order: a bound talker's ENTITY_DEPARTING then ENTITY_AVAILABLE leaves its sink discovered, so the sink's PROBE_TX_COMMAND follows the ENTITY_AVAILABLE (Milan v1.2 5.6.4.5.1, 5.6.4.5.3, Table 5.54)",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "Milan v1.2 5.6.4, Table 5.54; 5.5.2.3, Table 5.26"
+  },
+  "H-ACMP": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "the commands of one controller are answered in their arrival order, the owed responses first in first out (MAILBOX_SPLIT.md, ACMP service latency)",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "Milan v1.2 5.5.2.3, Table 5.26; IEEE 1722.1-2021 8.2"
+  },
+  "H-AECP": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "every face value a response promises is committed before that response (ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2): a lock, clock source or identify change commits the face block between the command's receive commit and its response",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4"
+  },
+  "H-NOTIFY": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "the successful command's response is committed before any of its notifications (Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2; FR_NFR.md 3.4.1)",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2"
+  },
+  "H-COUNTERS": {
+   "paths": 3,
+   "misses": 1,
+   "narrow": 0,
+   "worst": {
+    "alone": {
+     "hook": "H-COUNTERS",
+     "group": "hooks-counters",
+     "probe": "counters.all.if0",
+     "path": "counters.all",
+     "row": "GET_COUNTERS push, every served descriptor (ALL; H-COUNTERS)",
+     "interface": 0,
+     "family": "notify",
+     "ms": 27.58074,
+     "cpu_cycles": 2758074,
+     "wait_ms": 0.0,
+     "bound_ms": 20.0,
+     "within": false,
+     "unbounded": false,
+     "loaded": false,
+     "normative_ms": 1000.0,
+     "margin_ms": 972.41926,
+     "ahead": 0,
+     "slack_cycles": -758074
+    }
+   },
+   "ordering": "a descriptor's counter pushes to one recipient leave at least 1 s apart at the wire, and a change while the push is held is coalesced into one later push (Milan v1.2 5.4.5.2, Table 5.22)",
+   "applied": 16,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "Milan v1.2 5.4.5.2, Table 5.22; 5.3.7.7, 5.3.8.10"
+  },
+  "H-MAAP": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "the talker DA gate is published before the allocation is reported to the CSR window (maap_mbx.c, range; Milan v1.2 4.3.3.1): every report the core makes follows its interface's DA_GATE publication",
+   "applied": 2,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "IEEE 1722-2016 B.3.4.2, B.3.6.6, Table B.8; Milan v1.2 4.3.3.1"
+  },
+  "H-SRP": {
+   "paths": 0,
+   "misses": 0,
+   "narrow": 0,
+   "worst": {},
+   "ordering": "the adopted Domain is published (SR_DOMAIN) before the MRPDUs that carry it (srp_mbx.c, change_domain; MAILBOX_SPLIT.md, contract 2.2): every MRPDU committed after an adopting Domain record follows its interface's SR_DOMAIN publication with ADOPTED set",
+   "applied": 0,
+   "undecided": 0,
+   "ordering_findings": [],
+   "clauses": "IEEE 802.1Q-2018 10.7.4, 10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3"
+  }
+ },
+ "rows": [
+  {
+   "hook": "H-COUNTERS",
+   "group": "hooks-counters",
+   "probe": "counters.first.if0",
+   "path": "counters.first",
+   "row": "GET_COUNTERS push, a change (H-COUNTERS)",
+   "interface": 0,
+   "family": "notify",
+   "ms": 5.63826,
+   "cpu_cycles": 563826,
+   "wait_ms": 0.0,
+   "bound_ms": 20.0,
+   "within": true,
+   "unbounded": false,
+   "loaded": false,
+   "normative_ms": 1000.0,
+   "margin_ms": 994.36174,
+   "ahead": 0,
+   "slack_cycles": 1436174
+  },
+  {
+   "hook": "H-COUNTERS",
+   "group": "hooks-counters",
+   "probe": "counters.all.if0",
+   "path": "counters.all",
+   "row": "GET_COUNTERS push, every served descriptor (ALL; H-COUNTERS)",
+   "interface": 0,
+   "family": "notify",
+   "ms": 27.58074,
+   "cpu_cycles": 2758074,
+   "wait_ms": 0.0,
+   "bound_ms": 20.0,
+   "within": false,
+   "unbounded": false,
+   "loaded": false,
+   "normative_ms": 1000.0,
+   "margin_ms": 972.41926,
+   "ahead": 0,
+   "slack_cycles": -758074
+  },
+  {
+   "hook": "H-COUNTERS",
+   "group": "hooks-counters",
+   "probe": "counters.held.if0",
+   "path": "counters.held",
+   "row": "GET_COUNTERS push, held until 1 s after the last departure, from its eligibility (H-COUNTERS)",
+   "interface": 0,
+   "family": "notify",
+   "ms": 5.18508,
+   "cpu_cycles": 518508,
+   "wait_ms": 896.25822,
+   "bound_ms": 20.0,
+   "within": true,
+   "unbounded": false,
+   "loaded": false,
+   "normative_ms": 1000.0,
+   "margin_ms": 98.5567,
+   "ahead": 0,
+   "slack_cycles": 1481492
+  }
+ ],
+ "refusals": [],
+ "superseded": [],
+ "findings": [
+  "LATE H-COUNTERS: counters.all.if0: 27.581 ms against its bound 20 ms (hooks-counters)"
+ ],
+ "checks": {
+  "H-ADP": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-DISC": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-ACMP": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-AECP": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-NOTIFY": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-COUNTERS": {
+   "applied": 16,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-MAAP": {
+   "applied": 2,
+   "undecided": 0,
+   "findings": []
+  },
+  "H-SRP": {
+   "applied": 0,
+   "undecided": 0,
+   "findings": []
+  }
+ }
+}

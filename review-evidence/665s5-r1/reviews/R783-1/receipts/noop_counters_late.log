@@ -1,0 +1,27 @@
+scratch clone at eef3d97a2b8d74f6c21529eb77cf4e58a3e05c65 with one reviewer edit: the counters-late plant's spin replaced by a comment
+diff --git a/tb/verilator/ctrl_service_hooks/hooks.py b/tb/verilator/ctrl_service_hooks/hooks.py
+index f87aec65a7..1cc7ddcce1 100644
+--- a/tb/verilator/ctrl_service_hooks/hooks.py
++++ b/tb/verilator/ctrl_service_hooks/hooks.py
+@@ -202,7 +202,7 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
+          'counter_spacing',
+          Plant((('app/ctrl_app_aecp.c',
+                  '\tif (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {\n',
+-                 '\tif (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {\n' + SPIN),),
++                 '\tif (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {\n' + '\t/* no-op plant (reviewer probe) */\n'),),
+                'hooks-counters', 'LATE H-COUNTERS', 'answering'),
+          Plant((('aecp/aecp.c', '(bit == 3u && (e->awaiting_output || (e->counter_sent && !due(a->now, '
+                  'e->counter_at)))))', '(bit == 3u && e->awaiting_output))'),),
+Verilator 5.050 2026-07-01 rev v5.050
+COMMAND <home>/litex-milan/venv/bin/python3 -B <packet>/scratch/noop/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <packet>/scratch/build-noop-counters-late/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <packet>/scratch/noop/sw/firmware/ctrl/test/ctrl_plat_image.py --config <packet>/scratch/noop/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <packet>/scratch/noop/sw/firmware/ctrl/test/ctrl_plat_csr.csv --output <packet>/scratch/build-noop-counters-late/image-provisional --libc <packet>/scratch/build-noop-counters-late/runtime/libc.a --compiler-runtime <packet>/scratch/build-noop-counters-late/runtime/libcompiler_rt.a
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import hooks_soc; s = json.loads(sys.argv[3]); s["elf"] = Path(s["elf"]); hooks_soc.build(Path(sys.argv[2]), hooks_soc.Build(**s)) <packet>/scratch/noop/tb/verilator/ctrl_service_hooks <packet>/scratch/build-noop-counters-late/soc-provisional {"shape": "endstation_ax7101_1x1_tdm8", "n_if": 1, "arm": "answering", "cpu_clock": "sys", "ledgered": null, "elf": "<packet>/scratch/build-noop-counters-late/image-provisional/ctrl_app.elf"}
+COMMAND <home>/litex-milan/venv/bin/python3 -B <packet>/scratch/noop/sw/firmware/ctrl/test/ctrl_plat_image.py --config <packet>/scratch/noop/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <packet>/scratch/build-noop-counters-late/soc-provisional/csr.csv --output <packet>/scratch/build-noop-counters-late/image --libc <packet>/scratch/build-noop-counters-late/runtime/libc.a --compiler-runtime <packet>/scratch/build-noop-counters-late/runtime/libcompiler_rt.a --ctrl-source <packet>/scratch/build-noop-counters-late/ctrl-planted
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import hooks_soc; s = json.loads(sys.argv[3]); s["elf"] = Path(s["elf"]); hooks_soc.build(Path(sys.argv[2]), hooks_soc.Build(**s)) <packet>/scratch/noop/tb/verilator/ctrl_service_hooks <packet>/scratch/build-noop-counters-late/soc {"shape": "endstation_ax7101_1x1_tdm8", "n_if": 1, "arm": "answering", "cpu_clock": "sys", "ledgered": null, "elf": "<packet>/scratch/build-noop-counters-late/image/ctrl_app.elf"}
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <packet>/scratch/build-noop-counters-late/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<packet>/scratch/noop/tb/common -I<packet>/scratch/build-noop-counters-late -I<packet>/scratch/noop/tb/verilator/fw_service_budget' <packet>/scratch/noop/tb/verilator/ctrl_service_budget/observe.vlt <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_pkg.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_ring.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_rx.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_tx.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_evt.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx.sv <packet>/scratch/noop/hdl/milan/mailbox/KL_mbx_wb.sv <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v <packet>/scratch/build-noop-counters-late/soc/gateware/sim.v <packet>/scratch/build-noop-counters-late/sim_main.cpp
+COMMAND make -j16 -C <packet>/scratch/build-noop-counters-late/native -f Vsim.mk Vsim
+FINDING LATE H-COUNTERS: counters.all.if0: 27.581 ms against its bound 20 ms (hooks-counters)
+1x1, CPU 100 MHz on sys (the product split CPU clock), bus 100 MHz, face arm answering: 1 groups, 3 paths, 0 refusals, 1 findings
+PLANT counters-late caught: LATE H-COUNTERS: counters.all.if0: 27.581 ms against its bound 20 ms (hooks-counters)
+rc=0
+elapsed=417s
