@@ -1,0 +1,40 @@
+ok   capture 1x1 '| 55 | 1,367,366 | 27.347 | 542.977 | 0.818 | 11,066 | 265.8 | 9,499 |'
+ok   phase 1x1 idle '203, 10,012 (0.200)'
+ok   phase 1x1 capture '55, 40,906 (0.818)'
+ok   phase 1x1 seal '14, 34,468 (0.689)'
+ok   phase 1x1 erase '1, 12,431 (0.249)'
+ok   phase 1x1 poll '15, 11,727 (0.235)'
+ok   phase 1x1 read '28, 96,248 (1.925)'
+ok   phase 1x1 program '14, 101,139 (2.023)'
+ok   boot 1x1 valid '44, 5,050,293 (101.0)'
+ok   boot 1x1 absent '0, 506,900 (10.1)'
+ok   boot 1x1 torn '44, 8,300,664 (166.0)'
+ok   boot 1x1 version '0, 504,932 (10.1)'
+ok   slow-step 1x1 '`step 0 (idle) takes 30.2028 ms of CPU time, over T_svc 10.0 ms`'
+    longest boot-case step 1x1 0.188
+ok   capture 8x8 '| 165 | 5,168,647 | 103.373 | 1,641.818 | 2.641 | 16,533 | 205.6 | 9,852 |'
+ok   phase 8x8 idle '216, 10,248 (0.205)'
+ok   phase 8x8 capture '165, 132,073 (2.641)'
+ok   phase 8x8 seal '52, 34,862 (0.697)'
+ok   phase 8x8 erase '1, 12,537 (0.251)'
+ok   phase 8x8 poll '53, 12,168 (0.243)'
+ok   phase 8x8 read '104, 96,789 (1.936)'
+ok   phase 8x8 program '52, 101,549 (2.031)'
+ok   boot 8x8 valid '133, 24,519,265 (490.4)'
+ok   boot 8x8 absent '0, 1,747,362 (34.9)'
+ok   boot 8x8 torn '133, 37,436,744 (748.7)'
+ok   boot 8x8 version '0, 1,745,393 (34.9)'
+ok   slow-step 8x8 '`step 0 (idle) takes 30.2724 ms of CPU time, over T_svc 10.0 ms`'
+    longest boot-case step 8x8 0.196
+ok   ctrl_nvm '1,367,366 CPU cycles (27.35 ms)'
+ok   ctrl_nvm '5,168,647 (103.37 ms)'
+ok   ctrl_nvm '0.54 s and 1.64 s'
+ok   ctrl_nvm 'about 11,066'
+ok   ctrl_nvm '16,533'
+ok   ctrl_nvm 'about 266 and 206'
+ok   architecture '103.4 ms of CPU time over 1.64 s'
+ok   splitboot-1x1 84.372 ms | 4,218,617 | 18 of 18 equal | 21.546 / 1.963 / 1.266 ms | 2.527 / 1.239 / 1.268 ms | 
+ok   splitboot-8x8 184.622 ms | 9,231,088 | 18 of 18 equal | 40.224 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms | 
+ok   control-none-1x1 84.362 ms | 4,218,076 | 18 of 18 equal | 21.547 / 1.963 / 1.267 ms | 2.526 / 1.239 / 1.267 ms | 
+ok   control-none-8x8 184.611 ms | 9,230,556 | 18 of 18 equal | 40.225 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms | 
+figure check: 0 mismatches

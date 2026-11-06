@@ -1,0 +1,10 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]), Path(sys.argv[6])))) <clone>/tb/verilator/ctrl_split_boot <packet>/scratch/boot/nomap-boot/soc endstation_ax7101_1x1_tdm8 <packet>/scratch/boot/nomap/ctrl_app.elf 1 <packet>/scratch/boot/1x1-if1/split-soc/flash-map
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <packet>/scratch/boot/nomap-boot/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I<clone>/tb/common -I<packet>/scratch/boot/nomap-boot -I<clone>/tb/verilator/fw_service_budget <clone>/hdl/milan/mailbox/KL_mbx_pkg.sv <clone>/hdl/milan/mailbox/KL_mbx_ring.sv <clone>/hdl/milan/mailbox/KL_mbx_rx.sv <clone>/hdl/milan/mailbox/KL_mbx_tx.sv <clone>/hdl/milan/mailbox/KL_mbx_evt.sv <clone>/hdl/milan/mailbox/KL_mbx.sv <clone>/hdl/milan/mailbox/KL_mbx_wb.sv <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_716c7572eb738f5925a44a215feeaa4c.v <packet>/scratch/boot/nomap-boot/soc/gateware/sim.v <clone>/tb/verilator/ctrl_split_boot/sim_main.cpp
+COMMAND make -j16 -C <packet>/scratch/boot/nomap-boot/native -f Vsim.mk Vsim
+NATIVE exit status 1; == ctrl_split_boot: checks: 1   failures: 1 ==
+FINDINGS [
+ "NATIVE: the model exited 1",
+ "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit",
+ "BOOT: no ready line; transcript ''"
+]
+nomap boot: FAIL 3

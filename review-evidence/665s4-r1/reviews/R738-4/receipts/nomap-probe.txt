@@ -1,0 +1,34 @@
+no-map link rc=0
+    }
+  ]
+}
+== <packet>/scratch/boot/1x1-if1/image/ctrl_app.elf
+lui.*0xf0003$: 11
+lui.*0xf0002$: 0
+lui.*0xf0004$: 0
+lui.*0x20000$: 2
+lui.*0x1000$: 1
+lui.*0x2000$: 3
+00011b24 t ls_busy
+000116c0 t ls_call_begin
+10009824 b ls_call_start
+00011b94 t ls_erase
+00011810 t ls_late
+00011724 t ls_now_us
+0001191c t ls_open
+00011a44 t ls_program
+== <packet>/scratch/boot/nomap/ctrl_app.elf
+lui.*0xf0003$: 7
+lui.*0xf0002$: 0
+lui.*0xf0004$: 4
+lui.*0x20000$: 3
+lui.*0x1000$: 1
+lui.*0x2000$: 3
+00011b28 t ls_busy
+000116c0 t ls_call_begin
+10009824 b ls_call_start
+00011b98 t ls_erase
+00011814 t ls_late
+00011728 t ls_now_us
+00011920 t ls_open
+00011a48 t ls_program

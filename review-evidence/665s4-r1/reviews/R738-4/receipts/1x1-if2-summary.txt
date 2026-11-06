@@ -1,0 +1,8 @@
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+BOOT ready at bus cycle 9183490 (4591745 CPU cycles): 91.835 ms against 20000 ms; banners 1
+TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+UART milan_status: 305 bytes; span 23.612 ms; to the first byte 2.048 ms; longest gap between bytes 1.378 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 2.437 ms; to the first byte 1.323 ms; longest gap between bytes 1.049 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 1.437 ms; to the first byte 0.323 ms; longest gap between bytes 1.049 ms; against 500 ms and T_svc 10 ms
+ctrl_split_boot: PASS (0 finding(s))
+rc=0

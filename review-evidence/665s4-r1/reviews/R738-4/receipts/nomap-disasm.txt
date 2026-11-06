@@ -1,0 +1,22 @@
+== 1x1-if1/image
+  ls_busy ['0xf0003'] 1
+  ls_call_begin ['0xf0003'] 1
+  ls_late ['0xf0003'] 1
+  ls_now_us ['0xf0003'] 1
+  ls_open ['0xf0003'] 3
+  ls_read ['0x1000'] 1
+  ls_ready ['0xf0003'] 1
+  ls_window ['0xf0003'] 1
+  ls_xfer ['0xf0003'] 1
+  nvm_flash_litespi_power_on ['0xf0003'] 1
+== nomap
+  ls_busy ['0xf0003'] 1
+  ls_call_begin ['0xf0004'] 1
+  ls_late ['0xf0004'] 1
+  ls_now_us ['0xf0004'] 1
+  ls_open ['0xf0003'] 3
+  ls_read ['0x1000', '0x20000'] 2
+  ls_ready ['0xf0003'] 1
+  ls_window ['0xf0003'] 1
+  ls_xfer ['0xf0003'] 1
+  nvm_flash_litespi_power_on ['0xf0004'] 1

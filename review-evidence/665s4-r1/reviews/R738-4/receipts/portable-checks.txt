@@ -1,0 +1,19 @@
+rc=0: tb/verilator/nvm_split_target/run.py --self-test
+PASS: mutant caught: the current flash writer: its 24.5 ms check removed from its grader
+checks: 73   failures: 0
+rc=0: sw/firmware/ctrl_nvm/plat/gen_flash_port.py --self-test
+PASS STATUS is what the port tests (['RX_READY', 'TX_READY'])
+checks: 33   failures: 0
+rc=0: tb/verilator/ctrl_service_budget/run.py --self-test
+/* ctrl_split.ld - the control firmware in the split placement's bl)
+self-test: 0 failures
+rc=0: tb/verilator/ctrl_split_boot/run.py --build-dir <packet>/scratch/portable/native --native-controls
+NATIVE-CONTROL native-status-not-saved: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings: [] / ['NATIVE: the run saved no exit status (sim.status),
+ctrl_split_boot native controls: 6 of 6 as required
+rc=0: scripts/check_nvm_capture.py
+CONTROL receipt-opt-out: production bound applied despite a control field
+PASS: capture census, clocks, both timing arms and receipt agree
+guard on the real map: []
+guard, master_cs +4: ['spiflash_master_cs is at 0xf0002810, the split SoC at 0xf0002814']
+guard, timer0_value at the stand-in: ['timer0_value is at 0xf0003010, the split SoC at 0xf0003810']
+guard, window at the stand-in: ["the flash window is [(16777216, 16777216)], the split SoC's {'base': 536870912, 'size': 16777216}"]
