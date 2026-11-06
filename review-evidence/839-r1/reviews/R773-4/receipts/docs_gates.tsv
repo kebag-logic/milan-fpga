@@ -1,0 +1,82 @@
+0	wire_acct	python3 scripts/check_wire_accountability.py --self-test
+0	docs_check	python3 scripts/docs_check.py
+0	feature_status	python3 scripts/check_feature_status.py
+2	em_dash	python3 scripts/check_em_dash.py --base cc204c6fd2349b543d73f15c97162a2c4434c86e
+0	doc_style	python3 scripts/check_doc_style.py
+0	doc_style_st	python3 scripts/check_doc_style.py --selftest
+0	gptp_docs	python3 scripts/check_gptp_docs.py
+0	gptp_docs_st	python3 scripts/check_gptp_docs.py --selftest
+0	doc_map	python3 docs/DOC_MAP.gen.py --check
+0	doc_map_st	python3 docs/DOC_MAP.gen.py --selftest
+0	timesync	python3 docs/diagrams/timesync_chain.gen.py --check
+0	timesync_st	python3 docs/diagrams/timesync_chain.gen.py --selftest
+0	solution	python3 scripts/check_solution_docs.py
+0	solution_st	python3 scripts/check_solution_docs.py --selftest
+0	submod_diag	python3 docs/diagrams/submodule_boundaries.gen.py --check
+0	submod_diag_st	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+0	submod_docs	python3 scripts/check_submodule_docs.py
+0	submod_docs_st	python3 scripts/check_submodule_docs.py --selftest
+0	diagram_pngs	python3 scripts/check_diagram_pngs.py
+0	diagram_pngs_st	python3 scripts/check_diagram_pngs.py --selftest
+0	feature_status_st	python3 scripts/check_feature_status.py --self-test
+0	trace_matrix	python3 docs/traceability/gen_module_matrix.py --check
+0	gptp_docs_sub	python3 scripts/check_gptp_docs.py --with-submodule
+0	measure_cf_st	python3 scripts/measure_control_flow.py --selftest
+0	measure_coh_st	python3 scripts/measure_cohesion.py --selftest
+0	baremetal_only	python3 scripts/check_baremetal_only.py --check
+0	baremetal_only_st	python3 scripts/check_baremetal_only.py --selftest
+0	nvm_space	python3 scripts/check_nvm_record_space.py
+0	nvm_space_st	python3 scripts/check_nvm_record_space.py --self-test
+0	nvm_capture	python3 scripts/check_nvm_capture.py
+0	nvm_fw_st	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+0	soc_sources	python3 scripts/check_soc_sources.py
+0	soc_sources_st	python3 scripts/check_soc_sources.py --selftest
+0	iob_pack_st	python3 sw/litex/iob_pack_selftest.py
+0	rtl_lists	python3 scripts/check_rtl_source_lists.py
+0	rtl_lists_st	python3 scripts/check_rtl_source_lists.py --selftest
+0	naming	python3 scripts/measure_naming.py --check
+0	naming_st	python3 scripts/measure_naming.py --selftest
+0	port_contracts	python3 scripts/check_port_contracts.py
+0	port_contracts_st	python3 scripts/check_port_contracts.py --selftest
+0	fail_fast	python3 scripts/measure_fail_fast.py --check
+0	fail_fast_st	python3 scripts/measure_fail_fast.py --selftest
+0	todo	python3 scripts/check_todo_ownership.py
+0	todo_st	python3 scripts/check_todo_ownership.py --selftest
+0	test_evidence	python3 scripts/measure_test_evidence.py --check
+0	test_evidence_st	python3 scripts/measure_test_evidence.py --selftest
+0	hygiene	python3 scripts/check_hygiene.py --check
+0	hygiene_st	python3 scripts/check_hygiene.py --selftest
+0	sv_idiom	python3 scripts/check_sv_idiom.py
+0	sv_idiom_st	python3 scripts/check_sv_idiom.py --selftest
+0	cpp_idiom	python3 scripts/check_cpp_idiom.py
+0	cpp_idiom_st	python3 scripts/check_cpp_idiom.py --selftest
+0	py_idiom	python3 scripts/check_py_idiom.py
+0	py_idiom_st	python3 scripts/check_py_idiom.py --selftest
+0	sh_idiom	python3 scripts/check_sh_idiom.py
+0	sh_idiom_st	python3 scripts/check_sh_idiom.py --selftest
+0	doc_paths	python3 scripts/check_doc_paths.py
+0	archive	python3 scripts/check_archive.py
+0	archive_st	python3 scripts/check_archive.py --selftest
+2	toc_st	python3 scripts/gen_toc.py --selftest
+2	toc_anchors	python3 scripts/gen_toc.py --verify-anchors
+2	toc	python3 scripts/gen_toc.py --check
+0	inventory	python3 scripts/docs_inventory.py --check
+0	inventory_st	python3 scripts/docs_inventory.py --selftest
+0	aem_store_st	python3 avdecc/gen_aem_store.py --self-test
+0	sweep_shape_st	python3 scripts/check_sweep_shape.py --self-test
+0	deploy_shape_st	python3 scripts/check_deploy_shape.py --self-test
+0	entity_shape_st	python3 scripts/check_entity_shape.py --self-test
+0	ci_gate_wf	python3 scripts/ci_gate_workflows.py --check
+0	ci_gate_wf_st	python3 scripts/ci_gate_workflows_selftest.py
+0	ci_case_receipts_st	python3 scripts/ci_case_receipts_selftest.py
+0	ci_make_cases_st	python3 scripts/ci_make_cases_selftest.py
+0	ci_maap_cases_st	python3 scripts/ci_maap_cases_selftest.py
+0	ci_capture_cases_st	python3 scripts/ci_capture_cases_selftest.py
+0	ci_suite_pieces_st	python3 scripts/ci_suite_pieces_selftest.py
+0	ci_suite_collect_st	python3 scripts/ci_suite_collect_selftest.py
+0	ci_fail_fast_st	python3 scripts/ci_fail_fast_selftest.py
+0	ci_runtime_ev_st	python3 scripts/ci_runtime_evidence_selftest.py
+0	ci_install_cache_st	python3 scripts/ci_install_cache_selftest.py
+0	ci_evidence_pins	python3 scripts/generate_ci_evidence_pins.py --check
+0	ci_wf_plan_st	python3 scripts/ci_workflow_plan_selftest.py
+0	ci_manifest_st	python3 scripts/ci_manifest_selftest.py
