@@ -1,0 +1,10 @@
+# 7643aef613c5b87a246544f57d23ad9f1bf8311e in wt-run: python3 <output>/scripts/real_refusal_probe.py 1x1 <scratch>/target-1x1
+fresh run: table.md ca7bff8f0e600be85b1a7d9b1c4147910ebf0855ce02472665cbf61ff5a03662, results.json 66bd68afb9ecfdcbf83582daad1cc41e933d1205df9e287116a164f5cd4e1176
+COMMAND -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir <build-dir> --regrade --jobs 8
+REFUSED: the builds record different clocks (CPU Hz, bus Hz): {'capture-all': (None, 100000000), 'fixture': (50000000, 100000000), 'guard-probe': (50000000, 100000000), 'fixture+settle-after-names': (50000000, 100000000), 'fixture+bindings-after-d3': (50000000, 100000000), 'guard-probe+guard-removed': (50000000, 100000000), 'fixture+slow-step': (50000000, 100000000)}
+missing cpu_hz: rc 2; left ['refused.json']; refused.json top keys ['record', 'refused']
+build.json restored: True
+COMMAND -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir <build-dir> --regrade --jobs 8
+(no REFUSED line)
+restored: rc 0; left ['results.json', 'table.md']; table.md and results.json byte-identical to the fresh run: True
+PROBE PASS

@@ -1,0 +1,24 @@
+receipt entries: 5007
+same: 2564  differ: 1680  absent: 763
+  README.txt: same 0, differ 0, absent 1
+  bin: same 41, differ 30, absent 3
+  buildroot.config: same 0, differ 0, absent 1
+  etc: same 0, differ 2, absent 0
+  include: same 0, differ 4, absent 0
+  lib: same 544, differ 39, absent 633
+  lib64: same 1, differ 0, absent 0
+  libexec: same 2, differ 11, absent 0
+  relocate-sdk.sh: same 0, differ 0, absent 1
+  riscv32-buildroot-linux-gnu: same 1927, differ 1594, absent 54
+  share: same 49, differ 0, absent 69
+  summary.csv: same 0, differ 0, absent 1
+compiler files that differ: ['bin/riscv32-buildroot-linux-gnu-as', 'bin/riscv32-buildroot-linux-gnu-gcc-14.3.0.br_real', 'bin/riscv32-buildroot-linux-gnu-gcc-ar', 'bin/riscv32-buildroot-linux-gnu-gcc-nm', 'bin/riscv32-buildroot-linux-gnu-gcc-ranlib', 'bin/risc
+compiler files absent: ['lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/include/acc_prof.h', 'lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/include/omp.h', 'lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/include/openacc.h']
+sample differ: ['bin/riscv32-buildroot-linux-gnu-addr2line', 'bin/riscv32-buildroot-linux-gnu-ar', 'bin/riscv32-buildroot-linux-gnu-as', 'bin/riscv32-buildroot-linux-gnu-c++.br_real', 'bin/riscv32-buildroot-linux-gnu-c++filt', 'bin/riscv32-buildroot-linux-gnu-
+sample absent: ['README.txt', 'bin/riscv32-buildroot-linux-gnu-gdb', 'bin/riscv32-buildroot-linux-gnu-gdb-add-index', 'bin/riscv32-linux-gdb', 'buildroot.config', 'lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/include/acc_prof.h', 'lib/gcc/riscv32-buildroot-linux
+old -dumpfullversion 14.3.0
+old -dumpmachine riscv32-buildroot-linux-gnu
+old version: riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0
+new -dumpfullversion 14.3.0
+new -dumpmachine riscv32-buildroot-linux-gnu
+new version: riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0

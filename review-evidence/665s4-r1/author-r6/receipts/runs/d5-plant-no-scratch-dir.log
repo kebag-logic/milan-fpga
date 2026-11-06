@@ -1,0 +1,27 @@
+# 7643aef613c5b87a246544f57d23ad9f1bf8311e in wt-run: python3 -B <output>/scripts/plant_d5_removed.py <scratch>/wt-run <scratch>/d5
+head 7643aef613c5b87a246544f57d23ad9f1bf8311e
+Traceback (most recent call last):
+  File "<output>/scripts/plant_d5_removed.py", line 59, in <module>
+    control = export('d5-control')
+  File "<output>/scripts/plant_d5_removed.py", line 35, in export
+    git('clone', '-q', '--shared', '--no-checkout', str(checkout), str(tree), cwd=scratch)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<output>/scripts/plant_d5_removed.py", line 26, in git
+    return subprocess.run(['git', *args], cwd=cwd, capture_output=True, text=True, check=True).stdout.strip()
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('<scratch>/d5')
