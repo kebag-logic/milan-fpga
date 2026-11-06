@@ -1,0 +1,12 @@
+test_station_mac_ul_bit_warns:
+  5 configs: decided identity, no zero octet, one U/L-bit warning each
+  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn
+Traceback (most recent call last):
+  File "<scratch>/mut-wt/sw/builder/test_builder.py", line 29689, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/mut-wt/sw/builder/test_builder.py", line 26782, in test_station_mac_ul_bit_warns
+    assert cli.returncode == 0, \
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 28b: the U/L warning refused the build: rc 1 ocally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+
