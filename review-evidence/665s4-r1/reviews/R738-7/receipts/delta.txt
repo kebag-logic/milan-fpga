@@ -1,0 +1,18 @@
+# delta
+:100644 100644 7bfdb032b8 73cb72c5e1 M	sw/firmware/ctrl/plat/README.md
+3	1	sw/firmware/ctrl/plat/README.md
+0e03192c050812c5f7d249edd8893d1ede151a78 c40023bf15545478c40f80ecf35cfc0a3f15f362 b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+hackerman-kl <hackerman-kl@kebag-logic.com>
+State which stand-in header hangs the boot and which boots to ready, as measured
+---
+diff-check rc=0
+33c33
+< 040000 tree 9cfa0ba7fbfb6c844218470175ad4c474155c39f	sw
+---
+> 040000 tree e4f39274f6cb72ba7097524eee99e784feafc332	sw
+# added-line scan of the delta
+em dashes: 0
+lane, round, reviewer or comment IDs: 0
+# readers of a map header in the boot export
+generated/ in boot_soc.py and split_soc.py: 0
+ctrl_plat references in nvm_split_target/run.py: 0

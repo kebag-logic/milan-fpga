@@ -1,0 +1,4 @@
+control-8x8: map csr.h=generated mem.h=generated; lui 0xf0004: 0; lui 0xf0003: 10; lui 0x20000: 0; loadable 62cd0be912d704c9
+nomap-1x1: no map passed to either link; lui 0xf0004: 3; lui 0xf0003: 7; lui 0x20000: 1; loadable dafa8bf1def9287f
+stand-in-mem-8x8: map csr.h=generated mem.h=STAND-IN; lui 0xf0004: 0; lui 0xf0003: 10; lui 0x20000: 1; loadable d0b88b288a2c4ebd
+stand-in-csr-8x8: map csr.h=STAND-IN mem.h=generated; lui 0xf0004: 3; lui 0xf0003: 7; lui 0x20000: 0; loadable 6bc536181ab931aa
