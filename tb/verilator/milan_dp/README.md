@@ -819,15 +819,15 @@ The unit-level cases are in `tb/verilator/crf_rx`, section `[UNB]`.
 It plants each defect in a copy of the processor tree or of `KL_crf_rx`.
 `CRFRX_SRC` in the Makefile names the CRF engine for that purpose.
 Each mutant must fail its named checks and still pass its named holds.
-Measured on 2026-10-04 UTC: the clean leg passes 421/421 checks.
+Measured on 2026-11-06 at processor `92100657`: the clean leg passes 499/499 checks.
 
 | Mutant | Named checks that fail | Failures |
 |---|---|---|
-| the ACMP lane is held 6,000 cycles, so the push overtakes the response | U2 order to A, AAF and CRF | 4 of 421 |
-| the CRF unbind does not count its unlock, as at dev `fea346e7` | CRF U3 as the response left, and right after it | 2 of 421 |
-| the CRF unbind keeps the lock, so the timeout counts again | CRF U4; CRF U3 every later push | 2 of 421 |
-| the CRF unbind also counts a STREAM_INTERRUPTED | CRF U3 STREAM_INTERRUPTED; CRF U4 | 2 of 421 |
-| the CRF unbind counts its unlock but arms no push | CRF U2 a push reached A | 2 of 421 |
+| the ACMP lane is held 6,000 cycles, so the push overtakes the response | U2 order to A, AAF and CRF | 4 of 499 |
+| the CRF unbind does not count its unlock, as at dev `fea346e7` | CRF U3 as the response left, and right after it | 2 of 499 |
+| the CRF unbind keeps the lock, so the timeout counts again | CRF U4; CRF U3 every later push | 2 of 499 |
+| the CRF unbind also counts a STREAM_INTERRUPTED | CRF U3 STREAM_INTERRUPTED; CRF U4 | 2 of 499 |
+| the CRF unbind counts its unlock but arms no push | CRF U2 a push reached A | 2 of 499 |
 
 The first mutant's holds are U1 and the push arriving, so the catch is the order.
 Its 4 failures are exactly the four U2 order checks; nothing else in the leg moves.
