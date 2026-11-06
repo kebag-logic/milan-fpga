@@ -1,0 +1,39 @@
+== render published results with head run.table
+1x1 table.md reproduces byte-for-byte: True provenance findings: []
+8x8 table.md reproduces byte-for-byte: True provenance findings: []
+== files changed ac45db8f..HEAD
+tb/verilator/nvm_split_target/README.md
+tb/verilator/nvm_split_target/run.py
+tb/verilator/nvm_split_target/target_selftest.py
+== files changed f4c9ad4f..HEAD under hdl/ rtl/ sw/ or .sv/.v, or gitlinks
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_srp_image.py
+sw/firmware/ctrl_nvm/README.md
+sw/firmware/ctrl_nvm/plat/gen_flash_port.py
+(no gitlink change)
+== gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+160000 commit ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+== status
+0
+== tracked blob bytes vs index/HEAD
+all 1470 tracked blobs match the index
+index equals HEAD tree
+605f043b826040650960b98b9392bf8da5ebdcc1
+exec modes checked
+== submodule status (leading space = checked out at the pinned commit, - = not populated)
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (55680bf)
+ ed2118035e4cec76fb1b59cfbf8a053aeacc8af8 protocol-processor (v2.0-814-ged21180)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty-entries: 0
+protocol-processor dirty-entries: 0
+third_party/lwSRP dirty-entries: 0
+third_party/tsn-c-stack dirty-entries: 0
+third_party/verilog-axis dirty-entries: 0

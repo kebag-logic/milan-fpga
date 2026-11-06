@@ -1,0 +1,28 @@
+head: 48 ordinary checks, failing []
+PASS: P1 round-3 main restored: every success-then-refusal check fails
+    fails: run.py refuses results graded at another CPU clock than their record names, writing no table
+    fails: run.py refuses a run whose clocks are not its builds', writing no table
+    fails: a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+    fails: a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+    fails: a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+    fails: a success, then results misconverted in the same directory: the refusal alone, no table or results left
+    fails: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+PASS: P2 main's initial clear removed: refusal-then-success fails
+    fails: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+PASS: P3 refuse() not called by main: every success-then-refusal check fails
+    fails: run.py refuses a run whose clocks are not its builds', writing no table
+    fails: a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+    fails: a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+    fails: a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+    fails: a success, then results misconverted in the same directory: the refusal alone, no table or results left
+    fails: a refusal, then a success in the same directory: the success's pair alone, no refusal left
+PASS: P4 accept without against_build: the not-its-builds' checks fail
+    fails: run.py refuses a run whose clocks are not its builds', writing no table
+    fails: a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+PASS: P5 accept writes table.md before validating: the direct accept check fails
+    fails: accept writes nothing for a record it refuses
+PASS: P6 success then an uncaught crash: no pair or refusal left 0 -1 []
+INFO: P7 success then a usage error: exit 2, left ['results.json', 'table.md'] (the earlier accepted pair, untouched)
+PASS: P8 refused.json top keys ['record', 'refused'], nested record CPU 62500000, words 'the results carry no sound clock provenance: commit: longest step 0.8 ms is not 40,000 CPU'
+probes failing: 0
+rc=0
