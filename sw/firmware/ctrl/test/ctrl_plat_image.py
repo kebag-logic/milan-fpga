@@ -11,8 +11,9 @@ generated headers come from ctrl_plat_gen.py: the policy from --config, the
 bus map from --csr-csv, the export of the SoC the image runs on (a split
 export with any image gives it; docs/design/SPLIT_CONTROL_MEMORY.md section 4).
 The mailbox's base is the map's, so the fixture's placeholder is dropped. F1's
-flash port keeps its own addresses (ctrl_nvm/test/rv32/generated), as every
-split image at this base does.
+flash port keeps its own addresses (ctrl_nvm/test/rv32/generated): the store
+comes from its own tree with no flash map, as ctrl_srp_image.py compiles it
+without --flash-map.
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
@@ -28,7 +29,7 @@ import re
 import sys
 from pathlib import Path
 
-from ctrl_build import CTRL, PORTABLE, RV32_FLAGS, STACK, Refusal, source
+from ctrl_build import CTRL, NVM_DIR, PORTABLE, RV32_FLAGS, STACK, Refusal, source
 import ctrl_srp_image as image
 from ctrl_arms import lwsrp_pin
 from srp_arms import LWSRP_SOURCES, prepared
@@ -122,7 +123,7 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
               "-include", str(out / "ctrl_plat_map_gen.h")]
     inc += [f"-I{out}", f"-I{tree.src / 'plat'}", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}",
             *fw_rv32.includes(cc)]
-    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out)
+    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out, NVM_DIR, None)
     inc += extra_inc
     sources = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
     sources += [tree.src / n for n in PLAT_SOURCES] + aecp_sources
