@@ -1,0 +1,31 @@
+OK  success then one arm without CPU clock: (0, ['results.json', 'table.md']) -> (2, ['refused.json']) keys ['record', 'refused']
+OK  success then all arms without CPU clock: (0, ['results.json', 'table.md']) -> (2, ['refused.json']) keys ['record', 'refused']
+OK  success then bus clock disagrees: (0, ['results.json', 'table.md']) -> (2, ['refused.json']) keys ['record', 'refused']
+OK  success then misconverted: (0, ['results.json', 'table.md']) -> (2, ['refused.json']) keys ['record', 'refused']
+OK  refusal then success: (2, ['refused.json']) -> (0, ['results.json', 'table.md'])
+OK  success then an uncaught crash (KeyError): no earlier pair survives: ('raised KeyError', [])
+OBS usage error after a success: status SystemExit(2), left ['results.json', 'table.md'], earlier table unchanged True
+OBS table.md an undeletable directory, then a refusal: status 2, left ['table.md']
+MUTANT accept: pair written before against_build: 0 repository checks fail
+MUTANT accept: against_build dropped: 2 repository checks fail
+    - run.py refuses a run whose clocks are not its builds', writing no table
+    - a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+MUTANT refuse: no refusal record: 7 repository checks fail
+    - run.py refuses a run whose clocks are not its builds', writing no table
+    - a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+    - a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+    - a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+    - a success, then results misconverted in the same directory: the refusal alone, no table or results left
+    - a refusal, then a success in the same directory: the success's pair alone, no refusal left
+    - refuse removes a pair already written and leaves its refusal alone
+MUTANT refuse: clocks at refused.json top: 3 repository checks fail
+    - a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+    - a success, then results misconverted in the same directory: the refusal alone, no table or results left
+    - a refusal, then a success in the same directory: the success's pair alone, no refusal left
+MUTANT clear: table.md kept: 5 repository checks fail
+    - a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left
+    - a success, then builds that disagree on their clocks in the same directory: the refusal alone, no table or results left
+    - a success, then clocks that are not its builds' in the same directory: the refusal alone, no table or results left
+    - a success, then results misconverted in the same directory: the refusal alone, no table or results left
+    - refuse removes a pair already written and leaves its refusal alone
+PROBES PASS
