@@ -1,0 +1,101 @@
+== START 2026-11-06T01:26:41Z MemAvailable 51068392 kB
+8210abaa1f5664bc6f755043b19a34a4eb38ede2
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/main-46-g1616fc8)
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b6)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+8210abaa1f5664bc6f755043b19a34a4eb38ede2
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+1616fc8f062fbf58c35ad31674b5b233207bbdb8
+SDK argv: ["<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<data>/scratch/803-a693/sdk/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<data>/scratch/803-a693/sdk/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+baseline inventory refusal: missing generated ROM PASS
+baseline inventory refusal: nonempty SRAM PASS
+baseline inventory refusal: unlisted readmemh PASS
+baseline inventory refusal: generated ROM short PASS
+baseline inventory refusal: generated ROM long PASS
+baseline inventory refusal: generated ROM narrow PASS
+baseline inventory refusal: generated ROM wide PASS
+baseline inventory refusal: PP_TROM_HEX_P short PASS
+baseline inventory refusal: PP_TROM_HEX_P narrow PASS
+baseline inventory refusal: PP_TROM_HEX_P wide PASS
+baseline inventory refusal: PP_TROM_HEX_P duplicate PASS
+baseline inventory refusal: PP_TROM_HEX_P missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C missing PASS
+baseline inventory refusal: PP_UCODE_HEX_P short PASS
+baseline inventory refusal: PP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: PP_UCODE_HEX_P wide PASS
+baseline inventory refusal: PP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: PP_UCODE_HEX_P missing PASS
+baseline inventory refusal: ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv missing PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P short PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P wide PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory selftest: 40 refusals and restored control PASS
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+baseline endpoint selftest: valid pathname and 9 refusals PASS
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+/tmp/pp-baseline-export-oz00_dfl/ooc/baseline_ooc.tcl
+baseline clock selftest: 10 ns default, bound 50 MHz, 2 refusals PASS
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-oz00_dfl/gateware/baseline_integrated.tcl
+placement Tcl all-fabric: control and every role reversal at synthesis/route PASS
+placement Tcl f0-f4: control and every role reversal at synthesis/route PASS
+placement Tcl full-split: control and every role reversal at synthesis/route PASS
+placement recipe: legacy parity, split preparation, selection marker, ROM and endpoint refusals PASS
+baseline export selftest: 3 default and worker-capped scripts, attribution constraint, CLI containment refusal PASS
+<scratch>/viv-head/w1/ax7101/gateware/baseline_integrated.tcl
+299:place_design -directive ExtraPostPlacementOpt
+5a1d6d197588bb01b3dd3eea9f4334b4fbd6e0af3547301f44bbb8f4452a7c08  <scratch>/viv-head/w1/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335  <scratch>/viv-head/w1/ax7101/gateware/alinx_ax7101_mem.init
+1d211cc4df2a3f745f5a990ac06422da9089f6c698161bd57cd6ac04eff62692  <scratch>/viv-head/w1/ax7101/gateware/alinx_ax7101_rom.init
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  <scratch>/viv-head/w1/ax7101/gateware/alinx_ax7101_sram.init
+== EXPORT-DONE 2026-11-06T01:26:50Z MemAvailable 51035100 kB
+== VIVADO-START 2026-11-06T01:26:50Z MemAvailable 51026404 kB
+== VIVADO-END rc=0 2026-11-06T02:16:59Z MemAvailable 51105620 kB
+GATE route-1x1 rc=2
+NOT COMPARABLE: judge a route on the recipe's three placement directives, the shipping route with a --comparison for each other one, or alone with --shipping-selection
+== BANK-DONE 2026-11-06T02:16:59Z MemAvailable 51065348 kB
+BANK-DONE vivado=0 gate=2

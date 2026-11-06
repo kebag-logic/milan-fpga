@@ -1,0 +1,32 @@
+endpoint route-1x1: <scratch>/viv-head/w1/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       52695       683  REGRESSION: grew by more than 500
+FF               53707       54288       581  ok
+SLICE            15780       15846        66  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          15         2  REGRESSION: grew by more than 0
+WNS_ns            0.44       0.018    -0.422  REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036       0.015    -0.021  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.018  WHS_ns    0.065
+  Slow_85C  WNS_ns    0.018  WHS_ns    0.065
+  Fast_0C   WNS_ns    1.526  WHS_ns    0.015
+  Fast_85C  WNS_ns    1.526  WHS_ns    0.015
+WARNING: WNS_ns fell from the record by more than the timing fall; reported, never gated (#818)
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -262, FF +15
+  wrapper: LUT -248, FF +15
+  u_pp/u_aecp: LUT -155, FF +1
+  u_pp/u_notify: LUT -120, FF +0
+  u_pp/u_originator: LUT -97, FF +0
+  u_pp/u_dispatch: LUT +67, FF +0
+  u_pp/u_ca_builder: LUT +66, FF +0
+  u_pp/u_aecp/u_d3: LUT -61, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +61, FF +0
+  u_pp/u_srp: LUT -41, FF +4
+  u_pp/u_adp: LUT +34, FF +0
+  u_pp/u_srp/u_listener: LUT -31, FF +0
+RESULT: MATERIAL REGRESSION

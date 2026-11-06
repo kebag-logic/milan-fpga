@@ -1,0 +1,7 @@
+# head 1105f54546b2f19d9577b7fad902c908e34f88ee gate fw_service_budget: make -C tb/verilator/fw_service_budget
+python3 -B run.py --self-test
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+PASS: dispatch removal caught by continuous backing and per-line checks
+fw_service_budget_oracle: checks: 55 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census

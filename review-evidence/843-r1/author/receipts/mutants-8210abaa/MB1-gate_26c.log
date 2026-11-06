@@ -1,0 +1,11 @@
+test_gptp_dataset_matches_engine_announce:
+  [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockClass 0xF8, variance 0x436A, clockAccuracy per board (AX7101 0x22, Arty 0xFE), log intervals -3/0/0; omitted keys fill from the engine and clockAccuracy from 8.6.2.3 b); the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+test_gptp_clock_accuracy_per_board:
+Traceback (most recent call last):
+  File "<scratch>/clone-mut/sw/builder/test_builder.py", line 29752, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/clone-mut/sw/builder/test_builder.py", line 26668, in test_gptp_clock_accuracy_per_board
+    assert int(args[i + 1], 0) == want, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 26c: arty_current passes --clock-accuracy 0x22, its board decided 0xFE

@@ -1,0 +1,11 @@
+# head 1105f54546b2f19d9577b7fad902c908e34f88ee gate xvlog_gate: PATH=<home>/Xilinx/2026.1/Vivado/bin:<data>/tmp/sync-a723b/venv-docs/bin:<data>/scratch/a662/make43/bin:<data>/tools/sv2v-v0.0.12:<data>/tools/pinned-verilator-5.050:<data>/scratch/803-a693/sdk/br-milan-rv32/host/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin <home>/milan-fpga-management/2026-09-23/vivado-slot.sh python3 scripts/xvlog_gate.py --check
+vivado-slot: slot 0 ($VIVADO_LOCK), MemAvailable 47 GB, 2026-11-06T07:06:17+01:00
+xvlog gate: 0 finding(s) across 0 module(s)
+  analysed: 85 tracked .sv/.v file(s) under hdl/ and 52 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@a9e84b66; gptp-processor@1616fc8f - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 0 finding(s)
+xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
