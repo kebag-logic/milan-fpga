@@ -460,6 +460,9 @@ It names the recording page.
 Remove an entry once no copy row remains.
 An archive copy stays as written.
 
+`Located` says whether the quote is still on its page.
+`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.
+
 | ID | Page | Located | Statement | Contradicted by | Correction |
 |---|---|---|---|---|---|
 | D0-001 | [README.md](../README.md) | re-verify: quote not found | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` lines 2854-2856 and line 4097: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default | Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric (`sw/litex/milan_soc.py` lines 2854-2856: `--ctrl-mailbox` is off by default and the default build carries no mailbox; line 4097: `store_true`). `REQUIREMENTS.md` is the normative page, so its copy goes to a maintainer decision on what "Mark II default" names, and every copy takes that one answer. |

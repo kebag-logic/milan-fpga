@@ -39,7 +39,7 @@ its title, audience line, cited paths or standards, status, or in a quoted findi
 stale. An edit that changes none of those renders the same page and passes; the gate ties the inventory to the
 files, not every sentence to its source.
 
-No line count or number reaches the page (#848): each moves as a page grows, so two document changes would
+No computed line count or number reaches the page (#848): each moves as a page grows, so two document changes would
 conflict in it. Only `--findings-dir`, which is not committed, names a finding's line.
 
 Usage: python3 scripts/docs_inventory.py --write | --check | --selftest | --findings-dir DIR
@@ -587,10 +587,11 @@ def render(tree: Tree, paths: list[str]) -> str:
                 "|---|---|---|---|---|---|---|---|"]
         out += [f"| {page_link(p.path)} | {p.audience} | {p.purpose} | {p.describes} "
                 f"| {p.status} | {cell(p.evidence)} | {p.verified} | {p.lane} |" for p in pages if p.area == area]
-    out += ["", "## Findings", "",
-            "Each statement is quoted exactly from its page.", "Its area lane fixes it.", "",
+    out += ["", "## Findings", "", "Each statement is quoted exactly from its page.", "Its area lane fixes it.", "",
             "A copy row shows the recorded spelling.", "It names the recording page.", "",
             "Remove an entry once no copy row remains.", "An archive copy stays as written.", "",
+            "`Located` says whether the quote is still on its page.",
+            "`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.", "",
             "| ID | Page | Located | Statement | Contradicted by | Correction |", "|---|---|---|---|---|---|"]
     for finding, line in located:
         where = "on page" if line else "re-verify: quote not found"
@@ -735,7 +736,7 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
     `--check`, the workflow's own command, must exit `want` and print `says`.
     Unless it refused (2), `--write` must then heal the tree, and the page it
     regenerates must carry every `needle`, lack `absent` and carry no em dash.
-    A `needle` may instead head a `--findings-dir` file, the only output naming a line.
+    A `needle` opening `## D0-` is graded on the `--findings-dir` files alone, the only output naming a finding's line.
     """
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -761,8 +762,8 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
         gate(root, "--findings-dir", str(root / "lanes"))
         listed = "".join(page.read_text(encoding="utf-8") for page in (root / "lanes").glob("*.md"))
         for text in (needle,) if isinstance(needle, str) else needle:
-            if text not in rendered + listed:
-                return f"{name}: rendered page lacks {text!r}"
+            if text not in (listed if text.startswith("## D0-") else rendered):
+                return f"{name}: generated output lacks {text!r}"
         for text in (absent,) if isinstance(absent, str) else absent:
             if text and text in rendered:
                 return f"{name}: rendered page carries {text!r}"
@@ -852,7 +853,8 @@ def copy_controls() -> tuple:
         ("the README's statement copied onto the requirements page", plant_copy(), 1,
          (copy_row, copy_status, "| D0-002 | [README.md](../README.md) | on page |",
           "Copy of the D0-002 statement on `README.md`.", "## D0-002: README.md:5\n",
-          "## D0-002: REQUIREMENTS.md:3\n"), "STALE"),
+          "## D0-002: REQUIREMENTS.md:3\n", "## D0-001: docs/guides/A.md:3\n\n- Statement: resets to 0x1\n"
+          "- Contradicted by: `hdl/milan/top.sv` line 1\n- Correction: It resets to 0x0.\n"), "STALE"),
         ("a spelling found only through `also` gets a row",
          in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
          (f"{copy_row} {spelling[0]} |", copy_status, "## D0-002: REQUIREMENTS.md:5\n"), "STALE"),
@@ -919,9 +921,8 @@ def selftest() -> int:
         ("the summary counts pages by status and no lines", lambda root: None, 0,
          ("| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n| obsolete | 1 |\n"
           "| **total** | **10** |\n"), "", ("Lines", "| Line |", "banner at line")),
-        ("planted edited quote in the data file",
-         edit_data(lambda d: d["findings"][0].update(quote="resets to 0x2")), 1, "re-verify: quote not found",
-         "STALE"),
+        ("planted edited quote in the data file", edit_data(lambda d: d["findings"][0].update(quote="resets to 0x2")),
+         1, "re-verify: quote not found", "STALE"),
         ("fixed statement asks for re-verification", replace("docs/guides/A.md", "0x1", "0x0"), 1,
          ("re-verify: quote not found", "## D0-001: docs/guides/A.md:?\n"), "STALE"),
         ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
@@ -938,6 +939,8 @@ def selftest() -> int:
         ("a recorded current judgement cannot hide a finding", edit_data(lambda d: d.update(
             judged={"docs/guides/A.md": {"status": "current", "evidence": "judged"}})), 0, stale_cell),
         ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
+        ("the audit page lists itself", lambda root: None, 0, "| maintainer | Documentation audit |"),
+        ("the page names a finding's line", lambda root: None, 0, ("`Located` says", "--findings-dir DIR")),
         ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
          "", "is fresh", "protocol-processor/README.md"),
         ("supersession banner", append("docs/guides/B.md", banner), 1,
@@ -953,10 +956,8 @@ def selftest() -> int:
         ("module directory without a README", lambda root: None, 0, "| `scripts/` | no | 0 |"),
         ("finding on an untracked page", edit_data(lambda d: d["findings"][0].update(page="docs/NO.md")),
          2, "", "REFUSED"),
-        ("duplicate finding id", edit_data(lambda d: d["findings"].append(dict(d["findings"][0]))),
-         2, "", "REFUSED"),
-        ("finding without a correction", edit_data(lambda d: d["findings"][0].update(correction="")),
-         2, "", "REFUSED"),
+        ("duplicate finding id", edit_data(lambda d: d["findings"].append(dict(d["findings"][0]))), 2, "", "REFUSED"),
+        ("finding without a correction", edit_data(lambda d: d["findings"][0].update(correction="")), 2, "", "REFUSED"),
         ("judgement with an unknown status", edit_data(lambda d: d.update(
             judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), 2, "", "REFUSED"),
         ("the citations' baseline is on the page", lambda root: None, 0, "at dev `1111111`"),
