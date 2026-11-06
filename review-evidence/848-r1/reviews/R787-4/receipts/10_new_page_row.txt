@@ -1,0 +1,32 @@
+# scripts/docs_inventory.py head vs 171fd56b
+0
+# RELEASE_FACING rule at dev and head
+94:RELEASE_FACING = re.compile(r"README\.md|REQUIREMENTS\.md|docs/README\.md|docs/(guides|integration|reference)/.*")
+97:RELEASE_FACING = re.compile(r"README\.md|REQUIREMENTS\.md|docs/README\.md|docs/(guides|integration|reference)/.*")
+# audit claim
+23:Statements on D0 pages were checked at dev `1e80128f`.
+24:Other pages wait for their area lane.
+43:| reference | 23 | 11 | 12 | 0 | 0 | 19 |
+# new page first commit
+7c4f61b48f 2026-11-05 Add the stricter-readings page: the locally administered prototype identity, the 1000BAS
+# verified_at commit date
+1e80128f0a 2026-10-29
+# new page in verified_at tree
+absent
+# standards in new page
+Milan v?1\.2|Milan (Section |section )?[0-9]+\.[0-9]+: 4
+1722\.1: 1
+1722(-2016)?([^.0-9]|$): 0
+802\.1Q: 0
+802\.1AS: 4
+802\.1BA: 1
+# cited roots
+      2 sw/builder
+      1 sw/firmware/milan_baremetal
+      1 configs
+# audience source
+3:     r"|docs/guides/README\.md|docs/reference/(FR_NFR|MILAN_COMPLIANCE_MATRIX|MILAN_FEATURE_STATUS)\.md",
+5:    (r"docs/integration/BAREMETAL_FIRMWARE\.md|docs/reference/(MAILBOX_CONTRACT|TRACE_EVENTS)\.md"
+9:     r"|docs/reference/.*|sw/(README|builder/README-parameters)\.md|avdecc/.*", "integrator"),
+# docs/reference section rows
+11

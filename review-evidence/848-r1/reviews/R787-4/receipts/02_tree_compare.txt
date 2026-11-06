@@ -1,0 +1,77 @@
+# automerge tree c904e03e363cca60f79018d0d6e13497b504fe0d vs merge commit a578ceb561f4987e6ae4dacf1216e0d5d4d671f9
+:100644 100644 08eaed04f6d7157cf906f7106dd711e31f390cce 44118c4e72d2638f5635e074c7e880c0674c7609 M	docs/DOCUMENTATION_AUDIT.md
+# automerge tree vs head
+:100644 100644 08eaed04f6d7157cf906f7106dd711e31f390cce fd7e9edfeff08a77784c59d94db4ad9fa926f517 M	docs/DOCUMENTATION_AUDIT.md
+# merge commit vs head
+:100644 100644 44118c4e72d2638f5635e074c7e880c0674c7609 fd7e9edfeff08a77784c59d94db4ad9fa926f517 M	docs/DOCUMENTATION_AUDIT.md
+# tree of head
+3f07baf86f848eb6f2d08d61224e96edd157c832
+# files changed by side B (dev..8ab3a930)
+M	ci/image/command-table.json
+M	configs/endstation_arty_4x4.yaml
+M	configs/endstation_arty_8ch.yaml
+M	configs/endstation_arty_current.yaml
+M	configs/endstation_ax7101_1x1_tdm8.yaml
+M	configs/endstation_ax7101_8x8.yaml
+M	docs/DOCUMENTATION_AUDIT.md
+M	docs/ENDSTATION_BUILDER.md
+M	docs/README.md
+M	docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+M	docs/findings/397_SERVICE_BUDGET.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+A	docs/reference/STRICTER_READINGS.md
+M	scripts/check_doc_style.py
+M	sw/builder/README-parameters.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+M	sw/firmware/milan_baremetal/milan_baremetal.c
+M	sw/firmware/nvm_hosttest/phy_host.c
+M	sw/firmware/nvm_hosttest/phy_peer.h
+M	sw/firmware/nvm_hosttest/test_phy_firmware.py
+M	tb/tools/avdecc_ctl.py
+M	tb/tools/check_tu_on_wire.sh
+M	tb/tools/crf_vs_phc.py
+M	tb/tools/hive_compliance.py
+M	tb/tools/hive_compliance_clusters.py
+M	tb/tools/torture_campaign.py
+M	tb/verilator/fw_service_budget/README.md
+M	tb/verilator/fw_service_budget/oracle.json
+M	tb/verilator/fw_service_budget/phy.hpp
+M	tb/verilator/fw_service_budget/run.py
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+M	tb/verilator/milan_dp/sim_gmstep.cpp
+M	tb/verilator/milan_dp/sim_gptp.cpp
+M	tb/verilator/nvm_capture_cpu/measurements.json
+M	tb/verilator/nvm_capture_cpu/run.py
+M	tb/verilator/nvm_capture_cpu/sim_main.cpp
+M	tb/verilator/nvm_capture_cpu/soc.py
+# files changed by side A (dev..171fd56b)
+M	.github/ci-templates/docs.yml
+M	ci/image/command-table.json
+M	docs/DOCUMENTATION_AUDIT.md
+M	scripts/docs_inventory.py
+# both-sides
+ci/image/command-table.json
+docs/DOCUMENTATION_AUDIT.md
+# gitlinks
+171fd56b2c50a44ed75a32c1b9bbd7ae818f2c22
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+6
+8ab3a930d6e2d217caf729d38c5ef17e98e292b3
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+6
+a578ceb561f4987e6ae4dacf1216e0d5d4d671f9
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+6
+9d5a5af78f95f655e5104056c2c0ee2cca689279
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+6
