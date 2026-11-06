@@ -1,0 +1,12 @@
+archive rc=0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+doc_paths rc=0 :: doc path gate: OK (1631 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+docs_check rc=0 :: docs_check: 0 finding(s) across 213 md files + 1446 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style rc=0 :: documentation style: OK (23 current documents)
+doc_style_self rc=0 :: documentation style selftest: OK
+evidence rc=0 ::   the mutation ratchet can be lowered to 67
+feature rc=0 :: feature_status: 0 finding(s)
+sim_pool rc=1 :: 17 checks: 16 PASS, 1 FAIL
+toc_anchors rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
+toc_check rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
+diff-check rc=0
+clone porcelain lines: 0
