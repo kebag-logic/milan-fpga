@@ -516,6 +516,73 @@ It uses 52,021 LUTs; 63 slices remain.
 
 The #818 gate passes it.
 
+Issue #845 adopts processor pin `92100657`.
+
+It is the merge commit of processor PR #213.
+
+That PR carries processor issue #212.
+
+Its tree is the reviewed head `6162885f`'s.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #212, a Talker registered before the settle | #213, merge commit `92100657` | A Stream Input that settles on a Talker Advertise or Talker Failed the port already registered applies it at the settle (Milan v1.2 5.3.8.5; 5.5.3.5.18 step 4; IEEE 802.1Q-2022 10.7, 10.7.8). It declares Listener Ready, or Asking Failed, within one T-MRP-JOIN, and its SRP state, GET_RX_STATE and GET_STREAM_INFO read at the settle. Before, it waited for the talker's next declaration. A link down or up now ends every Talker registration, a settled input's too (Table 10-4: Flush! at LINK_DOWN, Begin! at LINK_UP) |
+
+The listener keeps one port Talker registrar per Stream Input.
+
+So the pre-settle path holds `N_STREAM_IN_P` Talker values.
+
+| Case, shipping image (`N_STREAM_IN_P` = 2: the AAF input and the CRF input) | Result |
+|---|---|
+| The input settles on a value the port registered while one of its two registrars was free, still registered | applied at the settle |
+| The value arrived while both registrars held other values | not held: the first settle waits for the talker's next declaration, at the latest its re-join after the next LeaveAll (`leavealltimer` default 10 to 15 s, Milan v1.2 Table 4.3) |
+| A re-bind of an input to the stream it was bound to | keeps its registration while it lasts, whatever the port holds |
+| A link down or up | ends every Talker registration. A settled input reports it as a registration that timed out: `TK_ATTR_UNREGISTERED`, its Listener declaration withdrawn. Every input then waits for its talker's next declaration |
+
+A port receives every Talker declaration of its VLAN.
+
+With more than two Talker values, most power-on settles wait.
+
+The top's ports and parameters are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `a9e84b66` rows.
+
+The shipping route was measured at lane commit `a29a7411`.
+
+Later commits change no synthesis input.
+
+It ran one placement directive under the recipe below.
+
+| Recipe | Value |
+|---|---|
+| Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2 |
+| Directives | synthesis AreaOptimized_high, opt ExploreArea, placement ExtraPostPlacementOpt |
+| Tool | Vivado 2026.1, at most 32 threads |
+
+| Figure | dev `cc204c6f`, same recipe | This adoption | Change |
+|---|---:|---:|---:|
+| Slice LUT | 51,994 | 52,497 | +503 |
+| Slice register | 54,101 | 54,579 | +478 |
+| Slice, of 15,850 | 15,841 | 15,780 | -61 |
+| Block RAM tile | 87.5 | 87.5 | 0 |
+| DSP | 13 | 13 | 0 |
+| WNS, slow corners | +0.236 ns | +0.198 ns | -0.038 ns |
+| WHS, worst corner | +0.036 ns | +0.015 ns | -0.021 ns |
+
+Every corner meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+
+It asks +0.03 ns WNS and 0 ns WHS.
+
+The worst setup path is in the SoC's SDRAM controller.
+
+It lies outside the processor and the datapath.
+
+Placement leaves 70 of 15,850 slices free.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.

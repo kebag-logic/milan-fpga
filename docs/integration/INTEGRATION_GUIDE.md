@@ -64,6 +64,21 @@ GET_STREAM_INFO has two owners (#508).
 - `milan_datapath` answers every other word and every validity flag.
 - Never add a second source for the processor's four fields.
 
+Processor pin `92100657` (#212) changes the SRP listener.
+
+- A Stream Input may settle on an already registered Talker.
+- It then declares within one T-MRP-JOIN.
+- Milan v1.2 5.3.8.5 asks this.
+- The port keeps one Talker registrar per Stream Input.
+- Shipping N is 2: the AAF and CRF inputs.
+- A value arriving while both are taken is not held.
+- Its input waits for the talker's next declaration.
+- At the latest, the talker re-joins after the next LeaveAll.
+- A re-bind to the same stream keeps its registration.
+- A link down or up ends every Talker registration.
+- A settled input then reports a timed-out registration.
+- The [pin page](../reference/SUBMODULES.md) gives the cases.
+
 ## Wire every group
 
 <!-- solution-interface-groups:start -->
