@@ -1,0 +1,13 @@
+$ sh -c for p in hdl/top hdl/ucpu hdl/common hdl/ucode tb/verilator/engine/mutants.py tb/verilator/engine/p100_mutants.py tb/verilator/engine/Makefile; do git diff --quiet 3e3f041 1615187 -- $p && echo "same-as-3e3f041 $p" || echo "DIFF $p"; done; for p in hdl/wire tb/verilator/parser scripts/check_docs.py scripts/check_docs_selftest.py; do git diff --quiet 5184fb3 84fd227 -- $p && echo "same-as-main $p" || echo "DIFF $p"; done
+same-as-3e3f041 hdl/top
+same-as-3e3f041 hdl/ucpu
+same-as-3e3f041 hdl/common
+same-as-3e3f041 hdl/ucode
+same-as-3e3f041 tb/verilator/engine/mutants.py
+same-as-3e3f041 tb/verilator/engine/p100_mutants.py
+same-as-3e3f041 tb/verilator/engine/Makefile
+same-as-main hdl/wire
+same-as-main tb/verilator/parser
+same-as-main scripts/check_docs.py
+same-as-main scripts/check_docs_selftest.py
+rc=0

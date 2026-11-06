@@ -1,0 +1,3 @@
+$ sh -c make -C tb/verilator/engine -B gptp_ucode.hex >/dev/null && git diff --exit-code --stat && echo rom-matches-committed
+rom-matches-committed
+rc=0

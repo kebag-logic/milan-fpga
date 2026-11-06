@@ -1,0 +1,22 @@
+$ sh -c grep -o "\.\./hdl/[^)#]*#L[0-9]*" docs/SOURCE_EVIDENCE.md | sort -u | while read a; do f=${a#../}; f=${f%%#*}; l=${a##*#L}; printf "%s:%s: " "$f" "$l"; sed -n "${l}p" "$f"; done
+hdl/top/KL_gptp_engine.sv:108:     input  wire         tx_credit_i,
+hdl/top/KL_gptp_engine.sv:125:     output logic        phc_slew_active_o,
+hdl/top/KL_gptp_engine.sv:1273:               2'd2: begin
+hdl/top/KL_gptp_engine.sv:1278:               2'd3: begin
+hdl/top/KL_gptp_engine.sv:142:     output logic        pub_commit_o,
+hdl/top/KL_gptp_engine.sv:20: //                  0  message bank      RO  (parser-written, PING-PONG
+hdl/top/KL_gptp_engine.sv:211:   KL_gptp_rx_parser u_parser (
+hdl/top/KL_gptp_engine.sv:293:   logic t1v_valid_r, pdwait_valid_r;
+hdl/top/KL_gptp_engine.sv:407:   logic        txts_pend_r;
+hdl/top/KL_gptp_engine.sv:413:   assign txts_ready_o  = !txts_pend_r && rst_n;
+hdl/top/KL_gptp_engine.sv:449:   KL_gptp_timer #(
+hdl/top/KL_gptp_engine.sv:559:   logic [39:0] evq_r [0:3];
+hdl/top/KL_gptp_engine.sv:586:   always_comb begin : push_arb
+hdl/top/KL_gptp_engine.sv:66: module KL_gptp_engine
+hdl/ucode/gen_gptp_ucode.py:1098: def prog_leg_slew(base: int) -> Prog:
+hdl/ucpu/KL_gptp_ucpu.sv:105:   // ------------------------------------------------------------------ ROM
+hdl/ucpu/KL_gptp_ucpu.sv:113:   // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+hdl/wire/KL_gptp_rx_parser.sv:439:       if (fin_r) begin
+hdl/wire/KL_gptp_rx_parser.sv:521:             11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+hdl/wire/KL_gptp_tx_slot.sv:129:   assign tx_valid_o = ser_run_r && !ser_drop_w;
+rc=0

@@ -1,0 +1,18 @@
+$ git rev-parse HEAD HEAD^{tree}
+84fd22781c95f7b7e65d7d18c99a5ed49a68e11c
+46aadfe70a0df98aaeaf4c52efacd4793d1fd27c
+$ git write-tree (index tree)
+46aadfe70a0df98aaeaf4c52efacd4793d1fd27c
+$ git status --porcelain --ignored=no
+$ git diff --exit-code HEAD (rc)
+rc=0
+$ gitlinks (mode 160000)
+0
+$ ls-tree vs ls-files modes+blobs
+index-matches-head
+$ worktree blob hashes vs index
+worktree-check-done
+c-parser 84fd22781c95f7b7e65d7d18c99a5ed49a68e11c tracked-changes=0
+c-engine 84fd22781c95f7b7e65d7d18c99a5ed49a68e11c tracked-changes=0
+c-arm 84fd22781c95f7b7e65d7d18c99a5ed49a68e11c tracked-changes=0
+head 84fd22781c95f7b7e65d7d18c99a5ed49a68e11c tracked-changes=0

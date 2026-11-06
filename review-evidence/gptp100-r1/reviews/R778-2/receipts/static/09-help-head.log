@@ -1,0 +1,22 @@
+$ python3 -I hdl/ucode/gen_gptp_ucode.py --help
+usage: gen_gptp_ucode.py [-h] [-o OUT] [--seq-seed SEQ_SEED]
+                         [--sync-seq-seed SYNC_SEQ_SEED] [--mac MAC] [--p1 P1]
+                         [--clk-hz CLK_HZ] [--cease-ms CEASE_MS]
+                         [--clock-accuracy CLOCK_ACCURACY]
+
+options:
+  -h, --help            show this help message and exit
+  -o, --out OUT
+  --seq-seed SEQ_SEED   seed S_MYSEQ at init; a REGRESSION IMAGE only, for
+                        proving a claim tag above 16 bits is bounded
+  --sync-seq-seed SYNC_SEQ_SEED
+                        seed S_SSEQ at init; a REGRESSION IMAGE only, for
+                        proving a Sync claim above 16 bits is bounded
+  --mac MAC
+  --p1 P1               our announced priority1 (lower wins BTCA)
+  --clk-hz CLK_HZ       engine clock; sets the servo's ns-to-addend gain
+  --cease-ms CEASE_MS   cease-rule resume delay (Milan: 5 minutes)
+  --clock-accuracy CLOCK_ACCURACY
+                        announced clockAccuracy (802.1AS-2011 8.6.2.3); 0xFE
+                        when the oscillator is not characterised
+rc=0

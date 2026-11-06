@@ -1,0 +1,3 @@
+$ sh -c tail -n +2 '$REVIEWS/gptp100-r778-2-packet/receipts/static/09-help-head.log' > '$REVIEWS/gptp100-r778-2-packet/receipts/static/h1'; tail -n +2 '$REVIEWS/gptp100-r778-2-packet/receipts/static/10-help-merge.log' > '$REVIEWS/gptp100-r778-2-packet/receipts/static/h2'; diff '$REVIEWS/gptp100-r778-2-packet/receipts/static/h1' '$REVIEWS/gptp100-r778-2-packet/receipts/static/h2' && echo help-identical
+help-identical
+rc=0

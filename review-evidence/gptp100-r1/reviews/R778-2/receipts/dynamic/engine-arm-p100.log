@@ -1,0 +1,27 @@
+selected: control + 24 of 159 mutants (24 #100 controls)
+ok  113   124.0s gmTimeBaseIndicator does not count mastership
+ok  117   125.0s scaledLastGmFreqChange is zero
+ok  118   127.5s scaledLastGmFreqChange is the rate estimate
+ok  115   130.9s lastGmPhaseChange is not ScaledNs
+ok  116   148.2s lastGmPhaseChange drops the offset's high word
+ok  000   153.2s control
+ok  114   154.3s lastGmPhaseChange is zero
+ok  112   169.7s the Follow_Up TLV is sent zero
+ok  120   124.4s a rate unknown since reset is taken as zero
+ok  121   125.2s the watch ignores the received interval
+ok  119   131.7s a slewing mastership reports its last trim
+ok  122   134.4s a negative interval lengthens the watch
+ok  125   129.0s an Announce at the instant refreshes the port
+ok  124   136.2s a late Announce runs before the expiry
+ok  126   121.8s lateness is judged at dispatch
+ok  123   155.4s the watch counts from the handler
+ok  128   117.2s a stale expiry dispatches
+ok  130   110.3s the late bound is one nanosecond short
+ok  129   120.5s a late response completes its exchange
+ok  131   111.6s the late bound leaves out the clock tolerance
+ok  132   110.6s the late bound leaves out the link
+ok  134   110.0s the default clockAccuracy is unknown
+ok  133   143.8s the late bound leaves out the timestamp granules
+ok  127   193.0s a dispatched expiry leaves its watch armed
+ok  135   109.6s --clock-accuracy is ignored
+25 checks: 25 PASS, 0 FAIL

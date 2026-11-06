@@ -1,0 +1,33 @@
+$ sh -c git diff --stat 3e3f041 84fd227; echo ---post-merge; git diff --stat 1615187 84fd227; echo ---hdl-tb-vs-main; git diff --stat 5184fb3 84fd227 -- hdl tb
+ docs/HDL_DEVELOPER.md            |  12 ++-
+ docs/INTEGRATION.md              |  12 ++-
+ docs/MANAGER.md                  |   2 +-
+ docs/README.md                   |   2 +-
+ docs/SOURCE_EVIDENCE.md          |   4 +-
+ docs/TEST_DEVELOPER.md           |  11 ++-
+ hdl/ucode/gen_gptp_ucode.py      |   3 +-
+ hdl/wire/KL_gptp_rx_parser.sv    | 159 +++++++++++++++++++++++--------
+ tb/verilator/engine/sim_main.cpp |  10 +-
+ tb/verilator/parser/Makefile     |  10 +-
+ tb/verilator/parser/README.md    |   2 +-
+ tb/verilator/parser/mutants.py   | 165 +++++++++++++++++++++++++++++++-
+ tb/verilator/parser/sim_main.cpp | 198 ++++++++++++++++++++++++++++++++++++++-
+ 13 files changed, 527 insertions(+), 63 deletions(-)
+---post-merge
+ docs/HDL_DEVELOPER.md       |  4 +++-
+ docs/INTEGRATION.md         | 10 +++++++++-
+ hdl/ucode/gen_gptp_ucode.py |  3 ++-
+ 3 files changed, 14 insertions(+), 3 deletions(-)
+---hdl-tb-vs-main
+ hdl/top/KL_gptp_engine.sv           | 213 +++++++++++++-
+ hdl/ucode/gen_gptp_ucode.py         | 152 ++++++++--
+ tb/tsngen/gptp_ucode.hex            | 172 +++++------
+ tb/tsngen/run_tsngen.py             |   2 +-
+ tb/verilator/engine/Makefile        |   6 +-
+ tb/verilator/engine/gptp_ucode.hex  | 172 +++++------
+ tb/verilator/engine/mutants.py      |  12 +-
+ tb/verilator/engine/p100_mutants.py | 181 ++++++++++++
+ tb/verilator/engine/sim_main.cpp    | 559 +++++++++++++++++++++++++++++++++++-
+ tb/verilator/ucpu/gptp_ucode.hex    | 172 +++++------
+ 10 files changed, 1342 insertions(+), 299 deletions(-)
+rc=0
