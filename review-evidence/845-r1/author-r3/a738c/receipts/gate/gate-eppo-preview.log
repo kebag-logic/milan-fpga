@@ -1,0 +1,31 @@
+endpoint route-1x1: <scratch>/w/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       52497       485  ok
+FF               53707       54579       872  REGRESSION: grew by more than 600
+SLICE            15780       15780         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.198    -0.242  ok
+WHS_ns           0.036       0.015    -0.021  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.198  WHS_ns    0.053
+  Slow_85C  WNS_ns    0.198  WHS_ns    0.053
+  Fast_0C   WNS_ns     1.59  WHS_ns    0.015
+  Fast_85C  WNS_ns     1.59  WHS_ns    0.015
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_srp: LUT +684, FF +496
+  u_pp/u_srp/u_listener: LUT +444, FF +522
+  u_pp: LUT +435, FF +502
+  wrapper: LUT +415, FF +504
+  u_pp/u_srp/u_decoder: LUT +343, FF +0
+  u_pp/u_aecp: LUT -260, FF +2
+  u_pp/u_srp/u_talker: LUT -174, FF -2
+  u_pp/u_aecp/u_d3: LUT -138, FF +0
+  u_pp/u_notify: LUT -115, FF +0
+  u_pp/u_srp/u_vlan: LUT +85, FF +0
+  u_pp/u_timer: LUT +72, FF +0
+  u_pp/u_dispatch: LUT +53, FF +0
+RESULT: MATERIAL REGRESSION
