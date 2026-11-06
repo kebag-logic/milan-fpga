@@ -27,11 +27,11 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages | Lines |
 |---|---:|---:|
-| current | 176 | 73,487 |
-| stale | 16 | 10,638 |
+| current | 176 | 73,586 |
+| stale | 16 | 10,653 |
 | superseded | 0 | 0 |
 | obsolete | 21 | 8,002 |
-| **total** | **213** | **92,127** |
+| **total** | **213** | **92,241** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -121,7 +121,7 @@ Areas follow the directory tree.
 | Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
 |---|---:|---|---|---|---|---|---|---|
 | [AGENTS.md](../AGENTS.md) | 452 | maintainer | AGENTS.md - AI agent operating contract | `scripts`, `hdl`, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | repository contract |
-| [CHANGELOG.md](../CHANGELOG.md) | 1087 | maintainer | Milan FPGA product changelog | `tb/verilator/milan_dp`, `tb/verilator/pp_shadow`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | repository contract |
+| [CHANGELOG.md](../CHANGELOG.md) | 1119 | maintainer | Milan FPGA product changelog | `tb/verilator/milan_dp`, `tb/verilator/pp_shadow`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | repository contract |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | 736 | maintainer | Contributing - house rules that keep this repo shippable | `scripts`, `syn/yosys`, `syn/ooc`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | repository contract |
 | [QUICKSTART.md](../QUICKSTART.md) | 370 | all readers | QUICKSTART - clone → green test run in 30 minutes | `syn/yosys`, `tb/verilator`, `third_party/verilog-axis`, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | overview and guides |
 | [README.md](../README.md) | 488 | all readers | milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA | `sw/litex`, `scripts`, `syn/yosys`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 8 finding(s): D0-001, D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047 | D0 | overview and guides |
@@ -273,7 +273,7 @@ Areas follow the directory tree.
 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 2335 | firmware developer | Bare-metal AX7101 firmware profile | `sw/litex`, `scripts`, `sw/builder` | stale | 5 finding(s): D0-011, D0-012, D0-013, D0-061, D0-062 | D0 | reference |
 | [docs/integration/BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | 187 | integrator | Board porting - Alinx AX7101 (XC7A100T-2FGG484I) | `sw/litex` | stale | 3 finding(s): D0-010, D0-038, D0-039 | D0 | reference |
 | [docs/integration/BUILDING.md](integration/BUILDING.md) | 742 | integrator | Building bitstreams - the AX7101 build flow | `sw/litex`, `scripts`, `sw/builder` | current | no recorded contradiction | D0 | reference |
-| [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | 205 | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp` | stale | 3 finding(s): D0-063, D0-064, D0-065 | D0 | reference |
+| [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | 220 | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp`, Milan v1.2 | stale | 3 finding(s): D0-063, D0-064, D0-065 | D0 | reference |
 | [docs/integration/PORTING_GUIDE.md](integration/PORTING_GUIDE.md) | 105 | integrator | Porting guide | `syn/yosys` | current | no recorded contradiction | D0 | reference |
 | [docs/integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | 219 | integrator | QSPI flash-boot - skip the multi-minute serial upload | `sw/litex`, `scripts` | stale | 5 finding(s): D0-024, D0-025, D0-035, D0-036, D0-037 | D0 | reference |
 
@@ -311,7 +311,7 @@ Areas follow the directory tree.
 | [docs/reference/PP_DESCRIPTOR_OWNERSHIP.md](reference/PP_DESCRIPTOR_OWNERSHIP.md) | 392 | integrator | Processor descriptor ownership and evidence | `avdecc`, `sw/builder`, `scripts`, Milan v1.2, 1722.1-2021 | stale | 6 finding(s): D0-050, D0-051, D0-052, D0-053, D0-054, D0-055 | D0 | reference |
 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 2580 | integrator | Milan TSN CSR - register map (ABI) | `configs`, `hdl/milan`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 11 finding(s): D0-006, D0-007, D0-008, D0-014, D0-015, D0-016, D0-017, D0-057, D0-058, D0-059, D0-060 | D0 | reference |
 | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 153 | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | stale | 6 finding(s): D0-018, D0-040, D0-041, D0-042, D0-043, D0-044 | D0 | reference |
-| [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | 669 | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+| [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | 736 | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
 | [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | 400 | firmware developer | What is being logged - the trace event catalogue | `sw/trace` | stale | 2 finding(s): D0-048, D0-049 | D0 | reference |
 
 ### docs/templates
