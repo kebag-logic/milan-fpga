@@ -1,0 +1,14 @@
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: TimeoutError
+Observer unavailable: URLError
+Watcher read refused: HTTP 400
+Watcher read refused: HTTP 401
+Watcher read refused: HTTP 404
+Observer controls: 403, 429, 502, timeout, transport, bounded retries and recovery PASS; 400, 401 and 404 fail the watcher
+docs: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+elaborate: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
