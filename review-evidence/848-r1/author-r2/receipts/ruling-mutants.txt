@@ -1,0 +1,28 @@
+| Mutant | base | f5ccb318 | 212b7d6e | final |
+|---|---|---|---|---|
+| R1 (F1) | killed | killed | SURVIVED | killed |
+| O1 (F2) | killed | killed | SURVIVED | killed |
+| W7 (F3) | SURVIVED | SURVIVED | SURVIVED | killed |
+| W8 (F3) | SURVIVED | SURVIVED | SURVIVED | killed |
+
+R787 survivors at 212b7d6e, from its receipt, against the final head:
+  R1: killed :: Findings row loses the recording page (source_of bypassed on the page only)
+  O1: killed :: the page's own inventory row is dropped from the table while still counted
+  O4: killed :: the page's own row is rendered from a short header
+  W7: killed :: --findings-dir keeps only the first finding of a lane
+  W8: killed :: --findings-dir omits the statement
+  S6: killed :: banner window grows past the rule
+  S9: SURVIVED :: the gate ignores the status rule
+  still surviving: 1
+
+R788 survivors at 212b7d6e, from its receipt, against the final head:
+  killed :: page copy row loses its recording page
+  killed :: page drops the verified baseline
+  killed :: page correction cell blank
+  killed :: line count smuggled into purpose
+  killed :: lane file keeps only its first finding
+  killed :: lane file drops the statement
+  killed :: lane file drops the source
+  killed :: lane file drops the correction
+  SURVIVED :: check ignores the status rule
+  still surviving: 1

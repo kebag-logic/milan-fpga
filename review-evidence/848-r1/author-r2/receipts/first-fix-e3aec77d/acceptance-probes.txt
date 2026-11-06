@@ -1,0 +1,11 @@
+ok  rc=0 want 0 :: one line appended to all 212 pages
+ok  rc=0 want 0 :: 500 lines appended to all 212 pages
+ok  rc=0 want 0 :: one blank line above every recorded finding (14 pages)
+ok  rc=1 want 1 :: supersession banner on a current page
+ok  rc=1 want 1 :: status recorded as a judgement, no document edit
+ok  rc=1 want 1 :: new tracked page
+ok  rc=1 want 1 :: page removed with git rm
+route rc=0; lane entries 76; page rows 76; one to one True; statements 76
+unlocated in lane files ['D0-001', 'D0-033', 'D0-056']; flagged on the page ['D0-001', 'D0-033', 'D0-056']; agree True
+page names the command True; literal re-verify phrase in the intro False
+7 probes, 0 bad
