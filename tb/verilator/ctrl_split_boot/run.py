@@ -156,22 +156,24 @@ def runtime(out: Path) -> tuple[Path, Path]:
 
 
 def image(out: Path, name: str, point: tuple[str, int], csr_csv: Path, archives: tuple[Path, Path],
-          source: Path | None = None) -> Path:
+          flash_map: Path, source: Path | None = None) -> Path:
     """The platform image of one point (shape, interfaces) against one map, from the checkout's tree or a
     planted copy."""
     shape, n_if = point
     run([sys.executable, '-B', str(FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
          str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(csr_csv),
-         '--output', str(out / name), '--libc', str(archives[0]), '--compiler-runtime', str(archives[1]),
+         '--flash-map', str(flash_map), '--output', str(out / name), '--libc', str(archives[0]),
+         '--compiler-runtime', str(archives[1]),
          *([] if source is None else ['--ctrl-source', str(source)])], out / f'{name}.log', cwd=ROOT)
     return out / name / 'ctrl_app.elf'
 
 
-def export(out: Path, name: str, shape: str, elf: Path, n_if: int) -> dict:
+def export(out: Path, name: str, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
     """The boot SoC's export for one image, in a child process (the CPU generator patches its class)."""
     code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; '
-            'print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]))))')
-    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if)],
+            'print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), '
+            'int(sys.argv[5]), Path(sys.argv[6]))))')
+    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if), str(flash_map)],
         out / f'{name}.log', cwd=ROOT)
     return json.loads((out / name / 'soc.json').read_text())
 
@@ -218,12 +220,15 @@ def planted(out: Path, plant: str) -> Path:
 def build(out: Path, shape: str, n_if: int, plant: str | None = None) -> tuple[Path, dict]:
     """Every build step; the native model and the boot SoC's spec."""
     out.mkdir(parents=True, exist_ok=True)
+    sys.path.insert(0, str(BUDGET))
+    import build as budget_build
+    flash_map = budget_build.flash_map(out / 'split-soc/flash-map', shape)
     archives = runtime(out)
-    first = image(out, 'image-provisional', (shape, n_if), PROVISIONAL, archives)
-    export(out, 'soc-provisional', shape, first, n_if)
+    first = image(out, 'image-provisional', (shape, n_if), PROVISIONAL, archives, flash_map)
+    export(out, 'soc-provisional', shape, first, n_if, flash_map)
     csr_csv = out / 'soc-provisional/csr.csv'
-    elf = image(out, 'image', (shape, n_if), csr_csv, archives, None if plant is None else planted(out, plant))
-    spec = export(out, 'soc', shape, elf, n_if)
+    elf = image(out, 'image', (shape, n_if), csr_csv, archives, flash_map, None if plant is None else planted(out, plant))
+    spec = export(out, 'soc', shape, elf, n_if, flash_map)
     if rows(out / 'soc/csr.csv') != rows(csr_csv):
         raise RuntimeError('the boot SoC\'s csr.csv depends on the image; the map cannot be generated from it')
     spec['elf'] = str(elf)

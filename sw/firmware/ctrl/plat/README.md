@@ -110,6 +110,9 @@ They include a CSR write skipped, reordered or wrong, a console that holds the p
 
 The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
 
+The split boot simulation generates F1's flash map from the split SoC's `csr.csv` and passes it to both platform links and boot exports.
+Each export checks the placement against that map.
+
 ## Not yet done
 
 - **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
@@ -117,5 +120,4 @@ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) 
 - **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.0 RAMB36, ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
-- **F1's flash port** keeps its fixture addresses; lane S4 generates them from the SoC's `csr.csv`.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.

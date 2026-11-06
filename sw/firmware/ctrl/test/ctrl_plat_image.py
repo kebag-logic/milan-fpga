@@ -10,10 +10,9 @@ policy, the console, MAAP's allocation port and SRP's sources. Its two
 generated headers come from ctrl_plat_gen.py: the policy from --config, the
 bus map from --csr-csv, the export of the SoC the image runs on (a split
 export with any image gives it; docs/design/SPLIT_CONTROL_MEMORY.md section 4).
-The mailbox's base is the map's, so the fixture's placeholder is dropped. F1's
-flash port keeps its own addresses (ctrl_nvm/test/rv32/generated): the store
-comes from its own tree with no flash map, as ctrl_srp_image.py compiles it
-without --flash-map.
+The mailbox's base is the map's. With --flash-map, F1's flash port uses the
+split SoC's generated addresses; without it, compilation uses the RV32
+stand-ins, as ctrl_srp_image.py does without --flash-map.
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
@@ -99,6 +98,7 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--ctrl-source", type=Path, default=CTRL,
                         help="the firmware tree to compile (a planted copy for a control; default the checkout's)")
     parser.add_argument("--csr-csv", type=Path, required=True)
+    parser.add_argument("--flash-map", type=Path, help="the split SoC generated flash port map")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED),
@@ -123,7 +123,7 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
               "-include", str(out / "ctrl_plat_map_gen.h")]
     inc += [f"-I{out}", f"-I{tree.src / 'plat'}", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}",
             *fw_rv32.includes(cc)]
-    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out, NVM_DIR, None)
+    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out, NVM_DIR, args.flash_map)
     inc += extra_inc
     sources = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
     sources += [tree.src / n for n in PLAT_SOURCES] + aecp_sources

@@ -26,6 +26,8 @@ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-nativ
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
 ```
 
+The run generates the shape's flash map with `ctrl_service_budget/build.flash_map` from the split SoC export.
+Both platform links use that map, and both boot exports refuse any flash-device placement that differs from it.
 The run builds the runtime archives, then links the platform image (`ctrl_plat_image.py`) twice.
 The first link is against a provisional map, and the boot SoC's export with that image gives the SoC's own `csr.csv`.
 The second link is against that `csr.csv`, and the run refuses it unless the second export's rows equal the first's: the map does not depend on the image.
