@@ -591,8 +591,8 @@ def render(tree: Tree, paths: list[str]) -> str:
             "A copy row shows the recorded spelling.", "It names the recording page.", "",
             "Remove an entry once no copy row remains.", "An archive copy stays as written.", "",
             "`Located` says whether the quote is still on its page.",
-            "`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.",
-            "Use it for a copy row that a text search misses, because its page wraps or marks up the words.", "",
+            "`python3 scripts/docs_inventory.py --findings-dir DIR` writes each finding's line, one file per lane.", "",
+            "A text search misses a wrapped or marked-up copy.", "That command still names its line.", "",
             "| ID | Page | Located | Statement | Contradicted by | Correction |", "|---|---|---|---|---|---|"]
     for finding, line in located:
         where = "on page" if line else "re-verify: quote not found"
