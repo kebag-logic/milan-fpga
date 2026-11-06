@@ -1,0 +1,45 @@
+## check-baseline
+baseline PASS: 3 endpoints
+rc=0
+## selftest
+placement gate full-split ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+placement gate full-split tool or recipe change: expected exit 2, tool or recipe change: PASS
+placement gate: unchanged acceptance schema, record and policy PASS
+rc=0
+## docs_inventory
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+## submodule docs
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+## diff check
+
+rc=0
+## synthesis-input delta b16f0175..HEAD
+syn/ooc/pp_resource_baseline.json   | 450 ++++++++++++++++++++++++++++++++++++++--------------------------------------
+ tb/verilator/pp_shadow/sim_main.cpp |  14 +--
+ 2 files changed, 232 insertions(+), 232 deletions(-)
+
+Changes:
+
+## b16..bf6
+tb/verilator/pp_shadow/sim_main.cpp
+
+Changes:
+
+## bf6..head
+syn/ooc/pp_resource_baseline.json
+
+Changes:
+
+## 519..b16
+docs/DOCUMENTATION_AUDIT.md                       |   8 +-
+ docs/testing/TESTING.md                           |  96 +++++++-
+ scripts/owned_process.py                          | 195 ++++++++++++----
+ scripts/process_test_support.py                   | 758 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ scripts/test_suite_cancellation.py                | 617 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ tb/verilator/gptp_shadow/test_mutant_lifecycle.py |   2 +-
+ 6 files changed, 1609 insertions(+), 67 deletions(-)
+
+Changes:
+
