@@ -1,0 +1,13 @@
+inventory_check rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+inventory_selftest rc=0 :: documentation inventory selftest: OK (53 controls)
+py_idiom rc=0 ::   over-long line: 0 <= 0
+workflows_check rc=0 :: 
+ci_events_check rc=0 :: ci_events: OK (2207 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+docs_check rc=0 :: docs_check: 0 finding(s) across 213 md files + 1442 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+doc_style rc=0 :: documentation style: OK (23 current documents)
+doc_paths rc=0 :: doc path gate: OK (1631 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+toc_check rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+toc_anchors rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+hygiene rc=0 :: HYGIENE RATCHET: PASS (3 population(s), 1309 file(s))
+archive rc=0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+diff_check rc=0 :: 
