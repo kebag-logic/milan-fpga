@@ -98,10 +98,10 @@ After booting and raising every link, each case but the planted guard asks two q
 | Case | Image | Journal | Must show |
 |---|---|---|---|
 | `commit` | `capture-all` | blank | Every record of the shape is marked changed once the boot releases. SET_NAME renames the entity and BIND_RX binds sink 0 to a talker. The store captures every record from its owners and commits: one erase and the container's pages. The journal it leaves decodes, by the reference codec, with the saved name and sink 0's binding; both questions answer them. |
-| `valid` | fixture | the commit's | Both questions answer the saved values, the apply order is the container's, and nothing is written. |
-| `absent` | fixture | blank | No owner applies anything, the name is not a saved one, sink 0 is unbound, and nothing is written. |
-| `torn` | fixture | the commit's container in slot A; in slot B the next sequence renaming the entity, its last page never programmed | Slot A's values are applied in its order, the newer torn slot is refused, and nothing is written. |
-| `version` | fixture | the commit's container under the next major version in slot A, slot B blank | The slot is refused for its version: no owner applies anything, the name is not a saved one, sink 0 is unbound, and nothing is written, the refused slot included. |
+| `valid` | 44, 5,050,293 (101.0) | 133, 24,519,265 (490.4) |
+| `absent` | 0, 506,900 (10.1) | 0, 1,747,362 (34.9) |
+| `torn` | 44, 8,300,664 (166.0) | 133, 37,436,744 (748.7) |
+| `version` | 0, 504,932 (10.1) | 0, 1,745,393 (34.9) |
 | `guard` | `guard-probe` | blank | After the boot the port is asked to erase four blocks outside the journal (the bitstream's first block, the block below the journal, the block above it and the one beyond) and to program three pages outside it. Every call reaches the port and is refused before the command master is touched. One erase inside the journal reaches the device, which sees it and nothing else. Then the boot opens the mailbox. |
 
 `capture-all` and `guard-probe` are labelled test-code arms: edits of the size fixture in a scratch copy (`build.Variant`), never the formal image.
@@ -168,6 +168,7 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm
 python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm-target-8x8
 ```
 
+Measured after merging `a68536fa`, at `93c6e9a5`.
 Both runs exit 0: every case passes, no step is over T_svc, and every control is caught.
 
 ### The capture
@@ -176,12 +177,12 @@ Recorded, not bounded ([The capture's timing](#the-captures-timing)); CPU 50 MHz
 
 | Point | Records, container | Capture steps | CPU time, cycles | CPU time, ms | Elapsed, ms | Longest step, ms | Fixed a step, cycles | A payload byte, cycles | Idle step, cycles |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1x1 | 54, 3,336 B (2,858 B of payload) | 55 | 1,361,143 | 27.223 | 534.905 | 0.815 | 11,062 | 263.7 | 9,486 |
-| 8x8 | 164, 13,256 B (11,898 B of payload) | 165 | 5,161,328 | 103.227 | 1,638.061 | 2.639 | 16,500 | 205.5 | 9,389 |
+| 1x1 | 54, 3,336 B (2,858 B of payload) | 55 | 1,367,366 | 27.347 | 542.977 | 0.818 | 11,066 | 265.8 | 9,499 |
+| 8x8 | 164, 13,256 B (11,898 B of payload) | 165 | 5,168,647 | 103.373 | 1,641.818 | 2.641 | 16,533 | 205.6 | 9,852 |
 
 The fixed cost and the cost a byte are the least-squares line through the latch steps' CPU cycles against the payload of the record each latched.
 An idle step, which every step pays too, is mostly the flash port's 64-bit clock conversion (`ls_now_us`).
-The elapsed time is the loop's pacing, one record a 10 ms tick; the CPU time is spread over it, at most 2.639 ms in any one step.
+The elapsed time is the loop's pacing, one record a 10 ms tick; the CPU time is spread over it, at most 2.641 ms in any one step.
 For comparison, the current flash writer's capture copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte, holding its owners while it does.
 
 ### The commit's steps
@@ -190,15 +191,15 @@ CPU 50 MHz, bus 100 MHz:
 
 | Phase | 1x1: steps, longest CPU cycles (ms) | 8x8: steps, longest CPU cycles (ms) |
 |---|---|---|
-| capture | 55, 40,771 (0.815) | 165, 131,929 (2.639) |
-| seal | 14, 34,384 (0.688) | 52, 34,839 (0.697) |
-| erase | 1, 12,416 (0.248) | 1, 12,595 (0.252) |
-| poll | 15, 11,851 (0.237) | 53, 12,321 (0.246) |
-| program | 14, 101,098 (2.022) | 52, 101,577 (2.032) |
-| read (blank check and verify) | 28, 95,354 (1.907) | 104, 95,984 (1.920) |
-| idle | 203, 10,022 (0.200) | 215, 10,358 (0.207) |
+| capture | 55, 40,906 (0.818) | 165, 132,073 (2.641) |
+| seal | 14, 34,468 (0.689) | 52, 34,862 (0.697) |
+| erase | 1, 12,431 (0.249) | 1, 12,537 (0.251) |
+| poll | 15, 11,727 (0.235) | 53, 12,168 (0.243) |
+| program | 14, 101,139 (2.023) | 52, 101,549 (2.031) |
+| read (blank check and verify) | 28, 96,248 (1.925) | 104, 96,789 (1.936) |
+| idle | 203, 10,012 (0.200) | 216, 10,248 (0.205) |
 
-Every step is within T_svc at both points; the longest, 2.639 ms, is a capture step at 8x8.
+Every step is within T_svc at both points; the longest, 2.641 ms, is a capture step at 8x8.
 The commit erased one block and programmed 14 pages at 1x1 and 52 at 8x8, and the journal it left decodes by the reference codec with the saved name and sink 0's binding.
 
 ### The boots
@@ -207,10 +208,10 @@ CPU 50 MHz, bus 100 MHz:
 
 | Case | 1x1: apply entries, `nvm_store_boot` CPU cycles (ms) | 8x8 |
 |---|---|---|
-| `valid` | 44, 5,027,209 (100.5) | 133, 24,423,878 (488.5) |
-| `absent` | 0, 506,631 (10.1) | 0, 1,746,898 (34.9) |
-| `torn` | 44, 8,255,898 (165.1) | 133, 37,255,159 (745.1) |
-| `version` | 0, 504,698 (10.1) | 0, 1,744,933 (34.9) |
+| `valid` | 44, 5,050,293 (101.0) | 133, 24,519,265 (490.4) |
+| `absent` | 0, 506,900 (10.1) | 0, 1,747,362 (34.9) |
+| `torn` | 44, 8,300,664 (166.0) | 133, 37,436,744 (748.7) |
+| `version` | 0, 504,932 (10.1) | 0, 1,745,393 (34.9) |
 
 Each passes at both points: the answers are the saved values where a slot is accepted and the defaults where none is, the apply order is the container's, and nothing is written.
 Every service step of these cases is within T_svc too: the longest is 0.196 ms at 8x8.
@@ -227,7 +228,7 @@ CPU 50 MHz, bus 100 MHz:
 | `reorder-settle` | caught: entry 4 is `aecp_value_restore`, the container needs `aecp_restore_settle` | caught: entry 25 is `aecp_value_restore`, the container needs `aecp_restore_settle` |
 | `reorder-bindings` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` |
 | `guard-removed` | caught: `flash write escaped the journal` | caught: `flash write escaped the journal` |
-| `slow-step` | caught: `step 0 (idle) takes 30.2216 ms of CPU time, over T_svc 10.0 ms` | caught: `step 0 (idle) takes 30.2139 ms of CPU time, over T_svc 10.0 ms` |
+| `slow-step` | caught: `step 0 (idle) takes 30.2028 ms of CPU time, over T_svc 10.0 ms` | caught: `step 0 (idle) takes 30.2724 ms of CPU time, over T_svc 10.0 ms` |
 | `step-over-t-svc` | caught in every phase: capture, erase, idle, poll, program, read, seal (T_svc = 500,000 cycles) | caught in every phase: capture, erase, idle, poll, program, read, seal (T_svc = 500,000 cycles) |
 
 ## Controls and self-test

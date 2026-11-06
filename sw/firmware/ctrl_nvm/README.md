@@ -349,11 +349,11 @@ access to the command master costs 40 ns, and CPU work costs none of it.
     The longest step is 2.64 ms at 8x8, the capture of a 576-byte map record,
     and 2.02 ms at 1x1, a page program;
   - the capture of a full work set, every record latched from its owner,
-    takes 1,361,143 CPU cycles (27.22 ms) at 1x1 and 5,161,328 (103.23 ms) at
-    8x8, spread over 0.53 s and 1.64 s elapsed at one record a 10 ms tick.
-    Both are recorded, not bounded (above). A capture step costs about 11,062
-    cycles at 1x1 and 16,500 at 8x8 before its record, mostly the port's
-    64-bit clock conversion, and about 264 and 206 cycles a payload byte. The
+    takes 1,367,366 CPU cycles (27.35 ms) at 1x1 and 5,168,647 (103.37 ms) at
+    8x8, spread over 0.54 s and 1.64 s elapsed at one record a 10 ms tick.
+    Both are recorded, not bounded (above). A capture step costs about 11,066
+    cycles at 1x1 and 16,533 at 8x8 before its record, mostly the port's
+    64-bit clock conversion, and about 266 and 206 cycles a payload byte. The
     current flash writer copies 13,210 bytes at 8x8 in 13.86 ms, holding its
     owners while it does;
   - a port call on chip is held to its own deadline, which is `timer0` time
