@@ -1,0 +1,83 @@
+--- sw/firmware/ctrl/test/test_aecp.cpp	2026-11-06 02:01:37.366749043 +0100
++++ sw/firmware/ctrl/test/test_aecp.cpp	2026-11-06 02:12:35.134356014 +0100
+@@ -3211,3 +3211,80 @@
+ }
+ #endif
+ #endif
++
++// Reviewer probe (not part of the tree): two change notices whose observation ports
++// fail together, then answer together, under input that leaves no pass empty, with
++// every pass taking THE SHARE (2 ms of the model clock). Records each notice's commit time
++// relative to the time both retries came due.
++TEST_F(Mailbox, ProbeTwoRetriedNoticesUnderSustainedInput)
++{
++    bool answers=false;
++    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
++    receive(36);service();
++    aecp_changed(&adapter.core,5,0,1);aecp_changed(&adapter.core,6,0,1);service();
++    ASSERT_TRUE(adapter.armed);
++    const uint32_t due=adapter.deadline;
++    answers=true;
++    const uint32_t base_tx=fabric.tx_sent;
++    mbx_model_advance_ms(&fabric,due-mbx_now_ms());
++    std::vector<std::pair<uint32_t,uint32_t>> commits; // (ms after due, descriptor type)
++    for(uint16_t k=0;k<20u && commits.size()<2u;++k){
++        mbx_timer_arm(0,static_cast<uint16_t>(0x400u+k),mbx_now_ms());mbx_model_advance_ms(&fabric,0);
++        const uint32_t before=fabric.tx_sent;const uint32_t now0=mbx_now_ms();
++        const uint32_t aged=loop.stats.retry_aged_passes;const uint32_t ev=loop.stats.events;
++        (void)ctrl_loop_service(&loop);
++        printf("PROBE pass %u start=+%u ms events=%u aged_retry=%u tx=%u\n",k,now0-due,loop.stats.events-ev,
++               loop.stats.retry_aged_passes-aged,fabric.tx_sent-before);
++        for(uint32_t t=before;t<fabric.tx_sent;++t){
++            auto p=mbx_model_tx_frame(&fabric,t);
++            uint32_t cmd=(p->bytes[36]<<8)|p->bytes[37];uint32_t type=(p->bytes[38]<<8)|p->bytes[39];
++            if(cmd==0x800fu){commits.push_back({now0-due,type});
++                printf("PROBE notice GET_STREAM_INFO descriptor_type=%u committed in the pass starting +%u ms\n",type,now0-due);}
++        }
++        mbx_model_advance_ms(&fabric,CTRL_LOOP_SHARE_US/1000u);
++    }
++    (void)base_tx;
++    ASSERT_EQ(commits.size(),2u);
++    printf("PROBE second notice minus first: %u ms (%u passes of THE SHARE)\n",commits[1].first-commits[0].first,
++           (commits[1].first-commits[0].first)/(CTRL_LOOP_SHARE_US/1000u));
++}
++
++// Reviewer probe (not part of the tree): a held build whose client reports it aged from the first pass, under a
++// record every pass (so no ordinary pass carries THE TRANSMIT), with k retried notices answering together. Counts the
++// passes until the aged build's pass, and the spacing of the aged retries' passes.
++static unsigned probe_tx_calls;static bool probe_tx_held;
++static bool probe_tx(void*){++probe_tx_calls;probe_tx_held=false;return false;}
++static bool probe_tx_aged(void*){return probe_tx_held;}
++static void probe_tx_run(Mailbox &t,unsigned notices)
++{
++    bool answers=false;
++    ON_CALL(t.mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
++    ASSERT_TRUE(ctrl_loop_set_transmit(&t.loop,probe_tx,probe_tx_aged,nullptr));
++    t.receive(36);t.service();
++    if(notices>0)aecp_changed(&t.adapter.core,5,0,1);
++    if(notices>1)aecp_changed(&t.adapter.core,6,0,1);
++    t.service();
++    uint32_t due=notices?t.adapter.deadline:mbx_now_ms();
++    answers=true;
++    mbx_model_advance_ms(&t.fabric,due-mbx_now_ms()+CTRL_LOOP_RETRY_AGE_MS);
++    {auto q=command(36);ASSERT_TRUE(mbx_model_rx(&t.fabric,q.data(),q.size(),0));(void)ctrl_loop_service(&t.loop);
++     printf("PROBE-TX notices=%u held after one ordinary pass with a record: %d\n",notices,(int)t.adapter.core.retry_held);
++     mbx_model_advance_ms(&t.fabric,CTRL_LOOP_SHARE_US/1000u);}
++    probe_tx_calls=0;probe_tx_held=true;
++    std::string seq;unsigned at=0;
++    for(unsigned k=0;k<20u && probe_tx_calls==0u;++k){
++        mbx_timer_arm(0,static_cast<uint16_t>(0x500u+2u*k),mbx_now_ms());mbx_timer_arm(1,static_cast<uint16_t>(0x501u+2u*k),mbx_now_ms());
++        mbx_model_advance_ms(&t.fabric,0);
++        const uint32_t ev0=t.loop.stats.events;
++        const uint32_t r=t.loop.stats.retry_aged_passes,x=t.loop.stats.transmit_aged_passes,rec=t.loop.stats.rx_records;
++        (void)ctrl_loop_service(&t.loop);
++        seq+=t.loop.stats.retry_aged_passes>r?"R":t.loop.stats.transmit_aged_passes>x?"T":t.loop.stats.events-ev0>1u?"E":t.loop.stats.rx_records>rec?"O":"o";(void)rec;
++        at=k+1;
++        mbx_model_advance_ms(&t.fabric,CTRL_LOOP_SHARE_US/1000u);
++    }
++    printf("PROBE-TX notices=%u passes until the aged build's pass=%u sequence=%s (R aged retry, E ordinary taking two events, T aged build)\n",
++           notices,at,seq.c_str());
++}
++TEST_F(Mailbox, ProbeAgedBuildBehindNoRetriedNotice){probe_tx_run(*this,0);}
++TEST_F(Mailbox, ProbeAgedBuildBehindOneRetriedNotice){probe_tx_run(*this,1);}
++TEST_F(Mailbox, ProbeAgedBuildBehindTwoRetriedNotices){probe_tx_run(*this,2);}
