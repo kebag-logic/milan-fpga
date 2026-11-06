@@ -1,0 +1,37 @@
+171fd56b2c50a44ed75a32c1b9bbd7ae818f2c22
+9d8daa835aa16f477d3af405fa2bb1b1ec0d5883
+== python3 -I scripts/docs_inventory.py --check : rc=0
+documentation inventory: OK (546 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+== python3 -I scripts/docs_inventory.py --selftest : rc=0
+documentation inventory selftest: OK (56 controls)
+== python3 -I scripts/check_py_idiom.py : rc=2
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor; -a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 
+== python3 -I scripts/check_py_idiom.py --selftest : rc=2
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+== python3 -I scripts/check_doc_style.py : rc=0
+documentation style: OK (23 current documents)
+== python3 -I scripts/check_doc_style.py --selftest : rc=0
+documentation style selftest: OK
+== python3 -I scripts/gen_toc.py --check : rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== python3 -I scripts/gen_toc.py --verify-anchors : rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+tree clean after --write rc=0
+  1000 scripts/docs_inventory.py
+   546 docs/DOCUMENTATION_AUDIT.md
+  1546 total
+diff-check rc=0
+command-table sha256 entries 146 mismatched 36 [('scripts/act_ci.py', 'b8a786cec30be9eff9f2e72c6b59e21c06d27e1f36e055a7929c3cc3b59e3ba8'), ('scripts/check_nvm_record_space.py', '1e59ce154bdf7b30c70cf36550604b053ada24c77b32b18d25236117630c4e07'), ('scripts/ci_case_receipts_selftest.py', 'c0543fba6e86b2360212559ed8d35b7c106430199b32a749e97b07a157041777'), ('scripts/ci_workflow_plan_selftest.py', '9efd257db3a9e414b03ee3bba9bab93706d975c4a96ae26183cece0cefe3dee8'), ('scripts/owned_process.py', '7f9baa96ab443ae11b70969daa7c00b78349a52839bd61d49d3d518f802f9683')]
+
+== rerun in the review clone, whose required submodules are initialised (the disposable clone above has none, so its idiom rc 2 is that refusal)
+== python3 -I -B scripts/check_py_idiom.py : rc=0
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+== python3 -I -B scripts/check_py_idiom.py --selftest : rc=0
+[PASS] an over-long line is a finding
+54 checks: 54 PASS, 0 FAIL
+== python3 -I -B scripts/docs_check.py : rc=0
+docs_check: 0 finding(s) across 213 md files + 1446 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]

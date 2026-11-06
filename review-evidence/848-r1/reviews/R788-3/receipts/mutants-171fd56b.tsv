@@ -1,0 +1,37 @@
+IDENTITY	SURVIVED	documentation inventory selftest: OK (56 controls)
+L01 every finding under reference	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L02 every finding under overview	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L03 copy under its origin's lane	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L04 lanes merged into one file, titled sections kept	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L05 recorded finding under a wrong named lane	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+L06 copy under a wrong named lane	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L07 the guide's entry also filed after the reference lane's entries	SURVIVED	documentation inventory selftest: OK (56 controls)
+L08 every entry also filed in a third catch-all file	SURVIVED	documentation inventory selftest: OK (56 controls)
+L09 a copy also filed under its origin's lane (duplicate)	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+L10 the reference lane's entry also filed last in the overview lane	SURVIVED	documentation inventory selftest: OK (56 controls)
+L11 an archive page's entry filed under overview	SURVIVED	documentation inventory selftest: OK (56 controls)
+L12 lane files lose their unique name (first letter)	SURVIVED	documentation inventory selftest: OK (56 controls)
+L13 every lane written to one name, last wins	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+L14 lane file renamed	SURVIVED	documentation inventory selftest: OK (56 controls)
+L15 a leading blank line in a lane file	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L16 lane title dropped	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L17 baselines swapped in the lane file	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L18 only the last finding of a lane kept	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+L19 a copy's note dropped from its lane entry	KILLED	selftest: FAIL the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+L20 --findings-dir exits non-zero	SURVIVED	documentation inventory selftest: OK (56 controls)
+T4 the route's closing sentence dropped	SURVIVED	documentation inventory selftest: OK (56 controls)
+B1 the page's two baselines swapped	SURVIVED	documentation inventory selftest: OK (56 controls)
+B14 window of 14	KILLED	selftest: FAIL a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDI
+B16 window of 16	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B17 window of 17	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B18 window of 18	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B19 window of 19	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B30 window of 30	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B31 status window one short	KILLED	selftest: FAIL a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDI
+B32 status window one long	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B33 banner searched on the whole page	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B34 window counts non-blank lines	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B35 window taken from the page's end	KILLED	selftest: FAIL a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+B36 banner rule removed	KILLED	selftest: FAIL a line added above a banner leaves the page fresh: generated output lacks '| superseded | banner names `docs/guides/A.md` |'
+B37 audience window one short (shared constant, not the banner)	SURVIVED	documentation inventory selftest: OK (56 controls)
+B38 audience window one long (shared constant, not the banner)	SURVIVED	documentation inventory selftest: OK (56 controls)
