@@ -6869,7 +6869,7 @@ class _PlanContractChecks:
         # interface to read
         self.assertEqual([p.name for p in participants(ARTY, PEER)],
                          ["arty", "peer"])
-        host = parse_device_spec("iface=enp6s0", TESTHOST)
+        host = parse_device_spec("iface=<host-iface>", TESTHOST)
         self.assertEqual([p.name for p in
                           participants(ARTY, PEER, host)],
                          ["arty", "peer", "testhost"])
