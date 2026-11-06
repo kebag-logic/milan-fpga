@@ -1,0 +1,59 @@
+## pins of the five changed files anywhere in the head tree (old and new bytes, sha256 and git blob id)
+3d1ca52f docs/DOCUMENTATION_AUDIT.md sha256=935a1ace02ee blob=dddbb3c5c91f pinned_in=0
+27df6e08 docs/DOCUMENTATION_AUDIT.md sha256=5838c0a82419 blob=58d243bcd12a pinned_in=0
+3d1ca52f docs/integration/BAREMETAL_FIRMWARE.md sha256=ae5b1d260987 blob=45c940aec867 pinned_in=0
+27df6e08 docs/integration/BAREMETAL_FIRMWARE.md sha256=6f976543ff76 blob=6ab145a08850 pinned_in=0
+3d1ca52f docs/reference/STRICTER_READINGS.md sha256=c863d3a7773c blob=170adeb1c14d pinned_in=0
+27df6e08 docs/reference/STRICTER_READINGS.md sha256=face9312709b blob=2524f32e7937 pinned_in=0
+3d1ca52f sw/firmware/nvm_hosttest/phy_host.c sha256=67991cbfb0a7 blob=9947ed06e166 pinned_in=0
+27df6e08 sw/firmware/nvm_hosttest/phy_host.c sha256=bacdef34b8a1 blob=38a831c82e2e pinned_in=0
+3d1ca52f sw/firmware/nvm_hosttest/test_phy_firmware.py sha256=011c982c10cd blob=a7114e8decc6 pinned_in=0
+27df6e08 sw/firmware/nvm_hosttest/test_phy_firmware.py sha256=cda2db3c414c blob=7aa9781f7836 pinned_in=0
+## tool-inventory mentions of changed files
+rc=1
+## author receipt rcs
+phy_firmware=0
+inventory_check=0
+inventory_selftest=0
+diffcheck=0
+merge_bases=0
+privacy=0
+pr_table_digests=0
+cmdtable_digests=0
+arm_probe=0
+## author mutant lines equal mine
+63
+identical
+## hosted snapshot
+2026-11-06T13:52:42Z
+      1 completed skipped
+     10 completed success
+     19 in_progress null
+     17 queued null
+docs-check-no-git completed success
+docs-gates-0 in_progress null
+docs-gates-1 in_progress null
+docs-gates-2 in_progress null
+firmware-unit queued null
+## live dev
+87e9d03aa2a4797957ac0124d0c7851a2eec234c
+## clone state
+27df6e08cf157b9c5e4b0fdb7da2fa28d8ab83fa
+25d62820b5a41a49368ef027aac7e9a531dd93b5
+0
+worktree=index=HEAD
+bbb61812eb86f02d
+3e9836b08403159c
+3e9836b08403159c
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (he
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP 
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilo
