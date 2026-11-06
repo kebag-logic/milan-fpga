@@ -1,0 +1,62 @@
+## 1 review clone, read-only check, with its initialised submodules
+cf4120f4cf6c711781b9e4aa24173691dcce0a95
+$ python3 scripts/docs_inventory.py --check
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+0
+## 2 fresh no-submodule clone at H: --check, --write, byte compare
+cf4120f4cf6c711781b9e4aa24173691dcce0a95
+566fd3ae6acece2e2853310f9ef9e076ae3638a0
+$ python3 scripts/docs_inventory.py --check
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+$ python3 scripts/docs_inventory.py --write
+wrote docs/DOCUMENTATION_AUDIT.md
+rc=0
+worktree-delta-after-write: 0
+1d66bb1cd748b13bb9b8e5fc3356fca6dca1472fe4c54a2cfe47b9d9b9f3f99f  docs/DOCUMENTATION_AUDIT.md
+6b53c9b32dab7c3a8cb629f6572cf36933c9d6a8ddf29bd248a262b40984aaca  scripts/docs_inventory.json
+H blob audit: 1d66bb1cd748b13bb9b8e5fc3356fca6dca1472fe4c54a2cfe47b9d9b9f3f99f  -
+H blob json : 6b53c9b32dab7c3a8cb629f6572cf36933c9d6a8ddf29bd248a262b40984aaca  -
+AUDIT_BYTE_IDENTICAL
+JSON_BYTE_IDENTICAL
+$ python3 scripts/docs_inventory.py --selftest
+documentation inventory selftest: OK (50 controls)
+rc=0
+## 3 replay: generator run from the merge commit must reproduce H's audit, and M must be stale
+19f4c0b4eeac7cbb48aee0b055298b104628c039
+M audit == dev audit? 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b
+$ python3 scripts/docs_inventory.py --check
+docs/DOCUMENTATION_AUDIT.md: STALE (13 lines differ); first difference at line 30:
+  committed: | current | 176 | 73,487 |
+  generated: | current | 176 | 73,640 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+$ python3 scripts/docs_inventory.py --write
+wrote docs/DOCUMENTATION_AUDIT.md
+rc=0
+REPLAY_FROM_MERGE_EQUALS_H_AUDIT
+paths changed by the replay:  M docs/DOCUMENTATION_AUDIT.md
+## 4 fault controls in the disposable H clone: the gate must fail
+$ python3 scripts/docs_inventory.py --check
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 34:
+  committed: | **total** | **213** | **92,368** |
+  generated: | **total** | **213** | **92,369** |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+$ python3 scripts/docs_inventory.py --check
+docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 31:
+  committed: | stale | 16 | 10,727 |
+  generated: | stale | 16 | 10,728 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+$ python3 scripts/docs_inventory.py --check
+docs/DOCUMENTATION_AUDIT.md: STALE (13 lines differ); first difference at line 30:
+  committed: | current | 176 | 73,487 |
+  generated: | current | 176 | 73,640 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+$ python3 scripts/docs_inventory.py --check
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+final-clean-delta: 0

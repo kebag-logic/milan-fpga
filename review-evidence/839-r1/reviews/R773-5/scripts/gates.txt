@@ -1,0 +1,25 @@
+docs_check|python3 scripts/docs_check.py
+feature_status|python3 scripts/check_feature_status.py
+em_dash_base|python3 scripts/check_em_dash.py --base 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+em_dash_selftest|python3 scripts/check_em_dash.py --selftest
+doc_style|python3 scripts/check_doc_style.py
+solution_docs|python3 scripts/check_solution_docs.py
+submodule_docs|python3 scripts/check_submodule_docs.py
+gptp_docs_sub|python3 scripts/check_gptp_docs.py --with-submodule
+toc_anchors|python3 scripts/gen_toc.py --verify-anchors
+toc_check|python3 scripts/gen_toc.py --check
+inventory_check|python3 scripts/docs_inventory.py --check
+inventory_selftest|python3 scripts/docs_inventory.py --selftest
+baremetal_only|python3 scripts/check_baremetal_only.py --check
+baremetal_selftest|python3 scripts/check_baremetal_only.py --selftest
+test_evidence|python3 scripts/measure_test_evidence.py --check
+fail_fast|python3 scripts/measure_fail_fast.py --check
+hygiene|python3 scripts/check_hygiene.py --check
+py_idiom|python3 scripts/check_py_idiom.py
+sh_idiom|python3 scripts/check_sh_idiom.py
+todo_ownership|python3 scripts/check_todo_ownership.py
+archive|python3 scripts/check_archive.py
+naming|python3 scripts/measure_naming.py --check
+sim_pool|python3 tb/verilator/milan_dp/test_sim_pool.py
+mutant_lifecycle|python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+suite_cancellation|python3 scripts/test_suite_cancellation.py

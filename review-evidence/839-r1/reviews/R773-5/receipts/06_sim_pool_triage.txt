@@ -1,0 +1,46 @@
+# python/make/env
+Python 3.14.8
+GNU Make 4.4.1
+/usr/bin/verilator
+### H cf4120f4cf6c711781b9e4aa24173691dcce0a95
+serial rc=1
+17 checks: 16 PASS, 1 FAIL
+16
+[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: $VALIDATION_STORAGE/rev
+variant [] rc 2 runner lines 0
+variant ['SIM_JOBS=1'] rc 2 runner lines 0
+variant ['-j8'] rc 2 runner lines 0
+### P 4f210018e6556a9753ed409885d82744c8f5effa
+serial rc=1
+17 checks: 16 PASS, 1 FAIL
+16
+[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: $VALIDATION_STORAGE/rev
+variant [] rc 2 runner lines 0
+variant ['SIM_JOBS=1'] rc 2 runner lines 0
+variant ['-j8'] rc 2 runner lines 0
+### D 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+serial rc=1
+17 checks: 16 PASS, 1 FAIL
+16
+[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: $VALIDATION_STORAGE/rev
+variant [] rc 2 runner lines 0
+variant ['SIM_JOBS=1'] rc 2 runner lines 0
+variant ['-j8'] rc 2 runner lines 0
+### review clone serial
+rc=1
+17 checks: 16 PASS, 1 FAIL
+variant [] rc 0 runner lines 1
+ head ['exec', 'python3', 'sim_pool.py', '--jobs=2'] n_expected 42 n_got 48
+  first diff at 11 
+   expected: '---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----' 
+   got     : '---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----'
+variant ['SIM_JOBS=1'] rc 0 runner lines 1
+ head ['exec', 'python3', 'sim_pool.py', '--jobs=1'] n_expected 42 n_got 48
+  first diff at 11 
+   expected: '---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----' 
+   got     : '---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----'
+variant ['-j8'] rc 0 runner lines 1
+ head ['exec', 'python3', 'sim_pool.py', '--jobs=2'] n_expected 42 n_got 48
+  first diff at 11 
+   expected: '---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----' 
+   got     : '---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----'

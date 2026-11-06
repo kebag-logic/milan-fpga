@@ -1,0 +1,32 @@
+# 1 planted fix in the disposable copy at H: the two rows only
+cf4120f4cf6c711781b9e4aa24173691dcce0a95
+    ('---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----',
+     './obj_sidmove/Vmilan_dp_sidmove'),
+    ('---- processor #202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----',
+     './obj_sidmove8/Vmilan_dp_sidmove8'),
+
+ tb/verilator/milan_dp/test_sim_pool.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+rc=0
+17 checks: 17 PASS, 0 FAIL
+0
+copy restored delta: 0
+# 2 no-Git inventory mode on an archive of H
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+# 3 lens-scope trees untouched P..H (empty list = none)
+(end)
+# 4 line references
+76:LEGACY_LEGS = (
+106:     "./obj_bootsa/Vmilan_dp_bootsa"),
+874:    """`make -n run`: the runner gets exactly the recipe's fifteen legs, in its
+747:	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" $(foreach case,$(ORDINARY_CASES),$(CASE_OPTIONS_$(case)))
+# 5 README stale counts at base
+459:The `milan_dp` default retains its fifteen legs.
+# 6 live PR head and dev
+cf4120f4cf6c711781b9e4aa24173691dcce0a95
+87e9d03aa2a4797957ac0124d0c7851a2eec234c
+# 7 review clone
+cf4120f4cf6c711781b9e4aa24173691dcce0a95
+0
+566fd3ae6acece2e2853310f9ef9e076ae3638a0

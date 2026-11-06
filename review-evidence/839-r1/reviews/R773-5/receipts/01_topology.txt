@@ -1,0 +1,26 @@
+# parents
+cf4120f4cf6c711781b9e4aa24173691dcce0a95 19f4c0b4eeac7cbb48aee0b055298b104628c039
+19f4c0b4eeac7cbb48aee0b055298b104628c039 4f210018e6556a9753ed409885d82744c8f5effa 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+# merge-base --all M^1 M^2
+cc204c6fd2349b543d73f15c97162a2c4434c86e
+# merge-base --all H dev
+87e9d03aa2a4797957ac0124d0c7851a2eec234c
+# is-ancestor
+P-in-H
+D-in-H
+# commits H not in D, not in P
+cf4120f4cf hackerman-kl Regenerate the documentation audit through docs_inventory.py on the merge of dev 87e9d03a
+19f4c0b4ee hackerman-kl Merge dev 87e9d03a into 839-boot-source-address
+# files P..H name-status
+M	docs/DOCUMENTATION_AUDIT.md
+M	docs/testing/TESTING.md
+M	scripts/owned_process.py
+M	scripts/process_test_support.py
+M	scripts/test_suite_cancellation.py
+M	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+# files D..P (PR side before merge) vs D..H
+# files changed between (P-vs-its base cc204c6f) and (H-vs-D): PR net delta comparison
+SAME_FILE_SET
+# PR net patch identity excluding audit
+ed69f10032977d6eb2d09216659ae1a852b91f01
+ed69f10032977d6eb2d09216659ae1a852b91f01
