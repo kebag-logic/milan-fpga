@@ -1,0 +1,29 @@
+## git diff --stat ba56827bbf..3c22947861
+ tb/verilator/milan_dp/README.md       | 15 +++++++++------
+ tb/verilator/milan_dp/sim_boot_sa.cpp |  5 +++--
+ 2 files changed, 12 insertions(+), 8 deletions(-)
+## name-status
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/sim_boot_sa.cpp
+## hdl/ syn/ sw/ configs/ submodules/ receipts in delta (expect empty)
+## word diff of sim_boot_sa.cpp
+diff --git a/tb/verilator/milan_dp/sim_boot_sa.cpp b/tb/verilator/milan_dp/sim_boot_sa.cpp
+index 152146c896..69918ea082 100644
+--- a/tb/verilator/milan_dp/sim_boot_sa.cpp
++++ b/tb/verilator/milan_dp/sim_boot_sa.cpp
+@@ -809,10 +809,11 @@ void BootSaHarness::grade() {
+                         Kind::Acmp, Kind::Maap}) {
+        const auto i = static_cast<size_t>(k);
+        const std::string what = std::string("[BOOTSA] every ") + kKindName[i]
+            + {+(k == Kind::Aecp ? " frame's destination address is the controller's MAC"+}
+{+                               :+} " frame's destination address is its [-protocol's (octets 0 to 5 untouched)";-]{+protocol's");+}
+        check_.dec(what.c_str(), wrong_da[i], 0);
+    }
+    check_.dec("[BOOTSA] every [-frame-]{+frame's EtherType (and, for AVTP, subtype)+} is a [-known protocol's (octets 12 and 13 untouched)",-]{+graded protocol's",+}
+               seen[static_cast<size_t>(Kind::Other)], 0);
+    std::vector<Kind> required = {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
+                                  Kind::Acmp, Kind::Maap, Kind::Aaf};
+## full-PR stat 604899c0..3c229478
+ tb/verilator/milan_dp/test_sim_pool.py           |   3 +
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp |  11 +
+ 17 files changed, 1693 insertions(+), 22 deletions(-)
