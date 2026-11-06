@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The test-only split SoC: the shipping CPU, the image's block RAM and a driven mailbox.
 
-The CPU is built by MilanSoC's own VexiiRiscv path: RV32I, one hart, the
-CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port the
-shipping image has, and the split placement's instruction cache
-(milan_soc.ctrl_cpu_args) unless a build selects a sweep point or none. Its
+The CPU is built by MilanSoC's own VexiiRiscv path: RV32IM, one hart, in
+the split placement's clock domain (milan_soc.CTRL_CPU_CD, #665): the bus
+clock, sys, 100 MHz, with no CPU clock of its own and no crossing. It has the
+DMA port the shipping image has, and the split placement's instruction and
+data caches (milan_soc.ctrl_cpu_args) unless a build selects a sweep point or
+none. Its
 firmware memory is milan_soc.add_ctrl_memory, the split placement's, built
 from the linked image. The capture harness's product simulation
 (tb/verilator/nvm_capture_cpu/soc.py) is imported read only, for its
@@ -27,7 +29,11 @@ commit acknowledgement (fw_ack_p_i) pulses at the contract's bound,
 FACE_ACK_CYCLES bus cycles after fw_send_o rises, the slowest datapath the
 contract allows, so the measured CPU budget includes the longest commit wait.
 The window answers and face events stay idle, so a window request times out
-as the fabric-less split SoC sees it. The flash keeps
+as the fabric-less split SoC sees it. KL_mbx_wb reaches KL_mbx through the
+split placement's record mover, milan_soc's own CtrlMailboxDma on the CPU's
+DMA bus, its CSR bank where the image addresses it
+(ctrl_build.SPLIT_MBX_DMA_BASE); the host-port pads are KL_mbx's side, so
+the testbench sees the mover's ring accesses and the CPU's alike. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
 harness's native model (fw_service_budget/flash.hpp). Its PHY boundary is
@@ -83,6 +89,10 @@ def fixture_addresses() -> dict[str, int]:
         match = re.fullmatch(r'-DCTRL_MBX_BASE=(0x[0-9a-fA-F]+)u?', flag)
         if match:
             found['mailbox'] = int(match.group(1), 16)
+    for flag in ctrl_build.SPLIT_RV32_FLAGS:
+        match = re.fullmatch(r'-DCTRL_MBX_DMA_BASE=(0x[0-9a-fA-F]+)u?', flag)
+        if match:
+            found['mbx_dma'] = int(match.group(1), 16)
     csr_h = (FIXTURE_GEN / 'csr.h').read_text()
     mem_h = (FIXTURE_GEN / 'mem.h').read_text()
     for key, text, name in (('master', csr_h, 'CSR_SPIFLASH_MASTER_BASE'),
@@ -104,7 +114,7 @@ def fixture_addresses() -> dict[str, int]:
                        r'csr_(?:wr|rd)\(CSR_TIMER0_BASE \+ (0x[0-9a-f]+)u', csr_h)
     if timer != TIMER_LAYOUT:
         raise RuntimeError('fixture timer0 layout is not load, reload, en, update_value, value')
-    if set(found) != {'mailbox', 'master', 'timer0', 'flash', 'flash_size'}:
+    if set(found) != {'mailbox', 'mbx_dma', 'master', 'timer0', 'flash', 'flash_size'}:
         raise RuntimeError(f'fixture addresses incomplete: {sorted(found)}')
     return found
 
@@ -172,9 +182,9 @@ def platform_for(contract: object, n_if: int) -> object:
 
 
 class StimulusMailbox(LiteXModule):
-    """CtrlMailbox's hookup of KL_mbx_wb and KL_mbx, its datapath on the testbench's pads."""
+    """CtrlMailbox's hookup of KL_mbx_wb, the record mover and KL_mbx, its datapath on the testbench's pads."""
 
-    def __init__(self, pads: object, sys_clk_freq: int, contract: object, n_if: int) -> None:
+    def __init__(self, pads: object, sys_clk_freq: int, contract: object, n_if: int, dma: object) -> None:
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
         # NOW_MS's one-cycle pulse per millisecond of the bus clock, as CtrlMailbox.
         ms_div = int(sys_clk_freq) // 1000
@@ -182,24 +192,23 @@ class StimulusMailbox(LiteXModule):
         ms_tick = Signal()
         self.sync += If(ms_cnt == ms_div - 1, ms_cnt.eq(0), ms_tick.eq(1)).Else(
             ms_cnt.eq(ms_cnt + 1), ms_tick.eq(0))
-        req, we, ack = Signal(), Signal(), Signal()
-        addr, wdata, rdata, be = Signal(widths(contract, n_if)['addr']), Signal(32), Signal(32), Signal(4)
-        self.comb += [pads.host_req.eq(req), pads.host_we.eq(we), pads.host_addr.eq(addr),
-                      pads.host_wdata.eq(wdata), pads.host_ack.eq(ack), pads.host_rdata.eq(rdata),
+        c, h = dma.cpu, dma.host
+        self.comb += [pads.host_req.eq(h['req']), pads.host_we.eq(h['we']), pads.host_addr.eq(h['addr']),
+                      pads.host_wdata.eq(h['wdata']), pads.host_ack.eq(h['ack']), pads.host_rdata.eq(h['rdata']),
                       pads.ms_tick.eq(ms_tick)]
         self.specials += Instance('KL_mbx_wb',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
             i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
             i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
-            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
-            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+            o_host_req_o=c['req'], o_host_we_o=c['we'], o_host_addr_o=c['addr'], o_host_wdata_o=c['wdata'],
+            o_host_be_o=c['be'], i_host_ack_i=c['ack'], i_host_rdata_i=c['rdata'])
         face = face_ports(contract, n_if)
         face['i_fw_ack_p_i'] = self.slowest_ack(face['o_fw_send_o'], n_if, contract)
         self.specials += Instance('KL_mbx',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
-            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
-            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=Signal(),
+            i_host_req_i=h['req'], i_host_we_i=h['we'], i_host_addr_i=h['addr'], i_host_wdata_i=h['wdata'],
+            i_host_be_i=h['be'], o_host_ack_o=h['ack'], o_host_rdata_o=h['rdata'], o_irq_o=Signal(),
             i_ms_tick_p_i=ms_tick,
             i_link_up_i=pads.link_up, i_gm_change_p_i=pads.gm_change, i_gm_id_i=pads.gm_id,
             i_gptp_domain_i=pads.domain,
@@ -349,8 +358,13 @@ class FlashBoundary(LiteXModule):
 
 
 def add_devices(soc: object, platform: object, addresses: dict[str, int], contract: object, n_if: int) -> None:
-    """The mailbox, the flash and timer0, each where the fixture addresses it."""
-    soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if)
+    """The mailbox and its record mover, the flash and timer0, each where the fixture addresses it."""
+    csr_base = soc.mem_map['csr']
+    loc, rest = divmod(addresses['mbx_dma'] - csr_base, CSR_BANK_BYTES)
+    if rest or loc != soc.csr.n_locs - 3:
+        raise RuntimeError('fixture record mover is not the CSR bank milan_soc.add_ctrl_mailbox pins (n_locs - 3)')
+    dma = milan_soc.add_ctrl_mailbox_dma(soc, widths(contract, n_if)['addr'], loc)
+    soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if, dma)
     soc.bus.add_slave('ctrl_mbx', soc.ctrl_mbx.bus, region=SoCRegion(
         origin=addresses['mailbox'], size=contract.window_bytes, cached=False))
     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
@@ -365,7 +379,6 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
     soc.add_module(name='spiflash', module=spiflash)
     soc.bus.add_slave(name='spiflash', slave=spiflash.bus, strip_origin=True, region=SoCRegion(
         origin=addresses['flash'], size=module.total_size, mode=spiflash.bus.mode + 'x'))
-    csr_base = soc.mem_map['csr']
     for name in ('master', 'timer0'):
         if (addresses[name] - csr_base) % CSR_BANK_BYTES:
             raise RuntimeError(f'fixture {name} is not at a CSR bank boundary')
@@ -435,14 +448,19 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
 
 
-def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          fetch_l1: str = 'split') -> dict:
+def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
-    cpu_regions 'cover' gives the CPU generator each region at its
-    power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
-    which reproduces the generator's rom decode defect (a control).
-    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+    core is the selection (build.Core). Its cpu_regions 'cover' gives the CPU
+    generator each region at its power-of-two cover; 'as-built' gives it the
+    SoC's regions unchanged, which reproduces the generator's rom decode
+    defect (a control). Its fetch_l1 selects the CPU's instruction cache
+    (fetch_l1_geometry). Its cpu_cd is the split CPU's clock domain, MilanSoC's
+    ctrl_cpu_cd, None for the split placement's own (milan_soc.CTRL_CPU_CD,
+    sys): MilanSoC refuses any other, the Milan clock among them (#665, owner
+    decision 2026-10-30). The CPU's clock, cpu_hz, is the one MilanSoC derives
+    from that domain (cpu_clk_freq), never the point's milan_clk_hz, which is
+    the datapath's and is recorded only as milan_hz.
     """
     addresses = fixture_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
@@ -452,31 +470,39 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
     if deviations:
         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
     platform = platform_for(contract, n_if)
+    cpu_regions, fetch_l1 = core.cpu_regions, core.fetch_l1
     cpu = CpuPatches(cpu_regions)
     geometry = fetch_l1_geometry(fetch_l1)
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    cpu_cd = milan_soc.CTRL_CPU_CD if core.cpu_cd is None else core.cpu_cd
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-            flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
-            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+            flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=cpu_cd,
+            l2_bytes=clocks['l2_bytes'], extra_scala_args=scala_args, uart_name='sim',
+            uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
+        if hasattr(soc.cpu, 'cpu_clk'):
+            raise RuntimeError(f'the split CPU has a clock of its own beside {soc.cpu_cd}: it runs on the bus clock')
         milan_soc.add_ctrl_memory(soc, elf)
         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         add_devices(soc, platform, addresses, contract, n_if)
+        if not core.xip:
+            milan_soc.ctrl_uncached_flash(soc)
         builder = Builder(soc, output_dir=str(build_dir), compile_software=False, compile_gateware=False,
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
-        sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
+        sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
         builder.build(run=False, sim_config=sim_config)
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'shape': shape, 'interfaces': n_if,
+        'sys_hz': sys_hz, 'cpu_cd': soc.cpu_cd, 'cpu_hz': soc.cpu_clk_freq, 'milan_hz': milan_hz,
+        'shape': shape, 'interfaces': n_if,
         'addresses': addresses, 'window_bytes': contract.window_bytes,
         'netlist': VexiiRiscv.netlist_name,
         'vexii_soc_args': {k: str(v) for k, v in sorted(vars(VexiiRiscv.soc_args).items())},

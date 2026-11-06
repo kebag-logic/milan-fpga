@@ -6,12 +6,40 @@
  * docs/design/SAVED_STATE_MATERIALIZATION.md section 8.
  *
  * One store per image, held in static storage sized by nvm_shape.h; there is
- * no heap and no OS service. The event loop calls nvm_store_service() on
- * every iteration; each call does one bounded step and returns.
+ * no heap and no OS service. Each nvm_store_service() call does one bounded
+ * step and returns. The event loop owes the store a step every centisecond
+ * (nvm_store_tick) and takes it at the end of a pass that took no input and
+ * has room for it, or as the whole of a pass once it has waited past the
+ * loop's age limit (nvm_store_step; THE STEP in
+ * sw/firmware/ctrl/loop/ctrl_loop.h).
+ *
+ * A CHANGE'S WORST CASE. Under input that leaves no pass empty the loop takes
+ * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds. A change is
+ * durable once the save that captures it is. With no save in flight that is
+ * at most MILAN_NVM_DEBOUNCE_MS after the change, plus that many centiseconds
+ * for each step of its save after the window (the step that starts the
+ * capture, one for each changed record and one more, the seal's
+ * NVM_STEP_BYTES stretches, the erase and its wait, NVM_IMG_LEN /
+ * NVM_READ_BYTES read-backs for the blank check and as many for the verify,
+ * and each page's issue and its wait), plus the few passes between a
+ * centisecond and the step it brings. A change marked once a capture in
+ * flight has passed its record (nvm_mark) is left to the next save, and only
+ * an idle step starts a capture: it waits first for the rest of the save in
+ * flight, at worst all its steps but the two that started its capture and
+ * took its first record, at the same pace, or for its own window where that
+ * is longer. At 8x8/2if with no flash busy time a SET_NAME of the entity,
+ * which marks both its names, is 370 steps: durable at most 12.11 s after it
+ * alone and 22.15 s beside another's save in flight (#665; the budget
+ * harness's save_window.bound_ms, to which its save-starved and save-second
+ * groups hold a change). Each further record of either save is one more
+ * step, and a flash part's busy time adds at most its erase time and each
+ * page program's: on the part of SAVED_STATE_FASTCONNECT.md section 9.4,
+ * 3.26 s a save at 8x8/2if.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "nvm_flash.h"
@@ -57,6 +85,19 @@ enum nvm_phase {
 
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
+/* Bytes one blank-check or verify step reads back. The flash window is uncached
+ * on the split CPU, about 5.5 us a byte, so half a page takes about 0.70 ms to
+ * read, and a read-back step 0.73 to 0.77 ms at 8x8/2if with the store's own
+ * work (NVM_STEP_US below), of the 2.0 ms a pass may take (#665, the share in
+ * ctrl_loop.h). */
+#define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)
+/* The CPU time one service step may take on the split CPU's flash port, from
+ * the clock read that admits it to the end of its pass: a page program's
+ * issue, 261 bytes through the command master one at a time, measured at up
+ * to 0.97 ms at 8x8/2if, is the longest; a read-back step is 0.77 ms
+ * (#665). nvm_store_step takes a step only while this much of the pass's
+ * share is left, so no pass that carries one exceeds the share. */
+#define NVM_STEP_US 1000u
 /* The most bytes any service step touches: one 256-byte stretch, or one
  * latched record's copy and its crc16 over the header and the payload. */
 #define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
@@ -110,6 +151,7 @@ struct nvm_status {
 	enum nvm_phase phase;
 	uint32_t step_bytes_max;        /* the most bytes one service step touched */
 	uint32_t steps;
+	uint32_t deferred;              /* passes an owed step found no room in */
 };
 
 /* Boot: judge both slots, stage the newer accepted one, run its binding
@@ -118,9 +160,23 @@ struct nvm_status {
 void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state);
 /* One bounded step of the write path. */
 void nvm_store_service(void);
+/* The loop's centisecond consumer: one step is owed. A step still owed is
+ * not owed twice, so a pass with room takes one step at most. */
+void nvm_store_tick(void);
+/* The loop's step (ctrl_loop.h, THE STEP): the owed step, taken when at
+ * least NVM_STEP_US remain before `deadline` on nvm_store_clock; true while
+ * it is still owed. */
+bool nvm_store_step(void *ctx, uint32_t deadline);
+/* The flash port's clock in microseconds, the one the store's windows run
+ * on. Valid once nvm_store_boot has run: a platform binds the step after it. */
+uint32_t nvm_store_clock(void *ctx);
 /* An accepted command changed the persisted value of (group, index). It
  * marks the record; whether the work set changed is the capture's finding. */
 void nvm_store_changed(unsigned int group, unsigned int index);
+/* The same for a record named by its record_id (nvm_klj2.h); an id the shape
+ * has no record of marks nothing. Neither walks the records, so a mark costs
+ * the same in any pass (#665, the share in ctrl_loop.h). */
+void nvm_store_changed_id(unsigned int id);
 /* Start a capture now, without the debounce, and write it even if nothing
  * changed (the console); 1 when started. Refused inside a failed attempt's
  * backoff and while HELD, and an exhausted unchanged work set is still not

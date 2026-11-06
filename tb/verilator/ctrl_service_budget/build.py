@@ -23,6 +23,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import notice_window
+import save_window
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SIBLING = ROOT / 'tb/verilator/fw_service_budget'
@@ -40,21 +43,151 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
         raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
 
 
+#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass and THE RETRY's
+#: among them.
+STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
+             "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
+             '\t// whole pass, before any input, with THE RETRY after it, so an input waits one step and one\n'
+             '\t// retry round at most\n'
+             '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n'
+             '\t\tl->step_age = 0u;\n'
+             '\t\t(void)l->step(l->step_ctx, deadline);\n'
+             '\t\t// THE RETRY after the step: under input that leaves no pass empty, no other pass is free\n'
+             '\t\t// of input\n'
+             '\t\tif (l->retry != NULL) {\n'
+             '\t\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\t\tl->stats.retry_passes++;\n'
+             '\t\t}\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\tl->stats.aged_passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past "
+             'the time it came due is this\n'
+             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty '
+             'holds it off no longer\n'
+             '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n'
+             '\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\tl->stats.retry_passes++;\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\tl->stats.retry_aged_passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             "\t// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE "
+             'centiseconds is this whole\n'
+             '\t// pass, before any input, with THE RETRY after it, once the pass before was not given whole\n'
+             '\tif (l->transmit != NULL && l->ordinary == l->stats.passes && '
+             'l->transmit_aged(l->transmit_ctx)) {\n'
+             '\t\t(void)l->transmit(l->transmit_ctx);\n'
+             '\t\tif (l->retry != NULL) {\n'
+             '\t\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\t\tl->stats.retry_passes++;\n'
+             '\t\t}\n'
+             '\t\tl->stats.transmit_passes++;\n'
+             '\t\tl->stats.transmit_aged_passes++;\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             '\tconst uint32_t events = l->stats.events;\n'
+             '\tconst uint32_t records = l->stats.rx_records;\n'
+             '\tconst uint32_t ticks = l->stats.ticks;\n'
+             '\tunsigned work = service_events(l);\n'
+             '\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
+             '\t\tif (l->rx[ch].fn != NULL) {\n'
+             '\t\t\twork += service_rx(l, ch);\n'
+             '\t\t}\n'
+             '\t}\n'
+             "\t// THE TRANSMIT's pass, which its client's poll reads: one that took no record, at "
+             'most CTRL_LOOP_TX_EVENTS\n'
+             '\t// events and no centisecond\n'
+             '\tl->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
+             '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;\n'
+             '\tbool owed = l->ticks_owed != 0u;\n'
+             '\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
+             '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n'
+             '\t}\n'
+             '\t// THE TRANSMIT, only in its pass, after the polls and before THE RETRY and THE '
+             'STEP, whose deadline counts its\n'
+             '\t// time\n'
+             '\tif (l->tx_pass) {\n'
+             '\t\towed = l->transmit(l->transmit_ctx) || owed;\n'
+             '\t\tl->stats.transmit_passes++;\n'
+             '\t}\n'
+             '\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, '
+             'before THE STEP, whose\n'
+             '\t// deadline counts its time\n'
+             '\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n'
+             '\t\towed = l->retry(l->retry_ctx) || owed;\n'
+             '\t\tl->stats.retry_passes++;\n'
+             '\t}\n'
+             "\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
+             '\tif (l->step != NULL && work == 0u) {\n')
 #: Planted firmware defects for the controls: each is (source file, unique anchor, replacement),
 #: the control group its control paths are in, and the variant it needs.
 MUTATIONS = {
     # #665's planted over-budget path: ADP's receive handler spins before it hands the
-    # record to the core, so every ADP record's service exceeds T_svc = 10 ms.
+    # record to the core, so every ADP record's service exceeds its 20 ms budget, min(T_svc,
+    # 200 ms) (FR_NFR.md 3.4.1), on the cacheless CPU the controls run on (README, Controls).
     'slow-adp-rx': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
-                    '\tfor (volatile uint32_t n = 0; n < 16000u; ++n) {\n\t}\n'
+                    '\tfor (volatile uint32_t n = 0; n < 32000u; ++n) {\n\t}\n'
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
-    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:506): disabling ADP spins before
-    # each interface's ENTITY_DEPARTING, so the path exceeds T_svc.
+    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:523): disabling ADP spins before
+    # each interface's ENTITY_DEPARTING, so the path exceeds its 20 ms budget.
     'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
-                          '\tfor (volatile uint32_t n = 0; !enable && n < 16000u; ++n) {\n\t}\n'
+                          '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
                           '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           'control-shutdown', 'shutdown-entry'),
+    # #665's planted store step: the loop takes THE STEP in every pass and hands it a deadline no pass
+    # reaches, so the saved-state store takes its flash step in whatever pass owes it, as before
+    # ctrl_loop.h's THE STEP. A pass of a save's windows must then exceed the share while every row fits
+    # (save_window.py).
+    'store-step-unbounded': ('loop/ctrl_loop.c', STEP_SPAN, STEP_SPAN.replace(
+        'CTRL_LOOP_SHARE_US : 0u', '0x40000000u : 0u').replace('l->step != NULL && work == 0u', 'l->step != NULL'),
+                             ','.join(save_window.row_names()), 'none'),
+    # #665's planted age limit removed: the step is taken only in a pass that took no input, as before
+    # ctrl_loop.h's age limit, so under input that leaves no pass empty (save-starved) the save never advances
+    # and is not durable within its stated worst case (save_window.bound_ms).
+    'store-step-ageless': ('loop/ctrl_loop.c', 'l->step_age > CTRL_LOOP_STEP_AGE',
+                           'l->step_age > CTRL_LOOP_STEP_AGE + l->step_age', 'save-starved', 'none'),
+    # #665's planted heavier aged step: the pass given whole to an aged step holds the CPU AGED_HEAVIER_US longer,
+    # by the step's own clock, about one read-back step more, so a row of an aged window (save_window.aged_window)
+    # whose aged step lands among its records must go over its budget while the pass stays within the share.
+    'store-step-aged-heavier': ('loop/ctrl_loop.c',
+                                '\t\t(void)l->step(l->step_ctx, deadline);\n\t\t// THE RETRY after the step',
+                                '\t\t(void)l->step(l->step_ctx, deadline);\n'
+                                '\t\tfor (uint32_t at = l->clock(l->clock_ctx);'
+                                ' l->clock(l->clock_ctx) - at < 800u;) {\n'
+                                '\t\t}\n\t\t// THE RETRY after the step',
+                                ','.join(g for g in save_window.aged_names() if '@verify-aged2-' in g), 'none'),
+    # #665's planted retry age removed: a change-notice retry is taken only in a pass that took no input and
+    # dispatched no centisecond or after an aged step, as before ctrl_loop.h's THE RETRY had an age limit, so under
+    # input that leaves no pass empty the retried notice waits for the next aged step and is committed later than
+    # its 20 ms after its port's answer (notice_window.py).
+    'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
+                      'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
+                      'answering-later'),
+    # #665's planted build beside records: THE TRANSMIT's pass is every pass, so SRP's MRPDU build and the
+    # declarations it sends run after the polls of a pass that takes the composed burst's records, as before
+    # ctrl_loop.h's THE TRANSMIT, and the builds a centisecond's join timers start stand among the passes the last
+    # SRP record of the burst waits, which puts it past its 18 ms at 8x8/2if (notice_window.py). The pass's counts
+    # stay read, so the image builds under -Werror.
+    'transmit-beside-records': ('loop/ctrl_loop.c',
+                                'l->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
+                                '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && '
+                                'l->stats.ticks == ticks;',
+                                '(void)records;\n\t(void)events;\n\tl->tx_pass = l->transmit != NULL;',
+                                ','.join(notice_window.names()), 'answering-later'),
 }
+#: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
+SHARE_CONTROLS = ('store-step-unbounded',)
+#: The controls whose finding is a save not durable within its stated worst case, by its group's name.
+SAVE_CONTROLS = ('store-step-ageless',)
+#: The controls whose finding is a row of an aged window over its budget, with no refusal.
+AGED_CONTROLS = ('store-step-aged-heavier',)
+#: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
+NOTICE_CONTROLS = ('retry-ageless',)
+#: The controls whose finding is every group's longest held SRP record over its bound, with no refusal.
+SRP_CONTROLS = ('transmit-beside-records',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -66,7 +199,11 @@ MUTATIONS = {
 #: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
-#: the SHUTDOWN path (MAILBOX_SPLIT.md:506); it costs one NOW_MS read a pass.
+#: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the
+#: face block's stream observation stays unanswered, as with the unmodified fixture, until the first attempt at or
+#: after NOW_MS notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench
+#: reports (ENTRY), and every later one answers zeroed values, so the port answers just after a retry failed: the
+#: retried notice's row (notice_window.py) starts there.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
@@ -88,7 +225,7 @@ VARIANTS = {
     ],
     'shutdown-entry': [
         ('int main(void)\n{',
-         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:506): ADP is disabled once.\n'
+         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:523): ADP is disabled once.\n'
          'static bool shutdown_entry(void *ctx)\n{\n    static bool fired;\n    (void)ctx;\n'
          '    if (!fired && mbx_now_ms() >= SHUTDOWN_MS) {\n        fired = true;\n'
          '        adp_mbx_set_enable(&image_app.adp, false);\n    }\n    return false;\n}\n\n'
@@ -97,7 +234,31 @@ VARIANTS = {
          '    if (!ctrl_loop_add_poll(&image_app.loop, shutdown_entry, NULL)) return 7;\n'
          '    ctrl_loop_run(&image_app.loop);'),
     ],
+    'answering-later': [
+        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
+        ('static struct aecp_face image_face;\n',
+         'static struct aecp_face image_face;\n'
+         '// The retried notice\'s row (#665, THE RETRY): the face\'s stream observation stays unanswered until an\n'
+         '// attempt at or after NOW_MS ANSWER_MS fails, then answers; the entry marks the moment it starts to.\n'
+         'static bool (*face_stream)(void *, unsigned, uint16_t, uint16_t, struct aecp_stream_info *);\n'
+         'static bool answering;\n'
+         'void retry_port_answers(void);\n'
+         '__attribute__((noinline)) void retry_port_answers(void) { answering = true; }\n'
+         'static bool l_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
+         '{\n'
+         '    if (answering) { memset(v, 0, sizeof *v); return true; }\n'
+         '    bool ok = face_stream(ctx, i, t, n, v);\n'
+         '    if (!ok && mbx_now_ms() >= ANSWER_MS) retry_port_answers();\n'
+         '    return ok;\n'
+         '}\n'),
+        ('    aecp_face_init(&image_face,&image_platform);\n',
+         '    aecp_face_init(&image_face,&image_platform);\n'
+         '    face_stream=image_face.ports.stream;\n'
+         '    image_face.ports.stream=l_stream;\n'),
+    ],
 }
+#: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
+VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',)}
 
 
 def variant_fixture(out: Path, variant: str) -> Path:
@@ -113,7 +274,8 @@ def variant_fixture(out: Path, variant: str) -> Path:
     for anchor, replacement in VARIANTS[variant]:
         if source.count(anchor) != 1:
             raise RuntimeError(f'variant {variant}: an anchor is not unique in ctrl_aecp_image.c: {anchor!r}')
-        source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u'))
+        source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u')
+                                .replace('ANSWER_MS', f'{notice_window.ANSWER_MS}u'))
     path.write_text(source)
     return scratch
 
@@ -177,9 +339,12 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
 #: through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching
 #: from the flash cannot also hold the flash's command master, so the driver's own fetches would
 #: wait behind its chip select.
-XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
+XIP_TEXT = ('\t.text :\n\t{\n\t\tKEEP(*(.text.start))\n',
             '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
-            '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
+            '\t.text : ALIGN(4)\n\t{\n')
+#: The close of that placement and what replaces it: the service loop's hot code, which the script
+#: places ahead of the rest (#665), moves to flash with it, in the same order.
+XIP_END = ('\t\t*(.text .text.*)\n\t} > rom\n', '\t\t*(.text .text.*)\n\t} > flash\n')
 
 
 def xip_offset() -> int:
@@ -192,9 +357,10 @@ def xip_offset() -> int:
 
 def xip_script(script: str, flash: int, end: int) -> str:
     """plat/ctrl_split.ld with its code past the reset entry in a flash region from flash to end."""
-    if script.count(XIP_TEXT[0]) != 1 or script.count('INCLUDE regions.ld\n') != 1:
+    if (script.count(XIP_TEXT[0]) != 1 or script.count(XIP_END[0]) != 1 or
+            script.count('INCLUDE regions.ld\n') != 1):
         raise RuntimeError('xip: plat/ctrl_split.ld no longer has its rom code placement')
-    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(
+    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(XIP_END[0], XIP_END[1]).replace(
         'INCLUDE regions.ld\n', f'INCLUDE regions.ld\nMEMORY {{ flash (rx) : ORIGIN = 0x{flash:08x}, '
         f'LENGTH = 0x{end - flash:x} }}\n')
 
@@ -368,17 +534,45 @@ def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
     if not spec.get('fetch_l1_geometry'):
         return list(ACCESSORS), 1
     netlist = next(Path(s) for s in spec['sources'] if Path(s).name == spec['netlist'] + '.v')
+    text = netlist.read_text()
     lines = re.findall(r"assign FetchL1Plugin_logic_bus_cmd_payload_address = "
-                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", netlist.read_text())
+                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", text)
     if len(lines) != 1:
         raise RuntimeError('the fetch L1 refill address is not one line-aligned assignment')
     rows = [(name, ctype, module, var.replace('FetchCachelessPlugin', 'FetchL1Plugin'))
             for name, ctype, module, var in ACCESSORS if name not in ('fetch_cmd_id', 'fetch_rsp_id')]
-    return rows, (1 << int(lines[0])) // 4
+    return lsu_bus(rows, text), (1 << int(lines[0])) // 4
+
+
+def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[str, str, str, str]]:
+    """The observers of this build's load/store bus, from the netlist's own plugin.
+
+    The split CPU's data cache (#665, milan_soc.CTRL_LSU_L1) replaces the
+    cacheless LSU. Its uncached accesses, every mailbox access among them,
+    travel LsuPlugin's IO bus one at a time and without an id, so its ids read
+    0; cached accesses and refills never reach that bus and are not counted.
+    """
+    cacheless = 'LsuCachelessPlugin_logic_bus_cmd_valid' in netlist
+    cached = 'LsuPlugin_logic_bus_cmd_valid' in netlist and 'LsuL1Plugin_' in netlist
+    if cacheless == cached:
+        raise RuntimeError('the netlist has neither or both of the cacheless LSU and the data cache')
+    if cacheless:
+        return rows
+    return [(name, ctype, module, var.replace('LsuCachelessPlugin', 'LsuPlugin'))
+            for name, ctype, module, var in rows if name not in ('lsu_cmd_id', 'lsu_rsp_id')]
 
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
 ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+
+
+def entry_symbols(variant: str) -> tuple[str, ...]:
+    """The entries a build of that variant reports: ENTRY_SYMBOLS and the variant's own."""
+    return ENTRY_SYMBOLS + VARIANT_ENTRIES.get(variant, ())
+#: The saved-state store's step (nvm_store.c): a pass that enters it carries a step (THE STEP, ctrl_loop.h), and
+#: the step's own CPU time is its modules' cycles in that pass, the store's and its flash port's.
+STEP_SYMBOL = 'nvm_store_service'
+STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 
 
 def cpu_region(spec: dict, origin: int) -> list:
@@ -409,14 +603,21 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
                              ('flash', addresses['flash'], addresses['flash_size']), ('csr', csr[0], csr[1])):
         lines += [f'constexpr std::uint32_t {name}_base = 0x{base:x}u;',
                   f'constexpr std::uint32_t {name}_size = 0x{size:x}u;']
-    lines += [f'constexpr unsigned n_entries = {len(ENTRY_SYMBOLS)};',
+    entries = entry_symbols(spec.get('variant', 'none'))
+    lines += [f'constexpr unsigned n_entries = {len(entries)};',
               'inline constexpr std::uint32_t entry_pc[n_entries] = {'
-              + ', '.join(f'0x{table[name]:x}u' for name in ENTRY_SYMBOLS) + '};',
+              + ', '.join(f'0x{table[name]:x}u' for name in entries) + '};',
               'inline const char* const entry_name[n_entries] = {'
-              + ', '.join(f'"{name}"' for name in ENTRY_SYMBOLS) + '};']
+              + ', '.join(f'"{name}"' for name in entries) + '};']
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
+              f"constexpr std::uint32_t step_pc = 0x{table[STEP_SYMBOL]:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
+              f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
+              f"constexpr unsigned ev_words = {spec['ev_words']}u;",
+              f"constexpr unsigned ev_tick_type = {spec['ev_tick']['type']}u;",
+              f"constexpr unsigned ev_tick_count_lsb = {spec['ev_tick']['count_lsb']}u;",
+              f"constexpr std::uint32_t ev_tick_count_mask = 0x{(1 << spec['ev_tick']['count_width']) - 1:x}u;",
               'constexpr unsigned tx_head_word(unsigned ch) {',
               f"    return (0x{spec['ch_base']:x}u + ch * 0x{spec['ch_stride']:x}u + 0x{spec['tx_head']:x}u) / 4u;",
               '}']
@@ -429,6 +630,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     if beats > 1:
         lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
+    if not any(name == 'lsu_cmd_id' for name, *_ in rows):
+        lines += ['inline unsigned lsu_cmd_id(const Vsim&) { return 0u; }',
+                  'inline unsigned lsu_rsp_id(const Vsim&) { return 0u; }']
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
@@ -440,6 +644,8 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     lines += ['}', 'struct CodeSpan { std::uint32_t start, end; unsigned module; };',
               f'constexpr unsigned n_modules = {len(names)};',
               'inline const char* const module_name[n_modules] = {' + ', '.join(f'"{n}"' for n in names) + '};',
+              'inline constexpr bool store_module[n_modules] = {'
+              + ', '.join('true' if n in STORE_MODULES else 'false' for n in names) + '};',
               'inline constexpr CodeSpan code_spans[] = {',
               *[f'    {{0x{a:x}u, 0x{e:x}u, {m}u}},' for a, e, m in spans], '};']
     (build_dir / 'budget_config.hpp').write_text('\n'.join(lines) + '\n')
@@ -540,11 +746,54 @@ class Core:
 
     cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
     instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
-    hybrid-XIP arm, the code past the reset entry in the flash window.
+    hybrid-XIP arm, the code past the reset entry in the flash window;
+    cpu_cd: the CPU's clock domain, None for the split placement's own
+    (split_soc.build; clock_line names it, and cpu_clock_refusals refuses any
+    other).
     """
     cpu_regions: str = 'cover'
     fetch_l1: str = 'split'
     xip: bool = False
+    cpu_cd: str | None = None
+
+
+#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30;
+#: milan_soc.CTRL_CPU_CD): the SoC's sys clock, the bus clock. A build whose CPU runs in any other
+#: domain, the Milan clock among them, or records none (a build made before the CPU moved), is
+#: refused, whether it is built or reused.
+SPLIT_CPU_CD = 'sys'
+
+
+class ClockRefusal(RuntimeError):
+    """A build whose CPU is not the split placement's on the bus clock (cpu_clock_refusals)."""
+
+
+def cpu_clock_refusals(spec: dict) -> list[str]:
+    """Why a build's CPU is not the split CPU on the bus clock: its domain is not SPLIT_CPU_CD, or
+    its clock is not the bus clock. Empty when it is."""
+    out = []
+    if spec.get('cpu_cd') != SPLIT_CPU_CD:
+        out.append(f"the CPU runs in the {spec.get('cpu_cd') or 'unrecorded'} clock domain, not {SPLIT_CPU_CD}")
+    if spec.get('cpu_hz') != spec.get('sys_hz'):
+        out.append(f"the CPU's clock, {spec.get('cpu_hz')} Hz, is not the bus clock, {spec.get('sys_hz')} Hz")
+    return out
+
+
+def flash_window_refusals(spec: dict) -> list[str]:
+    """Why a build's flash window is not the one its arm needs: uncached and not executable, as the product's split
+    CPU has it (milan_soc.ctrl_uncached_flash), but in the hybrid-XIP arm, which runs from it. A cached window reads
+    the saved state through the data cache, which the product never does (#665). Empty when it is."""
+    flash = spec['addresses']['flash']
+    modes = [r[2] for r in spec['memory_regions'] if r[0] == flash]
+    want = 'rxc' if spec.get('xip') else 'r'
+    return [] if modes == [want] else [f"its flash window's regions are {modes}, not ['{want}']"]
+
+
+def clock_line(spec: dict) -> str:
+    """A build's CPU clock as every table and run line names it (#665): the split CPU on the bus clock."""
+    mhz = lambda hz: f'{hz / 1e6:g} MHz'
+    domain = spec.get('cpu_cd', 'an unrecorded domain')
+    return f"CPU {mhz(spec['cpu_hz'])} on {domain}, the product's split CPU clock, bus {mhz(spec['sys_hz'])}"
 
 
 def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
@@ -558,24 +807,35 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
-        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
+    refused = cpu_clock_refusals(spec)
+    if refused:
+        raise ClockRefusal(f"the split CPU is not on the bus clock: {'; '.join(refused)}")
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
+    refused = flash_window_refusals(spec)
+    if refused:
+        raise RuntimeError(f"the test SoC is not the split placement's: {'; '.join(refused)}")
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load
     contract = load()
     regs = {r.name: r.offset for r in contract.registers}
+    tick = next(e for e in contract.event_types if e.name == 'TICK')
+    count = next(f for w in tick.words if w.index == 1 for f in w.fields if f.name == 'COUNT')
     spec.update(channels=len(contract.channels), filter_en=regs['FILTER_EN'], tmr_cmd=regs['TMR_CMD'],
+                evt_tail=regs['EVT_TAIL'], ev_words=contract.ev_words,
+                ev_tick=dict(type=tick.value, count_lsb=count.lsb, count_width=count.width),
                 ch_base=contract.ch_base, ch_stride=contract.ch_stride,
                 tx_head={r.name: r.offset for r in contract.ch_registers}['TX_HEAD'])
+    spec['variant'] = variant
     verilate(build_dir, spec, table, JOBS)
     spec['inputs'] = digest(run_inputs(build_dir, spec), build_dir)
     spec['inputs']['tree:firmware'] = tree_digest([ROOT / t for t in FIRMWARE_TREES])
     spec['inputs']['tree:config'] = tree_digest([ROOT / 'configs' / (shape + '.yaml')])
-    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', *ENTRY_SYMBOLS)}
+    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', STEP_SYMBOL,
+                                                      *entry_symbols(variant))}
     spec['mutation'] = mutation
-    spec['variant'] = variant
     spec['executable_sha256'] = hashlib.sha256((build_dir / 'native/Vsim').read_bytes()).hexdigest()
     (build_dir / 'build.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec
@@ -588,9 +848,13 @@ def reused(build_dir: Path) -> dict:
     image, its runtime, the ROM files, the generated SoC and mailbox Verilog),
     the external CPU netlist and RAM models, and the firmware source trees.
     The ROM .init files and the runtime archives found now must be exactly
-    those recorded, and the native model must be the one built.
+    those recorded, and the native model must be the one built. Its CPU must
+    be the split CPU on the bus clock (cpu_clock_refusals), checked first.
     """
     spec = json.loads((build_dir / 'build.json').read_text())
+    refused = cpu_clock_refusals(spec)
+    if refused:
+        raise ClockRefusal(f"reused build's split CPU is not on the bus clock: {'; '.join(refused)}")
     inputs = spec.get('inputs') or {}
     for key, want in inputs.items():
         if key == 'tree:firmware':

@@ -71,6 +71,7 @@ struct nvm_fmodel_count {
 	unsigned int outside;       /* outside the allowed window: refused */
 	unsigned int protected_hit; /* into the protected slot: refused */
 	unsigned int descending;    /* a page program below the one before it */
+	unsigned int read_max;      /* the longest read since nvm_fmodel_read_max_clear */
 	uint64_t erase_start_us[16];/* the first sixteen erase starts */
 };
 
@@ -98,6 +99,7 @@ void nvm_fmodel_advance_ns(uint64_t ns);
 uint64_t nvm_fmodel_now_us(void);
 uint64_t nvm_fmodel_now_ns(void);
 const struct nvm_fmodel_count *nvm_fmodel_count(void);
+void nvm_fmodel_read_max_clear(void);
 
 /* The flash port over this model. */
 extern const struct nvm_flash nvm_fmodel_port;

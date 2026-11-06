@@ -19,10 +19,44 @@ from unittest.mock import patch
 
 import build
 import grade
+import notice_window
 import run
+import save_grade
+import save_window
 import scenario
+import share
 
 Patches = Callable[[], list]
+
+
+def _from_last_erase(flash: list) -> list:
+    """A log's flash operations from its last erase on: the last save's."""
+    last = max((n for n, (_, op, *_) in enumerate(flash) if op == grade.FLASH_ERASE), default=0)
+    return flash[last:]
+
+
+def _first_save(edit: Callable[[save_grade.Save], dict]) -> list:
+    """save_grade.first_save with some of its findings replaced."""
+    original = save_grade.first_save
+
+    def first_save(log: grade.Log, n: int = 0) -> save_grade.Save | None:
+        """The mutant first save."""
+        save = original(log, n)
+        return dataclasses.replace(save, **edit(save)) if save is not None else None
+    return [patch.object(save_grade, 'first_save', first_save)]
+
+
+def _save_time(edit: Callable[[dict], dict]) -> list:
+    """save_grade.save_time with its finding edited."""
+    original = save_grade.save_time
+    return [patch.object(save_grade, 'save_time', lambda log, group: (lambda r: r and edit(r))(original(log, group)))]
+
+
+def _work_steps_unaged(log: grade.Log) -> grade.Log:
+    """Every step a work pass carried read as not aged, as grade.parse read a PASS line before its aged field."""
+    work = {p.index for p in log.passes}
+    log.stepped = [(i, s, c, st, aged and i not in work) for i, s, c, st, aged in log.stepped]
+    return log
 
 
 def _first_pass_only() -> list:
@@ -55,14 +89,14 @@ def _cut_pass_idle() -> list:
     return [patch.object(grade, 'parse', parse)]
 
 
-def _load_at_least(group: scenario.Group, got: dict, refused: list) -> None:
+def _load_at_least(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
     """A window refused only when it committed fewer records than its defined load."""
     want = grade.defined_load(group.name)
     if any(got[k] < want.get(k, 0) for k in got):
         raise grade.Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}')
 
 
-def _load_declared(group: scenario.Group, got: dict, refused: list) -> None:
+def _load_declared(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
     """A window checked against its stimulus's own declaration."""
     want = {name: group.load.get(name, 0) for name in got}
     if got != want:
@@ -291,7 +325,7 @@ def _first_instance(results: list[dict]) -> list[dict]:
                                                               row=r['row'], instances=0, misses=0,
                                                               worst=dict(r, group=group['group'])))
                 entry['instances'] += 1
-                entry['misses'] += not r['within_t_svc']
+                entry['misses'] += not r['within_budget']
     return list(out.values())
 
 
@@ -302,17 +336,34 @@ def _counts_per_instance() -> list:
 
 
 def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
-    def verdict(args: object, groups: list, refusals: list, misses: list) -> int:
-        """The mutant exit status: refusals or misses fail only where the flags say."""
-        if refusals_fail and (refusals or not groups):
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = (), late: list = ()) -> int:
+        """The mutant exit status: refusals or misses fail only where the flags say; a late save or notice fails."""
+        if late or refusals_fail and (refusals or not groups):
+            return 1
+        if shares and not args.record_share_findings:
             return 1
         return 1 if misses_fail and misses and not args.record_budget_findings else 0
+    return lambda: [patch.object(run, 'verdict', verdict)]
+
+
+def _shares_seen(keep: Callable[[object, list], bool]) -> Patches:
+    """run.verdict handed the passes over the share only where keep(args, misses) says."""
+    original = run.verdict
+
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = (), late: list = ()) -> int:
+        """The mutant exit status: the passes over the share dropped unless keep holds."""
+        return original(args, groups, refusals, misses, shares if keep(args, misses) else [], late)
     return lambda: [patch.object(run, 'verdict', verdict)]
 
 
 def _fetch_bus_cacheless(spec: dict) -> tuple[list, int]:
     """The cacheless CPU's observers and one beat a command, whatever the CPU fetches through."""
     return list(build.ACCESSORS), 1
+
+
+def _lsu_bus_cacheless(rows: list, netlist: str) -> list:
+    """The cacheless LSU's observers, whatever the CPU's load/store plugin."""
+    return rows
 
 
 def _fetch_bus_one_beat(spec: dict, original: Callable = build.fetch_bus) -> tuple[list, int]:
@@ -350,6 +401,23 @@ def _build_with(edit: Callable[[build.Core], build.Core]) -> Patches:
         """The mutant build: the selection edited before it is built and recorded."""
         return original(build_dir, *a, core=edit(core), **k)
     return lambda: [patch.object(build, 'build', build_)]
+
+
+def _refusals_kept(keep: Callable[[str], bool]) -> Patches:
+    """build.cpu_clock_refusals keeping only the refusals keep(refusal) holds for."""
+    original = build.cpu_clock_refusals
+    return lambda: [patch.object(build, 'cpu_clock_refusals', lambda spec: [r for r in original(spec) if keep(r)])]
+
+
+def _reuse_unchecked() -> Patches:
+    """build.reused without the CPU clock refusal; a new build keeps it."""
+    original = build.reused
+
+    def reused(build_dir: Path) -> dict:
+        """The mutant reuse: any CPU clock is taken."""
+        with patch.object(build, 'cpu_clock_refusals', lambda spec: []):
+            return original(build_dir)
+    return lambda: [patch.object(build, 'reused', reused)]
 
 
 MUTANTS: dict[str, Patches] = {
@@ -397,6 +465,20 @@ MUTANTS: dict[str, Patches] = {
         grade, 'check_load', _load_at_least)],
     "composition: the load is the stimulus's own declaration (earlier rule)": lambda: [patch.object(
         grade, 'check_load', _load_declared)],
+    "pacing: an AECP group's frames meet an empty token bucket": lambda: [patch.object(
+        scenario, 'paced', lambda g, channel: g)],
+    'flash: a cached window is taken': lambda: [patch.object(
+        build, 'flash_window_refusals', lambda spec: [])],
+    'flash: the hybrid-XIP arm is held to the uncached window': lambda: [patch.object(
+        build, 'flash_window_refusals', lambda spec, f=build.flash_window_refusals: f({**spec, 'xip': False}))],
+    'opening: a backlog window opens without waiting for the drained event ring': lambda: [patch.object(
+        scenario, 'OPEN_WINDOW', ('gap 1', 'mark composed'))],
+    'opening: the window opens with records held': lambda: [patch.object(
+        scenario, 'OPEN_WINDOW', (f'wait events 2 within {400 * scenario.MS}', 'gap 1', 'mark composed'))],
+    'opening: the records released are not counted': lambda: [patch.object(
+        grade.Grader, 'events_held', lambda self, start: sum(1 for c, _ in self.log.records if c < start))],
+    'opening: the refusal does not name the records held': lambda: [patch.object(
+        grade, 'check_load', lambda group, got, refused, held=0, f=grade.check_load: f(group, got, refused))],
     'composition: the backlog stimulus omits SRP': _offer_without('srp', 'backlog'),
     'composition: the backlog stimulus omits MAAP': _offer_without('maap', 'backlog'),
     'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
@@ -428,18 +510,22 @@ MUTANTS: dict[str, Patches] = {
         grade, 'owed_ahead', lambda grader, probe, *a: list(probe.owed))],
     'owed: a command never answered fits': lambda: [patch.object(
         grade, 'never_answered', lambda grader, probe, row, start: dict(row, status='measured', ms=0.0, start_sys=start,
-                                                                        within_t_svc=True, within_ceiling=True))],
+                                                                        within_budget=True, within_ceiling=True))],
     'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
         scenario, 'registrations', lambda: 1)],
-    'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
-    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
+    'deadline: T_svc pinned at the 10 ms proposal (earlier rule)': lambda: [patch.object(scenario, 'T_SVC_MS', 10.0)],
+    'deadline: SRP graded against T_svc alone, not its 18 ms ceiling': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.T_SVC_MS + probe.wait_ms)],
+    'deadline: each family graded against its ceiling alone, not T_svc': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.CEILING_MS[probe.family] + probe.wait_ms)],
+    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_budget=ms < v['budget_ms'])),
     'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
-        v, within_t_svc=ms <= scenario.T_SVC_MS)),
+        v, within_budget=ms <= min(scenario.T_SVC_MS, scenario.CEILING_MS[probe.family]))),
     'deadline: the ceiling drops the normative wait': _verdicts(lambda v, ms, probe: dict(
         v, within_ceiling=ms <= scenario.CEILING_MS[probe.family])),
     'deadline: the ACMP ceiling is the transaction timeout': lambda: [patch.dict(scenario.CEILING_MS, {'acmp': 200.0})],
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
-    'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
+    'run: a budget miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
     'run: the as-built control is caught by an instruction access fault only (earlier rule)': lambda: [patch.object(
         run, 'AS_BUILT_CAUSES', (1,))],
@@ -470,6 +556,8 @@ MUTANTS: dict[str, Patches] = {
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
+    'lsu bus: the cacheless observers on a data-cached CPU':
+        lambda: [patch.object(build, 'lsu_bus', _lsu_bus_cacheless)],
     'reuse: the fetch L1 and the arm are not compared':
         lambda: [patch.object(run, 'built_as', _built_as_without_cache),
                  patch.object(run, 'selected', _selected_without_cache)],
@@ -482,4 +570,134 @@ MUTANTS: dict[str, Patches] = {
         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
     'xip: the flash driver moves to flash with the other code': lambda: [patch.object(build, 'XIP_TEXT', (
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+    'xip: the hot code and the rest stay in rom': lambda: [patch.object(
+        build, 'XIP_END', (build.XIP_END[0], build.XIP_END[0]))],
+    'share: T_svc over the passes, not the tightest family bound': lambda: [patch.object(
+        share, 'bound_ms', lambda: scenario.T_SVC_MS)],
+    'share: the bound over eight passes': lambda: [patch.object(share, 'SHARE_PASSES', 8)],
+    'share: a pass at the share is over it': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(hz) - 1)],
+    'share: in bus cycles, not CPU time': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(100_000_000))],
+    'share: the passes are not held to it': lambda: [patch.object(
+        grade, 'pass_share', lambda log, f=grade.pass_share: dict(f(log), over=0, over_passes=[]))],
+    'share: a pass over it is no finding': lambda: [patch.object(run, 'share_misses', lambda results: [])],
+    'share: the planted store step is judged as a budget control': lambda: [patch.object(build, 'SHARE_CONTROLS', ())],
+    'share: a pass with no mailbox write is not held to it': lambda: [patch.object(
+        grade, 'pass_share', lambda log, f=grade.pass_share: f(dataclasses.replace(log, idle=[])))],
+    "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
+    'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
+    'save: the phase read off the last save, not the first': lambda: [patch.object(
+        grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
+            log, flash_ops=_from_last_erase(log.flash_ops)), name, start))],
+    "save: the program phase ends at the window's last page, not the save's": lambda: [patch.object(
+        grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
+            log, flash_ops=[op for op in log.flash_ops if op[0] < start]), name, start))],
+    "save: a verify window is graded after its read-backs read back the container": lambda: _first_save(
+        lambda save: dict(verified=[])),
+    "save: the bound counts one tick a step, not the age limit's": lambda: [patch.object(
+        save_window, 'step_age', lambda: 0)],
+    "save: the bound leaves out the verify's read-backs": lambda: [patch.object(
+        save_window, 'steps', lambda image, records, f=save_window.steps: f(image, records)
+        - -(-image // save_window.READ))],
+    "save: durable at the verify's first read-back, not the one that completes it": lambda: _first_save(
+        lambda save: dict(durable=save.verified[0][0] if save.verified else None)),
+    'save: a save never durable in the run is within its bound': lambda: _save_time(
+        lambda r: dict(r, within=r['within'] or r['ms'] is None)),
+    'save: a save over its stated worst case is no finding': lambda: [patch.object(
+        run, 'save_misses', lambda results: [])],
+    "save: the age limit's plant is judged as a budget control": lambda: [patch.object(build, 'SAVE_CONTROLS', ())],
+    'save: a held group that commits fewer records than it offered is graded': lambda: [patch.object(
+        save_grade, 'held_load', lambda log, group: None)],
+    'save: a channel left out of the held load': lambda: [patch.object(
+        save_window, 'arrivals', lambda p, run_ms, f=save_window.arrivals: [
+            a for a in f(p, run_ms) if a[1] != 'srp'])],
+    'save: the held load a burst once, then nothing': lambda: [patch.object(
+        save_window, 'arrivals', lambda p, run_ms, f=save_window.arrivals: [
+            a for a in f(p, run_ms) if a[0] < 1])],
+    "save: the in-flight change's bound leaves out the save in flight": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age))],
+    "save: the in-flight change waits for every step of the save in flight": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age, flight) + (60 if flight else 0))],
+    "save: the in-flight change's wait not its first-dirty window where that is longer": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age) if flight is None else 30 * (save_window.steps(image, flight) - 2
+                                                             + save_window.steps(image, records)) + 10)],
+    'save: the second change timed to the save in flight': lambda: [patch.object(
+        save_grade, 'first_save', lambda log, n=0, f=save_grade.first_save: f(log, 0))],
+    'save: a second change not marked while the save is in flight is graded': lambda: [patch.object(
+        save_grade, 'in_flight', lambda log, marks, change: True)],
+    'save: the second change the same name as the first': lambda: [patch.object(
+        save_window, 'set_name', lambda p, value=b'save', f=save_window.set_name: f(p))],
+    "save: the second change marked before the save in flight's capture": lambda: [patch.object(
+        save_window, 'SECOND_MS', 500)],
+    'aged: the opening age counts TICK records, not their centiseconds': lambda: [patch.object(
+        save_grade, 'opening_age', lambda log, last, start: sum(
+            1 for c, w in log.records if last < c <= start and w[0] & 0xFF == save_grade.EV_TICK))],
+    "aged: the age counted from the window's lead, not from its last step": lambda: [patch.object(
+        save_grade, 'opening_age', lambda log, last, start, f=save_grade.opening_age: f(log, 0, start))],
+    'aged: a pass that took nothing before the window does not end the age': lambda: [patch.object(
+        save_grade, 'empty_passes', lambda log, index, start: [])],
+    "aged: a window opened at another age than its name declares is graded": lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, age, empty, inside))],
+    "aged: an aged step's work pass is read as not aged": lambda: [patch.object(
+        grade, 'parse', lambda *a, f=grade.parse, **k: _work_steps_unaged(f(*a, **k)))],
+    'aged: a window at the limit that drains before its aged step is refused': lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, got, empty, [a for a in inside if a['among']]))],
+    'aged: a window at the age limit with no aged step in it is graded': lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, got, empty, inside or [dict(kind=k) for k in save_grade.AGED_KIND.values()]))],
+    "aged: the program phase's aged step need not be a page's issue": lambda: [patch.dict(
+        save_grade.AGED_KIND, program='read-back')],
+    "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(
+        build, 'AGED_CONTROLS', ())],
+    "notice: a retried notice later than its bound is a budget finding only": lambda: [patch.object(
+        run, 'notice_misses', lambda results: [])],
+    'notice: a retried notice is held to its ceiling, not its bound': lambda: [patch.object(
+        run, 'notice_misses', lambda results: [n['group'] for n in run.notices(results) if not n['within_ceiling']])],
+    "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
+    "notice: the port answers before the load": lambda: [patch.object(
+        notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
+    "transmit: the build-beside-records plant is judged as a budget control": lambda: [patch.object(
+        build, 'SRP_CONTROLS', ())],
+    "transmit: any channel's held record over its bound catches the build-beside-records plant": lambda: [
+        patch.object(run, 'held_srp_groups', lambda misses: {m.partition(':')[0].partition('.')[0] for m in misses})],
+    'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
+    "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
+        save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],
+    'aged: windows at the age limit only': lambda: [patch.object(
+        save_window, 'aged_windows', lambda p, ages=None, f=save_window.aged_windows: f(p, (save_window.step_age(),)))],
+    "aged: the program phase's window one step short of a page's issue": lambda: [patch.object(
+        save_window, 'AGED_LEAD', 1)],
+    'steps: a pass that carries a step and writes nothing to the mailbox is left out': lambda: [patch.object(
+        save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
+            grader.log, step_passes=[]))))],
+    'steps: a work pass that carries a step is left out': lambda: [patch.object(
+        save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
+            grader.log, passes=[]))))],
+    "save: the held AECP channel bursts with its change, the SET_NAME's token not yet back": lambda: [patch.object(
+        save_window, 'held_start', lambda: 0)],
+    'save: the starved save without its grandmaster flood': lambda: [patch.object(
+        save_window, 'loaded', lambda p, name, flood, image, f=save_window.loaded: f(p, name, False, image))],
+    'save: four tick phases a flash phase': lambda: [patch.object(save_window, 'TICK_PHASES', 4)],
+    "save: the program phase spread across one tick, not its step's two": lambda: [patch.dict(
+        save_window.PHASES, program=('program 1', 30, 10))],
+    'save: the blank check staged after the first page program': lambda: [patch.dict(
+        save_window.PHASES, blank=('program 1', 30, 10))],
+    'save: the verify staged while the pages are programmed': lambda: [patch.dict(
+        save_window.PHASES, verify=('program 1', 10, 10))],
+    'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
+    'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
+    'clock: the CPU is built on the Milan clock': _build_with(
+        lambda core: dataclasses.replace(core, cpu_cd='milan')),
+    "clock: build.json records the point's Milan clock as the CPU's": _build_recorded(
+        lambda spec: dict(spec, cpu_hz=spec['milan_hz'])),
+    'clock: no CPU clock refusal': lambda: [patch.object(build, 'cpu_clock_refusals', lambda spec: [])],
+    "clock: the CPU's domain is not checked": _refusals_kept(lambda refusal: 'domain' not in refusal),
+    "clock: the CPU's clock is not checked against the bus clock": _refusals_kept(lambda refusal: 'domain' in refusal),
+    'clock: a reused build is not checked': _reuse_unchecked(),
 }

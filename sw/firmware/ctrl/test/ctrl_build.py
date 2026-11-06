@@ -72,6 +72,15 @@ C_FLAGS = ("-std=c11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Werror", "-pedan
 RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-DNDEBUG",
               "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
+#: The split placement's hart is RV32IM (#665, owner decision 2026-10-27; NFR-SCOUT-01), so the split
+#: image (ctrl_srp_image.py --layout split) is built for it. Every other RV32 build here keeps RV32I.
+SPLIT_ISA = "rv32im"
+#: The split placement's record mover (#665, owner decision 2026-10-29): the mailbox driver moves each
+#: record's payload with it (plat/mbx_dma.h). Its CSR bank's address is a placeholder like CTRL_MBX_BASE's,
+#: the bank milan_soc.add_ctrl_mailbox pins below the mailbox's (n_locs - 3 of the 64 KiB CSR window).
+SPLIT_MBX_DMA_BASE = 0xF000E800
+SPLIT_RV32_FLAGS = (*(f"-march={SPLIT_ISA}" if flag == "-march=rv32i" else flag for flag in RV32_FLAGS),
+                    f"-DCTRL_MBX_DMA_BASE=0x{SPLIT_MBX_DMA_BASE:08x}u")
 #: Runtime interfaces an object-only check may leave undefined, including the
 #: assertion handler when a debug build enables a protocol's re-entry guard.
 RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf", "__assert_fail"})

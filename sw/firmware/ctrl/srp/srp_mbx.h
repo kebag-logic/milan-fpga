@@ -59,6 +59,16 @@ struct srp_interface {
     bool link;
     bool vlan_sent;
     bool domain_owed;
+    // The registrar, an indication or a binding changed what snapshot copies
+    // since it last walked the registrar: it walks only then (#665).
+    bool stale;
+    // A participant may hold an attribute mrp_reclaim frees: poll reclaims
+    // only then (#665).
+    bool reclaim;
+    // Polls left until a reset's new participants are built, the first of them
+    // the reset's own pass; receive waits until then (#665, srp_bounds.h).
+    uint8_t reopen_polls;
+    bool reopening;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
@@ -72,13 +82,17 @@ struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
     struct srp_mbx_config config;
-    uint8_t frame[MBX_FRAME_BYTES_MAX];
+    // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
+    // Ethernet header before it, so a frame is never copied (#665).
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint16_t owed_len;
     unsigned owed_if;
     uint16_t owed_ethertype;
     unsigned cursor;
+    // The interface whose build goes first when more than one is due: a poll
+    // builds one interface at most (#665, srp_bounds.h).
+    unsigned build_turn;
     bool busy;
     bool initialized;
     uint32_t reentries;
@@ -88,6 +102,13 @@ struct srp_mbx {
     uint32_t received;
     uint32_t transmitted;
     uint32_t stops;
+    uint32_t walks;        // registrar walks snapshot made (#665)
+    // THE TRANSMIT (ctrl_loop.h, #665): a centisecond, a record or a
+    // declaration may have made an MRPDU owed, which only the loop's call to
+    // the build takes, and the centiseconds dispatched while it is held.
+    bool tx_held;
+    uint32_t tx_age;
+    uint32_t resent_pass;  // the loop's pass whose poll last sent an owed frame
 };
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.

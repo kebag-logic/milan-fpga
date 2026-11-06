@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The stimulus groups of the budget and the probes each measures (#665).
 
-A group is one boot of the test SoC and a script of steps; sim_main.cpp
-runs it. A probe is one measured path: a `mark` line names it, then its
-stimulus, then a bounded wait for its completion. grade.py reads the start
-and the end of each probe off the observation log by the probe's rules:
+A group is one boot of the test SoC and a script of steps; sim_main.cpp runs it. A probe is one measured path:
+a `mark` line names it, then its stimulus, then a bounded wait for its completion. grade.py reads the start and
+the end of each probe off the observation log by the probe's rules:
 
   start  rxc:<ch>         the fabric's receive commit (RX_HEAD) on the channel
          pad:LINK:<if>    the link level changing at the mailbox input
@@ -27,20 +26,15 @@ and the end of each probe off the observation log by the probe's rules:
                           after the release, inside that pass (ctrl_loop.c service_rx)
          pub:<word>       a write of that publication word
 
-A probe's frames carry its name as their tag, so its start is the commit of
-its own frame even when other frames share the ring; a probe may bound its
-search by a later mark (until) when probes overlap on purpose.
+A probe's frames carry its name as their tag, so its start is the commit of its own frame even when other frames
+share the ring; a probe may bound its search by a later mark (until) when probes overlap on purpose.
 
-A group's load is the population its stimulus declares for its composed
-window: the records per receive channel and the GM and LINK events. grade.py
-never trusts it: it refuses a window whose committed population is not the
-row's defined load, which it derives from the contract alone
-(grade.defined_load), and the self-test counts every window's stimulus
-against that definition, so a channel left out of the stimulus and its
-declaration together still fails.
+A group's load is the population its stimulus declares for its composed window: the records per receive channel
+and the GM and LINK events. grade.py never trusts it: it refuses a window whose committed population is not the
+row's defined load, which it derives from the contract alone (grade.defined_load), and the self-test counts every
+window's stimulus against that definition, so a channel left out of the stimulus and its declaration together fails.
 
-The paths, their clauses and their ceilings come from FR_NFR.md 3.4.1 and
-MAILBOX_SPLIT.md; every address comes from the mailbox contract.
+The paths, their clauses and ceilings come from FR_NFR.md 3.4.1 and MAILBOX_SPLIT.md; addresses from the contract.
 """
 from __future__ import annotations
 
@@ -49,6 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import frames as f
+import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
@@ -87,8 +82,8 @@ def binding_word(interface: int, sink: int) -> int:
 TMR_CMD_WORD = word(REG['TMR_CMD'])
 EVT_TAIL_WORD = word(REG['EVT_TAIL'])
 
-#: The project budget and each path family's normative ceiling, FR_NFR.md 3.4.1.
-T_SVC_MS = 10.0
+#: T_svc, approved at 20 ms (owner, 2026-10-29), and each family's ceiling, FR_NFR.md 3.4.1: a budget is the lower.
+T_SVC_MS = 20.0
 CEILING_MS = {
     'adp': 200.0,     # Milan v1.2 5.6.3.5.2: 2 s random window x 10 % (the whole ADP function)
     'disc': 20.0,     # Milan v1.2 5.5.2.3, Table 5.26: a resulting ACMP action, 200 ms x 10 %
@@ -108,7 +103,7 @@ class Probe:
     family: str          # key of CEILING_MS
     start: str
     ends: list[str]      # every listed end must occur; the path ends at the last of them
-    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + T_svc)
+    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + its budget)
     expect: str = ''     # an expected response check, see grade.py
     accesses: int | None = None  # the host model's measured or bound accesses in the pass, for comparison
     until: str = ''      # a later mark bounding the search; '' is the next mark
@@ -139,8 +134,8 @@ class Group:
     #: The composed window's required population: records per receive channel, and
     #: 'GM' and 'LINK' events (grade.py counts each between composed and composed_end).
     load: dict[str, int] = field(default_factory=dict)
-    #: Each loaded channel's admission for the records it was offered (admission()).
-    admission: dict[str, dict] = field(default_factory=dict)
+    admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
+    save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
 
     def offer(self, channel: str, step: str, frame: bytes) -> None:
         """One record of the composed load: a frame (or a reply) step the channel must commit."""
@@ -272,7 +267,7 @@ def advertised(g: Group, p: Point) -> None:
 
 
 def adp_groups(p: Point) -> list[Group]:
-    """ADP's rows (MAILBOX_SPLIT.md:499-506), every interface at once, one timer per group."""
+    """ADP's rows (MAILBOX_SPLIT.md:516-523), every interface at once, one timer per group."""
     adp = CH['adp']
     ifs = range(p.interfaces)
     every = lambda what: [what.format(i=i) for i in ifs]
@@ -309,7 +304,7 @@ def adp_groups(p: Point) -> list[Group]:
 
 
 def acmp_groups(p: Point) -> list[Group]:
-    """ACMP's rows (MAILBOX_SPLIT.md:649-661): commands, the timer paths and discovery."""
+    """ACMP's rows (MAILBOX_SPLIT.md:666-678): commands, the timer paths and discovery."""
     acmp, adp = CH['acmp'], CH['adp']
     ifs = range(p.interfaces)
     slot = lambda i: p.interfaces + i               # ACMP's slot of interface i (ctrl_app.h)
@@ -477,7 +472,15 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         # LOCK_ENTITY (7.4.2.1): flags, locked_id, descriptor_type and descriptor_index (the ENTITY).
         cmd(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
         cmd(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
-    return [g]
+    return [paced(g, aecp)]
+
+
+def paced(g: Group, channel: int) -> Group:
+    """One frame a refill period of the channel's token bucket (mailbox.yaml): on the CPU at 100 MHz a response leaves
+    well inside it, and a frame past the bucket's burst is refused, so its path measures nothing (#665)."""
+    wait = f'wait cycles {CONTRACT.channels[channel].refill_ms * MS}'
+    g.steps = [s for step in g.steps for s in ((wait, step) if step.startswith('frame ') else (step,))]
+    return g
 
 
 def registrations() -> int:
@@ -605,7 +608,7 @@ def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
                           recipients=everyone),
                     f'frame {i} {acmp_cmd(p, "BIND_RX", i, 0x5f00 + i).hex()}',
                     wait=f'tx {aecp} {len(everyone)} within {200 * MS}')
-    return [g]
+    return [paced(g, aecp)]
 
 
 def maap_groups(p: Point) -> list[Group]:
@@ -707,6 +710,12 @@ def maap_conflict(interface: int, select: int = f.MAAP_ANNOUNCE) -> str:
             f'6={BRIDGE_MAC:012x} 15={f.MAAP_PROBE:02x}')
 
 
+#: How a composed window that fills the event ring opens. Its grandmaster changes arrive 8 bus cycles apart and a
+#: source coalesces while its record waits (mailbox.yaml, KL_mbx_evt.sv), so with k records held only 16 - k + 1 of
+#: them commit: its defined load needs a ring the core has drained, which no fixed wait gives a slow CPU (#665).
+OPEN_WINDOW = (f'wait events 0 within {400 * MS}', 'gap 1', 'mark composed')
+
+
 def gm_run(g: Group, p: Point, count: int = 15) -> None:
     """Grandmaster changes back to back, alternating the interfaces: GM events of the load."""
     for n in range(count):
@@ -767,8 +776,7 @@ def bound_talker_groups(p: Point) -> list[Group]:
         announced(g)
         g.add(f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * MS}',
               'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
-              f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', 'gap 1',
-              'mark composed')
+              f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', *OPEN_WINDOW)
         gm_run(g, p)
         composed_load(g, p, own='adp')
         for n in range(at_once - 1):
@@ -794,7 +802,7 @@ def bound_talker_groups(p: Point) -> list[Group]:
     return out
 
 
-#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:757-762, A3).
+#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:773-778, A3).
 OWED_AHEAD = 7
 
 
@@ -813,7 +821,7 @@ def owed_group(p: Point) -> Group:
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', *OPEN_WINDOW)
     gm_run(g, p)
     composed_load(g, p, own='acmp')
     for n in range(OWED_AHEAD):
@@ -840,9 +848,9 @@ def owed_group(p: Point) -> Group:
 
 
 def backlog_groups(p: Point) -> list[Group]:
-    """The four backlog rows (MAILBOX_SPLIT.md:757-762), each under the composed maximum load.
+    """The four backlog rows (MAILBOX_SPLIT.md:773-778), each under the composed maximum load.
 
-    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:757-762),
+    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:773-778),
     including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
     except in the owed row, which places the remaining admitted ACMP commands behind it. The
     event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
@@ -858,7 +866,7 @@ def backlog_groups(p: Point) -> list[Group]:
     g = Group('backlog', sim_ms=4000)
     ready(g, p)
     announced(g)
-    g.add('gap 1', 'mark composed')
+    g.add(*OPEN_WINDOW)
     gm_run(g, p)
     g.probe(Probe('backlog.event.if0', 'an event behind 15 others', 'adp', 'pad:LINK:0', ['cancel:0'],
                   until='composed_end'), 'link 0 0', wait='cycles 1', settle='')
@@ -880,12 +888,8 @@ def backlog_groups(p: Point) -> list[Group]:
 
 
 def control_groups(p: Point) -> list[Group]:
-    """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm.
-
-    The arm is made by ADP's receive handler after its work, so a slower handler
-    delays it. With the ordinary image the path fits T_svc; with build.py's
-    slow-adp-rx it must miss it, by name (run.py --mutation slow-adp-rx).
-    """
+    """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm, made by ADP's receive
+    handler after its work. The ordinary image fits T_svc; build.py's slow-adp-rx must miss it, by name."""
     adp = CH['adp']
     g = Group('control', sim_ms=2800)
     ready(g, p, link=False)
@@ -901,16 +905,12 @@ SHUTDOWN_MS = 2500
 
 
 def shutdown_groups(p: Point) -> list[Group]:
-    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:506), through a test-only entry.
+    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:523), through a test-only entry.
 
-    The linked image never disables ADP, so this path has no input in it.
-    build.py's shutdown-entry variant (a scratch copy of the fixture, never the
-    formal image) adds a poll that calls adp_mbx_set_enable(false) once, at
-    NOW_MS SHUTDOWN_MS. The path starts at that call's entry and ends at each
-    interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The
-    control group's probe is another instance of the same path, adp.shutdown,
-    which slow-adp-shutdown must push over T_svc (run.py --mutation
-    slow-adp-shutdown).
+    The linked image never disables ADP, so build.py's shutdown-entry variant (a scratch copy of the fixture, never
+    the formal image) adds a poll that calls adp_mbx_set_enable(false) once, at NOW_MS SHUTDOWN_MS. The path starts
+    at that call's entry and ends at each interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The control
+    group's probe is another instance of the path, adp.shutdown, which slow-adp-shutdown must push over T_svc.
     """
     adp = CH['adp']
     out = []
@@ -996,5 +996,5 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

@@ -26,6 +26,7 @@ from nvm_bench import TREE, Refusal
 import fw_gtest
 
 STORE = "nvm_store.c"
+HEADER = "nvm_store.h"
 CODEC = "nvm_klj2.c"
 LITESPI = "plat/nvm_flash_litespi.c"
 
@@ -81,24 +82,33 @@ static uint64_t ls_now_us(void *ctx)
 	ls_last_us = now;
 	return now;
 }"""
-TO_US = "\treturn ls_ticks / LS_HZ * 1000000u + ls_ticks % LS_HZ * 1000000u / LS_HZ;"
+TO_US = ("\treturn ls_seconds_us + steps * LS_US_PER + "
+         "(ls_second - steps * LS_TICKS_PER) * LS_US_PER / LS_TICKS_PER;")
 TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 {
 	uint32_t v;
+	uint32_t elapsed;
+	uint32_t steps;
 
 	(void)ctx;
 	v = ls_timer();
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
-	ls_ticks += (uint32_t)(ls_tick_last - v);
+	elapsed = (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
-	/* whole seconds, then the rest: fewer clocks than one second's, so
-	 * times 10^6 it stays inside 64 bits */
+	/* at most 2^32 - 1 clocks: a few dozen seconds, carried without a divide */
+	while (elapsed >= (uint32_t)LS_HZ - ls_second) {
+		elapsed -= (uint32_t)LS_HZ - ls_second;
+		ls_second = 0;
+		ls_seconds_us += 1000000u;
+	}
+	ls_second += elapsed;
+	steps = ls_second / LS_TICKS_PER;
 """ + TO_US + "\n}"
 CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
               "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
 RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
                "\t       nvm_klj2_seq(nvm_stage) == seq;")
-FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);\n"
+FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);\n"
 STANDS = "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))"
 SAME_BYTES = ("seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&\n"
               "\t\t    seen[j].bytes == seen[n].bytes")
@@ -165,6 +175,13 @@ MUTANTS = (
     _m("lookup_index_unbounded", CODEC,
        "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn r;",
        "\tif (group >= NVM_G_COUNT)\n\t\treturn r;", "codec_lookups"),
+    # the ids a mark takes without the walk (#665)
+    _m("id_of_one_past_a_group", CODEC,
+       "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn -1;",
+       "\tif (group >= NVM_G_COUNT || index > nvm_blocks[group].count)\n\t\treturn -1;",
+       "codec_ids_without_the_walk"),
+    _m("id_known_one_past_a_group", CODEC, "id - nvm_blocks[g].base < nvm_blocks[g].count",
+       "id - nvm_blocks[g].base <= nvm_blocks[g].count", "codec_ids_without_the_walk"),
     # ---- a container longer than the stage ----
     _m("long_crc_unchecked", STORE, "\tif (~crc != nvm_rd32le(trailer))\n\t\treturn NVM_VD_CRC;\n", "",
        "long_container_reads"),
@@ -300,16 +317,21 @@ MUTANTS = (
     _m("capture_leaves_window_armed", STORE, "\tif (!taken && !nvm.dirty_armed) {",
        "\tif (!nvm.dirty_armed) {", "debounce"),
     # the record the capture examines next counted as passed
-    _m("taken_off_by_one", STORE, "r.id >= nvm.cursor.id", "r.id > nvm.cursor.id", "debounce"),
+    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "debounce"),
     # every change during the capture counted as taken: one it has passed,
     # and one after its last latch, open no window and are never written
-    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;",
+    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;",
        "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges"),
-    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && r.id >= nvm.cursor.id;", "r.id >= nvm.cursor.id;",
+    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && id >= nvm.cursor.id;", "id >= nvm.cursor.id;",
        "capture_window_edges"),
     # a change to a record the shape does not have marks one it does
-    _m("change_of_no_record", STORE, "\tif (!r.ok || nvm.st.phase == NVM_P_OFF)\n\t\treturn;",
-       "\tif (nvm.st.phase == NVM_P_OFF)\n\t\treturn;", "change_unknown_record"),
+    _m("change_of_no_record", STORE, "\tif (id >= 0)\n\t\tnvm_mark((unsigned int)id);",
+       "\tnvm_mark(id >= 0 ? (unsigned int)id : 0u);", "change_unknown_record"),
+    # a change named by an id the shape has no record of marks one; one named by its id marks nothing (#665)
+    _m("change_id_of_no_record", STORE, "\tif (nvm_rec_id_known(id))\n\t\tnvm_mark(id);",
+       "\tnvm_mark(id & 0xFFu);", "change_unknown_record", "change_by_record_id"),
+    _m("change_id_ignored", STORE, "\tif (nvm_rec_id_known(id))\n\t\tnvm_mark(id);",
+       "\t(void)id;", "change_by_record_id"),
     # an owner with nothing to save has its stale payload framed
     _m("nothing_to_save_framed", STORE,
        "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))\n\t\treturn;",
@@ -329,8 +351,8 @@ MUTANTS = (
        "\tif (0) {", "media_failures"),
     # every change call opens a new budget, changed or not
     _m("budget_rearmed_by_change", STORE,
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tif (!taken",
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tnvm.st.attempts = 0;\n"
+       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tif (!taken",
+       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tnvm.st.attempts = 0;\n"
        "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
        "dr2c_unchanged_set"),
@@ -356,6 +378,25 @@ MUTANTS = (
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "blankcheck_tail"),
+    _m("read_back_a_whole_page", HEADER, "#define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)",
+       "#define NVM_READ_BYTES NVM_FLASH_PAGE", "service_bound"),
+    # THE STEP (#665): the store's step only in a pass with NVM_STEP_US of its share left
+    _m("step_ignores_room", STORE, "\tif ((int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US) {",
+       "\tif (0) {", "step_room"),
+    _m("step_needs_more_room", STORE, "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US)",
+       "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US + 200)", "step_room"),
+    _m("step_needs_room_past_its_cost", STORE, "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US)",
+       "(int32_t)(deadline - nvm_store_clock(ctx)) <= (int32_t)NVM_STEP_US)", "step_room"),
+    Mutant("step_owed_once_each",
+           ((STORE, "\tnvm.owed = 1;\n", "\tnvm.owed++;\n"),
+            (STORE, "\tnvm.owed = 0;\n\tnvm_store_service();", "\tnvm.owed--;\n\tnvm_store_service();")),
+           ("step_room",)),
+    _m("step_owed_lost_without_room", STORE, "\t\tnvm.st.deferred++;\n\t\treturn true;",
+       "\t\tnvm.st.deferred++;\n\t\tnvm.owed = 0;\n\t\treturn true;", "step_room"),
+    _m("step_not_owed_after_a_short_pass", STORE, "\t\tnvm.st.deferred++;\n\t\treturn true;",
+       "\t\tnvm.st.deferred++;\n\t\treturn false;", "step_room"),
+    _m("step_untaken_when_not_owed", STORE, "\tif (!nvm.owed)\n\t\treturn false;",
+       "\tif (0)\n\t\treturn false;", "step_room"),
     _m("blankcheck_read_fail_ignored", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {",
        "\tif (!n)\n" + FAILED_READ_PASSES + "\telse if (!nvm_all_erased(nvm_chunk, n)) {",
        "media_verdicts"),
@@ -363,7 +404,7 @@ MUTANTS = (
        "media_failures", "failed_commit_not_skipped"),
     _m("verify_skips_last_stretch", STORE,
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
-       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_STEP_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
+       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_READ_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
        "verify_tail"),
     _m("verify_read_fail_ignored", STORE,
        "\tif (!n) {\n\t\tnvm_fail(NVM_VD_VERIFY);\n\t\treturn;\n\t}\n\tfor (i = 0; i < n; ++i) {",
@@ -422,12 +463,12 @@ MUTANTS = (
     # time from the PHC, held on a backward step
     _m("phc_time", LITESPI, TIMER_NOW, PHC_NOW, "time_base"),
     _m("clock_not_accumulated", LITESPI,
-       "\tls_ticks += (uint32_t)(ls_tick_last - v);\n\tls_tick_last = v;\n",
-       "\tls_ticks = 0xffffffffu - v;\n\tls_tick_last = v;\n", "time_base"),
+       "\t\tls_seconds_us += 1000000u;\n", "", "time_base"),
     # the round-3 port: a whole number of clocks per us, 83 at the Arty
     # shapes' 83.333 MHz, for the time base and the deadline (R500-3)
     Mutant("ticks_per_us_truncated",
-           ((LITESPI, TO_US, "\treturn ls_ticks / (CONFIG_CLOCK_FREQUENCY / 1000000u);"),
+           ((LITESPI, TO_US, "\treturn ls_seconds_us + (ls_second + 0u * steps) / "
+                             "(CONFIG_CLOCK_FREQUENCY / 1000000u);"),
             (LITESPI, CALL_TICKS, "const uint32_t nvm_flash_litespi_call_ticks = "
                                   "LS_CALL_US * (CONFIG_CLOCK_FREQUENCY / 1000000u);")),
            ("port_clock", "time_base"), ARTY),

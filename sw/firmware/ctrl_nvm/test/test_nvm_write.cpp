@@ -342,7 +342,8 @@ TEST_P(NvmBoth, blankcheck_tail) {
 // passed over; a program or erase the port refuses is VD_PROGRAM or VD_ERASE.
 // Each attempt is retried and the retry commits.
 TEST_F(NvmModel, media_verdicts) {
-    const long long n = pages();
+    // the reads of one read-back: the blank check's, then the verify's, as many
+    const long long n = (fx().num("img_len") + NVM_READ_BYTES - 1) / NVM_READ_BYTES;
     const std::pair<std::string, long long> faults[] = {{"read-fail:1:" + num(n / 2), NVM_VD_ERASE},
                                                          {"read-fail:1:" + num(n + n / 2), NVM_VD_VERIFY},
                                                          {"program-refuse:1:2", NVM_VD_PROGRAM},
@@ -653,8 +654,40 @@ TEST_P(NvmBoth, service_bound) {
     const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + 6);
     EXPECT_TRUE(r.at("ok") == 1 && r.at("step_max") == want && want == r.at("step_bound"))
         << "step bytes " << r.at("step_max") << ", want " << want << " (bound " << r.at("step_bound") << ")";
+    if (port() == Port::Model) {
+        EXPECT_EQ(r.at("max_read"), 128) << "a read-back step reads half a page, 0.7 ms of a pass's 2.0 ms share (#665)";
+    }
     EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
         << "the loop did not keep running: " << r.text();
+}
+
+// THE STEP (#665, ctrl_loop.h): the loop owes the store a step every
+// centisecond and takes it only in a pass with NVM_STEP_US of its share left.
+// A pass with less takes none and the step stays owed; the passes it waits
+// through owe it once, not once each; and with the room the commit runs a
+// step a pass, as the direct service runs it.
+TEST_P(NvmBoth, step_room) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const std::vector<std::string> change = {"--slot-b", "g.bin", "--boot", "--set-pattern", "1"};
+    const std::string short_left = num(NVM_STEP_US - 1);
+    const std::string room = num(NVM_STEP_US + 100);
+    Result r = go(port(), f, concat(change, {"--step-left", short_left, "--run-ms", "3000"}));
+    EXPECT_TRUE(r.at("steps") == 0 && r.at("erases") == 0 && r.at("deferred") == r.at("calls") &&
+                r.at("step_owing") == r.at("calls") && r.at("calls") > 0)
+        << "a pass with less than NVM_STEP_US left takes no step, and the step stays owed: " << r.text();
+    r = go(port(), f, concat(change, {"--step-left", short_left, "--service", "5", "--step-left", room, "--pass", "3"}));
+    EXPECT_TRUE(r.at("steps") == 1 && r.at("deferred") == 5 && r.at("step_owing") == 5)
+        << "the passes a step waited through owe it once: " << r.text();
+    r = go(port(), f, concat(change, {"--step-left", room, "--until-idle"}));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("deferred") == 0 && r.at("steps") == r.at("calls"))
+        << "a pass with NVM_STEP_US left takes the owed step: " << r.text();
+    // The model's clock holds between the rig's read and the store's; the LiteSPI port's timer moves with each
+    // read, so a deadline exactly NVM_STEP_US away is a few clocks short of it there.
+    if (port() == Port::Model) {
+        r = go(port(), f, concat(change, {"--step-left", num(NVM_STEP_US), "--until-idle"}));
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("deferred") == 0 && r.at("steps") == r.at("calls"))
+            << "a pass with exactly NVM_STEP_US left takes the owed step: " << r.text();
+    }
 }
 
 // A power cut inside every media effect of a commit (the erase and every page

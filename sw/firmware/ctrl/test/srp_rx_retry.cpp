@@ -174,7 +174,7 @@ TEST_F(SrpRetry, FailedParticipantRecreationRetainsFreshReceive) {
     settle(); advance(400);
     calloc_before_failure=0;
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[0].msrp,nullptr);
     auto f=frame(3,identity(),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
@@ -289,6 +289,10 @@ TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBind
     // No artificial allocation failure: the PDU itself fills the entity pool.
     pump(999);
     EXPECT_NE(adapter.pending_rx.len,0u);
+    // The Domains the record registered before the pool ran out leave an adoption owed on its interface. The
+    // adoption is declared before the reclaim, so the room a reclaim frees is the retained receive's, and the
+    // adoption stays refused while the receive waits (#665, THE TRANSMIT's declarations).
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"a refused adoption takes no room a retained receive waits for";
     EXPECT_EQ(adapter.rx_discarded,0u);
     EXPECT_EQ(adapter.received,1u);
     EXPECT_CALL(licence,Change(i,0,false));
@@ -354,7 +358,7 @@ TEST_F(SrpRetry, FailedRecreationCannotRetainInputBeyondItsDeadline) {
     const unsigned i=MBX_N_IF-1;
     calloc_before_failure=0;
     mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[i].msrp,nullptr);
     auto f=frame(3,identity(i),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));

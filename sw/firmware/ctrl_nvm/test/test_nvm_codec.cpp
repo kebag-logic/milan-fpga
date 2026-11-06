@@ -138,5 +138,24 @@ TEST(NvmCodec, codec_lookups) {
         << "and the first record is found by its group and index";
 }
 
+// The ids a mark takes without the walk (#665): nvm_rec_id_of is nvm_rec_of's
+// id, or -1 where it has no record, for every group and index; nvm_rec_id_known
+// is nvm_rec_by_id's answer for every id.
+TEST(NvmCodec, codec_ids_without_the_walk) {
+    bool same = true;
+    for (unsigned g = 0; g <= NVM_G_COUNT; ++g) {
+        for (unsigned i = 0; i < NVM_ID_SPACE; ++i) {
+            const nvm_rec r = nvm_rec_of(g, i);
+            same = same && nvm_rec_id_of(g, i) == (r.ok ? static_cast<int>(r.id) : -1);
+        }
+    }
+    EXPECT_TRUE(same) << "a record's id by its group and index is nvm_rec_of's, and -1 where it has none";
+    bool known = true;
+    for (unsigned id = 0; id < NVM_ID_SPACE; ++id) {
+        known = known && nvm_rec_id_known(id) == static_cast<int>(nvm_rec_by_id(id).ok);
+    }
+    EXPECT_TRUE(known) << "an id is known exactly where nvm_rec_by_id finds its record";
+}
+
 }  // namespace
 }  // namespace nvm_test

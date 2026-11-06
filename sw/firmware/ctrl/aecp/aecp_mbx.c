@@ -8,6 +8,13 @@ static uint16_t tx_count(uint32_t reg)
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
 }
 
+// i % AECP_MBX_COMPLETIONS for i below twice it, without a divide: the
+// queue's size is no power of two, and a divide is a runtime call on RV32I (#665).
+static unsigned wrapped(unsigned i)
+{
+	return i - (AECP_MBX_COMPLETIONS & (0u - (unsigned)(i >= AECP_MBX_COMPLETIONS)));
+}
+
 static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len, uint32_t cookie)
 {
 	struct aecp_mbx *m = ctx;
@@ -15,7 +22,7 @@ static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len
 	    mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) != MBX_STATUS_OK) {
 		return false;
 	}
-	unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;
+	unsigned n = wrapped(m->completion_head + m->completion_count);
 	m->completions[n] = (struct aecp_mbx_completion){cookie, tx_count(MBX_CH_REG_TX_HEAD)};
 	++m->completion_count;
 	return true;
@@ -154,7 +161,7 @@ static bool poll(void *ctx)
 				break;
 			}
 			aecp_tx_complete(&m->core, c->cookie, observed);
-			m->completion_head = (m->completion_head + 1u) % AECP_MBX_COMPLETIONS;
+			m->completion_head = wrapped(m->completion_head + 1u);
 			--m->completion_count;
 		}
 	}
@@ -162,11 +169,34 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
+// A retried notice, from its port's answer: its next retry within AECP_RETRY_MAX_MS, then THE RETRY's bound
+// (ctrl_loop.h) to its last recipient's commit, within its notification bound (FR_NFR.md 3.4.1; #665).
+_Static_assert(AECP_RETRY_MAX_MS + CTRL_LOOP_RETRY_MS <= AECP_NOTICE_MS, "a retried notice must keep its bound");
+
+// THE RETRY's client (ctrl_loop.h, #665): the loop calls it only in a pass that
+// took no input and dispatched no centisecond, after an aged step, or in a
+// pass of its own once retry_aged reports the held retry aged.
+static bool retry(void *ctx)
+{
+	struct aecp_mbx *m = ctx;
+	return aecp_retry(&m->core);
+}
+
+// THE RETRY's age, which the loop reads as each pass starts.
+static bool retry_aged(void *ctx)
+{
+	struct aecp_mbx *m = ctx;
+	return aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS);
+}
+
 bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 {
-	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS) {
+	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS ||
+	    !ctrl_loop_set_retry(l, retry, retry_aged, m)) {
 		return false;
 	}
+	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it
+	m->core.retry_hold = true;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_AECP, frame, m);

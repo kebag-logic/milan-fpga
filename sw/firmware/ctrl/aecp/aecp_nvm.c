@@ -123,10 +123,12 @@ void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_valu
 	n->port = (struct nvm_state){model_ready, apply, settle, rollback, latch, release, n};
 }
 
+// The record's id without the walk to its offset (nvm_rec_id_of): a mark costs
+// the same in any pass (#665, the share in ctrl_loop.h).
 static void mark(struct aecp_nvm *n, unsigned group, unsigned index)
 {
-	struct nvm_rec r = nvm_rec_of(group, index);
-	if (r.ok) n->pending[r.id / 32u] |= 1u << (r.id % 32u);
+	int id = nvm_rec_id_of(group, index);
+	if (id >= 0) n->pending[(unsigned)id / 32u] |= 1u << ((unsigned)id % 32u);
 }
 
 void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, uint16_t index)
@@ -147,16 +149,23 @@ void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, 
 	}
 }
 
+// The lowest pending record, one a pass. A clear word is passed over whole
+// (#665: testing all 256 bits cost about 20,000 cycles of every pass).
 bool aecp_nvm_poll(struct aecp_nvm *n)
 {
-	for (unsigned id = 0; id < 256u; ++id) {
-		uint32_t bit = 1u << (id % 32u);
-		if ((n->pending[id / 32u] & bit) != 0u) {
-			n->pending[id / 32u] &= ~bit;
-			struct nvm_rec r = nvm_rec_by_id(id);
-			nvm_store_changed(r.group, r.index);
-			return true;
+	for (unsigned w = 0; w < sizeof n->pending / sizeof n->pending[0]; ++w) {
+		uint32_t word = n->pending[w];
+		if (word == 0u) {
+			continue;
 		}
+		unsigned bit = 0;
+		while ((word & 1u) == 0u) {
+			word >>= 1;
+			++bit;
+		}
+		n->pending[w] &= ~(1u << bit);
+		nvm_store_changed_id(32u * w + bit);
+		return true;
 	}
 	return false;
 }

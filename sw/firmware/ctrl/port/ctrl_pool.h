@@ -51,6 +51,8 @@ struct ctrl_pool_bin {
 	uint8_t *used;          // one flag per block: 1 while allocated
 	void *free_head;        // first free block; each free block holds the next
 	uint32_t stride;        // bytes from one block to the next
+	uint32_t span;          // blocks * stride: the bytes of every block
+	uint8_t shift;          // log2(stride) when stride is a power of two, else 0
 	uint16_t blocks;
 	uint16_t free_count;
 	uint16_t high_water;    // the most blocks ever allocated at once

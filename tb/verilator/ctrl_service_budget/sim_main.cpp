@@ -66,6 +66,9 @@ struct Pass {
     std::uint64_t start_cpu = 0, start_sys = 0, instr = 0;
     std::array<std::uint64_t, N_REGIONS> fetch{}, fetch_wait{}, load{}, store{}, lsu_wait{};
     unsigned mbx_writes = 0;
+    bool step = false;   // the saved-state store's step was entered (step_pc)
+    bool mbx_seen = false;  // the pass has addressed the mailbox
+    bool aged = false;   // the step was entered before the pass addressed the mailbox: an aged step's (THE STEP)
     std::string writes;  // the mailbox writes, "cycle:word:value" each
     std::array<std::uint64_t, n_modules + 1> module_cycles{};
 };
@@ -90,7 +93,7 @@ public:
         if (steps_.empty() || steps_.back().op != "end") throw std::runtime_error("script must end with end");
     }
 
-    void sample(Vsim& dut, bool cpu_rising) {
+    void sample(Vsim& dut) {
         ++sys_;
         if (dut.sys_reset) return;
         if (dut.mbx_ms_tick) {
@@ -104,11 +107,12 @@ public:
         }
         if (evt_write(dut)) {
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
+            event_word(evt_addr(dut) % ev_words, evt_data(dut));
         }
         egress_sample(dut);
         ingress_sample(dut);
         flash_sample(dut);
-        if (cpu_rising) cpu_sample(dut);
+        cpu_sample(dut);
         run_script();
     }
 
@@ -142,6 +146,7 @@ public:
 
     void report() const {
         flush_idle();
+        flush_reads();
         std::string text = "SUMMARY";
         text += " sys=" + std::to_string(sys_) + " cpu=" + std::to_string(cpu_) + " passes=" + std::to_string(passes_);
         text += " instr=" + std::to_string(instr_) + " bus_errors=" + std::to_string(bus_errors_) + " traps=" + std::to_string(traps_);
@@ -187,6 +192,10 @@ private:
             for (unsigned ch = 0; ch < n_ch; ++ch)
                 if (word == tx_head_word(ch)) { ++tx_commits_[ch]; std::printf("TXC %llu %u %u\n", ull(sys_), ch, host_wdata_); }
             if (word == tmr_cmd_word) ++tmr_writes_.at(host_wdata_ & 0xffu).at(host_wdata_ >> 30);
+            if (word == evt_tail_word) {
+                evt_released_ += std::uint16_t(host_wdata_ - evt_tail_);
+                evt_tail_ = host_wdata_;
+            }
             char buf[64];
             std::snprintf(buf, sizeof buf, " %llu:%x:%x", ull(sys_), word, host_wdata_);
             pass_.writes += buf;
@@ -211,6 +220,15 @@ private:
         egress_.clear();
     }
 
+    // One word of an event record: a whole record is posted, and a TICK record's centiseconds counted.
+    void event_word(unsigned word, std::uint32_t data) {
+        if (word == 0) evt_type_ = data & 0xffu;
+        if (word == 1) evt_count_ = (data >> ev_tick_count_lsb) & ev_tick_count_mask;
+        if (word != ev_words - 1) return;
+        ++evt_posted_;
+        if (evt_type_ == ev_tick_type) centiseconds_ += evt_count_;
+    }
+
     void ingress_sample(Vsim& dut) {
         gm_pulse_ = 0;
         if (frames_.empty() || sys_ < ingress_at_ || !dut.mbx_rx_valid || !dut.mbx_rx_ready) return;
@@ -224,10 +242,43 @@ private:
         ingress_at_ = sys_ + gap_;
     }
 
+    // The saved-state store's flash steps, each closed command as its chip select falls: an erase or a page
+    // program (FLASHOP, with its address and bytes), a busy poll (FLASHPOLL), and the journal's reads, one
+    // FLASHRD line for each run of reads, each starting inside the span the run has read and within read_gap
+    // cycles of its last (the uncached window reads a word for each byte load): a read-back step's 128 bytes,
+    // a boot judgement's slot. A save's read-backs are so seen though their passes write nothing to the
+    // mailbox (save_window.py).
+    void flash_closed() {
+        const auto command = flash_.command();
+        const auto address = flash_.address();
+        if (command == 0x05) std::printf("FLASHPOLL %llu\n", ull(sys_));
+        if ((command != 0x03 && command != 0x0b) || address < journal_base || address >= journal_end) return;
+        if (address < read_start_ || address > read_next_ || sys_ - read_last_ > read_gap) {
+            flush_reads();
+            read_first_ = sys_;
+            read_start_ = read_next_ = address;
+        }
+        read_next_ = std::max(read_next_, flash_.cursor());
+        read_last_ = sys_;
+    }
+
+    void flush_reads() const {
+        if (read_next_ == read_start_) return;
+        std::printf("FLASHRD %llu %llu %06x %u\n", ull(read_first_), ull(read_last_), read_start_,
+                    read_next_ - read_start_);
+        read_start_ = read_next_;
+    }
+
     void flash_sample(Vsim& dut) {
         if (flash_cs_ && !dut.flash_cs) {
+            flash_closed();
+            const auto address = flash_.address();
+            const auto programmed = flash_.programmed_bytes;
             const auto op = flash_.deselect(sys_);
-            if (op) std::printf("FLASHOP %llu %u\n", ull(sys_), op);
+            if (op) {
+                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, flash_.programmed_bytes - programmed);
+                flash_write_at_ = sys_;
+            }
         }
         flash_cs_ = dut.flash_cs;
         if (dut.flash_rx_valid && dut.flash_rx_ready) flash_pending_ = false;
@@ -254,6 +305,10 @@ private:
                 std::printf("PC %llu %08x\n", ull(cpu_), last_pc_);
             }
             if (last_pc_ == pass_pc) pass_boundary();
+            if (last_pc_ == step_pc) {
+                pass_.step = true;
+                pass_.aged = pass_.aged || !pass_.mbx_seen;
+            }
             // A function entry a probe starts at (a test-only entry's call), by its symbol.
             for (unsigned e = 0; e < n_entries; ++e)
                 if (last_pc_ == entry_pc[e]) std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
@@ -290,6 +345,7 @@ private:
             const auto r = region_of(lsu_address(dut));
             const bool write = lsu_write(dut);
             (write ? pass_.store : pass_.load)[r] += 1;
+            pass_.mbx_seen = pass_.mbx_seen || r == MBX;
             lsu_at_[lsu_cmd_id(dut)] = {cpu_, r, write, lsu_address(dut)};
         }
         if (lsu_rsp_valid(dut)) {
@@ -322,15 +378,40 @@ private:
         pass_.start_sys = sys_;
         pass_.instr = 1;
         pass_open_ = true;
+        if (flood_gm_) flood_gm();
+    }
+
+    // flood gm 1: a grandmaster change as every pass starts, the interfaces in turn, each a new identity, so no
+    // pass is without input: the event sources' contract coalesces them but sets no rate (mailbox.yaml).
+    void flood_gm() {
+        const unsigned i = flood_count_ % n_if;
+        gm_id_.at(i) = 0x0a0b0c0dfffd0000ULL + (flood_count_ & 0xffffu);
+        gm_pulse_ |= 1u << i;
+        gm_dirty_ = true;
+        ++flood_count_;
+    }
+
+    // The store's own cycles in the pass: its modules' (store_module).
+    std::uint64_t store_cycles() const {
+        std::uint64_t n = 0;
+        for (unsigned m = 0; m < n_modules; ++m)
+            if (store_module[m]) n += pass_.module_cycles[m];
+        return n;
     }
 
     void finish_pass() {
         const auto cycles = cpu_ - pass_.start_cpu;
+        if (pass_.step) ++step_passes_;
         if (pass_.mbx_writes == 0) {
             ++idle_count_;
             idle_max_ = std::max(idle_max_, cycles);
             idle_min_ = std::min(idle_min_, cycles);
             ++quiet_run_;
+            // A pass that carries the store's step though it writes nothing to the mailbox (THE STEP, ctrl_loop.h),
+            // aged=1 when the step came before the pass addressed the mailbox, as an aged step's pass takes it.
+            if (pass_.step)
+                std::printf("STEPPASS %llu %llu %llu %llu store=%llu aged=%u\n", ull(passes_), ull(pass_.start_sys),
+                            ull(pass_.start_cpu), ull(cycles), ull(store_cycles()), unsigned(pass_.aged));
             return;
         }
         quiet_run_ = 0;
@@ -343,6 +424,10 @@ private:
             if (pass_.store[r]) text += " store_" + std::string(region_name[r]) + "=" + std::to_string(pass_.store[r]);
             if (pass_.lsu_wait[r]) text += " wait_" + std::string(region_name[r]) + "=" + std::to_string(pass_.lsu_wait[r]);
         }
+        // aged=1 as on a STEPPASS line: an aged step's pass writes to the mailbox once THE RETRY's round after
+        // the step re-arms AECP's timer (ctrl_loop.h)
+        if (pass_.step)
+            text += " step=1 store=" + std::to_string(store_cycles()) + " aged=" + std::to_string(unsigned(pass_.aged));
         text += " code_words=" + std::to_string(code_words_) + " mods=";
         for (unsigned m = 0; m <= n_modules; ++m)
             if (pass_.module_cycles[m])
@@ -370,8 +455,60 @@ private:
             return tmr_writes_.at(slot).at(op) > tmr_mark_.at(slot).at(op);
         }
         if (s.op == "quiet") return frames_.empty() && quiet_run_ >= std::stoul(s.args.at(0));
+        // steps <n>: n passes that carried the store's step have ended; ticks <n>: TICK records carrying n
+        // centiseconds have been posted (an aged window's opening age, save_window.py).
+        if (s.op == "steps") return step_passes_ - steps_mark_ >= std::stoull(s.args.at(0));
+        if (s.op == "ticks") return centiseconds_ - ticks_mark_ >= std::stoull(s.args.at(0));
         if (s.op == "drained") return frames_.empty();
+        // events <n>: the event ring holds at most n records the core has not released.
+        if (s.op == "events") return evt_posted_ - evt_released_ / ev_words <= std::stoull(s.args.at(0));
+        // flash erase|program <n>: the device has taken n of them since power on; flash idle <cycles>: a page
+        // was programmed and nothing written since for that long. A save's phases start at these (save_window.py).
+        if (s.op == "flash") {
+            const auto& kind = s.args.at(0);
+            const auto n = std::stoull(s.args.at(1));
+            if (kind == "erase") return flash_.erases >= n;
+            if (kind == "program") return flash_.programs >= n;
+            if (kind == "idle") return flash_.programs > 0 && sys_ - flash_write_at_ >= n;
+            throw std::runtime_error("unknown flash wait " + kind);
+        }
         throw std::runtime_error("unknown wait " + s.op);
+    }
+
+    // reply <if> <ch> <offset>:<hex> [on=<n>] <offset>=<hex> ...: the newest frame the channel sent (on interface
+    // n, if given) whose bytes at offset match, patched, queued as a received frame.
+    void queue_reply(const Step& s) {
+        const unsigned ch = std::stoul(s.args.at(1));
+        const auto& sel = s.args.at(2);
+        const auto colon = sel.find(':');
+        const std::size_t sel_at = std::stoul(sel.substr(0, colon));
+        const auto sel_hex = sel.substr(colon + 1);
+        int on = -1;
+        for (std::size_t a = 3; a < s.args.size(); ++a)
+            if (s.args[a].rfind("on=", 0) == 0) on = std::stoi(s.args[a].substr(3));
+        const std::vector<std::uint8_t>* chosen = nullptr;
+        for (auto it = last_wire_.at(ch).rbegin(); it != last_wire_.at(ch).rend() && !chosen; ++it) {
+            const auto& bytes = it->bytes;
+            bool match = (on < 0 || int(it->interface) == on) && bytes.size() >= sel_at + sel_hex.size() / 2;
+            for (std::size_t i = 0; match && i + 1 < sel_hex.size(); i += 2)
+                match = bytes[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
+            if (match) chosen = &bytes;
+        }
+        if (!chosen) throw std::runtime_error("reply: no frame the channel sent matches " + sel);
+        Frame f{unsigned(std::stoul(s.args.at(0))), *chosen};
+        for (std::size_t a = 3; a < s.args.size(); ++a) {
+            if (s.args[a].rfind("tag=", 0) == 0) { f.tag = s.args[a].substr(4); continue; }
+            if (s.args[a].rfind("on=", 0) == 0) continue;
+            const auto eq = s.args[a].find('=');
+            std::size_t at = std::stoul(s.args[a].substr(0, eq));
+            const auto hex = s.args[a].substr(eq + 1);
+            for (std::size_t i = 0; i + 1 < hex.size(); i += 2) f.bytes.at(at++) = std::stoul(hex.substr(i, 2), nullptr, 16);
+        }
+        std::string text;
+        char b[3];
+        for (auto byte : f.bytes) { std::snprintf(b, sizeof b, "%02x", byte); text += b; }
+        std::printf("REPLY %llu %u %s\n", ull(sys_), f.interface, text.c_str());
+        frames_.push_back(f);
     }
 
     void run_script() {
@@ -383,6 +520,8 @@ private:
                     wait_from_ = sys_;
                     tx_mark_ = tx_commits_;
                     wire_mark_ = wire_frames_;
+                    steps_mark_ = step_passes_;
+                    ticks_mark_ = centiseconds_;
                     quiet_run_ = 0;
                 }
                 std::vector<std::string> args(s.args.begin() + 1, s.args.end());
@@ -405,39 +544,7 @@ private:
                 if (s.args.size() > 2) f.tag = s.args[2];
                 frames_.push_back(f);
             } else if (s.op == "reply") {
-                // reply <if> <ch> <offset>:<hex> [on=<n>] <offset>=<hex> ...: the newest frame the
-                // channel sent (on interface n, if given) whose bytes at offset match, patched
-                const unsigned ch = std::stoul(s.args.at(1));
-                const auto& sel = s.args.at(2);
-                const auto colon = sel.find(':');
-                const std::size_t sel_at = std::stoul(sel.substr(0, colon));
-                const auto sel_hex = sel.substr(colon + 1);
-                int on = -1;
-                for (std::size_t a = 3; a < s.args.size(); ++a)
-                    if (s.args[a].rfind("on=", 0) == 0) on = std::stoi(s.args[a].substr(3));
-                const std::vector<std::uint8_t>* chosen = nullptr;
-                for (auto it = last_wire_.at(ch).rbegin(); it != last_wire_.at(ch).rend() && !chosen; ++it) {
-                    const auto& bytes = it->bytes;
-                    bool match = (on < 0 || int(it->interface) == on) && bytes.size() >= sel_at + sel_hex.size() / 2;
-                    for (std::size_t i = 0; match && i + 1 < sel_hex.size(); i += 2)
-                        match = bytes[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
-                    if (match) chosen = &bytes;
-                }
-                if (!chosen) throw std::runtime_error("reply: no frame the channel sent matches " + sel);
-                Frame f{unsigned(std::stoul(s.args.at(0))), *chosen};
-                for (std::size_t a = 3; a < s.args.size(); ++a) {
-                    if (s.args[a].rfind("tag=", 0) == 0) { f.tag = s.args[a].substr(4); continue; }
-                    if (s.args[a].rfind("on=", 0) == 0) continue;
-                    const auto eq = s.args[a].find('=');
-                    std::size_t at = std::stoul(s.args[a].substr(0, eq));
-                    const auto hex = s.args[a].substr(eq + 1);
-                    for (std::size_t i = 0; i + 1 < hex.size(); i += 2) f.bytes.at(at++) = std::stoul(hex.substr(i, 2), nullptr, 16);
-                }
-                std::string text;
-                char b[3];
-                for (auto byte : f.bytes) { std::snprintf(b, sizeof b, "%02x", byte); text += b; }
-                std::printf("REPLY %llu %u %s\n", ull(sys_), f.interface, text.c_str());
-                frames_.push_back(f);
+                queue_reply(s);
             } else if (s.op == "gap") {
                 gap_ = std::stoull(s.args.at(0));
             } else if (s.op == "link") {
@@ -451,6 +558,11 @@ private:
                 gm_pulse_ |= 1u << i;
                 gm_dirty_ = true;
                 std::printf("GM %llu %u\n", ull(sys_), i);
+            } else if (s.op == "flood") {
+                // flood gm <0|1>: a grandmaster change as every pass starts while on (flood_gm)
+                if (s.args.at(0) != "gm") throw std::runtime_error("unknown flood " + s.args.at(0));
+                flood_gm_ = std::stoul(s.args.at(1)) != 0;
+                std::printf("FLOOD %llu gm %u %llu\n", ull(sys_), unsigned(flood_gm_), ull(flood_count_));
             } else if (s.op == "txready") {
                 tx_ready_ = std::stoul(s.args.at(0)) != 0;
                 std::printf("TXREADY %llu %u\n", ull(sys_), unsigned(tx_ready_));
@@ -481,6 +593,15 @@ private:
     bool finished_ = false;
     bool filter_open_ = false;
     bool pass_open_ = false;
+    std::uint64_t flash_write_at_ = 0;  // the last program or erase the device took
+    // The journal's run of reads in progress (flash_closed): its first and last read, its first byte and the
+    // byte after its last.
+    static constexpr std::uint32_t journal_base = 0xee0000, journal_end = 0xf00000;
+    static constexpr std::uint64_t read_gap = sys_hz / 1000;
+    mutable std::uint64_t read_first_ = 0, read_last_ = 0;
+    mutable std::uint32_t read_start_ = 0, read_next_ = 0;
+    bool flood_gm_ = false;
+    std::uint64_t flood_count_ = 0;
     std::uint64_t sys_ = 0, cpu_ = 0, instr_ = 0, passes_ = 0, wait_from_ = 0;
     unsigned now_ms_ = 0;
     std::uint32_t last_pc_ = 0;
@@ -496,6 +617,11 @@ private:
     std::uint32_t host_wdata_ = 0;
     std::array<unsigned, n_ch> tx_commits_{}, tx_mark_{};
     std::array<std::array<unsigned, 4>, 256> tmr_writes_{}, tmr_mark_{};  // per slot and op
+    std::uint64_t evt_posted_ = 0, evt_released_ = 0;  // event records posted, words released
+    std::uint32_t evt_type_ = 0, evt_count_ = 0;          // the record being posted: its type, a TICK's count
+    std::uint64_t centiseconds_ = 0, ticks_mark_ = 0;      // centiseconds the TICK records posted carried
+    std::uint64_t step_passes_ = 0, steps_mark_ = 0;       // passes that carried the store's step
+    std::uint32_t evt_tail_ = 0;
     unsigned wire_frames_ = 0, wire_mark_ = 0;
     std::vector<std::uint8_t> egress_;
     std::array<std::deque<Sent>, n_ch> last_wire_;  // the newest frames each channel sent, with their interface
@@ -546,31 +672,26 @@ void initialize(Vsim& dut) {
     dut.eval();
 }
 
-// fw_service_budget's clocking: aligned rising edges, the CPU at cpu_hz.
+// The split CPU runs on the bus clock (#665, owner decision 2026-10-30), so every rising edge
+// of sys is a CPU edge. The test SoC has no datapath: its Milan clock pad stays low.
+static_assert(cpu_hz == sys_hz, "the split CPU runs on the bus clock");
+
 void simulate(Vsim& dut, Bench& bench) {
-    const std::array<std::uint64_t, 2> frequency = {sys_hz, cpu_hz};
-    std::array<std::uint64_t, 2> edge = {1, 1};
-    std::array<std::uint64_t, 2> next{};
-    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz)};
-    for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
+    std::uint64_t edge = 1;
+    std::uint64_t next = 500000000000ULL / sys_hz;
     while (!Verilated::gotFinish() && !bench.done()) {
-        const auto time_ps = *std::min_element(next.begin(), next.end());
+        const auto time_ps = next;
         if (time_ps > sim_limit_ps) throw std::runtime_error("simulation exceeded its time limit");
         if (time_ps <= Verilated::threadContextp()->time()) throw std::runtime_error("nonmonotonic clock");
         Verilated::threadContextp()->time(time_ps);
-        if (next[0] == time_ps && !dut.sys_clk) {
+        if (!dut.sys_clk) {
             bench.latch_host(dut);
-            bench.sample(dut, next[1] == time_ps && !dut.milan_clk);
+            bench.sample(dut);
         }
-        for (unsigned i = 0; i < next.size(); ++i) {
-            if (next[i] != time_ps) continue;
-            if (i == 0) dut.sys_clk = !dut.sys_clk;
-            if (i == 1) dut.milan_clk = !dut.milan_clk;
-            ++edge[i];
-            next[i] = edge[i] * (500000000000ULL / frequency[i])
-                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i] + offset[i];
-        }
-        if (edge[0] > 128) dut.sys_reset = 0;
+        dut.sys_clk = !dut.sys_clk;
+        ++edge;
+        next = edge * (500000000000ULL / sys_hz) + edge * (500000000000ULL % sys_hz) / sys_hz;
+        if (edge > 128) dut.sys_reset = 0;
         dut.eval();
         if (!dut.sys_clk && bench.drive(dut)) dut.eval();
     }

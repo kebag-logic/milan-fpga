@@ -105,12 +105,21 @@ Initialization checks before touching potentially uninitialized destination stor
 Its refusal increments the active caller's counter; others increment the destination's.
 The diagnostic build defines `CTRL_REENTRY_ASSERT`.
 
-Unavailable notification snapshots retain their event and retry after 1 ms.
+Unavailable notification snapshots retain their event and retry after 1, 2, 4, then every 8 ms (`AECP_RETRY_MAX_MS`, #665).
+The first failure of a round schedules the next round; a delivered notice resets the wait.
+Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
+A retry is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), #665): with `aecp.retry_hold` set, as the adapter sets it, a due retry is held by `aecp_poll` and the timer's sink, which arm no timer for it and report it owed, and only `aecp_retry` tries it, never beside a backlog's records or a centisecond.
+The event loop calls it in a pass that took no input and dispatched no centisecond, after an aged step, or in a pass of its own once `aecp_retry_aged` reports a held retry `CTRL_LOOP_RETRY_AGE_MS` (4 ms) past its time, the earliest held retry's (`aecp.retry_since`).
+So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, and committed to every recipient within `CTRL_LOOP_RETRY_MS` (10 ms) after that retry came due: 18 ms in all, inside its `AECP_NOTICE_MS` (20 ms, [FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)), under any input; `aecp_mbx.c` holds the sum to it at compile time.
+`aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first; a notice owed ahead of a retried one costs it its own round and the pass that sends it.
 Backpressure retains the completed snapshot and its remaining recipients.
+The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
+`aecp_open` relinks every row, so what was set before the open is seen.
+`aecp_find` answers from an index of the model's keys that `aecp_init` builds (`aecp.runs`, `aecp_index`): a configuration's descriptors of one type, held as one run from index 0, are found at their position, and a key outside the indexed configurations and types of IEEE 1722.1-2021 Table 7-1, or placed otherwise, is scanned for as before (#665). The firmware never changes a key after `aecp_init`; the self-test's cases that do rebuild the index with the change, and its fixture fails any case that leaves `aecp_find` answering differently from a scan.
 
-[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
+[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel, one timer slot and THE RETRY's client with its age, and is refused when the loop already has one. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
 adapter retains completion cookies until the final frame words retire and reads
 the clock then. A stale clock observation cannot move the completion time back.
@@ -188,7 +197,10 @@ No reserved message type is interpreted as an AEM command.
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
-each source defect to fail its named assertion in a completed run. It plants into
+each source defect to fail its named assertion in a completed run; it appends the
+descriptor index's and the event and registration lists' defects from
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), and THE RETRY's from
+[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
@@ -300,7 +312,7 @@ The service tests count mailbox accesses from one original arrival/due time,
 including fanout, stalls and deferred failure, then add fixed CPU/observation
 allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
-and the 10 ms local service target. The HDCP refusal path also checks the
+and the 20 ms local service bound. The HDCP refusal path also checks the
 15 ms response deadline from IEEE 9.7.2.7. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit
 100 ns access/observation and 1 ms CPU allowances. Target calibration, complete

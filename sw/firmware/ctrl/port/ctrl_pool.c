@@ -55,11 +55,32 @@ static bool classes_valid(const struct ctrl_pool_class *classes, unsigned n_clas
 	return true;
 }
 
+// The index of the block offset bytes into a bin, and the bytes past its
+// start: a shift and a mask for a power-of-two stride, as every class of the
+// SRP pool has (#665: a divide is a runtime call on RV32I, about 600 cycles).
+static size_t block_index(const struct ctrl_pool_bin *bin, size_t offset, size_t *within)
+{
+	if (bin->shift != 0u) {
+		*within = offset & (bin->stride - 1u);
+		return offset >> bin->shift;
+	}
+	size_t index = offset / bin->stride;
+	*within = offset - index * bin->stride;
+	return index;
+}
+
 static void bin_carve(struct ctrl_pool_bin *bin, const struct ctrl_pool_class *c, uint8_t *at)
 {
 	bin->used = at;
 	bin->base = at + round_up(c->blocks, CTRL_POOL_ALIGN);
 	bin->stride = (uint32_t)block_stride(c);
+	bin->span = bin->stride * c->blocks;
+	bin->shift = 0;
+	if ((bin->stride & (bin->stride - 1u)) == 0u) {
+		while ((1u << bin->shift) != bin->stride) {
+			bin->shift++;
+		}
+	}
 	bin->blocks = c->blocks;
 	bin->free_count = c->blocks;
 	bin->high_water = 0;
@@ -95,7 +116,8 @@ static void *bin_take(struct ctrl_pool_bin *bin)
 	void *block = bin->free_head;
 	memcpy(&bin->free_head, block, sizeof bin->free_head);
 	bin->free_count--;
-	bin->used[((uint8_t *)block - bin->base) / bin->stride] = 1u;
+	size_t within;
+	bin->used[block_index(bin, (size_t)((uint8_t *)block - bin->base), &within)] = 1u;
 	unsigned taken = (unsigned)bin->blocks - bin->free_count;
 	if (taken > bin->high_water) {
 		bin->high_water = (uint16_t)taken;
@@ -122,13 +144,18 @@ void *ctrl_pool_alloc(struct ctrl_pool *pool, size_t bytes)
 
 void *ctrl_pool_calloc(struct ctrl_pool *pool, size_t nmemb, size_t bytes)
 {
-	if (nmemb != 0u && bytes > SIZE_MAX / nmemb) {
-		pool->refused++;
-		return NULL;
+	// lwSRP asks for one member: its size needs no multiply or overflow divide.
+	size_t total = bytes;
+	if (nmemb != 1u) {
+		if (nmemb != 0u && bytes > SIZE_MAX / nmemb) {
+			pool->refused++;
+			return NULL;
+		}
+		total = nmemb * bytes;
 	}
-	void *block = ctrl_pool_alloc(pool, nmemb * bytes);
+	void *block = ctrl_pool_alloc(pool, total);
 	if (block != NULL) {
-		memset(block, 0, nmemb * bytes);
+		memset(block, 0, total);
 	}
 	return block;
 }
@@ -145,12 +172,12 @@ void ctrl_pool_free(struct ctrl_pool *pool, void *ptr)
 	for (unsigned i = 0; i < pool->n_bins; ++i) {
 		struct ctrl_pool_bin *bin = &pool->bins[i];
 		uintptr_t base = (uintptr_t)bin->base;
-		if (p < base || p - base >= (uintptr_t)bin->blocks * bin->stride) {
+		if (p < base || p - base >= bin->span) {
 			continue;
 		}
-		size_t offset = (size_t)(p - base);
-		size_t index = offset / bin->stride;
-		if (offset % bin->stride != 0u || bin->used[index] == 0u) {
+		size_t within;
+		size_t index = block_index(bin, (size_t)(p - base), &within);
+		if (within != 0u || bin->used[index] == 0u) {
 			pool->bad_frees++;
 			return;
 		}

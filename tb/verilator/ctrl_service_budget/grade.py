@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Read a group's observation log and grade every probe against T_svc and its ceiling.
+"""Read a group's observation log and grade every probe against its budget and its ceiling.
 
 Each rule a figure rests on lives in one place, so the self-test can mutate
 it and require a named failure:
@@ -24,7 +24,9 @@ it and require a named failure:
                     ahead of each: its channel's earlier records not yet
                     released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
-  the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+  the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS, budget_ms() and verdicts()
+  the pass share    pass_share(): every work pass against share.py's share, apart from
+                    the rows
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
@@ -32,7 +34,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import save_grade
+import save_window
 import scenario
+import share
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
@@ -49,11 +54,11 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
 #: to the 60-byte frame minimum.
 LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
-#: The backlog rows (MAILBOX_SPLIT.md:757-762): their composed windows carry the defined
+#: The backlog rows (MAILBOX_SPLIT.md:773-778): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
-#: self-test's short window.
+#: self-test's short window. A save's windows (save_window.py) carry their backlog row's.
 COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
 
 
@@ -99,6 +104,19 @@ class Log:
     wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     passes: list[Pass] = field(default_factory=list)
     idle: list[tuple[int, int, int]] = field(default_factory=list)
+    flash: list[tuple[int, int]] = field(default_factory=list)  # cycle, the operation the flash device took
+    #: cycle, operation, address and bytes of each erase and page program (FLASHOP)
+    flash_ops: list[tuple[int, int, int, int]] = field(default_factory=list)
+    #: each run of journal reads (FLASHRD): its first and last read's cycles, its address and bytes
+    reads: list[tuple[int, int, int, int]] = field(default_factory=list)
+    polls: list[int] = field(default_factory=list)  # each busy poll's cycle (FLASHPOLL)
+    floods: list[tuple[int, int]] = field(default_factory=list)  # cycle, the grandmaster flood on or off (FLOOD)
+    #: start, CPU cycles and the store's own cycles of each pass that carries the store's step and writes nothing
+    #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
+    step_passes: list[tuple[int, int, int]] = field(default_factory=list)
+    #: every pass that carries the store's step, a work pass's too: its index, start, CPU cycles, the store's own
+    #: cycles, and whether it was an aged step's (aged=1 on its STEPPASS or PASS line, THE STEP)
+    stepped: list[tuple[int, int, int, int, bool]] = field(default_factory=list)
     steps: list[tuple[int, str]] = field(default_factory=list)
     summary: dict[str, str] = field(default_factory=dict)
     modules: dict[str, int] = field(default_factory=dict)
@@ -109,6 +127,10 @@ class Log:
     #: The last run of idle passes ends in the pass the script's end cut short (sim_main.cpp
     #: closes the pass in progress, then flushes that run), so it holds no whole idle pass.
     cut_idle: bool = False
+
+    def ms_of(self, sys_cycles: int) -> float:
+        """Milliseconds of bus cycles."""
+        return sys_cycles * 1000 / self.sys_hz
 
 
 def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
@@ -175,6 +197,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
                       for w in body[1].split()] if len(body) > 1 else []
             modules = {m.split(':')[0]: int(m.split(':')[1]) for m in fields.pop('mods', '').split(',') if m}
             log.passes.append(Pass(index, start_sys, start_cpu, cycles, fields, writes, modules, idle_max))
+            if fields.get('step'):
+                log.stepped.append((index, start_sys, cycles, int(fields.get('store', 0)), fields.get('aged') == '1'))
             idle_max = 0
             log.writes.extend(writes)
             log.cut_idle = False
@@ -193,7 +217,21 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.code = dict(kv.split('=', 1) for kv in rest)
         elif kind in ('TRAP', 'BUSERR'):
             log.traps.append(line)
-        elif kind in ('FLASH', 'FLASHOP', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+        elif kind == 'FLASHOP':
+            log.flash.append((int(rest[0]), int(rest[1])))
+            if len(rest) > 3:
+                log.flash_ops.append((int(rest[0]), int(rest[1]), int(rest[2], 16), int(rest[3])))
+        elif kind == 'FLASHRD':
+            log.reads.append((int(rest[0]), int(rest[1]), int(rest[2], 16), int(rest[3])))
+        elif kind == 'FLASHPOLL':
+            log.polls.append(int(rest[0]))
+        elif kind == 'FLOOD':
+            log.floods.append((int(rest[0]), int(rest[2])))
+        elif kind == 'STEPPASS':
+            log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
+            log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
+                                'aged=1' in rest[5:]))
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -201,6 +239,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             raise Refusal(f'unknown observation line: {line[:80]}')
     log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
     log.writes.sort()
+    log.reads.sort()
     log.tx = tx_records(log.writes, commits)
     return log
 
@@ -409,9 +448,13 @@ class Grader:
                 total += words
                 behind += total > released
             return CHANNEL[ch], behind
+        return 'events', self.events_held(start)
+
+    def events_held(self, start: int) -> int:
+        """The event records posted before start and not yet released by the core."""
         posted = sum(1 for c, _ in self.log.records if c < start)
         tail = [v for c, w, v in self.log.writes if w == scenario.EVT_TAIL_WORD and c < start]
-        return 'events', posted - unwrapped(tail) // scenario.CONTRACT.ev_words
+        return posted - unwrapped(tail) // scenario.CONTRACT.ev_words
 
 
 def unwrapped(values: list[int]) -> int:
@@ -428,11 +471,16 @@ def combine_ends(ends: list[int]) -> int:
     return max(ends)
 
 
+def budget_ms(probe: scenario.Probe) -> float:
+    """A path's budget: min(T_svc, its family's ceiling), plus its normative wait W (FR_NFR.md 3.4.1)."""
+    return min(scenario.T_SVC_MS, scenario.CEILING_MS[probe.family]) + probe.wait_ms
+
+
 def verdicts(ms: float, probe: scenario.Probe) -> dict:
-    """elapsed <= W + T_svc, and the family's ceiling plus W (FR_NFR.md 3.4.1)."""
-    budget = scenario.T_SVC_MS + probe.wait_ms
+    """elapsed <= its budget, and the family's ceiling plus W (FR_NFR.md 3.4.1)."""
+    budget = budget_ms(probe)
     ceiling = scenario.CEILING_MS[probe.family] + probe.wait_ms
-    return dict(t_svc_ms=budget, ceiling_ms=ceiling, within_t_svc=ms <= budget, within_ceiling=ms <= ceiling)
+    return dict(budget_ms=budget, ceiling_ms=ceiling, within_budget=ms <= budget, within_ceiling=ms <= ceiling)
 
 
 def response_sequence(frame: bytes) -> int | None:
@@ -446,19 +494,19 @@ def response_sequence(frame: bytes) -> int | None:
 
 def never_answered(grader: Grader, probe: scenario.Probe, row: dict, start: int) -> dict:
     """An admitted command its firmware took and never answered by the run's end: a measured
-    finding whose time is a lower bound, fitting neither T_svc nor its ceiling (3.4.1)."""
+    finding whose time is a lower bound, fitting neither its budget nor its ceiling (3.4.1)."""
     finish = max(int(grader.log.summary.get('sys', 0)), start)
     ring, ahead = grader.ahead(probe, start)
     return dict(row, status='measured', unanswered=True, start_sys=start, end_sys=finish, sys_cycles=finish - start,
                 cpu_cycles=grader.cpu_cycles(finish - start), ms=round(grader.ms(finish - start), 5),
                 wait_ms=probe.wait_ms, ring=ring, ahead=ahead, **dict(verdicts(grader.ms(finish - start), probe),
-                                                                     within_t_svc=False, within_ceiling=False))
+                                                                     within_budget=False, within_ceiling=False))
 
 
 def owed_ahead(grader: Grader, probe: scenario.Probe, interface: int, start: int, end: int) -> list[int | None]:
     """The responses the probe's channel committed on its interface after its input and ahead
     of its own response, in commit order (None for a frame that is no response): a response
-    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:757-762)."""
+    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:773-778)."""
     ch = int(probe.start.split(':')[1])
     own = int(next(s for s in probe.ends if s.startswith('resp')).split(':')[2], 16)
     out = []
@@ -530,7 +578,7 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
-                   bound_within_t_svc=verdicts(grader.ms(bound), probe)['within_t_svc'])
+                   bound_within_budget=verdicts(grader.ms(bound), probe)['within_budget'])
         row.update(pass_figures(taking))
     if probe.accesses is not None:
         row['model_accesses'] = probe.accesses
@@ -634,9 +682,11 @@ def defined_load(name: str) -> dict[str, int]:
     Every receive channel carries what one instant admits: its token bucket's burst, unless
     its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
     the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
-    'backlog' is the LINK change. The fixture's short window has one record a channel and two
-    changes.
+    'backlog' is the LINK change; each commits only into a ring the core has drained, so a backlog
+    window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a channel
+    and two changes. A save's window is its backlog row's (save_window.row).
     """
+    name = save_window.row(name)
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
     if name == 'fixture':
@@ -650,15 +700,16 @@ def defined_load(name: str) -> dict[str, int]:
     return load
 
 
-def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]]) -> None:
+def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]], held: int = 0) -> None:
     """The composed window must commit exactly its row's defined load: a refused or missing
     record, a channel left out of the stimulus, or one record too many, is not the composed
-    maximum."""
+    maximum. The refusal names the event records held when the window opened, which keep its
+    grandmaster changes out of the ring."""
     defined = defined_load(group.name)
     want = {name: defined.get(name, 0) for name in got}
     if got != want:
         raise Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}; '
-                      f'refused frames {refused[:8]}')
+                      f'refused frames {refused[:8]}; {held} event records held when it opened')
 
 
 def releases(log: Log, ch: int) -> list[tuple[int, int, int | None]]:
@@ -708,7 +759,7 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
 
     A record released after the window closed is marked out of the window. A record no
     release reached by the run's end is starved: its row carries the time it had waited, a
-    lower bound, and fits neither T_svc nor its ceiling. The records ahead of a record are its
+    lower bound, and fits neither its budget nor its ceiling. The records ahead of a record are its
     channel's earlier records that no release had passed at its commit.
     """
     finish = max(int(grader.log.summary.get('sys', 0)), end)
@@ -739,7 +790,7 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
                        ms=round(grader.ms(stop - commit), 5), passes=len(grader.window_passes(commit, stop)),
                        **verdicts(grader.ms(stop - commit), probe))
             if released is None:
-                row.update(within_t_svc=False, within_ceiling=False)
+                row.update(within_budget=False, within_ceiling=False)
             rows.append(dict(row, status='measured'))
     return rows
 
@@ -765,7 +816,10 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
         return None
     start, end = marks['composed'], marks['composed_end']
     got = population(grader.log, start, end)
-    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end])
+    held = grader.events_held(start)
+    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held)
+    save_phase(grader.log, group.name, start)
+    aged = save_grade.aged_window(grader, group, start, end)
     inside = composed_passes(grader.log, start, end)
     if not inside:
         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
@@ -773,8 +827,52 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     left = unreleased(grader.log, start, end)
     return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
-                admission=group.admission, serviced=not left, unreleased=left,
-                window_ms=round(grader.ms(end - start), 5))
+                admission=group.admission, events_held=held, serviced=not left, unreleased=left,
+                window_ms=round(grader.ms(end - start), 5), aged=aged)
+
+
+#: The operations sim_main.cpp's FLASHOP line names: a sector erase and a page program.
+FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
+
+
+def save_phase(log: Log, name: str, start: int) -> None:
+    """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
+    the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
+    after a page and within save_window.IDLE_MS of it, which the program phase issues every other tick, or before a
+    later page, as under a flood that paces a page every other aged step (the program phase); or that long or more
+    after its last page, with no later page, while its read-backs have not yet read back every programmed byte (the
+    verify). Refused otherwise, so that its passes are that phase's."""
+    phase = name.partition('@')[2].partition('-')[0]
+    if not phase:
+        return
+    save = save_grade.first_save(log)
+    if save is None:
+        raise Refusal(f'{name}: the log shows no save, so no window of its {phase} phase')
+    before = [c for c, _, _ in save.pages if c < start]
+    idle = save_window.IDLE_MS * log.sys_hz // 1000
+    checked = sum(n for end, n in save.verified if end < start)
+    inside = {'blank': save.erase < start and not before,
+              'program': bool(before) and (start - before[-1] < idle or len(before) < len(save.pages)),
+              'verify': bool(before) and start - before[-1] >= idle and len(before) == len(save.pages)
+              and checked < save.image}
+    if not inside.get(phase, False):
+        raise Refusal(f"{name}: the window opened at {start}, outside its save's {phase} phase (erase at "
+                      f"{save.erase}, pages programmed before it {before[:1]}..{before[-1:]} of {len(save.pages)}, "
+                      f"{checked} of its {save.image} bytes read back before it)")
+
+
+def pass_share(log: Log) -> dict:
+    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share
+    in ms and in CPU cycles at the log's CPU clock, the work passes, and each pass over it. A pass
+    that writes nothing to the mailbox is printed only as its run's longest (sim_main.cpp's IDLE),
+    and the store's step can be all such a pass does (ctrl_loop.h, THE STEP): a run whose longest
+    is over the share is one pass over it, idle_over counts them."""
+    limit = share.share_cycles(log.cpu_hz)
+    over = [dict(start_sys=p.start_sys, cycles=p.cycles) for p in log.passes if p.cycles > limit]
+    idle = [dict(idle_run=n, cycles=longest) for n, (_, _, longest) in enumerate(log.idle) if longest > limit]
+    return dict(ms=share.share_ms(), cycles=limit, passes=len(log.passes), over=len(over) + len(idle),
+                over_passes=over + idle, idle_over=len(idle),
+                idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
@@ -801,6 +899,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
     window = composed(grader, group, marks)
     if window is not None:
         rows += service(grader, group, marks['composed'], marks['composed_end'])
+    rows += save_grade.held(grader, group)
     # The script's end closes the pass in progress: the run it flushes holds that cut pass, so
     # neither its minimum nor its maximum is a whole idle pass's.
     whole = log.idle[:-1] if log.cut_idle else log.idle
@@ -813,5 +912,6 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=window),
+                            composed=window, share=pass_share(log), steps=save_grade.step_figures(grader)),
+                save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)

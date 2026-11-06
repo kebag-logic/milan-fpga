@@ -164,6 +164,8 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_hot.py": "compares the split link script's hot list with its recorded order and "
+                                         "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
                                              "campaign plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
@@ -207,10 +209,14 @@ OUTSIDE = {
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
+    "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
+                                                       "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/share.py": "the per-pass share from scenario.py's bounds and ctrl_loop.h's "
+                                                 "derivation, which it names; it compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
                                                      "compiles off, and reads the image's placeholder addresses from "
                                                      "ctrl_build.RV32_FLAGS and the store's generated headers; it "

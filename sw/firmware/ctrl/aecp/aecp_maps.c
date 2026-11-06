@@ -161,6 +161,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 			  uint8_t *out, size_t *bytes)
 {
 	*bytes = cmd == 43u ? 12u : 8u;
+	memset(out, 0, *bytes); // the fixed body; the map rows are written whole (#665)
 	if (len < 8u) {
 		return AECP_BAD_ARGUMENTS;
 	}

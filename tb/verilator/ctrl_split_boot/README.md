@@ -39,7 +39,8 @@ Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 [`boot_soc.py`](boot_soc.py) builds the CPU budget harness's test SoC ([`split_soc.py`](../ctrl_service_budget/split_soc.py), imported read only):
 
-- the shipping VexiiRiscv with the split placement's instruction cache, the CPU at 50 MHz and its bus at 100 MHz;
+- the shipping VexiiRiscv with the split placement's instruction and data caches, on the bus clock, `sys`, 100 MHz, with no clock of its own and no crossing (`milan_soc.CTRL_CPU_CD`; #665, owner decision 2026-10-30);
+- the flash window uncached and not executable, as the product's split CPU has it (`milan_soc.ctrl_uncached_flash`; #665): an export whose window is another is refused, `its flash window's regions are [...], not ['r']`;
 - `milan_soc.add_ctrl_memory` built from the linked image;
 - `KL_mbx` behind `KL_mbx_wb`, its datapath on pads, each face commit acknowledged at the contract's bound;
 - LiteSPI, its PHY staged as MilanSoC stages it (`milan_soc.stage_spi_phy`, #814), and `timer0` where F1's port addresses them.
@@ -63,18 +64,31 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **NATIVE**: the model's own verdict, which no observation before it discharges. Its saved exit status must be 0, and its checker's tally must have completed with no failure, read as the sweep reads a suite log (`scripts/suite_tally.py`). A regrade reads the same saved status, and a run that saved none is a finding.
 - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
 - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
-- **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and T_svc = 10 ms.
+- **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and the approved T_svc = 20 ms.
 - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
-- **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 700,000 turns, about 0.7 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
 ## Results
 
-The platform image at this head, at the shipping shape and the largest that fits 56 tiles.
-The rows marked staged are the two `run.py` commands above: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
+The platform image at this head, at the shipping shape and the largest that fits 56 tiles, from the two `run.py` commands above.
+Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
+
+| Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+|---|---:|---:|---|---|---|
+| 1x1, one interface | 25.477 ms | 2,547,656 | 18 of 18 equal | 2.600 / 0.467 / 0.119 ms | 0.332 / 0.199 / 0.113 ms |
+| 8x8, one interface | 64.584 ms | 6,458,406 | 18 of 18 equal | 4.161 / 0.544 / 0.196 ms | 0.487 / 0.276 / 0.216 ms |
+
+The SoC reads the flash through the product's uncached window, as the split CPU does (#665, 2026-11-02).
+At `c954b8a9`, the head before this change, this page recorded 24.660 and 64.271 ms to ready through a cached window, and the window alone moves them to 25.413 and 65.026 ms; the boot reads its slots' headers through it.
+The window alone leaves every UART figure as it was.
+At `4f58214f` the loop also read the store's clock as each pass starts and ran the store's owed step in a pass that took no input (THE STEP, `ctrl_loop.h`): 25.515 and 64.885 ms to ready, each longest gap 0.013 to 0.018 ms longer than that page's.
+At this head the step also has its age limit, and a changed record is marked without walking the records (#665): the boot is 25.477 and 64.584 ms to ready, the 8x8 `milan_status` span 4.161 ms against 3.976 ms, and no verdict moves.
+
+The boot's own figures before the CPU moved, with the platform image still built RV32I without the record mover or the word-wide primitives, and the CPU at 50 MHz:
+The rows marked staged are those two commands at that head: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
 The rows marked none are the same tree with that one call removed, a control.
 They equal, cell for cell, the figures this page recorded at firmware `b8628704`, before the SoC carried the stage.
-Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
 
 | Shape | PHY stage | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---|---:|---:|---|---|---|
@@ -83,12 +97,11 @@ Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; 
 | 8x8, one interface | staged | 184.658 ms | 9,232,883 | 18 of 18 equal | 40.200 / 2.855 / 2.206 ms | 4.051 / 2.131 / 1.857 ms |
 | 8x8, one interface | none | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
 
-The stage costs the boot 523 CPU cycles at each shape, about 0.01 ms.
-It moves no UART figure by more than 0.003 ms, in either direction, and no verdict.
-Both boots are within the 20 s ADP valid time.
+There the stage cost the boot 523 CPU cycles at each shape, about 0.01 ms, and moved no UART figure by more than 0.003 ms, in either direction, and no verdict.
+Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 59.0 RAMB36, which the owner's ruling (#665, 6505997821) ledgers by name, owed to lane S14.
+The 8x8 image with two interfaces plans 58.5 RAMB36, within the 59.0 the owner's ruling (#665, 6505997821) ledgers by name, owed to lane S14.
 This simulation names no override, so it builds no SoC for that point ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
 
 The smoke grader's verdicts on the simulated UART:

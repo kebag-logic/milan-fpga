@@ -28,22 +28,23 @@ import re
 import sys
 from pathlib import Path
 
-from ctrl_build import CTRL, PORTABLE, RV32_FLAGS, STACK, Refusal, source
+from ctrl_build import CTRL, PORTABLE, STACK, Refusal, source
 import ctrl_srp_image as image
 from ctrl_arms import lwsrp_pin
 from srp_arms import LWSRP_SOURCES, prepared
 import fw_rv32
 
 ROOT = CTRL.parents[2]
-PLAT_SOURCES = ("plat/mbx_plat_mmio.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat_csr.c",
+PLAT_SOURCES = ("plat/mbx_plat_mmio.c", "plat/ctrl_mem.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat_csr.c",
                 "plat/ctrl_plat_console.c", "plat/ctrl_plat.c", "plat/ctrl_plat_main.c")
 #: What the image must hold for the platform's boot to have been linked, not discarded.
 REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_csr_identity",
             "ctrl_plat_csr_policy", "ctrl_plat_console_poll", "maap_csr_allocation", "ctrl_app_compose",
             "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp",
             "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
-            "nvm_store_service", "ctrl_loop_step"}
-#: The fixture's placeholder for the mailbox (ctrl_build.RV32_FLAGS); the map's replaces it.
+            "nvm_store_tick", "nvm_store_step", "ctrl_loop_step"}
+#: The fixture's placeholder for the mailbox (ctrl_build.SPLIT_RV32_FLAGS); the map's replaces it. The record
+#: mover's bank stays there: the SoC pins it at that address (milan_soc.add_ctrl_mailbox).
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
 
 
@@ -117,9 +118,8 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
     generate(args.config, args.csr_csv.resolve(), out)
     lw = ROOT / "third_party/lwSRP"
     lwsrp_pin(lw)
-    flags = [f for f in RV32_FLAGS if not PLACEHOLDER.fullmatch(f)]
-    flags += ["-DNDEBUG", "-fno-pie", "-ffunction-sections", "-fdata-sections", "-DLWSRP_MILAN=1",
-              "-include", str(out / "ctrl_plat_map_gen.h")]
+    flags = [f for f in image.layout_flags("split")[1] if not PLACEHOLDER.fullmatch(f)]
+    flags += ["-DLWSRP_MILAN=1", "-include", str(out / "ctrl_plat_map_gen.h")]
     inc += [f"-I{out}", f"-I{tree.src / 'plat'}", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}",
             *fw_rv32.includes(cc)]
     extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out)
@@ -133,9 +133,10 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
         obj = out / f"{index}-{src.stem}.o"
         image.checked([cc, *flags, *inc, "-c", str(src), "-o", str(obj)])
         objects.append(obj)
-    findings = fw_rv32.object_findings(cc, objects)
+    findings = image.object_audit(cc, objects, image.layout_isa("split"))
     if findings:
         raise Refusal(str(findings))
+    image.memory_calls_nothing(cc.removesuffix("gcc") + "nm", sources, objects)
     return objects, member_sizes(cc, flags, inc, out)
 
 
@@ -152,7 +153,7 @@ def main() -> int:
         objects, members = compile_all(cc, args, out)
         libraries = [args.libc.resolve(), args.compiler_runtime.resolve()]
         elf, mapfile = image.link(cc, args.ctrl_source.resolve(), out, objects, libraries, "split")
-        image.verify_abi(cc, elf)
+        image.verify_abi(cc, elf, image.layout_isa("split"))
         tool = cc.removesuffix("gcc")
         symbols = image.checked([tool + "nm", "-S", str(elf)])
         if image.checked([tool + "nm", "-u", str(elf)]).strip():

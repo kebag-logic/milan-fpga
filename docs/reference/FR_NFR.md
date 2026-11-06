@@ -3,8 +3,9 @@
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
 the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
-release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
-(64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
+release uses one control hart: in the split placement it is RV32IM with a 16 KiB two-way instruction cache
+(64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache; in the all-fabric placement it is RV32I
+and stays cacheless (NFR-SCOUT-01).
 The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
@@ -318,9 +319,9 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ### 3.4 Fabric scale-out and future ports
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+| NFR-SCOUT-01 | The release architecture MUST use one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
 | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
-| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
+| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 20 ms, approved by the owner on 2026-10-29, or its family's normative 10 % ceiling where that is tighter: its bound is min(T_svc, ceiling), under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
 | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
 | NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for v1.2 (#394, FR-MVU-03). | S | A,D |
 | NFR-SCOUT-06 | Increasing stream or endpoint instance counts MUST NOT change the CSR register definitions or end-station configuration schema. | M | I |
@@ -330,9 +331,22 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ### 3.4.1 Control service budget and normative timing
 
 This section implements the [#664 service-budget ruling](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009675758).
-**Proposed project budget: `T_svc = 10 ms`.**
-Owner approval of this value is required before merge.
+**Project budget: `T_svc = 20 ms`, approved by the owner on 2026-10-29** ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+It replaces the 10 ms this section proposed for approval.
 It is not a numeric timeout supplied by a standard.
+
+NFR-SCOUT-03 also requires every numeric normative timeout to hold with margin.
+So each moved path is graded against `min(T_svc, C)`, where `C` is its family's 10 % ceiling, derived in the table further below:
+
+| Path family | Ceiling C | Bound, min(T_svc, C) | Source of C |
+|---|---:|---:|---|
+| SRP/MRP | 18 ms | 18 ms | IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3: JoinTime 180 ms x 10 % |
+| ACMP, and discovery to connection | 20 ms | 20 ms | Milan v1.2 5.5.2.3, Table 5.26: 200 ms x 10 % |
+| AECP responses and notifications | 24 ms | 20 ms | IEEE 1722.1-2021 9.3.2.6 and 7.5.2; Milan v1.2 5.4.3.4 and 5.4.5.2: 240 ms x 10 % |
+| An AECP command answered IN_PROGRESS | 12 ms | 12 ms | The IN_PROGRESS cadence in the AECP derivation row below: 120 ms x 10 %. Answered only by a change of face state the datapath has not acknowledged (#665) |
+| MAAP | 50 ms | 20 ms | IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms x 10 % |
+| ADP | 200 ms | 20 ms | Milan v1.2 5.6.3.5.2: 2 s x 10 % |
+| Optional identification | 15 ms | 15 ms | IEEE 1722.1-2021 7.5.1: 150 ms x 10 %. Not enabled; it is the bound if it ever is |
 
 Each immediate path measures mailbox RX commitment to TX commitment.
 Events start at their occurrence, including time awaiting event-ring space.
@@ -345,8 +359,8 @@ TX-ring backpressure also consumes it; freeing space never restarts timing.
 Some paths intentionally wait under a normative timer or spacing rule.
 Their full RX/event-to-TX interval MUST also be recorded.
 Let `W` denote only that required or selected normative wait.
-The bound is `elapsed <= W + T_svc` for that action.
-All software overhead around the wait shares one `T_svc`.
+The bound is `elapsed <= W + min(T_svc, C)` for that action.
+All software overhead around the wait shares that one bound.
 No extra budget is granted at timer arm, expiry or retry.
 A zero random draw gives `W=0`.
 For a periodic expiry alone, the deadline starts the service interval.
@@ -355,40 +369,61 @@ Their transition service has the same project bound.
 
 | Moved path | Normative timing and source | Derivation: related interval and 10% ceiling | Additional normative obligation |
 |---|---|---|---|
-| ADP startup AVAILABLE | Milan v1.2 5.6.3.5.2: random delay 0 to 2 s | 2 s random-window extent gives 200 ms; `T_svc=10 ms` fits. Zero draws are serviced immediately, never treated as a positive interval | Preserve the selected draw and startup state |
+| ADP startup AVAILABLE | Milan v1.2 5.6.3.5.2: random delay 0 to 2 s | 2 s random-window extent gives 200 ms; the bound is `T_svc=20 ms`. Zero draws are serviced immediately, never treated as a positive interval | Preserve the selected draw and startup state |
 | ADP DISCOVER, GM_CHANGE, LINK_UP and periodic AVAILABLE | Milan v1.2 5.6.3.5.3/.4/.5/.7/.9 and Table 5.50: 0 to 4 s random delay; fixed 5 s advertise timer. Milan 5.6.2: `valid_time=10`; IEEE 1722.1-2021 6.2.2.5: two-second units, hence 20 s validity | min(4 s, 5 s, 20 s) x 10% = 400 ms. For the whole ADP function, startup tightens this to 200 ms | Apply Table 5.51; a DISCOVER or GM change in DELAY does not restart it. Advertisement and discovery aging are separate timers |
-| ADP SHUTDOWN to DEPARTING | Milan v1.2 5.6.3.5.8/.11 requires transmission, without a numeric shutdown-response maximum | Related ADP minimum positive window extent is 2 s, giving 200 ms. The 10 ms service bound is project policy | Stop the applicable timer and send DEPARTING. Preserve its order before a restart's AVAILABLE |
-| Listener ADP AVAILABLE, DEPARTING and discovery aging | Milan v1.2 5.6.4.1, Table 5.54 and 5.6.4.5.1-.4: process each matching bound sink; arm/reset TMR_NO_ADP from received `valid_time`. IEEE 1722.1-2021 6.2.2.5: two-second units; Milan 5.6.2 sends 10, hence 20 s | Milan validity 20 s gives 2 s; the minimum legal received validity is 2 s, giving 200 ms (also the related ADP startup ceiling). A resulting ACMP action uses the tighter 200 ms transaction interval (Milan 5.5.2.3, Table 5.26), giving 20 ms. The same project service <= 10 ms covers reception or original expiry through discovery and connection commitments, including any resulting TX commit | Preserve received validity, interface/GM/domain guards and restart event ordering. Record normative connection waits separately; do not restart the service allowance at discovery-to-connection handoff |
-| ACMP PROBE_TX, GET_TX_STATE, BIND_RX, UNBIND_RX, GET_RX_STATE | Milan v1.2 5.5.2.3, Table 5.26: each transaction times out at 200 ms, replacing the applicable IEEE 1722.1-2021 Table 8-1 value | 200 ms x 10% = 20 ms; service <= 10 ms. The complete command transaction must finish inside 200 ms with measured margin | A retry cannot enlarge one attempt's timeout; delayed probe/backoff events retain Milan 5.5.3 timers |
-| AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) ms x 10% = 24 ms; service <= 10 ms. The complete response must meet 240 ms with margin | IN_PROGRESS is answered only by a change of face state whose acknowledgement it waits for (#665, [the face's writer](../design/MAILBOX_SPLIT.md#the-firmwares-writer)); its one final response follows within the 120 ms cadence, whose 12 ms ceiling is still above T_svc. No getter answers IN_PROGRESS |
-| AECP MVU response | Milan v1.2 5.4.3.4: response within 240 ms; transaction timeout 250 ms | 240 ms x 10% = 24 ms; service <= 10 ms, with the same wire-response margin | Apply the MVU-specific response and refusal rules |
-| AECP successful-command and asynchronous notifications | Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: immediate notification after the successful state-changing response; Table 5.22 defines asynchronous triggers, without a numeric delivery maximum | Related AECP response interval 240 ms gives 24 ms. `T_svc=10 ms` is a project event-to-commit budget, not a new normative timeout | Response precedes its notification, including cross-protocol causality (#653). Do not wait out T_svc deliberately; notify immediately |
-| AECP GET_COUNTERS push | Milan v1.2 5.4.5.2, Table 5.22: at most one notification per descriptor per second. Counter updates: Milan 5.3.7.7/5.3.8.10, at most 1 s | Spacing gives 100 ms; shared AECP response interval tightens the ceiling to 24 ms. Service <= 10 ms once eligible; record the preceding rate-limit wait separately | One second is minimum spacing, not a maximum delivery latency. Coalesce pending changes; preserve counter observation and reset semantics |
-| AECP liveness, unlock and optional identification | Milan v1.2 5.4.5.3: 30 to 60 s monitor then CONTROLLER_AVAILABLE; 5.4.2.2: 60 s unlock. IEEE 1722.1-2021 7.5.1/7.5.1.2.1: three Identify notifications, spaced 150 ms when enabled | 150 ms x 10% = 15 ms is the tightest enabled notification interval; service <= 10 ms. Probe responses still obey 9.3.2.6 | Preserve registration, retry, removal and identification ordering; the optional feature is not enabled by this requirement |
-| MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms; `MAAP_PROBE_RETRANSMITS=3`. B.3.2/Table B.7 defines conflict handling; B.3.5.5 defines the conflicting-PROBE event and B.3.6.6 the DEFEND action | 500 ms x 10% = 50 ms; service <= 10 ms. Three retransmissions do not multiply the per-action budget | DEFEND on the applicable conflicting PROBE transition. The probe interval is not a normative received-PROBE response timeout |
+| ADP SHUTDOWN to DEPARTING | Milan v1.2 5.6.3.5.8/.11 requires transmission, without a numeric shutdown-response maximum | Related ADP minimum positive window extent is 2 s, giving 200 ms. The 20 ms service bound, T_svc, is project policy | Stop the applicable timer and send DEPARTING. Preserve its order before a restart's AVAILABLE |
+| Listener ADP AVAILABLE, DEPARTING and discovery aging | Milan v1.2 5.6.4.1, Table 5.54 and 5.6.4.5.1-.4: process each matching bound sink; arm/reset TMR_NO_ADP from received `valid_time`. IEEE 1722.1-2021 6.2.2.5: two-second units; Milan 5.6.2 sends 10, hence 20 s | Milan validity 20 s gives 2 s; the minimum legal received validity is 2 s, giving 200 ms (also the related ADP startup ceiling). A resulting ACMP action uses the tighter 200 ms transaction interval (Milan 5.5.2.3, Table 5.26), giving 20 ms, equal to T_svc. The same 20 ms bound covers reception or original expiry through discovery and connection commitments, including any resulting TX commit | Preserve received validity, interface/GM/domain guards and restart event ordering. Record normative connection waits separately; do not restart the service allowance at discovery-to-connection handoff |
+| ACMP PROBE_TX, GET_TX_STATE, BIND_RX, UNBIND_RX, GET_RX_STATE | Milan v1.2 5.5.2.3, Table 5.26: each transaction times out at 200 ms, replacing the applicable IEEE 1722.1-2021 Table 8-1 value | 200 ms x 10% = 20 ms, equal to T_svc; service <= 20 ms. The complete command transaction must finish inside 200 ms with measured margin | A retry cannot enlarge one attempt's timeout; delayed probe/backoff events retain Milan 5.5.3 timers |
+| AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) ms x 10% = 24 ms; service <= T_svc = 20 ms; a command answered IN_PROGRESS, 12 ms (the last column). The complete response must meet 240 ms with margin | IN_PROGRESS is answered only by a change of face state whose acknowledgement it waits for (#665, [the face's writer](../design/MAILBOX_SPLIT.md#the-firmwares-writer)); its one final response follows within the 120 ms cadence, whose 12 ms ceiling is below T_svc and so is that path's bound, min(T_svc, 12 ms). No getter answers IN_PROGRESS |
+| AECP MVU response | Milan v1.2 5.4.3.4: response within 240 ms; transaction timeout 250 ms | 240 ms x 10% = 24 ms; service <= T_svc = 20 ms, with the same wire-response margin | Apply the MVU-specific response and refusal rules |
+| AECP successful-command and asynchronous notifications | Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: immediate notification after the successful state-changing response; Table 5.22 defines asynchronous triggers, without a numeric delivery maximum | Related AECP response interval 240 ms gives 24 ms; the bound is `T_svc=20 ms`, a project event-to-commit budget, not a new normative timeout | Response precedes its notification, including cross-protocol causality (#653). Do not wait out T_svc deliberately; notify immediately |
+| AECP GET_COUNTERS push | Milan v1.2 5.4.5.2, Table 5.22: at most one notification per descriptor per second. Counter updates: Milan 5.3.7.7/5.3.8.10, at most 1 s | Spacing gives 100 ms; shared AECP response interval tightens the ceiling to 24 ms. Service <= T_svc = 20 ms once eligible; record the preceding rate-limit wait separately | One second is minimum spacing, not a maximum delivery latency. Coalesce pending changes; preserve counter observation and reset semantics |
+| AECP liveness, unlock and optional identification | Milan v1.2 5.4.5.3: 30 to 60 s monitor then CONTROLLER_AVAILABLE; 5.4.2.2: 60 s unlock. IEEE 1722.1-2021 7.5.1/7.5.1.2.1: three Identify notifications, spaced 150 ms when enabled | 150 ms x 10% = 15 ms is the tightest enabled notification interval, and the bound, below T_svc, while identification is enabled; service <= 20 ms otherwise. Probe responses still obey 9.3.2.6 | Preserve registration, retry, removal and identification ordering; the optional feature is not enabled by this requirement |
+| MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms; `MAAP_PROBE_RETRANSMITS=3`. B.3.2/Table B.7 defines conflict handling; B.3.5.5 defines the conflicting-PROBE event and B.3.6.6 the DEFEND action | 500 ms x 10% = 50 ms; service <= T_svc = 20 ms. Three retransmissions do not multiply the per-action budget | DEFEND on the applicable conflicting PROBE transition. The probe interval is not a normative received-PROBE response timeout |
 | MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1 with constants B.3.3/Table B.8: strictly 30 s < announcement interval < 32 s; B.3.2/Table B.7 governs loss and retry | Announcement gives 3 s; the shared 500 ms probe interval tightens this to 50 ms | Preserve randomization, strict bounds and address-loss handling; service time cannot push a timer beyond its upper bound |
-| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms. LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. Service <= 10 ms fits each | A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
+| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms. LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. The bound is the 18 ms ceiling, below T_svc; it fits each | A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
 
-The tightest mandatory ceiling above is 18 ms for MRP.
-Optional identification tightens it to 15 ms.
-The IN_PROGRESS cadence allows 12 ms.
-Choosing 10 ms remains below each listed ceiling.
+The tightest mandatory ceiling above is 18 ms for MRP, below T_svc, so MRP's paths are graded against 18 ms.
+ACMP's ceiling, which also bounds a discovery input's resulting ACMP action, equals T_svc at 20 ms.
+Every other family's ceiling is above T_svc, so T_svc is its bound.
+An AECP command answered IN_PROGRESS is bound by its 120 ms cadence at 12 ms, below T_svc.
+Optional identification would bound its path at 15 ms; it is not enabled.
 MRP timer resolution is a separate precision requirement, not service allowance.
 
 Normative timer bounds include service and egress effects where applicable.
 At the 200 ms MRP default, 40 ms remains before 240 ms.
-The proposed 10 ms service uses only part of that slack.
-MAAP draws near 600 ms cannot absorb another 10 ms blindly.
+The SRP bound, 18 ms, and the 1 ms egress allowance below take 19 ms of that slack and leave 21 ms.
+A MAAP probe interval drawn within 20 ms of its 600 ms upper bound cannot absorb the 20 ms service bound blindly.
 Schedule with measured error margins while preserving randomization and strict bounds.
 No budget converts a minimum interval into a response deadline.
 
 For numeric response deadlines, measure the complete interval separately.
 Ingress, service, TX queuing, arbitration, serialization and network allowance count.
-Require `T_ingress + T_svc + T_egress + T_network < timeout`.
+Require `T_ingress + T_svc + T_egress + T_network < timeout`, where `T_svc` is the path's bound, `min(T_svc, C)`.
 For AECP, also enforce its separate 240 ms response endpoint.
 Publish each measured allowance and the remaining positive margin.
 A mailbox commit alone cannot prove the wire deadline.
 Dropped or unserved accepted records fail, rather than disappearing from measurements.
+
+At the approved budget it holds for each numeric response deadline, with this margin:
+
+| Response deadline | Timeout | `T_ingress` | Bound | `T_egress` | Left for `T_network`: the margin | At the 10 ms proposal |
+|---|---:|---:|---:|---:|---:|---:|
+| ACMP command to its response (Milan v1.2 5.5.2.3, Table 5.26) | 200 ms | 1 ms | 20 ms | 1 ms | 178 ms | 188 ms |
+| AECP command to its response (IEEE 1722.1-2021 9.3.2.6) | 240 ms | 1 ms | 20 ms | 1 ms | 218 ms | 228 ms |
+| AECP command to its response, the controller's transaction timeout (9.3.2.6) | 250 ms | 1 ms | 20 ms | 1 ms | 228 ms | 238 ms |
+| AECP MVU command to its response (Milan v1.2 5.4.3.4) | 240 ms | 1 ms | 20 ms | 1 ms | 218 ms | 228 ms |
+
+The two fabric allowances are bounds the design gives, not yet measurements:
+- `T_ingress`, 1 ms: `KL_mbx_rx` commits a received frame's record within 64 mailbox cycles of its last byte, 0.64 us at 100 MHz, as the CPU budget harness requires of every commit; the receive chain ahead of it is 656 ns in the board's configuration.
+- `T_egress`, 1 ms: `KL_mbx_tx` sends one record at a time in commit order across the channels, so a response waits at most for the records committed ahead of it.
+  The five transmit rings hold 6,144 bytes, at most 256 records of the 14-byte minimum frame; padded, with FCS, preamble and gap, that is 21,504 bytes on the wire.
+  At 250 Mb/s, the quarter of the 1000BASE-T link that IEEE 802.1Q-2018 34.3's default 75 % `deltaBandwidth` leaves to unreserved traffic, they leave in under 0.7 ms.
+
+The datapath tap that carries both is open ([MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md#open-items)).
+An egress held longer than the allowance, as the composed owed row's 60 ms hold models, is outside this table and open under [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
+`T_network` is the requester's own egress and ingress and the wire both ways.
+The inequality holds for any network whose round trip, outside the end station, stays below the margin; H-ACMP and H-AECP measure it on the wire.
 
 ### 3.4.2 Control service test hooks
 
@@ -429,7 +464,7 @@ PR #685 (#665 lane FC) implements these filter checks in the mailbox suite, befo
 H-DISC follows discovery events through their connection actions.
 All matching sinks share one service allowance for the received record.
 State commitment does not restart timing before a resulting TX.
-Only normative waits contribute `W`; total service remains <= 10 ms.
+Only normative waits contribute `W`; total service remains within the path's bound, 20 ms.
 Record the original aging deadline and the received validity separately.
 Test received validity 1, 10 and 31, without substituting 10.
 An unchanged discovery state still requires observing completed input handling.

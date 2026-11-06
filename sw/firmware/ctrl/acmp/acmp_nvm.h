@@ -23,8 +23,9 @@
 //   model_ready, settle, release: the others'.
 //
 // THE BOOT ORDER a platform runs: ctrl_app_compose(), acmp_nvm_init() on the
-// app's ACMP core, nvm_store_boot() with acmp_nvm's port, nvm_store_service()
-// bound as a centisecond consumer of the loop (ctrl_loop_add_tick), then
+// app's ACMP core, nvm_store_boot() with acmp_nvm's port, nvm_store_tick()
+// bound as a centisecond consumer of the loop (ctrl_loop_add_tick) and
+// nvm_store_step() as its step (ctrl_loop_set_step, THE STEP), then
 // ctrl_app_open(). The ACMP env's persist port calls
 // nvm_store_changed(NVM_G_BIND, sink). The store decides what is written:
 // while a slot it could not read holds its writer (ctrl_nvm/README.md, "Boot"

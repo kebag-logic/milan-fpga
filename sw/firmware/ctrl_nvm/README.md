@@ -89,10 +89,11 @@ microsecond. Two obligations follow for the image that links it:
   `nvm_store_boot()`, and nothing else reprograms `timer0`;
 - the counter wraps every 2^32 clocks, so it must be read at least that
   often: every 42.9 s at 100 MHz and every 51.5 s at 83.333 MHz. The store
-  reads it on every `nvm_store_service()` call. An event loop that calls the
-  service at least once per wrap of its shape's clock therefore keeps every
-  elapsed time exact. A longer stall loses whole wraps and delays a
-  deadline; it never brings one forward.
+  reads it on every `nvm_store_service()` call, and the event loop on every
+  pass through `nvm_store_clock()` (THE STEP, `ctrl_loop.h`). An event loop
+  that calls either at least once per wrap of its shape's clock therefore
+  keeps every elapsed time exact. A longer stall loses whole wraps and delays
+  a deadline; it never brings one forward.
 
 **Every wait on the command master is bounded, and so is every call.**
 `ls_open` drains the receive side, and `ls_xfer` waits for TX and then RX
@@ -124,8 +125,13 @@ that slot first.
 **The seam with F0.** F0's merged HAL (`sw/firmware/ctrl/mbx/mbx_hal.h`) carries the mailbox's bus port; this port carries the media.
 The two meet in time, which both need. Whichever time call the split image
 settles on must keep this port's contract: a local counter that only counts
-up, never the PHC. The event loop F0 owns calls `nvm_store_service()` once
-per pass and `nvm_store_changed()` from the protocol adapters.
+up, never the PHC. The event loop F0 owns owes the store one step for each
+centisecond it dispatches (`nvm_store_tick()`, at most one owed at a time)
+and takes it with `nvm_store_step()` at the end of a pass that took no input
+and has room for it, or as the whole of a pass once it has waited past the
+loop's age limit (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the
+protocol adapters
+call `nvm_store_changed()` or `nvm_store_changed_id()`.
 
 ## Boot
 
@@ -217,7 +223,9 @@ per pass and `nvm_store_changed()` from the protocol adapters.
 ## Write-back
 
 An accepted command that changes a persisted value calls
-`nvm_store_changed()`, which only marks the record. Each
+`nvm_store_changed()` with its group and index, or `nvm_store_changed_id()`
+with its record id, which only marks the record: neither walks the records,
+so a mark costs the same in any pass. Each
 `nvm_store_service()` call then does one bounded step:
 
 | Phase | One step |
@@ -226,10 +234,66 @@ An accepted command that changes a persisted value calls
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
 | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
 | erase | start the erase of the slot that is NOT authoritative |
-| erase wait, blank check | poll once; then read back 256 bytes per step, all `0xFF` |
+| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
 | program, program wait | one page, in ascending order: the header page first, the trailer last |
-| verify | read back 256 bytes per step and compare with the stage |
+| verify | read back 128 bytes per step and compare with the stage |
 | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
+
+**One step a centisecond, in a pass that has room for it (THE STEP).** The
+event loop owes the store a step for each centisecond it dispatches
+(`nvm_store_tick()`), and calls `nvm_store_step()` at the end of a pass that
+took no event and no record, with the clock's value at which the pass has
+spent its 2.0 ms share. The step is taken only while `NVM_STEP_US`, 1.0 ms, is
+left; otherwise it stays owed, and the passes it waits through owe it once.
+Once more than two centiseconds have been dispatched since the step last ran
+or owed nothing (`CTRL_LOOP_STEP_AGE`), the next pass is the step's alone,
+before any input, so input that never leaves a pass empty still lets the store
+step once every three ticks.
+On the split CPU, through the product's uncached flash window and its command
+master, a step costs at most (CPU cycles at 100 MHz, the store's and its flash
+port's own in the step's pass, one save with no other load, arm A;
+[split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)):
+
+| Step | 1x1/1if | 8x8/2if |
+|---|---:|---:|
+| Capture or seal, or idle in the first-dirty window | 35,645 | 34,700 |
+| Erase issue | 4,741 | 5,451 |
+| Busy poll | 3,775 | 5,013 |
+| Blank-check read-back, 128 bytes | 76,495 | 75,869 |
+| Page program issue | 95,184 | 95,525 |
+| Verify read-back, 128 bytes | 76,048 | 76,917 |
+
+Over every pass of every group the budget harness runs, at both points and in
+both arms, with and without the drafts, the longest step is 96,579 cycles,
+0.97 ms, a page program's issue: within the 1.0 ms of `NVM_STEP_US`.
+
+A save at 8x8 takes 4,697 ms from the change to durable on a flash with
+no busy time, 2,018 ms at 1x1: the 1,000 ms first-dirty window, the
+seal, then 128-byte read-backs a tick for the blank check and the verify and a
+page every other tick. A real part's erase and program waits add to it. No
+deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
+the append-only design.
+
+**A change's worst case.** Under input that leaves no pass empty a step comes
+at most three ticks after the one before. With no save in flight a change is
+durable at most 1,000 ms after it plus 30 ms for each step of its save after
+that window (the step that starts the capture, one for each changed record and
+one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
+of the blank check and of the verify, each page's issue and its wait), and
+10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
+change marked once a capture in flight has passed its record is the next
+save's, which only an idle step starts, so it waits first for the rest of the
+save in flight, at worst all its steps but two, or for its own 1,000 ms where
+that is longer. A SET_NAME of the entity, which marks both its names, is 370
+steps: 12,110 ms alone and 22,150 ms beside another's save in flight at 8x8,
+4,070 and 6,070 ms at 1x1, with no flash busy time. A part's busy time adds at
+most its erase time and its page programs': 3,260 ms a save at 8x8 and
+3,070 ms at 1x1 on the part of
+[section 9.4 of the fast-connect design](../../../docs/design/SAVED_STATE_FASTCONNECT.md#94-the-deadlines).
+The budget harness holds a change to it with every receive channel at its
+refill rate and a grandmaster change every pass, and a second change just after
+a save in flight's capture took its first record
+([split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)).
 
 The atomicity rules, from section 7 and the D3 register:
 

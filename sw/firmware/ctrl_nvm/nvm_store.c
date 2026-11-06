@@ -44,8 +44,11 @@
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
  * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
- * stretch, or one latched record's copy and crc16. Time is the flash port's
- * local counter, sampled once per step.
+ * stretch (a read-back's is 128), or one latched record's copy and crc16.
+ * Time is the flash port's local counter, sampled once per step. The loop
+ * owes a step every centisecond and takes it in a pass that took no input and
+ * has NVM_STEP_US of its share left, or as the whole of a pass once it has
+ * waited past the loop's age limit (THE STEP, ctrl_loop.h).
  */
 #include "nvm_store.h"
 
@@ -75,6 +78,7 @@ struct nvm_store {
 	int force;                      /* a console commit: write even if unchanged */
 	int stage_changed;              /* the capture changed a staged byte */
 	int stage_durable;              /* the stage equals the authoritative slot */
+	int owed;                       /* a centisecond owes a step (THE STEP) */
 };
 
 static const struct nvm_store nvm_reset_value;
@@ -650,7 +654,7 @@ static int nvm_wait(uint64_t timeout_us, enum nvm_verdict vd)
 static uint32_t nvm_read_step(void)
 {
 	const struct nvm_flash *f = nvm.flash;
-	uint32_t n = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);
+	uint32_t n = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);
 
 	if (f->read(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_chunk, n))
 		return 0;
@@ -783,22 +787,64 @@ void nvm_store_service(void)
 	nvm_publish();
 }
 
-void nvm_store_changed(unsigned int group, unsigned int index)
+void nvm_store_tick(void)
 {
-	struct nvm_rec r = nvm_rec_of(group, index);
+	nvm.owed = 1;
+}
+
+/* THE STEP (#665): a flash step beside the heaviest pass's other work would
+ * take that pass past the share, so the step waits for a pass whose deadline
+ * is still NVM_STEP_US away. The int32 difference is wrap-safe on the 32-bit
+ * clock. */
+bool nvm_store_step(void *ctx, uint32_t deadline)
+{
+	if (!nvm.owed)
+		return false;
+	if ((int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US) {
+		nvm.st.deferred++;
+		return true;
+	}
+	nvm.owed = 0;
+	nvm_store_service();
+	return false;
+}
+
+uint32_t nvm_store_clock(void *ctx)
+{
+	(void)ctx;
+	return (uint32_t)nvm_now();
+}
+
+/* Mark record id changed; the callers hold it to a record of the shape. */
+static void nvm_mark(unsigned int id)
+{
 	int taken;
 
-	if (!r.ok || nvm.st.phase == NVM_P_OFF)
+	if (nvm.st.phase == NVM_P_OFF)
 		return;
-	/* the running capture has yet to reach r: it takes this change, and
-	 * leaves no window open behind it (DR2a) */
-	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
-	nvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);
+	/* the running capture has yet to reach the record: it takes this change,
+	 * and leaves no window open behind it (DR2a) */
+	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;
+	nvm.dirty[id >> 5] |= 1u << (id & 31u);
 	if (!taken && !nvm.dirty_armed) {
 		nvm.dirty_armed = 1;
 		nvm.dirty_since_us = nvm_now();
 	}
 	nvm_publish();
+}
+
+void nvm_store_changed(unsigned int group, unsigned int index)
+{
+	int id = nvm_rec_id_of(group, index);
+
+	if (id >= 0)
+		nvm_mark((unsigned int)id);
+}
+
+void nvm_store_changed_id(unsigned int id)
+{
+	if (nvm_rec_id_known(id))
+		nvm_mark(id);
 }
 
 int nvm_store_commit_now(void)

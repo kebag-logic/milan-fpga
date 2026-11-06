@@ -74,6 +74,12 @@ struct nvm_rec nvm_rec_by_id(unsigned int id);
 struct nvm_rec nvm_rec_after(int last);
 /* The record of (group, index), or one with ok 0 when the shape has none. */
 struct nvm_rec nvm_rec_of(unsigned int group, unsigned int index);
+/* The record_id of (group, index), or -1 when the shape has none: nvm_rec_of's
+ * id without the walk to its offset, which takes about 11,000 cycles at 8x8 on
+ * the split CPU, for the callers that mark a record in a pass (#665). */
+int nvm_rec_id_of(unsigned int group, unsigned int index);
+/* 1 when the shape has a record with this id, the same without the walk. */
+int nvm_rec_id_known(unsigned int id);
 /* 1 when the walk and the compile-time sizes describe the same set. */
 int nvm_shape_consistent(void);
 

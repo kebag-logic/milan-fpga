@@ -184,6 +184,23 @@ struct nvm_rec nvm_rec_of(unsigned int group, unsigned int index)
 	return nvm_rec_by_id(nvm_blocks[group].base + index);
 }
 
+int nvm_rec_id_of(unsigned int group, unsigned int index)
+{
+	if (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)
+		return -1;
+	return (int)(nvm_blocks[group].base + index);
+}
+
+int nvm_rec_id_known(unsigned int id)
+{
+	unsigned int g;
+
+	for (g = 0; g < NVM_G_COUNT; ++g)
+		if (id >= nvm_blocks[g].base && id - nvm_blocks[g].base < nvm_blocks[g].count)
+			return 1;
+	return 0;
+}
+
 int nvm_shape_consistent(void)
 {
 	struct nvm_rec r = nvm_rec_first();
