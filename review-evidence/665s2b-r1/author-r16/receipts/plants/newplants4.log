@@ -1,0 +1,11 @@
+ctrl: ['tick-cap-ignored', 'tick-cap-in-every-pass', 'tick-pass-uncapped']
+srp: []
+[ok] mutant tick-pass-uncapped (port): 1 check(s) failed
+    first: [FAIL] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel: L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel
+[ok] mutant tick-cap-in-every-pass (port): 2 check(s) failed
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+[ok] mutant tick-cap-ignored (port): 1 check(s) failed
+    first: [FAIL] Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel: L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel
+mutants: 3 of 3 caught
+new plants: every one caught
+rc=0

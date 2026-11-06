@@ -1,0 +1,217 @@
+ctrl: ['retry-age-read-after-the-input', 'retry-before-the-polls', 'step-before-the-polls', 'transmit-after-the-retry', 'transmit-age-before-the-retry-age', 'transmit-age-before-the-step-age', 'transmit-age-ignored', 'transmit-age-read-after-the-input', 'transmit-aged-back-to-back', 'transmit-aged-pass-not-a-transmit-pass', 'transmit-aged-pass-sleeps', 'transmit-aged-pass-takes-input', 'transmit-aged-pass-uncounted', 'transmit-aged-pass-without-the-retry', 'transmit-before-the-polls', 'transmit-beside-a-backlog', 'transmit-beside-a-centisecond', 'transmit-beside-records', 'transmit-binds-no-age', 'transmit-binds-no-function', 'transmit-binds-twice', 'transmit-in-the-aged-steps-pass', 'transmit-ordinary-pass-unmarked', 'transmit-owed-lets-it-sleep', 'transmit-pass-marked-after-the-polls', 'transmit-pass-uncounted', 'transmit-without-an-event']
+srp: ['failed-interface-starves-peer', 'latency-leave-origin', 'latency-missing-startup', 'reclaim-forgotten-while-owed', 'short-leave', 'srp-term-poll-frames-uncapped', 'transmit-age-counts-unheld', 'transmit-age-kept-by-a-build', 'transmit-aged-at-its-limit', 'transmit-aged-beside-an-owed-frame', 'transmit-attaches-over-a-bound-client', 'transmit-binding-holds-nothing', 'transmit-builds-beside-the-owed-frame', 'transmit-built-by-the-poll', 'transmit-centisecond-holds-nothing', 'transmit-declarations-in-the-poll', 'transmit-hold-unreported', 'transmit-kept-by-destroy', 'transmit-not-bound', 'transmit-reclaim-before-the-declarations', 'transmit-reclaim-only-with-the-build', 'transmit-record-holds-nothing', 'walk-leave-shortened']
+[ok] mutant step-before-the-polls (port): 3 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+[ok] mutant retry-before-the-polls (port): 2 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 after its polls
+[ok] mutant retry-age-read-after-the-input (port): 4 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 the age is read once as the pass starts, before it takes any input
+[ok] mutant transmit-binds-twice (port): 2 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a second transmit client is refused
+[ok] mutant transmit-binds-no-function (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no function is refused
+[ok] mutant transmit-binds-no-age (port): 3 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no age is refused
+[ESCAPED] mutant transmit-beside-records (port): 0 check(s) failed, none named port: Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord on 'L19 a pass that takes a record does not call the transmit'
+[ok] mutant transmit-beside-a-backlog (port): 2 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 nor one that takes more than CTRL_LOOP_TX_EVENTS events
+[ok] mutant transmit-without-an-event (port): 4 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 a pass that takes one event and no record calls it
+[ok] mutant transmit-beside-a-centisecond (port): 2 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 nor one that dispatches a centisecond, though it takes no input
+[ok] mutant transmit-pass-marked-after-the-polls (port): 1 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 its polls read the pass as THE TRANSMIT's
+[ok] mutant transmit-before-the-polls (port): 1 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 after its polls
+[ok] mutant transmit-after-the-retry (port): 1 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 before THE RETRY and THE STEP
+[ok] mutant transmit-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 a transmit still owed asks for the next pass at once
+[ok] mutant transmit-pass-uncounted (port): 1 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 the pass is counted as one that called the transmit
+[ok] mutant transmit-in-the-aged-steps-pass (port): 2 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 the pass given whole to an aged step does not call it
+[ok] mutant transmit-age-ignored (port): 8 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the age is read once as the pass starts, before it takes any input
+[ok] mutant transmit-aged-pass-takes-input (port): 4 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 and takes nothing else: no event, no record, no poll, no centisecond
+[ok] mutant transmit-aged-pass-sleeps (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the aged transmit's pass asks for the next pass at once
+[ok] mutant transmit-aged-pass-uncounted (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the pass is counted as an aged transmit's
+[ok] mutant transmit-aged-pass-not-a-transmit-pass (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 and as one that called the transmit
+[ok] mutant transmit-aged-pass-without-the-retry (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the next pass calls the transmit though input waits, then THE RETRY
+[ok] mutant transmit-aged-back-to-back (port): 6 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the next pass takes the input it held off
+[ok] mutant transmit-ordinary-pass-unmarked (port): 8 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the age is read once as the pass starts, before it takes any input
+[ok] mutant transmit-age-before-the-retry-age (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 an aged retry's pass, read first, takes its round alone
+[ok] mutant transmit-age-before-the-step-age (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 an aged retry's pass, read first, takes its round alone
+[ok] mutant transmit-age-read-after-the-input (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnAgedTransmitIsAPassOfItsOwn: L20 the age is read once as the pass starts, before it takes any input
+mutants: 26 of 27 caught
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+[ESCAPED] failed-interface-starves-peer: RecreateAllocationFailureIsCountedAndRetried / other_sent
+Note: Google Test filter = Srp.RecreateAllocationFailureIsCountedAndRetried
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] srp-term-poll-frames-uncapped: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one MRPDU a call
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+[ok] transmit-built-by-the-poll: TransmitWaitsForAPassThatTakesNoRecord / a pass that takes a record builds no MRPDU
+[ok] transmit-hold-unreported: TransmitWaitsForAPassThatTakesNoRecord / a held build is reported owed
+[ok] transmit-centisecond-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a centisecond holds a build
+[ok] transmit-record-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a received record holds a build
+[ok] transmit-binding-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a binding holds the build that declares it
+[ESCAPED] transmit-not-bound: srp_mbx.c does not compile:
+<scratch>/np1/srp-mutants-if1/work/ctrl/srp/srp_mbx.c:1070:13: error: ‘transmit_aged’ defined but not used [-Werror=unused-function]
+ 1070 | static bool transmit_aged(void *ctx)
+      |             ^~~~~~~~~~~~~
+<scratch>/np1/srp-mutants-if1/work/ctrl/srp/srp_mbx.c:1011:13: error: ‘transmit’ defined but not used [-Werror=unused-function]
+ 1011 | static bool transmit(void *ctx)
+      |             ^~~~~~~~
+cc1: all warnings being treated as errors
+
+[ok] transmit-attaches-over-a-bound-client: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / a loop whose THE TRANSMIT client is bound is refused
+[ok] transmit-kept-by-destroy: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / destroy detaches THE TRANSMIT's client
+[ok] transmit-age-counts-unheld: AHeldBuildTakesAPassOfItsOwnPastItsAge / the build's pass follows the one that dispatches the centisecond past its age, counted from its hold
+[ok] transmit-aged-at-its-limit: AHeldBuildTakesAPassOfItsOwnPastItsAge / the build's pass follows the one that dispatches the centisecond past its age, counted from its hold
+[ok] transmit-age-kept-by-a-build: AHeldBuildTakesAPassOfItsOwnPastItsAge / two builds' passes stand more than CTRL_LOOP_TX_AGE centiseconds apart
+[ok] transmit-aged-beside-an-owed-frame: AnOwedFrameComesBeforeTheBuild / no held build takes a pass of its own while a frame is owed
+[ok] transmit-builds-beside-the-owed-frame: AnOwedFrameComesBeforeTheBuild / the pass whose poll sends the owed frame builds no other
+[ok] transmit-declarations-in-the-poll: OwnDeclarationsThatRewriteARegisteredValueAreCopied / over-saturated
+[ok] transmit-reclaim-before-the-declarations: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / Change(0, 0, false)
+[ok] transmit-reclaim-only-with-the-build: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] failed-interface-starves-peer: RecreateAllocationFailureIsCountedAndRetried / other_sent
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-term-poll-frames-uncapped: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one MRPDU a call
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-built-by-the-poll: TransmitWaitsForAPassThatTakesNoRecord / a pass that takes a record builds no MRPDU
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-hold-unreported: TransmitWaitsForAPassThatTakesNoRecord / a held build is reported owed
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-centisecond-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a centisecond holds a build
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-record-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a received record holds a build
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-binding-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / a binding holds the build that declares it
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] transmit-not-bound: srp_mbx.c does not compile:
+<scratch>/np1/srp-mutants-if2/work/ctrl/srp/srp_mbx.c:1070:13: error: ‘transmit_aged’ defined but not used [-Werror=unused-function]
+ 1070 | static bool transmit_aged(void *ctx)
+      |             ^~~~~~~~~~~~~
+<scratch>/np1/srp-mutants-if2/work/ctrl/srp/srp_mbx.c:1011:13: error: ‘transmit’ defined but not used [-Werror=unused-function]
+ 1011 | static bool transmit(void *ctx)
+      |             ^~~~~~~~
+cc1: all warnings being treated as errors
+
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-attaches-over-a-bound-client: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / a loop whose THE TRANSMIT client is bound is refused
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-kept-by-destroy: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / destroy detaches THE TRANSMIT's client
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-age-counts-unheld: AHeldBuildTakesAPassOfItsOwnPastItsAge / the build's pass follows the one that dispatches the centisecond past its age, counted from its hold
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-aged-at-its-limit: AHeldBuildTakesAPassOfItsOwnPastItsAge / the build's pass follows the one that dispatches the centisecond past its age, counted from its hold
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-age-kept-by-a-build: AHeldBuildTakesAPassOfItsOwnPastItsAge / two builds' passes stand more than CTRL_LOOP_TX_AGE centiseconds apart
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-aged-beside-an-owed-frame: AnOwedFrameComesBeforeTheBuild / no held build takes a pass of its own while a frame is owed
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-builds-beside-the-owed-frame: AnOwedFrameComesBeforeTheBuild / the pass whose poll sends the owed frame builds no other
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-declarations-in-the-poll: OwnDeclarationsThatRewriteARegisteredValueAreCopied / over-saturated
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] transmit-reclaim-before-the-declarations: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / Change(0, 0, false)
+Note: Google Test filter = SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (330 ms)
+[----------] 1 test from SrpRetry (330 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (330 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP receive recovery: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np1/srp-mutants-if2/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-reclaim-only-with-the-build: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+new plants: FAIL
+rc=1

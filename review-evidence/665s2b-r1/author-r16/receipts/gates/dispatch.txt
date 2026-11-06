@@ -1,0 +1,59 @@
+18:59:14 NT-8 on 32-47 (busy 112 cpus; free16 ['32-47'] free12 ['36-47'])
+Running as unit: milan-665s2b-a683u-NT-8.service; invocation ID: 671cf66d2f864a6fb8b2194105d86590
+19:11:47 X4-NT8 on 32-47 (busy 112 cpus; free16 ['32-47'] free12 ['36-47'])
+Running as unit: milan-665s2b-a683u-X4-NT8.service; invocation ID: 042b11663c4c471db6e51d5a8aa74733
+19:18:20 X4-A8 on 96-111 (busy 112 cpus; free16 ['96-111'] free12 ['96-107'])
+Running as unit: milan-665s2b-a683u-X4-A8.service; invocation ID: 568d52cdec0d47d7b30a255025f3f298
+19:25:52 N-A8 on 32-47 (busy 112 cpus; free16 ['32-47'] free12 ['36-47'])
+Running as unit: milan-665s2b-a683u-N-A8.service; invocation ID: a35de97525e14f3eb4b2b28b22e0ed39
+20:00:32 N-B8 on 0-15 (busy 112 cpus; free16 ['0-15'] free12 ['0-11'])
+Running as unit: milan-665s2b-a683u-N-B8.service; invocation ID: 098b5b24c9004477884a5de72b5fc2ef
+21:18:03 D-A8 on 96-111 (busy 112 cpus; free16 ['96-111'] free12 ['96-107'])
+Running as unit: milan-665s2b-a683u-D-A8.service; invocation ID: 3db5eb65fdd34f8ca24ecc34e23bc0c4
+06:57:29 round 16 resume: dispatch2 started
+07:38:43 D-B8 on 112-127 (busy 112 cpus; free16 ['112-127'] free12 [])
+Running as unit: milan-665s2b-a683u-D-B8.service; invocation ID: 56476a448ee84a0b8e1217e4d7616aa8
+07:42:15 D-A8h on 48-63 (busy 112 cpus; free16 ['48-63'] free12 ['48-59'])
+Running as unit: milan-665s2b-a683u-D-A8h.service; invocation ID: 8ac03702cc384568ab7bac2867b576ce
+08:16:01 N-A8h on 0-15 (busy 112 cpus; free16 ['0-15'] free12 ['0-11'])
+Running as unit: milan-665s2b-a683u-N-A8h.service; invocation ID: c9d92bda87c8470cb73be640fbb9d283
+08:47:33 N-B8h on 0-15 (busy 112 cpus; free16 ['0-15'] free12 ['0-11'])
+Running as unit: milan-665s2b-a683u-N-B8h.service; invocation ID: ec8301a30fad4c848a910e103bafb256
+08:48:04 queue empty
+09:01:28 dispatch2 restarted for D-A1, D-B1 (ownq.sh stopped after N-B1h's start)
+09:12:29 D-A1 on 48-63 (busy 112 cpus; free16 ['48-63'] free12 ['48-59'])
+Running as unit: milan-665s2b-a683u-D-A1.service; invocation ID: 4bd67ac54990401f804b87980c1f4a37
+09:42:01 D-B1 on 112-127 (busy 112 cpus; free16 ['112-127'] free12 [])
+Running as unit: milan-665s2b-a683u-D-B1.service; invocation ID: f9b54a3676b0459e9a932c0ad01ef4ab
+09:42:31 queue empty
+11:25:23 dispatch2 for the harness gate at the final head (G-A8, G-A1)
+11:25:23 G-A8 on 80-95 (busy 96 cpus; free16 ['48-63', '80-95'] free12 ['48-59', '84-95'])
+Running as unit: milan-665s2b-a683u-G-A8.service; invocation ID: 2fbf0805bf3f4e69a6c0d6b79ab435d1
+11:25:54 G-A1 on 48-63 (busy 112 cpus; free16 ['48-63'] free12 ['48-59'])
+Running as unit: milan-665s2b-a683u-G-A1.service; invocation ID: 7b8c69abb0204131941cde0d3a3f7597
+11:26:24 queue empty
+12:19:56 sweep on 0-15: 0-3 4-7 8-11 12-15
+12:20:00 sweep launcher rc=0
+12:21:10 dispatch2 for the harness gate at d930ea98f75be96f1062217d62bccd24dd291265 (G-A8, G-A1)
+12:21:10 G-A8 on 80-95 (busy 96 cpus; free16 ['48-63', '80-95'] free12 ['48-59', '84-95'])
+Running as unit: milan-665s2b-a683u-G-A8.service; invocation ID: 350cf71461344e548797568ddd7e92f1
+12:21:41 G-A1 on 48-63 (busy 112 cpus; free16 ['48-63'] free12 ['48-59'])
+Running as unit: milan-665s2b-a683u-G-A1.service; invocation ID: e2b7d8ebf1d642f3ac7bc181103a918c
+12:22:11 queue empty
+12:22:24 sweep at d930ea98f75be96f1062217d62bccd24dd291265 on 0-15 (the stopped d2780863 sweep's range freed)
+22:28:40 G-A8h on 32-47 (resume after the 13:10 host reset; busy 112 cpus; free16 ['32-47'] free12 ['36-47'])
+Running as unit: milan-665s2b-a683u-G-A8h.service; invocation ID: 81c8896bfd204629bdba225c69851f9f
+22:29:37 G-A8h on 32-47 again (the first start gave the point's ledger name, rc 2 in 0 s; busy 112 cpus; free16 ['32-47'] free12 ['36-47'])
+Running as unit: milan-665s2b-a683u-G-A8h.service; invocation ID: da90c356d1d74603b36416be18177039
+22:30:35 G-A1h in this lane's unit (64-79), 8 jobs
+22:30:57 the d930ea98 sweep killed by the 13:10 host reset kept as sweep-d930ea98-killed; a new sweep queued (sweep_when_free.sh)
+22:32:32 docs.yml at d930ea98 again, every job, on a fresh venv in scratch (the assigned runner's venv was gone after the 13:10 host reset); the cut run kept as docs-<head>-killed
+22:41:01 sweep on 80-95: 80-83 84-87 88-91 92-95
+22:41:03 sweep launcher rc=0
+23:41:52 docs.yml's docs-gates-0 again at d930ea98 with wavedrom==2.0.3.post3 in the venv (gate_13 rc 1 without it)
+00:37:46 G-A8h2 on 0-15: G-A8's groups G-A8h had not started (busy 104 cpus; free16 ['0-15'] free12 ['0-11'])
+Running as unit: milan-665s2b-a683u-G-A8h2.service; invocation ID: 0964385660674cdd99b6288f743bd4d4
+00:45:19 G-A1: every group finished (G-A1h)
+00:45:57 G-A1 regraded: rc=0
+01:21:00 G-A8: every group finished (G-A8h,G-A8h2)
+01:21:43 G-A8 regraded: rc=0

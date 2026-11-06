@@ -1,0 +1,27 @@
+HEAD 12e5ec568fc4d465f34fb9f783162ec12de0045b DIRTY 0
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/C/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/builds/TB-8/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/C/tb/verilator/ctrl_service_budget/fixture_variant.py <scratch>/builds/TB-8/fixture-variant --config <scratch>/C/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/builds/TB-8/image --ctrl-source <scratch>/builds/TB-8/ctrl-mutant --ledgered-point 8x8-two-interfaces --libc <scratch>/builds/TB-8/runtime/libc.a --compiler-runtime <scratch>/builds/TB-8/runtime/libcompiler_rt.a
+Traceback (most recent call last):
+  File "<scratch>/C/tb/verilator/ctrl_service_budget/run.py", line 649, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/C/tb/verilator/ctrl_service_budget/run.py", line 583, in main
+    spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
+                         core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+  File "<scratch>/C/tb/verilator/ctrl_service_budget/build.py", line 803, in build
+    elf = firmware(build_dir, shape, n_if, mutation, variant)
+  File "<scratch>/C/tb/verilator/ctrl_service_budget/build.py", line 325, in firmware
+    run([sys.executable, '-B', *entry,
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+         '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        out / 'image.log', cwd=ROOT)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/C/tb/verilator/ctrl_service_budget/build.py", line 43, in run
+    raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
+RuntimeError: $HOME/litex-milan/venv/bin/python3 exited 2; see image.log
+elapsed=4s
+rc=1

@@ -1,0 +1,11 @@
+# head d930ea98f75be96f1062217d62bccd24dd291265 gate ctrl_hot_selftest: python3 -B sw/firmware/ctrl/test/ctrl_hot.py --self-test
+control: the tree's script and order, linked: PASS
+[caught] stale-name: LINKED: hot-list name *-mbx.o(.text.mbx_irq_status_old) is no section of the linked image
+[caught] absent-from-image: LINKED: hot-list name *-mbx.o(.text.mbx_irq_status) is no section of the linked image
+[caught] only-discarded: LINKED: hot-list name *-mbx.o(.text.mbx_irq_status) is no section of the linked image
+[caught] reordered: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 1 is *-srp_mbx.o(.text.rx_order_ready), recorded *-mbx.o(.text.mbx_irq_status)
+[caught] dropped: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-ctrl_loop.o(.text.ctrl_loop_service), recorded *-srp_mbx.o(.text.rx_order_ready)
+[caught] unrecorded: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 208 is *-mbx.o(.text.mbx_open), recorded the end
+[caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-srp_mbx.o(.text.rx_order_ready), recorded *-ctrl_loop.o(.text.ctrl_loop_service)
+[caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;
+self-test: 0 failure(s)

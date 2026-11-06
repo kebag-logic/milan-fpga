@@ -1,0 +1,12 @@
+wire-accountability rc=0
+docs-check-no-git rc=0
+docs-gates-0 rc=0
+docs-gates-1 rc=0
+docs-gates-2 rc=0
+docs-check rc=0
+verify rc=1
+done
+docs-gates-0 moved aside to first-run: gate_13 rc 1, the new venv lacked wavedrom==2.0.3.post3, the pip half of the not-run ci_step_10, which its reason says the venv carries; installed, the job run again
+docs-gates-0 rc=0
+verify rc=0
+done

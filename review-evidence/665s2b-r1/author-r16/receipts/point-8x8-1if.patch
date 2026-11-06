@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index c5153d11b5..72d3b66e66 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -37,7 +37,7 @@ from pathlib import Path
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+ sys.path.insert(0, str(HERE))
+-POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
++POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2), '8x8-1if': ('endstation_ax7101_8x8', 1)}
+ 
+ 
+ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:

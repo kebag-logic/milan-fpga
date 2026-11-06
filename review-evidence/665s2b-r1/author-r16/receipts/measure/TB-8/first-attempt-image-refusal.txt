@@ -1,0 +1,9 @@
+The first attempt's builds/TB-8/image.log (2026-11-05 07:55, clean clone of 12e5ec56), as read before the build
+directory was removed for the restart; its first lines, host paths redacted:
+
+REFUSED: <scratch>/builds/TB-8/ctrl-mutant/loop/ctrl_loop.c: In function 'ctrl_loop_service':
+<scratch>/builds/TB-8/ctrl-mutant/loop/ctrl_loop.c:226:24: error: unused variable 'records' [-Werror=unused-variable]
+  226 |         const uint32_t records = l->stats.rx_records;
+<scratch>/builds/TB-8/ctrl-mutant/loop/ctrl_loop.c:225:24: error: unused variable 'events' [-Werror=unused-variable]
+  225 |         const uint32_t events = l->stats.events;
+cc1: all warnings being treated as errors
