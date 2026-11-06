@@ -584,13 +584,19 @@ It lies outside the processor and the datapath.
 
 Placement leaves 70 of 15,850 slices free.
 
-The resource gate refuses this growth, and the owner decision it needs is pending.
+The resource gate refuses this growth.
 
-The [area budget](../design/AREA_BUDGET.md) requires that decision for the next growth on the shipping image.
+The owner decision it needs is pending.
 
-It is requested, not made, and the gate's records are not re-recorded.
+The [area budget](../design/AREA_BUDGET.md) requires that decision for shipping-image growth.
 
-The gate ran in its own form at lane commit `b16f0175`: the [baseline recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three placement directives and the 1x1 standalone synthesis.
+It is requested, not made.
+
+The gate's records are not re-recorded.
+
+The gate ran in its own form at lane commit `b16f0175`.
+
+That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and 1x1 synthesis.
 
 Later commits change no synthesis input.
 
@@ -607,11 +613,17 @@ Later commits change no synthesis input.
 | ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
 | AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
 
-All three route without error and meet the build floor at every corner.
+All three route without error.
 
-The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds the shipping image from the selected directive, which leaves 15 slices, not the 70 above.
+Each meets the build floor at every corner.
 
-The gate's deltas are from its records at processor `f65c8ff7`, so they include dev's own movement since then.
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
+
+That directive leaves 15 slices, not the 70 above.
+
+The deltas are from records at processor `f65c8ff7`.
+
+So they include dev's own movement since then.
 
 The ROM ledger records current and earlier pins.
 

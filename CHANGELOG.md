@@ -75,11 +75,13 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A link down or up ends every Talker registration.
 - A settled input's registration ends too.
 - It reports a timed-out registration and withdraws its declaration.
-- That input leaves the settled state (Milan v1.2 5.5.3.5.48).
+- That input leaves the settled state.
+- Milan v1.2 5.5.3.5.48 asks this.
 - Its three stream-valid flags clear.
 - `probing_status` becomes active when its talker is discovered, passive otherwise.
 - The talker's next declaration alone does not return it.
-- It must probe and settle again; a value registered meanwhile applies at that settle.
+- It must probe and settle again.
+- A value registered meanwhile applies at that settle.
 - 802.1Q-2022 Table 10-4: Flush! and Begin! give MT.
 - LINK_DOWN is Flush!; LINK_UP is Begin!.
 - Both processor ROM digests match the `a9e84b66` rows.
@@ -88,8 +90,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Placement leaves 70 of 15,850 slices free.
 - WNS is +0.198 ns; every corner meets the floor.
 - The resource gate refuses this growth: `route-1x1` and `ooc-1x1` exit 1.
-- It selects ExtraTimingOpt: +0.373 ns, 15 of 15,850 slices free.
-- The owner decision is pending; the gate's records are not re-recorded.
+- It selects ExtraTimingOpt at +0.373 ns.
+- That route leaves 15 of 15,850 slices free.
+- The owner decision is pending.
+- The gate's records are not re-recorded.
 - The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
 
 ## Unreleased - gPTP on the MII port
