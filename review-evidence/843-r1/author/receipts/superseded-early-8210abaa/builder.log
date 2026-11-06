@@ -1,0 +1,29 @@
+# head 8210abaa1f5664bc6f755043b19a34a4eb38ede2 gate builder: python3 sw/builder/test_builder.py --require-rv32
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+test_soc_option_refusals:
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract:
+Traceback (most recent call last):
+  File "<scratch>/clone-early/sw/builder/test_builder.py", line 29752, in <module>
+    fn()
+  File "<scratch>/clone-early/sw/builder/test_builder.py", line 29358, in test_rom_clock_contract
+    test_gptp_rom_clock(skip=skip)
+  File "<scratch>/clone-early/sw/builder/test_clock_contract.py", line 148, in test_gptp_rom_clock
+    assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock

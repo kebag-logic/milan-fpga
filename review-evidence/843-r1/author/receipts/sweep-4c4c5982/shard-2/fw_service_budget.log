@@ -1,0 +1,20 @@
+python3 -B run.py --self-test
+Traceback (most recent call last):
+  File "<lanes>/843-a737-shard2/tb/verilator/fw_service_budget/run.py", line 772, in <module>
+    main()
+    ~~~~^^
+  File "<lanes>/843-a737-shard2/tb/verilator/fw_service_budget/run.py", line 700, in main
+    self_test()
+    ~~~~~~~~~^^
+  File "<lanes>/843-a737-shard2/tb/verilator/fw_service_budget/run.py", line 650, in self_test
+    count += trace_controls() + wait_controls() + tick_controls() + service_controls()
+             ~~~~~~~~~~~~~~^^
+  File "<lanes>/843-a737-shard2/tb/verilator/fw_service_budget/run.py", line 453, in trace_controls
+    require(media['slots_sha256'] == receipt['media']['slots_sha256'],
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'oracle image changed; rebuild and regenerate the trace fixture')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lanes>/843-a737-shard2/tb/verilator/fw_service_budget/run.py", line 44, in require
+    raise RuntimeError(message)
+RuntimeError: oracle image changed; rebuild and regenerate the trace fixture
+make: *** [Makefile:5: all] Error 1
