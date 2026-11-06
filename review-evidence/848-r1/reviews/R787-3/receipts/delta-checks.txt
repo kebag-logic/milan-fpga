@@ -1,0 +1,28 @@
+identical top-level names: 81; changed: ['control', 'copy_controls', 'selftest']; added []
+--- layout-free diff of control
+-    A `needle` opening `## D0-` is graded on the `--findings-dir` files alone, the only output naming a finding's line.
++    A `needle` opening `## D0-` or NUL, a file's start, is graded on lane files alone: only they name a finding's line.
+-        listed = ''.join((page.read_text(encoding='utf-8') for page in (root / 'lanes').glob('*.md')))
++        listed = ''.join(('\x00' + page.read_text(encoding='utf-8') for page in (root / 'lanes').glob('*.md')))
+-            if text not in (listed if text.startswith('## D0-') else rendered):
++            if text not in (listed if text.startswith(('\x00', '## D0-')) else rendered):
+--- layout-free diff of copy_controls
+-    return (("the README's statement copied onto the requirements page", plant_copy(), 1, (copy_row, copy_status, '| D0-002 | [README.md](../README.md) | on page |', 'Copy of the D0-002 statement on `README.md`.', '## D0-002: README.md:5\n', '## D0-002: REQUI
++    lead = '\n\nVerified against dev `0000000`.\nSource lines cite dev `1111111`.\n\n'
++    return (("the README's statement copied onto the requirements page", plant_copy(), 1, (*found, '| D0-002 | [README.md](../README.md) | on page |', 'Copy of the D0-002 statement on `README.md`.', f'\x00# D0 findings: reference{lead}## D0-002: REQUIREMENTS.
+--- layout-free diff of selftest
+-    stale_cell = '| stale | 1 finding(s): D0-001 |'
+-    banner = '\n> Superseded by [A](A.md).\n'
++    stale_cell, banner = ('| stale | 1 finding(s): D0-001 |', '\n> Superseded by [A](A.md).\n')
+-('supersession banner', append('docs/guides/B.md', banner), 1, '| superseded | banner names `docs/guides/A.md` |', 'STALE'),
+-('a banner past line 15 is not read', append('docs/guides/B.md', '\n' * 15 + banner), 0, '', 'is fresh'),
++('a supersession banner on line 15 is read', append('docs/guides/B.md', '\n' * 10 + banner), 1, '| superseded | banner names `docs/guides/A.md` |', 'STALE'),
++('a banner past line 15 is not read', append('docs/guides/B.md', '\n' * 11 + banner), 0, '', 'is fresh'),
+read arm: banner on line 15
+not-read arm: banner on line 16
+command table: 151 path digests, 38 wrong, 1 not in this clone
+  wrong: ['gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py', 'scripts/act_ci.py', 'scripts/check_nvm_record_space.py', 'scripts/ci_case_receipts_selftest.py', 'scripts/ci_workflow_plan_selftest.py', 'scripts/owned_process.py', 'scripts/process_test_support.py', 'scripts/run_all_suites.sh', 'scripts/suite_shards.py']
+  absent: ['tb/verilator/render_setpoint/mutants.py']
+  docs_inventory entry present: True
+KILLED rc=1 LD4 a copy filed in its own lane and its origin's lane :: "the README's statement copied onto the requirements page: generated output lacks '\\x00# D0 find"
+KILLED rc=1 LD5 a copy filed in its origin's lane as well, origin first :: "the README's statement copied onto the requirements page: generated output lacks '\\x00# D0 find"
