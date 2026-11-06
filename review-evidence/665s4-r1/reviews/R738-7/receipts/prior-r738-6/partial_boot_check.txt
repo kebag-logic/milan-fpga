@@ -1,0 +1,5 @@
+control: elf yes; map csr.h=generated; map mem.h=generated; lui 0xf0004: 0; lui 0xf0003: 10; lui 0x20000: 0; loadable e1e0bf8a7080e08f
+stand-in-mem: elf yes; map csr.h=generated; map mem.h=STAND-IN; lui 0xf0004: 0; lui 0xf0003: 10; lui 0x20000: 1; loadable 48598bb71f72a0c1
+stand-in-csr: elf yes; map csr.h=STAND-IN; map mem.h=generated; lui 0xf0004: 3; lui 0xf0003: 7; lui 0x20000: 0; loadable 2c4448a3e21821e8
+true partial map (csr.h deleted, refusal removed in a copy): rc=0
+  lui 0xf0004: 3; lui 0xf0003: 7; lui 0x20000: 0; loadable 2c4448a3e21821e8

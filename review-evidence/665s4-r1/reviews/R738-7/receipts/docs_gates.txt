@@ -1,0 +1,13 @@
+scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 216 md files + 1488 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+scripts/check_doc_style.py rc=0
+documentation style: OK (23 current documents)
+scripts/check_em_dash.py --base b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.t
+scripts/check_hygiene.py --check rc=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1350 file(s))
+docs/DOC_MAP.gen.py --check rc=0
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+scripts/check_archive.py rc=0
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
