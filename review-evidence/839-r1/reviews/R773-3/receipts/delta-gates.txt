@@ -1,0 +1,15 @@
+diff-check rc=0
+delta diff-check rc=0
+--- delta stat
+ tb/verilator/milan_dp/README.md       | 15 +++++++++------
+ tb/verilator/milan_dp/sim_boot_sa.cpp |  5 +++--
+ 2 files changed, 12 insertions(+), 8 deletions(-)
+--- delta numstat
+9	6	tb/verilator/milan_dp/README.md
+3	2	tb/verilator/milan_dp/sim_boot_sa.cpp
+--- delta touches hdl/ or other tb logic?
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_boot_sa.cpp
+--- parents
+3c22947861e5c057a6195ad46e1a379d67592559 ba1da8b66ccaf84ca2ae7084d3c9ac75b2a3d707
+ba1da8b66ccaf84ca2ae7084d3c9ac75b2a3d707 ba56827bbfe4acadb84ca220616a76ad74611e7d

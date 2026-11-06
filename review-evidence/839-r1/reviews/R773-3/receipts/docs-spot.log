@@ -1,0 +1,13 @@
+== check_doc_style
+documentation style: OK (23 current documents)
+rc=0
+== check_em_dash --base 604899c0
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== docs_check
+docs_check: 0 finding(s) across 213 md files + 1444 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== added lines with em/en dash in delta (expect none)
+grep rc=1 (1 = none)
+== added lines naming review rounds/lanes/reviewers/comment ids (expect none)
+grep rc=1 (1 = none)
