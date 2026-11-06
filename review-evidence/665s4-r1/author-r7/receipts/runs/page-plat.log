@@ -1,0 +1,18 @@
+# 37e0393094e62d395edc2798a6a6da2f34badbec in wt-boot: python3 -I <output>/scripts/page_probe.py <scratch>/wt-boot sw/firmware/ctrl/plat/README.md <scratch>/boot-1x1 <scratch>/page-plat
+# start 2026-11-06T17:07:57Z
+--- the page's fence, sw/firmware/ctrl/plat/README.md
+python3 sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$SOC/csr.csv" \
+  --csr-h "$SOC/software/include/generated/csr.h" --out "$FLASH_MAP"
+python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml \
+  --csr-csv "$SOC/csr.csv" --flash-map "$FLASH_MAP" --output "$OUT" --libc "$RUNTIME/libc.a" \
+  --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+---
+fence exit 0
+plan: {'rom': {'bytes': 109552, 'banks': [65536, 32768, 8192, 4096], 'RAMB36': 27, 'RAMB18': 0}, 'sram': {'bytes': 47168, 'banks': [32768, 16384], 'RAMB36': 12, 'RAMB18': 0}, 'tiles': 39.0, 'budget_tiles': 56}
+page generator map equals the run's split-soc/flash-map: True
+ctrl_app.elf: 12 flash port functions, 36 lui
+  lui 0xf0004 (the stand-in timer0, 0xf0003800): 0 in []
+  lui 0x20000 (the stand-in window, 0x20000000): 0 in []
+  lui 0xf0003 (generated): 11
+  lui 0x1000 (generated): 1
+# end 2026-11-06T17:08:02Z

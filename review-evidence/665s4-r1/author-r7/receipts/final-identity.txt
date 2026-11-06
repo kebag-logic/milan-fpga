@@ -1,0 +1,25 @@
+head 37e0393094e62d395edc2798a6a6da2f34badbec
+tree 671949bf0b327496993ce1462ae2f61d4125525f
+branch s4-f1-target
+origin https://github.com/kebag-logic/milan-fpga.git
+live refs/heads/665-s4-f1-target 7643aef613c5b87a246544f57d23ad9f1bf8311e
+live refs/heads/dev-soft-core a68536fa4cf8ce65c513874722de2e3ba83c2d00
+merge-bases against dev-soft-core: a68536fa4cf8ce65c513874722de2e3ba83c2d00 
+ancestor of head: 7643aef6 yes, f4c9ad4f yes
+git diff --check a68536fa rc=0
+status lines: 0
+hdl files changed since a68536fa: 0
+sv/v/c/h files changed since 7643aef6: 0
+gitlinks changed since 7643aef6: 0
+commits on 7643aef6:
+  37e0393094 State the image self-test's 37 checks and the split boot's placement controls where their pages list them (#665)
+  c2befb12d1 Restate the current flash writer's gated 8x8 maximum at the merged head (#665)
+  154fe81188 Test the boot export's refusal of a deviating flash map with placement controls and two planted defects of the refusal (#665)
+  7a20a67a0e Refuse a split platform image link without the flash map, test the refusal in the image self-test, and carry the map in both documented link commands (#665)
+commit bodies and trailers: 0 lines
+push-privacy-check: 0 private line(s) in a68536fa4cf8ce65c513874722de2e3ba83c2d00..HEAD
+privacy rc=0
+rg 13.863:
+./docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+boot clone status bytes: 0
+mutant clone status lines: 0
