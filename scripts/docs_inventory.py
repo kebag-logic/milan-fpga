@@ -735,7 +735,7 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
     The fixture's page is written with `--write`, the mutation applied, and `--check`, the workflow's own command,
     must exit `want` and print `says`. Unless it refused (2), `--write` must then heal the tree, and the page it
     regenerates must carry every `needle`, lack `absent` and carry no em dash.
-    A `needle` opening `## D0-` is graded on the `--findings-dir` files alone, the only output naming a finding's line.
+    A `needle` opening `## D0-` or NUL, a file's start, is graded on lane files alone: only they name a finding's line.
     """
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -759,9 +759,9 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
             return f"{name}: --write did not heal the tree ({written}, {healed}): {printed.strip()[:300]}"
         rendered = (root / OUTPUT).read_text(encoding="utf-8")
         gate(root, "--findings-dir", str(root / "lanes"))
-        listed = "".join(page.read_text(encoding="utf-8") for page in (root / "lanes").glob("*.md"))
+        listed = "".join("\0" + page.read_text(encoding="utf-8") for page in (root / "lanes").glob("*.md"))
         for text in (needle,) if isinstance(needle, str) else needle:
-            if text not in (listed if text.startswith("## D0-") else rendered):
+            if text not in (listed if text.startswith(("\0", "## D0-")) else rendered):
                 return f"{name}: generated output lacks {text!r}"
         for text in (absent,) if isinstance(absent, str) else absent:
             if text and text in rendered:
@@ -848,11 +848,13 @@ def copy_controls() -> tuple:
     spelling = ("The Mark II default places them on the core.",)
     found, no_row = (copy_row, copy_status), "| D0-002 | [REQUIREMENTS.md]"
     own, past = "All five default to firmware.\n", "All five default to firmware, so the"
-    return (
-        ("the README's statement copied onto the requirements page", plant_copy(), 1,
-         (copy_row, copy_status, "| D0-002 | [README.md](../README.md) | on page |",
-          "Copy of the D0-002 statement on `README.md`.", "## D0-002: README.md:5\n",
-          "## D0-002: REQUIREMENTS.md:3\n", "## D0-001: docs/guides/A.md:3\n\n- Statement: resets to 0x1\n"
+    lead = "\n\nVerified against dev `0000000`.\nSource lines cite dev `1111111`.\n\n"
+    return (("the README's statement copied onto the requirements page", plant_copy(), 1,
+         (*found, "| D0-002 | [README.md](../README.md) | on page |", "Copy of the D0-002 statement on `README.md`.",
+          f"\0# D0 findings: reference{lead}## D0-002: REQUIREMENTS.md:3\n\n- Statement: {own}- Contradicted by: Copy",
+          f"\0# D0 findings: overview and guides{lead}## D0-002: README.md:5\n\n- Statement: {own}"
+          "- Contradicted by: `scripts/tool.py` line 1\n- Correction: Say that all five stay in fabric.\n\n"
+          "## D0-001: docs/guides/A.md:3\n\n- Statement: resets to 0x1\n"
           "- Contradicted by: `hdl/milan/top.sv` line 1\n- Correction: It resets to 0x0.\n"), "STALE"),
         ("a spelling found only through `also` gets a row",
          in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
@@ -901,10 +903,8 @@ def copy_controls() -> tuple:
 
 def selftest() -> int:
     """`--check` itself on Git fixtures: every status rule, planted stale pages and the data refusals."""
-    stale_cell = "| stale | 1 finding(s): D0-001 |"
-    banner = "\n> Superseded by [A](A.md).\n"
-    controls = (
-        ("unchanged tree is fresh through `git ls-files`", lambda root: None, 0,
+    stale_cell, banner = "| stale | 1 finding(s): D0-001 |", "\n> Superseded by [A](A.md).\n"
+    controls = (("unchanged tree is fresh through `git ls-files`", lambda root: None, 0,
          ("| D0-001 |", "## D0-001: docs/guides/A.md:3\n"), "is fresh"),
         ("an added line leaves the page fresh", append("docs/guides/B.md", "Added line.\n"), 0, "", "is fresh"),
         ("a removed line leaves the page fresh", replace("docs/guides/A.md", "\n\nThe", "\nThe"), 0, "", "is fresh"),
@@ -942,9 +942,9 @@ def selftest() -> int:
         ("the page names a finding's line", lambda root: None, 0, ("`Located`", "--findings-dir DIR", "search misses")),
         ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
          "", "is fresh", "protocol-processor/README.md"),
-        ("supersession banner", append("docs/guides/B.md", banner), 1,
+        ("a supersession banner on line 15 is read", append("docs/guides/B.md", "\n" * 10 + banner), 1,
          "| superseded | banner names `docs/guides/A.md` |", "STALE"),
-        ("a banner past line 15 is not read", append("docs/guides/B.md", "\n" * 15 + banner), 0, "", "is fresh"),
+        ("a banner past line 15 is not read", append("docs/guides/B.md", "\n" * 11 + banner), 0, "", "is fresh"),
         ("archive page is obsolete with its successor", lambda root: None, 0,
          "| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) |"),
         ("archive index stays current", lambda root: None, 0, "archive index"),
