@@ -1,0 +1,53 @@
+# processor records (generated)
+origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 212-srp-presettle-talker
+base (main): a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+round-2 head: a2fce4326ebdaf398a1920d79a664d44e6f1e5dd
+head: 834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1
+head tree: 93bea04f1a5e4173ee43f4824c3419d774d8206f
+round-2 head is an ancestor of head (no rebase): yes
+working tree: 0 changed entries
+
+## round-3 commits (subject; body)
+154680f4ff6eea4d9325f9f7a984aef1b8bad3b5 Take a settled sink's registrar to MT at LINK_DOWN and LINK_UP too, its withdrawal published as at its leavetimer!, and say the leave deadline stays 13 bits across F08.1's T-MRP-LEAVE range (issue #212)
+  body: none
+d7b32c57ca554262f0894230cb570ac2d8918d6d Grade in PS24 a settled sink across a link change, its withdrawal and an A8 and A15 on the same triple before and after the old Lv, and in PS20 a Talker Failed same-stream re-bind after the old Lv (issue #212)
+  body: none
+56bf44c420d8c6e31f60e92d4ff27754bdb43e9a Plant five arms under PS24, require PS1 to PS24, and cut again the patches whose context the link branch moved (issue #212)
+  body: none
+49fbdbfc53bff0d3858086a3fd4629ab1d5fb7cc Say in the SRP architecture, interfaces and integrator guide that a link change ends a settled sink's registration too, retire that limit, and take the reviewers' T-MRP-LEAVE text at 10 :226 and :782 (issue #212)
+  body: none
+ae8d5822aa54c4529ed62fa3d240ff68afdf84c6 Record PS24, its arms, the PS20 Failed variant and the counts the new rows move in the bench READMEs (issue #212)
+  body: none
+834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1 Give 10 §5.1 the measured cost of the issue #212 head, its flip-flops unchanged by the settled sink's link flush (issue #212)
+  body: none
+
+## diff stat round-2 head..head
+ docs/architecture/02_interfaces.md                 |   7 +-
+ docs/architecture/10_srp_engine.md                 |  41 +++---
+ docs/guides/integrator.md                          |   7 +-
+ hdl/srp/KL_srp_listener_fsm.sv                     |  47 ++++---
+ tb/srp_stream_fsms/README.md                       |  20 ++-
+ tb/srp_stream_fsms/sim_main.cpp                    | 153 ++++++++++++++++++---
+ tb/srp_top/README.md                               |  40 ++++--
+ tb/srp_top/mutants.py                              |  16 ++-
+ tb/srp_top/mutations/link-begin-dropped.patch      |   4 +-
+ tb/srp_top/mutations/link-clock-indicates.patch    |  10 ++
+ tb/srp_top/mutations/link-withdraw-dropped.patch   |  12 ++
+ tb/srp_top/mutations/lv-expiry-masked.patch        |   8 +-
+ .../mutations/r-sink-receive-priority-lost.patch   |  14 +-
+ .../mutations/settled-link-flush-dropped.patch     |  29 ++++
+ .../mutations/settled-link-keeps-lv-slot.patch     |  10 ++
+ .../mutations/settled-link-unpublished.patch       |  11 ++
+ tb/srp_top/mutations/unarmed-indicates.patch       |  10 +-
+ tb/srp_top/mutations/unarmed-latency-strobe.patch  |   6 +-
+ .../mutations/unarmed-link-flush-dropped.patch     |  18 +--
+ tb/srp_top/mutations/unarmed-unregistered.patch    |   4 +-
+ 20 files changed, 355 insertions(+), 112 deletions(-)
+
+## files under hdl/ changed round-2 head..head
+hdl/srp/KL_srp_listener_fsm.sv
+## files under hdl/top/ changed main..head (empty: no top-level change)
+## KL_srp_top module header, main vs head (sha256 of the lines up to the first ');')
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 02d6cb83a7ed2a7c2e1b7fb1a7fb75788981fa1658e12258035260c4f401994f
+HEAD 02d6cb83a7ed2a7c2e1b7fb1a7fb75788981fa1658e12258035260c4f401994f

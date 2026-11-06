@@ -1,0 +1,23 @@
+# summary of milan_dp.log (generated: verdict-tag tallies and the last 20 lines)
+[ok] 12075, [PASS] 1301, [FAIL] 0
+rc 0
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 458.019, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 95.568, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 458.021, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 535.938, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 77.917, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 535.938, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 654.819, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 118.881, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 654.834, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.015}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 735.149, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 80.315, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 735.149, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 856.529, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 121.38, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 856.534, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.005}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 938.342, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 81.808, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 938.342, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 1087.676, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 149.334, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 1087.801, "state": "idle", "idle_s": 0.125}
+
+6 checks: 6 PASS, 0 FAIL

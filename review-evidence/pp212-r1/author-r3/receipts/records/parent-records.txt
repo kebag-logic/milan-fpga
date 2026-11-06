@@ -1,0 +1,33 @@
+# scratch-parent records (generated)
+source: milan-fpga dev 604899c08ff1cd1830e1dd08b733109ef852400c (a local clone of the trusted dev lane)
+scratch parent head: 92385027208d1e53eaadf72a56c7ba515fb75a44 on local branch pp212-consumer-gate
+push URL: DISABLED-never-push
+never pushed: the only remote is the local source; the push URL is disabled
+
+## round-3 commits
+92385027208d1e53eaadf72a56c7ba515fb75a44 Record the ROM digests of protocol-processor pin 834cc88 (unchanged from a9e84b66) for the issue #212 consumer gate
+719a461ad45b291fdda25efa7f97dd9f00900f01 Pin protocol-processor to 834cc88 for the processor issue #212 consumer gate
+
+## files changed 604899c0..HEAD
+ protocol-processor        | 2 +-
+ syn/yosys/rom_digests.tsv | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+## rom_digests.tsv rows of this pin
+834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1	ucode.hex	49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+(main a9e84b66 rows, for comparison)
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	ucode.hex	49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+
+## submodules (top-level identity checked before every git command inside protocol-processor)
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (remotes/origin/main-81-g135afd0)
+ 834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1 protocol-processor (v2.0-877-g834cc88)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor toplevel: <parent>/protocol-processor
+protocol-processor HEAD: 834cc889cbd39f6a4f990d19059b5fbd2a2a9dd1
+
+## working tree (tracked changes)

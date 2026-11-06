@@ -1,0 +1,19 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+rebind-same-not-kept: rc=2 failures=5 KILLED tags=PS20,PS21
+keep-declares-seed-type: rc=2 failures=2 KILLED tags=PS20
+unarmed-indicates: rc=2 failures=1 KILLED tags=PS22
+unarmed-unregistered: rc=2 failures=1 KILLED tags=PS22
+unarmed-latency-strobe: rc=2 failures=1 KILLED tags=PS22
+link-begin-dropped: rc=2 failures=1 KILLED tags=PS23
+unarmed-link-flush-dropped: rc=2 failures=1 KILLED tags=PS23
+settled-link-flush-dropped: rc=2 failures=11 KILLED tags=PS24
+settled-link-unpublished: rc=2 failures=5 KILLED tags=PS24
+link-withdraw-dropped: rc=2 failures=6 KILLED tags=PS24
+link-clock-indicates: rc=2 failures=1 KILLED tags=PS24
+settled-link-keeps-lv-slot: rc=2 failures=1 KILLED tags=PS24
+18 checks: 18 PASS, 0 FAIL
