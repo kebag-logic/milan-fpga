@@ -1,0 +1,9 @@
+no-map-real-archives: rc 2; ELF none; REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+no-map-libc-only: rc 2; ELF none; REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+no-map-rt-only: rc 2; ELF none; REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+no-map-both-absent: rc 2; ELF none; collect2: error: ld returned 1 exit status
+no-map-dangling-links: rc 2; ELF none; collect2: error: ld returned 1 exit status
+no-map-directory-archive: rc 2; ELF none; REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+map-absent-dir: rc 2; ELF none; REFUSED: [Errno 2] No such file or directory: '<packet>/scratch/edges/nomap/flash_port.json'
+map-empty-dir: rc 2; ELF none; REFUSED: [Errno 2] No such file or directory: '<packet>/scratch/edges/emptymap/flash_port.json'
+map-true: rc 0; ELF LEFT; }

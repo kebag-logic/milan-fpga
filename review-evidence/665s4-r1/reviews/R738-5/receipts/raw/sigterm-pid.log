@@ -1,0 +1,9 @@
+probe: driver pid 3847322, gate pid 3843918, same process group True
+probe: SIGTERM sent to the pid
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (13 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit -15 (20 s)
+REFUSED: sw/firmware/ctrl/test/test_ctrl_firmware.py exited -15 under the capture, so it may have compiled less than it does: 
+
+probe: gate exit status 2

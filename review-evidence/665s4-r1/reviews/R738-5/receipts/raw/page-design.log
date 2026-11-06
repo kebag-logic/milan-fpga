@@ -1,0 +1,104 @@
+wrote <packet>/scratch/page-design-out/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/page-design-out/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/page-design-out/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 98280,
+    ".rodata": 26254,
+    ".data": 504,
+    ".bss": 105228,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 48064
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 13264
+    },
+    {
+      "symbol": "values",
+      "bytes": 11753
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 10064
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 5896
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 10064,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 576,
+    "srp": 5896,
+    "srp_config": 40,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 125040,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113936,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "platform-8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "bcee28e43ea4d3feda50a7707298b80888af5174e2a3ba9924e544a889dee363"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "cc843bb0ffee85f7c86de7e7bf1398cf892c1eb83424872792fee837ac9eb246"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 157404,
+      "sha256": "223f6ed565770fdd5947bfe6a94c4988f9bb21cf1d5d81804c04958bd4831c4a"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 164731,
+      "sha256": "01a0fff44f48d6ec066d875c699ea158941872c8797ff87655b365b2fe349cbb"
+    }
+  ]
+}

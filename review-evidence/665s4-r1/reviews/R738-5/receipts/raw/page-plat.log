@@ -1,0 +1,98 @@
+WROTE <packet>/scratch/page-map/generated/csr.h, <packet>/scratch/page-map/generated/mem.h, <packet>/scratch/page-map/flash_port.json
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 96448,
+    ".rodata": 12990,
+    ".data": 112,
+    ".bss": 38860,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 8880
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 4824
+    },
+    {
+      "symbol": "values",
+      "bytes": 4527
+    },
+    {
+      "symbol": "ctrl_plat.aecp",
+      "bytes": 3352
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 8880,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 4824,
+    "srp_config": 24,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 109552,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        4096
+      ],
+      "RAMB36": 27,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 47168,
+      "banks": [
+        32768,
+        16384
+      ],
+      "RAMB36": 12,
+      "RAMB18": 0
+    },
+    "tiles": 39.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "c8246a778ca61750c6da9b14e1f064f6404f1736d2946043fedfaa3a14782f25"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "291e5547b8b5825fd1b810979ede7fec24f09d2d11f8d8100faa3ed16d6c9aae"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 140628,
+      "sha256": "547d4c70a2f56e6313e7da7ed12c66a8f330147dbc66a07ebe23f1a3f6feaa5d"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 158116,
+      "sha256": "4591f38bd3f3a8ea01bfc161c92993448e588d6d64a255e301fa172152225927"
+    }
+  ]
+}

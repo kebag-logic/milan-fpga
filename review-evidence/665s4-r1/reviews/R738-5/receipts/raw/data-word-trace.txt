@@ -1,0 +1,4 @@
+plat image linked by the page's fence, at this head:
+0xf0003800: .data+0x40 = 0x10000040, symbol env + 0x8 (size 56); ctrl_plat_map_gen.h:12 #define CTRL_PLAT_UART_RXTX 0xF0003800u;
+            split SoC csr.csv: csr_base,uart,0xf0003800 and csr_register,uart_rxtx,0xf0003800. timer0 is at 0xf0003000.
+0x20000000: .rodata+0x684 = 0x17f44, symbol aecp_entity_image + 0xc.
