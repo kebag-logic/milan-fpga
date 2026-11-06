@@ -1,0 +1,22 @@
+# head 3d1ca52f8e9a3ec59076b423c0812982945c7a8b gate r775_2_phy_mutants: python3 -I -B <packet>/scripts/phy_own_mutants.py <scratch>/gates/wt
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+nak-reg4-not-checked: caught by no_write_before_its_register_4_read
+nak-reg9-not-checked: caught by no_write_before_its_read
+nak-reg0-not-checked: caught by no_write_before_its_register_0_read
+nak-retry-given-up: caught by no_10base_t_advertised
+nak-ability-given-up: caught by no_10base_t_advertised
+init-on-failed-bmsr: ESCAPED (rc 0)
+clear-next-page: ESCAPED (rc 0)
+clear-remote-fault: ESCAPED (rc 0)
+clear-selector: caught by selector_kept
+reg0-from-constant: ESCAPED (rc 0)
+write-4-before-9: ESCAPED (rc 0)
+force-pause-on: caught by pause_bits_kept
+force-manual-master: caught by master_slave_kept
+force-manual-config-only: caught by master_slave_kept
+write-ta-11: caught by (write_bits >> 16) == 2u
+write-to-phy-0: caught by no_10base_t_advertised
+write-short-preamble: caught by value & 4u
+advertised-from-boot: caught by no_10base_t_advertised
+gate-on-an-done: caught by no_write_without_extended_status
+escaped: ['init-on-failed-bmsr', 'clear-next-page', 'clear-remote-fault', 'reg0-from-constant', 'write-4-before-9']

@@ -1,0 +1,8 @@
+# pinned parser: python3 ci/image/prepare_parser.py --output <scratch>/shfmt printed: PASS: shfmt v3.11.0 authenticated by size and SHA-256
+1904ec6bac715c1d05cd7f6612eec8f67a625c3749cb327e5bfb4127d09035ff
+checker at the head: rc 2: REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+checker at dev: rc 2: REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+throwaway clone: 36 stale rows re-pinned; rows naming no file in this clone: ['gptp-processor/scripts/check_docs.py', 'gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py', 'protocol-processor/hdl/aecp/desc/gen_desc_image.py', 'tb/verilator/render_setpoint/mutants.py']
+checker with every stale row re-pinned: rc 2: REFUSED: uncensused Python builtin 'exec' at sw/builder/endstation_builder.py
+checker with 'exec' also in the census: rc 2: REFUSED: uncensused Python builtin 'compile' at sw/builder/endstation_builder.py
+probe rc=0

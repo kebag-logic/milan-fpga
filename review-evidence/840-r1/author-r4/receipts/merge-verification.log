@@ -1,0 +1,33 @@
+# merge 2fbd07254d: parents, conflicts, and what it imported
+commit 2fbd07254d0a7901b6a40c1fb52b1e938904ae21
+parents beb38447d07cceac5170ba0a35c7615f5714b7f7 87e9d03aa2a4797957ac0124d0c7851a2eec234c
+subject Merge dev 87e9d03a into 840-identity-link-cert
+## git merge-tree --write-tree --name-only beb38447 87e9d03a
+b8d213c55239606357e2737a2482a28f56a4d049
+docs/DOCUMENTATION_AUDIT.md
+
+Auto-merging docs/DOCUMENTATION_AUDIT.md
+CONFLICT (content): Merge conflict in docs/DOCUMENTATION_AUDIT.md
+merge-tree rc=1
+## files dev cc204c6f..87e9d03a changed
+docs/DOCUMENTATION_AUDIT.md
+docs/testing/TESTING.md
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/test_suite_cancellation.py
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+## lane delta against dev, before and after the merge, audit page excluded
+before a2a1ecf2c8f5fc88c3a5dc2520ca800e7b8698dacbe4b5ac41a8461746abade1  -
+after  a2a1ecf2c8f5fc88c3a5dc2520ca800e7b8698dacbe4b5ac41a8461746abade1  -
+EQUAL: the merge moved the lane's delta unchanged
+## merge bases at the head
+87e9d03aa2a4797957ac0124d0c7851a2eec234c
+## commits added this round
+3d1ca52f8e Regenerate the documentation inventory through docs_inventory.py --write on the merge of dev 87e9d03a and the two PHY peer doc lines (#840)
+87c9f81f5e Re-pin fw_service_budget/run.py, nvm_capture_cpu/run.py and nvm_capture_cpu/soc.py in the CI command table at their bytes, through the table's own digest and serializer, leaving dev's stale rows to #838 (#840)
+25902fe527 Start each bit the PHY init keeps in opposite states across the two gigabit arms of the pin-level peer, refuse registers 4 and 0 with named no-write assertions, and table the two refusal mutants, the three forced fields and every kept bit forced and dropped: forty-seven mutants (#840)
+2fbd07254d Merge dev 87e9d03a into 840-identity-link-cert
+## body or trailer lines in those commits
+0
+## this round's change to firmware, RTL, LiteX and gitlinks: git diff --stat beb38447 HEAD on those paths (empty means none)
+end of diff
