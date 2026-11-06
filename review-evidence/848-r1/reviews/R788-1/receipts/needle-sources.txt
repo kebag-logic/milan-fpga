@@ -1,0 +1,12 @@
+documentation inventory selftest: OK (53 controls)
+selftest rc 0
+needles: 53; page only 46; lane file only 6; both 1
+-- needles satisfiable from the lane file even if the page lost them:
+   [the README's statement copied onto the requirements page] 'Copy of the D0-002 statement on `README.md`.'
+-- needles only in the lane file:
+   [unchanged tree is fresh through `git ls-files`] '## D0-001: docs/guides/A.md:3\n'
+   [fixed statement asks for re-verification] '## D0-001: docs/guides/A.md:?\n'
+   [the README's statement copied onto the requirements page] '## D0-002: README.md:5\n'
+   [the README's statement copied onto the requirements page] '## D0-002: REQUIREMENTS.md:3\n'
+   [a spelling found only through `also` gets a row] '## D0-002: REQUIREMENTS.md:5\n'
+   [a copy on an archive page gets a row and stays obsolete] '## D0-001: docs/history/v1/OLD.md:8\n'

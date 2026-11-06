@@ -1,0 +1,33 @@
+# Note: the probe "FINDING quote D0-001 removed" below is vacuous, since D0-001 was already a lost quote; finding-probe-located.txt repeats it on D0-002.
+pages edited per sweep: 212
+unchanged: rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+LENGTH one line appended to every page: rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+LENGTH 500 lines appended to every page: rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+LENGTH blank line above every recorded finding (14 pages): rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+STATUS supersession banner: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 175 |
+STATUS recorded judgement, no document edit: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 175 |
+PAGESET untracked new page (not in the population): rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+PAGESET tracked new page: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (315 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 177 |
+PAGESET git rm of a tracked page: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (313 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 175 |
+PAGESET page deleted on disk only: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (313 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 175 |
+FINDING quote D0-001 removed from its page: rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+FINDING added to the data file: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (204 lines differ); first difference at line 30:
+       committed: | current | 176 |
+       generated: | current | 134 |
+HAND edit of a Located cell: rc=1 :: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 466:
+       committed: | D0-002 | [README.md](../README.md) | re-verify: quote not found | clock-source selection now reaches the media plane's wrapper but nothing there | `hdl/mil
+       generated: | D0-002 | [README.md](../README.md) | on page | clock-source selection now reaches the media plane's wrapper but nothing there | `hdl/milan/milan_datapath.s
+HAND edit marking a stale page current: rc=1 :: docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+     docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 127:
+       committed: | [README.md](../README.md) | all readers | milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA | `sw/litex`, `scripts`, `syn/yosys`, Milan v1.2, 1722.1-2021, 1
+restored: rc=0 :: documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)

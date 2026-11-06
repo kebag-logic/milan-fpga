@@ -1,0 +1,13 @@
+# no-Git tree (archive of the head, no submodules)
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+with a checked-out submodule page rc=0
+
+# docs gates on the head, from .github/ci-templates/docs.yml
+scripts/gen_toc.py --check rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+scripts/gen_toc.py --verify-anchors rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+scripts/check_archive.py rc=0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+scripts/check_doc_style.py rc=0 :: documentation style: OK (23 current documents)
+scripts/check_py_idiom.py rc=2 :: REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043309369a87d
+scripts/ci_gate_workflows.py --check rc=0 :: 

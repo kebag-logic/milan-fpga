@@ -1,0 +1,97 @@
+page copy row loses its recording page
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks 'Copy of the D0-002 statement on `README.md`.'
+page drops the citations baseline
+   head: killed rc=1 :: selftest: FAIL the citations' baseline is on the page: rendered page lacks 'at dev `1111111`'
+   base: killed rc=1 :: selftest: FAIL the citations' baseline is on the page: rendered page lacks 'at dev `1111111`'
+page drops the verified baseline
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+page never says re-verify
+   head: killed rc=1 :: selftest: FAIL planted edited quote in the data file: rendered page lacks 're-verify: quote not found'
+   base: n/a
+page quote cell blank
+   head: killed rc=1 :: selftest: FAIL a spelling found only through `also` gets a row: --check exited 0, expected 1: documentation inventory: OK (131 lines, docs/DOCUMENTATI
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+page correction cell blank
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+line number back in Located cell
+   head: killed rc=1 :: selftest: FAIL a removed line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first differen
+   base: n/a
+line number back in banner evidence
+   head: killed rc=1 :: selftest: FAIL a line added above a banner leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); f
+   base: n/a
+per-status byte length back in summary
+   head: killed rc=1 :: selftest: FAIL a status change alone makes the page stale: rendered page lacks '| superseded | 1 |'
+   base: n/a
+line count smuggled into evidence
+   head: killed rc=1 :: selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first differenc
+   base: killed rc=1 :: selftest: FAIL a fixed copy loses its row and its page recovers: rendered page lacks '| Requirements | -- | current | no recorded contradiction |'
+line count smuggled into purpose
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+line count smuggled into a titled purpose
+   head: killed rc=1 :: selftest: FAIL an added line leaves the page fresh: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first differenc
+   base: killed rc=1 :: selftest: FAIL audience line overrides the table: rendered page lacks '| integrator | Documentation index |'
+status gate reads nine columns
+   head: killed rc=1 :: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+   base: n/a
+status gate reads the wrong status cell
+   head: killed rc=1 :: selftest: FAIL hand-edited status hides a finding: --check did not print 'docs/guides/A.md carries an open finding but is marked current'
+   base: n/a
+status count ignores the status
+   head: killed rc=1 :: selftest: FAIL a status change alone makes the page stale: rendered page lacks '| superseded | 1 |'
+   base: n/a
+total off by one
+   head: killed rc=1 :: selftest: FAIL the summary counts pages by status and no lines: rendered page lacks '| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n|
+   base: n/a
+locate counts from zero
+   head: killed rc=1 :: selftest: FAIL unchanged tree is fresh through `git ls-files`: rendered page lacks '## D0-001: docs/guides/A.md:3\n'
+   base: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '| D0-002 | [README.md](../README.md) | 5 |'
+carried line off by one
+   head: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: REQUIREMENTS.md:3\n'
+   base: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+lane file line is always 1
+   head: killed rc=1 :: selftest: FAIL unchanged tree is fresh through `git ls-files`: rendered page lacks '## D0-001: docs/guides/A.md:3\n'
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file hides a lost quote
+   head: killed rc=1 :: selftest: FAIL fixed statement asks for re-verification: rendered page lacks '## D0-001: docs/guides/A.md:?\n'
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file keeps only its first finding
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file keeps only its last finding
+   head: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: README.md:5\n'
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file drops the statement
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file drops the source
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file drops the correction
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+lane file drops copy rows
+   head: killed rc=1 :: selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '## D0-002: REQUIREMENTS.md:3\n'
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+findings-dir writes nothing
+   head: killed rc=1 :: selftest: FAIL unchanged tree is fresh through `git ls-files`: rendered page lacks '## D0-001: docs/guides/A.md:3\n'
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+check ignores the status rule
+   head: SURVIVED rc=0 :: documentation inventory selftest: OK (53 controls)
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+check never stale
+   head: killed rc=1 :: selftest: FAIL a status change alone makes the page stale: --check exited 0, expected 1: documentation inventory: OK (127 lines, docs/DOCUMENTATION_AU
+   base: killed rc=1 :: selftest: FAIL planted stale page: one added line: --check exited 0, expected 1: documentation inventory: OK (127 lines, docs/DOCUMENTATION_AUDIT.md i
+banner scan window is one line
+   head: killed rc=1 :: selftest: FAIL a line added above a banner leaves the page fresh: rendered page lacks '| superseded | banner names `docs/guides/A.md` |'
+   base: killed rc=1 :: selftest: FAIL supersession banner: rendered page lacks '| superseded | banner at line 5 names `docs/guides/A.md` |'
+judged status ignored
+   head: killed rc=1 :: selftest: FAIL a status change alone makes the page stale: --check exited 0, expected 1: documentation inventory: OK (127 lines, docs/DOCUMENTATION_AU
+   base: SURVIVED rc=0 :: documentation inventory selftest: OK (50 controls)
+population ignores a removed page
+   head: killed rc=1 :: Traceback (most recent call last):
+   base: killed rc=1 :: Traceback (most recent call last):
+head survivors: 9 of 32

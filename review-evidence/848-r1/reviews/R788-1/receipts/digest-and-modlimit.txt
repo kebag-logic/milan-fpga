@@ -1,0 +1,64 @@
+# digest
+1	1	ci/image/command-table.json
+f502dac7633ecd95fa9f1f9fd05848774f58481cabfbc0d88e393df46d232080  scripts/docs_inventory.py
+table canonical re-serialise equal: True
+    return {"schema": 2, "inputs": dict(sorted(inputs.items())),
+            "residue": sorted(audit.residue),
+            "tools": [records[key] for key in sorted(records)]}
+
+
+def serialized(value: object) -> str:
+    """Use one canonical, reviewable generated representation."""
+    return json.dumps(value, sort_keys=True, indent=2) + "\n"
+
+
+def main() -> int:
+    """Generate or compare the installation inventory, failing on drift."""
+# scripts whose table digest mismatches the file, at head
+checked 150 mismatched ['gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py', 'scripts/act_ci.py', 'scripts/check_nvm_record_space.py', 'scripts/ci_case_receipts_selftest.py', 'scripts/ci_workflow_plan_selftest.py', 'scripts/owned_process.py', 'scripts/process_test_support.py', 'scripts/run_all_suites.sh', 'scripts/suite_shards.py', 'scripts/test_suite_cancellation.py', 'sw/builder/endstation_builder.py', 'sw/builder/test_builder.py', 'sw/litex/clock_constraints.py', 'sw/litex/gen_mac_tx_model.py', 'sw/litex/milan_soc.py', 'sw/mailbox/publication_census.py', 'syn/ooc/pp_placement_selftest.py', 'syn/ooc/pp_resource_gate_mutants.py', 'syn/ooc/pp_resource_gate_selftest.py', 'syn/yosys/run.sh', 'tb/verilator/aaf/start_mutants.py', 'tb/verilator/avtp_rxmon/lockstep_mutants.py', 'tb/verilator/capture_coherence/mutants.py', 'tb/verilator/crf_rx/mutants.py', 'tb/verilator/follow_ring/mutants.py', 'tb/verilator/follow_ring/sweep.py', 'tb/verilator/gptp_plane/phc_step.py', 'tb/verilator/gptp_shadow/test_mutant_lifecycle.py', 'tb/verilator/gptp_txts/mutants.py', 'tb/verilator/mbx/mutants.py', 'tb/verilator/milan_dp/dynmap_mutants.py', 'tb/verilator/milan_dp/gsi_mutants.py', 'tb/verilator/milan_dp/render_mutants.py', 'tb/verilator/milan_dp/stream_counters.py', 'tb/verilator/milan_dp_gm_steps/gmstep_mutants.py', 'tb/verilator/milan_dp_mclk/mclk_mutants.py', 'tb/verilator/milan_dp_render/tdm8_render_mutants.py']
+# tool-inventory inputs vs files, head and base
+head inputs 378 readable 368 stale ['.github/workflows/docs.yml', '.github/workflows/elaborate.yml', '.github/workflows/rtl-fast.yml', '.github/workflows/rtl.yml', 'ci/image/command-table.json', 'scripts/act_ci.py', 'scripts/check_doc_style.py', 'scripts/check_nvm_record_space.py', 'scripts/check_py_idiom.py', 'scripts/check_solution_docs.py', 'scripts/ci_case_receipts_selftest.py', 'scripts/ci_events.py'] 85 docs_inventory listed: False
+base inputs 378 readable 368 stale ['.github/workflows/docs.yml', '.github/workflows/elaborate.yml', '.github/workflows/rtl-fast.yml', '.github/workflows/rtl.yml', 'ci/image/command-table.json', 'scripts/act_ci.py', 'scripts/check_doc_style.py', 'scripts/check_nvm_record_space.py', 'scripts/check_py_idiom.py', 'scripts/check_solution_docs.py', 'scripts/ci_case_receipts_selftest.py', 'scripts/ci_events.py'] 85 docs_inventory listed: False
+# prior re-pin shape
+acc1019206 Search past underscore emphasis, link syntax and a statement's closing punctuation, and record each
+808602e08d Plant the requirements-page copy as a wrapped block quote, so a search that keeps each line's marke
+c2b687d6fb Search a page for the statement's text before its word-boundary pattern, drop the redundant blank-l
+acc1019206 1	1	ci/image/command-table.json;
+808602e08d 1	1	ci/image/command-table.json;
+c2b687d6fb 1	1	ci/image/command-table.json;
+624c7c43e9 1	1	ci/image/command-table.json;
+4c8b465491 1	1	ci/image/command-table.json;
+cb612ff022 1	1	ci/image/command-table.json;
+0bd07f7bf5 1	1	ci/image/command-table.json;
+1df733019d 1	1	ci/image/command-table.json;
+ea8e364217 19	0	ci/image/command-table.json;
+# module length
+999 scripts/docs_inventory.py
+999
+# Rule 12 ratchets - the Python idiom debt this tree still carries.
+# EVERY NUMBER MAY ONLY GO DOWN. Regenerate with
+#   python3 scripts/check_py_idiom.py --write-budget
+# which refuses to raise one. What each entry counts is in the gate's
+# docstring and in docs/development/CODE_QUALITY.md's Rule 12.
+
+long function                = 9
+long module                  = 10
+unannotated public function  = 0
+undocumented public function = 0
+os.path use                  = 1
+unmanaged open               = 0
+too many parameters          = 7
+global statement             = 0
+over-long line               = 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+idiom rc=0
+    from ci_runtime_workflows import generate as runtime_workflows
+ModuleNotFoundError: No module named 'ci_runtime_workflows'
+workflows rc=1
+diffcheck rc=0
+212b7d6ec506489a4c371e1f214b89a58a60b21e Carry the finding-line arms on the existing controls, so the inventory stays inside the 1000-line m
+
+f5ccb31863a5bd44a03fea4a81a28e5cb09341b2 Drop line counts and line numbers from the generated documentation audit, so a page's length no lon
+
