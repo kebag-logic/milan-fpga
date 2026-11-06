@@ -2204,8 +2204,11 @@ That charge is the measured complete poll plus sixteen maximum measured MDIO tra
 Nine reads bound discovery and the longest negotiation fallback.
 The discovery poll adds the PHY init's four reads and three writes.
 Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
-The service harness grades this derived publication bound against 250 ms.
-The findings page records transaction and complete-poll timings on the target CPU.
+The MDIO bit routine is inlined into both frame loops, so a write costs about what a read does.
+On the cacheless core a call per bit had doubled every transaction (#840).
+The service harness's four `--enforce-service` plans grade this derived bound against 250 ms on both shapes.
+At `4ab1bca0` none reports a PHY finding, and the 8x8 trigger reserve is 3.19136 ms.
+The [findings page](../findings/397_SERVICE_BUDGET.md#phy-poll-derivation-and-simulation) records transaction and complete-poll timings on the target CPU.
 [Issue #599](https://github.com/kebag-logic/milan-fpga/issues/599) retains the physical switch-cycle rerun.
 
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
