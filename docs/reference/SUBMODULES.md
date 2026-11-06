@@ -584,28 +584,35 @@ It lies outside the processor and the datapath.
 
 Placement leaves 70 of 15,850 slices free.
 
-The resource gate refuses this growth.
+The resource gate refused this growth.
 
-The owner decision it needs is pending.
+The [area budget](../design/AREA_BUDGET.md) requires an owner decision for shipping-image growth.
 
-The [area budget](../design/AREA_BUDGET.md) requires that decision for shipping-image growth.
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts it.
 
-It is requested, not made.
+That decision re-baselines the budget.
 
-The gate's records are not re-recorded.
+It covers both mandatory lab-fix pins, this one and #843's.
+
+Every lab fix is routed together before the release build.
+
+The gate's thirteenth record holds this adoption.
 
 The gate ran in its own form at lane commit `b16f0175`.
 
 That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and 1x1 synthesis.
 
+`ooc-8x8` ran at `bf6c5a67`, out of context only.
+
 Later commits change no synthesis input.
 
-| Endpoint | Exit | Refused | Passed |
+| Endpoint | Exit, twelfth record | Refused | Passed |
 |---|---:|---|---|
 | `route-1x1`, ExtraTimingOpt selected | 1 | 52,529 LUTs (+517 of +500), 54,582 FFs (+875 of +600) | 15,835 slices (+55 of +80), RAMB36, RAMB18, DSP, WNS +0.373 ns, WHS +0.012 ns |
 | `ooc-1x1` | 1 | 24,996 LUTs (+650 of +250), 20,934 FFs (+530 of +250) | RAMB36, RAMB18, DSP |
+| `ooc-8x8` | 1 | 36,864 LUTs (+2,708 of +316), 32,036 FFs (+2,254 of +339) | RAMB36, RAMB18, DSP |
 
-`ooc-8x8` was not measured.
+Against that record, `check` exits 0 on every endpoint.
 
 | Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
 |---|---|---:|---:|---:|---:|

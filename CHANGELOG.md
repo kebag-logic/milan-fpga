@@ -89,11 +89,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The shipping route grows 503 LUTs and 478 FFs.
 - Placement leaves 70 of 15,850 slices free.
 - WNS is +0.198 ns; every corner meets the floor.
-- The resource gate refuses this growth: `route-1x1` and `ooc-1x1` exit 1.
+- The resource gate refused this growth on all three endpoints.
 - It selects ExtraTimingOpt at +0.373 ns.
 - That route leaves 15 of 15,850 slices free.
-- The owner decision is pending.
-- The gate's records are not re-recorded.
+- The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts the growth.
+- The gate's records are re-recorded; `check` exits 0.
 - The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
 
 ## Unreleased - gPTP on the MII port
