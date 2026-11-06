@@ -1,0 +1,31 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top link: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+control srp_top share: rc=0 PASS
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+listener-reprobe-abandons-leave: rc=2 failures=3 KILLED tags=PS24,RB2
+listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=45 KILLED tags=PS12,PS13,PS20,PS21,SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=84 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,PS13,PS14,PS20,PS21,PS22,PS23,PS3,PS4,PS5,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17,SH2,SH21,SH23,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+presettle-removed: rc=2 failures=37 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS18,PS19,PS2,PS20,PS21,PS3,PS4,PS5,PS7,PS8,PS9,RB1,RB4,RB6,RB7
+seed-no-registered-strobe: rc=2 failures=26 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS19,PS2,PS20,PS21,PS3,PS4,PS5,PS7,PS8,PS9
+rebind-same-not-kept: rc=2 failures=5 KILLED tags=PS20,PS21
+keep-declares-seed-type: rc=2 failures=2 KILLED tags=PS20
+unarmed-indicates: rc=2 failures=1 KILLED tags=PS22
+unarmed-unregistered: rc=2 failures=1 KILLED tags=PS22
+unarmed-latency-strobe: rc=2 failures=1 KILLED tags=PS22
+pt-link-flush-dropped: rc=2 failures=6 KILLED tags=PS23,PS24
+link-begin-dropped: rc=2 failures=1 KILLED tags=PS23
+unarmed-link-flush-dropped: rc=2 failures=1 KILLED tags=PS23
+keep-on-link-clock: rc=2 failures=1 KILLED tags=PS23
+top-listener-link-unwired: rc=2 failures=1 KILLED tags=LK1
+settled-link-flush-dropped: rc=2 failures=11 KILLED tags=PS24
+settled-link-unpublished: rc=2 failures=5 KILLED tags=PS24
+link-withdraw-dropped: rc=2 failures=6 KILLED tags=PS24
+link-clock-indicates: rc=2 failures=1 KILLED tags=PS24
+settled-link-keeps-lv-slot: rc=2 failures=1 KILLED tags=PS24
+30 checks: 30 PASS, 0 FAIL
