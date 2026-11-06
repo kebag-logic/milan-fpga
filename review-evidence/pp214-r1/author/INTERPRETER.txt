@@ -1,0 +1,21 @@
+Which interpreter each consumer gate ran on, at parent fff0311097 (gitlink cc92e90).
+
+The CI venv (CPython 3.12.3, ci/constraints-ci.txt, sw/litex/litex_pins.txt) lived in the round 1 scratch directory.
+That whole directory was removed by something outside this session while the parent chain ran. The removal is not
+from this lane's commands; what removed it was not established. Its venv was first on PATH, so python3 then fell
+through PATH to the system's 3.14.8 with no error.
+
+Measured from the parent tree's bytecode caches before the tree was cleaned:
+  cpython-312: 69 files, first 12:06:35, last 13:01:01
+  cpython-314: 67 files, first 14:18:13, last 16:36:45
+No 3.14 process imported a parent module before 14:18:13, so every gate that ended by 13:25:48 ran on the venv:
+check_*_idiom and their selftests, docs_check and the docs ratchets, ci_scope_*, lint_rtl, pp_srcs, behave,
+yosys_elaborate, ooc_read_sets, ooc_selftest, guard_selftest, cache_selftest and fw_shard3_srp.
+
+milan_dp (13:25:48 to 15:14:20) straddled the removal. pp_shadow and everything after it ran on 3.14.8. fw_boundary
+failed there, rc 2, on `ModuleNotFoundError: No module named 'migen'`, importing sw/litex/test_ctrl_memory.py, before
+any simulation. Those fourteen gates are kept in first-attempt-system-python/ and are not cited.
+
+The venv was rebuilt from the same pins in this lane's own scratch, and those fourteen gates ran again on clean trees
+(the parent, and a byte-exact copy of it at the same commit for the firmware gates). Each re-run gate asserts the
+interpreter before and after it and records what it saw in <gate>.python; a mismatch would be rc 97.

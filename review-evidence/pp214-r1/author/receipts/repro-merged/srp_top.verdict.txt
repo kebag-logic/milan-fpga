@@ -1,0 +1,9 @@
+FAIL: OV1: a received MSRP LeaveAll and periodic! in one transmission window: no MRPDU carries Domain {6,3,2} twice (7 of 63 frames carrying it; 7 of 34 windows held a periodic!)
+FAIL: OV2: a received MVRP LeaveAll and periodic! in one transmission window: no MRPDU carries VID 2 twice (7 of 63 frames carrying it; 7 of 34 windows held a periodic!)
+FAIL: OV3: the same LeaveAlls: no MRPDU carries the Talker Advertise or the Listener twice, nor any other value (0, 0; 175 frames)
+FAIL: OV4: the own MSRP LeaveAll in each tenth of the periodic! second: no MRPDU carries a value twice (4 of 443 frames; 10 placed, 10 fired, 2 with a periodic! in the window)
+FAIL: OV5: the own MVRP LeaveAll in each tenth of the periodic! second: its LeaveAll MRPDU carries VID 2 once and no MRPDU carries a value twice (9 of 408 frames; 10 placed, 10 fired, 2 with a periodi
+FAIL: OV6: LINK_UP in each tenth of the periodic! second: the first MRPDU carrying Domain {6,3,2} carries it New, and no MRPDU carries it twice (2 of 15 frames; New first 8 of 10)
+FAIL: OV7: a differing Domain adopted in each tenth of the periodic! second: Lv {6,3,2} and New {6,5,5}, and no MRPDU carries a value twice (2 of 16 frames; 8 of 10 with the Lv and the New first)
+FAIL: OV0: every MRPDU of the run carries each attribute value in at most one VectorAttribute (69 of 17650 frames carry one twice)
+8683 checks: 8675 PASS, 8 FAIL

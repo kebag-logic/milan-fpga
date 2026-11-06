@@ -1,0 +1,14 @@
+{
+  "launcher_bytes": 4303,
+  "launcher_sha256": "9f97e261011f5d25f675ef1dbd663b4d8125e86c4ac044329f7ccec3b526ab7e",
+  "processor_head": "fefb2b3c7d8255aac2ddfab4cac053b5ecbb9715",
+  "required_script_exists": false,
+  "required_gitmodules_exists": false,
+  "available_sweep": "scripts/run_suites.sh",
+  "available_sweep_has_shard_option": false,
+  "launcher_assumptions": [
+    "assert len(suite) == 1, 'the spec must hold exactly one suite sweep'",
+    "out = subprocess.run(src + ['--get-regexp', r'^submodule\\..*\\.path$'], cwd=repo, capture_output=True, text=True, check=True).stdout",
+    "cmd = prefix + ['bash', 'scripts/run_all_suites.sh', str(shard_dir / 'logs'), '--wait', '--shard', f'{k}/{n}']"
+  ]
+}

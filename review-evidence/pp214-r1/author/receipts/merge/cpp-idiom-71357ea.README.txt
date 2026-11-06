@@ -1,0 +1,6 @@
+The first run of check_cpp_idiom.py at the merge 71357ea (the gitlink of the scratch parent before fefb2b3) printed:
+
+FAIL: multi-declarator declaration 13 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+FAIL: long function 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+
+rc 1. Its log was overwritten by the re-run at fefb2b3; cpp-idiom-counts-71357ea.txt re-derives both numbers with the gate's own scan() over the two files at 71357ea (2 + 11 = 13; 1), and cpp-idiom-sites-71357ea.txt names each with the gate's sites().

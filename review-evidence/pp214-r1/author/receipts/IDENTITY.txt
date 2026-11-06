@@ -1,0 +1,50 @@
+Processor head: cc92e90a95376151a9ebd484c429bc53feb8573c
+Main comparison: 9210065779b0f698fd7bdb22323a1ed5b8482677
+Worktree dirty entries in the clean clone: 0
+
+Commits since round 1 (first parent):
+cc92e90 Record the merged testbench's count against the base RTL in the srp_top README, 8683 checks and 17,650 MRPDUs (issue #214)
+fefb2b3 Declare one variable per statement in the PV and OV rows and give each OV row its own function, Rule 11 (issue #214)
+71357ea Merge main 92100657 into 214-one-vector-per-value
+
+Merge parents:
+71357ea e692a97 9210065 Merge main 92100657 into 214-one-vector-per-value
+
+Changes against main:
+ docs/architecture/09_verification.md               |  23 +
+ docs/architecture/10_srp_engine.md                 |  66 ++-
+ hdl/srp/KL_srp_encoder.sv                          | 158 ++++++-
+ tb/srp_encoder/README.md                           |  58 ++-
+ tb/srp_encoder/sim_main.cpp                        | 255 ++++++++++-
+ tb/srp_top/README.md                               |  85 +++-
+ tb/srp_top/mutants.py                              |  26 +-
+ tb/srp_top/mutations/action-omitted.patch          |   6 +-
+ tb/srp_top/mutations/before-slot.patch             |   6 +-
+ tb/srp_top/mutations/encoder-peer-ignored.patch    |  10 +-
+ tb/srp_top/mutations/join-displaces-new.patch      |  11 +
+ tb/srp_top/mutations/leave-does-not-replace.patch  |  11 +
+ .../listener-shares-nothing-encoder-appends.patch  |  22 +
+ tb/srp_top/mutations/listener-type-oldest.patch    |  11 +
+ tb/srp_top/mutations/merge-ignores-type.patch      |  11 +
+ tb/srp_top/mutations/my-edge-cancel-lost.patch     |   6 +-
+ tb/srp_top/mutations/preparation-before-slot.patch |   4 +-
+ tb/srp_top/mutations/r-reuse-without-action.patch  |   6 +-
+ tb/srp_top/mutations/repeated-action.patch         |   6 +-
+ .../mutations/reserved-slot-not-reused.patch       |   4 +-
+ tb/srp_top/mutations/s-displaces-declaration.patch |  12 +
+ tb/srp_top/mutations/search-no-restart.patch       |  11 +
+ tb/srp_top/mutations/second-queueing.patch         |  11 +
+ tb/srp_top/sim_main.cpp                            | 501 ++++++++++++++++++++-
+ tb/srp_top/srp_top_wrap.sv                         |   7 +
+ 25 files changed, 1268 insertions(+), 59 deletions(-)
+
+Files under hdl/ changed against main:
+hdl/srp/KL_srp_encoder.sv
+
+Listener FSM diff against main (lines): 0
+KL_srp_encoder module header (parameters and ports, comments stripped), sha256 main 578f5d3d80d5dbdd, head 578f5d3d80d5dbdd: identical
+The one header line the diff touches is the comment on ev_ready_o.
+
+Changes since fefb2b3:
+ tb/srp_top/README.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)

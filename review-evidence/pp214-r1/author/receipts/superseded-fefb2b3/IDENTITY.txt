@@ -1,0 +1,36 @@
+Processor head: fefb2b3c7d8255aac2ddfab4cac053b5ecbb9715
+Main comparison: 9210065779b0f698fd7bdb22323a1ed5b8482677
+Worktree status:
+Changes against main:
+ docs/architecture/09_verification.md               |  23 +
+ docs/architecture/10_srp_engine.md                 |  66 ++-
+ hdl/srp/KL_srp_encoder.sv                          | 158 ++++++-
+ tb/srp_encoder/README.md                           |  58 ++-
+ tb/srp_encoder/sim_main.cpp                        | 255 ++++++++++-
+ tb/srp_top/README.md                               |  85 +++-
+ tb/srp_top/mutants.py                              |  26 +-
+ tb/srp_top/mutations/action-omitted.patch          |   6 +-
+ tb/srp_top/mutations/before-slot.patch             |   6 +-
+ tb/srp_top/mutations/encoder-peer-ignored.patch    |  10 +-
+ tb/srp_top/mutations/join-displaces-new.patch      |  11 +
+ tb/srp_top/mutations/leave-does-not-replace.patch  |  11 +
+ .../listener-shares-nothing-encoder-appends.patch  |  22 +
+ tb/srp_top/mutations/listener-type-oldest.patch    |  11 +
+ tb/srp_top/mutations/merge-ignores-type.patch      |  11 +
+ tb/srp_top/mutations/my-edge-cancel-lost.patch     |   6 +-
+ tb/srp_top/mutations/preparation-before-slot.patch |   4 +-
+ tb/srp_top/mutations/r-reuse-without-action.patch  |   6 +-
+ tb/srp_top/mutations/repeated-action.patch         |   6 +-
+ .../mutations/reserved-slot-not-reused.patch       |   4 +-
+ tb/srp_top/mutations/s-displaces-declaration.patch |  12 +
+ tb/srp_top/mutations/search-no-restart.patch       |  11 +
+ tb/srp_top/mutations/second-queueing.patch         |  11 +
+ tb/srp_top/sim_main.cpp                            | 501 ++++++++++++++++++++-
+ tb/srp_top/srp_top_wrap.sv                         |   7 +
+ 25 files changed, 1268 insertions(+), 59 deletions(-)
+Protected Listener FSM diff against main:
+Merge commit:
+71357ea
+e692a97e4c45dafcfd5baa91611ffaa25141b624 9210065779b0f698fd7bdb22323a1ed5b8482677
+Merge main 92100657 into 214-one-vector-per-value
+

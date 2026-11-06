@@ -1,0 +1,1 @@
+These runs were deliberately terminated at STOP because the required sharded launcher cannot run the processor tree. They are partial evidence, not passed gates. Nonzero termination statuses are interruptions, not classified test failures.

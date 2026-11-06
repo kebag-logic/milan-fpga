@@ -1,0 +1,1 @@
+env PATH=<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin python3 scripts/check-req-tags.py --suites <scratch>/runs-cc92e90/proc/sweep/suites.txt --evidence <scratch>/runs-cc92e90/proc/sweep/req-tags.txt

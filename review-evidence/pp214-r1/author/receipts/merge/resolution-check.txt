@@ -1,0 +1,25 @@
+merge 71357ea95e59487a3bd99fe9f15909c2d89ff826 ours e692a97e4c45dafcfd5baa91611ffaa25141b624 theirs 9210065779b0f698fd7bdb22323a1ed5b8482677 base a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+tb/srp_top/mutants.py: 389 context lines in order in the resolution: True; 2 hunks
+  hunk 0: ours 17 lines, 17 kept verbatim; theirs 90 lines, 90 kept verbatim
+  hunk 1: ours 1 lines, 0 kept verbatim; theirs 1 lines, 0 kept verbatim
+    ours line joined or re-measured:                      ("SH", 24), ("SW", 7), ("TP", 9), ("OV", 7)]
+    theirs line joined or re-measured:                      ("SH", 24), ("SW", 7), ("TP", 9), ("PS", 24), ("LK", 1)]
+tb/srp_top/sim_main.cpp: 3689 context lines in order in the resolution: True; 2 hunks
+  hunk 0: ours 9 lines, 9 kept verbatim; theirs 1 lines, 1 kept verbatim
+  hunk 1: ours 1 lines, 0 kept verbatim; theirs 1 lines, 0 kept verbatim
+    ours line joined or re-measured:       && strcmp(group,"domjoin") && strcmp(group,"share") && strcmp(group,"onevec")) return 2;
+    theirs line joined or re-measured:       && strcmp(group,"domjoin") && strcmp(group,"share") && strcmp(group,"link")) return 2;
+tb/srp_top/README.md: 1106 context lines in order in the resolution: True; 4 hunks
+  hunk 0: ours 1 lines, 0 kept verbatim; theirs 1 lines, 0 kept verbatim
+    ours line joined or re-measured: `make` = build + run, exit 0 = PASS, **8681 checks**. `make` first runs the
+    theirs line joined or re-measured: `make` = build + run, exit 0 = PASS, **8671 checks**. `make` first runs the
+  hunk 1: ours 1 lines, 0 kept verbatim; theirs 1 lines, 0 kept verbatim
+    ours line joined or re-measured: `armdelay`, `restart`, `timers`, `join`, `lvleave`, `lvcoll`, `domjoin`, `share` or `onevec` selects one group for a focused run,
+    theirs line joined or re-measured: `armdelay`, `restart`, `timers`, `join`, `lvleave`, `lvcoll`, `domjoin`, `share` or `link` selects one group for a focused run,
+  hunk 2: ours 1 lines, 0 kept verbatim; theirs 1 lines, 0 kept verbatim
+    ours line joined or re-measured: | `listener-settle-compare-dropped` | the settle never finds another sink on its stream_id, so every sink is a group of its own and declares the value
+    theirs line joined or re-measured: | `listener-settle-compare-dropped` | the settle never finds another sink on its stream_id, so every sink is a group of its own and declares the value
+  hunk 3: ours 9 lines, 7 kept verbatim; theirs 5 lines, 4 kept verbatim
+    ours line joined or re-measured: The counts are failing checks per run. The assertion-coverage check requires SH1-SH24 and
+    ours line joined or re-measured: SW1-SW7. Since issue #214 the encoder keeps one pending entry per value, so a sink that
+    theirs line joined or re-measured: check requires SH1-SH24 and SW1-SW7. Issue #193 moved the context of nine issue #188 patches: `listener-lo-not-owed`,
