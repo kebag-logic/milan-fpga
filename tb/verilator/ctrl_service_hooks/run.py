@@ -248,13 +248,15 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def plant_wanted(plant: hooks.Plant) -> str:
+    """What a finding must start with to catch a plant: its words, then the path it delays when it names one, so a
+    path its group already misses unplanted cannot catch it (#665)."""
+    return plant.words if plant.probe is None else f'{plant.words}: {plant.probe}'
+
+
 def plant_findings(plant: hooks.Plant, findings: list[str]) -> list[str]:
-    """The findings that catch a plant: its words, on the path it delays when it names one, so a path its group
-    already misses unplanted cannot catch it (#665)."""
-    prefix = plant.words + ':'
-    if plant.probe is not None:
-        prefix += ' ' + plant.probe + ':'
-    return [finding for finding in findings if finding.startswith(prefix)]
+    """The findings that catch a plant."""
+    return [finding for finding in findings if finding.startswith(plant_wanted(plant) + ':')]
 
 
 def main() -> int:
@@ -323,9 +325,8 @@ def main() -> int:
     print(f'{point}, {label}, face arm {spec["arm"]}: {len(groups)} groups, {len(graded["rows"])} paths, '
           f'{len(graded["refusals"])} refusals, {len(graded["findings"])} findings')
     if plant:
-        words = plant[1].words
         caught = plant_findings(plant[1], graded['findings'])
-        found = caught[0] if caught else f'{words} not found'
+        found = caught[0] if caught else f'{plant_wanted(plant[1])} not found'
         print(f'PLANT {args.plant} {"caught" if caught else "ESCAPED"}: {found}')
         return 0 if caught else 1
     unapplied = [h for h, c in graded['checks'].items() if not c['applied']]

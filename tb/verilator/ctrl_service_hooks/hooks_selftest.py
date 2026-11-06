@@ -424,7 +424,7 @@ def check_plant_verdict() -> None:
         others = [x for x in paths if x != plant.probe] + ['another.if0', *([f'{plant.probe}1'] if late_plant else [])]
         unplanted = [f'{words}: {x}: 27.581 ms against its bound 20 ms ({plant.group})' for x in others]
         status, line = plant_verdict(name, unplanted)
-        expect(status == 1 and line.startswith(f'PLANT {name} ESCAPED'),
+        expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
                f'{name}: reported caught with no plant applied, rc {status}: {line}')
         own = f'{plant.words}: {plant.probe or "the defect"}: 81.819 ms against its bound 20 ms ({plant.group})'
         status, line = plant_verdict(name, [*unplanted, own])
