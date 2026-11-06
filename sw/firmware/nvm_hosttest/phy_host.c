@@ -44,9 +44,9 @@ static int last_write(unsigned int reg, unsigned int first)
 /* #840: the PHY init's writes from write `first` on, each property asserted
  * by its own name against the registers it started from. Register 9 and
  * register 4 carry the advertisement (IEEE 802.3-2022 Table 40-3, Table
- * 28B-1, Table 28-2, 28.2.4.1.3), and register 0 then enables and restarts
- * auto-negotiation (22.2.4.1.7) once, after both, with reset and isolate
- * clear (22.2.4.1.1, 22.2.4.1.6). */
+ * 28B-1, Table 28-2, 28.2.4.1.3), and register 0 then enables (22.2.4.1.4)
+ * and restarts (22.2.4.1.7) auto-negotiation once, after both, with reset
+ * and isolate clear (22.2.4.1.1, 22.2.4.1.6). */
 static void expect_gigabit_only_advertisement(unsigned int first, unsigned int restarts_expected)
 {
 	const int at4 = last_write(4, first);
@@ -299,8 +299,10 @@ int main(void)
 		}
 	}
 	/* #840: a gigabit PHY strapped with auto-negotiation disabled, forced
-	 * to 100 Mb/s full duplex: the PHY init enables auto-negotiation as it
-	 * restarts it, and the poll then publishes 1000BASE-T full duplex. */
+	 * to 100 Mb/s full duplex. The PHY init sets bit 0.12 (22.2.4.1.4),
+	 * which leaves Figure 28-18's AUTO-NEGOTIATION ENABLE state, so
+	 * negotiation starts even where the PHY ignores the bit 0.9 written
+	 * with it (22.2.4.1.7); the poll then publishes 1000BASE-T full duplex. */
 	{
 		const unsigned int writes_before = writes;
 		const unsigned int restarts_before = restarts;

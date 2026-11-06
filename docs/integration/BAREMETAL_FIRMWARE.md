@@ -2178,7 +2178,7 @@ It writes register 9 with 1000BASE-T full duplex and keeps its MASTER-SLAVE bits
 Its test-mode, half duplex and reserved bits are written as zero.
 It writes register 4 without 10/100 or 100BASE-T4, keeping the selector and pause bits (28.2.4.1.3).
 Reserved bit 14 is written as zero (Table 28-2).
-It then enables and restarts auto-negotiation through register 0 (22.2.4.1.7), once per boot.
+It then enables (22.2.4.1.4) and restarts (22.2.4.1.7) auto-negotiation through register 0, once per boot.
 That write clears reset and isolate.
 An unacknowledged read of registers 15, 4, 9 or 0 writes nothing; the next poll retries.
 The AX7101 MAC runs at 1 Gb/s only, so a partner without 1000BASE-T gets no link.
