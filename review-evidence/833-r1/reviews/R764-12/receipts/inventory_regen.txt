@@ -1,0 +1,26 @@
+== check at head
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+== selftest
+documentation inventory selftest: OK (50 controls)
+rc=0
+== write at head
+wrote docs/DOCUMENTATION_AUDIT.md
+rc=0
+== status after write
+== check after write
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+== regenerate on merge commit 3f4e39f3 (pre-regen)
+docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference at line 31:
+  committed: | stale | 16 | 10,638 |
+  generated: | stale | 16 | 10,722 |
+regenerate with: python3 scripts/docs_inventory.py --write
+check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+ M docs/DOCUMENTATION_AUDIT.md
+audit page blob after write: 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b head blob: 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b
+json blob: 242c0553d4e5f94702ead9b3a25480eabbf10297 head: 242c0553d4e5f94702ead9b3a25480eabbf10297 dev: 242c0553d4e5f94702ead9b3a25480eabbf10297
+ docs/DOCUMENTATION_AUDIT.md | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)

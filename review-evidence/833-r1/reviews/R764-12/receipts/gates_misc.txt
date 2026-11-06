@@ -1,0 +1,9 @@
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+em_dash rc=2
+diff_check rc=0
+regen commit added lines with lane/round/reviewer labels:
+grep rc=1 (1 = none)
+merge commit: combined-diff evil-hunk check (hunks not from either parent):
+cc-lines=0
+3e475161e528baa655a5ba84d6a38d78f8c64f3b Regenerate the documentation inventory on the merge of dev cc204c6f: 213 pages, 176 current and 16 stale (#833)
+3f4e39f35d19b416b7acb3a570273bfb1a327c0d Merge dev cc204c6f into 833-owned-process
