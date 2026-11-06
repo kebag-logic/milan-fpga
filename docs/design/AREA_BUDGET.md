@@ -148,6 +148,10 @@ The table is the gate's record.
 The slice row is the binding limit: the shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` places 15,823 slices, so placement has 27 of 15,850 left.
 That route meets the build floor at every corner, at +0.032 / +0.034 ns. Its WNS is 0.408 ns under the record's, beyond the 0.25 ns fall tolerance.
 Before [#818](https://github.com/kebag-logic/milan-fpga/issues/818) the gate refused that fall; under #818 it prints a WARNING and passes.
+On dev `cc204c6f` (processor `a9e84b66`) the shipping route places 15,841 slices, 9 left, at +0.236 / +0.036 ns.
+At FPGA-gPTP `1616fc8f` ([#843](https://github.com/kebag-logic/milan-fpga/issues/843)) it places 15,846, 4 left, with 701 LUTs, 187 FFs and two DSPs more.
+Its slow corners reach +0.018 ns, under the +0.03 ns build floor, on the shipping directive, the only one routed; its worst path is the SoC's SDRAM controller.
+The gate refuses that route on its LUT (+683 over the record, tolerance 500), DSP (+2, tolerance 0) and WNS floor rows; the decision is open on #843.
 Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); #806's route meets the build floor at every corner on its best directive.
 The [#787](https://github.com/kebag-logic/milan-fpga/issues/787) route, processor `1be824fc` with the REBOOT reset, places 15,793 slices, so 57 are left.
 That route's WNS, +0.107 ns, was 0.333 ns under the record's +0.440 ns; its worst path was the SoC's SDRAM port arbitration, outside the change.

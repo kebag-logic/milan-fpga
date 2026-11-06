@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -436,6 +436,63 @@ The best directive meets the build floor at every corner.
 
 Both standalone endpoints equal the record in every figure.
 
+Issue #843 adopts gPTP pin `1616fc8f`.
+
+The processor stays at `a9e84b66`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #98, Follow_Up TLV walk | [99](https://github.com/Mister-M-alt/FPGA-gPTP/pull/99) | The parser walks a Follow_Up's TLV chain within messageLength to the Follow_Up information TLV, so a TLV of another type ahead of it is passed over (IEEE 802.1AS-2011 Section 11.4.1); a malformed chain is refused |
+| #100, Follow_Up TLV values, announce receipt timeout, stricter readings | [101](https://github.com/Mister-M-alt/FPGA-gPTP/pull/101) | As grandmaster the Follow_Up information TLV carries gmTimeBaseIndicator, lastGmPhaseChange and scaledLastGmFreqChange (Sections 10.2.8.2.1 i) to l), 10.2.9, 11.4.4.3). The announce receipt timeout is announceReceiptTimeout times the interval the received Announce carries (Section 10.3.9.1). An Announce at the timeout instant ages the port first. A Pdelay response later than the Milan v1.2 Section 4.2.6.2.6 bound counts as lost. clockAccuracy is a generator option, `--clock-accuracy` (Section 8.6.2.3) |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The builder passes each config's clockAccuracy to the generator.
+
+The AX7101 configs state `0x22`, the Arty configs `0xFE`.
+
+`0x22` is the maintainer's 2026-11-05 decision.
+
+The Arty's oscillator is not characterised.
+
+So its configs state unknown (8.6.2.3 b).
+
+An omitted key is `0xFE` too.
+
+The AX7101 hash-derived model ids move; the Arty's stay.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The `milan_dp` gptp leg grades `0x22` on the wire.
+
+Its gptp-lat leg runs the Arty image and grades `0xFE`.
+
+Route-1x1, shipping directive only, against dev `cc204c6f`:
+
+| Figure | Dev `cc204c6f` | This pin | Change |
+|---|---:|---:|---:|
+| LUT | 51,994 | 52,695 | +701 |
+| FF | 54,101 | 54,288 | +187 |
+| Slice of 15,850 | 15,841 | 15,846 | +5 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 13 | 15 | +2 |
+| WNS, slow corners | +0.236 ns | +0.018 ns | -0.218 ns |
+| WHS, fast corners | +0.036 ns | +0.015 ns | -0.021 ns |
+
+Both routes complete with no routing error.
+
+This pin's slow corners miss the +0.03 ns floor.
+
+Its worst path is the SoC's SDRAM controller.
+
+The resource gate refuses the LUT, DSP and WNS rows.
+
+The other two directives were not routed.
+
+The decision on this route is open on #843.
+
 Issue #787 adopts processor pin `a9e84b66`.
 
 It is the merge commit of processor PR #209.
@@ -647,10 +704,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 
