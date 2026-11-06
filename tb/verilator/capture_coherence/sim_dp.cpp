@@ -285,6 +285,11 @@ void DatapathHarness::restart(const Scenario& sc) {
     fsync_prev_ = dut_->tdm_fsync_o;
     if (sc.pto != kPtoNs) set_offsets(sc.pto);
     cycle(512);
+    //! #839: the fabric holds every CSR-addressed transmitter until both
+    //! halves of the station MAC are written, as configure_fabric() does.
+    //! This leg keeps the reset address (all zero) its stream IDs root in.
+    axi_write(0x108, 0x0);
+    axi_write(0x10C, 0x0);
 }
 
 //! #773: both outputs' presentation offsets, poked into the processor's
