@@ -1,0 +1,21 @@
+endpoint ooc-1x1: <scratch>/w/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              24346       24996       650  REGRESSION: grew by more than 250
+FF               20404       20934       530  REGRESSION: grew by more than 250
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp/u_srp: LUT +726, FF +522
+  u_pp: LUT +656, FF +528
+  wrapper: LUT +650, FF +530
+  u_pp/u_srp/u_listener: LUT +416, FF +523
+  u_pp/u_srp/u_decoder: LUT +341, FF +0
+  u_pp/u_srp/u_talker: LUT -238, FF +0
+  u_pp/u_srp/u_vlan: LUT +170, FF +0
+  u_pp/u_aecp/u_d3: LUT -96, FF -2
+  u_pp/u_notify: LUT -80, FF +0
+  u_pp/u_timer: LUT +80, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +74, FF +0
+  u_pp/u_aecp: LUT -64, FF +0
+RESULT: MATERIAL REGRESSION

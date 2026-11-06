@@ -1,0 +1,6 @@
+[A738d] TAKEN
+Branch: 845-adopt-pp-92100657, round 3 on top of `bf6c5a67778a5e5d479ae51b3b4377ad4f763801`, no rebase, no force
+Authoritative references: the [A10] round 3 ruling on this issue; the maintainer decision issuecomment-6689114981; `docs/design/AREA_BUDGET.md`; `docs/testing/PP_SHADOW_BASELINE_RECIPE.md` (Standalone measurements, Resource gate)
+Interpreted scope: (1) replace "decision pending" with the decision in `docs/design/AREA_BUDGET.md`, `docs/reference/SUBMODULES.md` and `CHANGELOG.md`, citing issuecomment-6689114981, keeping the measured figures, the three directives and the statement that the selected directive leaves 15 slices. (2) Measure `ooc-8x8` out of context at the head; 8x8 is not routed. (3) Re-baseline `syn/ooc/pp_resource_baseline.json` through `pp_resource_gate.py` with the figures measured for this pin. (4) Update the prepared PR body. `Closes #845` stays.
+Validation plan: `pp_resource_gate.py check` exit 0 on `route-1x1`, `ooc-1x1` and `ooc-8x8`; `check-baseline` exit 0; every `run:` step of `.github/workflows/docs.yml` on a clean clone; `docs_inventory.py --check`; `git diff --check` against the merge base; the privacy check at 0. No full sweep, as assigned.
+Blockers: none.

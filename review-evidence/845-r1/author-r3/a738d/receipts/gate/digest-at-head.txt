@@ -1,0 +1,25 @@
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (he
+ 9210065779b0f698fd7bdb22323a1ed5b8482677 protocol-processor
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP 
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilo
+clone at 853ca25ae00fe26b09e019fbfe70893666617fc1
+route-1x1 head e54a402d2c5de3f85fe999ae24cee1108310ba64a015345c5d0e72d880185243 record 91f650a9870d89552757db0fdd7392fcc8b6efd654239fde4cbc2140ca9e779e DIFFERENT
+ooc-1x1 head 92f11ad29ac9a18ba69a12522b95fa6b592fb0c5afa253cf540ef0c1272e8a3b record 575279aa12c6cb8e4262a85b276c8021659c15aa7d6289eb86e30bc97b0b875e DIFFERENT
+ooc-8x8 head 72969eba9bd4ff1bd9fd6756ff91211b90b09121610c0f614ec534df2ccf4e20 record ce6d4134f01fa492f93bed149ec67faffa5dc475ef9dcbe53fe11b11b6f9b336 DIFFERENT
+
+# per-item comparison, measured export against the head export
+files 131 131
+DIFF alinx_ax7101.v alinx_ax7101.v 1784282 1784282 c/w/ax7101/gateware/alinx_ax7101.v d/digest-<head>/w1/ax7101/gateware/alinx_ax7101.v
+generics equal True
+images equal True
+
+# with the generated top's block comments removed too
+route-1x1: gate digest DIFFERENT; without block comments EQUAL 738b8b33fb352c0c61bb5ad3b00aba1210163cab18712c99e78f7921af4a7f56
+ooc-1x1: gate digest DIFFERENT; without block comments EQUAL 07bf16ab1bfa243177028a15124c96d3b92dbd3e35f8106c58a71025ba7f991f
+ooc-8x8: gate digest DIFFERENT; without block comments EQUAL e92fa457b2b7e4b43ef9cdadc6c7854c50a7d9e6a898f5e15134d8675653dc74
+rc=0
+
+# two exports at the same commit, PYTHONHASHSEED=0: 18 differing lines, all inside the module-tree block comment
+same-commit exports, block and line comments removed, roots normalised: equal = True
