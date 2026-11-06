@@ -1,0 +1,9 @@
+# boot-both: python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <packet>/scratch/out-boot-both
+# head b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+# start 2026-11-06T19:48:11Z
+NATIVE exit status 1; == ctrl_split_boot: checks: 1   failures: 1 ==
+FINDING: NATIVE: the model exited 1
+FINDING: NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit
+FINDING: BOOT: no ready line; transcript ''
+ctrl_split_boot: FAIL (3 finding(s))
+# end 2026-11-06T19:54:03Z rc=1

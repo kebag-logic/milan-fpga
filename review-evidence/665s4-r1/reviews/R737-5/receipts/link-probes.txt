@@ -1,0 +1,20 @@
+# link-probes: bash <packet>/scripts/link_probes.sh <packet>/scratch/real <packet>/scratch/out-boot-base <packet>/scratch/link-out
+# head b7fe6a777e562359d2a5693f3f4285fb6bd8f1ce
+# start 2026-11-06T19:48:11Z
+== a logging compiler: the refusals call it never, the complete map's control calls it
+no-map: rc=2 compiler calls=0 files left=0
+  REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py wr
+json-only: rc=2 compiler calls=0 files left=0
+  REFUSED: the flash map lacks generated/csr.h and generated/mem.h: a split platform image is never linked on the flash po
+lacks-csr: rc=2 compiler calls=0 files left=0
+  REFUSED: the flash map lacks generated/csr.h: a split platform image is never linked on the flash port's RV32 stand-ins;
+lacks-mem: rc=2 compiler calls=0 files left=0
+  REFUSED: the flash map lacks generated/mem.h: a split platform image is never linked on the flash port's RV32 stand-ins;
+control-complete: rc=2 compiler calls=1 files left=4
+  REFUSED: RV32 compiler did not identify its freestanding headers
+== the real compiler
+complete: rc=0 elf=yes
+  ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0; sha256 9cdee2856e4708e0
+relative: rc=0 elf=yes
+  ls_ lines 355; lui 0xf0004: 0; lui 0x20000: 0; sha256 9cdee2856e4708e0
+# end 2026-11-06T19:48:31Z rc=0
