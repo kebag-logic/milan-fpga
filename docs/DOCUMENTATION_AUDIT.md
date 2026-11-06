@@ -27,11 +27,11 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages | Lines |
 |---|---:|---:|
-| current | 176 | 73,662 |
+| current | 176 | 73,796 |
 | stale | 16 | 10,744 |
 | superseded | 0 | 0 |
 | obsolete | 21 | 8,002 |
-| **total** | **213** | **92,408** |
+| **total** | **213** | **92,542** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -159,12 +159,12 @@ Areas follow the directory tree.
 
 | Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
 |---|---:|---|---|---|---|---|---|---|
-| [docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md) | 651 | maintainer | Area budget | `syn/ooc`, `syn/yosys`, `configs/generated` | current | no recorded contradiction | area lane | design |
+| [docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md) | 667 | maintainer | Area budget | `syn/ooc`, `syn/yosys`, `configs/generated` | current | no recorded contradiction | area lane | design |
 | [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | 346 | maintainer | Grandmaster loss and recovery | `tb/verilator/milan_dp_gm_steps`, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | 724 | maintainer | Fabric gPTP plane | `tb/verilator/gptp_txts`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) | 381 | maintainer | MAAP in fabric - design + reference contract (task #18) | `hdl/ieee1722/maap`, `hdl/milan`, `tb/verilator/maap`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 | [docs/design/MAILBOX_SPLIT.md](design/MAILBOX_SPLIT.md) | 1363 | firmware developer | Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0) | `sw/firmware/ctrl`, `hdl/milan/mailbox`, `sw/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
-| [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | 1747 | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | 1748 | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/MARK_II_STREAM_ENGINES.md](design/MARK_II_STREAM_ENGINES.md) | 1288 | maintainer | Mark II stream engines at 32x32 | Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS, 802.1BA | current | no recorded contradiction | area lane | design |
 | [docs/design/MEDIA_CLOCK_FOLLOWING.md](design/MEDIA_CLOCK_FOLLOWING.md) | 2516 | maintainer | Media-clock following: one selected AAF or CRF source | `hdl/ieee1722/crf`, `hdl/milan`, `sw/builder`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | design |
 | [docs/design/PRESENTATION_TIME_WRAP.md](design/PRESENTATION_TIME_WRAP.md) | 340 | maintainer | Presentation time, the 4.295 s wrap, and why a far-off clock alternates | `hdl/ieee1722/aaf`, `hdl/ieee1722/avtp`, `hdl/milan`, 1722-2016 | current | no recorded contradiction | area lane | design |
@@ -194,7 +194,7 @@ Areas follow the directory tree.
 |---|---:|---|---|---|---|---|---|---|
 | [docs/findings/117_AUDIO_CONTINUITY.md](findings/117_AUDIO_CONTINUITY.md) | 1349 | bench/qualification | Audio continuity against the reference peer on the ec0cc0c1 image | `avdecc`, `scripts`, 1722.1-2021 | current | no recorded contradiction | area lane | findings |
 | [docs/findings/117_GPTP_SILICON_EVIDENCE.md](findings/117_GPTP_SILICON_EVIDENCE.md) | 1104 | bench/qualification | gPTP silicon evidence for issue 117: one AX7101 against the reference peer | `scripts`, `configs`, `tb/tools`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | findings |
-| [docs/findings/234_PP_SHADOW_AREA_BASELINE.md](findings/234_PP_SHADOW_AREA_BASELINE.md) | 1426 | bench/qualification | Protocol processor area baseline for issue #234 | `hdl/milan`, `hdl/ieee1722/aaf`, `hdl/ieee1722/maap`, 1722-2016 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/234_PP_SHADOW_AREA_BASELINE.md](findings/234_PP_SHADOW_AREA_BASELINE.md) | 1536 | bench/qualification | Protocol processor area baseline for issue #234 | `hdl/milan`, `hdl/ieee1722/aaf`, `hdl/ieee1722/maap`, 1722-2016 | current | no recorded contradiction | area lane | findings |
 | [docs/findings/387_SOFTWARE_GM_STEP.md](findings/387_SOFTWARE_GM_STEP.md) | 556 | bench/qualification | Software grandmaster steps on a running CRF stream | -- | current | no recorded contradiction | area lane | findings |
 | [docs/findings/394_387_E1_SWITCH_CYCLES.md](findings/394_387_E1_SWITCH_CYCLES.md) | 477 | bench/qualification | Ten e1 switch power cycles | `sw/litex`, `hdl/ieee1722/avtp` | current | no recorded contradiction | area lane | findings |
 | [docs/findings/397_SERVICE_BUDGET.md](findings/397_SERVICE_BUDGET.md) | 337 | bench/qualification | Firmware service intervals at 50 MHz | `tb/verilator/fw_service_budget`, Milan v1.2 | current | no recorded contradiction | area lane | findings |
@@ -311,7 +311,7 @@ Areas follow the directory tree.
 | [docs/reference/PP_DESCRIPTOR_OWNERSHIP.md](reference/PP_DESCRIPTOR_OWNERSHIP.md) | 392 | integrator | Processor descriptor ownership and evidence | `avdecc`, `sw/builder`, `scripts`, Milan v1.2, 1722.1-2021 | stale | 6 finding(s): D0-050, D0-051, D0-052, D0-053, D0-054, D0-055 | D0 | reference |
 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 2580 | integrator | Milan TSN CSR - register map (ABI) | `configs`, `hdl/milan`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 11 finding(s): D0-006, D0-007, D0-008, D0-014, D0-015, D0-016, D0-017, D0-057, D0-058, D0-059, D0-060 | D0 | reference |
 | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 153 | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | stale | 6 finding(s): D0-018, D0-040, D0-041, D0-042, D0-043, D0-044 | D0 | reference |
-| [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | 778 | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+| [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | 785 | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
 | [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | 400 | firmware developer | What is being logged - the trace event catalogue | `sw/trace` | stale | 2 finding(s): D0-048, D0-049 | D0 | reference |
 
 ### docs/templates
