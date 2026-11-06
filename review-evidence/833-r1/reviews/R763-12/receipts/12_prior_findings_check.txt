@@ -1,0 +1,16 @@
+## R763-11-R1 wording at HEAD
+HEAD:docs/testing/TESTING.md:298:Each listing whose census has grown by the second pass is kept again, early: with a census stated a tick after the first pass, the first to list what is new since it.
+HEAD:scripts/test_suite_cancellation.py:779:        census has grown by the second pass does so again early, with a census stated a tick after the first pass."""
+## R763-11-S1 key
+## R764-11-S1 comment near new loop
+HEAD:scripts/test_suite_cancellation.py-826-            kept(f"a lone {when} resume", cell(resume), window(resume, ("shell",)), shell)
+HEAD:scripts/test_suite_cancellation.py:827:        for at, entry in (("beside", (owner_pid, "5")), ("under", (shell, "5"))):
+## where dev's TESTING.md hunks landed vs the PR's hunks (merged file)
+@@ -724 +724 @@ verdicts and for check counts.
+@@ -773,0 +774 @@ scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation
+@@ -792,3 +793,4 @@ that cannot import them (an explicit pin is never silently substituted);
+@@ -795,0 +798,6 @@ pinned Verilator on PATH so that comparison runs there rather than skipping.
+@@ -640 +640 @@ verdicts and for check counts.
+@@ -689,0 +690 @@ scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation
+@@ -708,3 +709,4 @@ that cannot import them (an explicit pin is never silently substituted);
+@@ -711,0 +714,6 @@ pinned Verilator on PATH so that comparison runs there rather than skipping.

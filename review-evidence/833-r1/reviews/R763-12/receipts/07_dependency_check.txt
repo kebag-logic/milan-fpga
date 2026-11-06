@@ -1,0 +1,80 @@
+## imports of PR code files
+10:import re
+10:import shutil
+10:import signal
+11:import signal
+11:import subprocess
+12:import subprocess
+12:import sys
+13:import sys
+13:import tempfile
+14:from pathlib import Path
+14:import tempfile
+15:import threading
+15:import time
+16:from collections.abc import Callable
+16:import time
+17:from collections.abc import Callable, Iterator
+17:from pathlib import Path
+17:import ctypes
+18:from contextlib import contextmanager
+18:from types import SimpleNamespace
+18:import errno
+19:from owned_process import OwnedProcesses  # noqa: E402
+19:from pathlib import Path
+19:import os
+20:from process_test_support import (  # noqa: E402
+20:from types import SimpleNamespace
+20:import owned_process
+20:import signal
+21:import subprocess
+22:import owned_process
+22:import sys
+23:from owned_process import Cancelled, OwnedProcesses
+23:import tempfile
+24:from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE  # noqa: E402
+24:from process_test_support import (
+24:import time
+25:from pathlib import Path
+266:import signal, time
+26:from types import FrameType
+27:from typing import BinaryIO
+356:    from test_suite_cancellation import fixture as sweep_fixture
+35:import os, subprocess, sys
+36:from pathlib import Path
+377:import os, signal, sys, time
+378:from pathlib import Path
+388:import os, signal, sys, time
+389:from pathlib import Path
+401:import subprocess, sys, time
+40:import hashlib, json, os, signal, subprocess, sys, time
+41:from pathlib import Path
+54:import hashlib, json, os, shutil, subprocess, sys
+54:    import time
+55:from pathlib import Path
+64:import os, runpy, subprocess, sys
+65:from pathlib import Path
+6:import argparse
+6:import concurrent.futures
+6:import hashlib
+77:import os, runpy, subprocess, sys
+78:from pathlib import Path
+78:import ctypes, os, signal
+7:import fcntl
+7:import hashlib
+7:import json
+88:import os, shutil, subprocess, sys
+89:from pathlib import Path
+8:import inspect
+8:import json
+8:import os
+9:import os
+9:import shutil
+## dev-changed files 1f29f189..cc204c6f
+.github/ci-templates/docs.yml .github/ci-templates/elaborate.yml .github/workflows/docs.yml .github/workflows/elaborate.yml CHANGELOG.md README.md REQUIREMENTS.md ci/image/audit_population.py ci/image/command-table.json docs/ARCHITECTURE_HW_SW_SPLIT.md docs/DOCUMENTATION_AUDIT.md docs/ENDSTATION_BUILDER.md docs/GLOSSARY.md docs/README.md docs/design/AREA_BUDGET.md docs/design/GPTP_PLANE.md docs/design/MAAP_FABRIC.md docs/design/MAILBOX_SPLIT.md docs/design/MARK_II_AREA_PLAN.md docs/design/MARK_II_STREAM_ENGINES.md docs/fpga/DATAPLANE_WALKTHROUGH.md docs/fpga/FPGA_DESIGN.md docs/guides/VERIFICATION_DEVELOPER.md docs/guides/gptp/MANAGER.md docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md docs/integration/INTEGRATION_GUIDE.md docs/litex/CLOCK_DOMAINS.md docs/litex/LITEX_SOC.md docs/overview/ARCHITECTURE.md docs/overview/FULL_FPGA_SOLUTION.md docs/overview/SYSTEM_DOMAIN_MAP.md docs/reference/FR_NFR.md docs/reference/REGISTER_MAP.md docs/testing/CI_WORKFLOWS.md docs/testing/TESTING.md docs/traceability/ieee8021q.md hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv hdl/milan/milan_datapath.sv scripts/act_ci.py scripts/ci_events.py scripts/ci_gate_receipts.py scripts/ci_gate_workflows.py scripts/ci_gate_workflows_selftest.py scripts/ci_litex_legs.py scripts/ci_litex_legs_selftest.py scripts/ci_scope_history.py scripts/ci_toolcache_isolation.py scripts/docs_inventory.json scripts/docs_inventory.py scripts/run_litex_sims.sh sw/builder/endstation_builder.py sw/builder/test_builder.py sw/litex/gen_mac_tx_model.py sw/litex/milan_soc.py sw/litex/test_gptp_tx_timestamp.py tb/verilator/gptp_shadow/gptp_shadow_wrap.sv tb/verilator/gptp_txts/.gitignore tb/verilator/gptp_txts/Makefile tb/verilator/gptp_txts/README.md tb/verilator/gptp_txts/generated/mac_tx_chain_mii.v tb/verilator/gptp_txts/generated/manifest_mii.json tb/verilator/gptp_txts/gptp_txts_wrap.sv tb/verilator/gptp_txts/mutants.py tb/verilator/gptp_txts/pad_trace_main.cpp tb/verilator/gptp_txts/sim_main.cpp 
+## files referencing owned_process / process_test_support / test_mutant_lifecycle / test_suite_cancellation changed by dev
+ci/image/command-table.json
+docs/testing/TESTING.md
+## gptp_shadow dir changed by dev?
+ tb/verilator/gptp_shadow/gptp_shadow_wrap.sv | 1 +
+ 1 file changed, 1 insertion(+)

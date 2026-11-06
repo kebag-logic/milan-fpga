@@ -1,0 +1,29 @@
+## A: merge commit 3f4e39f3 (pre-regeneration)
+3f4e39f35d19b416b7acb3a570273bfb1a327c0d
+docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference at line 31:
+  committed: | stale | 16 | 10,638 |
+  generated: | stale | 16 | 10,722 |
+regenerate with: python3 scripts/docs_inventory.py --write
+check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+ M docs/DOCUMENTATION_AUDIT.md
+## diff of my --write vs 3f4e39f3
+ docs/DOCUMENTATION_AUDIT.md | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+## my regenerated page blob vs committed HEAD blob
+mine 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b  head 9fdb8bf4d6c4e4068d413b2def919d23c8e4659b
+BYTE-IDENTICAL
+json blob 3f4e39f3 242c0553d4e5f94702ead9b3a25480eabbf10297 head 242c0553d4e5f94702ead9b3a25480eabbf10297 dev 242c0553d4e5f94702ead9b3a25480eabbf10297
+generator blob head fe9cbbc5183a43d82a08cef66ed662d41a9075ad dev fe9cbbc5183a43d82a08cef66ed662d41a9075ad
+## B: exact head 3e475161
+3e475161e528baa655a5ba84d6a38d78f8c64f3b
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check rc=0
+documentation inventory selftest: OK (50 controls)
+selftest rc=0
+wrote docs/DOCUMENTATION_AUDIT.md
+write rc=0
+porcelain-after-write-lines=0
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check-after-write rc=0

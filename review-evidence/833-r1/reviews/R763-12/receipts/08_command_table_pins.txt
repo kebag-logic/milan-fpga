@@ -1,0 +1,18 @@
+## table present at 1f29f189? yes
+## table blob 1f29f189 / cc204c6f / HEAD
+1f29f189 67aa4afdb6e4e569677397a0259706cf88ff7c6b
+cc204c6fd2 d9db695dcf2709e3fe8e8d55a33f0c97ef84fe6f
+HEAD d9db695dcf2709e3fe8e8d55a33f0c97ef84fe6f
+## pinned sha256 vs actual
+1f29f189 scripts/owned_process.py pin=7f9baa96ab44 actual=7f9baa96ab44 MATCH
+cc204c6fd2 scripts/owned_process.py pin=7f9baa96ab44 actual=7f9baa96ab44 MATCH
+HEAD scripts/owned_process.py pin=7f9baa96ab44 actual=a1742055f9b8 MISMATCH
+1f29f189 scripts/process_test_support.py pin=2158fd48fec7 actual=2158fd48fec7 MATCH
+cc204c6fd2 scripts/process_test_support.py pin=2158fd48fec7 actual=2158fd48fec7 MATCH
+HEAD scripts/process_test_support.py pin=2158fd48fec7 actual=60d3da6ddca1 MISMATCH
+1f29f189 scripts/test_suite_cancellation.py pin=2a5de7dd5e07 actual=2a5de7dd5e07 MATCH
+cc204c6fd2 scripts/test_suite_cancellation.py pin=2a5de7dd5e07 actual=2a5de7dd5e07 MATCH
+HEAD scripts/test_suite_cancellation.py pin=2a5de7dd5e07 actual=7174925d3357 MISMATCH
+1f29f189 tb/verilator/gptp_shadow/test_mutant_lifecycle.py pin=79d913de2057 actual=79d913de2057 MATCH
+cc204c6fd2 tb/verilator/gptp_shadow/test_mutant_lifecycle.py pin=79d913de2057 actual=79d913de2057 MATCH
+HEAD tb/verilator/gptp_shadow/test_mutant_lifecycle.py pin=79d913de2057 actual=2024f07583b3 MISMATCH

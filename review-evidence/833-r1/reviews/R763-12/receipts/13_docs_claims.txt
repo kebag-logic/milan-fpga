@@ -1,0 +1,21 @@
+## dev commits touching TESTING.md 1f29f189..cc204c6f
+7b5fd6f742 Describe the three measured LiteX legs, their union proof and the elaborate worker projections in the CI and testing guides (#737)
+d211219145 Count one octet per valid and ready transfer so the gPTP plane runs on the MII port (#829)
+## PR TESTING.md hunks (cc204c6f..HEAD)
+@@ -217,3 +217 @@ Selection, lock waits, preflight and suite transitions are covered.
+@@ -223,3 +221 @@ That refusal prints `REFUSED:` and exits 2, never a traceback.
+@@ -257,0 +254,87 @@ Removed process facilities must produce the refusal, not a traceback.
+@@ -280,0 +364 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+## line-count claims
+dev TESTING.md 1935, head 2019, audit page 540
+## submodule gitlinks HEAD vs dev
+external head=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 dev=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+gptp-processor head=135afd043309369a87ddbc8d6550aff8ec52a157 dev=135afd043309369a87ddbc8d6550aff8ec52a157
+protocol-processor head=a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 dev=a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+third_party/lwSRP head=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 dev=08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+third_party/tsn-c-stack head=70936b77dc41981e192438388cd0aced69954f18 dev=70936b77dc41981e192438388cd0aced69954f18
+third_party/verilog-axis head=48ff7a7e2ef782cf778d47910cf85835c64b1bce dev=48ff7a7e2ef782cf778d47910cf85835c64b1bce
+## delta comment-rule scan: + lines in 5843d1af..HEAD restricted to PR-authored (non-dev) content
+none in regeneration commit
+## merge commit has no own (evil) changes: recorded tree == automatic merge tree
+see 02_merge_reproduction.txt (f3379b02 == f3379b02)
