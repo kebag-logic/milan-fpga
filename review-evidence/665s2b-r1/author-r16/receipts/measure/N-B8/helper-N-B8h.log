@@ -1,0 +1,36 @@
+HEAD 12e5ec568fc4d465f34fb9f783162ec12de0045b DIRTY 0
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-0.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-1.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-2.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-3.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-4.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-5.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-7.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged2-6.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-1.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-0.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-2.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-3.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-4.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-5.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-7.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp@verify-aged1-6.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/save.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/N-B8/native/Vsim <scratch>/builds/N-B8/results-N-B8h/backlog-owed.txt -
+BUDGET backlog.owed.if0: 63.622 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.352 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.351 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.350 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.350 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 64.875 ms over its budget 20 ms
+STEPS 10444 passes carry the store's step; the longest 125,649 CPU cycles (1.256 ms), save; the longest step 95,353 (0.954 ms), save
+AGED 16 windows opened with the step's age at its limit or one short of it, 13 aged steps among their records; the least margin 0.674 ms, backlog-adp@verify-aged1-7.service.srp.last.if1 at 17.326 ms
+SAVE save: durable 4698.241 ms after its change (stated worst case 12,110 ms, 370 steps, longest gap between flash steps 11.367 ms) within
+21 groups graded, 0 refusals, 6 budget misses (6 of 225 probe instances, 3 of 17 paths), 0 of 15925 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=3661s
+rc=0

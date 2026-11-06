@@ -1,0 +1,86 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp.h b/sw/firmware/ctrl/aecp/aecp.h
+index bb0cf16bd8..8da1e75b0e 100644
+--- a/sw/firmware/ctrl/aecp/aecp.h
++++ b/sw/firmware/ctrl/aecp/aecp.h
+@@ -229,7 +229,6 @@ struct aecp {
+ 	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+ 	bool retry_hold; // a due retry waits for aecp_retry (THE RETRY, ctrl_loop.h; #665)
+ 	bool retry_held; // with retry_hold, a due retry waits: arm armed no timer for it
+-	uint32_t retry_since; // with retry_held, the earliest held retry's time (aecp_retry_aged)
+ 	// The events holding a notice or a retry, in descriptor order, linked through
+ 	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
+ 	// only these (#665).
+@@ -270,6 +269,7 @@ struct aecp {
+ 	unsigned held_interface;
+ 	size_t held_bytes;
+ 	uint8_t held[AECP_HELD_BYTES];
++	uint32_t retry_since; // with retry_held, the earliest held retry's time (aecp_retry_aged)
+ };
+ 
+ bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.c b/sw/firmware/ctrl/loop/ctrl_loop.c
+index c7567d4875..8954c1781d 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.c
++++ b/sw/firmware/ctrl/loop/ctrl_loop.c
+@@ -206,7 +206,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
+ 		(void)l->retry(l->retry_ctx);
+ 		l->stats.retry_passes++;
+ 		l->stats.passes++;
+-		l->stats.retry_aged_passes++;
++		l->retry_aged_passes++;
+ 		return 1u;
+ 	}
+ 	// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE centiseconds is this whole
+@@ -217,8 +217,8 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
+ 			(void)l->retry(l->retry_ctx);
+ 			l->stats.retry_passes++;
+ 		}
+-		l->stats.transmit_passes++;
+-		l->stats.transmit_aged_passes++;
++		l->transmit_passes++;
++		l->transmit_aged_passes++;
+ 		l->stats.passes++;
+ 		return 1u;
+ 	}
+@@ -243,7 +243,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
+ 	// time
+ 	if (l->tx_pass) {
+ 		owed = l->transmit(l->transmit_ctx) || owed;
+-		l->stats.transmit_passes++;
++		l->transmit_passes++;
+ 	}
+ 	// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose
+ 	// deadline counts its time
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index c24b947581..c35092dc0e 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -326,9 +326,6 @@ struct ctrl_loop_stats {
+ 	uint32_t owed_passes;   // passes after which output or centiseconds were still owed
+ 	uint32_t aged_passes;   // passes given whole to an aged step (THE STEP)
+ 	uint32_t retry_passes;  // passes that called THE RETRY's client
+-	uint32_t retry_aged_passes;  // passes given whole to an aged retry (THE RETRY)
+-	uint32_t transmit_passes;    // passes that called THE TRANSMIT's client
+-	uint32_t transmit_aged_passes;  // passes given whole to an aged transmit (THE TRANSMIT)
+ };
+ 
+ struct ctrl_loop {
+@@ -344,7 +341,6 @@ struct ctrl_loop {
+ 	ctrl_clock_fn clock;
+ 	void *clock_ctx;
+ 	ctrl_retry_fn retry;            // THE RETRY's client, or NULL
+-	ctrl_retry_aged_fn retry_aged;  // its age
+ 	void *retry_ctx;
+ 	struct mbx_frame frame;         // the one RX buffer every handler borrows
+ 	uint32_t ticks_owed;            // centiseconds taken from TICK records, not yet dispatched
+@@ -356,6 +352,10 @@ struct ctrl_loop {
+ 	uint32_t ordinary;              // stats.passes at the end of the last pass not given whole
+ 	bool tx_pass;                   // set before the polls: this pass calls THE TRANSMIT's client after them
+ 	uint32_t rx_cap;                // the records of a channel this pass takes at most (THE TICK)
++	ctrl_retry_aged_fn retry_aged;
++	uint32_t retry_aged_passes;
++	uint32_t transmit_passes;
++	uint32_t transmit_aged_passes;
+ };
+ 
+ void ctrl_loop_init(struct ctrl_loop *l);

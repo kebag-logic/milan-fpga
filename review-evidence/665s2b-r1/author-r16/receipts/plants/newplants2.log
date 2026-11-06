@@ -1,0 +1,37 @@
+ctrl: ['transmit-beside-records']
+srp: ['transmit-binding-holds-a-build', 'transmit-built-by-the-poll', 'transmit-hold-unreported', 'transmit-not-bound', 'transmit-unbinding-holds-nothing', 'transmit-walk-holds-nothing']
+[ok] mutant transmit-beside-records (port): 5 check(s) failed
+    first: [FAIL] Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord: L19 a pass that takes a record does not call the transmit
+mutants: 1 of 1 caught
+[ok] transmit-built-by-the-poll: TransmitWaitsForAPassThatTakesNoRecord / a pass that takes a record builds no MRPDU
+[ok] transmit-hold-unreported: TransmitWaitsForAPassThatTakesNoRecord / a held build is reported owed
+[ok] transmit-unbinding-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / an unbinding that withdraws a declaration holds the build that sends it
+[ok] transmit-binding-holds-a-build: TransmitWaitsForAPassThatTakesNoRecord / a binding holds no build itself
+[ok] transmit-walk-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / the walk that finds its declaration holds the build that declares it
+[ok] transmit-not-bound: TransmitWaitsForAPassThatTakesNoRecord / the next pass that takes no record builds one
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-built-by-the-poll: TransmitWaitsForAPassThatTakesNoRecord / a pass that takes a record builds no MRPDU
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-hold-unreported: TransmitWaitsForAPassThatTakesNoRecord / a held build is reported owed
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-unbinding-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / an unbinding that withdraws a declaration holds the build that sends it
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-binding-holds-a-build: TransmitWaitsForAPassThatTakesNoRecord / a binding holds no build itself
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-walk-holds-nothing: TransmitWaitsForAPassThatTakesNoRecord / the walk that finds its declaration holds the build that declares it
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np2/srp-mutants-if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] transmit-not-bound: TransmitWaitsForAPassThatTakesNoRecord / the next pass that takes no record builds one
+new plants: every one caught
+rc=0
