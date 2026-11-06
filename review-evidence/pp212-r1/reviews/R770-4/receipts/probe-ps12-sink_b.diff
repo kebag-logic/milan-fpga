@@ -1,0 +1,11 @@
+--- <packet>/scratch/src-r4/tb/srp_stream_fsms/sim_main.cpp	2026-11-06 05:09:44.000000000 +0100
++++ sim_main.cpp	2026-11-06 05:45:34.062709070 +0100
+@@ -2893,7 +2893,7 @@
+   h.ctl(true, 3, SID0, DA0, VID0);
+   const bool both = h.l_reg[0] == 1 && h.l_reg[3] == 1;
+   const int sink_a = 0;
+-  const int sink_b = 3;
++  const int sink_b = 1;
+   CHECK(both && ticks_follow_the_model(VN, 2, 3, "PS12: two sinks settled on one "
+         "pre-registered stream: each tx! sends what ONE applicant sends") == QA
+         && h.l_app(3) == VO && h.l_decl(sink_a) == 2 && h.l_decl(sink_b) == 2,
