@@ -1,0 +1,59 @@
+# head 4f210018e6556a9753ed409885d82744c8f5effa job docs-gates-1 step gate_25_0: End-station builder gates, leg 0 of 2
+# clone <scratch>/docsyml-4f210018/docs-gates-1/wt
+
+[notice] A new release of pip is available: 26.2.1 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<scratch>/gates<home-path>/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "<scratch>/docsyml-4f210018/docs-gates-1/wt/sw/builder/test_builder.py", line 29617, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/docsyml-4f210018/docs-gates-1/wt/sw/builder/test_builder.py", line 15367, in test_baremetal_profile_contract
+    assert_boot_contract(
+    ~~~~~~~~~~~~~~~~~~~~^
+        firmware_source, docs_source, csr_source,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        makefile_source[:objects_span_at] + spelling +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        makefile_source[objects_span_to:])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/docsyml-4f210018/docs-gates-1/wt/sw/builder/test_builder.py", line 11079, in assert_boot_contract
+    verdicts.append(assert_boot_contract(
+                    ~~~~~~~~~~~~~~~~~~~~^
+        selected, docs, csr, makefile, listing, datapath))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/docsyml-4f210018/docs-gates-1/wt/sw/builder/test_builder.py", line 11953, in assert_boot_contract
+    preprocessed = preprocess_take(source)
+  File "<scratch>/docsyml-4f210018/docs-gates-1/wt/sw/builder/test_builder.py", line 5351, in preprocess_take
+    built = subprocess.run(
+        [compiler, *driver, "-std=gnu99", "-E", "-o", str(unit),
+         f"-I{root}", str(source)],
+        capture_output=True, text=True)
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1875, in _execute_child
+    self._posix_spawn(args, executable, env, restore_signals, close_fds,
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      p2cread, p2cwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      c2pread, c2pwrite,
+                      ^^^^^^^^^^^^^^^^^^
+                      errread, errwrite)
+                      ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1819, in _posix_spawn
+    self.pid = os.posix_spawn(executable, args, env, **kwargs)
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates<home-path>/host/bin/riscv32-linux-gcc'
