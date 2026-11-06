@@ -1,0 +1,14 @@
+## python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 213 md files + 1442 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0
+## python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+## python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+anchor check: 583 existing cross-page fragment links reproduced
+rc=0

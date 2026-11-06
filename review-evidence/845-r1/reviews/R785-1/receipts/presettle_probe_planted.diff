@@ -1,0 +1,68 @@
+--- <clone>/tb/verilator/pp_shadow/sim_main.cpp	2026-11-06 15:43:58.973111792 +0100
++++ <packet>/scratch/pre/tb/verilator/pp_shadow/sim_main.cpp	2026-11-06 16:10:07.705358251 +0100
+@@ -3751,7 +3751,65 @@
+ 
+     void grade_a_registered_talker_as_a_bound_sink_reads_it() {
+         printf("[U] a registered Talker attribute, as a bound sink reads it\n");
++        register_talker(1, false);
+         bind_sink_zero_over_acmp();
++        run_idle(3000);
++        {
++            const uint32_t st = axi_read(A_ACMPL_STATE);
++            printf("  [PROBE] after settle ACMPL_STATE=0x%08X\n", st);
++            ck("PROBE pre-settle Talker reads Advertise at the settle", (st >> 6) & 1u, 1u);
++            {
++                const std::vector<uint8_t> g = gsi_input0(0x07E0);
++                if (g.size() >= 94) {
++                    printf("  [PROBE] settled, before the link change: probing_status=%u stream_flags=0x%02X\n",
++                           static_cast<unsigned>(g[90] >> 5),
++                           static_cast<unsigned>(g[42] & G_STREAM_FLAGS));
++                } else {
++                    printf("  [PROBE] settled, before the link change: short response %zu\n", g.size());
++                }
++            }
++            const size_t probe_at = tx_frames.size();
++            axi_write(0x71C, 0x0);
++            run_idle(3000);
++            const uint32_t dn = axi_read(A_ACMPL_STATE);
++            printf("  [PROBE] link down ACMPL_STATE=0x%08X\n", dn);
++            ck("PROBE LINK_DOWN ended the settled registration", (dn >> 6) & 1u, 0u);
++            ck("PROBE the sink stays bound across the link change", (dn >> 3) & 1u, 1u);
++            axi_write(0x71C, 0x1);
++            run_idle(3000);
++            const uint32_t up = axi_read(A_ACMPL_STATE);
++            printf("  [PROBE] link up ACMPL_STATE=0x%08X\n", up);
++            ck("PROBE no registration after LINK_UP before a new declaration", (up >> 6) & 1u, 0u);
++            {
++                const std::vector<uint8_t> g = gsi_input0(0x07E1);
++                if (g.size() >= 94) {
++                    printf("  [PROBE] after LINK_DOWN and LINK_UP: probing_status=%u stream_flags=0x%02X\n",
++                           static_cast<unsigned>(g[90] >> 5),
++                           static_cast<unsigned>(g[42] & G_STREAM_FLAGS));
++                } else {
++                    printf("  [PROBE] after LINK_DOWN and LINK_UP: short response %zu\n", g.size());
++                }
++            }
++            auto probes_since = [&](size_t from) {
++                int n = 0;
++                for (size_t i = from; i < tx_frames.size(); ++i) {
++                    const std::vector<uint8_t>& b = tx_frames[i].bytes;
++                    if (classify(tx_frames[i]) == FR_ACMP && b.size() >= 70
++                        && (b[15] & 0xF) == 0 && get_be(b, 34, 8) == U_TALKER_EID) ++n;
++                }
++                return n;
++            };
++            run_idle(200000);
++            printf("  [PROBE] listener probes since the link change: %d\n", probes_since(probe_at));
++            register_talker(1, false);
++            const uint32_t rd = axi_read(A_ACMPL_STATE);
++            printf("  [PROBE] after re-declaration, unanswered probe ACMPL_STATE=0x%08X\n", rd);
++            bind_sink_zero_over_acmp();
++            run_idle(3000);
++            const uint32_t rs = axi_read(A_ACMPL_STATE);
++            printf("  [PROBE] after the probe was answered ACMPL_STATE=0x%08X\n", rs);
++            ck("PROBE re-declared Talker reads Advertise once the input settles again", (rs >> 6) & 1u, 1u);
++        }
+         //! the armed, unregistered baseline: both registrar bits clear, so
+         //! the ADVERTISE arm below cannot pass on a stuck-at-1
+         grade_talker_arm("armed, nothing registered", 0);
