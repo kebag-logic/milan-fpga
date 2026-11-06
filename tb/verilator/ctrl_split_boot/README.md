@@ -35,7 +35,8 @@ The second link is against that `csr.csv`, and the run refuses it unless the sec
 It then builds the native model, runs it, and saves its exit status beside its log (`sim.status`).
 `--regrade` grades the log and the status a run left in the build directory.
 `--native-controls` grades the native controls, with no build ([What is graded](#what-is-graded)).
-`--self-test` grades them, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind.
+`--placement-controls` runs the placement controls on a finished run in the build directory, with one export for each that needs one.
+`--self-test` grades the native controls, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind. It ends with the placement controls, on one of those builds.
 Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 ## The SoC and the testbench

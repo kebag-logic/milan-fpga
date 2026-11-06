@@ -708,7 +708,7 @@ python3 sw/firmware/ctrl/test/ctrl_image.py --base e21c1ca024d37ea188ad15b5c8f9c
 python3 sw/firmware/ctrl/test/ctrl_image_selftest.py --require-rv32
 ```
 
-The self-test holds the controls, 33 checks: the helpers against the host's
+The self-test holds the controls, 37 checks: the helpers against the host's
 own arithmetic (the edges, every shift count and 200,000 random pairs), the
 leaf rule and two helpers it refuses, a probe linked as the image is and
 every RV32I instruction form passing, eleven foreign instruction words, an
@@ -716,7 +716,9 @@ RV32IM attribute, ten foreign header fields and a weak symbol refused, and
 the measurement itself at the shipping shape: passing, and refusing a helper
 library built for RV32IM with the soft-float ABI (by the audit), one built
 for the pinned SDK's own multilib (at the link) and a helper that calls
-itself.
+itself. Its last four are `ctrl_plat_image.py`'s: a link with a runtime archive
+and no flash map refused by name, with no ELF, and a run given a map going on
+past that refusal.
 
 `ctrl_image.py` prints the compiler's identity first: its version line and
 the sha256 of its `libgcc.a`, which is not linked. That is what names the
