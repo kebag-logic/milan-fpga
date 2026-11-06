@@ -1,0 +1,19 @@
+14c14
+< LANE = "$LANES/583-arty"
+---
+> LANE = "$LANES/833-owned-process"
+16,17c16,17
+< VENV = "$VALIDATION_STORAGE/829-a725c/gates/venv/bin"
+< HOME = "$VALIDATION_STORAGE/829-a725c/gates/home"
+---
+> VENV = "$VALIDATION_STORAGE/833-a726l/gates/venv/bin"
+> HOME = "$VALIDATION_STORAGE/833-a726l/gates/home"
+42a43,50
+> 
+> # The builder legs require this dependency's real origin (scripts/ci_case_receipts.py); objects still come from the lane.
+> TSN = "third_party/tsn-c-stack"
+> if (Path(LANE) / TSN / ".git").exists():
+>     run("git", "-c", "protocol.file.allow=always", "submodule", "update", "-q", "--init", "--force", TSN, cwd=wt)
+>     url = run("git", "config", "--blob", f"{head}:.gitmodules", f"submodule.{TSN}.url", cwd=wt)
+>     run("git", "config", f"submodule.{TSN}.url", url, cwd=wt)
+>     run("git", "remote", "set-url", "origin", url, cwd=wt / TSN)

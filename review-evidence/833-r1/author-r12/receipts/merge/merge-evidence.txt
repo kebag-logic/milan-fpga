@@ -1,0 +1,16 @@
+# git diff 1f29f189 5843d1af | git patch-id --stable  (round 11 PR diff against old dev)
+a5e12980a28b73885022d9b0d029df8f1555af6e 0000000000000000000000000000000000000000
+# git diff cc204c6f 3f4e39f3 | git patch-id --stable  (merge commit against new dev)
+a5e12980a28b73885022d9b0d029df8f1555af6e 0000000000000000000000000000000000000000
+# git diff --stat 1f29f189 cc204c6f -- docs/testing/TESTING.md (dev's own change to the shared file)
+ docs/testing/TESTING.md | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+# git diff --name-only cc204c6f HEAD
+docs/DOCUMENTATION_AUDIT.md
+docs/testing/TESTING.md
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/test_suite_cancellation.py
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+# git merge-base --all HEAD origin/dev  (origin/dev = cc204c6fd2349b543d73f15c97162a2c4434c86e)
+cc204c6fd2349b543d73f15c97162a2c4434c86e
