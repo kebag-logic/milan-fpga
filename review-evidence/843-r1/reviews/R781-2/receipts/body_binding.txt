@@ -1,0 +1,46 @@
+headRefOid == True
+Status names head: True
+checkout names head: True
+stale 4c4c5982 full SHA in body: False
+== measured-at commit of each receipt family
+sweep-1105f545/shard-0/complete.json: {"head":"1105f54546b2f19d9577b7fad902c908e34f88ee","exit_code":0,"finished":"2026-11-06T08:01:20.089499+01:00"}
+sweep-1105f545/shard-1/complete.json: {"head":"1105f54546b2f19d9577b7fad902c908e34f88ee","exit_code":0,"finished":"2026-11-06T07:52:00.442961+01:00"}
+sweep-1105f545/shard-2/complete.json: {"head":"1105f54546b2f19d9577b7fad902c908e34f88ee","exit_code":1,"finished":"2026-11-06T08:05:26.875648+01:00"}
+sweep-1105f545/shard-2-rerun/complete.json: {"head":"1105f54546b2f19d9577b7fad902c908e34f88ee","exit_code":0,"finished":"2026-11-06T09:37:10.478565+01:00"}
+sweep-1105f545/shard-3/complete.json: {"head":"1105f54546b2f19d9577b7fad902c908e34f88ee","exit_code":0,"finished":"2026-11-06T07:43:24.217577+01:00"}
+final-gates builder: # head 1105f54546b2f19d9577b7fad902c908e34f88ee gate builder: python3 sw/builder/test_builder.py --require-rv32
+final-gates fw_service_budget: # head 1105f54546b2f19d9577b7fad902c908e34f88ee gate fw_service_budget: make -C tb/verilator/fw_service_budget
+docs-yml tree-after: head 1105f54546b2f19d9577b7fad902c908e34f88ee
+docs-yml tally: 65 steps ran, 31 not run with a reason, 0 bad
+physical: # head 4c4c598273904f6c994b75c860e74ac742ae49d2 gate milan_dp_gptp: make -C tb/verilator/milan_dp_gptp
+route-head bank.out commit: 8210abaa1f5664bc6f755043b19a34a4eb38ede2
+route-dev bank.out commit: cc204c6fd2349b543d73f15c97162a2c4434c86e
+mutants: directory mutants-8210abaa; 8 mutants 10 check runs, all caught: True
+== files changed since the route/mutant commit 8210abaa
+ CHANGELOG.md                               |   25 +
+ docs/DOCUMENTATION_AUDIT.md                |   12 +-
+ docs/design/AREA_BUDGET.md                 |    4 +
+ docs/reference/SUBMODULES.md               |   57 +
+ sw/builder/test_clock_contract.py          |    5 +-
+ tb/verilator/fw_service_budget/oracle.json | 1586 ++++++++++++++--------------
+ 6 files changed, 889 insertions(+), 800 deletions(-)
+== files changed since the physical-suite commit 4c4c5982
+tb/verilator/fw_service_budget/oracle.json
+== route figures, head receipt
+LUT              52012       52695       683  REGRESSION: grew by more than 500
+FF               53707       54288       581  ok
+SLICE            15780       15846        66  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          15         2  REGRESSION: grew by more than 0
+WNS_ns            0.44       0.018    -0.422  REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036       0.015    -0.021  ok
+== route figures, dev receipt
+LUT              52012       51994       -18  ok, below the baseline
+FF               53707       54101       394  ok
+SLICE            15780       15841        61  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.236    -0.204  ok
+WHS_ns           0.036       0.036       0.0  ok
