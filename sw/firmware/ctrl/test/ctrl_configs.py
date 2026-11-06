@@ -169,7 +169,7 @@ OUTSIDE = {
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
-                                           "CPU budget harness's prerequisites): build.flash_map delegates its map images "
+                                           "CPU budget harness's prerequisites): build.flash_map delegates map images "
                                            "to ctrl_srp_image.py; it delegates every platform compile of the "
                                            "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
                                            "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "

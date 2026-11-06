@@ -72,21 +72,18 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 
 ## Results
 
-The platform image at this head, at the shipping shape and the largest that fits 56 tiles.
-The rows marked staged are the two `run.py` commands above: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
-The rows marked none are the same tree with that one call removed, a control.
-They equal, cell for cell, the figures this page recorded at firmware `b8628704`, before the SoC carried the stage.
+The platform image with the generated flash map, at the shipping shape and the largest that fits 56 tiles.
+These figures were measured at `93c6e9a544`, after merging `dev-soft-core` `a68536fa` and giving both platform links and boot exports the generated map (#665, decision 6677095110).
+The PHY is staged as `MilanSoC.add_spi_flash` stages the product's (#814).
 Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
 
-| Shape | PHY stage | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
-|---|---|---:|---:|---|---|---|
-| 1x1, one interface | staged | 84.393 ms | 4,219,673 | 18 of 18 equal | 21.530 / 1.962 / 1.265 ms | 2.524 / 1.238 / 1.267 ms |
-| 1x1, one interface | none | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
-| 8x8, one interface | staged | 184.658 ms | 9,232,883 | 18 of 18 equal | 40.200 / 2.855 / 2.206 ms | 4.051 / 2.131 / 1.857 ms |
-| 8x8, one interface | none | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
+| Shape | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+|---|---:|---:|---|---|---|
+| 1x1, one interface | 84.372 ms | 4,218,617 | 18 of 18 equal | 21.546 / 1.963 / 1.266 ms | 2.527 / 1.239 / 1.268 ms |
+| 8x8, one interface | 184.622 ms | 9,231,088 | 18 of 18 equal | 40.224 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms |
 
-The stage costs the boot 523 CPU cycles at each shape, about 0.01 ms.
-It moves no UART figure by more than 0.003 ms, in either direction, and no verdict.
+The prior measurements at `a68536fa`, on the stand-in flash addresses with the same PHY stage, reached ready at 84.393 and 184.658 ms.
+The generated-map figures supersede those boot and UART figures.
 Both boots are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
