@@ -1,0 +1,42 @@
+SURVIVED ruling-none :: IDENTITY
+SURVIVED lane-merge :: LM1 one constant lane, one title
+SURVIVED lane-merge :: LM2 one file, each lane's titled section kept
+SURVIVED lane-merge :: LM3 every entry under the README's lane
+KILLED(2) lane-merge :: LM4 last lane overwrites one shared file :: the README's statement copied onto the requirements page: generated output lacks '## D0-002: README.md:5\n'
+SURVIVED lane-misfile :: LF1 REQUIREMENTS routed to overview
+SURVIVED lane-misfile :: LF2 README routed to reference
+SURVIVED lane-misfile :: LF3 guides routed to reference
+SURVIVED lane-misfile :: LF4 reference and overview swapped at filing
+SURVIVED lane-misfile :: LF5 the copy filed under its recording page's lane
+SURVIVED lane-misfile :: LF6 only the copy on REQUIREMENTS filed in overview
+SURVIVED lane-misfile :: LF7 only the guide's entry filed in reference
+SURVIVED lane-misfile :: LF8 archive entries filed in overview at filing
+SURVIVED lane-misfile :: LF9 archive routed to overview in the table
+SURVIVED lane-duplicate :: LD1 every entry also appended to every other lane
+SURVIVED lane-duplicate :: LD2 reference's entry also appended to overview
+SURVIVED lane-duplicate :: LD3 overview's entries also appended to reference
+SURVIVED lane-name :: LN1 lane file names swapped
+SURVIVED lane-name :: LN2 slug keeps spaces
+SURVIVED lane-title :: LT1 lane title loses its lane
+SURVIVED lane-title :: LT2 lane titles swapped
+SURVIVED lane-order :: LO1 entries reversed in a lane
+SURVIVED lane-base :: LB1 lane baselines swapped
+KILLED(2) lane-drop :: LK1 first lane only :: the README's statement copied onto the requirements page: generated output lacks '## D0-002: REQUIREMENTS.md:3\n'
+KILLED(2) lane-drop :: LK2 last lane only :: the README's statement copied onto the requirements page: generated output lacks '## D0-002: README.md:5\n'
+SURVIVED lane-rc :: LR1 --findings-dir exits 1 after writing
+SURVIVED banner :: BN12 window 12
+SURVIVED banner :: BN14 window 14
+SURVIVED banner :: BN16 window 16
+SURVIVED banner :: BN17 window 17
+SURVIVED banner :: BN19 window 19
+KILLED(1) banner :: BN1000 whole page :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+SURVIVED banner :: BH14 status head one short
+SURVIVED banner :: BH16 status head one long
+KILLED(1) banner :: BH-all status head whole text :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(2) banner :: BD banner search dropped :: a line added above a banner leaves the page fresh: generated output lacks '| superseded | banner names `docs/guides/A.md` |'
+SURVIVED banner :: BO head starts one line late
+SURVIVED audience :: AU14 audience window one short
+SURVIVED audience :: AU16 audience window one long
+KILLED(1) audience :: AU2 audience window two lines :: audience line overrides the table: generated output lacks '| integrator | Documentation index |'
+SURVIVED audience :: AU3 audience window three lines
+total 41 killed 7 survived 34 not-applied 0

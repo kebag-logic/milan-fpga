@@ -1,0 +1,9 @@
+head pairs 151 not matching 41
+dev  pairs 151 not matching 41
+only at head: []
+only at dev: []
+scripts/docs_inventory.py at head: matches ; at dev: matches
+classes of mismatches at head: Counter({'reviewed non-installing': 41})
+rows 151 blob absent 5 blob mismatch 36
+absent: ['gptp-processor/scripts/check_docs.py', 'gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py', 'protocol-processor/hdl/aecp/desc/gen_desc_image.py', 'tb/verilator/render_setpoint/mutants.py']
+absent present on disk: ['gptp-processor/scripts/check_docs.py', 'gptp-processor/scripts/check_source_evidence.py', 'gptp-processor/scripts/generate_diagrams.py', 'protocol-processor/hdl/aecp/desc/gen_desc_image.py']

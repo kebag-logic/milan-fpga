@@ -1,0 +1,42 @@
+SURVIVED ruling-none :: IDENTITY
+KILLED(1) lane-merge :: LM1 one constant lane, one title :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-merge :: LM2 one file, each lane's titled section kept :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-merge :: LM3 every entry under the README's lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(2) lane-merge :: LM4 last lane overwrites one shared file :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+KILLED(1) lane-misfile :: LF1 REQUIREMENTS routed to overview :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-misfile :: LF2 README routed to reference :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-misfile :: LF3 guides routed to reference :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+KILLED(1) lane-misfile :: LF4 reference and overview swapped at filing :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-misfile :: LF5 the copy filed under its recording page's lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-misfile :: LF6 only the copy on REQUIREMENTS filed in overview :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-misfile :: LF7 only the guide's entry filed in reference :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+SURVIVED lane-misfile :: LF8 archive entries filed in overview at filing
+SURVIVED lane-misfile :: LF9 archive routed to overview in the table
+SURVIVED lane-duplicate :: LD1 every entry also appended to every other lane
+SURVIVED lane-duplicate :: LD2 reference's entry also appended to overview
+SURVIVED lane-duplicate :: LD3 overview's entries also appended to reference
+SURVIVED lane-name :: LN1 lane file names swapped
+SURVIVED lane-name :: LN2 slug keeps spaces
+KILLED(1) lane-title :: LT1 lane title loses its lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-title :: LT2 lane titles swapped :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(1) lane-order :: LO1 entries reversed in a lane :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+KILLED(1) lane-base :: LB1 lane baselines swapped :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(2) lane-drop :: LK1 first lane only :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: reference\n\nVerified against dev 
+KILLED(2) lane-drop :: LK2 last lane only :: the README's statement copied onto the requirements page: generated output lacks '\x00# D0 findings: overview and guides\n\nVerified ag
+SURVIVED lane-rc :: LR1 --findings-dir exits 1 after writing
+KILLED(1) banner :: BN12 window 12 :: a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDI
+KILLED(1) banner :: BN14 window 14 :: a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDI
+KILLED(1) banner :: BN16 window 16 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(1) banner :: BN17 window 17 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(1) banner :: BN19 window 19 :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(1) banner :: BN1000 whole page :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(1) banner :: BH14 status head one short :: a supersession banner on line 15 is read: --check exited 0, expected 1: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDI
+KILLED(1) banner :: BH16 status head one long :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(1) banner :: BH-all status head whole text :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+KILLED(2) banner :: BD banner search dropped :: a line added above a banner leaves the page fresh: generated output lacks '| superseded | banner names `docs/guides/A.md` |'
+KILLED(1) banner :: BO head starts one line late :: a banner past line 15 is not read: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (4 lines differ); first difference 
+SURVIVED audience :: AU14 audience window one short
+SURVIVED audience :: AU16 audience window one long
+KILLED(1) audience :: AU2 audience window two lines :: audience line overrides the table: generated output lacks '| integrator | Documentation index |'
+SURVIVED audience :: AU3 audience window three lines
+total 41 killed 29 survived 12 not-applied 0

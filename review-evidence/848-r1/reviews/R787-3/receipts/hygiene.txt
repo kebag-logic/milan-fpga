@@ -1,0 +1,29 @@
+# hygiene at 171fd56b2c50a44ed75a32c1b9bbd7ae818f2c22
+--- commit bodies since 91c115b5
+171fd56b2c parents=d8a6cfb3bc lines=Bind each lane entry to its own lane file and pin both edges of the banner window, so a misfiled entry, merged lanes or a dr
+
+d8a6cfb3bc parents=91c115b576 3f6bef88bd lines=Merge dev 3f6bef88 into 848-audit-drop-line-counts
+
+--- trailers
+0
+--- raw gitlinks dev..head
+0
+--- hdl/tb/syn dev..head
+0
+--- added source lines 91c115b5..HEAD first parent scan
+14
+scan done
+--- budget
+0
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+0
+--- sw/builder refs
+0
+--- gates
+scripts/ci_gate_workflows.py --check rc=0 :: 
+scripts/ci_events.py --check rc=0 :: ci_events: OK (2207 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+scripts/docs_check.py rc=0 :: docs_check: 0 finding(s) across 213 md files + 1446 scrubbed text files, scrub self-test 23/23, rout
+scripts/check_doc_paths.py rc=0 :: doc path gate: OK (1631 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+scripts/check_hygiene.py rc=0 ::   tab in SystemVerilog                     0                   0                   0
+0
