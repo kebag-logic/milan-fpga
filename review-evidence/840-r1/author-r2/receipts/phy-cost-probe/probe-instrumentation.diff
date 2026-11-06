@@ -1,0 +1,19 @@
+--- tb/verilator/fw_service_budget/phy.hpp	2026-11-05 10:51:46.184027494 +0100
++++ scratch/phy.hpp	2026-11-06 00:28:02.432557111 +0100
+@@ -44,12 +44,16 @@
+             ++transactions_;
+             const auto elapsed = cycle - start_;
+             if (elapsed > longest_) longest_ = elapsed;
++            std::printf("\nPROBE_MDIO op=%u reg=%u start=%llu cycles=%llu\n", unsigned(command_ >> 10), unsigned(command_ & 31u),
++                        static_cast<unsigned long long>(start_), static_cast<unsigned long long>(elapsed));
+         }
+         previous_ = pins;
+         if (dut.phy_publish) {
+             ++publications_;
+             const auto elapsed = cycle - entry_;
+             if (elapsed > longest_poll_) longest_poll_ = elapsed;
++            std::printf("\nPROBE_POLL entry=%llu publish=%llu cycles=%llu\n", static_cast<unsigned long long>(entry_),
++                        static_cast<unsigned long long>(cycle), static_cast<unsigned long long>(elapsed));
+             read_due_ = cycle + 100;
+         }
+         if (read_due_ && cycle >= read_due_) reading_ = true;
