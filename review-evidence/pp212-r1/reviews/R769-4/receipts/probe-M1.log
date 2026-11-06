@@ -1,0 +1,10 @@
+FAIL: AS7: a rebind settled 6 ms after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and the new stream's New, both Ready (ready 1, settled 1, quiet 1, old Lv 0, new New 0)
+  AS7 MRPDU (35 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 02 02 02 00 0a a1 a1 00 01 b4 a0 00 00 00 00
+FAIL: AS7: the MRPDU after it goes on with the new stream, New Ready, and carries nothing for the old (decl 2, reg 1)
+FAIL: AS8: the next MRPDU, 146 ms after the settle (one T-MRP-JOIN, at most 240 ms) and with no LeaveAll, carries the old stream's Lv, Ready, and New Asking Failed for the new one (Lv 0, New 0, decl 1)
+  AS8 MRPDU (47 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 02 02 00 0a a1 a1 00 02 b4 80 00 01 02 02 00 0a a1 a1 00 01 00 40 00 00 00 00
+FAIL: AS9: Listener Ready New 106 ms after the settle (one T-MRP-JOIN, at most 240 ms), with no further talker frame and no LeaveAll (decl 2)
+  AS9 MRPDU (48 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 04 04 00 09 00 01 06 03 00 02 00 00 00 03 08 00 0e 00 01 02 02 00 0a a1 a1 00 01 00 80 00 00 00 00
+  AC: 23644 ms of simulated time on its own model
+ACMP: 62 checks, 4 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 62 checks, 4 failures

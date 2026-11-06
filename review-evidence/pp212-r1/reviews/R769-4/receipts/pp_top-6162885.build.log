@@ -1,0 +1,157 @@
+test_compiler_environment_and_arguments (test_fixture_guards.CompilerLocaleTest.test_compiler_environment_and_arguments)
+main() passes every argument through and sets LC_ALL=C for the compiler only. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+OK
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:674:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  674 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:684:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  684 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:653:42: ... Location of port declaration
+  653 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:654:42: ... Location of port declaration
+  654 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_active_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:659:42: ... Location of port declaration
+  659 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_sr_admitted_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:665:42: ... Location of port declaration
+  665 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:666:42: ... Location of port declaration
+  666 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_src_fail_code_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:667:42: ... Location of port declaration
+  667 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:668:42: ... Location of port declaration
+  668 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:669:42: ... Location of port declaration
+  669 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_over_limit_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:670:42: ... Location of port declaration
+  670 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:671:42: ... Location of port declaration
+  671 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:672:42: ... Location of port declaration
+  672 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:674:42: ... Location of port declaration
+  674 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:624:5: Instance has missing pin: 'adp_next_avail_index_o'
+  624 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:711:42: ... Location of port declaration
+  711 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 17.735 MB sources in 49 modules, into 10.125 MB in 17 C++ files needing 0.004 MB
+- Verilator: Walltime 3.858 s (elab=0.306, cvt=3.218, bld=0.000); cpu 4.002 s on 16 threads; allocated 1192.145 MB
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+line guard 576: lints clean
+line guard 584: lints clean
+line guard 1008: lints clean
+line guard 568: refused: DESC_LINE_BYTES_P=568 is below 576
+line guard 1016: refused: DESC_LINE_BYTES_P=1016 is above 1008
+line guard 580: refused: DESC_LINE_BYTES_P=580 is not a multiple of 8
+line guards: 6 cases, 0 failing
+if guard 1: lints clean
+if guard 2: lints clean
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 0 failing
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_dir'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.019 s (elab=0.000, cvt=0.000, bld=0.018); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_vid'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_vid'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.014 s (elab=0.000, cvt=0.000, bld=0.013); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_idn'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_idn'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_line'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_line'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_tim'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_tim'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_tdf'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_tdf'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.496 MB
+make: Entering directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_if2'
+make: Nothing to be done for 'default'.
+make: Leaving directory '<packet>/scratch/pp-6162885/tb/pp_top/obj_if2'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.496 MB

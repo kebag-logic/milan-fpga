@@ -1,0 +1,13 @@
+tb/pp_top at 6162885 and 834cc88, the reviewer's staged reproduction of "make run"
+(scripts/pp_top_staged.sh; one foreground call per stage is bounded below 10 minutes,
+and the default build's single simulation exceeds that, see pp_top-*.fullrun-bounded.*: rc 124
+is the reviewer's own timeout on that call, not a suite failure).
+
+Six single-section builds (identical at both heads): fixture 20, identify 178, line 292,
+timebase 56, defaults 3, interfaces 6 = 555.
+Default build, run as 19 shards through its own --<section>-only flags (identical per shard at
+both heads, shards-6162885.txt == shards-834cc88.txt): sum 11,243. The --aecp-dispatch-only shard
+adds the dispatch focus (A5b+M9+V, 734 checks) the default build does not run, so the default
+build's sections sum to 11,243 - 734 = 10,509, equal to the author's round-4 receipt
+"[build default ...] 10509 checks, 0 failures".
+Total 10,509 + 555 = 11,064, equal to the author's "11064 checks: 11064 PASS, 0 FAIL".

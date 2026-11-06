@@ -1,0 +1,15 @@
+ tb/pp_top/sim_main.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 354a498..b90e524 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -10618,7 +10618,7 @@ struct AcmpPathPhase {
+   static bool listener_is(const std::vector<uint8_t>& f, uint64_t sid, int ev, int fp) {
+     int e = -1;
+     int q = -1;
+-    return listener_value(f, sid, e, q) && e == ev && q == fp;
++    return listener_value(f, sid, e, q) && e == ev && q != fp;
+   }
+   //! the MRPDU carries Listener value sid at all
+   static bool listener_any(const std::vector<uint8_t>& f, uint64_t sid) {
