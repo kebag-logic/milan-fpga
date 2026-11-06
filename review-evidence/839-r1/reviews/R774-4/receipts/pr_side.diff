@@ -1,0 +1,2032 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 8caf67af6d..73f1a1fb38 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
+ - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
+ - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+ - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
+@@ -51,6 +52,29 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - station MAC from reset
++
++- Issue #839: the first MSRP PDU had an all-zero source.
++- The SRP engine runs from reset.
++- Firmware writes the station MAC in `configure_fabric()`.
++- That write came after the first PDU was built.
++- The datapath records each half's first CSR write.
++- Until both are written, four transmitters cannot start.
++- They are the processor lane, MAAP, AAF and CRF.
++- Control-lane frames take octets 6 to 11 from the CSR.
++- So a PDU built before the write still leaves correct.
++- The gPTP plane is not held.
++- Its program ROM carries the same station MAC.
++- `milan_csr` and the register map's fields are unchanged.
++- VERSION stays `0x0002_0060`.
++- The `bootsa` leg boots through `milan_init()`'s own order.
++- It grades every frame's source past ENTITY_AVAILABLE.
++- Two more boots write one half, then the other.
++- Two more enable MAAP, AAF and CRF from reset.
++- Each source that offers a frame then must be held.
++- The stamp must leave octets outside 6 to 11 unchanged.
++- `bootsa-mutants` plants the shipped defect and eleven more.
++
+ ## Unreleased - gPTP on the MII port
+ 
+ - Issue #829: the gPTP plane timed no MII frame.
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index 651f928e09..a344c487ac 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -109,8 +109,11 @@ stays live at every incomplete prefix. Layouts naming a retired boot image
+ before any programmer I/O. At build time the firmware receives the image
+ length, CRC32 and DRAM destination as generated constants. The PHC is enabled by the CSR reset and the
+ option-on fabric gPTP plane starts independently of the AVDECC AEM image.
+-Firmware therefore does not gate either one on AEM verification. It performs
+-this order:
++Firmware therefore does not gate either one on AEM verification. The fabric
++holds every transmitter that takes its source address from `MAC_ADDR_LO/HI`
++until step 2 has written both words (#839); the gPTP plane's address is the
++same station MAC, written into its program ROM by the builder, so it is not
++held. Firmware performs this order:
+ 
+ 1. Keep both compatibility enable bits clear, leaving the shared AVDECC
+    control plane disabled while the PHC and fabric gPTP plane remain active.
+@@ -211,7 +214,7 @@ shipping 1x1 with its CRF output off, and holds the ordered list below (#398).
+ | `PP_CTRL` (`0x920`) | read, bit 0 cleared | firmware-internal, for the same reason |
+ | `ADP_ENTITY_ID_LO/HI` (`0x604`, `0x608`) | `MILAN_ENTITY_ID_LO/HI` | generated from `entity.entity_id`, which defaults to the EUI-64 of `platform.mac_address` |
+ | `ADP_MODEL_ID_LO/HI` (`0x60C`, `0x610`) | `MILAN_MODEL_ID_LO/HI` | generated from `entity.entity_model_id` and `entity.model_id_pin` |
+-| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address` |
++| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address`, which the builder refuses when it is zero or a group address. The fabric holds the processor's control lane, MAAP, the AAF talkers and the CRF talker at frame start until both words are written, and stamps the control lane's source address from them (#839) |
+ | `MAC_CTRL` (`0x100`) | read, bit 3 (all-multicast) set | pending #403, which decides the receive-filter posture |
+ | `AAF_CTRL` (`0x654`) | `MILAN_SR_VID` in `[27:16]`, talker enable `[0]`, bypass `[1]` clear | VID generated from `srp.vid`; the enable is firmware-internal bring-up sequencing |
+ | `LWSRP_VID` (`0x684`) | `MILAN_SR_VID` | generated from `srp.vid` |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 76572aafe6..ed2ca780a5 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -411,8 +411,8 @@ identity. [`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py)
+ |--------|------|-----|-------|-------------|
+ | `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g (only consulted when `[5]` is set), `[5]` speed_manual (0 = derive the link rate from `MAC_STATUS` speed, 1 = use `[4]` verbatim  -  REQ-MAC-03, reset 0) |
+ | `0x104` | `MAC_IFG` | RW | `0x0C` | `[7:0]` inter-frame gap (bytes), default 12 |
+-| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words) |
+-| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]` |
++| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words). **Sequencing (#839):** the datapath records each half's first write since reset, on this CSR's own write handshake, and until both halves have been written it holds the frame start of every transmitter that takes its source address from this pair: the protocol processor's control lane (SRP, ADP, ACMP, AECP), MAAP, the AAF talkers and the CRF talker. Every control-lane frame also takes octets 6 to 11 from this pair as it leaves, so a PDU the processor built before the write leaves with the written address (IEEE 802.1AC-2016 11.1). Either order completes the pair, a read does not, and it stays complete until reset; rewriting the address later is not atomic across the two words. The fabric gPTP plane is not held: its source address is the station MAC the builder writes into its program ROM. No field, address or reset value changes |
++| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]`. **Sequencing (#839):** the pair's second half; see `MAC_ADDR_LO` |
+ | `0x110` | `MAC_STATUS` | RO | – | `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex |
+ | `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter, buckets 0-31 (bit `n` = bucket `n`) |
+ | `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter, buckets 32-63 |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 0744f2f80b..b5a51f2b7b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -274,6 +274,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #530 streaming licence, the three gate mutants, and the #774 per-source TSpec control on the 1x1 and 8x8 shapes | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`), the per-source TSpec (`pp_src_maxf_w`, `tctx_maxf_w`, `KL_crf_tx`'s `tspec_max_frame_o`, `KL_pp_shadow`'s `cfg_tspec_max_frame_i`) or `sim_crf_licence.cpp` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants, the #632 SET_STREAM_INFO push gate compared with the readback (caught on the CRF output, whose readback is applied in whole periods), and GET_STREAM_INFO's offset word reading the CRF output's row as set or every output's row rounded (#632), planted in a copy of the processor's microcode and run on the clean build with its own ROM; and #790's three arms in the processor copy, which pass an unsettled input's stream_id, destination MAC and their Table 5.9 flags through, whole or per selector, caught by `[GSI]` G11's PROBING_PASSIVE case with the stale ID | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather or SET_STREAM_INFO program, the GET_STREAM_INFO answer block of `milan_datapath.sv`, or the `[GSI]` section or `[NOTIFY]` SET_STREAM_INFO case of `sim_nxn.cpp` |
+ | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
++| #839 station MAC from reset, twelve controls on the `bootsa` leg: the defect as shipped (no hold, no stamp), the hold alone, the stamp alone, `MAC_ADDR_LO` or `MAC_ADDR_HI` alone completing the pair, the stamp on the destination octets, the stamp's beat position kept across a frame's end or wrapping past the source address (caught by the leg's comparison of every control-lane octet outside 6 to 11 with the same octet entering the stamp), and the hold taken from MAAP, the AAF talkers and the CRF talker together or from each alone (caught by the leg's early-enable boots, which enable those three at reset release, before the station MAC is written) | `make -C tb/verilator/milan_dp bootsa-mutants` | the change's own validation, and every reviewer of a change that touches the pair's sequencing (`mac_addr_seq`), the transmit gate (`tx_sa_ok_w`) or the control-lane stamp (`ctl_sa_position`, `ctl_sa_stamp`) in `milan_datapath.sv`, the CSR write handshake in `milan_csr.sv`, `configure_fabric()`, `entity_advertise()` or `milan_init()`'s order in the firmware, `gen_boot_fw.py` or `sim_boot_sa.cpp` |
+ | #658 power-on audio maps and #637 map records, the 66 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the 43 `[MAPREC]` arms of the map record writer, its restore, PP_STAT's composition, each term of its validated-record test and the device-face arbiter; on the `maprec8` and `maprec4` legs, the seven arms that need several ports, the round-1 restore order among them; the empty reset again under the listener and talker end-to-end legs; and the #70 volatile set's three arms on the `dynmap` leg, each keeping the lock, the registry or IDENTIFY across the `[VOLATILE]` power cycle in a copy of the processor) | `make -C tb/verilator/milan_dp dynmap-mutants DYNMAP_MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the map stores, their reset, the boot window or the map records in `milan_datapath.sv`, the device-face arbiter in `KL_pp_shadow.sv`, `gen_nvm_window.py` or the `[DYNMAP]`, `[MAPREC]` and `[VOLATILE]` sections of `sim_nxn.cpp` |
+ | #387/#602 GM step re-base and #545 slew coverage: sixteen gmstep controls and five option-off controls, each gmstep control on the whole leg, the #621 phase included | `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`mcr_restart_p_w`, the presentation stage's flush, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_queue.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, and the render stage emptied on the grandmaster's identity or on the step, each losing PDUs uncounted (#632 retired the counted re-base those two once planted) |
+ | #632/#764 media phase: one planted defect per loop term, per hold condition, per detector behaviour, per interface constant, for the window cap, the CRF offset's rounding, its carry past 32 bits and its wiring, the AAF offsets stamped and read back rounded instead of as set, the blend's frame assembly, and the listener's presentation (an interface's out-lead dropped, the queue read untimed, a frame off, the late and the early rule removed), forty, each required to fail its named check, after the clean cases pass | `make -C tb/verilator/media_phase mutants MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the phase path of `KL_mmcm_drp_servo.sv`, `KL_media_domain_event.sv`, `KL_media_if_latency_pkg.sv`, `KL_crf_tx.sv`'s event grid, `KL_mtt_round.sv`, `KL_aaf_capture_i2s.sv`'s pair output, `KL_render_queue.sv`, or this harness |
+@@ -402,11 +403,12 @@ of any kind; `controller_rate` is the gating regression born from the
+ control-rate boundary; `cbs`/`ptp` check
+ arithmetic against independent reference models (10⁴-10⁵ checks each).
+ 
+-The `milan_dp` default `run` retains seventeen ordinary commands in this order:
++The `milan_dp` default `run` retains eighteen ordinary commands in this order:
+ `obj_dir`, `obj_notify`, `obj_crflic`, #774's `obj_tspec8`, processor #202's
+ `obj_sidmove` and `obj_sidmove8` (#799), `obj_dynmap`,
+ `obj_nxn`, `obj_nxndv`, `obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`,
+-`obj_ax1x1`, `obj_aclk`, then #637's `obj_maprec8` and `obj_maprec4`.
++`obj_ax1x1`, `obj_aclk`, #637's `obj_maprec8` and `obj_maprec4`, then
++#839's `obj_bootsa`.
+ All run through the two-child pool after their builds.
+ `SIM_JOBS=1` runs that same inventory sequentially.
+ The eight `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
+@@ -416,7 +418,7 @@ The generated shape header stays inside that private directory.
+ The two `sim_sid_move` legs each write a unique `milan_sidmove_*` scratch directory.
+ It holds the shape's image and its generator log, and is removed once the image is read.
+ Timestamp and file-operation audits found no repository writes.
+-The other six legs write no data files.
++The other eight legs write no data files.
+ Disjoint private write sets need no exclusive marks.
+ Presence of `MILAN_COUNTER_FRAME_OUT` still serializes the entire ordinary set.
+ The #508 GET_STREAM_INFO checks stay in `obj_notify`.
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 46b9640988..5e1b950574 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -784,6 +784,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [47:0] station_mac_be_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
++  //! #839 TRANSMIT GATE: 1 once both halves of the station MAC have been
++  //! written since reset (mac_addr_seq, beside the CSR). Until then no source
++  //! that takes its address from that CSR may START a frame. The gate sits
++  //! on each of the four (the processor's control lane, MAAP, the AAF
++  //! talkers and the CRF talker) rather than at the MAC boundary, so no
++  //! arbiter sees a refused beat and its stall watchdog stays quiet
++  //! (A_TXARB_DIAG). It never falls once set, so it never cuts a frame.
++  wire tx_sa_ok_w;
++  //! each held source's own handshake, ahead of the gate (the gate itself
++  //! is beside the TX arbiters, after every net it reads is declared)
++  wire pp_txs_tvalid_w,   pp_txs_tready_w;
++  wire maap_txs_tvalid_w, maap_txs_tready_w;
++  wire aaf_txs_tvalid_w,  aaf_txs_tready_w;
++  wire crft_txs_tvalid_w, crft_txs_tready_w;
+ 
+   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
+     .clk_i (clk_audio_i), .rst_n (axis_resetn), .adv_i (1'b1),
+@@ -1599,8 +1613,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .tctx_rd_en_i (csr_tctx_rd_en_w), .tctx_rd_addr_i (csr_tctx_rd_addr_w),
+     .tctx_rd_data_o (tctx_rd_data_w), .tctx_rd_valid_o (tctx_rd_valid_w),
+     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
+-    .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
+-    .m_axis_tready(aaf_tx_tready),
++    .m_axis_tvalid(aaf_txs_tvalid_w), .m_axis_tlast (aaf_tx_tlast),
++    .m_axis_tready(aaf_txs_tready_w),
+     .frames_sent_o (aaf_frames_w),
+     //! IEEE 1722-2016 4.4.4.3 media clock restart level, per talker
+     .mr_i (aaf_mr_w),
+@@ -3075,6 +3089,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .o_irq              (csr_irq)
+   );
+ 
++  //! #839 THE STATION-MAC PAIR'S OWN SEQUENCING, observed on the CSR slave's
++  //! write handshake. milan_csr commits a write on the edge its AWREADY is
++  //! high (combinational ready, single outstanding; its banner and
++  //! hdl/common/csr/doc/milan_csr.md), so AWVALID and AWREADY together with
++  //! the pair's address are exactly that register's write enable. Each half
++  //! records its first write since reset, and tx_sa_ok_w is 1 once both have
++  //! been written, in either order, so no frame is stamped with the reset
++  //! value or a half-written address. A read does not count. It stays 1
++  //! until reset: firmware writes the address once per boot, in
++  //! configure_fabric(). milan_csr itself, its ports and its registers are
++  //! unchanged.
++  localparam logic [15:0] MAC_ALO_ADDR_C = 16'h0108;  //! REGISTER_MAP MAC_ADDR_LO
++  localparam logic [15:0] MAC_AHI_ADDR_C = 16'h010C;  //! REGISTER_MAP MAC_ADDR_HI
++  logic mac_alo_wr_r, mac_ahi_wr_r;
++  always_ff @(posedge axis_clk) begin : mac_addr_seq
++    if (!axis_resetn) begin
++      mac_alo_wr_r <= 1'b0;
++      mac_ahi_wr_r <= 1'b0;
++    end else if (s_axi_awvalid && s_axi_awready) begin
++      if (s_axi_awaddr == MAC_ALO_ADDR_C) mac_alo_wr_r <= 1'b1;
++      if (s_axi_awaddr == MAC_AHI_ADDR_C) mac_ahi_wr_r <= 1'b1;
++    end
++  end : mac_addr_seq
++  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;
++
+   // ==========================================================================
+   //  PTP hardware clock (CSR-configured)
+   // ==========================================================================
+@@ -7583,8 +7622,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .vlan_pcp_i (crft_pcp_w),
+     .vlan_vid_i (crft_vid_w),
+     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
+-    .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
+-    .m_axis_tready(crft_tx_tready),
++    .m_axis_tvalid(crft_txs_tvalid_w), .m_axis_tlast (crft_tx_tlast),
++    .m_axis_tready(crft_txs_tready_w),
+     .tx_count_o (crft_count_w),
+     .tspec_max_frame_o (crft_maxf_w)
+   );
+@@ -8557,8 +8596,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .rx_tready_i (rx_axis_fabric.tready),
+     .rx_tlast_i  (rx_axis_fabric.tlast),
+     .m_axis_tdata (maap_tx_tdata), .m_axis_tkeep (maap_tx_tkeep),
+-    .m_axis_tvalid(maap_tx_tvalid), .m_axis_tlast (maap_tx_tlast),
+-    .m_axis_tready(maap_tx_tready),
++    .m_axis_tvalid(maap_txs_tvalid_w), .m_axis_tlast (maap_tx_tlast),
++    .m_axis_tready(maap_txs_tready_w),
+     .addr_o (maap_addr), .addr_valid_o (maap_addr_valid),
+     .state_o (maap_state), .offset_o (maap_offset),
+     .conflicts_o (maap_conflicts), .defends_o (maap_defends)
+@@ -8566,7 +8605,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   end else begin : g_no_maap
+     assign maap_tx_tdata   = {TDATA_WIDTH{1'b0}};
+     assign maap_tx_tkeep   = {(TDATA_WIDTH/8){1'b0}};
+-    assign maap_tx_tvalid  = 1'b0;
++    assign maap_txs_tvalid_w = 1'b0;
+     assign maap_tx_tlast   = 1'b0;
+     assign maap_addr       = 48'd0;
+     assign maap_addr_valid = 1'b0;
+@@ -8765,6 +8804,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   assign txarb_abort_w [1]   = 1'b0;
+   assign txarb_stall_w [1]   = 1'b0;
+ 
++  //! #839 the transmit gate (tx_sa_ok_w, declared with the station MAC):
++  //! a held source sees tready 0 and its arbiter sees tvalid 0, so no frame
++  //! starts before both halves of the station MAC are written. The gPTP
++  //! plane is not held: its source address is the station MAC the builder
++  //! put in its ROM (gen_gptp_ucode.py --mac, the same platform.mac_address
++  //! firmware writes here, refused when zero or a group address), and its
++  //! path to the MAC stays free of runtime gates (the boot contract in
++  //! docs/integration/BAREMETAL_FIRMWARE.md).
++  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
++  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
++  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
++  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
++  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
++  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
++  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
++  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;
++
+   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
+   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
+   //! announce/probe/defend lane (s_adp). The selected processor pin also
+@@ -8829,17 +8885,61 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! follows another control frame). Spacing every control frame here fixes
+   //! ALL of them WITHOUT touching data/AAF throughput (the data lane
+   //! bypasses this gasket). Replaces lwSRP's local gap workaround.
+-  wire [TDATA_WIDTH-1:0]   ctlg2_tdata;
++  logic [TDATA_WIDTH-1:0]  ctlg2_tdata;       //! ctl_sa_stamp below (#839)
++  wire  [TDATA_WIDTH-1:0]  ctlg_src_tdata_w;  //! the gasket's own output
+   wire [TDATA_WIDTH/8-1:0] ctlg2_tkeep;
+   wire                     ctlg2_tvalid, ctlg2_tlast, ctlg2_tready;
+   tx_ifg_gasket #(.DATA_WIDTH(TDATA_WIDTH), .GAP_CYCLES(512)) ctl_ifg (
+     .clk_i (axis_clk), .rst_n (axis_resetn),
+     .s_tdata (ctlh_tx_tdata),  .s_tkeep (ctlh_tx_tkeep),
+     .s_tvalid(ctlh_tx_tvalid), .s_tlast (ctlh_tx_tlast), .s_tready(ctlh_tx_tready),
+-    .m_tdata (ctlg2_tdata),  .m_tkeep (ctlg2_tkeep),
++    .m_tdata (ctlg_src_tdata_w),  .m_tkeep (ctlg2_tkeep),
+     .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
+   );
+ 
++  //! #839 SOURCE ADDRESS STAMP on the control lane, after the gasket
++  //! (processor + MAAP): octets 6 to 11 of every frame are the station MAC
++  //! (IEEE 802.1AC-2016 11.1, IEEE 802.1Q-2022 6.8.1: source_address is the
++  //! individual address of the source MSAP), taken from the CSR while the
++  //! octet is on the lane, as a MAC entity inserts its own address (IEEE
++  //! 802.3-2022 2.3.1.2). The hold above stops a frame STARTING before the
++  //! address is written, but the processor builds a frame into its TX slot
++  //! before offering it (KL_srp_encoder writes octets 6 to 11 at build
++  //! time), so an MSRP PDU built from the reset value would otherwise leave
++  //! with it once released. The data lane needs no stamp: KL_aaf_packetizer
++  //! and KL_crf_tx form octets 6 to 11 from station_mac_i on the beat they
++  //! emit, as KL_maap does, and the hold keeps their first beat back until
++  //! the address is written. Every other octet passes untouched. The lane
++  //! carries packed beats in little lane order (octet n of a beat in
++  //! tdata[8n +: 8], every beat but the last full), so a beat's position in
++  //! its frame fixes its octets.
++  localparam int unsigned TX_SA_BPB_C   = TDATA_WIDTH / 8;   //! octets per beat
++  //! beats that can hold a source-address octet (the field ends at octet 12)
++  localparam int unsigned TX_SA_BEATS_C = (12 + TX_SA_BPB_C - 1) / TX_SA_BPB_C;
++  localparam int unsigned TX_SA_IW_C    = $clog2(TX_SA_BEATS_C + 1);
++
++  //! the next control-lane beat's position in its frame, saturated at
++  //! TX_SA_BEATS_C (past the source address)
++  logic [TX_SA_IW_C-1:0] ctl_sa_idx_r;
++  always_ff @(posedge axis_clk) begin : ctl_sa_position
++    if (!axis_resetn)                                      ctl_sa_idx_r <= '0;
++    else if (ctlg2_tvalid && ctlg2_tready) begin
++      if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;
++      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
++    end
++  end : ctl_sa_position
++
++  //! the beat with every source-address octet it holds replaced; the CSR
++  //! packing is LSB-first, wire octet 6 + k in cfg_mac_addr[8k +: 8]
++  always_comb begin : ctl_sa_stamp
++    ctlg2_tdata = ctlg_src_tdata_w;
++    for (int b = 0; b < int'(TX_SA_BEATS_C); b++)
++      for (int ln = 0; ln < int'(TX_SA_BPB_C); ln++)
++        if (ctl_sa_idx_r == TX_SA_IW_C'(b) && (b * int'(TX_SA_BPB_C) + ln) >= 6
++            && (b * int'(TX_SA_BPB_C) + ln) < 12)
++          ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];
++  end : ctl_sa_stamp
++
+   // ==========================================================================
+   //  the fabric gPTP plane (issue #114, product default ON since #116)
+   // ==========================================================================
+@@ -9613,9 +9713,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       .tx_drain_i        (1'b0),
+       .m_axis_tx_tdata   (pp_tx_tdata_w),
+       .m_axis_tx_tkeep   (pp_tx_tkeep_w),
+-      .m_axis_tx_tvalid  (pp_tx_tvalid_w),
++      .m_axis_tx_tvalid  (pp_txs_tvalid_w),
+       .m_axis_tx_tlast   (pp_tx_tlast_w),
+-      .m_axis_tx_tready  (pp_tx_tready_w),
++      .m_axis_tx_tready  (pp_txs_tready_w),
+       //! the descriptor-image read master, straight out to the SoC
+       .desc_mem_req_valid_o (o_desc_mem_req_valid),
+       .desc_mem_req_ready_i (i_desc_mem_req_ready),
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index 9890ffe5ba..7f5e8c9b64 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -167,6 +167,13 @@ DUT_READER_DISPOSITIONS = {
+         "Expected totals come from the MAC packet census and injected traffic; notification "
+         "expectations come from the ruled spacing/gap contract; phase checks exhaust one second, "
+         "never deriving expected packet totals or deadlines from RTL text",
++    "tb/verilator/milan_dp/bootsa_mutants.py":
++        "mutation campaign; it plants one of twelve #839 station-MAC defects (no hold, no stamp, "
++        "neither, either half alone completing the pair, the stamp on the destination octets, the "
++        "stamp's beat position kept across a frame's end or wrapping past the source address, the "
++        "hold gone from MAAP, the AAF talkers and the CRF talker together or from each alone) into "
++        "a copy of the datapath and requires every named check of its case to fail; no expected "
++        "value is read from RTL. It is the explicit bootsa-mutants target, outside the default sweep",
+     "tb/verilator/milan_dp/crflic_mutants.py":
+         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
+         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+diff --git a/tb/verilator/capture_coherence/sim_dp.cpp b/tb/verilator/capture_coherence/sim_dp.cpp
+index 35a5a68d2e..125fd018bd 100644
+--- a/tb/verilator/capture_coherence/sim_dp.cpp
++++ b/tb/verilator/capture_coherence/sim_dp.cpp
+@@ -285,6 +285,11 @@ void DatapathHarness::restart(const Scenario& sc) {
+     fsync_prev_ = dut_->tdm_fsync_o;
+     if (sc.pto != kPtoNs) set_offsets(sc.pto);
+     cycle(512);
++    //! #839: the fabric holds every CSR-addressed transmitter until both
++    //! halves of the station MAC are written, as configure_fabric() does.
++    //! This leg keeps the reset address (all zero) its stream IDs root in.
++    axi_write(0x108, 0x0);
++    axi_write(0x10C, 0x0);
+ }
+ 
+ //! #773: both outputs' presentation offsets, poked into the processor's
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 070c077184..6a1e34953b 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -235,7 +235,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi bootsa bootsa-build bootsa-mutants clean option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -492,6 +492,38 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ gmstep: gmstep-build
+ 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+ 
++# issue #839: EVERY FRAME FROM RESET CARRIES THE STATION MAC. The gmstep
++# elaboration (the shipping 1x1 entity, gPTP on, the 2 MHz compressed clock),
++# booted through milan_init()'s own stage order with the firmware's own
++# configure_fabric() and entity_advertise() compiled in: gen_boot_fw.py copies
++# them out of milan_baremetal.c against the generated words of the same
++# config, and generates this leg's gPTP program for the same station MAC.
++# sim_boot_sa.cpp's banner has the model. bootsa_mutants.py builds mutated
++# copies through this recipe (BOOTSA_MDIR with DP_SRC overridden).
++BOOTSA_MDIR ?= obj_bootsa
++BOOTSA_CFG = endstation_ax7101_1x1_tdm8
++BOOTSA_FW = ../../../sw/firmware/milan_baremetal/milan_baremetal.c
++CC ?= cc
++bootsa-build: ltn_rom.hex ucode.hex $(GEN_ALL)
++	python3 ../../../sw/builder/endstation_builder.py ../../../configs/$(BOOTSA_CFG).yaml -o $(BOOTSA_MDIR)/aem-build
++	python3 ../../../avdecc/gen_aemi_image.py --overlay $(BOOTSA_MDIR)/aem-build/$(BOOTSA_CFG)/aem_overlay.json --line-bytes 576 -o $(BOOTSA_MDIR)/aemi.bin
++	python3 gen_boot_fw.py --firmware $(BOOTSA_FW) --build $(BOOTSA_MDIR)/aem-build/$(BOOTSA_CFG) \
++	  --clk-hz 2000000 --out $(BOOTSA_MDIR)/boot
++	$(CC) -std=gnu11 -O1 -Wall -Wextra -Werror -c $(BOOTSA_MDIR)/boot/boot_fw.c -o $(BOOTSA_MDIR)/boot/boot_fw.o
++	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(BOOTSA_MDIR) \
++	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
++	  -GGPTP_UCODE_HEX_P='"$(BOOTSA_MDIR)/boot/gptp_ucode.hex"' \
++	  -CFLAGS "-I$(abspath $(BOOTSA_MDIR))/boot -Wall -Wextra" -LDFLAGS "$(abspath $(BOOTSA_MDIR))/boot/boot_fw.o" \
++	  bootsa_probes.vlt $(SRCS) sim_boot_sa.cpp -o Vmilan_dp_bootsa
++
++bootsa: bootsa-build
++	./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
++
++# #839's negative controls: bootsa_mutants.py's banner lists them. An explicit
++# campaign outside the sweep, like crflic-mutants.
++bootsa-mutants: bootsa
++	python3 bootsa_mutants.py
++
+ # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
+ # target above leaves both constants at their zero defaults and therefore
+ # grades the UNCORRECTED stamps bit for bit; this one elaborates non-zero,
+@@ -682,7 +714,7 @@ ax1x1gptp-extended: ax1x1gptp
+ # One inventory owns default execution and CI selection.
+ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+ PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
++ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 bootsa
+ SUFFIX_CASES = render-mutants
+ CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+ $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+@@ -705,6 +737,7 @@ CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipp
+ CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
+ CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
+ CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
++CASE_OPTIONS_bootsa = --banner "---- \#839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----" ./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+ 
+ # Keep the original ordered build and bounded simulation phases.
+ # Each selected CI invocation prepares shared inputs before building cases.
+@@ -868,6 +901,11 @@ build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
+ exec-dynmap:
+ 	./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+ 
++build-bootsa: bootsa-build
++
++exec-bootsa:
++	./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
++
+ build-maprec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+ 	$(call MAPREC_MP_BUILD,$(SHAPE_8x8),$(MAPREC8_MDIR),8,Vmilan_dp_maprec8)
+ 
+@@ -957,4 +995,4 @@ counters-mutants: | stack-pin
+ 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
+ 
+ clean:
+-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
++	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 5b93a112a4..b6817deecd 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -88,6 +88,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
+ | `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
+ | `obj_sidmove` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the shipping shape, AAF talker 0 and the CRF Media Clock Output, the `obj_crflic` compressed grid | processor #202: a peer takes the claimed MAAP block while the sources stream; each declaring source moves to a new Stream ID at its grant, and the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO selector 2 and the Talker Advertise name each source's published `src_stream_id_o` before the move and after it. `make sidmove` runs it alone |
+ | `obj_sidmove8` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_8x8`, AAF talkers 0 and 1, talker 1's TCTX unique ID named, the same grid | processor #202 as above on the 8x8 shape: the processor's published ID outranks a named TCTX unique ID on the wire. `make sidmove8` runs it alone |
++| `obj_bootsa` | `sim_boot_sa.cpp`, `bootsa_probes.vlt`, `gen_boot_fw.py` | the `obj_gmstep` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz, its gPTP program generated for the config's station MAC | #839: from reset, through `milan_init()`'s own stage order and the firmware's own `configure_fabric()` and `entity_advertise()`, every frame at the MAC boundary carries the station MAC as its source address, up to and past the first ENTITY_AVAILABLE; see [the section below](#the-839-station-mac-from-reset-obj_bootsa). Its planted controls are `make bootsa-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes; FPGA-gPTP #94: asCapable falls at a link loss, when LINK_CTRL[0] withdraws the link and when the link guard loses the receive clock, a link loss inside the Pdelay_Req cease ends it, and the countdown exit is unchanged |
+ | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
+ | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
+@@ -106,6 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
+ - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+ - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
++- **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -1109,6 +1111,133 @@ reference boot over the format record alone. At 8x8 the three stages held
+ the faces about 13,700 clocks, past the processor's 4,096-clock gather
+ watchdog; that stays open with the other 8x8 obligations (D3 18.4).
+ 
++## The #839 station MAC from reset (`obj_bootsa`)
++
++The defect: the processor's SRP engine runs from reset. The firmware writes
++the station MAC only in `configure_fabric()`. The first MSRP PDU of every
++boot therefore left with source address 00:00:00:00:00:00 (IEEE 802.1AC-2016
++11.1 and IEEE 802.1Q-2022 6.8.1: the source_address is the individual address
++of the source MSAP).
++
++The fix it grades is in `milan_datapath`. Beside the CSR instance,
++`mac_addr_seq` records the first write to each half of the `MAC_ADDR_LO/HI`
++pair, observed on the CSR slave's own write handshake, so `milan_csr` is
++unchanged. Until both halves are written, the datapath holds the four
++transmitters that take their source address from that pair (the processor's
++control lane, MAAP, the AAF talkers and the CRF talker) at frame start. It
++also stamps octets 6 to 11 of every control-lane frame from the pair. The stamp is needed because the
++processor builds a PDU into its TX slot before it offers it. The gPTP plane
++is not held: its program ROM carries the same station MAC, and its path to
++the MAC stays free of runtime gates.
++
++The boot is the firmware's, not a copy of it. `gen_boot_fw.py` copies the
++CSR accessors, `configure_fabric()` and `entity_advertise()` out of
++`sw/firmware/milan_baremetal/milan_baremetal.c`. Its only edits route the CSR
++load and store to this harness's AXI4-Lite master and blank the store's
++fence. It compiles them against `boot_policy.fabric_constants()` of the
++shipping 1x1 config. It also reads the stage order out of `milan_init()` and
++refuses a firmware that calls another stage. The leg runs a 400 ms BIOS window
++with no CSR access, then the four stages in that order: `configure_fabric()`,
++`load_aem_image()` (no CSR access; the builder's AEM image is served from
++reset), `nvm_boot()` (stood in for by the restore walk it ends with on blank
++media; its saved-state traffic is not modelled) and `entity_advertise(1)`.
++It runs past the first ENTITY_AVAILABLE to the re-advertisement. A controller
++then asks one READ_DESCRIPTOR and one GET_TX_STATE_COMMAND, and the AAF talker
++is opened through the `AAF_CTRL[1]` diagnostic bypass. Once MAAP holds its
++claim, a listener sends one PROBE_TX_COMMAND to the AAF stream output. The
++destination is then valid (Milan v1.2 4.3.3.1), so the talker declares its
++Talker Advertise and first joins its VLAN by MVRP (Milan v1.2 4.3.2), and an
++MVRP frame leaves. The talker refuses a probe until its destination
++allocation has been answered, so the leg repeats the probe, up to five times,
++until it answers SUCCESS.
++
++Two more boots then grade the pair's sequencing in an order the firmware
++does not use: one half alone, 300 processor ms, then the other. Either half
++alone must open no CSR-addressed transmitter, and the second must release the
++processor's frame with the whole address.
++
++Two more boots then enable the three transmitters that `configure_fabric()`
++enables only after the pair, at reset release instead. Each writes
++`MAAP_CTRL`, `AAF_CTRL` (enable and the `AAF_CTRL[1]` bypass) and `CRFT_CTRL`
++with the firmware's own boot words, before any MAC write. It then holds the
++pair unwritten for 400 processor ms and writes it. The first boot enables
++MAAP, and MAAP and the CRF talker offer frames inside the held window. Its AAF
++talker cannot, whatever the window's length:
++
++- the AAF gate needs MAAP's claim while MAAP is enabled (`aaf_gate`,
++  `hdl/milan/milan_datapath.sv:2214-2217`);
++- MAAP holds a claim only in ANNOUNCE (`hdl/ieee1722/maap/KL_maap.sv:189`),
++  and reaches ANNOUNCE only when it sends its fourth PROBE
++  (`KL_maap.sv:487-489`);
++- MAAP sends a PROBE only once the previous one has left
++  (`KL_maap.sv:477`), and its first stays in `tx_busy_r`, its `tvalid`
++  (`KL_maap.sv:307`), until a beat is accepted (`KL_maap.sv:392-395`);
++- the hold gives MAAP `tready` 0 until the pair is written
++  (`milan_datapath.sv:8818`).
++
++So the second boot leaves MAAP off, which opens the AAF gate's MAAP term, and
++the AAF talker and the CRF talker offer frames inside the held window. Each
++source that offered must not have sent, and each must send from the station
++MAC once the pair is written.
++
++It grades every frame of the first boot (through the controller's and the
++listener's exchanges) on valid/ready at `m_axis_mac_tx`:
++
++- the processor offered a frame before the station MAC was written, so the
++  leg reached the defect's precondition;
++- no frame carries the all-zero source address;
++- no CSR-addressed transmitter's frame leaves before both halves are written;
++- each protocol's frames carry the station MAC as source address;
++- each fixed-address protocol's destination (octets 0 to 5) is its own for
++  MSRP, MVRP, gPTP, ADP, ACMP and MAAP, and the controller's MAC for AECP;
++- every frame is a known protocol's: its EtherType (octets 12 and 13, or 16
++  and 17 behind a C-TAG) and, for AVTP, its subtype name one of the graded
++  kinds;
++- MSRP, MVRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent, and
++  CRF frames too where the config declares the CRF Media Clock Output;
++- `A_TXARB_DIAG` reads no arbiter stall or abort.
++
++On the stamp's own valid/ready, in every boot, it compares each control-lane
++octet outside octets 6 to 11 with the same octet entering the stamp (the IFG
++gasket's output). Every one must leave unchanged. The octet's position is the
++leg's own count of the frame's kept octets.
++
++In each early-enable boot it grades instead:
++
++- that each source it requires offered a frame while the pair was unwritten
++  (its own `tvalid`, ahead of the transmit gate): MAAP and the CRF talker in
++  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot
++  (CRF where the config declares the CRF Media Clock Output);
++- that no frame of that source left before the pair was written;
++- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it
++  (CRF where the config declares the CRF Media Clock Output);
++- that no CSR-addressed frame left early, no frame carried the all-zero
++  address, every frame carried the station MAC, and `A_TXARB_DIAG` is clean.
++
++```sh
++make -C tb/verilator/milan_dp bootsa
++make -C tb/verilator/milan_dp bootsa-mutants
++```
++
++`bootsa_mutants.py` plants twelve controls in copies of the RTL. Each must
++fail the leg by every check it names. The first is the defect as shipped, no
++hold and no stamp: it fails on the all-zero source address and on the MSRP
++frame's source. The others:
++
++- take the hold or the stamp away alone;
++- let either half alone complete the pair;
++- move the stamp onto the destination;
++- keep the stamp's beat position across a frame's end;
++- let the stamp's beat position wrap past the source address instead of
++  saturating, which fails the octet comparison;
++- take the hold away from MAAP, the AAF talkers and the CRF talker together,
++  which fails the MAAP and CRF checks of the MAAP-on boot and the AAF check of
++  the MAAP-off boot;
++- take the hold away from each of the three alone, which fails that source's
++  own check.
++
++What it does not grade: `nvm_boot()`'s own CSR traffic.
++
+ ## GM step re-base leg (#387)
+ 
+ The true-ratio leg also commands an absolute software settime under the
+diff --git a/tb/verilator/milan_dp/bootsa_mutants.py b/tb/verilator/milan_dp/bootsa_mutants.py
+new file mode 100644
+index 0000000000..8945a1e627
+--- /dev/null
++++ b/tb/verilator/milan_dp/bootsa_mutants.py
+@@ -0,0 +1,242 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Mutation arm for the #839 boot leg in milan_dp: prove its checks can fail.
++
++sim_boot_sa.cpp (the obj_bootsa leg) boots the shipping 1x1 datapath through
++milan_init()'s own order and grades the source address of every frame at the
++MAC boundary. The fix it proves is in milan_datapath: the station-MAC pair's
++sequencing (mac_addr_seq) records when both halves have been written, the
++four CSR-addressed transmitters are held until then, and octets 6 to 11 of
++every control-lane frame are stamped from the CSR. Each mutant below takes a
++piece away, or breaks the stamp's position, in a copy of the RTL, and the
++SAME leg is rebuilt through the Makefile's own recipe (`make bootsa-build`
++with BOOTSA_MDIR and DP_SRC overridden) and run. A mutant is caught only when the leg
++FAILS by its own verdict (a `[FAIL]` line or a tally with failures, read by
++scripts/suite_tally.py) AND every check the mutant names is among the
++failures; a crash, an abort or a build failure is not a catch. The positive
++control is the clean leg, run first.
++
++The first mutant is the defect as shipped: no hold and no stamp. It must fail
++the leg by the names the issue's acceptance reads, the all-zero source
++address and the MSRP frame's source address.
++
++The hold on the three sources configure_fabric() enables only after the pair
++(MAAP, the AAF talkers, the CRF talker) is proved by the leg's two
++early-enable boots, which enable them at reset release: removing it from all
++three fails each boot by the source it held, and removing it from one alone
++fails that source's check alone. The stamp's beat position wrapping past the
++source address instead of saturating fails the leg's octet-by-octet
++comparison of the control lane across the stamp.
++
++What bounds a run: the leg is cycle-bounded (its own fixed phases and the
++AXI4-Lite BFM's 2048-cycle handshake bound), so a mutant ends no later than
++the clean leg's bound. This driver sets no host-time deadline.
++
++Usage: make -C tb/verilator/milan_dp bootsa-mutants
++       (or python3 bootsa_mutants.py from tb/verilator/milan_dp)
++Exit 0 = every mutant was caught and the clean leg passes.
++"""
++
++import re
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = {"DP_SRC": HERE / "../../../hdl/milan/milan_datapath.sv"}
++EXE = "Vmilan_dp_bootsa"
++sys.path.insert(0, str(HERE / "../../../scripts"))
++from suite_tally import log_reports_failure  # noqa: E402
++
++#: the transmit gate: both halves of the pair
++PAIR = "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;"
++#: the control lane's stamp
++STAMP = ("        if (ctl_sa_idx_r == TX_SA_IW_C'(b) && (b * int'(TX_SA_BPB_C) + ln) >= 6\n"
++         "            && (b * int'(TX_SA_BPB_C) + ln) < 12)\n"
++         "          ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];")
++NO_STAMP = ("        if (1'b0)\n"
++            "          ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];")
++ZERO = "[BOOTSA] no frame carries the all-zero source address"
++EARLY = "[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written"
++MSRP_SA = "[BOOTSA] every MSRP frame's source address is the station MAC"
++MSRP_DA = "[BOOTSA] every MSRP frame's destination address is its protocol's"
++ADP_DA = "[BOOTSA] every ADP frame's destination address is its protocol's"
++LO_ALONE = "[BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter"
++HI_ALONE = "[BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter"
++ON_MAAP = "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"
++ON_CRF = "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"
++OFF_AAF = "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
++OFF_CRF = "[BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written"
++OCTETS = "[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered"
++#: the transmit gate on each of the three sources the firmware enables after
++#: the pair: its valid toward the arbiter and its own ready
++HOLD = {
++    "MAAP": [("  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;",
++              "  assign maap_tx_tvalid    = maap_txs_tvalid_w;"),
++             ("  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;",
++              "  assign maap_txs_tready_w = maap_tx_tready;")],
++    "AAF": [("  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;",
++             "  assign aaf_tx_tvalid     = aaf_txs_tvalid_w;"),
++            ("  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;",
++             "  assign aaf_txs_tready_w  = aaf_tx_tready;")],
++    "CRF": [("  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;",
++             "  assign crft_tx_tvalid    = crft_txs_tvalid_w;"),
++            ("  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;",
++             "  assign crft_txs_tready_w = crft_tx_tready;")],
++}
++
++#: (name, {file variable: [(fragment, replacement)]}, the checks it must fail)
++MUTATIONS = [
++    ("the defect as shipped: no hold and no stamp",
++     {"DP_SRC": [(PAIR, "  assign tx_sa_ok_w = 1'b1;"), (STAMP, NO_STAMP)]},
++     [ZERO, EARLY, MSRP_SA]),
++    ("no hold: the stamp alone",
++     {"DP_SRC": [(PAIR, "  assign tx_sa_ok_w = 1'b1;")]},
++     [ZERO, EARLY, MSRP_SA]),
++    ("no stamp: the hold alone releases the MSRP PDU built from the reset address",
++     {"DP_SRC": [(STAMP, NO_STAMP)]},
++     [ZERO, MSRP_SA]),
++    ("MAC_ADDR_LO alone completes the pair",
++     {"DP_SRC": [(PAIR, "  assign tx_sa_ok_w = mac_alo_wr_r;")]},
++     [LO_ALONE]),
++    ("MAC_ADDR_HI alone completes the pair",
++     {"DP_SRC": [(PAIR, "  assign tx_sa_ok_w = mac_ahi_wr_r;")]},
++     [HI_ALONE]),
++    ("the stamp lands on the destination, octets 0 to 5",
++     {"DP_SRC": [(STAMP, STAMP.replace(">= 6", ">= 0").replace("< 12", "< 6")
++                  .replace("ln - 6)", "ln)"))]},
++     [MSRP_DA, MSRP_SA]),
++    ("the stamp's beat position survives a frame's last beat",
++     {"DP_SRC": [("      if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;",
++                  "      if (ctlg2_tlast)                                     ctl_sa_idx_r <= 1'b1;")]},
++     [ADP_DA]),
++    ("no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept)",
++     {"DP_SRC": HOLD["MAAP"] + HOLD["AAF"] + HOLD["CRF"]},
++     [ON_MAAP, ON_CRF, OFF_AAF]),
++    ("no hold on MAAP alone",
++     {"DP_SRC": HOLD["MAAP"]},
++     [ON_MAAP]),
++    ("no hold on the AAF talkers alone",
++     {"DP_SRC": HOLD["AAF"]},
++     [OFF_AAF]),
++    ("no hold on the CRF talker alone",
++     {"DP_SRC": HOLD["CRF"]},
++     [ON_CRF, OFF_CRF]),
++    ("the stamp's beat position wraps past the source address instead of saturating",
++     {"DP_SRC": [("      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;",
++                  "      else                                                 ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;")]},
++     [OCTETS]),
++]
++
++
++def build(sources: dict[str, Path], mdir: Path) -> Path | None:
++    """Build the leg against `sources` through the suite's own recipe; the
++    executable, or None when the recipe failed or left none."""
++    out = subprocess.run(
++        ["make", "-s", "-C", str(HERE), "bootsa-build", f"BOOTSA_MDIR={mdir}",
++         *(f"{var}={path}" for var, path in sources.items())],
++        capture_output=True, text=True, check=False)
++    exe = mdir / EXE
++    if out.returncode != 0 or not exe.is_file():
++        sys.stdout.write(out.stdout[-2000:])
++        sys.stdout.write(out.stderr[-2000:])
++        return None
++    return exe
++
++
++def run_leg(exe: Path) -> tuple[int, str]:
++    """(rc, output) of one run of the leg; it is cycle-bounded (docstring)."""
++    out = subprocess.run([str(exe)], cwd=str(HERE), capture_output=True,
++                         text=True, check=False)
++    return out.returncode, out.stdout + out.stderr
++
++
++def verdict(rc: int, out: str, must_fail: list[str]) -> str:
++    """'pass', 'caught', or why the run is not evidence."""
++    reason, failed = log_reports_failure(out)
++    if rc == 0 and not failed:
++        return "pass"
++    if rc == 0 and failed:
++        return f"exited 0 but {reason} - a masked verdict is not evidence"
++    if failed:
++        fails = [line.strip() for line in out.splitlines() if line.strip().startswith("[FAIL]")]
++        missing = [name for name in must_fail if not any(name in line for line in fails)]
++        if missing:
++            return f"failed, but not by every named check (missing {missing!r})"
++        return "caught"
++    if rc < 0:
++        return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
++    return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
++
++
++def run_mutant(mutation: tuple[str, dict[str, list[tuple[str, str]]], list[str]],
++               work: Path) -> bool:
++    """Plant one mutation, build and run the leg; True when it was caught."""
++    name, plants, breaks = mutation
++    tag = re.sub(r"[^A-Za-z0-9]+", "_", name)[:48]
++    sources = {}
++    for var, edits in plants.items():
++        text = RTL[var].read_text()
++        for pattern, replacement in edits:
++            if text.count(pattern) != 1:
++                print(f"[FAIL] mutation {name!r}: its pattern appears {text.count(pattern)} "
++                      f"time(s) in {RTL[var].name}, expected exactly 1. The RTL moved and "
++                      f"this mutant is no longer mutating anything - fix the pattern, do "
++                      f"not delete the arm.")
++                return False
++            text = text.replace(pattern, replacement)
++        path = work / f"{tag}_{RTL[var].name}"
++        path.write_text(text)
++        sources[var] = path
++    exe = build(sources, work / f"obj_{tag}")
++    if exe is None:
++        print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
++              f"proves nothing about the leg")
++        return False
++    rc, out = run_leg(exe)
++    answer = verdict(rc, out, breaks)
++    if answer == "caught":
++        print(f"[PASS] mutant caught: {name} - fails " + "; ".join(f'"{b}"' for b in breaks))
++        return True
++    if answer == "pass":
++        print(f"[FAIL] mutant SURVIVED: {name}. The leg does not prove {breaks!r}.")
++    else:
++        print(f"[FAIL] mutant {name!r} {answer}")
++    return False
++
++
++def main() -> int:
++    """Run the positive control and every mutant; 1 if any mutant survived."""
++    def on_sigterm(*_: object) -> None:
++        """Exit on a kill so the temporary directory is removed."""
++        sys.exit(143)
++
++    signal.signal(signal.SIGTERM, on_sigterm)
++    passes = 0
++    fails = 0
++    with tempfile.TemporaryDirectory(prefix="bootsa-mutants-") as td:
++        work = Path(td)
++        clean = HERE / "obj_bootsa" / EXE
++        exe = clean if clean.is_file() else build({}, work / "obj_clean")
++        answer = verdict(*run_leg(exe), []) if exe else "did not compile"
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated gateware passes the obj_bootsa leg")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated gateware does NOT pass obj_bootsa ({answer}) - "
++                  f"every mutant result on it is meaningless")
++        for mutation in MUTATIONS:
++            if run_mutant(mutation, work):
++                passes += 1
++            else:
++                fails += 1
++    print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/bootsa_probes.vlt b/tb/verilator/milan_dp/bootsa_probes.vlt
+new file mode 100644
+index 0000000000..6532686327
+--- /dev/null
++++ b/tb/verilator/milan_dp/bootsa_probes.vlt
+@@ -0,0 +1,20 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Read-only observation for sim_boot_sa.cpp (#839): the processor's packed
++// TX beat register, which says the processor offered a frame whether or not
++// the datapath let it leave; the other three held sources' own tvalid,
++// ahead of the transmit gate, which says the same of MAAP, the AAF talkers
++// and the CRF talker; and the control lane on both sides of the
++// source-address stamp (the IFG gasket's output, and the stamp's output with
++// its handshake), which the leg compares octet by octet.
++`verilator_config
++public_flat_rd -module "KL_pp_shadow" -var "txp_valid_r"
++public_flat_rd -module "milan_datapath" -var "maap_txs_tvalid_w"
++public_flat_rd -module "milan_datapath" -var "aaf_txs_tvalid_w"
++public_flat_rd -module "milan_datapath" -var "crft_txs_tvalid_w"
++public_flat_rd -module "milan_datapath" -var "ctlg_src_tdata_w"
++public_flat_rd -module "milan_datapath" -var "ctlg2_tdata"
++public_flat_rd -module "milan_datapath" -var "ctlg2_tkeep"
++public_flat_rd -module "milan_datapath" -var "ctlg2_tvalid"
++public_flat_rd -module "milan_datapath" -var "ctlg2_tready"
++public_flat_rd -module "milan_datapath" -var "ctlg2_tlast"
+diff --git a/tb/verilator/milan_dp/gen_boot_fw.py b/tb/verilator/milan_dp/gen_boot_fw.py
+new file mode 100644
+index 0000000000..eeb1939970
+--- /dev/null
++++ b/tb/verilator/milan_dp/gen_boot_fw.py
+@@ -0,0 +1,167 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Stage the firmware's boot for the bootsa leg (#839).
++
++The leg drives milan_datapath through the boot the bare-metal firmware runs,
++so the order and the words must be the firmware's own, not a copy. This
++writes three files into --out:
++
++  boot_fw.c    the firmware's CSR accessors, configure_fabric() and
++               entity_advertise(), copied out of milan_baremetal.c with two
++               edits: the CSR load and the CSR store call the harness, and
++               the fence after the store is blanked (a host cannot assemble
++               it). Both edits must apply exactly once.
++  boot_fw.h    the order milan_init() calls its four stages in, read out of
++               milan_init() itself, the station MAC the firmware writes, the
++               firmware's own offsets of the CSRs the leg writes outside
++               configure_fabric(), the boot words configure_fabric() writes
++               to MAAP_CTRL, AAF_CTRL and CRFT_CTRL, and whether the config
++               declares the CRF Media Clock Output.
++  gptp_ucode.hex  the gPTP program for this leg's 2 MHz clock, generated
++               with the same station MAC (the builder does the same for a
++               product build, at the product clock).
++
++The generated words are boot_policy.fabric_constants() over the builder's own
++outputs for the config, which is what milan_soc.py publishes to the firmware.
++"""
++
++import argparse
++import json
++import re
++import subprocess
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[3]
++sys.path.insert(0, str(ROOT / "sw" / "litex"))
++
++import boot_policy  # noqa: E402
++
++GPTP_UCODE = ROOT / "gptp-processor" / "hdl" / "ucode" / "gen_gptp_ucode.py"
++#: milan_init()'s stages, in no particular order: the leg knows how to run
++#: these four and refuses a firmware that calls anything else among them
++STAGES = ("configure_fabric", "load_aem_image", "nvm_boot", "entity_advertise")
++#: the functions copied verbatim, in source order
++COPIED = ("milan_reg", "milan_read", "milan_write", "configure_fabric",
++          "entity_advertise")
++#: the firmware's CSR offsets the leg writes itself, outside configure_fabric()
++#: (the early-enable boots and the pair-order boots), by their boot_fw.h names
++OFFSETS = {"kMacAddrLo": "MILAN_MAC_ADDR_LO", "kMacAddrHi": "MILAN_MAC_ADDR_HI",
++           "kMaapCtrl": "MILAN_MAAP_CTRL", "kAafCtrl": "MILAN_AAF_CTRL",
++           "kCrfTxCtrl": "MILAN_CRF_TX_CTRL"}
++LOAD = "\treturn *milan_reg(offset);\n"
++STORE = "\t*milan_reg(offset) = value;\n"
++FENCE = '\t__asm__ volatile("fence iorw, iorw" ::: "memory");\n'
++
++
++def function_text(source: str, name: str) -> str:
++    """The definition of `name`, from its signature line to its closing brace."""
++    head = re.search(rf"(?m)^static [^\n;]*\b{name}\s*\([^)]*\)\s*\n\{{", source)
++    if head is None:
++        raise SystemExit(f"gen_boot_fw: no definition of {name}() in the firmware")
++    depth = 0
++    for at in range(head.end() - 1, len(source)):
++        depth += {"{": 1, "}": -1}.get(source[at], 0)
++        if depth == 0:
++            return source[head.start():at + 1] + "\n"
++    raise SystemExit(f"gen_boot_fw: {name}() never closes")
++
++
++def replace_once(text: str, old: str, new: str, what: str) -> str:
++    """`text` with `old`, which must occur exactly once, replaced by `new`."""
++    if text.count(old) != 1:
++        raise SystemExit(f"gen_boot_fw: {what} occurs {text.count(old)} times, not once")
++    return text.replace(old, new)
++
++
++def stage_order(source: str) -> list[str]:
++    """The stages milan_init() calls, in the order it calls them."""
++    body = function_text(source, "milan_init")
++    # a comment that names a stage is not a call to it
++    body = re.sub(r"/\*.*?\*/|//[^\n]*", " ", body, flags=re.DOTALL)
++    calls = [m.group(1) for m in re.finditer(r"\b([a-z_]+)\s*\(", body)
++             if m.group(1) in STAGES]
++    if sorted(calls) != sorted(STAGES):
++        raise SystemExit(f"gen_boot_fw: milan_init() calls {calls}; the leg runs "
++                         f"exactly {list(STAGES)}, each once")
++    return calls
++
++
++def main() -> int:
++    """Write boot_fw.c, boot_fw.h and gptp_ucode.hex into --out."""
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("--firmware", type=Path, required=True)
++    ap.add_argument("--build", type=Path, required=True,
++                    help="the builder's output directory for the config")
++    ap.add_argument("--clk-hz", type=int, required=True)
++    ap.add_argument("--out", type=Path, required=True)
++    args = ap.parse_args()
++
++    source = args.firmware.read_text()
++    overlay = json.loads((args.build / "aem_overlay.json").read_text())
++    lwsrp = json.loads((args.build / "lwsrp_table.json").read_text())
++    words = boot_policy.fabric_constants(overlay, lwsrp)
++
++    defines = re.findall(r"(?m)^#define MILAN_[A-Z0-9_]+\s+0x[0-9a-fA-F]+u\s*$", source)
++    offsets = {m.group(1): int(m.group(2), 16) for m in re.finditer(
++        r"(?m)^#define (MILAN_[A-Z0-9_]+)\s+0x([0-9a-fA-F]+)u\s*$", source)}
++    missing = sorted(set(OFFSETS.values()) - set(offsets))
++    if missing:
++        raise SystemExit(f"gen_boot_fw: the firmware defines no {missing}")
++    body ="".join(function_text(source, name) for name in COPIED)
++    body = replace_once(body, LOAD, "\treturn boot_fw_csr_read(offset);\n", "the CSR load")
++    body = replace_once(body, STORE, "\tboot_fw_csr_write(offset, value);\n", "the CSR store")
++    body = replace_once(body, FENCE, "", "the store's fence")
++    # milan_reg() is left with no caller once both accesses call the harness
++    body = body.replace("static inline volatile uint32_t *milan_reg",
++                        "static inline __attribute__((unused)) volatile uint32_t *milan_reg", 1)
++
++    args.out.mkdir(parents=True, exist_ok=True)
++    c = ["/* generated by gen_boot_fw.py from " + args.firmware.name + "; do not edit */",
++         "#include <stdint.h>", "#include <stdio.h>", "",
++         "#define MILAN_CSR_BASE ((uintptr_t)0u)",
++         *defines,
++         *(f"#define {name} 0x{value:x}u" for name, value in words.items()), "",
++         "uint32_t boot_fw_csr_read(unsigned int offset);",
++         "void boot_fw_csr_write(unsigned int offset, uint32_t value);",
++         "void boot_fw_configure_fabric(void);",
++         "void boot_fw_entity_advertise(int verified);", "",
++         body,
++         "void boot_fw_configure_fabric(void)\n{\n\tconfigure_fabric();\n}\n",
++         "void boot_fw_entity_advertise(int verified)\n{\n\tentity_advertise(verified);\n}\n"]
++    (args.out / "boot_fw.c").write_text("\n".join(c))
++
++    mac = bytes.fromhex(overlay["adp"]["mac_address"].replace(":", ""))
++    order = stage_order(source)
++    h = ["// generated by gen_boot_fw.py; do not edit",
++         "#pragma once", "#include <cstdint>", "",
++         "//! milan_init()'s stages, in the order it calls them",
++         "constexpr const char* kBootStages[] = {" +
++         ", ".join(f'"{s}"' for s in order) + "};",
++         "//! the station MAC configure_fabric() writes, wire order",
++         "constexpr std::uint64_t kStationMac = 0x" + mac.hex() + "ULL;",
++         "constexpr std::uint32_t kStationMacLo = 0x%08xu;" % words["MILAN_STATION_MAC_LO"],
++         "constexpr std::uint32_t kStationMacHi = 0x%08xu;" % words["MILAN_STATION_MAC_HI"],
++         "constexpr std::uint64_t kEntityId = 0x%016xULL;" % int(overlay["adp"]["entity_id"], 16),
++         "//! the firmware's own CSR offsets (milan_baremetal.c)",
++         *(f"constexpr std::uint16_t {name} = 0x{offsets[define]:x}u;"
++           for name, define in OFFSETS.items()),
++         "//! the boot words configure_fabric() writes to MAAP_CTRL, AAF_CTRL and CRFT_CTRL",
++         "constexpr std::uint32_t kMaapCtrlBoot = 0x%08xu;" % words["MILAN_MAAP_CTRL_BOOT"],
++         "constexpr std::uint32_t kAafCtrlBoot = 0x%08xu;" % words["MILAN_AAF_CTRL_BOOT"],
++         "constexpr std::uint32_t kCrfTxCtrlBoot = 0x%08xu;" % words["MILAN_CRF_TX_CTRL_BOOT"],
++         "//! the config declares the CRF Media Clock Output (clocking.crf_output)",
++         "constexpr bool kCrfOutputDeclared = %s;"
++         % ("true" if boot_policy.crf_output_declared(overlay) else "false"),
++         ""]
++    (args.out / "boot_fw.h").write_text("\n".join(h))
++
++    subprocess.run([sys.executable, str(GPTP_UCODE), "--clk-hz", str(args.clk_hz),
++                    "--cease-ms", "3000", "--mac", "0x" + mac.hex(),
++                    "-o", str(args.out / "gptp_ucode.hex")], check=True)
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/sim_boot_sa.cpp b/tb/verilator/milan_dp/sim_boot_sa.cpp
+new file mode 100644
+index 0000000000..69918ea082
+--- /dev/null
++++ b/tb/verilator/milan_dp/sim_boot_sa.cpp
+@@ -0,0 +1,908 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++//
++// Issue #839: from reset, through the firmware's own boot order, every frame
++// that leaves the MAC boundary carries the station MAC as its source
++// address (IEEE 802.1AC-2016 11.1 and IEEE 802.1Q-2022 6.8.1: source_address
++// is the individual address of the source MSAP). The defect this leg
++// reproduces: the processor's SRP engine runs from reset, the firmware
++// writes the station MAC only in configure_fabric(), and the first MSRP PDU
++// of every boot left with 00:00:00:00:00:00.
++//
++// Boot: reset, then a BIOS window with no CSR access (the engines are live,
++// the firmware has not run), then milan_init()'s four stages in the order
++// gen_boot_fw.py read out of milan_init() itself:
++//   configure_fabric()  the firmware's own code (boot_fw.c, copied out of
++//                       milan_baremetal.c), every CSR load and store through
++//                       this harness's AXI4-Lite master, its words the
++//                       generated constants of the shipping 1x1 config
++//   load_aem_image()    no CSR access; the builder's AEM image for the same
++//                       config is served on the descriptor face from reset
++//   nvm_boot()          stood in for by the step it ends with on blank
++//                       media, PP_CTRL[1] starting the restore walk, which
++//                       proves the image and ends COMPLETE. Its saved-state
++//                       CSR traffic is not modelled (NVM faces idle)
++//   entity_advertise(1) the firmware's own code
++// Then the run continues past the first ENTITY_AVAILABLE to its re-advertise,
++// and a controller asks one AECP and one ACMP question and opens the AAF
++// talker through the documented AAF_CTRL[1] diagnostic bypass, so the
++// processor's AECP and ACMP answers and an AAF stream are on the wire too.
++// Once MAAP holds its claim, a listener probes the AAF stream output
++// (PROBE_TX_COMMAND), so the talker's MVRP join leaves too.
++//
++// Then the pair's sequencing, in an order the firmware does not use: two
++// further resets, each writing one half of the station MAC alone and then,
++// 300 processor ms later, the other. One half alone must open no
++// CSR-addressed transmitter, whichever half it is, and the second half must
++// release the frame the processor built meanwhile with the whole address.
++//
++// Then the three transmitters configure_fabric() enables only after the
++// pair, enabled at reset release instead: two more resets, each writing
++// MAAP_CTRL, AAF_CTRL (enable and the AAF_CTRL[1] bypass) and CRFT_CTRL
++// with the firmware's own boot words before any MAC write, holding the pair
++// unwritten for 400 processor ms, then writing it. The first boot enables
++// MAAP. The AAF talkers cannot offer a frame inside its window: their gate
++// needs MAAP's claim (aaf_gate in milan_datapath.sv), MAAP holds a claim
++// only in ANNOUNCE, and a held MAAP never leaves PROBE (KL_maap.sv keeps
++// its first PROBE in tx_busy_r until a beat is accepted and sends the next
++// only once it has left). So the second boot leaves MAAP off, which opens
++// the gate's MAAP term, and the AAF talker offers inside the window. Each
++// source that offered must have been held, and each must send from the
++// station MAC once the pair is written.
++//
++// Throughout, every octet of every control-lane frame outside octets 6 to
++// 11 must leave the source-address stamp as it entered it (the IFG gasket's
++// output against the stamp's, on the stamp's valid/ready).
++//
++// Elaboration: the gptp leg's (shipping 1x1 entity, fabric gPTP on, 2 MHz
++// fabric clock, one processor millisecond = 100 cycles), with this leg's
++// gPTP program generated for the same station MAC. The MAC accepts every
++// beat (tready 1), the link is up, the peer answers nothing but the two
++// controller questions. Every frame is collected on valid/ready at
++// m_axis_mac_tx and graded; nothing about the DUT is written but its CSRs.
++//
++// Usage: Vmilan_dp_bootsa [aem image]. The image defaults to aemi.bin beside
++// the executable, where the Makefile writes it. Exit 0 only when every check
++// passes.
++
++#include "../../common/verilator_harness.hpp"
++#include "../../common/gptp_launch_observer.hpp"
++#include "Vmilan_datapath.h"
++#include "Vmilan_datapath___024root.h"
++#include "boot_fw.h"
++#include <verilated.h>
++
++#include <array>
++#include <cstdint>
++#include <cstdio>
++#include <cstring>
++#include <deque>
++#include <fstream>
++#include <iterator>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++#ifndef PP_MS_CYC_TB
++#error "Makefile must couple PP_MS_CYC_TB to GPP_TIM_DIV_MS_P"
++#endif
++
++extern "C" {
++uint32_t boot_fw_csr_read(unsigned int offset);
++void boot_fw_csr_write(unsigned int offset, uint32_t value);
++void boot_fw_configure_fabric(void);
++void boot_fw_entity_advertise(int verified);
++}
++
++namespace {
++
++constexpr uint64_t kMsCyc = PP_MS_CYC_TB;   //! one processor millisecond
++constexpr unsigned kPhcTickNs = 8;
++//! The BIOS window: reset release to milan_init(). Long enough for the SRP
++//! engine to offer its first MRPDU (its join timer is 200 ms, Milan v1.2
++//! Table 4.3), which is the frame the defect sent with a zero address; the
++//! check below that the processor offered a frame inside it keeps this leg
++//! from passing on a boot that never reached the defect.
++constexpr uint64_t kBiosMs = 400;
++//! ENTITY_AVAILABLE waits the TMR_DELAY timer, a random 0 to 2 s (Milan v1.2
++//! 5.6.3.5.2; T-ADP-DELAY-START in this tree); the bound adds the restore
++//! walk and slack
++constexpr uint64_t kAdvertiseBoundMs = 3000;
++//! The run past the first ENTITY_AVAILABLE ends once the entity has
++//! re-advertised (every 5000 processor ms, the processor's ADP_T_ADV_MS_C),
++//! the gPTP plane has sent and the AAF talker has streamed. gPTP and MAAP
++//! keep the fabric clock's own time (2 MHz here), so this bound is in
++//! cycles: 2.5 s of their time, past MAAP's probe retransmits (IEEE
++//! 1722-2016 Table B.8) and the 1 s Pdelay interval.
++constexpr uint64_t kPastBoundCyc = 5000000;
++//! The early-enable boots' held window: MAAP, the AAF talkers and the CRF
++//! talker are enabled at reset release and the pair is written this long
++//! after, as long as the BIOS window, so each source that can offer a frame
++//! with the pair unwritten does so inside it
++constexpr uint64_t kHeldMs = kBiosMs;
++constexpr uint32_t kAafBypass = 1u << 1;   //! AAF_CTRL[1], the diagnostic bypass
++constexpr uint64_t kControllerMac = 0x0080E1112233ULL;
++constexpr uint64_t kControllerId = 0x0080E1FFFE112233ULL;
++constexpr uint64_t kListenerMac = 0x0080E1445566ULL;
++constexpr uint64_t kListenerId = 0x0080E1FFFE445566ULL;
++constexpr uint64_t kAcmpDa = 0x91E0F0010000ULL;
++
++uint64_t be(const std::vector<uint8_t>& b, size_t off, size_t n) {
++    if (off + n > b.size()) return UINT64_MAX;
++    uint64_t v = 0;
++    for (size_t i = 0; i < n; ++i) v = (v << 8) | b[off + i];
++    return v;
++}
++
++struct Frame {
++    std::vector<uint8_t> b;
++    void u8(uint8_t v) { b.push_back(v); }
++    void u16(uint16_t v) { u8(static_cast<uint8_t>(v >> 8)); u8(static_cast<uint8_t>(v)); }
++    void u32(uint32_t v) { u16(static_cast<uint16_t>(v >> 16)); u16(static_cast<uint16_t>(v)); }
++    void u48(uint64_t v) { u16(static_cast<uint16_t>(v >> 32)); u32(static_cast<uint32_t>(v)); }
++    void u64(uint64_t v) { u32(static_cast<uint32_t>(v >> 32)); u32(static_cast<uint32_t>(v)); }
++};
++
++//! The transmitter a frame came from, read off its EtherType and subtype.
++enum class Kind { Msrp, Mvrp, Gptp, Adp, Aecp, Acmp, Maap, Aaf, Crf, Other };
++constexpr std::array<const char*, 10> kKindName = {
++    "MSRP", "MVRP", "gPTP", "ADP", "AECP", "ACMP", "MAAP", "AAF", "CRF", "other"};
++
++Kind classify(const std::vector<uint8_t>& f) {
++    size_t et = 12;
++    if (be(f, et, 2) == 0x8100) et += 4;
++    switch (be(f, et, 2)) {
++    case 0x22EA: return Kind::Msrp;
++    case 0x88F5: return Kind::Mvrp;
++    case 0x88F7: return Kind::Gptp;
++    case 0x22F0:
++        switch (f.size() > et + 2 ? f[et + 2] : 0xFF) {
++        case 0xFA: return Kind::Adp;
++        case 0xFB: return Kind::Aecp;
++        case 0xFC: return Kind::Acmp;
++        case 0xFE: return Kind::Maap;
++        case 0x02: return Kind::Aaf;
++        case 0x04: return Kind::Crf;
++        default: return Kind::Other;
++        }
++    default: return Kind::Other;
++    }
++}
++
++//! The destination address a frame of `kind` must carry, or 0 where it is
++//! the stream's own: the stamp rewrites octets 6 to 11 and no other, so the
++//! octets before them must still be the protocol's (IEEE 802.1Q-2022
++//! 35.2.2.1 for MSRP and Table 10-1 for MVRP, IEEE 802.1AS-2011 10.4.3 and
++//! 11.3.4 for gPTP, IEEE 1722.1-2021 Annex B for ADP and ACMP, IEEE
++//! 1722-2016 Table B.10 for MAAP).
++uint64_t protocol_da(Kind kind) {
++    switch (kind) {
++    case Kind::Msrp: return 0x0180C200000EULL;
++    case Kind::Mvrp: return 0x0180C2000021ULL;
++    case Kind::Gptp: return 0x0180C200000EULL;
++    case Kind::Adp:
++    case Kind::Acmp: return 0x91E0F0010000ULL;
++    case Kind::Maap: return 0x91E0F000FF00ULL;
++    default: return 0;
++    }
++}
++
++//! One frame the DUT sent, where and when.
++struct Sent {
++    uint64_t cyc = 0;
++    Kind kind = Kind::Other;
++    uint64_t da = 0;
++    uint64_t sa = 0;
++    bool before_mac = false;     //! left before configure_fabric() wrote the MAC
++    uint8_t adp_msg = 0xFF;      //! ADP message_type, for ADPDUs
++};
++
++class BootSaHarness {
++ public:
++    explicit BootSaHarness(std::vector<uint8_t> image) : descriptor_(std::move(image)) {
++        check_.echo_passes();
++    }
++    int run();
++    uint32_t csr_read(unsigned int offset) { return read(static_cast<uint16_t>(offset)); }
++    void csr_write(unsigned int offset, uint32_t value) {
++        write(static_cast<uint16_t>(offset), value);
++        const bool before = wrote_lo_ && wrote_hi_;
++        if (offset == 0x108) wrote_lo_ = true;
++        if (offset == 0x10C) wrote_hi_ = true;
++        if (!before && wrote_lo_ && wrote_hi_)
++            printf("[BOOTSA] configure_fabric() completed the station MAC at cycle %llu\n",
++                   static_cast<unsigned long long>(cyc_));
++    }
++
++ private:
++    milan::tb::Model<Vmilan_datapath> model_;
++    Vmilan_datapath* dut_ = model_.get();
++    milan::tb::Checker check_{"bootsa"};
++    std::vector<uint8_t> descriptor_;
++    milan::tb::GptpLaunchObserver observer_{kPhcTickNs};
++    uint64_t cyc_ = 0;
++    bool wrote_lo_ = false;
++    bool wrote_hi_ = false;
++    bool pp_offered_early_ = false;      //! the processor offered a frame in the BIOS window
++    //! each of the other held sources raised its own tvalid, ahead of the
++    //! transmit gate, while the pair was unwritten (cleared by reset())
++    bool maap_offered_early_ = false;
++    bool aaf_offered_early_ = false;
++    bool crf_offered_early_ = false;
++    struct { bool aw, w, b, ar, r; uint32_t data; } fires_{};
++
++    //! the control lane through the source-address stamp (stamp_edge())
++    uint64_t ctl_pos_ = 0;               //! the next octet's position in its frame
++    uint64_t ctl_frames_ = 0;            //! frames through the stamp
++    uint64_t ctl_octets_ = 0;            //! octets compared, every one outside 6 to 11
++    uint64_t ctl_changed_ = 0;           //! of those, the octets the stamp changed
++    std::string ctl_first_change_;
++
++    std::vector<uint8_t> tx_cur_;
++    std::vector<Sent> sent_;
++    std::array<uint64_t, kKindName.size()> sent_by_kind_{};   //! frames of each kind so far
++    std::vector<std::vector<uint8_t>> frames_;
++    std::deque<std::vector<uint8_t>> rx_queue_;
++    std::vector<uint8_t> rx_;
++    size_t rx_off_ = 0;
++    bool rx_busy_ = false;
++
++    std::array<uint8_t, 592> rmem_{};
++    bool rm_busy_ = false;
++    bool rm_done_ = false;
++    uint32_t rm_addr_ = 0;
++    unsigned rm_left_ = 0;
++    bool dm_busy_ = false;
++    uint32_t dm_addr_ = 0;
++    unsigned dm_left_ = 0;
++    unsigned dm_wait_ = 0;
++    unsigned drp_lat_ = 0;
++
++    uint64_t phc_ns() const {
++        const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
++        return (static_cast<uint64_t>(acc[2]) << 40) | (static_cast<uint64_t>(acc[1]) << 8)
++             | (acc[0] >> 24);
++    }
++    void tick();
++    void run_cycles(uint64_t n) { while (n--) tick(); }
++    void memory_drive();
++    void memory_edge();
++    void rx_drive();
++    void tx_edge();
++    void stamp_edge();
++    void write(uint16_t addr, uint32_t value);
++    uint32_t read(uint16_t addr);
++    void reset();
++    void pair_order(uint16_t first, uint16_t second, const char* tag);
++    void write_pair(const std::string& tag);
++    void early_enable(bool maap);
++    void grade_stamp();
++    void bios_window();
++    void run_stage(const std::string& stage);
++    size_t first_entity_available(size_t from) const;
++    std::vector<uint8_t> await(Kind kind, size_t from, uint64_t bound_cyc,
++                               uint8_t message_type);
++    void controller();
++    void probe_tx();
++    void grade();
++};
++
++BootSaHarness* g_harness = nullptr;
++
++void BootSaHarness::tick() {
++    rx_drive();
++    dut_->axis_clk = 0; dut_->gtx_clk = 0;
++    memory_drive();
++    dut_->eval();
++    const bool rx_fire = dut_->s_axis_mac_rx_tvalid && dut_->s_axis_mac_rx_tready;
++    fires_.aw = dut_->s_axi_awvalid && dut_->s_axi_awready;
++    fires_.w = dut_->s_axi_wvalid && dut_->s_axi_wready;
++    fires_.b = dut_->s_axi_bvalid && dut_->s_axi_bready;
++    fires_.ar = dut_->s_axi_arvalid && dut_->s_axi_arready;
++    fires_.r = dut_->s_axi_rvalid && dut_->s_axi_rready;
++    fires_.data = dut_->s_axi_rdata;
++    if (!(wrote_lo_ && wrote_hi_)) {
++        const auto* r = dut_->rootp;
++        if (r->milan_datapath__DOT__pp_shadow__DOT__txp_valid_r) pp_offered_early_ = true;
++        if (r->milan_datapath__DOT__maap_txs_tvalid_w) maap_offered_early_ = true;
++        if (r->milan_datapath__DOT__aaf_txs_tvalid_w) aaf_offered_early_ = true;
++        if (r->milan_datapath__DOT__crft_txs_tvalid_w) crf_offered_early_ = true;
++    }
++    stamp_edge();
++    tx_edge();
++    observer_.edge(dut_, cyc_, phc_ns());
++    dut_->i_mmcm_drp_rdy = 0;
++    if (drp_lat_ && --drp_lat_ == 0) dut_->i_mmcm_drp_rdy = 1;
++    if (dut_->o_mmcm_drp_en) drp_lat_ = 3;
++    memory_edge();
++    dut_->axis_clk = 1; dut_->gtx_clk = 1;
++    dut_->eval();
++    if (rx_fire) {
++        rx_off_ += 8;
++        if (rx_off_ >= rx_.size()) rx_busy_ = false;
++    }
++    ++cyc_;
++}
++
++void BootSaHarness::memory_drive() {
++    uint64_t data = 0;
++    for (unsigned i = 0; i < 8; ++i) {
++        const uint32_t off = rm_addr_ - 0x20100000u + i;
++        data = (data << 8) | (off < rmem_.size() ? rmem_[off] : 0);
++    }
++    dut_->i_resp_mem_req_ready = !rm_busy_;
++    dut_->i_resp_mem_rsp_valid = rm_busy_;
++    dut_->i_resp_mem_rsp_data = data;
++    dut_->i_resp_mem_rsp_last = rm_busy_ && rm_left_ == 1;
++    dut_->i_resp_mem_rsp_err = 0;
++    dut_->i_resp_mem_wr_ready = !rm_done_;
++    dut_->i_resp_mem_wr_done = rm_done_;
++    dut_->i_resp_mem_wr_err = 0;
++    uint64_t desc = 0;
++    for (unsigned i = 0; i < 8; ++i) {
++        const uint32_t off = dm_addr_ - 0x20000000u + i;
++        desc = (desc << 8) | (off < descriptor_.size() ? descriptor_[off] : 0);
++    }
++    dut_->i_desc_mem_req_ready = !dm_busy_;
++    dut_->i_desc_mem_rsp_valid = dm_busy_ && dm_wait_ == 0;
++    dut_->i_desc_mem_rsp_data = desc;
++    dut_->i_desc_mem_rsp_last = dm_busy_ && dm_left_ == 1;
++    dut_->i_desc_mem_rsp_err = 0;
++}
++
++void BootSaHarness::memory_edge() {
++    if (rm_busy_ && dut_->o_resp_mem_rsp_ready) {
++        rm_addr_ += 8;
++        if (--rm_left_ == 0) rm_busy_ = false;
++    } else if (!rm_busy_ && dut_->o_resp_mem_req_valid) {
++        rm_addr_ = dut_->o_resp_mem_req_addr;
++        rm_left_ = dut_->o_resp_mem_req_beats;
++        rm_busy_ = rm_left_ != 0;
++    }
++    if (rm_done_) rm_done_ = false;
++    else if (dut_->o_resp_mem_wr_valid) {
++        for (unsigned i = 0; i < 8; ++i) {
++            const uint32_t off = dut_->o_resp_mem_wr_addr - 0x20100000u + i;
++            if (off < rmem_.size() && (dut_->o_resp_mem_wr_strb & (1u << i)))
++                rmem_[off] = static_cast<uint8_t>(dut_->o_resp_mem_wr_data >> (56 - 8 * i));
++        }
++        rm_done_ = true;
++    }
++    if (!dm_busy_ && dut_->o_desc_mem_req_valid) {
++        dm_addr_ = dut_->o_desc_mem_req_addr;
++        dm_left_ = dut_->o_desc_mem_req_beats;
++        dm_busy_ = dm_left_ != 0;
++        dm_wait_ = 12;
++    } else if (dm_busy_ && dm_wait_) {
++        --dm_wait_;
++    } else if (dm_busy_ && dut_->o_desc_mem_rsp_ready) {
++        dm_addr_ += 8;
++        if (--dm_left_ == 0) dm_busy_ = false;
++    }
++}
++
++void BootSaHarness::rx_drive() {
++    if (!rx_busy_ && !rx_queue_.empty()) {
++        rx_ = std::move(rx_queue_.front());
++        rx_queue_.pop_front();
++        rx_off_ = 0;
++        rx_busy_ = true;
++    }
++    dut_->s_axis_mac_rx_tvalid = rx_busy_;
++    dut_->s_axis_mac_rx_tlast = rx_busy_ && rx_off_ + 8 >= rx_.size();
++    uint64_t data = 0;
++    uint8_t keep = 0;
++    for (size_t i = 0; rx_busy_ && i < 8 && rx_off_ + i < rx_.size(); ++i) {
++        data |= static_cast<uint64_t>(rx_[rx_off_ + i]) << (8 * i);
++        keep = static_cast<uint8_t>(keep | (1u << i));
++    }
++    dut_->s_axis_mac_rx_tdata = data;
++    dut_->s_axis_mac_rx_tkeep = keep;
++}
++
++//! The MAC accepts every beat; a frame is its accepted beats' kept octets.
++void BootSaHarness::tx_edge() {
++    if (!(dut_->m_axis_mac_tx_tvalid && dut_->m_axis_mac_tx_tready)) return;
++    for (unsigned i = 0; i < 8; ++i)
++        if (dut_->m_axis_mac_tx_tkeep & (1u << i))
++            tx_cur_.push_back(static_cast<uint8_t>(dut_->m_axis_mac_tx_tdata >> (8 * i)));
++    if (!dut_->m_axis_mac_tx_tlast) return;
++    observer_.offer(tx_cur_, cyc_);
++    Sent s;
++    s.cyc = cyc_;
++    s.kind = classify(tx_cur_);
++    s.da = be(tx_cur_, 0, 6);
++    s.sa = be(tx_cur_, 6, 6);
++    s.before_mac = !(wrote_lo_ && wrote_hi_);
++    if (s.kind == Kind::Adp && tx_cur_.size() > 15) s.adp_msg = tx_cur_[15] & 0xF;
++    sent_.push_back(s);
++    ++sent_by_kind_[static_cast<size_t>(s.kind)];
++    frames_.push_back(tx_cur_);
++    tx_cur_.clear();
++}
++
++//! The control lane (the processor and MAAP) through the source-address
++//! stamp, on the stamp's valid/ready: every octet outside the source address
++//! (frame octets 6 to 11) must leave as it entered, the IFG gasket's output
++//! against the stamp's. The octet's position is this harness's own count of
++//! the frame's kept octets, not the stamp's beat position.
++void BootSaHarness::stamp_edge() {
++    const auto* r = dut_->rootp;
++    if (!dut_->axis_resetn) return;   // a beat on a reset edge is not transferred
++    if (!(r->milan_datapath__DOT__ctlg2_tvalid && r->milan_datapath__DOT__ctlg2_tready)) return;
++    const uint64_t in = r->milan_datapath__DOT__ctlg_src_tdata_w;
++    const uint64_t out = r->milan_datapath__DOT__ctlg2_tdata;
++    for (unsigned i = 0; i < 8; ++i) {
++        if (!(r->milan_datapath__DOT__ctlg2_tkeep & (1u << i))) continue;
++        const uint64_t pos = ctl_pos_++;
++        if (pos >= 6 && pos < 12) continue;
++        ++ctl_octets_;
++        const auto a = static_cast<uint8_t>(in >> (8 * i));
++        const auto b = static_cast<uint8_t>(out >> (8 * i));
++        if (a == b) continue;
++        if (ctl_changed_++ == 0)
++            ctl_first_change_ = "frame " + std::to_string(ctl_frames_) + " octet "
++                + std::to_string(pos) + " entered " + std::to_string(a) + " left "
++                + std::to_string(b) + " at cycle " + std::to_string(cyc_);
++    }
++    if (r->milan_datapath__DOT__ctlg2_tlast) {
++        ++ctl_frames_;
++        ctl_pos_ = 0;
++    }
++}
++
++void BootSaHarness::write(uint16_t addr, uint32_t value) {
++    dut_->s_axi_awaddr = addr; dut_->s_axi_awvalid = 1;
++    dut_->s_axi_wdata = value; dut_->s_axi_wstrb = 0xF; dut_->s_axi_wvalid = 1;
++    dut_->s_axi_bready = 1;
++    for (unsigned g = 0; g < 2048; ++g) {
++        tick();
++        if (fires_.aw) dut_->s_axi_awvalid = 0;
++        if (fires_.w) dut_->s_axi_wvalid = 0;
++        if (fires_.b) { dut_->s_axi_bready = 0; return; }
++    }
++    throw std::runtime_error("AXI write response timeout");
++}
++
++uint32_t BootSaHarness::read(uint16_t addr) {
++    dut_->s_axi_araddr = addr; dut_->s_axi_arvalid = 1; dut_->s_axi_rready = 1;
++    for (unsigned g = 0; g < 2048; ++g) {
++        tick();
++        if (fires_.ar) dut_->s_axi_arvalid = 0;
++        if (fires_.r) { dut_->s_axi_rready = 0; return fires_.data; }
++    }
++    throw std::runtime_error("AXI read response timeout");
++}
++
++void BootSaHarness::reset() {
++    dut_->axis_resetn = 0; dut_->gtx_resetn = 0;
++    dut_->s_axi_awvalid = 0; dut_->s_axi_wvalid = 0; dut_->s_axi_arvalid = 0;
++    dut_->s_axi_bready = 0; dut_->s_axi_rready = 0;
++    dut_->m_axis_mac_tx_tready = 1;
++    dut_->i_mac_speed = 2; dut_->i_link_up = 1; dut_->i_full_duplex = 1;
++    dut_->i_mac_events = 0;
++    dut_->i_mmcm_locked = 1;
++    dut_->i_mmcm_ps_done = 0; dut_->i_mmcm_drp_rdy = 0; dut_->i_mmcm_drp_do = 0;
++    dut_->i2s_sdout_i = 0; dut_->tdm_data_i = 0;
++    dut_->tdm_bclk_i = 0; dut_->tdm_fsync_i = 0;
++    dut_->clk_audio_i = 0; dut_->clk_tdm_i = 0;
++    milan::tb::GptpLaunchObserver::tie_off(dut_);
++    observer_.reset();
++    rx_queue_.clear();
++    rx_busy_ = false;
++    rm_busy_ = rm_done_ = dm_busy_ = false;
++    rm_left_ = dm_left_ = dm_wait_ = drp_lat_ = 0;
++    wrote_lo_ = wrote_hi_ = false;
++    maap_offered_early_ = aaf_offered_early_ = crf_offered_early_ = false;
++    ctl_pos_ = 0;   // a control-lane frame cut by the reset ends here
++    run_cycles(64);
++    dut_->axis_resetn = 1; dut_->gtx_resetn = 1;
++}
++
++//! One reset, then `first` alone, then `second`: the pair must be complete
++//! before any CSR-addressed transmitter starts, in either order.
++void BootSaHarness::pair_order(uint16_t first, uint16_t second, const char* tag) {
++    reset();
++    const size_t from = sent_.size();
++    run_cycles(300 * kMsCyc);
++    write(first, first == 0x108 ? kStationMacLo : kStationMacHi);
++    run_cycles(300 * kMsCyc);
++    auto csr_addressed = [this](size_t at) {
++        size_t n = 0;
++        for (size_t i = at; i < sent_.size(); ++i) n += sent_[i].kind != Kind::Gptp;
++        return n;
++    };
++    std::string what = std::string("[BOOTSA] pair: ") + tag + " alone opens no CSR-addressed transmitter";
++    check_.dec(what.c_str(), csr_addressed(from), 0);
++    const size_t released = sent_.size();
++    write(second, second == 0x108 ? kStationMacLo : kStationMacHi);
++    const uint64_t end = cyc_ + 100 * kMsCyc;
++    while (cyc_ < end && csr_addressed(released) == 0) tick();
++    what = std::string("[BOOTSA] pair: the second half after ") + tag + " releases the processor's frame";
++    check_.that(what.c_str(), csr_addressed(released) > 0);
++    uint64_t wrong = 0;
++    for (size_t i = from; i < sent_.size(); ++i) wrong += sent_[i].sa != kStationMac;
++    what = std::string("[BOOTSA] pair: every frame of the ") + tag + " boot carries the station MAC";
++    check_.dec(what.c_str(), wrong, 0);
++}
++
++//! The pair in configure_fabric()'s order, MAC_ADDR_LO then MAC_ADDR_HI,
++//! for a boot that writes it outside configure_fabric().
++void BootSaHarness::write_pair(const std::string& tag) {
++    write(kMacAddrLo, kStationMacLo);
++    wrote_lo_ = true;
++    write(kMacAddrHi, kStationMacHi);
++    wrote_hi_ = true;
++    printf("%sthe station MAC is complete at cycle %llu\n", tag.c_str(),
++           static_cast<unsigned long long>(cyc_));
++}
++
++//! One reset, then MAAP (when `maap`), the AAF talkers and the CRF talker
++//! enabled at reset release with configure_fabric()'s own boot words, the
++//! AAF talkers opened by the AAF_CTRL[1] bypass, kHeldMs with the pair
++//! unwritten, then the pair. A source that offered a frame in that window
++//! (its own tvalid, ahead of the transmit gate) must not have sent it, and
++//! each must send from the station MAC once the pair is written. With MAAP
++//! on, the AAF talkers cannot offer inside the window (the banner says why),
++//! so they are graded there on what they send after it; the MAAP-off boot
++//! grades their hold.
++void BootSaHarness::early_enable(bool maap) {
++    const std::string tag = std::string("[BOOTSA] early-enable, MAAP ") + (maap ? "on" : "off") + ": ";
++    reset();
++    const size_t from = sent_.size();
++    if (maap) write(kMaapCtrl, kMaapCtrlBoot);
++    write(kAafCtrl, kAafCtrlBoot | kAafBypass);
++    write(kCrfTxCtrl, kCrfTxCtrlBoot);
++    printf("%sMAAP_CTRL 0x%08x, AAF_CTRL 0x%08x, CRFT_CTRL 0x%08x written at cycle %llu, "
++           "then %llu processor ms with the pair unwritten\n", tag.c_str(),
++           maap ? kMaapCtrlBoot : 0u, kAafCtrlBoot | kAafBypass, kCrfTxCtrlBoot,
++           static_cast<unsigned long long>(cyc_), static_cast<unsigned long long>(kHeldMs));
++    run_cycles(kHeldMs * kMsCyc);
++    printf("%soffered with the pair unwritten: MAAP %s, AAF %s, CRF %s; %zu frames left\n",
++           tag.c_str(), maap_offered_early_ ? "yes" : "no", aaf_offered_early_ ? "yes" : "no",
++           crf_offered_early_ ? "yes" : "no", sent_.size() - from);
++    const auto held = sent_by_kind_;
++    write_pair(tag);
++    std::vector<Kind> sources = {Kind::Aaf};
++    if (maap) sources.push_back(Kind::Maap);
++    if (kCrfOutputDeclared) sources.push_back(Kind::Crf);
++    auto all_sent = [&]() {
++        for (const Kind k : sources)
++            if (sent_by_kind_[static_cast<size_t>(k)] == held[static_cast<size_t>(k)]) return false;
++        return true;
++    };
++    const uint64_t end = cyc_ + kPastBoundCyc;
++    while (cyc_ < end && !all_sent()) tick();
++
++    std::array<uint64_t, kKindName.size()> early{};
++    std::array<uint64_t, kKindName.size()> after{};
++    uint64_t zero = 0;
++    uint64_t wrong = 0;
++    uint64_t early_csr = 0;
++    uint64_t sent_after = 0;
++    for (size_t i = from; i < sent_.size(); ++i) {
++        const Sent& s = sent_[i];
++        auto& tally = s.before_mac ? early : after;
++        ++tally[static_cast<size_t>(s.kind)];
++        if (!s.before_mac) ++sent_after;
++        if (s.sa == 0) ++zero;
++        if (s.sa != kStationMac) ++wrong;
++        if (s.before_mac && s.kind != Kind::Gptp) ++early_csr;
++    }
++    printf("%s%llu frames after the pair:", tag.c_str(), static_cast<unsigned long long>(sent_after));
++    for (size_t k = 0; k < kKindName.size(); ++k)
++        if (after[k]) printf(" %s %llu", kKindName[k], static_cast<unsigned long long>(after[k]));
++    printf("\n");
++    auto that = [&](const char* what, bool ok) { check_.that((tag + what).c_str(), ok); };
++    auto none = [&](const char* what, uint64_t got) { check_.dec((tag + what).c_str(), got, 0); };
++    const auto at = [](Kind k) { return static_cast<size_t>(k); };
++    if (maap) {
++        that("MAAP offered a frame while the station MAC was unwritten", maap_offered_early_);
++        none("no MAAP frame leaves before the station MAC is written", early[at(Kind::Maap)]);
++        that("MAAP frames leave once the station MAC is written", after[at(Kind::Maap)] > 0);
++    } else {
++        that("the AAF talker offered a frame while the station MAC was unwritten", aaf_offered_early_);
++        none("no AAF frame leaves before the station MAC is written", early[at(Kind::Aaf)]);
++    }
++    that("AAF frames leave once the station MAC is written", after[at(Kind::Aaf)] > 0);
++    if (kCrfOutputDeclared) {
++        that("the CRF talker offered a frame while the station MAC was unwritten", crf_offered_early_);
++        none("no CRF frame leaves before the station MAC is written", early[at(Kind::Crf)]);
++        that("CRF frames leave once the station MAC is written", after[at(Kind::Crf)] > 0);
++    }
++    none("no CSR-addressed transmitter starts a frame before the station MAC is written", early_csr);
++    none("no frame carries the all-zero source address", zero);
++    none("every frame of the boot carries the station MAC", wrong);
++    check_.hex((tag + "A_TXARB_DIAG: no arbiter stall or abort since reset").c_str(),
++               (read(0x784) >> 8) & 0xFFFF, 0);
++}
++
++//! stamp_edge()'s verdict over every boot of the run.
++void BootSaHarness::grade_stamp() {
++    printf("[BOOTSA] control lane through the stamp: %llu frames, %llu octets outside 6 to 11 "
++           "compared, %llu changed%s%s\n", static_cast<unsigned long long>(ctl_frames_),
++           static_cast<unsigned long long>(ctl_octets_), static_cast<unsigned long long>(ctl_changed_),
++           ctl_changed_ ? "; the first: " : "", ctl_first_change_.c_str());
++    check_.that("[BOOTSA] control-lane frames passed through the stamp", ctl_frames_ > 0);
++    check_.dec("[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered",
++               ctl_changed_, 0);
++}
++
++//! Reset release to milan_init(): the engines run, nothing touches a CSR.
++void BootSaHarness::bios_window() {
++    printf("[BOOTSA] BIOS window: %llu processor ms with no CSR access\n",
++           static_cast<unsigned long long>(kBiosMs));
++    run_cycles(kBiosMs * kMsCyc);
++}
++
++void BootSaHarness::run_stage(const std::string& stage) {
++    printf("[BOOTSA] milan_init(): %s()\n", stage.c_str());
++    if (stage == "configure_fabric") {
++        boot_fw_configure_fabric();
++    } else if (stage == "load_aem_image") {
++        // no CSR access: the image is on the descriptor face from reset
++    } else if (stage == "nvm_boot") {
++        constexpr uint16_t kPpCtrl = 0x920;
++        constexpr uint16_t kPpStat = 0x924;
++        constexpr uint32_t kDone = 1u << 2;
++        constexpr uint32_t kClosed = 1u << 16;
++        write(kPpCtrl, read(kPpCtrl) | 0x2u);
++        uint32_t stat = 0;
++        for (unsigned r = 0; r < 400 && !(stat & (kDone | kClosed)); ++r) {
++            run_cycles(64);
++            stat = read(kPpStat);
++        }
++        check_.hex("[BOOTSA] nvm_boot(): the restore walk ends COMPLETE (done 1, CLOSED 0)",
++                   stat & (kDone | kClosed), kDone);
++    } else if (stage == "entity_advertise") {
++        boot_fw_entity_advertise(1);
++    } else {
++        throw std::runtime_error("milan_init() calls a stage this leg cannot run: " + stage);
++    }
++}
++
++size_t BootSaHarness::first_entity_available(size_t from) const {
++    for (size_t i = from; i < sent_.size(); ++i)
++        if (sent_[i].kind == Kind::Adp && sent_[i].adp_msg == 0) return i;
++    return SIZE_MAX;
++}
++
++//! The first frame of `kind` (and, for AECP and ACMP, of `message_type`)
++//! from frames_[from] on, or empty when none leaves within `bound_cyc`.
++std::vector<uint8_t> BootSaHarness::await(Kind kind, size_t from, uint64_t bound_cyc,
++                                          uint8_t message_type) {
++    const uint64_t end = cyc_ + bound_cyc;
++    while (cyc_ < end) {
++        tick();
++        for (size_t i = from; i < sent_.size(); ++i)
++            if (sent_[i].kind == kind && frames_[i].size() > 15
++                    && (frames_[i][15] & 0xF) == message_type)
++                return frames_[i];
++    }
++    return {};
++}
++
++//! Past the first ENTITY_AVAILABLE: one AECP command (READ_DESCRIPTOR of
++//! the ENTITY, IEEE 1722.1-2021 7.4.5), one ACMP command
++//! (GET_TX_STATE_COMMAND, IEEE 1722.1-2021 8.2.1.4) and the AAF talker
++//! opened by the AAF_CTRL[1] bypass, so those three transmitters send too.
++void BootSaHarness::controller() {
++    Frame a;
++    a.u48(kStationMac); a.u48(kControllerMac); a.u16(0x22F0);
++    a.u8(0xFB); a.u8(0x00); a.u16(20);
++    a.u64(kEntityId); a.u64(kControllerId);
++    a.u16(0x4001); a.u16(0x0004);
++    a.u16(0); a.u16(0); a.u16(0); a.u16(0);   // configuration 0, ENTITY 0
++    while (a.b.size() < 60) a.u8(0);
++    size_t from = sent_.size();
++    rx_queue_.push_back(a.b);
++    const auto aecp = await(Kind::Aecp, from, 400 * kMsCyc, 1);
++    check_.that("[BOOTSA] the processor answers READ_DESCRIPTOR (an AECP frame leaves)",
++                !aecp.empty());
++
++    Frame c;
++    c.u48(kAcmpDa); c.u48(kControllerMac); c.u16(0x22F0);
++    c.u8(0xFC); c.u8(0x04); c.u16(44);
++    c.u64(0);                                   // stream_id
++    c.u64(kControllerId); c.u64(kEntityId); c.u64(0);
++    c.u16(0); c.u16(0);                         // talker / listener unique id
++    c.u48(0); c.u16(0); c.u16(0x5001); c.u16(0); c.u16(0); c.u16(0);
++    while (c.b.size() < 60) c.u8(0);
++    from = sent_.size();
++    rx_queue_.push_back(c.b);
++    const auto acmp = await(Kind::Acmp, from, 400 * kMsCyc, 5);
++    check_.that("[BOOTSA] the processor answers GET_TX_STATE_COMMAND (an ACMP frame leaves)",
++                !acmp.empty());
++
++    write(0x654, read(0x654) | 0x2u);
++}
++
++//! Once MAAP holds its claim, a listener's PROBE_TX_COMMAND (IEEE
++//! 1722.1-2021 8.2.1.4 CONNECT_TX_COMMAND, renamed by Milan v1.2 5.5.2.2) to
++//! the AAF stream output: with the destination allocated and the probe
++//! received, the output's destination is valid (Milan v1.2 4.3.3.1), so the
++//! talker declares its Talker Advertise and first joins its VLAN by MVRP
++//! (Milan v1.2 4.3.2). Without it no MVRP PDU is due in this boot: a VLAN is
++//! joined only for a declaring talker or a bound listener, and an MVRP drain
++//! with nothing joined sends nothing. MVRP leaves on the held control lane
++//! with MSRP. The talker refuses a probe until its destination allocation
++//! has been answered (its retry round is 100 ms), so the probe is repeated
++//! until it answers SUCCESS.
++void BootSaHarness::probe_tx() {
++    bool success = false;
++    for (unsigned attempt = 0; attempt < 5 && !success; ++attempt) {
++        Frame c;
++        c.u48(kAcmpDa); c.u48(kListenerMac); c.u16(0x22F0);
++        c.u8(0xFC); c.u8(0x00); c.u16(44);          // PROBE_TX_COMMAND
++        c.u64(0);                                   // stream_id
++        c.u64(kControllerId); c.u64(kEntityId); c.u64(kListenerId);
++        c.u16(0); c.u16(0);                         // talker / listener unique id
++        c.u48(0); c.u16(0); c.u16(static_cast<uint16_t>(0x5100 + attempt));
++        c.u16(0x0002);                              // FAST_CONNECT (Milan v1.2 Table 5.33)
++        c.u16(0); c.u16(0);
++        while (c.b.size() < 60) c.u8(0);
++        const size_t from = sent_.size();
++        rx_queue_.push_back(c.b);
++        const auto rsp = await(Kind::Acmp, from, 400 * kMsCyc, 1);
++        success = rsp.size() > 16 && (rsp[16] >> 3) == 0;
++        if (!success) run_cycles(200 * kMsCyc);
++    }
++    check_.that("[BOOTSA] the talker answers PROBE_TX_COMMAND with SUCCESS (an ACMP frame leaves)",
++                success);
++    const auto mvrp_before = sent_by_kind_[static_cast<size_t>(Kind::Mvrp)];
++    const uint64_t end = cyc_ + 1000 * kMsCyc;
++    while (cyc_ < end && sent_by_kind_[static_cast<size_t>(Kind::Mvrp)] == mvrp_before) tick();
++    check_.that("[BOOTSA] the probed talker joins its VLAN by MVRP (an MVRP frame leaves)",
++                sent_by_kind_[static_cast<size_t>(Kind::Mvrp)] != mvrp_before);
++}
++
++void BootSaHarness::grade() {
++    std::array<uint64_t, kKindName.size()> seen{}, wrong{}, wrong_da{};
++    uint64_t zero = 0;
++    uint64_t early_csr = 0;
++    size_t first_bad = SIZE_MAX;
++    for (size_t i = 0; i < sent_.size(); ++i) {
++        const Sent& s = sent_[i];
++        const auto k = static_cast<size_t>(s.kind);
++        ++seen[k];
++        if (s.sa == 0) ++zero;
++        if (s.sa != kStationMac) {
++            ++wrong[k];
++            if (first_bad == SIZE_MAX) first_bad = i;
++        }
++        if (s.before_mac && s.kind != Kind::Gptp) ++early_csr;
++        const uint64_t da = s.kind == Kind::Aecp ? kControllerMac : protocol_da(s.kind);
++        if (da != 0 && s.da != da) ++wrong_da[k];
++    }
++    printf("[BOOTSA] %zu frames:", sent_.size());
++    for (size_t k = 0; k < kKindName.size(); ++k)
++        if (seen[k]) printf(" %s %llu", kKindName[k], static_cast<unsigned long long>(seen[k]));
++    printf("\n");
++    std::array<unsigned, kKindName.size()> shown{};
++    for (size_t i = 0; i < sent_.size(); ++i) {
++        const Sent& s = sent_[i];
++        if (shown[static_cast<size_t>(s.kind)]++ >= 2) continue;
++        printf("[BOOTSA]   #%zu %-5s cycle %8llu source %012llx%s\n", i,
++               kKindName[static_cast<size_t>(s.kind)], static_cast<unsigned long long>(s.cyc),
++               static_cast<unsigned long long>(s.sa), s.before_mac ? " (before the MAC write)" : "");
++    }
++    if (first_bad != SIZE_MAX) {
++        const Sent& s = sent_[first_bad];
++        printf("[BOOTSA] first frame not from the station MAC: #%zu %s at cycle %llu, "
++               "source %012llx, %s the station MAC was written\n", first_bad,
++               kKindName[static_cast<size_t>(s.kind)], static_cast<unsigned long long>(s.cyc),
++               static_cast<unsigned long long>(s.sa), s.before_mac ? "before" : "after");
++    }
++    check_.that("[BOOTSA] the processor offered a frame before the station MAC was written",
++                pp_offered_early_);
++    check_.dec("[BOOTSA] no frame carries the all-zero source address", zero, 0);
++    check_.dec("[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written",
++               early_csr, 0);
++    for (const Kind k : {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
++                         Kind::Acmp, Kind::Maap, Kind::Aaf, Kind::Crf, Kind::Other}) {
++        const auto i = static_cast<size_t>(k);
++        const std::string what = std::string("[BOOTSA] every ") + kKindName[i]
++            + " frame's source address is the station MAC";
++        check_.dec(what.c_str(), wrong[i], 0);
++    }
++    for (const Kind k : {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
++                         Kind::Acmp, Kind::Maap}) {
++        const auto i = static_cast<size_t>(k);
++        const std::string what = std::string("[BOOTSA] every ") + kKindName[i]
++            + (k == Kind::Aecp ? " frame's destination address is the controller's MAC"
++                               : " frame's destination address is its protocol's");
++        check_.dec(what.c_str(), wrong_da[i], 0);
++    }
++    check_.dec("[BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's",
++               seen[static_cast<size_t>(Kind::Other)], 0);
++    std::vector<Kind> required = {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
++                                  Kind::Acmp, Kind::Maap, Kind::Aaf};
++    if (kCrfOutputDeclared) required.push_back(Kind::Crf);
++    else printf("[BOOTSA] the config declares no CRF Media Clock Output: CRF is not required\n");
++    for (const Kind k : required) {
++        const auto i = static_cast<size_t>(k);
++        const std::string what = std::string("[BOOTSA] ") + kKindName[i]
++            + " frames were sent and graded";
++        check_.that(what.c_str(), seen[i] > 0);
++    }
++    const uint32_t diag = read(0x784);
++    check_.hex("[BOOTSA] A_TXARB_DIAG: no arbiter stall or abort since reset",
++               (diag >> 8) & 0xFFFF, 0);
++}
++
++int BootSaHarness::run() {
++    printf("bootsa: 2 MHz fabric, one processor ms = %llu cycles, station MAC %012llx\n",
++           static_cast<unsigned long long>(kMsCyc), static_cast<unsigned long long>(kStationMac));
++    try {
++        reset();
++        bios_window();
++        for (const char* stage : kBootStages) run_stage(stage);
++        const size_t advertise_from = sent_.size();
++        const uint64_t end = cyc_ + kAdvertiseBoundMs * kMsCyc;
++        while (cyc_ < end && first_entity_available(advertise_from) == SIZE_MAX) tick();
++        const size_t first = first_entity_available(advertise_from);
++        check_.that("[BOOTSA] the first ENTITY_AVAILABLE leaves after entity_advertise()",
++                    first != SIZE_MAX);
++        if (first != SIZE_MAX)
++            printf("[BOOTSA] first ENTITY_AVAILABLE at cycle %llu, frame #%zu\n",
++                   static_cast<unsigned long long>(sent_[first].cyc), first);
++        controller();
++        const uint64_t past = cyc_ + kPastBoundCyc;
++        auto sent = [this](Kind k) {
++            for (const Sent& s : sent_) if (s.kind == k) return true;
++            return false;
++        };
++        while (cyc_ < past && !(sent(Kind::Gptp) && sent(Kind::Aaf)
++                                && first != SIZE_MAX
++                                && first_entity_available(first + 1) != SIZE_MAX))
++            tick();
++        check_.that("[BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE",
++                    first != SIZE_MAX && first_entity_available(first + 1) != SIZE_MAX);
++        probe_tx();
++        grade();
++        pair_order(0x108, 0x10C, "MAC_ADDR_LO");
++        pair_order(0x10C, 0x108, "MAC_ADDR_HI");
++        early_enable(true);
++        early_enable(false);
++        grade_stamp();
++    } catch (const std::exception& e) {
++        check_.fail(e.what());
++    }
++    printf("simulated_cycles=%llu\n", static_cast<unsigned long long>(cyc_));
++    return check_.report();
++}
++
++}  // namespace
++
++extern "C" uint32_t boot_fw_csr_read(unsigned int offset) {
++    return g_harness->csr_read(offset);
++}
++
++extern "C" void boot_fw_csr_write(unsigned int offset, uint32_t value) {
++    g_harness->csr_write(offset, value);
++}
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    setvbuf(stdout, nullptr, _IOLBF, 0);
++    if (argc > 2) {
++        fprintf(stderr, "usage: %s [aem image]\n", argv[0]);
++        return 2;
++    }
++    std::string path = argc == 2 ? std::string(argv[1]) : std::string(argv[0]);
++    if (argc < 2) {
++        const size_t slash = path.rfind('/');
++        path = (slash == std::string::npos ? std::string(".") : path.substr(0, slash))
++             + "/aemi.bin";
++    }
++    std::ifstream file(path, std::ios::binary);
++    std::vector<uint8_t> image{std::istreambuf_iterator<char>(file),
++                               std::istreambuf_iterator<char>()};
++    if (image.empty()) {
++        fprintf(stderr, "bootsa: the AEM image %s is missing or empty\n", path.c_str());
++        return 2;
++    }
++    BootSaHarness harness(std::move(image));
++    g_harness = &harness;
++    return harness.run();
++}
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index c09884eb2d..42e50e411a 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -841,6 +841,13 @@ class GptpPlaneHarness {
+     for (int i = 0; i < 16; i++) tick(dut);
+     dut->axis_resetn = 1;
+     dut->gtx_resetn = 1;
++    //! #839: the fabric holds every CSR-addressed transmitter (the
++    //! processor's AECP answers and pushes, AAF, CRF) until both halves of
++    //! the station MAC are written, as configure_fabric() does first thing.
++    //! This leg keeps the reset address (all zero) its stream IDs root in;
++    //! the gPTP plane's own address is its program's.
++    axi_write(dut, 0x108, 0x0);
++    axi_write(dut, 0x10C, 0x0);
+   }
+ 
+   // Match the generated product identity. AECP targets the entity id, while
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index c66d9bb337..34158b1fc6 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -3016,6 +3016,11 @@ class NxnDatapathHarness {
+             for (int i = 0; i < 8; i++) step();
+             dut->axis_resetn = 1; dut->gtx_resetn = 1;
+             for (int i = 0; i < 8; i++) step();
++        //! #839: the fabric holds every CSR-addressed transmitter until both
++        //! halves of the station MAC are written, as configure_fabric() does
++        //! first thing. This harness keeps the reset address (all zero), the
++        //! station its DA=0 frames are addressed to, so it writes that.
++        axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
+     }
+ 
+     //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
+diff --git a/tb/verilator/milan_dp/test_sim_pool.py b/tb/verilator/milan_dp/test_sim_pool.py
+index df5a46f570..25e3aa7874 100644
+--- a/tb/verilator/milan_dp/test_sim_pool.py
++++ b/tb/verilator/milan_dp/test_sim_pool.py
+@@ -101,6 +101,9 @@ LEGACY_LEGS = (
+      "./obj_maprec8/Vmilan_dp_maprec8"),
+     ("---- #637 the map records across the 4x4 shape's four input ports ----",
+      "./obj_maprec4/Vmilan_dp_maprec4"),
++    ("---- #839 every frame from reset carries the station MAC, through milan_init()'s "
++     "own boot order ----",
++     "./obj_bootsa/Vmilan_dp_bootsa"),
+ )
+ 
+ #: the fake leg every arm runs; a leg's executable imports it with its config
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index 9ef054bd7d..53d38e08cc 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -1633,6 +1633,11 @@ void TdmRenderHarness::bring_out_of_reset() {
+     steps(64);
+     dut->axis_resetn = 1; dut->gtx_resetn = 1;
+     steps(256);
++    //! #839: the fabric holds every CSR-addressed transmitter until both
++    //! halves of the station MAC are written, as configure_fabric() does.
++    //! The address stays the reset zero this leg's AECP commands are sent
++    //! to (bind_listener_zero below), so that is the value written.
++    axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
+ }
+ 
+ void TdmRenderHarness::bind_listener_zero() {
+@@ -2860,6 +2865,12 @@ void TdmRenderHarness::prove_a_reset_inside_an_outstanding_round_trip() {
+ //! remap, and the first nonzero frame is a POST-reset injected event.
+ void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
+     const uint64_t epochs_before = lane_epochs();
++    //! #839: every reset above returned the station-MAC pair to unwritten,
++    //! and the fabric holds the processor's frames until both halves are
++    //! written again, as configure_fabric() does on the boot after a reset.
++    //! Written here, not at each release, so the reset arms' cycle windows
++    //! stay what they were; the value is the same reset zero.
++    axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
+     bind_listener_zero();
+     const long t_power_on = axis_cycle;
+     prove_the_power_on_map("T18 POWER-ON");
