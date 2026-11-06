@@ -1,0 +1,29 @@
+# 37e0393094e62d395edc2798a6a6da2f34badbec in wt-boot: bash <reviews>/665s4-r738-4-packet/scripts/nomap_probe.sh <scratch>/wt-boot <scratch>/boot-1x1 <scratch>/nomap-probe-out
+# start 2026-11-06T17:07:57Z
+no-map link rc=2
+REFUSED: no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; gen_flash_port.py writes the map from the split SoC's export
+== <scratch>/boot-1x1/image/ctrl_app.elf
+lui.*0xf0003$: 11
+lui.*0xf0002$: 0
+lui.*0xf0004$: 0
+lui.*0x20000$: 2
+lui.*0x1000$: 1
+lui.*0x2000$: 3
+00011b24 t ls_busy
+000116c0 t ls_call_begin
+10009824 b ls_call_start
+00011b94 t ls_erase
+00011810 t ls_late
+00011724 t ls_now_us
+0001191c t ls_open
+00011a44 t ls_program
+== <scratch>/nomap-probe-out/ctrl_app.elf
+riscv32-linux-objdump: '<scratch>/nomap-probe-out/ctrl_app.elf': No such file
+lui.*0xf0003$: 0
+lui.*0xf0002$: 0
+lui.*0xf0004$: 0
+lui.*0x20000$: 0
+lui.*0x1000$: 0
+lui.*0x2000$: 0
+riscv32-linux-nm: '<scratch>/nomap-probe-out/ctrl_app.elf': No such file
+# end 2026-11-06T17:07:57Z

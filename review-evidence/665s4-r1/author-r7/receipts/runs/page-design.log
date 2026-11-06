@@ -1,0 +1,15 @@
+# 37e0393094e62d395edc2798a6a6da2f34badbec in wt-boot: python3 -I <output>/scripts/page_probe.py <scratch>/wt-boot docs/design/SPLIT_CONTROL_MEMORY.md <scratch>/boot-8x8 <scratch>/page-design <scratch>/map-8x8
+# start 2026-11-06T17:08:02Z
+--- the page's fence, docs/design/SPLIT_CONTROL_MEMORY.md
+python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml \
+  --interfaces 2 --ledgered-point platform-8x8-two-interfaces --csr-csv "$SOC/csr.csv" --flash-map "$FLASH_MAP" \
+  --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+---
+fence exit 0
+plan: {'rom': {'bytes': 125040, 'banks': [65536, 32768, 16384, 8192, 4096], 'RAMB36': 31, 'RAMB18': 0}, 'sram': {'bytes': 113936, 'banks': [65536, 32768, 16384], 'RAMB36': 28, 'RAMB18': 0}, 'tiles': 59.0, 'budget_tiles': 56, 'ledgered': 'platform-8x8-two-interfaces', 'ledgered_tiles': 59.0}
+ctrl_app.elf: 12 flash port functions, 36 lui
+  lui 0xf0004 (the stand-in timer0, 0xf0003800): 0 in []
+  lui 0x20000 (the stand-in window, 0x20000000): 0 in []
+  lui 0xf0003 (generated): 11
+  lui 0x1000 (generated): 1
+# end 2026-11-06T17:08:08Z

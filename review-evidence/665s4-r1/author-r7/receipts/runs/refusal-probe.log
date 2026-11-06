@@ -1,0 +1,13 @@
+# 37e0393094e62d395edc2798a6a6da2f34badbec in wt-boot: python3 -B <reviews>/665s4-r737-3-packet/scripts/refusal_probe.py <scratch>/wt-boot <scratch>/boot-1x1 <scratch>/refusal-probe-out
+# start 2026-11-06T17:08:08Z
+ok  clean csr.csv has no deviation
+ok  register moved: ['spiflash_master_cs is at 0xf0002814, the split SoC at 0xf0002810']
+ok  timer register moved: ['timer0_value is at 0xf0003020, the split SoC at 0xf0003010']
+ok  register absent: ['spiflash_master_rxtx is at no address, the split SoC at 0xf0002818']
+ok  window moved: ["the flash window is [(33554432, 16777216)], the split SoC's {'base': 16777216, 'size': 16777216}"]
+ok  window resized: ["the flash window is [(16777216, 8388608)], the split SoC's {'base': 16777216, 'size': 16777216}"]
+ok  window absent: ["the flash window is [], the split SoC's {'base': 16777216, 'size': 16777216}"]
+ok  boot_soc.build refuses a moved register: RuntimeError: the boot SoC does not place the flash port's devices as the split SoC does: ['spiflash_master_cs is at 0xf0002810, the split SoC at 0xf0002814']
+ok  ctrl_plat_image refuses a clock not the shape's: REFUSED: the flash map's SoC runs at 100000001 Hz, the shape at 100000000 Hz
+misses: 0
+# end 2026-11-06T17:08:11Z

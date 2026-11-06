@@ -1,0 +1,19 @@
+# c2befb12d146e75dead7e4523cb46af1cf34adfb in wt-mut: python3 -I <output>/scripts/mutants.py <scratch>/wt-mut <scratch>/boot-1x1 <scratch>/mutants <output>/receipts/mutants.md
+# start 2026-11-06T16:48:58Z
+head: ctrl_image_selftest: rc 0; ctrl_image self-test: 37 checks PASS
+head: placement controls: rc 0; ctrl_split_boot placement controls: 8 of 8 as required
+head: stopped_at_link: rc 0; collect2: error: ld returned 1 exit status
+refusal-removed: CAUGHT, rc 1, by ctrl_image_selftest plat: AssertionError: ('both archives', 'collect2: error: ld returned 1 exit status')
+any-archive-to-all: CAUGHT, rc 1, by ctrl_image_selftest plat: AssertionError: ('the C library alone', 'collect2: error: ld returned 1 exit status')
+refused-with-a-map: ESCAPED, rc 1, by ctrl_image_selftest plat: 
+compile-only-refused: CAUGHT, rc 1, by ctrl_runs.stopped_at_link: ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 1 interface(s): exit 2; ELF present False; stopped_at_link False
+guard-call-removed: CAUGHT, rc 1, by run.py --placement-controls: PLACEMENT export-refuses: WRONG (export TAKEN)
+guard-raise-removed: CAUGHT, rc 1, by run.py --placement-controls: PLACEMENT export-refuses: WRONG (export TAKEN)
+deviations-return-empty: CAUGHT, rc 1, by run.py --placement-controls: PLACEMENT register-moved: WRONG (deviations [])
+window-unchecked: CAUGHT, rc 1, by run.py --placement-controls: PLACEMENT window-moved: WRONG (deviations [])
+Traceback (most recent call last):
+  File "<output>/scripts/mutants.py", line 74, in <module>
+    assert text.count(anchor) == 1, (name, text.count(anchor))
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('guard-refuses-a-true-map', 2)
+# end 2026-11-06T16:50:31Z

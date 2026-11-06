@@ -1,0 +1,5 @@
+ctrl_app.elf: 12 flash port functions, 37 lui
+  lui 0xf0004 (the stand-in timer0, 0xf0003800): 4 in ['ls_call_begin', 'ls_late', 'ls_now_us', 'nvm_flash_litespi_power_on']
+  lui 0x20000 (the stand-in window, 0x20000000): 1 in ['ls_read']
+  lui 0xf0003 (generated): 7
+  lui 0x1000 (generated): 1
