@@ -86,7 +86,7 @@ def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "port", "Loop.L13AnAgedStepIsAPassOfItsOwn", "L13 the pass is counted as an aged step's"),
         kind("step-age-kept-by-its-pass", "loop/ctrl_loop.c", STEP_AGED,
              STEP_AGED.replace("\t\t\tl->step_age = 0u;\n", ""), "port", "Loop.L13AnAgedStepIsAPassOfItsOwn",
-             "L13 the next pass takes the input it held off"),
+             "L13 (a pass that takes nothing runs the step)"),
         kind("step-age-kept-after-a-step", "loop/ctrl_loop.c", "l->step_age = waits ? l->step_age : 0u;",
              "(void)0;", "port", "Loop.L13AnAgedStepIsAPassOfItsOwn",
              "L13 a step run in a pass that takes nothing starts its age again"),
@@ -203,8 +203,9 @@ def tick_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel"),
         kind("tick-cap-in-every-pass", "loop/ctrl_loop.c", cap, "l->rx_cap = CTRL_LOOP_RX_PER_TICK_PASS;", "port",
              l21, "L21 the next pass, which dispatches none, takes CTRL_LOOP_RX_PER_PASS"),
-        kind("tick-cap-ignored", "loop/ctrl_loop.c", "for (unsigned most = l->rx_cap, sweep = 1u;",
-             "for (unsigned most = CTRL_LOOP_RX_PER_PASS, sweep = 1u;", "port", l21,
+        kind("tick-cap-ignored", "loop/ctrl_loop.c",
+             "l->rx_cap = ticked != 0u ? CTRL_LOOP_RX_PER_TICK_PASS : CTRL_LOOP_RX_PER_PASS;",
+             "l->rx_cap = ticked != 0u ? CTRL_LOOP_RX_PER_PASS : CTRL_LOOP_RX_PER_PASS;", "port", l21,
              "L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel"),
     )
 
@@ -252,8 +253,8 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "service_rx(l, l->drain_ch - 1u, 2u * CTRL_LOOP_DRAIN_RECORDS, deadline)", port, l23,
              "L23 and stops at CTRL_LOOP_DRAIN_RECORDS"),
         kind("order-mark-read-after-the-events", "loop/ctrl_loop.c", "\t\tl->rx_order = mark;\n",
-             "\t\tl->rx_order = l->drain_ch != 0u ? mbx_rx_mark(l->drain_ch - 1u) : 0u;\n", port, l24,
-             "L24 a pass that empties the event ring moves the order to the mark it read"),
+             "\t\t(void)mark;\n\t\tl->rx_order = l->drain_ch != 0u ? mbx_rx_mark(l->drain_ch - 1u) : 0u;\n", port, l24,
+             "L24 the mark is read before the events"),
         kind("order-moved-past-events-left", "loop/ctrl_loop.c", "\tif (!l->events_left) {\n", "\tif (true) {\n", port,
              l24, "L24 a pass that leaves events keeps the order where it was"),
     )

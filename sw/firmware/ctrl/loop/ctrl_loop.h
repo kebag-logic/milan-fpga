@@ -117,8 +117,8 @@
 // saved-state store's write path. Its flash steps (a page program's issue up
 // to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
 // pass the other slices make (1.90 ms at 8x8/2if), and in a pass that takes
-// records they lengthen every record still waiting (the last SRP record of a
-// full ring waits sixteen passes), so its centisecond consumer only owes a
+// records they lengthen every record still waiting (the last SRP record of the
+// composed burst waits CTRL_LOOP_SRP_PASSES passes), so its centisecond consumer only owes a
 // step, and the loop calls the step only once a pass takes nothing. It hands
 // the step the clock's value at which the pass has spent
 // CTRL_LOOP_SHARE_US, read once as the pass starts; the client takes its
@@ -176,7 +176,9 @@
 // more than CTRL_LOOP_RX_PER_PASS of them takes no other channel's, and a
 // record follows only the events posted before it (rx_order, read before the
 // pass's events): an event posted during every pass holds it back no longer.
-// CTRL_LOOP_SRP_MS states the bound.
+// What the pass has left then goes to every channel's records still waiting, one
+// a channel in turn, under the same limit, so a record of any channel takes the
+// time a burst's records leave. CTRL_LOOP_SRP_MS states the bound.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer

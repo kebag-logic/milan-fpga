@@ -9,9 +9,9 @@ extern "C" {
 #endif
 
 #define AECP_INTERFACES 2u
-// The registered controllers of one AVB Interface, at most (Milan v1.2 5.3.4.2): every registry and fan-out derives from
-// this constant, so the recipients of a notice are 16 at one interface and at most 32 at two, each registration on its
-// own port (Milan v1.2 5.4.5.1).
+// The registered controllers of one AVB Interface, at most (Milan v1.2 5.3.4.2): every registry and fan-out derives
+// from this constant, so the recipients of a notice are 16 at one interface and at most 32 at two, each registration on
+// its own port (Milan v1.2 5.4.5.1).
 #define AECP_REGISTRATIONS 16u
 #define AECP_FRAME_BYTES 1514u
 #define AECP_PATH_ITEMS 64u
@@ -47,13 +47,13 @@ extern "C" {
 #define AECP_RETRY_MAX_MS 8u
 // The longest frame the fan port takes: every notice's but a long GET_AS_PATH's.
 #define AECP_FAN_BYTES 256u
-// What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500 CPU
-// cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it is
-// given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+// What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
+// CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
+// is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
 #define AECP_ATTEMPT_US 34u
-// The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the first
-// interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window read,
-// which answers for all it serves or for none (#665).
+// The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
+// first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
+// read, which answers for all it serves or for none (#665).
 #define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
 // The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
 // each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each

@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cwchar>
+#include <functional>
 #include <string>
 
 #include "ctrl_debug.h"
@@ -545,6 +546,7 @@ struct LoopProbe {
     unsigned transmit_aged_reads;  // THE TRANSMIT's age reads
     unsigned rx_at_transmit_aged;  // the records taken when its age was last read
     std::string order_of;      // the deferrable clients in call order: T transmit, R retry, S step
+    std::function<void()> on_event;   // what the next event's sink does besides counting it
 };
 
 LoopProbe probe;
@@ -554,6 +556,9 @@ void probe_rx(void*, const mbx_frame*) {
 }
 void probe_event(void*, const mbx_event*) {
     probe.events++;
+    if (probe.on_event) {
+        probe.on_event();
+    }
 }
 
 bool probe_poll(void*) {
@@ -1343,7 +1348,6 @@ TEST_F(Loop, L23TheDrainTakesItsChannelFirstWhileThePassHasRoom) {
     rx = probe.rx;
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_GT(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 with a clock it goes past CTRL_LOOP_RX_PER_PASS";
-    EXPECT_LE(probe.rx, rx + CTRL_LOOP_DRAIN_RECORDS) << "L23 and stops at CTRL_LOOP_DRAIN_RECORDS";
     drain(&loop_);
     mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
     drain(&loop_);
@@ -1353,6 +1357,26 @@ TEST_F(Loop, L23TheDrainTakesItsChannelFirstWhileThePassHasRoom) {
     static_cast<void>(ctrl_loop_service(&loop_));
     probe.now_step = 0u;
     EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 and stops once the pass has spent CTRL_LOOP_DRAIN_US";
+    drain(&loop_);
+    // a burst longer than the limit: ACMP's, bound past the open, which opens the filter of what was bound by then
+    static_assert(MBX_CH_ACMP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS + CTRL_LOOP_RX_PER_PASS, "the test passes the limit");
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
+    model.filter_en |= 1u << MBX_CH_ACMP;
+    std::uint8_t a[48];   // short enough that the ring holds the whole burst
+    build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
+    std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    unsigned message = 0;
+    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
+        a[15] = static_cast<std::uint8_t>(++message);
+    }
+    ASSERT_LT(message, 16u) << "(a message the channel takes)";
+    for (unsigned k = 1; k < MBX_CH_ACMP_RATE_BURST; ++k) {
+        ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
+    }
+    loop_.drain_ch = MBX_CH_ACMP + 1u;
+    const unsigned acmp = probe.rx_acmp;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx_acmp, acmp + CTRL_LOOP_DRAIN_RECORDS) << "L23 and stops at CTRL_LOOP_DRAIN_RECORDS";
     drain(&loop_);
     loop_.drain_ch = 0u;
 }
@@ -1433,6 +1457,18 @@ TEST_F(Loop, L24ARecordFollowsOnlyTheEventsPostedBeforeIt) {
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(loop_.rx_order, held) << "L24 a pass that leaves events keeps the order where it was";
+    drain(&loop_);
+    // a record posted as the pass takes its events follows them in no order that pass read
+    mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
+    drain(&loop_);
+    const std::uint16_t mark = mbx_rx_mark(MBX_CH_ADP);
+    probe.on_event = [&]() {
+        probe.on_event = nullptr;
+        EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    };
+    mbx_model_advance_ms(&model, MBX_TICK_MS);
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(loop_.rx_order, mark) << "L24 the mark is read before the events";
     drain(&loop_);
     loop_.drain_ch = 0u;
 }

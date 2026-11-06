@@ -224,7 +224,7 @@ def _integration(add: Plant) -> None:
     add("callback-work-overrun", adapter, "\tstruct maap_mbx *m = ctx;\n\tif (ev->type",
         "\tstruct maap_mbx *m = ctx;\n"
         "\tfor (unsigned k = 0; k <= ACMP_MAX_SOURCES; ++k) { (void)mbx_now_ms(); }\n\tif (ev->type",
-        ("MaapHost.CallbackWorkAndEveryOutputCount", "callback work bound"))
+        ("MaapHost.CallbackWorkAndEveryOutputCount", "final probe and ANNOUNCE cost, DA_GATE included"))
     add("ignored-input-late", adapter, "\tmaap_rx(&m->ifs[f->interface].core",
         "\tfor (unsigned k = 0; k < 100001u; ++k) { (void)mbx_now_ms(); }\n"
         "\tmaap_rx(&m->ifs[f->interface].core",

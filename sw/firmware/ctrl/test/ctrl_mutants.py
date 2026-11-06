@@ -237,7 +237,8 @@ MUTANTS = (
            "\t\t    (int32_t)(deadline - l->clock(l->clock_ctx)) < "
            "(int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {\n"
            "\t\t\tbreak;\n\t\t}\n",
-           "for (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
+           "(void)most;\n\t(void)deadline;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound",
+           "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",
            "E1 the loop does not sleep while a frame is owed"),

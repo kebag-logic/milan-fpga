@@ -117,8 +117,8 @@ def stated_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: in
     kinds = lambda s: [o['kind'] for o in s['over']]
     out = [("a build of one MRPDU has a cost of its own, under a build of two's", limits['build-one'] < limits['build'],
             str(limits)),
-           ('each point has its own stated costs', whole_grade.stated_us(1)['build'] < whole_grade.stated_us(2)['build'],
-            '')]
+           ('each point has its own stated costs',
+            whole_grade.stated_us(1)['build'] < whole_grade.stated_us(2)['build'], '')]
     for kind, flags in (('build', dict(builds=2)), ('build-one', dict(builds=1)), ('step', dict(aged=True))):
         at, over = held(limits[kind], **flags), held(limits[kind] + 1, **flags)
         out.append((f'a {kind} pass at its stated cost fits it and one a cycle over it does not',
