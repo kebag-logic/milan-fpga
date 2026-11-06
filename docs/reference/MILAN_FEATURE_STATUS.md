@@ -36,7 +36,7 @@ ledger, and none of them needs a marker while it is correct:
 | Written as | Judged against | Notes |
 |---|---|---|
 | `VERSION `0x0002_0060`` - the name and the full two-word spelling on one line | `facts.gateware_version` | Only the CURRENT major is judged. `VERSION 0x0001_000B` and the minor-only idiom (`fixed at VERSION 0x000F`) are how this corpus writes history, and a bump to major 3 retires today's spellings the same way |
-| `thirty AEM opcodes`, `one MVU command` | the length of the matching `facts.served_*_operations` list | Word and numeral spellings are both accepted. `N AEM commands` is deliberately not judged: in this corpus it counts commands still to land |
+| `thirty-one AEM opcodes`, `one MVU command` | the length of the matching `facts.served_*_operations` list | Word and numeral spellings are both accepted. `N AEM commands` is deliberately not judged: in this corpus it counts commands still to land |
 | a `milan-feature-order` block | `facts.firmware_boot_order`, itself read from `milan_init()` | Compared as a SEQUENCE, so reversing the documented steps fails even though the set is unchanged |
 
 A page that deliberately records a superseded value — a dated audit, a release
@@ -106,6 +106,7 @@ Served AEM operations:
 - `GET_AVB_INFO`
 - `GET_AS_PATH`
 - `GET_COUNTERS`
+- `REBOOT`
 - `GET_AUDIO_MAP`
 - `ADD_AUDIO_MAPPINGS`
 - `REMOVE_AUDIO_MAPPINGS`

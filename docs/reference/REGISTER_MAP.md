@@ -327,15 +327,14 @@ grandmaster presence, so a domain or delay update in the startup or GM-loss
 window is announced like any other; the SR class-A priority and VLAN ID are
 detected by the processor off the same wires it publishes. GET_AS_PATH has its
 own selected-owner sequence comparator and never uses the wider ADP strobe.
-In product fabric mode that sequence is empty without a GM or when the selected
-Announce has no PathTrace TLV, and otherwise is the committed engine PathTrace
-(GM plus up to seven tail identities). The 0x7DC addresses are inert in both
-elaborations. The response snapshots the canonical selected path before
-gathering entries, so it stays on one coherent generation. Fabric count 0/1 is
-the meaningful empty/`{thisClock}` boundary: count one is this station's own
-path before a peer is elected (FPGA-gPTP #82), and a received sequence gains
-thisClock, so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP
-#85). GM=0 publications and an identical publish are silent. The
+In product fabric mode that sequence is empty without a GM, and otherwise is
+the committed engine pathTrace, up to eight identities from entry 0 (see
+0x7DC below). The 0x7DC addresses are inert in both elaborations. The response
+snapshots the canonical selected path before gathering entries, so it stays on
+one coherent generation. Count one is `{thisClock}`, this station's own path
+before a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
+so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85). GM=0
+publications and an identical publish are silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -1468,27 +1467,24 @@ processor has no dynamic state.
 ### 0x7DC  -  retired AS_PATH compatibility addresses
 
 `GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) returns the fabric engine's atomic,
-bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
-pathTrace only from a received PathTrace TLV. When the selected Announce
-carries none, the engine publishes the empty sequence, so count zero is
-preserved even when a grandmaster identity is known separately. That is the
-IEEE 802.1AS-2020 rule: 10.3.11.2.1 d) empties the port's receivedPathTrace,
-and 10.3.13.2.4 f) 5) copies it to pathTrace, appending thisClock only when it
-is not empty. IEEE 802.1AS-2011 has no such rule: without a TLV, pathTrace
-keeps its previous value (10.3.10.2.1 d), 10.3.12.1.1). So the count-zero
-publication departs from the edition Milan v1.2 profiles. The decision is open
-in FPGA-gPTP #87.
+bounded pathTrace publication, entry 0 first. The engine publishes eight
+identities from entry 0 and their count (FPGA-gPTP #87, #88); entry 0 is
+served as published, never replaced by the grandmaster identity.
 
-Otherwise the published sequence is the received pathSequence with thisClock
-appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
-includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
-count one (IEEE 802.1AS-2011 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82).
+IEEE 802.1AS-2011 10.3.10.2.1 d), the edition Milan v1.2 profiles, writes
+pathTrace only from a received path trace TLV: its pathSequence is copied as
+received and thisClock appended (FPGA-gPTP #85), so the count includes
+thisClock. The copy keeps the received head, which need not be the
+grandmaster, and an empty pathSequence gives `{thisClock}` (FPGA-gPTP #88).
+When the selected Announce carries no TLV, nothing is written and pathTrace
+keeps its previous value (FPGA-gPTP #87): `{thisClock}` after reset or
+mastership (10.3.12.1.1, 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82), and
+otherwise the last path copied from a TLV, even across a grandmaster change.
 
 The publication holds eight identities, which bounds that append. At eight or
 more received entries the served sequence is the first eight received entries,
-the count stays 8 and thisClock is not appended (FPGA-gPTP #86; widening the
-publication would be a port change). Up to seven received entries always gain
-thisClock.
+the count stays 8 and thisClock is not appended (FPGA-gPTP #86). Up to seven
+received entries always gain thisClock.
 
 The three addresses below remain allocated so the public map does not shift.
 The staging pair is always zero and all writes are discarded. `ASP_CMD` is a
@@ -1593,10 +1589,10 @@ selection reads 0, which is indistinguishable from a real zero at a glance.
 | `0x800` | `A_STRM_SEL` | RW | `0` | `[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker), `[9]` **listener-0 row select (since VERSION `0x0023`)**: 1 = the window serves sink 0's dedicated lwSRP row (`SRP_LSN0_ROW_C = L+T-1`); `[8]`/`[3:0]` are ignored while set. `{dir=0, idx=0}` is the PARK state. Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no bind". Firmware must read until a value repeats if another firmware task may move SEL; see [TROUBLESHOOTING Section 21](../limitations/TROUBLESHOOTING.md). |
 | `0x804` | `A_STRM_SNAP` | W1S / RO | `0` | Write `[0]`=1: latch the selected stream's `STATE` + `CNT0..9` + `PDUS` into the window shadow as ONE coherent block. Read: `[0]` busy. Poll busy=0 before reading the latched words |
 | `0x810` | `A_STRMW_CTRL` | RW | — | listener: `[0]` en, `[2:1]` route flags `{[2] RENDER, [1] reserved-zero}`; only the render route is implemented (LCTX w4). Talker idx 0: `[0]` en = **hard alias of `AAF_CTRL[0]`** (merge write — VID/bypass bits untouched); talker idx>0: TCTX w0 (`[0]` en arms the stream — the per-stream admission composition, see the talker t>0 paragraph). A CTRL write at idx>0 also COMMITS the lwSRP provisioning record (see below). **Staging rule (VERSION ≥ `0x000F`): a CTRL commit overrides the stream table only when a stream_id was staged FOR THIS INDEX** via `A_STRMW_SID_LO/HI` — staging for one index then committing another no longer arms the second with the first's sid. **`[0]`=0 with no sid staged for this index is RELEASE-TO-ALIAS**: it commits the zero sid, which disarms the override so entry 0 returns to the live ACMP bound record. An eviction that *does* carry a staged sid is a deliberate disable and keeps the override armed. **The SAME staging guard now covers the lwSRP provisioning record (2026-07-30)** — it used to take the staging set unconditionally, and those four words are ONE register set shared by every index, so a sid staged for one selection was written into whatever row was committed next (measured at the desk: talker idx2's attribute row read back the sid staged for listener idx2, i.e. a Talker Advertise for a stream this station does not emit). A commit that names **no** sid for this selection provisions the row with a ZERO sid, which for an AAF talker row idx>0 is RELEASE-TO-FABRIC (see the talker-row provisioning paragraph). Ownership is by SELECTION, not spent by the commit: repeated `CTRL` writes at the index a sid was staged for keep that sid |
-| `0x814` | `A_STRMW_SID_LO` | RW/RO | — | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot — which since 2026-07-30 reads the FABRIC-derived `{station MAC, uid=idx}` unless software named a sid for this selection. Writes stage the provisioning sid (and forward to LCTX w0 for listeners); the staging set is bound to the `{dir, idx}` it was written under |
+| `0x814` | `A_STRMW_SID_LO` | RW/RO | -- | stream_id `[31:0]`. listener: RO from the ACMP bind context (tbl port); talker idx 0: RO derived `{station MAC, uid=0}`; talker idx>0: RO from the lwSRP row snapshot, which since 2026-07-30 reads the FABRIC-derived `{station MAC, uid=idx}` unless software named a sid for this selection. Writes stage the provisioning sid (and forward to LCTX w0 for listeners); the staging set is bound to the `{dir, idx}` it was written under. **A talker's word is the ID it starts with, not its current one:** after a MAAP conflict the processor moves a declared source to a new Stream ID (processor #202, #799). The current ID is the one its frames carry and `PROBE_TX`, `GET_TX_STATE` and `GET_STREAM_INFO` answer; this word does not follow it |
 | `0x818` | `A_STRMW_SID_HI` | RW/RO | — | stream_id `[63:32]`, same rules (LCTX w1) |
 | `0x81C` | `A_STRMW_DMAC_LO` | RW/RO | — | stream DMAC `[31:0]`. listener: RO ACMP bind context; talker idx 0: **hard alias of `AAF_DMLO`** (RW, exact); talker idx>0: TCTX w1 (engine-backed). Writes stage the provisioning DMAC |
-| `0x820` | `A_STRMW_DMAC_HI` | RW/RO | — | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2 |
+| `0x820` | `A_STRMW_DMAC_HI` | RW/RO | -- | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2, whose `[31:16]` unique ID the integrated framer no longer stamps: every AAF talker's stream_id is the processor's current one (`KL_aaf_packetizer` `SID_PP_P`, processor #202, #799) |
 | `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads `0xDEADDEAD`, writes ignored) |
 | `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3; talker side reads `0xDEADDEAD`) |
 | `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C: bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs (`A_ACMP_LOBS`, or with `LWSRP_CTRL[0]` set: at idx 0 source 0's registered Listener Ready or Ready Failed, at idx > 0 that source's ACTIVE since #530), `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""#607: generated clock objects, scoped exceptions and rejected implementation logs."""
+"""#607: generated clock objects, scoped exceptions and rejected implementation logs;
+#817: the servo reset synchronizer cut."""
 
 import argparse
 import ast
@@ -160,6 +161,93 @@ puts {scoped exception and wrong-name controls PASS}
     print(result.stdout.strip())
 
 
+SERVO_STUB = r'''
+set emitted {}
+set stages {sv/psrst_sync_r_reg[0] sv/psrst_sync_r_reg[1]}
+array set clock_of {milan_pll milan {sv/psrst_sync_r_reg[0]/C} ps {sv/psrst_sync_r_reg[1]/C} ps}
+array set async {{sv/psrst_sync_r_reg[0]} TRUE {sv/psrst_sync_r_reg[1]} TRUE}
+array set d_net {{sv/psrst_sync_r_reg[0]/D} rst_n_inv {sv/psrst_sync_r_reg[1]/D} {sv/psrst_sync_r[0]}}
+array set driver {rst_n_inv inv/O {sv/psrst_sync_r[0]} {sv/psrst_sync_r_reg[0]/Q}}
+proc arg {words name} {return [lindex $words [expr {[lsearch -exact $words $name] + 1}]]}
+proc object {words} {return [lindex [arg $words -of_objects] 0]}
+proc get_nets {args} {
+    if {"-of_objects" in $args} {return $::d_net([object $args])}
+    return [lindex $args end]
+}
+proc get_clocks {args} {
+    set object [lindex [lindex $args end] 0]
+    if {[info exists ::clock_of($object)]} {return $::clock_of($object)}
+    return {}
+}
+proc get_cells {args} {
+    if {"-of_objects" in $args} {return [file dirname [object $args]]}
+    if {[string match {*mmcm_servo/psrst_sync_r_reg\**} [arg $args -filter]]} {return $::stages}
+    return {}
+}
+proc get_pins {args} {
+    set object [object $args]
+    switch -glob -- [arg $args -filter] {
+        *IS_CLOCK* {return $object/C}
+        *REF_PIN_NAME* {return $object/D}
+        *DIRECTION* {return $::driver($object)}
+    }
+}
+proc get_property {name object} {return $::async([lindex $object 0])}
+proc set_false_path {args} {lappend ::emitted [linsert $args 0 set_false_path]}
+proc require {condition message} {
+    if {![uplevel 1 [list expr $condition]]} {error $message}
+}
+proc refused {pattern} {
+    set ::emitted {}
+    if {![catch {kl_servo_reset_sync_constraints milan_pll} message]} {error "accepted: $pattern"}
+    if {![string match $pattern $message]} {error "wrong refusal: $message"}
+    if {[llength $::emitted]} {error "refusal emitted $::emitted"}
+}
+'''
+
+
+def test_servo_reset_sync() -> None:
+    """#817: one cut, from the reset's clock into the first ASYNC_REG stage, or a refusal."""
+    script = SERVO_STUB + "\nsource {" + str(ROOT / "sw/litex/clock_constraints.tcl") + "}\n" + r'''
+set cut {set_false_path -from milan -to {sv/psrst_sync_r_reg[0]/D}}
+kl_servo_reset_sync_constraints milan_pll
+require {$emitted eq [list $cut]} "servo cut missing or widened: $emitted"
+set emitted {}
+set stages [lreverse $stages]
+kl_servo_reset_sync_constraints milan_pll
+require {$emitted eq [list $cut]} "stage order changed the cut: $emitted"
+set full $stages
+set stages [lrange $full 0 0]
+refused {*expected two servo reset synchronizer flops*}
+set stages [concat $full {sv/psrst_sync_r_reg[2]}]
+refused {*expected two servo reset synchronizer flops*}
+set stages $full
+foreach value {FALSE {}} {
+    set async(sv/psrst_sync_r_reg\[1\]) $value
+    refused {*lacks ASYNC_REG*}
+}
+set async(sv/psrst_sync_r_reg\[1\]) TRUE
+set driver(sv/psrst_sync_r\[0\]) other/Q
+refused {*not a two-flop chain*}
+set driver(sv/psrst_sync_r\[0\]) sv/psrst_sync_r_reg\[0\]/Q
+foreach {first second} {milan milan ps other} {
+    set clock_of(sv/psrst_sync_r_reg\[0\]/C) $first
+    set clock_of(sv/psrst_sync_r_reg\[1\]/C) $second
+    refused {*not one clock distinct from milan*}
+}
+array set clock_of {sv/psrst_sync_r_reg[0]/C ps sv/psrst_sync_r_reg[1]/C ps}
+set emitted {}
+require {[catch {kl_servo_reset_sync_constraints wrong_net} message]} "missing clock accepted"
+require {[string match *expected*clock* $message] && ![llength $emitted]} "wrong refusal: $message"
+puts {servo reset synchronizer cut and refusal controls PASS}
+'''
+    result = subprocess.run(["tclsh"], input=script, text=True, capture_output=True, timeout=30)
+    # tclsh on stdin can continue after an error and exit zero.
+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+    assert "controls PASS" in result.stdout, result.stdout
+    print(result.stdout.strip())
+
+
 def test_log_gate() -> None:
     """All rejected-constraint IDs quarantine bitstreams at every emitted severity."""
     with tempfile.TemporaryDirectory(prefix="constraint-log-") as tmp:
@@ -266,6 +354,7 @@ if __name__ == "__main__":
     test_crg_clock_sources()
     test_generated_constraints()
     test_scoped_exceptions()
+    test_servo_reset_sync()
     test_log_gate()
     from test_shipping_clock_constraints import test_shipping_constraints
     test_shipping_constraints()

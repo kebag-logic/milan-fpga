@@ -70,7 +70,7 @@ None. Every operation Milan v1.2 mandates for this profile is served since
 
 ### 0.1 Served for real, today
 
-**Thirty** AEM opcodes plus one MVU command. The processor's `OP_*_C`
+**Thirty-one** AEM opcodes plus one MVU command. The processor's `OP_*_C`
 constants are the concrete decode. The feature ledger owns the canonical
 documented inventory, and the compliant bench gates its `SERVED` table against
 the processor RTL.
@@ -126,6 +126,7 @@ underneath it.
 | `0x0027` | `GET_AVB_INFO` | 5.4.2.23 | 0x0048 |
 | `0x0028` | `GET_AS_PATH` | 5.4.2.24 | 0x0048 |
 | `0x0029` | `GET_COUNTERS` | 5.4.2.25 | 0x0049 |
+| `0x002A` | `REBOOT` of ENTITY 0 (IEEE 7.4.43; Milan mandates none) | none | processor #203 |
 | `0x002B` | `GET_AUDIO_MAP` (both port directions) | 5.4.2.26 | 0x0048 |
 | `0x002C` | `ADD_AUDIO_MAPPINGS` | 5.4.2.27 | 0x0050 |
 | `0x002D` | `REMOVE_AUDIO_MAPPINGS` | 5.4.2.28 | 0x0050 |

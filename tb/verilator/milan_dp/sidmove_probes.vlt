@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// processor #202: sim_sid_move.cpp compares each source's published current
+// Stream ID with the wire, PROBE_TX and GET_STREAM_INFO, and reads talker 1's
+// TCTX uid back. Read only: nothing is forced.
+`verilator_config
+public_flat_rd -module "milan_datapath" -var "pp_cd_src_stream_id_w"
+public_flat_rd -module "KL_aaf_packetizer" -var "euid_r"

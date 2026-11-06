@@ -216,6 +216,8 @@ In the ownerless test form:
 F0's `--ctrl-mailbox` switch is default-off.
 Its datapath inputs remain idle until protocol integration connects them.
 It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
+The [target platform](../sw/firmware/ctrl/plat/README.md) runs the boot sequence above on the split CPU, and a [simulation](../tb/verilator/ctrl_split_boot/README.md) boots it to ready.
+Its datapath faces stay idle until the placement switch connects them.
 The publication block's outputs remain unread until the placement switch selects them.
 F1's flash port runs on the split SoC's generated map, and its state port on the image's owners.
 Their [target cases](../tb/verilator/nvm_split_target/README.md) run on the split CPU's test SoC.

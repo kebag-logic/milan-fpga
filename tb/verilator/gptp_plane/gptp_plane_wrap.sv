@@ -147,6 +147,9 @@ module gptp_plane_wrap #(
       .txts_ok_i          (txts_ok_i),
       .txts_gen_i         (txts_gen_i),
       .tx_credit_i        (tx_credit_i),
+      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+      //! #94) are the donor suite's and the milan_dp gptp leg's to drive
+      .port_enabled_i     (1'b1),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (step_we_w),

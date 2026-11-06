@@ -58,8 +58,8 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
     arms = [("clean", source, None)]
     if mutants:
         credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
-        liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
-        unanswered = "asCapable falls at the third unanswered request after an unanswered crossing request"
+        liveness = "asCapable falls at the fifth unanswered request after a crossing exchange"
+        unanswered = "asCapable falls at the fourth unanswered request after an unanswered crossing request"
         # The timer program has no free ROM word, so the credit plant below
         # displaces the Milan cease rule. Removing only that rule must pass.
         cease = "    _tmr_cease_rule(p)\n"

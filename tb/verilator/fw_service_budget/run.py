@@ -32,6 +32,11 @@ COMMANDS = (
     'milan_utc invalid 0 0', 'milan_status',
 )
 
+# entity_advertise() reports a REQUEST: the fabric holds the enable until the
+# restore releases it (docs/design/SAVED_STATE_MATERIALIZATION.md 5.3, change 3)
+ENABLE_REQUEST = ('Milan baremetal: fabric entity enable requested; the fabric holds it '
+                  'until the restore releases it; UART diagnostics ready.')
+
 
 def require(ok: bool, message: str) -> None:
     """Reject absent or inconsistent evidence at its owning boundary."""
@@ -273,7 +278,8 @@ def grade(raw: str, media: dict) -> dict:
     ends = [e for e in events if e['kind'] == 'command_end']
     require([e['index'] for e in starts] == list(range(len(commands))), 'command start census')
     require([e['index'] for e in ends] == list(range(len(commands))), 'command end census')
-    require('fabric entity enabled' in uart and 'AEM=loaded' in uart, 'boot did not enable verified AEM')
+    require(ENABLE_REQUEST in uart and 'AEM=loaded' in uart,
+            'boot did not request the entity enable on a verified AEM')
     require('walk done=1 fail=0' in uart, 'restore walk did not complete successfully')
     commits = commands.count('milan_nvm commit')
     wipes = commands.count('milan_nvm wipe')

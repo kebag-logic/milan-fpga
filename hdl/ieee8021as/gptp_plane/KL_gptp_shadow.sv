@@ -189,6 +189,15 @@ module KL_gptp_shadow #(
     input  wire epi_dis_i,
     output wire recov_req_o,
 
+    //! portEnabled for the engine (IEEE 802.1AS-2011 10.2.4.11): MAC_Operational
+    //! and the port administratively enabled, a level in this clock domain.
+    //! While it is low the engine starts no frame; each edge after its first
+    //! sample since reset ends the Milan v1.2 4.2.6.2.5 cease and clears
+    //! asCapable (FPGA-gPTP #94). A frame whose first byte is unaccepted is
+    //! withdrawn: the gearbox and the ticket below take accepted bytes only,
+    //! so it leaves nothing here. A started frame completes into tx_fifo
+    input  wire port_enabled_i,
+
     //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
     output logic [63:0] pub_parent_id_o,
@@ -196,8 +205,8 @@ module KL_gptp_shadow #(
     output logic [31:0] pub_pdelay_ns_o,
     output logic [31:0] pub_offset_o,
     output logic [63:0] pub_annq_o,
-    output logic  [3:0] pub_path_count_o, //! complete length incl GM
-    output logic [7*64-1:0] pub_path_o,   //! canonical slots 1..7
+    output logic  [3:0] pub_path_count_o, //! pathTrace entries published, 0..8
+    output logic [8*64-1:0] pub_path_o,   //! pathTrace entries 0..7, entry k at 64*k
     output logic  [3:0] pub_path_gen_o,  //! complete served tuple generation
     output logic        pub_commit_o,
     //! Combinational pre-commit discontinuity. The outward bank is
@@ -629,46 +638,40 @@ module KL_gptp_shadow #(
   logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
   logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
   logic  [3:0] pub_path_count_raw_w;
-  logic [7*64-1:0] pub_path_raw_w;
+  logic [8*64-1:0] pub_path_raw_w;
   logic        pub_commit_raw_w;
 
-  //! Canonical public sequence. A tail has no identity without a GM. With a
-  //! GM, preserve the donor's raw distinction: count zero means the selected
-  //! Announce carried no PathTrace TLV, while count one is `{thisClock}`, this
-  //! station's own path before a peer is elected (FPGA-gPTP #82). A received
-  //! sequence is published with thisClock appended, so an explicit one-entry
-  //! `[GM]` PathTrace publishes count two (FPGA-gPTP #85). Generation covers
-  //! the COMPLETE sequence this parent serves, so 0 <-> 1 is a real edge while
-  //! GM A->B with both counts zero is silent (the served sequence remains
-  //! empty).
+  //! Canonical public sequence. A path has no identity without a GM. With a
+  //! GM, the engine publishes pathTrace itself from entry 0 (FPGA-gPTP #87,
+  //! #88): a received pathSequence as received, its head included, with
+  //! thisClock appended (#85), so an explicit one-entry `[GM]` PathTrace
+  //! publishes count two and an empty one `{thisClock}`. Without a TLV the
+  //! previous pathTrace stays (IEEE 802.1AS-2011 10.3.10.2.1 d)), so a GM
+  //! change on a TLV-less Announce serves the same sequence. `{thisClock}`,
+  //! count one, is this station's own path before a peer is elected and
+  //! after it departs (#82). Generation covers the COMPLETE sequence this
+  //! parent serves, entry 0 included, and nothing else: the scalar GM
+  //! publication stays independent, so GET_AVB_INFO, ADP and the GM-change
+  //! counter still observe every identity edge while the served path holds.
   logic [3:0] pub_path_count_next_w;
-  logic [7*64-1:0] pub_path_next_w;
+  logic [8*64-1:0] pub_path_next_w;
   always_comb begin : canonical_public_path
     pub_path_count_next_w = 4'd0;
     pub_path_next_w       = '0;
     if (|pub_gm_raw_w) begin
-      //! Clamp a hostile or future wider donor at the public seven-tail ABI
+      //! Clamp a hostile or future wider donor at the public eight-entry ABI
       //! boundary, then copy only identities selected by that count. Letting
       //! inactive bytes escape would spend a generation and manufacture a
       //! Table 5.22 event even though GET_AS_PATH serves the same sequence.
       pub_path_count_next_w = (pub_path_count_raw_w > 4'd8) ? 4'd8
           : pub_path_count_raw_w;
-      for (int unsigned pk = 0; pk < 7; pk++) begin
-        if (4'(pk + 2) <= pub_path_count_next_w)
+      for (int unsigned pk = 0; pk < 8; pk++) begin
+        if (4'(pk + 1) <= pub_path_count_next_w)
           pub_path_next_w[64*pk +: 64] = pub_path_raw_w[64*pk +: 64];
       end
     end
   end : canonical_public_path
-  //! The grandmaster participates in PathTrace identity only when entry zero
-  //! exists. Keep the scalar GM publication independent: GET_AVB_INFO, ADP and
-  //! the GM-change counter still observe every identity edge while an absent
-  //! PathTrace remains the same empty served sequence.
-  wire [63:0] pub_path_head_next_w = (|pub_path_count_next_w)
-      ? pub_gm_raw_w : 64'd0;
-  wire [63:0] pub_path_head_o_w = (|pub_path_count_o)
-      ? pub_gm_id_o : 64'd0;
-  wire pub_path_changed_w = (pub_path_head_next_w != pub_path_head_o_w)
-      || (pub_path_count_next_w != pub_path_count_o)
+  wire pub_path_changed_w = (pub_path_count_next_w != pub_path_count_o)
       || (pub_path_next_w != pub_path_o);
 
   //! Same-edge warning for AVTP talkers. A GM change or a healthy-to-unhealthy
@@ -705,6 +708,7 @@ module KL_gptp_shadow #(
       .txts_ok_i          (eng_txts_ok_w),
       .txts_gen_i         (eng_txts_gen_w),
       .tx_credit_i        (eng_tx_credit_w),
+      .port_enabled_i     (port_enabled_i),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),

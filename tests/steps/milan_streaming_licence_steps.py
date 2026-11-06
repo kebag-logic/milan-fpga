@@ -355,3 +355,21 @@ def step_tgt0_identity_override(context: Context) -> None:
                       ("eff_uid_w", "euid_r")):
         expr = context.ident[name]
         assert ("|%s" % reg) in expr.replace(" ", ""), (name, expr)
+
+
+@then("the integrated framer stamps the processor's current stream_id over any TCTX uid")
+def step_tgt0_identity_processor_owned(context: Context) -> None:
+    """With SID_PP_P the stamped stream_id is the processor's published one
+    for every talker, and milan_datapath sets it: a TCTX uid feeds only the
+    standalone derivation, so after a MAAP conflict moves an ID the wire, the
+    GET_STREAM_INFO answer and the PROBE_TX answer still name the same one."""
+    src = _strip_comments(_read(_PACKETIZER))
+    m = re.search(r"wire\s*\[63:0\]\s*stream_id_w\s*=\s*(.*?);", src, flags=re.S)
+    assert m, "no stream_id_w in KL_aaf_packetizer"
+    expr = "".join(m.group(1).split())
+    assert expr.startswith("SID_PP_P?stream_id_i["), expr
+    assert "euid_r" not in expr.split(":", 1)[0], expr
+    inst = re.search(r"KL_aaf_packetizer\s*#\((.*?)\)\s*aaf_packetizer\s*\(",
+                     _strip_comments(_read(_DATAPATH)), flags=re.S)
+    assert inst, "no aaf_packetizer instance in milan_datapath"
+    assert re.search(r"\.SID_PP_P\s*\(\s*1'b1\s*\)", inst.group(1)), inst.group(1)

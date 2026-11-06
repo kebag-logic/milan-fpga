@@ -233,8 +233,10 @@ void FabricGptpCsrHarness::identity_pairs_read_as_one_snapshot() {
 // inert: reads are zero and no write may forge the served path or advance
 // the engine-owned generation.
 //! Mutation bar for the fabric raw-empty contract: unlike option-off #227,
-//! the selected donor's count zero is not an alternate spelling of `[GM]`.
-//! CSR has no GM input and must pass the fabric owner tuple through exactly.
+//! the fabric's count zero is not an alternate spelling of `[GM]`. Since
+//! FPGA-gPTP #87 the fabric publishes count zero only while it has no
+//! grandmaster. CSR has no GM input and must pass the fabric owner tuple
+//! through exactly.
 void FabricGptpCsrHarness::fabric_raw_empty_owns_public_output() {
   dut->i_gptp_asp_count = 0;
   dut->i_gptp_asp_gen = 7;

@@ -356,7 +356,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! unlike the read-only descriptor image, an overlap here is silent
   //! corruption of whatever it lands on. The SoC derives BOTH bases from its
   //! own main_ram map and states why they cannot collide.
-  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000
+  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000,
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! KL_reboot_ctrl's two waits, in the datapath's milliseconds (the tick
+  //! AMR_MS_CYC_P clocks long): the saved-state drain bound and the PHY
+  //! hold before each IPROG. Product builds keep these values; the bound
+  //! and the reasons are in docs/design/REBOOT_RESET.md
+  parameter int REBOOT_DRAIN_MS_P = 10_000,
+  parameter int REBOOT_HOLD_MS_P  = 3_500,
+  //! the MAC's statement of its transmit side, from which KL_reboot_ctrl
+  //! derives how long the PHY hold may wait for the frames already in it.
+  //! The SoC states it from the FIFOs it builds; the defaults are the
+  //! assumption for a MAC that states nothing. First the most octets of
+  //! line time the MAC can owe: every buffer, each buffered frame's framing,
+  //! one maximum frame being sent
+  parameter int REBOOT_MAC_TX_OCTETS_P = 32_768,
+  //! ...and the slowest line rate it runs at, in Mbps
+  parameter int REBOOT_MAC_MIN_MBPS_P  = 10
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -566,6 +582,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                        //! (SoC syncs it into eth_tx/eth_rx as the MAC's
                                        //! eth-domain reset; released BEFORE o_mac_reinit)
   input  wire        i_full_duplex,
+  //! THE END-STATION RESET ON AN AECP REBOOT (#787, docs/design/REBOOT_RESET.md).
+  //! o_reboot_phy_hold is the reset-control bit: 1 = hold the PHY in reset
+  //! (the SoC sets the LiteEth PHY reset from it), rising once the saved
+  //! state has drained and every frame given to the MAC has reached its
+  //! PHY, and held until the reconfiguration. The ICAPE2 port carries the
+  //! IPROG sequence that reloads the configuration from flash: the SoC
+  //! instantiates the primitive on it, RDWRB tied to write.
+  output wire        o_reboot_phy_hold,
+  output wire        o_icap_csib,      //! ICAPE2 CSIB, active low
+  output wire [31:0] o_icap_i,         //! ICAPE2 I, bits of each byte reversed
+  //! async: the MAC flips it on the last octet of every frame it hands its
+  //! PHY (a reset-less toggle in the MAC's transmit domain). Tie 0 on a
+  //! build without a MAC: the REBOOT's egress wait then runs to its bound
+  input  wire        i_ethtxend_tgl,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -1457,6 +1487,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        lwsrp_adopt_valid;
   wire [7:0]  lwsrp_op_prio;
   wire [11:0] lwsrp_op_vid;
+  //! aaf_tx_sid_w: the AAF talkers' stamps, each source's current stream_id
+  //! from the processor (processor #202), declared ahead of aaf_packetizer,
+  //! its first reader (#193); assigned with crft_tx_sid_w below.
+  wire [N_STREAMS*64-1:0] aaf_tx_sid_w;
   // --------------------------------------------------------------------------
   //  THE TALKERS' CAPTURE-TO-WIRE TERMS (#773; Milan v1.2 5.3.7.6, IEEE
   //  1722-2016 4.3.3 Equation (1), 10.7 Equation (14)). Both outputs stamp
@@ -1520,7 +1554,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                       .LEAD_P        (1'b1),
                       .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
                       .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
-                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer (
+                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C),
+                      //! processor #202: stamp the processor's current ID,
+                      //! which no TCTX uid overrides
+                      .SID_PP_P      (1'b1)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
     .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
@@ -1541,6 +1578,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .vlan_pcp_i (lwsrp_adopt_valid ? lwsrp_op_prio[2:0]
                                    : SR_CLASS_A_PRIO_C[2:0]),
     .dom_ovr_i  (lwsrp_adopt_valid),
+    //! the processor's current stream_id per AAF source (sources 0 to
+    //! N_STREAMS - 1 are the AAF talkers, processor #202)
+    .stream_id_i (aaf_tx_sid_w),
     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
     //! t stamps its avtp_timestamp with ITS OWN entry t, as set (Milan v1.2
     //! 5.4.2.9; #632, pres_offset_fold below)
@@ -1627,7 +1667,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w;
   wire [31:0] gptp_pub_offset_w /* verilator public_flat_rd */;
-  wire [7*64-1:0] gptp_pub_path_w;
+  //! pathTrace entries 0..7 (FPGA-gPTP #87, #88). Entry 0, the received head
+  //! or thisClock, feeds GET_AS_PATH directly; the CSR's AS_PATH face keeps
+  //! its seven-entry width and takes entries 1..7.
+  wire [8*64-1:0] gptp_pub_path_w;
+  wire [63:0] gptp_pub_path_head_w = gptp_pub_path_w[63:0];
+  wire [7*64-1:0] gptp_pub_path_tail_w = gptp_pub_path_w[8*64-1:64];
   wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
   wire        gptp_pub_disc_w;
   wire signed [31:0] gptp_adj_w;
@@ -2273,31 +2318,36 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 selected PathTrace: the published tail GET_AS_PATH serves
-  //! behind the grandmaster. The notification edge is
-  //! derived below from the complete LIVE served sequence, not a raw CSR
-  //! generation. Product fabric mode preserves the donor's raw distinction:
-  //! count zero is an absent PathTrace and count one is `{thisClock}` before
-  //! a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
-  //! so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85).
-  //! The option-off shape has no path owner. Every owner aliases to empty while no
-  //! grandmaster exists.
-  //! Slot count DERIVED from the port width (one source, as the CSR does).
+  //! gh #64 J4 selected PathTrace: the pathTrace GET_AS_PATH serves. The
+  //! notification edge is derived below from the complete LIVE served
+  //! sequence, not a raw CSR generation. Product fabric mode serves the
+  //! engine's pathTrace from entry 0 (FPGA-gPTP #87, #88): a received
+  //! pathSequence as received, its head included, with thisClock appended
+  //! (#85), so an explicit one-entry `[GM]` PathTrace is count two. Without a
+  //! TLV the previous pathTrace stays; `{thisClock}`, count one, is this
+  //! station's own path before a peer is elected (#82). The option-off shape
+  //! has no path owner. Every owner aliases to empty while no grandmaster
+  //! exists.
+  //! Tail slot count DERIVED from the CSR port width (one source, as the CSR
+  //! does); entry 0 comes from the engine's head output beside it.
   wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
   wire [3:0]      asp_count_w /* verilator public_flat_rd */;
   wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
   localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
-  //! milan_csr owner-selects o_asp_*: the engine's complete committed
-  //! PathTrace in product mode and structural zero in option-off mode.
-  //! Fabric count zero means empty even with a separately known GM.
-  //! The conditional head below is the exact entry-zero value GET_AS_PATH
-  //! serves and the Table 5.22 comparator observes.
+  //! milan_csr owner-selects o_asp_*: entries 1..7 of the engine's complete
+  //! committed pathTrace in product mode and structural zero in option-off
+  //! mode. Entry 0 takes the same owner selection here. The conditional
+  //! head below is the exact entry-zero value GET_AS_PATH serves and the
+  //! Table 5.22 comparator observes: the received head, which need not be
+  //! the grandmaster (#88), or thisClock.
   wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w : 4'd0;
+  wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w
+                                                 : 64'd0;
   wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
       : asp_owner_count_w;
   wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
       : asp_path_w;
-  wire [63:0] asp_live_gm_w = (|asp_live_count_w) ? cfg_adp_gptp_gm
+  wire [63:0] asp_live_head_w = (|asp_live_count_w) ? asp_owner_head_w
       : 64'd0;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
@@ -2472,6 +2522,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the pending bit of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 6.1,
   //! published to a controller at PP_STAT[11]
   logic        pp_nvm_pend_w;
+  logic        pp_reboot_req_w;  //! the processor's REBOOT request (#203)
   logic [3:0]  pp_nvm_verdict_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
@@ -2482,7 +2533,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! talker_unique_id} law, the SAME 64 bits KL_aaf_packetizer stamps on the
   //! wire, with the CRF Media Clock Output's CSR override applied where the
   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
-  //! never disagree. Derive, never mirror.
+  //! never disagree. Derive, never mirror. This is each source's ID after
+  //! reset only: the processor moves a source after a MAAP conflict and
+  //! publishes the current IDs, which the stamps and GET_STREAM_INFO read
+  //! (pp_cd_src_stream_id_w, processor #202).
   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
   //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
   wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
@@ -2529,6 +2583,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [ACMP_SINKS_C*32-1:0] pp_cd_srp_acc_latency_w;
   wire [ACMP_SINKS_C*8-1:0]  pp_cd_srp_snk_fail_code_w;
   wire [ACMP_SRC_C-1:0]      pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
+  //! each source's CURRENT stream_id (processor #202): pp_src_sid_w after
+  //! reset, moved by the processor after a MAAP conflict. Every framer stamp
+  //! and the GET_STREAM_INFO stream_id of an output read THIS, never
+  //! pp_src_sid_w, so the wire, the GSI answer and the PROBE_TX answer agree.
+  wire [ACMP_SRC_C*64-1:0]   pp_cd_src_stream_id_w;
+  //! every source's stamp, index s at [64*s +: 64]: the one read of
+  //! pp_cd_src_stream_id_w the framers make, in every shape, so the split
+  //! placement carries it in one field, the mailbox's SRC_SID_LO / SRC_SID_HI
+  //! of source s (#665 decision 2 (a); #799)
+  wire [ACMP_SRC_C*64-1:0]   tx_sid_w;
+  //! ...and the CRF Media Clock Output's stamp: that source's current
+  //! stream_id where this shape has one, the CSR value otherwise
+  wire [63:0]                crft_tx_sid_w;
+  assign tx_sid_w = pp_cd_src_stream_id_w;
+  //! the AAF talkers are sources 0 to N_STREAMS - 1
+  assign aaf_tx_sid_w = tx_sid_w[N_STREAMS*64-1:0];
+  generate
+    if (ACMP_SRC_C > N_STREAMS) begin : g_crft_sid_pp
+      assign crft_tx_sid_w = tx_sid_w[64*CRF_TUID_C +: 64];
+    end else begin : g_crft_sid_csr
+      assign crft_tx_sid_w = eff_crft_sid_w;
+    end
+  endgenerate
   wire [ACMP_SINKS_C-1:0]    pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_eid_w;
   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_sid_w;
@@ -2687,7 +2764,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_gptp_gm_id         (gptp_pub_gm_w),
     .i_gptp_parent_id     (gptp_pub_parent_w),
     .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
-    .i_gptp_asp_path      (gptp_pub_path_w),
+    .i_gptp_asp_path      (gptp_pub_path_tail_w),
     .i_gptp_asp_count     (gptp_pub_path_count_w),
     .i_gptp_asp_gen       (gptp_pub_path_gen_w),
     .i_gptp_tap_drop      (gptp_tap_drop_w),
@@ -5966,9 +6043,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The MSRP_FAILURE_VALID and REGISTERING_FAILED flags stay this face's.
   //!
   //! HONESTY LEDGER (what this face says and why):
-  //!  - a sink is SETTLED when it is bound and its settled stream_id is
-  //!    nonzero (the binding view latches identity at settle and zeroes it
-  //!    at unbind); that gates the stream_id, DA and VLAN fields and flags.
+  //!  - an input's stream_id, DA and VLAN and their STREAM_ID_VALID,
+  //!    STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID flags are valid only
+  //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+  //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+  //!    see probing_status, so the PROCESSOR applies that rule to the words
+  //!    below (processor #206, #790): while its committed status is not
+  //!    PROBING_COMPLETED it clears 0x52000000 in selector 0 and answers
+  //!    0 for selector 2 and selector 4 [63:16]. This face's own gate,
+  //!    gsi_setl_w (bound, and the binding view's stream_id nonzero), is
+  //!    wider: the view latches the identity at settle and zeroes it only
+  //!    at unbind, so a sink back in probing still reads "settled" here.
+  //!  - an output's stream_id is the processor's CURRENT ID for that
+  //!    source, src_stream_id_o (processor #202: moved after a MAAP
+  //!    conflict), the one its frames carry and PROBE_TX answers; IEEE
+  //!    1722.1-2021 7.4.16.2, "the current id of the stream".
   //!  - stream_format at reset is the addressed ROW's generated declared
   //!    format (ADP_STRIN_FMT_C / ADP_STROUT_FMT_C - the config accepts
   //!    independent per-row format lists, so row 0's fact must never
@@ -6003,7 +6092,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! so a concurrent PUBLISH can select the next response but cannot splice
   //! its bytes into one already in flight.
   logic        gsi_req_q_r;
-  logic [63:0] asp_resp_gm_r;
+  logic [63:0] asp_resp_head_r;
   logic [3:0]  asp_resp_count_r;
   logic [7*64-1:0] asp_resp_path_r;
   logic [63:0] gsi_gm_snap_r;
@@ -6036,7 +6125,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsiq_sel_r  <= 4'd0;  gsiq_ord_r  <= 8'd0;
       gsi_srv1_r  <= 1'b0;  gsi_srv2_r  <= 1'b0;  gsi_data_r <= 64'd0;
       gsi_req_q_r <= 1'b0;
-      asp_resp_gm_r <= 64'd0;
+      asp_resp_head_r <= 64'd0;
       asp_resp_count_r <= 4'd0;
       asp_resp_path_r <= '0;
       gsi_gm_snap_r     <= 64'd0;
@@ -6057,7 +6146,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
       if (asp_resp_capture_w) begin
-        asp_resp_gm_r    <= asp_live_gm_w;
+        asp_resp_head_r  <= asp_live_head_w;
         asp_resp_count_r <= asp_live_count_w;
         asp_resp_path_r  <= asp_live_path_w;
       end
@@ -6142,7 +6231,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : gsi_flag_law
 
   wire [47:0] gsi_odmac_w = maap_addr + 48'(gsi_ix_w);
-  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
+  wire [63:0] gsi_osid_w  = pp_cd_src_stream_id_w[64*gsi_oix_w +: 64];
 
   //! ---- the SET_STREAM_FORMAT verdict (kind 0 selector 15, issue #67) ----
   //! The processor presents the PROPOSED format on `pp_gsi_prop_fmt_w` and
@@ -6281,17 +6370,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end
 
   //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
-  //! Entry 0, when count is nonzero, is the selected owner's grandmaster;
-  //! entries 1.. are its PathTrace tail. No grandmaster is always empty. With
-  //! a fabric GM, count zero is also empty because the selected Announce had
-  //! no PathTrace TLV. Option-off aliases are structural zero, so software
-  //! writes cannot create either a count or an entry.
+  //! Entry 0, when count is nonzero, is the head of the selected owner's
+  //! pathTrace: the received head, never replaced by the grandmaster identity
+  //! (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #88), or thisClock; entries
+  //! 1.. follow it. No grandmaster is always empty. Option-off aliases are
+  //! structural zero, so software writes cannot create either a count or an
+  //! entry.
   wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
     asp_served_entry_w = 64'd0;
     if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
-      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_gm_r;
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;
       else
         for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
           if (32'(gsiq_ord_r) == k)
@@ -6439,10 +6529,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! strobe or the unconditional grandmaster-identity edge.
   //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
   //! and this fabric serves that sequence from one selected owner. Compare
-  //! exactly `(count ? GM : 0, count, active tails)`, not a raw publication
-  //! generation. Thus fabric count 0 <-> 1 is a real sequence edge; GM A->B
-  //! while both fabric counts are zero is silent; every tail aliases to empty
-  //! while GM=0. Option OFF is ownerless and has no staging state to compare.
+  //! exactly `(count ? entry 0 : 0, count, active tails)`, not a raw
+  //! publication generation. Thus a GM A->B on a TLV-less Announce, which
+  //! keeps the previous pathTrace (FPGA-gPTP #87), is silent; every entry
+  //! aliases to empty while GM=0. Option OFF is ownerless and has no staging
+  //! state to compare.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -6454,7 +6545,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! All of these are one-cycle strobes; the processor coalesces them into
   //! one push per class.
   logic gsi_ascap_q_r;
-  logic [63:0] gsi_asp_gm_q_r;
+  logic [63:0] gsi_asp_head_q_r;
   logic [3:0] gsi_asp_count_q_r;
   logic [7*64-1:0] gsi_asp_path_q_r;
   logic gsi_snap_v_r;
@@ -6464,7 +6555,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   always_ff @(posedge axis_clk) begin : gsi_change_edges
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
-      gsi_asp_gm_q_r <= 64'd0;
+      gsi_asp_head_q_r <= 64'd0;
       gsi_asp_count_q_r <= 4'd0;
       gsi_asp_path_q_r  <= '0;
       gsi_snap_v_r  <= 1'b0;
@@ -6473,7 +6564,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsi_dom_q_r   <= 8'd0;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
-      gsi_asp_gm_q_r <= asp_live_gm_w;
+      gsi_asp_head_q_r <= asp_live_head_w;
       gsi_asp_count_q_r <= asp_live_count_w;
       gsi_asp_path_q_r  <= asp_live_path_w;
       gsi_snap_v_r  <= 1'b1;
@@ -6491,10 +6582,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
                             || (cfg_adp_gptp_domain != gsi_dom_q_r)));
   //! One source for the event and the answer: compare the complete served
-  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge, but
-  //! AS_PATH sees the GM only when its count makes entry zero present.
+  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge;
+  //! AS_PATH sees entry 0, not the GM, and only when its count makes it present.
   wire gsi_asp_chg_w = gsi_snap_v_r
-                    && ((asp_live_gm_w != gsi_asp_gm_q_r)
+                    && ((asp_live_head_w != gsi_asp_head_q_r)
                         || (asp_live_count_w != gsi_asp_count_q_r)
                         || (asp_live_path_w != gsi_asp_path_q_r));
 
@@ -7453,7 +7544,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w),
     //! licence-gated, never the bare CSR bit: see crft_emit_en_w
     .enable_i      (crft_emit_en_w),
-    .sid_i         (eff_crft_sid_w),
+    .sid_i         (crft_tx_sid_w),
     .dest_mac_i    (eff_crft_dmac_w),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
@@ -8836,6 +8927,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .epi_busy_i      (linkg_epi_busy_w),
         .epi_dis_i       (cfg_linkg_dis),
         .recov_req_o     (gptp_recov_req_w),
+        //! portEnabled: the effective link, the PHY link (synchronised into
+        //! axis_clk by the SoC) gated by LINK_CTRL[0] and the link guard's
+        //! estimate, all axis_clk levels, so the plane needs no synchroniser
+        //! (FPGA-gPTP #94)
+        .port_enabled_i  (eff_link_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),
@@ -8977,8 +9073,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! silicon" root cause). The remaining MAC-internal lanes pass through from
   //! i_mac_events; its good-frame bits are ignored to make double-counting
   //! structurally impossible.
-  wire tx_mac_good_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready
-                     & m_axis_mac_tx_tlast;
+  //! an accepted beat, and an accepted `tlast` beat; KL_reboot_ctrl's egress
+  //! account counts frames in on the same two terms (#787)
+  wire tx_mac_beat_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
+  wire tx_mac_good_w = tx_mac_beat_w & m_axis_mac_tx_tlast;
   wire rx_mac_good_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready
                      & s_axis_mac_rx_tlast;
   logic [_ETH_EVENT_COUNTER-1:0] mac_events_w;
@@ -9370,6 +9468,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
       //! and 5.4.2.28 prohibit local map changes while it is asserted.
       .aecp_lock_held_o    (aecp_locked),
+      .reboot_req_o        (pp_reboot_req_w),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),
@@ -9602,6 +9701,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .srp_acc_latency_o       (pp_cd_srp_acc_latency_w),
       .srp_snk_fail_code_o     (pp_cd_srp_snk_fail_code_w),
       .acmp_declaring_o        (pp_cd_acmp_declaring_w),
+      .src_stream_id_o         (pp_cd_src_stream_id_w),
       .acmp_bound_o            (pp_cd_acmp_bound_w),
       .acmp_bound_eid_o        (pp_cd_acmp_bound_eid_w),
       .acmp_bound_sid_o        (pp_cd_acmp_bound_sid_w),
@@ -9640,6 +9740,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .maap_conflicts_o        (pp_maap_int_confl_nc_w),
       .maap_defends_o          (pp_maap_int_dfnd_nc_w),
       .dbg_now_ms_o      ()
+    );
+
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! The processor's held request becomes a configuration reload from flash
+  //! once the saved state has drained and the MAC has sent every frame it
+  //! was given (KL_reboot_ctrl's banner). The waits count the datapath's
+  //! millisecond tick, the map writer's amr_tick_r. The account sees the
+  //! MAC port itself, and the flush is the link guard's episode with both
+  //! the MAC's sys side and its eth side held in reset.
+  KL_reboot_ctrl #(
+      .T_DRAIN_MS_P    (REBOOT_DRAIN_MS_P),
+      .T_HOLD_MS_P     (REBOOT_HOLD_MS_P),
+      .MAC_TX_OCTETS_P (REBOOT_MAC_TX_OCTETS_P),
+      .MAC_MIN_MBPS_P  (REBOOT_MAC_MIN_MBPS_P)
+    ) reboot_ctrl (
+      .clk_i           (axis_clk),
+      .rst_n           (axis_resetn),
+      .ms_tick_i       (amr_tick_r),
+      .reboot_req_i    (pp_reboot_req_w),
+      .nvm_backed_i    (pp_nvm_backed_w),
+      .nvm_dirty_i     (pp_nvm_dirty_w),
+      .nvm_pend_i      (pp_nvm_pend_w),
+      .mac_tx_beat_i   (tx_mac_beat_w),
+      .mac_tx_frame_i  (tx_mac_good_w),
+      .mac_txend_tgl_i (i_ethtxend_tgl),
+      .mac_flush_i     (linkg_reinit_w & linkg_eth_rst_w),
+      .phy_hold_o      (o_reboot_phy_hold),
+      .icap_csib_o     (o_icap_csib),
+      .icap_i_o        (o_icap_i)
     );
 
   //! ------------------------------------------------------------------

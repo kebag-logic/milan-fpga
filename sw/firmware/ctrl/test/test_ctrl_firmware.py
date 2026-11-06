@@ -79,6 +79,12 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
   aecp     the complete command, notification and saved-state owner, composed
            with ACMP and SRP at one and two interfaces; every generated AEM
            image, mailbox completion ordering, latency and debug guards.
+  plat, platboot, platrv32, plattrace
+           the split platform (plat_arms.py): its CSR window, console and MMIO
+           on host buses; its boot and composition at one and two interfaces
+           on the models; the whole platform cross-compiled for RV32I; and its
+           CSR initialisation against milan_baremetal.c's, every shipped
+           config, with planted controls.
 
 Every arm but rv32, srpcmp and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.
@@ -135,6 +141,7 @@ import srp_mutants  # noqa: E402
 import srp_pub_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
+import plat_arms  # noqa: E402
 import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree, stack_pin  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
@@ -177,6 +184,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
+    outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))
     return outcomes
 
 
@@ -239,6 +247,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
                           "srp_latency.cpp", "srp_walk.cpp"):
                 outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
         outcomes.extend(aecp_arms.all_arms(tree))
+        outcomes.extend(plat_arms.coverage_arms(tree))
     except Refusal as exc:
         print(f"REFUSED: {exc}")
         return 2

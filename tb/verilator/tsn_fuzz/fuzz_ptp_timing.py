@@ -63,6 +63,32 @@ class PtpTimingSections:
             self.rep.eq("%s: parser drop counter unmoved" % label,
                         after[S_RXDROP], before[S_RXDROP])
 
+    def _btca_adopt(self, label, **kw):
+        """One legal better vector a retired PathTrace rule once refused:
+        802.1AS-2011 10.3.10.2.1 disqualifies only by its a) to c)
+        (FPGA-gPTP #88), so the plane adopts it and counts no drop. The
+        rejection probes' master sent no Sync, so one usable pair is heard
+        as master first (FPGA-gPTP #89, as for the 12-hop vector below)."""
+        self.become_gm()
+        self._sync_pair(0)
+        kw.setdefault("gm_identity", 0x2222)
+        kw.setdefault("source_clock_identity", PEER2_CID)
+        kw.setdefault("src", wire.GPTP_PEER2_MAC)
+        f = wire.ptp_announce(sequence_id=self.nseq("announce"),
+                              gm_priority1=1, **kw)
+        before = self.state()
+        self.send(f)
+        self.tick(2)
+        after = self.state()
+        self.rep.eq("%s: adopted" % label, self.gm_of(after),
+                    kw["gm_identity"])
+        self.rep.eq("%s: parent follows its source" % label,
+                    self.parent_of(after), kw["source_clock_identity"])
+        self.rep.eq("%s: no longer grandmaster" % label,
+                    after[S_FLAGS] & FL_AMGM, 0)
+        self.rep.eq("%s: parser drop counter unmoved" % label,
+                    after[S_RXDROP], before[S_RXDROP])
+
     def _btca_rejects(self):
         """Every illegal better vector this campaign knows, refused in turn."""
         # parser-owned rejects: bad_r drops them at the header, counted, and
@@ -80,12 +106,11 @@ class PtpTimingSections:
         # at or above 255 -- the field is 16 bits, so its LOW BYTE is not
         # the test -- and (c) our identity anywhere in the path trace, which
         # is the loop an end station meets without forgery: our own Announce
-        # returned by a bridge. Since the donor's strict PathTrace
-        # validation (FPGA-gPTP #45; 802.1AS-2011 10.5.3.3.4) a present TLV
-        # must open with the announced grandmasterIdentity and carry
-        # exactly stepsRemoved+1 identities, so every fixture below is
-        # wire-legal under those rules and lands its refusal in the
-        # MICROCODE, where the drop counter holding is what places it
+        # returned by a bridge. Since FPGA-gPTP #88 neither a present TLV's
+        # head nor its identity count disqualifies (10.3.10.2.1 lists only
+        # a) to c); 10.5.3.3.4 gives N = stepsRemoved+1 as a NOTE), so every
+        # fixture below lands its refusal in the MICROCODE, where the drop
+        # counter holding is what places it
         self._btca_reject("better vector, own sourcePortIdentity (10.3.10.2.1a)",
                      None, drop=None, source_clock_identity=OUR_CID,
                      src=wire.GPTP_PEER2_MAC)
@@ -143,20 +168,20 @@ class PtpTimingSections:
         self._btca_reject("better vector, our own Announce reflected: us the "
                      "only path-trace hop (10.3.10.2.1c)", None, drop=None,
                      gm_identity=OUR_CID, path_trace=[OUR_CID])
-        # the strict wire rules themselves (FPGA-gPTP #45; 10.5.3.3.4):
-        # a head that is not the announced grandmaster, a count that is not
-        # stepsRemoved+1, and the old wire-illegal (b) shape. Each is
-        # refused AT THE PARSER, a counted header drop, before
-        # qualifyAnnounce sees a bank
-        self._btca_reject("better vector, path-trace head is not the announced "
-                     "grandmaster (10.5.3.3.4)", None, drop=1,
-                     gm_identity=0x3333, path_trace=[0x5555])
-        self._btca_reject("better vector, one path-trace hop against "
-                     "stepsRemoved 1 (10.5.3.3.4)", None, drop=1,
-                     gm_identity=0x3333, steps_removed=1,
-                     path_trace=[0x3333])
+        # the retired strict wire rules (FPGA-gPTP #45, retired by #88): a
+        # head that is not the announced grandmaster and a count that is
+        # not stepsRemoved+1 both qualify, so each such better vector is
+        # adopted with no parser drop. stepsRemoved 255 on a one-hop path
+        # is refused by (b) in the microcode, with no parser drop either
+        self._btca_adopt("better vector, path-trace head is not the announced "
+                         "grandmaster (10.3.10.2.1)", gm_identity=0x3333,
+                         path_trace=[0x5555])
+        self._btca_adopt("better vector, one path-trace hop against "
+                         "stepsRemoved 1 (10.3.10.2.1)", gm_identity=0x3333,
+                         steps_removed=1, path_trace=[0x3333])
         self._btca_reject("better vector, stepsRemoved 255 on a one-hop path "
-                     "trace (10.5.3.3.4)", None, drop=1, steps_removed=255)
+                     "trace (10.3.10.2.1b)", None, drop=None,
+                     steps_removed=255)
 
     def btca(self) -> None:
         """Only a legal better vector moves the grandmaster: each
@@ -200,12 +225,18 @@ class PtpTimingSections:
                     after[S_RXDROP], before[S_RXDROP] + 1)
 
         # a legal deep path trace is capped at 8 published hops but adopts;
-        # wire-legal means the announced grandmaster heads the path and the
-        # count is stepsRemoved+1 (10.5.3.3.4). Until #217 this 164-octet
+        # its head and count are the conventional ones, the announced
+        # grandmaster and stepsRemoved+1, though since FPGA-gPTP #88 neither
+        # is required. Until #217 this 164-octet
         # frame was also the campaign's only above-minimum Announce
         # acceptance; the suffix_accept section now carries that duty by
-        # name, so this fixture may be reshaped for the cap's own reasons
+        # name, so this fixture may be reshaped for the cap's own reasons.
+        # FPGA-gPTP #89: the rejection probes' master sent no Sync, so the
+        # sync receipt timeout aged the port, and only a received Sync
+        # clears that (802.1AS-2011 10.3.11 with Cor1): one usable pair is
+        # heard as master first
         self.become_gm()
+        self._sync_pair(0)
         after = self.send(wire.ptp_announce(
             sequence_id=self.nseq("announce"), gm_identity=0x4444,
             gm_priority1=50, source_clock_identity=PEER2_CID,
@@ -308,8 +339,11 @@ class PtpTimingSections:
         self.rep.section("sync consumption: clean pairs move the servo, "
                          "malformed ones cannot")
 
-        # adopt GMID and settle a clean baseline before the servo probes
+        # adopt GMID and settle a clean baseline before the servo probes;
+        # the BTCA section's last master was aged by the sync receipt
+        # timeout, so one usable pair is heard as master first (#89)
         self.master = (GMID, 100)
+        self._sync_pair(0)
         self.refresh_master()
         self.tick(2)
         st = self._sync_pair(1000)

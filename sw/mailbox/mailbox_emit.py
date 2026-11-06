@@ -256,34 +256,9 @@ def _intro(contract: Contract) -> list[str]:
     ]
 
 
-def emit_doc(contract: Contract) -> str:
-    """MAILBOX_CONTRACT.md: the human tables and the machine-checked constant table."""
-    lines = _intro(contract)
-    lines += ["## Registers", ""]
-    lines += _register_section("Global registers", contract.registers,
-                               "Byte offsets from the window base.")
-    lines += _register_section(
-        "Interface registers", contract.if_registers,
-        f"Interface i's block starts at `0x{contract.if_base:03X} + 0x{contract.if_stride:X} * i`.")
-    lines += _register_section(
-        "Interface filter registers", contract.iff_registers,
-        f"Interface i's filter block starts at `0x{contract.iff_base:03X} + 0x{contract.iff_stride:X} * i`.")
-    lines += _register_section(
-        "Interface bound-talker registers", contract.bnd_registers,
-        f"Interface i's bound-talker table starts at `0x{contract.bnd_base:03X} + 0x{contract.bnd_stride:X} * i`, "
-        f"and its entry e at `0x{contract.bnd_entry_stride:X} * e` inside it, for {contract.bound_talkers} entries "
-        "(one per listener stream). An `eq_bound` term reads the table of the interface the frame arrived on.")
-    lines += _register_section(
-        "Interface publication registers", contract.pub_registers,
-        f"Interface i's publication block starts at `0x{contract.pub_base:03X} + 0x{contract.pub_stride:X} * i`. "
-        f"Bit s of a source field is source s, for {contract.pub_sources} sources. "
-        "The firmware owner writes each value before the response that promises it; "
-        "the datapath reads interface i's block through `KL_mbx`'s `pub_*_o` ports.")
-    lines += _register_section(
-        "Interface publication sink registers", contract.pub_sink_registers,
-        f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
-        f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "
-        "A hole, a sink past the last and an interface the build does not have read 0 and take no write.")
+def _face_sections(contract: Contract) -> list[str]:
+    """The face block's three register sections, its windows and its COUNTERS_CHANGED descriptors (#665)."""
+    lines: list[str] = []
     lines += _register_section(
         "Interface face registers", contract.face_registers,
         f"Interface i's face block starts at `0x{contract.face_base:04X} + 0x{contract.face_stride:X} * i`. "
@@ -312,6 +287,43 @@ def emit_doc(contract: Contract) -> str:
               "", "| Family | descriptor_type | Entries |", "|---|---|---:|"]
     lines += [f"| `{s.name}` | `0x{s.type:04X}` | {s.count} |" for s in contract.ctrchg_sources]
     lines.append("")
+    return lines
+
+
+def emit_doc(contract: Contract) -> str:
+    """MAILBOX_CONTRACT.md: the human tables and the machine-checked constant table."""
+    lines = _intro(contract)
+    lines += ["## Registers", ""]
+    lines += _register_section("Global registers", contract.registers,
+                               "Byte offsets from the window base.")
+    lines += _register_section(
+        "Interface registers", contract.if_registers,
+        f"Interface i's block starts at `0x{contract.if_base:03X} + 0x{contract.if_stride:X} * i`.")
+    lines += _register_section(
+        "Interface filter registers", contract.iff_registers,
+        f"Interface i's filter block starts at `0x{contract.iff_base:03X} + 0x{contract.iff_stride:X} * i`.")
+    lines += _register_section(
+        "Interface bound-talker registers", contract.bnd_registers,
+        f"Interface i's bound-talker table starts at `0x{contract.bnd_base:03X} + 0x{contract.bnd_stride:X} * i`, "
+        f"and its entry e at `0x{contract.bnd_entry_stride:X} * e` inside it, for {contract.bound_talkers} entries "
+        "(one per listener stream). An `eq_bound` term reads the table of the interface the frame arrived on.")
+    lines += _register_section(
+        "Interface publication registers", contract.pub_registers,
+        f"Interface i's publication block starts at `0x{contract.pub_base:03X} + 0x{contract.pub_stride:X} * i`. "
+        f"Bit s of a source field is source s, for {contract.pub_sources} sources. "
+        "The firmware owner writes each value before the response that promises it; "
+        "the datapath reads interface i's block through `KL_mbx`'s `pub_*_o` ports.")
+    lines += _register_section(
+        "Interface publication source registers", contract.pub_source_registers,
+        f"Source s's entry starts at `0x{contract.pub_source_base:X} + 0x{contract.pub_source_stride:X} * s` inside "
+        f"interface i's publication block, for {contract.pub_sources} sources (one per talker stream). "
+        "A source past the last reads 0 and takes no write.")
+    lines += _register_section(
+        "Interface publication sink registers", contract.pub_sink_registers,
+        f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
+        f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "
+        "A hole, a sink past the last and an interface the build does not have read 0 and take no write.")
+    lines += _face_sections(contract)
     lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")

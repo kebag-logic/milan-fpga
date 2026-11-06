@@ -137,6 +137,9 @@ class ModelBench {
         out.priority = v.priority;
         out.adopted = v.adopted ? 1u : 0u;
         out.talker_decl = v.talker_decl;
+        for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            out.src_sid.push_back(v.src_sid[s]);
+        }
         for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
             out.bound |= (v.bound[k] ? 1u : 0u) << k;
             out.started |= (v.started[k] ? 1u : 0u) << k;

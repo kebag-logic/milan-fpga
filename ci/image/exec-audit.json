@@ -1203,6 +1203,13 @@
       "name": "placement.tcl",
       "reason": "The placement self-test's census driver: a stubbed module-identity query and the census Tcl of syn/ooc/pp_placement.py for one placement, report stage and role reversal; it installs and fetches nothing."
     },
+    "57b84e8b6456d19c45c22d28b481f1565e5f929c788edd362e0dfe72bbfa2059": {
+      "generator": "scripts/run_litex_sims.sh",
+      "interpreter": "python",
+      "kind": "script",
+      "name": "test_soc_timing_cuts.py",
+      "reason": "A stand-in for simulation 'test_soc_timing_cuts' that the LiteX simulation aggregate's self-test writes into a sandbox tree: a trivial passer, or one arm's planted failure, masked verdict, member-declared skip or sleep past the time limit; it prints a verdict or sleeps, and it installs and fetches nothing."
+    },
     "58639669505cead56d248e9d9312d77ac10d39b7956e205d75e0e882d6f2c395": {
       "generator": "syn/ooc/pp_placement_selftest.py",
       "interpreter": "tclsh",

@@ -34,7 +34,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
-- **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's exclusion, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
+- **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's and REBOOT request's exclusions, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
@@ -94,7 +94,7 @@ subtype.
 `--check` regenerates every output in memory and fails on any byte of drift.
 `--crosscheck` reads the three constant carriers back by name and fails on a
 field mismatch between them, whatever produced it. `--selftest` plants a
-mismatch into each output (32 arms) and a defect into the YAML (43 arms), and
+mismatch into each output (35 arms) and a defect into the YAML (49 arms), and
 requires each to be caught, after a clean positive control. It also builds
 the two-interface variant the suite uses, which must cross-check clean, and
 requires a four-interface one, whose blocks would overlap the global
@@ -817,6 +817,8 @@ ruling on [#665 (6088423771)](https://github.com/kebag-logic/milan-fpga/issues/6
 decision 2 (a), puts every class-D value the datapath reads on the wire in a
 block of the mailbox window, contract 2.2
 ([reference](../reference/MAILBOX_CONTRACT.md#interface-publication-registers)).
+Contract 2.4 adds a source entry per talker stream for the stream_id it
+declares (#799, the ruling on its STOP, comment 6460917634).
 Firmware writes each value before the response that promises it
 ([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
 datapath of the split placement reads the block through `KL_mbx`'s `pub_*_o`
@@ -834,6 +836,7 @@ after F5. The all-fabric build carries no mailbox, so it is unchanged; the
 | Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
 | idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
 | SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
+| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | none yet: the split firmware's talker owner (#665) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
 
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads
@@ -988,10 +991,10 @@ or a read's classes of cone end (the wire, CSR read-back, the answer face)
 that is not the same in every shape fails. Which CSR input or which
 instance's input a cone ends at is not compared: from four streams up, the
 AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
-one-stream shape builds. At this head every shape has the same 25 population
-nets and the same 39 reads, and four nets are unread. Of the 39 reads, 10 are
-on the wire and map to the block, 14 are CSR status, and 15 are the answer
-face: the same reads and kinds the text census counted before.
+one-stream shape builds. At this head every shape has the same 26 population
+nets and the same 41 reads, and four nets are unread. Of the 41 reads, 11 are
+on the wire and map to the block, 14 are CSR status, and 16 are the answer
+face.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
 the shapes' and the tools' included, 31 in all, and the port census's 12
@@ -1114,16 +1117,16 @@ contract 2.3, an additive minor: no register, field or ring of 2.2 moves.
 [`census_ports.py`](../../sw/mailbox/census_ports.py) names each port of the
 `pp_shadow` cell, inputs and outputs, under exactly one class, and the
 publication census judges the table on the netlist of each of the six
-shapes. At this head the cell has 217 ports in every shape:
+shapes. At this head the cell has 219 ports in every shape:
 
 | Class | Ports | What it means | Its carrier, which must exist |
 |---|---:|---|---|
-| C | 25 | class-D, already in contract 2.2's [publication block](#the-publication-block) | exactly the class-D census's population |
+| C | 26 | class-D, already in contract 2.2's [publication block](#the-publication-block) or 2.4's source entries | exactly the class-D census's population |
 | F | 28 | a setting or status level the firmware writes | a `REGISTER.FIELD` of the face block |
 | R | 34 | a request and answer window that keeps the datapath's answer logic unchanged | the window's `REGISTER.FIELD` |
 | E | 6 | an event record | its event type, or `EVENT.Wn.FIELD` |
 | M | 14 | a frame or event path the placement switch connects | the `KL_mbx` port it reaches |
-| G | 110 | gone with the wrapper, tied to its reset value | its ruled reason |
+| G | 111 | gone with the wrapper, tied to its reset value | its ruled reason |
 
 An F, R or E carrier must be as wide as its port, per source or per sink
 where the row says so, for no more streams than the contract carries. A G
@@ -1139,9 +1142,10 @@ terminals end it, each named by cell and port:
 - an input of `pp_maap_shim`, accepted only while each of that cell's own
   outputs reaches inputs of `pp_shadow` alone.
 
-Every other end is the wire, and a G output that reaches it fails. At this
-head, in every shape, the G cones end at 7 distinct CSR inputs, all 20 memory
-outputs and 4 shim inputs, and never on the wire.
+Every other end is the wire, and a G output that reaches it fails, except at
+the two exclusions below. At this head, in every shape, the G cones end at 7
+distinct CSR inputs, all 20 memory outputs, 4 shim inputs and the REBOOT
+terminal, and never on the wire.
 
 The ruling's item 1 settles the #637 map record face. `mrec_*`,
 `amap_unflushed_i` and `amap_alarm_i` are G: in the split the firmware's AECP
@@ -1153,23 +1157,35 @@ G cone of the shape, and each must be a net of the map writer. **Acceptance
 item of the placement switch:** its split elaboration drops the exclusion,
 and the census passes without it.
 
+The ruling
+[6554243203](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6554243203)
+settles the AECP REBOOT request, `reboot_req_o` (#787). It drives
+`KL_reboot_ctrl`, which stays in the datapath and runs the drain, the egress
+wait, the PHY hold and the configuration reload. In the split the firmware's
+AECP owner takes REBOOT, and the split has no carrier for the request yet. So
+`reboot_req_o` is G, and its cone stops at the one cell input
+`REBOOT_TERMINAL` names, `reboot_ctrl.reboot_req_i`, and at no other input of
+that cell. A second consumer of the same net is still the wire. **Acceptance
+item of the placement switch:** it gives REBOOT its carrier, drops this
+exclusion, and the census passes without it.
+
 The census's 12 new rules (`port-*`, `g-*` in
 [`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
-[`census_plants.py`](../../sw/mailbox/census_plants.py), 18 in all. Eight
+[`census_plants.py`](../../sw/mailbox/census_plants.py), 19 in all. Eight
 edit the table: a port no class names, a port two classes name, a row for a
 port the wrapper lacks, a class-C row the class-D census does not hold, an F
 and an M carrier that does not exist, an F carrier narrower than its port and
-a per-sink carrier counted once. Three edit the exclusion: emptied, so the
-map writer's cones reach the wire, and naming a net no G cone reaches or a
-net outside the map writer. Seven edit the elaborated netlist itself: a G
-output read by another module's input; the nets of a CSR terminal, a
-memory-master terminal and a map-record output each also read past it; a
-MAAP shim output read past `pp_shadow`; a G output on a CSR input outside
-`G_CSR`; and one driven onto a datapath output outside `G_MEMORY`. The ruling
-asks for the new arms on existing netlists: each rides
-on an arm that already elaborates the tracked sources at the recipe's shape,
-so they add no elaboration, and the rule-removal check judges each of them
-again with its rule removed.
+a per-sink carrier counted once. Three edit the map writer's exclusion:
+emptied, so the map writer's cones reach the wire, and naming a net no G cone
+reaches or a net outside the map writer. Eight edit the elaborated netlist
+itself: a G output read by another module's input; the nets of a CSR
+terminal, a memory-master terminal, a map-record output and the REBOOT
+request each also read past it; a MAAP shim output read past `pp_shadow`; a
+G output on a CSR input outside `G_CSR`; and one driven onto a datapath
+output outside `G_MEMORY`. The ruling asks for the new arms on existing
+netlists: each rides on an arm that already elaborates the tracked sources
+at the recipe's shape, so they add no elaboration, and the rule-removal
+check judges each of them again with its rule removed.
 
 ### The face block
 
@@ -1337,15 +1353,15 @@ them:
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of 21 of the 25 class-D nets (4 are unread), and each of the wrapper cell's 217 ports in one class (C 25, F 28, R 34, E 6, M 14, G 110), every G output's cone ending only at its terminals; its self-test's 138 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 18, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 523 at one interface and 530 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 568 at one interface, 575 at two |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 139 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 525 at one interface and 532 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 570 at one interface, 577 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
-| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.4), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
 | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
-| the same suite on the host model, in `make run-if2` | the 488 of the RTL's 530 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the same suite on the host model, in `make run-if2` | the 490 of the RTL's 532 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
@@ -1589,6 +1605,11 @@ unread, but the registers stay for their read-back, and the placement switch
 connects them. Each `fw_*_o` entry is its own port, which the datapath reads
 in parallel, so the entries stay in flip-flops.
 
+Contract 2.4's sixteen source entries (#799) add 1,024 bits of storage at
+one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
+read-back. They were not measured with this recipe. No shipping build
+carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
@@ -1631,6 +1652,12 @@ report_timing_summary -delay_type max
   switch connects each `fw_*_o`, window and event port to the split
   datapath, with its clock crossing, and its split elaboration must pass the
   port census without the map writer's exclusion
+  ([Every port, one class](#every-port-one-class)).
+- **The AECP REBOOT request** (#787) has no carrier in the split: the
+  firmware's AECP owner takes REBOOT, and the placement switch gives the
+  request its carrier, a face-block level being the expected end state (the
+  ruling of comment 6554243203). Its split elaboration must then pass the
+  port census without the REBOOT exclusion
   ([Every port, one class](#every-port-one-class)).
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
