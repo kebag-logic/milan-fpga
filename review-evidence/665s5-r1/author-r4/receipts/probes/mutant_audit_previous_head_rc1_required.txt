@@ -1,0 +1,434 @@
+HEAD 3f8caae5eca7e681c3452eacdd818d1033a89f8d
+$ python3 -B <management>/665s5-a702e/scripts/mutant_audit.py <tmp>/clone-prev <management>/665s5-a702e/scripts/mutant_rules.json
+own rule | bound: a stale T_svc of 10 ms | check: bounds pinned
+    fires L100 [assertion] expect(hooks.T_SVC_MS == 20.0, f'T_svc is {hooks.T_SVC_MS}')
+          words: T_svc is 10.0
+    then  L102 [assertion] expect(got == BOUNDS, f'bounds {got}')
+    escapes after 2 deletion(s)
+own rule | bound: SRP graded against T_svc alone | check: an 18 to 20 ms SRP path misses
+    fires L109 [assertion] expect(not run.hook_row(row('srp', 19.0), 'srp')['within'], 'a 19 ms SRP path fits')
+          words: a 19 ms SRP path fits
+    escapes after 1 deletion(s)
+own rule | bound: the ceiling alone | check: bounds pinned
+    fires L102 [assertion] expect(got == BOUNDS, f'bounds {got}')
+          words: bounds {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
+    escapes after 1 deletion(s)
+own rule | bound: the normative wait is not added | check: the exact bound fits and W adds
+    fires L119 [assertion] expect(r['within'] and r['bound_ms'] == 218.0, f'W + bound: {r}')
+          words: W + bound: {'hook': 'H-SRP', 'group': 'srp', 'probe': 'x.if0', 'path': 'x', 'row': 'r', 'interface': 0, 'family': 'srp', 'ms': 210
+    then  L123 [assertion] expect(r['margin_ms'] == 20.0, f'margin {r["margin_ms"]}')
+    escapes after 2 deletion(s)
+OFF RULE | bound: the margin is not recorded | check: the exact bound fits and W adds
+    fires L123 [assertion] expect(r['margin_ms'] == 20.0, f'margin {r["margin_ms"]}')
+          words: margin -160.0
+    escapes after 1 deletion(s)
+own rule | map: the counter push is a notification | check: the hooks map
+    fires L130 [assertion] expect(hooks.hook_of(row('notify', 1.0, probe='counters.first.if0')) == 'H-COUNTERS', 'counters')
+          words: counters
+    then  L134 [assertion] expect(run.hook_row(row('notify', 1.0, probe='counters.x'), 'g')['normative_ms'] == 1000.0, 'counter timeout')
+    escapes after 2 deletion(s)
+own rule | map: no composed row of this harness is loaded | check: the hooks map
+    fires L132 [assertion] expect(run.hook_row(row('notify', 1.0), 'hooks-load-notify')['loaded'], 'the loaded fan-out is not loaded')
+          words: the loaded fan-out is not loaded
+    escapes after 1 deletion(s)
+own rule | label: the Milan clock labelled the product's (the earlier rule) | check: the clock labels
+    fires L144 [assertion] expect('history' in milan and 'not the product split CPU clock of 100 MHz' in milan and '50 MHz' in milan, milan)
+          words: CPU 50 MHz on sys (the product split CPU clock)
+    escapes after 1 deletion(s)
+own rule | label: the Milan clock the default (the earlier rule) | check: the clock labels
+    fires L140 [assertion] expect(hooks_build.CPU_CLOCKS[0] == 'sys', f'the default CPU clock is {hooks_build.CPU_CLOCKS[0]}')
+          words: the default CPU clock is milan
+    then  L143 [assertion] expect('100 MHz on sys (the product split CPU clock)' in product and 'history' not in product, product)
+    then  L144 [assertion] expect('history' in milan and 'not the product split CPU clock of 100 MHz' in milan and '50 MHz' in milan, milan)
+    escapes after 3 deletion(s)
+own rule | split: the counter change is no pad | check: own lines are split off
+    fires L175 [assertion] expect(parsed.pads == [(7, 'CTR', 1)], f'pads {parsed.pads}')
+          words: pads []
+    escapes after 1 deletion(s)
+own rule | H-ADP: the grandmaster is not checked | check: H-ADP ordering
+    fires L192 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=0, findings=['ORDER H-ADP: 1 grandmaster changes observed, 0 in the script'], undecided=0)
+    escapes after 1 deletion(s)
+own rule | H-DISC: the sink's PROBE_TX_COMMAND is never recognised | check: H-DISC ordering
+    fires L211 [assertion] expect(ok.applied == 1 and not ok.findings and not ok.undecided, f'clean: {ok}')
+          words: clean: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and the ENTITY_AVAILABLE at 200000 on inte
+    escapes after 1 deletion(s)
+own rule | H-DISC: the window never ends (the earlier rule ended it at the next tagged record) | check: H-DISC ordering
+    fires L215 [assertion] expect(after.findings and after.findings[0].startswith('ORDER H-DISC:'), f'a probe after the next record: {after}')
+          words: a probe after the next record: Checked(applied=1, findings=[], undecided=0)
+    then  L217 [assertion] expect(soon.undecided == 1 and not soon.applied and not soon.findings, f'a probe after a next record inside the delay: {soon}')
+    escapes after 2 deletion(s)
+own rule | H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule) | check: H-DISC ordering
+    fires L217 [assertion] expect(soon.undecided == 1 and not soon.applied and not soon.findings, f'a probe after a next record inside the delay: {soon}')
+          words: a probe after a next record inside the delay: Checked(applied=1, findings=['ORDER H-DISC: after the ENTITY_DEPARTING at 100000 and
+    escapes after 1 deletion(s)
+own rule | H-ACMP: no response is matched to its command | check: H-ACMP ordering
+    fires L236 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=0, findings=[], undecided=0)
+    then  L237 [assertion] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-ACMP:'), f'defective: {wrong}')
+    escapes after 2 deletion(s)
+own rule | H-AECP: no face commit is recognised | check: H-AECP ordering
+    fires L258 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=1, findings=['ORDER H-AECP: aecp.lock_entity.if0: its response at 300 precedes any face commit since its re
+    escapes after 1 deletion(s)
+own rule | H-NOTIFY: the notification is not found | check: H-NOTIFY ordering
+    fires L273 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=0, findings=[], undecided=0)
+    then  L274 [assertion] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-NOTIFY:'), f'defective: {wrong}')
+    escapes after 2 deletion(s)
+own rule | H-COUNTERS: spacing of 0.1 s accepted | check: H-COUNTERS spacing
+    fires L292 [assertion] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-COUNTERS:'), f'defective: {wrong}')
+          words: defective: Checked(applied=1, findings=[], undecided=0)
+    escapes after 1 deletion(s)
+own rule | H-COUNTERS: the held push from its change | check: the held push
+    fires L305 [assertion] expect(held['eligible'] == departed + 1000 * MS and held['ms'] == 1.0, f'held {held}')
+          words: held {'probe': 'counters.held.if0', 'change': 10000000, 'eligible': 10000000, 'end': 101200000, 'wait_ms': 0.0, 'ms': 912.0}
+    then  L306 [assertion] expect(held['wait_ms'] == 911.0, f'wait {held["wait_ms"]}')
+    escapes after 2 deletion(s)
+own rule | H-MAAP: no allocation report is recognised | check: H-MAAP ordering
+    fires L318 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=0, findings=[], undecided=0)
+    then  L319 [assertion] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-MAAP:'), f'defective: {wrong}')
+    escapes after 2 deletion(s)
+own rule | H-MAAP: every AAF_CTRL store is a report (earlier rule) | check: H-MAAP ordering
+    fires L318 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=2, findings=['ORDER H-MAAP: the allocation report at 70 follows no DA_GATE publication since 60'], undecide
+    escapes after 1 deletion(s)
+own rule | H-SRP: the ADOPTED bit is never seen set | check: H-SRP ordering
+    fires L333 [assertion] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+          words: clean: Checked(applied=1, findings=['ORDER H-SRP: the MRPDU committed at 300 on interface 0 after the Domain record at 100 precede
+    escapes after 1 deletion(s)
+own rule | plants: a plant edits nothing | check: the plants apply
+    fires L157 [assertion] expect(set(texts) == {e[0] for e in plant.edits}, f'{name}: edits {sorted(texts)}')
+          words: adp-late: edits []
+    escapes after 1 deletion(s)
+own rule | supersede: the table names another group | check: a refusal is superseded only by its own path
+    fires L594 [assertion] expect(not got['refusals'] and len(got['superseded']) == 1, f'superseded: {got}')
+          words: superseded: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if1', 'path': 'acmp.tm
+    escapes after 1 deletion(s)
+OFF RULE | supersede: any later group supersedes a refusal | check: a refusal is superseded only by its own path
+    fires L596 [assertion] expect(len(got['refusals']) == 1 and not got['superseded'], f'other interface: {got}')
+          words: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.tmr_no_adp.if1', 'path': 'ac
+    then  L598 [assertion] expect(len(got['refusals']) == 1, f'another path: {got}')
+    escapes after 2 deletion(s)
+own rule | aging: the window opens before the arm (the earlier rule) | check: the aging window opens after the arm
+    fires L618 [assertion] expect(armed < mark, f'interface {i}: the window opens before the arm ({armed} > {mark})')
+          words: interface 0: the window opens before the arm (25 > 23)
+    escapes after 1 deletion(s)
+own rule | aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | check: the aging window opens after the arm
+    fires L608 [assertion] expect(len(answered) == 2 and max(answered) < discovered, f'the PROBE_TX answers {answered}, the input {discovered}')
+          words: the PROBE_TX answers [], the input 22
+    then  L612 [EXCEPTION IndexError] expect(len(binds) == 2 and binds[0] < answered[0] < binds[1] < answered[1], f'each sink is not answered before the next is bound: binds {binds}, answe
+    no escape
+own rule | aging: both sinks bound before either is answered (the earlier rule) | check: the aging window opens after the arm
+    fires L612 [assertion] expect(len(binds) == 2 and binds[0] < answered[0] < binds[1] < answered[1], f'each sink is not answered before the next is bound: binds {binds}, answe
+          words: each sink is not answered before the next is bound: binds [0, 1], answers [2, 3]
+    escapes after 1 deletion(s)
+own rule | buckets: the window opens right after the registrations (the earlier rule) | check: a composed row opens on full buckets
+    fires L624 [assertion] expect(hooks.refilled_ms() >= max(ch.burst * ch.refill_ms for ch in scenario.CONTRACT.channels), f'refill wait {hooks.refilled_ms()} ms')
+          words: refill wait 0 ms
+    escapes after 1 deletion(s)
+own rule | findings: a path over its bound is not a finding | check: findings by hook
+    fires L342 [assertion] expect(got['findings'][0].startswith('LATE H-MAAP: x.if0: 25.000 ms against its bound 20 ms'), got['findings'])
+          words: ['NARROW H-MAAP: x.if0: 25.000 ms, within its bound 20 ms by -500,000 CPU cycles, under the layout swing of 6,490 (maap)', 'ORDER 
+    escapes after 1 deletion(s)
+own rule | narrow: the layout swing is not applied | check: a fit under the layout swing is a finding
+    fires L349 [assertion] expect(hooks.LAYOUT_SWING_CYCLES == 6490, f'the layout swing is {hooks.LAYOUT_SWING_CYCLES}')
+          words: the layout swing is 0
+    then  L356 [assertion] expect(any(x.startswith('NARROW H-MAAP: under.if0: ') and 'by 6,489 CPU cycles' in x for x in got), got)
+    then  L357 [assertion] expect(any(x.startswith('NARROW H-MAAP: bound.if0: ') for x in got), got)
+    escapes after 3 deletion(s)
+own rule | narrow: the slack counted at the 50 MHz CPU (the earlier clock) | check: a fit under the layout swing is a finding
+    fires L356 [assertion] expect(any(x.startswith('NARROW H-MAAP: under.if0: ') and 'by 6,489 CPU cycles' in x for x in got), got)
+          words: ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by -993,511 CPU cycles, under the layout swing of 6,490 (maap)', 'NA
+    then  L358 [assertion] expect(not any(': at.if0:' in x for x in got), got)
+    escapes after 2 deletion(s)
+own rule | plant: any finding of the hook catches it (the earlier rule) | check: a plant is caught only by its own finding
+    fires L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+          words: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its b
+    then  L436 [assertion] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+    escapes after 2 deletion(s)
+own rule | plant: any finding of its kind catches it | check: a plant is caught only by its own finding
+    fires L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+          words: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: adp.link_up.if0: 27.581 ms against its b
+    then  L436 [assertion] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+    escapes after 2 deletion(s)
+own rule | plant: a path that only starts with its own catches it | check: a plant is caught only by its own finding
+    fires L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+          words: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP: control.discover.if01: 27.581 ms against
+    then  L436 [assertion] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+    escapes after 2 deletion(s)
+own rule | plant: a late plant names no path | check: a plant is caught only by its own finding
+    fires L425 [assertion] expect(late_plant == (plant.probe is not None), f'{name}: names the path {plant.probe}')
+          words: adp-late: names the path None
+    then  L427 [assertion] expect(not late_plant or plant.probe in paths, f'{name}: {plant.probe} is no path of {plant.group}')
+    then  L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+    then  L436 [assertion] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+    escapes after 4 deletion(s)
+own rule | plant: every run is caught | check: a plant is caught only by its own finding
+    fires L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+          words: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late caught: LATE H-ADP
+    then  L436 [assertion] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+    escapes after 2 deletion(s)
+own rule | plant: an escape exits 0 | check: a plant is caught only by its own finding
+    fires L432 [assertion] expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found', f'{name}: reported caught with no plant applied, rc {stat
+          words: adp-late: reported caught with no plant applied, rc 0: PLANT adp-late ESCAPED: LATE H-ADP: control.discover.if0 not found
+    escapes after 1 deletion(s)
+own rule | held: W added to its bound | check: the held push's grade
+    fires L448 [assertion] expect(at['bound_ms'] == 20.0 and past['bound_ms'] == 20.0, f'the held bound includes W: {at["bound_ms"]}')
+          words: the held bound includes W: 920.0
+    then  L450 [assertion] expect(not past['within'], 'a held push past its bound fits')
+    escapes after 2 deletion(s)
+own rule | held: the exact bound misses | check: the held push's grade
+    fires L449 [assertion] expect(at['within'], 'a held push at its bound misses')
+          words: a held push at its bound misses
+    escapes after 1 deletion(s)
+own rule | held: the verdict is relaxed by 1 ms | check: the held push's grade
+    fires L450 [assertion] expect(not past['within'], 'a held push past its bound fits')
+          words: a held push past its bound fits
+    escapes after 1 deletion(s)
+own rule | held: its row reports no time | check: the held push's grade
+    fires L451 [assertion] expect((at['ms'], past['ms']) == (20.0, 20.00002), f'the held row reports {at["ms"]} ms, not its service')
+          words: the held row reports 0.0 ms, not its service
+    escapes after 1 deletion(s)
+own rule | held: its row reports a millisecond more | check: the held push's grade
+    fires L451 [assertion] expect((at['ms'], past['ms']) == (20.0, 20.00002), f'the held row reports {at["ms"]} ms, not its service')
+          words: the held row reports 21.0 ms, not its service
+    escapes after 1 deletion(s)
+own rule | held: W is not recorded | check: the held push's grade
+    fires L452 [assertion] expect(at['wait_ms'] == 900.0, f'the held W is not recorded: {at["wait_ms"]}')
+          words: the held W is not recorded: 0.0
+    escapes after 1 deletion(s)
+own rule | held: its cycles round down | check: the held push's grade
+    fires L454 [assertion] expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
+          words: 3 bus cycles are 1 at the 50 MHz CPU, not 2
+    escapes after 1 deletion(s)
+own rule | held: its cycles are the bus's | check: the held push's grade
+    fires L454 [assertion] expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
+          words: 3 bus cycles are 3 at the 50 MHz CPU, not 2
+    escapes after 1 deletion(s)
+own rule | held: its margin omits W | check: the held push's grade
+    fires L456 [assertion] expect(at['margin_ms'] == 80.0, f'the held margin is {at["margin_ms"]}, not 1000 - 900 - 20')
+          words: the held margin is 980.0, not 1000 - 900 - 20
+    then  L457 [assertion] expect(past['margin_ms'] == 79.99998, f'the held margin is {past["margin_ms"]}, not 1000 - 900 - 20.00002')
+    escapes after 2 deletion(s)
+own rule | held: its margin is rounded to the millisecond | check: the held push's grade
+    fires L457 [assertion] expect(past['margin_ms'] == 79.99998, f'the held margin is {past["margin_ms"]}, not 1000 - 900 - 20.00002')
+          words: the held margin is 80, not 1000 - 900 - 20.00002
+    escapes after 1 deletion(s)
+own rule | held: its timeout is the notification family's | check: the held push's grade
+    fires L455 [assertion] expect(at['normative_ms'] == 1000.0, f'the held timeout is {at["normative_ms"]}')
+          words: the held timeout is 240.0
+    escapes after 1 deletion(s)
+own rule | held: it counts as under the composed load | check: the held push's grade
+    fires L460 [assertion] expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
+          words: held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', '
+    escapes after 1 deletion(s)
+own rule | held: it counts as never served | check: the held push's grade
+    fires L460 [assertion] expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
+          words: held row classification {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', '
+    escapes after 1 deletion(s)
+own rule | held: it is H-NOTIFY's | check: the held push's grade
+    fires L459 [assertion] expect(identity == HELD_LABELS, f'held row {identity}')
+          words: held row ('H-NOTIFY', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 0)
+    escapes after 1 deletion(s)
+own rule | held: it names another probe | check: the held push's grade
+    fires L459 [assertion] expect(identity == HELD_LABELS, f'held row {identity}')
+          words: held row ('H-COUNTERS', 'hooks-counters', 'counters.first.if0', 'counters.held', 'notify', 0)
+    escapes after 1 deletion(s)
+own rule | held missing: silently accepted | check: a held push never sent
+    fires L474 [assertion] expect('LATE H-COUNTERS: counters.held.if0: the held push was never sent' in got['findings'], f'a held push never sent is no finding: {got["findings"]
+          words: a held push never sent is no finding: []
+    then  L477 [assertion] expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+    escapes after 2 deletion(s)
+own rule | held missing: it fits | check: a held push never sent
+    fires L477 [assertion] expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+          words: a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row
+    escapes after 1 deletion(s)
+own rule | held missing: it counts as served | check: a held push never sent
+    fires L477 [assertion] expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+          words: a missing push fits: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row
+    escapes after 1 deletion(s)
+OFF RULE | held missing: its finding is dropped | check: a held push never sent
+    fires L474 [assertion] expect('LATE H-COUNTERS: counters.held.if0: the held push was never sent' in got['findings'], f'a held push never sent is no finding: {got["findings"]
+          words: a held push never sent is no finding: ['LATE H-COUNTERS: counters.held.if0: never served against its bound 20 ms (hooks-counters)'
+    then  L477 [assertion] expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+    escapes after 2 deletion(s)
+own rule | held missing: its timeout is the notification family's | check: a held push never sent
+    fires L478 [assertion] expect((r['bound_ms'], r['normative_ms'], r['ms'], r['loaded']) == (20.0, 1000.0, 0.0, False), f'missing row {r}')
+          words: missing row {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'counters.held', 'row': 'GET_C
+    escapes after 1 deletion(s)
+own rule | held missing: it records CPU cycles | check: a held push never sent
+    fires L479 [assertion] expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0), f'a push never sent records a service: {r}')
+          words: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'coun
+    escapes after 1 deletion(s)
+own rule | held missing: it records a W | check: a held push never sent
+    fires L479 [assertion] expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0), f'a push never sent records a service: {r}')
+          words: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'coun
+    escapes after 1 deletion(s)
+own rule | held missing: it records a margin | check: a held push never sent
+    fires L479 [assertion] expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0), f'a push never sent records a service: {r}')
+          words: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'path': 'coun
+    escapes after 1 deletion(s)
+own rule | held missing: it is another group's | check: a held push never sent
+    fires L482 [assertion] expect(identity == HELD_LABELS, f'missing row {identity}')
+          words: missing row ('H-COUNTERS', 'hooks-x', 'counters.held.if0', 'counters.held', 'notify', 0)
+    escapes after 1 deletion(s)
+own rule | held missing: it is another path's | check: a held push never sent
+    fires L482 [assertion] expect(identity == HELD_LABELS, f'missing row {identity}')
+          words: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.x', 'notify', 0)
+    escapes after 1 deletion(s)
+own rule | held missing: it is another interface's | check: a held push never sent
+    fires L482 [assertion] expect(identity == HELD_LABELS, f'missing row {identity}')
+          words: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'notify', 1)
+    escapes after 1 deletion(s)
+own rule | held missing: it is another family's | check: a held push never sent
+    fires L482 [assertion] expect(identity == HELD_LABELS, f'missing row {identity}')
+          words: missing row ('H-COUNTERS', 'hooks-counters', 'counters.held.if0', 'counters.held', 'aecp', 0)
+    escapes after 1 deletion(s)
+own rule | summary: the fastest path is the worst | check: the worst path and the counts
+    fires L506 [assertion] expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+          words: the worst alone is fast, not slow
+    escapes after 1 deletion(s)
+own rule | summary: W is left in the service | check: the worst path and the counts
+    fires L506 [assertion] expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+          words: the worst alone is waiting, not slow
+    escapes after 1 deletion(s)
+own rule | summary: a path never served is not worst first | check: the worst path and the counts
+    fires L507 [assertion] expect(got['worst']['loaded']['probe'] == 'starved', f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
+          words: the worst under load is loaded, not the path never served
+    escapes after 1 deletion(s)
+own rule | summary: alone and under load are not apart | check: the worst path and the counts
+    fires L506 [assertion] expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+          words: the worst alone is starved, not slow
+    then  L507 [EXCEPTION KeyError] expect(got['worst']['loaded']['probe'] == 'starved', f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
+    no escape
+own rule | summary: alone and under load are swapped | check: the worst path and the counts
+    fires L506 [assertion] expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+          words: the worst alone is starved, not slow
+    then  L507 [assertion] expect(got['worst']['loaded']['probe'] == 'starved', f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
+    escapes after 2 deletion(s)
+own rule | summary: another hook's paths are its own | check: the worst path and the counts
+    fires L506 [assertion] expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+          words: the worst alone is other, not slow
+    then  L507 [assertion] expect(got['worst']['loaded']['probe'] == 'starved', f'the worst under load is {got["worst"]["loaded"]["probe"]}, not the path never served')
+    then  L509 [assertion] expect(summaries['H-ADP']['worst'] == {} and summaries['H-ADP']['paths'] == 0, 'a hook with no path has a worst')
+    then  L510 [assertion] expect(got['paths'] == 7, f'{got["paths"]} paths, not 7')
+    then  L511 [assertion] expect(got['misses'] == 3, f'{got["misses"]} misses, not 3')
+    escapes after 5 deletion(s)
+own rule | summary: a miss counts as a narrow fit | check: the worst path and the counts
+    fires L512 [assertion] expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+          words: 4 narrow fits, not 1
+    escapes after 1 deletion(s)
+own rule | summary: no narrow fit is counted | check: the worst path and the counts
+    fires L512 [assertion] expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+          words: 0 narrow fits, not 1
+    escapes after 1 deletion(s)
+own rule | summary: a fit by the swing itself is narrow | check: the worst path and the counts
+    fires L512 [assertion] expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+          words: 2 narrow fits, not 1
+    escapes after 1 deletion(s)
+own rule | summary: a fit one cycle under the swing is not narrow | check: the worst path and the counts
+    fires L512 [assertion] expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+          words: 0 narrow fits, not 1
+    escapes after 1 deletion(s)
+own rule | summary: no miss is counted | check: the worst path and the counts
+    fires L511 [assertion] expect(got['misses'] == 3, f'{got["misses"]} misses, not 3')
+          words: 0 misses, not 3
+    escapes after 1 deletion(s)
+own rule | summary: the path count is every hook's | check: the worst path and the counts
+    fires L509 [assertion] expect(summaries['H-ADP']['worst'] == {} and summaries['H-ADP']['paths'] == 0, 'a hook with no path has a worst')
+          words: a hook with no path has a worst
+    then  L510 [assertion] expect(got['paths'] == 7, f'{got["paths"]} paths, not 7')
+    escapes after 2 deletion(s)
+own rule | summary: the applied count is dropped | check: the worst path and the counts
+    fires L514 [assertion] expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']), f'the ordering results are not kept: {got}')
+          words: the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', '
+    escapes after 1 deletion(s)
+own rule | summary: the undecided count is dropped | check: the worst path and the counts
+    fires L514 [assertion] expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']), f'the ordering results are not kept: {got}')
+          words: the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', '
+    escapes after 1 deletion(s)
+own rule | summary: the ordering findings are dropped | check: the worst path and the counts
+    fires L514 [assertion] expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']), f'the ordering results are not kept: {got}')
+          words: the ordering results are not kept: {'paths': 7, 'misses': 3, 'narrow': 1, 'worst': {'alone': {'hook': 'H-MAAP', 'group': 'maap', '
+    escapes after 1 deletion(s)
+own rule | summary: the obligation is dropped | check: the worst path and the counts
+    fires L517 [assertion] expect((got['ordering'], got['clauses']) == (hook.ordering, hook.clauses), 'the obligation or clauses are not kept')
+          words: the obligation or clauses are not kept
+    escapes after 1 deletion(s)
+own rule | summary: the clauses are dropped | check: the worst path and the counts
+    fires L517 [assertion] expect((got['ordering'], got['clauses']) == (hook.ordering, hook.clauses), 'the obligation or clauses are not kept')
+          words: the obligation or clauses are not kept
+    escapes after 1 deletion(s)
+own rule | ALL: the push ends at its first descriptor | check: the ALL push both ways
+    fires L527 [assertion] expect(whole.ends == [hooks.notify_end(k, n) for k, n in others], f'the ALL push ends at {whole.ends}')
+          words: the ALL push ends at ['notify:2:0029:5:1']
+    then  L543 [assertion] expect((first['ms'], later['ms'], all_of['ms']) == (10.0, 30.0, 70.0), f'{first} {later} {all_of}')
+    then  L544 [assertion] expect(first['within'] and not later['within'] and not all_of['within'], 'a row is not graded at its own bound')
+    escapes after 3 deletion(s)
+own rule | ALL: no descriptor has a row | check: the ALL push both ways
+    fires L528 [assertion] expect(None not in rows.values(), f'a descriptor has no row of its own: {rows}')
+          words: a descriptor has no row of its own: {(5, 1): None, (6, 0): None, (9, 0): None, (36, 0): None}
+    then  L529 [assertion] expect(len([p for p in g.probes if p.path.startswith('counters.all')]) == len(others) + 1, 'more rows than paths')
+    then  L532 [EXCEPTION AttributeError] expect(p.ends == [hooks.notify_end(k, n)], f'{p.name} ends at {p.ends}')
+    no escape
+own rule | ALL: a descriptor's row ends at the whole push | check: the ALL push both ways
+    fires L532 [assertion] expect(p.ends == [hooks.notify_end(k, n)], f'{p.name} ends at {p.ends}')
+          words: counters.all.t5.i1.if0 ends at ['notify:2:0029:5:1', 'notify:2:0029:6:0', 'notify:2:0029:9:0', 'notify:2:0029:36:0']
+    then  L543 [assertion] expect((first['ms'], later['ms'], all_of['ms']) == (10.0, 30.0, 70.0), f'{first} {later} {all_of}')
+    then  L544 [assertion] expect(first['within'] and not later['within'] and not all_of['within'], 'a row is not graded at its own bound')
+    escapes after 3 deletion(s)
+own rule | ALL: a descriptor's row opens after the change | check: the ALL push both ways
+    fires L535 [assertion] expect(g.steps.index(f'mark {p.name}') < change, f'{p.name} opens after the change')
+          words: counters.all.t5.i1.if0 opens after the change
+    then  L536 [assertion] expect(g.steps.index(f'mark {whole.name}') < change, 'the ALL push opens after the change')
+    escapes after 2 deletion(s)
+own rule | amended: SRP keeps its ceiling | check: the amended column grades nothing
+    fires L552 [assertion] expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
+          words: the amended bounds
+    then  L563 [assertion] expect(hooks.amended_ms(srp, 1) == 20.0 and hooks.amended_ms(srp, 2) == 20.0, f'SRP {hooks.amended_ms(srp, 1)}')
+    then  L564 [assertion] expect(hooks.amended_ms(run.hook_row(row('srp', 210.0, wait=200.0), 'srp'), 1) == 220.0, 'W left off the column')
+    escapes after 3 deletion(s)
+own rule | amended: the ceiling at two interfaces is 20 ms | check: the amended column grades nothing
+    fires L552 [assertion] expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
+          words: the amended bounds
+    then  L565 [assertion] expect([hooks.amended_ms(x, n) for x in (whole, each) for n in (1, 2)] == [20.0, 60.0, 20.0, 60.0], 'a queued notice\'s ceiling')
+    then  L580 [assertion] expect('| 40.000 | 4,000,000 | 0 | 20 | 60 | NO |' in text, 'the path table\'s amended figure')
+    then  L583 [assertion] expect('| 20, 60 |' in line, f'the hook table\'s amended figures: {line}')
+    escapes after 4 deletion(s)
+own rule | amended: every counter push is queued | check: the amended column grades nothing
+    fires L567 [assertion] expect(hooks.amended_ms(first, 2) == 20.0 and hooks.amended_ms(by['aecp_fanout.set_name.if0'], 2) == 20.0, 'a path the decisions leave has another bou
+          words: a path the decisions leave has another bound
+    then  L571 [assertion] expect(hooks.amended_ms(held, 2) == 20.0, 'the column adds W the held bound does not')
+    then  L583 [assertion] expect('| 20, 60 |' in line, f'the hook table\'s amended figures: {line}')
+    escapes after 3 deletion(s)
+own rule | amended: W is left off | check: the amended column grades nothing
+    fires L564 [assertion] expect(hooks.amended_ms(run.hook_row(row('srp', 210.0, wait=200.0), 'srp'), 1) == 220.0, 'W left off the column')
+          words: W left off the column
+    escapes after 1 deletion(s)
+own rule | amended: the column grades a path | check: the amended column grades nothing
+    fires L572 [assertion] expect((srp['bound_ms'], srp['within'], whole['bound_ms'], whole['within']) == (18.0, False, 20.0, False), 'the amended bounds graded a path')
+          words: the amended bounds graded a path
+    then  L575 [assertion] expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0', 'srp.x.if0'], f'findings {late}')
+    escapes after 2 deletion(s)
+own rule | amended: a finding reads the column | check: the amended column grades nothing
+    fires L575 [assertion] expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0', 'srp.x.if0'], f'findings {late}')
+          words: findings []
+    escapes after 1 deletion(s)
+own rule | amended: the table does not say which bounds graded | check: the amended column grades nothing
+    fires L578 [assertion] expect('Graded against the bounds in the tree at this base.' in text, 'the table does not say which bounds graded')
+          words: the table does not say which bounds graded
+    escapes after 1 deletion(s)
+own rule | amended: the column repeats the bound | check: the amended column grades nothing
+    fires L563 [assertion] expect(hooks.amended_ms(srp, 1) == 20.0 and hooks.amended_ms(srp, 2) == 20.0, f'SRP {hooks.amended_ms(srp, 1)}')
+          words: SRP 18.0
+    then  L564 [assertion] expect(hooks.amended_ms(run.hook_row(row('srp', 210.0, wait=200.0), 'srp'), 1) == 220.0, 'W left off the column')
+    then  L565 [assertion] expect([hooks.amended_ms(x, n) for x in (whole, each) for n in (1, 2)] == [20.0, 60.0, 20.0, 60.0], 'a queued notice\'s ceiling')
+    then  L580 [assertion] expect('| 40.000 | 4,000,000 | 0 | 20 | 60 | NO |' in text, 'the path table\'s amended figure')
+    escapes after 4 deletion(s)
+
+94 mutants, 91 on their own rule, 3 not: ['bound: the margin is not recorded', 'supersede: any later group supersedes a refusal', 'held missing: its finding is dropped']
+no rule written for ['bound: the margin is not recorded', 'supersede: any later group supersedes a refusal', 'held missing: its finding is dropped']; rule for no mutant ['bound: the margin is taken from a timeout of zero', 'supersede: the table names a second path', 'supersede: a row of another path supersedes a refusal', 'supersede: every refusal is superseded', 'held missing: its finding by name is dropped']
+chain lengths: {1: 59, 2: 24, 3: 7, 4: 3, 5: 1}; 67 distinct assertions fired first
+rc=1

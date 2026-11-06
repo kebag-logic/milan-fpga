@@ -1,0 +1,245 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r784-2-packet/scripts/assert_sites.py <tmp>/clone-probes
+('Failed', 100) [bounds pinned] bound: a stale T_svc of 10 ms
+    L100: expect(hooks.T_SVC_MS == 20.0, f'T_svc is {hooks.T_SVC_MS}')
+('Failed', 109) [an 18 to 20 ms SRP path misses] bound: SRP graded against T_svc alone
+    L109: expect(not run.hook_row(row('srp', 19.0), 'srp')['within'], 'a 19 ms SRP path fits')
+('Failed', 102) [bounds pinned] bound: the ceiling alone
+    L102: expect(got == BOUNDS, f'bounds {got}')
+('Failed', 119) [the exact bound fits and W adds] bound: the normative wait is not added
+    L119: expect(r['within'] and r['bound_ms'] == 218.0, f'W + bound: {r}')
+('Failed', 123) [the exact bound fits and W adds] bound: the margin is taken from a timeout of zero
+    L123: expect(r['margin_ms'] == 20.0, f'margin {r["margin_ms"]}')
+('Failed', 130) [the hooks map] map: the counter push is a notification
+    L130: expect(hooks.hook_of(row('notify', 1.0, probe='counters.first.if0')) == 'H-COUNTERS', 'counters')
+('Failed', 132) [the hooks map] map: no composed row of this harness is loaded
+    L132: expect(run.hook_row(row('notify', 1.0), 'hooks-load-notify')['loaded'], 'the loaded fan-out is not loaded')
+('Failed', 144) [the clock labels] label: the Milan clock labelled the product's (the earlier rule)
+    L144: expect('history' in milan and 'not the product split CPU clock of 100 MHz' in milan and '50 MHz' in milan,
+('Failed', 140) [the clock labels] label: the Milan clock the default (the earlier rule)
+    L140: expect(hooks_build.CPU_CLOCKS[0] == 'sys', f'the default CPU clock is {hooks_build.CPU_CLOCKS[0]}')
+('Failed', 175) [own lines are split off] split: the counter change is no pad
+    L175: expect(parsed.pads == [(7, 'CTR', 1)], f'pads {parsed.pads}')
+('Failed', 192) [H-ADP ordering] H-ADP: the grandmaster is not checked
+    L192: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 211) [H-DISC ordering] H-DISC: the sink's PROBE_TX_COMMAND is never recognised
+    L211: expect(ok.applied == 1 and not ok.findings and not ok.undecided, f'clean: {ok}')
+('Failed', 215) [H-DISC ordering] H-DISC: the window never ends (the earlier rule ended it at the next tagged record)
+    L215: expect(after.findings and after.findings[0].startswith('ORDER H-DISC:'), f'a probe after the next record: {after}')
+('Failed', 217) [H-DISC ordering] H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule)
+    L217: expect(soon.undecided == 1 and not soon.applied and not soon.findings,
+('Failed', 236) [H-ACMP ordering] H-ACMP: no response is matched to its command
+    L236: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 258) [H-AECP ordering] H-AECP: no face commit is recognised
+    L258: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 273) [H-NOTIFY ordering] H-NOTIFY: the notification is not found
+    L273: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 292) [H-COUNTERS spacing] H-COUNTERS: spacing of 0.1 s accepted
+    L292: expect(wrong.findings and wrong.findings[0].startswith('ORDER H-COUNTERS:'), f'defective: {wrong}')
+('Failed', 305) [the held push] H-COUNTERS: the held push from its change
+    L305: expect(held['eligible'] == departed + 1000 * MS and held['ms'] == 1.0, f'held {held}')
+('Failed', 318) [H-MAAP ordering] H-MAAP: no allocation report is recognised
+    L318: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 318) [H-MAAP ordering] H-MAAP: every AAF_CTRL store is a report (earlier rule)
+    L318: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 333) [H-SRP ordering] H-SRP: the ADOPTED bit is never seen set
+    L333: expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+('Failed', 157) [the plants apply] plants: a plant edits nothing
+    L157: expect(set(texts) == {e[0] for e in plant.edits}, f'{name}: edits {sorted(texts)}')
+('Failed', 595) [a refusal is superseded only by its own path] supersede: the table names another group
+    L595: expect(not got['refusals'] and len(got['superseded']) == 1, f'superseded: {got}')
+('Failed', 600) [a refusal is superseded only by its own path] supersede: the table names a second path
+    L600: expect(len(got['refusals']) == 1 and not got['superseded'], f'a path the table does not name: {got}')
+('Failed', 604) [a refusal is superseded only by its own path] supersede: a row of another path supersedes a refusal
+    L604: expect(len(got['refusals']) == 2 and not got['superseded'], f'another path: {got}')
+('Failed', 597) [a refusal is superseded only by its own path] supersede: every refusal is superseded
+    L597: expect(len(got['refusals']) == 1 and not got['superseded'], f'other interface: {got}')
+('Failed', 624) [the aging window opens after the arm] aging: the window opens before the arm (the earlier rule)
+    L624: expect(armed < mark, f'interface {i}: the window opens before the arm ({armed} > {mark})')
+('Failed', 614) [the aging window opens after the arm] aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule)
+    L614: expect(len(answered) == 2 and max(answered) < discovered,
+('Failed', 618) [the aging window opens after the arm] aging: both sinks bound before either is answered (the earlier rule)
+    L618: expect(len(binds) == 2 and binds[0] < answered[0] < binds[1] < answered[1],
+('Failed', 630) [a composed row opens on full buckets] buckets: the window opens right after the registrations (the earlier rule)
+    L630: expect(hooks.refilled_ms() >= max(ch.burst * ch.refill_ms for ch in scenario.CONTRACT.channels),
+('Failed', 342) [findings by hook] findings: a path over its bound is not a finding
+    L342: expect(got['findings'][0].startswith('LATE H-MAAP: x.if0: 25.000 ms against its bound 20 ms'), got['findings'])
+('Failed', 349) [a fit under the layout swing is a finding] narrow: the layout swing is not applied
+    L349: expect(hooks.LAYOUT_SWING_CYCLES == 6490, f'the layout swing is {hooks.LAYOUT_SWING_CYCLES}')
+('Failed', 356) [a fit under the layout swing is a finding] narrow: the slack counted at the 50 MHz CPU (the earlier clock)
+    L356: expect(any(x.startswith('NARROW H-MAAP: under.if0: ') and 'by 6,489 CPU cycles' in x for x in got), got)
+('Failed', 432) [a plant is caught only by its own finding] plant: any finding of the hook catches it (the earlier rule)
+    L432: expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
+('Failed', 432) [a plant is caught only by its own finding] plant: any finding of its kind catches it
+    L432: expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
+('Failed', 432) [a plant is caught only by its own finding] plant: a path that only starts with its own catches it
+    L432: expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
+('Failed', 425) [a plant is caught only by its own finding] plant: a late plant names no path
+    L425: expect(late_plant == (plant.probe is not None), f'{name}: names the path {plant.probe}')
+('Failed', 432) [a plant is caught only by its own finding] plant: every run is caught
+    L432: expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
+('Failed', 432) [a plant is caught only by its own finding] plant: an escape exits 0
+    L432: expect(status == 1 and line == f'PLANT {name} ESCAPED: {run.plant_wanted(plant)} not found',
+('Failed', 448) [the held push's grade] held: W added to its bound
+    L448: expect(at['bound_ms'] == 20.0 and past['bound_ms'] == 20.0, f'the held bound includes W: {at["bound_ms"]}')
+('Failed', 449) [the held push's grade] held: the exact bound misses
+    L449: expect(at['within'], 'a held push at its bound misses')
+('Failed', 450) [the held push's grade] held: the verdict is relaxed by 1 ms
+    L450: expect(not past['within'], 'a held push past its bound fits')
+('Failed', 451) [the held push's grade] held: its row reports no time
+    L451: expect((at['ms'], past['ms']) == (20.0, 20.00002), f'the held row reports {at["ms"]} ms, not its service')
+('Failed', 451) [the held push's grade] held: its row reports a millisecond more
+    L451: expect((at['ms'], past['ms']) == (20.0, 20.00002), f'the held row reports {at["ms"]} ms, not its service')
+('Failed', 452) [the held push's grade] held: W is not recorded
+    L452: expect(at['wait_ms'] == 900.0, f'the held W is not recorded: {at["wait_ms"]}')
+('Failed', 454) [the held push's grade] held: its cycles round down
+    L454: expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
+('Failed', 454) [the held push's grade] held: its cycles are the bus's
+    L454: expect(cycles == 2, f'3 bus cycles are {cycles} at the 50 MHz CPU, not 2')
+('Failed', 456) [the held push's grade] held: its margin omits W
+    L456: expect(at['margin_ms'] == 80.0, f'the held margin is {at["margin_ms"]}, not 1000 - 900 - 20')
+('Failed', 457) [the held push's grade] held: its margin is rounded to the millisecond
+    L457: expect(past['margin_ms'] == 79.99998, f'the held margin is {past["margin_ms"]}, not 1000 - 900 - 20.00002')
+('Failed', 455) [the held push's grade] held: its timeout is the notification family's
+    L455: expect(at['normative_ms'] == 1000.0, f'the held timeout is {at["normative_ms"]}')
+('Failed', 460) [the held push's grade] held: it counts as under the composed load
+    L460: expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
+('Failed', 460) [the held push's grade] held: it counts as never served
+    L460: expect(not at['unbounded'] and not at['loaded'] and not at.get('missing'), f'held row classification {at}')
+('Failed', 459) [the held push's grade] held: it is H-NOTIFY's
+    L459: expect(identity == HELD_LABELS, f'held row {identity}')
+('Failed', 459) [the held push's grade] held: it names another probe
+    L459: expect(identity == HELD_LABELS, f'held row {identity}')
+('Failed', 474) [a held push never sent] held missing: silently accepted
+    L474: expect('LATE H-COUNTERS: counters.held.if0: the held push was never sent' in got['findings'],
+('Failed', 477) [a held push never sent] held missing: it fits
+    L477: expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+('Failed', 477) [a held push never sent] held missing: it counts as served
+    L477: expect(r['missing'] and r['unbounded'] and not r['within'] and r['slack_cycles'] == -1, f'a missing push fits: {r}')
+('Failed', 474) [a held push never sent] held missing: its finding by name is dropped
+    L474: expect('LATE H-COUNTERS: counters.held.if0: the held push was never sent' in got['findings'],
+('Failed', 478) [a held push never sent] held missing: its timeout is the notification family's
+    L478: expect((r['bound_ms'], r['normative_ms'], r['ms'], r['loaded']) == (20.0, 1000.0, 0.0, False), f'missing row {r}')
+('Failed', 479) [a held push never sent] held missing: it records CPU cycles
+    L479: expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0),
+('Failed', 479) [a held push never sent] held missing: it records a W
+    L479: expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0),
+('Failed', 479) [a held push never sent] held missing: it records a margin
+    L479: expect((r['cpu_cycles'], r['wait_ms'], r['margin_ms']) == (0, 0.0, 0.0),
+('Failed', 482) [a held push never sent] held missing: it is another group's
+    L482: expect(identity == HELD_LABELS, f'missing row {identity}')
+('Failed', 482) [a held push never sent] held missing: it is another path's
+    L482: expect(identity == HELD_LABELS, f'missing row {identity}')
+('Failed', 482) [a held push never sent] held missing: it is another interface's
+    L482: expect(identity == HELD_LABELS, f'missing row {identity}')
+('Failed', 482) [a held push never sent] held missing: it is another family's
+    L482: expect(identity == HELD_LABELS, f'missing row {identity}')
+('Failed', 506) [the worst path and the counts] summary: the fastest path is the worst
+    L506: expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+('Failed', 506) [the worst path and the counts] summary: W is left in the service
+    L506: expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+('Failed', 507) [the worst path and the counts] summary: a path never served is not worst first
+    L507: expect(got['worst']['loaded']['probe'] == 'starved',
+('Failed', 506) [the worst path and the counts] summary: alone and under load are not apart
+    L506: expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+('Failed', 506) [the worst path and the counts] summary: alone and under load are swapped
+    L506: expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+('Failed', 506) [the worst path and the counts] summary: another hook's paths are its own
+    L506: expect(got['worst']['alone']['probe'] == 'slow', f'the worst alone is {got["worst"]["alone"]["probe"]}, not slow')
+('Failed', 512) [the worst path and the counts] summary: a miss counts as a narrow fit
+    L512: expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+('Failed', 512) [the worst path and the counts] summary: no narrow fit is counted
+    L512: expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+('Failed', 512) [the worst path and the counts] summary: a fit by the swing itself is narrow
+    L512: expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+('Failed', 512) [the worst path and the counts] summary: a fit one cycle under the swing is not narrow
+    L512: expect(got['narrow'] == 1, f'{got["narrow"]} narrow fits, not 1')
+('Failed', 511) [the worst path and the counts] summary: no miss is counted
+    L511: expect(got['misses'] == 3, f'{got["misses"]} misses, not 3')
+('Failed', 509) [the worst path and the counts] summary: the path count is every hook's
+    L509: expect(summaries['H-ADP']['worst'] == {} and summaries['H-ADP']['paths'] == 0, 'a hook with no path has a worst')
+('Failed', 514) [the worst path and the counts] summary: the applied count is dropped
+    L514: expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']),
+('Failed', 514) [the worst path and the counts] summary: the undecided count is dropped
+    L514: expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']),
+('Failed', 514) [the worst path and the counts] summary: the ordering findings are dropped
+    L514: expect((got['applied'], got['undecided'], got['ordering_findings']) == (n + 2, n + 20, ['ORDER H-MAAP']),
+('Failed', 517) [the worst path and the counts] summary: the obligation is dropped
+    L517: expect((got['ordering'], got['clauses']) == (hook.ordering, hook.clauses), 'the obligation or clauses are not kept')
+('Failed', 517) [the worst path and the counts] summary: the clauses are dropped
+    L517: expect((got['ordering'], got['clauses']) == (hook.ordering, hook.clauses), 'the obligation or clauses are not kept')
+('Failed', 527) [the ALL push both ways] ALL: the push ends at its first descriptor
+    L527: expect(whole.ends == [hooks.notify_end(k, n) for k, n in others], f'the ALL push ends at {whole.ends}')
+('Failed', 528) [the ALL push both ways] ALL: no descriptor has a row
+    L528: expect(None not in rows.values(), f'a descriptor has no row of its own: {rows}')
+('Failed', 532) [the ALL push both ways] ALL: a descriptor's row ends at the whole push
+    L532: expect(p.ends == [hooks.notify_end(k, n)], f'{p.name} ends at {p.ends}')
+('Failed', 535) [the ALL push both ways] ALL: a descriptor's row opens after the change
+    L535: expect(g.steps.index(f'mark {p.name}') < change, f'{p.name} opens after the change')
+('Failed', 552) [the amended column grades nothing] amended: SRP keeps its ceiling
+    L552: expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
+('Failed', 552) [the amended column grades nothing] amended: the ceiling at two interfaces is 20 ms
+    L552: expect((hooks.AMENDED_SRP_MS, hooks.AMENDED_QUEUED_CEILING_MS) == (20.0, {1: 20.0, 2: 60.0}), 'the amended bounds')
+('Failed', 567) [the amended column grades nothing] amended: every counter push is queued
+    L567: expect(hooks.amended_ms(first, 2) == 20.0 and hooks.amended_ms(by['aecp_fanout.set_name.if0'], 2) == 20.0,
+('Failed', 564) [the amended column grades nothing] amended: W is left off
+    L564: expect(hooks.amended_ms(run.hook_row(row('srp', 210.0, wait=200.0), 'srp'), 1) == 220.0, 'W left off the column')
+('Failed', 572) [the amended column grades nothing] amended: the column grades a path
+    L572: expect((srp['bound_ms'], srp['within'], whole['bound_ms'], whole['within']) == (18.0, False, 20.0, False),
+('Failed', 575) [the amended column grades nothing] amended: a finding reads the column
+    L575: expect(sorted(late) == ['counters.all.if0', 'counters.all.t5.i1.if0', 'srp.x.if0'], f'findings {late}')
+('Failed', 578) [the amended column grades nothing] amended: the table does not say which bounds graded
+    L578: expect('Graded against the bounds in the tree at this base.' in text, 'the table does not say which bounds graded')
+('Failed', 563) [the amended column grades nothing] amended: the column repeats the bound
+    L563: expect(hooks.amended_ms(srp, 1) == 20.0 and hooks.amended_ms(srp, 2) == 20.0, f'SRP {hooks.amended_ms(srp, 1)}')
+
+== expect() lines in checks that no mutant fires ==
+L103 [bounds pinned] expect(hooks.NORMATIVE_MS == NORMATIVE, f'normative {hooks.NORMATIVE_MS}')
+L104 [bounds pinned] expect(hooks.COUNTERS_NORMATIVE_MS == 1000.0 and hooks.COUNTERS_SPACING_MS == 1000.0, 'counter timing')
+L110 [an 18 to 20 ms SRP path misses] expect(run.hook_row(row('srp', 18.0), 'srp')['within'], 'an 18 ms SRP path misses')
+L116 [the exact bound fits and W adds] expect(run.hook_row(row('aecp', 20.0), 'aecp')['within'], 'the exact bound misses')
+L117 [the exact bound fits and W adds] expect(not run.hook_row(row('aecp', 20.00001), 'aecp')['within'], 'past the bound fits')
+L120 [the exact bound fits and W adds] expect(not run.hook_row(row('acmp', 1.0, starved=True), 'backlog')['within'], 'a starved path fits')
+L121 [the exact bound fits and W adds] expect(not run.hook_row(row('acmp', 1.0, unanswered=True), 'backlog')['within'], 'an unanswered path fits')
+L129 [the hooks map] expect(hooks.hook_of(row(family, 1.0)) == hook, f'{family} is not {hook}')
+L131 [the hooks map] expect(run.hook_row(row('aecp', 1.0), 'backlog')['loaded'], 'a backlog row is not loaded')
+L133 [the hooks map] expect(not run.hook_row(row('aecp', 1.0), 'aecp')['loaded'], 'a lone path is loaded')
+L134 [the hooks map] expect(run.hook_row(row('notify', 1.0, probe='counters.x'), 'g')['normative_ms'] == 1000.0, 'counter timeout')
+L143 [the clock labels] expect('100 MHz on sys (the product split CPU clock)' in product and 'history' not in product, product)
+L152 [the plants apply] expect(len(found) == 2 * len(hooks.HOOKS) == 16, f'{len(found)} plants')
+L155 [the plants apply] expect(plant.words == f'{kind} {hook}', f'{name}: {plant.words}')
+L159 [the plants apply] expect(text != (hooks_build.FIRMWARE / path).read_text(), f'{name}: {path} unchanged')
+L160 [the plants apply] expect(plant.arm == ('answering' if hook == 'H-COUNTERS' else 'idle'), f'{name}: arm {plant.arm}')
+L167 [the testbench additions apply] expect(text.count(anchor) == 1, f'{anchor.strip()!r} occurs {text.count(anchor)} times')
+L173 [own lines are split off] expect(rest == 'MS 5 1 0 0\n' and [w[0] for w in own] == ['CTRCHG', 'CSRW'], f'{rest!r} {own}')
+L193 [H-ADP ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-ADP:'), f'defective: {wrong}')
+L213 [H-DISC ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-DISC:'), f'defective: {wrong}')
+L237 [H-ACMP ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-ACMP:'), f'defective: {wrong}')
+L259 [H-AECP ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-AECP:'), f'defective: {wrong}')
+L274 [H-NOTIFY ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-NOTIFY:'), f'defective: {wrong}')
+L291 [H-COUNTERS spacing] expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+L306 [the held push] expect(held['wait_ms'] == 911.0, f'wait {held["wait_ms"]}')
+L319 [H-MAAP ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-MAAP:'), f'defective: {wrong}')
+L334 [H-SRP ordering] expect(wrong.findings and wrong.findings[0].startswith('ORDER H-SRP:'), f'defective: {wrong}')
+L343 [findings by hook] expect('ORDER H-MAAP: x (maap)' in got['findings'], got['findings'])
+L357 [a fit under the layout swing is a finding] expect(any(x.startswith('NARROW H-MAAP: bound.if0: ') for x in got), got)
+L358 [a fit under the layout swing is a finding] expect(not any(': at.if0:' in x for x in got), got)
+L359 [a fit under the layout swing is a finding] expect(any(x.startswith('LATE H-MAAP: over.if0:') for x in got) and not any('NARROW H-MAAP: over' in x
+L638 [a composed row opens on full buckets] expect(cycles >= hooks.refilled_ms() * MS, f'{make.__name__}: {cycles} bus cycles between the last '
+L427 [a plant is caught only by its own finding] expect(not late_plant or plant.probe in paths, f'{name}: {plant.probe} is no path of {plant.group}')
+L436 [a plant is caught only by its own finding] expect(status == 0 and line == f'PLANT {name} caught: {own}', f'{name}: not caught, rc {status}: {line}')
+L502 [the worst path and the counts] expect((slack['at-swing'], slack['under-swing']) == (6490, 6489), f'the rows are not at the swing: {slack}')
+L510 [the worst path and the counts] expect(got['paths'] == 7, f'{got["paths"]} paths, not 7')
+L529 [the ALL push both ways] expect(len([p for p in g.probes if p.path.startswith('counters.all')]) == len(others) + 1, 'more rows than paths')
+L533 [the ALL push both ways] expect((p.start, p.family, p.recipients, p.until) == (whole.start, 'notify', whole.recipients, whole.until)
+L536 [the ALL push both ways] expect(g.steps.index(f'mark {whole.name}') < change, 'the ALL push opens after the change')
+L543 [the ALL push both ways] expect((first['ms'], later['ms'], all_of['ms']) == (10.0, 30.0, 70.0), f'{first} {later} {all_of}')
+L544 [the ALL push both ways] expect(first['within'] and not later['within'] and not all_of['within'], 'a row is not graded at its own bound')
+L545 [the ALL push both ways] expect({first['hook'], later['hook'], all_of['hook']} == {'H-COUNTERS'}, 'a row is not H-COUNTERS\'')
+L565 [the amended column grades nothing] expect([hooks.amended_ms(x, n) for x in (whole, each) for n in (1, 2)] == [20.0, 60.0, 20.0, 60.0],
+L571 [the amended column grades nothing] expect(hooks.amended_ms(held, 2) == 20.0, 'the column adds W the held bound does not')
+L579 [the amended column grades nothing] expect('| Bound at this base, ms | Amended bound, ms, for information |' in text, 'the path table\'s columns')
+L580 [the amended column grades nothing] expect('| 40.000 | 4,000,000 | 0 | 20 | 60 | NO |' in text, 'the path table\'s amended figure')
+L581 [the amended column grades nothing] expect('| Amended service bound, ms, for information |' in text, 'the hook table\'s column')
+L583 [the amended column grades nothing] expect('| 20, 60 |' in line, f'the hook table\'s amended figures: {line}')
+rc=0

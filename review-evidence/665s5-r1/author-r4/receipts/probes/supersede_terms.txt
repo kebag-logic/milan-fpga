@@ -1,0 +1,17 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <management>/665s5-a702e/scripts/supersede_terms.py <tmp>/clone-probes
+== each term of the rule, dropped at its source ==
+KILLED | path term dropped | assertion: another path: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-d | mutants escaping: []
+KILLED | interface term dropped | assertion: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hook | mutants escaping: []
+KILLED | group term dropped | assertion: none | mutants escaping: ['supersede: the table names another group']
+KILLED | table guard dropped | assertion: a path the table does not name: {'rows': [{'hook': 'H-DISC', | mutants escaping: []
+KILLED | no row needed | assertion: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hook | mutants escaping: []
+
+== each assertion of the check, deleted ==
+the positive case deleted | checks failing [] | mutants escaping: ['supersede: the table names another group']
+another interface deleted | checks failing [] | mutants escaping: []
+a path the table does not name deleted | checks failing [] | mutants escaping: ['supersede: the table names a second path']
+another path deleted | checks failing [] | mutants escaping: ['supersede: a row of another path supersedes a refusal']
+
+0 terms survive
+rc=0

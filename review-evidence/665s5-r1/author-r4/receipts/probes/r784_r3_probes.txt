@@ -1,0 +1,76 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r784-3-packet/scripts/r3_probes.py <tmp>/clone-probes <tmp>/r3work
+control: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+hp-row-ms-zero: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the held push's grade: the held row reports 0.0 ms, not its service
+hp-ms: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the held push's grade: the held row reports 21.0 ms, not its service
+s-narrow-le: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the worst path and the counts: 2 narrow fits, not 1
+hm-cycles: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+hm-wait: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+hm-margin: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a held push never sent: a push never sent records a service: {'hook': 'H-COUNTERS', 'group': 'hooks-counters', 'probe': 'counters.held.if0', 'pat
+finding-narrow-le: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a fit under the layout swing is a finding: ['NARROW H-MAAP: under.if0: 19.935 ms, within its bound 20 ms by 6,489 CPU cycles, under the layout sw
+finding-narrow-minus1: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a fit under the layout swing is a finding: ['NARROW H-MAAP: bound.if0: 20.000 ms, within its bound 20 ms by 0 CPU cycles, under the layout swing 
+s-narrow-minus1: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the worst path and the counts: 0 narrow fits, not 1
+sup-any-group: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    MUTANT supersede: the table names another group: ESCAPED a refusal is superseded only by its own path
+sup-any-interface: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-agi
+sup-any-path: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a refusal is superseded only by its own path: another path: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-aging.
+sup-group-only: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-agi
+sup-no-row-needed: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a refusal is superseded only by its own path: other interface: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 'hooks-disc-agi
+sup-table-any-path: rc 1 KILLED: ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught
+    FAIL a refusal is superseded only by its own path: a path the table does not name: {'rows': [{'hook': 'H-DISC', 'group': 'hooks-disc-aging', 'probe': 
+verdict-queued-60: rc 1 KILLED: ctrl_service_hooks self-test: 26 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the ALL push both ways: a row is not graded at its own bound
+    FAIL the amended column grades nothing: the amended bounds graded a path
+verdict-descriptor-60: rc 1 KILLED: ctrl_service_hooks self-test: 26 of 28 checks pass; 96 of 96 mutants caught
+    FAIL the ALL push both ways: a row is not graded at its own bound
+    FAIL the amended column grades nothing: findings ['srp.x.if0', 'counters.all.if0']
+verdict-srp-20: rc 1 KILLED: ctrl_service_hooks self-test: 26 of 28 checks pass; 96 of 96 mutants caught
+    FAIL an 18 to 20 ms SRP path misses: a 19 ms SRP path fits
+    FAIL the amended column grades nothing: the amended bounds graded a path
+narrow-finding-reads-column: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+summary-misses-read-column: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+held-row-text: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+held-ahead: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-B-arm-rule: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    MUTANT aging: the window opens before the arm (the earlier rule): ESCAPED the aging window opens after the arm
+del-C-verdict-only: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-C-verdict-and-late: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 94 of 96 mutants caught
+    MUTANT amended: the column grades a path: ESCAPED the amended column grades nothing
+    MUTANT amended: a finding reads the column: ESCAPED the amended column grades nothing
+del-E-other-interface-only: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-E-other-and-path: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 95 of 96 mutants caught
+    MUTANT supersede: a row of another path supersedes a refusal: ESCAPED a refusal is superseded only by its own path
+del-N-narrow-count: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 92 of 96 mutants caught
+    MUTANT summary: a miss counts as a narrow fit: ESCAPED the worst path and the counts
+    MUTANT summary: no narrow fit is counted: ESCAPED the worst path and the counts
+    MUTANT summary: a fit by the swing itself is narrow: ESCAPED the worst path and the counts
+    MUTANT summary: a fit one cycle under the swing is not narrow: ESCAPED the worst path and the counts
+del-N-slack-pin-only: rc 0 SURVIVES: ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+del-H-service: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 94 of 96 mutants caught
+    MUTANT held: its row reports no time: ESCAPED the held push's grade
+    MUTANT held: its row reports a millisecond more: ESCAPED the held push's grade
+del-H-missing-service: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 93 of 96 mutants caught
+    MUTANT held missing: it records CPU cycles: ESCAPED a held push never sent
+    MUTANT held missing: it records a W: ESCAPED a held push never sent
+    MUTANT held missing: it records a margin: ESCAPED a held push never sent
+del-H-labels-both: rc 1 KILLED: ctrl_service_hooks self-test: 28 of 28 checks pass; 90 of 96 mutants caught
+    MUTANT held: it is H-NOTIFY's: ESCAPED the held push's grade
+    MUTANT held: it names another probe: ESCAPED the held push's grade
+    MUTANT held missing: it is another group's: ESCAPED a held push never sent
+    MUTANT held missing: it is another path's: ESCAPED a held push never sent
+    MUTANT held missing: it is another interface's: ESCAPED a held push never sent
+    MUTANT held missing: it is another family's: ESCAPED a held push never sent
+rc=0

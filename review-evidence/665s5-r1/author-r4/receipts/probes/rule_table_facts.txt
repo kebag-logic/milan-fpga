@@ -1,0 +1,101 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <management>/665s5-a702e/scripts/rule_table_facts.py <tmp>/clone-probes
+bound: a stale T_svc of 10 ms | hooks.T_SVC_MS | constant | bounds pinned
+bound: SRP graded against T_svc alone | hooks.bound_ms | stands in | an 18 to 20 ms SRP path misses
+bound: the ceiling alone | hooks.bound_ms | stands in | bounds pinned
+bound: the normative wait is not added | run.hook_row | wraps HOOK_ROW | the exact bound fits and W adds
+bound: the margin is taken from a timeout of zero | hooks.normative_ms | stands in | the exact bound fits and W adds
+map: the counter push is a notification | hooks.COUNTERS_PREFIX | constant | the hooks map
+map: no composed row of this harness is loaded | run.LOADED | constant | the hooks map
+label: the Milan clock labelled the product's (the earlier rule) | run.clock_label | stands in | the clock labels
+label: the Milan clock the default (the earlier rule) | hooks_build.CPU_CLOCKS | constant | the clock labels
+split: the counter change is no pad | hooks.parsed | wraps ORIGINAL_PARSE | own lines are split off
+H-ADP: the grandmaster is not checked | hooks.gm_steps | stands in | H-ADP ordering
+H-DISC: the sink's PROBE_TX_COMMAND is never recognised | frames.ACMP | constant | H-DISC ordering
+H-DISC: the window never ends (the earlier rule ended it at the next tagged record) | hooks.next_adp_record | stands in | H-DISC ordering
+H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule) | hooks.disc_decided_ms | stands in | H-DISC ordering
+H-ACMP: no response is matched to its command | grade.response_sequence | stands in | H-ACMP ordering
+H-AECP: no face commit is recognised | hooks.face_commit_words | stands in | H-AECP ordering
+H-NOTIFY: the notification is not found | Grader.recipients | stands in | H-NOTIFY ordering
+H-COUNTERS: spacing of 0.1 s accepted | hooks.COUNTERS_SPACING_MS | constant | H-COUNTERS spacing
+H-COUNTERS: the held push from its change | hooks.COUNTERS_SPACING_MS | constant | the held push
+H-MAAP: no allocation report is recognised | hooks.MAAP_REPORT_START | constant | H-MAAP ordering
+H-MAAP: every AAF_CTRL store is a report (earlier rule) | hooks.MAAP_REPORT_START | constant | H-MAAP ordering
+H-SRP: the ADOPTED bit is never seen set | hooks.adopted | stands in | H-SRP ordering
+plants: a plant edits nothing | hooks_build.plant_text | stands in | the plants apply
+supersede: the table names another group | hooks.SUPERSEDED | constant | a refusal is superseded only by its own path
+supersede: the table names a second path | hooks.SUPERSEDED | constant | a refusal is superseded only by its own path
+supersede: a row of another path supersedes a refusal | run.hook_row | wraps HOOK_ROW | a refusal is superseded only by its own path
+supersede: every refusal is superseded | run.grade_all | wraps GRADE_ALL | a refusal is superseded only by its own path
+aging: the window opens before the arm (the earlier rule) | hooks.aging_group | wraps AGING_GROUP | the aging window opens after the arm
+aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule) | scenario.probe_answer | stands in | the aging window opens after the arm
+aging: both sinks bound before either is answered (the earlier rule) | hooks.aging_group | stands in | the aging window opens after the arm
+buckets: the window opens right after the registrations (the earlier rule) | hooks.refilled_ms | stands in | a composed row opens on full buckets
+findings: a path over its bound is not a finding | run.hook_row | wraps HOOK_ROW | findings by hook
+narrow: the layout swing is not applied | hooks.LAYOUT_SWING_CYCLES | constant | a fit under the layout swing is a finding
+narrow: the slack counted at the 50 MHz CPU (the earlier clock) | run.slack_cycles | wraps SLACK | a fit under the layout swing is a finding
+plant: any finding of the hook catches it (the earlier rule) | run.plant_findings | stands in | a plant is caught only by its own finding
+plant: any finding of its kind catches it | run.plant_findings | stands in | a plant is caught only by its own finding
+plant: a path that only starts with its own catches it | run.plant_findings | stands in | a plant is caught only by its own finding
+plant: a late plant names no path | hooks.plants | stands in | a plant is caught only by its own finding
+plant: every run is caught | run.plant_findings | stands in | a plant is caught only by its own finding
+plant: an escape exits 0 | run.main | wraps MAIN | a plant is caught only by its own finding
+held: W added to its bound | run.held_row | wraps HELD_ROW | the held push's grade
+held: the exact bound misses | run.held_row | wraps HELD_ROW | the held push's grade
+held: the verdict is relaxed by 1 ms | run.held_row | wraps HELD_ROW | the held push's grade
+held: its row reports no time | run.held_row | wraps HELD_ROW | the held push's grade
+held: its row reports a millisecond more | run.held_row | wraps HELD_ROW | the held push's grade
+held: W is not recorded | run.held_row | wraps HELD_ROW | the held push's grade
+held: its cycles round down | run.held_row | wraps HELD_ROW | the held push's grade
+held: its cycles are the bus's | run.held_row | wraps HELD_ROW | the held push's grade
+held: its margin omits W | run.held_row | wraps HELD_ROW | the held push's grade
+held: its margin is rounded to the millisecond | run.held_row | wraps HELD_ROW | the held push's grade
+held: its timeout is the notification family's | run.held_row | wraps HELD_ROW | the held push's grade
+held: it counts as under the composed load | run.held_row | wraps HELD_ROW | the held push's grade
+held: it counts as never served | run.held_row | wraps HELD_ROW | the held push's grade
+held: it is H-NOTIFY's | run.held_row | wraps HELD_ROW | the held push's grade
+held: it names another probe | run.held_row | wraps HELD_ROW | the held push's grade
+held missing: silently accepted | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it fits | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it counts as served | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: its finding by name is dropped | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: its timeout is the notification family's | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it records CPU cycles | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it records a W | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it records a margin | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it is another group's | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it is another path's | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it is another interface's | run.held_row | wraps HELD_ROW | a held push never sent
+held missing: it is another family's | run.held_row | wraps HELD_ROW | a held push never sent
+summary: the fastest path is the worst | run.summary | wraps SUMMARY | the worst path and the counts
+summary: W is left in the service | run.summary | wraps SUMMARY | the worst path and the counts
+summary: a path never served is not worst first | run.summary | wraps SUMMARY | the worst path and the counts
+summary: alone and under load are not apart | run.summary | wraps SUMMARY | the worst path and the counts
+summary: alone and under load are swapped | run.summary | wraps SUMMARY | the worst path and the counts
+summary: another hook's paths are its own | run.summary | wraps SUMMARY | the worst path and the counts
+summary: a miss counts as a narrow fit | run.summary | wraps SUMMARY | the worst path and the counts
+summary: no narrow fit is counted | run.summary | wraps SUMMARY | the worst path and the counts
+summary: a fit by the swing itself is narrow | run.summary | wraps SUMMARY | the worst path and the counts
+summary: a fit one cycle under the swing is not narrow | run.summary | wraps SUMMARY | the worst path and the counts
+summary: no miss is counted | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the path count is every hook's | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the applied count is dropped | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the undecided count is dropped | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the ordering findings are dropped | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the obligation is dropped | run.summary | wraps SUMMARY | the worst path and the counts
+summary: the clauses are dropped | run.summary | wraps SUMMARY | the worst path and the counts
+ALL: the push ends at its first descriptor | hooks.counters_groups | wraps COUNTERS_GROUPS | the ALL push both ways
+ALL: no descriptor has a row | hooks.counters_groups | wraps COUNTERS_GROUPS | the ALL push both ways
+ALL: a descriptor's row ends at the whole push | hooks.counters_groups | wraps COUNTERS_GROUPS | the ALL push both ways
+ALL: a descriptor's row opens after the change | hooks.counters_groups | wraps COUNTERS_GROUPS | the ALL push both ways
+amended: SRP keeps its ceiling | hooks.AMENDED_SRP_MS | constant | the amended column grades nothing
+amended: the ceiling at two interfaces is 20 ms | hooks.AMENDED_QUEUED_CEILING_MS | constant | the amended column grades nothing
+amended: every counter push is queued | hooks.QUEUED_PATH | constant | the amended column grades nothing
+amended: W is left off | hooks.amended_ms | stands in | the amended column grades nothing
+amended: the column grades a path | run.hook_row | wraps HOOK_ROW | the amended column grades nothing
+amended: a finding reads the column | run.grade_all | wraps GRADE_ALL | the amended column grades nothing
+amended: the table does not say which bounds graded | run.BOUNDS_NOTE | constant | the amended column grades nothing
+amended: the column repeats the bound | hooks.amended_ms | stands in | the amended column grades nothing
+
+96 mutants: {'constant': 16, 'stands': 22, 'wraps': 58}
+rc=0

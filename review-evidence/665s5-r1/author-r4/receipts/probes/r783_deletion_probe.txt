@@ -1,0 +1,23 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r783-3-packet/scripts/deletion_probe.py <tmp>/clone-probes
+head, nothing deleted: checks failing []; 0 escaped []
+arm rule deleted: checks failing []; 1 escaped ['aging: the window opens before the arm (the earlier rule)']
+grades-nothing verdict assertion deleted: checks failing []; 0 escaped []
+LATE assertion deleted: checks failing []; 1 escaped ['amended: a finding reads the column']
+both grades-nothing assertions deleted: checks failing []; 2 escaped ['amended: the column grades a path', 'amended: a finding reads the column']
+positive supersede assertion deleted: checks failing []; 1 escaped ['supersede: the table names another group']
+other-interface assertion deleted: checks failing []; 0 escaped []
+another-path assertion deleted: checks failing []; 1 escaped ['supersede: a row of another path supersedes a refusal']
+other-interface and another-path deleted: checks failing []; 1 escaped ['supersede: a row of another path supersedes a refusal']
+narrow-count assertion deleted: checks failing []; 4 escaped ['summary: a miss counts as a narrow fit', 'summary: no narrow fit is counted', 'summary: a fit by the swing itself is narrow', 'summary: a fit one cycle under the swing is not narrow']
+held service assertion deleted: checks failing []; 2 escaped ['held: its row reports no time', 'held: its row reports a millisecond more']
+held fine margin assertion deleted: checks failing []; 1 escaped ['held: its margin is rounded to the millisecond']
+held identity assertion deleted: checks failing []; 2 escaped ["held: it is H-NOTIFY's", 'held: it names another probe']
+missing record assertion deleted: checks failing []; 3 escaped ['held missing: it records CPU cycles', 'held missing: it records a W', 'held missing: it records a margin']
+missing identity assertion deleted: checks failing []; 4 escaped ["held missing: it is another group's", "held missing: it is another path's", "held missing: it is another interface's", "held missing: it is another family's"]
+summary row at the swing moved 1 cycle off (slack 6491), slack pin off: checks failing []; 1 escaped ['summary: a fit by the swing itself is narrow']
+summary row under the swing moved 1 cycle off (slack 6488), slack pin off: checks failing []; 1 escaped ['summary: a fit one cycle under the swing is not narrow']
+head plus the two-interface shape: checks failing []; 0 escaped []
+two-interface shape, both grades-nothing assertions deleted: checks failing []; 2 escaped ['amended: the column grades a path', 'amended: a finding reads the column']
+two-interface shape, those two and the NO pin deleted: checks failing []; 3 escaped ['amended: the column grades a path', 'amended: a finding reads the column', 'EXTRA verdict reads the column at two interfaces']
+rc=0

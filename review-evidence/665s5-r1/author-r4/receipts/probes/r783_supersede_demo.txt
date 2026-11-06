@@ -1,0 +1,6 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r783-3-packet/scripts/supersede_demo.py <tmp>/clone-probes
+head: aging group lost TMR_NO_ADP but measured ENTITY_AVAILABLE on the interface -> refusals 1 superseded 0; aging group lost TMR_NO_ADP, acmp-disc measured that path -> refusals 1 superseded 0; checks failing [] (the mutant list is read by source_probe.py)
+path term dropped: aging group lost TMR_NO_ADP but measured ENTITY_AVAILABLE on the interface -> refusals 0 superseded 1; aging group lost TMR_NO_ADP, acmp-disc measured that path -> refusals 1 superseded 0; checks failing ['a refusal is superseded only by its own path'] (the mutant list is read by source_probe.py)
+group term dropped: aging group lost TMR_NO_ADP but measured ENTITY_AVAILABLE on the interface -> refusals 1 superseded 0; aging group lost TMR_NO_ADP, acmp-disc measured that path -> refusals 0 superseded 1; checks failing [] (the mutant list is read by source_probe.py)
+rc=0

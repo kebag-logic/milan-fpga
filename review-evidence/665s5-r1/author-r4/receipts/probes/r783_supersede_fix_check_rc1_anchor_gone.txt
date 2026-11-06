@@ -1,0 +1,11 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r783-3-packet/scripts/supersede_fix_check.py <tmp>/clone-probes
+Traceback (most recent call last):
+  File "<reviews>/665s5-r783-3-packet/scripts/supersede_fix_check.py", line 25, in <module>
+    print('head case, head rule:', run_with(RULE, CASE))
+                                   ~~~~~~~~^^^^^^^^^^^^
+  File "<reviews>/665s5-r783-3-packet/scripts/supersede_fix_check.py", line 21, in run_with
+    p = H / 'hooks_selftest.py'; src = p.read_text(); assert src.count(CASE) == 1
+                                                             ^^^^^^^^^^^^^^^^^^^^
+AssertionError
+rc=1

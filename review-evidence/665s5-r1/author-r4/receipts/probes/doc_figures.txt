@@ -1,0 +1,12 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r784-2-packet/scripts/doc_figures.py <data>/tmp/665s5-a702d/docfig <data>/tmp/665s5-a702d/evidence <tmp>/clone-probes
+hook tables: 64 cells compared, 0 differ
+1x1 fanout keys: ['first_sys', 'last_sys', 'per_recipient_cpu_cycles', 'recipients']
+  sample ['t6.i0', '2.76', '5.49', '2.72'] {'recipients': 16, 'first_sys': 86521384, 'last_sys': 86793832, 'per_recipient_cpu_cycles': 18163}
+1x1: 5 rows, 0 last-notice figures differ
+8x8 fanout keys: ['first_sys', 'last_sys', 'per_recipient_cpu_cycles', 'recipients']
+  sample ['t6.i0', '4.68', '10.55', '5.87'] {'recipients': 32, 'first_sys': 120981648, 'last_sys': 121568218, 'per_recipient_cpu_cycles': 18921}
+8x8: 19 rows, 0 last-notice figures differ
+mutants: 96 in the list; 96 README rows name one exactly; missing []
+plant catch rules on the real unplanted 1x1 runs: 16 rules, 0 match []
+rc=0

@@ -1,0 +1,128 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <tmp>/clone-probes/tb/verilator/ctrl_service_hooks/hooks_selftest.py
+PASS bounds pinned
+PASS an 18 to 20 ms SRP path misses
+PASS the exact bound fits and W adds
+PASS the hooks map
+PASS the clock labels
+PASS the plants apply
+PASS the testbench additions apply
+PASS own lines are split off
+PASS H-ADP ordering
+PASS H-DISC ordering
+PASS H-ACMP ordering
+PASS H-AECP ordering
+PASS H-NOTIFY ordering
+PASS H-COUNTERS spacing
+PASS the held push
+PASS H-MAAP ordering
+PASS H-SRP ordering
+PASS findings by hook
+PASS a fit under the layout swing is a finding
+PASS a refusal is superseded only by its own path
+PASS the aging window opens after the arm
+PASS a composed row opens on full buckets
+PASS a plant is caught only by its own finding
+PASS the held push's grade
+PASS a held push never sent
+PASS the worst path and the counts
+PASS the ALL push both ways
+PASS the amended column grades nothing
+MUTANT bound: a stale T_svc of 10 ms: caught by bounds pinned
+MUTANT bound: SRP graded against T_svc alone: caught by an 18 to 20 ms SRP path misses
+MUTANT bound: the ceiling alone: caught by bounds pinned
+MUTANT bound: the normative wait is not added: caught by the exact bound fits and W adds
+MUTANT bound: the margin is taken from a timeout of zero: caught by the exact bound fits and W adds
+MUTANT map: the counter push is a notification: caught by the hooks map
+MUTANT map: no composed row of this harness is loaded: caught by the hooks map
+MUTANT label: the Milan clock labelled the product's (the earlier rule): caught by the clock labels
+MUTANT label: the Milan clock the default (the earlier rule): caught by the clock labels
+MUTANT split: the counter change is no pad: caught by own lines are split off
+MUTANT H-ADP: the grandmaster is not checked: caught by H-ADP ordering
+MUTANT H-DISC: the sink's PROBE_TX_COMMAND is never recognised: caught by H-DISC ordering
+MUTANT H-DISC: the window never ends (the earlier rule ended it at the next tagged record): caught by H-DISC ordering
+MUTANT H-DISC: a window shorter than the sink's TMR_DELAY decides (the earlier rule): caught by H-DISC ordering
+MUTANT H-ACMP: no response is matched to its command: caught by H-ACMP ordering
+MUTANT H-AECP: no face commit is recognised: caught by H-AECP ordering
+MUTANT H-NOTIFY: the notification is not found: caught by H-NOTIFY ordering
+MUTANT H-COUNTERS: spacing of 0.1 s accepted: caught by H-COUNTERS spacing
+MUTANT H-COUNTERS: the held push from its change: caught by the held push
+MUTANT H-MAAP: no allocation report is recognised: caught by H-MAAP ordering
+MUTANT H-MAAP: every AAF_CTRL store is a report (earlier rule): caught by H-MAAP ordering
+MUTANT H-SRP: the ADOPTED bit is never seen set: caught by H-SRP ordering
+MUTANT plants: a plant edits nothing: caught by the plants apply
+MUTANT supersede: the table names another group: caught by a refusal is superseded only by its own path
+MUTANT supersede: the table names a second path: caught by a refusal is superseded only by its own path
+MUTANT supersede: a row of another path supersedes a refusal: caught by a refusal is superseded only by its own path
+MUTANT supersede: every refusal is superseded: caught by a refusal is superseded only by its own path
+MUTANT aging: the window opens before the arm (the earlier rule): caught by the aging window opens after the arm
+MUTANT aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule): caught by the aging window opens after the arm
+MUTANT aging: both sinks bound before either is answered (the earlier rule): caught by the aging window opens after the arm
+MUTANT buckets: the window opens right after the registrations (the earlier rule): caught by a composed row opens on full buckets
+MUTANT findings: a path over its bound is not a finding: caught by findings by hook
+MUTANT narrow: the layout swing is not applied: caught by a fit under the layout swing is a finding
+MUTANT narrow: the slack counted at the 50 MHz CPU (the earlier clock): caught by a fit under the layout swing is a finding
+MUTANT plant: any finding of the hook catches it (the earlier rule): caught by a plant is caught only by its own finding
+MUTANT plant: any finding of its kind catches it: caught by a plant is caught only by its own finding
+MUTANT plant: a path that only starts with its own catches it: caught by a plant is caught only by its own finding
+MUTANT plant: a late plant names no path: caught by a plant is caught only by its own finding
+MUTANT plant: every run is caught: caught by a plant is caught only by its own finding
+MUTANT plant: an escape exits 0: caught by a plant is caught only by its own finding
+MUTANT held: W added to its bound: caught by the held push's grade
+MUTANT held: the exact bound misses: caught by the held push's grade
+MUTANT held: the verdict is relaxed by 1 ms: caught by the held push's grade
+MUTANT held: its row reports no time: caught by the held push's grade
+MUTANT held: its row reports a millisecond more: caught by the held push's grade
+MUTANT held: W is not recorded: caught by the held push's grade
+MUTANT held: its cycles round down: caught by the held push's grade
+MUTANT held: its cycles are the bus's: caught by the held push's grade
+MUTANT held: its margin omits W: caught by the held push's grade
+MUTANT held: its margin is rounded to the millisecond: caught by the held push's grade
+MUTANT held: its timeout is the notification family's: caught by the held push's grade
+MUTANT held: it counts as under the composed load: caught by the held push's grade
+MUTANT held: it counts as never served: caught by the held push's grade
+MUTANT held: it is H-NOTIFY's: caught by the held push's grade
+MUTANT held: it names another probe: caught by the held push's grade
+MUTANT held missing: silently accepted: caught by a held push never sent
+MUTANT held missing: it fits: caught by a held push never sent
+MUTANT held missing: it counts as served: caught by a held push never sent
+MUTANT held missing: its finding by name is dropped: caught by a held push never sent
+MUTANT held missing: its timeout is the notification family's: caught by a held push never sent
+MUTANT held missing: it records CPU cycles: caught by a held push never sent
+MUTANT held missing: it records a W: caught by a held push never sent
+MUTANT held missing: it records a margin: caught by a held push never sent
+MUTANT held missing: it is another group's: caught by a held push never sent
+MUTANT held missing: it is another path's: caught by a held push never sent
+MUTANT held missing: it is another interface's: caught by a held push never sent
+MUTANT held missing: it is another family's: caught by a held push never sent
+MUTANT summary: the fastest path is the worst: caught by the worst path and the counts
+MUTANT summary: W is left in the service: caught by the worst path and the counts
+MUTANT summary: a path never served is not worst first: caught by the worst path and the counts
+MUTANT summary: alone and under load are not apart: caught by the worst path and the counts
+MUTANT summary: alone and under load are swapped: caught by the worst path and the counts
+MUTANT summary: another hook's paths are its own: caught by the worst path and the counts
+MUTANT summary: a miss counts as a narrow fit: caught by the worst path and the counts
+MUTANT summary: no narrow fit is counted: caught by the worst path and the counts
+MUTANT summary: a fit by the swing itself is narrow: caught by the worst path and the counts
+MUTANT summary: a fit one cycle under the swing is not narrow: caught by the worst path and the counts
+MUTANT summary: no miss is counted: caught by the worst path and the counts
+MUTANT summary: the path count is every hook's: caught by the worst path and the counts
+MUTANT summary: the applied count is dropped: caught by the worst path and the counts
+MUTANT summary: the undecided count is dropped: caught by the worst path and the counts
+MUTANT summary: the ordering findings are dropped: caught by the worst path and the counts
+MUTANT summary: the obligation is dropped: caught by the worst path and the counts
+MUTANT summary: the clauses are dropped: caught by the worst path and the counts
+MUTANT ALL: the push ends at its first descriptor: caught by the ALL push both ways
+MUTANT ALL: no descriptor has a row: caught by the ALL push both ways
+MUTANT ALL: a descriptor's row ends at the whole push: caught by the ALL push both ways
+MUTANT ALL: a descriptor's row opens after the change: caught by the ALL push both ways
+MUTANT amended: SRP keeps its ceiling: caught by the amended column grades nothing
+MUTANT amended: the ceiling at two interfaces is 20 ms: caught by the amended column grades nothing
+MUTANT amended: every counter push is queued: caught by the amended column grades nothing
+MUTANT amended: W is left off: caught by the amended column grades nothing
+MUTANT amended: the column grades a path: caught by the amended column grades nothing
+MUTANT amended: a finding reads the column: caught by the amended column grades nothing
+MUTANT amended: the table does not say which bounds graded: caught by the amended column grades nothing
+MUTANT amended: the column repeats the bound: caught by the amended column grades nothing
+ctrl_service_hooks self-test: 28 of 28 checks pass; 96 of 96 mutants caught
+rc=0

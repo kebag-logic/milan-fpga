@@ -1,0 +1,25 @@
+HEAD c73be9b93101fde17c5545145b21066f24f7b99b
+$ python3 -B <reviews>/665s5-r784-3-packet/scripts/amended_check.py <tmp>/clone-probes <data>/tmp/665s5-a702d/evidence/author-r2/receipts/runs
+== 1x1-idle: 145 rows, moved 0, SRP in the 18-20 band 0
+   misses at base / under amended by hook {'H-ACMP': [11, 11], 'H-ADP': [1, 1], 'H-SRP': [7, 7], 'H-NOTIFY': [1, 1], 'H-AECP': [5, 5], 'H-MAAP': [2, 2], 'H-DISC': [1, 1]}
+   first []
+   table re-render identical: True
+== 1x1-ans: 164 rows, moved 0, SRP in the 18-20 band 0
+   ALL one path [('counters.all.if0', 27.58074)]; per descriptor 5: over 20 2, over 20.0 2
+   misses at base / under amended by hook {'H-ACMP': [12, 12], 'H-ADP': [1, 1], 'H-SRP': [6, 6], 'H-NOTIFY': [1, 1], 'H-AECP': [6, 6], 'H-MAAP': [1, 1], 'H-DISC': [0, 0], 'H-COUNTERS': [4, 4]}
+   first [('counters.first.if0', 5.63826)]
+   table re-render identical: True
+== 8x8-idle: 207 rows, moved 0, SRP in the 18-20 band 0
+   misses at base / under amended by hook {'H-ACMP': [11, 11], 'H-ADP': [5, 5], 'H-MAAP': [5, 5], 'H-SRP': [9, 9], 'H-NOTIFY': [1, 1], 'H-AECP': [5, 5], 'H-DISC': [2, 2]}
+   first []
+   table re-render identical: True
+== 8x8-ans: 240 rows, moved 4, SRP in the 18-20 band 0
+   moved ('H-COUNTERS', 'counters.all.t5.i1.if0', 21.69871, 20.0, 60.0, False, True)
+   moved ('H-COUNTERS', 'counters.all.t5.i2.if0', 33.43421, 20.0, 60.0, False, True)
+   moved ('H-COUNTERS', 'counters.all.t5.i3.if0', 44.89005, 20.0, 60.0, False, True)
+   moved ('H-COUNTERS', 'counters.all.t5.i4.if0', 57.15022, 20.0, 60.0, False, True)
+   ALL one path [('counters.all.if0', 218.71183)]; per descriptor 19: over 20 18, over 60.0 14
+   misses at base / under amended by hook {'H-ACMP': [12, 12], 'H-ADP': [5, 5], 'H-MAAP': [6, 6], 'H-SRP': [9, 9], 'H-NOTIFY': [1, 1], 'H-AECP': [6, 6], 'H-DISC': [1, 1], 'H-COUNTERS': [20, 16]}
+   first [('counters.first.if0', 10.16443)]
+   table re-render identical: True
+rc=0
