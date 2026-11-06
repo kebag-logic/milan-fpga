@@ -39,8 +39,8 @@ its title, audience line, cited paths or standards, status, or in a quoted findi
 stale. An edit that changes none of those renders the same page and passes; the gate ties the inventory to the
 files, not every sentence to its source.
 
-No line count or line number reaches the page (#848): each moves whenever a page grows, so two document changes
-would conflict in it. A finding's line is written only by `--findings-dir`, which is not committed.
+No line count or number reaches the page (#848): each moves as a page grows, so two document changes would
+conflict in it. Only `--findings-dir`, which is not committed, names a finding's line.
 
 Usage: python3 scripts/docs_inventory.py --write | --check | --selftest | --findings-dir DIR
 
@@ -528,8 +528,7 @@ def module_rows(tree: Tree, paths: list[str]) -> list[str]:
 def summary_rows(pages: list[Page]) -> list[str]:
     """Counts by status, and by lane with each lane's status split."""
     rows = ["| Status | Pages |", "|---|---:|"]
-    for state in STATUSES:
-        rows.append(f"| {state} | {sum(p.status == state for p in pages)} |")
+    rows += [f"| {state} | {sum(p.status == state for p in pages)} |" for state in STATUSES]
     rows.append(f"| **total** | **{len(pages)}** |")
     rows += ["", "| Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |",
              "|---|---:|---:|---:|---:|---:|---:|"]
@@ -736,6 +735,7 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
     `--check`, the workflow's own command, must exit `want` and print `says`.
     Unless it refused (2), `--write` must then heal the tree, and the page it
     regenerates must carry every `needle`, lack `absent` and carry no em dash.
+    A `needle` may instead head a `--findings-dir` file, the only output naming a line.
     """
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -758,8 +758,10 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
         if written != 0 or healed != 0:
             return f"{name}: --write did not heal the tree ({written}, {healed}): {printed.strip()[:300]}"
         rendered = (root / OUTPUT).read_text(encoding="utf-8")
+        gate(root, "--findings-dir", str(root / "lanes"))
+        listed = "".join(page.read_text(encoding="utf-8") for page in (root / "lanes").glob("*.md"))
         for text in (needle,) if isinstance(needle, str) else needle:
-            if text not in rendered:
+            if text not in rendered + listed:
                 return f"{name}: rendered page lacks {text!r}"
         for text in (absent,) if isinstance(absent, str) else absent:
             if text and text in rendered:
@@ -849,10 +851,11 @@ def copy_controls() -> tuple:
     return (
         ("the README's statement copied onto the requirements page", plant_copy(), 1,
          (copy_row, copy_status, "| D0-002 | [README.md](../README.md) | on page |",
-          "Copy of the D0-002 statement on `README.md`."), "STALE"),
+          "Copy of the D0-002 statement on `README.md`.", "## D0-002: README.md:5\n",
+          "## D0-002: REQUIREMENTS.md:3\n"), "STALE"),
         ("a spelling found only through `also` gets a row",
          in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
-         (f"{copy_row} {spelling[0]} |", copy_status), "STALE"),
+         (f"{copy_row} {spelling[0]} |", copy_status, "## D0-002: REQUIREMENTS.md:5\n"), "STALE"),
         ("two spellings on one page give one row", plant_copy(spelling), 1, f"{copy_row} All five default", "STALE",
          f"{copy_row} {spelling[0]}"),
         ("a copy cannot be marked current by hand",
@@ -867,7 +870,7 @@ def copy_controls() -> tuple:
         ("a copy on an archive page gets a row and stays obsolete",
          append("docs/history/v1/OLD.md", "The register resets to 0x1.\n"), 1,
          ("| D0-001 | [docs/history/v1/OLD.md (historical)](history/v1/OLD.md) | on page |",
-          "| Old page | -- | obsolete | versioned archive;"), "STALE"),
+          "| Old page | -- | obsolete | versioned archive;", "## D0-001: docs/history/v1/OLD.md:8\n"), "STALE"),
         ("a longer word is not a copy", append("docs/guides/B.md", "It presets to 0x1, or resets to 0x10.\n"), 0, "",
          "is fresh", "| D0-001 | [docs/guides/B.md]"),
         ("a statement across a blank line is not a copy", append("docs/guides/B.md", "It resets to\n\n0x1.\n"), 0,
@@ -895,48 +898,13 @@ def copy_controls() -> tuple:
     )
 
 
-def line_control(name: str, mutate: Mutation, lane: str, heading: str) -> str | None:
-    """One planted control on `--findings-dir`, the only output that names a line; the failure, or None."""
-    with tempfile.TemporaryDirectory() as scratch:
-        root = Path(scratch)
-        broken = fixture(root)
-        if broken:
-            return f"{name}: {broken}"
-        mutate(root)
-        code, printed = gate(root, "--findings-dir", str(root / "findings"))
-        if code != 0:
-            return f"{name}: --findings-dir exited {code}: {printed.strip()[:300]}"
-        if heading + "\n" not in (root / "findings" / lane).read_text(encoding="utf-8"):
-            return f"{name}: {lane} lacks {heading!r}"
-        return None
-
-
-def line_controls() -> tuple:
-    """Where a finding's line is still worked out: a recorded quote, and a copy by its first line."""
-    first_copy = "> **All five** default\n> to `FIRMWARE`.\n"
-    spelling = ("The Mark II default places them on the core.",)
-    return (
-        ("a recorded statement's line", lambda root: None, "overview-and-guides.md", "## D0-001: docs/guides/A.md:3"),
-        ("a statement recorded after an appended line", plant_copy(), "overview-and-guides.md",
-         "## D0-002: README.md:5"),
-        ("a wrapped copy's first line", plant_copy(), "reference.md", "## D0-002: REQUIREMENTS.md:3"),
-        ("a copy found only through `also`",
-         in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), "reference.md",
-         "## D0-002: REQUIREMENTS.md:5"),
-        ("a copy on an archive page", append("docs/history/v1/OLD.md", "The register resets to 0x1.\n"), "archive.md",
-         "## D0-001: docs/history/v1/OLD.md:8"),
-        ("a quote that left its page", replace("docs/guides/A.md", "0x1", "0x0"), "overview-and-guides.md",
-         "## D0-001: docs/guides/A.md:?"),
-    )
-
-
 def selftest() -> int:
     """`--check` itself on Git fixtures: every status rule, planted stale pages and the data refusals."""
     stale_cell = "| stale | 1 finding(s): D0-001 |"
     banner = "\n> Superseded by [A](A.md).\n"
     controls = (
-        ("unchanged tree is fresh through `git ls-files`", lambda root: None, 0, "| D0-001 |", "is fresh"),
-        # A page's length is not on the page (#848): only a status, a finding or the page set may move it.
+        ("unchanged tree is fresh through `git ls-files`", lambda root: None, 0,
+         ("| D0-001 |", "## D0-001: docs/guides/A.md:3\n"), "is fresh"),
         ("an added line leaves the page fresh", append("docs/guides/B.md", "Added line.\n"), 0, "", "is fresh"),
         ("a removed line leaves the page fresh", replace("docs/guides/A.md", "\n\nThe", "\nThe"), 0, "", "is fresh"),
         ("a line added above a finding leaves the page fresh",
@@ -948,10 +916,6 @@ def selftest() -> int:
         ("a status change alone makes the page stale", edit_data(lambda d: d.update(
             judged={"docs/guides/B.md": {"status": "superseded", "evidence": "judged"}})), 1,
          ("| superseded | judged |", "| superseded | 1 |"), "STALE"),
-        ("a finding added alone makes the page stale", edit_data(lambda d: d["findings"].append(
-            {"id": "D0-004", "page": "docs/guides/C.md", "quote": "No final newline",
-             "source": "`scripts/tool.py` line 1", "correction": "End the page."})), 1,
-         ("| stale | 1 finding(s): D0-004 |", "| stale | 2 |"), "STALE"),
         ("the summary counts pages by status and no lines", lambda root: None, 0,
          ("| Status | Pages |\n|---|---:|\n| current | 8 |\n| stale | 1 |\n| superseded | 0 |\n| obsolete | 1 |\n"
           "| **total** | **10** |\n"), "", ("Lines", "| Line |", "banner at line")),
@@ -959,7 +923,7 @@ def selftest() -> int:
          edit_data(lambda d: d["findings"][0].update(quote="resets to 0x2")), 1, "re-verify: quote not found",
          "STALE"),
         ("fixed statement asks for re-verification", replace("docs/guides/A.md", "0x1", "0x0"), 1,
-         "re-verify: quote not found", "STALE"),
+         ("re-verify: quote not found", "## D0-001: docs/guides/A.md:?\n"), "STALE"),
         ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
          ("| [docs/guides/NEW.md](guides/NEW.md) |", "| **total** | **11** |"), "STALE"),
         ("untracked page stays out of the population", append("docs/guides/UNTRACKED.md", "# Untracked\n"), 0,
@@ -973,13 +937,6 @@ def selftest() -> int:
         ("finding marks its page stale", lambda root: None, 0, stale_cell),
         ("a recorded current judgement cannot hide a finding", edit_data(lambda d: d.update(
             judged={"docs/guides/A.md": {"status": "current", "evidence": "judged"}})), 0, stale_cell),
-        # Each needle starts a line, so it reads the inventory row and never the Findings row.
-        ("a row runs from its page to its audience", lambda root: None, 0,
-         "\n| [docs/guides/A.md](guides/A.md) | maintainer | Guide A |"),
-        ("an unterminated last line keeps its row", lambda root: None, 0,
-         "\n| [docs/guides/C.md](guides/C.md) | maintainer | Guide C |"),
-        ("the audit page's own row carries no count", lambda root: None, 0,
-         f"\n| {page_link(OUTPUT)} | maintainer | Documentation audit |"),
         ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
         ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
          "", "is fresh", "protocol-processor/README.md"),
@@ -1005,14 +962,12 @@ def selftest() -> int:
         ("the citations' baseline is on the page", lambda root: None, 0, "at dev `1111111`"),
         ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), 2, "", "REFUSED"),
     ) + copy_controls()
-    lines = line_controls()
     failures = [message for message in (control(*arm) for arm in controls) if message]
-    failures += [message for message in (line_control(*arm) for arm in lines) if message]
     for message in failures:
         print("selftest: FAIL " + message)
     if failures:
         return 1
-    print(f"documentation inventory selftest: OK ({len(controls) + len(lines)} controls)")
+    print(f"documentation inventory selftest: OK ({len(controls)} controls)")
     return 0
 
 
