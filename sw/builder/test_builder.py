@@ -22198,6 +22198,19 @@ def _module_source(module):
     return None
 
 
+def _prune_guard_re(param):
+    """The `generate if` guard a prune parameter may carry.
+
+    `(PARAM != 0)` alone, or conjoined with the split placement's
+    `(CTRL_SPLIT_P == 0)` (#665: the split builds no KL_maap). A conjunction
+    keeps the property gate 23d pins, that PARAM = 0 prunes the block; a
+    disjunction or an inverted test would not, and does not match.
+    """
+    p = re.escape(param)
+    return (r"generate if \((?:%s != 0|\(%s != 0\) && \(CTRL_SPLIT_P == 0\))\) "
+            r"begin : (\w+)" % (p, p))
+
+
 def _prune_guard_site(param, rtl):
     """Find the source text that carries `param`'s `generate if`, and the name
     the guard uses there.
@@ -22210,7 +22223,7 @@ def _prune_guard_site(param, rtl):
     Anything else - including a parameter that is passed to a child which does
     not guard it either - returns (None, param) and fails the gate.
     """
-    if re.search(r"generate if \(%s != 0\) begin : \w+" % re.escape(param), rtl):
+    if re.search(_prune_guard_re(param), rtl):
         return rtl, param
 
     #: `Module #( .A (X), .B (Y) ) inst (` - the parameter block, balanced
@@ -22230,8 +22243,7 @@ def _prune_guard_site(param, rtl):
         child = _module_source(m.group(1))
         if child is None:
             continue
-        if re.search(r"generate if \(%s != 0\) begin : \w+"
-                     % re.escape(bind.group(1)), child):
+        if re.search(_prune_guard_re(bind.group(1)), child):
             return child, bind.group(1)
     return None, param
 
@@ -22312,6 +22324,15 @@ def test_optional_block_names_reach_the_rtl() -> None:
     """
     soc = (ROOT / "sw/litex/milan_soc.py").read_text()
     rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    # the guard spelling the gate accepts, and the ones it must still refuse
+    for text, ok in (("generate if (MAAP_P != 0) begin : g_x", True),
+                     ("generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_x", True),
+                     ("generate if ((MAAP_P != 0) || (CTRL_SPLIT_P == 0)) begin : g_x", False),
+                     ("generate if ((MAAP_P == 0) && (CTRL_SPLIT_P == 0)) begin : g_x", False),
+                     ("generate if ((MAAP_P != 0) && (CTRL_SPLIT_P != 0)) begin : g_x", False),
+                     ("generate if (CTRL_SPLIT_P == 0) begin : g_x", False)):
+        assert bool(re.search(_prune_guard_re("MAAP_P"), text)) == ok, (
+            f"the prune guard pattern {'refuses' if ok else 'accepts'} `{text}`")
     routes = _optional_block_prune_chain(soc)
     # 1. the SoC's own keyword -> parameter map, parsed from the literal
     soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
@@ -22351,8 +22372,7 @@ def test_optional_block_names_reach_the_rtl() -> None:
         assert where is not None, (
             f"{param} guards no `generate if`, in milan_datapath.sv or in any "
             f"module the datapath binds it to")
-        g = re.search(r"generate if \(%s != 0\) begin : (\w+)"
-                      % re.escape(guard), where)
+        g = re.search(_prune_guard_re(guard), where)
         tail = where[g.end():]
         nxt = tail.find("generate if (")
         arm = tail[:nxt if nxt > 0 else len(tail)]
