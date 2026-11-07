@@ -56,7 +56,7 @@ This page changes documentation only.
 | Shape | 32x32: 16x16 logical streams, each redundant on both networks, one TDM8 bus |
 | Block RAM | The routed image fits the device's Block RAM with the 13.5-tile reserve intact |
 | Timing | The build's timing gate at every signoff corner |
-| Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.373 ns record is a warning |
+| Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.258 ns record is a warning |
 | Talker latency | Target: below 65 µs for every talker stream, as short as possible ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)); derived as met with one base format at 16 reservations per port; not met with mixed formats, whose derived bounds the [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030); not met by some cases with [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), where no maximum is derived and 143.347 µs is reached, not a limit |
 | Save | Durable within 0.5 s worst case at 32x32 (NFR-REL-03) |
 | Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
@@ -935,7 +935,8 @@ At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27
 [#771](https://github.com/kebag-logic/milan-fpga/issues/771) then re-recorded it at processor `93fb0b2d` and FPGA-gPTP `55680bff`, under an [owner exception](https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429), to 50,759 LUTs and 74/25.
 [#632](https://github.com/kebag-logic/milan-fpga/issues/632) then re-recorded it for the media clock phase alignment, under two owner exceptions ([block RAM](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685); [LUT, FF and slices](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)), to 51,259 LUTs, 15,835 slices and 74/27.
 [#799](https://github.com/kebag-logic/milan-fpga/issues/799) then re-recorded it at processor `f65c8ff7`, under an [owner decision](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634), to 52,012 LUTs, 15,780 slices and 74/27.
-[#845](https://github.com/kebag-logic/milan-fpga/issues/845) has since re-recorded it at processor `92100657`, under a [maintainer decision](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981), now at 52,529 LUTs, 15,835 slices and 74/27; that record is the comparison anchor, and the ledger keeps the baseline figures.
+[#845](https://github.com/kebag-logic/milan-fpga/issues/845) then re-recorded it at processor `92100657`, under a [maintainer decision](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981), to 52,529 LUTs, 15,835 slices and 74/27.
+[#851](https://github.com/kebag-logic/milan-fpga/issues/851) has since re-recorded it at processor `044cb25f`, under the same [decision](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981), now at 53,050 LUTs, 15,831 slices and 74/27; that record is the comparison anchor, and the ledger keeps the baseline figures.
 These are stored figures, not measurements of this lane.
 The partial memory ledger still requires actual allocation and reconciliation.
 Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
