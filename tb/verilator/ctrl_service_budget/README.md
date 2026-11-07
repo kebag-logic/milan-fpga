@@ -1272,7 +1272,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
   --build-dir /tmp/budget-aged-heavier --mutation store-step-aged-heavier
 ```
 
-Some aged window's row must go over its budget, with no refusal: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget, a miss outside the aged windows only, or a refusal is `ESCAPED`.
+Some aged window's row must go over its budget, or its aged step over the cost `ctrl_loop.h` states for it (`whole_grade.py`), with no refusal and no pass over the share: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget and every aged step within its cost, a miss outside the aged windows only, a refusal or a pass over the share is `ESCAPED`.
 
 The planted round without a pass given whole runs the retried notice's groups with a change notice taken only in a pass that took no input and dispatched no centisecond, or beside an aged step or a build:
 

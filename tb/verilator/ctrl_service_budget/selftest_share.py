@@ -326,9 +326,14 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     miss = 'backlog-adp@verify-aged2-3.service.srp.last.if0: 0.4 ms over its budget 20 ms'
     cases = (([miss], []), ([], []), (['backlog.service.srp.last.if0: x'], []), ([miss], ['refused']))
     verdicts = [run.verdict(control, groups, refusals, misses, [], []) for misses, refusals in cases]
-    out.append(("the heavier aged step's plant is caught by an aged window's row over its budget, and escapes with "
-                "every row within it, a miss in another group only, or a refusal", verdicts == [0, 1, 1, 1],
-                str(verdicts)))
+    stepped = 'backlog-adp@verify-aged2-3: a step pass of 159,265 CPU cycles, over its stated 98,000'
+    verdicts += [run.verdict(control, groups, [], [], [], [stepped]),
+                 run.verdict(control, groups, [], [], [], ['backlog: a step pass of 159,265 CPU cycles, over']),
+                 run.verdict(control, groups, [], [], ['backlog-adp@verify-aged2-3: 1 of 9 work passes over'],
+                             [stepped])]
+    out.append(("the heavier aged step's plant is caught by an aged window's row over its budget or its aged step over "
+                "its stated cost, and escapes with every row within it, a miss in another group only, a refusal or a "
+                "pass over the share", verdicts == [0, 1, 1, 1, 0, 1, 1], str(verdicts)))
     return out
 
 

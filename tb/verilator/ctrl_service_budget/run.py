@@ -518,11 +518,13 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         # caught where an aged window's row goes over its budget, each named by its group
         import save_window
         aged_groups = {g.name for g in groups if save_window.aged_age(g.name) is not None}
-        named = sorted({m.partition(':')[0].partition('.')[0] for m in misses} & aged_groups)
-        caught = bool(named) and not refusals
+        # or where an aged window's aged step passes the cost the search counts from (whole_grade.held)
+        stepped = {s.partition(':')[0] for s in late if ': a step pass of ' in s}
+        named = sorted(({m.partition(':')[0].partition('.')[0] for m in misses} | stepped) & aged_groups)
+        caught = bool(named) and not refusals and not shares
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} aged window(s) with a row '
-              f'over its budget ({", ".join(named) or "none"}), {len(shares)} with a pass over the share, '
-              f'{len(refusals)} refusal(s)')
+              f'over its budget or an aged step over its stated cost ({", ".join(named) or "none"}), {len(shares)} '
+              f'with a pass over the share, {len(refusals)} refusal(s)')
         return 0 if caught else 1
     if args.mutation in builder.NOTICE_CONTROLS:
         # caught where every group's retried notice is committed later than its bound, or not within its window at
@@ -670,8 +672,9 @@ def main() -> int:
     stated = stated_misses(results)
     for line in stated:
         print('STATED', line)
+    import build as builder
     return verdict(args, groups, refusals, misses, shares,
-                   late + notice_misses(results) + (stated if args.mutation == 'none' else []))
+                   late + notice_misses(results) + (stated if args.mutation in ('none', *builder.AGED_CONTROLS) else []))
 
 
 if __name__ == '__main__':
