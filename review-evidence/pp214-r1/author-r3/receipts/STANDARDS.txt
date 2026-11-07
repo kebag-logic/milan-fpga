@@ -1,0 +1,6 @@
+8021Q-2022.pdf: sha256 283e041aca449d0d8d18c8382ae86faf3e02fdf76590c0078ebb18de767116ca
+Read for this round, in the 2022 text: Table 10-3 (Applicant state table) rows New! and Lv!; 11.2.3.1.7; 35.2.2.8 (the
+paragraph "MSRP does not support changes in any of the FirstValue fields for an existing StreamID"); 35.2.2.8.1.
+Lv! takes VN, AN, AA and QA to LA. New! takes LA to VN. These give PV17's expected messages.
+11.2.3.1.7: FirstValue is two octets, the VID, range 0 through 4094: PV15's VIDs differ in bits 8 to 11.
+35.2.2.8.1: the first eight octets of a Talker or Listener FirstValue are the StreamID: PV14's identity.

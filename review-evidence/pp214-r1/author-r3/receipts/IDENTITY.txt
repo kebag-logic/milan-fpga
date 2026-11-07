@@ -1,0 +1,27 @@
+Head 1c8b485f5eebfa8efaba6f5facbade7e5aa4caaa against the reviewed head cc92e90a95376151a9ebd484c429bc53feb8573c
+
+git tree of hdl/ at cc92e90: 6f29f7158dc466883647e58cad53daae46e8e425
+git tree of hdl/ at head:   6f29f7158dc466883647e58cad53daae46e8e425
+
+Files changed between the two heads:
+   docs/architecture/09_verification.md               |   7 +-
+   docs/architecture/10_srp_engine.md                 |   6 +-
+   tb/srp_encoder/README.md                           |  50 ++++-
+   tb/srp_encoder/sim_main.cpp                        | 223 ++++++++++++++++++++-
+   tb/srp_top/mutants.py                              |  35 ++++
+   .../mutations/identity-drops-top-octet.patch       |  11 +
+   .../mutations/identity-vid-low-octet-only.patch    |  11 +
+   .../mutations/listener-type-s-over-s-kept.patch    |  11 +
+   tb/srp_top/mutations/merge-keeps-older-value.patch |  11 +
+   .../mutations/msrp-read-taken-by-any-search.patch  |  11 +
+   tb/srp_top/mutations/mvrp-lv-keeps-joinin.patch    |  12 ++
+   tb/srp_top/mutations/mvrp-lv-keeps-new.patch       |  12 ++
+   .../mutations/mvrp-merge-never-written.patch       |  11 +
+   tb/srp_top/mutations/mvrp-new-keeps-lv.patch       |  12 ++
+   .../mutations/mvrp-read-taken-by-any-search.patch  |  11 +
+   tb/srp_top/mutations/push-on-drain-start.patch     |  11 +
+   tb/srp_top/mutations/search-survives-accept.patch  |  11 +
+   .../unknown-type-held-while-pending.patch          |  11 +
+   18 files changed, 454 insertions(+), 13 deletions(-)
+
+Every file under hdl/ is byte-identical, so no top-level port, parameter or register-map change exists, no MRP timer changes, and the area of the reviewed head stands.

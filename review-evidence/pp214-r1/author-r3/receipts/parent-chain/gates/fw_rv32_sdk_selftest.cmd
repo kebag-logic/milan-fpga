@@ -1,0 +1,1 @@
+python3 scripts/ci_rv32_sdk_selftest.py
