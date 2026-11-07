@@ -1,0 +1,41 @@
+BAD index row missing on disk: PR-BODY.md
+BAD index mismatch: receipts/docs-yml-e079fe66/docs-gates-0__ci_step_28.log
+BAD index mismatch: receipts/docs-yml-e079fe66/docs-gates-1__ci_step_13.log
+BAD index mismatch: receipts/docs-yml-e079fe66/docs-gates-1__gate_25_0.log
+BAD index mismatch: receipts/docs-yml-e079fe66/docs-gates-2__ci_step_13.log
+BAD index mismatch: receipts/docs-yml-e079fe66/docs-gates-2__gate_25_1.log
+BAD index mismatch: receipts/final-gates-e079fe66/xvlog_gate.log
+BAD index mismatch: receipts/route-dev/aslh.slot.log
+BAD index mismatch: receipts/route-dev/eto.slot.log
+BAD index row missing on disk: review-ready.md
+BAD index mismatch: scripts/collect_route.py
+BAD index mismatch: scripts/early_gates.sh
+BAD index mismatch: scripts/env.sh
+BAD index mismatch: scripts/final_gates.sh
+BAD index mismatch: scripts/make_clone.sh
+BAD index mismatch: scripts/mutants.py
+BAD index mismatch: scripts/mutants_chain.sh
+BAD index mismatch: scripts/route_chain.sh
+BAD index mismatch: scripts/route_export.sh
+BAD index mismatch: scripts/run_docs_yml.py
+BAD index mismatch: scripts/svc_chain.sh
+BAD index mismatch: scripts/verify_docs_yml.py
+BAD index mismatch: scripts/viv.sh
+BAD index row missing on disk: taken.md
+index: 474 rows, 450 match
+unlisted on disk: receipts/INDEX.md
+head ExtraPostPlacementOpt  LUT 53166 FF 54757 slice 15846 free 4 RAM 74/27 DSP 15 WNS +0.062 WHS +0.024 errors 0
+head AltSpreadLogic_high    LUT 53221 FF 54754 slice 15834 free 16 RAM 74/27 DSP 15 WNS +0.242 WHS +0.012 errors 0
+head ExtraTimingOpt         LUT 53234 FF 54755 slice 15834 free 16 RAM 74/27 DSP 15 WNS +0.058 WHS +0.031 errors 0
+head best: AltSpreadLogic_high WNS +0.242
+dev  ExtraPostPlacementOpt  LUT 52845 FF 54596 slice 15841 free 9 RAM 74/27 DSP 13 WNS +0.122 WHS +0.036 errors 0
+dev  AltSpreadLogic_high    LUT 52968 FF 54596 slice 15817 free 33 RAM 74/27 DSP 13 WNS +0.121 WHS +0.025 errors 0
+dev  ExtraTimingOpt         LUT 52973 FF 54595 slice 15817 free 33 RAM 74/27 DSP 13 WNS +0.234 WHS +0.033 errors 0
+dev best: ExtraTimingOpt WNS +0.234
+best-vs-best LUT: +248
+best-vs-best FF: +159
+best-vs-best SLICE: +17
+best-vs-best DSP: +2
+best-vs-best Slow: WNS +0.234 -> +0.242 (+0.008); WHS +0.061 -> +0.071 (+0.010)
+best-vs-best Fast: WNS +1.553 -> +1.383 (-0.170); WHS +0.033 -> +0.012 (-0.021)
+RESULT FAIL
