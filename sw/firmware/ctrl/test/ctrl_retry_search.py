@@ -205,7 +205,7 @@ def findings(interfaces: int, planted: dict[str, int] | None = None) -> tuple[li
 
 
 #: The search's planted controls at two interfaces: a constant restated, and the words its finding must carry.
-CONTROLS = (({'AECP_ATTEMPT_US': 0}, 'is not the search'), ({'AECP_ATTEMPT_US': 40}, 'has no room for a notice'),
+CONTROLS = (({'AECP_QUEUED_MS': 62}, 'is not the search'), ({'AECP_ATTEMPT_US': 40}, 'has no room for a notice'),
             ({'AECP_QUEUED_MS': 58}, 'over AECP_QUEUED_MS'), ({'AECP_QUEUED_CEILING_MS': 58}, 'over its ceiling'))
 
 
