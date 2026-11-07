@@ -3016,6 +3016,11 @@ class NxnDatapathHarness {
             for (int i = 0; i < 8; i++) step();
             dut->axis_resetn = 1; dut->gtx_resetn = 1;
             for (int i = 0; i < 8; i++) step();
+        //! #839: the fabric holds every CSR-addressed transmitter until both
+        //! halves of the station MAC are written, as configure_fabric() does
+        //! first thing. This harness keeps the reset address (all zero), the
+        //! station its DA=0 frames are addressed to, so it writes that.
+        axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
     }
 
     //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
