@@ -1,0 +1,79 @@
+FAIL: O8: MSRP preparation leaves MVRP intake open on its join clock (VID 3 taken after one search clock)
+FAIL: O8: deferred MVRP frame contains both accepted VIDs
+FAIL: PV1 two re-joins of one Domain value: one JoinIn: length got 37 exp 30
+FAIL: PV1 two re-joins of one Domain value: one JoinIn: byte-exact against the independent packer
+FAIL: PV2 New then a re-join: New: length got 37 exp 30
+FAIL: PV2 New then a re-join: New: byte-exact against the independent packer
+FAIL: PV3 JoinMt then JoinIn: JoinIn: length got 37 exp 30
+FAIL: PV3 JoinMt then JoinIn: JoinIn: byte-exact against the independent packer
+FAIL: PV4 a re-join then Lv: Lv: length got 37 exp 30
+FAIL: PV4 a re-join then Lv: Lv: byte-exact against the independent packer
+FAIL: PV4 Lv then New: New: length got 37 exp 30
+FAIL: PV4 Lv then New: New: byte-exact against the independent packer
+FAIL: PV4 New then Lv: Lv: length got 37 exp 30
+FAIL: PV4 New then Lv: Lv: byte-exact against the independent packer
+FAIL: PV4 Lv then a join: JoinMt: length got 37 exp 30
+FAIL: PV4 Lv then a join: JoinMt: byte-exact against the independent packer
+FAIL: PV5 In then JoinMt: JoinMt: length got 37 exp 30
+FAIL: PV5 In then JoinMt: JoinMt: byte-exact against the independent packer
+FAIL: PV5 JoinIn then Mt: JoinIn: length got 37 exp 30
+FAIL: PV5 JoinIn then Mt: JoinIn: byte-exact against the independent packer
+FAIL: PV5 Lv then Mt: Lv: length got 37 exp 30
+FAIL: PV5 Lv then Mt: Lv: byte-exact against the independent packer
+FAIL: PV5 Mt then In: In: length got 37 exp 30
+FAIL: PV5 Mt then In: In: byte-exact against the independent packer
+FAIL: PV6 Listener Ready then AskingFailed: AskingFailed: length got 47 exp 35
+FAIL: PV6 Listener Ready then AskingFailed: AskingFailed: byte-exact against the independent packer
+FAIL: PV6 Listener New Ready then a re-join AskingFailed: New AskingFailed: length got 47 exp 35
+FAIL: PV6 Listener New Ready then a re-join AskingFailed: New AskingFailed: byte-exact against the independent packer
+FAIL: PV6 Listener New Ready then Mt Ignore: New Ready: length got 47 exp 35
+FAIL: PV6 Listener New Ready then Mt Ignore: New Ready: byte-exact against the independent packer
+FAIL: PV7 a value again after its successor: one run of two: length got 47 exp 35
+FAIL: PV7 a value again after its successor: one run of two: byte-exact against the independent packer
+FAIL: PV9 VID 2 New then two re-joins: New: length got 36 exp 26
+FAIL: PV9 VID 2 New then two re-joins: New: byte-exact against the independent packer
+FAIL: PV9 three re-join walks of VID 2 and VID 7: one each: length got 46 exp 31
+FAIL: PV9 three re-join walks of VID 2 and VID 7: one each: byte-exact against the independent packer
+FAIL: PV10 a value offered after another searched past its entry merges into it (taken after 1 clocks, 6 pending)
+FAIL: PV10: length got 65 exp 44
+FAIL: PV10: byte-exact against the independent packer
+FAIL: PV11 the re-join merged (3 pending)
+FAIL: PV11 own LeaveAll MRPDU: the Domain once, JoinMt: length got 130 exp 123
+FAIL: PV11 own LeaveAll MRPDU: the Domain once, JoinMt: byte-exact against the independent packer
+FAIL: PV12 LINK_UP and periodic! in one window: Domain New once: length got 37 exp 30
+FAIL: PV12 LINK_UP and periodic! in one window: Domain New once: byte-exact against the independent packer
+FAIL: PV12 a received LeaveAll and periodic! in one window: Domain JoinIn once: length got 37 exp 30
+FAIL: PV12 a received LeaveAll and periodic! in one window: Domain JoinIn once: byte-exact against the independent packer
+FAIL: PV12 New, periodic! and a LeaveAll in one window: VID 4 New once: length got 36 exp 26
+FAIL: PV12 New, periodic! and a LeaveAll in one window: VID 4 New once: byte-exact against the independent packer
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: length got 81 exp 41
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: length got 107 exp 51
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: length got 81 exp 46
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: length got 107 exp 58
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV16 two Talker Advertise values of one StreamID, later fields changed: the newer one: length got 79 exp 51
+FAIL: PV16 two Talker Advertise values of one StreamID, later fields changed: the newer one: byte-exact against the independent packer
+FAIL: PV16 two Talker Failed values of one StreamID, later fields changed: the newer one: length got 97 exp 60
+FAIL: PV16 two Talker Failed values of one StreamID, later fields changed: the newer one: byte-exact against the independent packer
+FAIL: PV17 VID JoinIn then Lv: Lv: length got 31 exp 26
+FAIL: PV17 VID JoinIn then Lv: Lv: byte-exact against the independent packer
+FAIL: PV17 VID New then Lv: Lv: length got 31 exp 26
+FAIL: PV17 VID New then Lv: Lv: byte-exact against the independent packer
+FAIL: PV17 VID Lv then New: New: length got 31 exp 26
+FAIL: PV17 VID Lv then New: New: byte-exact against the independent packer
+FAIL: PV18 Listener In Ready then Mt AskingFailed: Mt AskingFailed: length got 47 exp 35
+FAIL: PV18 Listener In Ready then Mt AskingFailed: Mt AskingFailed: byte-exact against the independent packer
+FAIL: PV18 Listener Mt AskingFailed then In Ready: In Ready: length got 47 exp 35
+FAIL: PV18 Listener Mt AskingFailed then In Ready: In Ready: byte-exact against the independent packer
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the drain carries what it counted: length got 37 exp 30
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the drain carries what it counted: byte-exact against the independent packer
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: length got 107 exp 30
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+FAIL: PV20 a VID on the MVRP drain's start clock: the drain carries what it counted: length got 31 exp 26
+FAIL: PV20 a VID on the MVRP drain's start clock: the drain carries what it counted: byte-exact against the independent packer
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: length got 81 exp 26
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+888 checks: 810 PASS, 78 FAIL

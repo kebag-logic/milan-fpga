@@ -1,0 +1,13 @@
+x-start-collect-term-dropped: suite=srp_encoder rc=0 888 checks: 888 PASS, 0 FAIL
+x-start-laprepare-term-dropped: suite=srp_encoder rc=0 888 checks: 888 PASS, 0 FAIL
+x-start0-term-dropped: suite=srp_encoder rc=2 888 checks: 885 PASS, 3 FAIL
+    FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer waits on the clock its drain starts
+    FAIL: PV20 a Domain value on the MSRP drain's start clock: the next frame captured
+    FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+x-start1-term-dropped: suite=srp_encoder rc=2 888 checks: 885 PASS, 3 FAIL
+    FAIL: PV20 a VID on the MVRP drain's start clock: the offer waits on the clock its drain starts
+    FAIL: PV20 a VID on the MVRP drain's start clock: the next frame captured
+    FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+x-busy-not-in-alloc: suite=srp_encoder rc=0 888 checks: 888 PASS, 0 FAIL
+x-identity-top-octet-low7-dropped: suite=srp_encoder rc=0 888 checks: 888 PASS, 0 FAIL
+x-identity-octet3-bit0-dropped: suite=srp_encoder rc=0 888 checks: 888 PASS, 0 FAIL

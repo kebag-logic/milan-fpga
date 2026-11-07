@@ -1,0 +1,10 @@
+pv20-producer-head rc 0 ['888 checks: 888 PASS, 0 FAIL']
+pv20-producer-busy-arm rc 2 ['888 checks: 884 PASS, 4 FAIL']
+    FAIL: PV20 a Domain value on the MSRP drain's start clock: the next frame captured
+    FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+    FAIL: PV20 a VID on the MVRP drain's start clock: the next frame captured
+    FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+pv19-unknown-held rc 0 ['888 checks: 888 PASS, 0 FAIL']
+    PROBE pending=12
+    PROBE unknown type on a full table taken on its first clock=0
+    PROBE unknown type beside its own drain taken on its first clock=0

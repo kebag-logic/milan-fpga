@@ -1,0 +1,72 @@
+=== msrp-read-taken-by-any-search
+FAIL: PV13 an MVRP search beside an MSRP drain: the drain reads its own entries: byte-exact against the independent packer
+FAIL: PV13 an absent VID offered beside an MSRP drain: the drain reads its own entries: length got 68 exp 51
+FAIL: PV13 an absent VID offered beside an MSRP drain: the drain reads its own entries: byte-exact against the independent packer
+888 checks: 885 PASS, 3 FAIL
+=== mvrp-read-taken-by-any-search
+FAIL: PV13 an MSRP search beside an MVRP drain: the drain reads its own entries: byte-exact against the independent packer
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the drain reads its own entries: byte-exact against the independent packer
+888 checks: 886 PASS, 2 FAIL
+=== search-survives-accept
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: length got 81 exp 41
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: length got 107 exp 51
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: length got 81 exp 46
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: length got 107 exp 58
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+888 checks: 880 PASS, 8 FAIL
+=== identity-drops-top-octet
+FAIL: PV14 two type 1 StreamIDs that differ only in octet 0: two values: length got 51 exp 79
+FAIL: PV14 two type 1 StreamIDs that differ only in octet 0: two values: byte-exact against the independent packer
+FAIL: PV14 two type 2 StreamIDs that differ only in octet 0: two values: length got 60 exp 97
+FAIL: PV14 two type 2 StreamIDs that differ only in octet 0: two values: byte-exact against the independent packer
+FAIL: PV14 two type 3 StreamIDs that differ only in octet 0: two values: length got 35 exp 47
+FAIL: PV14 two type 3 StreamIDs that differ only in octet 0: two values: byte-exact against the independent packer
+888 checks: 882 PASS, 6 FAIL
+=== identity-vid-low-octet-only
+FAIL: PV15 VID 2 and the VID that differs only in bit 8: two values: length got 26 exp 31
+FAIL: PV15 VID 2 and the VID that differs only in bit 8: two values: byte-exact against the independent packer
+FAIL: PV15 VID 2 and the VID that differs only in bit 9: two values: length got 26 exp 31
+FAIL: PV15 VID 2 and the VID that differs only in bit 9: two values: byte-exact against the independent packer
+FAIL: PV15 VID 2 and the VID that differs only in bit 10: two values: length got 26 exp 31
+FAIL: PV15 VID 2 and the VID that differs only in bit 10: two values: byte-exact against the independent packer
+FAIL: PV15 VID 2 and the VID that differs only in bit 11: two values: length got 26 exp 31
+FAIL: PV15 VID 2 and the VID that differs only in bit 11: two values: byte-exact against the independent packer
+888 checks: 880 PASS, 8 FAIL
+=== merge-keeps-older-value
+FAIL: PV16 two Talker Advertise values of one StreamID, later fields changed: the newer one: byte-exact against the independent packer
+FAIL: PV16 two Talker Failed values of one StreamID, later fields changed: the newer one: byte-exact against the independent packer
+888 checks: 886 PASS, 2 FAIL
+=== mvrp-merge-never-written
+FAIL: PV17 VID JoinIn then Lv: Lv: byte-exact against the independent packer
+FAIL: PV17 VID New then Lv: Lv: byte-exact against the independent packer
+FAIL: PV17 VID Lv then New: New: byte-exact against the independent packer
+888 checks: 885 PASS, 3 FAIL
+=== mvrp-lv-keeps-joinin
+FAIL: PV17 VID JoinIn then Lv: Lv: byte-exact against the independent packer
+888 checks: 887 PASS, 1 FAIL
+=== mvrp-lv-keeps-new
+FAIL: PV17 VID New then Lv: Lv: byte-exact against the independent packer
+888 checks: 887 PASS, 1 FAIL
+=== mvrp-new-keeps-lv
+FAIL: PV17 VID Lv then New: New: byte-exact against the independent packer
+888 checks: 887 PASS, 1 FAIL
+=== listener-type-s-over-s-kept
+FAIL: PV18 Listener In Ready then Mt AskingFailed: Mt AskingFailed: byte-exact against the independent packer
+FAIL: PV18 Listener Mt AskingFailed then In Ready: In Ready: byte-exact against the independent packer
+888 checks: 886 PASS, 2 FAIL
+=== unknown-type-held-while-pending
+FAIL: PV19 an unknown MSRP type taken at once beside a pending value
+FAIL: PV19 an unknown MVRP type taken at once beside a pending value
+FAIL: PV19 both dropped (0 strobes)
+888 checks: 885 PASS, 3 FAIL
+=== push-on-drain-start
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer waits on the clock its drain starts
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the next frame captured
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer waits on the clock its drain starts
+FAIL: PV20 a VID on the MVRP drain's start clock: the next frame captured
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+888 checks: 882 PASS, 6 FAIL

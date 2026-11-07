@@ -1,0 +1,58 @@
+control srp_encoder : rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top timers: rc=0 PASS
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+join-sent-at-handover: rc=2 failures=3 KILLED tags=R1,R3
+count-up-unsends: rc=2 failures=3 KILLED tags=R2,R3
+join-sent-at-handover: rc=2 failures=3 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent,W4 re-joined VID 7 waits for its New to leave
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+domain-rejoin-always-joinin: rc=2 failures=10 KILLED tags=B1-domain,D2 periodic JoinMt,D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv)
+domain-rejoin-always-joinin: rc=2 failures=2 KILLED tags=DJ1,DJ4
+domain-rejoin-always-joinin: rc=2 failures=1 KILLED tags=Q2
+domain-rejoin-always-joinmt: rc=2 failures=9 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=9 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=2 KILLED tags=DJ2,DJ3
+domain-rejoin-at-request: rc=2 failures=6 KILLED tags=D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN,PV12 the Domain handed over two re-joins (3 events)
+domain-rx-leaveall-dropped: rc=2 failures=5 KILLED tags=D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR8 a registering event in the LeaveAll's clock keeps IN,PV12 the Domain handed over two re-joins (1 events)
+domain-rx-leaveall-dropped: rc=2 failures=1 KILLED tags=DJ3
+domain-leaveall-keeps-in: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DR6 peer withdrawal (Lv)
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DJ4
+domain-lv-any-value: rc=2 failures=1 KILLED tags=DR7 an Lv of another Domain value leaves the registration IN
+domain-leaveall-after-receive: rc=2 failures=1 KILLED tags=DR8 a registering event in the LeaveAll's clock keeps IN
+domain-adoption-drops-registrar: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered
+domain-capture-unregistered: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered
+domain-pending-lv-ignored: rc=2 failures=1 KILLED tags=DR10 an adoption withdrawn before it applies re-joins JoinMt
+domain-link-keeps-registrar: rc=2 failures=2 KILLED tags=B1-domain,DR11 LINK_DOWN and LINK_UP clear the registration
+second-queueing: rc=2 failures=8 KILLED tags=OV0,OV1,OV2,OV3,OV4,OV5,OV6,OV7
+second-queueing: rc=2 failures=72 KILLED tags=PV1 two re-joins of one Domain value,PV10,PV10 a value offered after another searched past its entry merges into it (taken after 4 clocks, 4 pending),PV11 own LeaveAll MRPDU,PV11 the re-join merged (3 pending),PV12 LINK_UP and periodic! in one window,PV12 New, periodic! and a LeaveAll in one window,PV12 a received LeaveAll and periodic! in one window,PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain,PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed,PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv,PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready,PV2 New then a re-join,PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock,PV3 JoinMt then JoinIn,PV4 Lv then New,PV4 Lv then a join,PV4 New then Lv,PV4 a re-join then Lv,PV5 In then JoinMt,PV5 JoinIn then Mt,PV5 Lv then Mt,PV5 Mt then In,PV6 Listener New Ready then Mt Ignore,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed,PV7 a value again after its successor,PV9 VID 2 New then two re-joins,PV9 three re-join walks of VID 2 and VID 7
+join-displaces-new: rc=2 failures=2 KILLED tags=OV6,OV7
+join-displaces-new: rc=2 failures=5 KILLED tags=PV12 LINK_UP and periodic! in one window,PV12 New, periodic! and a LeaveAll in one window,PV2 New then a re-join,PV6 Listener New Ready then a re-join AskingFailed,PV9 VID 2 New then two re-joins
+leave-does-not-replace: rc=2 failures=4 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID New then Lv,PV4 New then Lv,PV4 a re-join then Lv
+s-displaces-declaration: rc=2 failures=3 KILLED tags=PV5 JoinIn then Mt,PV5 Lv then Mt,PV6 Listener New Ready then Mt Ignore
+listener-type-oldest: rc=2 failures=4 KILLED tags=PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed
+merge-ignores-type: rc=2 failures=2 KILLED tags=PV8 three types of one StreamID
+search-no-restart: rc=2 failures=3 KILLED tags=PV10,PV10 a value offered after another searched past its entry merges into it (taken after 2 clocks, 4 pending)
+msrp-read-taken-by-any-search: rc=2 failures=3 KILLED tags=PV13 an MVRP search beside an MSRP drain,PV13 an absent VID offered beside an MSRP drain
+mvrp-read-taken-by-any-search: rc=2 failures=2 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an absent Domain value offered beside an MVRP drain
+search-survives-accept: rc=2 failures=8 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain
+identity-drops-top-octet: rc=2 failures=6 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0,PV14 two type 2 StreamIDs that differ only in octet 0,PV14 two type 3 StreamIDs that differ only in octet 0
+identity-drops-top-octet: rc=2 failures=6 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0,PV14 two type 2 StreamIDs that differ only in octet 0,PV14 two type 3 StreamIDs that differ only in octet 0
+identity-vid-low-octet-only: rc=2 failures=8 KILLED tags=PV15 VID 2 and the VID that differs only in bit 10,PV15 VID 2 and the VID that differs only in bit 11,PV15 VID 2 and the VID that differs only in bit 8,PV15 VID 2 and the VID that differs only in bit 9
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-lv-keeps-joinin: rc=2 failures=1 KILLED tags=PV17 VID JoinIn then Lv
+mvrp-lv-keeps-new: rc=2 failures=1 KILLED tags=PV17 VID New then Lv
+mvrp-new-keeps-lv: rc=2 failures=1 KILLED tags=PV17 VID Lv then New
+listener-type-s-over-s-kept: rc=2 failures=2 KILLED tags=PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+push-on-drain-start: rc=2 failures=6 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+push-on-drain-start: rc=2 failures=6 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+57 checks: 57 PASS, 0 FAIL

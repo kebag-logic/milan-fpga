@@ -1,0 +1,20 @@
+c-head rc 0 ['888 checks: 888 PASS, 0 FAIL']
+    PROBE C1 taken_on_go_clock=0 first_frame=1 first_len=121 pending_after=1 second_frame=1 second_len=30
+    PROBE C2 taken_on_prepare_clock=0 pending=2 frame=1 len=128
+c-collect-term-dropped rc 0 ['888 checks: 888 PASS, 0 FAIL']
+    PROBE C1 taken_on_go_clock=1 first_frame=1 first_len=121 pending_after=0 second_frame=0 second_len=0
+    PROBE C2 taken_on_prepare_clock=0 pending=2 frame=1 len=128
+c-laprepare-term-dropped rc 0 ['888 checks: 888 PASS, 0 FAIL']
+    PROBE C1 taken_on_go_clock=0 first_frame=1 first_len=121 pending_after=1 second_frame=1 second_len=30
+    PROBE C2 taken_on_prepare_clock=1 pending=2 frame=1 len=128
+c-rv-search-ignores-start rc 0 ['888 checks: 888 PASS, 0 FAIL']
+    PROBE C1 taken_on_go_clock=0 first_frame=1 first_len=121 pending_after=1 second_frame=1 second_len=30
+    PROBE C2 taken_on_prepare_clock=0 pending=2 frame=1 len=128
+rv-empty-table-searches rc 2 []
+    named FAIL lines before the stop: 5
+      FAIL: E1 push accepted
+      FAIL: E1 PDU captured
+      FAIL: E1: length got 0 exp 30
+      FAIL: E1: byte-exact against the independent packer
+      FAIL: E1 frame is 30 bytes got 0
+    tail: ['  got:', 'FAIL: E1 frame is 30 bytes got 0', 'make: *** [Makefile:20: run] Segmentation fault (core dumped)', "make: Leaving directory '$REVIEWS/pp214-r779-2-packet/scratch/collect/rv-empty-table-sea"]
