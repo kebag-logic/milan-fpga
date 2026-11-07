@@ -1,0 +1,16 @@
+make: Entering directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-7gptxh5u/tb/srp_top'
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --savable --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-7gptxh5u/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+%Warning-PINCONNECTEMPTY: srp_top_wrap.sv:318:8: Instance pin connected by name with empty reference: 'evt_tk_latency_chg_o'
+  318 |       .evt_tk_latency_chg_o (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.582 MB sources in 15 modules, into 3.854 MB in 10 C++ files needing 0.003 MB
+- Verilator: Walltime 16.304 s (elab=0.039, cvt=0.827, bld=15.298); cpu 0.989 s on 8 threads; allocated 646.152 MB
+./obj_dir/Vsrp_top_sim onevec
+TOTAL_CLOCKS 15599718
+12 checks: 12 PASS, 0 FAIL
+make: Leaving directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-7gptxh5u/tb/srp_top'

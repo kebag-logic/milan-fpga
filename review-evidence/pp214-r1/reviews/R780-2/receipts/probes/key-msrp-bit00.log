@@ -1,0 +1,16 @@
+FAIL: E4: byte-exact against the independent packer
+FAIL: E4 NumberOfValues 3
+FAIL: E4 ThreePacked radix-6 byte
+FAIL: E4 FourPacked radix-4 byte (pad 0)
+FAIL: E5: byte-exact against the independent packer
+FAIL: E5 first vector aggregated NoV=2
+FAIL: E10-lstn: length got 47 exp 37
+FAIL: E10-lstn: byte-exact against the independent packer
+FAIL: E10 NoV=5 aggregated
+FAIL: E12 13th push backpressured while full
+FAIL: E12: length got 95 exp 40
+FAIL: E12: byte-exact against the independent packer
+FAIL: E12 NoV=12 single vector
+FAIL: PV7 a value again after its successor: one run of two: byte-exact against the independent packer
+888 checks: 874 PASS, 14 FAIL
+make: *** [Makefile:20: run] Error 1

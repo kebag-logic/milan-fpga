@@ -1,0 +1,8 @@
+R780-2 verdict and ledger as fixed before any prior review finding text was read.
+Verdict: NEGATIVE - exact head 1c8b485f5eebfa8efaba6f5facbade7e5aa4caaa
+Open: one MINOR (Tests, Robustness): the push on a drain's start clock is graded on the two
+ordinary drain starts only. Dropping the E_COLLECT term of start_tgt_w loses a value in a
+prepared own round (directed row, receipts/directed/collect-arm.log) and passes tb/srp_encoder
+888 of 888 and tb/srp_top 8683 of 8683.
+Lens ledger: Conformance CLEAN, RTL CLEAN, Robustness UNCLEAN, Tests UNCLEAN, Docs CLEAN.
+Sat Nov  7 02:03:08 AM CET 2026

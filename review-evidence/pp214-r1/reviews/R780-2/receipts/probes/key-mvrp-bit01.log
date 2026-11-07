@@ -1,0 +1,12 @@
+FAIL: E10-mvrp: length got 31 exp 26
+FAIL: E10-mvrp: byte-exact against the independent packer
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: length got 36 exp 41
+FAIL: PV13 an MVRP search beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an MSRP search beside an MVRP drain: the drain reads its own entries: length got 36 exp 41
+FAIL: PV13 an MSRP search beside an MVRP drain: the drain reads its own entries: byte-exact against the independent packer
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: length got 36 exp 46
+FAIL: PV13 an absent VID offered beside an MSRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the drain reads its own entries: length got 36 exp 41
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the drain reads its own entries: byte-exact against the independent packer
+888 checks: 878 PASS, 10 FAIL
+make: *** [Makefile:20: run] Error 1

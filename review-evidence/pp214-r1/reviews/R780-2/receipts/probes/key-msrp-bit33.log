@@ -1,0 +1,14 @@
+FAIL: PV10 three Domain values pending
+FAIL: PV10 a value offered after another searched past its entry merges into it (taken after 2 clocks, 2 pending)
+FAIL: PV10: length got 37 exp 44
+FAIL: PV10: byte-exact against the independent packer
+FAIL: PV13 an MVRP search beside an MSRP drain: the drain reads its own entries: length got 44 exp 51
+FAIL: PV13 an MVRP search beside an MSRP drain: the drain reads its own entries: byte-exact against the independent packer
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: length got 44 exp 51
+FAIL: PV13 an MSRP search beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+FAIL: PV13 an absent VID offered beside an MSRP drain: the drain reads its own entries: length got 44 exp 51
+FAIL: PV13 an absent VID offered beside an MSRP drain: the drain reads its own entries: byte-exact against the independent packer
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: length got 44 exp 58
+FAIL: PV13 an absent Domain value offered beside an MVRP drain: the search merged into its own table: byte-exact against the independent packer
+888 checks: 876 PASS, 12 FAIL
+make: *** [Makefile:20: run] Error 1

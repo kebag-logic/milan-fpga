@@ -1,0 +1,23 @@
+make: Entering directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-bhxagdqu/tb/srp_encoder'
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-bhxagdqu/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+make[1]: Entering directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-bhxagdqu/tb/srp_encoder/obj_dir'
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_tb_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_sim
+rm Vsrp_tb_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-bhxagdqu/tb/srp_encoder/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.409 MB sources in 7 modules, into 0.380 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 8.220 s (elab=0.019, cvt=0.076, bld=8.075); cpu 0.097 s on 8 threads; allocated 359.051 MB
+./obj_dir/Vsrp_sim
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer waits on the clock its drain starts
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the next frame captured
+FAIL: PV20 a Domain value on the MSRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+  exp: 01 80 c2 00 00 0e 02 4b 4c 00 00 01 22 ea 00 04 04 00 09 00 01 06 03 00 07 24 00 00 00 00
+  got: 01 80 c2 00 00 0e 02 4b 4c 00 00 01 22 ea 00 04 04 00 09 00 01 06 03 00 02 24 00 00 00 00
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer waits on the clock its drain starts
+FAIL: PV20 a VID on the MVRP drain's start clock: the next frame captured
+FAIL: PV20 a VID on the MVRP drain's start clock: the offer rides the next MRPDU: byte-exact against the independent packer
+  exp: 01 80 c2 00 00 21 02 4b 4c 00 00 01 88 f5 00 01 02 00 01 00 07 24 00 00 00 00
+  got: 01 80 c2 00 00 21 02 4b 4c 00 00 01 88 f5 00 01 02 00 01 00 02 24 00 00 00 00
+888 checks: 882 PASS, 6 FAIL
+make: *** [Makefile:20: run] Error 1
+make: Leaving directory '$REVIEWS/pp214-r780-2-packet/scratch/tmp/srp-leaveall-bhxagdqu/tb/srp_encoder'

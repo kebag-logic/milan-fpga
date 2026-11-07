@@ -1,0 +1,21 @@
+control srp_encoder : rc=0 PASS
+msrp-read-taken-by-any-search: rc=2 failures=3 KILLED tags=PV13 an MVRP search beside an MSRP drain,PV13 an absent VID offered beside an MSRP drain
+mvrp-read-taken-by-any-search: rc=2 failures=2 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an absent Domain value offered beside an MVRP drain
+search-survives-accept: rc=2 failures=8 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain
+identity-drops-top-octet: rc=2 failures=6 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0,PV14 two type 2 StreamIDs that differ only in octet 0,PV14 two type 3 StreamIDs that differ only in octet 0
+identity-drops-top-octet: rc=2 failures=6 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0,PV14 two type 2 StreamIDs that differ only in octet 0,PV14 two type 3 StreamIDs that differ only in octet 0
+identity-vid-low-octet-only: rc=2 failures=8 KILLED tags=PV15 VID 2 and the VID that differs only in bit 10,PV15 VID 2 and the VID that differs only in bit 11,PV15 VID 2 and the VID that differs only in bit 8,PV15 VID 2 and the VID that differs only in bit 9
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-lv-keeps-joinin: rc=2 failures=1 KILLED tags=PV17 VID JoinIn then Lv
+mvrp-lv-keeps-new: rc=2 failures=1 KILLED tags=PV17 VID New then Lv
+mvrp-new-keeps-lv: rc=2 failures=1 KILLED tags=PV17 VID Lv then New
+listener-type-s-over-s-kept: rc=2 failures=2 KILLED tags=PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+push-on-drain-start: rc=2 failures=6 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+push-on-drain-start: rc=2 failures=6 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+20 checks: 20 PASS, 0 FAIL
