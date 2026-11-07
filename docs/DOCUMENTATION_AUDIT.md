@@ -273,7 +273,7 @@ Areas follow the directory tree.
 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | firmware developer | Bare-metal AX7101 firmware profile | `sw/litex`, `scripts`, `sw/builder` | stale | 5 finding(s): D0-011, D0-012, D0-013, D0-061, D0-062 | D0 | reference |
 | [docs/integration/BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | integrator | Board porting - Alinx AX7101 (XC7A100T-2FGG484I) | `sw/litex` | stale | 3 finding(s): D0-010, D0-038, D0-039 | D0 | reference |
 | [docs/integration/BUILDING.md](integration/BUILDING.md) | integrator | Building bitstreams - the AX7101 build flow | `sw/litex`, `scripts`, `sw/builder` | current | no recorded contradiction | D0 | reference |
-| [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp` | stale | 3 finding(s): D0-063, D0-064, D0-065 | D0 | reference |
+| [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp`, Milan v1.2 | stale | 3 finding(s): D0-063, D0-064, D0-065 | D0 | reference |
 | [docs/integration/PORTING_GUIDE.md](integration/PORTING_GUIDE.md) | integrator | Porting guide | `syn/yosys` | current | no recorded contradiction | D0 | reference |
 | [docs/integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | integrator | QSPI flash-boot - skip the multi-minute serial upload | `sw/litex`, `scripts` | stale | 5 finding(s): D0-024, D0-025, D0-035, D0-036, D0-037 | D0 | reference |
 
