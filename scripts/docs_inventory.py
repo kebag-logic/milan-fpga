@@ -25,7 +25,7 @@ when the committed page marks current a page its own Findings table lists, so a 
 The verified contradictions live in `scripts/docs_inventory.json`. Each one quotes the statement exactly, so
 the generator finds its line at every head; a quote that is no longer on its page is rendered as needing
 re-verification rather than silently dropped, and an area lane that fixes a statement removes its entry in the
-same change, once no copy row of it remains.
+same change, once no copy row of it remains. It also lists the D0 pages: a later page waits for its lane (#848).
 
 The cross-page rule (#797): every recorded statement, and each spelling its entry lists under `also`, is
 searched across every inventoried page, normalised for case, line wrapping, list and quote markers, asterisk
@@ -93,8 +93,6 @@ STANDARDS = (
     ("802.1AS", re.compile(r"\b802\.1AS\b")),
     ("802.1BA", re.compile(r"\b802\.1BA\b")),
 )
-#: The release-facing pages #797 verifies statement by statement.
-RELEASE_FACING = re.compile(r"README\.md|REQUIREMENTS\.md|docs/README\.md|docs/(guides|integration|reference)/.*")
 #: The area lane that owns each page in the sweep, first match wins.
 LANES = (
     (r"docs/history/.*", "archive"),
@@ -318,16 +316,19 @@ def describes_of(tree: Tree, text: str, path: str) -> str:
     return ", ".join(names) if names else "--"
 
 
-def load_data(root: Path, paths: list[str]) -> tuple[str, str, dict[str, tuple[str, str]], list[Finding]]:
-    """The two baselines, the recorded judgements and findings; refuses a malformed file."""
+def load_data(root: Path, paths: list[str]) -> tuple[str, str, set[str], dict[str, tuple[str, str]], list[Finding]]:
+    """The two baselines, the D0 pages, the recorded judgements and findings; refuses a malformed file."""
     source = root / DATA
     if not source.is_file():
-        return "--", "--", {}, []
+        return "--", "--", set(), {}, []
     try:
         data = json.loads(source.read_text(encoding="utf-8"))
     except (ValueError, UnicodeDecodeError) as error:
         raise Refusal(f"{DATA}: not valid JSON: {error}") from error
     known = set(paths)
+    checked = data.get("verified_pages", [])
+    if not isinstance(checked, list) or not all(isinstance(page, str) and page in known for page in checked):
+        raise Refusal(f"{DATA}: `verified_pages` must list tracked pages; update it when a listed page moves or goes")
     judged: dict[str, tuple[str, str]] = {}
     for page, entry in sorted(data.get("judged", {}).items()):
         if page not in known or entry.get("status") not in STATUSES or not entry.get("evidence"):
@@ -348,7 +349,7 @@ def load_data(root: Path, paths: list[str]) -> tuple[str, str, dict[str, tuple[s
     duplicated = sorted(ident for ident, count in idents.items() if count > 1)
     if duplicated:
         raise Refusal(f"{DATA}: duplicate finding ids: {', '.join(duplicated)}")
-    return str(data.get("verified_at", "--")), str(data.get("cited_at", "--")), judged, findings
+    return str(data.get("verified_at", "--")), str(data.get("cited_at", "--")), set(checked), judged, findings
 
 
 def locate(text: str, quote: str) -> int | None:
@@ -474,7 +475,7 @@ def build(tree: Tree, paths: list[str]) -> tuple[list[Page], list[tuple[Finding,
     The audit page's own row is read from the header this script writes, never
     from the file on disk, so the row cannot depend on the page it is part of.
     """
-    verified_at, cited_at, judged, findings = load_data(tree.root, paths)
+    verified_at, cited_at, checked, judged, findings = load_data(tree.root, paths)
     texts = {path: "\n".join(OWN_HEAD) if path == OUTPUT
              else (tree.root / path).read_text(encoding="utf-8", errors="replace") for path in paths}
     by_page: dict[str, list[Finding]] = {}
@@ -487,12 +488,7 @@ def build(tree: Tree, paths: list[str]) -> tuple[list[Page], list[tuple[Finding,
         located += [(f, carried_line(flatten(text), f.quote) if f.origin else locate(text, f.quote))
                     for f in page_findings]
         state, evidence = status_rule(*status(text, path, judged), page_findings)
-        if path.startswith(ARCHIVE_PREFIX):
-            verified = "archive"
-        elif RELEASE_FACING.fullmatch(path):
-            verified = "D0"
-        else:
-            verified = "area lane"
+        verified = "archive" if path.startswith(ARCHIVE_PREFIX) else "D0" if path in checked else "area lane"
         pages.append(Page(path, area_of(path), audience_of(text, path), purpose_of(text, path),
                           describes_of(tree, text, path), state, evidence, verified, first_match(LANES, path)))
     return pages, located, verified_at, cited_at
@@ -703,12 +699,11 @@ def fixture(root: Path) -> str | None:
         "docs/history/v1/OLD.md": ("[OBSOLETE + 2026-01-01]\n\n> Status: Historical\n>\n"
                                    "> Current successor: [open](../../guides/B.md)\n\n# Old page\n"),
         "hdl/milan/README-tests.md": "# `milan` tests\n", "hdl/milan/top.sv": "module top; endmodule\n",
-        "scripts/tool.py": "\n", "tb/README": "# Testbenches\n",
-    }
+        "scripts/tool.py": "\n", "tb/README": "# Testbenches\n"}
     for path, text in pages.items():
         (root / path).parent.mkdir(parents=True, exist_ok=True)
         (root / path).write_text(text, encoding="utf-8")
-    data = {"verified_at": "0000000", "cited_at": "1111111",
+    data = {"verified_at": "0000000", "cited_at": "1111111", "verified_pages": ["README.md", "docs/guides/A.md"],
             "findings": [{"id": "D0-001", "page": "docs/guides/A.md", "quote": "resets to 0x1",
                           "source": "`hdl/milan/top.sv` line 1", "correction": "It resets to 0x0."}]}
     (root / DATA).write_text(json.dumps(data), encoding="utf-8")
@@ -926,6 +921,8 @@ def selftest() -> int:
          ("re-verify: quote not found", "## D0-001: docs/guides/A.md:?\n"), "STALE"),
         ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "No heading.\n"), 1,
          ("| [docs/guides/NEW.md](guides/NEW.md) |", "| **total** | **11** |", "| NEW.md |"), "STALE"),
+        ("a page added under a release-facing path is not D0", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
+         ("| New | -- | current | no recorded contradiction | area lane |", "| 6 | 5 | 1 | 0 | 0 | 2 |"), "STALE"),
         ("untracked page stays out of the population", append("docs/guides/UNTRACKED.md", "# Untracked\n"), 0,
          "", "is fresh", "UNTRACKED"),
         ("tracked page removed", lambda root: (root / "docs/guides/B.md").unlink(), 1, "| **total** | **9** |", "STALE",
@@ -960,6 +957,9 @@ def selftest() -> int:
         ("finding without a correction", edit_data(lambda d: d["findings"][0].update(correction="")), 2, "", "REFUSED"),
         ("judgement with an unknown status", edit_data(lambda d: d.update(
             judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), 2, "", "REFUSED"),
+        ("a D0 page that left the tree", lambda root: (root / "README.md").unlink(), 2, "", "verified_pages"),
+        ("D0 pages that are not a list", edit_data(lambda d: d.update(verified_pages="")), 2, "", "verified_pages"),
+        ("a D0 page that is not a path", edit_data(lambda d: d.update(verified_pages=[[]])), 2, "", "verified_pages"),
         ("the citations' baseline is on the page", lambda root: None, 0, ("at dev `1111111`", "at dev `0000000`")),
         ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), 2, "", "REFUSED"),
     ) + copy_controls()

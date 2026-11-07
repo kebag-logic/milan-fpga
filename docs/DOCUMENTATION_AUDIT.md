@@ -40,7 +40,7 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 | findings | 23 | 23 | 0 | 0 | 0 | 0 |
 | module READMEs | 81 | 81 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
-| reference | 23 | 11 | 12 | 0 | 0 | 19 |
+| reference | 23 | 11 | 12 | 0 | 0 | 18 |
 | repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
 | testing and CI | 14 | 13 | 1 | 0 | 0 | 0 |
 
@@ -311,7 +311,7 @@ Areas follow the directory tree.
 | [docs/reference/PP_DESCRIPTOR_OWNERSHIP.md](reference/PP_DESCRIPTOR_OWNERSHIP.md) | integrator | Processor descriptor ownership and evidence | `avdecc`, `sw/builder`, `scripts`, Milan v1.2, 1722.1-2021 | stale | 6 finding(s): D0-050, D0-051, D0-052, D0-053, D0-054, D0-055 | D0 | reference |
 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | integrator | Milan TSN CSR - register map (ABI) | `configs`, `hdl/milan`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 11 finding(s): D0-006, D0-007, D0-008, D0-014, D0-015, D0-016, D0-017, D0-057, D0-058, D0-059, D0-060 | D0 | reference |
 | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | stale | 6 finding(s): D0-018, D0-040, D0-041, D0-042, D0-043, D0-044 | D0 | reference |
-| [docs/reference/STRICTER_READINGS.md](reference/STRICTER_READINGS.md) | integrator | Stricter and narrower readings | `sw/builder`, `configs`, `sw/firmware/milan_baremetal`, Milan v1.2, 1722.1-2021, 802.1AS, 802.1BA | current | no recorded contradiction | D0 | reference |
+| [docs/reference/STRICTER_READINGS.md](reference/STRICTER_READINGS.md) | integrator | Stricter and narrower readings | `sw/builder`, `configs`, `sw/firmware/milan_baremetal`, Milan v1.2, 1722.1-2021, 802.1AS, 802.1BA | current | no recorded contradiction | area lane | reference |
 | [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
 | [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | firmware developer | What is being logged - the trace event catalogue | `sw/trace` | stale | 2 finding(s): D0-048, D0-049 | D0 | reference |
 
