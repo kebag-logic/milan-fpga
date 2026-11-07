@@ -48,6 +48,8 @@ def held(log: grade.Log, interfaces: int) -> dict:
     """Each kind's heaviest pass whose round did nothing, its stated cost in CPU cycles, and each pass over that cost.
     A pass that writes nothing to the mailbox carries no modules, and can carry no round that tried a port."""
     builds = sorted(cycle for cycle, name in log.entries if name == mrpdu_grade.BUILD)
+    srp = scenario.CH['srp']
+    frames = sorted(cycle for cycle, ch, _ in log.commits if ch == srp)
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
     aged = {start for _, start, _, _, was in log.stepped if was}
     span = [(p.start_sys, p.cycles, 'step' if p.start_sys in aged else None) for p in log.passes
@@ -57,9 +59,9 @@ def held(log: grade.Log, interfaces: int) -> dict:
     heaviest = dict.fromkeys(COSTS, 0)
     over = []
     for start, cycles, kind in span:
-        made = within(builds, start, start + cycles * log.sys_hz // log.cpu_hz)
-        if kind is None and made:
-            kind = 'build' if made > 1 else 'build-one'
+        end = start + cycles * log.sys_hz // log.cpu_hz
+        if kind is None and within(builds, start, end):
+            kind = 'build' if within(frames, start, end) > 1 else 'build-one'
         if kind is None:
             continue
         heaviest[kind] = max(heaviest[kind], cycles)

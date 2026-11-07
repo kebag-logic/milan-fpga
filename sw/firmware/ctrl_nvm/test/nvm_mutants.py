@@ -452,8 +452,8 @@ MUTANTS = (
        "\t\tbusy = f->busy(f->ctx);\n\tif (busy == 0)\n\t\treturn 1;", "service_bound"),
     # ---- the LiteSPI port ----
     _m("litespi_no_wren", LITESPI,
-       "\tif (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))",
-       "\tif (ls_window(cmd, 4u, src, len))", "first_commit_bytes"),
+       "\tif (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u + len))",
+       "\tif (ls_window(cmd, 4u + len))", "first_commit_bytes"),
     _m("litespi_status_ignored", LITESPI, "\treturn (status & LS_SR_WIP) ? 1 : 0;",
        "\t(void)status;\n\treturn 0;", "first_commit_bytes"),
     Mutant("litespi_no_guard",
@@ -495,8 +495,8 @@ MUTANTS = (
        "\tuint32_t n;\n\n\tls_call_begin();\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
        "port_deadline"),
     _m("stall_ignored", LITESPI,
-       "\tif (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))\n\t\treturn -1;",
-       "\t(void)ls_window(&ls_wren, 1u, 0, 0u);\n\t(void)ls_window(cmd, 4u, src, len);",
+       "\tif (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u + len))\n\t\treturn -1;",
+       "\t(void)ls_window(&ls_wren, 1u);\n\t(void)ls_window(cmd, 4u + len);",
        "port_stall"),
 )
 

@@ -93,10 +93,11 @@ enum nvm_phase {
 #define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)
 /* The CPU time one service step may take on the split CPU's flash port, from
  * the clock read that admits it to the end of its pass: a page program's
- * issue, 261 bytes through the command master one at a time, measured at up
- * to 0.97 ms at 8x8/2if, is the longest; a read-back step is 0.77 ms
- * (#665). nvm_store_step takes a step only while this much of the pass's
- * share is left, so no pass that carries one exceeds the share. */
+ * issue, 261 bytes through the command master one at a time, the same for
+ * every page since it goes from a copy on the stack (nvm_flash_litespi.c), is
+ * the longest; a read-back step is 0.77 ms (#665). nvm_store_step takes a step
+ * only while this much of the pass's share is left, so no pass that carries
+ * one exceeds the share. */
 #define NVM_STEP_US 1000u
 /* The most bytes any service step touches: one 256-byte stretch, or one
  * latched record's copy and its crc16 over the header and the payload. */

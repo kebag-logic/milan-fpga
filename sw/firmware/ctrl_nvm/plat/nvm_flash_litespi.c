@@ -40,6 +40,7 @@
  * clock, a whole number of MHz or not: there is no whole ticks-per-us.
  */
 #include <stdint.h>
+#include <string.h>
 
 #include <generated/csr.h>
 #include <generated/mem.h>
@@ -166,17 +167,17 @@ static void ls_close(void)
 	spiflash_master_cs_write(0);
 }
 
-/* One chip-select window: n command bytes, then len data bytes; 0 when every
- * byte went. On a stall the device is deselected and -1 returned. A command
- * cut short there reaches at most the slot being written, never the
- * authoritative one, and the store fails that attempt. */
-static int ls_window(const uint8_t *cmd, uint32_t n, const uint8_t *data, uint32_t len)
+/* One chip-select window of n bytes; 0 when every byte went. On a stall the
+ * device is deselected and -1 returned. A command cut short there reaches at
+ * most the slot being written, never the authoritative one, and the store
+ * fails that attempt. */
+static int ls_window(const uint8_t *bytes, uint32_t n)
 {
 	uint32_t i;
 	int ok = ls_open() == 0;
 
-	for (i = 0; ok && i < n + len; ++i)
-		ok = ls_xfer(i < n ? cmd[i] : data[i - n]) >= 0;
+	for (i = 0; ok && i < n; ++i)
+		ok = ls_xfer(bytes[i]) >= 0;
 	ls_close();
 	return ok ? 0 : -1;
 }
@@ -213,9 +214,15 @@ static int ls_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 
 static const uint8_t ls_wren = LS_CMD_WREN;
 
+/* A page goes from a copy in this frame (#665): each byte passes through calls
+ * whose frames can share a D-cache set with the store's own buffer, and a line
+ * of the page that does misses on every byte, 28,000 CPU cycles more in the
+ * page the 1x1 image's stack aliases. The stack is one span no longer than the
+ * cache, so the copy shares a set with no frame, and every page costs the same
+ * wherever the image is linked (NVM_STEP_US). */
 static int ls_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t len)
 {
-	uint8_t cmd[4];
+	uint8_t cmd[4u + LS_PAGE];
 
 	(void)ctx;
 	if (len == 0 || len > LS_PAGE || (addr % LS_PAGE) + len > LS_PAGE ||
@@ -223,7 +230,8 @@ static int ls_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t len
 		return -1;
 	ls_call_begin();
 	ls_command(cmd, LS_CMD_PP, addr);
-	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))
+	memcpy(cmd + 4, src, len);
+	if (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u + len))
 		return -1;
 	return 0;
 }
@@ -238,7 +246,7 @@ static int ls_erase(void *ctx, uint32_t addr)
 		return -1;
 	ls_call_begin();
 	ls_command(cmd, LS_CMD_SE, base);
-	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, 0, 0u))
+	if (ls_window(&ls_wren, 1u) || ls_window(cmd, 4u))
 		return -1;
 	return 0;
 }

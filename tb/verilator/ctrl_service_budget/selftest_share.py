@@ -111,7 +111,8 @@ def stated_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: in
         """The grade of a pass of those cycles, its builds, whether an aged step's, its AECP modules' cycles."""
         step = 'step=1 store=5 aged=1 ' if aged else ''
         lines = [f'PASS 1 1000 500 {cycles} instr=10 store_mbx=1 {step}mods=aecp:{aecp},srp_mbx:9 W 1001:1:0']
-        lines += [f'ENTRY {1002 + k} build_mrpdu' for k in range(builds)]
+        lines += ['ENTRY 1002 build_mrpdu'] if builds else []
+        lines += [f"TXC {1003 + k} {scenario.CH['srp']} 0" for k in range(builds)]
         return grade.grade(synthetic(lines), scenario.Group('g'), sys_hz, cpu_hz)['passes']['stated']
 
     kinds = lambda s: [o['kind'] for o in s['over']]
