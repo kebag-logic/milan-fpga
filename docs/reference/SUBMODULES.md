@@ -665,29 +665,57 @@ The `milan_dp` gptp leg grades `0x22` on the wire.
 
 Its gptp-lat leg runs the Arty image and grades `0xFE`.
 
-Route-1x1, shipping directive only, against dev `cc204c6f`:
+The shipping route is the first with both lab-fix pins.
 
-| Figure | Dev `cc204c6f` | This pin | Change |
+It was measured at lane commit `a6d7cdf3`, the dev merge.
+
+Later commits change no synthesis input.
+
+It ran the recipe's three directives, as did dev `1eb5289d`:
+
+| Directive | Dev WNS / WHS, worst corner | Dev LUT | Dev slice | This pin WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+| ExtraPostPlacementOpt | +0.122 / +0.036 ns | 52,845 | 15,841 | +0.062 / +0.024 ns | 53,166 | 54,757 | 15,846 | 4 |
+| ExtraTimingOpt, dev's selection | +0.234 / +0.033 ns | 52,973 | 15,817 | +0.058 / +0.031 ns | 53,234 | 54,755 | 15,834 | 16 |
+
+Each set's best directive, against dev's:
+
+| Figure | Dev `1eb5289d`, ExtraTimingOpt | This pin, AltSpreadLogic_high | Change |
 |---|---:|---:|---:|
-| LUT | 51,994 | 52,695 | +701 |
-| FF | 54,101 | 54,288 | +187 |
-| Slice of 15,850 | 15,841 | 15,846 | +5 |
+| LUT | 52,973 | 53,221 | +248 |
+| FF | 54,595 | 54,754 | +159 |
+| Slice of 15,850 | 15,817 | 15,834 | +17 |
 | RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
 | DSP | 13 | 15 | +2 |
-| WNS, slow corners | +0.236 ns | +0.018 ns | -0.218 ns |
-| WHS, fast corners | +0.036 ns | +0.015 ns | -0.021 ns |
+| WNS / WHS, slow corners | +0.234 / +0.061 ns | +0.242 / +0.071 ns | +0.008 / +0.010 ns |
+| WNS / WHS, fast corners | +1.553 / +0.033 ns | +1.383 / +0.012 ns | -0.170 / -0.021 ns |
 
-Both routes complete with no routing error.
+Every route completes with no routing error.
 
-This pin's slow corners miss the +0.03 ns floor.
+Every directive meets the build floor at every corner.
 
-Its worst path is the SoC's SDRAM controller.
+The worst setup path is the SoC's SDRAM controller.
 
-The resource gate refuses the LUT, DSP and WNS rows.
+On each directive the engine adds 469 to 475 LUTs.
 
-The other two directives were not routed.
+It also adds 166 FFs and two DSPs.
 
-The decision on this route is open on #843.
+Against the thirteenth record the gate refused this route.
+
+LUTs grew by 692, over the 500 tolerance.
+
+DSPs grew by two, over a tolerance of 0.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541) accepts that growth.
+
+The gate's fourteenth record holds this route.
+
+Against it, `check` and `check-baseline` exit 0.
+
+The standalone records stay #845's.
+
+Their top, `KL_pp_shadow`, holds no gPTP logic.
 
 The ROM ledger records current and earlier pins.
 

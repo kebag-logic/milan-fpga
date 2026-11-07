@@ -183,13 +183,15 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The milan_dp gptp legs grade both values on the wire.
 - No top-level port, parameter or register changes.
 - The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
-- route-1x1 is 701 LUTs and 187 FFs over dev.
-- It adds two DSPs; 4 of 15,850 slices remain.
-- Its slow corners reach +0.018 ns WNS.
-- That is under the +0.03 ns build floor.
-- The resource gate refuses the LUT, DSP and WNS figures.
-- Only the shipping directive was routed.
-- The decision on the route is open on #843.
+- Its route is the first with both lab-fix pins.
+- The best of three directives is AltSpreadLogic_high.
+- It reaches +0.242 ns WNS, over the build floor.
+- It uses 248 LUTs, 159 FFs and two DSPs more.
+- That is against dev's best, ExtraTimingOpt at +0.234 ns.
+- 16 of 15,850 slices remain.
+- The gate refused the LUT and DSP growth.
+- The 2026-11-06 maintainer decision accepts it.
+- `route-1x1` is re-recorded; the standalone records stay.
 - VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin 135afd04
