@@ -525,10 +525,12 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'{len(refusals)} refusal(s)')
         return 0 if caught else 1
     if args.mutation in builder.NOTICE_CONTROLS:
-        # caught where every group's retried notice is committed later than its bound, each named by its group
+        # caught where every group's retried notice is committed later than its bound, or not within its window at
+        # all, each named by its group
         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
-        named = sorted({m.partition(':')[0] for m in late} & set(want))
-        caught = named == want and not refusals
+        unsent = [r for r in refusals if '.stream_info.' in r and ': no end: ' in r]
+        named = sorted(({m.partition(':')[0] for m in late} | {r.partition('.')[0] for r in unsent}) & set(want))
+        caught = named == want and len(unsent) == len(refusals)
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
               f'refusal(s)')

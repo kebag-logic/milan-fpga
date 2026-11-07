@@ -111,8 +111,11 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
     names = notice_window.names()
     caught = tuple(quietly(lambda n=n: run.verdict(control, [g], [], [], [], [f'{name}: late' for name in n]))
                    for n in (names, names[1:]))
-    out.append(("the age-less plant is caught only when every group's retried notice is later than its bound",
-                caught == (0, 1), str(caught)))
+    never = [f'{name}.stream_info.if0: no end: no notification to [x]' for name in names]
+    caught += tuple(quietly(lambda r=r: run.verdict(control, [g], r, [], [], [])) for r in
+                    (never, never[1:], [*never, 'notice-retried-0.held.srp.if0: refused']))
+    out.append(("the age-less plant is caught only when every group's retried notice is later than its bound or never "
+                "committed in its window, with no other refusal", caught == (0, 1, 0, 1, 1), str(caught)))
     out.append(("the age-less plant runs every group of the answering-later arm, and that arm's run takes them alone",
                 build.MUTATIONS['retry-ageless'][3:] == (','.join(names), 'answering-later')
                 and [x.name for x in run.all_groups(points[0], dict(variant='answering-later'))] == names, ''))

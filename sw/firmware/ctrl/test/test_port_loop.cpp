@@ -1460,6 +1460,14 @@ TEST_F(Loop, L25WhatAPassHasLeftGoesToTheRecordsStillWaiting) {
     spare(MBX_N_CH - 1u);
     EXPECT_EQ(loop_.rx_from, 0u) << "L25 and wraps past the last";
     drain(&loop_);
+    // a poll that owes a heavy step holds both THE DRAIN and the spare records to the cap: time does not count it
+    fill();
+    loop_.rx_held = true;
+    rx = probe.rx;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L25 a pass whose poll owes a heavy step stops at its cap";
+    loop_.rx_held = false;
+    drain(&loop_);
 }
 
 // THE DRAIN's order (#665): a record follows only the events posted before it, by ring position: a pass that emptied

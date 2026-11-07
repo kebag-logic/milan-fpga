@@ -178,7 +178,9 @@
 // pass's events): an event posted during every pass holds it back no longer.
 // What the pass has left then goes to every channel's records still waiting, one
 // a channel in turn, under the same limit, so a record of any channel takes the
-// time a burst's records leave. CTRL_LOOP_SRP_MS states the bound.
+// time a burst's records leave. A module whose poll owes a heavy step holds both
+// off (rx_held): the limit counts only records, and SRP's rebuild of an interface
+// after a link change is 850 us of polls. CTRL_LOOP_SRP_MS states the bound.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -389,6 +391,7 @@ struct ctrl_loop {
 	bool events_left;               // the last pass that took events took all it may
 	uint16_t rx_order;              // the records before this follow only events already taken
 	unsigned rx_from;               // the channel this pass's records start at, one on each pass
+	bool rx_held;                   // a poll owes a heavy step: a pass takes no record past its cap
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);

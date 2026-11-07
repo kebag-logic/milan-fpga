@@ -168,7 +168,7 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch, unsigned most, uint
 {
 	unsigned n = 0;
 	for (unsigned k = 0; k < most; ++k) {
-		if (k >= l->rx_cap && (l->clock == NULL ||
+		if (k >= l->rx_cap && (l->clock == NULL || l->rx_held ||
 		    (int32_t)(deadline - l->clock(l->clock_ctx)) < (int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {
 			break;
 		}
@@ -272,7 +272,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		}
 		l->rx_cap = 0u;
 	}
-	l->rx_from = l->rx_from + 1u < MBX_N_CH ? l->rx_from + 1u : 0u;
+	l->rx_from = (l->rx_from + 1u) % MBX_N_CH;
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;

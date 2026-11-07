@@ -233,7 +233,7 @@ MUTANTS = (
     # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
     # CTRL_LOOP_RX_PER_PASS records (#665)
     Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
-           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL ||\n"
+           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL || l->rx_held ||\n"
            "\t\t    (int32_t)(deadline - l->clock(l->clock_ctx)) < "
            "(int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {\n"
            "\t\t\tbreak;\n\t\t}\n",

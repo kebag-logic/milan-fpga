@@ -31,6 +31,11 @@ SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the adapter's side of THE TRANSMIT, built with srp_mutants.Defect."""
     return (
+        kind("rebuild-holds-no-record", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",
+             "    m->loop->rx_held = rebuilds;\n", "    (void)rebuilds;\n", "a reset owes its interface's rebuild"),
+        kind("rebuild-holds-for-good", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",
+             "    m->loop->rx_held = rebuilds;\n", "    m->loop->rx_held = m->loop->rx_held || rebuilds;\n",
+             "and the rebuild ends the hold"),
         kind("transmit-built-by-the-poll", WAITS, POLL_END,
              "    m->busy = false;\n    transmit(m);\n    return owed || m->tx_due != 0u;\n}\n",
              "and no poll builds it"),

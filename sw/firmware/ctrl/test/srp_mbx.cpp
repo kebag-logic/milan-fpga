@@ -945,6 +945,18 @@ TEST_F(Srp, LinkEventsDiscardOnlyTheirPublishedReceivePrefix) {
         EXPECT_CALL(licence,Change(i,0,false));
     }
 }
+// A link change rebuilds its interface a poll later, 850 us of polls at 8x8/2if, which THE DRAIN's limit does not count:
+// records stop at their cap until it is built (ctrl_loop.h).
+TEST_F(Srp, ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt) {
+    ctrl_loop_service(&loop);
+    EXPECT_FALSE(loop.rx_held)<<"no rebuild owed";
+    model.link_up[0]=false;
+    for(unsigned n=0;n<4u&&!loop.rx_held;++n) ctrl_loop_service(&loop); // a pass given whole may come first
+    EXPECT_TRUE(loop.rx_held)<<"a reset owes its interface's rebuild";
+    for(unsigned n=0;n<8u&&loop.rx_held;++n) ctrl_loop_service(&loop);
+    EXPECT_FALSE(loop.rx_held)<<"and the rebuild ends the hold";
+}
+
 TEST_F(Srp, LinkLevelLossAndFirstDownEventAreFailClosed) {
     settle(); EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),1,2));
     EXPECT_CALL(licence,Change(0,0,false));

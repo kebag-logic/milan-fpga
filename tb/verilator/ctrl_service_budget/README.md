@@ -1281,9 +1281,9 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
   --build-dir /tmp/budget-retry-ageless --variant answering-later --mutation retry-ageless
 ```
 
-Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, with no refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
+Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, or not within its window at all, with no other refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
 
-The planted age on the build runs the same groups with an MRPDU owed held thirty passes before THE TRANSMIT's pass:
+The planted age on the build runs the same groups with an MRPDU owed held 300 passes before THE TRANSMIT's pass:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \

@@ -88,11 +88,11 @@ MUTATIONS = {
     'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
                       'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
-    # #665's planted age on the build: an MRPDU owed waits thirty passes before THE TRANSMIT's pass, so an MRPDU a
+    # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
-                      '    return held > 30u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+                      '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)

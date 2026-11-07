@@ -1018,12 +1018,17 @@ static bool poll(void *ctx)
             }
         }
     }
-    // The poll reclaims, so a record the next pass takes finds the room (#665).
+    // The poll reclaims, so a record the next pass takes finds the room (#665). A rebuild comes no sooner than the
+    // poll after a reset's, so this holds that pass's records to their cap (ctrl_loop.h, THE DRAIN).
+    bool rebuilds = false;
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         if (m->ifs[n].msrp) {
             reclaim(&m->ifs[n]);
+        } else {
+            rebuilds = true;
         }
     }
+    m->loop->rx_held = rebuilds;
     // The poll declares nothing and builds no MRPDU: THE TRANSMIT does both, in a
     // pass of its own (ctrl_loop.h). It sends only the frame a build left owed,
     // one a pass and oldest first (A3), and reports what the build owes, so the
