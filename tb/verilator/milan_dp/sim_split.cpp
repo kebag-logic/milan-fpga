@@ -185,13 +185,17 @@ class Tb {
     }
 
     Vtb_split_top* d_;
-    std::uint64_t u_ = 0, sys_cycles_ = 0;
+    std::uint64_t u_ = 0;
+    std::uint64_t sys_cycles_ = 0;
     std::vector<Beat> rx_q_;
-    bool rx_take_ = false, tx_take_ = false, tx_last_ = false;
+    bool rx_take_ = false;
+    bool tx_take_ = false;
+    bool tx_last_ = false;
     std::uint64_t tx_data_ = 0;
     std::uint32_t tx_keep_ = 0;
     std::vector<std::uint8_t> tx_cur_;
-    int checks_ = 0, fail_ = 0;
+    int checks_ = 0;
+    int fail_ = 0;
 };
 
 std::uint32_t pub(std::uint32_t reg) { return MBX_PUB_BASE + reg; }
@@ -289,8 +293,15 @@ void check_face(Tb& tb) {
 //! One window: its request words, GO, and the answer; the status it closed with.
 struct Win {
     const char* name;
-    std::uint32_t req, cmd, status, data_lo, data_hi;
-    std::uint32_t done_lsb, timeout_lsb, tag_lsb, wait;
+    std::uint32_t req;
+    std::uint32_t cmd;
+    std::uint32_t status;
+    std::uint32_t data_lo;
+    std::uint32_t data_hi;
+    std::uint32_t done_lsb;
+    std::uint32_t timeout_lsb;
+    std::uint32_t tag_lsb;
+    std::uint32_t wait;
 };
 
 std::uint32_t run_window(Tb& tb, const Win& w, std::uint64_t* data, std::uint64_t* took) {
@@ -318,7 +329,8 @@ void check_windows(Tb& tb) {
     // GET_COUNTERS of STREAM_OUTPUT 0 (IEEE 1722.1-2021 7.4.42), word 0, its counters_valid
     tb.wr(face(MBX_FACE_REG_CTR_REQ), (0x0006u << MBX_CTR_REQ_TYPE_LSB) | (0u << MBX_CTR_REQ_INDEX_LSB));
     tb.wr(face(MBX_FACE_REG_CTR_WORD), 0u);
-    std::uint64_t data = 0, took = 0;
+    std::uint64_t data = 0;
+    std::uint64_t took = 0;
     for (unsigned round = 0; round < 2; ++round) {
         const std::uint32_t s = run_window(tb, ctr, &data, &took);
         tb.check("[WIN] CTR closes DONE, not TIMEOUT", ((s >> ctr.done_lsb) & 1u) && !((s >> ctr.timeout_lsb) & 1u));
@@ -346,7 +358,8 @@ void check_windows(Tb& tb) {
     s = run_window(tb, gsi, &again, &took);
     tb.check_eq("[WIN] GSI answers the same request with the same word", again, data);
     tb.check("[WIN] ...and that word is not the empty one", data != 0);
-    std::uint64_t map0 = 0, map1 = 0;
+    std::uint64_t map0 = 0;
+    std::uint64_t map1 = 0;
     (void)run_window(tb, amap, &map0, &took);
     (void)run_window(tb, amap, &map1, &took);
     tb.check_eq("[WIN] AMAP answers the same request with the same word", map1, map0);
