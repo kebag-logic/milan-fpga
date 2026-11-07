@@ -33,6 +33,7 @@
 #   make counters-mutants - named defects plus each check-omission escape
 #   make split - #665 F-INT PR 2: the split placement's control path, end to end
 #   make split-mutants - that leg's planted defects (split_mutants.py)
+#   make split-cdc - every KL_mbx_cdc crossing through an approved primitive
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -863,6 +864,12 @@ split: build-split exec-split
 # the split leg's planted defects, each caught by the check it names
 split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	python3 split_mutants.py
+
+# the split crossing's structure: every KL_mbx_cdc crossing through a primitive
+# (split_cdc_check.py), and four plants each refused. It needs the pinned sv2v
+# and Yosys, which not every hosted suite shard installs, so it is not a case.
+split-cdc:
+	python3 split_cdc_check.py --selftest
 
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk

@@ -1139,6 +1139,12 @@ copies of the datapath's split branch, `KL_mbx_cdc`, its window and
 `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
 check it names, after a clean control passes.
 
+`make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
+the primitives as blackboxes and requires every flop, output and primitive
+input to read only its own clock's domain. The one allowance is the settings
+capture of the bus `KL_mbx` holds. Four plants of a raw crossing must each be
+refused. It needs the pinned sv2v and Yosys, so it is not a default case.
+
 Not held here: the `EDIT` window, the counter-change and face events, the GM
 event, and the firmware itself. The two-placement comparison owes them.
 
