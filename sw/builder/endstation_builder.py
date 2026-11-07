@@ -5132,6 +5132,30 @@ def derive_entity_id(cfg: dict[str, Any]) -> int:
     return int.from_bytes(bytes(b[:3] + [0xFF, 0xFE] + b[3:]), "big")
 
 
+#: IEEE 802-2014 8.2 and 8.4: bit 1 of a MAC address's first octet is the U/L
+#: bit, set for a locally administered address.
+MAC48_UL_BIT = 1 << 41
+
+
+def identity_warnings(cfg: dict[str, Any]) -> list[str]:
+    """Warnings, never refusals, about the station identity (#840).
+
+    A locally administered station MAC builds: the prototypes carry one by
+    decision. It is still not an IEEE-assigned EUI-48, which IEEE 802.1AS-2011
+    8.5.2.2.1 and IEEE 1588-2008 7.5.2.2.2 require of the MAC a clockIdentity
+    is formed from, and IEEE 1722.1-2021 6.2.2.7 has the vendor assign the
+    entity_id. So the build says so, and a production build owns a block."""
+    mac = cfg["platform"]["mac_address"]
+    if not _mac48(mac, "platform.mac_address") & MAC48_UL_BIT:
+        return []
+    return [f"platform.mac_address {mac} has the U/L bit set: it is locally "
+            "administered, not an IEEE-assigned EUI-48, and neither are the "
+            "gPTP clockIdentity and the mac-derived entity_id formed from it "
+            "(IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, "
+            "IEEE 1722.1-2021 6.2.2.7). A production build needs an address "
+            "from an owned MA-L, MA-M or MA-S block (#840)."]
+
+
 # ----------------------------------------------------------- aem_overlay ----
 
 
@@ -6079,7 +6103,7 @@ def build(config_path: str, outdir: str | None = None,
                 adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
                 aem_rom_unsupported=art.aem_rom_why,
                 interface_params=art.iparams, platform=art.shape,
-                paths=paths)
+                warnings=identity_warnings(cfg), paths=paths)
 
 
 def main() -> None:
@@ -6129,6 +6153,8 @@ def main() -> None:
         path = Path(written)
         print(f"  wrote "
               f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
+    for warning in r["warnings"]:
+        print(f"[endstation_builder] WARNING: {warning}", file=sys.stderr)
 
 
 if __name__ == "__main__":

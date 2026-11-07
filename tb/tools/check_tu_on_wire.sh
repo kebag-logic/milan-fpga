@@ -52,7 +52,7 @@
 #     end in `wc -l`, whose count IS the reading.
 set -u
 IF=${1:?usage: check_tu_on_wire.sh <iface> <talker-mac> [seconds] [--tap]}
-MAC=${2:?talker source MAC, e.g. 02:00:00:00:00:01}
+MAC=${2:?talker source MAC, e.g. 02:4b:4c:4b:4c:01}
 SECS=${3:-10}
 O=0
 [ "${4:-}" = "--tap" ] && O=28
