@@ -1,0 +1,9 @@
+# PR body text checks
+17:The regenerated page has 547 lines and the same 76 findings. Against `212b7d6e` it adds the Findings intro text and, through the #842 sync, the row for `docs/reference/STRICTER_READINGS.md` and the counts th
+42:- The copy arm requires each lane file to open with its own title and baselines, followed by its own entries. An entry filed outside its lane, or lanes merged into one file, fails it. It also requires a lane
+76:This answered R787-2 and R788-2 under the [A10] round 3 ruling on #848. Both findings were selftest controls. At `171fd56b` the product code was unchanged since `91c115b5`: only `control`, `copy_controls` an
+78:| Mutant | `91c115b5` | `171fd56b` |
+80:| W8 = W11, every finding under one lane | survived | killed |
+104:This answered R787-1 and R788-1 under the [A10] round 2 ruling on #848. All four plants were still killed at `171fd56b`.
+111:| W8, lane file drops the statement | survived | survived | survived | killed |
+123:## Evidence
