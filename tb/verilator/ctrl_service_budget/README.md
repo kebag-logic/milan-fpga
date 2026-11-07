@@ -1207,7 +1207,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | aged: a window that closed before its centisecond is refused | an aged window is graded only at the age its name declares |
 | aged: a step a pass that took nothing ran is not counted | an aged window is graded only at the age its name declares |
 | aged: the program phase's aged step need not be a page's issue | an aged window is graded only at the age its name declares |
-| aged: the heavier aged step's plant is judged as a budget control | the heavier aged step's plant is caught by an aged window's row over its budget |
+| aged: the heavier aged step's plant is judged as a budget control | the heavier aged step's plant is caught by an aged window's row over its budget or its aged step over its stated cost |
 | aged: one delay an aged window | each flash phase's aged window opens after the save's own flash event |
 | aged: the delays across the tick's first 8.75 ms only | each flash phase's aged window opens after the save's own flash event |
 | aged: windows at the age limit only | each flash phase's aged window opens after the save's own flash event |

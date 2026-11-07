@@ -674,7 +674,8 @@ def main() -> int:
         print('STATED', line)
     import build as builder
     return verdict(args, groups, refusals, misses, shares,
-                   late + notice_misses(results) + (stated if args.mutation in ('none', *builder.AGED_CONTROLS) else []))
+                   late + notice_misses(results)
+                   + (stated if args.mutation in ('none', *builder.AGED_CONTROLS) else []))
 
 
 if __name__ == '__main__':
