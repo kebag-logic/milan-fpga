@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `9210065779b0f698fd7bdb22323a1ed5b8482677` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -515,6 +515,122 @@ Its best directive has WNS +0.365 ns.
 It uses 52,021 LUTs; 63 slices remain.
 
 The #818 gate passes it.
+
+Issue #845 adopts processor pin `92100657`.
+
+It is the merge commit of processor PR #213.
+
+That PR carries processor issue #212.
+
+Its tree is the reviewed head `6162885f`'s.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #212, a Talker registered before the settle | #213, merge commit `92100657` | A Stream Input that settles on a Talker Advertise or Talker Failed the port already registered applies it at the settle (Milan v1.2 5.3.8.5; 5.5.3.5.18 step 4; IEEE 802.1Q-2022 10.7, 10.7.8). It declares Listener Ready, or Asking Failed, within one T-MRP-JOIN, and its SRP state, GET_RX_STATE and GET_STREAM_INFO read at the settle. Before, it waited for the talker's next declaration. A link down or up now ends every Talker registration, a settled input's too (Table 10-4: Flush! at LINK_DOWN, Begin! at LINK_UP), and a registered settled input leaves the settled state (Milan v1.2 5.5.3.5.48) |
+
+The listener keeps one port Talker registrar per Stream Input.
+
+So the pre-settle path holds `N_STREAM_IN_P` Talker values.
+
+| Case, shipping image (`N_STREAM_IN_P` = 2: the AAF input and the CRF input) | Result |
+|---|---|
+| The input settles on a value the port registered while one of its two registrars was free, still registered | applied at the settle |
+| The value arrived while both registrars held other values | not held: the first settle waits for the talker's next declaration, at the latest its re-join after the next LeaveAll (`leavealltimer` default 10 to 15 s, Milan v1.2 Table 4.3) |
+| A re-bind of an input to the stream it was bound to | keeps its registration while it lasts, whatever the port holds |
+| A link down or up, an input with no settled registration | ends every Talker registration. The input waits for its talker's next declaration |
+| A link down or up, a registered settled input | ends its registration and reports it as a registration that timed out: `TK_ATTR_UNREGISTERED`, its Listener declaration withdrawn. It leaves the settled state (Milan v1.2 5.5.3.5.48). STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 5.4.2.10.1, Table 5.9). `probing_status` becomes PROBING_ACTIVE when its talker is discovered, and the input probes it after a random delay of 0 to 1 s. It becomes PROBING_PASSIVE otherwise, and the input waits for discovery (Milan v1.2 Table 5.5). The talker's next declaration alone does not return it: it must probe and settle again, and a value the port registered meanwhile applies at that settle |
+
+A port receives every Talker declaration of its VLAN.
+
+With more than two Talker values, most power-on settles wait.
+
+The top's ports and parameters are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `a9e84b66` rows.
+
+The shipping route was measured at lane commit `a29a7411`.
+
+Later commits change no synthesis input.
+
+It ran one placement directive under the recipe below.
+
+| Recipe | Value |
+|---|---|
+| Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2 |
+| Directives | synthesis AreaOptimized_high, opt ExploreArea, placement ExtraPostPlacementOpt |
+| Tool | Vivado 2026.1, at most 32 threads |
+
+| Figure | dev `cc204c6f`, same recipe | This adoption | Change |
+|---|---:|---:|---:|
+| Slice LUT | 51,994 | 52,497 | +503 |
+| Slice register | 54,101 | 54,579 | +478 |
+| Slice, of 15,850 | 15,841 | 15,780 | -61 |
+| Block RAM tile | 87.5 | 87.5 | 0 |
+| DSP | 13 | 13 | 0 |
+| WNS, slow corners | +0.236 ns | +0.198 ns | -0.038 ns |
+| WHS, worst corner | +0.036 ns | +0.015 ns | -0.021 ns |
+
+Every corner meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+
+It asks +0.03 ns WNS and 0 ns WHS.
+
+The worst setup path is in the SoC's SDRAM controller.
+
+It lies outside the processor and the datapath.
+
+Placement leaves 70 of 15,850 slices free.
+
+The resource gate refused this growth.
+
+The [area budget](../design/AREA_BUDGET.md) requires an owner decision for shipping-image growth.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts it.
+
+That decision re-baselines the budget.
+
+It covers both mandatory lab-fix pins, this one and #843's.
+
+Every lab fix is routed together before the release build.
+
+The gate's thirteenth record holds this adoption.
+
+The gate ran in its own form at lane commit `b16f0175`.
+
+That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and 1x1 synthesis.
+
+`ooc-8x8` ran at `bf6c5a67`, out of context only.
+
+Later commits change no synthesis input.
+
+| Endpoint | Exit, twelfth record | Refused | Passed |
+|---|---:|---|---|
+| `route-1x1`, ExtraTimingOpt selected | 1 | 52,529 LUTs (+517 of +500), 54,582 FFs (+875 of +600) | 15,835 slices (+55 of +80), RAMB36, RAMB18, DSP, WNS +0.373 ns, WHS +0.012 ns |
+| `ooc-1x1` | 1 | 24,996 LUTs (+650 of +250), 20,934 FFs (+530 of +250) | RAMB36, RAMB18, DSP |
+| `ooc-8x8` | 1 | 36,864 LUTs (+2,708 of +316), 32,036 FFs (+2,254 of +339) | RAMB36, RAMB18, DSP |
+
+Against that record, `check` exits 0 on every endpoint.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.373 / +0.012 ns | 52,529 | 54,582 | 15,835 | 15 |
+| ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
+| AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
+
+All three route without error.
+
+Each meets the build floor at every corner.
+
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
+
+That directive leaves 15 slices, not the 70 above.
+
+The deltas are from records at processor `f65c8ff7`.
+
+So they include dev's own movement since then.
 
 The ROM ledger records current and earlier pins.
 
