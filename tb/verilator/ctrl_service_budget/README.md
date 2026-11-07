@@ -1222,6 +1222,8 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | transmit: a timer's row starts at its entry, not at the deadline | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
 | notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 20 ms at one interface and 60 ms at two |
 | notice: the first of a queue is held to the queue's bound | a queue's first notice is held to T_svc and every other to the queue's bound |
+| load: any window may hold the flood's last change | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
+| load: an aged window may hold no more than its row's | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
 | stated: no pass is held to its cost | a build pass at its stated cost fits it and one a cycle over it does not |
 | stated: a pass over its cost is no finding | a pass over its stated cost is named, with the cost it passed |
 | stated: one point's costs at both | each point has its own stated costs |

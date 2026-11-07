@@ -720,6 +720,10 @@ def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[s
     grandmaster changes out of the ring."""
     defined = defined_load(group.name)
     want = {name: defined.get(name, 0) for name in got}
+    # an aged window opens under the grandmaster flood, whose last change may commit just after the window's mark: a
+    # change more than its row's, so a heavier window, and never one less
+    if save_window.aged_age(group.name) is not None and got.get('GM') == want.get('GM', 0) + 1:
+        want['GM'] = got['GM']
     if got != want:
         raise Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}; '
                       f'refused frames {refused[:8]}; {held} event records held when it opened')

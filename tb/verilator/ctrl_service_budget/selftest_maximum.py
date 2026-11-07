@@ -127,6 +127,22 @@ def opening_checks(points: list[scenario.Point]) -> list[tuple[str, bool, str]]:
     out.append(('the event records held are those posted before the mark less the released, through the wrap',
                 counted == [held for *_, held in cases], str(counted)))
     group = scenario.Group('backlog-adp')
+    aged = scenario.Group('backlog-adp@verify-aged2-0')
+    full = {**grade.defined_load('backlog-adp'), 'LINK': 0}
+    over = {**full, 'GM': full['GM'] + 1}
+
+    def verdict(group: scenario.Group, load: dict[str, int]) -> bool:
+        """Whether check_load takes that population for that group."""
+        try:
+            grade.check_load(group, load, [])
+        except grade.Refusal:
+            return False
+        return True
+
+    flood = (verdict(aged, full), verdict(aged, over), verdict(aged, {**over, 'GM': full['GM'] + 2}),
+             verdict(aged, {**full, 'GM': full['GM'] - 1}), verdict(scenario.Group('backlog-adp'), over))
+    out.append(("an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window "
+                "under no flood holds its row's exactly", flood == (True, True, False, False, False), str(flood)))
     got = {**grade.defined_load('backlog-adp'), 'GM': 12, 'LINK': 0}
     try:
         grade.check_load(group, got, [], 5)

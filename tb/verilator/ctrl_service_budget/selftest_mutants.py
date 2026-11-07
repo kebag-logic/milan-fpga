@@ -583,6 +583,10 @@ MUTANTS: dict[str, Patches] = {
     'share: the planted store step is judged as a budget control': lambda: [patch.object(build, 'SHARE_CONTROLS', ())],
     'share: a pass with no mailbox write is not held to it': lambda: [patch.object(
         grade, 'pass_share', lambda log, f=grade.pass_share: f(dataclasses.replace(log, idle=[])))],
+    "load: any window may hold the flood's last change": lambda: [patch.object(
+        save_window, 'aged_age', lambda name: 2)],
+    "load: an aged window may hold no more than its row's": lambda: [patch.object(
+        save_window, 'aged_age', lambda name: None)],
     'stated: no pass is held to its cost': lambda: [patch.object(
         whole_grade, 'held', lambda log, n, f=whole_grade.held: dict(f(log, n), over=[]))],
     'stated: a pass over its cost is no finding': lambda: [patch.object(run, 'stated_misses', lambda results: [])],
