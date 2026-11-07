@@ -26,7 +26,16 @@ soft-float ILP32 ABI. Each part of that is shown to hold and to fail:
            soft-float ABI (as another toolchain's libgcc can be), refused by
            the audit; from one built for the pinned SDK's own multilib
            (rv32imafd, ilp32d), refused at the link; with a helper that calls
-           itself, refused by the leaf check.
+           itself, refused by the leaf check;
+  plat     ctrl_plat_image.py links no image that takes a header of the flash
+           port's RV32 stand-ins: with no --flash-map, a runtime archive that
+           exists is refused by name, and so is a map that lacks
+           generated/csr.h, generated/mem.h or both, at the shape's own clock.
+           Each is refused before the compiler is called: no ELF, and nothing
+           in its output directory. A complete map gets past those refusals,
+           to its own clock check. The run with no archives at all, which
+           compiles and stops at its link, is the boundary gate's
+           (ctrl_runs.stopped_at_link).
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_image_selftest.py [--require-rv32]
@@ -38,7 +47,10 @@ an RV32 compiler); 1 = a control failed; 2 = refused.
 from __future__ import annotations
 
 import argparse
+import json
+import re
 import struct
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -54,6 +66,13 @@ from ctrl_build import RV32_FLAGS, Refusal  # noqa: E402
 
 SHIPPING = ctrl_image.SHAPES[0]
 FIRMWARE = ctrl_image.ROOT / "sw/firmware"
+#: The words ctrl_plat_image.py refuses a link with no flash map in, a map that lacks a header, and a map at another
+#: clock.
+NO_MAP = "no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins"
+LACKS = "the flash map lacks {}: a split platform image is never linked on the flash port's RV32 stand-ins"
+OTHER_CLOCK = "the flash map's SoC runs at 1 Hz"
+#: The headers a flash map holds beside its flash_port.json, as gen_flash_port.py lays them out.
+MAP_CSR, MAP_MEM = "generated/csr.h", "generated/mem.h"
 START = ctrl_image.IMAGE / "image_start.S"
 SCRIPT = ctrl_image.IMAGE / "image.ld"
 ASM_FLAGS = ("-march=rv32i", "-mabi=ilp32")
@@ -403,6 +422,59 @@ def measure_cases(cc: str, work: Path) -> int:
     return 4
 
 
+def plat_link(work: Path, name: str, archives: tuple[Path, Path], *extra: str) -> str:
+    """ctrl_plat_image.py at the shipping shape on the fixture's bus map: the last line it said, once it has exited
+    2 with no ELF."""
+    out = work / name
+    done = subprocess.run([sys.executable, "-B", str(HERE / "ctrl_plat_image.py"), "--config",
+                           str(ctrl_image.ROOT / "configs" / f"{SHIPPING}.yaml"), "--csr-csv",
+                           str(HERE / "ctrl_plat_csr.csv"), "--output", str(out), "--libc", str(archives[0]),
+                           "--compiler-runtime", str(archives[1]), *extra],
+                          capture_output=True, text=True, check=False)
+    said = (done.stdout + done.stderr).strip()
+    assert done.returncode == 2, (name, done.returncode, said[-400:])
+    assert not (out / "ctrl_app.elf").exists(), (name, "left an ELF")
+    return said.rsplit("\n", 1)[-1]
+
+
+def plat_refused(work: Path, name: str, archives: tuple[Path, Path], words: str, *extra: str) -> None:
+    """plat_link for a run refused in `words` before the compiler is called: its output directory holds nothing."""
+    said = plat_link(work, name, archives, *extra)
+    assert words in said, (name, said)
+    left = sorted(path.name for path in (work / name).iterdir())
+    assert not left, (name, "went on before its refusal", left)
+
+
+def flash_map(path: Path, clock_hz: int, headers: tuple[str, ...]) -> str:
+    """A flash map directory laid out as gen_flash_port.py lays one out, at `clock_hz`, holding only `headers`."""
+    for name in headers:
+        written(path / name, "")
+    return str(written(path / "flash_port.json", json.dumps({"clock_hz": clock_hz})).parent)
+
+
+def plat_cases(work: Path) -> int:
+    """The split platform's link needs the whole flash map (#665): each run with an archive that exists and no map,
+    and each map that lacks a header, is refused by name before the compiler is called, and a complete map is not.
+    The partial maps are at the shape's own clock, read from the clock check's words, so only their refusal keeps
+    them from the compiler."""
+    present, absent = written(work / "libc.a", ""), work / "absent.a"
+    for name, archives in (("both archives", (present, present)), ("the C library alone", (present, absent)),
+                           ("the compiler runtime alone", (absent, present))):
+        plat_refused(work, name.replace(" ", "-"), archives, NO_MAP)
+        print(f"PASS: plat: no map with {name}: refused by name")
+    said = plat_link(work, "complete", (present, present), "--flash-map",
+                     flash_map(work / "maps/complete", 1, (MAP_CSR, MAP_MEM)))
+    assert OTHER_CLOCK in said, said
+    print("PASS: plat: a run given a complete map gets past those refusals, to its clock check")
+    clock_hz = int(re.search(r"the shape at (\d+) Hz", said)[1])
+    for name, holds, lacks in (("csr", (MAP_MEM,), MAP_CSR), ("mem", (MAP_CSR,), MAP_MEM),
+                               ("json-only", (), f"{MAP_CSR} and {MAP_MEM}")):
+        plat_refused(work, f"lacks-{name}", (present, present), LACKS.format(lacks), "--flash-map",
+                     flash_map(work / "maps" / name, clock_hz, holds))
+        print(f"PASS: plat: a map at the shape's clock lacking {lacks}: refused by name")
+    return 7
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run every control; any failure is an AssertionError."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
@@ -419,7 +491,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
                       probe_cases(cc, work / "audit") + word_cases(cc, work / "audit") +
-                      header_cases(cc, work / "audit") + measure_cases(cc, work / "measure"))
+                      header_cases(cc, work / "audit") + measure_cases(cc, work / "measure") +
+                      plat_cases(work / "plat"))
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2

@@ -10,9 +10,13 @@ policy, the console, MAAP's allocation port and SRP's sources. Its two
 generated headers come from ctrl_plat_gen.py: the policy from --config, the
 bus map from --csr-csv, the export of the SoC the image runs on (a split
 export with any image gives it; docs/design/SPLIT_CONTROL_MEMORY.md section 4).
-The mailbox's base is the map's, so the fixture's placeholder is dropped. F1's
-flash port keeps its own addresses (ctrl_nvm/test/rv32/generated), as every
-split image at this base does.
+The mailbox's base is the map's. --flash-map puts the saved-state store's flash
+port on the split SoC's generated addresses (gen_flash_port.py). A link without
+it, or with a map that lacks generated/csr.h or generated/mem.h, is refused
+before the compiler is called, so a linked platform image takes no header of the
+port's RV32 stand-ins (#665). Only a run whose runtime archives do not exist
+takes no map, the boundary gate's: it compiles on the stand-ins and stops at its
+link, with no ELF (ctrl_runs.py).
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
@@ -28,7 +32,7 @@ import re
 import sys
 from pathlib import Path
 
-from ctrl_build import CTRL, PORTABLE, RV32_FLAGS, STACK, Refusal, source
+from ctrl_build import CTRL, NVM_DIR, PORTABLE, RV32_FLAGS, STACK, Refusal, source
 import ctrl_srp_image as image
 from ctrl_arms import lwsrp_pin
 from srp_arms import LWSRP_SOURCES, prepared
@@ -45,6 +49,26 @@ REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_
             "nvm_store_service", "ctrl_loop_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.RV32_FLAGS); the map's replaces it.
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
+#: Why a link needs the flash map: the words a run with runtime archives and no map is refused in.
+NO_FLASH_MAP = ("no --flash-map: a split platform image is never linked on the flash port's RV32 stand-ins; "
+                "gen_flash_port.py writes the map from the split SoC's export")
+#: What a flash map must hold: the compiler finds the port's RV32 stand-in behind either header it lacks, silently.
+MAP_HEADERS = ("generated/csr.h", "generated/mem.h")
+#: The words a map that lacks a header is refused in, naming what it lacks.
+PARTIAL_MAP = ("the flash map lacks {}: a split platform image is never linked on the flash port's RV32 stand-ins; "
+               "gen_flash_port.py writes the whole map")
+
+
+def refuse_placeholder(flash_map: Path | None, archives: tuple[Path, Path]) -> None:
+    """Refuse a link on the flash port's RV32 stand-ins (#665), before the compiler is called. Without a map only a
+    run whose archives are both absent goes on, and the link stops that one: it compiles every object and makes no
+    ELF. A map must hold both generated headers; this reads that they are there, not what they say."""
+    if flash_map is None and any(path.exists() for path in archives):
+        raise Refusal(NO_FLASH_MAP)
+    if flash_map is not None:
+        missing = [name for name in MAP_HEADERS if not (flash_map / name).is_file()]
+        if missing:
+            raise Refusal(PARTIAL_MAP.format(" and ".join(missing)))
 
 
 def generate(config: Path, csr_csv: Path, out: Path) -> None:
@@ -98,6 +122,8 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--ctrl-source", type=Path, default=CTRL,
                         help="the firmware tree to compile (a planted copy for a control; default the checkout's)")
     parser.add_argument("--csr-csv", type=Path, required=True)
+    parser.add_argument("--flash-map", type=Path,
+                        help="the split SoC's generated flash port map (gen_flash_port.py); a link needs it")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED),
@@ -122,7 +148,7 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
               "-include", str(out / "ctrl_plat_map_gen.h")]
     inc += [f"-I{out}", f"-I{tree.src / 'plat'}", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}",
             *fw_rv32.includes(cc)]
-    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out)
+    extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out, NVM_DIR, args.flash_map)
     inc += extra_inc
     sources = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
     sources += [tree.src / n for n in PLAT_SOURCES] + aecp_sources
@@ -146,6 +172,7 @@ def main() -> int:
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=True)
     try:
+        refuse_placeholder(args.flash_map, (args.libc, args.compiler_runtime))
         cc = fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")

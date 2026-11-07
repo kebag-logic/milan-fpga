@@ -13,7 +13,7 @@ The rest is the image's `main` and the platform it composes: the boot sequence, 
 - **[The CSR window](#the-csr-window)** -- The generated identity and static policy, written as `configure_fabric()` writes them, and the two enables the split never sets.
 - **[The console](#the-console)** -- Decision D6's two commands, their lines, and the per-pass bound that keeps the console inside #397's tick rule.
 - **[The ports](#the-ports)** -- MAAP's allocation on the CSR window, the ACMP talker sources, SRP's sources and licences, and AECP's two observations.
-- **[Generated inputs](#generated-inputs)** -- The policy header from the builder's outputs, and the bus map from the SoC's own `csr.csv`.
+- **[Generated inputs](#generated-inputs)** -- The policy header from the builder's outputs, the bus map from the SoC's own `csr.csv`, and the flash map every link needs.
 - **[Tests and evidence](#tests-and-evidence)** -- The host arms, the trace against `milan_baremetal.c`, the planted defects and the boot simulation.
 - **[Not yet done](#not-yet-done)** -- What S3 leaves to later lanes and rulings, by name.
 
@@ -85,12 +85,25 @@ A command's name is compared only as far as its terminator, so a received NUL (a
 - `policy CONFIG` writes `ctrl_plat_policy_gen.h`: the identity and boot words from `boot_policy.fabric_constants()`, the one derivation `milan_soc.py` and builder gate 35 use; and each talker source's stream from the lwSRP table, the CRF output last at the builder's `CRF_SRP_MAXFRAME_B`.
 - `map CSR_CSV` writes `ctrl_plat_map_gen.h`: the `milan_csr` and `ctrl_mbx` regions and the UART's four registers, from the SoC's own `csr.csv`. The map does not depend on the image, so an export with any image gives it. A UART that pops on its `RXTX` read is refused.
 
-`sw/firmware/ctrl/test/ctrl_plat_image.py` links the image with both, through `ctrl_srp_image.py`'s link, audits and bank plan:
+`sw/firmware/ctrl/test/ctrl_plat_image.py` links the image with both, through `ctrl_srp_image.py`'s link, audits and bank plan.
+It also takes the flash map, which puts the saved-state flash port on the split SoC's addresses.
+[`gen_flash_port.py`](../../ctrl_nvm/plat/gen_flash_port.py) writes that map from a split export: `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the shape's config, here `$SOC`.
 
 ```sh
+python3 sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$SOC/csr.csv" \
+  --csr-h "$SOC/software/include/generated/csr.h" --out "$FLASH_MAP"
 python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml \
-  --csr-csv "$SOC/csr.csv" --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+  --csr-csv "$SOC/csr.csv" --flash-map "$FLASH_MAP" --output "$OUT" --libc "$RUNTIME/libc.a" \
+  --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
+
+After a run, the [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md)'s build directory holds these inputs: the export in `split-soc/mapped/soc`, the same map in `split-soc/flash-map` and the archives in `runtime`.
+A link without `--flash-map`, or with a map that lacks `generated/csr.h` or `generated/mem.h`, is refused by name before the compiler is called.
+The compiler would otherwise find the port's RV32 stand-ins in their place, with no diagnostic.
+On the boot SoC, an image on the stand-in `generated/mem.h`, or with no map, hangs before its banner.
+An image on the stand-in `generated/csr.h` alone boots to ready and passes the split boot, so this refusal is the only thing that stops it.
+The refusal reads that both headers are there, not what they say.
+Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
 At 8x8 with two interfaces the image plans 59.0 RAMB36.
 The owner's ruling (#665, 6505997821) ledgers that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
@@ -110,6 +123,10 @@ They include a CSR write skipped, reordered or wrong, a console that holds the p
 
 The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
 
+The split boot simulation generates F1's flash map from the split SoC's `csr.csv` and passes it to both platform links and boot exports.
+Each export checks the placement against that map.
+The refusal of a link without the map, or with a map that lacks a header, is a control of [`ctrl_image_selftest.py`](../test/ctrl_image_selftest.py), which the boundary gate runs.
+
 ## Not yet done
 
 - **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
@@ -117,5 +134,4 @@ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) 
 - **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.0 RAMB36, ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
-- **F1's flash port** keeps its fixture addresses; lane S4 generates them from the SoC's `csr.csv`.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.
