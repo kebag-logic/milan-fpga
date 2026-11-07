@@ -1,0 +1,41 @@
+IDENTITY no change
+  --selftest rc=0, 0 arm(s) failed; --check rc=0
+F0 the fix removed: the old path rule decides D0 again
+  --selftest rc=1, 1 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lane |'
+F1 every page outside the archive is D0
+  --selftest rc=1, 1 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lane |'
+F2 no page is D0
+  --selftest rc=1, 1 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+F3 the list check dropped
+  --selftest rc=1, 1 arm(s) failed; --check rc=0
+    selftest: FAIL D0 pages that are not a list: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 40:
+F4 the string check dropped
+  --selftest rc=1, 0 arm(s) failed; --check rc=0
+    traceback ends: TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+F5 the tracked check dropped
+  --selftest rc=1, 1 arm(s) failed; --check rc=0
+    selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at line 30:
+F6 the population not returned
+  --selftest rc=1, 1 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+F7 the population not read
+  --selftest rc=1, 4 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+    selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at line 30:
+    selftest: FAIL D0 pages that are not a list: --check exited 0, expected 2: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    selftest: FAIL a D0 page that is not a path: --check exited 0, expected 2: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+F8 the wrong key read
+  --selftest rc=1, 4 arm(s) failed; --check rc=1
+    selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+    selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at line 30:
+    selftest: FAIL D0 pages that are not a list: --check exited 0, expected 2: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    selftest: FAIL a D0 page that is not a path: --check exited 0, expected 2: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+F9 the archive test dropped
+  --selftest rc=1, 1 arm(s) failed; --check rc=1
+    selftest: FAIL archive page is obsolete with its successor: generated output lacks '| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) | archive |'
+F10 D0 tested before the archive
+  --selftest rc=0, 0 arm(s) failed; --check rc=0
+restored: True

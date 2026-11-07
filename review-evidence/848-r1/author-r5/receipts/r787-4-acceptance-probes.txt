@@ -1,0 +1,9 @@
+control: untouched head                                    rc=0 want=0 OK
+add a line to the new #842 page                            rc=0 want=0 OK
+add a line to every tracked page                           rc=0 want=0 OK
+change the title of the new page                           rc=1 want=1 OK
+supersession banner on the new page (status change)        rc=1 want=1 OK
+remove the new page (page set)                             rc=1 want=1 OK
+add a tracked page (page set)                              rc=1 want=1 OK
+audit from the merge commit, before regeneration           rc=1 want=1 OK
+0
