@@ -1,0 +1,9 @@
+test_gptp_dataset_matches_engine_announce:
+Traceback (most recent call last):
+  File "<scratch>/clone-mutants-e079fe66/sw/builder/test_builder.py", line 29824, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/clone-mutants-e079fe66/sw/builder/test_builder.py", line 26585, in test_gptp_dataset_matches_engine_announce
+    assert cfg["gptp"]["clock_accuracy"] == 0xFE, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: omitted gptp.clock_accuracy resolved to 0x22, 802.1AS-2011 8.6.2.3 b) says 0xFE

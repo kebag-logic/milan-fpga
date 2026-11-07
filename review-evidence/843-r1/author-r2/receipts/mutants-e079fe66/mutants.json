@@ -1,0 +1,192 @@
+{
+ "rows": [
+  {
+   "mutant": "MB1 the builder passes the generator default 0x22 for every config",
+   "file": "sw/builder/endstation_builder.py",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gate 26c",
+     "rc": 1,
+     "seconds": 1,
+     "caught": true,
+     "phrases": [
+      "gate 26c: arty_current passes --clock-accuracy 0x22, its board decided 0xFE"
+     ],
+     "failing_lines": [
+      "AssertionError: gate 26c: arty_current passes --clock-accuracy 0x22, its board decided 0xFE"
+     ],
+     "log": "MB1-gate_26c.log"
+    },
+    {
+     "check": "milan_dp gptp-lat",
+     "rc": 2,
+     "seconds": 321,
+     "caught": true,
+     "phrases": [
+      "FAIL [CA] every DUT Announce carries the config's clockAccuracy"
+     ],
+     "failing_lines": [
+      "FAIL [CA] every DUT Announce carries the config's clockAccuracy got 0000000000000004 exp 0000000000000000"
+     ],
+     "log": "MB1-milan_dp_gptp-lat.log"
+    },
+    {
+     "check": "gate 1b",
+     "rc": 1,
+     "seconds": 1062,
+     "caught": true,
+     "phrases": [
+      "clockAccuracy: mutation did not reach gptp_ucode.hex"
+     ],
+     "failing_lines": [
+      "AssertionError: clockAccuracy: mutation did not reach gptp_ucode.hex"
+     ],
+     "log": "MB1-gate_1b.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MB2 the builder passes no --clock-accuracy",
+   "file": "sw/builder/endstation_builder.py",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gate 26c",
+     "rc": 1,
+     "seconds": 1,
+     "caught": true,
+     "phrases": [
+      "carry no --clock-accuracy"
+     ],
+     "failing_lines": [
+      "AssertionError: gate 26c: ax7101_1x1_tdm8's generator options ['--mac', '0x024b4c4b4c01', '--p1', '248', '--clk-hz', '50000000'] carry no --clock-accuracy, so its image announces the engine's default and not its board's value"
+     ],
+     "log": "MB2-gate_26c.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MB3 an omitted gptp.clock_accuracy resolves to 0x22",
+   "file": "sw/builder/endstation_builder.py",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gate 26b",
+     "rc": 1,
+     "seconds": 0,
+     "caught": true,
+     "phrases": [
+      "omitted gptp.clock_accuracy resolved to 0x22, 802.1AS-2011 8.6.2.3 b) says 0xFE"
+     ],
+     "failing_lines": [
+      "AssertionError: omitted gptp.clock_accuracy resolved to 0x22, 802.1AS-2011 8.6.2.3 b) says 0xFE"
+     ],
+     "log": "MB3-gate_26b.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MB4 any octet is accepted",
+   "file": "sw/builder/endstation_builder.py",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gate 26c",
+     "rc": 1,
+     "seconds": 1,
+     "caught": true,
+     "phrases": [
+      "gate 26c: gptp.clock_accuracy 0x0 was ACCEPTED"
+     ],
+     "failing_lines": [
+      "    raise AssertionError(",
+      "AssertionError: gate 26c: gptp.clock_accuracy 0x0 was ACCEPTED - IEEE 1588-2008 7.6.2.5 takes the value from Table 6 and 802.1AS-2011 8.6.2.3 uses no other profile's range"
+     ],
+     "log": "MB4-gate_26c.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MB5 the descriptor takes the engine default, not the config",
+   "file": "sw/builder/endstation_builder.py",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gate 26b",
+     "rc": 1,
+     "seconds": 0,
+     "caught": true,
+     "phrases": [
+      "arty_4x4: gptp.clock_accuracy 0x22, the board's decided value is 0xFE (#843)"
+     ],
+     "failing_lines": [
+      "AssertionError: arty_4x4: gptp.clock_accuracy 0x22, the board's decided value is 0xFE (#843)"
+     ],
+     "log": "MB5-gate_26b.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MH1 gptp_shadow's OUR_CQ is the old literal",
+   "file": "tb/verilator/gptp_shadow/Makefile",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gptp_shadow run",
+     "rc": 2,
+     "seconds": 17,
+     "caught": true,
+     "phrases": [
+      "FAIL as master: every Announce carries this image's clockQuality"
+     ],
+     "failing_lines": [
+      "FAIL as master: every Announce carries this image's clockQuality got 0000000000000001 exp 0000000000000000"
+     ],
+     "log": "MH1-gptp_shadow_run.log"
+    }
+   ]
+  },
+  {
+   "mutant": "MH2 gptp_plane's OUR_CQ is the old literal",
+   "file": "tb/verilator/gptp_plane/Makefile",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "gptp_plane run",
+     "rc": 2,
+     "seconds": 7,
+     "caught": true,
+     "phrases": [
+      "FAIL grandmaster Announce carries this image's clockQuality"
+     ],
+     "failing_lines": [
+      "FAIL grandmaster Announce carries this image's clockQuality got 00000000f822436a exp 00000000f8fe436a"
+     ],
+     "log": "MH2-gptp_plane_run.log"
+    }
+   ]
+  },
+  {
+   "mutant": "ML1 the gptp leg runs the Arty image while expecting the AX7101's 0x22",
+   "file": "tb/verilator/milan_dp/Makefile",
+   "anchors": 1,
+   "checks": [
+    {
+     "check": "milan_dp gptp",
+     "rc": 2,
+     "seconds": 314,
+     "caught": true,
+     "phrases": [
+      "FAIL [CA] every DUT Announce carries the config's clockAccuracy"
+     ],
+     "failing_lines": [
+      "FAIL [CA] every DUT Announce carries the config's clockAccuracy got 0000000000000004 exp 0000000000000000"
+     ],
+     "log": "ML1-milan_dp_gptp.log"
+    }
+   ]
+  }
+ ],
+ "tree_after": ""
+}

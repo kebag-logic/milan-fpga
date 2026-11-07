@@ -1,0 +1,19 @@
+{
+ "cwd": "<data>/lanes/843-gptp-pin",
+ "head": "e079fe66a0cb9006ca718b06f57c23a85fc3582d",
+ "base": "1eb5289db8fc9d139ce90cad2e380b4515793806",
+ "commands": [
+  [
+   "env",
+   "PATH=<data>/tools/pinned-verilator-5.050:<data>/tools/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<data>/tools/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/unused/logs",
+   "--wait"
+  ]
+ ]
+}

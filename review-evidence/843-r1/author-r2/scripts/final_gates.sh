@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# final_gates.sh <sha> <merge-base>: the lane gates at <sha> on a fresh clean clone, one log and one rc per gate,
+# never piped (round 1's final2.sh, this lane's paths).
+set -u
+H=$1; BASE=$2; S=$VALIDATION_STORAGE/scratch/843-a737b; W=$S/clone-final-${H:0:8}; O=$S/final-gates-${H:0:8}
+here=$(cd "$(dirname "$0")" && pwd)
+mkdir -p "$O" "$S/tmp-final"
+[ -d "$W" ] || bash "$here/make_clone.sh" "$W" "$H" > "$O/clone.log" 2>&1 || exit 3
+cd "$W" || exit 3
+test "$(git rev-parse HEAD)" = "$H" || exit 4
+test -z "$(git status --porcelain)" || exit 5
+SDK=$VALIDATION_STORAGE/scratch/803-a693/sdk/br-milan-rv32/host
+export HOME=$HOME VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator TMPDIR=$S/tmp-final MAKEFLAGS="-j4 --no-print-directory" PYTHONHASHSEED=0 TSN_GEN_ROOT=$HOME/milan-fpga-management/tools/tsn-gen-deca300c
+export PATH=$S/venv-ci/bin:$VALIDATION_STORAGE/scratch/a662/make43/bin:$VALIDATION_TOOLS/sv2v-v0.0.12:$VALIDATION_TOOLS/pinned-verilator-5.050:$SDK/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin
+run() { id=$1; shift; s=$(date +%s); { echo "# head $H gate $id: $*"; bash -c "$*"; } > "$O/$id.log" 2>&1; rc=$?; echo "$rc $(( $(date +%s) - s ))" > "$O/$id.rc"; echo "$id rc=$rc"; }
+run diffcheck "git diff --check $BASE HEAD"
+run fw_selftest "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test"
+run fw_coverage_check "python3 sw/firmware/gtest/fw_coverage.py --check --jobs 8"
+run fw_coverage_selftest "python3 sw/firmware/gtest/fw_coverage.py --selftest"
+run docs_inventory_check "python3 scripts/docs_inventory.py --check"
+run docs_inventory_selftest "python3 scripts/docs_inventory.py --selftest"
+run behave "cd tests && behave"
+run lint_rtl "python3 scripts/lint_rtl.py --check"
+run em_dash "$VALIDATION_TOOLS/md-venv/bin/python3 scripts/check_em_dash.py --base $BASE"
+run builder "python3 sw/builder/test_builder.py --require-rv32"
+run resource_gate_baseline "python3 syn/ooc/pp_resource_gate.py check-baseline"
+run resource_gate_selftest "python3 syn/ooc/pp_resource_gate.py --selftest"
+run xvlog_gate "PATH=$HOME/Xilinx/2026.1/Vivado/bin:\$PATH $HOME/milan-fpga-management/2026-09-23/vivado-slot.sh python3 scripts/xvlog_gate.py --check"
+run fw_service_budget "make -C tb/verilator/fw_service_budget"
+git status --porcelain > "$O/tree-after.txt"
+echo done > "$O/DONE"
