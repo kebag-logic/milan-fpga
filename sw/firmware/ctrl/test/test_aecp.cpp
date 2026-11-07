@@ -2434,7 +2434,8 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_GT(pending(),1u)<<"a queue of notices";
     EXPECT_LE(pending(),AECP_NOTICES_MOST)<<"no more than the most a reset leaves";
     auto p=command(36);
-    uint32_t first=0,last=0;
+    uint32_t first=0;
+    uint32_t last=0;
     while(pending()!=0u&&mbx_now_ms()-from<2u*AECP_QUEUED_MS){
         mbx_model_advance_ms(&fabric,CTRL_LOOP_SHARE_US/1000u);
         static_cast<void>(mbx_model_rx(&fabric,p.data(),p.size(),0)); // as its rate admits
