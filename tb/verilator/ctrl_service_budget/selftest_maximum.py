@@ -141,8 +141,9 @@ def opening_checks(points: list[scenario.Point]) -> list[tuple[str, bool, str]]:
 
     flood = (verdict(aged, full), verdict(aged, over), verdict(aged, {**over, 'GM': full['GM'] + 2}),
              verdict(aged, {**full, 'GM': full['GM'] - 1}), verdict(scenario.Group('backlog-adp'), over))
-    out.append(("an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window "
-                "under no flood holds its row's exactly", flood == (True, True, False, False, False), str(flood)))
+    out.append(("an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a "
+                "window under no flood holds its row's exactly", flood == (True, True, False, False, False),
+                str(flood)))
     got = {**grade.defined_load('backlog-adp'), 'GM': 12, 'LINK': 0}
     try:
         grade.check_load(group, got, [], 5)
