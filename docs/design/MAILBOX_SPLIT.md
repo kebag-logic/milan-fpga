@@ -13,6 +13,9 @@ datapath reads; nothing reads it until the placement switch lands.
 Lane S1 adds [the processor's other faces](#the-processors-other-faces)
 (contract 2.3): every port of the processor wrapper in one class, and the face
 block, windows and events that carry what the split datapath still reads.
+Lane S6 adds [the placement switch](#the-placement-switch): `CTRL_SPLIT_P`
+builds the datapath without the processor, and the `--ctrl-mailbox` SoC
+connects the mailbox to it.
 The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
 All-fabric stays the shipping default until F2 to F5 acceptance.
 That acceptance covers all streams, counters and the audio soak.
@@ -35,6 +38,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
 - **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's and REBOOT request's exclusions, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
+- **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports, the crossing into the mailbox's clock, and the proofs that the all-fabric build is unchanged.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
@@ -1349,6 +1353,74 @@ them:
   `EDIT` window; a map change sets `DYN_DIRTY` only. Applying the maps to the
   datapath is the placement switch's (see [Open items](#open-items)).
 
+## The placement switch
+
+One datapath parameter and one config key select the placement (#665 F-INT
+PR 2). Both placements build from one tree, one recipe and one config file.
+
+| Placement | `control.placement` | `CTRL_SPLIT_P` | The SoC |
+|---|---|---|---|
+| all-fabric, the default until the flip | absent or `all-fabric` | 0, not emitted | no mailbox |
+| split | `split` | 1 | `--ctrl-mailbox --ctrl-firmware` |
+
+The builder emits the split's flags and states `CTRL_SPLIT_P` in
+`datapath_params()`. Builder gate 23m holds the SoC's binding to that
+statement; gate 23n holds the two placements to differ in that key alone.
+
+### The split datapath
+
+With `CTRL_SPLIT_P = 1` the datapath builds no `KL_pp_shadow`, no `KL_maap`,
+no `KL_pp_maap_shim` and no map writer (ruling 6088423771, decision 1).
+Each face the wrapper served is read from a `ctl` port, by its class in
+[Every port, one class](#every-port-one-class):
+
+- **C**: the publication block. A sink's stream_id is taken only while its
+  `SID_VALID` is set. The class-D values the block does not carry are status
+  or answer-face reads only, so they rest at 0.
+- **F**: the settings of the last commit the datapath took.
+- **R**: the four windows, each speaking the processor's request protocol
+  to the datapath's answer logic, which is unchanged.
+- **E**: the counter-change arbiter's descriptor and the three face events.
+- **M**: the control frames, the effective link and the GM identity.
+- **G**: tied to its reset value. The memory masters idle. The host window
+  answers every access at once, refused, so the CSR never stays busy.
+
+`KL_ctrl_split` carries the frames. Its tap keeps the wrapper's 4,096-byte
+frame FIFO and its one-byte-a-cycle drain. It passes only the subtypes and
+EtherTypes the mailbox has a channel for.
+
+The map writer goes because the firmware's AECP owner holds the maps
+(ruling 6410169666 item 1). Its registers rest at reset, but the restore's
+hold, which is 0.
+
+### The crossing
+
+`KL_mbx_cdc` crosses everything but the frames between the mailbox's clock
+and the datapath's. It uses only `cdc_handshake` and `cdc_pulse`, and the
+CDC census draws each instance.
+
+| What | How it crosses |
+|---|---|
+| the publication block | a free-running `cdc_handshake`: each transfer is one coherent snapshot |
+| the settings | one `cdc_pulse` in, one out; the datapath takes `KL_mbx`'s held bus on the edge that turns the acknowledgement |
+| each window | a `cdc_handshake` in with the request and its tag, and one back with the answer under the same tag |
+| the events, the GM identity and LINK | a free-running `cdc_handshake` of pending bits in the contract's layout and the levels as they are |
+| the frames | two LiteX async FIFOs in the SoC, sixteen bytes deep |
+
+A newer window request wins over one the mailbox already timed out. Its
+stale answer carries the older tag, which `KL_mbx` discards.
+
+### The proofs
+
+- [`placement_identity.py`](../../sw/mailbox/placement_identity.py)
+  elaborates the datapath in every shape the census elaborates. It states
+  each shape's all-fabric netlist as one digest that two trees compare.
+- [`split_population.py`](../../syn/ooc/split_population.py) holds the
+  `full-split` population of `pp_placement.py` on the RTL, in every shape.
+- The [`milan_dp`](../../tb/verilator/milan_dp/README.md) split leg runs the
+  control path end to end. `split_mutants.py` plants thirteen defects, each
+  caught by the check it names.
+
 ## Verification
 
 | Evidence | What it shows |
@@ -1384,8 +1456,9 @@ CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that
 list, so a switch-on build carries a different `VexiiRiscvLitex_<hash>` from
-the shipping one. The datapath side is held
-idle in F0.
+the shipping one. Since the placement switch, the switch also builds the
+datapath with `CTRL_SPLIT_P = 1` and connects it
+([The placement switch](#the-placement-switch)).
 
 Since #640 M8a-1 the switch also selects the split placement's firmware
 memory: it requires `--ctrl-firmware <elf>`, builds no BIOS ROM or BIOS SRAM,
@@ -1402,6 +1475,10 @@ configs at their shipping arguments. This LiteX checkout refuses the three
 Arty configs at their 83.333 MHz system clock, at the base exactly as at the
 head, so they are compared at 100 MHz instead, where all 22 files compare
 equal too.
+
+The placement switch changes the datapath itself, so its proof adds the
+elaborated netlist. `placement_identity.py --dump` writes each shape's
+digest of one tree, and `--compare` requires every digest equal.
 
 ## Measured area
 
@@ -1626,11 +1703,10 @@ report_timing_summary -delay_type max
 
 ## Open items
 
-- **The datapath tap.** The skeleton's ingress and egress byte streams, link
-  levels and grandmaster inputs are held idle; the lanes that move a protocol
-  connect them, with the clock crossing the datapath needs. The publication
-  block's `pub_*_o` ports are unread until the placement switch (#665 F-INT,
-  after F5) selects them for the split datapath.
+- **The two-placement comparison.** The placement switch connects the
+  datapath, but no simulation yet runs the split firmware on it beside the
+  all-fabric processor and compares their frames
+  ([The placement switch](#the-placement-switch)).
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter
   the SRP channel's transmit ring as header plus MRPDU. Target integration
@@ -1648,11 +1724,10 @@ report_timing_summary -delay_type max
   ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
   the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.
-- **The face block's datapath side** (contract 2.3) is unread: the placement
-  switch connects each `fw_*_o`, window and event port to the split
-  datapath, with its clock crossing, and its split elaboration must pass the
-  port census without the map writer's exclusion
-  ([Every port, one class](#every-port-one-class)).
+- **The face block's datapath side** (contract 2.3) is connected by the
+  placement switch. No census yet follows its ports and the publication
+  block's through the split elaboration, as the class-D census follows the
+  wrapper's.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
   firmware's AECP owner takes REBOOT, and the placement switch gives the
   request its carrier, a face-block level being the expected end state (the
