@@ -372,7 +372,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! one maximum frame being sent
   parameter int REBOOT_MAC_TX_OCTETS_P = 32_768,
   //! ...and the slowest line rate it runs at, in Mbps
-  parameter int REBOOT_MAC_MIN_MBPS_P  = 10
+  parameter int REBOOT_MAC_MIN_MBPS_P  = 10,
+  //! ---- the control placement (#665 F-INT PR 2) ----------------------------
+  //! 0, all-fabric: KL_pp_shadow runs ADP, ACMP, AECP and SRP, KL_maap runs
+  //! MAAP, and the i_ctl_*/o_ctl_* ports below are read by nothing and driven
+  //! 0. 1, split: the firmware owns every control protocol through the
+  //! mailbox (ruling 6088423771, decision 1), so neither KL_pp_shadow,
+  //! KL_maap, KL_pp_maap_shim nor the map writer is built. Each face the
+  //! wrapper served is read from the ctl ports instead: the publication
+  //! block (contract 2.2 and 2.4), the face block (2.3) and the control
+  //! frames (docs/design/MAILBOX_SPLIT.md). Every ctl port is in this
+  //! module's clock; the SoC crosses them from the mailbox's.
+  parameter int CTRL_SPLIT_P = 0,
+  //! the mailbox contract's source and sink entries per interface
+  //! (sw/mailbox/mailbox.yaml): the width of each per-entry ctl bus.
+  //! milan_soc.py refuses a contract with another count.
+  parameter int CTRL_ENTRIES_P = 16
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -666,7 +681,110 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire        i_mmcm_locked,
   output wire        o_mmcm_ps_en,
   output wire        o_mmcm_ps_incdec,
-  input  wire        i_mmcm_ps_done
+  input  wire        i_mmcm_ps_done,
+
+  // ---- the split placement's control face (CTRL_SPLIT_P = 1, #665) --------
+  //! Read by nothing and driven 0 while CTRL_SPLIT_P = 0. In the split, the
+  //! SoC's KL_mbx_cdc carries each across from the mailbox (sys) into this
+  //! clock with cdc_handshake or toggle+sync, and the frames through async
+  //! FIFOs. Per-source and per-sink buses carry CTRL_ENTRIES_P entries, the
+  //! contract's count; this shape reads the first ACMP_SRC_C or ACMP_SINKS_C.
+  //! The control frames' ingress: a byte stream, the frame's last byte with
+  //! o_ctl_rx_last (no FCS), held until i_ctl_rx_ready
+  output wire        o_ctl_rx_valid,
+  output wire [7:0]  o_ctl_rx_data,
+  output wire        o_ctl_rx_last,
+  input  wire        i_ctl_rx_ready,
+  //! ...and their egress, one byte a beat, into the control lane
+  input  wire        i_ctl_tx_valid,
+  input  wire [7:0]  i_ctl_tx_data,
+  input  wire        i_ctl_tx_last,
+  output wire        o_ctl_tx_ready,
+  //! the mailbox's LINK and GM events (IEEE 802.1AS-2011 clause 10: a new
+  //! grandmaster from best master selection)
+  output wire        o_ctl_link_up,
+  output wire        o_ctl_gm_change_p,
+  output wire [63:0] o_ctl_gm_id,
+  output wire [7:0]  o_ctl_gptp_domain,
+  //! the class-D publication block (contract 2.2, 2.4), sampled whole
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_da_gate,     //! DA_GATE.OPEN per source
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_licence,     //! LICENCE.ACTIVE per source
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_talker_decl, //! TALKER_DECL.DECLARED per source
+  input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_pub_src_sid,     //! SRC_SID per source
+  input  wire [31:0]                  i_ctl_pub_idle_slope,  //! IDLE_SLOPE.BPS
+  input  wire [11:0]                  i_ctl_pub_dom_vid,     //! SR_DOMAIN.VID
+  input  wire [2:0]                   i_ctl_pub_dom_prio,    //! SR_DOMAIN.PRIORITY
+  input  wire                         i_ctl_pub_dom_adopted, //! SR_DOMAIN.ADOPTED
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_bound,       //! BINDING.BOUND per sink
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_sid_valid,   //! BINDING.SID_VALID per sink
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_started,     //! BINDING.STARTED per sink
+  input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_pub_sid,         //! SID per sink, read only while SID_VALID
+  //! the face block's settings (contract 2.3, class F), each the value of
+  //! the last commit the datapath took. F_CTRL.READY stands for the
+  //! processor's enable and restore start, which no fabric block reads, so
+  //! it has no port: the firmware opens AECP on it itself.
+  input  wire [15:0]                  i_ctl_cur_config,      //! F_ENTITY.CUR_CONFIG
+  input  wire [7:0]                   i_ctl_identify,        //! F_ENTITY.IDENTIFY
+  input  wire [15:0]                  i_ctl_clk_src_index,   //! F_CLOCK.SOURCE_INDEX
+  input  wire                         i_ctl_lock_held,       //! F_AECP.LOCK_HELD
+  input  wire                         i_ctl_dyn_dirty,       //! F_AECP.DYN_DIRTY
+  input  wire [CTRL_ENTRIES_P*32-1:0] i_ctl_pt_offset,       //! F_PT_OFFSET.NS per source
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pt_offset_v,     //! F_SRC_VALID.PT_OFFSET per source
+  input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_fmt_out,         //! F_FMT_OUT per source
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_fmt_out_v,       //! F_SRC_VALID.FMT_OUT per source
+  input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_fmt_in,          //! F_FMT_IN per sink
+  input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_fmt_in_v,        //! F_SNK_VALID.FMT_IN per sink
+  //! F_RESTORE and F_NVM: the saved-state store's status, read back by CSR
+  //! and the REBOOT drain
+  input  wire [5:0]                   i_ctl_restore,         //! {RB, CLOSED, BLANK, FAIL, DONE, BUSY}
+  input  wire [2:0]                   i_ctl_rs_cause,        //! F_RESTORE.RS_CAUSE
+  input  wire [1:0]                   i_ctl_restore_cause,   //! F_RESTORE.CAUSE
+  input  wire [5:0]                   i_ctl_nvm,             //! {IMG_VALID, PEND, STALE, DIRTY, ALARM, BACKED}
+  input  wire [3:0]                   i_ctl_nvm_verdict,     //! F_NVM.VERDICT
+  //! the four request and answer windows (class R), each held by its
+  //! requester from req until the answer it reads while wait is low
+  input  wire        i_ctl_ctr_req,                          //! GET_COUNTERS
+  input  wire [15:0] i_ctl_ctr_type,
+  input  wire [15:0] i_ctl_ctr_index,
+  input  wire [5:0]  i_ctl_ctr_word,
+  output wire [31:0] o_ctl_ctr_data,
+  output wire        o_ctl_ctr_wait,
+  input  wire        i_ctl_amap_req,                         //! GET_AUDIO_MAP
+  input  wire [15:0] i_ctl_amap_type,
+  input  wire [15:0] i_ctl_amap_index,
+  input  wire [15:0] i_ctl_amap_map_index,
+  input  wire [1:0]  i_ctl_amap_sel,
+  input  wire [7:0]  i_ctl_amap_rec,
+  output wire [63:0] o_ctl_amap_data,
+  output wire        o_ctl_amap_wait,
+  input  wire        i_ctl_edit_req,                         //! ADD/REMOVE_AUDIO_MAPPINGS, a beat
+  input  wire [2:0]  i_ctl_edit_phase,
+  input  wire        i_ctl_edit_remove,
+  input  wire [15:0] i_ctl_edit_type,
+  input  wire [15:0] i_ctl_edit_index,
+  input  wire [15:0] i_ctl_edit_count,
+  input  wire [7:0]  i_ctl_edit_rec,
+  input  wire [63:0] i_ctl_edit_record,
+  input  wire [63:0] i_ctl_edit_value,
+  output wire [63:0] o_ctl_edit_data,
+  output wire        o_ctl_edit_wait,
+  input  wire        i_ctl_gsi_req,                          //! GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH
+  input  wire [1:0]  i_ctl_gsi_kind,
+  input  wire [15:0] i_ctl_gsi_type,
+  input  wire [15:0] i_ctl_gsi_index,
+  input  wire [3:0]  i_ctl_gsi_sel,
+  input  wire [7:0]  i_ctl_gsi_ord,
+  input  wire [63:0] i_ctl_gsi_prop,
+  output wire [63:0] o_ctl_gsi_data,
+  output wire        o_ctl_gsi_wait,
+  //! the face events (class E): the Table 5.22 counter-change arbiter's
+  //! descriptor, one a cycle while any is pending, and three pulses
+  output wire        o_ctl_ctr_chg_valid,
+  output wire [15:0] o_ctl_ctr_chg_type,
+  output wire [15:0] o_ctl_ctr_chg_index,
+  output wire        o_ctl_avb_chg_p,
+  output wire        o_ctl_asp_chg_p,
+  output wire        o_ctl_amap_wr_p
 );
   // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -5511,6 +5629,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign amr_wvalid_w = (amr_st_r == AS_WSTR);
   assign amr_rready_w = (amr_st_r == AS_RRD);
 
+  //! The map writer and restore are the wrapper's record face's (#637). The
+  //! split placement builds neither (ruling 6410169666 item 1): its
+  //! firmware's AECP owner holds the maps and their saved state, and applies
+  //! them through the EDIT window. Every register below then rests at its
+  //! reset value, but the restore's hold, which is 0: no restore runs, so
+  //! nothing holds the maps.
+  generate if (CTRL_SPLIT_P == 0) begin : g_af_amr
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amr_deadlines
     if (!axis_resetn) begin
       amr_wd_r    <= '0;
@@ -6004,6 +6129,64 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       endcase
     end
   end : amr_fsm
+  end else begin : g_sp_amr
+    assign amr_wd_r = '0;
+    assign amr_agg_r = '0;
+    assign amr_go_r = 1'b0;
+    assign amr_agg_x_r = 1'b0;
+    assign amr_st_r = AS_BOOT;
+    assign amr_rs_hold_r = 1'b0;
+    assign amr_rs_fail_r = 1'b0;
+    assign amr_rs_valid_r = 1'b0;
+    assign amr_stage_r = 2'd0;
+    assign amr_pb_r = '0;
+    assign amr_rb_r = 1'b0;
+    assign amr_own_r = 1'b0;
+    assign amr_r_r = '0;
+    assign amr_src_r = 1'b0;
+    assign amr_k_r = 8'd0;
+    assign amr_li_r = '0;
+    assign amr_lo_r = '0;
+    assign amr_gk_r = 8'd0;
+    assign amr_ek_r = 8'd0;
+    assign amr_eu_r = 1'b1;
+    assign amr_bi_r = 11'd0;
+    assign amr_crc_r = 16'hFFFF;
+    assign amr_req_r = 1'b0;
+    assign amr_we_r = 1'b0;
+    assign amr_abort_r = 1'b0;
+    assign amr_hframe_r = 1'b0;
+    assign amr_hid_r = 1'b0;
+    assign amr_hcrc_r = 16'd0;
+    assign amr_e_ff_r = 1'b1;
+    assign amr_e_z_r = 1'b1;
+    assign amr_e_b1_r = 8'd0;
+    assign amr_e_b3_r = 8'd0;
+    assign amr_e_b5_r = 8'd0;
+    assign amr_unused_r = 1'b0;
+    assign amr_malformed_r = 1'b0;
+    assign amr_refuse_r = 1'b0;
+    assign amr_step_r = 2'd0;
+    assign amr_ph5_r = 1'b0;
+    assign amr_idx_r = 8'd0;
+    assign amr_ok_r = 1'b0;
+    assign amr_ed_req_r = 1'b0;
+    assign amr_ed_phase_r = 3'd0;
+    assign amr_ed_remove_r = 1'b0;
+    assign amr_ed_type_r = 16'd0;
+    assign amr_ed_index_r = 16'd0;
+    assign amr_ed_count_r = 16'd0;
+    assign amr_ed_rec_r = 8'd0;
+    assign amr_ed_record_r = 64'd0;
+    assign amr_dirty_r = '0;
+    assign amr_taint_r = 1'b0;
+    assign amr_alarm_r = 1'b0;
+    assign amr_armed_r = 1'b0;
+    assign amr_deb_r = 1'b0;
+    assign amr_fails_r = 2'd0;
+    assign amr_mscnt_r = 10'd0;
+    assign amr_scan_r = '0;
+  end endgenerate
 
   //! ---- PP_STAT's restore verdicts, both restores composed (D3 3 rule 7,
   //! 5.2, 8.7; #637). The processor's interface is unchanged: its levels
@@ -8532,8 +8715,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! addr_valid_o = 0, no conflicts, no defends, offset 0, and a TX port
   //! that never asserts tvalid (the ADP arbiter's MAAP leg simply never
   //! wins). eff_aaf_dmac therefore always resolves to the CSR-provisioned
-  //! AAF_DMAC, and MAAP_STAT0/1 (0x6D0/0x6D4) read 0.
-  generate if (MAAP_P != 0) begin : g_maap
+  //! AAF_DMAC, and MAAP_STAT0/1 (0x6D0/0x6D4) read 0. The split placement
+  //! builds no engine either (CTRL_SPLIT_P): the firmware's MAAP owns the
+  //! addresses and writes them into that AAF_DMAC window itself
+  //! (sw/firmware/ctrl/maap/README.md, maap_csr_allocation), so the CSR
+  //! value is the allocated one there.
+  generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_maap
   KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
@@ -9394,6 +9581,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   end : pp_ctr_event_queue
 
+  //! The placement (CTRL_SPLIT_P, #665): all-fabric builds the wrapper
+  //! below; split builds g_sp_ctrl after it instead, the same faces read
+  //! from the ctl ports.
+  generate if (CTRL_SPLIT_P == 0) begin : g_af_pp
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
@@ -9741,6 +9932,226 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .maap_defends_o          (pp_maap_int_dfnd_nc_w),
       .dbg_now_ms_o      ()
     );
+  //! the ctl ports' outputs, read by nothing here
+  assign o_ctl_rx_valid      = 1'b0;
+  assign o_ctl_rx_data       = 8'd0;
+  assign o_ctl_rx_last       = 1'b0;
+  assign o_ctl_tx_ready      = 1'b0;
+  assign o_ctl_link_up       = 1'b0;
+  assign o_ctl_gm_change_p   = 1'b0;
+  assign o_ctl_gm_id         = 64'd0;
+  assign o_ctl_gptp_domain   = 8'd0;
+  assign o_ctl_ctr_data      = 32'd0;
+  assign o_ctl_ctr_wait      = 1'b0;
+  assign o_ctl_amap_data     = 64'd0;
+  assign o_ctl_amap_wait     = 1'b0;
+  assign o_ctl_edit_data     = 64'd0;
+  assign o_ctl_edit_wait     = 1'b0;
+  assign o_ctl_gsi_data      = 64'd0;
+  assign o_ctl_gsi_wait      = 1'b0;
+  assign o_ctl_ctr_chg_valid = 1'b0;
+  assign o_ctl_ctr_chg_type  = 16'd0;
+  assign o_ctl_ctr_chg_index = 16'd0;
+  assign o_ctl_avb_chg_p     = 1'b0;
+  assign o_ctl_asp_chg_p     = 1'b0;
+  assign o_ctl_amap_wr_p     = 1'b0;
+  end else begin : g_sp_ctrl
+    //! ---- the split placement (#665 F-INT PR 2) ---------------------------
+    //! No processor: each face the wrapper served comes from the ctl ports,
+    //! in the classes of sw/mailbox/census_ports.py. The ports carry
+    //! CTRL_ENTRIES_P entries; this shape reads its first ACMP_SRC_C sources
+    //! and ACMP_SINKS_C sinks.
+    if ((ACMP_SRC_C > CTRL_ENTRIES_P) || (ACMP_SINKS_C > CTRL_ENTRIES_P)) begin : g_entries_check
+      $error("milan_datapath: the split's ctl ports carry %0d entries, and this shape has %0d sources and %0d sinks",
+             CTRL_ENTRIES_P, ACMP_SRC_C, ACMP_SINKS_C);
+    end
+
+    //! C, class-D: the publication block. A sink's stream_id is taken only
+    //! while its SID_VALID is set, so a half-written one never reaches the
+    //! listener; a source's Talker declaration is a state other than NONE.
+    assign pp_cd_acmp_declaring_w     = i_ctl_pub_da_gate[ACMP_SRC_C-1:0];
+    assign pp_cd_srp_active_w         = i_ctl_pub_licence[ACMP_SRC_C-1:0];
+    assign pp_cd_srp_sr_admitted_w    = i_ctl_pub_licence[ACMP_SRC_C-1:0];
+    assign pp_cd_src_stream_id_w      = i_ctl_pub_src_sid[ACMP_SRC_C*64-1:0];
+    assign pp_cd_srp_sum_slope_bps_w  = i_ctl_pub_idle_slope;
+    assign pp_cd_srp_class_a_vid_w    = i_ctl_pub_dom_vid;
+    assign pp_cd_srp_class_a_prio_w   = i_ctl_pub_dom_prio;
+    assign pp_cd_srp_domain_adopted_w = i_ctl_pub_dom_adopted;
+    assign pp_cd_acmp_bound_w         = i_ctl_pub_bound[ACMP_SINKS_C-1:0];
+    assign pp_aecp_strm_started_w     = i_ctl_pub_started[ACMP_SINKS_C-1:0];
+    for (genvar s = 0; s < ACMP_SRC_C; s++) begin : g_tk_decl
+      assign pp_cd_srp_tk_decl_state_w[2*s +: 2] = {1'b0, i_ctl_pub_talker_decl[s]};
+    end
+    for (genvar k = 0; k < ACMP_SINKS_C; k++) begin : g_sink_sid
+      assign pp_cd_acmp_bound_sid_w[64*k +: 64] =
+          i_ctl_pub_sid_valid[k] ? i_ctl_pub_sid[64*k +: 64] : 64'd0;
+    end
+    //! ...and the class-D values the block does not carry, each read only
+    //! by CSR status or the GET_STREAM_INFO answer the firmware composes
+    //! from its own state (the publication census): at their reset value
+    assign pp_cd_srp_domain_change_w   = 1'b0;
+    assign pp_cd_srp_lstn_reg_state_w  = '0;
+    assign pp_cd_srp_granted_slope_bps_w = '0;
+    assign pp_cd_srp_src_fail_code_w   = '0;
+    assign pp_cd_srp_src_fail_bridge_w = '0;
+    assign pp_cd_srp_over_limit_w      = 1'b0;
+    assign pp_cd_srp_tk_reg_state_w    = '0;
+    assign pp_cd_srp_lstn_decl_state_w = '0;
+    assign pp_cd_srp_acc_latency_w     = '0;
+    assign pp_cd_srp_snk_fail_code_w   = '0;
+    assign pp_cd_acmp_bound_eid_w      = '0;
+    assign pp_cd_acmp_bound_dmac_w     = '0;
+    assign pp_cd_acmp_bound_vlan_w     = '0;
+    assign pp_cd_adp_avail_index_w     = 32'd0;
+
+    //! F, the face block's settings, as the datapath last took them
+    assign pp_aecp_cur_config_w    = i_ctl_cur_config;
+    assign pp_aecp_identify_w      = i_ctl_identify;
+    assign pp_aecp_clk_src_index_w = i_ctl_clk_src_index;
+    assign aecp_locked             = i_ctl_lock_held;
+    assign pp_aecp_dyn_dirty_w     = i_ctl_dyn_dirty;
+    assign pp_aecp_pt_offset_w     = i_ctl_pt_offset[ACMP_SRC_C*32-1:0];
+    assign pp_aecp_pt_offset_v_w   = i_ctl_pt_offset_v[ACMP_SRC_C-1:0];
+    assign pp_aecp_fmt_out_w       = i_ctl_fmt_out[ACMP_SRC_C*64-1:0];
+    assign pp_aecp_fmt_out_v_w     = i_ctl_fmt_out_v[ACMP_SRC_C-1:0];
+    assign pp_aecp_fmt_in_w        = i_ctl_fmt_in[ACMP_SINKS_C*64-1:0];
+    assign pp_aecp_fmt_in_v_w      = i_ctl_fmt_in_v[ACMP_SINKS_C-1:0];
+    assign {pp_restore_rb_w, pp_restore_closed_w, pp_restore_blank_w,
+            pp_restore_fail_w, pp_restore_done_w, pp_restore_busy_w} = i_ctl_restore;
+    assign pp_rs_cause_w           = i_ctl_rs_cause;
+    assign pp_restore_cause_w      = i_ctl_restore_cause;
+    assign {pp_nvm_img_valid_w, pp_nvm_pend_w, pp_nvm_stale_w,
+            pp_nvm_dirty_w, pp_nvm_alarm_w, pp_nvm_backed_w} = i_ctl_nvm;
+    assign pp_nvm_verdict_w        = i_ctl_nvm_verdict;
+
+    //! R, the four windows: the requester holds req and its fields, and
+    //! reads the answer while wait is low, as the processor did
+    assign pp_ctr_req_w          = i_ctl_ctr_req;
+    assign pp_ctr_desc_type_w    = i_ctl_ctr_type;
+    assign pp_ctr_desc_index_w   = i_ctl_ctr_index;
+    assign pp_ctr_word_w         = i_ctl_ctr_word;
+    assign o_ctl_ctr_data        = pp_ctr_data_w;
+    assign o_ctl_ctr_wait        = pp_ctr_wait_w;
+    assign pp_amap_req_w         = i_ctl_amap_req;
+    assign pp_amap_desc_type_w   = i_ctl_amap_type;
+    assign pp_amap_desc_index_w  = i_ctl_amap_index;
+    assign pp_amap_map_index_w   = i_ctl_amap_map_index;
+    assign pp_amap_sel_w         = i_ctl_amap_sel;
+    assign pp_amap_rec_w         = i_ctl_amap_rec;
+    assign o_ctl_amap_data       = pp_amap_data_w;
+    assign o_ctl_amap_wait       = pp_amap_wait_w;
+    assign ppo_amap_edit_req_w        = i_ctl_edit_req;
+    assign ppo_amap_edit_phase_w      = i_ctl_edit_phase;
+    assign ppo_amap_edit_remove_w     = i_ctl_edit_remove;
+    assign ppo_amap_edit_desc_type_w  = i_ctl_edit_type;
+    assign ppo_amap_edit_desc_index_w = i_ctl_edit_index;
+    assign ppo_amap_edit_count_w      = i_ctl_edit_count;
+    assign ppo_amap_edit_rec_w        = i_ctl_edit_rec;
+    assign ppo_amap_edit_record_w     = i_ctl_edit_record;
+    assign pp_amap_edit_value_w       = i_ctl_edit_value;
+    assign o_ctl_edit_data       = pp_amap_edit_data_w;
+    assign o_ctl_edit_wait       = pp_amap_edit_wait_w;
+    assign pp_gsi_req_w          = i_ctl_gsi_req;
+    assign pp_gsi_kind_w         = i_ctl_gsi_kind;
+    assign pp_gsi_desc_type_w    = i_ctl_gsi_type;
+    assign pp_gsi_desc_index_w   = i_ctl_gsi_index;
+    assign pp_gsi_sel_w          = i_ctl_gsi_sel;
+    assign pp_gsi_ord_w          = i_ctl_gsi_ord;
+    assign pp_gsi_prop_fmt_w     = i_ctl_gsi_prop;
+    assign o_ctl_gsi_data        = pp_gsi_data_w;
+    assign o_ctl_gsi_wait        = pp_gsi_wait_w;
+
+    //! E, the face events
+    assign o_ctl_ctr_chg_valid = pp_ctr_evt_valid_w;
+    assign o_ctl_ctr_chg_type  = pp_ctr_evt_type_w;
+    assign o_ctl_ctr_chg_index = pp_ctr_evt_index_w;
+    assign o_ctl_avb_chg_p     = gsi_avb_chg_w;
+    assign o_ctl_asp_chg_p     = gsi_asp_chg_w;
+    assign o_ctl_amap_wr_p     = amap_edit_live_wr_p;
+
+    //! M, the frame and event paths
+    assign o_ctl_link_up     = eff_link_w;
+    assign o_ctl_gm_change_p = pp_gm_change_p_w;
+    assign o_ctl_gm_id       = cfg_adp_gptp_gm;
+    assign o_ctl_gptp_domain = cfg_adp_gptp_domain;
+    KL_ctrl_split #(.TDATA_WIDTH_P(TDATA_WIDTH)) ctrl_split (
+      .clk_i            (axis_clk),
+      .rst_n            (axis_resetn),
+      .rx_tdata_i       (rx_axis_fabric.tdata),
+      .rx_tkeep_i       (rx_axis_fabric.tkeep),
+      .rx_tvalid_i      (rx_axis_fabric.tvalid),
+      .rx_tready_i      (rx_axis_fabric.tready),
+      .rx_tlast_i       (rx_axis_fabric.tlast),
+      .rx_valid_o       (o_ctl_rx_valid),
+      .rx_data_o        (o_ctl_rx_data),
+      .rx_last_o        (o_ctl_rx_last),
+      .rx_ready_i       (i_ctl_rx_ready),
+      .tx_valid_i       (i_ctl_tx_valid),
+      .tx_data_i        (i_ctl_tx_data),
+      .tx_last_i        (i_ctl_tx_last),
+      .tx_ready_o       (o_ctl_tx_ready),
+      .m_axis_tx_tdata  (pp_tx_tdata_w),
+      .m_axis_tx_tkeep  (pp_tx_tkeep_w),
+      .m_axis_tx_tvalid (pp_tx_tvalid_w),
+      .m_axis_tx_tlast  (pp_tx_tlast_w),
+      .m_axis_tx_tready (pp_tx_tready_w),
+      .rx_frames_o      (pp_rx_frames_w),
+      .rx_drops_o       (pp_rx_drops_w),
+      .tx_frames_o      (pp_tx_frames_w)
+    );
+
+    //! G, gone with the wrapper. The three memory masters idle at their
+    //! reset value: the descriptor image, the responses and the saved state
+    //! are the firmware's (decision D1).
+    assign o_desc_mem_req_valid = 1'b0;
+    assign o_desc_mem_req_addr  = 32'd0;
+    assign o_desc_mem_req_beats = 9'd0;
+    assign o_desc_mem_rsp_ready = 1'b0;
+    assign o_resp_mem_req_valid = 1'b0;
+    assign o_resp_mem_req_addr  = 32'd0;
+    assign o_resp_mem_req_beats = 9'd0;
+    assign o_resp_mem_rsp_ready = 1'b0;
+    assign o_resp_mem_wr_valid  = 1'b0;
+    assign o_resp_mem_wr_addr   = 32'd0;
+    assign o_resp_mem_wr_data   = 64'd0;
+    assign o_resp_mem_wr_strb   = 8'd0;
+    assign o_nvm_mem_req_valid  = 1'b0;
+    assign o_nvm_mem_req_addr   = 32'd0;
+    assign o_nvm_mem_req_beats  = 9'd0;
+    assign o_nvm_mem_rsp_ready  = 1'b0;
+    assign o_nvm_mem_wr_valid   = 1'b0;
+    assign o_nvm_mem_wr_addr    = 32'd0;
+    assign o_nvm_mem_wr_data    = 64'd0;
+    assign o_nvm_mem_wr_strb    = 8'd0;
+    //! The processor's host window answers every access at once, refused,
+    //! so PP_SPADDR and PP_SPDATA never leave the CSR busy; its saved-state
+    //! window reads 0.
+    assign pp_ack_w             = pp_req_w;
+    assign pp_err_w             = 1'b1;
+    assign pp_rdata_w           = 32'd0;
+    assign pp_nvm_csr_rdata_w   = 32'd0;
+    //! AECP REBOOT is the firmware AECP owner's, and the split carries no
+    //! request for it yet (#787; the census's REBOOT exclusion)
+    assign pp_reboot_req_w      = 1'b0;
+    //! the record face of the map writer, which the split does not build
+    assign mrec_gnt_w           = 1'b0;
+    assign mrec_wready_w        = 1'b0;
+    assign mrec_rvalid_w        = 1'b0;
+    assign mrec_rdata_w         = 8'd0;
+    assign mrec_done_w          = 1'b0;
+    assign mrec_err_w           = 1'b0;
+    //! the MAAP face and the processor's internal MAAP option: the
+    //! firmware's MAAP owns the addresses, and the shim is not built
+    assign pp_maap_req_valid_w    = 1'b0;
+    assign pp_maap_req_release_w  = 1'b0;
+    assign pp_maap_req_src_w      = '0;
+    assign pp_maap_confl_ack_w    = 1'b0;
+    assign pp_maap_int_addr_nc_w  = 48'd0;
+    assign pp_maap_int_valid_nc_w = 1'b0;
+    assign pp_maap_int_state_nc_w = 2'd0;
+    assign pp_maap_int_confl_nc_w = 8'd0;
+    assign pp_maap_int_dfnd_nc_w  = 8'd0;
+  end endgenerate
 
   //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
   //! The processor's held request becomes a configuration reload from flash
@@ -9781,7 +10192,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! response says ok = 0 - and NOT ready-stuck-low, which would park the
     //! talker's single walker for 1024 cycles per attempt and make the whole
     //! talker half of ACMP deaf while it waited. See KL_pp_maap_shim.sv's
-    //! banner, decision 1.
+    //! banner, decision 1. The split placement has no processor to answer.
+    generate if (CTRL_SPLIT_P == 0) begin : g_af_shim
     KL_pp_maap_shim #(
       .N_SRC_P (ACMP_SRC_C)
     ) pp_maap_shim (
@@ -9801,6 +10213,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .conflict_src_o   (pp_maap_confl_src_w),
       .conflict_ack_i   (pp_maap_confl_ack_w)
     );
+    end else begin : g_sp_shim
+      assign pp_maap_req_ready_w   = 1'b0;
+      assign pp_maap_rsp_valid_w   = 1'b0;
+      assign pp_maap_rsp_ok_w      = 1'b0;
+      assign pp_maap_rsp_da_w      = 48'd0;
+      assign pp_maap_confl_valid_w = 1'b0;
+      assign pp_maap_confl_src_w   = '0;
+    end endgenerate
 
 
 endmodule
