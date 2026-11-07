@@ -185,8 +185,9 @@ static bool retry(void *ctx, unsigned left_us)
 	struct aecp_mbx *m = ctx;
 	struct ctrl_loop *l = m->loop;
 	const uint32_t sent = m->core.tx_cookie;
-	bool owed = aecp_retry(&m->core, l->backlog && !l->retry_firm ? AECP_ROUND_YIELD_NOTICES : AECP_NOTICES_MOST,
-			       (int32_t)left_us - (int32_t)AECP_ROUND_COLD_US);
+	const unsigned yield = l->retry_firm ? AECP_ROUND_FIRM_NOTICES : AECP_ROUND_YIELD_NOTICES;
+	const unsigned most = l->backlog ? yield : AECP_NOTICES_MOST;
+	bool owed = aecp_retry(&m->core, most, (int32_t)left_us - (int32_t)AECP_ROUND_COLD_US);
 	// a round that built beside records spends a yield, and a queue served to its end starts the next with them all
 	m->yields = owed ? m->yields + (l->backlog && m->core.tx_cookie != sent ? 1u : 0u) : 0u;
 	l->retry_firm = m->yields + 1u > AECP_ROUND_YIELDS;

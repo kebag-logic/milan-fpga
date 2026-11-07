@@ -193,8 +193,8 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch, unsigned most, uint
 }
 
 _Static_assert(CTRL_LOOP_SHARE_US == 2000u, "THE SHARE is not amended");
-_Static_assert(CTRL_LOOP_SHARE_PASSES > CTRL_LOOP_SRP_PASSES && CTRL_LOOP_SHARE_PASSES > CTRL_LOOP_TX_PASSES,
-	       "THE SHARE counts one pass more than the deepest wait");
+_Static_assert(CTRL_LOOP_SHARE_PASSES >= CTRL_LOOP_SRP_PASSES && CTRL_LOOP_SHARE_PASSES >= CTRL_LOOP_TX_PASSES,
+	       "THE SHARE's passes hold the pass running and the deepest wait");
 _Static_assert(CTRL_LOOP_TX_MS <= CTRL_LOOP_T_SVC_MS, "an MRPDU a timer owes must keep T_svc");
 _Static_assert(CTRL_LOOP_SRP_MS <= CTRL_LOOP_T_SVC_MS, "the composed burst's last SRP record must keep T_svc");
 _Static_assert(CTRL_LOOP_SRP_DRAINED >= MBX_CH_SRP_RATE_BURST, "THE DRAIN's passes must take the burst");
@@ -257,10 +257,11 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	// records it may be leaving
 	// Then what such a pass has left goes to the records still waiting, a record of each channel in turn, once every
 	// channel has had its due: passes given whole may stand between two, and a pass that takes few records would leave
-	// them waiting on the next
+	// them waiting on the next. Each pass starts one channel on, so the channel the pass's time runs out at is each in
+	// turn, not the last every time
 	for (unsigned most = l->rx_cap, sweep = 1u; sweep != 0u && drained <= CTRL_LOOP_RX_PER_PASS; most = 1u) {
 		sweep = 0u;
-		for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+		for (unsigned k = 0, ch = l->rx_from; k < MBX_N_CH; ++k, ch = ch + 1u < MBX_N_CH ? ch + 1u : 0u) {
 			if (l->rx[ch].fn != NULL && ch + 1u != l->drain_ch) {
 				sweep += service_rx(l, ch, most, deadline);
 			}
@@ -271,6 +272,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		}
 		l->rx_cap = 0u;
 	}
+	l->rx_from = l->rx_from + 1u < MBX_N_CH ? l->rx_from + 1u : 0u;
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;

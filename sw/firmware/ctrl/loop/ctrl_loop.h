@@ -15,10 +15,10 @@
 //      to every sink; a TICK record's centiseconds go to the centisecond
 //      consumers, at most CTRL_LOOP_TICKS_PER_PASS per pass, the rest carried
 //      to the next pass;
-//   2. receive rings: THE DRAIN's channel, then each bound channel in channel
-//      order, at most CTRL_LOOP_RX_PER_PASS records, each to its handler, then
-//      what the pass has left to the records still waiting, one a channel in
-//      turn;
+//   2. receive rings: THE DRAIN's channel, then each bound channel, each pass
+//      starting one channel on, at most CTRL_LOOP_RX_PER_PASS records, each to
+//      its handler, then what the pass has left to the records still waiting,
+//      one a channel in turn;
 //   3. polls: every module once; a poll returns true while its module still
 //      owes output (a frame its transmit ring had no room for).
 // A pass that handled anything, or after which output or centiseconds are
@@ -65,10 +65,10 @@
 // (FR_NFR.md 3.4.1; SRP's own since the owner's ruling of 2026-11-06). An input
 // waits for the pass running when it arrives, then is taken N passes later and
 // answered in that pass, so (N + 1) passes must fit that bound. The deepest
-// admitted wait is nine passes: THE DRAIN's and THE TRANSMIT's at two
-// interfaces, and the A3 row of seven owed frames, answered in pass 8 after the
-// room returns. So no pass may exceed 20 ms / 10 = 2.0 ms of CPU time, a pass
-// to spare: 200,000 cycles of the split CPU's own clock, the 100 MHz bus clock
+// admitted wait is nine passes: THE TRANSMIT's at two interfaces, and the A3 row
+// of seven owed frames, answered in pass 8 after the room returns. So no pass
+// may exceed 20 ms / 10 = 2.0 ms of CPU time: 200,000 cycles of the split CPU's
+// own clock, the 100 MHz bus clock
 // it runs on (#665, owner decision 2026-10-30). Every slice serves that share,
 // and each module's work in one pass is bounded, the rest resumed on the next
 // pass:
@@ -151,9 +151,9 @@
 // no pass over THE SHARE by construction.
 // While records wait a round yields, one notice at a slower pace, so the CPU
 // they wait for is not spent on notices; a queue's first AECP_ROUND_YIELDS
-// rounds beside records do, and then the client stands firm (retry_firm), so
-// input that never lets up holds no notice past its bound. aecp.h states that
-// bound and derives it.
+// rounds beside records do, and then the client stands firm (retry_firm), at
+// most AECP_ROUND_FIRM_NOTICES a round beside records, so input that never lets
+// up holds no notice past its bound. aecp.h states that bound and derives it.
 //
 // THE TRANSMIT (#665). One client's build: SRP's MRPDUs (srp_mbx.c, transmit).
 // Built in a pass that takes records, it lengthened every record still waiting,
@@ -231,10 +231,10 @@ extern "C" {
 // CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
-// The passes given whole that may stand in a row. Three carry a queue of notices
-// past the two a row would, at no record's cost, since none stands in a row
+// The passes given whole that may stand in a row: what a queue of notices needs
+// at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
-#define CTRL_LOOP_WHOLE_RUN 3u
+#define CTRL_LOOP_WHOLE_RUN (MBX_N_IF == 1u ? 3u : 4u)
 // THE SHARE in microseconds: T_svc's 20 ms over ten passes, one more than the
 // deepest wait the loop admits.
 #define CTRL_LOOP_T_SVC_MS 20u
@@ -274,8 +274,8 @@ extern "C" {
 // CTRL_LOOP_EVENTS_PER_PASS events ahead of the TICK, a full ring's half; the
 // one pass given whole that may follow it, since events still wait; the
 // ordinary pass that takes the TICK and dispatches the centisecond, which owes
-// the build; and one pass given whole a build first, an interface each. 18 ms at
-// two interfaces, 16 ms at one, inside T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds
+// the build; and one pass given whole a build first, an interface each. 20 ms at
+// two interfaces, 16 ms at one, within T_svc (FR_NFR.md 3.4.1; ctrl_loop.c holds
 // it).
 #define CTRL_LOOP_TX_PASSES (1u + CTRL_LOOP_WHOLE_RUN + 1u + 1u + 1u + MBX_N_IF)
 #define CTRL_LOOP_TX_MS (CTRL_LOOP_TX_PASSES * CTRL_LOOP_SHARE_US / 1000u)
@@ -388,6 +388,7 @@ struct ctrl_loop {
 	unsigned drain_ch;              // THE DRAIN's channel + 1, 0 when none
 	bool events_left;               // the last pass that took events took all it may
 	uint16_t rx_order;              // the records before this follow only events already taken
+	unsigned rx_from;               // the channel this pass's records start at, one on each pass
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);

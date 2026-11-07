@@ -2298,6 +2298,9 @@ TEST_F(Mailbox, ARoundFillsWhatItsPassHasLeft)
     EXPECT_EQ(adapter.yields,spent)<<"a round that built nothing spends none";
     loop.retry_firm=true;
     EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
+    if(AECP_ROUND_FIRM_NOTICES<AECP_NOTICES_MOST){
+        EXPECT_EQ(built(CTRL_LOOP_SHARE_US),AECP_ROUND_FIRM_NOTICES)<<"firm, it stops at its cap beside records";
+    }
     loop.backlog=false;loop.retry_firm=true;
     for(unsigned n=0;n<AECP_NOTICES_MOST&&built(CTRL_LOOP_SHARE_US)!=0u;++n){}
     EXPECT_EQ(adapter.yields,0u)<<"a queue served to its end starts the next with them all";

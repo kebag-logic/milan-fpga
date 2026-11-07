@@ -10,7 +10,7 @@ the queue's retry falls due. The latest commit over all of them must fit the con
 The counts, at a window of ms milliseconds: THE DRAIN's passes (ctrl_loop.h); a build of both of an interface's MRPDUs
 once an interface, or of one of them twice, since a participant sends once a JoinTime and owes one pass for an
 Applicant that moves with its join timer idle; and an aged step each CTRL_LOOP_STEP_AGE + 1 centiseconds dispatched,
-which lag their ticks by at most the eighteen milliseconds THE TRANSMIT's bound allows them.
+which lag their ticks by at most what THE TRANSMIT's bound allows them.
 
 A notice whose port refuses is not in the queue, and costs a round AECP_ATTEMPT_US: a round tries each of
 AECP_ROUND_PORTS ports once (aecp.c, scan). So each search also runs with every count of refusing ports, its notices
@@ -30,8 +30,6 @@ from pathlib import Path
 from typing import NamedTuple
 
 CTRL = Path(__file__).resolve().parents[1]
-#: The lag of a centisecond behind its tick, in ms: THE TRANSMIT's passes up to its dispatch.
-TICK_LAG_MS = 18
 
 
 def arithmetic(text: str) -> int:
@@ -65,12 +63,13 @@ def constants(interfaces: int) -> dict[str, int]:
             return int(conditional[3] if arithmetic(conditional[1]) == int(conditional[2]) else conditional[4])
         return arithmetic(body)
 
-    names = ('CTRL_LOOP_WHOLE_RUN', 'CTRL_LOOP_SHARE_US', 'CTRL_LOOP_SHARE_MARGIN_US', 'CTRL_LOOP_STEP_PASS_US',
-             'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SRP_DRAINS', 'CTRL_LOOP_STEP_AGE',
-             'CTRL_LOOP_T_SVC_MS', 'AECP_RETRY_MAX_MS', 'AECP_REGISTRATIONS', 'AECP_NOTICE_US',
-             'AECP_ROUND_PACE_MS', 'AECP_ROUND_YIELD_PACE_MS', 'AECP_ROUND_YIELD_NOTICES', 'AECP_ROUND_YIELDS',
-             'AECP_QUEUED_PASSES', 'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_NOTICES_MOST', 'AECP_ATTEMPT_US',
-             'AECP_ROUND_PORTS', 'AECP_ROUND_COLD_US')
+    names = ('CTRL_LOOP_WHOLE_RUN', 'CTRL_LOOP_TX_MS', 'CTRL_LOOP_SHARE_US', 'CTRL_LOOP_SHARE_MARGIN_US',
+             'CTRL_LOOP_STEP_PASS_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US',
+             'CTRL_LOOP_SRP_DRAINS', 'CTRL_LOOP_STEP_AGE', 'CTRL_LOOP_T_SVC_MS', 'AECP_RETRY_MAX_MS',
+             'AECP_REGISTRATIONS', 'AECP_NOTICE_US', 'AECP_ROUND_PACE_MS', 'AECP_ROUND_YIELD_PACE_MS',
+             'AECP_ROUND_YIELD_NOTICES', 'AECP_ROUND_YIELDS', 'AECP_ROUND_FIRM_NOTICES', 'AECP_QUEUED_PASSES',
+             'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_NOTICES_MOST', 'AECP_ATTEMPT_US', 'AECP_ROUND_PORTS',
+             'AECP_ROUND_COLD_US')
     return {name: value(name) for name in names}
 
 
@@ -86,6 +85,7 @@ class Window:
     drains: int
     yields: int
     yield_notices: int
+    firm_notices: int
     pace_ms: int
     yield_pace_ms: int
     whole_run: int
@@ -123,7 +123,7 @@ def given(w: Window, s: State) -> list[State]:
             if ready:
                 most = w.build_carries if build else w.step_carries if step else w.round_carries
                 yielding = w.yields != 0 and s.backlog and not s.firm
-                built = min(s.left, w.yield_notices if yielding else most)
+                built = min(s.left, w.yield_notices if yielding else min(most, w.firm_notices) if s.backlog else most)
                 spent = s.spent + (1 if s.backlog and built else 0) if s.left > built else 0
                 n = n._replace(left=s.left - built, spent=spent, firm=spent + 1 > w.yields, held=s.left > built,
                                pace=s.t + (w.yield_pace_ms if s.backlog and not s.firm else w.pace_ms))
@@ -160,10 +160,11 @@ def latest(w: Window, target: int) -> int:
 def windows(c: dict[str, int], interfaces: int) -> list[Window]:
     """The searches of a point: its builds of both MRPDUs and its builds of one, at each count of refusing ports."""
     margin = c['CTRL_LOOP_SHARE_US'] - c['CTRL_LOOP_SHARE_MARGIN_US'] - c['AECP_ROUND_COLD_US']
-    centiseconds = (c['AECP_QUEUED_MS'] + TICK_LAG_MS) // 10
+    centiseconds = (c['AECP_QUEUED_MS'] + c['CTRL_LOOP_TX_MS']) // 10
     steps = 1 + (centiseconds - 1) // (c['CTRL_LOOP_STEP_AGE'] + 1)
     common = dict(notices=c['AECP_NOTICES_MOST'], steps=steps, drains=c['CTRL_LOOP_SRP_DRAINS'],
                   yields=c['AECP_ROUND_YIELDS'], yield_notices=c['AECP_ROUND_YIELD_NOTICES'],
+                  firm_notices=c['AECP_ROUND_FIRM_NOTICES'],
                   pace_ms=c['AECP_ROUND_PACE_MS'], yield_pace_ms=c['AECP_ROUND_YIELD_PACE_MS'],
                   whole_run=c['CTRL_LOOP_WHOLE_RUN'], spacing_ms=c['AECP_RETRY_MAX_MS'],
                   pass_ms=c['CTRL_LOOP_SHARE_US'] // 1000)

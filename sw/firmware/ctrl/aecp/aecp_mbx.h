@@ -22,11 +22,14 @@ extern "C" {
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
 // While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
 // composed burst holds have the CPU those passes leave. Each round that builds beside records spends a yield, whatever
-// else its pass carried, and with AECP_ROUND_YIELDS spent the client stands firm. One interface yields none: its bound
-// has no room for a yield, and its records wait no longer than two interfaces'.
+// else its pass carried, and with AECP_ROUND_YIELDS spent the client stands firm, at most AECP_ROUND_FIRM_NOTICES a
+// round beside records: a round of four is shorter than the pace, so an ordinary pass stands between two. One
+// interface yields none and caps none: its bound has no room for either, and its records wait no longer than two
+// interfaces'.
 #define AECP_ROUND_PACE_MS 2u
 #define AECP_ROUND_YIELD_PACE_MS 4u
 #define AECP_ROUND_YIELD_NOTICES 1u
+#define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
 #define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
 // The bound of FR_NFR.md 3.4.1 on notices queued behind one another (the owner's ruling of 2026-11-06, #665), every
 // constant above in it. The first retried notice commits within AECP_NOTICE_MS of its port's answer. Every notice

@@ -1436,6 +1436,30 @@ TEST_F(Loop, L25WhatAPassHasLeftGoesToTheRecordsStillWaiting) {
     EXPECT_TRUE(probe.rx == rx + CTRL_LOOP_RX_PER_PASS + 1u && probe.rx_acmp == acmp + CTRL_LOOP_RX_PER_PASS + 1u)
         << "L23 one a channel in turn";
     drain(&loop_);
+    // the channel the pass's time runs out at is each in turn: a pass starts one channel on
+    const auto spare = [&](unsigned from) {
+        fill();
+        for (unsigned k = 0; k < MBX_CH_ADP_RATE_BURST; ++k) {
+            ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
+        }
+        loop_.rx_from = from;
+        rx = probe.rx;
+        const unsigned before = probe.rx_acmp;
+        probe.now_step = CTRL_LOOP_DRAIN_US / 2u + 1u;   // room for one spare record, then the second read finds it spent
+        static_cast<void>(ctrl_loop_service(&loop_));
+        probe.now_step = 0u;
+        EXPECT_EQ(probe.rx - rx + probe.rx_acmp - before, 2u * CTRL_LOOP_RX_PER_PASS + 1u) << "(one spare record)";
+        EXPECT_EQ(probe.rx - rx, CTRL_LOOP_RX_PER_PASS + (from == MBX_CH_ACMP ? 0u : 1u))
+            << "L25 the channel a pass starts at has the time first";
+    };
+    spare(MBX_CH_ADP);
+    EXPECT_EQ(loop_.rx_from, MBX_CH_ADP + 1u) << "L25 each pass starts one channel on";
+    drain(&loop_);
+    spare(MBX_CH_ACMP);
+    drain(&loop_);
+    spare(MBX_N_CH - 1u);
+    EXPECT_EQ(loop_.rx_from, 0u) << "L25 and wraps past the last";
+    drain(&loop_);
 }
 
 // THE DRAIN's order (#665): a record follows only the events posted before it, by ring position: a pass that emptied
