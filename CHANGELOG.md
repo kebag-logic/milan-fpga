@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
+- **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
@@ -95,6 +96,29 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts the growth.
 - The gate's records are re-recorded; `check` exits 0.
 - The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
+
+## Unreleased - station MAC from reset
+
+- Issue #839: the first MSRP PDU had an all-zero source.
+- The SRP engine runs from reset.
+- Firmware writes the station MAC in `configure_fabric()`.
+- That write came after the first PDU was built.
+- The datapath records each half's first CSR write.
+- Until both are written, four transmitters cannot start.
+- They are the processor lane, MAAP, AAF and CRF.
+- Control-lane frames take octets 6 to 11 from the CSR.
+- So a PDU built before the write still leaves correct.
+- The gPTP plane is not held.
+- Its program ROM carries the same station MAC.
+- `milan_csr` and the register map's fields are unchanged.
+- VERSION stays `0x0002_0060`.
+- The `bootsa` leg boots through `milan_init()`'s own order.
+- It grades every frame's source past ENTITY_AVAILABLE.
+- Two more boots write one half, then the other.
+- Two more enable MAAP, AAF and CRF from reset.
+- Each source that offers a frame then must be held.
+- The stamp must leave octets outside 6 to 11 unchanged.
+- `bootsa-mutants` plants the shipped defect and eleven more.
 
 ## Unreleased - gPTP on the MII port
 
