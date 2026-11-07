@@ -1,0 +1,42 @@
+--- p_baseline
+head clone: --check rc 0 [documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)]; --selftest rc 0 [documentation inventory selftest: OK (60 controls)]; D0 rows 30
+module lines 1000
+--- p_nogit
+no .git export: exists False; --check rc 0 [documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)]
+one-commit clone: commits 1; baseline object rc 128; --check rc 0 [documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)]
+--- p_old_rule
+old path rule restored: --selftest rc 1
+  selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lane |'
+old path rule restored: --check on the real tree rc 1 [regenerate with: python3 scripts/docs_inventory.py --write]
+--- p_union_rule
+list OR path rule: --selftest rc 1
+  selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lane |'
+--- p_added_pages
+added docs/guides/PROBE_NEW.md: --check rc 1; --write rc 0; --check rc 0; Verified `area lane`; D0 rows 30
+added docs/integration/PROBE_NEW.md: --check rc 1; --write rc 0; --check rc 0; Verified `area lane`; D0 rows 30
+added docs/reference/PROBE_NEW.md: --check rc 1; --write rc 0; --check rc 0; Verified `area lane`; D0 rows 30
+--- p_refusal
+listed page renamed: --check rc 2; --write rc 2
+  REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves
+  after the list entry alone is updated: --write rc 0 [wrote docs/DOCUMENTATION_AUDIT.md]
+listed page removed: --check rc 2 [REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves]
+  entry removed: --write rc 0; --check rc 0 [documentation inventory: OK (546 lines, docs/DOCUMENTATION_AUDIT.md is fresh)]; D0 rows 29
+listed page removed, no Git: --check rc 2 [REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves]
+unlisted page renamed: --check rc 1 [regenerate with: python3 scripts/docs_inventory.py --write]
+listed page untracked but on disk: --check rc 2 [REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves]
+--- p_data_shapes
+`verified_pages` key absent: --check rc 1; --write rc 0; D0 rows 0
+archive page listed: --check rc 0 [documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)]
+--- p_mutants
+mutant identity: --selftest rc 0 [documentation inventory selftest: OK (60 controls)]
+mutant no membership check: --selftest rc 1 [selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at line 30:]
+mutant any for all: --selftest rc 1 [selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at line 30:]
+mutant no list check: --selftest rc 1 [selftest: FAIL D0 pages that are not a list: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 40:]
+mutant no str check: --selftest rc 1 [Traceback (most recent call last):]
+mutant archive test lost: --selftest rc 1 [selftest: FAIL archive page is obsolete with its successor: generated output lacks '| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) | archive |']
+mutant every page D0: --selftest rc 1 [selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lane |']
+mutant no page D0: --selftest rc 1 [selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |']
+mutant D0 before archive: --selftest rc 0 [documentation inventory selftest: OK (60 controls)]
+mutant control only: archive arm lists the archive page: --selftest rc 0 [documentation inventory selftest: OK (60 controls)]
+  module lines with that control 1000
+mutant D0 before archive, with that control: --selftest rc 1 [selftest: FAIL archive page is obsolete with its successor: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (2 lines differ); first difference at line 38]

@@ -1,0 +1,10 @@
+rc=2 :: scripts/check_py_idiom.py scripts/docs_inventory.py :: check_py_idiom.py: error: unrecognized arguments: scripts/docs_inventory.py
+rc=2 :: scripts/check_py_idiom.py --selftest :: [PASS] a malformed budget value is no entry
+rc=0 :: scripts/check_doc_style.py :: documentation style: OK (24 current documents)
+rc=0 :: scripts/check_doc_style.py --selftest :: documentation style selftest: OK
+rc=0 :: scripts/docs_check.py :: docs_check: 0 finding(s) across 214 md files + 1447 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+diff-check rc=0
+# check_py_idiom in the review clone, submodules at pins
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+rc=0
