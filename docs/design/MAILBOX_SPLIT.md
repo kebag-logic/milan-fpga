@@ -1423,6 +1423,11 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - The [`milan_dp`](../../tb/verilator/milan_dp/README.md) split leg runs the
   control path end to end. `split_mutants.py` plants thirteen defects, each
   caught by the check it names.
+- `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist and
+  refuses any crossing that skips a primitive, with four planted ones.
+
+The split leg runs in the suite's default `make`. The other four checks are
+local: no hosted job runs them yet, as workflow edits wait on #784.
 
 ## Verification
 
