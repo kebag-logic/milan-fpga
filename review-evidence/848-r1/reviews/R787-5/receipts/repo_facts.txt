@@ -1,0 +1,58 @@
+== digest
+a9604e8ed8ee33af7ced43e63b91a228bfdad5c15590405b6082cfc77ceca2b9  scripts/docs_inventory.py
+scripts/docs_inventory.py {'class': 'reviewed non-installing', 'reason': 'Validation and source inspection: invokes existing tools or local fixtures; installs nothing.', 'sha256': 'a9604e8ed8ee33af7ced43e63b91a228bfdad5c15590405b6082cfc77ceca2b9'}
+0
+== audit numstat vs 9d5a5af7
+2	2	docs/DOCUMENTATION_AUDIT.md
+ ci/image/command-table.json |  2 +-
+ docs/DOCUMENTATION_AUDIT.md |  4 ++--
+ scripts/docs_inventory.json | 32 ++++++++++++++++++++++++++++++++
+ scripts/docs_inventory.py   | 36 ++++++++++++++++++------------------
+ 4 files changed, 53 insertions(+), 21 deletions(-)
+== command table diff lines
+1	1	ci/image/command-table.json
+== audit row and figure
+314:| [docs/reference/STRICTER_READINGS.md](reference/STRICTER_READINGS.md) | integrator |
+cell:  area lane 
+43:| reference | 23 | 11 | 12 | 0 | 0 | 18 |
+== D0 rows vs list
+rows 214 D0 30 equal list True
+Counter({'area lane': 162, 'D0': 30, 'archive': 22})
+38:| archive | 22 | 1 | 0 | 0 | 21 | 0 |
+39:| design | 26 | 25 | 1 | 0 | 0 | 0 |
+40:| findings | 23 | 23 | 0 | 0 | 0 | 0 |
+41:| module READMEs | 81 | 81 | 0 | 0 | 0 | 0 |
+42:| overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
+43:| reference | 23 | 11 | 12 | 0 | 0 | 18 |
+44:| repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
+45:| testing and CI | 14 | 13 | 1 | 0 | 0 | 0 |
+== module size
+1000 scripts/docs_inventory.py
+== path rule gone
+none
+== live dev listed pages
+3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf
+false
+listed absent at live dev []
+== open PRs touching listed pages by rename or delete
+849 2 ['docs/README.md', 'docs/integration/BAREMETAL_FIRMWARE.md']
+847 2 ['docs/integration/INTEGRATION_GUIDE.md', 'docs/reference/SUBMODULES.md']
+846 5 ['docs/guides/gptp/HDL_DEVELOPER.md', 'docs/guides/gptp/MANAGER.md', 'docs/guides/gptp/SYSTEM_INTEGRATOR.md', 'docs/guides/gptp/TEST_DEVELOPER.md']
+842 2 ['docs/README.md', 'docs/integration/BAREMETAL_FIRMWARE.md']
+825 1 ['docs/README.md']
+824 2 ['docs/README.md', 'docs/guides/README.md']
+810 1 ['docs/reference/FR_NFR.md']
+== gates
+py_idiom rc 0
+  over-long line: 0 <= 0
+doc_style rc 0
+documentation style: OK (24 current documents)
+diffcheck rc 0
+== comment residue in delta
++same change, once no copy row of it remains. It also lists the D0 pages: a later page waits for its lane (#848).
++    """The two baselines, the D0 pages, the recorded judgements and findings; refuses a malformed file."""
++        verified = "archive" if path.startswith(ARCHIVE_PREFIX) else "D0" if path in checked else "area lane"
++        ("a page added under a release-facing path is not D0", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
++        ("a D0 page that left the tree", lambda root: (root / "README.md").unlink(), 2, "", "verified_pages"),
++        ("D0 pages that are not a list", edit_data(lambda d: d.update(verified_pages="")), 2, "", "verified_pages"),
++        ("a D0 page that is not a path", edit_data(lambda d: d.update(verified_pages=[[]])), 2, "", "verified_pages"),
