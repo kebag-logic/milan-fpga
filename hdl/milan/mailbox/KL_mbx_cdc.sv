@@ -15,8 +15,8 @@
 //                               a multi-word value; firmware's write order
 //                               is kept, as every snapshot is one sys cycle
 //                  settings     KL_mbx holds every fw_*_o from fw_send_o
-//                               until fw_ack_p_i; a toggle+sync pair
-//                               carries the request in and the
+//                               until fw_ack_p_i; one cdc_pulse carries
+//                               the request in and one the
 //                               acknowledgement out, and the datapath
 //                               clock takes the held bus on the edge that
 //                               turns the acknowledgement
@@ -28,10 +28,10 @@
 //                  events       a free-running cdc_handshake carries the
 //                               counter-change pending bits in the
 //                               contract's layout, the three face events,
-//                               the grandmaster change and the GM identity
-//                               and domain; the mailbox side posts each
-//                               pending bit as one pulse
-//                  link         one level, through a two-flop synchroniser
+//                               the grandmaster change, and the GM identity,
+//                               the domain and the LINK level as they are;
+//                               the mailbox side posts each pending bit as
+//                               one pulse
 //
 //                THE BOUNDS. A commit's acknowledgement and a window's
 //                answer each take two crossings, a few cycles of each clock
@@ -249,37 +249,24 @@ module KL_mbx_cdc
                      m_fw_dyn_dirty_i, m_fw_pt_offset_i, m_fw_pt_offset_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i,
                      m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_restore_i, m_fw_rs_cause_i, m_fw_restore_cause_i,
                      m_fw_nvm_i, m_fw_nvm_verdict_i};
-  //! Toggle+sync, with KL_mbx's hold in place of cdc_handshake's data_hold:
-  //! KL_mbx holds every m_fw_* from fw_send_o until fw_ack_p_i, and the
-  //! datapath takes the bus on the edge that turns the acknowledgement, so
-  //! no acknowledgement can let the bus move before it is taken.
-  logic                                   fw_send_q_r, fw_req_tog_r, fw_ack_tog_r;
-  (* ASYNC_REG = "TRUE" *) logic [2:0]    fw_req_sync_r;
-  (* ASYNC_REG = "TRUE" *) logic [2:0]    fw_ack_sync_r;
+  //! Two cdc_pulse crossings, with KL_mbx's hold in place of cdc_handshake's
+  //! data_hold: KL_mbx holds every m_fw_* from fw_send_o until fw_ack_p_i.
+  //! The datapath takes the bus on the edge the request's dest_pulse is high,
+  //! and that same pulse turns the acknowledgement's source level on that
+  //! same edge, so no acknowledgement can let the bus move before it is taken.
+  logic fw_send_q_r, fw_req_p_w, fw_take_p_w;
   always_ff @(posedge sys_clk_i) begin : fw_req
-    if (!sys_rst_n) begin
-      fw_send_q_r   <= 1'b0;
-      fw_req_tog_r  <= 1'b0;
-      fw_ack_sync_r <= 3'd0;
-    end else begin
-      fw_send_q_r   <= m_fw_send_i;
-      if (m_fw_send_i && !fw_send_q_r) fw_req_tog_r <= ~fw_req_tog_r;
-      fw_ack_sync_r <= {fw_ack_sync_r[1:0], fw_ack_tog_r};
-    end
+    if (!sys_rst_n) fw_send_q_r <= 1'b0;
+    else            fw_send_q_r <= m_fw_send_i;
   end : fw_req
-  assign m_fw_ack_p_o = fw_ack_sync_r[2] ^ fw_ack_sync_r[1];
+  assign fw_req_p_w = m_fw_send_i & ~fw_send_q_r;
+  cdc_pulse u_fw_req (.src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_pulse(fw_req_p_w),
+                      .dest_clk(dp_clk_i), .dest_rst_n(dp_rst_n), .dest_pulse(fw_take_p_w));
+  cdc_pulse u_fw_ack (.src_clk(dp_clk_i), .src_rst_n(dp_rst_n), .src_pulse(fw_take_p_w),
+                      .dest_clk(sys_clk_i), .dest_rst_n(sys_rst_n), .dest_pulse(m_fw_ack_p_o));
   always_ff @(posedge dp_clk_i) begin : fw_take
-    if (!dp_rst_n) begin
-      fw_req_sync_r <= 3'd0;
-      fw_ack_tog_r  <= 1'b0;
-      fw_r          <= '0;
-    end else begin
-      fw_req_sync_r <= {fw_req_sync_r[1:0], fw_req_tog_r};
-      if (fw_req_sync_r[2] ^ fw_req_sync_r[1]) begin
-        fw_r         <= fw_bus_w;
-        fw_ack_tog_r <= ~fw_ack_tog_r;
-      end
-    end
+    if (!dp_rst_n)        fw_r <= '0;
+    else if (fw_take_p_w) fw_r <= fw_bus_w;
   end : fw_take
   assign {d_cur_config_o, d_identify_o, d_clk_src_index_o, d_lock_held_o, d_dyn_dirty_o, d_pt_offset_o,
           d_pt_offset_v_o, d_fmt_out_o, d_fmt_out_v_o, d_fmt_in_o, d_fmt_in_v_o, d_restore_o, d_rs_cause_o,
@@ -337,7 +324,7 @@ module KL_mbx_cdc
   //! layout (MBX_CTRCHG_*), any other descriptor to the ALL bit, as KL_mbx
   //! keeps them; then the three face events and the GM change.
   localparam int unsigned NP_C  = MBX_CTRCHG_N_PEND_C;
-  localparam int unsigned EV_W_C = NP_C + 4;
+  localparam int unsigned EV_W_C = NP_C + 5;
   logic [NP_C-1:0]   ctr_bit_w;
   always_comb begin : ctr_bit
     ctr_bit_w = '0;
@@ -358,7 +345,7 @@ module KL_mbx_cdc
   logic [7:0]        ev_dom_r;
   logic              ev_send_r, ev_rcv_w, ev_req_w;
   logic [EV_W_C+72-1:0] ev_src_w, ev_dst_w;
-  assign ev_new_w = {d_gm_change_p_i, d_amap_wr_p_i, d_asp_chg_p_i, d_avb_chg_p_i, ctr_bit_w};
+  assign ev_new_w = {1'b0, d_gm_change_p_i, d_amap_wr_p_i, d_asp_chg_p_i, d_avb_chg_p_i, ctr_bit_w};
   //! The datapath side gathers pending bits; a transfer takes all of them at
   //! its rising edge and new ones gather behind it, so none is lost. Several
   //! events of one source inside one transfer post once: KL_mbx coalesces
@@ -371,8 +358,9 @@ module KL_mbx_cdc
       ev_dom_r  <= 8'd0;
       ev_send_r <= 1'b0;
     end else if (!ev_send_r) begin
-      //! start a transfer: hand the pending bits over, with the GM's current identity
-      ev_hold_r <= ev_pend_r | ev_new_w;
+      //! start a transfer: hand the pending bits over, with the GM's current
+      //! identity and the LINK level, each as it is now
+      ev_hold_r <= {d_link_up_i, ev_pend_r[EV_W_C-2:0] | ev_new_w[EV_W_C-2:0]};
       ev_gm_r   <= d_gm_id_i;
       ev_dom_r  <= d_gptp_domain_i;
       ev_pend_r <= '0;
@@ -428,6 +416,7 @@ module KL_mbx_cdc
       m_asp_chg_p_o     <= 1'b0;
       m_amap_wr_p_o     <= 1'b0;
       m_gm_change_p_o   <= 1'b0;
+      m_link_up_o       <= 1'b0;
     end else begin
       //! one pulse a cycle per source, each with its descriptor
       m_ctr_chg_p_o     <= |mc_pick_w;
@@ -443,21 +432,12 @@ module KL_mbx_cdc
         mc_pend_r       <= (mc_pend_r & ~mc_pick_w) | ev_dst_w[72 +: NP_C];
         mf_pend_r       <= ev_dst_w[72 + NP_C +: 3];
         mg_pend_r       <= ev_dst_w[72 + NP_C + 3];
+        m_link_up_o     <= ev_dst_w[72 + NP_C + 4];
         m_gm_id_o       <= ev_dst_w[8 +: 64];
         m_gptp_domain_o <= ev_dst_w[0 +: 8];
       end
     end
   end : m_post
-
-  // ======================================================================= //
-  //  LINK: one level, two flops                                             //
-  // ======================================================================= //
-  (* ASYNC_REG = "TRUE" *) logic [1:0] link_sync_r;
-  always_ff @(posedge sys_clk_i) begin : link_sync
-    if (!sys_rst_n) link_sync_r <= 2'b00;
-    else            link_sync_r <= {link_sync_r[0], d_link_up_i};
-  end : link_sync
-  assign m_link_up_o = link_sync_r[1];
 
 endmodule
 

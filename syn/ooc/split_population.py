@@ -50,7 +50,7 @@ PLACEMENT = "full-split"
 MAILBOX_SOURCES = ("hdl/milan/mailbox/KL_mbx_pkg.sv", "hdl/milan/mailbox/KL_mbx_ring.sv",
                    "hdl/milan/mailbox/KL_mbx_rx.sv", "hdl/milan/mailbox/KL_mbx_tx.sv",
                    "hdl/milan/mailbox/KL_mbx_evt.sv", "hdl/milan/mailbox/KL_mbx.sv",
-                   "hdl/common/cdc_handshake.sv", "hdl/milan/mailbox/KL_mbx_cdc_window.sv",
+                   "hdl/common/cdc_handshake.sv", "hdl/common/cdc_pulse.sv", "hdl/milan/mailbox/KL_mbx_cdc_window.sv",
                    "hdl/milan/mailbox/KL_mbx_cdc.sv")
 def base_name(module: str) -> str:
     """The module a (possibly parameterised) Yosys module name copies."""
