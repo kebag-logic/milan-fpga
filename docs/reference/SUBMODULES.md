@@ -632,6 +632,153 @@ The deltas are from records at processor `f65c8ff7`.
 
 So they include dev's own movement since then.
 
+Issue #851 adopts processor pin `044cb25f`.
+
+It is the merge commit of processor PR #215.
+
+That PR carries processor issue #214.
+
+Its tree is the reviewed head `7feeccea`'s.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #214, one vector per value per MRPDU | #215, merge commit `044cb25f` | Each MRPDU the port sends carries each attribute value at most once: every MSRP Domain, Talker Advertise, Talker Failed and Listener value, and every MVRP VID. IEEE 802.1Q-2022 10.7.7 keeps one Applicant per value, and a value inside two VectorAttributes of one MRPDU is two events for its state machine (10.7.5.13 c), 10.8.2.10.1). Before, a value handed over twice in one transmission window went out twice: the Domain after a received LeaveAll with a `periodic!` in the window, and MVRP VID 2 after boot |
+
+The encoder now holds one pending entry per value.
+
+| Value | Identity in the pending table |
+|---|---|
+| Talker Advertise, Talker Failed, Listener | the AttributeType and the StreamID, FirstValue's first eight octets (802.1Q-2022 35.2.2.8.1 a), 35.2.2.8.2). MSRP allows no FirstValue change for an existing StreamID (35.2.2.8), so a second Talker value of one StreamID carries the newer FirstValue |
+| Domain | the whole value: SRclassID, SRclassPriority, SRclassVID (35.2.2.9.1) |
+| MVRP VID | the VID (11.2.3.1.7) |
+
+A second message rewrites that entry in place.
+
+The entry keeps its place, so push order stands.
+
+| Pending | Pushed | The MRPDU carries | Clause |
+|---|---|---|---|
+| any | New or Lv | the pushed message | a new declaration or a withdrawal (802.1Q-2022 Table 10-3: New!, Lv!) |
+| New | JoinIn or JoinMt | New | only New gives the peer's Registrar its new indication (10.7.6.12) |
+| JoinIn, JoinMt, In, Mt or Lv | JoinIn or JoinMt | the pushed message | sJ with the newer Registrar reading (10.7.6.3) |
+| New, JoinIn, JoinMt or Lv | In or Mt | the pending message | an s carries only the Registrar state (10.7.6.5) |
+| In or Mt | In or Mt | the pushed message | the newer Registrar reading (10.7.6.5) |
+
+In one window, `periodic!` and LeaveAll re-joins send one join.
+
+The encoder searches its table before it takes a push.
+
+| Case, shipping image (`N_STREAM_IN_P` = `N_STREAM_OUT_P` = 2) | Result |
+|---|---|
+| A push while its application holds pending entries | waits one clock per pending entry while the table is searched through its own read port, then rewrites the matching entry or appends. Every producer already holds its push until it is taken |
+| A Domain re-join handed over on a `tx!` clock, at most two Domain entries pending | rides that MRPDU: the drain starts five clocks after the `tx!` (processor docs 10, Section 3) |
+| The same re-join with a third Domain entry pending | rides the next MRPDU, one joinTime later: 200 ms by default (Milan v1.2 4.2.7.1.1, Table 4.3) |
+| A push that a drain start overtakes | rides the next MRPDU, as before |
+| A full table | holds every push until it drains, as before |
+
+The top's ports and parameters are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+Only `KL_srp_encoder.sv` changes in processor HDL.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `92100657` rows.
+
+The shipping route was measured at lane commit `a566d4f9`.
+
+Later commits change no synthesis input.
+
+It ran one placement directive under the recipe below.
+
+| Recipe | Value |
+|---|---|
+| Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2, `N_STREAM_OUT_P` 2 |
+| Directives | synthesis AreaOptimized_high, opt ExploreArea, placement ExtraPostPlacementOpt |
+| Tool | Vivado 2026.1, at most 32 threads |
+
+| Figure | #845's route, `519d9c2b` | This adoption | Change |
+|---|---:|---:|---:|
+| Slice LUT | 52,497 | 53,033 | +536 |
+| Slice register | 54,579 | 54,729 | +150 |
+| Slice, of 15,850 | 15,780 | 15,792 | +12 |
+| Block RAM tile | 87.5 | 87.5 | 0 |
+| DSP | 13 | 13 | 0 |
+| WNS, slow corners | +0.198 ns | +0.044 ns | -0.154 ns |
+| WHS, worst corner | +0.015 ns | +0.035 ns | +0.020 ns |
+
+The change includes dev's own movement since `519d9c2b`.
+
+Dev merged PRs #841 and #842 after it.
+
+They change the datapath RTL, configurations and firmware.
+
+Every corner meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+
+WNS is 0.014 ns above its floor.
+
+The worst setup path lies in the processor's AECP block.
+
+It ends at the D3 debounce counter.
+
+That path is outside the encoder this pin changes.
+
+Placement leaves 58 of 15,850 slices free.
+
+The resource gate refused this growth on `route-1x1`.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) covers it.
+
+That decision accepts the mandatory lab fixes' growth.
+
+Processor #214's fix is one of them.
+
+The budget is re-baselined under it.
+
+The gate's fourteenth record holds this adoption.
+
+The gate ran in its own form at lane commit `a566d4f9`.
+
+That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and both syntheses.
+
+Later commits change no synthesis input.
+
+| Endpoint | Exit, thirteenth record | Refused | Passed |
+|---|---:|---|---|
+| `route-1x1`, ExtraTimingOpt selected | 1 | 53,050 LUTs (+521 of +500) | 54,729 FFs (+147 of +600), 15,831 slices (-4 of +80), RAMB36, RAMB18, DSP, WNS +0.258 ns, WHS +0.036 ns |
+| `ooc-1x1` | 0 | - | 25,199 LUTs (+203 of +250), 21,010 FFs (+76 of +250), RAMB36, RAMB18, DSP |
+| `ooc-8x8` | 0 | - | 37,048 LUTs (+184 of +316), 32,116 FFs (+80 of +339), RAMB36, RAMB18, DSP |
+
+All three endpoints are re-recorded at one pin.
+
+Against the new record, `check` exits 0 on every endpoint.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.258 / +0.036 ns | 53,050 | 54,729 | 15,831 | 19 |
+| ExtraPostPlacementOpt | +0.044 / +0.035 ns | 53,033 | 54,729 | 15,792 | 58 |
+| AltSpreadLogic_high | +0.028 / +0.036 ns | 53,082 | 54,729 | 15,847 | 3 |
+
+All three route without error.
+
+AltSpreadLogic_high misses the WNS floor at its slow corners.
+
+The gate judges only the selected route against the floors.
+
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
+
+That directive leaves 19 slices, not the 58 above.
+
+The route deltas include dev's PRs #841 and #842.
+
+| Sub-block, not gated | `route-1x1` | `ooc-1x1` | `ooc-8x8` |
+|---|---|---|---|
+| `u_pp/u_srp/u_encoder` | +101 LUTs, +99 FFs | +78 LUTs, +75 FFs | +105 LUTs, +71 FFs |
+| the wrapper | +234 LUTs, +97 FFs | +203 LUTs, +76 FFs | +184 LUTs, +80 FFs |
+
+The [area budget](../design/AREA_BUDGET.md) gives the figures.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.

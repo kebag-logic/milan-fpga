@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
 - **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
@@ -52,6 +53,42 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 044cb25f
+
+- Issue #851 adopts processor `044cb25f` (PR #215, issue #214).
+- FPGA-gPTP stays at `135afd04`.
+- Each MRPDU now carries each attribute value once.
+- That covers MSRP Domain, Talker and Listener values.
+- It covers MVRP VIDs too.
+- 802.1Q-2022 10.7.7 keeps one Applicant per value.
+- A value in two VectorAttributes is two events.
+- Clause 10.7.5.13 c) says so.
+- So does 10.8.2.10.1.
+- Before, a second hand-over in one window repeated it.
+- The Domain repeated after a received LeaveAll and `periodic!`.
+- MVRP repeated VID 2 after boot.
+- A second message now rewrites the value's pending entry.
+- A pending New stays New under a join.
+- A later New or Lv replaces what is pending.
+- The encoder searches its table before taking a push.
+- Each pending entry costs one clock.
+- No top-level port, parameter or register changes.
+- Both processor ROM digests match the `92100657` rows.
+- Against #845's route it grows 536 LUTs and 150 FFs.
+- That includes dev's PRs #841 and #842.
+- Placement leaves 58 of 15,850 slices free.
+- WNS is +0.044 ns; every corner meets the floor.
+- The resource gate refused the route's LUT growth.
+- It selects ExtraTimingOpt at +0.258 ns.
+- That route leaves 19 of 15,850 slices free.
+- Its 53,050 LUTs are 521 over the record.
+- The tolerance is 500.
+- Both standalone endpoints pass.
+- The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) covers the growth.
+- All three records are re-recorded; `check` exits 0.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
+- The [pin page](docs/reference/SUBMODULES.md) gives the merge rules.
 
 ## Unreleased - processor pin 92100657
 
