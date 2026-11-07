@@ -328,7 +328,7 @@ def load_data(root: Path, paths: list[str]) -> tuple[str, str, set[str], dict[st
     known = set(paths)
     checked = data.get("verified_pages", [])
     if not isinstance(checked, list) or not all(isinstance(page, str) and page in known for page in checked):
-        raise Refusal(f"{DATA}: `verified_pages` must list tracked pages; update it when a listed page moves or goes")
+        raise Refusal(f"{DATA}: `verified_pages` must list tracked pages; update it when a listed page moves or leaves")
     judged: dict[str, tuple[str, str]] = {}
     for page, entry in sorted(data.get("judged", {}).items()):
         if page not in known or entry.get("status") not in STATUSES or not entry.get("evidence"):
@@ -943,7 +943,7 @@ def selftest() -> int:
          "| superseded | banner names `docs/guides/A.md` |", "STALE"),
         ("a banner past line 15 is not read", append("docs/guides/B.md", "\n" * 11 + banner), 0, "", "is fresh"),
         ("archive page is obsolete with its successor", lambda root: None, 0,
-         "| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) |"),
+         "| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) | archive |"),
         ("archive index stays current", lambda root: None, 0, "archive index"),
         ("audience line overrides the table", lambda root: None, 0, "| integrator | Documentation index |"),
         ("described code and standards", lambda root: None, 0, "`hdl/milan`, 1722.1-2021"),
