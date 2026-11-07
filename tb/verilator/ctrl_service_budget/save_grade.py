@@ -216,20 +216,26 @@ def aged_steps(grader: grade.Grader, start: int, until: int, last_release: int) 
             for _, s, c, st, aged in log.stepped if aged and start <= s < until]
 
 
-def aged_refusal(name: str, age: int, got: int, empty: list[int], inside: list[dict], ticked: bool = True,
-                 ran: tuple[dict, ...] = ()) -> str | None:
+def plain_steps(log: grade.Log, start: int, end: int) -> list[dict]:
+    """The steps in [start, end] a pass that took nothing ran before they aged: each one's step (step_kind)."""
+    return [dict(kind=step_kind(log, s, c), plain=True, among=False)
+            for _, s, c, _, aged in log.stepped if not aged and start <= s <= end]
+
+
+def aged_refusal(name: str, age: int, got: int, empty: list[int], inside: list[dict],
+                 ticked: bool = True) -> str | None:
     """Why an aged window is refused, or None: it opened at another age than its name declares, a pass took nothing
     between its last step and its opening, or, at the age limit, a centisecond came in it (ticked) and no step taking
     its phase's heavy step ran in it (AGED_KIND). That centisecond ages the step whether or not its records are all
-    released by then, unless a pass that took nothing runs it first (ran), as THE DRAIN's passes leave room to; a window
-    that closes before its next centisecond has no step to take."""
+    released by then, unless a pass that took nothing runs it first (plain_steps), as THE DRAIN's passes leave room to;
+    a window that closes before its next centisecond has no step to take."""
     phase = name.partition('@')[2].partition('-')[0]
     if empty:
         return (f"{len(empty)} pass(es) took nothing between its last step and its window, so the step's age "
                 "started again")
     if got != age:
         return f"the window opened with the step's age at {got} centiseconds, not {age}"
-    if age == save_window.step_age() and ticked and not any(a['kind'] == AGED_KIND[phase] for a in (*inside, *ran)):
+    if age == save_window.step_age() and ticked and not any(a['kind'] == AGED_KIND[phase] for a in inside):
         return f"opened at the age limit, but no aged {AGED_KIND[phase]} ran in it ({inside})"
     return None
 
@@ -255,9 +261,8 @@ def aged_window(grader: grade.Grader, group: scenario.Group, start: int, end: in
     last_release = max(released, default=end)
     inside = aged_steps(grader, start, end + 1, last_release)
     ticked = any(start < c <= end and w[0] & 0xFF == EV_TICK for c, w in log.records)
-    ran = tuple(dict(kind=step_kind(log, s, c)) for _, s, c, _, was in log.stepped if not was and start <= s <= end)
-    refusal = aged_refusal(group.name, age, opening_age(log, last, start), empty_passes(log, index, start), inside,
-                           ticked, ran)
+    refusal = aged_refusal(group.name, age, opening_age(log, last, start), empty_passes(log, index, start),
+                           [*inside, *plain_steps(log, start, end)], ticked)
     if refusal:
         raise grade.Refusal(f'{group.name}: {refusal}')
     return dict(age=age, last_step_sys=last, among=[a for a in inside if a['among']],

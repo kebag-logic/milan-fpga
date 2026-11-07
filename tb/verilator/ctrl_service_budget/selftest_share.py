@@ -305,7 +305,8 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
              graded(verify, two, gap=True), graded(verify, inside, aged=None), graded(program, inside),
              graded(program, two, aged='issue'), graded(short, [(3000, 1)], aged=None),
              graded(verify, [(900, 1), *two]), graded(verify, inside, drained=True), graded(verify, two, aged='work'),
-             graded(verify, two, aged=None), graded(verify, inside, aged='plain'), graded(program, inside, aged='plain')]
+             graded(verify, two, aged=None), graded(verify, inside, aged='plain'),
+             graded(program, inside, aged='plain')]
     got = [None if c is None else (c['age'], [(a['start_ms'], a['kind']) for a in c['among']],
                                    [(a['start_ms'], a['kind']) for a in c['after']]) for c in cases]
     at = round(1000 / sys_hz * 1000, 3)

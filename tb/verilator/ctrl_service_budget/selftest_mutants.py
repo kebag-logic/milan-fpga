@@ -668,11 +668,10 @@ MUTANTS: dict[str, Patches] = {
         save_grade, 'aged_refusal', lambda name, age, got, empty, inside, *rest, f=save_grade.aged_refusal: f(
             name, age, got, empty, inside or [dict(kind=k) for k in save_grade.AGED_KIND.values()], *rest))],
     'aged: a window that closed before its centisecond is refused': lambda: [patch.object(
-        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, ticked=True, ran=(),
-        f=save_grade.aged_refusal: f(name, age, got, empty, inside, True, ran))],
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, ticked=True, f=save_grade.aged_refusal: f(
+            name, age, got, empty, inside, True))],
     'aged: a step a pass that took nothing ran is not counted': lambda: [patch.object(
-        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, ticked=True, ran=(),
-        f=save_grade.aged_refusal: f(name, age, got, empty, inside, ticked, ()))],
+        save_grade, 'plain_steps', lambda log, start, end: [])],
     "aged: the program phase's aged step need not be a page's issue": lambda: [patch.dict(
         save_grade.AGED_KIND, program='read-back')],
     "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(
