@@ -257,8 +257,9 @@ def _one(job: tuple[str, int, dict, str | None]) -> tuple[str, str, int, int]:
 
 
 def dump(tree: Path, jobs: int, keep: Path | None, overlay: dict | None = None, only: int | None = None) -> dict:
-    """Every shape's digest of the tree."""
+    """Every shape's digest of the tree, after the pinned tools are confirmed."""
     ce = _ce(tree)
+    toolchain = ce.toolchain()
     n = len(ce.shapes())
     picks = range(n) if only is None else [only]
     work = [(str(tree), i, overlay or {}, str(keep) if keep else None) for i in picks]
@@ -266,7 +267,7 @@ def dump(tree: Path, jobs: int, keep: Path | None, overlay: dict | None = None, 
         keep.mkdir(parents=True, exist_ok=True)
     with multiprocessing.get_context("fork").Pool(max(1, min(jobs, len(work)))) as pool:
         rows = pool.map(_one, work)
-    return {"tree_head": _head(tree), "toolchain": ce.toolchain(),
+    return {"tree_head": _head(tree), "toolchain": toolchain,
             "shapes": {s: {"digest": d, "cells": c, "nets": k} for s, d, c, k in rows}}
 
 
