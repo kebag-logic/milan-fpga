@@ -1,0 +1,11 @@
+8021Q-2022.pdf: sha256 283e041aca449d0d8d18c8382ae86faf3e02fdf76590c0078ebb18de767116ca
+Read for this round, in the 2022 text:
+10.8.3.1 a): "The PDU has sufficient room for all the VectorAttributes that require to be transmitted at that time to be
+packed. In this case, the PDU is transmitted, and subsequent PDUs are transmitted when there are further VectorAttributes
+to transmit." PV20's offer, outside the drain's count, is such a further VectorAttribute: it rides the next MRPDU.
+11.2.3.1.7: the FirstValue is two octets, the VID, range 0 through 4094, value 0 the VID of the untagged frame. PV15's walk
+flips bits 0 to 11 of VID 2, so it reaches VID 0 (bit 1), VID 3 (bit 0) and VID 2050 (bit 11): all in range. Bits 12 to 15
+are outside the range.
+10.7.7: a Participant keeps one Applicant state machine per Attribute value: PV14 and PV15's two values.
+35.2.2.8.2: the StreamID is 64 bits, a 48-bit MAC address and a 16-bit Unique ID: the 64 bits of PV14's walk.
+35.2.2.8.1 (the first eight octets of a Talker or Listener FirstValue are the StreamID) was read in round 3.

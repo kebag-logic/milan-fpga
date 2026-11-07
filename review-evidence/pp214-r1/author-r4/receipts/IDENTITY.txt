@@ -1,0 +1,23 @@
+Base of this round: 1c8b485f5eebfa8efaba6f5facbade7e5aa4caaa
+Head: 7feeccea3a6c8210ece8d5d1d8929d67582163f9
+main: 9210065779b0f698fd7bdb22323a1ed5b8482677 (merge base of the head: 9210065779b0f698fd7bdb22323a1ed5b8482677)
+HEAD:hdl   6f29f7158dc466883647e58cad53daae46e8e425
+1c8b485:hdl 6f29f7158dc466883647e58cad53daae46e8e425
+cc92e90:hdl 6f29f7158dc466883647e58cad53daae46e8e425
+Tree: 60300bb033d00a47c7187ed07b7aa488a9cec1b5
+
+Commits of this round:
+7feeccea3a6c8210ece8d5d1d8929d67582163f9 Record the prepared round's case, the two arms, the bit walk and the measured counts in the encoder README and 09 8.14 (issue #214)
+e28ac5a8a25e4b9b6f5e275f3dbde4f117958a41 Grade a push on the prepared LeaveAll round's start clock, drop PV20's offer on accept and walk every identity bit in PV14 and PV15, with two planted arms (issue #214)
+
+Files changed against 1c8b485:
+ docs/architecture/09_verification.md              |  4 +-
+ tb/srp_encoder/README.md                          | 28 ++++---
+ tb/srp_encoder/sim_main.cpp                       | 92 ++++++++++++++---------
+ tb/srp_top/mutants.py                             | 11 +++
+ tb/srp_top/mutations/push-on-prepared-start.patch | 11 +++
+ tb/srp_top/mutations/push-taken-in-alloc.patch    | 11 +++
+ 6 files changed, 110 insertions(+), 47 deletions(-)
+
+KL_srp_listener_fsm.sv against main: unchanged
+Top-level ports, parameters, register map, timers: hdl/ byte-identical to the reviewed head, so unchanged
