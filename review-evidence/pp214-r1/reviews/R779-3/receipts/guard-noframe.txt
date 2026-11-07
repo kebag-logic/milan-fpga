@@ -1,0 +1,11 @@
+guard on, no frame ever produced:
+FAIL: E1 PDU captured
+FAIL: E1: length got 1522 exp 30
+FAIL: E1: byte-exact against the independent packer
+FAIL: E1 frame is 30 bytes got 1522
+FAIL: E1 AttributeListLength 9 INCLUDES the EndMark got 0000
+FAIL: E1 exactly one commit
+1574 checks: 164 PASS, 1410 FAIL
+
+guard off, same fault: tally lines = 0, make rc per probe-all.tsv
+noframe-guard-off	rc=2	NO TALLY
