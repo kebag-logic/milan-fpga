@@ -1,0 +1,35 @@
+endpoint route-1x1: <scratch>/route-head/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.062   0.024  <scratch>/route-head/w/ax7101/gateware
+  AltSpreadLogic_high        0.242   0.012  <scratch>/route-head/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.058   0.031  <scratch>/route-head/w/ax7101-ExtraTimingOpt
+directive AltSpreadLogic_high selected: the best worst-corner WNS, 0.242 ns
+figure        baseline   candidate     delta  verdict
+LUT              52529       53221       692  REGRESSION: grew by more than 500
+FF               54582       54754       172  ok
+SLICE            15835       15834        -1  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          15         2  REGRESSION: grew by more than 0
+WNS_ns           0.373       0.242    -0.131  ok
+WHS_ns           0.012       0.012       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.242  WHS_ns    0.071
+  Slow_85C  WNS_ns    0.242  WHS_ns    0.071
+  Fast_0C   WNS_ns    1.383  WHS_ns    0.012
+  Fast_85C  WNS_ns    1.383  WHS_ns    0.012
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_aecp/u_d3: LUT +82, FF +0
+  u_pp/u_srp: LUT -56, FF -3
+  u_pp/u_srp/u_listener: LUT -55, FF +0
+  u_pp/u_aecp: LUT +53, FF +0
+  wrapper: LUT +42, FF -4
+  u_pp/u_talker: LUT -33, FF +0
+  u_pp/u_listener: LUT +27, FF +0
+  u_pp: LUT +22, FF -4
+  u_pp/u_aecp/u_ucpu: LUT -23, FF +0
+  u_nvm: LUT +21, FF +0
+  u_pp/u_aecp/u_dyn: LUT +15, FF +0
+  u_pp/u_srp/u_encoder: LUT -14, FF +0
+RESULT: MATERIAL REGRESSION

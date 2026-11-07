@@ -1,0 +1,22 @@
+endpoint route-1x1: <scratch>/route-head/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.062   0.024  <scratch>/route-head/w/ax7101/gateware
+  AltSpreadLogic_high        0.242   0.012  <scratch>/route-head/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.058   0.031  <scratch>/route-head/w/ax7101-ExtraTimingOpt
+directive AltSpreadLogic_high selected: the best worst-corner WNS, 0.242 ns
+figure        baseline   candidate     delta  verdict
+LUT              53221       53221         0  ok
+FF               54754       54754         0  ok
+SLICE            15834       15834         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 15          15         0  ok
+WNS_ns           0.242       0.242       0.0  ok
+WHS_ns           0.012       0.012       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.242  WHS_ns    0.071
+  Slow_85C  WNS_ns    0.242  WHS_ns    0.071
+  Fast_0C   WNS_ns    1.383  WHS_ns    0.012
+  Fast_85C  WNS_ns    1.383  WHS_ns    0.012
+route status: complete, no unrouted net and no routing error
+RESULT: PASS

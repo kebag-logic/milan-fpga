@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<lanes>/843-gptp-pin/tb/verilator/fw_service_budget/gen_oracle.py", line 54, in <module>
+    main()
+    ~~~~^^
+  File "<lanes>/843-gptp-pin/tb/verilator/fw_service_budget/gen_oracle.py", line 46, in main
+    rows = [convert(args.small_build, 'all'), convert(args.large_build, 'all'),
+            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lanes>/843-gptp-pin/tb/verilator/fw_service_budget/gen_oracle.py", line 21, in convert
+    run.require(receipt['build_hashes'] == spec['build_hashes']
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                == run.build_hashes(build_dir, spec), 'stale or unbound fixture build')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lanes>/843-gptp-pin/tb/verilator/fw_service_budget/run.py", line 44, in require
+    raise RuntimeError(message)
+RuntimeError: stale or unbound fixture build
