@@ -1,0 +1,35 @@
+# clean clone of 697e17a48e00073c9cd40f40049cd1f0f8ddb033, base origin/dev 3f6bef88bd8a78cb2833a12572b9c4a9013f9bdf
+dirty files: 0
+documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+check rc=0
+documentation inventory selftest: OK (60 controls)
+selftest rc=0
+diffcheck rc=0
+push-privacy-check: 0 private line(s) in origin/dev..HEAD
+privacy rc=0
+documentation style: OK (24 current documents)
+doc style rc=0
+documentation style selftest: OK
+doc style selftest rc=0
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+idiom rc=0
+54 checks: 54 PASS, 0 FAIL
+idiom selftest rc=0
+1000 scripts/docs_inventory.py
+0
+a9604e8ed8ee33af7ced43e63b91a228bfdad5c15590405b6082cfc77ceca2b9  scripts/docs_inventory.py
+digest hits in table: 1
+1	1	.github/ci-templates/docs.yml
+5	5	ci/image/command-table.json
+353	346	docs/DOCUMENTATION_AUDIT.md
+32	0	scripts/docs_inventory.json
+112	111	scripts/docs_inventory.py
+--- since 9d5a5af7
+1	1	ci/image/command-table.json
+2	2	docs/DOCUMENTATION_AUDIT.md
+32	0	scripts/docs_inventory.json
+18	18	scripts/docs_inventory.py
+wrote docs/DOCUMENTATION_AUDIT.md
+write changes nothing rc=0
+dirty after: 0
