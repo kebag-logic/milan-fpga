@@ -1,0 +1,20 @@
+name | selftest rc | check rc | first failing lines
+M00 identity | 0 | 0 | 
+M01 old path rule restored | 1 | 1 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lan
+M02 list or path rule | 1 | 1 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lan
+M03 path rule narrowed to guides only added | 1 | 0 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| New | -- | current | no recorded contradiction | area lan
+M04 integration prefix inherits D0 | 0 | 0 | 
+M05 reference prefix inherits D0 | 0 | 1 | 
+M06 no page is D0 | 1 | 1 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+M07 D0 tested before archive | 0 | 0 | 
+M08 archive cell lost | 1 | 1 | selftest: FAIL archive page is obsolete with its successor: generated output lacks '| obsolete | versioned archive; successor [docs/guides/B.md](guide
+M09 tracked check dropped | 1 | 0 | selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at l
+M10 list check dropped | 1 | 0 | selftest: FAIL D0 pages that are not a list: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at li
+M11 str check dropped | 1 | 0 | 
+M12 tracked check reads the disk not the population | 0 | 0 | 
+M13 refusal loses its advice | 0 | 0 | 
+M14 lane figure counts non-area-lane cells | 0 | 1 | 
+M15 lane figure counts every page | 1 | 1 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |'
+M16 key misread | 1 | 1 | selftest: FAIL a page added under a release-facing path is not D0: generated output lacks '| 6 | 5 | 1 | 0 | 0 | 2 |' / selftest: FAIL a D0 page that left the tree: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (62 lines differ); first difference at l / selftest: FAIL D0 pages that are not a list: --check exited 0, expected 2: documentation inventory: OK (133 lines, docs/DOCUMENTATION_AUDIT.md is fres
+M17 missing key refused | 0 | 0 | 
+M18 data file absent returns everything verified | 0 | 0 | 

@@ -1,0 +1,4 @@
+T0 head unchanged: selftest rc 0; lines 1000; max col 120; documentation inventory selftest: OK (60 controls)
+T1 arm and needle changed, generator unchanged: selftest rc 0; lines 1000; max col 120; documentation inventory selftest: OK (60 controls)
+T2 same, plus D0 tested before archive: selftest rc 1; lines 1000; max col 120; regenerate with: python3 scripts/docs_inventory.py --write
+T3 same, plus refusal loses its advice: selftest rc 1; lines 1000; max col 120; selftest: FAIL a D0 page that left the tree: --check did not print 'update it when'

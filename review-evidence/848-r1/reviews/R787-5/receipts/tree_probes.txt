@@ -1,0 +1,26 @@
+head --check rc 0: documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+head --selftest rc 0: documentation inventory selftest: OK (60 controls)
+--write rc 0; audit sha256 before 683f692aad9e0fd9f33fce7eebec39a7682b14fec4d023c60e3ad9e79efcfdb3 after 683f692aad9e0fd9f33fce7eebec39a7682b14fec4d023c60e3ad9e79efcfdb3 identical True
+no .git export: .git present False --check rc 0: documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+shallow clone: commits 1, baseline present rc 128 (non-zero means absent), head 697e17a48e00073c9cd40f40049cd1f0f8ddb033 --check rc 0: documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+no .git and no git binary on PATH: --check rc 0: documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+git mv listed page, --check rc 2: REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves
+git mv listed page, --write rc 2, audit untouched True
+rename followed in the list: --write rc 0, --check rc 0, D0 rows 30, | reference | 23 | 11 | 12 | 0 | 0 | 18 |
+git rm listed page, --check rc 2: REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves
+removal followed in the list, before --write: --check rc 1: docs/DOCUMENTATION_AUDIT.md: STALE (238 lines differ); first difference at line 30:
+  committed: | c
+removal followed in the list: --write rc 0, --check rc 0, D0 rows 29, | reference | 22 | 10 | 12 | 0 | 0 | 17 |
+listed page deleted on disk only, --check rc 2: REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves
+listed page replaced in place: --write rc 0, row cell D0
+new docs/guides/NEW.md: --check rc 1, --write rc 0, --check rc 0, cell area lane, D0 rows 30, | reference | 23 | 11 | 12 | 0 | 0 | 18 |
+new docs/integration/NEW.md: --check rc 1, --write rc 0, --check rc 0, cell area lane, D0 rows 30, | reference | 24 | 12 | 12 | 0 | 0 | 18 |
+new docs/reference/NEW.md: --check rc 1, --write rc 0, --check rc 0, cell area lane, D0 rows 30, | reference | 24 | 12 | 12 | 0 | 0 | 18 |
+new docs/guides/gptp/NEW.md: --check rc 1, --write rc 0, --check rc 0, cell area lane, D0 rows 30, | reference | 23 | 11 | 12 | 0 | 0 | 18 |
+key removed: --check rc 1 (docs/DOCUMENTATION_AUDIT.md: STALE (32 lines differ); first difference at line 42:
+  committed: | overview and guides | 21 | 19 | ), --write rc 0, D0 rows after write 0
+duplicate entry: --check rc 0 (documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)), --write rc 0, D0 rows 30
+archive page listed: --check rc 0 (documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)), --write rc 0, cell archive, D0 rows 30
+post-baseline page added to the list: --check rc 1 (docs/DOCUMENTATION_AUDIT.md: STALE (2 lines differ); first difference at line 43:
+  committed: | reference | 23 | 11 | 12 | 0 | 0 ), --write rc 0, D0 rows 31, | reference | 23 | 11 | 12 | 0 | 0 | 19 |
+tracked non-document listed: --check rc 2 (REFUSED: scripts/docs_inventory.json: `verified_pages` must list tracked pages; update it when a listed page moves or leaves)
