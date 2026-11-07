@@ -28,15 +28,17 @@
                 tolerates exactly the control bursts the all-fabric build
                 does. It accepts a superset of the mailbox filter's tuples
                 (sw/mailbox/mailbox.yaml, its channels): EtherType 0x22F0
-                with the ADP, AECP, ACMP or MAAP subtype (IEEE 1722.1-2021
-                Table 6.1, IEEE 1722-2016 Annex B), and MSRP and MVRP at
-                their group addresses (IEEE 802.1Q-2018 Table 10-1). The
-                wrapper also passed the media subtypes; here they never
-                reach the mailbox, which would refuse them.
+                with the subtype of ADP (0xFA), AECP (0xFB) or ACMP (0xFC),
+                which IEEE 1722.1-2021 assigns, or of MAAP (0xFE, IEEE
+                1722-2016 Annex B), and MSRP and MVRP at their group
+                addresses, as the wrapper's tap accepts them. The wrapper
+                also passed the media subtypes; here they never reach the
+                mailbox, which would refuse them.
 
                 THE COUNTERS are the wrapper's three, at the same CSR words
-                (PP rx/tx frames and drops): a frame handed out, a frame
-                sent, and a beat refused by a full FIFO, saturating.
+                (PP rx/tx frames and drops): a frame handed out and a frame
+                sent, each wrapping at 16 bits, and a beat a full FIFO
+                refused, saturating at 255.
 ------------------------------------------------------------------------------
 */
 //---------------------------------------------------------------------------//
@@ -71,10 +73,10 @@ module KL_ctrl_split #(
     output logic                       m_axis_tx_tvalid,
     output logic                       m_axis_tx_tlast,
     input  wire                        m_axis_tx_tready,
-    //! ---- the wrapper's three counters, saturating
-    output logic [15:0]                rx_frames_o,  //! control frames handed out
-    output logic [7:0]                 rx_drops_o,   //! beats a full FIFO refused
-    output logic [15:0]                tx_frames_o   //! control frames sent
+    //! ---- the wrapper's three counters
+    output logic [15:0]                rx_frames_o,  //! control frames handed out, wrapping
+    output logic [7:0]                 rx_drops_o,   //! beats a full FIFO refused, saturating
+    output logic [15:0]                tx_frames_o   //! control frames sent, wrapping
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;

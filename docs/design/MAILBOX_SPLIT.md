@@ -900,7 +900,10 @@ clock and its processor memory window:
 
 The hierarchy is kept. Every module but the datapath is read as a blackbox,
 so the processor wrapper, the CSR block and every other instance stay cells
-whose ports have directions. The datapath is read deferred and bound to the
+whose ports have directions. The census describes the all-fabric build, so it
+reads a name inside that placement's generate scopes (`g_af_*`) without the
+scope. The wrapper cell stays `pp_shadow`, and two names that would meet are
+refused. The datapath is read deferred and bound to the
 shape's parameters by `hierarchy -check -chparam`, which refuses an unknown
 module or port. The passes `proc` runs, in its order, turn every process into
 cells, with two changes that keep a read under the name the source gave it:
