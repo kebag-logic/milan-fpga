@@ -304,7 +304,7 @@ Run the generated integrated scripts exactly as above.
 The switch reads one additional constraint before synthesis:
 
 ```tcl
-set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]
+set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/g_af_pp.pp_shadow]
 ```
 
 The wrapper boundary stays preserved during synthesis optimization.
@@ -325,7 +325,7 @@ vivado -mode batch -source "$PROBES/boundary.tcl" -nojournal \
   -log "$WORK/boundary.log" -tclargs "$CHECKPOINT" "$WORK/boundary.tsv"
 vivado -mode batch -source "$PROBES/loads.tcl" -nojournal \
   -log "$WORK/loads.log" -tclargs "$CHECKPOINT" \
-  milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn "$WORK/loads.tsv"
+  milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_dyn "$WORK/loads.tsv"
 ```
 
 Set `CHECKPOINT` to each synthesis checkpoint, then the 1x1 route.
@@ -354,7 +354,7 @@ python3 syn/ooc/pp_baseline_rank.py "$REPORT" --root "$ROOT" > "$RANKING"
 ```
 
 Use `KL_pp_shadow` for the standalone report root.
-Use `alinx_ax7101/milan_datapath/pp_shadow` for integrated reports.
+Use `alinx_ax7101/milan_datapath/g_af_pp.pp_shadow` for integrated reports.
 The threshold is zero: every reported direct child appears.
 The wrapper and processor each include their own logic.
 Reconciliation rows retain the report's cross-child LUT-sharing adjustment.

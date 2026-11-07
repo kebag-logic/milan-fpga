@@ -439,10 +439,10 @@ void CrfLicenceHarness::sample_levels() {
     aaf_gate.sample(rp->milan_datapath__DOT__aaf_stream_en_w & 1u, cyc);
     if (lic != (active[kUidCrf].v && admitted[kUidCrf].v)) licence_ne_active++;
     if (aaf_gate.v && !(active[kUidAaf].v && admitted[kUidAaf].v)) aaf_without_active++;
-    if (rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_valid_w
-        && rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_attr_type_w == 3) {
+    if (rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_valid_w
+        && rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_attr_type_w == 3) {
         for (int s = 0; s < kSources; s++) {
-            if (rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_stream_id_w == sid_of(s))
+            if (rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_stream_id_w == sid_of(s))
                 listener_event[s] = cyc;
         }
     }
@@ -1128,15 +1128,15 @@ void CrfLicenceHarness::phase_e() {
 //! No result, registrar, optimistic flag, or transmit gate is deposited.
 void CrfLicenceHarness::stage_declaration(int uid, uint16_t max_frame, bool open) {
     auto* rp = dut->rootp;
-    ck("SRP service is idle before staging", rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r, 0);
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_idx_r = static_cast<uint8_t>(uid);
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_sid_r = sid_of(uid);
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_da_r = kMaapPoolBase | ((maap_off + static_cast<uint64_t>(uid)) & 0xFFFFu);
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_vid_r = 2;
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mfs_r = max_frame;
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mif_r = 1;
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_open_r = open;
-    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r = 1;
+    ck("SRP service is idle before staging", rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r, 0);
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_idx_r = static_cast<uint8_t>(uid);
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_sid_r = sid_of(uid);
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_da_r = kMaapPoolBase | ((maap_off + static_cast<uint64_t>(uid)) & 0xFFFFu);
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_vid_r = 2;
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mfs_r = max_frame;
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mif_r = 1;
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_open_r = open;
+    rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r = 1;
 }
 
 //! Measure the real MAC-to-decoder delay with an identical Listener frame.

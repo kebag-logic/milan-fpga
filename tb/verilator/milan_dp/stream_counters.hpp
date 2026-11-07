@@ -70,11 +70,11 @@
     void counter_watch() {
         if(!counter_state.counter_watch_on) return;
         const auto* r=dut->rootp;
-        const auto now=r->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_timer__DOT__now_ms_r;
-        const auto dirty=r->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_dirty_r;
-        const auto sent=r->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_sent_r;
+        const auto now=r->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_timer__DOT__now_ms_r;
+        const auto dirty=r->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_dirty_r;
+        const auto sent=r->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_sent_r;
         for(int i=0;i<ncounter;++i) {
-            const auto stamp=r->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_last_r[i];
+            const auto stamp=r->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_last_r[i];
             if(counter_state.service_begin[i]<0 && (dirty>>i&1) && (!(sent>>i&1) || uint32_t(now-stamp)>=1000))
                 counter_state.service_begin[i]=uns_log_cycle;
         }
