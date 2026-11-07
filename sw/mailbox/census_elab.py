@@ -120,6 +120,28 @@ END = re.compile(r"^endmodule\b[^\n]*\n?", re.M)
 DIRECTIVE = re.compile(r"^`(?:default_nettype\s+(\w+)|resetall)[ \t]*$", re.M)
 #: A tool gets this long before its silence counts as a refusal.
 TOOL_SECONDS = 900
+#: The all-fabric placement's generate scopes in milan_datapath.sv (CTRL_SPLIT_P == 0, #665): Yosys names a cell
+#: or net inside one ``g_af_<block>.<name>``, also after the ``\\`` of a name it made. The census reads each
+#: without the scope, so the wrapper cell is ``pp_shadow``, the shim ``pp_maap_shim`` and the map writer's locals
+#: ``amr_fsm.*``, as the all-fabric build names them; two names that would meet are refused.
+FABRIC_SCOPE = re.compile(r"(^|\\)g_af_[a-z0-9]+\.")
+
+
+def unscoped(name: str) -> str:
+    """name without the all-fabric placement's generate scope."""
+    return FABRIC_SCOPE.sub(r"\1", name)
+
+
+def _unscope(table: dict, what: str) -> dict:
+    """table with every key read without the all-fabric scope; a CensusError when two keys meet."""
+    out: dict = {}
+    for name, value in table.items():
+        key = unscoped(name)
+        if key in out:
+            raise CensusError(f"the netlist's {what} {name} and another both read as {key} without the all-fabric "
+                              f"placement's scope")
+        out[key] = value
+    return out
 
 
 class CensusError(Exception):
@@ -319,12 +341,13 @@ def netlist(doc: dict) -> Netlist:
     if top is None:
         raise CensusError(f"the elaborated design holds no module {TOP}")
     cells = {}
-    for name, c in top["cells"].items():
-        memid = str(c.get("parameters", {}).get("MEMID", ""))
+    for name, c in _unscope(top["cells"], "cell").items():
+        memid = unscoped(str(c.get("parameters", {}).get("MEMID", "")))
         cells[name] = Cell(c["type"], dict(c.get("port_directions", {})),
                            {p: tuple(b) for p, b in c["connections"].items()}, memid)
-    names = {n: tuple(v["bits"]) for n, v in top["netnames"].items()}
-    hidden = frozenset(n for n, v in top["netnames"].items() if v.get("hide_name") or "$" in n)
+    netnames = _unscope(top["netnames"], "net")
+    names = {n: tuple(v["bits"]) for n, v in netnames.items()}
+    hidden = frozenset(n for n, v in netnames.items() if v.get("hide_name") or "$" in n)
     ports = {p: (v["direction"], tuple(v["bits"])) for p, v in top["ports"].items()}
     modules = {m: {p: v["direction"] for p, v in d.get("ports", {}).items()}
                for m, d in doc["modules"].items() if m != TOP}
