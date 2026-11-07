@@ -111,7 +111,7 @@ Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-20
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
 A notice is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), #665): with `aecp.retry_hold` set, as the adapter sets it, `aecp_poll` and the timer's sink build no notice, hold a due retry, arm no timer for it and report it owed, and only `aecp_retry` builds or tries one, never beside a backlog's records or a centisecond.
-The event loop calls it in a pass that took no input and dispatched no centisecond, after an aged step or a build, or in a pass of its own once `aecp_retry_aged` reports a notice waiting and the last round's pace passed.
+The event loop calls it in a pass that took no input and dispatched no centisecond, after an aged step or a build, or in a pass of its own once `aecp_retry_aged` reports a notice waiting and the pace the round before it set has passed.
 A round spends what its pass has left of THE SHARE at `AECP_ROUND_COLD_US` once, `AECP_NOTICE_US` a notice and `AECP_ATTEMPT_US` a refused attempt, and starts no attempt with less than a notice's time left (`aecp.c`, `scan`), so it puts no pass over the share.
 A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
 While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
