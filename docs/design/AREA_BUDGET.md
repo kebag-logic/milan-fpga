@@ -126,8 +126,8 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
 
 ### Headroom target
 
-[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
-Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
+[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted target.
+Mark II needs fewer than 20,000 `xc7a100t` LUTs at 32x32.
 
 That replaces the earlier 60 percent target, 38,040 LUTs.
 The route below was 13,972 over it.
@@ -177,7 +177,9 @@ The wrapper names 24,493 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
 
 The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ceiling.
-That is fewer than 20,000 LUTs at 32x32, with timing met.
+That is fewer than 20,000 LUTs at 32x32.
+
+The image must also fit Block RAM, with timing met.
 
 The next three sentences are history, against the replaced 60 percent.
 The [owner kept that target on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
