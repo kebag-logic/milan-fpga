@@ -1,0 +1,20 @@
+Note: Google Test filter = AcmpOwedProbe4.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwedProbe4
+[ RUN      ] AcmpOwedProbe4.GatedPortBudget
+PROBE4 gated get_rx_state: expiring_probes=0 answer_pass=9 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated bind_rx: expiring_probes=0 answer_pass=9 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated get_rx_state: expiring_probes=1 answer_pass=10 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated bind_rx: expiring_probes=1 answer_pass=10 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated get_rx_state: expiring_probes=4 answer_pass=13 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated bind_rx: expiring_probes=4 answer_pass=13 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated get_rx_state: expiring_probes=14 answer_pass=23 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+PROBE4 gated bind_rx: expiring_probes=14 answer_pass=23 budget=25 within_budget=1 probes_lost=0 probes_held=0 busy_declined=0
+[       OK ] AcmpOwedProbe4.GatedPortBudget (0 ms)
+[----------] 1 test from AcmpOwedProbe4 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+rc 0

@@ -1,0 +1,18 @@
+["owed-timer-probe-not-held", "owed-hold-skips-delay", "owed-hold-skips-retry", "owed-held-probe-lost",
+ "owed-bind-wait-unset", "owed-bind-wait-kept", "owed-hold-uncounted", "owed-hold-rearmed-late", "owed-held-flag-kept",
+ {"name": "reviewer-bind-wait-at-full", "path": "src/acmp.c",
+  "old": "if (cmd.msg == ACMP_MSG_BIND_RX_COMMAND && a->owed_count < ACMP_OWED_MAX) {",
+  "new": "if (cmd.msg == ACMP_MSG_BIND_RX_COMMAND) {"},
+ {"name": "reviewer-hold-every-timer", "path": "src/acmp.c",
+  "old": "bool probes = kind == ACMP_TIMER_DELAY || (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP);",
+  "new": "bool probes = kind != ACMP_TIMER_NONE;"},
+ {"name": "reviewer-hold-second-no-resp", "path": "src/acmp.c",
+  "old": "bool probes = kind == ACMP_TIMER_DELAY || (kind == ACMP_TIMER_NO_RESP && s->state == ACMP_PRB_W_RESP);",
+  "new": "bool probes = kind == ACMP_TIMER_DELAY || kind == ACMP_TIMER_NO_RESP;"},
+ {"name": "reviewer-hold-at-seven", "path": "src/acmp.c",
+  "old": "\tif (a->owed_count < ACMP_OWED_MAX) {\n\t\treturn false;",
+  "new": "\tif (a->owed_count + 1u < ACMP_OWED_MAX) {\n\t\treturn false;"},
+ {"name": "reviewer-scan-skips-last-sink", "path": "src/acmp.c",
+  "old": "for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tif (a->sinks[k].probe_held) {",
+  "new": "for (unsigned k = 0; k + 1u < a->cfg.n_sinks; ++k) {\n\t\tif (a->sinks[k].probe_held) {"}
+]

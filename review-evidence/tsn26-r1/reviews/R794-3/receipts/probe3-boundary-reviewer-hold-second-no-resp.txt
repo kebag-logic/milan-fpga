@@ -1,0 +1,30 @@
+applied reviewer-hold-second-no-resp
+Note: Google Test filter = AcmpOwedProbe3.*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AcmpOwedProbe3
+[ RUN      ] AcmpOwedProbe3.RetryTimerIsNotHeldBesideTheWaitingBind
+PROBE3 retry-timer beside waiting BIND_RX: bind_waiting=1 state_after=1 timer=0 probe_held=0 probes_held=0
+[       OK ] AcmpOwedProbe3.RetryTimerIsNotHeldBesideTheWaitingBind (0 ms)
+[ RUN      ] AcmpOwedProbe3.SecondNoRespIsNotHeldBesideTheWaitingBind
+PROBE3 second no-resp beside waiting BIND_RX: bind_waiting=1 state_after=4 probe_held=1 probes_held=1
+<copy>/tests/test_acmp.cpp:3107: Failure
+Value of: a.sinks[2].state == ACMP_PRB_W_RETRY && !a.sinks[2].probe_held && a.probes_held == 0u
+  Actual: false
+Expected: true
+the second TMR_NO_RESP is not a timer probe and is not held
+
+[  FAILED  ] AcmpOwedProbe3.SecondNoRespIsNotHeldBesideTheWaitingBind (0 ms)
+[ RUN      ] AcmpOwedProbe3.BindDeclinedAtTheFullSetHoldsNoProbe
+PROBE3 retry with egress held after a BIND_RX declined at 8 owed: bind_waiting=0 probe_held=0 probes_held=0 probes_lost=1 state=4
+[       OK ] AcmpOwedProbe3.BindDeclinedAtTheFullSetHoldsNoProbe (0 ms)
+[----------] 3 tests from AcmpOwedProbe3 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpOwedProbe3.SecondNoRespIsNotHeldBesideTheWaitingBind
+
+ 1 FAILED TEST
+rc 1
