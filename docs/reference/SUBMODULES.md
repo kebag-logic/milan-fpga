@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `044cb25f4ed2187bd238490650e73d5d189855d1` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -632,6 +632,90 @@ The deltas are from records at processor `f65c8ff7`.
 
 So they include dev's own movement since then.
 
+Issue #843 adopts gPTP pin `1616fc8f`.
+
+The processor stays at `92100657`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #98, Follow_Up TLV walk | [99](https://github.com/Mister-M-alt/FPGA-gPTP/pull/99) | The parser walks a Follow_Up's TLV chain within messageLength to the Follow_Up information TLV, so a TLV of another type ahead of it is passed over (IEEE 802.1AS-2011 Section 11.4.1); a malformed chain is refused |
+| #100, Follow_Up TLV values, announce receipt timeout, stricter readings | [101](https://github.com/Mister-M-alt/FPGA-gPTP/pull/101) | As grandmaster the Follow_Up information TLV carries gmTimeBaseIndicator, lastGmPhaseChange and scaledLastGmFreqChange (Sections 10.2.8.2.1 i) to l), 10.2.9, 11.4.4.3). The announce receipt timeout is announceReceiptTimeout times the interval the received Announce carries (Section 10.3.9.1). An Announce at the timeout instant ages the port first. A Pdelay response later than the Milan v1.2 Section 4.2.6.2.6 bound counts as lost. clockAccuracy is a generator option, `--clock-accuracy` (Section 8.6.2.3) |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The builder passes each config's clockAccuracy to the generator.
+
+The AX7101 configs state `0x22`, the Arty configs `0xFE`.
+
+`0x22` is the maintainer's 2026-11-05 decision.
+
+The Arty's oscillator is not characterised.
+
+So its configs state unknown (8.6.2.3 b).
+
+An omitted key is `0xFE` too.
+
+The AX7101 hash-derived model ids move; the Arty's stay.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The `milan_dp` gptp leg grades `0x22` on the wire.
+
+Its gptp-lat leg runs the Arty image and grades `0xFE`.
+
+The shipping route is the first with both lab-fix pins.
+
+It was measured at lane commit `a6d7cdf3`, the dev merge.
+
+Later commits change no synthesis input.
+
+It ran the recipe's three directives, as did dev `1eb5289d`:
+
+| Directive | Dev WNS / WHS, worst corner | Dev LUT | Dev slice | This pin WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+| ExtraPostPlacementOpt | +0.122 / +0.036 ns | 52,845 | 15,841 | +0.062 / +0.024 ns | 53,166 | 54,757 | 15,846 | 4 |
+| ExtraTimingOpt, dev's selection | +0.234 / +0.033 ns | 52,973 | 15,817 | +0.058 / +0.031 ns | 53,234 | 54,755 | 15,834 | 16 |
+
+Each set's best directive, against dev's:
+
+| Figure | Dev `1eb5289d`, ExtraTimingOpt | This pin, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 52,973 | 53,221 | +248 |
+| FF | 54,595 | 54,754 | +159 |
+| Slice of 15,850 | 15,817 | 15,834 | +17 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 13 | 15 | +2 |
+| WNS / WHS, slow corners | +0.234 / +0.061 ns | +0.242 / +0.071 ns | +0.008 / +0.010 ns |
+| WNS / WHS, fast corners | +1.553 / +0.033 ns | +1.383 / +0.012 ns | -0.170 / -0.021 ns |
+
+Every route completes with no routing error.
+
+Every directive meets the build floor at every corner.
+
+The worst setup path is the SoC's SDRAM controller.
+
+On each directive the engine adds 469 to 475 LUTs.
+
+It also adds 166 FFs and two DSPs.
+
+Against the thirteenth record the gate refused this route.
+
+LUTs grew by 692, over the 500 tolerance.
+
+DSPs grew by two, over a tolerance of 0.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541) accepts that growth.
+
+The gate's fourteenth record holds this route.
+
+Against it, `check` and `check-baseline` exit 0.
+
+The standalone records stay #845's.
+
+Their top, `KL_pp_shadow`, holds no gPTP logic.
 Issue #851 adopts processor pin `044cb25f`.
 
 It is the merge commit of processor PR #215.
@@ -910,10 +994,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

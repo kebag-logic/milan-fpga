@@ -13,6 +13,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+- **[Unreleased - gPTP pin 1616fc8f](#unreleased---gptp-pin-1616fc8f)** -- clockAccuracy per board.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
@@ -203,6 +204,32 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each soft reset grades its exchange and the gPTP relock.
 - The UART smoke grades a reboot with `--after-reboot`.
 - The behave SERVED table lists REBOOT.
+
+## Unreleased - gPTP pin 1616fc8f
+
+- Issue #843 adopts gPTP `1616fc8f`, PRs #99 and #101.
+- An unknown TLV may precede the Follow_Up information TLV.
+- A mastership sets the TLV values (11.4.4.3).
+- Announce timeout follows the received interval (10.3.9.1).
+- An Announce at the timeout instant ages the port first.
+- A Pdelay response past Milan's 15 ms bound counts lost.
+- clockAccuracy is per board: AX7101 `0x22`, Arty `0xFE`.
+- The builder passes `gptp.clock_accuracy` to `--clock-accuracy`.
+- An omitted key is `0xFE` (8.6.2.3 b).
+- The AX7101 model ids move; the Arty's stay.
+- The milan_dp gptp legs grade both values on the wire.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- Its route is the first with both lab-fix pins.
+- The best of three directives is AltSpreadLogic_high.
+- It reaches +0.242 ns WNS, over the build floor.
+- It uses 248 LUTs, 159 FFs and two DSPs more.
+- That is against dev's best, ExtraTimingOpt at +0.234 ns.
+- 16 of 15,850 slices remain.
+- The gate refused the LUT and DSP growth.
+- The 2026-11-06 maintainer decision accepts it.
+- `route-1x1` is re-recorded; the standalone records stay.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin 135afd04
 

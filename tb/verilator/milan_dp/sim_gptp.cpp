@@ -53,6 +53,17 @@ constexpr uint64_t PATH_B6 = 0x001122FFFE000077ull;
 constexpr uint64_t THIS_CLOCK = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint32_t PEER_CQ = 0xF8FE436A;
 
+//! The clockAccuracy of this leg's image (#843, 802.1AS-2011 8.6.2.3). The
+//! Makefile generates the image from a config through the builder's own
+//! generator options (gen_gptp_leg_ucode.py) and states the value that
+//! config's board decided here, so a builder that drops or rewrites the
+//! config's clock_accuracy fails on the wire. The #error refuses a build
+//! that forgot it.
+#ifndef GPTP_CLOCK_ACCURACY_TB
+#error "Makefile must pass GPTP_CLOCK_ACCURACY_TB, the leg config's clockAccuracy"
+#endif
+constexpr unsigned kClockAccuracy = GPTP_CLOCK_ACCURACY_TB;
+
 //! Fabric cycles in one PROCESSOR millisecond. The Makefile derives it from
 //! the same variable that sets -GPP_TIM_DIV_MS_P, so the two cannot drift;
 //! the #error above refuses a build that forgot to pass it.
@@ -2054,6 +2065,34 @@ class GptpPlaneHarness {
     run_peer(dut, 8000000);
   }
 
+  //! [CA] THE DUT'S OWN ANNOUNCE CARRIES ITS CONFIG'S clockAccuracy (#843).
+  //! After the peer's Announce expires the plane is grandmaster and every
+  //! Announce at the MAC boundary is its own. grandmasterClockQuality is
+  //! message offset 48, frame octets 62..65 behind the 14-octet Ethernet
+  //! header, and clockAccuracy is its second octet, frame octet 63 (IEEE
+  //! 802.1AS-2011 10.5.3.2.3, Table 10-7).
+  void prove_the_announce_carries_the_config_clock_accuracy() {
+    unsigned announces = 0;
+    unsigned wrong = 0;
+    uint32_t last_cq = 0;
+    for (const std::vector<uint8_t> &f : tx_frames) {
+      if (f.size() < 66 || f[12] != 0x88 || f[13] != 0xF7
+          || (f[14] & 0xF) != 0xB)
+        continue;
+      announces++;
+      last_cq = (static_cast<uint32_t>(f[62]) << 24)
+              | (static_cast<uint32_t>(f[63]) << 16)
+              | (static_cast<uint32_t>(f[64]) << 8) | f[65];
+      if (f[63] != kClockAccuracy) wrong++;
+    }
+    printf("[CA] %u DUT Announce frame(s); last clockQuality 0x%08X, "
+           "expected clockAccuracy 0x%02X\n", announces,
+           static_cast<unsigned>(last_cq), kClockAccuracy);
+    expect("[CA] the DUT announced as grandmaster", announces > 0 ? 1 : 0, 1);
+    expect("[CA] every DUT Announce carries the config's clockAccuracy",
+           wrong, 0);
+  }
+
   int report() {
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : tx_frames) tx_flags.observe(frame);
@@ -2092,6 +2131,7 @@ int GptpPlaneHarness::run() {
   prove_the_three_drop_counters_through_the_csr(dut);
   prove_the_board_latency_corrections_reach_both_stamps(dut);
   emit_every_gptp_tx_flag_type(dut);
+  prove_the_announce_carries_the_config_clock_accuracy();
   prove_the_served_head_is_the_received_head(dut);
   prove_an_entry_zero_change_is_a_path_change(dut);
   prove_ascapable_falls_at_a_link_loss(dut);
