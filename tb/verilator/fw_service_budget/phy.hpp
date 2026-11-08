@@ -12,12 +12,22 @@ public:
     void sample(Vsim& dut, std::uint64_t cycle) {
         const unsigned pins = dut.phy_pins;
         if ((pins & 1u) && !(previous_ & 1u)) {
-            if (bit_ == 0) { start_ = cycle; command_ = 0; }
+            if (bit_ == 0) { start_ = cycle; command_ = 0; write_ = 0; }
             if (bit_ < 46) {
                 if (!(pins & 2u)) throw std::runtime_error("MDIO command not driven");
                 if (bit_ < 32) {
                     if (!(pins & 4u)) throw std::runtime_error("MDIO preamble not one");
                 } else command_ = (command_ << 1) | ((pins >> 2) & 1u);
+                reply_ = 1;
+            } else if ((command_ >> 10) == 5u) {
+                // #840: the PHY init's Clause-22 writes (IEEE 802.3
+                // 22.2.4.5), TA 10 then data, all driven by the station.
+                // The status script below stands for what the PHY reports
+                // and ignores them; the host peer grades the advertisement.
+                if (!(pins & 2u)) throw std::runtime_error("MDIO write not driven");
+                write_ = (write_ << 1) | ((pins >> 2) & 1u);
+                if (bit_ == 63 && (write_ >> 16) != 2u)
+                    throw std::runtime_error("MDIO write turnaround not 10");
                 reply_ = 1;
             } else {
                 if (pins & 2u) throw std::runtime_error("MDIO read bus contention");
@@ -96,6 +106,7 @@ private:
     unsigned previous_ = 0;
     unsigned bit_ = 0;
     unsigned command_ = 0;
+    unsigned write_ = 0;
     unsigned reply_ = 1;
     unsigned value_ = 0;
     unsigned transactions_ = 0;

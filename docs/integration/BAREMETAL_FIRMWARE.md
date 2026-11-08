@@ -109,8 +109,11 @@ stays live at every incomplete prefix. Layouts naming a retired boot image
 before any programmer I/O. At build time the firmware receives the image
 length, CRC32 and DRAM destination as generated constants. The PHC is enabled by the CSR reset and the
 option-on fabric gPTP plane starts independently of the AVDECC AEM image.
-Firmware therefore does not gate either one on AEM verification. It performs
-this order:
+Firmware therefore does not gate either one on AEM verification. The fabric
+holds every transmitter that takes its source address from `MAC_ADDR_LO/HI`
+until step 2 has written both words (#839); the gPTP plane's address is the
+same station MAC, written into its program ROM by the builder, so it is not
+held. Firmware performs this order:
 
 1. Keep both compatibility enable bits clear, leaving the shared AVDECC
    control plane disabled while the PHC and fabric gPTP plane remain active.
@@ -211,7 +214,7 @@ shipping 1x1 with its CRF output off, and holds the ordered list below (#398).
 | `PP_CTRL` (`0x920`) | read, bit 0 cleared | firmware-internal, for the same reason |
 | `ADP_ENTITY_ID_LO/HI` (`0x604`, `0x608`) | `MILAN_ENTITY_ID_LO/HI` | generated from `entity.entity_id`, which defaults to the EUI-64 of `platform.mac_address` |
 | `ADP_MODEL_ID_LO/HI` (`0x60C`, `0x610`) | `MILAN_MODEL_ID_LO/HI` | generated from `entity.entity_model_id` and `entity.model_id_pin` |
-| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address` |
+| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address`, which the builder refuses when it is zero or a group address. The fabric holds the processor's control lane, MAAP, the AAF talkers and the CRF talker at frame start until both words are written, and stamps the control lane's source address from them (#839) |
 | `MAC_CTRL` (`0x100`) | read, bit 3 (all-multicast) set | pending #403, which decides the receive-filter posture |
 | `AAF_CTRL` (`0x654`) | `MILAN_SR_VID` in `[27:16]`, talker enable `[0]`, bypass `[1]` clear | VID generated from `srp.vid`; the enable is firmware-internal bring-up sequencing |
 | `LWSRP_VID` (`0x684`) | `MILAN_SR_VID` | generated from `srp.vid` |
@@ -2171,20 +2174,48 @@ A second MDIO read separates the loss and recovery publications across the CDC.
 Repeated stable readings leave the fabric edge counters unchanged.
 Missing acknowledgements and incomplete negotiation publish link down.
 Discovery probes one PHY address per service opportunity.
+Once found, the PHY init advertises 1000BASE-T full duplex only ([#840](https://github.com/kebag-logic/milan-fpga/issues/840)).
+It first needs the PHY's 1000BASE-T full duplex ability: bit 1.8, then bit 15.13 (IEEE 802.3-2022 22.2.4.2.16, 22.2.4.4.3).
+Bit 1.8 comes from the poll's own register 1 read, so a latched loss stays the poll's to publish.
+It writes register 9 with 1000BASE-T full duplex and keeps its MASTER-SLAVE bits (Table 40-3).
+Its test-mode, half duplex and reserved bits are written as zero.
+It writes register 4 without 10/100 or 100BASE-T4, keeping the selector and pause bits (28.2.4.1.3).
+Reserved bit 14 is written as zero (Table 28-2).
+It then enables (22.2.4.1.4) and restarts (22.2.4.1.7) auto-negotiation through register 0, once per boot.
+That write clears reset and isolate.
+An unacknowledged read of registers 15, 4, 9 or 0 writes nothing; the next poll retries.
+The AX7101 MAC runs at 1 Gb/s only, so a partner without 1000BASE-T gets no link.
+MAC_STATUS then reports the link down, instead of a silent 100 Mb/s link.
+A PHY without that ability is never written and keeps its own advertisement.
+That is the retired Arty's 10/100 PHY, whose MII MAC runs 10 and 100 Mb/s.
+The [stricter readings page](../reference/STRICTER_READINGS.md#link-speed) records this choice.
 The poll runs on every boot path that passed the CSR identity check ([#70](https://github.com/kebag-logic/milan-fpga/issues/70)).
 `nvm_boot()` arms it before its shape check, so the persistence-disabled path publishes the link too.
 That path also installs the console idle hook; the writer behind it is never admitted.
 After an identity mismatch nothing touches the MDIO pins.
 `sw/firmware/nvm_hosttest/test_phy_firmware.py` boots all three paths against a pin-level peer.
+Its peer starts every bit the PHY init clears at one.
+Two gigabit arms start the selector, pause, MASTER-SLAVE, power-down and loopback bits in opposite states.
+Forcing or dropping any of those twelve bits fails.
+The init's other pass-through bits are unmodified by construction and not graded: register 4 bits 15, 13 and 12, and register 0 bits 13 and 8 to 0.
+The peer refuses registers 15, 9, 4 and 0 in turn, and each refusal must leave no write.
+The host driver grades each property by name, and fifty-one planted mutants each fail one.
+Two PHYs without 1000BASE-T full duplex ability are discovered afresh and must stay unwritten.
+The one with register 15 must have it read once per boot, not on every poll.
+A gigabit PHY with auto-negotiation disabled must have it enabled by the restart.
 The link-status CSR feeds MAC_STATUS and the existing fabric consumers.
 The stated maximum publication period is 250 ms for the measured duties.
 The poll trigger is 125 ms, half that allowance.
 The other half covers the longest measured duty stretch, UART blocking and a poll charge.
-That charge is the measured complete poll plus nine maximum measured MDIO transactions.
+That charge is the measured complete poll plus sixteen maximum measured MDIO transactions.
 Nine reads bound discovery and the longest negotiation fallback.
+The discovery poll adds the PHY init's four reads and three writes.
 Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
-The service harness grades this derived publication bound against 250 ms.
-The findings page records transaction and complete-poll timings on the target CPU.
+The MDIO bit routine is inlined into both frame loops, so a write costs about what a read does.
+On the cacheless core a call per bit had doubled every transaction (#840).
+The service harness's four `--enforce-service` plans grade this derived bound against 250 ms on both shapes.
+At `4ab1bca0` none reports a PHY finding, and the 8x8 trigger reserve is 3.19136 ms.
+The [findings page](../findings/397_SERVICE_BUDGET.md#phy-poll-derivation-and-simulation) records transaction and complete-poll timings on the target CPU.
 [Issue #599](https://github.com/kebag-logic/milan-fpga/issues/599) retains the physical switch-cycle rerun.
 
 **What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`

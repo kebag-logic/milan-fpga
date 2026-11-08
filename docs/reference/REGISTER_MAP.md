@@ -411,8 +411,8 @@ identity. [`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py)
 |--------|------|-----|-------|-------------|
 | `0x100` | `MAC_CTRL` | RW | `0x13` | `[0]` tx_en, `[1]` rx_en, `[2]` promisc, `[3]` allmulti, `[4]` is_1g (only consulted when `[5]` is set), `[5]` speed_manual (0 = derive the link rate from `MAC_STATUS` speed, 1 = use `[4]` verbatim  -  REQ-MAC-03, reset 0) |
 | `0x104` | `MAC_IFG` | RW | `0x0C` | `[7:0]` inter-frame gap (bytes), default 12 |
-| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words) |
-| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]` |
+| `0x108` | `MAC_ADDR_LO` | RW | `0` | station MAC `[31:0]`  -  **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words). **Sequencing (#839):** the datapath records each half's first write since reset, on this CSR's own write handshake, and until both halves have been written it holds the frame start of every transmitter that takes its source address from this pair: the protocol processor's control lane (SRP, ADP, ACMP, AECP), MAAP, the AAF talkers and the CRF talker. Every control-lane frame also takes octets 6 to 11 from this pair as it leaves, so a PDU the processor built before the write leaves with the written address (IEEE 802.1AC-2016 11.1). Either order completes the pair, a read does not, and it stays complete until reset; rewriting the address later is not atomic across the two words. The fabric gPTP plane is not held: its source address is the station MAC the builder writes into its program ROM. No field, address or reset value changes |
+| `0x10C` | `MAC_ADDR_HI` | RW | `0` | station MAC `[47:32]` in `[15:0]`  -  wire byte 4 in `[7:0]`, byte 5 in `[15:8]`. **Sequencing (#839):** the pair's second half; see `MAC_ADDR_LO` |
 | `0x110` | `MAC_STATUS` | RO | – | `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex |
 | `0x114` | `MC_HASH_LO` | RW | `0` | multicast hash filter, buckets 0-31 (bit `n` = bucket `n`) |
 | `0x118` | `MC_HASH_HI` | RW | `0` | multicast hash filter, buckets 32-63 |
@@ -425,7 +425,7 @@ It reads Clause-22 link, speed and duplex over bit-bang MDIO.
 The existing CDC carries this publication to MAC_STATUS.
 Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
 The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
-Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
 
 **Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported
 speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s

@@ -87,7 +87,7 @@ srp:
     interval_frames: 1
 
 platform:
-  mac_address: "02:00:00:00:00:01"   # board 1
+  mac_address: "02:4b:4c:4b:4c:01"   # board 1, locally administered (#840)
   pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
 gptp:
@@ -98,16 +98,22 @@ gptp:
   # 246|248, and 248 is the deferring end of it). The older 238 "AX bench
   # posture" deliberately BEAT the switch's 246 claim so the board would win
   # the BMCA - useful for a bring-up bench, wrong for a shipping end station
-  # and wrong for a compliance run. Change HERE, nowhere else. The rest are
-  # the local-clock dataset the fabric gPTP engine announces from constants
-  # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
-  # stated value the engine does not announce ([R-parallel] on #228). The
-  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
-  # engine announces 0x436A), so the key is deleted and derived.
+  # and wrong for a compliance run. Change HERE, nowhere else. The rest,
+  # clock_accuracy apart, are the local-clock dataset the fabric gPTP engine
+  # announces from constants in gptp-processor/hdl/ucode/gen_gptp_ucode.py;
+  # the builder refuses any stated value the engine does not announce
+  # ([R-parallel] on #228). The old offset_scaled_log_variance 0xFFFF never
+  # went out on the wire (the engine announces 0x436A), so the key is
+  # deleted and derived.
   priority1: 248
   priority2: 248
   clock_class: 248
-  clock_accuracy: 0xFE
+  # clockAccuracy is this board's own claim: the builder passes it to the
+  # engine generator (--clock-accuracy, FPGA-gPTP #100) and states it in
+  # AVB_INTERFACE (#843). 0x22 is IEEE 1588-2008 Table 6's "within 250 ns",
+  # the maintainer's 2026-11-05 decision for the AX7101's characterised
+  # oscillator, under 802.1AS-2011 8.6.2.3 a).
+  clock_accuracy: 0x22
   domain: 0
   log_sync_interval: -3
   log_announce_interval: 0

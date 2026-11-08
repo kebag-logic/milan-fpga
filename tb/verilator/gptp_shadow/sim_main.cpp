@@ -42,7 +42,14 @@
 
 constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
-constexpr uint32_t OUR_CQ = 0xF8FE436A;
+//! This plane's clockQuality, from the build (#843): the Makefile reads the
+//! generator's CQ_C, whose clockAccuracy is 0x22 since FPGA-gPTP #100. The
+//! peer Announces below carry it too, so they tie the plane on clockQuality
+//! and priority1 decides every contest.
+#ifndef OUR_CQ_TB
+#error "Makefile must pass OUR_CQ_TB, the clockQuality of the image it builds"
+#endif
+constexpr uint32_t OUR_CQ = OUR_CQ_TB;
 constexpr uint64_t GMID = 0x00AACCFFFE010203ull;
 constexpr uint64_t GMID2 = 0x00AACCFFFE010204ull;
 constexpr uint64_t GMID_EMPTY = 0x00AACCFFFE010205ull;
@@ -1440,14 +1447,26 @@ class GptpShadowHarness {
     int saw_ann = 0;
     int saw_sync = 0;
     int saw_fu = 0;
+    int cq_wrong = 0;
     for (size_t k = before; k < txf.size(); k++) {
       if (txf[k].size() <= 14) continue;
       int t = txf[k][14] & 0xF;
-      if (t == 0xB) saw_ann = 1;
+      if (t == 0xB) {
+        saw_ann = 1;
+        //! #843: grandmasterClockQuality, message offset 48 (IEEE
+        //! 802.1AS-2011 10.5.3.2.3, Table 10-7), is this plane's own.
+        if (txf[k].size() < 66 || ((static_cast<uint32_t>(txf[k][62]) << 24)
+                                   | (static_cast<uint32_t>(txf[k][63]) << 16)
+                                   | (static_cast<uint32_t>(txf[k][64]) << 8)
+                                   | txf[k][65]) != OUR_CQ)
+          cq_wrong++;
+      }
       if (t == 0x0) saw_sync = 1;
       if (t == 0x8) saw_fu = 1;
     }
     expect("as master: an Announce reached the lane", saw_ann, 1);
+    expect("as master: every Announce carries this image's clockQuality",
+           cq_wrong, 0);
     expect("as master: a Sync reached the lane", saw_sync, 1);
     expect("as master: its Follow_Up reached the lane", saw_fu, 1);
   }

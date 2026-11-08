@@ -3558,11 +3558,23 @@ def derive_model_id(shape: dict[str, Any], oui: int = MODEL_ID_OUI) -> int:
 GPTP_UCODE_GENERATOR = (
     ROOT / "gptp-processor" / "hdl" / "ucode" / "gen_gptp_ucode.py")
 
-#! The gptp: field the engine generator CONSUMES (--p1); everything else in
-#! the section it hardcodes ([R-parallel] on #228). MAC and the clock
-#! frequency are consumed too, from platform/constraints, not gptp:.
-#! gptp.domain is pinned to 0 by its own Milan rule and the engine emits 0.
-GPTP_ENGINE_CONSUMED = ("priority1",)
+#! The gptp: fields the engine generator CONSUMES: priority1 (--p1) and,
+#! since FPGA-gPTP #100, clock_accuracy (--clock-accuracy, 802.1AS-2011
+#! 8.6.2.3), which is per board (#843). Everything else in the section it
+#! hardcodes ([R-parallel] on #228). MAC and the clock frequency are
+#! consumed too, from platform/constraints, not gptp:. gptp.domain is
+#! pinned to 0 by its own Milan rule and the engine emits 0.
+GPTP_ENGINE_CONSUMED = ("priority1", "clock_accuracy")
+
+#: clockAccuracy for a board whose LocalClock and ClockSource accuracy is
+#: not specified or unknown: 802.1AS-2011 8.6.2.3 b) sets 254 (0xFE). A
+#: config that omits gptp.clock_accuracy states nothing, so it gets this.
+GPTP_CLOCK_ACCURACY_UNKNOWN = 0xFE
+#: The values a config may state. IEEE 1588-2008 7.6.2.5 takes the value
+#: from Table 6: 0x20..0x31 name an accuracy and 0xFE is "Unknown". The
+#: rest are reserved or kept for other PTP profiles, which 802.1AS-2011
+#: 8.6.2.3 does not use, so the builder refuses them (#843).
+GPTP_CLOCK_ACCURACY_VALUES = frozenset(range(0x20, 0x32)) | {0xFE}
 
 #: The parse below is of a pinned generator that cannot change under a running
 #: process, so it is done once and kept here. A CONTAINER that is mutated, not
@@ -3640,13 +3652,16 @@ def gptp_engine_port_number(source: str | None = None) -> int:
 
 
 def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
-    """The Announce dataset the fabric engine transmits, PARSED from the
-    pinned generator (never restated here: a mirrored 248 or 0xF8FE436A
-    would diverge in silence on a submodule bump). The generator consumes
-    only --mac, --p1 and --clk-hz; priority2, clockQuality and the per
-    message logMessageInterval octets are constants in its source, so the
-    AVB_INTERFACE descriptor must be derived FROM them ([R-parallel] on
-    #228). `source` is for the test suite's synthetic fixtures only."""
+    """The Announce fields the fabric engine transmits from constants,
+    PARSED from the pinned generator (never restated here: a mirrored 248
+    or 0x436A would diverge in silence on a submodule bump). The generator
+    consumes --mac, --p1, --clk-hz and, since FPGA-gPTP #100,
+    --clock-accuracy; priority2, clockClass, offsetScaledLogVariance and
+    the per message logMessageInterval octets are constants in its source,
+    so the AVB_INTERFACE descriptor must be derived FROM them
+    ([R-parallel] on #228). clockAccuracy is not among them: it is the
+    config's gptp.clock_accuracy, passed per image by gptp_ucode_args()
+    (#843). `source` is for the test suite's synthetic fixtures only."""
     from_file = source is None
     if from_file:
         if "pins" in _GPTP_ENGINE_PINS_CACHE:
@@ -3677,7 +3692,6 @@ def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
     pins = dict(
         priority2=p2,
         clock_class=(cq >> 24) & 0xFF,
-        clock_accuracy=(cq >> 16) & 0xFF,
         offset_scaled_log_variance=cq & 0xFFFF,
         log_sync_interval=logint("0x0", "Sync"),
         log_announce_interval=logint("0xB", "Announce"),
@@ -3686,6 +3700,37 @@ def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
     if from_file:
         _GPTP_ENGINE_PINS_CACHE["pins"] = dict(pins)
     return pins
+
+
+def gptp_ucode_args(cfg: dict[str, Any]) -> list[str]:
+    """The engine generator options for one loaded config: station MAC,
+    priority1, fabric clock and clockAccuracy (802.1AS-2011 8.6.2.3).
+    One list, used by the build and by the milan_dp gPTP legs (#843), so
+    the image a leg runs carries the clockAccuracy that config ships."""
+    mac = _mac48(cfg["platform"]["mac_address"], "platform.mac_address")
+    return ["--mac", f"0x{mac:012x}",
+            "--p1", str(cfg["gptp"]["priority1"]),
+            "--clk-hz", str(cfg["constraints"]["milan_clk_hz"]),
+            "--clock-accuracy", f"0x{cfg['gptp']['clock_accuracy']:02X}"]
+
+
+def _gptp_clock_accuracy_key(gp_raw: dict[str, Any]) -> int:
+    """gptp.clock_accuracy, the clockAccuracy this board announces and its
+    AVB_INTERFACE descriptor states (802.1AS-2011 8.6.2.3, #843).
+
+    The engine generator takes it per image (--clock-accuracy, FPGA-gPTP
+    #100), so it is the board's claim, not an engine constant. A board
+    whose oscillator is characterised states the Table 6 value; one that
+    is not states 0xFE or omits the key, which 8.6.2.3 b) makes 0xFE."""
+    v = int(gp_raw.get("clock_accuracy", GPTP_CLOCK_ACCURACY_UNKNOWN))
+    if v not in GPTP_CLOCK_ACCURACY_VALUES:
+        raise ConfigError(
+            f"gptp.clock_accuracy 0x{v:X} is not a clockAccuracy this "
+            f"profile announces: IEEE 1588-2008 7.6.2.5 takes the value "
+            f"from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 "
+            f"8.6.2.3 b)); the others are reserved or for other PTP "
+            f"profiles (#843)")
+    return v
 
 
 def _load_document(path):
@@ -4150,8 +4195,10 @@ def _load_gptp(cfg):
                 raise ConfigError(f"gptp.{k} {v} outside 0..255")
             return v
         #! Engine-pinned fields ([R-parallel] on #228): the fabric engine
-        #! consumes only MAC, priority1 and the clock frequency; priority2,
-        #! clockQuality and the log intervals are constants in
+        #! consumes MAC, priority1, the clock frequency and clockAccuracy
+        #! (--clock-accuracy, FPGA-gPTP #100, passed per config since
+        #! #843); priority2, clockClass, offsetScaledLogVariance and the log
+        #! intervals are constants in
         #! gptp-processor/hdl/ucode/gen_gptp_ucode.py and go out in every
         #! Announce. The descriptor takes the ENGINE's values, and a config
         #! stating anything else is refused, so the AEM dataset cannot
@@ -4162,9 +4209,10 @@ def _load_gptp(cfg):
             if k in gp_raw and int(gp_raw[k]) != pins[k]:
                 raise ConfigError(
                     f"gptp.{k} {int(gp_raw[k])} diverges from the fabric "
-                    f"engine's {pins[k]}: the engine generator consumes only "
+                    f"engine's {pins[k]}: the engine generator consumes "
                     f"{', '.join(GPTP_ENGINE_CONSUMED)} (plus MAC and clock "
-                    f"frequency) and announces this field from a constant in "
+                    f"frequency), and no option of it sets gptp.{k}, which "
+                    f"is a constant in "
                     f"gptp-processor/hdl/ucode/gen_gptp_ucode.py. State "
                     f"{pins[k]} or omit the key ([R-parallel] on #228)")
             return pins[k]
@@ -4182,7 +4230,7 @@ def _load_gptp(cfg):
             priority1=_gp_u8("priority1", 248),
             priority2=_gp_pinned("priority2"),
             clock_class=_gp_pinned("clock_class"),
-            clock_accuracy=_gp_pinned("clock_accuracy"),
+            clock_accuracy=_gptp_clock_accuracy_key(gp_raw),
             offset_scaled_log_variance=_gp_pinned(
                 "offset_scaled_log_variance"),
             domain=_gptp_domain_key(gp_raw),
@@ -4960,13 +5008,14 @@ REBOOT_MAC_NAMES = ("_AXIS_CDC_DEPTH", "_MAC_TX_SF_PAYLOAD_DEPTH",
                     "_MAC_TX_SF_PARAM_DEPTH", "_MAC_CORE_TX_CDC_DEPTH",
                     "_MAC_CORE_TX_STAGE_BEATS", "_ETH_FRAME_OVERHEAD_OCTETS",
                     "_ETH_MAX_FRAME_LINE_OCTETS", "_MAC_DATA_WIDTH",
-                    "_BOARD_PHY_MODEL", "_PHY_MODEL_MIN_MBPS")
+                    "_BOARD_PHY_MODEL", "_PHY_MODEL_MIN_MBPS",
+                    "_PHY_MODEL_LAUNCH")
 
 
 def reboot_mac_statement(cfg: dict[str, Any],
                          soc_text: str | None = None) -> dict[str, int]:
-    """The two parameters by which MilanMAC states its transmit side to
-    milan_datapath (#787), EVALUATED out of sw/litex/milan_soc.py.
+    """The parameters by which MilanMAC states its transmit side to
+    milan_datapath (#787, #829), EVALUATED out of sw/litex/milan_soc.py.
 
     The SoC computes them from the depths its FIFOs are built with, through
     `_mac_tx_egress_octets`, so an AECP REBOOT's egress bound cannot drift
@@ -5005,7 +5054,8 @@ def reboot_mac_statement(cfg: dict[str, Any],
     crossed = bool(cfg["constraints"]["milan_clk_hz"])
     return {"REBOOT_MAC_TX_OCTETS_P": found["_mac_tx_egress_octets"](
                 found["_MAC_DATA_WIDTH"] // 8, crossed),
-            "REBOOT_MAC_MIN_MBPS_P": found["_PHY_MODEL_MIN_MBPS"][phy]}
+            "REBOOT_MAC_MIN_MBPS_P": found["_PHY_MODEL_MIN_MBPS"][phy],
+            **found["_PHY_MODEL_LAUNCH"][phy]}
 
 
 def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
@@ -5128,6 +5178,30 @@ def derive_entity_id(cfg: dict[str, Any]) -> int:
         return int(eid, 16)
     b = [int(x, 16) for x in cfg["platform"]["mac_address"].split(":")]
     return int.from_bytes(bytes(b[:3] + [0xFF, 0xFE] + b[3:]), "big")
+
+
+#: IEEE 802-2014 8.2 and 8.4: bit 1 of a MAC address's first octet is the U/L
+#: bit, set for a locally administered address.
+MAC48_UL_BIT = 1 << 41
+
+
+def identity_warnings(cfg: dict[str, Any]) -> list[str]:
+    """Warnings, never refusals, about the station identity (#840).
+
+    A locally administered station MAC builds: the prototypes carry one by
+    decision. It is still not an IEEE-assigned EUI-48, which IEEE 802.1AS-2011
+    8.5.2.2.1 and IEEE 1588-2008 7.5.2.2.2 require of the MAC a clockIdentity
+    is formed from, and IEEE 1722.1-2021 6.2.2.7 has the vendor assign the
+    entity_id. So the build says so, and a production build owns a block."""
+    mac = cfg["platform"]["mac_address"]
+    if not _mac48(mac, "platform.mac_address") & MAC48_UL_BIT:
+        return []
+    return [f"platform.mac_address {mac} has the U/L bit set: it is locally "
+            "administered, not an IEEE-assigned EUI-48, and neither are the "
+            "gPTP clockIdentity and the mac-derived entity_id formed from it "
+            "(IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, "
+            "IEEE 1722.1-2021 6.2.2.7). A production build needs an address "
+            "from an owned MA-L, MA-M or MA-S block (#840)."]
 
 
 # ----------------------------------------------------------- aem_overlay ----
@@ -5928,13 +6002,9 @@ def _write_artifact_dir(art, outdir):
         # relative gptp_ucode.hex in their run directories.
         p_gptp_ucode = d / "gptp_ucode.hex"
         generator = GPTP_UCODE_GENERATOR
-        mac = _mac48(cfg["platform"]["mac_address"],
-                     "platform.mac_address")
         subprocess.run(
             [sys.executable, str(generator), "-o", str(p_gptp_ucode),
-             "--mac", f"0x{mac:012x}",
-             "--p1", str(cfg["gptp"]["priority1"]),
-             "--clk-hz", str(cfg["constraints"]["milan_clk_hz"])],
+             *gptp_ucode_args(cfg)],
             check=True, capture_output=True, text=True)
     p_plan = d / "build_plan.md"
     with open(p_plan, "w") as f:
@@ -6077,7 +6147,7 @@ def build(config_path: str, outdir: str | None = None,
                 adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
                 aem_rom_unsupported=art.aem_rom_why,
                 interface_params=art.iparams, platform=art.shape,
-                paths=paths)
+                warnings=identity_warnings(cfg), paths=paths)
 
 
 def main() -> None:
@@ -6127,6 +6197,8 @@ def main() -> None:
         path = Path(written)
         print(f"  wrote "
               f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
+    for warning in r["warnings"]:
+        print(f"[endstation_builder] WARNING: {warning}", file=sys.stderr)
 
 
 if __name__ == "__main__":

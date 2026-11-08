@@ -30,12 +30,25 @@
                 their launch flip-flops are pad-locked (`set_property IOB
                 TRUE`) because an unlocked GMII launch is a per-seed
                 clock-to-out lottery on this board, and a fan-out to an
-                observer would defeat that packing. The PHY stage registers
-                `sink.valid` into `tx_en` and `sink.data` into `tx_data` on
-                the same edge and holds `sink.ready` at 1, so the pad and
-                this observer see the same octet on the same clock edge: the
+                observer would defeat that packing. The GMII PHY stage
+                registers `sink.valid` into `tx_en` and `sink.data` into
+                `tx_data` on the same edge, and its `sink.ready` is a flop that
+                is 1 from the first clock after reset, so the pad and this
+                observer see the same octet on the same clock edge: the
                 relationship between the two seams is one register stage, not
                 an assumption.
+
+                THE MII SHAPE (issue #829). The 10/100 PHY stage splits each
+                octet into two nibbles, low first, so `sink.valid` and
+                `sink.data` hold for two clocks and `sink.ready` rises on the
+                second. An octet therefore transfers where valid and ready
+                coincide, and that is what this observer counts: reading a
+                held octet once per clock takes the second preamble clock for
+                the next octet, the delimiter check fails, and no gPTP frame
+                is ever attributed. The transfer edge is the one that
+                registers the HIGH nibble, so the frame's first symbol left
+                `ETH_CYC_PER_OCTET_P - 1` clocks before the reference octet is
+                counted here; KL_gptp_txret owes that term.
 
                 PURE OBSERVER: this module drives nothing on the stream it
                 watches.
@@ -56,10 +69,10 @@
                           a position that is already established.
                   delta   transmit-clock cycles from the reference octet to
                           the tag octet. On a whole frame it is exactly the
-                          octet distance; anything else means the frame was
-                          fragmented on the wire, and the record is an abort
-                          rather than a successful measurement carrying a
-                          different correction.
+                          octet distance in clocks; anything else means the
+                          frame was fragmented on the wire, and the record is
+                          an abort rather than a successful measurement
+                          carrying a different correction.
                   abort   the frame ended before its tag octets, or `delta`
                           was not the expected distance.
 
@@ -76,8 +89,9 @@
 
                 GAPS INSIDE A FRAME. `phy.sink.valid` cannot legally bubble
                 inside a frame: the store-and-forward FIFO releases a frame
-                only once it is completely buffered, and the PHY stage never
-                back-pressures. A short low run inside a frame is therefore a
+                only once it is completely buffered, and `sink.ready` low only
+                holds an octet across its nibbles, so it is not a gap. A short
+                low run of `valid` inside a frame is therefore a
                 fragment on the wire, and this observer deliberately keeps
                 the frame OPEN across it (up to `GAP_CLOSE_CYC_P` cycles) so
                 the cycle count still reaches the tag octet and the measured
@@ -86,7 +100,8 @@
 
   Spec refs   : IEEE Std 802.1AS-2020 11.3.9 (the message timestamp point is
                 the beginning of the first symbol following the
-                start-of-frame delimiter); 11.3.4 and Table 11-3 (the
+                start-of-frame delimiter); IEEE Std 802.3 22.2.3 (MII: low
+                nibble first); 11.3.4 and Table 11-3 (the
                 destination address of a gPTP message on a full-duplex
                 point-to-point link); docs/design/GPTP_PLANE.md;
                 docs/litex/CLOCK_DOMAINS.md
@@ -118,6 +133,8 @@ module KL_gptp_gmii_launch #(
     //! observation indices of the sequenceId octets, high then low
     parameter int unsigned TAG_OCTET_HI_P     = 52,
     parameter int unsigned TAG_OCTET_LO_P     = 53,
+    //! transmit clocks one octet holds at the seam: 1 on GMII, 2 on MII
+    parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
     //! the only cycle distance a whole frame can produce
     parameter int unsigned TXTS_DELTA_EXP_P = 45,
     parameter int unsigned TXTS_DELTA_W_P   = 8,
@@ -131,10 +148,12 @@ module KL_gptp_gmii_launch #(
     // ---- transmit domain (the MAC's eth_tx clock and its reset) ----------
     input  wire eth_clk_i,   //! the MAC transmit clock the pads launch on
     input  wire eth_rst_n,   //! synchronous active-low reset, `eth_clk_i`;
-                             //! the same reset that clears the LiteEth
-                             //! transmit side and the PHY transmit stage
+                             //! the reset that clears the LiteEth transmit
+                             //! side. `eth_rst` also clears the PHY transmit
+                             //! stage on GMII and does not reach it on MII
     //! `phy.sink`, OBSERVED ONLY
     input  wire       gmii_tvalid_i,
+    input  wire       gmii_tready_i,
     input  wire [7:0] gmii_tdata_i,
 
     // ---- fabric domain (the plane's axis_clk) ----------------------------
@@ -186,9 +205,10 @@ module KL_gptp_gmii_launch #(
 
   // ---- elaboration contract ---------------------------------------------
   //! ONE format string per $error: later arguments print as values.
-  if (TXTS_DELTA_EXP_P != TAG_OCTET_LO_P - REF_OCTET_P) begin : g_refuse_delta
-    $error("KL_gptp_gmii_launch: TXTS_DELTA_EXP_P=%0d is not TAG_OCTET_LO_P-REF_OCTET_P=%0d. The expected cycle distance IS the octet distance on a whole frame; a literal that does not derive from the two indices would let a fragmented frame produce a plausible timestamp.",
-           TXTS_DELTA_EXP_P, TAG_OCTET_LO_P - REF_OCTET_P);
+  if (TXTS_DELTA_EXP_P != (TAG_OCTET_LO_P - REF_OCTET_P) * ETH_CYC_PER_OCTET_P)
+  begin : g_refuse_delta
+    $error("KL_gptp_gmii_launch: TXTS_DELTA_EXP_P=%0d is not (TAG_OCTET_LO_P-REF_OCTET_P)*ETH_CYC_PER_OCTET_P=%0d. The expected cycle distance IS the octet distance in clocks on a whole frame; a literal that does not derive from the two indices would let a fragmented frame produce a plausible timestamp.",
+           TXTS_DELTA_EXP_P, (TAG_OCTET_LO_P - REF_OCTET_P) * ETH_CYC_PER_OCTET_P);
   end else if (TXTS_DELTA_EXP_P >= (1 << TXTS_DELTA_W_P) - 1)
   begin : g_refuse_delta_width
     $error("KL_gptp_gmii_launch: TXTS_DELTA_W_P=%0d cannot carry TXTS_DELTA_EXP_P=%0d below its saturation value, so a saturated count would be indistinguishable from the expected one.",
@@ -340,32 +360,38 @@ module KL_gptp_gmii_launch #(
 
       if (gmii_tvalid_i) begin
         gap_r <= GAP_W_C'(0);
-        inf_r <= 1'b1;
-        idx_r <= nidx_w;
-        if (!inf_r) begin
-          //! a new frame owns none of the previous one's findings
-          mine_r  <= 1'b0;
-          ref_r   <= 1'b0;
-          done_r  <= 1'b0;
-          delta_r <= '0;
-          type_r  <= 4'd0;
-          seq_r   <= 16'd0;
-        end
-        cand_r <= cand_w;
-        //! the reference octet: frame octet 0, launched at this edge
-        if ((nidx_w == IDX_W_C'(REF_OCTET_P)) && cand_w) begin
-          ref_r   <= 1'b1;
-          delta_r <= '0;
-        end
-        if (att_done_w) mine_r <= cand_w;
-        if (nidx_w == IDX_W_C'(TYPE_OCTET_P))   type_r      <= gmii_tdata_i[3:0];
-        if (nidx_w == IDX_W_C'(TAG_OCTET_HI_P)) seq_r[15:8] <= gmii_tdata_i;
-        if ((nidx_w == IDX_W_C'(TAG_OCTET_LO_P)) && mine_r && !done_r) begin
-          seq_r[7:0]  <= gmii_tdata_i;
-          done_r      <= 1'b1;
-          //! the record leaves on the NEXT edge, by which time `delta_r`
-          //! above has reached the distance this frame actually produced
-          emit_pend_r <= 1'b1;
+        //! one octet per transfer: on MII `ready` low holds this octet across
+        //! its nibbles (issue #829). On GMII `ready` is a flop that is 1 from the
+        //! first clock after reset, and this module's own reset covers that
+        //! reset, so no octet is held there.
+        if (gmii_tready_i) begin
+          inf_r <= 1'b1;
+          idx_r <= nidx_w;
+          if (!inf_r) begin
+            //! a new frame owns none of the previous one's findings
+            mine_r  <= 1'b0;
+            ref_r   <= 1'b0;
+            done_r  <= 1'b0;
+            delta_r <= '0;
+            type_r  <= 4'd0;
+            seq_r   <= 16'd0;
+          end
+          cand_r <= cand_w;
+          //! the reference octet: frame octet 0, transferred at this edge
+          if ((nidx_w == IDX_W_C'(REF_OCTET_P)) && cand_w) begin
+            ref_r   <= 1'b1;
+            delta_r <= '0;
+          end
+          if (att_done_w) mine_r <= cand_w;
+          if (nidx_w == IDX_W_C'(TYPE_OCTET_P))   type_r      <= gmii_tdata_i[3:0];
+          if (nidx_w == IDX_W_C'(TAG_OCTET_HI_P)) seq_r[15:8] <= gmii_tdata_i;
+          if ((nidx_w == IDX_W_C'(TAG_OCTET_LO_P)) && mine_r && !done_r) begin
+            seq_r[7:0]  <= gmii_tdata_i;
+            done_r      <= 1'b1;
+            //! the record leaves on the NEXT edge, by which time `delta_r`
+            //! above has reached the distance this frame actually produced
+            emit_pend_r <= 1'b1;
+          end
         end
       end else begin
         if (inf_r && (gap_r != GAP_W_C'(GAP_CLOSE_CYC_P)))

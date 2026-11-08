@@ -11,21 +11,25 @@
 #include <vector>
 
 namespace {
-// Minimum Ethernet frame excluding FCS. AECP AEM READ_DESCRIPTOR ENTITY 0.
+// Minimum Ethernet frame excluding FCS. AECP AEM READ_DESCRIPTOR ENTITY 0,
+// sent to the shape's station MAC and to the entity_id the builder maps from
+// it (FF-FE at the OUI boundary), both from the config this image was built
+// from (probe_config.hpp, #840).
 std::array<std::uint8_t, 60> request(std::uint16_t sequence) {
     std::array<std::uint8_t, 60> frame{};
-    frame[0] = 2;
-    frame[5] = 1;
+    for (unsigned i = 0; i < 6; ++i) {
+        const auto octet = static_cast<std::uint8_t>(station_mac >> (40 - 8 * i));
+        frame[i] = octet;
+        frame[i < 3 ? 18 + i : 20 + i] = octet;
+    }
     frame[6] = 2;
     frame[11] = 2;
     frame[12] = 0x22;
     frame[13] = 0xf0;
     frame[14] = 0xfb;
     frame[17] = 20;
-    frame[18] = 2;
     frame[21] = 0xff;
     frame[22] = 0xfe;
-    frame[25] = 1;
     frame[26] = 2;
     frame[29] = 0xff;
     frame[30] = 0xfe;

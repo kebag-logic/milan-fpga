@@ -123,7 +123,7 @@ srp:
     interval_frames: 1
 
 platform:
-  mac_address: "02:00:00:00:00:02"
+  mac_address: "02:4b:4c:4b:4c:02"   # board 2, locally administered (#840)
   pp_mem_phys: 0x4fb00000            # 1 MiB protocol-processor window
 
 clocking:
@@ -206,15 +206,20 @@ gptp:
   # the deferring Milan end-station default (see the AX7101 configs). The
   # fabric plane is the one product gPTP owner (#259)
   # configuration is generated from this section any more. The engine
-  # consumes only priority1 (plus MAC and clock frequency); every other
-  # clock field is a constant in gptp-processor/hdl/ucode/gen_gptp_ucode.py
-  # that the builder derives or refuses ([R-parallel] on #228). The
-  # historical Arty clock_accuracy 0x21 / log_sync_interval 0 restatement
-  # is deleted: the engine announces 0xFE and -3, and a descriptor stating
-  # anything else disagrees with the wire.
+  # consumes priority1 and clock_accuracy (plus MAC and clock frequency);
+  # every other clock field is a constant in
+  # gptp-processor/hdl/ucode/gen_gptp_ucode.py that the builder derives or
+  # refuses ([R-parallel] on #228). The historical Arty clock_accuracy 0x21
+  # / log_sync_interval 0 restatement is deleted: the engine announced 0xFE
+  # and -3, and a descriptor stating anything else disagrees with the wire.
   priority1: 248
   priority2: 248
   clock_class: 248
+  # clockAccuracy is this board's own claim: the builder passes it to the
+  # engine generator (--clock-accuracy, FPGA-gPTP #100) and states it in
+  # AVB_INTERFACE (#843). The Arty's oscillator is not characterised, so
+  # 802.1AS-2011 8.6.2.3 b) sets 0xFE, unknown.
+  clock_accuracy: 0xFE
   offset_scaled_log_variance: 0x436A
   domain: 0
   log_announce_interval: 0

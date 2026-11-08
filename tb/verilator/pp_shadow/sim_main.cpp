@@ -3736,13 +3736,13 @@ class PpShadowHarness {
     // neither the documentation nor the RTL was right about it.
     //
     // The registration is REAL, on the MAC RX port, and it needs a real bind
-    // first: the processor's registrar matches the exact {stream_id, DA, VID}
-    // triple the sink settled with and ignores every attribute until the sink
-    // is armed. So this group binds STREAM_INPUT 0 over ACMP the way a
-    // controller does - BIND_RX, then play the talker that answers the
-    // listener's probe - and only then declares attributes for that stream
-    // from the bridge port. It runs after [R] and before [M2], whose reset
-    // wipes both the bind and the registration.
+    // first: a sink reports a Talker registration only once it is armed and
+    // settled on the exact {stream_id, DA, VID}; since processor #212 a value
+    // the port registered before the settle is applied at the settle. So this
+    // group binds STREAM_INPUT 0 over ACMP as a controller does - BIND_RX, then
+    // play the talker that answers the listener's probe - and only then
+    // declares attributes for that stream from the bridge port. It runs after
+    // [R] and before [M2], whose reset wipes both the bind and the registration.
     static constexpr uint64_t U_TALKER_EID = 0x001BC50CAC000002ull;
     static constexpr uint64_t U_SID        = 0x0200000000020000ull;
     static constexpr uint16_t U_VID        = 2;      // the only SR VID here

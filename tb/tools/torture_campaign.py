@@ -1687,7 +1687,7 @@ class Device:
 #: The bench shape.  The Arty is the DUT; the peer is the Milan-validated
 #: reference device, so IT is the independent oracle (methodology L4/L5) and its
 #: refusals are evidence about us, not bugs in it.
-ARTY = Device(name="arty", entity_id="020000fffe000002", mac="020000000002",
+ARTY = Device(name="arty", entity_id="024b4cfffe4b4c02", mac="024b4c4b4c02",
               talkers=4, listeners=4, crf_out=4, crf_in=4,
               formats=("0205022001006000", "0205022000806000"),
               role="dut")
@@ -6869,7 +6869,7 @@ class _PlanContractChecks:
         # interface to read
         self.assertEqual([p.name for p in participants(ARTY, PEER)],
                          ["arty", "peer"])
-        host = parse_device_spec("iface=enp6s0", TESTHOST)
+        host = parse_device_spec("iface=<host-iface>", TESTHOST)
         self.assertEqual([p.name for p in
                           participants(ARTY, PEER, host)],
                          ["arty", "peer", "testhost"])

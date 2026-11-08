@@ -332,6 +332,8 @@ Wire -> PHY -> GMII RX 125 MHz -> LiteEth framing/width conversion
 - One ordered record per frame is reported back.
 - The plane reconstructs `PHC at the record - 426 ns`.
 - That is `(45 + 2) x 8 ns + 2 x 20 ns + 10 ns`.
+- The 100 Mb/s MII shape subtracts 3770 ns (#829).
+- That is `(90 + 2 + 1) x 40 ns + 2 x 20 ns + 10 ns`.
 - RX captures PHC time at the first accepted tap beat.
 - Neither timestamp is a PHY-pad timestamp.
 - The gap to the pad is CORRECTED per board (#358).
