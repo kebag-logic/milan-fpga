@@ -1215,8 +1215,9 @@ Each half is graded on its own against these bounds:
 - each AEM response within 240 ms (IEEE 1722.1-2021 9.3.2.6).
 
 The ledger rows this stimulus exercises are listed below. Rows 3, 5 and 6 of
-`sw/firmware/ctrl/aecp/README.md`'s table need a second controller or the
-Milan vendor-unique commands, so they are not exercised here.
+the [AECP owner's table](../../../sw/firmware/ctrl/aecp/README.md#verification-and-limits)
+need a second controller or the Milan vendor-unique commands, so they are not
+exercised here.
 
 | Row | Fabric | Split |
 |---|---|---|
