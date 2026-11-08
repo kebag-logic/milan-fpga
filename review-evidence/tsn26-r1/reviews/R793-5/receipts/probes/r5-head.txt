@@ -1,0 +1,3 @@
+PROBE r5 long-hold sink2 states: [pass=1 state=2 held=1] [pass=3 state=3 held=0] [pass=5602 state=4 held=0]
+PROBE r5 long-hold: sink3 held through pass 5602; probes_lost=0; PROBE_TX: [sink2 pass=11] [sink2 pass=5610] [sink3 pass=5611]
+PROBE r5 long-hold: sink 2 PROBE_TX owed before sink 3's held retry left = 2

@@ -1,0 +1,20 @@
+applied owed-bind-wait-only-on-a-second-decline to src/acmp.c
+full suite rc=1
+[  FAILED  ] AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner
+[  FAILED  ] AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner (0 ms)
+[==========] 125 tests from 4 test suites ran. (9 ms total)
+without AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner rc=0
+[==========] 124 tests from 4 test suites ran. (3 ms total)
+
+applied owed-answer-keeps-the-hold to src/acmp.c
+full suite rc=1
+[  FAILED  ] AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry
+[  FAILED  ] AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry (0 ms)
+[==========] 125 tests from 4 test suites ran. (5 ms total)
+without AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry rc=0
+[==========] 124 tests from 4 test suites ran. (6 ms total)
+
+unplanted control:
+head rc=0
+[==========] 125 tests from 4 test suites ran. (3 ms total)
+[  PASSED  ] 125 tests.

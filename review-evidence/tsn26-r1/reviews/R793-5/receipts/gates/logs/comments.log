@@ -1,0 +1,56 @@
+comment lexer: $VALIDATION_TOOLS/clang-18/bin/clang-18
+comment control assembly-include: compiled and linked; refused
+comment control assembly-incbin: compiled and linked; refused
+comment control assembly-end: compiled and linked; refused
+comment control linker-quote: linked; policy refuses; fatal link refuses
+comment control linker-backslash: linked; policy refuses; fatal link passes
+comment control linker-hash: linked; policy refuses; fatal link passes
+comment control linker-version: linked; policy refuses; fatal link passes
+comment control linker-tracing: linked; policy passes; fatal link passes
+comment control included-suffix: compiled; refused
+comment control included-source.c: quoted and angled C++ includes compiled; refused
+comment control included-source.cpp: quoted and angled C++ includes compiled; refused
+comment control header.h: C11 and C++20 compiled; source and fragment refused; tracing passes
+comment control header.hpp: C11 and C++20 compiled; source and fragment refused; tracing passes
+comment control c-identifier-digit: compiled; refused
+comment control cpp-identifier-digit: compiled; refused
+comment control c-identifier-R: compiled; refused
+comment control cpp-identifier-R: compiled; refused
+comment control cpp-digit-separator: compiled; refused
+comment control block-tail: compiled; refused
+comment control spliced-delimiter: compiled; refused
+comment control crlf-spliced-delimiter: compiled; refused
+comment control carriage-return: compiled; refused
+comment control disabled-character: compiled; refused
+comment control disabled-elif: compiled; refused
+comment control disabled-macro: compiled; refused
+comment control disabled-expression: compiled; refused
+comment control inert-pragma: compiled; refused
+comment control guard-macro-spoof: compiled; refused
+comment control macro-override: compiled; refused
+comment control assembly-quote: compiled; refused
+comment control assembly-define-quote: compiled; refused
+comment control assembly-define-prose: compiled; refused
+comment control assembly-macro-hash: compiled; refused
+comment control assembly-macro-trace: compiled; refused
+comment control assembly-plain-define: compiled; refused
+comment control assembly-spliced-define: compiled; refused
+comment control assembly-prose: compiled; refused
+comment control assembly-formfeed: compiled; refused
+comment control assembly-formfeed-define: compiled; refused
+comment control assembly-verticaltab: compiled; refused
+comment control non-ascii: compiled; refused
+comment control control-byte: compiled; refused
+comment control assembly-pragma: compiled; refused
+comment control assembly-conditional: compiled; refused
+comment control assembly-macro: compiled; refused
+comment control assembly-repeat: compiled; refused
+comment control assembly-c-comment: compiled; refused
+comment control c-tracing: compiled; pass
+comment control cpp-raw-string: compiled; pass
+comment control cpp-character: compiled; pass
+comment control cpp-number: compiled; pass
+comment control allowed-conditional: compiled; pass
+comment control assembly-tracing: compiled; pass
+comment control assembly-string: compiled; pass
+comments: 34 code files and all mutation fragments pass
