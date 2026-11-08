@@ -107,7 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-four planted defects and its make -j8 gate from a clean tree
-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, nineteen plants and what it finds
+- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1319,7 +1319,10 @@ The grade reads, for each attribute:
 - **Each frame the half sent of the application.** A frame that carries a
   LeaveAll is a txLA! for every attribute of the participant. Its sLA also
   gives rise to rLA! against every one of them (10.7.6.6, 10.7.9), before or
-  after the txLA!. Any other frame is a tx! for each attribute it carries.
+  after the txLA!. An attribute such a frame leaves out sent nothing there,
+  which only a state whose txLA! action is none or bracketed allows; the
+  `leave-all-omission` plant holds it. Any other frame is a tx! for each
+  attribute it carries.
 - **Each frame of the stimulus of the application, as received.** None
   reaches either half here, so the Registrar stays MT and
   `operPointToPointMAC` changes no transition. The grade still applies both,
@@ -1401,7 +1404,7 @@ item 2).
 
 ### The plants
 
-`make twin-plants` runs nineteen plants. Each must be refused by its words
+`make twin-plants` runs twenty plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1427,6 +1430,7 @@ asserts.
 | `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
 | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 | `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
+| `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
 | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
 | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 | `vanished-mvrp-leave-all` | #857 fixed: the fabric's MVRP sends a LeaveAll every 12 s | `owed row fabric-mvrp-leave-all: the defect has gone` |

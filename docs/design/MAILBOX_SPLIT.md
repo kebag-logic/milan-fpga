@@ -1541,7 +1541,7 @@ stale answer carries the older tag, which `KL_mbx` discards.
   declarations at each half's LeaveAll boundaries. Each half's MSRP and MVRP
   attributes are graded as Table 10-3 Applicant traces. An owed-difference
   list, apart from the ledger, holds what the SRP adapter round owes and the
-  fabric's #857, #858 and #860. Its nineteen plants (`make twin-plants`) are
+  fabric's #857, #858 and #860. Its twenty plants (`make twin-plants`) are
   each refused by their words. At this head it finds nothing beyond its ledger
   and owed rows, as the
   [`milan_dp` README](../../tb/verilator/milan_dp/README.md) states.
