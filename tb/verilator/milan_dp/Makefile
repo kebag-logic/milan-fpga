@@ -863,7 +863,12 @@ build-split: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_D
 exec-split:
 	./$(SPLIT_MDIR)/Vmilan_dp_split
 
-split: build-split exec-split
+# the leg runs once its binary has linked, in a make of its own, so a parallel
+# make never starts it before the link or runs an old one mid-link (#665
+# issuecomment-6724570965, item 3; split_parallel.py runs make -j8 split from a
+# clean tree)
+split: build-split
+	$(MAKE) --no-print-directory exec-split
 
 # the split leg's planted defects, each caught by the check it names
 split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
