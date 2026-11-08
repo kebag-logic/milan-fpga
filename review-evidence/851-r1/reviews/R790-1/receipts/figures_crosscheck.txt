@@ -1,0 +1,30 @@
+OK  shipping route LUT: receipt=53033.0 expected=53033.0
+OK  shipping route FF: receipt=54729.0 expected=54729.0
+OK  shipping route slices: receipt=15792.0 expected=15792.0
+OK  shipping route WNS worst: receipt=0.044 expected=0.044
+OK  shipping route WHS worst: receipt=0.035 expected=0.035
+OK  shipping route routing errors: receipt=0 expected=0
+OK  corner Fast_0C WNS>=0.030: receipt=True expected=True
+OK  corner Fast_0C WHS>=0: receipt=True expected=True
+OK  corner Fast_85C WNS>=0.030: receipt=True expected=True
+OK  corner Fast_85C WHS>=0: receipt=True expected=True
+OK  corner Slow_0C WNS>=0.030: receipt=True expected=True
+OK  corner Slow_0C WHS>=0: receipt=True expected=True
+OK  corner Slow_85C WNS>=0.030: receipt=True expected=True
+OK  corner Slow_85C WHS>=0: receipt=True expected=True
+OK  gate route candidate LUT == committed record: receipt=53050.0 expected=53050.0
+OK  gate route candidate FF == committed record: receipt=54729.0 expected=54729.0
+OK  gate route candidate SLICE == committed record: receipt=15831.0 expected=15831.0
+OK  gate route candidate WNS_ns == committed record: receipt=0.258 expected=0.258
+OK  gate route candidate WHS_ns == committed record: receipt=0.036 expected=0.036
+OK  ooc-1x1 candidate LUT == committed record: receipt=25199.0 expected=25199.0
+OK  ooc-1x1 candidate FF == committed record: receipt=21010.0 expected=21010.0
+OK  ooc-8x8 candidate LUT == committed record: receipt=37048.0 expected=37048.0
+OK  ooc-8x8 candidate FF == committed record: receipt=32116.0 expected=32116.0
+OK  selected route corner Slow_0C meets floors: receipt=True expected=True
+OK  selected route corner Slow_85C meets floors: receipt=True expected=True
+OK  selected route corner Fast_0C meets floors: receipt=True expected=True
+OK  selected route corner Fast_85C meets floors: receipt=True expected=True
+INFO dev 1eb5289d selected route: LUT 52973 SLICE 15817 WNS 0.234
+INFO adoption share on the selected route: LUT +77 SLICE +14 WNS +0.024
+INFO worst-setup-path.txt slack 3.609 ns; route WNS 0.044 ns; NOT THE WORST PATH
