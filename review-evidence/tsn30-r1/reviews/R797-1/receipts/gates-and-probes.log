@@ -1,0 +1,241 @@
+== identity
+head=0cfa8423cbdde8ed6b679a022afa6401f6d62899 tree=a8c20d606b2aee4423484bcd41e050f9cda761ae
+python=Python 3.14.8 git=git version 2.56.0
+clang=Ubuntu clang version 18.1.3 (1ubuntu1)
+== gates at exact head
+$ (cd head && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 13 commit controls pass
+rc=0
+$ (cd head && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+$ (cd head && python3 -I scripts/check_license.py --selftest)
+license: valid control passes; three bad controls refused
+license: pass
+rc=0
+$ (cd head && python3 -I scripts/check_license.py)
+license: pass
+rc=0
+$ (cd head && env TSN_CLANG=$TOOLS/clang-18/bin/clang-18 python3 -I scripts/check_comments.py)
+comment lexer: $TOOLS/clang-18/bin/clang-18
+comments: 34 code files and all mutation fragments pass
+rc=0
+$ (cd head && env TSN_CLANG=$TOOLS/clang-18/bin/clang-18 python3 -I scripts/check_comments.py --selftest --work $PACKET/scratch/runs/head/build-comment-controls)
+comment lexer: $TOOLS/clang-18/bin/clang-18
+comment control assembly-include: compiled and linked; refused
+comment control assembly-incbin: compiled and linked; refused
+comment control assembly-end: compiled and linked; refused
+comment control linker-quote: linked; policy refuses; fatal link refuses
+comment control linker-backslash: linked; policy refuses; fatal link passes
+comment control linker-hash: linked; policy refuses; fatal link passes
+comment control linker-version: linked; policy refuses; fatal link passes
+comment control linker-tracing: linked; policy passes; fatal link passes
+comment control included-suffix: compiled; refused
+comment control included-source.c: quoted and angled C++ includes compiled; refused
+comment control included-source.cpp: quoted and angled C++ includes compiled; refused
+comment control header.h: C11 and C++20 compiled; source and fragment refused; tracing passes
+comment control header.hpp: C11 and C++20 compiled; source and fragment refused; tracing passes
+comment control c-identifier-digit: compiled; refused
+comment control cpp-identifier-digit: compiled; refused
+comment control c-identifier-R: compiled; refused
+comment control cpp-identifier-R: compiled; refused
+comment control cpp-digit-separator: compiled; refused
+comment control block-tail: compiled; refused
+comment control spliced-delimiter: compiled; refused
+comment control crlf-spliced-delimiter: compiled; refused
+comment control carriage-return: compiled; refused
+comment control disabled-character: compiled; refused
+comment control disabled-elif: compiled; refused
+comment control disabled-macro: compiled; refused
+comment control disabled-expression: compiled; refused
+comment control inert-pragma: compiled; refused
+comment control guard-macro-spoof: compiled; refused
+comment control macro-override: compiled; refused
+comment control assembly-quote: compiled; refused
+comment control assembly-define-quote: compiled; refused
+comment control assembly-define-prose: compiled; refused
+comment control assembly-macro-hash: compiled; refused
+comment control assembly-macro-trace: compiled; refused
+comment control assembly-plain-define: compiled; refused
+comment control assembly-spliced-define: compiled; refused
+comment control assembly-prose: compiled; refused
+comment control assembly-formfeed: compiled; refused
+comment control assembly-formfeed-define: compiled; refused
+comment control assembly-verticaltab: compiled; refused
+comment control non-ascii: compiled; refused
+comment control control-byte: compiled; refused
+comment control assembly-pragma: compiled; refused
+comment control assembly-conditional: compiled; refused
+comment control assembly-macro: compiled; refused
+comment control assembly-repeat: compiled; refused
+comment control assembly-c-comment: compiled; refused
+comment control c-tracing: compiled; pass
+comment control cpp-raw-string: compiled; pass
+comment control cpp-character: compiled; pass
+comment control cpp-number: compiled; pass
+comment control allowed-conditional: compiled; pass
+comment control assembly-tracing: compiled; pass
+comment control assembly-string: compiled; pass
+comments: 34 code files and all mutation fragments pass
+rc=0
+== main (d7e6a2a1) without the change
+$ (cd main && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 11 commit controls pass
+rc=0
+$ (cd main && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+rc=1
+== delta scope
+$ (cd r797-1-tsn30 && git diff --stat d7e6a2a19a57a8277cd26042557a8c99f2ee5496 0cfa8423cbdde8ed6b679a022afa6401f6d62899)
+ scripts/check_privacy.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+rc=0
+$ (cd r797-1-tsn30 && git diff --raw d7e6a2a19a57a8277cd26042557a8c99f2ee5496 0cfa8423cbdde8ed6b679a022afa6401f6d62899)
+:100644 100644 b2385cf 211d9f4 M	scripts/check_privacy.py
+rc=0
+$ (cd r797-1-tsn30 && git show -s --format=%H%n%an <%ae>%n%cn <%ce>%n%P%n%B d7e6a2a19a57a8277cd26042557a8c99f2ee5496)
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496
+hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+GitHub <noreply@github.com>
+70936b77dc41981e192438388cd0aced69954f18 c687810b74b53b69c1fbdff7bfd0ec9da94eaa78
+Merge pull request #29: pack wire_put_be as two 32-bit halves (#27)
+
+Pack wire_put_be as two 32-bit halves, no 64-bit shift per byte on 32-bit cores (#27)
+rc=0
+$ (cd r797-1-tsn30 && git show -s --format=%H%n%an <%ae>%n%cn <%ce>%n%P%n%B 0cfa8423cbdde8ed6b679a022afa6401f6d62899)
+0cfa8423cbdde8ed6b679a022afa6401f6d62899
+hackerman-kl <hackerman-kl@kebag-logic.com>
+hackerman-kl <hackerman-kl@kebag-logic.com>
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496
+Exempt the merge of #29 from the one-line message rule by its exact commit, keeping its content scan
+
+rc=0
+== probe M1-drop-exemption
+applied: 'and commit not in TWO_LINE_MERGES and len' -> 'and len'
+$ (cd probe-M1-drop-exemption && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-M1-drop-exemption && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: fail two-line-merge
+rc=1
+$ (cd probe-M1-drop-exemption && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+rc=1
+== probe M2-exempt-identity-too
+applied: 'if commit != OWNER_SQUASH and not identity_ok' -> 'if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and not identity_ok'
+$ (cd probe-M2-exempt-identity-too && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-M2-exempt-identity-too && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: fail two-line-merge-foreign
+rc=1
+$ (cd probe-M2-exempt-identity-too && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+== probe M3-exempt-every-commit
+applied: 'and commit not in TWO_LINE_MERGES and len' -> 'and False and len'
+$ (cd probe-M3-exempt-every-commit && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-M3-exempt-every-commit && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: fail web-flow-two-lines, holder-two-lines
+rc=1
+$ (cd probe-M3-exempt-every-commit && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+== probe M4-prefix-match
+applied: 'and commit not in TWO_LINE_MERGES and len' -> 'and commit[:8] not in {c[:8] for c in TWO_LINE_MERGES} and len'
+$ (cd probe-M4-prefix-match && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-M4-prefix-match && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 13 commit controls pass
+rc=0
+$ (cd probe-M4-prefix-match && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+== probe M5-controls-use-other-id
+applied: '        commit = next(iter(TWO_LINE_MERGES)) if name.startswith("two-line-merge") else commit\n' -> ''
+$ (cd probe-M5-controls-use-other-id && git diff --stat)
+ scripts/check_privacy.py | 1 -
+ 1 file changed, 1 deletion(-)
+rc=0
+$ (cd probe-M5-controls-use-other-id && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: fail two-line-merge
+rc=1
+$ (cd probe-M5-controls-use-other-id && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+== probe M6-skip-scan-for-exempt
+applied: '        errors += scan(commit, data)' -> '        errors += [] if commit in TWO_LINE_MERGES else scan(commit, data)'
+$ (cd probe-M6-skip-scan-for-exempt && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-M6-skip-scan-for-exempt && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 13 commit controls pass
+rc=0
+$ (cd probe-M6-skip-scan-for-exempt && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+== probe P1-scan-reaches-exempt-body
+applied: 'PATTERNS += [re.compile(r"gh[pousr]' -> 'PATTERNS += [re.compile("no 64-bit shift per byte")]\nPATTERNS += [re.compile(r"gh[pousr]'
+$ (cd probe-P1-scan-reaches-exempt-body && git diff --stat)
+ scripts/check_privacy.py | 1 +
+ 1 file changed, 1 insertion(+)
+rc=0
+$ (cd probe-P1-scan-reaches-exempt-body && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 13 commit controls pass
+rc=0
+$ (cd probe-P1-scan-reaches-exempt-body && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: restricted content
+scripts/check_privacy.py: restricted content
+rc=1
+== probe P2-identity-reaches-exempt
+applied: 'WEB_FLOW = ["hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>", "GitHub <noreply@github.com>"]' -> 'WEB_FLOW = ["hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>", "GitHub <other@github.com>"]'
+$ (cd probe-P2-identity-reaches-exempt && git diff --stat)
+ scripts/check_privacy.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0
+$ (cd probe-P2-identity-reaches-exempt && python3 -I scripts/check_privacy.py --selftest)
+privacy selftest: 13 commit controls pass
+rc=0
+$ (cd probe-P2-identity-reaches-exempt && python3 -I scripts/check_privacy.py)
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: unexpected identity
+70936b77dc41981e192438388cd0aced69954f18: unexpected identity
+1ba273540abbdf51ea5d235c0a7e81c0bcb5d475: unexpected identity
+98dc9e3076714bebe113982ee18c3c1c496cf3c9: unexpected identity
+51870377c5012766a8ea1d9798e3c499ca1060a3: unexpected identity
+1a9f651cdf7846b8e10ac246a6ef6916960fbb92: unexpected identity
+74445d28da1e04c645bf2e08a2a73bc2d5adcfbd: unexpected identity
+18d737832c376f32660eb21fe2796e0b611507e3: unexpected identity
+rc=1
+== direct boundary calls on the head gate
+TWO_LINE_MERGES = ['d7e6a2a19a57a8277cd26042557a8c99f2ee5496'] OWNER_SQUASH = ae982af85ec97286bd35b39403926d8f0eaec81d
+exempt id, web-flow, two lines: []
+exempt id, holder pair, two lines: []
+exempt id, reversed web-flow, two lines: ['d7e6a2a19a57a8277cd26042557a8c99f2ee5496: unexpected identity']
+exempt id, empty message: []
+abbreviated id d7e6a2a1: ['d7e6a2a1: commit message must be one line']
+upper-case exempt id: ['D7E6A2A19A57A8277CD26042557A8C99F2EE5496: commit message must be one line']
+last digit changed: ['d7e6a2a19a57a8277cd26042557a8c99f2ee5497: commit message must be one line']
+exempt id with trailing newline: ['d7e6a2a19a57a8277cd26042557a8c99f2ee5496\n: commit message must be one line']
+zero id: ['0000000000000000000000000000000000000000: commit message must be one line']
+parent 70936b77 of the merge: ['70936b77dc41981e192438388cd0aced69954f18: commit message must be one line']
+owner squash, foreign, two lines: []
+rc=0
+== done
