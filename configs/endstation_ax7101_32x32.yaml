@@ -1,0 +1,183 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config: the 32x32 two-interface shape in
+# simulation (#859, part of #665). The Mark II target (#640): 32 AAF listener
+# and 32 AAF talker streams of eight channels, plus the CRF pair. Every other
+# key is endstation_ax7101_8x8.yaml's, so its measurement groups scale by the
+# stream count alone. The split firmware places stream n on AVB interface
+# n mod 2 (sw/firmware/ctrl/test/ctrl_aecp_image.c), so each interface carries
+# 16 AAF streams of each direction and the primary the two CRF streams.
+#
+# SIMULATION ONLY. The image build refuses to route it (simulation_only), and
+# it is built without saved state (saved_state: none) while #823 owns the
+# record space at this shape. Its datapath does not elaborate before #640's
+# redesign (docs/design/SHAPE_32X32_CENSUS.md).
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.2.0"
+
+# #859: built and run in simulation only. The builder refuses saved_state:
+# none on any other shape, and milan_soc.py refuses to route or load this one.
+simulation_only: true
+saved_state: none                    # no store, record space or journal image (#823)
+
+# Every key from entity: on is endstation_ax7101_8x8.yaml's but the entity
+# name, the waiver's last port and the 24 more streams of each direction;
+# that file's comments give each key's reason.
+
+entity:
+  name: "Milan FPGA 32x32"
+  entity_model_id: hash-derived
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  serial_number: "AX7101-0001"
+  group_name: ""
+
+board:
+  target: ax7101
+  features:
+    fabric_gptp: true
+    i2s_playback: false
+    latency_taps: false
+    render_lpf: false
+    datapath_probes: false
+  constraints:
+    sys_clk_hz: 100000000
+    milan_clk_hz: 50000000
+    l2_bytes: 0
+    phy: gmii-1g
+    gtx_tx_invert: true
+    floorplan: true
+    flashboot: baremetal
+    uart_baudrate: 115200
+    num_queues: 5
+    eth_port: e1
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01"
+  class_queue: 4
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived
+    interval_frames: 1
+
+platform:
+  mac_address: "02:00:00:00:00:01"
+  pp_mem_phys: 0x7f700000
+
+gptp:
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+
+  ingress_latency_ns: 656
+  egress_latency_ns: 219
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]
+  media_clock_sources: [internal, crf, input_stream]
+  default_source: internal
+  crf_sink: true
+  crf_output:
+    enabled: true
+    format: "0x041060010000BB80"
+  audio_pll_hz: 24576000
+
+audio_interface:
+  kind: tdm32
+  word_length_bits: 24
+  physical_channels:
+    capture: 0
+    render: 0
+  cluster_mapping:
+    policy: role-pools
+    pools:
+      pilot: true
+      loopback: 8
+    fabric:
+      loopback_lane: false
+
+model_lint_waivers:
+  - rule: L1
+    check: port-cluster-minimum
+    configuration: 0
+    type: STREAM_PORT_INPUT
+    first: 0
+    last: 31
+    reason: "kebag-logic/milan-fpga#584: the D8 32x32 input role pools carry no AUDIO_CLUSTER"
+
+streams:
+  listeners:
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 1", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 2", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 3", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 4", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 5", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 6", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 7", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 8", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 9", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 10", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 11", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 12", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 13", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 14", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 15", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 16", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 17", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 18", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 19", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 20", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 21", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 22", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 23", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 24", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 25", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 26", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 27", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 28", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 29", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 30", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 31", channels: 8, map_mode: dynamic }
+  talkers:
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 3", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 4", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 5", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 6", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 7", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 8", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 9", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 10", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 11", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 12", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 13", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 14", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 15", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 16", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 17", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 18", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 19", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 20", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 21", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 22", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 23", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 24", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 25", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 26", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 27", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 28", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 29", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 30", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 31", channels: 8, map_mode: dynamic, clusters: 2 }
