@@ -1,0 +1,36 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144 in final: python3 <mgmt>/665s6-a745b/scripts/doc_style_added.py 6584b7bf
+head 526f937cde45e3a591fb3b9484ffdcaddbdfa144, lines added since 6584b7bf
+docs/design/MAILBOX_SPLIT.md: not in the gate population; findings on added lines: 14
+    sentence has 16 words; maximum is 10: datapath of the split placement reads the block from 's ports, which carries to its ports.
+    sentence has 13 words; maximum is 10: The selection is static and made at build time by the placement switch, .
+    sentence has 13 words; maximum is 10: It counts each control frame the full FIFO loses in , saturating at 255.
+    sentence has 21 words; maximum is 10: The count is read from the FIFO's own overflow indication, since a FIFO that drops when full never lowers its 
+    sentence has 20 words; maximum is 10: control path end to end, and 's tap alone: every tuple class it accepts or refuses, and its drop count.
+    paragraph has 120 words; maximum is 20: datapath of the split placement reads the block from `KL_mbx`'s `pub_*_o` ports, which `KL_mbx_cdc` carries to
+    paragraph has too many sentences: datapath of the split placement reads the block from `KL_mbx`'s `pub_*_o` ports, which `KL_mbx_cdc` carries to
+    sentence has 26 words; maximum is 10: flop, output and primitive input, the primitives' resets among them, must read only its own clock's domain, an
+    sentence has 19 words; maximum is 10: Its one allowance is the settings capture: takes 's held bus only through the multiplexer 's destination pulse
+    sentence has 17 words; maximum is 10: That holds the bus until the acknowledgement is its own behaviour, which the split leg's checks hold.
+    sentence has 16 words; maximum is 10: S11 (#665), after #810, gives the ruling of comment 6554243203); until then the split ties to
+    paragraph has 92 words; maximum is 20: flop, output and primitive input, the primitives' resets among them, must read only its own clock's domain, an
+    paragraph has too many sentences: flop, output and primitive input, the primitives' resets among them, must read only its own clock's domain, an
+    sentence has 12 words; maximum is 10: Its split elaboration must then pass the port census without the REBOOT
+docs/design/MARK_II_AREA_PLAN.md: not in the gate population; findings on added lines: 4
+    sentence has 15 words; maximum is 10: At , [](../../hdl/milan/milandatapath.sv) builds neither nor , and joins it to the mailbox (#665).
+    sentence has 11 words; maximum is 10: The default build is still all-fabric and keeps until the flip.
+    paragraph has 36 words; maximum is 20: The [SoC wiring](../../sw/litex/milan_soc.py) builds the split datapath when `--ctrl-mailbox` is given. At `CT
+    paragraph has too many sentences: The [SoC wiring](../../sw/litex/milan_soc.py) builds the split datapath when `--ctrl-mailbox` is given. At `CT
+docs/litex/CLOCK_DOMAINS.md: judged by the gate; findings on added lines: 0
+sw/firmware/ctrl/README.md: not in the gate population; findings on added lines: 0
+tb/verilator/milan_dp/README.md: not in the gate population; findings on added lines: 11
+    sentence has 23 words; maximum is 10: The split placement's control path (objsplit, #665) -- KLmbx through KLmbxcdc to the CTRLSPLITP = 1 datapath, 
+    sentence has 17 words; maximum is 10: a second , , from the datapath's own source, on the datapath clock and driven by the bench alone.
+    sentence has 22 words; maximum is 10: It plants twenty-two defects into copies of the datapath's split branch, , its window and check it names, afte
+    sentence has 15 words; maximum is 10: Nine of them hold the Talker declaration's encoding, the tap's tuples and its drop count.
+    sentence has 31 words; maximum is 10: Every flop's inputs, every output and every primitive's source inputs and resets must read only their own cloc
+    sentence has 28 words; maximum is 10: The one allowance is the settings capture: the flop may take the data bits of the bus holds, and only through 
+    sentence has 59 words; maximum is 10: Twelve plants must each be refused by their own words: a raw publication, LINK level, settings read and window
+    sentence has 15 words; maximum is 10: That holds the bus until the acknowledgement is its own behaviour, held by the checks.
+    sentence has 14 words; maximum is 10: It needs the pinned sv2v and Yosys, so it is not a default case.
+    paragraph has 189 words; maximum is 20: `make split-mutants` runs `split_mutants.py`. It plants twenty-two defects into copies of the datapath's split
+    paragraph has too many sentences: `make split-mutants` runs `split_mutants.py`. It plants twenty-two defects into copies of the datapath's split

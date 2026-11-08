@@ -1,0 +1,12 @@
+=== run_job.py rtl.yml yosys-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=3 --matrix total=4
+yosys-shards-shard3-total4__ci_step_1	rc=0	Set CPU-derived job budgets
+yosys-shards-shard3-total4__ci_step_2	rc=0	Fetch RTL dependencies
+yosys-shards-shard3-total4__ci_step_3	rc=0	Record the tree this worker validates
+yosys-shards-shard3-total4__ci_step_5	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+yosys-shards-shard3-total4__ci_packages_5	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+yosys-shards-shard3-total4__ci_step_8	rc=0	Install the pinned Yosys and prove the version
+yosys-shards-shard3-total4__ci_step_10	rc=0	Install the pinned sv2v release
+yosys-shards-shard3-total4__ci_step_12	rc=0	Run this weighted portability shard
+yosys-shards-shard3-total4__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+yosys-shards-shard3-total4 done, failed 0
+batch done, 0 job(s) with a failed step

@@ -1,0 +1,6 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144 workflow rtl-fast.yml job publication-census step ci_step_9: Install the pinned Yosys and prove the version
+# INSTEAD of the step as written (sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs):
+# yosys -V
+yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]

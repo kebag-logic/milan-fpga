@@ -1,0 +1,12 @@
+=== run_job.py rtl-fast.yml publication-census 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+publication-census__ci_step_1	rc=0	Set CPU-derived job budgets
+publication-census__ci_step_2	rc=0	Set memory-derived census workers
+publication-census__ci_step_4	rc=0	Fetch RTL dependencies
+publication-census__ci_packages_3	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+publication-census__ci_step_8	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+publication-census__ci_step_9	rc=0	Install the pinned Yosys and prove the version
+publication-census__ci_step_11	rc=1	Install the pinned sv2v release
+publication-census__ci_step_12	rc=0	Run the publication census in every shape the builder builds
+publication-census__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+publication-census done, failed 1
+batch done, 1 job(s) with a failed step

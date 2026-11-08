@@ -1,0 +1,5022 @@
+{
+ "head": "526f937cde45e3a591fb3b9484ffdcaddbdfa144",
+ "rows": [
+  {
+   "workflow": "docs.yml",
+   "job": "wire-accountability",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`wire-accountability__ci_step_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "wire-accountability",
+   "step": "ci_step_3",
+   "name": "Fetch the engine authority the builder derives from",
+   "result": "rc 0",
+   "detail": "`wire-accountability__ci_step_3.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "wire-accountability",
+   "step": "ci_step_4",
+   "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+   "result": "rc 0",
+   "detail": "`wire-accountability__ci_step_4.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "wire-accountability",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check-no-git",
+   "step": "ci_step_1",
+   "name": "Retain checkout identity before removing metadata",
+   "result": "rc 0",
+   "detail": "`docs-check-no-git__ci_step_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check-no-git",
+   "step": "ci_step_2",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`docs-check-no-git__ci_step_2.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check-no-git",
+   "step": "ci_step_3",
+   "name": "Strip git metadata, then run the docs gate",
+   "result": "rc 0",
+   "detail": "`docs-check-no-git__ci_step_3.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check-no-git",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_1",
+   "name": "Build the validated HDL reference",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_5",
+   "name": "Install the python gate dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_5.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_7",
+   "name": "Install the pinned Markdown renderer",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_7.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_packages_6",
+   "name": "Resolve exact package downloads 6",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_10",
+   "name": "Install diagram gate dependencies",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for librsvg2-bin, whose rsvg-convert is installed here; the step's pip half runs in the job's venv; `docs-gates-0__ci_step_10.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_7",
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_7.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_8",
+   "name": "Added-line em-dash gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_8.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_9",
+   "name": "Concise audience documentation gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_9.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_10",
+   "name": "Audience diagram no-drift gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_10.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_11",
+   "name": "Product solution source-fact gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_11.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_12",
+   "name": "Verified submodule documentation gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_12.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_13",
+   "name": "HDL timing diagram no-drift gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_13.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_14",
+   "name": "Published diagram PNG gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_14.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_15",
+   "name": "Milan feature-status consistency gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_15.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_16",
+   "name": "Traceability matrix no-drift gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_16.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_21",
+   "name": "Fetch the builder source dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_21.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_18",
+   "name": "Imported gPTP documentation gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_18.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_19",
+   "name": "Code-quality measurement self-tests",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_19.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_25",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `docs-gates-0__ci_step_25.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_21",
+   "name": "Bare-metal scope gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_21.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_28",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_28.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_24",
+   "name": "Compiler-absent firmware controls",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_24.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_26",
+   "name": "NVM record-space gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_26.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_27",
+   "name": "Capture measurement census and clock gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_27.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_28",
+   "name": "Saved-state writer gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_28.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_29",
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_29.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_30",
+   "name": "RTL source-list drift gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_30.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_31",
+   "name": "Boundary-unit naming ratchet",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_31.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_32",
+   "name": "Port contract gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_32.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_33",
+   "name": "Fail-fast ratchet",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_33.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_34",
+   "name": "TODO ownership gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_34.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_35",
+   "name": "Test-evidence ratchet",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_35.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_36",
+   "name": "Mechanical hygiene ratchet",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_36.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_37",
+   "name": "SystemVerilog idiom gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_37.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_38",
+   "name": "C and C++ idiom gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_38.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_39",
+   "name": "Python idiom gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_39.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_40",
+   "name": "Shell idiom gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_40.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_43",
+   "name": "Doc cited-path gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_43.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_44",
+   "name": "Archive integrity gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_44.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_45",
+   "name": "Per-page contents gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_45.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_46",
+   "name": "AEM store generator self-test",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_46.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_47",
+   "name": "Sweep/build shape gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_47.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_48",
+   "name": "Deploy shape gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_48.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_49",
+   "name": "Entity shape gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_49.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_52",
+   "name": "Fetch inventory dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__ci_step_52.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "gate_50",
+   "name": "CI scheduling and evidence controls",
+   "result": "rc 0",
+   "detail": "`docs-gates-0__gate_50.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_step_54",
+   "name": "Record executed gate outcomes",
+   "result": "NOT RUN",
+   "detail": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-0",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__ci_step_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_3",
+   "name": "Install the python gate dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__ci_step_3.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_5",
+   "name": "Install the pinned Markdown renderer",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__ci_step_5.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_8",
+   "name": "Install diagram gate dependencies",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for librsvg2-bin, whose rsvg-convert is installed here; the step's pip half runs in the job's venv; `docs-gates-1__ci_step_8.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_9",
+   "name": "Fetch the builder source dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__ci_step_9.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_11",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `docs-gates-1__ci_step_11.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_13",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__ci_step_13.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "gate_25_0",
+   "name": "End-station builder gates, leg 0 of 2",
+   "result": "rc 0",
+   "detail": "`docs-gates-1__gate_25_0.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_step_15",
+   "name": "Record executed gate outcomes",
+   "result": "NOT RUN",
+   "detail": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-1",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__ci_step_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_3",
+   "name": "Install the python gate dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__ci_step_3.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_5",
+   "name": "Install the pinned Markdown renderer",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__ci_step_5.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_8",
+   "name": "Install diagram gate dependencies",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for librsvg2-bin, whose rsvg-convert is installed here; the step's pip half runs in the job's venv; `docs-gates-2__ci_step_8.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_9",
+   "name": "Fetch the builder source dependencies",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__ci_step_9.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_11",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `docs-gates-2__ci_step_11.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_13",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__ci_step_13.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "gate_25_1",
+   "name": "End-station builder gates, leg 1 of 2",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__gate_25_1.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "gate_41",
+   "name": "CI event and SHA contract gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__gate_41.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "gate_42",
+   "name": "Local act runner contract gate",
+   "result": "rc 0",
+   "detail": "`docs-gates-2__gate_42.log`"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_step_17",
+   "name": "Record executed gate outcomes",
+   "result": "NOT RUN",
+   "detail": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-gates-2",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the three legs' uploaded receipts through the hosted needs context; the legs' gates ran here, each job on its own clone"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check",
+   "step": "ci_step_4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the three legs' uploaded receipts through the hosted needs context; the legs' gates ran here, each job on its own clone"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check",
+   "step": "ci_step_6",
+   "name": "Require every gate exactly once",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the three legs' uploaded receipts through the hosted needs context; the legs' gates ran here, each job on its own clone"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-manifest",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-manifest",
+   "step": "step2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-manifest",
+   "step": "step4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-manifest",
+   "step": "ci_collect",
+   "name": "Collect actual runtime evidence",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_observe",
+   "name": "Observe the first failed job",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_3",
+   "name": "Cancel this run and sibling workflows",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-cancel-tail",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "ci-cancel-tail",
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-0__ci_step_1.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "scope",
+   "name": "Decide whether this head needs an elaboration",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-0__scope.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_4",
+   "name": "Fetch the source dependencies the elaboration reads",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-0__ci_step_4.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_6",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `elaborate-gates-0__ci_step_6.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_8",
+   "name": "Put a job-private Python environment on PATH",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_10",
+   "name": "Install LiteX at the pinned revisions",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_13",
+   "name": "Install sbt",
+   "result": "NOT RUN",
+   "detail": "sudo tar of sbt 1.10.7 into /opt; the gate environment's sbt (/usr/bin/sbt) and its caches stand for it"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_14",
+   "name": "Place the VexiiRiscv source at the revision LiteX pins",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_15",
+   "name": "Apply the toolchain patch series",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_17",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-0__ci_step_17.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "gate_15_0",
+   "name": "Elaboration gates, leg 0 of 2",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-0__gate_15_0.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_19",
+   "name": "Keep the generated CPU netlist arguments for the next run",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_step_20",
+   "name": "Record executed gate outcomes",
+   "result": "NOT RUN",
+   "detail": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-0",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__ci_step_1.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "scope",
+   "name": "Decide whether this head needs an elaboration",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__scope.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_4",
+   "name": "Fetch the source dependencies the elaboration reads",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__ci_step_4.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_6",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `elaborate-gates-1__ci_step_6.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_8",
+   "name": "Put a job-private Python environment on PATH",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_10",
+   "name": "Install LiteX at the pinned revisions",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_13",
+   "name": "Install sbt",
+   "result": "NOT RUN",
+   "detail": "sudo tar of sbt 1.10.7 into /opt; the gate environment's sbt (/usr/bin/sbt) and its caches stand for it"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_14",
+   "name": "Place the VexiiRiscv source at the revision LiteX pins",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_15",
+   "name": "Apply the toolchain patch series",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_17",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__ci_step_17.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "gate_15_1",
+   "name": "Elaboration gates, leg 1 of 2",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__gate_15_1.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_packages_17",
+   "name": "Resolve exact package downloads 17",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_22",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_23",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__ci_step_23.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "gate_19",
+   "name": "Standalone LiteX simulation aggregate",
+   "result": "rc 0",
+   "detail": "`elaborate-gates-1__gate_19.log`"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_25",
+   "name": "Keep the generated CPU netlist arguments for the next run",
+   "result": "NOT RUN",
+   "detail": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_step_26",
+   "name": "Record executed gate outcomes",
+   "result": "NOT RUN",
+   "detail": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-1",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the two legs' uploaded receipts through the hosted needs context; the legs' gates ran here"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate",
+   "step": "ci_step_4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the two legs' uploaded receipts through the hosted needs context; the legs' gates ran here"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate",
+   "step": "ci_step_6",
+   "name": "Require every gate exactly once",
+   "result": "NOT RUN",
+   "detail": "the aggregate: it verifies the two legs' uploaded receipts through the hosted needs context; the legs' gates ran here"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-manifest",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-manifest",
+   "step": "step2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-manifest",
+   "step": "step4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-manifest",
+   "step": "ci_collect",
+   "name": "Collect actual runtime evidence",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_observe",
+   "name": "Observe the first failed job",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_3",
+   "name": "Cancel this run and sibling workflows",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-cancel-tail",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "ci-cancel-tail",
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "changes",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`changes__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "changes",
+   "step": "scope",
+   "name": "Classify the change conservatively",
+   "result": "rc 0",
+   "detail": "`changes__scope.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "changes",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-lint__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-lint__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_packages_3",
+   "name": "Resolve exact package downloads 3",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_step_6",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_step_7",
+   "name": "Run the ratcheted whole-tree lint gate",
+   "result": "rc 0",
+   "detail": "`verilator-lint__ci_step_7.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_step_8",
+   "name": "Prove protocol-processor source lists are derived",
+   "result": "rc 0",
+   "detail": "`verilator-lint__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "verilator-lint",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "bdd-conformance",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`bdd-conformance__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "bdd-conformance",
+   "step": "ci_step_3",
+   "name": "Fetch the processor model inputs",
+   "result": "rc 0",
+   "detail": "`bdd-conformance__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "bdd-conformance",
+   "step": "ci_step_4",
+   "name": "Install behave",
+   "result": "rc 0",
+   "detail": "`bdd-conformance__ci_step_4.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "bdd-conformance",
+   "step": "ci_step_5",
+   "name": "Run the specification-facing suite",
+   "result": "rc 0",
+   "detail": "`bdd-conformance__ci_step_5.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "bdd-conformance",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-tool",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-tool__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-tool",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-tool",
+   "step": "ci_step_5",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-tool",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_4",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `yosys-elaboration__ci_step_4.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_6",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `yosys-elaboration__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_7",
+   "name": "Elaborate the integration-heavy tops",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_7.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_8",
+   "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_9",
+   "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_10",
+   "name": "Prove both synthesis flows refuse active elaboration guards",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_step_11",
+   "name": "Prove the result cache refuses a planted entry",
+   "result": "rc 0",
+   "detail": "`yosys-elaboration__ci_step_11.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "yosys-elaboration",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`publication-census__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_2",
+   "name": "Set memory-derived census workers",
+   "result": "rc 0",
+   "detail": "`publication-census__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_4",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`publication-census__ci_step_4.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_packages_3",
+   "name": "Resolve exact package downloads 3",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_8",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_9",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `publication-census__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_11",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `publication-census__ci_step_11.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_step_12",
+   "name": "Run the publication census in every shape the builder builds",
+   "result": "rc 0",
+   "detail": "`publication-census__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "publication-census",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-unit__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_7",
+   "name": "Prove the tally reads a failing and a crashing test as failures",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_7.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_9",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_10",
+   "name": "Run the control-plane firmware suites and RV32 builds",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_11",
+   "name": "Run the saved-state store suites and its RV32 build",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_11.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_step_12",
+   "name": "Hold the firmware coverage ratchet",
+   "result": "rc 0",
+   "detail": "`firmware-unit__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-unit",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-control-mutants__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-control-mutants__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-control-mutants__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-control-mutants__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_step_9",
+   "name": "Run the control mutation campaign",
+   "result": "rc 0",
+   "detail": "`firmware-control-mutants__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-control-mutants",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-aecp-mutants__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-aecp-mutants__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-aecp-mutants__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-aecp-mutants__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_step_9",
+   "name": "Run the AECP mutation campaign",
+   "result": "rc 0",
+   "detail": "`firmware-aecp-mutants__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-aecp-mutants",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-srp-mutants__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-srp-mutants__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-srp-mutants__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-srp-mutants__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_step_9",
+   "name": "Run both SRP mutation campaigns and pin controls",
+   "result": "rc 0",
+   "detail": "`firmware-srp-mutants__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-srp-mutants",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-boundary__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-boundary__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-boundary__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-boundary__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_step_9",
+   "name": "Hold the TSN stack boundary over the firmware builders' compiles",
+   "result": "rc 0",
+   "detail": "`firmware-boundary__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-boundary",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`firmware-verilator__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`firmware-verilator__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "result": "rc 0 (instead)",
+   "detail": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written; `firmware-verilator__ci_step_6.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_10",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_11",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`firmware-verilator__ci_step_11.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_13",
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "rc 0",
+   "detail": "`firmware-verilator__ci_step_13.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_step_14",
+   "name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+   "result": "rc 0",
+   "detail": "`firmware-verilator__ci_step_14.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "firmware-verilator",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "rtl-fast",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`rtl-fast__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "rtl-fast",
+   "step": "ci_step_2",
+   "name": "Require every applicable fast gate to pass",
+   "result": "rc 0",
+   "detail": "`rtl-fast__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "rtl-fast",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-manifest",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-manifest",
+   "step": "step2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-manifest",
+   "step": "step4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-manifest",
+   "step": "ci_collect",
+   "name": "Collect actual runtime evidence",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_observe",
+   "name": "Observe the first failed job",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_3",
+   "name": "Cancel this run and sibling workflows",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-cancel-tail",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl-fast.yml",
+   "job": "ci-cancel-tail",
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`full-ci-gate__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "target",
+   "name": "Print the event and pin the one SHA this run validates",
+   "result": "rc 0",
+   "detail": "`full-ci-gate__target.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "ci_step_4",
+   "name": "Assert the repository default branch is dev",
+   "result": "rc 0 (instead)",
+   "detail": "reads the default branch with the hosted run's github.token; read here with the host's own read-only GitHub login; `full-ci-gate__ci_step_4.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "ci_step_5",
+   "name": "Hold every workflow file to its contract",
+   "result": "rc 0",
+   "detail": "`full-ci-gate__ci_step_5.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "gate",
+   "name": "Decide whether this exact head needs the exhaustive gates",
+   "result": "rc 0",
+   "detail": "`full-ci-gate__gate.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard0-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard0-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard0-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard0-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard0-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard0-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard0-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard0-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard1-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard1-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard1-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard1-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard1-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard1-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard1-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard1-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard2-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard2-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard2-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard2-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard2-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard2-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard2-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard2-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard3-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard3-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard3-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard3-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard3-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard3-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard3-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard3-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard4-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard4-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard4-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard4-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard4-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard4-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard4-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard4-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard5-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard5-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard5-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard5-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard5-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard5-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard5-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard5-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard6-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard6-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard6-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard6-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard6-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard6-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard6-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard6-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard7-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard7-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard7-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard7-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard7-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard7-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard7-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard7-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard8-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard8-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard8-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard8-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard8-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard8-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard8-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard8-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard9-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard9-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard9-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard9-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard9-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard9-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard9-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard9-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard10-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard10-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard10-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard10-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard10-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard10-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard10-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard10-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard11-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard11-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard11-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard11-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard11-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard11-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard11-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard11-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard12-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard12-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard12-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard12-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard12-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard12-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard12-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard12-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard13-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard13-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard13-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard13-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard13-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard13-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard13-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard13-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard14-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard14-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard14-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard14-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard14-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard14-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard14-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard14-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard15-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard15-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard15-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard15-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard15-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard15-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard15-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard15-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard16-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard16-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard16-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard16-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard16-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard16-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard16-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard16-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard17-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard17-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard17-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard17-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard17-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard17-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard17-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard17-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard18-total19__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard18-total19__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard18-total19__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard18-total19__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "result": "rc 0",
+   "detail": "`verilator-shards-shard18-total19__ci_step_9.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `verilator-shards-shard18-total19__ci_step_16.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `verilator-shards-shard18-total19__ci_step_18.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "result": "NOT RUN",
+   "detail": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "result": "NOT RUN",
+   "detail": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards-shard18-total19",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_4",
+   "name": "Record the tree this worker validates",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_8",
+   "name": "Build Verilator from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_9",
+   "name": "Put Verilator on PATH and prove the version",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_10",
+   "name": "Prove physical suite selection",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_step_11",
+   "name": "Run the physical gPTP suite with its own deadline",
+   "result": "NOT RUN",
+   "detail": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_5",
+   "name": "Require every shard to have validated this run's SHA",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_6",
+   "name": "Prove exhaustive ownership and tally every log",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_7",
+   "name": "Require every Verilator worker to pass",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_step_8",
+   "name": "Require every case union to succeed",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard0-total4__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard0-total4__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard0-total4__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_5",
+   "name": "Restore the pinned Yosys build",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_packages_5",
+   "name": "Resolve exact package downloads 5",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_8",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `yosys-shards-shard0-total4__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_10",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `yosys-shards-shard0-total4__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_step_12",
+   "name": "Run this weighted portability shard",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard0-total4__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard0-total4",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard1-total4__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard1-total4__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard1-total4__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_5",
+   "name": "Restore the pinned Yosys build",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_packages_5",
+   "name": "Resolve exact package downloads 5",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_8",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `yosys-shards-shard1-total4__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_10",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `yosys-shards-shard1-total4__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_step_12",
+   "name": "Run this weighted portability shard",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard1-total4__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard1-total4",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard2-total4__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard2-total4__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard2-total4__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_5",
+   "name": "Restore the pinned Yosys build",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_packages_5",
+   "name": "Resolve exact package downloads 5",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_8",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `yosys-shards-shard2-total4__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_10",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `yosys-shards-shard2-total4__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_step_12",
+   "name": "Run this weighted portability shard",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard2-total4__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard2-total4",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard3-total4__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard3-total4__ci_step_2.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard3-total4__ci_step_3.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_5",
+   "name": "Restore the pinned Yosys build",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_packages_5",
+   "name": "Resolve exact package downloads 5",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_8",
+   "name": "Install the pinned Yosys and prove the version",
+   "result": "rc 0 (instead)",
+   "detail": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs; `yosys-shards-shard3-total4__ci_step_8.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_10",
+   "name": "Install the pinned sv2v release",
+   "result": "rc 0 (instead)",
+   "detail": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH; `yosys-shards-shard3-total4__ci_step_10.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_step_12",
+   "name": "Run this weighted portability shard",
+   "result": "rc 0",
+   "detail": "`yosys-shards-shard3-total4__ci_step_12.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-shards-shard3-total4",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-portability__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "step": "ci_step_3",
+   "name": "Require every shard to have validated this run's SHA",
+   "result": "NOT RUN",
+   "detail": "reads the hosted needs context and the shards' uploaded TARGET_SHA files; each local shard ran on a clone at the head, its first log line naming it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "step": "ci_step_4",
+   "name": "Reconcile the live inventory and structural gates",
+   "result": "rc 0 (instead)",
+   "detail": "reads the four shards' results from download-artifact; here yosys_tally.py reads the four local shards' results directories, passed as its roots (YOSYS_RESULT_ROOTS); `yosys-portability__ci_step_4.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "step": "ci_step_5",
+   "name": "Require every Yosys worker to pass",
+   "result": "NOT RUN",
+   "detail": "reads the hosted needs context and the shards' uploaded TARGET_SHA files; each local shard ran on a clone at the head, its first log line naming it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-tool",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "rc 0",
+   "detail": "`yosys-tool__ci_step_1.log`"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-tool",
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "result": "NOT RUN",
+   "detail": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-tool",
+   "step": "ci_step_5",
+   "name": "Build Yosys from source on cache miss",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-tool",
+   "step": "ci_step_6",
+   "name": "Package the pinned Yosys build",
+   "result": "NOT RUN",
+   "detail": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-tool",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_mclk",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_mclk",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_mclk",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_mclk",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-capture_coherence",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-capture_coherence",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-capture_coherence",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-capture_coherence",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-maap",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-maap",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-maap",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-maap",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_render",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_render",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_render",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-milan_dp_render",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-pp_shadow",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-pp_shadow",
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-pp_shadow",
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "result": "NOT RUN",
+   "detail": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "union-pp_shadow",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-manifest",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-manifest",
+   "step": "step2",
+   "name": "Fetch inventory dependencies",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-manifest",
+   "step": "step4",
+   "name": "Install the pinned evidence reader",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-manifest",
+   "step": "ci_collect",
+   "name": "Collect actual runtime evidence",
+   "result": "NOT RUN",
+   "detail": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_observe",
+   "name": "Observe the first failed job",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_step_3",
+   "name": "Cancel this run and sibling workflows",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-fail-fast",
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "result": "NOT RUN",
+   "detail": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-cancel-tail",
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "ci-cancel-tail",
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "result": "NOT RUN",
+   "detail": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  }
+ ],
+ "summary": "311 steps ran (66 of them as the stated command instead), 316 not run with a reason, 0 bad"
+}

@@ -1,0 +1,19 @@
+=== run_job.py rtl-fast.yml firmware-control-mutants 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+firmware-control-mutants__ci_step_1	rc=0	Set CPU-derived job budgets
+firmware-control-mutants__ci_step_3	rc=0	Fetch RTL dependencies
+firmware-control-mutants__ci_packages_2	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+firmware-control-mutants__ci_step_6	rc=0	Install GoogleTest and GoogleMock and print the versions
+firmware-control-mutants__ci_step_8	rc=0	Install and verify the pinned RV32 SDK
+firmware-control-mutants__ci_step_9	rc=0	Run the control mutation campaign
+firmware-control-mutants__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+firmware-control-mutants done, failed 0
+=== run_job.py rtl-fast.yml firmware-boundary 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+firmware-boundary__ci_step_1	rc=0	Set CPU-derived job budgets
+firmware-boundary__ci_step_3	rc=0	Fetch RTL dependencies
+firmware-boundary__ci_packages_2	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+firmware-boundary__ci_step_6	rc=0	Install GoogleTest and GoogleMock and print the versions
+firmware-boundary__ci_step_8	rc=0	Install and verify the pinned RV32 SDK
+firmware-boundary__ci_step_9	rc=2	Hold the TSN stack boundary over the firmware builders' compiles
+firmware-boundary__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+firmware-boundary done, failed 1
+batch done, 1 job(s) with a failed step

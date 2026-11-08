@@ -1,0 +1,332 @@
+=== run_job.py rtl.yml full-ci-gate 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+full-ci-gate__ci_step_1	rc=0	Set CPU-derived job budgets
+full-ci-gate__target	rc=0	Print the event and pin the one SHA this run validates
+full-ci-gate__ci_step_4	rc=0	Assert the repository default branch is dev
+full-ci-gate__ci_step_5	rc=0	Hold every workflow file to its contract
+full-ci-gate__gate	rc=0	Decide whether this exact head needs the exhaustive gates
+full-ci-gate__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+full-ci-gate done, failed 0
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=0 --matrix total=19
+verilator-shards-shard0-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard0-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard0-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard0-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard0-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard0-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard0-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard0-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard0-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard0-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard0-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard0-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard0-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard0-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard0-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard0-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=1 --matrix total=19
+verilator-shards-shard1-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard1-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard1-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard1-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard1-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard1-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard1-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard1-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard1-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard1-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard1-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard1-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard1-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard1-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard1-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard1-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=2 --matrix total=19
+verilator-shards-shard2-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard2-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard2-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard2-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard2-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard2-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard2-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard2-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard2-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard2-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard2-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard2-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard2-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard2-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard2-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard2-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=3 --matrix total=19
+verilator-shards-shard3-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard3-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard3-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard3-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard3-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard3-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard3-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard3-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard3-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard3-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard3-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard3-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard3-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard3-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard3-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard3-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=4 --matrix total=19
+verilator-shards-shard4-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard4-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard4-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard4-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard4-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard4-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard4-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard4-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard4-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard4-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard4-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard4-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard4-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard4-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard4-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard4-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=5 --matrix total=19
+verilator-shards-shard5-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard5-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard5-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard5-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard5-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard5-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard5-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard5-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard5-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard5-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard5-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard5-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard5-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard5-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard5-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard5-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=6 --matrix total=19
+verilator-shards-shard6-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard6-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard6-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard6-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard6-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard6-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard6-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard6-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard6-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard6-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard6-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard6-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard6-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard6-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard6-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard6-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=7 --matrix total=19
+verilator-shards-shard7-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard7-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard7-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard7-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard7-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard7-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard7-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard7-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard7-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard7-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard7-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard7-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard7-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard7-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard7-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard7-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=8 --matrix total=19
+verilator-shards-shard8-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard8-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard8-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard8-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard8-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard8-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard8-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard8-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard8-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard8-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard8-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard8-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard8-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard8-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard8-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard8-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=9 --matrix total=19
+verilator-shards-shard9-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard9-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard9-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard9-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard9-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard9-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard9-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard9-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard9-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard9-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard9-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard9-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard9-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard9-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard9-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard9-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=10 --matrix total=19
+verilator-shards-shard10-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard10-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard10-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard10-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard10-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard10-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard10-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard10-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard10-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard10-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard10-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard10-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard10-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard10-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard10-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard10-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=11 --matrix total=19
+verilator-shards-shard11-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard11-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard11-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard11-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard11-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard11-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard11-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard11-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard11-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard11-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard11-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard11-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard11-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard11-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard11-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard11-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=12 --matrix total=19
+verilator-shards-shard12-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard12-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard12-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard12-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard12-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard12-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard12-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard12-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard12-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard12-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard12-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard12-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard12-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard12-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard12-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard12-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=13 --matrix total=19
+verilator-shards-shard13-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard13-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard13-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard13-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard13-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard13-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard13-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard13-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard13-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard13-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard13-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard13-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard13-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard13-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard13-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard13-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=14 --matrix total=19
+verilator-shards-shard14-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard14-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard14-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard14-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard14-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard14-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard14-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard14-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard14-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard14-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard14-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard14-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard14-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard14-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard14-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard14-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=15 --matrix total=19
+verilator-shards-shard15-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard15-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard15-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard15-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard15-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard15-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard15-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard15-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard15-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard15-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard15-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard15-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard15-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard15-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard15-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard15-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=16 --matrix total=19
+verilator-shards-shard16-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard16-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard16-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard16-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard16-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard16-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard16-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard16-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard16-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard16-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard16-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard16-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard16-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard16-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard16-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard16-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=17 --matrix total=19
+verilator-shards-shard17-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard17-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard17-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard17-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard17-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard17-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard17-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard17-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard17-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard17-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard17-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard17-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard17-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard17-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard17-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard17-total19 done, failed 1
+=== run_job.py rtl.yml verilator-shards 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --matrix shard=18 --matrix total=19
+verilator-shards-shard18-total19__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-shards-shard18-total19__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-shards-shard18-total19__ci_step_3	rc=0	Record the tree this worker validates
+verilator-shards-shard18-total19__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard18-total19__ci_step_7	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-shards-shard18-total19__ci_step_8	rc=0	Put Verilator on PATH and prove the version
+verilator-shards-shard18-total19__ci_step_9	rc=2	Prove specialized suite ownership
+verilator-shards-shard18-total19__ci_packages_8	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard18-total19__ci_step_13	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+verilator-shards-shard18-total19__ci_packages_9	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-shards-shard18-total19__ci_step_16	rc=0	Install the pinned Yosys and prove the version
+verilator-shards-shard18-total19__ci_step_18	rc=0	Install sv2v for the netlist-level suite owner
+verilator-shards-shard18-total19__ci_step_20	NOT RUN	clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep
+verilator-shards-shard18-total19__ci_step_21	NOT RUN	the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)
+verilator-shards-shard18-total19__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-shards-shard18-total19 done, failed 1
+batch done, 19 job(s) with a failed step

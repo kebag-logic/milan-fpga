@@ -1,0 +1,13 @@
+=== run_job.py rtl-fast.yml firmware-verilator 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+firmware-verilator__ci_step_1	rc=0	Set CPU-derived job budgets
+firmware-verilator__ci_step_3	rc=0	Fetch RTL dependencies
+firmware-verilator__ci_packages_2	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+firmware-verilator__ci_step_6	rc=0	Install GoogleTest and GoogleMock and print the versions
+firmware-verilator__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+firmware-verilator__ci_step_10	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+firmware-verilator__ci_step_11	rc=0	Put Verilator on PATH and prove the version
+firmware-verilator__ci_step_13	rc=0	Install and verify the pinned RV32 SDK
+firmware-verilator__ci_step_14	rc=0	Hold the TSN stack boundary over the Verilator builders' compiles
+firmware-verilator__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+firmware-verilator done, failed 0
+batch done, 0 job(s) with a failed step

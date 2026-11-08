@@ -1,0 +1,16 @@
+=== run_job.py docs.yml docs-gates-2 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+docs-gates-2__ci_step_1	rc=0	Set CPU-derived job budgets
+docs-gates-2__ci_step_3	rc=0	Install the python gate dependencies
+docs-gates-2__ci_step_5	rc=0	Install the pinned Markdown renderer
+docs-gates-2__ci_packages_4	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+docs-gates-2__ci_step_8	rc=0	Install diagram gate dependencies
+docs-gates-2__ci_step_9	rc=0	Fetch the builder source dependencies
+docs-gates-2__ci_step_11	rc=1	Install the pinned sv2v release
+docs-gates-2__ci_step_13	rc=0	Install and verify the pinned RV32 SDK
+docs-gates-2__gate_25_1	rc=0	End-station builder gates, leg 1 of 2
+docs-gates-2__gate_41	rc=0	CI event and SHA contract gate
+docs-gates-2__gate_42	rc=0	Local act runner contract gate
+docs-gates-2__ci_step_17	NOT RUN	ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context
+docs-gates-2__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+docs-gates-2 done, failed 1
+batch done, 1 job(s) with a failed step

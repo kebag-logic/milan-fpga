@@ -1,0 +1,6 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144 workflow rtl.yml job verilator-shards-shard1-total19 step ci_step_18: Install sv2v for the netlist-level suite owner
+# INSTEAD of the step as written (sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH):
+# sv2v --version
+sv2v --version | grep -Fx 'sv2v v0.0.12'
+sv2v v0.0.12
+sv2v v0.0.12
