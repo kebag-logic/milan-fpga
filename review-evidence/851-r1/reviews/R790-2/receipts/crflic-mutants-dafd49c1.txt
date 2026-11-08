@@ -1,0 +1,29 @@
+make -C tb/verilator/milan_dp crflic-mutants in a disposable copy of dafd49c1, pinned Verilator 5.050; full log sha256 and size:
+8c05e479d9d2b5d0f790af1508d4d58ef7dceca28412cfadf79d024bb3fa6c91
+229574
+rc=0
+Sun Nov  8 02:21:01 PM CET 2026
+--- ONEVEC section of the campaign's clean leg and last 14 lines:
+[ONEVEC] processor #214: every DUT MRPDU carries each attribute value at most once
+  [i]    285 MSRP and 184 MVRP MRPDUs, 631 values; 7 MRPDUs carry two vectors of one AttributeType
+  [PASS] the DUT sent MSRP and MVRP MRPDUs
+  [PASS] every DUT MRPDU walks to its EndMark                               got=0 exp=0
+  [PASS] no DUT MRPDU carries one attribute value in two VectorAttributes (802.1Q-2022 10.7.7, 10.7.5.13 c)) got=0 exp=0
+--------------------------------------------------------------
+simulated 174538.56 ms (17453856 cycles)
+checks: 430   failures: 0
+RESULT: PASS
+python3 crflic_mutants.py
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] the unmutated gateware still passes the obj_tspec8 leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+[PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 1x1 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 8x8 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: the SRP encoder never merges a pending value, every hand-over appends (before processor #214) - breaks "no DUT MRPDU carries one attribute value in two VectorAttributes"
+
+11 checks: 11 PASS, 0 FAIL
