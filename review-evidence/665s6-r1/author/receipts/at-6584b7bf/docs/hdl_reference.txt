@@ -1,0 +1,15 @@
+head 6584b7bfdf19e923153820c60190d87964e8f57b
+$ python3 scripts/gen_hdl_reference.py --selftest   (the pinned parser's virtualenv)
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: <tmp>/positive/index.html
+HDL reference self-test: 44/44 arms passed
+rc=0
+$ python3 scripts/gen_hdl_reference.py --output <scratch>/hdlref
+Module diagrams: 83
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: <scratch>/hdlref/index.html
+rc=0

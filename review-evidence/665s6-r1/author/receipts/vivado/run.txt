@@ -1,0 +1,10 @@
+head 6584b7bfdf19e923153820c60190d87964e8f57b (the split image: control.placement split, the shipping AX7101 1x1 TDM8 argv plus --ctrl-mailbox --ctrl-firmware)
+$ flock $VIVADO_LOCK bash scripts/split_place.sh <clone> <ctrl_app.elf> <work>   (output-directory script; synthesis, opt and placement only, LiteX's own script cut after its placement reports)
+clone 6584b7bfdf19e923153820c60190d87964e8f57b elf 547d4c70a2f56e63 start 2026-11-08T00:22:58Z
+vivado rc=0 end 2026-11-08T00:57:27Z
+vivado_place.log: 920393 bytes, sha256 20aeca211245ccfadc9299ac7da8c0087bd869e6939c21c46c64d13473804cf3
+ERROR lines: 0; CRITICAL WARNING lines: 0
+synth_design completed successfully
+opt_design completed successfully
+place_design completed successfully
+phys_opt_design completed successfully

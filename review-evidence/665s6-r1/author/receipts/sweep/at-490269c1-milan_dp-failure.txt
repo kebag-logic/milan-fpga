@@ -1,0 +1,51 @@
+head 490269c11df2356466301e8e042a3d881fbd52be
+sweep 665s6-a745-490269c1, 4 shards; stopped by the author after milan_dp failed (the head changed)
+
+== suite results when stopped
+-- shard 0
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+FAIL     milan_dp
+-- shard 1
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+-- shard 2
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+-- shard 3
+PASS     aaf_audio_loop
+PASS     avtp_stream
+PASS     cdc
+PASS     chmap_capture
+PASS     crf_rx
+PASS     crf_tx
+
+== shard-0/logs/milan_dp.log: 198479 bytes, sha256 1b4cae0aaead30ec63f4b7c92efff3638d7d12b1de1c5a55b13afd77b8e42a11
+make[2]: *** [Makefile:935: exec-counters-1] Error 1
+make[1]: *** [Makefile:732: run-counters-1] Error 2
+make[2]: *** [Makefile:945: exec-counters-8] Error 1
+make[1]: *** [Makefile:732: run-counters-8] Error 2
+make: *** [Makefile:720: run] Error 2
+
+== the compiler's words, reproduced at the same head: VERILATOR=verilator(5.050) python3 tb/verilator/milan_dp/stream_counters.py --shape 1 (rc=1), its build.log
+<tree>/tb/verilator/milan_dp/stream_counters.hpp:73:27: error: ‘const class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_timer__DOT__now_ms_r’
+<tree>/tb/verilator/milan_dp/stream_counters.hpp:74:29: error: ‘const class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_dirty_r’
+<tree>/tb/verilator/milan_dp/stream_counters.hpp:75:28: error: ‘const class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_sent_r’
+<tree>/tb/verilator/milan_dp/stream_counters.hpp:77:33: error: ‘const class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_notify__DOT__ctr_last_r’
+<tree>/tb/verilator/milan_dp/sim_nxn.cpp:2729:18: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__lstn_txreq_valid_w’
+<tree>/tb/verilator/milan_dp/sim_nxn.cpp:2732:21: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__bound_hold_r’
+<tree>/tb/verilator/milan_dp/sim_nxn.cpp:4590:33: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r’
+<tree>/tb/verilator/milan_dp/sim_nxn.cpp:4591:35: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r’

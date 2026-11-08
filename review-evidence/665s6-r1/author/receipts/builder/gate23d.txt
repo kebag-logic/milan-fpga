@@ -1,0 +1,9 @@
+head c9fac7171cf938223e419b60fb3138e53b2bfa42
+command: python3 sw/builder/test_builder.py --gates test_optional_block_names_reach_the_rtl
+test_optional_block_names_reach_the_rtl:
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+
+SUBSET: 1 of 106 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+rc=0

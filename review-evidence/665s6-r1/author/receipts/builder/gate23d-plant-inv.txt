@@ -1,0 +1,12 @@
+head c9fac7171cf938223e419b60fb3138e53b2bfa42, in a copy of the tree (git archive) with g_maap's guard planted (inv)
+command: python3 sw/builder/test_builder.py --gates test_optional_block_names_reach_the_rtl
+test_optional_block_names_reach_the_rtl:
+Traceback (most recent call last):
+  File "<tree-copy>/sw/builder/test_builder.py", line 29499, in <module>
+    fn()
+    ~~^^
+  File "<tree-copy>/sw/builder/test_builder.py", line 22372, in test_optional_block_names_reach_the_rtl
+    assert where is not None, (
+           ^^^^^^^^^^^^^^^^^
+AssertionError: MAAP_P guards no `generate if`, in milan_datapath.sv or in any module the datapath binds it to
+rc=1

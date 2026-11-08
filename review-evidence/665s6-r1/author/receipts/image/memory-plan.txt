@@ -1,0 +1,8 @@
+firmware: sw/firmware/ctrl at the lane's base (S2b's area, unchanged by this lane), linked for endstation_ax7101_1x1_tdm8, one interface
+the shipping argv the image is exported with (the daily split-firmware.sh stops at its link since S4, so its remaining steps ran by hand: gen_flash_port.py, then the link with --flash-map):
+--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir /tmp/a745/fwclone/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt
+flash map: WROTE <work>/flash-map/generated/csr.h, <work>/flash-map/generated/mem.h, <work>/flash-map/flash_port.json
+ctrl_app.elf: 140628 bytes, sha256 547d4c70a2f56e6313e7da7ed12c66a8f330147dbc66a07ebe23f1a3f6feaa5d
+
+the split SoC export at the head (6584b7bf, scripts/split_place.sh), as milan_soc.py reports the image's memory plan:
+[milan] --ctrl-firmware <work>/plat/ctrl_app.elf: {"rom": {"bytes": 109552, "banks": [65536, 32768, 8192, 4096], "RAMB36": 27, "RAMB18": 0}, "sram": {"bytes": 47168, "banks": [32768, 16384], "RAMB36": 12, "RAMB18": 0}, "tiles": 39.0, "budget_tiles": 56}

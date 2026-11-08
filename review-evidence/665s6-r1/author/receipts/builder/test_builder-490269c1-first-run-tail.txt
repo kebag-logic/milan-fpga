@@ -1,0 +1,14 @@
+head 490269c11df2356466301e8e042a3d881fbd52be
+command: python3 sw/builder/test_builder.py --require-rv32 (the first full run; it stopped at gate 23d, fixed in c9fac717)
+test_optional_block_names_reach_the_rtl:
+Traceback (most recent call last):
+  File "<lane>/sw/builder/test_builder.py", line 29479, in <module>
+    fn()
+    ~~^^
+  File "<lane>/sw/builder/test_builder.py", line 22351, in test_optional_block_names_reach_the_rtl
+    assert where is not None, (
+           ^^^^^^^^^^^^^^^^^
+AssertionError: MAAP_P guards no `generate if`, in milan_datapath.sv or in any module the datapath binds it to
+Command exited with non-zero status 1
+wall=1271.53 maxrss_kb=405716
+rc=1

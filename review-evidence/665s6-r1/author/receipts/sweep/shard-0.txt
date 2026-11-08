@@ -1,0 +1,23 @@
+head 6584b7bfdf19e923153820c60190d87964e8f57b
+$ bash scripts/run_all_suites.sh <logs> --wait --shard 0/4   (pinned Verilator 5.050, sv2v 0.0.12; one clone and unit per shard, MemoryMax 10G, -j4)
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+PASS     milan_dp
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 360969   in-suite failures: 0
+logs: <sweep>/shard-0/logs
+rc=0 (unit result success, status 0)

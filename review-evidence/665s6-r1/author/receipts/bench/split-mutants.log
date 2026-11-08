@@ -1,0 +1,15 @@
+ok   control: the tracked sources pass the split leg
+ok   a class-D consumer on a G tie-off: caught by [PUB] DA_GATE.OPEN reaches the talker's declaration predicate
+ok   the licence on its ACTIVE term alone: caught by [PUB] ...and its admitted term
+ok   a stream_id taken without SID_VALID: caught by [PUB] a stream_id without SID_VALID never reaches the listener
+ok   a publication that never crosses again: caught by [PUB] the stream_id reaches the listener once SID_VALID is set, within 60 mailbox cycles
+ok   a setting taken before its commit: caught by [FACE] a setting not committed does not reach the datapath
+ok   a commit never acknowledged: caught by [FACE] the commit is acknowledged within MBX_FACE_ACK_CYCLES
+ok   a setting on the wrong datapath port: caught by [FACE] F_CLOCK.SOURCE_INDEX reaches the media clock's selector
+ok   an answer under another tag: caught by [WIN] CTR closes DONE, not TIMEOUT
+ok   an answer taken while the datapath waits: caught by [WIN] ...and that word is not the empty one
+ok   a tap that hands out the media subtypes: caught by [RX] ...and the tap hands out no frame
+ok   a serializer that drops a frame's last byte: caught by [RX] its record's length is the frame's
+ok   a packer that reverses the lanes: caught by [TX] ...byte for byte
+ok   the LINK level held low: caught by [LINK] the datapath's effective link reaches LINK.UP
+split mutants: 13 of 13 caught by the check each names
