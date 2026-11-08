@@ -1413,11 +1413,11 @@ boundary both halves declare the Domain. The Talker attributes are the
   in AN, and Table 10-3's tx! sends New again from AN. JoinMt follows only if
   the application withdraws and re-declares the Domain unseen, or the
   participant starts again, and nothing in the stimulus does either. The split
-  sends New twice (VN, then AN, then AA), as the table does. The processor documents its
-  Domain participant that way: one New at startup and at LINK_UP, then the
-  re-joins (section 6.1 of
-  `protocol-processor/docs/architecture/10_srp_engine.md`).
-  The ruling calls such a trace a defect, not a difference.
+  sends New twice (VN, then AN, then AA), as the table does. The processor
+  documents its Domain participant that way: one New at startup and at
+  LINK_UP, then the re-joins (`protocol-processor/hdl/srp/KL_srp_domain.sv`,
+  and section 6.1 of its SRP engine architecture). The ruling calls such a
+  trace a defect, not a difference.
 
 ```sh
 make -C tb/verilator/milan_dp twin
