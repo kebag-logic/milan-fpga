@@ -103,7 +103,7 @@ static bool format(void *ctx, uint16_t type, uint16_t index, uint64_t value)
 }
 
 // The ENTITY descriptor's available_index is "the same as" ADP's (IEEE
-// 1722.1-2021 Table 7.1), and a controller can only compare it with the
+// 1722.1-2021 Table 7-2), and a controller can only compare it with the
 // ADPDU it last received: it is the value the most recently sent
 // ENTITY_AVAILABLE carried (#665 issuecomment-6717765106, item 1). ADP's
 // variable already counts that one (6.2.2.15 increments it after the send),
