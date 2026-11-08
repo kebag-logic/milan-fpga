@@ -1,0 +1,21 @@
+UNPLANTED head: full rc=0 failed=[] ([==========] 125 tests from 4 test suites ran. (9 ms total)) | without-new rc=0 failed=[] ([==========] 115 tests from 4 test suites ran. (3 ms total))
+reviewer-bind-wait-at-full: registered as owed-bind-wait-set-at-full
+reviewer-bind-wait-at-full: full rc=1 failed=['AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe'] ([==========] 125 tests from 4 test suites ran. (3 ms total)) | without-new rc=0 failed=[] ([==========] 115 tests from 4 test suites ran. (5 ms total))
+    registered owed-bind-wait-set-at-full kill AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe needle 'a BIND_RX declined with no slot free does not set bind_waiting': SEEN
+    registered owed-bind-wait-set-at-full kill AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe needle 'is lost and counted, and its timeout runs': SEEN
+reviewer-hold-every-timer: registered as owed-hold-widened-to-every-timer
+reviewer-hold-every-timer: full rc=1 failed=['AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind'] ([==========] 125 tests from 4 test suites ran. (6 ms total)) | without-new rc=0 failed=[] ([==========] 115 tests from 4 test suites ran. (4 ms total))
+    registered owed-hold-widened-to-every-timer kill AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind needle 'the TMR_NO_RESP that ends PRB_W_RESP2 is not held beside a waiting BIND_RX': SEEN
+    registered owed-hold-widened-to-every-timer kill AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind needle 'a TMR_RETRY expiry is not held beside a waiting BIND_RX': SEEN
+    registered owed-hold-widened-to-every-timer kill AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind needle 'a TMR_NO_TK expiry is not held beside a waiting BIND_RX': SEEN
+reviewer-hold-second-no-resp: registered as owed-hold-widened-to-second-no-resp
+reviewer-hold-second-no-resp: full rc=1 failed=['AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind'] ([==========] 125 tests from 4 test suites ran. (8 ms total)) | without-new rc=0 failed=[] ([==========] 115 tests from 4 test suites ran. (5 ms total))
+    registered owed-hold-widened-to-second-no-resp kill AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind needle 'the TMR_NO_RESP that ends PRB_W_RESP2 is not held beside a waiting BIND_RX': SEEN
+    registered owed-hold-widened-to-second-no-resp kill AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind needle 'no expiry that sends no probe is held or counted in probes_held': SEEN
+reviewer-hold-at-seven: registered as owed-hold-at-seven
+reviewer-hold-at-seven: full rc=1 failed=['AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind', 'AcmpOwed.SameTalkerRebindKeepsTheHeldProbe'] ([==========] 125 tests from 4 test suites ran. (6 ms total)) | without-new rc=1 failed=['AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind'] ([==========] 115 tests from 4 test suites ran. (5 ms total))
+    registered owed-hold-at-seven kill AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind needle 'one pass per probe before it': SEEN
+reviewer-scan-skips-last-sink: registered as owed-hold-scan-skips-the-last-sink
+reviewer-scan-skips-last-sink: full rc=1 failed=['AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout', 'AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner', 'AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem', 'AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind', 'AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold', 'AcmpOwed.SameTalkerRebindKeepsTheHeldProbe'] ([==========] 125 tests from 4 test suites ran. (6 ms total)) | without-new rc=1 failed=['AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout', 'AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner', 'AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind'] ([==========] 115 tests from 4 test suites ran. (8 ms total))
+    registered owed-hold-scan-skips-the-last-sink kill AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind needle 'no probe held for the deferred BIND_RX is lost': SEEN
+UNPLANTED head (restored): full rc=0 failed=[] ([==========] 125 tests from 4 test suites ran. (3 ms total)) | without-new rc=0 failed=[] ([==========] 115 tests from 4 test suites ran. (2 ms total))

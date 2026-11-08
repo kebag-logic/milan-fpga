@@ -1,0 +1,26 @@
+[
+ {
+  "name": "owed-bind-wait-only-on-a-second-decline",
+  "path": "src/acmp.c",
+  "old": "\t\t\tif (cmd.msg == ACMP_MSG_BIND_RX_COMMAND && a->owed_count < ACMP_OWED_MAX) {",
+  "new": "\t\t\tif (cmd.msg == ACMP_MSG_BIND_RX_COMMAND && a->owed_count < ACMP_OWED_MAX && a->busy_declined > 1u) {"
+ },
+ {
+  "name": "owed-answer-keeps-the-hold",
+  "path": "src/acmp.c",
+  "old": "\t\ta->probe_mismatch++;\n\t\treturn;\n\t}\n\tsm_stop(s);\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {",
+  "new": "\t\ta->probe_mismatch++;\n\t\treturn;\n\t}\n\tbool kept_hold = s->probe_held;\n\tsm_stop(s);\n\ts->probe_held = kept_hold;\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {"
+ },
+ {
+  "name": "reviewer-seven-owed-bind-holds-nothing",
+  "path": "src/acmp.c",
+  "old": "\tif (a->bind_waiting) {\n\t\treturn true;\n\t}\n\tif (a->owed_count < ACMP_OWED_MAX) {",
+  "new": "\tif (a->bind_waiting && a->owed_count >= ACMP_OWED_MAX) {\n\t\treturn true;\n\t}\n\tif (a->owed_count < ACMP_OWED_MAX) {"
+ },
+ {
+  "name": "reviewer-response-leaves-held-retry",
+  "path": "src/acmp.c",
+  "old": "\tsm_stop(s);\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {",
+  "new": "\tbool h = s->probe_held;\n\tsm_stop(s);\n\tif (h) {\n\t\ts->probe_held = true;\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t}\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {"
+ }
+]

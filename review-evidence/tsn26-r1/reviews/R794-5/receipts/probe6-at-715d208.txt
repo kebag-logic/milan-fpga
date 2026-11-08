@@ -1,0 +1,15 @@
+Note: Google Test filter = AcmpOwedProbe6.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwedProbe6
+[ RUN      ] AcmpOwedProbe6.EgressReturnsWithSevenOwed
+PROBE6 control, eight owed: hold_ms=187 | kept BIND_RX pass=9 answer_ms=196 | GET behind pass=11 answer_ms=198 | 2nd GET behind pass=12 answer_ms=199
+PROBE6 seven GET_RX_STATE owed, BIND_RX declined at one free slot: owed_at_return=7 bind_waiting=1 hold_ms=187 | kept BIND_RX pass=8 (stated 9) answer_ms=195 | GET behind pass=10 (stated 11) answer_ms=197 | 2nd GET behind pass=11 (stated 12) answer_ms=198 | probes_lost=0 busy_declined=3
+PROBE6 five owed plus a taken BIND_RX, second BIND_RX declined at one free slot: owed_at_return=7 bind_waiting=1 hold_ms=187 | kept BIND_RX pass=8 (stated 9) answer_ms=195 | GET behind pass=10 (stated 11) answer_ms=197 | 2nd GET behind pass=11 (stated 12) answer_ms=198 | probes_lost=0 busy_declined=3
+[       OK ] AcmpOwedProbe6.EgressReturnsWithSevenOwed (0 ms)
+[----------] 1 test from AcmpOwedProbe6 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+rc 0
