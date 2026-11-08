@@ -825,10 +825,12 @@ Contract 2.4 adds a source entry per talker stream for the stream_id it
 declares (#799, the ruling on its STOP, comment 6460917634).
 Firmware writes each value before the response that promises it
 ([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
-datapath of the split placement reads the block through `KL_mbx`'s `pub_*_o`
-ports by a static, build-time selection, which the placement switch adds
-after F5. The all-fabric build carries no mailbox, so it is unchanged; the
-`--ctrl-mailbox` SoC names the ports and leaves them unread.
+datapath of the split placement reads the block from `KL_mbx`'s `pub_*_o`
+ports, which `KL_mbx_cdc` carries to its `i_ctl_pub_*` ports. The selection
+is static and made at build time by
+[the placement switch](#the-placement-switch), `CTRL_SPLIT_P`. The all-fabric
+build carries no mailbox, so it is unchanged. The `--ctrl-mailbox` SoC builds
+the split datapath and reads every port.
 
 | Value | Register, interface i | Writer | Written before | Processor output it stands for |
 |---|---|---|---|---|
