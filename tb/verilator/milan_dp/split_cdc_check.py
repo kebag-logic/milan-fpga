@@ -100,15 +100,12 @@ class Netlist:
 
     def __init__(self, mod: dict) -> None:
         self.mod = mod
-        self.names: dict[int, str] = {}
         self.aliases: dict[int, set[str]] = defaultdict(set)
         self.driver: dict[int, tuple[str, str]] = {}
         for n, v in mod["netnames"].items():
             for b in v["bits"]:
                 if isinstance(b, int):
                     self.aliases[b].add(n)
-                    if b not in self.names or "$" in self.names[b]:
-                        self.names[b] = n
         for p, v in mod["ports"].items():
             if v["direction"] == "input":
                 for b in v["bits"]:
@@ -175,12 +172,21 @@ class Netlist:
         self.memo[key] = out
         return out
 
+    def flop_name(self, cell: str) -> str:
+        """A flop by a name of its Q net that is not a port's, else as the flop driving that port,
+        so an output it drives does not read as reading itself; by its cell when the net has no name."""
+        q = self.mod["cells"][cell]["connections"].get("Q", [None])[0]
+        names = sorted(n for n in self.aliases.get(q, ()) if "$" not in n)
+        own = [n for n in names if n not in self.mod["ports"]]
+        return own[0] if own else f"driving {names[0]}" if names else cell
+
     def label_of(self, s: tuple[str, str]) -> str:
-        """A source as a finding names it: an input by name, a flop by its Q net, a primitive by its port."""
+        """A source as a finding names it: an input by name, a flop by flop_name, a primitive by its port."""
         if s[0] == "in":
             return s[1]
         if s[0] in self.flop_dom:
-            return self.names.get(self.mod["cells"][s[0]]["connections"].get("Q", [None])[0], s[0])
+            name = self.flop_name(s[0])
+            return f"the flop {name}" if name.startswith("driving ") else name
         return f"{s[0]}.{s[1]}"
 
     def sinks(self) -> tuple[list[tuple[str, str, list, bool]], list[tuple[str, int]]]:
@@ -191,7 +197,7 @@ class Netlist:
             if n in self.flop_dom:
                 q = c["connections"]["Q"][0]
                 held = HELD_FLOP in self.aliases.get(q, ())
-                label = f"flop {HELD_FLOP if held else self.names.get(q, n)}"
+                label = f"flop {HELD_FLOP if held else self.flop_name(n)}"
                 sinks.append((label, self.flop_dom[n],
                               [b for p, bits in c["connections"].items() if p not in ("CLK", "Q") for b in bits], held))
                 clock_sinks.append((f"{label}'s CLK", c["connections"]["CLK"][0]))
@@ -257,7 +263,7 @@ PLANTS = (
     ("the LINK level taken straight across", CDC,
      "        m_link_up_o     <= ev_dst_w[72 + NP_C + 4];",
      "        m_link_up_o     <= d_link_up_i;",
-     ("flop m_link_up_o (sys) reads d_link_up_i (dp)",)),
+     ("flop driving m_link_up_o (sys) reads d_link_up_i (dp)",)),
     ("the settings read without their capture", CDC,
      "          d_restore_cause_o, d_nvm_o, d_nvm_verdict_o} = fw_r;",
      "          d_restore_cause_o, d_nvm_o, d_nvm_verdict_o} = fw_bus_w;",
@@ -265,7 +271,7 @@ PLANTS = (
     ("a window's answer taken straight across", WIN,
      "  assign m_ans_data_o = out_w[ANS_W_P-1:0];",
      "  assign m_ans_data_o = ans_r;",
-     ("output m_ctr_ans_data_o (sys) reads",)),
+     ("output m_ctr_ans_data_o (sys) reads u_ctr.ans_r (dp)",)),
     ("the held bus taken on every datapath cycle", CDC, TAKE,
      "    else                  fw_r <= fw_bus_w;",
      ("flop fw_r (dp) takes the held bus",)),

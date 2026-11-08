@@ -189,9 +189,14 @@ Its route and standalone recipes remain unchanged.
 | Selection | Required retained control engines | Required absence |
 |---|---|---|
 | `all-fabric` | Wrapper, ADP, both ACMP engines, SRP, AECP, notifications, parent MAAP and gPTP | Mailbox and processor MAAP |
-| `f0-f4` | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
+| `f0-f4` (ruled dead, #665) | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
 | `full-split` | Mailbox and gPTP | Wrapper and all five fabric protocol engines, including notifications |
 
+The `f0-f4` selection is ruled dead (#665).
+The split moves every control protocol to the firmware at once.
+No image is built with only F0-F4 moved, and no record measures one.
+Do not select or extend it.
+It is removed at the flip together with the all-fabric placement.
 The partial selection permits AECP inside or outside one wrapper.
 Standalone 1x1/8x8 references always use their all-fabric exports.
 Never derive those references from a partial or complete split.
@@ -206,6 +211,7 @@ See the [intermediate ledger](../design/MARK_II_AREA_PLAN.md#m0s-step-1-intermed
 After that prerequisite passes, export into a fresh external directory.
 Retain the build's selected-placement arguments with its measurement.
 Use the same part, clocks, directives, seed and worker settings.
+The `f0-f4` recipe below is kept only until the flip removes it; it is not run.
 For an already integrated F0-F4 export:
 
 ```sh
