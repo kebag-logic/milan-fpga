@@ -1,0 +1,25 @@
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2379676Z env:
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2380056Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2380984Z   CI_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2381231Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2381479Z   CI_CAMPAIGN_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2381719Z   VERILATOR_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2381949Z   SIM_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2382198Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2382988Z   CI_GATE_NEEDS: {
+docs-check	Require every gate exactly once	  "docs-gates-0": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-1": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-2": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  }
+docs-check	Require every gate exactly once	}
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.2383902Z ##[endgroup]
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.4704951Z gate evidence refused: docs-gates-1: dependent job failed, cancelled or skipped
+docs-check	Require every gate exactly once	2026-11-08T11:46:44.4820692Z ##[error]Process completed with exit code 1.

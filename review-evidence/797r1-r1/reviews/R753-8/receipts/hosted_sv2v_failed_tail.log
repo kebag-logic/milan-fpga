@@ -1,0 +1,6 @@
+elaborate-gates-0	Install the pinned sv2v release	2026-11-08T11:44:33.6690598Z ##[error]Process completed with exit code 22.
+elaborate	Require every gate exactly once	﻿2026-11-08T11:46:22.7555951Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.j
+elaborate	Require every gate exactly once	2026-11-08T11:46:22.7556744Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[
+elaborate	Require every gate exactly once	    "result": "failure",
+elaborate	Require every gate exactly once	2026-11-08T11:46:22.8961920Z gate evidence refused: elaborate-gates-2: dependent job failed, cancelled or skipped
+elaborate	Require every gate exactly once	2026-11-08T11:46:22.9057884Z ##[error]Process completed with exit code 1.
