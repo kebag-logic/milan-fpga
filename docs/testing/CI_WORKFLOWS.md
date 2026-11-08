@@ -417,7 +417,9 @@ milan_datapath` prints, in every shape the builder builds (the recipe's, and
 each `configs/*.yaml` with its generated header and the parameters
 `endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
 other than the versions `rtl-fast.yml` pins, and follows every class-D value
-the datapath reads through each netlist. Its self-test elaborates one planted
+the datapath reads through each netlist. It elaborates each shape again with
+`CTRL_SPLIT_P = 1` and requires the split datapath's control face consumed
+(`sw/mailbox/census_split.py`). Its self-test elaborates one planted
 copy per defect, then removes each of the census's rules in turn, with
 `CI_CENSUS_JOBS` workers: as many as the job's memory holds, never more than
 its CPUs (see the resource bounds under

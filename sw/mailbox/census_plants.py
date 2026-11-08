@@ -107,6 +107,7 @@ class Plant:
     rule: str | None = None                 # None: refused by sv2v or Yosys, no census rule
     at: tuple[Any, ...] = ("recipe",)       # "recipe", or (parameter, least) for the first shape binding it so
     also: tuple[tuple[str, str], ...] = ()  # a wrapper plant's edits to the datapath
+    split: bool = False                     # also censused in the split elaboration (census_split.py)
 
     def __post_init__(self) -> None:
         if self.rule is not None and self.rule not in RULES:
@@ -530,6 +531,92 @@ PLANTS = (
           ("the census elaborates with the pinned sv2v", "`Yosys 0.67`"), rule="pins"),
 )
 
+# ---- the split datapath's control face (census_split.py) ----------------------
+# Each plant edits the split branch of a copy of the datapath, which is then
+# elaborated in both placements: the all-fabric netlist is the reference the
+# split one is judged against (#665, ruling 6715535566 item 2).
+SPLIT_DA_GATE = "    assign pp_cd_acmp_declaring_w     = i_ctl_pub_da_gate[ACMP_SRC_C-1:0];"
+SPLIT_SID = "          i_ctl_pub_sid_valid[k] ? i_ctl_pub_sid[64*k +: 64] : 64'd0;"
+SPLIT_VID = "    assign pp_cd_srp_class_a_vid_w    = i_ctl_pub_dom_vid;"
+SPLIT_CLK_SRC = "    assign pp_aecp_clk_src_index_w = i_ctl_clk_src_index;"
+SPLIT_RESTORE = "            pp_restore_fail_w, pp_restore_done_w, pp_restore_busy_w} = i_ctl_restore;"
+SPLIT_CTR_DATA = "    assign o_ctl_ctr_data        = pp_ctr_data_w;"
+SPLIT_AVB_CHG = "    assign o_ctl_avb_chg_p     = gsi_avb_chg_w;"
+SPLIT_REBOOT = "    assign pp_reboot_req_w      = 1'b0;"
+SPLIT_OVER_LIMIT = "    assign pp_cd_srp_over_limit_w      = 1'b0;"
+SPLIT_RX_TLAST = "      .rx_tlast_i       (rx_axis_fabric.tlast),"
+SPLIT_GSI_DATA = "  output wire [63:0] o_ctl_gsi_data,"
+SPLIT_AF_PP = "  generate if (CTRL_SPLIT_P == 0) begin : g_af_pp"
+SPLIT_MAAP = "  generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_maap"
+SPLIT_AMR = "  generate if (CTRL_SPLIT_P == 0) begin : g_af_amr"
+SPLIT_TALKER_ACTIVE = "  assign acmp_talker_active_v = pp_cd_acmp_declaring_w;"
+
+SPLIT_PLANTS = (
+    Plant("the processor left in the split", "datapath",
+          ((SPLIT_AF_PP, "  generate if (CTRL_SPLIT_P >= 0) begin : g_af_pp"),),
+          "the split datapath holds KL_pp_shadow cell pp_shadow", rule="split-placement", split=True),
+    Plant("the fabric MAAP engine left in the split", "datapath",
+          ((SPLIT_MAAP, "  generate if (MAAP_P != 0) begin : g_maap"),),
+          "the split datapath holds KL_maap cell", rule="split-placement", split=True),
+    Plant("the map writer left in the split", "datapath",
+          ((SPLIT_AMR, "  generate if (CTRL_SPLIT_P >= 0) begin : g_af_amr"),),
+          ("the map writer's net amr_abort_r, which the all-fabric exclusion names, comes from", "not a constant"),
+          rule="split-placement", split=True),
+    Plant("a class-D consumer on a G tie-off", "datapath",
+          ((SPLIT_DA_GATE, "    assign pp_cd_acmp_declaring_w     = '0;"),),
+          "pp_cd_acmp_declaring_w, the net of the wrapper's acmp_declaring_o, is driven by a constant in the split, "
+          "not by i_ctl_pub_da_gate", rule="split-drives", split=True),
+    Plant("a class-D consumer that reads the port around its net in the split", "datapath",
+          ((SPLIT_TALKER_ACTIVE, "  assign acmp_talker_active_v = (CTRL_SPLIT_P != 0)"
+                                 " ? i_ctl_pub_da_gate[ACMP_SRC_C-1:0]\n"
+                                 "                              : pp_cd_acmp_declaring_w;"),),
+          "the field read pp_cd_acmp_declaring_w -> acmp_talker_active_v does not hold in the split datapath",
+          rule="split-field-reads", split=True),
+    Plant("a stream_id taken without SID_VALID", "datapath", ((SPLIT_SID, "          i_ctl_pub_sid[64*k +: 64];"),),
+          "pp_cd_acmp_bound_sid_w, the net of the wrapper's acmp_bound_sid_o, is driven by i_ctl_pub_sid in the "
+          "split, not by i_ctl_pub_sid, i_ctl_pub_sid_valid", rule="split-drives", split=True),
+    Plant("a stream_id taken without SID_VALID, SID_VALID unread", "datapath",
+          ((SPLIT_SID, "          i_ctl_pub_sid[64*k +: 64];"),),
+          "split port i_ctl_pub_sid_valid bit 0 reaches no cone end", rule="split-consumed", split=True),
+    Plant("half a publication field dropped", "datapath",
+          ((SPLIT_VID, "    assign pp_cd_srp_class_a_vid_w    = {4'd0, i_ctl_pub_dom_vid[7:0]};"),),
+          "split port i_ctl_pub_dom_vid bit 8 reaches no cone end", rule="split-consumed", split=True),
+    Plant("a setting from another setting's port", "datapath",
+          ((SPLIT_CLK_SRC, "    assign pp_aecp_clk_src_index_w = i_ctl_cur_config;"),),
+          "pp_aecp_clk_src_index_w, the net of the wrapper's aecp_clk_src_index_o, is driven by i_ctl_cur_config "
+          "in the split, not by i_ctl_clk_src_index", rule="split-drives", split=True),
+    Plant("two bits of a packed setting swapped", "datapath",
+          ((SPLIT_RESTORE, "            pp_restore_fail_w, pp_restore_busy_w, pp_restore_done_w} = i_ctl_restore;"),),
+          "pp_restore_busy_w[0], the net of the wrapper's restore_busy_o, is driven by i_ctl_restore[1], not "
+          "i_ctl_restore[0]", rule="split-drives", split=True),
+    Plant("an answer from another window", "datapath",
+          ((SPLIT_CTR_DATA, "    assign o_ctl_ctr_data        = pp_amap_data_w[31:0];"),),
+          "o_ctl_ctr_data is driven by pp_amap_data_w in the split, not by pp_ctr_data_w", rule="split-drives",
+          split=True),
+    Plant("a face notification never raised", "datapath", ((SPLIT_AVB_CHG, "    assign o_ctl_avb_chg_p     = 1'b0;"),),
+          "o_ctl_avb_chg_p is driven by a constant in the split, not by gsi_avb_chg_w", rule="split-drives",
+          split=True),
+    Plant("the REBOOT request driven in the split", "datapath",
+          ((SPLIT_REBOOT, "    assign pp_reboot_req_w      = i_ctl_lock_held;"),),
+          "pp_reboot_req_w, the net of the wrapper's G output reboot_req_o, is driven by i_ctl_lock_held",
+          rule="split-tied", split=True),
+    Plant("a class-D value the block does not carry, driven in the split", "datapath",
+          ((SPLIT_OVER_LIMIT, "    assign pp_cd_srp_over_limit_w      = i_ctl_dyn_dirty;"),),
+          "pp_cd_srp_over_limit_w, the net of the wrapper's class-D value the block does not carry "
+          "srp_over_limit_o, is driven by i_ctl_dyn_dirty", rule="split-tied", split=True),
+    Plant("the frame block on another net", "datapath",
+          ((SPLIT_RX_TLAST, "      .rx_tlast_i       (rx_axis_fabric.tvalid),"),),
+          "g_sp_ctrl.ctrl_split.rx_tlast_i carries rx_axis_fabric.tvalid, not rx_axis_fabric.tlast",
+          rule="split-frame-block", split=True),
+    Plant("an entry past the shape's own read", "datapath",
+          ((SPLIT_DA_GATE, "    assign pp_cd_acmp_declaring_w     = i_ctl_pub_da_gate[ACMP_SRC_C:1];"),),
+          "split port i_ctl_pub_da_gate bit 1 is read, past the shape's 1 source(s)", rule="split-beyond", split=True),
+    Plant("a ctl port no row names", "datapath",
+          ((SPLIT_GSI_DATA, "  input  wire        i_ctl_probe,\n" + SPLIT_GSI_DATA),),
+          "unmapped split port: i_ctl_probe (input) is in no class", rule="split-unmapped", split=True),
+)
+PLANTS = (*PLANTS, *SPLIT_PLANTS)
+
 
 def apply(src: Any, plant: Plant) -> Any:
     """A copy of the census's Sources with the plant's edits made, or a string
@@ -628,6 +715,37 @@ class DrivenOut:
 
     def __call__(self, net: Any) -> Any:
         return replace(net, ports={**net.ports, self.port: ("output", _bits(net, self.name))})
+
+
+def split_arms(table: dict, row: Any) -> list[PortArm]:
+    """The split census's table arms over census_split.SPLIT_PORTS (table); row builds a row (census_split.Face).
+    Each is judged on the split netlist of the arm that elaborated the tracked sources in both placements."""
+    def edited(**classes: dict) -> dict:
+        """The split table with each class named replaced."""
+        return {**table, **classes}
+    f_rows, e_rows, m_rows = table["F"], table["E"], table["M"]
+    ident = f_rows["i_ctl_identify"]
+    return [
+        PortArm("a ctl port two classes name", "split port o_ctl_gm_id is named in classes E and M", "split-one-class",
+                ports=edited(E={**e_rows, "o_ctl_gm_id": m_rows["o_ctl_gm_id"]})),
+        PortArm("a split row naming a port the datapath does not declare",
+                "stale split row: class F names i_ctl_probe_gone", "split-stale",
+                ports=edited(F={**f_rows, "i_ctl_probe_gone": row(("F_ENTITY.IDENTIFY",), "", ())})),
+        PortArm("a split carrier the contract does not define",
+                "split F port i_ctl_identify: its carrier F_ENTITY.IDENT is not a field of contract 2.3",
+                "split-contract", ports=edited(F={**f_rows, "i_ctl_identify": row(("F_ENTITY.IDENT",), "",
+                                                                                   ident.stands)})),
+        PortArm("a split carrier narrower than its port",
+                "split F port i_ctl_cur_config is 16 bits; its carrier F_ENTITY.IDENTIFY holds 8", "split-width",
+                ports=edited(F={**f_rows, "i_ctl_cur_config": row(("F_ENTITY.IDENTIFY",), "", ident.stands)})),
+        PortArm("a face event no row carries",
+                "the face event AMAP_LIVE_WRITE is carried by no port of the split datapath", "split-every-field",
+                ports=edited(E={k: v for k, v in e_rows.items() if k != "o_ctl_amap_wr_p"})),
+        PortArm("a split row standing for another setting",
+                "split port i_ctl_identify stands for aecp_cur_config_o, whose carrier F_ENTITY.CUR_CONFIG is not its "
+                "own", "split-face",
+                ports=edited(F={**f_rows, "i_ctl_identify": row(ident.carrier, "", ("aecp_cur_config_o",))})),
+    ]
 
 
 def port_arms(ports: dict, excluded: tuple[str, ...], row: Any) -> list[PortArm]:
