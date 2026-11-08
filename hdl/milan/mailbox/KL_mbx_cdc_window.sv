@@ -32,17 +32,17 @@ module KL_mbx_cdc_window #(
   parameter int unsigned RQ_W_P  = 38,   //! the request's fields
   parameter int unsigned ANS_W_P = 32    //! the answer
 ) (
-  input  wire                sys_clk_i,
-  input  wire                sys_rst_n,
-  input  wire                dp_clk_i,
-  input  wire                dp_rst_n,
+  input  wire                sys_clk_i,     //! the mailbox's clock
+  input  wire                sys_rst_n,     //! synchronous active-low reset, sys
+  input  wire                dp_clk_i,      //! the datapath's clock
+  input  wire                dp_rst_n,      //! synchronous active-low reset, dp
   //! ---- the mailbox side (sys)
   input  wire                m_req_i,       //! a request is open: tag and fields hold
-  input  wire  [TAG_W_P-1:0] m_tag_i,
-  input  wire  [RQ_W_P-1:0]  m_rq_i,
+  input  wire  [TAG_W_P-1:0] m_tag_i,       //! the request's tag, held with it
+  input  wire  [RQ_W_P-1:0]  m_rq_i,        //! the request's fields, held with it
   output logic               m_ans_p_o,     //! one-cycle pulse: the answer
   output logic [TAG_W_P-1:0] m_ans_tag_o,   //! the tag it was asked under
-  output logic [ANS_W_P-1:0] m_ans_data_o,
+  output logic [ANS_W_P-1:0] m_ans_data_o,  //! the answer, with m_ans_p_o
   //! ---- the datapath side (dp): the processor's request protocol
   output logic               d_req_o,
   output logic [RQ_W_P-1:0]  d_rq_o,

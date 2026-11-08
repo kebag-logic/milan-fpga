@@ -744,12 +744,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the four request and answer windows (class R), each held by its
   //! requester from req until the answer it reads while wait is low
   input  wire        i_ctl_ctr_req,                          //! GET_COUNTERS
+  //! the request's descriptor type, index and quadlet, held from req; the
+  //! answer, taken while wait is low
   input  wire [15:0] i_ctl_ctr_type,
   input  wire [15:0] i_ctl_ctr_index,
   input  wire [5:0]  i_ctl_ctr_word,
   output wire [31:0] o_ctl_ctr_data,
   output wire        o_ctl_ctr_wait,
   input  wire        i_ctl_amap_req,                         //! GET_AUDIO_MAP
+  //! the request's descriptor, map, selector and record, held from req; the
+  //! answer, taken while wait is low
   input  wire [15:0] i_ctl_amap_type,
   input  wire [15:0] i_ctl_amap_index,
   input  wire [15:0] i_ctl_amap_map_index,
@@ -758,6 +762,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire [63:0] o_ctl_amap_data,
   output wire        o_ctl_amap_wait,
   input  wire        i_ctl_edit_req,                         //! ADD/REMOVE_AUDIO_MAPPINGS, a beat
+  //! the beat's phase, removal, descriptor, count, record and value, held
+  //! from req; the answer, taken while wait is low
   input  wire [2:0]  i_ctl_edit_phase,
   input  wire        i_ctl_edit_remove,
   input  wire [15:0] i_ctl_edit_type,
@@ -769,6 +775,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire [63:0] o_ctl_edit_data,
   output wire        o_ctl_edit_wait,
   input  wire        i_ctl_gsi_req,                          //! GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH
+  //! the request's kind, descriptor, selector, ordinal and property, held
+  //! from req; the answer, taken while wait is low
   input  wire [1:0]  i_ctl_gsi_kind,
   input  wire [15:0] i_ctl_gsi_type,
   input  wire [15:0] i_ctl_gsi_index,

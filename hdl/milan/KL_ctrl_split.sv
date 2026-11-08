@@ -51,8 +51,8 @@ module KL_ctrl_split #(
     //! the tap's FIFO, in bytes: the wrapper's own (KL_pp_shadow)
     parameter int unsigned RX_FIFO_BYTES_P = 4096
 ) (
-    input  wire                        clk_i,
-    input  wire                        rst_n,
+    input  wire                        clk_i,        //! the datapath's clock
+    input  wire                        rst_n,        //! synchronous active-low reset
     //! ---- the fabric's receive tap (input only, qualified on the handshake)
     input  wire [TDATA_WIDTH_P-1:0]    rx_tdata_i,
     input  wire [TDATA_WIDTH_P/8-1:0]  rx_tkeep_i,
@@ -72,9 +72,9 @@ module KL_ctrl_split #(
     //! ---- the control lane's beats (ctl_tx_mux's s_data leg)
     output logic [TDATA_WIDTH_P-1:0]   m_axis_tx_tdata,  //! little lane order
     output logic [TDATA_WIDTH_P/8-1:0] m_axis_tx_tkeep,  //! contiguous from lane 0
-    output logic                       m_axis_tx_tvalid,
-    output logic                       m_axis_tx_tlast,
-    input  wire                        m_axis_tx_tready,
+    output logic                       m_axis_tx_tvalid, //! a beat is offered
+    output logic                       m_axis_tx_tlast,  //! the frame's last beat
+    input  wire                        m_axis_tx_tready, //! the lane takes the beat
     //! ---- the wrapper's three counters
     output logic [15:0]                rx_frames_o,  //! control frames handed out, wrapping
     output logic [7:0]                 rx_drops_o,   //! control frames a full FIFO lost, saturating
