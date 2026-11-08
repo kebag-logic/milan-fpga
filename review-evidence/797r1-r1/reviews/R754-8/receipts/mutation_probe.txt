@@ -1,0 +1,12 @@
+M0 pristine copy check rc=0
+M1 prior data file (15 entries back), page not regenerated check rc=1
+M2 write rc=0
+M2 regenerated page == prior head page
+M3 write rc=0
+M3 regenerated page == head page
+M4 write rc=0
+M4 D0-040 rows after drop: 0  at head: 5
+M5a restored check rc=0
+M5b reintroduced D0-006 wrong text on REGISTER_MAP.md check rc=0
+D0-018 restored alone check rc=1
+D0-040 dropped check rc=1
