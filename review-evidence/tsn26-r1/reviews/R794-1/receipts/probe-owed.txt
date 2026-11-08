@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpOwedProbe.*
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from AcmpOwedProbe
+[ RUN      ] AcmpOwedProbe.BindDeclinedIsAnsweredAfterRedelivery
+PROBE bind: answer_ms=69 probes_lost=1 probe_tx_sent=0 state=3 timer=1 bound=1
+PROBE bind: after NO_RESP expiry probe_tx_sent=1 state=4
+[       OK ] AcmpOwedProbe.BindDeclinedIsAnsweredAfterRedelivery (0 ms)
+[ RUN      ] AcmpOwedProbe.GetTxStateDeclinedIsAnsweredAfterRedelivery
+PROBE get_tx_state: answer_ms=69 status=0
+[       OK ] AcmpOwedProbe.GetTxStateDeclinedIsAnsweredAfterRedelivery (0 ms)
+[ RUN      ] AcmpOwedProbe.UnknownSinkDeclinedIsAnsweredAfterRedelivery
+PROBE unknown sink: status=1 unknown_sink=1
+[       OK ] AcmpOwedProbe.UnknownSinkDeclinedIsAnsweredAfterRedelivery (0 ms)
+[ RUN      ] AcmpOwedProbe.RepeatedOffersEachCount
+PROBE repeat: busy_declined=3 calls=0
+[       OK ] AcmpOwedProbe.RepeatedOffersEachCount (0 ms)
+[ RUN      ] AcmpOwedProbe.DeclineByteImage
+PROBE image: byte 4346 changed (now_read)
+PROBE image: byte 5048 changed (busy_declined)
+PROBE image: other_bytes_changed=0 now_read_after=0
+[       OK ] AcmpOwedProbe.DeclineByteImage (0 ms)
+[ RUN      ] AcmpOwedProbe.HoldSweep
+PROBE sweep: hold_ms=0 answer_ms=9 within_200=1
+PROBE sweep: hold_ms=60 answer_ms=69 within_200=1
+PROBE sweep: hold_ms=131 answer_ms=140 within_200=1
+PROBE sweep: hold_ms=191 answer_ms=200 within_200=1
+PROBE sweep: hold_ms=192 answer_ms=201 within_200=0
+[       OK ] AcmpOwedProbe.HoldSweep (0 ms)
+[----------] 6 tests from AcmpOwedProbe (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 6 tests.
+rc 0

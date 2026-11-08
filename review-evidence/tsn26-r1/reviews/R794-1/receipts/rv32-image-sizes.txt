@@ -1,0 +1,9 @@
+base-rv32 release elf_bytes=46552 .text=34856
+base-rv32 debug elf_bytes=142344 .text=45460
+rv32 release elf_bytes=47512 .text=35752
+rv32 debug elf_bytes=144364 .text=46928
+base-rv32 release acmp.c object text 18053
+base-rv32 debug acmp.c object text 20729
+rv32 release acmp.c object text 18213
+rv32 debug acmp.c object text 20869
+Debug ELF bytes embed the build directory path in debug info; .text is path-independent.
