@@ -1505,8 +1505,9 @@ stale answer carries the older tag, which `KL_mbx` discards.
   elaboration.
 
 The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
-job runs `make split-cdc` (ruling 6715535566 item 6). The other three checks
-are local.
+job runs `make split-cdc` (ruling 6715535566 item 6), and its
+`publication-census` job runs the split census. The identity, the population
+and the split leg's planted defects are local.
 
 ## Verification
 
