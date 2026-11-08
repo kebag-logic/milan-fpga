@@ -1,0 +1,15 @@
+Note: Google Test filter = AcmpOwed.R4Probe*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.R4ProbeHeldProbeBoundAndCancel
+PROBE r4c sustained setup: sink2 TMR_DELAY due +200 ms, sink3 TMR_NO_RESP due +200 ms
+PROBE r4c sustained: probes_held=306 probes_lost=0 held_left=00 [sink2 pass=11 pos=10] [sink2 pass=250 pos=249] [sink3 pass=251 pos=250]
+PROBE r4c failure-response: held_before=1 held_after=0 state=5 (PRB_W_RETRY=5) probing=2 (ACTIVE=2) timer=2 (RETRY=2) probes_held=1
+[       OK ] AcmpOwed.R4ProbeHeldProbeBoundAndCancel (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+rc 0

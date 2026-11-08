@@ -1,0 +1,5 @@
+[
+  {"name": "owed-answer-keeps-the-hold", "path": "src/acmp.c",
+   "old": "\t\ta->probe_mismatch++;\n\t\treturn;\n\t}\n\tsm_stop(s);\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {",
+   "new": "\t\ta->probe_mismatch++;\n\t\treturn;\n\t}\n\tbool kept_hold = s->probe_held;\n\tsm_stop(s);\n\ts->probe_held = kept_hold;\n\tif (rsp->status != ACMP_STATUS_SUCCESS) {"}
+]

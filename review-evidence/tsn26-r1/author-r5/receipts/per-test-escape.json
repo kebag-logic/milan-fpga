@@ -1,0 +1,735 @@
+{
+ "KeptCommandsBehindSevenOwedLeaveOnePassSooner": [
+  {
+   "plant": "acmp-probe-before-response",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+    "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+    "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
+    "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+    "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+    "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+    "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt",
+    "AcmpCore.A6BindAnotherSourceRestartsTheSink",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "acmp-response-passes-an-owed-frame",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19NothingPassesAnOwedFrame",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "acmp-poll-drains-everything",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+    "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "acmp-full-queue-acts",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-listener-drop-restored",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-room-off-by-one",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-served-reported-declined",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-listener-acts-then-declines",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-get-rx-state-drop-restored",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-rx-drop-restored",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-one-slot",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-owes-one",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-answer-lost-after-decline",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-timer-probe-not-held",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-hold-skips-retry",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-held-probe-lost",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-wait-unset",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-wait-kept",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-wait-cleared-by-refused-poll",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-wait-only-on-a-second-decline",
+   "rc_without_this_test": 0,
+   "still_failing": [],
+   "escapes_without_this_test": true
+  },
+  {
+   "plant": "owed-probe-held-never-set",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredProbeEndsTheHoldOfItsRetry",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-hold-scan-skips-the-last-sink",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-refused-poll-drops-the-frame",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpFresh.DeferredAnswer",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "acmp-poll-newest-first",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpCore.A19NothingPassesAnOwedFrame",
+    "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+    "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+    "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold"
+   ],
+   "escapes_without_this_test": false
+  }
+ ],
+ "AnsweredProbeEndsTheHoldOfItsRetry": [
+  {
+   "plant": "acmp-poll-drains-everything",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing",
+    "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "acmp-full-queue-acts",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-listener-drop-restored",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-served-reported-declined",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-declines-every-frame",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-listener-acts-then-declines",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-rx-drop-restored",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-one-slot",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-owes-one",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.GatedPortBudgetsOnePassPerProbeOwedAhead",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-timer-probe-not-held",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-hold-skips-retry",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-bind-wait-unset",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.AnsweredOnlyBindAlsoWaitsForTwoSlots",
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptBacklogWithinTheDocumentedBudgetMeetsItsTimeout",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-held-flag-kept",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  },
+  {
+   "plant": "owed-answer-keeps-the-hold",
+   "rc_without_this_test": 0,
+   "still_failing": [],
+   "escapes_without_this_test": true
+  },
+  {
+   "plant": "owed-probe-held-never-set",
+   "rc_without_this_test": 1,
+   "still_failing": [
+    "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.KeptCommandsBehindSevenOwedLeaveOnePassSooner",
+    "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+    "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+   ],
+   "escapes_without_this_test": false
+  }
+ ]
+}

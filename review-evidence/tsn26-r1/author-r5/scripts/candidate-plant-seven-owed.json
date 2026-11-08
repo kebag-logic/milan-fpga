@@ -1,0 +1,5 @@
+[
+  {"name": "owed-bind-wait-only-on-a-second-decline", "path": "src/acmp.c",
+   "old": "\t\t\tif (cmd.msg == ACMP_MSG_BIND_RX_COMMAND && a->owed_count < ACMP_OWED_MAX) {",
+   "new": "\t\t\tif (cmd.msg == ACMP_MSG_BIND_RX_COMMAND && a->owed_count < ACMP_OWED_MAX && a->busy_declined > 1u) {"}
+]
