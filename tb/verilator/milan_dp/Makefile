@@ -34,6 +34,10 @@
 #   make split - #665 F-INT PR 2: the split placement's control path, end to end
 #   make split-mutants - that leg's planted defects (split_mutants.py)
 #   make split-cdc - every KL_mbx_cdc crossing through an approved primitive
+#   make twin   - #665: the two-placement simulation, one stimulus on the
+#                 all-fabric and the split datapath, compared protocol by
+#                 protocol (twin_compare.py); exit 1 on any difference
+#   make twin-plants - its three plants, each refused by its own words
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -871,6 +875,78 @@ split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE
 split-cdc:
 	python3 split_cdc_check.py --selftest
 
+# #665: THE TWO-PLACEMENT SIMULATION (issuecomment-6715535566 item 1, and
+# issuecomment-6716584453). One stimulus (twin.hpp) runs on two halves at the
+# shipping shape, and twin_compare.py compares what each MAC sent, protocol by
+# protocol. The all-fabric half (twin_fabric.cpp) is milan_datapath at
+# CTRL_SPLIT_P = 0, provisioned as milan_baremetal.c provisions it, its
+# processor and KL_maap on a millisecond of TWIN_MS_CYC cycles (simulation
+# only). The split half (twin_split.cpp) is tb_split_top with the platform
+# firmware, built for the host by twin_fw.py, on KL_mbx's host port and the
+# datapath's CSR window. Both datapaths elaborate alike apart from the
+# placement: the receive filter pruned (the promiscuous posture
+# configure_fabric() sets) and the gPTP plane off, as tb_split_top has them;
+# neither takes the broad legs' -G compressions. MAAP's first range is pinned
+# in both at TWIN_MAAP_PREFERRED (simulation only).
+TWIN_MS_CYC ?= 1000
+TWIN_MAAP_PREFERRED = 0x91e0f0000100
+TWIN_CFG = ../../../configs/endstation_ax7101_1x1_tdm8.yaml
+TWIN_FW ?= obj_twin_fw
+TWIN_AF_MDIR ?= obj_twin_af
+TWIN_SP_MDIR ?= obj_twin_sp
+TWIN_OUT ?= obj_twin
+TWIN_GFLAGS = -GRXFILT_P=0 -GGPTP_PLANE_EN_P=0
+.PHONY: twin-fw build-twin-af exec-twin-af build-twin-sp exec-twin-sp build-twin twin twin-plants
+TWIN_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_AX1_F))ULL $$(cat $(TWIN_FW)/cflags)
+
+twin-fw: stack-pin
+	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+
+$(TWIN_AF_MDIR)/aemi.bin: $(TWIN_CFG)
+	python3 ../../../sw/builder/endstation_builder.py $(TWIN_CFG) -o $(TWIN_AF_MDIR)/aem-build
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(TWIN_AF_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $@
+
+build-twin-af: twin-fw $(TWIN_AF_MDIR)/aemi.bin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G%,$(VFLAGS)) $(TWIN_GFLAGS) --Mdir $(TWIN_AF_MDIR) \
+	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(TWIN_MS_CYC) -GMAAP_CLK_HZ_P=$(TWIN_MS_CYC)000 \
+	  -CFLAGS "-DTWIN_MS_CYC=$(TWIN_MS_CYC) $(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  $(SRCS) twin_fabric.cpp -o Vmilan_dp_twin_af
+
+exec-twin-af:
+	@mkdir -p $(TWIN_OUT)
+	./$(TWIN_AF_MDIR)/Vmilan_dp_twin_af $(TWIN_AF_MDIR)/aemi.bin $(TWIN_OUT)/fabric.json
+
+build-twin-sp: twin-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin_sp
+
+exec-twin-sp:
+	@mkdir -p $(TWIN_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp $(TWIN_OUT)/split.json
+
+build-twin: build-twin-af build-twin-sp
+
+# the comparison: both halves' captures, then twin_compare.py, exit 1 on any
+# difference or any bound one half misses
+twin: build-twin exec-twin-sp exec-twin-af
+	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
+
+# the three plants (twin_split.cpp --plant), each refused by its own words
+# (twin_compare.py PLANT_WORDS): against the unplanted split capture, as the
+# only finding, and against the all-fabric capture, as a finding the
+# unplanted comparison does not make
+TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+twin-plants: build-twin exec-twin-sp exec-twin-af
+	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
+	  --report-only > $(TWIN_OUT)/unplanted.txt
+	set -e; for p in $(TWIN_PLANTS); do \
+	  ./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp $(TWIN_OUT)/split-$$p.json --plant $$p; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
+
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk
 
@@ -1001,4 +1077,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT)
