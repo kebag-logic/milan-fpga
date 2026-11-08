@@ -1,0 +1,17 @@
+Note: Google Test filter = *R4ProbeBudget*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.R4ProbeBudgetForAPortThatOffersOneFramePerPoll
+PROBE r4b case=get,foreign,foreign,get@189 port=all answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=10 since_arrival_ms=199 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=get,foreign,foreign,get@189 port=one answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=12 since_arrival_ms=201 pos=11] probes_held=0 probes_lost=0 sent=12
+PROBE r4b case=unknown-bind,get@189 port=all answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=10 since_arrival_ms=199 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@189 port=one answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=11 since_arrival_ms=200 pos=10] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@190(=200-(9+f)) port=all answer0[pass=9 since_arrival_ms=199 pos=8] answer1[pass=10 since_arrival_ms=200 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@190(=200-(9+f)) port=one answer0[pass=9 since_arrival_ms=199 pos=8] answer1[pass=11 since_arrival_ms=201 pos=10] probes_held=0 probes_lost=1 sent=11
+[       OK ] AcmpOwed.R4ProbeBudgetForAPortThatOffersOneFramePerPoll (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.

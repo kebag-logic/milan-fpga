@@ -1,0 +1,57 @@
+Note: Google Test filter = *TimerProbesAgainstTheDeferredBind*:*R3Probe*:*Intermittent*:*Refused*
+[==========] Running 14 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpCore
+[ RUN      ] AcmpCore.A31ACallBackFromThePublishPortIsRefused
+[       OK ] AcmpCore.A31ACallBackFromThePublishPortIsRefused (0 ms)
+[----------] 1 test from AcmpCore (0 ms total)
+
+[----------] 3 tests from AcmpOwed
+[ RUN      ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+[       OK ] AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold (0 ms)
+[ RUN      ] AcmpOwed.R3ProbeBacklogAtTheMargin
+PROBE backlog_two_gets_margin first_ms=200 second_ms=201
+[       OK ] AcmpOwed.R3ProbeBacklogAtTheMargin (0 ms)
+[ RUN      ] AcmpOwed.R3ProbeRefusedPollKeepsTheHold
+PROBE refused_poll bind_answer_pass=10 bind_position=8 other_probe_position=10 busy_declined=2 probes_held=2 probes_lost=0
+[       OK ] AcmpOwed.R3ProbeRefusedPollKeepsTheHold (0 ms)
+[----------] 3 tests from AcmpOwed (0 ms total)
+
+[----------] 10 tests from TimerProbesAgainstTheDeferredBind
+[ RUN      ] TimerProbesAgainstTheDeferredBind.SixteenSinksOnePerPass
+PROBE sixteen_sinks_one_per_pass n_sinks=16 timed=14 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] probes_lost=0 probes_held=28 timed_probes_sent=14 last_timed_probe_pass=24 busy_declined=2 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.SixteenSinksOnePerPass (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.SixteenSinksAllInPassOne
+PROBE sixteen_sinks_all_in_pass_one n_sinks=16 timed=14 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] probes_lost=0 probes_held=119 timed_probes_sent=14 last_timed_probe_pass=24 busy_declined=2 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.SixteenSinksAllInPassOne (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.TwoInterfaces
+PROBE two_interfaces n_sinks=16 timed=14 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] probes_lost=0 probes_held=28 timed_probes_sent=14 last_timed_probe_pass=24 busy_declined=2 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.TwoInterfaces (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.MixedCommandsBehind
+PROBE mixed_commands_behind n_sinks=16 timed=6 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] [msg10 answer_pass=11 since_arrival_ms=71 pos=10] [msg6 answer_pass=12 since_arrival_ms=72 pos=11] [msg8 answer_pass=14 since_arrival_ms=74 pos=13] [msg4 answer_pass=15 since_arrival_ms=75 pos=14] probes_lost=0 probes_held=42 timed_probes_sent=6 last_timed_probe_pass=21 busy_declined=7 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.MixedCommandsBehind (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.UnknownSinkBind
+PROBE unknown_sink_bind n_sinks=16 timed=1 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] probes_lost=0 probes_held=1 timed_probes_sent=1 last_timed_probe_pass=10 busy_declined=2 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+PROBE unknown_sink_bind held_probe_sent_pass=10 position=9
+[       OK ] TimerProbesAgainstTheDeferredBind.UnknownSinkBind (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.DocumentedBudgetAtTheMargin
+PROBE margin_bind_alone_7_retries n_sinks=16 timed=7 [msg6 answer_pass=9 since_arrival_ms=200 pos=8] probes_lost=0 probes_held=14 timed_probes_sent=7 last_timed_probe_pass=17 busy_declined=2 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.DocumentedBudgetAtTheMargin (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.DocumentedBudgetAtTheMarginWithBacklog
+PROBE margin_bind_then_get n_sinks=16 timed=2 [msg6 answer_pass=9 since_arrival_ms=200 pos=8] [msg10 answer_pass=11 since_arrival_ms=202 pos=10] probes_lost=0 probes_held=6 timed_probes_sent=2 last_timed_probe_pass=13 busy_declined=3 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.DocumentedBudgetAtTheMarginWithBacklog (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.GatedPortOnePerPass
+PROBE gated_port_one_per_pass n_sinks=16 timed=14 [msg6 answer_pass=23 since_arrival_ms=83 pos=22] probes_lost=0 probes_held=0 timed_probes_sent=14 last_timed_probe_pass=22 busy_declined=0 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.GatedPortOnePerPass (0 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.GatedPortAllInPassOne
+PROBE gated_port_all_in_pass_one n_sinks=16 timed=14 [msg6 answer_pass=10 since_arrival_ms=70 pos=9] probes_lost=13 probes_held=0 timed_probes_sent=1 last_timed_probe_pass=9 busy_declined=0 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.GatedPortAllInPassOne (2 ms)
+[ RUN      ] TimerProbesAgainstTheDeferredBind.SustainedCommandsBehind
+PROBE sustained_after_40_passes probes_held=80 probes_lost=0 held_flags=11 state2=3 state3=3
+PROBE sustained_commands_behind n_sinks=4 timed=2 [msg6 answer_pass=9 since_arrival_ms=69 pos=8] probes_lost=0 probes_held=85 timed_probes_sent=2 last_timed_probe_pass=52 busy_declined=42 probe_held_left=0 bind_waiting=0 owed=0 kept_left=0
+[       OK ] TimerProbesAgainstTheDeferredBind.SustainedCommandsBehind (0 ms)
+[----------] 10 tests from TimerProbesAgainstTheDeferredBind (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 3 test suites ran. (4 ms total)
+[  PASSED  ] 14 tests.

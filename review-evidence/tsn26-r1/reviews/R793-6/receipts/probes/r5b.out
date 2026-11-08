@@ -1,0 +1,17 @@
+Note: Google Test filter = *R5ProbeLongHeldWaitWithOneGap
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.R5ProbeLongHeldWaitWithOneGap
+PROBE r5b gap=300 sink states (sink2 unless marked): [pass=1 state=2 held=1] [sink1 pass=1 state=0] [sink1 pass=2 state=3] [pass=3 state=3 held=0] [sink1 pass=301 state=4] [pass=302 state=4 held=0] [sink1 pass=509 state=5] [pass=510 state=5 held=0] [sink1 pass=4509 state=1] [pass=4510 state=2 held=0] [pass=6401 state=3 held=0]
+PROBE r5b gap=300: sink3 held from pass 1 through pass 6401; probes_lost=0; PROBE_TX: [sink1 pass=10] [sink2 pass=11] [sink1 pass=309] [sink2 pass=310] [sink2 pass=6409] [sink3 pass=6410]
+PROBE r5b gap=300: PROBE_TX owed before sink 3's held retry left: sink1=2 sink2=3
+PROBE r5b gap=1000 sink states (sink2 unless marked): [pass=1 state=2 held=1] [sink1 pass=1 state=0] [sink1 pass=2 state=3] [pass=3 state=3 held=0] [sink1 pass=1001 state=4] [pass=1002 state=4 held=0] [sink1 pass=1209 state=5] [pass=1210 state=5 held=0] [sink1 pass=5209 state=1] [pass=5210 state=2 held=0] [pass=6401 state=3 held=0]
+PROBE r5b gap=1000: sink3 held from pass 1 through pass 6401; probes_lost=0; PROBE_TX: [sink1 pass=10] [sink2 pass=11] [sink1 pass=1009] [sink2 pass=1010] [sink2 pass=6409] [sink3 pass=6410]
+PROBE r5b gap=1000: PROBE_TX owed before sink 3's held retry left: sink1=2 sink2=3
+[       OK ] AcmpOwed.R5ProbeLongHeldWaitWithOneGap (35 ms)
+[----------] 1 test from AcmpOwed (35 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (35 ms total)
+[  PASSED  ] 1 test.

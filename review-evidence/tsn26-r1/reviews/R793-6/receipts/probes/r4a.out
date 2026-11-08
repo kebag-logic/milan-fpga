@@ -1,0 +1,17 @@
+Note: Google Test filter = *R4ProbeOneFramePerAcceptedPoll*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.R4ProbeOneFramePerAcceptedPoll
+PROBE r4 case=unknown-sink-bind,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=10 last_answer_position=9 probes_held=2 probes_lost=0 busy_declined=2
+PROBE r4 case=unknown-sink-bind,get port=one answer0_pass=9(formula 9) answer1_pass=11(formula 10) retry_position=9 last_answer_position=10 probes_held=1 probes_lost=0 busy_declined=2
+PROBE r4 case=same-talker-rebind,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=10 last_answer_position=9 probes_held=2 probes_lost=0 busy_declined=2
+PROBE r4 case=same-talker-rebind,get port=one answer0_pass=9(formula 9) answer1_pass=11(formula 10) retry_position=9 last_answer_position=10 probes_held=1 probes_lost=0 busy_declined=2
+PROBE r4 case=get,foreign,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=-1 last_answer_position=9 probes_held=0 probes_lost=1 busy_declined=2
+PROBE r4 case=get,foreign,get port=one answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=-1 last_answer_position=9 probes_held=0 probes_lost=1 busy_declined=1
+[       OK ] AcmpOwed.R4ProbeOneFramePerAcceptedPoll (0 ms)
+[----------] 1 test from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
