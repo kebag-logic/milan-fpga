@@ -231,7 +231,7 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
       'the notice beside a refused one stays due')),
     ('retry-pace-past-the-bound', 'aecp_mbx.h',
      '#define AECP_ROUND_PACE_MS 2u',
-     '#define AECP_ROUND_PACE_MS 60u',
+     '#define AECP_ROUND_PACE_MS 200u',
      ('Mailbox.EveryNoticePendingAtOnceMeetsItsBound',
       'every queued notice within AECP_QUEUED_MS')),
 )

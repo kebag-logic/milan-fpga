@@ -218,10 +218,14 @@ OUTSIDE = {
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
     "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
-                                                         "AECP_QUEUED_PASSES, AECP_RETRY_MAX_MS and AECP_NOTICES_MOST "
-                                                         "from the headers; it compiles nothing",
+                                                         "AECP_QUEUED_PASSES, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
+                                                         "and AECP_NOTICES_MOST from the headers; it compiles nothing",
     "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads THE RETRY search's stated costs "
                                                        "from ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
+                                                       "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/selftest_round.py": "the round gate's self-test; it reads a round's stated costs "
+                                                          "from aecp.h and aecp_mbx.h and compiles nothing",
     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
                                                        "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
