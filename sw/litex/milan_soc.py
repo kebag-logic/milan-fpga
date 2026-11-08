@@ -3033,17 +3033,21 @@ class CtrlMemory(LiteXModule):
         self.decoder = wishbone.Decoder(self.bus, slaves)
 
 
-def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
-    """Build rom and sram from the linked control firmware; rom's first word is the reset entry."""
-    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
+def add_ctrl_memory(soc: SoCCore, firmware: Path, simulation: str | None = None) -> None:
+    """Build rom and sram from the linked control firmware; rom's first word is the reset entry.
+    simulation names a ctrl_memory.SIMULATION map, which only a simulation-only shape's test SoC
+    takes (#859); the product's SoC takes none."""
+    rom, ram = ctrl_memory.regions(simulation)
+    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (rom.origin, ram.origin):
         raise ctrl_memory.Refusal("cpu origins", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
-                                  f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
+                                  f"rom at 0x{rom.origin:08x}, sram at 0x{ram.origin:08x}")
     soc.ctrl_image = ctrl_memory.read_elf(firmware)
-    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+    soc.ctrl_plan = (ctrl_memory.plan(soc.ctrl_image) if simulation is None
+                     else ctrl_memory.plan(soc.ctrl_image, simulation=simulation))
     for region, banks, words, mode in (
-            (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
-            (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
+            (rom, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image, rom), "rx"),
+            (ram, soc.ctrl_plan.ram_banks, None, "rwx")):
         soc.add_module(name=region.name, module=CtrlMemory(region, banks, words))
         soc.bus.add_slave(region.name, getattr(soc, region.name).bus,
                           region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
@@ -4315,6 +4319,9 @@ def main() -> None:
                     help="console UART baud (default 115200; the AX7101 factory demo uses 9600)")
     ap.add_argument("--build", action="store_true", help="run vendor P&R (needs Artix-7 in Vivado)")
     ap.add_argument("--load",  action="store_true", help="program the board over JTAG (openFPGALoader -c ft232)")
+    ap.add_argument("--simulation-only", action="store_true",
+                    help="the end-station builder's mark of a simulation-only shape (#859): such a shape is "
+                         "exported for simulation and never routed or loaded")
     ap.add_argument("--vivado-max-threads", type=int, default=min(os.cpu_count() or 1, 32),
                     help="max Vivado synth/place/route threads (set_param general.maxThreads; Vivado caps at 32)")
     ap.add_argument("--place-directive", default=None,
@@ -4354,6 +4361,11 @@ def main() -> None:
         _validate_cpu_options(args.cpu, args.with_fpu, args.l2_bytes)
     except ValueError as exc:
         ap.error(str(exc))
+    # The builder marks a shape it builds for simulation only (configs' simulation_only, #859); its
+    # resources pass the XC7A100T and its datapath waits for #640, so no flow routes or loads it.
+    if args.simulation_only and (args.build or args.load):
+        ap.error("--simulation-only: this shape is built for simulation only (#859) and is never routed "
+                 "or loaded; drop --build and --load")
     if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
         ap.error("--software-profile baremetal requires --cpu vexiiriscv "
                  "--xlen 32 --cpu-count 1")

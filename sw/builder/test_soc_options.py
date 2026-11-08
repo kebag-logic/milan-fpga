@@ -5,7 +5,9 @@
 
 The builder runs the refusal bank, and the split placement's instruction
 cache check (#665): only the split CPU's generator options gain the cache,
-at exactly its documented geometry.
+at exactly its documented geometry. A simulation-only shape (#859) is never
+routed or loaded: the builder marks its argv and milan_soc.py refuses
+--build and --load with the mark.
 --netlists additionally requires the NaxRiscv data package and its generator
 sources; no missing dependency skips. Each export uses a fresh process
 because CPU wrappers retain class state.
@@ -267,6 +269,56 @@ def test_refusals() -> None:
     print(f"CPU option refusals: {count} constructor cases, {cli_count} CLI cases, {controls} killed controls")
 
 
+#: The simulation-only shape (#859) and the refusal milan_soc.py makes of routing or loading it.
+SIMULATION_CONFIG = ROOT / "configs/endstation_ax7101_32x32.yaml"
+SIMULATION_REFUSAL = "built for simulation only (#859)"
+SIMULATION_CHECK = "    if args.simulation_only and (args.build or args.load):\n"
+
+
+def _simulation_argv(mutation=None):
+    """The 32x32 config's milan_soc.py argv as the end-station builder emits it, optionally
+    from a planted copy of the builder (a (old, new) substitution)."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    if mutation is None:
+        return eb.emit_soc_argv(eb.load_config(str(SIMULATION_CONFIG)))
+    import types
+    source = Path(eb.__file__).read_text()
+    assert source.count(mutation[0]) == 1, mutation[0]
+    module = types.ModuleType("planted_builder")
+    module.__file__ = eb.__file__
+    sys.modules[module.__name__] = module
+    try:
+        exec(compile(source.replace(*mutation), eb.__file__, "exec"), module.__dict__)
+    finally:
+        del sys.modules[module.__name__]
+    return module.emit_soc_argv(module.load_config(str(SIMULATION_CONFIG)))
+
+
+def _simulation_cases(directory, argv=None, mutations=()):
+    """A simulation-only shape is never routed or loaded; exported, it reaches setup."""
+    marker = [flag for flag in (argv if argv is not None else _simulation_argv()) if flag == "--simulation-only"]
+    assert marker == ["--simulation-only"], f"the builder's argv for the 32x32 shape carries {marker}"
+    for extra in (["--build"], ["--load"], ["--build", "--load"]):
+        _refused(_probe(directory, mode="cli", argv=[*marker, *extra], mutations=list(mutations)),
+                 SIMULATION_REFUSAL, cli=True)
+    assert _probe(directory, mode="cli", argv=marker, mutations=list(mutations))["kind"] == "setup"
+    return 4
+
+
+def test_simulation_only() -> None:
+    """The image build refuses to route or load the simulation-only 32x32 shape (#859), and both
+    halves of that refusal are killed: the builder dropping the mark and milan_soc.py the check."""
+    with tempfile.TemporaryDirectory(prefix="soc-simulation-only-") as tmp:
+        directory = Path(tmp)
+        count = _simulation_cases(directory)
+        unmarked = _simulation_argv(('        argv += ["--simulation-only"]', '        pass'))
+        _killed(lambda: _simulation_cases(directory, argv=unmarked), "the builder drops --simulation-only")
+        _killed(lambda: _simulation_cases(directory, mutations=[(SIMULATION_CHECK, "    if False:\n")]),
+                "milan_soc.py routes a simulation-only shape")
+    print(f"Simulation-only shape: {count} CLI cases, 2 killed controls")
+
+
 def _effect(base, changed):
     assert base["sha256"] != changed["sha256"], "option left raw netlist identical"
     assert base["rtl_sha256"] != changed["rtl_sha256"], "option changed names/comments only"
@@ -302,6 +354,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     test_refusals()
     test_split_cache()
+    test_simulation_only()
     if args.netlists:
         test_netlists(args.nax_data_dir)
     print("RESULT: PASS")
