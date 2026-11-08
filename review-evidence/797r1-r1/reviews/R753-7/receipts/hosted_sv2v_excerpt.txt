@@ -1,0 +1,22 @@
+sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+echo "${sha256}  $archive" | sha256sum -c -
+unzip -q -o "$archive" -d /tmp/sv2v
+sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+  /usr/local/bin/sv2v
+sv2v --version
+shell: /usr/bin/bash -e {0}
+env:
+  PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+  CI_BUILD_JOBS: 4
+  CI_TOOL_BUILD_JOBS: 4
+  CI_CAMPAIGN_JOBS: 4
+  VERILATOR_JOBS: 4
+  SIM_JOBS: 4
+  MAKEFLAGS: -j1 --no-print-directory
+##[endgroup]
+curl: (22) The requested URL returned error: 504
+##[error]Process completed with exit code 22.

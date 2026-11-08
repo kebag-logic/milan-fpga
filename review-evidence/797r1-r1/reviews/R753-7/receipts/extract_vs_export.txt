@@ -1,0 +1,14 @@
+# head extract vs head export
+station MAC 02:4B:4C:4B:4C:01 entity_id 0x024B4CFFFE4B4C01
+equal
+rc=0
+# r6 extract vs parent export
+station MAC 02:00:00:00:00:01 entity_id 0x020000FFFE000001
+equal
+rc=0
+# r6 extract vs head export (expected to differ)
+DIFFERS csr_csv_sha256
+DIFFERS constants
+station MAC 02:00:00:00:00:01 entity_id 0x020000FFFE000001
+2 key(s) differ
+rc=1
