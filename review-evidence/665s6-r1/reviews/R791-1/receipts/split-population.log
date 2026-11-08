@@ -1,0 +1,30 @@
+shape endstation_arty_4x4: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+shape endstation_arty_8ch: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+shape endstation_arty_current: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+shape endstation_ax7101_1x1_tdm8: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+shape endstation_ax7101_8x8: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+shape recipe: wrapper 0, adp 0, acmp-listener 0, acmp-talker 0, srp 0, maap 0, processor-maap 0, aecp 0, notify 0, mailbox 1, gptp 1
+split population: 6 shape(s), every role within the full-split limits
+	Command being timed: "python3 syn/ooc/split_population.py --check --jobs 2"
+	User time (seconds): 236.60
+	System time (seconds): 14.25
+	Percent of CPU this job got: 76%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:26.86
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1063568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 3000201
+	Voluntary context switches: 206185
+	Involuntary context switches: 175903
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1048
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

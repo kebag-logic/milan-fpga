@@ -1,0 +1,5 @@
+checked 138 SoC bindings against the testbench; 16 bound inline in _split (not compared)
+DISAGREE mailbox side m_amap_type_i: SoC binds KL_mbx.amap_index_o, testbench joins net amap_type to ['amap_type_o']
+DISAGREE mailbox side m_amap_index_i: SoC binds KL_mbx.amap_type_o, testbench joins net amap_index to ['amap_index_o']
+disagreements: 2
+rc=1

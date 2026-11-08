@@ -1,0 +1,20 @@
+Exact-head hosted job log excerpts (head 6584b7bfdf19e923153820c60190d87964e8f57b), fetched read-only from the Actions job logs:
+128588118225 firmware-boundary https://github.com/kebag-logic/milan-fpga/actions/runs/42433724437/job/128588118225
+128588118216 firmware-verilator https://github.com/kebag-logic/milan-fpga/actions/runs/42433724437/job/128588118216
+128587979988 docs-gates-0 https://github.com/kebag-logic/milan-fpga/actions/runs/42433724443/job/128587979988
+
+== docs-gates-0 (gate_31, Boundary-unit naming ratchet)
+1885:2026-11-08T01:36:11.8575104Z NEW: hdl/milan/milan_datapath.sv:milan_datapath:i_ctl_pt_offset - a new boundary must state its unit in its name
+1887:2026-11-08T01:36:11.8575698Z NEW: hdl/milan/milan_datapath.sv:milan_datapath:i_ctl_pub_idle_slope - a new boundary must state its unit in its name
+1889:2026-11-08T01:36:11.8576128Z NAMING RATCHET: FAIL (2 new, 0 stripped)
+
+== firmware-boundary
+453:2026-11-08T01:20:37.4307630Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+476:2026-11-08T01:36:05.7585767Z REFUSED: sw/builder/endstation_builder.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+477:2026-11-08T01:36:05.8596737Z ##[error]Process completed with exit code 2.
+
+== firmware-verilator
+843:2026-11-08T01:34:58.9271482Z [ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 172, where the self-test has 175
+857:2026-11-08T01:35:20.4524460Z   [FAIL] sw/firmware/ctrl/README.md gives the pin controls as 171, where the self-test has 175
+859:2026-11-08T01:35:20.4529560Z ctrl_boundary: FAIL
+860:2026-11-08T01:35:20.5339802Z ##[error]Process completed with exit code 1.

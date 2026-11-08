@@ -1,0 +1,45 @@
+hdl/milan/KL_ctrl_split.sv:12: (#665 F-INT PR 2). With CTRL_SPLIT_P = 1, milan_datapath
+hdl/milan/KL_ctrl_split.sv:22: control lane's beats, little lane order
+hdl/milan/KL_ctrl_split.sv:70: //! ---- the control lane's beats (ctl_tx_mux's s_data leg)
+hdl/milan/KL_ctrl_split.sv:71: output logic [TDATA_WIDTH_P-1:0]   m_axis_tx_tdata,  //! little lane order
+hdl/milan/KL_ctrl_split.sv:72: output logic [TDATA_WIDTH_P/8-1:0] m_axis_tx_tkeep,  //! contiguous from lane 0
+hdl/milan/KL_ctrl_split.sv:83: //! the lane arithmetic below holds eight lanes, as the wrapper's does
+hdl/milan/KL_ctrl_split.sv:106: //! lanes 4-5 (wire bytes 12 and 13) and the subtype in lane 6 (byte 14)
+hdl/milan/KL_ctrl_split.sv:236: //! the held word's last valid lane (keep is contiguous from lane 0)
+hdl/milan/KL_ctrl_split.sv:276: //! for the lane, as the wrapper's packer does.
+hdl/milan/mailbox/KL_mbx_cdc.sv:7: //                clock, milan_cd), one interface (#665 F-INT PR 2). The
+hdl/milan/mailbox/KL_mbx_cdc_window.sv:7: //                (#665 F-INT PR 2).
+hdl/milan/milan_datapath.sv:376: //! ---- the control placement (#665 F-INT PR 2) ----------------------------
+hdl/milan/milan_datapath.sv:380: //! mailbox (ruling 6088423771, decision 1), so neither KL_pp_shadow,
+hdl/milan/milan_datapath.sv:698: //! ...and their egress, one byte a beat, into the control lane
+hdl/milan/milan_datapath.sv:5633: //! split placement builds neither (ruling 6410169666 item 1): its
+hdl/milan/milan_datapath.sv:9959: //! ---- the split placement (#665 F-INT PR 2) ---------------------------
+hdl/milan/milan_datapath.sv:10105: //! are the firmware's (decision D1).
+sw/builder/endstation_builder.py:4417: #: control.placement (#665 F-INT PR 2): who runs ADP, ACMP, AECP, MAAP and SRP.
+sw/builder/test_builder.py:23490: #: gate 23m's split cases (#665 F-INT PR 2): a config with control.placement:
+sw/builder/test_builder.py:23601: #  gate 23n (#665 F-INT PR 2) - control.placement: ONE KEY, BOTH PLACEMENTS.
+sw/litex/milan_soc.py:990: # #665 F-INT PR 2: the split placement, emitted ONLY when selected, so an
+sw/litex/milan_soc.py:2886: # ---- #665 F-INT PR 2: the split placement's datapath face ----------------------------------------
+sw/litex/milan_soc.py:3037: WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665 F-INT
+sw/litex/milan_soc.py:3749: # #665 F-INT PR 2: the mailbox SoC is the
+sw/mailbox/placement_identity.py:7: (#665 F-INT PR 2). Off, the default, the datapath must elaborate to the
+sw/mailbox/placement_identity.py:28: and the labels of the bits its inputs read, refined round by
+sw/mailbox/placement_identity.py:29: round until no round adds a label; a bit by the source's name
+sw/mailbox/placement_identity.py:98: #: refinement stops once a round adds no label, and fails past this many rounds
+sw/mailbox/placement_identity.py:113: attributes and its name's template, and each round adds the labels of
+sw/mailbox/placement_identity.py:117: cells share one only when no round tells them apart."""
+syn/ooc/split_population.py:3: """split_population.py - the full-split population in a Yosys elaboration of every shape (#665 F-INT PR 2).
+syn/resmap/resmap_map.py:613: if round(result["table"]["top"]["SLICE"], 6) != 3 or ranked(result)[0]["block"] != "milan_datapath/g_af_pp.pp_shadow":
+syn/yosys/run.sh:306: # #665 F-INT PR 2: the split placement's control frames, reached inside
+tb/verilator/milan_dp/Makefile:34: #   make split - #665 F-INT PR 2: the split placement's control path, end to end
+tb/verilator/milan_dp/Makefile:715: CASE_OPTIONS_split = --banner "---- \#665 F-INT PR 2: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath -
+tb/verilator/milan_dp/Makefile:838: # #665 F-INT PR 2: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
+tb/verilator/milan_dp/sim_split.cpp:4: // sim_split.cpp - the split placement's control path, end to end (#665 F-INT PR 2).
+tb/verilator/milan_dp/sim_split.cpp:110: //! Queue a frame for the MAC's receive side, little lane order.
+tb/verilator/milan_dp/sim_split.cpp:334: for (unsigned round = 0; round < 2; ++round) {
+tb/verilator/milan_dp/sim_split.cpp:338: round + 1u);
+tb/verilator/milan_dp/sim_split.cpp:339: std::printf("[WIN] CTR round %u: status 0x%x data 0x%llx in %llu polls\n", round, s,
+tb/verilator/milan_dp/split_cdc_check.py:4: """split_cdc_check.py - every crossing of KL_mbx_cdc goes through an approved primitive (#665 F-INT PR 2).
+tb/verilator/milan_dp/split_mutants.py:4: """split_mutants.py - the split leg's planted defects, each caught by the check it names (#665 F-INT PR 2).
+tb/verilator/milan_dp/tb_split_top.sv:6: //                (#665 F-INT PR 2), for sim_split.cpp: KL_mbx on the mailbox
+instances: 44
