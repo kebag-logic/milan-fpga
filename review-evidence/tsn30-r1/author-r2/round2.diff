@@ -1,0 +1,78 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 1ff7fba..8775f77 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,7 @@
+ 
+ ## Unreleased
+ 
++- Exempt the merge of #29 from the one-line message rule by its exact commit; its identity and content are still checked.
+ - Add the required ACMP `publish` callback from milan-fpga F-INT. Publish changed bound, started and settled stream-ID state before new frames and first at completion; preserve the last publication across reset ([ACMP-10](docs/REQUIREMENTS.md#acmp-publish-port)). Integrators must supply the callback.
+ 
+ - Port the applicable [milan-fpga requirements](docs/REQUIREMENTS.md) with origins, linked clauses, both targets and verification methods. Record every source disposition. Test advertisement fields and peer-loss recovery with planted defects. Check each pinned source anchor.
+diff --git a/docs/IMPORT.md b/docs/IMPORT.md
+index ff5fb62..d6f46b4 100644
+--- a/docs/IMPORT.md
++++ b/docs/IMPORT.md
+@@ -130,8 +130,11 @@ Its tree equals the reviewed head. The map records export provenance; those comm
+ The owner-created [squash commit](https://github.com/kebag-logic/tsn-c-stack/commit/ae982af85ec97286bd35b39403926d8f0eaec81d)
+ uses hosted merge identities and a message body.
+ The [follow-up assignment](https://github.com/kebag-logic/milan-fpga/issues/697#issuecomment-6074811248) fixes it as the branch base.
+-The [privacy gate](../scripts/check_privacy.py) exempts only that exact commit from identity and one-line checks.
++The [privacy gate](../scripts/check_privacy.py) exempts that exact commit from identity and one-line checks.
+ It still scans that commit's content and every reachable blob.
++The [merge of #29](https://github.com/kebag-logic/tsn-c-stack/commit/d7e6a2a19a57a8277cd26042557a8c99f2ee5496) was recorded with a second message paragraph.
++The gate exempts that exact commit from the one-line rule only. Its identity and content are still checked.
++Main's published history is not rewritten, so the exemption stands in place of a corrected message.
+ Later pull requests are squash-merged on GitHub. Their commits carry the account's noreply author and GitHub as committer.
+ Every new commit must use one of these two identity pairs and a one-line subject:
+ the configured holder identity as author and committer, or that hosted squash pair.
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index 36586e0..28976bd 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -39,7 +39,7 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Test sensitivity | `python3 scripts/test_inventory.py` | Every test declaration has a named plant. No unknown test names. |
+ | Coverage controls | `python3 scripts/coverage_selftest.py` | Drops, missing files, moved uncovered arcs and stale exclusions rejected. |
+ | Privacy | `python3 scripts/check_privacy.py` | Reachable metadata, historical blobs and current tree pass. |
+-| Privacy commit rule | `python3 scripts/check_privacy.py --selftest` | The holder pair and the GitHub squash pair pass with a one-line message, and the exact owner squash passes. Mixed, reversed, case-varied and other-account pairs fail, and so does a multi-line message. |
++| Privacy commit rule | `python3 scripts/check_privacy.py --selftest` | The holder pair and the GitHub squash pair pass with a one-line message, and the exact owner squash passes. The exact merge of #29 passes with a two-paragraph message under its GitHub pair; the same message fails under a foreign identity and under an id one digit away. Mixed, reversed, case-varied and other-account pairs fail, and so does a multi-line message on any other commit. |
+ | Graphs | `python3 scripts/render_graphs.py --output build-graphs` | Every Mermaid fence renders. |
+ 
+ Install [GoogleTest and GMock 1.14.0](https://github.com/google/googletest/tree/f8d7d77c06936315286eb55f8de22cd23c188571),
+diff --git a/scripts/check_privacy.py b/scripts/check_privacy.py
+index 211d9f4..6790ee6 100644
+--- a/scripts/check_privacy.py
++++ b/scripts/check_privacy.py
+@@ -13,7 +13,7 @@ PATTERNS = [re.compile(r"(?i)\b" + re.escape(word)) for word in WORDS]
+ PATTERNS += [re.compile(re.escape("/" + name + "/")) for name in ("home", "Users", "data", "tmp")]
+ PATTERNS += [re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"), re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")]
+ OWNER_SQUASH = "ae982af85ec97286bd35b39403926d8f0eaec81d"
+-# Merge of #29 (d7e6a2a1) was recorded with a second message paragraph; it is exempt from the one-line rule only.
++# Merge of #29 (d7e6a2a1) was recorded with a second message paragraph; it is exempt from the one-line rule only, since main's published history is not rewritten.
+ TWO_LINE_MERGES = {"d7e6a2a19a57a8277cd26042557a8c99f2ee5496"}
+ IDENTITY = "hackerman-kl <hackerman-kl@kebag-logic.com>"
+ WEB_FLOW = ["hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>", "GitHub <noreply@github.com>"]
+@@ -52,11 +52,13 @@ def selftest():
+         ("foreign", ["someone <a@b.c>", "someone <a@b.c>", "Subject"], False),
+         ("two-line-merge", WEB_FLOW + ["Merge (#29)", "", "Body"], True),
+         ("two-line-merge-foreign", ["someone <a@b.c>", "someone <a@b.c>", "Merge (#29)", "", "Body"], False),
++        ("two-line-merge-near-miss", WEB_FLOW + ["Merge (#29)", "", "Body"], False),
+     ]
+     bad = []
+     for name, lines, want in cases:
+         commit = OWNER_SQUASH if name == "owner-squash" else "0" * 40
+         commit = next(iter(TWO_LINE_MERGES)) if name.startswith("two-line-merge") else commit
++        commit = commit[:-1] + ("0" if commit[-1] != "0" else "1") if name.endswith("near-miss") else commit
+         if (not commit_errors(commit, lines)) != want:
+             bad.append(name)
+     print("privacy selftest: " + ("fail " + ", ".join(bad) if bad else f"{len(cases)} commit controls pass"))
+@@ -77,6 +79,8 @@ def main():
+         errors += scan(commit, data)
+     if OWNER_SQUASH in commits:
+         print("privacy: exact owner squash metadata exception; content scanning remains enabled")
++    if TWO_LINE_MERGES & set(commits):
++        print("privacy: exact #29 merge one-line exception; identity and content checks remain enabled")
+     objects = git("rev-list", "--objects", "HEAD").decode().splitlines()
+     unique = {line.split(" ", 1)[0] for line in objects}
+     blobs = 0
