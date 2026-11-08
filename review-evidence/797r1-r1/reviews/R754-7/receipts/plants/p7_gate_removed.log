@@ -1,0 +1,11 @@
+# p7: register gate step removed from the template, workflow regenerated
+regen rc=0
+ .github/ci-templates/docs.yml |  6 ------
+ .github/workflows/docs.yml    | 14 ++++----------
+ 2 files changed, 4 insertions(+), 16 deletions(-)
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 53 steps, in the recorded order (found 52): an inserted step of ANY content runs before every later step and can set their inherited environment at run time -- a `BASH_ENV` written to `$GIT
+  FAIL .github/workflows/docs.yml: job `docs-check` step 52 must be the step named `Register reference freshness gate` (found `CI scheduling and evidence controls`): the position is the contract -- the steps before this one decide what it reads, and the steps 
+  FAIL .github/workflows/docs.yml: job `docs-check` step 53 must be the step named `CI scheduling and evidence controls` (found no step at this position): the position is the contract -- the steps before this one decide what it reads, and the steps after it re
+ci_events: 3 finding(s) over 2204 contract item(s)
+ci_events --check rc=1

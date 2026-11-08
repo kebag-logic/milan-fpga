@@ -1,0 +1,9 @@
+ok   p0_control: rc 0 (want 0) register reference: fresh (203 registers, 34 modules, 240 files)
+ok   p1_dev_handwritten_page: rc 1 (want 1) STALE docs/reference/REGISTER_MAP.md register reference: STALE (1 files); run python3 scripts/gen_register_reference.py --write
+ok   p2_mac_ifg_reset_flop_and_rom: rc 1 (want 1) STALE docs/diagrams/regmap/mac.json STALE docs/diagrams/regmap/mac/MAC_IFG.svg STALE docs/diagrams/regmap/rtl_fingerprint.txt STALE docs/reference/REGISTER_MAP.
+ok   p3_field_signal_rename: rc 1 (want 1) STALE docs/diagrams/regmap/rtl_fingerprint.txt register reference: STALE (1 files); run python3 scripts/gen_register_reference.py --write
+ok   p4_register_rename: rc 2 (want 2) register reference: REFUSED: scripts/register_descriptions.json: register ETH_LOCK at 0x7D8 needs a name and a purpose
+ok   p5_comment_only: rc 0 (want 0) register reference: fresh (203 registers, 34 modules, 240 files)
+ok   p6_description_prose_edit: rc 1 (want 1) STALE docs/reference/REGISTER_MAP.md register reference: STALE (1 files); run python3 scripts/gen_register_reference.py --write
+plants: 7/7 as expected
+rc=0

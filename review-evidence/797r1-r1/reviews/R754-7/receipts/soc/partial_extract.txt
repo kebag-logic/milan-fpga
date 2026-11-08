@@ -1,0 +1,37 @@
+== tree head vs export_head
+extract refused without gateware (expected): /tmp/tmp8gvxmmfe/gateware has no milan_datapath instance
+ok   csr_csv_sha256
+ok   constants
+ok   csr_registers
+ok   csr_banks
+ok   memory_regions
+ok   pp_windows
+not compared: datapath parameters (need the export's gateware/)
+rc=0
+== tree merge vs export_head
+extract refused without gateware (expected): /tmp/tmp4ys5osiu/gateware has no milan_datapath instance
+DIFF csr_csv_sha256
+DIFF constants
+ok   csr_registers
+ok   csr_banks
+ok   memory_regions
+ok   pp_windows
+    milan_aem_image_crc32 1537431019 -> 950534947
+    milan_entity_id_hi 33554687 -> 38489343
+    milan_entity_id_lo 4261412865 -> 4266347521
+    milan_model_id_hi 1820097 -> 1820109
+    milan_model_id_lo 2472055777 -> 395649963
+    milan_station_mac_hi 256 -> 332
+    milan_station_mac_lo 2 -> 1263291138
+not compared: datapath parameters (need the export's gateware/)
+rc=0
+== tree merge vs export_parent
+extract refused without gateware (expected): /tmp/tmpg4bypahx/gateware has no milan_datapath instance
+ok   csr_csv_sha256
+ok   constants
+ok   csr_registers
+ok   csr_banks
+ok   memory_regions
+ok   pp_windows
+not compared: datapath parameters (need the export's gateware/)
+rc=0
