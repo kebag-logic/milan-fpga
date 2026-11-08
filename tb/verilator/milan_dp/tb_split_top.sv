@@ -99,7 +99,7 @@ module tb_split_top
   // ---- the mailbox side ------------------------------------------------------
   logic [S-1:0] pub_da_gate, pub_licence, pub_talker_decl;
   logic [S*64-1:0] pub_src_sid;
-  logic [31:0] pub_idle_slope;
+  logic [31:0] pub_idle_slope_bps;
   logic [11:0] pub_dom_vid;
   logic [2:0]  pub_dom_prio;
   logic        pub_dom_adopted;
@@ -114,7 +114,7 @@ module tb_split_top
   logic [1:0] fw_restore_cause;
   logic fw_n_backed, fw_n_alarm, fw_n_dirty, fw_n_stale, fw_n_pend, fw_n_img_valid;
   logic [3:0] fw_nvm_verdict;
-  logic [S*32-1:0] fw_pt_offset;
+  logic [S*32-1:0] fw_pt_offset_ns;
   logic [S-1:0] fw_pt_offset_v, fw_fmt_out_v;
   logic [S*64-1:0] fw_fmt_out;
   logic [K*64-1:0] fw_fmt_in;
@@ -158,7 +158,7 @@ module tb_split_top
     .rx_valid_i(m_rx_valid), .rx_ready_o(m_rx_ready), .rx_data_i(m_rx_data), .rx_last_i(m_rx_last), .rx_if_i('0),
     .tx_valid_o(m_tx_valid), .tx_ready_i(m_tx_ready), .tx_data_o(m_tx_data), .tx_last_o(m_tx_last),
     .tx_if_o(m_tx_if), .tx_ch_o(m_tx_ch),
-    .pub_da_gate_o(pub_da_gate), .pub_licence_o(pub_licence), .pub_idle_slope_bps_o(pub_idle_slope),
+    .pub_da_gate_o(pub_da_gate), .pub_licence_o(pub_licence), .pub_idle_slope_bps_o(pub_idle_slope_bps),
     .pub_dom_vid_o(pub_dom_vid), .pub_dom_prio_o(pub_dom_prio), .pub_dom_adopted_o(pub_dom_adopted),
     .pub_talker_decl_o(pub_talker_decl), .pub_src_sid_o(pub_src_sid), .pub_bound_o(pub_bound),
     .pub_sid_valid_o(pub_sid_valid), .pub_started_o(pub_started), .pub_sid_o(pub_sid),
@@ -171,7 +171,7 @@ module tb_split_top
     .fw_nvm_backed_o(fw_n_backed), .fw_nvm_alarm_o(fw_n_alarm), .fw_nvm_dirty_o(fw_n_dirty),
     .fw_nvm_stale_o(fw_n_stale), .fw_nvm_pend_o(fw_n_pend), .fw_nvm_img_valid_o(fw_n_img_valid),
     .fw_nvm_verdict_o(fw_nvm_verdict),
-    .fw_pt_offset_ns_o(fw_pt_offset), .fw_pt_offset_v_o(fw_pt_offset_v), .fw_fmt_out_o(fw_fmt_out),
+    .fw_pt_offset_ns_o(fw_pt_offset_ns), .fw_pt_offset_v_o(fw_pt_offset_v), .fw_fmt_out_o(fw_fmt_out),
     .fw_fmt_out_v_o(fw_fmt_out_v), .fw_fmt_in_o(fw_fmt_in), .fw_fmt_in_v_o(fw_fmt_in_v),
     .ctr_req_o(ctr_req), .ctr_tag_o(ctr_tag), .ctr_type_o(ctr_type), .ctr_index_o(ctr_index), .ctr_word_o(ctr_word),
     .ctr_ans_p_i(ctr_ans_p), .ctr_ans_tag_i(ctr_ans_tag), .ctr_ans_data_i(ctr_ans_data),
@@ -191,7 +191,7 @@ module tb_split_top
   // ---- the datapath side's ctl nets ----------------------------------------------
   logic [S-1:0] d_da_gate, d_licence, d_talker_decl, d_pt_offset_v, d_fmt_out_v;
   logic [S*64-1:0] d_src_sid, d_fmt_out;
-  logic [31:0] d_idle_slope;
+  logic [31:0] d_idle_slope_bps;
   logic [11:0] d_dom_vid;
   logic [2:0] d_dom_prio, d_rs_cause;
   logic d_dom_adopted, d_lock_held, d_dyn_dirty;
@@ -199,7 +199,7 @@ module tb_split_top
   logic [K*64-1:0] d_sid, d_fmt_in;
   logic [15:0] d_cur_config, d_clk_src;
   logic [7:0] d_identify;
-  logic [S*32-1:0] d_pt_offset;
+  logic [S*32-1:0] d_pt_offset_ns;
   logic [5:0] d_restore, d_nvm;
   logic [1:0] d_restore_cause;
   logic [3:0] d_nvm_verdict;
@@ -224,12 +224,12 @@ module tb_split_top
   KL_mbx_cdc u_cdc (
     .sys_clk_i(sys_clk), .sys_rst_n, .dp_clk_i(dp_clk), .dp_rst_n,
     .m_pub_da_gate_i(pub_da_gate), .m_pub_licence_i(pub_licence), .m_pub_talker_decl_i(pub_talker_decl),
-    .m_pub_src_sid_i(pub_src_sid), .m_pub_idle_slope_bps_i(pub_idle_slope), .m_pub_dom_vid_i(pub_dom_vid),
+    .m_pub_src_sid_i(pub_src_sid), .m_pub_idle_slope_bps_i(pub_idle_slope_bps), .m_pub_dom_vid_i(pub_dom_vid),
     .m_pub_dom_prio_i(pub_dom_prio), .m_pub_dom_adopted_i(pub_dom_adopted), .m_pub_bound_i(pub_bound),
     .m_pub_sid_valid_i(pub_sid_valid), .m_pub_started_i(pub_started), .m_pub_sid_i(pub_sid),
     .m_fw_send_i(fw_send), .m_fw_ack_p_o(fw_ack_p), .m_fw_cur_config_i(fw_cur_config),
     .m_fw_identify_i(fw_identify), .m_fw_clk_src_index_i(fw_clk_src), .m_fw_lock_held_i(fw_lock_held),
-    .m_fw_dyn_dirty_i(fw_dyn_dirty), .m_fw_pt_offset_ns_i(fw_pt_offset), .m_fw_pt_offset_v_i(fw_pt_offset_v),
+    .m_fw_dyn_dirty_i(fw_dyn_dirty), .m_fw_pt_offset_ns_i(fw_pt_offset_ns), .m_fw_pt_offset_v_i(fw_pt_offset_v),
     .m_fw_fmt_out_i(fw_fmt_out), .m_fw_fmt_out_v_i(fw_fmt_out_v), .m_fw_fmt_in_i(fw_fmt_in),
     .m_fw_fmt_in_v_i(fw_fmt_in_v),
     .m_fw_restore_i({fw_r_rb, fw_r_closed, fw_r_blank, fw_r_fail, fw_r_done, fw_r_busy}),
@@ -253,11 +253,11 @@ module tb_split_top
     .m_link_up_o(m_link_up), .m_gm_change_p_o(m_gm_change_p), .m_gm_id_o(m_gm_id),
     .m_gptp_domain_o(m_gptp_domain),
     .d_pub_da_gate_o(d_da_gate), .d_pub_licence_o(d_licence), .d_pub_talker_decl_o(d_talker_decl),
-    .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_bps_o(d_idle_slope), .d_pub_dom_vid_o(d_dom_vid),
+    .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_bps_o(d_idle_slope_bps), .d_pub_dom_vid_o(d_dom_vid),
     .d_pub_dom_prio_o(d_dom_prio), .d_pub_dom_adopted_o(d_dom_adopted), .d_pub_bound_o(d_bound),
     .d_pub_sid_valid_o(d_sid_valid), .d_pub_started_o(d_started), .d_pub_sid_o(d_sid),
     .d_cur_config_o(d_cur_config), .d_identify_o(d_identify), .d_clk_src_index_o(d_clk_src),
-    .d_lock_held_o(d_lock_held), .d_dyn_dirty_o(d_dyn_dirty), .d_pt_offset_ns_o(d_pt_offset),
+    .d_lock_held_o(d_lock_held), .d_dyn_dirty_o(d_dyn_dirty), .d_pt_offset_ns_o(d_pt_offset_ns),
     .d_pt_offset_v_o(d_pt_offset_v), .d_fmt_out_o(d_fmt_out), .d_fmt_out_v_o(d_fmt_out_v),
     .d_fmt_in_o(d_fmt_in), .d_fmt_in_v_o(d_fmt_in_v), .d_restore_o(d_restore), .d_rs_cause_o(d_rs_cause),
     .d_restore_cause_o(d_restore_cause), .d_nvm_o(d_nvm), .d_nvm_verdict_o(d_nvm_verdict),
@@ -313,11 +313,11 @@ module tb_split_top
     .o_ctl_link_up(d_link_up), .o_ctl_gm_change_p(d_gm_change_p), .o_ctl_gm_id(d_gm_id),
     .o_ctl_gptp_domain(d_gptp_domain),
     .i_ctl_pub_da_gate(d_da_gate), .i_ctl_pub_licence(d_licence), .i_ctl_pub_talker_decl(d_talker_decl),
-    .i_ctl_pub_src_sid(d_src_sid), .i_ctl_pub_idle_slope_bps(d_idle_slope), .i_ctl_pub_dom_vid(d_dom_vid),
+    .i_ctl_pub_src_sid(d_src_sid), .i_ctl_pub_idle_slope_bps(d_idle_slope_bps), .i_ctl_pub_dom_vid(d_dom_vid),
     .i_ctl_pub_dom_prio(d_dom_prio), .i_ctl_pub_dom_adopted(d_dom_adopted), .i_ctl_pub_bound(d_bound),
     .i_ctl_pub_sid_valid(d_sid_valid), .i_ctl_pub_started(d_started), .i_ctl_pub_sid(d_sid),
     .i_ctl_cur_config(d_cur_config), .i_ctl_identify(d_identify), .i_ctl_clk_src_index(d_clk_src),
-    .i_ctl_lock_held(d_lock_held), .i_ctl_dyn_dirty(d_dyn_dirty), .i_ctl_pt_offset_ns(d_pt_offset),
+    .i_ctl_lock_held(d_lock_held), .i_ctl_dyn_dirty(d_dyn_dirty), .i_ctl_pt_offset_ns(d_pt_offset_ns),
     .i_ctl_pt_offset_v(d_pt_offset_v), .i_ctl_fmt_out(d_fmt_out), .i_ctl_fmt_out_v(d_fmt_out_v),
     .i_ctl_fmt_in(d_fmt_in), .i_ctl_fmt_in_v(d_fmt_in_v), .i_ctl_restore(d_restore), .i_ctl_rs_cause(d_rs_cause),
     .i_ctl_restore_cause(d_restore_cause), .i_ctl_nvm(d_nvm), .i_ctl_nvm_verdict(d_nvm_verdict),
