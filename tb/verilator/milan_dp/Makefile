@@ -866,7 +866,7 @@ split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE
 	python3 split_mutants.py
 
 # the split crossing's structure: every KL_mbx_cdc crossing through a primitive
-# (split_cdc_check.py), and four plants each refused. It needs the pinned sv2v
+# (split_cdc_check.py), and twelve plants each refused. It needs the pinned sv2v
 # and Yosys, which not every hosted suite shard installs, so it is not a case.
 split-cdc:
 	python3 split_cdc_check.py --selftest

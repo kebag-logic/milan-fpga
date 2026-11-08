@@ -1143,10 +1143,18 @@ check it names, after a clean control passes. Nine of them hold the Talker
 declaration's encoding, the tap's tuples and its drop count.
 
 `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
-the primitives as blackboxes and requires every flop, output and primitive
-input to read only its own clock's domain. The one allowance is the settings
-capture of the bus `KL_mbx` holds. Four plants of a raw crossing must each be
-refused. It needs the pinned sv2v and Yosys, so it is not a default case.
+the primitives as blackboxes. Every flop's inputs, every output and every
+primitive's source inputs and resets must read only their own clock's domain,
+and every clock pin must read one of the two clock inputs. The one allowance
+is the settings capture: the flop `fw_r` may take the data bits of the bus
+`KL_mbx` holds, and only through a multiplexer that `u_fw_req`'s destination
+pulse selects. Twelve plants must each be refused by their own words: a raw
+publication, LINK level, settings read and window answer; the held bus taken
+every cycle, on the commit level, on the request pulse, while the pulse is
+low, and by another flop; a reset from the other domain on each side; and a
+primitive clocked by a level. That `KL_mbx` holds the bus until the
+acknowledgement is its own behaviour, held by the `[FACE]` checks. It needs
+the pinned sv2v and Yosys, so it is not a default case.
 
 Not held here: the `EDIT` window, the counter-change and face events, the GM
 event, and the firmware itself. The two-placement comparison owes them.

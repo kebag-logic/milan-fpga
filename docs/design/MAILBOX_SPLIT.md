@@ -1424,10 +1424,17 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - [`split_population.py`](../../syn/ooc/split_population.py) holds the
   `full-split` population of `pp_placement.py` on the RTL, in every shape.
 - The [`milan_dp`](../../tb/verilator/milan_dp/README.md) split leg runs the
-  control path end to end. `split_mutants.py` plants thirteen defects, each
-  caught by the check it names.
-- `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist and
-  refuses any crossing that skips a primitive, with four planted ones.
+  control path end to end, and `KL_ctrl_split`'s tap alone: every tuple class
+  it accepts or refuses, and its drop count. `split_mutants.py` plants
+  twenty-two defects, each caught by the check it names.
+- `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist. Every
+  flop, output and primitive input, the primitives' resets among them, must
+  read only its own clock's domain, and every clock pin one of the two clocks.
+  Its one allowance is the settings capture: `fw_r` takes `KL_mbx`'s held
+  bus only through the multiplexer `u_fw_req`'s destination pulse selects.
+  Twelve plants are each refused by their own words. That `KL_mbx` holds the
+  bus until the acknowledgement is its own behaviour, which the split leg's
+  `[FACE]` checks hold.
 
 The split leg runs in the suite's default `make`. The other four checks are
 local: no hosted job runs them yet, as workflow edits wait on #784.
