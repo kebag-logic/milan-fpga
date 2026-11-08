@@ -201,6 +201,12 @@ def shape_streams(config: Path) -> tuple[int, int]:
     return int(adp["talker_stream_sources"]), int(adp["listener_stream_sinks"])
 
 
+def outgrows(contract: Contract, sources: int, sinks: int) -> bool:
+    """Whether an entity's streams outgrow the contract's tables, which hold stream n at entry n of
+    every interface's: such a shape takes the layout sized from its streams (write_shape_variant)."""
+    return sources > contract.pub_sources or sinks > min(contract.pub_sinks, contract.bound_talkers)
+
+
 def per_interface(streams: int, interfaces: int) -> list[int]:
     """The streams each interface carries when stream n is on interface n mod interfaces (#859, the
     split firmware's placement, sw/firmware/ctrl/test/ctrl_aecp_image.c)."""

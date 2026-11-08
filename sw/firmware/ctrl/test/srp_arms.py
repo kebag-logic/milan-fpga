@@ -27,7 +27,7 @@ def shape_layout(header: Path) -> bool:
     text = header.read_text()
     sources, sinks = (int(re.search(rf"^#define CTRL_SRP_{name} (\d+)u$", text, re.M).group(1))
                       for name in ("SOURCES", "SINKS"))
-    return sources > contract.pub_sources or sinks > min(contract.pub_sinks, contract.bound_talkers)
+    return gen_mailbox.outgrows(contract, sources, sinks)
 
 
 def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple[Path, list[str]]:

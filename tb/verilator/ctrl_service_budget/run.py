@@ -27,7 +27,21 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
-POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
+POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
+          '32x32': ('endstation_ax7101_32x32', 2)}
+#: Whom a point built without saved state owes the saved-state store's groups (#859): the record
+#: space at that shape is #823's.
+SAVE_OWNER = '#823'
+
+
+def owed_save_groups(spec: dict) -> list[str]:
+    """The saved-state store's groups on this harness (tb/verilator/nvm_split_target's cases), each
+    owed to SAVE_OWNER by name when the point is built without saved state; none otherwise."""
+    if spec.get('saved_state', True):
+        return []
+    sys.path.insert(0, str(ROOT / 'tb/verilator/nvm_split_target'))
+    import target_cases
+    return [case.name for case in target_cases.CASES]
 
 
 def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
@@ -164,12 +178,15 @@ def table(results: list[dict], point: str) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str]) -> dict:
+def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str],
+            owed: list[str] = ()) -> dict:
     """results.json: every grade, every path's worst instance, the counts, the composed windows,
-    the composed maximum the table renders, the refusals and the misses."""
+    the composed maximum the table renders, the refusals and the misses; and, at a point built
+    without saved state, the save groups owed, which are not grades."""
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
-                refusals=refusals, misses=misses)
+                refusals=refusals, misses=misses,
+                **({'owed': {'to': SAVE_OWNER, 'save_groups': list(owed)}} if owed else {}))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -343,17 +360,25 @@ def main() -> int:
             logs = list(pool.map(lambda g: run_group(build_dir, out, g, spec.get('flash_image') or '-'), groups))
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
-    (out / 'table.md').write_text(table(results, args.point))
+    owed = owed_save_groups(spec)
+    text = table(results, args.point)
+    if owed:
+        text += (f'\nSave groups owed to {SAVE_OWNER}, not run and not graded: this point is built without '
+                 f'saved state (#859): {", ".join(f"`{name}`" for name in owed)}.\n')
+    (out / 'table.md').write_text(text)
     (out / 'results.json').write_text(json.dumps(summary(args.point, spec['executable_sha256'], results, refusals,
-                                                         misses), indent=1) + '\n')
+                                                         misses, owed), indent=1) + '\n')
     for line in refusals:
         print('REFUSED', line)
     for line in misses:
         print('BUDGET', line)
+    for name in owed:
+        print(f'OWED {name}: a save group, owed to {SAVE_OWNER}; this point is built without saved state')
     tally = counts(results)
     print(f'{len(results)} groups graded, {len(refusals)} refusals, {len(misses)} T_svc misses '
           f"({tally['instance_misses']} of {tally['instances']} probe instances, "
-          f"{tally['path_misses']} of {tally['paths']} paths)")
+          f"{tally['path_misses']} of {tally['paths']} paths)"
+          + (f', {len(owed)} save groups owed to {SAVE_OWNER}' if owed else ''))
     return verdict(args, groups, refusals, misses)
 
 

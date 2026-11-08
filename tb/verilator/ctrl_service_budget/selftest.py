@@ -764,7 +764,7 @@ def build_checks() -> list[Check]:
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces'} and named['8x8'] in ctrl_memory.LEDGERED
+            named == {'1x1': None, '8x8': '8x8-two-interfaces', '32x32': None} and named['8x8'] in ctrl_memory.LEDGERED
             and not any(others.values()), f'{named}; other points {others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
@@ -915,11 +915,43 @@ def cache_build_checks() -> list[Check]:
     return out
 
 
+def shape_checks() -> list[Check]:
+    """The 32x32 two-interface point (#859): built without saved state, it owes every save group to #823 by name
+    and grades none of them, a point with saved state owes none; and its publication addresses are the shape's
+    layout's, each interface's sinks by their ordinal on it, while the contract's points keep entry k for sink k."""
+    sys.path.insert(0, str(HERE.parents[2] / 'tb/verilator/nvm_split_target'))
+    import target_cases
+    shape, n_if = run.POINTS['32x32']
+    owed = run.owed_save_groups({'saved_state': False})
+    out = [('the 32x32 point is built without saved state and owes every save group to #823 by name',
+            not build.keeps_saved_state(shape) and owed == [c.name for c in target_cases.CASES] and bool(owed)
+            and run.SAVE_OWNER == '#823', f'{owed}'),
+           ('a point with saved state owes no save group', run.owed_save_groups({}) == [] and all(
+               build.keeps_saved_state(run.POINTS[p][0]) for p in ('1x1', '8x8')), '1x1 and 8x8'),
+           ('the owed save groups are named in the results and are not grades',
+            set(run.summary('32x32', 'x', [], [], [], owed)['owed']) == {'to', 'save_groups'}
+            and 'owed' not in run.summary('8x8', 'x', [], [], []), 'results.json')]
+    import gen_mailbox
+    layout = gen_mailbox.shape_variant(scenario.CONTRACT, scenario.ROOT / 'configs' / (shape + '.yaml'), n_if)[0]
+    c = scenario.CONTRACT
+    binding = scenario.SINK_REG['BINDING']
+    ordinal = all(scenario.binding_word(k % 2, k, layout) == scenario.word(
+        layout.pub_base + (k % 2) * layout.pub_stride + layout.pub_sink_base + (k // 2) * layout.pub_sink_stride
+        + binding) for k in range(33))
+    tracked = all(scenario.binding_word(i, k) == scenario.word(
+        c.pub_base + i * c.pub_stride + c.pub_sink_base + k * c.pub_sink_stride + binding)
+        for i in range(2) for k in range(16))
+    out.append(('a shape layout\'s BINDING word is its sink\'s ordinal entry on its interface, the contract\'s '
+                'entry k for sink k', ordinal and tracked and layout.entry_ordinal and not c.entry_ordinal,
+                f'ordinal {ordinal}, contract {tracked}'))
+    return out
+
+
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
-            *build_checks(), *cache_checks(), *cache_build_checks()]
+            *build_checks(), *cache_checks(), *cache_build_checks(), *shape_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

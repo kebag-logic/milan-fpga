@@ -350,6 +350,65 @@ def ledger_plant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
         check(problems, bool(caught), f"PLANTED ledger '{what}' is caught: {caught[0] if caught else 'nothing red'}")
 
 
+#: The simulation map the 32x32 shape links into (#859) and its identity: the SRP pool at the shape.
+SIM_MAP = "32x32-two-interfaces"
+
+
+def simulation_elf(tmp: Path, arena: int, bss: int) -> Path:
+    """A simulation image: a tile of code in rom, `bss` bytes of .bss and the stack in sram, and the two
+    symbols that make it the 32x32 size fixture's (`arena` the SRP pool's size)."""
+    path = tmp / f"sim-{arena}-{bss}.elf"
+    path.write_bytes(write_elf(0, [
+        (".text", 0, 0, bytes((i * 7 + 3) & 0xFF for i in range(ctrl_memory.TILE_BYTES)), False),
+        (".bss", RAM, RAM, bss, True), (".stack", RAM + bss, RAM + bss, 8192, True)],
+        {"_start": 4, "image_arena": arena, "image_allocation": 16}))
+    return path
+
+
+def simulation_facts(tmp: Path) -> list[tuple[bool, str]]:
+    """The simulation map (ctrl_memory.SIMULATION): the 32x32 image is planned in its regions past the
+    budget with every byte over it ledgered to #640, by region and by its largest objects; the same
+    image is refused the split placement's map, and an image that is not the shape's the simulation map."""
+    out = []
+    shape = ctrl_memory.SIMULATION[SIM_MAP]
+    big = simulation_elf(tmp, 144_832, 300_000)
+    try:
+        plan = ctrl_memory.plan(ctrl_memory.read_elf(big), simulation=SIM_MAP)
+        owed = plan.summary().get("owed", {})
+        out += [(plan.tiles > ctrl_memory.BUDGET_TILES and owed.get("over_bytes", 0) > 0
+                 and owed.get("to", "").startswith("#640"),
+                 f"the 32x32 image is planned past 56 RAMB36 with its bytes over owed to #640 ({plan.tiles}, {owed})"),
+                (set(owed.get("regions", {})) == {"rom", "sram"} and 1 <= len(owed.get("largest", [])) <= 5,
+                 "the ledger is by region and by the five largest objects")]
+    except ctrl_memory.Refusal as exc:
+        out.append((False, f"the 32x32 image is refused its simulation map: {exc}"))
+    for label, attempt, words in (
+            ("the 32x32 image without its simulation map",
+             lambda: ctrl_memory.plan(ctrl_memory.read_elf(big)), "outside"),
+            ("the 8x8 SRP pool's image on the simulation map",
+             lambda: ctrl_memory.plan(ctrl_memory.read_elf(simulation_elf(tmp, 48_064, 300_000)),
+                                      simulation=SIM_MAP), f"is for the {shape.shape} image alone")):
+        try:
+            attempt()
+            out.append((False, f"{label}: planned"))
+        except ctrl_memory.Refusal as exc:
+            out.append((words in str(exc), f"{label}: refused by its words ({exc})"))
+    out.append((ctrl_memory.regions(SIM_MAP) == (shape.rom, shape.ram) and ctrl_memory.regions() ==
+                (ctrl_memory.ROM, ctrl_memory.RAM), "the shipped regions are the split placement's, unchanged"))
+    return out
+
+
+def simulation_arms(problems: list[str], tmp: Path) -> None:
+    """simulation_facts, then the map planted without its identity, which must turn a fact red."""
+    for holds, what in simulation_facts(tmp):
+        check(problems, holds, what)
+    planted = {SIM_MAP: ctrl_memory.SIMULATION[SIM_MAP].__class__(
+        **{**vars(ctrl_memory.SIMULATION[SIM_MAP]), "symbols": ()})}
+    with patched(ctrl_memory, "SIMULATION", planted):
+        red = [what for holds, what in simulation_facts(tmp) if not holds]
+    check(problems, bool(red), f"PLANTED simulation map without its identity is caught: {red[0] if red else 'nothing red'}")
+
+
 def check_arms(problems: list[str], tmp: Path) -> None:
     """The good image, the budget boundary, the hookup's own effects, then every refusal by its rule."""
     plan = accepted(problems, lambda: ctrl_memory.plan(image(tmp, GOOD)), "the good image is planned")
@@ -976,6 +1035,7 @@ def main() -> int:
             outcomes[key] = run_arm(problems, label, arm)
             if len(problems) == before:
                 green.add(key)
+        run_arm(problems, "simulation map", partial(simulation_arms, tmp=tmp))
         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
         run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
         run_arm(problems, "planted ledgers", partial(ledger_plant_arms, tmp=tmp, green=green))

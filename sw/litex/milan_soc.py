@@ -3037,11 +3037,12 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path, simulation: str | None = None)
     """Build rom and sram from the linked control firmware; rom's first word is the reset entry.
     simulation names a ctrl_memory.SIMULATION map, which only a simulation-only shape's test SoC
     takes (#859); the product's SoC takes none."""
-    rom, ram = ctrl_memory.regions(simulation)
-    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (rom.origin, ram.origin):
+    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
         raise ctrl_memory.Refusal("cpu origins", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
-                                  f"rom at 0x{rom.origin:08x}, sram at 0x{ram.origin:08x}")
+                                  f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
+    # a simulation map's regions are at the split placement's origins, which the check above holds
+    rom, ram = ctrl_memory.regions(simulation)
     soc.ctrl_image = ctrl_memory.read_elf(firmware)
     soc.ctrl_plan = (ctrl_memory.plan(soc.ctrl_image) if simulation is None
                      else ctrl_memory.plan(soc.ctrl_image, simulation=simulation))

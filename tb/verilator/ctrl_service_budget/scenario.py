@@ -73,15 +73,20 @@ def ch_word(ch: int, name: str) -> int:
     return word(CONTRACT.ch_base + ch * CONTRACT.ch_stride + CH_REG[name])
 
 
-def pub_word(interface: int, name: str) -> int:
-    """The word address of an interface's publication register (contract 2.2)."""
-    return word(CONTRACT.pub_base + interface * CONTRACT.pub_stride + PUB_REG[name])
+def pub_word(interface: int, name: str, layout: object = None) -> int:
+    """The word address of an interface's publication register (contract 2.2), in the contract's
+    layout or the point's (Point.layout)."""
+    c = layout or CONTRACT
+    return word(c.pub_base + interface * c.pub_stride + PUB_REG[name])
 
 
-def binding_word(interface: int, sink: int) -> int:
-    """The word address of a sink's BINDING publication register."""
-    return word(CONTRACT.pub_base + interface * CONTRACT.pub_stride + CONTRACT.pub_sink_base
-                + sink * CONTRACT.pub_sink_stride + SINK_REG['BINDING'])
+def binding_word(interface: int, sink: int, layout: object = None) -> int:
+    """The word address of a sink's BINDING publication register, in the contract's layout or the
+    point's: a shape's layout holds sink k at its ordinal on its interface (#859)."""
+    c = layout or CONTRACT
+    entry = sink // c.interfaces if c.entry_ordinal else sink
+    return word(c.pub_base + interface * c.pub_stride + c.pub_sink_base + entry * c.pub_sink_stride
+                + SINK_REG['BINDING'])
 
 
 TMR_CMD_WORD = word(REG['TMR_CMD'])
@@ -200,15 +205,23 @@ class Point:
     mac: int
     sources: int
     sinks: int
+    #: The mailbox layout the point's build carries when it is not the contract's own: a shape's
+    #: streams past the contract's tables take the layout sized from them (#859).
+    layout: object = None
 
 
 def point(label: str, build: dict) -> Point:
-    """The point's identity from the generated entity header of its image."""
+    """The point's identity from the generated entity header of its image, and its mailbox layout."""
     import re
     header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
     values = {k: int(v, 16) for k, v in re.findall(r'\.(\w+) = (0x[0-9A-Fa-f]+)', header)}
+    layout = None
+    if build.get('mailbox_layout') == 'shape':
+        import gen_mailbox
+        layout = gen_mailbox.shape_variant(CONTRACT, ROOT / 'configs' / (build['shape'] + '.yaml'),
+                                           build['interfaces'])[0]
     return Point(label, build['shape'], build['interfaces'], values['entity_id'], values['mac'],
-                 values['talker_stream_sources'], values['listener_stream_sinks'])
+                 values['talker_stream_sources'], values['listener_stream_sinks'], layout)
 
 
 CTL1 = 0x0A0B0C0D0E0F0001          # a controller entity
@@ -332,7 +345,7 @@ def acmp_groups(p: Point) -> list[Group]:
         k = i
         g.probe(Probe(f'acmp.bind_rx.if{i}', 'BIND_RX', 'acmp', f'rxc:{acmp}',
                       [f'resp:{acmp}:{seq:x}', f'acmp_cmd:{acmp}:PROBE_TX', f'arm:{slot(i)}',
-                       f'pub:{binding_word(i, k)}'], accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
+                       f'pub:{binding_word(i, k, p.layout)}'], accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
                 f'frame {i} {acmp_cmd(p, "BIND_RX", k, seq).hex()}', wait=f'tx {acmp} 2 within {20 * MS}')
         seq += 1
         g.probe(Probe(f'acmp.probe_tx_response.if{i}', 'PROBE_TX_RESPONSE', 'acmp', f'rxc:{acmp}',
@@ -663,7 +676,7 @@ def srp_groups(p: Point) -> list[Group]:
                 f'frame {i} {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
         domain = f.mrp_message(4, f.domain_value(6, 4, 3), [1])
         g.probe(Probe(f'srp.domain.if{i}', 'Domain RX -> declarations (JoinTime wait)', 'srp', f'rxc:{srp}',
-                      [f'pub:{pub_word(i, "SR_DOMAIN")}', f'tx:{srp}'], wait_ms=200.0),
+                      [f'pub:{pub_word(i, "SR_DOMAIN", p.layout)}', f'tx:{srp}'], wait_ms=200.0),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
     return [g]
 

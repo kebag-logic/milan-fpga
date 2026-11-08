@@ -81,6 +81,8 @@ ROW_CEILING = 1 << IDX_BITS
 SHAPES = []            # (label, board, L, T)
 for cfg in CONFIGS:
     d = yaml.safe_load(cfg.read_text(encoding="utf-8"))
+    if d.get("simulation_only"):
+        continue        # a simulation-only shape (#859) ships nowhere
     st = d.get("streams", {})
     L = len(st.get("listeners", []))
     T = len(st.get("talkers", []))

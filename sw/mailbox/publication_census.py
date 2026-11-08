@@ -22,7 +22,8 @@ reads the netlist back.
 THE SHAPES. ``--check`` elaborates the recipe's own shape (run.sh's
 milan_datapath row: the module's default parameters, define ``SYNTHESIS``,
 the all-fabric header ``configs/generated/endstation_arty_current``) and the
-shape of every ``configs/*.yaml``: its generated header directory, the
+shape of every ``configs/*.yaml`` but a simulation-only one (#859, whose
+datapath waits for #640): its generated header directory, the
 integer parameters ``endstation_builder.datapath_params()`` states for it,
 which test_builder gate 23m holds to the Instance milan_soc.py builds, and
 ``SYNTHESIS``. Today that is endstation_arty_4x4, _arty_8ch, _arty_current,

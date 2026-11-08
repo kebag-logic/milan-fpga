@@ -96,6 +96,39 @@ def fixture_addresses(flash_map: Path) -> dict[str, int]:
     return found
 
 
+#: The RV32 stand-ins' generated map (sw/firmware/ctrl_nvm/test/rv32/generated): where the test SoC
+#: places the flash and timer0 for a shape built without saved state (#859), whose image links no
+#: flash port to place them for.
+STAND_INS = ROOT / 'sw/firmware/ctrl_nvm/test/rv32/generated'
+
+
+def stand_in_addresses() -> dict[str, int]:
+    """fixture_addresses for a shape without saved state: the mailbox at the fixture's placeholder,
+    and the flash and timer0 at the RV32 stand-ins' placeholders, read from their headers."""
+    sys.path.insert(0, str(ROOT / 'sw/firmware/ctrl/test'))
+    sys.path.insert(0, str(ROOT / 'sw/firmware/gtest'))
+    import ctrl_build
+    text = (STAND_INS / 'csr.h').read_text() + (STAND_INS / 'mem.h').read_text()
+    value = {name: int(v, 16) for name, v in re.findall(r'^#define (\w+) +(0x[0-9a-fA-F]+)u$', text, re.M)}
+    found = {'mailbox': next(int(m.group(1), 16) for f in ctrl_build.RV32_FLAGS
+                             for m in [re.fullmatch(r'-DCTRL_MBX_BASE=(0x[0-9a-fA-F]+)u?', f)] if m),
+             'spiflash': value['CSR_SPIFLASH_MASTER_BASE'], 'timer0': value['CSR_TIMER0_BASE'],
+             'flash': value['SPIFLASH_BASE'], 'flash_size': value['SPIFLASH_SIZE']}
+    return found
+
+
+def mailbox_contract(shape: str, n_if: int) -> object:
+    """The contract the point's mailbox carries: the contract's own, or for a shape whose streams
+    outgrow its tables the layout sized from those streams (gen_mailbox.shape_variant, #859)."""
+    sys.path.insert(0, str(ROOT / 'sw/mailbox'))
+    import gen_mailbox
+    contract = milan_soc.ctrl_mailbox_contract()
+    config = ROOT / 'configs' / (shape + '.yaml')
+    if not gen_mailbox.outgrows(contract, *gen_mailbox.shape_streams(config)):
+        return contract
+    return gen_mailbox.shape_variant(contract, config, n_if)[0]
+
+
 def map_deviations(csr_csv: str, flash_map: Path) -> list[str]:
     """Each register the flash port uses, and the flash window, that this SoC's csr.csv places
     elsewhere than the split SoC's map; empty when every one is where the image addresses it."""
@@ -110,14 +143,18 @@ def map_deviations(csr_csv: str, flash_map: Path) -> list[str]:
     return out
 
 
-def mailbox_sources(n_if: int, gen_dir: Path) -> list[Path]:
-    """The shipping mailbox RTL; at two interfaces, its generator's variant package and top."""
+def mailbox_sources(n_if: int, gen_dir: Path, shape: str | None = None) -> list[Path]:
+    """The shipping mailbox RTL; at two interfaces, its generator's variant package and top, laid
+    out from the shape's streams when they outgrow the contract's tables (#859)."""
     sources = [ROOT / name for name in milan_soc._CTRL_MAILBOX_SOURCES]
-    if n_if == 1:
-        return sources
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     import gen_mailbox
-    findings = gen_mailbox.write_variant(gen_mailbox.load(), n_if, gen_dir)
+    config = None if shape is None else ROOT / 'configs' / (shape + '.yaml')
+    sized = config is not None and gen_mailbox.outgrows(gen_mailbox.load(), *gen_mailbox.shape_streams(config))
+    if n_if == 1 and not sized:
+        return sources
+    findings = (gen_mailbox.write_shape_variant(gen_mailbox.load(), config, n_if, gen_dir) if sized
+                else gen_mailbox.write_variant(gen_mailbox.load(), n_if, gen_dir))
     if findings:
         raise RuntimeError(f'mailbox variant findings: {findings}')
     variant = {'KL_mbx_pkg.sv': gen_dir / 'KL_mbx_pkg.sv', 'KL_mbx.sv': gen_dir / 'KL_mbx.sv'}
@@ -442,18 +479,22 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          fetch_l1: str = 'split') -> dict:
+          fetch_l1: str = 'split', flash_map: Path | None = FLASH_MAP, simulation: str | None = None) -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
     cpu_regions 'cover' gives the CPU generator each region at its
     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
     which reproduces the generator's rom decode defect (a control).
     fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+    flash_map is the flash port's map under build_dir; None for a shape
+    built without saved state, whose flash and timer0 the test SoC places at
+    the RV32 stand-ins' placeholders (#859). simulation names the
+    ctrl_memory.SIMULATION map a simulation-only shape's image links into.
     """
-    addresses = fixture_addresses(build_dir / FLASH_MAP)
+    addresses = fixture_addresses(build_dir / flash_map) if flash_map is not None else stand_in_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
     clocks, params = cfg['constraints'], cfg['soc']
-    contract = milan_soc.ctrl_mailbox_contract()
+    contract = mailbox_contract(shape, n_if)
     deviations = ack_deviations(contract)
     if deviations:
         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
@@ -469,8 +510,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
             flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
             extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
-        milan_soc.add_ctrl_memory(soc, elf)
-        for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
+        milan_soc.add_ctrl_memory(soc, elf, simulation)
+        for path in mailbox_sources(n_if, build_dir / 'mbx-variant', shape):
             platform.add_source(str(path))
         add_devices(soc, platform, addresses, contract, n_if)
         builder = Builder(soc, output_dir=str(build_dir), compile_software=False, compile_gateware=False,
@@ -479,7 +520,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
         sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
         builder.build(run=False, sim_config=sim_config)
-    deviations = map_deviations((build_dir / 'csr.csv').read_text(), build_dir / FLASH_MAP)
+    deviations = ([] if flash_map is None
+                  else map_deviations((build_dir / 'csr.csv').read_text(), build_dir / flash_map))
     if deviations:
         raise RuntimeError(f"the test SoC does not place the flash port's devices as the split SoC does: {deviations}")
     spec = {
@@ -495,6 +537,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
         'fetch_l1': fetch_l1, 'fetch_l1_geometry': list(geometry) if geometry else None,
         'ctrl_plan': soc.ctrl_plan.summary(),
+        'mailbox_layout': 'shape' if contract.entry_ordinal else 'contract',
+        'simulation_map': simulation,
     }
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec
