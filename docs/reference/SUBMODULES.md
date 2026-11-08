@@ -724,7 +724,7 @@ That PR carries processor issue #214.
 
 Its tree is the reviewed head `7feeccea`'s.
 
-FPGA-gPTP stays at `135afd04`.
+It lands on dev `0a75aa77`, which carries #843's FPGA-gPTP `1616fc8f`.
 
 | Processor issue | Merged PR | Parent-visible result |
 |---|---|---|
@@ -770,96 +770,89 @@ Only `KL_srp_encoder.sv` changes in processor HDL.
 
 `ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `92100657` rows.
 
-The shipping route was measured at lane commit `a566d4f9`.
+The `milan_dp` crflic leg grades the rule on the wire.
+
+No DUT MRPDU may carry one value twice.
+
+That holds for MSRP and for MVRP.
+
+A planted encoder that never merges fails it, in `make -C tb/verilator/milan_dp crflic-mutants`.
+
+The shipping route was measured at lane commit `e44a4d20`.
+
+That commit merges dev `0a75aa77`.
+
+It is the first image with all four lab fixes.
 
 Later commits change no synthesis input.
 
-It ran one placement directive under the recipe below.
+It ran the recipe's three directives, one at a time.
 
 | Recipe | Value |
 |---|---|
 | Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2, `N_STREAM_OUT_P` 2 |
-| Directives | synthesis AreaOptimized_high, opt ExploreArea, placement ExtraPostPlacementOpt |
-| Tool | Vivado 2026.1, at most 32 threads |
-
-| Figure | #845's route, `519d9c2b` | This adoption | Change |
-|---|---:|---:|---:|
-| Slice LUT | 52,497 | 53,033 | +536 |
-| Slice register | 54,579 | 54,729 | +150 |
-| Slice, of 15,850 | 15,780 | 15,792 | +12 |
-| Block RAM tile | 87.5 | 87.5 | 0 |
-| DSP | 13 | 13 | 0 |
-| WNS, slow corners | +0.198 ns | +0.044 ns | -0.154 ns |
-| WHS, worst corner | +0.015 ns | +0.035 ns | +0.020 ns |
-
-The change includes dev's own movement since `519d9c2b`.
-
-Dev merged PRs #841 and #842 after it.
-
-They change the datapath RTL, configurations and firmware.
-
-Every corner meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good).
-
-WNS is 0.014 ns above its floor.
-
-The worst setup path lies in the processor's AECP block.
-
-It ends at the D3 debounce counter.
-
-That path is outside the encoder this pin changes.
-
-Placement leaves 58 of 15,850 slices free.
-
-The resource gate refused this growth on `route-1x1`.
-
-The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) covers it.
-
-That decision accepts the mandatory lab fixes' growth.
-
-Processor #214's fix is one of them.
-
-The budget is re-baselined under it.
-
-The gate's fourteenth record holds this adoption.
-
-The gate ran in its own form at lane commit `a566d4f9`.
-
-That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and both syntheses.
-
-Later commits change no synthesis input.
-
-| Endpoint | Exit, thirteenth record | Refused | Passed |
-|---|---:|---|---|
-| `route-1x1`, ExtraTimingOpt selected | 1 | 53,050 LUTs (+521 of +500) | 54,729 FFs (+147 of +600), 15,831 slices (-4 of +80), RAMB36, RAMB18, DSP, WNS +0.258 ns, WHS +0.036 ns |
-| `ooc-1x1` | 0 | - | 25,199 LUTs (+203 of +250), 21,010 FFs (+76 of +250), RAMB36, RAMB18, DSP |
-| `ooc-8x8` | 0 | - | 37,048 LUTs (+184 of +316), 32,116 FFs (+80 of +339), RAMB36, RAMB18, DSP |
-
-All three endpoints are re-recorded at one pin.
-
-Against the new record, `check` exits 0 on every endpoint.
+| Directives | synthesis AreaOptimized_high, opt ExploreArea; three placement directives from one synthesis checkpoint |
+| Tool | Vivado 2026.1, `synth.maxThreads` 1, `general.maxThreads` 32 |
 
 | Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
 |---|---|---:|---:|---:|---:|
-| ExtraTimingOpt, selected | +0.258 / +0.036 ns | 53,050 | 54,729 | 15,831 | 19 |
-| ExtraPostPlacementOpt | +0.044 / +0.035 ns | 53,033 | 54,729 | 15,792 | 58 |
-| AltSpreadLogic_high | +0.028 / +0.036 ns | 53,082 | 54,729 | 15,847 | 3 |
+| AltSpreadLogic_high, selected | +0.210 / +0.036 ns | 53,428 | 54,837 | 15,829 | 21 |
+| ExtraPostPlacementOpt | +0.112 / +0.036 ns | 53,383 | 54,837 | 15,848 | 2 |
+| ExtraTimingOpt | +0.018 / +0.036 ns | 53,402 | 54,838 | 15,829 | 21 |
 
-All three route without error.
+Every route completes with no routing error.
 
-AltSpreadLogic_high misses the WNS floor at its slow corners.
+The best directive fits.
 
-The gate judges only the selected route against the floors.
+It meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good) at every corner.
+
+ExtraTimingOpt misses the WNS floor at its slow corners.
 
 The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
 
-That directive leaves 19 slices, not the 58 above.
+Dev `0a75aa77` is #843's record.
 
-The route deltas include dev's PRs #841 and #842.
+From it, only this pin moves a synthesis input.
 
-| Sub-block, not gated | `route-1x1` | `ooc-1x1` | `ooc-8x8` |
+| Figure | Dev `0a75aa77`, AltSpreadLogic_high | This adoption, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 53,221 | 53,428 | +207 |
+| FF | 54,754 | 54,837 | +83 |
+| Slice of 15,850 | 15,834 | 15,829 | -5 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 15 | 15 | 0 |
+| WNS / WHS, worst corner | +0.242 / +0.012 ns | +0.210 / +0.036 ns | -0.032 / +0.024 ns |
+
+On dev `1eb5289d` the share was +77 LUTs.
+
+It added 134 FFs and 14 slices there.
+
+Both of those routes selected ExtraTimingOpt.
+
+The encoder grows by 118 LUTs and 99 FFs here.
+
+The worst setup path lies in the processor's AECP block.
+
+It starts at the microcode CPU.
+
+It ends at the D3 debounce counter's reset.
+
+It has 37 logic levels, on the 20 ns clock.
+
+That path is outside the encoder this pin changes.
+
+Against #843's record the resource gate passed all three endpoints.
+
+The gate's fifteenth record re-records all three at `e44a4d20`.
+
+So the record measures the merged tree.
+
+Against it, `check` and `check-baseline` exit 0.
+
+| Sub-block, not gated, against #843's record | `route-1x1` | `ooc-1x1` | `ooc-8x8` |
 |---|---|---|---|
-| `u_pp/u_srp/u_encoder` | +101 LUTs, +99 FFs | +78 LUTs, +75 FFs | +105 LUTs, +71 FFs |
-| the wrapper | +234 LUTs, +97 FFs | +203 LUTs, +76 FFs | +184 LUTs, +80 FFs |
+| `u_pp/u_srp/u_encoder` | +118 LUTs, +99 FFs | +78 LUTs, +75 FFs | +105 LUTs, +71 FFs |
+| the wrapper | +247 LUTs, +105 FFs | +203 LUTs, +76 FFs | +184 LUTs, +80 FFs |
 
 The [area budget](../design/AREA_BUDGET.md) gives the figures.
 

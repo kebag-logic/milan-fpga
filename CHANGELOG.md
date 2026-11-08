@@ -58,7 +58,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Unreleased - processor pin 044cb25f
 
 - Issue #851 adopts processor `044cb25f` (PR #215, issue #214).
-- FPGA-gPTP stays at `135afd04`.
+- It lands with #843's FPGA-gPTP `1616fc8f`.
 - Each MRPDU now carries each attribute value once.
 - That covers MSRP Domain, Talker and Listener values.
 - It covers MVRP VIDs too.
@@ -76,18 +76,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each pending entry costs one clock.
 - No top-level port, parameter or register changes.
 - Both processor ROM digests match the `92100657` rows.
-- Against #845's route it grows 536 LUTs and 150 FFs.
-- That includes dev's PRs #841 and #842.
-- Placement leaves 58 of 15,850 slices free.
-- WNS is +0.044 ns; every corner meets the floor.
-- The resource gate refused the route's LUT growth.
-- It selects ExtraTimingOpt at +0.258 ns.
-- That route leaves 19 of 15,850 slices free.
-- Its 53,050 LUTs are 521 over the record.
-- The tolerance is 500.
-- Both standalone endpoints pass.
-- The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) covers the growth.
-- All three records are re-recorded; `check` exits 0.
+- The `milan_dp` crflic leg checks every MRPDU on the wire.
+- A planted encoder that never merges fails it.
+- The image is the first with all four lab fixes.
+- Its best directive, AltSpreadLogic_high, is at +0.210 ns.
+- Every corner meets the floor.
+- Placement leaves 21 of 15,850 slices free.
+- Against #843's route it grows 207 LUTs and 83 FFs.
+- On dev `1eb5289d` it grew 77 LUTs.
+- The resource gate passes all three endpoints.
+- All three records are re-recorded at the merge.
+- `check` exits 0 against them.
 - The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
 - The [pin page](docs/reference/SUBMODULES.md) gives the merge rules.
 
