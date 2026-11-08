@@ -9,7 +9,7 @@
 ------------------------------------------------------------------------------
   File        : KL_ctrl_split.sv
   Description : The split placement's control frames, in the datapath clock
-                (#665 F-INT PR 2). With CTRL_SPLIT_P = 1, milan_datapath
+                (#665). With CTRL_SPLIT_P = 1, milan_datapath
                 builds no KL_pp_shadow, and this block carries what the
                 wrapper's two frame faces carried, between the fabric and the
                 mailbox's byte streams (docs/design/MAILBOX_SPLIT.md):

@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------//
 //  File        : tb_split_top.sv
 //  Description : The split placement's control path as the SoC composes it
-//                (#665 F-INT PR 2), for sim_split.cpp: KL_mbx on the mailbox
+//                (#665), for sim_split.cpp: KL_mbx on the mailbox
 //                clock, KL_mbx_cdc, the two byte crossings, and milan_datapath
 //                with CTRL_SPLIT_P = 1 on the datapath clock. The host port
 //                is KL_mbx's own, so a check reaches the datapath only

@@ -4,7 +4,7 @@
 //  File        : KL_mbx_cdc_window.sv
 //  Description : One request and answer window of contract 2.3 across the
 //                mailbox (sys) and datapath (dp) clocks, for KL_mbx_cdc
-//                (#665 F-INT PR 2).
+//                (#665).
 //
 //                The mailbox opens a request with a new tag and holds it
 //                until the answer under that tag, or its wait bound

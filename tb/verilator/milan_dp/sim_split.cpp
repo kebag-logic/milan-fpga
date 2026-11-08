@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// sim_split.cpp - the split placement's control path, end to end (#665 F-INT PR 2).
+// sim_split.cpp - the split placement's control path, end to end (#665).
 //
 // tb_split_top composes KL_mbx (100 MHz, the mailbox's clock), KL_mbx_cdc, two
 // byte FIFOs and milan_datapath with CTRL_SPLIT_P = 1 (50 MHz, the datapath's
@@ -379,7 +379,7 @@ void check_windows(Tb& tb) {
     const Win gsi{"GSI", MBX_FACE_REG_GSI_REQ, MBX_FACE_REG_GSI_CMD, MBX_FACE_REG_GSI_STATUS, MBX_FACE_REG_GSI_DATA_LO,
                   MBX_FACE_REG_GSI_DATA_HI, MBX_GSI_STATUS_DONE_LSB, MBX_GSI_STATUS_TIMEOUT_LSB,
                   MBX_GSI_STATUS_TAG_LSB, MBX_WIN_GSI_WAIT_CYCLES};
-    // GET_COUNTERS of STREAM_OUTPUT 0 (IEEE 1722.1-2021 7.4.42), word 0, its counters_valid
+    // GET_COUNTERS of STREAM_OUTPUT 0 (IEEE 1722.1-2021 7.4.42), word 0, its STREAM_START counter
     tb.wr(face(MBX_FACE_REG_CTR_REQ), (0x0006u << MBX_CTR_REQ_TYPE_LSB) | (0u << MBX_CTR_REQ_INDEX_LSB));
     tb.wr(face(MBX_FACE_REG_CTR_WORD), 0u);
     std::uint64_t data = 0;

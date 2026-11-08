@@ -987,7 +987,7 @@ def add_milan_datapath(host: Module, platform: object,
     if pps:
         dp_params["p_PPS_P"] = 1
         dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
-    # #665 F-INT PR 2: the split placement, emitted ONLY when selected, so an
+    # #665: the split placement, emitted ONLY when selected, so an
     # all-fabric build's generated top .v carries no new parameter or port and
     # its export is unchanged. milan_datapath defaults CTRL_SPLIT_P to 0.
     if ctrl_split:
@@ -2883,7 +2883,7 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_wb.sv",
 ]
 
-# ---- #665 F-INT PR 2: the split placement's datapath face ----------------------------------------
+# ---- #665: the split placement's datapath face ---------------------------------------------------
 # With --ctrl-mailbox the datapath is built with CTRL_SPLIT_P = 1 (no protocol
 # processor, no KL_maap) and its ctl ports bind the mailbox through
 # KL_mbx_cdc. Neither list below is added to an all-fabric build, so its
@@ -3034,8 +3034,8 @@ class CtrlMailbox(LiteXModule):
     hand-written SystemVerilog sw/mailbox/gen_mailbox.py checks against the
     contract, and KL_mbx_cdc is the crossing.
 
-    WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665 F-INT
-    PR 2) the mailbox's datapath side is connected: the control frames both
+    WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665)
+    the mailbox's datapath side is connected: the control frames both
     ways through two async FIFOs (`_axis_dp_cdc`), and the publication block
     (contract 2.2, 2.4), the face block's settings, windows and events
     (contract 2.3), the LINK level and the GM event through KL_mbx_cdc, between
@@ -3746,7 +3746,7 @@ class MilanSoC(SoCCore):
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
-                                  # #665 F-INT PR 2: the mailbox SoC is the
+                                  # #665: the mailbox SoC is the
                                   # split placement, CTRL_SPLIT_P = 1
                                   ctrl_split=bool(ctrl_mailbox),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),

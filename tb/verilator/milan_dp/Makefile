@@ -31,7 +31,7 @@
 #   make counters - #726 packet/reset/cadence checks at shipping and largest shapes
 #   make counters-f5 - the same windows through the firmware mailbox fixture
 #   make counters-mutants - named defects plus each check-omission escape
-#   make split - #665 F-INT PR 2: the split placement's control path, end to end
+#   make split - #665: the split placement's control path, end to end
 #   make split-mutants - that leg's planted defects (split_mutants.py)
 #   make split-cdc - every KL_mbx_cdc crossing through an approved primitive
 #   make clean  - remove build artifacts
@@ -712,7 +712,7 @@ CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipp
 CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
 CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
 CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
-CASE_OPTIONS_split = --banner "---- \#665 F-INT PR 2: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
+CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
 
 # Keep the original ordered build and bounded simulation phases.
 # Each selected CI invocation prepares shared inputs before building cases.
@@ -835,7 +835,7 @@ exec-ax1x1:
 build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
 
-# #665 F-INT PR 2: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
+# #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
 # KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
 # CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
 # does; sim_split.cpp reaches the datapath only through the contract's

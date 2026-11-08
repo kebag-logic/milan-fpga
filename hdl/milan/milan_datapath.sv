@@ -373,11 +373,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int REBOOT_MAC_TX_OCTETS_P = 32_768,
   //! ...and the slowest line rate it runs at, in Mbps
   parameter int REBOOT_MAC_MIN_MBPS_P  = 10,
-  //! ---- the control placement (#665 F-INT PR 2) ----------------------------
+  //! ---- the control placement (#665) ---------------------------------------
   //! 0, all-fabric: KL_pp_shadow runs ADP, ACMP, AECP and SRP, KL_maap runs
   //! MAAP, and the i_ctl_*/o_ctl_* ports below are read by nothing and driven
   //! 0. 1, split: the firmware owns every control protocol through the
-  //! mailbox (ruling 6088423771, decision 1), so neither KL_pp_shadow,
+  //! mailbox (#665), so neither KL_pp_shadow,
   //! KL_maap, KL_pp_maap_shim nor the map writer is built. Each face the
   //! wrapper served is read from the ctl ports instead: the publication
   //! block (contract 2.2 and 2.4), the face block (2.3) and the control
@@ -5630,7 +5630,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign amr_rready_w = (amr_st_r == AS_RRD);
 
   //! The map writer and restore are the wrapper's record face's (#637). The
-  //! split placement builds neither (ruling 6410169666 item 1): its
+  //! split placement builds neither (#665): its
   //! firmware's AECP owner holds the maps and their saved state, and applies
   //! them through the EDIT window. Every register below then rests at its
   //! reset value, but the restore's hold, which is 0: no restore runs, so
@@ -9956,7 +9956,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign o_ctl_asp_chg_p     = 1'b0;
   assign o_ctl_amap_wr_p     = 1'b0;
   end else begin : g_sp_ctrl
-    //! ---- the split placement (#665 F-INT PR 2) ---------------------------
+    //! ---- the split placement (#665) --------------------------------------
     //! No processor: each face the wrapper served comes from the ctl ports,
     //! in the classes of sw/mailbox/census_ports.py. The ports carry
     //! CTRL_ENTRIES_P entries; this shape reads its first ACMP_SRC_C sources

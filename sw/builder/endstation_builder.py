@@ -4414,7 +4414,7 @@ def _load_soc(cfg, cons):
     return soc
 
 
-#: control.placement (#665 F-INT PR 2): who runs ADP, ACMP, AECP, MAAP and SRP.
+#: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
 #: all-fabric, the default until the flip: the protocol processor and KL_maap
 #: in the datapath. split: the bare-metal control firmware through the
 #: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with

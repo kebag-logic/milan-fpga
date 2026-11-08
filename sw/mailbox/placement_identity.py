@@ -4,7 +4,7 @@
 """placement_identity.py - the all-fabric datapath, elaborated in every shape, digested so two trees compare.
 
 THE QUESTION. milan_datapath.sv gains the control placement switch, CTRL_SPLIT_P
-(#665 F-INT PR 2). Off, the default, the datapath must elaborate to the
+(#665). Off, the default, the datapath must elaborate to the
 netlist it elaborated to before the switch, in every shape the builder builds.
 This tool states that netlist as one digest per shape, so a tree before the
 switch and a tree after it compare shape by shape.

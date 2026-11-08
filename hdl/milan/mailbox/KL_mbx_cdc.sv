@@ -4,7 +4,7 @@
 //  File        : KL_mbx_cdc.sv
 //  Description : The split placement's crossing between the mailbox (KL_mbx,
 //                the CPU's clock, sys) and the datapath (milan_datapath's
-//                clock, milan_cd), one interface (#665 F-INT PR 2). The
+//                clock, milan_cd), one interface (#665). The
 //                control frames cross in the SoC's async FIFOs; everything
 //                else crosses here, through the approved primitives alone
 //                (CONTRIBUTING.md section 1):

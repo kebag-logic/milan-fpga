@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""split_mutants.py - the split leg's planted defects, each caught by the check it names (#665 F-INT PR 2).
+"""split_mutants.py - the split leg's planted defects, each caught by the check it names (#665).
 
 Each arm plants one defect into a copy of one source of the split placement's
 control path (the datapath's split branch, KL_mbx_cdc, its window or

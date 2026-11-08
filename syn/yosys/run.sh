@@ -303,7 +303,7 @@ build_inventory() {
     # #787: the end-station reset on an AECP REBOOT, also reached inside
     # milan_datapath above
     "KL_reboot_ctrl|$R/hdl/milan/KL_reboot_ctrl.sv"
-    # #665 F-INT PR 2: the split placement's control frames, reached inside
+    # #665: the split placement's control frames, reached inside
     # milan_datapath above only at CTRL_SPLIT_P = 1
     "KL_ctrl_split|$A/axis_fifo.v $R/hdl/milan/KL_ctrl_split.sv"
     # #665 lane F0: the packet mailbox (sw/mailbox/mailbox.yaml), reachable only

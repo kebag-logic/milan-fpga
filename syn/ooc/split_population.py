@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""split_population.py - the full-split population in a Yosys elaboration of every shape (#665 F-INT PR 2).
+"""split_population.py - the full-split population in a Yosys elaboration of every shape (#665).
 
 THE QUESTION. A split image must hold no protocol processor and no fabric MAAP
 engine, and one mailbox and one gPTP plane: pp_placement.limits("full-split").

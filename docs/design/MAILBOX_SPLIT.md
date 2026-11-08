@@ -1749,11 +1749,11 @@ report_timing_summary -delay_type max
   block's through the split elaboration, as the class-D census follows the
   wrapper's.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
-  firmware's AECP owner takes REBOOT, and the placement switch gives the
+  firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
   request its carrier, a face-block level being the expected end state (the
-  ruling of comment 6554243203). Its split elaboration must then pass the
-  port census without the REBOOT exclusion
-  ([Every port, one class](#every-port-one-class)).
+  ruling of comment 6554243203); until then the split ties `reboot_req_i` to
+  0. Its split elaboration must then pass the port census without the REBOOT
+  exclusion ([Every port, one class](#every-port-one-class)).
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
   the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
