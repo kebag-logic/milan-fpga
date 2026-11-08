@@ -1329,7 +1329,7 @@ the republished block is taken. The datapath's end state is the review's
 outcome (a), "what the datapath finally takes" (PR #795, 6421229873). The
 ruling of 2026-10-26 (#665, 6425357821) accepts this window for the faces'
 lane. Closing it needs the datapath side, so it belongs to the placement
-switch (#665 F-INT PR 2), which wires that side.
+switch (#665), which wires that side.
 
 The application's poll publishes each owed interface whole again once `BUSY`
 clears, keeping the loop awake meanwhile. From then on `applied` is true and
@@ -1360,8 +1360,8 @@ them:
 
 ## The placement switch
 
-One datapath parameter and one config key select the placement (#665 F-INT
-PR 2). Both placements build from one tree, one recipe and one config file.
+One datapath parameter and one config key select the placement (#665).
+Both placements build from one tree, one recipe and one config file.
 
 | Placement | `control.placement` | `CTRL_SPLIT_P` | The SoC |
 |---|---|---|---|
@@ -1375,7 +1375,9 @@ statement; gate 23n holds the two placements to differ in that key alone.
 ### The split datapath
 
 With `CTRL_SPLIT_P = 1` the datapath builds no `KL_pp_shadow`, no `KL_maap`,
-no `KL_pp_maap_shim` and no map writer (ruling 6088423771, decision 1).
+no `KL_pp_maap_shim` and no map writer (#665): the processor's engines are
+not placed one at a time, so the split removes the whole wrapper with the
+parent MAAP once the firmware owns AECP.
 Each face the wrapper served is read from a `ctl` port, by its class in
 [Every port, one class](#every-port-one-class):
 
@@ -1398,7 +1400,7 @@ the FIFO's own overflow indication, since a FIFO that drops when full never
 lowers its ready.
 
 The map writer goes because the firmware's AECP owner holds the maps
-(ruling 6410169666 item 1). Its registers rest at reset, but the restore's
+(#665). Its registers rest at reset, but the restore's
 hold, which is 0.
 
 ### The crossing
@@ -1750,8 +1752,8 @@ report_timing_summary -delay_type max
   wrapper's.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
   firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
-  request its carrier, a face-block level being the expected end state (the
-  ruling of comment 6554243203); until then the split ties `reboot_req_i` to
+  request its carrier, a face-block level being the expected end state, decided
+  in that lane; until then the split ties `reboot_req_i` to
   0. Its split elaboration must then pass the port census without the REBOOT
   exclusion ([Every port, one class](#every-port-one-class)).
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
