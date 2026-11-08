@@ -849,7 +849,7 @@ only CSR status and the AEM face. F5's AECP owner serves that face: it reads
 ENTITY's `available_index` from the ADP owner (`ctrl_app_aecp.c`), as it
 answers GET_STREAM_INFO (the ruling). The value is the one the most recently
 sent ENTITY_AVAILABLE carried, the ADPDU a controller compares it with (IEEE
-1722.1-2021 Table 7.1; #665 issuecomment-6717765106, item 1). ADP's own
+1722.1-2021 Table 7-2; #665 issuecomment-6717765106, item 1). ADP's own
 variable is one higher by then, as 6.2.2.15 increments it after each send.
 
 The list is not kept by hand. The first version copied one from a review
@@ -1535,13 +1535,21 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - The `milan_dp` two-placement simulation (`make twin`) runs one stimulus on
   the all-fabric datapath and on the split one, with the split image's own
   firmware platform on the RTL mailbox, and compares what each MAC sent,
-  protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106).
-  Two controllers drive it, and it reaches every row of the F5 ledger. An
-  owed-difference list, apart from the ledger, holds what the SRP adapter
-  round owes. Its five plants (`make twin-plants`) are each refused by their
-  words. At this head it finds differences neither the ledger nor the owed
-  list covers, which the
-  [`milan_dp` README](../../tb/verilator/milan_dp/README.md) lists.
+  protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106,
+  issuecomment-6722002738). Two controllers drive it, and it reaches every row
+  of the F5 ledger. MSRP is compared by the declarations at each half's
+  LeaveAll boundaries, and each half's MSRP attributes are graded as Table 10-3
+  Applicant traces. An owed-difference list, apart from the ledger, holds what
+  the SRP adapter round owes and the fabric's #857 and #858. Its thirteen
+  plants (`make twin-plants`) are each refused by their words. At this head it
+  finds one defect no row may cover, which the
+  [`milan_dp` README](../../tb/verilator/milan_dp/README.md) states.
+- The twin's ledger has no rows for the AECP owner's Observed difference
+  rows 5 and 6. At the processor pin `a9e84b66`, the fabric sends the
+  GET_STREAM_INFO notice for a STREAM_INPUT's changed started state, and
+  release notices with the UNLOCK flag, as the split does. The ledger records
+  only real differences, so the twin holds both equal (#665
+  issuecomment-6722002738, item 1). The AECP owner's page is S11's.
 
 The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
 job runs `make split-cdc` (ruling 6715535566 item 6), and its
@@ -1830,10 +1838,11 @@ report_timing_summary -delay_type max
 
 ## Open items
 
-- **The two-placement comparison.** The placement switch connects the
-  datapath, but no simulation yet runs the split firmware on it beside the
-  all-fabric processor and compares their frames
-  ([The placement switch](#the-placement-switch)).
+- **The two-placement comparison.** `make twin` runs the split firmware on
+  the switched datapath beside the all-fabric processor and compares their
+  frames ([The placement switch](#the-placement-switch)). What its owed rows
+  and its one open finding wait on is in the
+  [`milan_dp` README](../../tb/verilator/milan_dp/README.md).
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter
   the SRP channel's transmit ring as header plus MRPDU. Target integration
