@@ -1410,8 +1410,10 @@ boundary both halves declare the Domain. The Talker attributes are the
 
 - **The fabric's MSRP Domain is not a Table 10-3 Applicant's trace.** It sends
   New at 200 ms and JoinMt at 1000 ms. An Applicant that has sent one New is
-  in AN, and Table 10-3's tx! sends New again from AN. The split sends New
-  twice (VN, then AN, then AA), as the table does. The processor documents its
+  in AN, and Table 10-3's tx! sends New again from AN. JoinMt follows only if
+  the application withdraws and re-declares the Domain unseen, or the
+  participant starts again, and nothing in the stimulus does either. The split
+  sends New twice (VN, then AN, then AA), as the table does. The processor documents its
   Domain participant that way: one New at startup and at LINK_UP, then the
   re-joins (section 6.1 of
   [10_srp_engine.md](../../../protocol-processor/docs/architecture/10_srp_engine.md)).
