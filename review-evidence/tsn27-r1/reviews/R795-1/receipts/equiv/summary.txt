@@ -1,0 +1,16 @@
+host gcc -O0 rc 0
+host gcc -O2 rc 0
+host gcc -Os rc 0
+host gcc -O3 rc 0
+host clang -O0 rc 0
+host clang -O2 rc 0
+host clang -Os rc 0
+host clang -O3 rc 0
+rv32 rv32i -O0 build 0 qemu 0
+rv32 rv32i -O2 build 0 qemu 0
+rv32 rv32i -O3 build 0 qemu 0
+rv32 rv32i -Os build 0 qemu 0
+rv32 rv32im -O0 build 0 qemu 0
+rv32 rv32im -O2 build 0 qemu 0
+rv32 rv32im -O3 build 0 qemu 0
+rv32 rv32im -Os build 0 qemu 0

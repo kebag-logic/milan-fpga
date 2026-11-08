@@ -1,0 +1,13 @@
+diff --git a$REPO/include/wire.h b/include/wire.h
+index 8ed88f6..dfa0732 100644
+--- a$REPO/include/wire.h
++++ b/include/wire.h
+@@ -41,7 +41,7 @@ static inline void wire_put_be(uint8_t *p, uint64_t value, unsigned bytes)
+ 	uint32_t low = (uint32_t)value;
+ 	for (unsigned i = bytes; i > 0u; --i) {
+ 		p[i - 1u] = (uint8_t)low;
+-		low = (low >> 8) | (high << 24);
++		low = (low >> 8) | (high << 16);
+ 		high >>= 8;
+ 	}
+ }

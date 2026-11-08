@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "$PKT/scratch/mutation-errors/base-bogus/src/scripts/mutation.py", line 247, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PKT/scratch/mutation-errors/base-bogus/src/scripts/mutation.py", line 240, in main
+    results = list(pool.map(plant, selected))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PKT/scratch/mutation-errors/base-bogus/src/scripts/mutation.py", line 222, in plant
+    rc = run([cxx, *cppflags(arm), *test_cflags, "-I" + str(directory / "include"), "-I" + str(test_sources), "-I" + str(ROOT / "examples"), "-c", str(test_sources / SOURCES[arm]), "-o", str(test_obj)], local)
+                                                                                                                                                                      ~~~~~~~^^^^^
+KeyError: 'bogus'

@@ -1,0 +1,20 @@
+test_golden_planted_drift (__main__.EntityTests.test_golden_planted_drift) ... FAIL
+
+======================================================================
+FAIL: test_golden_planted_drift (__main__.EntityTests.test_golden_planted_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PKT/scratch/order/moved/scripts/entity_selftest.py", line 51, in test_golden_planted_drift
+    self.assertEqual({p['name'] for p in plants}, {'entity-wrong-count', 'entity-swapped-interface', 'entity-dropped-field'})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'wire-put-be-skips-an-odd-field-first-byte'
+'wire-put-be-writes-past-an-odd-field'
+Items in the second set but not the first:
+'entity-wrong-count'
+'entity-swapped-interface'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)

@@ -1,0 +1,382 @@
+﻿2026-11-08T09:07:36.9198527Z Current runner version: '2.338.2'
+2026-11-08T09:07:36.9220663Z ##[group]Runner Image Provisioner
+2026-11-08T09:07:36.9221401Z Hosted Compute Agent
+2026-11-08T09:07:36.9221888Z Version: 20261028.624
+2026-11-08T09:07:36.9222580Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-08T09:07:36.9223179Z Build Date: 2026-10-28T21:51:42Z
+2026-11-08T09:07:36.9223803Z Worker ID: {99b4b73d-7e52-4a17-ac7b-abc446c2af22}
+2026-11-08T09:07:36.9224405Z Region: eastus2
+2026-11-08T09:07:36.9224873Z Cloud: Azure
+2026-11-08T09:07:36.9225425Z ##[endgroup]
+2026-11-08T09:07:36.9226809Z ##[group]Operating System
+2026-11-08T09:07:36.9227421Z Ubuntu
+2026-11-08T09:07:36.9227892Z 24.04.5
+2026-11-08T09:07:36.9228342Z LTS
+2026-11-08T09:07:36.9228908Z ##[endgroup]
+2026-11-08T09:07:36.9229387Z ##[group]Runner Image
+2026-11-08T09:07:36.9230079Z Image: ubuntu-24.04
+2026-11-08T09:07:36.9230590Z Version: 20261101.360.1
+2026-11-08T09:07:36.9231717Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-08T09:07:36.9232983Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-08T09:07:36.9233808Z ##[endgroup]
+2026-11-08T09:07:36.9234733Z ##[group]GITHUB_TOKEN Permissions
+2026-11-08T09:07:36.9236456Z Contents: read
+2026-11-08T09:07:36.9236977Z Metadata: read
+2026-11-08T09:07:36.9237453Z ##[endgroup]
+2026-11-08T09:07:36.9239283Z Secret source: Actions
+2026-11-08T09:07:36.9240485Z Cache mode: write
+2026-11-08T09:07:36.9241179Z Prepare workflow directory
+2026-11-08T09:07:36.9527701Z Prepare all required actions
+2026-11-08T09:07:36.9571869Z Getting action download info
+2026-11-08T09:07:37.1552350Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-08T09:07:37.3560294Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-08T09:07:37.5786496Z Complete job name: quality
+2026-11-08T09:07:37.6530887Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-11-08T09:07:37.6532509Z with:
+2026-11-08T09:07:37.6533070Z   fetch-depth: 0
+2026-11-08T09:07:37.6533700Z   ref: c687810b74b53b69c1fbdff7bfd0ec9da94eaa78
+2026-11-08T09:07:37.6534478Z   repository: kebag-logic/tsn-c-stack
+2026-11-08T09:07:37.6540015Z   token: ***
+2026-11-08T09:07:37.6540601Z   ssh-strict: true
+2026-11-08T09:07:37.6541154Z   ssh-user: git
+2026-11-08T09:07:37.6541716Z   persist-credentials: true
+2026-11-08T09:07:37.6542334Z   clean: true
+2026-11-08T09:07:37.6542899Z   sparse-checkout-cone-mode: true
+2026-11-08T09:07:37.6543559Z   fetch-tags: false
+2026-11-08T09:07:37.6544110Z   show-progress: true
+2026-11-08T09:07:37.6544701Z   lfs: false
+2026-11-08T09:07:37.6545204Z   submodules: false
+2026-11-08T09:07:37.6545763Z   set-safe-directory: true
+2026-11-08T09:07:37.6546383Z   allow-unsafe-pr-checkout: false
+2026-11-08T09:07:37.6547295Z ##[endgroup]
+2026-11-08T09:07:37.8586871Z Syncing repository: kebag-logic/tsn-c-stack
+2026-11-08T09:07:37.8589996Z ##[group]Getting Git version info
+2026-11-08T09:07:37.8591119Z Working directory is '<home-path>/work/tsn-c-stack/tsn-c-stack'
+2026-11-08T09:07:37.8592712Z [command]/usr/bin/git version
+2026-11-08T09:07:37.9203568Z git version 2.56.0
+2026-11-08T09:07:37.9230491Z ##[endgroup]
+2026-11-08T09:07:37.9252129Z Temporarily overriding HOME='<home-path>/work/_temp/e39aab43-f1b4-4055-a2b8-7b0926cd68b9' before making global git config changes
+2026-11-08T09:07:37.9254623Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-08T09:07:37.9256713Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/tsn-c-stack/tsn-c-stack
+2026-11-08T09:07:37.9311090Z Deleting the contents of '<home-path>/work/tsn-c-stack/tsn-c-stack'
+2026-11-08T09:07:37.9315445Z ##[group]Initializing the repository
+2026-11-08T09:07:37.9320711Z [command]/usr/bin/git init <home-path>/work/tsn-c-stack/tsn-c-stack
+2026-11-08T09:07:37.9405421Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-08T09:07:37.9407318Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-08T09:07:37.9408987Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-08T09:07:37.9410714Z hint: call:
+2026-11-08T09:07:37.9411549Z hint:
+2026-11-08T09:07:37.9412488Z hint: 	git config --global init.defaultBranch <name>
+2026-11-08T09:07:37.9413594Z hint:
+2026-11-08T09:07:37.9414916Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-08T09:07:37.9416663Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-08T09:07:37.9418065Z hint:
+2026-11-08T09:07:37.9418837Z hint: 	git branch -m <name>
+2026-11-08T09:07:37.9420068Z hint:
+2026-11-08T09:07:37.9421345Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-08T09:07:37.9423850Z Initialized empty Git repository in <home-path>/work/tsn-c-stack/tsn-c-stack/.git/
+2026-11-08T09:07:37.9427297Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/tsn-c-stack
+2026-11-08T09:07:37.9724382Z ##[endgroup]
+2026-11-08T09:07:37.9725426Z ##[group]Disabling automatic garbage collection
+2026-11-08T09:07:37.9727450Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-08T09:07:37.9771300Z ##[endgroup]
+2026-11-08T09:07:37.9772417Z ##[group]Setting up auth
+2026-11-08T09:07:37.9778009Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-08T09:07:37.9836663Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-08T09:07:38.0144439Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-08T09:07:38.0183315Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-08T09:07:38.0401266Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-08T09:07:38.0441512Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-08T09:07:38.0655733Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-08T09:07:38.0706013Z ##[endgroup]
+2026-11-08T09:07:38.0707094Z ##[group]Fetching the repository
+2026-11-08T09:07:38.0718987Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-08T09:07:38.9766180Z From https://github.com/kebag-logic/tsn-c-stack
+2026-11-08T09:07:38.9768348Z  * [new branch]      26-acmp-owed                -> origin/26-acmp-owed
+2026-11-08T09:07:38.9769856Z  * [new branch]      27-wire-halves              -> origin/27-wire-halves
+2026-11-08T09:07:38.9770991Z  * [new branch]      acmp-da-fresh               -> origin/acmp-da-fresh
+2026-11-08T09:07:38.9772056Z  * [new branch]      acmp-publish-port           -> origin/acmp-publish-port
+2026-11-08T09:07:38.9773291Z  * [new branch]      adp-malformed-discard       -> origin/adp-malformed-discard
+2026-11-08T09:07:38.9774654Z  * [new branch]      dev-linux                   -> origin/dev-linux
+2026-11-08T09:07:38.9775851Z  * [new branch]      entity-yaml                 -> origin/entity-yaml
+2026-11-08T09:07:38.9777017Z  * [new branch]      import-cores                -> origin/import-cores
+2026-11-08T09:07:38.9778192Z  * [new branch]      integrate-21                -> origin/integrate-21
+2026-11-08T09:07:38.9779301Z  * [new branch]      main                        -> origin/main
+2026-11-08T09:07:38.9780649Z  * [new branch]      privacy-web-flow-squash     -> origin/privacy-web-flow-squash
+2026-11-08T09:07:38.9782012Z  * [new branch]      requirements-port           -> origin/requirements-port
+2026-11-08T09:07:38.9783578Z  * [new branch]      review-fixes                -> origin/review-fixes
+2026-11-08T09:07:38.9784931Z  * [new branch]      tsn14-review-evidence       -> origin/tsn14-review-evidence
+2026-11-08T09:07:38.9786685Z  * [new branch]      tsn2-review-evidence        -> origin/tsn2-review-evidence
+2026-11-08T09:07:38.9788168Z  * [new branch]      tsn21-review-evidence       -> origin/tsn21-review-evidence
+2026-11-08T09:07:38.9789919Z  * [new branch]      tsn3-review-evidence        -> origin/tsn3-review-evidence
+2026-11-08T09:07:38.9791589Z  * [new branch]      tsnpriv-review-evidence     -> origin/tsnpriv-review-evidence
+2026-11-08T09:07:38.9793178Z  * [new tag]         milan-fpga-697-pin-405dc683 -> milan-fpga-697-pin-405dc683
+2026-11-08T09:07:38.9796632Z [command]/usr/bin/git rev-parse --verify --quiet c687810b74b53b69c1fbdff7bfd0ec9da94eaa78^{object}
+2026-11-08T09:07:38.9811413Z c687810b74b53b69c1fbdff7bfd0ec9da94eaa78
+2026-11-08T09:07:38.9816555Z ##[endgroup]
+2026-11-08T09:07:38.9818580Z ##[group]Determining the checkout info
+2026-11-08T09:07:38.9821007Z ##[endgroup]
+2026-11-08T09:07:38.9822103Z [command]/usr/bin/git sparse-checkout disable
+2026-11-08T09:07:39.0022138Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-08T09:07:39.0061309Z ##[group]Checking out the ref
+2026-11-08T09:07:39.0063319Z [command]/usr/bin/git checkout --progress --force c687810b74b53b69c1fbdff7bfd0ec9da94eaa78
+2026-11-08T09:07:39.0180647Z Note: switching to 'c687810b74b53b69c1fbdff7bfd0ec9da94eaa78'.
+2026-11-08T09:07:39.0182340Z 
+2026-11-08T09:07:39.0183173Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-08T09:07:39.0185419Z changes and commit them, and you can discard any commits you make in this
+2026-11-08T09:07:39.0187700Z state without impacting any branches by switching back to a branch.
+2026-11-08T09:07:39.0189326Z 
+2026-11-08T09:07:39.0190824Z If you want to create a new branch to retain commits you create, you may
+2026-11-08T09:07:39.0193178Z do so (now or later) by using -c with the switch command. Example:
+2026-11-08T09:07:39.0194544Z 
+2026-11-08T09:07:39.0195014Z   git switch -c <new-branch-name>
+2026-11-08T09:07:39.0196004Z 
+2026-11-08T09:07:39.0196465Z Or undo this operation with:
+2026-11-08T09:07:39.0197380Z 
+2026-11-08T09:07:39.0197786Z   git switch -
+2026-11-08T09:07:39.0198557Z 
+2026-11-08T09:07:39.0199383Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-08T09:07:39.0200950Z 
+2026-11-08T09:07:39.0202085Z HEAD is now at c687810 Pack wire_put_be as two 32-bit halves so no byte calls the 64-bit shift helper (#27)
+2026-11-08T09:07:39.0207330Z ##[endgroup]
+2026-11-08T09:07:39.0237297Z [command]/usr/bin/git log -1 --format=%H
+2026-11-08T09:07:39.0267696Z c687810b74b53b69c1fbdff7bfd0ec9da94eaa78
+2026-11-08T09:07:39.0508544Z ##[group]Run sudo apt-get -o Acquire::Retries=3 update
+2026-11-08T09:07:39.0510092Z sudo apt-get -o Acquire::Retries=3 update
+2026-11-08T09:07:39.0512919Z sudo apt-get -o Acquire::Retries=3 install -y build-essential cmake clang clang-18 clang-tidy cppcheck pkg-config libgtest-dev libgmock-dev gcc-riscv64-unknown-elf python3-yaml
+2026-11-08T09:07:39.0515779Z npm install --global @mermaid-js/mermaid-cli@11.16.0
+2026-11-08T09:07:39.0539106Z shell: /usr/bin/bash -e {0}
+2026-11-08T09:07:39.0540175Z ##[endgroup]
+2026-11-08T09:07:39.1684303Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-08T09:07:39.2192824Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-08T09:07:39.2195315Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-08T09:07:39.2211801Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-08T09:07:39.2245401Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-08T09:07:39.2267314Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-08T09:07:39.3284834Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [675 kB]
+2026-11-08T09:07:39.6243104Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [743 kB]
+2026-11-08T09:07:39.6288004Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1425 kB]
+2026-11-08T09:07:39.6358243Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [313 kB]
+2026-11-08T09:07:39.6381420Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+2026-11-08T09:07:39.6462756Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+2026-11-08T09:07:39.6510852Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1840 kB]
+2026-11-08T09:07:39.6575068Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [420 kB]
+2026-11-08T09:07:39.6596805Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+2026-11-08T09:07:39.6604958Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-11-08T09:07:39.7302529Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1157 kB]
+2026-11-08T09:07:39.8147656Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+2026-11-08T09:07:39.8581068Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+2026-11-08T09:07:39.8631269Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-08T09:07:39.8648242Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+2026-11-08T09:07:39.8720136Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+2026-11-08T09:07:39.8740814Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+2026-11-08T09:07:39.8749972Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-11-08T09:07:44.3377516Z Fetched 13.0 MB in 1s (9413 kB/s)
+2026-11-08T09:07:45.3156642Z Reading package lists...
+2026-11-08T09:07:45.3496752Z Reading package lists...
+2026-11-08T09:07:45.6113353Z Building dependency tree...
+2026-11-08T09:07:45.6120117Z Reading state information...
+2026-11-08T09:07:45.8436703Z clang-18 is already the newest version (1:18.1.3-1ubuntu1).
+2026-11-08T09:07:45.8437192Z pkg-config is already the newest version (1.8.1-2build1).
+2026-11-08T09:07:45.8437628Z python3-yaml is already the newest version (6.0.1-2build2).
+2026-11-08T09:07:45.8438033Z python3-yaml set to manually installed.
+2026-11-08T09:07:45.8438407Z The following additional packages will be installed:
+2026-11-08T09:07:45.8449034Z   binutils-riscv64-unknown-elf cmake-data googletest libjsoncpp25 librhash0
+2026-11-08T09:07:45.8457920Z Suggested packages:
+2026-11-08T09:07:45.8458446Z   cmake-doc cmake-format elpa-cmake-mode ninja-build cppcheck-gui
+2026-11-08T09:07:45.8685010Z The following NEW packages will be installed:
+2026-11-08T09:07:45.8685511Z   binutils-riscv64-unknown-elf build-essential clang clang-tidy cmake
+2026-11-08T09:07:45.8688297Z   cmake-data cppcheck gcc-riscv64-unknown-elf googletest libgmock-dev
+2026-11-08T09:07:45.8698652Z   libgtest-dev libjsoncpp25 librhash0
+2026-11-08T09:07:45.8936860Z 0 upgraded, 13 newly installed, 0 to remove and 27 not upgraded.
+2026-11-08T09:07:45.8937309Z Need to get 68.1 MB of archives.
+2026-11-08T09:07:45.8937588Z After this operation, 327 MB of additional disk space will be used.
+2026-11-08T09:07:45.8937926Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-08T09:07:45.9418672Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 binutils-riscv64-unknown-elf amd64 2.42-1ubuntu1+6 [2997 kB]
+2026-11-08T09:07:45.9902182Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 build-essential amd64 12.10ubuntu1 [4928 B]
+2026-11-08T09:07:46.0091793Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 clang amd64 1:18.0-59~exp2 [5846 B]
+2026-11-08T09:07:46.0498763Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 clang-tidy amd64 1:18.0-59~exp2 [5724 B]
+2026-11-08T09:07:46.0689570Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libjsoncpp25 amd64 1.9.5-6build1 [82.8 kB]
+2026-11-08T09:07:46.1280113Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 librhash0 amd64 1.4.3-3build1 [129 kB]
+2026-11-08T09:07:46.1943487Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 cmake-data all 3.28.3-1build7 [2155 kB]
+2026-11-08T09:07:46.2905738Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 cmake amd64 3.28.3-1build7 [11.2 MB]
+2026-11-08T09:07:46.4391490Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 cppcheck amd64 2.13.0-2ubuntu3 [2136 kB]
+2026-11-08T09:07:46.4969622Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 gcc-riscv64-unknown-elf amd64 13.2.0-11ubuntu1+12 [48.4 MB]
+2026-11-08T09:07:47.2010457Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+2026-11-08T09:07:47.2307995Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+2026-11-08T09:07:47.2510569Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+2026-11-08T09:07:47.5495811Z Fetched 68.1 MB in 1s (49.7 MB/s)
+2026-11-08T09:07:47.7148420Z Selecting previously unselected package binutils-riscv64-unknown-elf.
+2026-11-08T09:07:47.7928212Z (Reading database ... 
+2026-11-08T09:07:47.7928555Z (Reading database ... 5%
+2026-11-08T09:07:47.7928819Z (Reading database ... 10%
+2026-11-08T09:07:47.7929108Z (Reading database ... 15%
+2026-11-08T09:07:47.7929327Z (Reading database ... 20%
+2026-11-08T09:07:47.7929512Z (Reading database ... 25%
+2026-11-08T09:07:47.7929885Z (Reading database ... 30%
+2026-11-08T09:07:47.7930181Z (Reading database ... 35%
+2026-11-08T09:07:47.7930451Z (Reading database ... 40%
+2026-11-08T09:07:47.7930715Z (Reading database ... 45%
+2026-11-08T09:07:47.7930974Z (Reading database ... 50%
+2026-11-08T09:07:47.8913156Z (Reading database ... 55%
+2026-11-08T09:07:48.1535476Z (Reading database ... 60%
+2026-11-08T09:07:48.4188330Z (Reading database ... 65%
+2026-11-08T09:07:48.7557310Z (Reading database ... 70%
+2026-11-08T09:07:48.9049116Z (Reading database ... 75%
+2026-11-08T09:07:49.0606860Z (Reading database ... 80%
+2026-11-08T09:07:49.2954558Z (Reading database ... 85%
+2026-11-08T09:07:49.5571129Z (Reading database ... 90%
+2026-11-08T09:07:49.7924507Z (Reading database ... 95%
+2026-11-08T09:07:49.7924787Z (Reading database ... 100%
+2026-11-08T09:07:49.7925457Z (Reading database ... 215960 files and directories currently installed.)
+2026-11-08T09:07:49.7970908Z Preparing to unpack .../00-binutils-riscv64-unknown-elf_2.42-1ubuntu1+6_amd64.deb ...
+2026-11-08T09:07:49.8064651Z Unpacking binutils-riscv64-unknown-elf (2.42-1ubuntu1+6) ...
+2026-11-08T09:07:49.9088218Z Selecting previously unselected package build-essential.
+2026-11-08T09:07:49.9215685Z Preparing to unpack .../01-build-essential_12.10ubuntu1_amd64.deb ...
+2026-11-08T09:07:49.9223538Z Unpacking build-essential (12.10ubuntu1) ...
+2026-11-08T09:07:49.9788549Z Selecting previously unselected package clang.
+2026-11-08T09:07:49.9916865Z Preparing to unpack .../02-clang_1%3a18.0-59~exp2_amd64.deb ...
+2026-11-08T09:07:49.9927521Z Unpacking clang (1:18.0-59~exp2) ...
+2026-11-08T09:07:50.1217030Z Selecting previously unselected package clang-tidy.
+2026-11-08T09:07:50.1345829Z Preparing to unpack .../03-clang-tidy_1%3a18.0-59~exp2_amd64.deb ...
+2026-11-08T09:07:50.1352994Z Unpacking clang-tidy (1:18.0-59~exp2) ...
+2026-11-08T09:07:50.1758831Z Selecting previously unselected package libjsoncpp25:amd64.
+2026-11-08T09:07:50.1888249Z Preparing to unpack .../04-libjsoncpp25_1.9.5-6build1_amd64.deb ...
+2026-11-08T09:07:50.1904802Z Unpacking libjsoncpp25:amd64 (1.9.5-6build1) ...
+2026-11-08T09:07:50.2129261Z Selecting previously unselected package librhash0:amd64.
+2026-11-08T09:07:50.2275764Z Preparing to unpack .../05-librhash0_1.4.3-3build1_amd64.deb ...
+2026-11-08T09:07:50.2285098Z Unpacking librhash0:amd64 (1.4.3-3build1) ...
+2026-11-08T09:07:50.4904184Z Selecting previously unselected package cmake-data.
+2026-11-08T09:07:50.5036454Z Preparing to unpack .../06-cmake-data_3.28.3-1build7_all.deb ...
+2026-11-08T09:07:50.5125951Z Unpacking cmake-data (3.28.3-1build7) ...
+2026-11-08T09:07:50.9725483Z Selecting previously unselected package cmake.
+2026-11-08T09:07:50.9869239Z Preparing to unpack .../07-cmake_3.28.3-1build7_amd64.deb ...
+2026-11-08T09:07:50.9877057Z Unpacking cmake (3.28.3-1build7) ...
+2026-11-08T09:07:51.2592086Z Selecting previously unselected package cppcheck.
+2026-11-08T09:07:51.2721809Z Preparing to unpack .../08-cppcheck_2.13.0-2ubuntu3_amd64.deb ...
+2026-11-08T09:07:51.2730119Z Unpacking cppcheck (2.13.0-2ubuntu3) ...
+2026-11-08T09:07:51.3643423Z Selecting previously unselected package gcc-riscv64-unknown-elf.
+2026-11-08T09:07:51.3774484Z Preparing to unpack .../09-gcc-riscv64-unknown-elf_13.2.0-11ubuntu1+12_amd64.deb ...
+2026-11-08T09:07:51.3782176Z Unpacking gcc-riscv64-unknown-elf (13.2.0-11ubuntu1+12) ...
+2026-11-08T09:07:52.9727932Z Selecting previously unselected package googletest.
+2026-11-08T09:07:52.9861249Z Preparing to unpack .../10-googletest_1.14.0-1_all.deb ...
+2026-11-08T09:07:52.9868038Z Unpacking googletest (1.14.0-1) ...
+2026-11-08T09:07:53.0807137Z Selecting previously unselected package libgtest-dev:amd64.
+2026-11-08T09:07:53.0939674Z Preparing to unpack .../11-libgtest-dev_1.14.0-1_amd64.deb ...
+2026-11-08T09:07:53.0946629Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+2026-11-08T09:07:53.1407074Z Selecting previously unselected package libgmock-dev:amd64.
+2026-11-08T09:07:53.1538501Z Preparing to unpack .../12-libgmock-dev_1.14.0-1_amd64.deb ...
+2026-11-08T09:07:53.1546097Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+2026-11-08T09:07:53.2048518Z Setting up binutils-riscv64-unknown-elf (2.42-1ubuntu1+6) ...
+2026-11-08T09:07:53.2066365Z Setting up clang-tidy (1:18.0-59~exp2) ...
+2026-11-08T09:07:53.2081756Z Setting up googletest (1.14.0-1) ...
+2026-11-08T09:07:53.2103867Z Setting up clang (1:18.0-59~exp2) ...
+2026-11-08T09:07:53.2287063Z Setting up libjsoncpp25:amd64 (1.9.5-6build1) ...
+2026-11-08T09:07:53.2303699Z Setting up cppcheck (2.13.0-2ubuntu3) ...
+2026-11-08T09:07:53.2320440Z Setting up librhash0:amd64 (1.4.3-3build1) ...
+2026-11-08T09:07:53.2336903Z Setting up gcc-riscv64-unknown-elf (13.2.0-11ubuntu1+12) ...
+2026-11-08T09:07:53.2353104Z Setting up build-essential (12.10ubuntu1) ...
+2026-11-08T09:07:53.2370296Z Setting up cmake-data (3.28.3-1build7) ...
+2026-11-08T09:07:53.2455285Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+2026-11-08T09:07:53.2490320Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+2026-11-08T09:07:53.2527300Z Setting up cmake (3.28.3-1build7) ...
+2026-11-08T09:07:53.2548394Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-11-08T09:07:53.2568843Z Not building database; man-db/auto-update is not 'true'.
+2026-11-08T09:07:53.2581488Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-11-08T09:07:54.1417524Z 
+2026-11-08T09:07:54.1418099Z Running kernel seems to be up-to-date.
+2026-11-08T09:07:54.1418399Z 
+2026-11-08T09:07:54.1418515Z No services need to be restarted.
+2026-11-08T09:07:54.1418727Z 
+2026-11-08T09:07:54.1418838Z No containers need to be restarted.
+2026-11-08T09:07:54.1419042Z 
+2026-11-08T09:07:54.1419189Z No user sessions are running outdated binaries.
+2026-11-08T09:07:54.1419435Z 
+2026-11-08T09:07:54.1419660Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-08T09:08:12.2412592Z 
+2026-11-08T09:08:12.2413075Z added 190 packages in 16s
+2026-11-08T09:08:12.2413266Z 
+2026-11-08T09:08:12.2413402Z 22 packages are looking for funding
+2026-11-08T09:08:12.2413639Z   run `npm fund` for details
+2026-11-08T09:08:12.3409006Z ##[group]Run python3 scripts/validate.py --work build-validation --jobs 16 --graphs
+2026-11-08T09:08:12.3410167Z python3 scripts/validate.py --work build-validation --jobs 16 --graphs
+2026-11-08T09:08:12.3431197Z shell: /usr/bin/bash -e {0}
+2026-11-08T09:08:12.3431423Z ##[endgroup]
+2026-11-08T09:08:12.4281539Z entity-golden: rc 0
+2026-11-08T09:08:13.1882514Z entity-controls: rc 0
+2026-11-08T09:08:31.4859243Z boundary: rc 0
+2026-11-08T09:08:32.4638306Z needles: rc 0
+2026-11-08T09:08:42.7675711Z assertion-templates: rc 0
+2026-11-08T09:08:55.9719121Z dependencies: rc 0
+2026-11-08T09:09:14.0693658Z comments: rc 0
+2026-11-08T09:09:29.5722908Z conditionals: rc 0
+2026-11-08T09:09:29.6973491Z port-contracts: rc 0
+2026-11-08T09:10:13.7787334Z acmp-cache: rc 0
+2026-11-08T09:10:16.4451216Z registration-controls: rc 0
+2026-11-08T09:10:16.6984561Z license: rc 0
+2026-11-08T09:10:27.9927665Z traceability: rc 0
+2026-11-08T09:10:29.0583672Z test-inventory: rc 0
+2026-11-08T09:10:29.1061863Z coverage-controls: rc 0
+2026-11-08T09:10:29.1310339Z privacy-selftest: rc 0
+2026-11-08T09:10:30.8394525Z privacy: rc 0
+2026-11-08T09:10:31.6808488Z gcc-configure: rc 0
+2026-11-08T09:10:32.6841178Z clang-sanitizers-configure: rc 0
+2026-11-08T09:11:01.8420654Z gcc-build: rc 0
+2026-11-08T09:11:02.2430688Z gcc-test: rc 0
+2026-11-08T09:11:02.4530712Z coverage: rc 0
+2026-11-08T09:11:05.8340896Z clang-sanitizers-build: rc 0
+2026-11-08T09:11:08.3090813Z clang-sanitizers-test: rc 0
+2026-11-08T09:12:00.5876868Z static-analysis: rc 0
+2026-11-08T09:12:09.9420751Z mutation: rc 0
+2026-11-08T09:12:24.1324053Z mutation-controls: rc 0
+2026-11-08T09:12:26.7185761Z graphs: rc 0
+2026-11-08T09:12:26.7304222Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-08T09:12:26.7304547Z with:
+2026-11-08T09:12:26.7304713Z   name: quality-evidence
+2026-11-08T09:12:26.7305859Z   path: build-validation/*.log
+build-validation/*.rc
+build-validation/gates.json
+build-validation/mutations/results.json
+build-validation/mutations/message-markers.json
+build-validation/mutations/*/*.xml
+build-validation/assertion-templates/*.xml
+build-validation/assertion-templates/*.log
+build-validation/conditionals/results.json
+build-validation/conditionals/**/*.log
+build-validation/graphs/*.svg
+
+2026-11-08T09:12:26.7307035Z   if-no-files-found: warn
+2026-11-08T09:12:26.7307228Z   compression-level: 6
+2026-11-08T09:12:26.7307405Z   overwrite: false
+2026-11-08T09:12:26.7307581Z   include-hidden-files: false
+2026-11-08T09:12:26.7307779Z ##[endgroup]
+2026-11-08T09:12:26.8715292Z (node:14895) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-08T09:12:26.8715925Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-08T09:12:27.1577367Z With the provided path, there will be 535 files uploaded
+2026-11-08T09:12:27.1582045Z Artifact name is valid!
+2026-11-08T09:12:27.1582524Z Root directory input is valid!
+2026-11-08T09:12:27.3744817Z Beginning upload of artifact content to blob storage
+2026-11-08T09:12:27.6438094Z (node:14895) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-08T09:12:27.7040695Z Uploaded bytes 450952
+2026-11-08T09:12:27.7152744Z Finished uploading artifact content to blob storage!
+2026-11-08T09:12:27.7153443Z SHA256 digest of uploaded artifact zip is d044c6525bb8e6472bfbe6e1d54196efeb1d3fc5cb4ac3736646bd66c86c59d9
+2026-11-08T09:12:27.7155199Z Finalizing artifact upload
+2026-11-08T09:12:28.0736182Z Artifact quality-evidence.zip successfully finalized. Artifact ID 13611279670
+2026-11-08T09:12:28.0737181Z Artifact quality-evidence has been successfully uploaded! Final size is 450952 bytes. Artifact ID is 13611279670
+2026-11-08T09:12:28.0743821Z Artifact download URL: https://github.com/kebag-logic/tsn-c-stack/actions/runs/42465293588/artifacts/13611279670
+2026-11-08T09:12:28.1017253Z Post job cleanup.
+2026-11-08T09:12:28.1705462Z [command]/usr/bin/git version
+2026-11-08T09:12:28.1774342Z git version 2.56.0
+2026-11-08T09:12:28.1808382Z Temporarily overriding HOME='<home-path>/work/_temp/b047a434-5d32-4901-b86e-4a0713b2e39e' before making global git config changes
+2026-11-08T09:12:28.1809349Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-08T09:12:28.1813370Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/tsn-c-stack/tsn-c-stack
+2026-11-08T09:12:28.1848939Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-08T09:12:28.1879466Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-08T09:12:28.2102455Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-08T09:12:28.2126778Z http.https://github.com/.extraheader
+2026-11-08T09:12:28.2137255Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-08T09:12:28.2168957Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-08T09:12:28.2394346Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-08T09:12:28.2432237Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-08T09:12:28.2785834Z Cleaning up orphan processes
+2026-11-08T09:12:28.3120159Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
