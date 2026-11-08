@@ -1,0 +1,4 @@
+826c826
+<                 const uint64_t kk = 0;  // PROBE G1
+---
+>                 const uint64_t kk = static_cast<uint64_t>(k);
