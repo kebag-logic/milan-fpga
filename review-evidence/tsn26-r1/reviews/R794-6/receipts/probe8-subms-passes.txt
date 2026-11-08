@@ -1,0 +1,22 @@
+Note: Google Test filter = AcmpOwedProbe8.*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AcmpOwedProbe8
+[ RUN      ] AcmpOwedProbe8.OnePassPerMs
+PROBE8 passes_per_ms=1 retry_step_ms=1: BIND_RX taken in pass 2, answered 9 ms after release; held probes owed: sink2@pass3 sink3@pass4 sink4@pass5 sink5@pass6; most owed in one pass=1 (pass 3); probes_held=8 probes_lost=0 owed_left=0
+PROBE8 passes_per_ms=1 retry_step_ms=0: BIND_RX taken in pass 2, answered 9 ms after release; held probes owed: sink2@pass3 sink3@pass4 sink4@pass5 sink5@pass6; most owed in one pass=1 (pass 3); probes_held=14 probes_lost=0 owed_left=0
+[       OK ] AcmpOwedProbe8.OnePassPerMs (0 ms)
+[ RUN      ] AcmpOwedProbe8.TwoPassesPerMs
+PROBE8 passes_per_ms=2 retry_step_ms=1: BIND_RX taken in pass 2, answered 5 ms after release; held probes owed: sink2@pass3; most owed in one pass=1 (pass 3); probes_held=1 probes_lost=1 owed_left=0
+PROBE8 passes_per_ms=2 retry_step_ms=0: BIND_RX taken in pass 2, answered 5 ms after release; held probes owed: sink2@pass3 sink3@pass5 sink4@pass5 sink5@pass7; most owed in one pass=2 (pass 5); probes_held=8 probes_lost=0 owed_left=0
+[       OK ] AcmpOwedProbe8.TwoPassesPerMs (0 ms)
+[ RUN      ] AcmpOwedProbe8.FourPassesPerMs
+PROBE8 passes_per_ms=4 retry_step_ms=1: BIND_RX taken in pass 2, answered 3 ms after release; held probes owed: sink2@pass5; most owed in one pass=1 (pass 5); probes_held=1 probes_lost=0 owed_left=0
+PROBE8 passes_per_ms=4 retry_step_ms=0: BIND_RX taken in pass 2, answered 3 ms after release; held probes owed: sink2@pass5 sink3@pass5 sink4@pass5 sink5@pass9; most owed in one pass=3 (pass 5); probes_held=5 probes_lost=0 owed_left=0
+[       OK ] AcmpOwedProbe8.FourPassesPerMs (0 ms)
+[----------] 3 tests from AcmpOwedProbe8 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 3 tests.
+rc 0
