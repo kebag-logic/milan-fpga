@@ -1,0 +1,12 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144: R791 split_reviewer_mutants.py (unchanged) --jobs 8
+SURVIVED  E1 the AVB_INFO change event never leaves the datapath: checks: 66   failures: 0
+SURVIVED  E2 the counter-change descriptor never leaves the datapath: checks: 66   failures: 0
+SURVIVED  E3 the live map-write event never leaves the datapath: checks: 66   failures: 0
+SURVIVED  G1 the grandmaster identity crosses as zero: checks: 66   failures: 0
+SURVIVED  G2 the grandmaster change never leaves the datapath: checks: 66   failures: 0
+SURVIVED  C1 every counter change posted under descriptor index 0: checks: 66   failures: 0
+SURVIVED  W1 the EDIT window's request never reaches the datapath: checks: 66   failures: 0
+CAUGHT    T1 the tap refuses MSRP at its group address: checks: 66   failures: 1; FAIL [TAP] MSRP at 01-80-C2-00-00-0E is handed out whole, and counted
+CAUGHT    T2 the tap refuses MAAP: checks: 66   failures: 1; FAIL [TAP] MAAP (0x22F0, subtype 0xFE) is handed out whole, and counted
+CAUGHT    D1 the talker declaration published as FAILED, not ADVERTISE: checks: 66   failures: 1; FAIL [PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE: got 0x2, want 0x1
+survived: 7 of 10
