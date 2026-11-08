@@ -94,11 +94,16 @@ def passed(rc: int, output: str) -> bool:
 
 
 def arm(name: str, tree: Path, extra: list[str], expect_pass: bool) -> bool:
-    """One run of the gate: its verdict as expected, printed with make's last lines when it is not."""
+    """One run of the gate: its verdict as expected, with the lines it judged (the leg's verdict, or the missing
+    binary), and make's last lines when it is not."""
     rc, output = run_split(tree, extra)
     ok = passed(rc, output) if expect_pass else rc != 0 and MISSING in output
     want = "passes" if expect_pass else f"fails with \"{MISSING}\""
-    print(f"split_parallel: {name}: make -j8 split rc {rc}, {'as' if ok else 'NOT as'} expected ({want})", flush=True)
+    print(f"split_parallel: {name} at {git('rev-parse', 'HEAD', cwd=tree)}: make -j8 split rc {rc}, "
+          f"{'as' if ok else 'NOT as'} expected ({want})", flush=True)
+    for line in output.splitlines():
+        if VERDICT.match(line) or MISSING in line:
+            print(f"  {line}", flush=True)
     if not ok:
         print("\n".join(output.splitlines()[-30:]), flush=True)
     return ok
