@@ -1,0 +1,15 @@
+# Cost harness at exact head 968a164 vs the author's sync receipt (a750c/measure/mg-*, built at 13dd785; 13dd785..968a164 changes no src, include or examples file).
+# First block: harness copied as measure-r2.c. Results and acmp.o sizes are identical; ELF hashes differ only because the ELF records the harness file name.
+# Second block: the same harness under the author's file name measure.c. Both ELFs are byte-identical.
+== release
+result-identical
+<packet>/receipts/measure/head-release-elf.sha256 <author-r2>/a750c/measure/mg-release-elf.sha256 differ: byte 1, line 1
+size-identical
+== split
+result-identical
+<packet>/receipts/measure/head-split-elf.sha256 <author-r2>/a750c/measure/mg-split-elf.sha256 differ: byte 1, line 1
+size-identical
+== release mine 2e5cddf3fd3a5ab1b089058d17ebd339cf73a2aea6ef2c63cd9d36325c3bede8 author 2e5cddf3fd3a5ab1b089058d17ebd339cf73a2aea6ef2c63cd9d36325c3bede8
+elf-identical-with-file-name-measure.c
+== split mine bf5450416f61bcc71b6d2889a94fe4e33324713daefed34ad2056902476e1158 author bf5450416f61bcc71b6d2889a94fe4e33324713daefed34ad2056902476e1158
+elf-identical-with-file-name-measure.c
