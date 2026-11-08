@@ -1,0 +1,5 @@
+split_parallel: selftest, the race's rule planted at e69d243a61a8ec1c1ad8c473f809e1351dab1b61: make -j8 split rc 2, as expected (fails with "Vmilan_dp_split: No such file or directory")
+  make: ./obj_split/Vmilan_dp_split: No such file or directory
+split_parallel: make -j8 split from a clean tree at e69d243a61a8ec1c1ad8c473f809e1351dab1b61: make -j8 split rc 0, as expected (passes)
+  checks: 71   failures: 0
+split_parallel: PASS

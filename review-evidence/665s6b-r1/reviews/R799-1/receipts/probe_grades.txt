@@ -1,0 +1,17 @@
+== all-fabric: 4 raw grade finding(s)
+   [MRP] all-fabric MVRP: 64799 ms from ms 10201 to the next LeaveAll (or the run's end at 75000), outside 9500 to 15740
+   [MRP] all-fabric MSRP Domain value 06030002: JoinMt at ms 1000 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 200
+   [MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200
+   [MRP] all-fabric MVRP VID 0002: JoinIn at ms 10201 is not an Applicant's message: from VP, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinIn at ms 10201
+  trace MSRP Talker Advertise stream_id 0200000000010000: New x2 from ms 5200, JoinMt x15 from ms 5600, Lv x1 from ms 20000, Mt x5 from ms 21000; received no MSRPDU, its Registrar MT throughout
+  trace MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout
+  MSRP LeaveAll declarations: ['{Talker Advertise stream_id 0200000000010000; Domain value 06030002}', '{Domain value 06030002}', '{Domain value 06030002}', '{Domain value 06030002}', '{Domain value 06030002}', '{Domain value 06030002}']
+  trace MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout
+  MVRP LeaveAll declarations: ['{VID 0002}']
+== split: 0 raw grade finding(s)
+  trace MSRP Talker Failed stream_id 0200000000010000: New x2 from ms 1, JoinMt x89 from ms 400; received no MSRPDU, its Registrar MT throughout
+  trace MSRP Talker Failed stream_id 0200000000010001: New x2 from ms 1, JoinMt x89 from ms 400; received no MSRPDU, its Registrar MT throughout
+  trace MSRP Domain value 06030002: New x2 from ms 1, JoinMt x89 from ms 400; received no MSRPDU, its Registrar MT throughout
+  MSRP LeaveAll declarations: ['{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}', '{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}', '{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}', '{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}', '{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}']
+  trace MVRP VID 0002: JoinMt x92 from ms 12; received no MVRPDU, its Registrar MT throughout
+  MVRP LeaveAll declarations: ['{VID 0002}', '{VID 0002}', '{VID 0002}', '{VID 0002}', '{VID 0002}', '{VID 0002}']

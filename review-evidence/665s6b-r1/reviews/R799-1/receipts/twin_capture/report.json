@@ -1,0 +1,338 @@
+{
+ "findings": [],
+ "notes": [
+  "[TAIL] ADP: the split's last 1 frame(s), the fabric's next not yet due",
+  "[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)",
+  "[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)",
+  "[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)",
+  "[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)",
+  "[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)",
+  "[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)",
+  "[OWED] stream-output-0-notices: the fabric sends GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the PROBE_TX and as it withdraws, the split none (Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed; cause: the split's talker declaration state never changes: no SRP adapter entry takes MAAP's allocation (sw/firmware/ctrl/plat/README.md, Not yet done); owed to the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3))",
+  "[OWED] split-talker-failed: the fabric sends Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws, the split Talker Failed for both sources' streams from boot, never withdrawn (IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration; cause: the split's talker declaration state never changes: no SRP adapter entry takes MAAP's allocation (sw/firmware/ctrl/plat/README.md, Not yet done); owed to the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3))",
+  "[OWED] entity-available-index: the fabric sends the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1, the split the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's; cause: the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the image's constant 0, and never reads ADP's; owed to #858 (a release-image defect; issuecomment-6722002738, item 6))",
+  "[OWED] fabric-mvrp-leave-all: the all-fabric half sends MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv) (IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring or not; cause: the fabric's MVRP participant sends nothing, LeaveAll included, once it declares nothing; owed to #857 (a release-image defect; issuecomment-6722002738, item 4))",
+  "[OWED] fabric-domain-one-new: the all-fabric half sends MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again; Milan v1.2 4.2.7.2.1: the Domain declared after startup; cause: the fabric's Domain participant queues one New at startup and at LINK_UP, then re-joins (KL_srp_domain.sv); owed to #860 (a release-image defect; issuecomment-6724570965, items 1 and 2))",
+  "[OWED] fabric-vid2-join-in: the all-fabric half sends MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3: from AN, tx! sends New again, and sJ sends JoinIn only with the Registrar IN; cause: the fabric's MVRP participant declares a VID with one New, then re-joins it on every periodic and LeaveAll tick with JoinIn, the only Join it sends (KL_srp_vlan.sv); owed to #860 (a release-image defect; issuecomment-6724570965, items 1 and 2))"
+ ],
+ "measured": {
+  "all-fabric": {
+   "adp_start_ms": 756,
+   "adp_gaps_ms": [
+    3696,
+    8984,
+    8055,
+    6950,
+    6428,
+    5031,
+    7675,
+    5121,
+    6334,
+    7235,
+    6382
+   ],
+   "adp_valid_time_ms": 20000,
+   "maap_probe_gaps_ms": [
+    572,
+    523,
+    526
+   ],
+   "maap_announce_gaps_ms": [
+    30752,
+    30701
+   ],
+   "aecp_response_ms": {
+    "the first controller 1": 0,
+    "the second controller 513": 0,
+    "the second controller 514": 1,
+    "the first controller 2": 1,
+    "the first controller 3": 0,
+    "the first controller 4": 1,
+    "the first controller 5": 1,
+    "the first controller 6": 0,
+    "the first controller 7": 0,
+    "the first controller 8": 1,
+    "the first controller 9": 0,
+    "the first controller 10": 1,
+    "the first controller 23": 0,
+    "the first controller 25": 1,
+    "the first controller 11": 0,
+    "the first controller 12": 1,
+    "the first controller 13": 0,
+    "the first controller 15": 0,
+    "the first controller 16": 0,
+    "the first controller 17": 0,
+    "the first controller 18": 0,
+    "the first controller 19": 0,
+    "the first controller 20": 0,
+    "the first controller 21": 0,
+    "the first controller 22": 1,
+    "the first controller 24": 0
+   },
+   "notice_sequence_ids": {
+    "the first controller": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "the second controller": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ]
+   },
+   "controller_available_ids": {
+    "the first controller": [
+     0
+    ],
+    "the second controller": [
+     0,
+     1
+    ]
+   },
+   "msrp_leave_all_ms": [
+    10200,
+    20800,
+    32200,
+    44800,
+    57400,
+    71000
+   ],
+   "msrp_opportunities": 99,
+   "mvrp_leave_all_ms": [
+    10201
+   ],
+   "mvrp_opportunities": 16,
+   "msrp_leave_all_declarations": [
+    [
+     10200,
+     "{Talker Advertise stream_id 0200000000010000; Domain value 06030002}"
+    ],
+    [
+     20800,
+     "{Domain value 06030002}"
+    ],
+    [
+     32200,
+     "{Domain value 06030002}"
+    ],
+    [
+     44800,
+     "{Domain value 06030002}"
+    ],
+    [
+     57400,
+     "{Domain value 06030002}"
+    ],
+    [
+     71000,
+     "{Domain value 06030002}"
+    ]
+   ],
+   "mvrp_leave_all_declarations": [
+    [
+     10201,
+     "{VID 0002}"
+    ]
+   ],
+   "mvrp_vid2_declared_from_ms": 5200,
+   "mvrp_vid2_events": "New x1, JoinIn x15, Lv x1",
+   "first_stream_ms": -1,
+   "settled_sinks_ms": []
+  },
+  "split": {
+   "adp_start_ms": 366,
+   "adp_gaps_ms": [
+    5850,
+    5414,
+    8444,
+    7849,
+    5051,
+    5011,
+    7341,
+    5484,
+    5328,
+    5031,
+    8176,
+    5070
+   ],
+   "adp_valid_time_ms": 20000,
+   "maap_probe_gaps_ms": [
+    540,
+    534,
+    532
+   ],
+   "maap_announce_gaps_ms": [
+    30723,
+    30277
+   ],
+   "aecp_response_ms": {
+    "the first controller 1": 3,
+    "the second controller 513": 3,
+    "the second controller 514": 3,
+    "the first controller 2": 3,
+    "the first controller 3": 3,
+    "the first controller 4": 3,
+    "the first controller 5": 3,
+    "the first controller 6": 3,
+    "the first controller 7": 3,
+    "the first controller 8": 3,
+    "the first controller 9": 3,
+    "the first controller 10": 3,
+    "the first controller 23": 3,
+    "the first controller 25": 3,
+    "the first controller 11": 3,
+    "the first controller 12": 4,
+    "the first controller 13": 3,
+    "the first controller 15": 3,
+    "the first controller 16": 3,
+    "the first controller 17": 3,
+    "the first controller 18": 3,
+    "the first controller 19": 3,
+    "the first controller 20": 4,
+    "the first controller 21": 3,
+    "the first controller 22": 3,
+    "the first controller 24": 3
+   },
+   "notice_sequence_ids": {
+    "the first controller": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "the second controller": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ]
+   },
+   "controller_available_ids": {
+    "the first controller": [
+     1
+    ],
+    "the second controller": [
+     0,
+     2
+    ]
+   },
+   "msrp_leave_all_ms": [
+    14560,
+    27910,
+    39200,
+    50200,
+    62860
+   ],
+   "msrp_opportunities": 91,
+   "mvrp_leave_all_ms": [
+    10400,
+    21230,
+    34440,
+    44720,
+    56860,
+    71350
+   ],
+   "mvrp_opportunities": 92,
+   "msrp_leave_all_declarations": [
+    [
+     14560,
+     "{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}"
+    ],
+    [
+     27910,
+     "{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}"
+    ],
+    [
+     39200,
+     "{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}"
+    ],
+    [
+     50200,
+     "{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}"
+    ],
+    [
+     62860,
+     "{Talker Failed stream_id 0200000000010000; Talker Failed stream_id 0200000000010001; Domain value 06030002}"
+    ]
+   ],
+   "mvrp_leave_all_declarations": [
+    [
+     10400,
+     "{VID 0002}"
+    ],
+    [
+     21230,
+     "{VID 0002}"
+    ],
+    [
+     34440,
+     "{VID 0002}"
+    ],
+    [
+     44720,
+     "{VID 0002}"
+    ],
+    [
+     56860,
+     "{VID 0002}"
+    ],
+    [
+     71350,
+     "{VID 0002}"
+    ]
+   ],
+   "mvrp_vid2_declared_from_ms": 12,
+   "mvrp_vid2_events": "JoinMt x92",
+   "first_stream_ms": -1,
+   "settled_sinks_ms": []
+  }
+ },
+ "counts": {
+  "all-fabric": {
+   "ACMP": 7,
+   "ADP": 12,
+   "AECP": 53,
+   "MAAP": 8,
+   "MSRP": 99,
+   "MVRP": 16
+  },
+  "split": {
+   "ACMP": 7,
+   "ADP": 13,
+   "AECP": 49,
+   "MAAP": 8,
+   "MSRP": 91,
+   "MVRP": 92
+  }
+ }
+}
