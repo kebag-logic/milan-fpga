@@ -1,0 +1,16 @@
+## synthetic end-to-end probes of the exemption inside main()
+### S1-clean (listed id 17d5dbb5c8591a83e4d1543e6a6ce9b32ad3ebdd)
+$ (S1-clean) python3 -B scripts/check_privacy.py
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 2 commits, 1 historical blobs, 1 current files; pass
+rc=0
+### S2-restricted-body (listed id 2442408f88b7b854d627fbd452d64e655a9dd812)
+$ (S2-restricted-body) python3 -B scripts/check_privacy.py
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+2442408f88b7b854d627fbd452d64e655a9dd812: restricted content
+rc=1
+### S3-foreign-identity (listed id 415396cb870a847de50de43b8ddf9d667b16841c)
+$ (S3-foreign-identity) python3 -B scripts/check_privacy.py
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+415396cb870a847de50de43b8ddf9d667b16841c: unexpected identity
+rc=1

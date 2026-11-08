@@ -1,0 +1,64 @@
+## mutation probes (killed = selftest rc 1 naming the expected control)
+### M1-drop-exemption
+-    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1:
++    if commit != OWNER_SQUASH and len([line for line in lines[2:] if line.strip()]) != 1:
+$ (M1-drop-exemption) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge
+rc=1
+### M2-exempt-identity-too
+-    if commit != OWNER_SQUASH and not identity_ok(lines):
++    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and not identity_ok(lines):
+$ (M2-exempt-identity-too) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge-foreign
+rc=1
+### M3-prefix-8
+-    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1:
++    if commit != OWNER_SQUASH and not any(commit.startswith(m[:8]) for m in TWO_LINE_MERGES) and len([line for line in lines[2:] if line.strip()]) != 1:
+$ (M3-prefix-8) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge-near-miss
+rc=1
+### M4-prefix-39
+-    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1:
++    if commit != OWNER_SQUASH and commit[:39] not in {m[:39] for m in TWO_LINE_MERGES} and len([line for line in lines[2:] if line.strip()]) != 1:
+$ (M4-prefix-39) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge-near-miss
+rc=1
+### M5-match-merge-subject
+-    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1:
++    if commit != OWNER_SQUASH and not lines[2:3] == ['Merge (#29)'] and len([line for line in lines[2:] if line.strip()]) != 1:
+$ (M5-match-merge-subject) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge-near-miss
+rc=1
+### M6-exempt-every-web-flow
+-    if commit != OWNER_SQUASH and commit not in TWO_LINE_MERGES and len([line for line in lines[2:] if line.strip()]) != 1:
++    if commit != OWNER_SQUASH and lines[:2] != WEB_FLOW and len([line for line in lines[2:] if line.strip()]) != 1:
+$ (M6-exempt-every-web-flow) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail web-flow-two-lines, two-line-merge-near-miss
+rc=1
+### M7-drop-near-miss-derivation
+-        commit = commit[:-1] + ("0" if commit[-1] != "0" else "1") if name.endswith("near-miss") else commit
+$ (M7-drop-near-miss-derivation) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: fail two-line-merge-near-miss
+rc=1
+### M8-skip-content-scan-for-merge
+-        errors += scan(commit, data)
++        errors += [] if commit in TWO_LINE_MERGES else scan(commit, data)
+$ (M8-skip-content-scan-for-merge-selftest) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: 14 commit controls pass
+rc=0
+$ (M8-skip-content-scan-for-merge-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 18 commits, 268 historical blobs, 98 current files; pass
+rc=0
+### M9-skip-identity-in-main
+-        errors += commit_errors(commit, lines)
++        errors += [e for e in commit_errors(commit, lines) if not (commit in TWO_LINE_MERGES and 'identity' in e)]
+$ (M9-skip-identity-in-main-selftest) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: 14 commit controls pass
+rc=0
+$ (M9-skip-identity-in-main-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 18 commits, 268 historical blobs, 98 current files; pass
+rc=0

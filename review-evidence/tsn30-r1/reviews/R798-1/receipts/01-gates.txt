@@ -1,0 +1,35 @@
+## gate at exact head (in the clone, read-only)
+$ (head-selftest) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: 14 commit controls pass
+rc=0
+$ (head-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 18 commits, 268 historical blobs, 98 current files; pass
+rc=0
+$ (head-license) python3 -B scripts/check_license.py
+license: pass
+rc=0
+$ (head-license-selftest) python3 -B scripts/check_license.py --selftest
+license: valid control passes; three bad controls refused
+license: pass
+rc=0
+## main d7e6a2a1 with its own gate (expect fail on the merge)
+$ (main-selftest) python3 -B scripts/check_privacy.py --selftest
+privacy selftest: 11 commit controls pass
+rc=0
+$ (main-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+rc=1
+## main d7e6a2a1 history with the head gate (expect pass)
+$ (main-with-head-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 16 commits, 263 historical blobs, 98 current files; pass
+rc=0
+## head history with the main gate (expect fail on the merge only)
+$ (head-with-main-gate) python3 -B scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+rc=1
