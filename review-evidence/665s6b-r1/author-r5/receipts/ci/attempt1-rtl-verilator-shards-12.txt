@@ -1,0 +1,40 @@
+head e69d243a61a8ec1c1ad8c473f809e1351dab1b61
+command: the replay's first attempt of rtl verilator-shards 12, step ci_step_21 (Run this exhaustive suite shard), its last 60 lines: rc 2 in scripts/test_suite_cancellation.py's hard-KILL arm (CLEANUP FAILED: owned descendants remain) on a fully booked host; moved aside (ci_replay.py again) and run again, which succeeded
+full log: 6421 bytes, sha256 aa0d04152f8311cdac083ea2ce17cde5796636eecf58f3c2196e788f4b50e4fe
+---
+# head e69d243a61a8ec1c1ad8c473f809e1351dab1b61 rtl/verilator-shards/ci_step_21: Run this exhaustive suite shard
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 797154, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/normal-orphan input [523]", "identities": {"797117": ["27468622", "S"], "797154": ["27468624", "S"]}, "pid": 797117}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 801869, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-selection-SIGINT input [523]", "identities": {"801798": ["27468918", "S"], "801869": ["27468920", "S"]}, "pid": 801798}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 806357, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-selection-SIGTERM input [523]", "identities": {"806317": ["27469152", "S"], "806357": ["27469155", "S"]}, "pid": 806317}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 811132, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-preflight-SIGINT input [523]", "identities": {"811068": ["27469391", "S"], "811132": ["27469394", "S"]}, "pid": 811068}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 813310, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-preflight-SIGTERM input [523]", "identities": {"813295": ["27469630", "S"], "813310": ["27469632", "S"]}, "pid": 813295}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 813533, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-command-SIGINT input [523]", "identities": {"813527": ["27469893", "S"], "813533": ["27469896", "S"]}, "pid": 813527}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 813743, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-command-SIGTERM input [523]", "identities": {"813738": ["27470156", "S"], "813743": ["27470158", "S"]}, "pid": 813738}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 813966, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-transition-SIGINT input [523]", "identities": {"813965": ["27470421", "S"], "813966": ["27470424", "S"]}, "pid": 813965}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 814160, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/cancel-transition-SIGTERM input [523]", "identities": {"814159": ["27470687", "S"], "814160": ["27470690", "S"]}, "pid": 814159}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 814517, "cwd": "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/tmp/suite-cancellation-xk080zf3/unsafe-command-SIGTERM input [523]", "identities": {"814516": ["27471030", "S"], "814517": ["27471033", "S"]}, "pid": 814516}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP-group: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP-group", "sweep_shell_exited": true, "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/wt/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/wt/scripts/test_suite_cancellation.py", line 384, in main
+    hard_stop(parent, "KILL", unsafe=True)
+  File "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/wt/scripts/test_suite_cancellation.py", line 305, in hard_stop
+    with OwnedProcesses():
+  File "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/wt/scripts/owned_process.py", line 118, in __exit__
+    self._cleanup()
+  File "<scratch>/ci/e69d243a61a8/jobs/rtl__verilator-shards__12/wt/scripts/owned_process.py", line 201, in _cleanup
+    raise RuntimeError(f"CLEANUP FAILED: owned descendants remain: {owned}")
+RuntimeError: CLEANUP FAILED: owned descendants remain: {815497: (793201, '27472055')}
+ABORTING: sweep cancellation controls failed.

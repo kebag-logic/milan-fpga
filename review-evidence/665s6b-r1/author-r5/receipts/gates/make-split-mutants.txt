@@ -1,0 +1,45 @@
+head e69d243a61a8ec1c1ad8c473f809e1351dab1b61
+command: make -C tb/verilator/milan_dp -j8 split-mutants VERILATOR=<the pinned 5.050> VERILATOR_JOBS=8 (clean clone, own unit)
+full log: 3775 bytes, sha256 24d3b769e903b9e1934adcf7e968c794bbe23fc76edec7632aa9d9868768a62d
+---
+make: Entering directory '<scratch>/gates/split/tb/verilator/milan_dp'
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+python3 gen_divergent_shape.py
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695
+ucode.hex: 2048 words, 95 programs
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+divergent shape: row0 0x0205022001006000, row1 0x020702200100C000
+python3 split_mutants.py
+ok   control: the tracked sources pass the split leg
+ok   a class-D consumer on a G tie-off: caught by [PUB] DA_GATE.OPEN reaches the talker's declaration predicate
+ok   the licence on its ACTIVE term alone: caught by [PUB] ...and its admitted term
+ok   a stream_id taken without SID_VALID: caught by [PUB] a stream_id without SID_VALID never reaches the listener
+ok   a publication that never crosses again: caught by [PUB] the stream_id reaches the listener once SID_VALID is set, within 60 mailbox cycles
+ok   a setting taken before its commit: caught by [FACE] a setting not committed does not reach the datapath
+ok   a commit never acknowledged: caught by [FACE] the commit is acknowledged within MBX_FACE_ACK_CYCLES
+ok   a setting on the wrong datapath port: caught by [FACE] F_CLOCK.SOURCE_INDEX reaches the media clock's selector
+ok   an answer under another tag: caught by [WIN] CTR closes DONE, not TIMEOUT
+ok   an answer taken while the datapath waits: caught by [WIN] ...and that word is not the empty one
+ok   a tap that hands out the media subtypes: caught by [RX] ...and the tap hands out no frame
+ok   a serializer that drops a frame's last byte: caught by [RX] its record's length is the frame's
+ok   a packer that reverses the lanes: caught by [TX] ...byte for byte
+ok   the LINK level held low: caught by [LINK] the datapath's effective link reaches LINK.UP
+ok   the Talker declaration published as FAILED: caught by [PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE
+ok   a tap that refuses MSRP: caught by [TAP] MSRP at 01-80-C2-00-00-0E is handed out whole, and counted
+ok   a tap that refuses MVRP: caught by [TAP] MVRP at 01-80-C2-00-00-21 is handed out whole, and counted
+ok   a tap that refuses MAAP: caught by [TAP] MAAP (0x22F0, subtype 0xFE) is handed out whole, and counted
+ok   a tap that takes MSRP at any address: caught by [TAP] MSRP's EtherType at MVRP's group address is refused
+ok   a drop count read from the FIFO's tready: caught by [TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost
+ok   a drop count that counts refused frames: caught by [TAP] ...and not the refused frames a full FIFO turns away
+ok   a drop count that misses a frame kept at its second beat: caught by [TAP] every frame of the burst is handed out or counted lost
+ok   a drop count that wraps: caught by [TAP] the count saturates at 255
+ok   a drop count that counts runts: caught by [TAP] ...nor the one-beat runts a full FIFO turns away
+ok   the datapath's drop count tied off: caught by [RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count
+split mutants: 24 of 24 caught by the check each names
+make: Leaving directory '<scratch>/gates/split/tb/verilator/milan_dp'
+rc=0

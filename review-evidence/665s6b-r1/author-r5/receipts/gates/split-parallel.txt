@@ -1,0 +1,33 @@
+head e69d243a61a8ec1c1ad8c473f809e1351dab1b61
+command: TMPDIR=<scratch>/tmp /usr/bin/time -v python3 -B tb/verilator/milan_dp/split_parallel.py --selftest VERILATOR=<the pinned 5.050> VERILATOR_JOBS=8 (from the lane at the head; the gate clones HEAD itself, twice)
+full log: 1310 bytes, sha256 b08650540bca969689f0d5c869ff1c5b90e2b00147f287db83afc752d009b050
+---
+split_parallel: selftest, the race's rule planted at e69d243a61a8ec1c1ad8c473f809e1351dab1b61: make -j8 split rc 2, as expected (fails with "Vmilan_dp_split: No such file or directory")
+  make: ./obj_split/Vmilan_dp_split: No such file or directory
+split_parallel: make -j8 split from a clean tree at e69d243a61a8ec1c1ad8c473f809e1351dab1b61: make -j8 split rc 0, as expected (passes)
+  checks: 71   failures: 0
+split_parallel: PASS
+	Command being timed: "python3 -B tb/verilator/milan_dp/split_parallel.py --selftest VERILATOR=<tools>/pinned-verilator-5.050/verilator VERILATOR_JOBS=8"
+	User time (seconds): 61.89
+	System time (seconds): 5.41
+	Percent of CPU this job got: 406%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:16.55
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 358460
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 946932
+	Voluntary context switches: 2315
+	Involuntary context switches: 518
+	Swaps: 0
+	File system inputs: 2032
+	File system outputs: 655480
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+rc=0

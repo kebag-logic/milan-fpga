@@ -1,0 +1,26 @@
+head e69d243a61a8ec1c1ad8c473f809e1351dab1b61
+command: bash scripts/run_all_suites.sh <logs> --wait --shard 2/4 (its own clone and unit, MemoryMax 10G, MAKEFLAGS -j4, the pinned Verilator 5.050, sv2v v0.0.12 and make 4.3; launched by sweep-shard.py as native-shards.py launches a shard, on the next free 8-CPU range)
+full log: 595 bytes, sha256 354868004f5fe0a6cdd83a6eed66c79d8385199c398ae2cb23895fdc0e6404eb
+---
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     capture_coherence
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+PASS     maap
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 284228   in-suite failures: 0
+logs: <scratch>/sweep/shard-2/logs

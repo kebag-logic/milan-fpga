@@ -1,0 +1,8 @@
+head c8459f246d39bcf3b29c4123f88a80c6976ea4ee
+command: the same gate at c8459f24, before it printed the lines it judged (superseded by e69d243a)
+full log: 260 bytes, sha256 35f2298aea98be60a53314cde86782846e661ae6e63f298129fb180d21a076e8
+---
+split_parallel: selftest, the race's rule planted: make -j8 split rc 2, as expected (fails with "Vmilan_dp_split: No such file or directory")
+split_parallel: make -j8 split from a clean tree: make -j8 split rc 0, as expected (passes)
+split_parallel: PASS
+rc=0

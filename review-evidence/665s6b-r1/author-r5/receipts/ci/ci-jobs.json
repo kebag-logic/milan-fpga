@@ -1,0 +1,927 @@
+{
+ "head": "e69d243a61a8ec1c1ad8c473f809e1351dab1b61",
+ "jobs": [
+  {
+   "job": "docs__ci-cancel-tail",
+   "result": "success",
+   "run_steps": 0,
+   "rc_nonzero": [],
+   "not_run": [
+    "step0",
+    "step1",
+    "step2"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "docs__ci-fail-fast",
+   "result": "success",
+   "run_steps": 3,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_observe"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "docs__ci-manifest",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_collect",
+    "ci_upload"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "docs__docs-check",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "docs__docs-check-no-git",
+   "result": "success",
+   "run_steps": 5,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "docs__docs-gates-0",
+   "result": "success",
+   "run_steps": 51,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_6"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_10",
+    "ci_step_25",
+    "ci_step_28",
+    "gate_29"
+   ]
+  },
+  {
+   "job": "docs__docs-gates-1",
+   "result": "success",
+   "run_steps": 12,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_8",
+    "ci_step_11",
+    "ci_step_13"
+   ]
+  },
+  {
+   "job": "docs__docs-gates-2",
+   "result": "success",
+   "run_steps": 14,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_8",
+    "ci_step_11",
+    "ci_step_13"
+   ]
+  },
+  {
+   "job": "docs__wire-accountability",
+   "result": "success",
+   "run_steps": 5,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "elaborate__ci-cancel-tail",
+   "result": "success",
+   "run_steps": 0,
+   "rc_nonzero": [],
+   "not_run": [
+    "step0",
+    "step1",
+    "step2"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "elaborate__ci-fail-fast",
+   "result": "success",
+   "run_steps": 3,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_observe"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "elaborate__ci-manifest",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_collect",
+    "ci_upload"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "elaborate__elaborate",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "elaborate__elaborate-gates-0",
+   "result": "success",
+   "run_steps": 16,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_13",
+    "ci_step_17"
+   ]
+  },
+  {
+   "job": "elaborate__elaborate-gates-1",
+   "result": "success",
+   "run_steps": 18,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_17",
+    "ci_step_22"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_13",
+    "ci_step_17",
+    "ci_step_22",
+    "ci_step_23"
+   ]
+  },
+  {
+   "job": "rtl-fast__bdd-conformance",
+   "result": "success",
+   "run_steps": 6,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__changes",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__ci-cancel-tail",
+   "result": "success",
+   "run_steps": 0,
+   "rc_nonzero": [],
+   "not_run": [
+    "step0",
+    "step1",
+    "step2"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__ci-fail-fast",
+   "result": "success",
+   "run_steps": 3,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_observe"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__ci-manifest",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_collect",
+    "ci_upload"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__firmware-aecp-mutants",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl-fast__firmware-boundary",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2"
+   ],
+   "replaced": [
+    "ci_step_6"
+   ],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl-fast__firmware-control-mutants",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl-fast__firmware-srp-mutants",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl-fast__firmware-unit",
+   "result": "success",
+   "run_steps": 10,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_9"
+   ]
+  },
+  {
+   "job": "rtl-fast__firmware-verilator",
+   "result": "success",
+   "run_steps": 8,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2",
+    "ci_packages_4",
+    "ci_step_10"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_10",
+    "ci_step_11",
+    "ci_step_13"
+   ]
+  },
+  {
+   "job": "rtl-fast__publication-census",
+   "result": "success",
+   "run_steps": 8,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_3",
+    "ci_step_8"
+   ],
+   "replaced": [
+    "ci_step_9"
+   ],
+   "rewritten": [
+    "ci_step_8",
+    "ci_step_9",
+    "ci_step_11"
+   ]
+  },
+  {
+   "job": "rtl-fast__rtl-fast",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl-fast__split-cdc",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_3",
+    "ci_step_6"
+   ],
+   "replaced": [
+    "ci_step_7"
+   ],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_7",
+    "ci_step_9"
+   ]
+  },
+  {
+   "job": "rtl-fast__verilator-lint",
+   "result": "success",
+   "run_steps": 6,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_3",
+    "ci_step_6"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_6",
+    "ci_step_7"
+   ]
+  },
+  {
+   "job": "rtl-fast__yosys-elaboration",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [
+    "ci_step_4"
+   ],
+   "rewritten": [
+    "ci_step_4",
+    "ci_step_6",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl-fast__yosys-tool",
+   "result": "success",
+   "run_steps": 3,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2",
+    "ci_step_5"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_5"
+   ]
+  },
+  {
+   "job": "rtl__ci-cancel-tail",
+   "result": "success",
+   "run_steps": 0,
+   "rc_nonzero": [],
+   "not_run": [
+    "step0",
+    "step1",
+    "step2"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__ci-fail-fast",
+   "result": "success",
+   "run_steps": 3,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_observe"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__ci-manifest",
+   "result": "success",
+   "run_steps": 4,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_collect",
+    "ci_upload"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__full-ci-gate",
+   "result": "success",
+   "run_steps": 6,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_step_4"
+   ],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__physical-gptp",
+   "result": "skipped",
+   "run_steps": 0,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-capture_coherence",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-maap",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-milan_dp",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-milan_dp_mclk",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-milan_dp_render",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__union-pp_shadow",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__verilator-shards__0",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__1",
+   "result": "success",
+   "run_steps": 10,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__10",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__11",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__12",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__13",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__14",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__15",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__16",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__17",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__18",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__2",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__3",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7",
+    "ci_packages_8",
+    "ci_step_13",
+    "ci_packages_9"
+   ],
+   "replaced": [
+    "ci_step_16"
+   ],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8",
+    "ci_step_13",
+    "ci_step_16",
+    "ci_step_18"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__4",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__5",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__6",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__7",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__8",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-shards__9",
+   "result": "success",
+   "run_steps": 9,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_4",
+    "ci_step_7"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_7",
+    "ci_step_8"
+   ]
+  },
+  {
+   "job": "rtl__verilator-suites",
+   "result": "success",
+   "run_steps": 10,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__yosys-portability",
+   "result": "success",
+   "run_steps": 7,
+   "rc_nonzero": [],
+   "not_run": [],
+   "replaced": [],
+   "rewritten": []
+  },
+  {
+   "job": "rtl__yosys-shards__0",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_5"
+   ],
+   "replaced": [
+    "ci_step_8"
+   ],
+   "rewritten": [
+    "ci_step_5",
+    "ci_step_8",
+    "ci_step_10"
+   ]
+  },
+  {
+   "job": "rtl__yosys-shards__1",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_5"
+   ],
+   "replaced": [
+    "ci_step_8"
+   ],
+   "rewritten": [
+    "ci_step_5",
+    "ci_step_8",
+    "ci_step_10"
+   ]
+  },
+  {
+   "job": "rtl__yosys-shards__2",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_5"
+   ],
+   "replaced": [
+    "ci_step_8"
+   ],
+   "rewritten": [
+    "ci_step_5",
+    "ci_step_8",
+    "ci_step_10"
+   ]
+  },
+  {
+   "job": "rtl__yosys-shards__3",
+   "result": "success",
+   "run_steps": 11,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_5"
+   ],
+   "replaced": [
+    "ci_step_8"
+   ],
+   "rewritten": [
+    "ci_step_5",
+    "ci_step_8",
+    "ci_step_10"
+   ]
+  },
+  {
+   "job": "rtl__yosys-tool",
+   "result": "success",
+   "run_steps": 5,
+   "rc_nonzero": [],
+   "not_run": [
+    "ci_packages_2",
+    "ci_step_5"
+   ],
+   "replaced": [],
+   "rewritten": [
+    "ci_step_5",
+    "ci_step_6"
+   ]
+  }
+ ]
+}
