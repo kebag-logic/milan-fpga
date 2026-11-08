@@ -1,0 +1,29 @@
+14:docs-check	Require every gate exactly once	    "result": "cancelled",
+18:docs-check	Require every gate exactly once	    "result": "cancelled",
+22:docs-check	Require every gate exactly once	    "result": "cancelled",
+27:docs-check	Require every gate exactly once	2026-11-08T12:06:47.7918403Z gate evidence refused: docs-gates-1: dependent job failed, cancelled or skipped
+28:docs-check	Require every gate exactly once	2026-11-08T12:06:47.8041769Z ##[error]Process completed with exit code 1.
+29:Union capture_coherence	Require successful owners and every case exactly once	    "result": "cancelled",
+36:Union capture_coherence	Require successful owners and every case exactly once	2026-11-08T12:06:27.8766143Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'rtl': 'true', 'target_sha': '91788580febe277d0cc935c3eb45faf687844fcb', 'run_full'
+37:Union capture_coherence	Require successful owners and every case exactly once	2026-11-08T12:06:27.8855965Z ##[error]Process completed with exit code 1.
+66:Union milan_dp_render	Require successful owners and every case exactly once	    "result": "cancelled",
+73:Union milan_dp_render	Require successful owners and every case exactly once	2026-11-08T12:06:27.5899749Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'rtl': 'true', 'target_sha': '91788580febe277d0cc935c3eb45faf687844fcb', 'run_full': 
+74:Union milan_dp_render	Require successful owners and every case exactly once	2026-11-08T12:06:27.6050898Z ##[error]Process completed with exit code 1.
+103:Union milan_dp_mclk	Require successful owners and every case exactly once	    "result": "cancelled",
+110:Union milan_dp_mclk	Require successful owners and every case exactly once	2026-11-08T12:06:27.3494226Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'rtl': 'true', 'target_sha': '91788580febe277d0cc935c3eb45faf687844fcb', 'run_full': '
+111:Union milan_dp_mclk	Require successful owners and every case exactly once	2026-11-08T12:06:27.3583844Z ##[error]Process completed with exit code 1.
+140:Union maap	Require successful owners and every case exactly once	    "result": "cancelled",
+147:Union maap	Require successful owners and every case exactly once	2026-11-08T12:06:24.6512763Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'rtl': 'true', 'target_sha': '91788580febe277d0cc935c3eb45faf687844fcb', 'run_full': 'true'}}, 
+148:Union maap	Require successful owners and every case exactly once	2026-11-08T12:06:24.6652867Z ##[error]Process completed with exit code 1.
+8:elaborate-gates-3	Install the pinned sv2v release	2026-11-08T11:58:35.1807008Z if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+25:elaborate-gates-3	Install the pinned sv2v release	2026-11-08T12:04:51.9295168Z curl: (22) The requested URL returned error: 504
+26:elaborate-gates-3	Install the pinned sv2v release	2026-11-08T12:04:51.9325025Z ##[error]Process completed with exit code 22.
+41:elaborate	Require every gate exactly once	    "result": "cancelled",
+45:elaborate	Require every gate exactly once	    "result": "cancelled",
+57:elaborate	Require every gate exactly once	    "result": "cancelled",
+62:elaborate	Require every gate exactly once	2026-11-08T12:06:25.4061772Z gate evidence refused: elaborate-gates-0: dependent job failed, cancelled or skipped
+63:elaborate	Require every gate exactly once	2026-11-08T12:06:25.4178942Z ##[error]Process completed with exit code 1.
+42478010794 rtl-fast pull_request completed cancelled 2026-11-08T11:57:41Z
+42478010860 elaborate pull_request completed cancelled 2026-11-08T11:57:41Z
+42478010802 docs pull_request completed cancelled 2026-11-08T11:57:41Z
+42478010804 rtl-full pull_request completed cancelled 2026-11-08T11:57:41Z
