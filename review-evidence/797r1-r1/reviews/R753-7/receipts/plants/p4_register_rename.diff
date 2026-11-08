@@ -1,0 +1,40 @@
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 2871c35..46d1db1 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -740,7 +740,7 @@ module milan_csr #(
+   localparam [ADDR_WIDTH-1:0]
+     A_ID          = 'h000, A_VERSION = 'h004, A_CAP     = 'h008, A_SCRATCH  = 'h00C,
+     A_IRQ_STATUS  = 'h010, A_IRQ_MASK= 'h014, A_IRQ_RAW = 'h018,
+-    A_MAC_CTRL    = 'h100, A_MAC_IFG = 'h104, A_MAC_ALO = 'h108, A_MAC_AHI  = 'h10C,
++    A_MAC_CTRL    = 'h100, A_MAC_GAP = 'h104, A_MAC_ALO = 'h108, A_MAC_AHI  = 'h10C,
+     A_MAC_STATUS  = 'h110, A_MC_LO   = 'h114, A_MC_HI   = 'h118, A_PHY_RST  = 'h11C,
+     A_STATS_CTRL  = 'h200, A_STATS_CAP = 'h204,   //! RO: which STAT lanes are real
+     A_CLS_CTRL    = 'h300, A_CLS_DPCP= 'h304, A_CLS_MAP = 'h308, A_CLS_REGEN= 'h30C,
+@@ -1678,7 +1678,7 @@ module milan_csr #(
+             if (s_axi_wdata[2]) irq_status[2] <= 1'b0;
+           end
+           A_MAC_CTRL:  mac_ctrl <= s_axi_wdata;
+-          A_MAC_IFG:   mac_ifg  <= s_axi_wdata;
++          A_MAC_GAP:   mac_ifg  <= s_axi_wdata;
+           A_MAC_ALO:   mac_alo  <= s_axi_wdata;
+           A_MAC_AHI:   mac_ahi  <= s_axi_wdata;
+           A_MC_LO:     mc_lo    <= s_axi_wdata;
+@@ -2000,7 +2000,7 @@ module milan_csr #(
+                                           1'b1, 1'b1, 1'b1, 1'b0,
+                                           4'h0, 4'(NUM_QUEUES) };
+       A_MAC_CTRL[10:0]:   csr_default = 32'h13;
+-      A_MAC_IFG[10:0]:    csr_default = 32'h0C;
++      A_MAC_GAP[10:0]:    csr_default = 32'h0C;
+       A_PHY_RST[10:0]:    csr_default = 32'h1;
+       A_CLS_CTRL[10:0]:   csr_default = 32'h5;
+       A_CLS_MAP[10:0]:    csr_default = 32'h00FAC688;
+@@ -2053,7 +2053,7 @@ module milan_csr #(
+     is_plain_rw = 1'b0;
+     unique case (a)
+       A_SCRATCH, A_IRQ_MASK,
+-      A_MAC_CTRL, A_MAC_IFG, A_MAC_ALO, A_MAC_AHI, A_MC_LO, A_MC_HI,
++      A_MAC_CTRL, A_MAC_GAP, A_MAC_ALO, A_MAC_AHI, A_MC_LO, A_MC_HI,
+       //! A_PHY_RST / A_LINK_CTRL are NOT here (ETH GUARD, USER 08-06): their
+       //! writes gate on eth_guard, so the readback serves the FLOPS via
+       //! live_mux - a refused write must never read back as accepted

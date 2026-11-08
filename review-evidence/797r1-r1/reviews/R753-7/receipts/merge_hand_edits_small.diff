@@ -1,0 +1,71 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index b8df54a6d7..2bdf7b4e55 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -431,20 +431,17 @@ jobs:
+         id: gate_49
+       - name: Entity shape gate
+         run: python3 scripts/check_entity_shape.py --self-test
+-<<<<<<< 2c500d0a
+-        id: gate_49
++        id: gate_50
+       - name: Register reference freshness gate
+         run: |
+           python3 scripts/gen_register_reference.py --check
+           python3 scripts/gen_register_reference.py --selftest
+           python3 docs/diagrams/memory_map.gen.py --check
+-=======
+->>>>>>> 0a75aa77
+-        id: gate_50
++        id: gate_51
+       - name: Fetch inventory dependencies
+         run: |
+           git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+-        id: ci_step_53
++        id: ci_step_54
+       - name: CI scheduling and evidence controls
+         run: |
+           python3 scripts/ci_gate_workflows.py --check
+@@ -461,7 +458,7 @@ jobs:
+           python3 scripts/generate_ci_evidence_pins.py --check
+           python3 scripts/ci_workflow_plan_selftest.py
+           python3 scripts/ci_manifest_selftest.py
+-        id: gate_51
++        id: gate_52
+       - name: Record executed gate outcomes
+         if: ${{ always() }}
+         env:
+@@ -469,7 +466,7 @@ jobs:
+           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+         run: |
+           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
+-        id: ci_step_55
++        id: ci_step_56
+       - name: Upload executed gate outcomes
+         if: ${{ always() }}
+         uses: actions/upload-artifact@v4
+@@ -477,7 +474,7 @@ jobs:
+           name: gate-docs-0-${{ github.sha }}
+           path: ${{ runner.temp }}/gate-results/receipt.json
+           if-no-files-found: error
+-        id: ci_step_56
++        id: ci_step_57
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+diff --git a/scripts/check_doc_style.py b/scripts/check_doc_style.py
+index 7e0355a848..332704bcf0 100644
+--- a/scripts/check_doc_style.py
++++ b/scripts/check_doc_style.py
+@@ -34,11 +34,8 @@ DOCUMENTS = (
+     ROOT / "docs" / "integration" / "INTEGRATION_GUIDE.md",
+     ROOT / "docs" / "litex" / "CLOCK_DOMAINS.md",
+     ROOT / "docs" / "reference" / "SUBMODULES.md",
+-<<<<<<< 2c500d0a
+     ROOT / "docs" / "reference" / "REGISTER_MAP.md",
+-=======
+     ROOT / "docs" / "reference" / "STRICTER_READINGS.md",
+->>>>>>> 0a75aa77
+     ROOT / "docs" / "DOCUMENTATION_AUDIT.md",
+     ROOT / "docs" / "history" / "v1" / "README.md",
+ )

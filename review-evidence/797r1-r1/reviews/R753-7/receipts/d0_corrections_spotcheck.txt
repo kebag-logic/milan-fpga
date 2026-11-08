@@ -1,0 +1,26 @@
+D0-014 0x7D8:
+47:| [0x7D8 - Ethernet guard](#0x7d8-----ethernet-guard) | The Ethernet guard kill switch. |
+196:| [0x7D8 - Ethernet guard](#0x7d8-----ethernet-guard) | `0x900007D8` | `0x900007DB` | 4 | The Ethernet guard kill switch. |
+3148:## 0x7D8  -  Ethernet guard
+D0-006 35.2.2.7:
+1769:| 1:0 | `LISTENER_STATE` | R | X | The Listener registered on talker source 0, as 802.1Q 35.2.2.7.2 (Table 35-3) FourPackedEvents: 0 none, 1 asking-failed, 2 ready, 3 ready-failed. |
+D0-007/8 7-156:
+1957:Counter clauses: IEEE 1722.1-2021 Table 7-156. Milan v1.2 Table 5.6.
+D0-017 MAC_STATUS:
+495:### MAC_STATUS register (offset 0x110) [reset = 0x0000000X]
+D0-060 tdm8/1x1:
+13:The SoC facts come from the `endstation_ax7101_1x1_tdm8` export, recorded in `scripts/register_map_soc.json`.
+24:| [Memory map](#memory-map) | Regions and windows of the shipping SoC. |
+26:| [Build parameters](#build-parameters) | The parameters the shipping build elaborates. |
+D0-058/059 persists:
+45:| [0x7B8 - Persistence-journal ingest (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) | Retired journal ingest port, kept as an ABI. |
+194:| [0x7B8 - Persistence-journal ingest (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) | `0x900007B8` | `0x900007C7` | 16 | Retired journal ingest port, kept as an ABI. |
+2907:Bindings persist through the processor's restore walk and `KL_nvm_backend`.
+3004:## 0x7B8  -  Persistence-journal ingest  `(saved-state fast-connect E3)`
+D0-057 2 ms:
+2575:| 31:0 | `CRF_RATE` | R | X | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates s
+3988:`AAFM_RATE` is signed ns of error per 512 ms. 1 ppm is 512 units.
+D0-041 S50milan:
+0
+D0-042 0x4xx:
+83:| `0x4xx` | CBS queue window, classifier map | **inert** (ABI) | **WRITE-ONLY SCRATCH** | No classifier, queue or shaper is instantiated since VERSION minor `0x0056`, so `CAP.CBS` reads 0 and these

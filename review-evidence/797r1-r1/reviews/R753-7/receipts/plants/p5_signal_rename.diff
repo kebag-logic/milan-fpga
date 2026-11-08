@@ -1,0 +1,40 @@
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 2871c35..4ddf8f5 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -1196,7 +1196,7 @@ module milan_csr #(
+   //!   * A tag is a CLAIM the consumer tolerates 4-cycle skew between bits;
+   //!     when in doubt, leave it untagged - the default is the safe side.
+   //! ------------------------------------------------------------------------
+-  (* quasi_static = "yes" *) logic [31:0] mac_ifg;   //! MAC_IFG: inter-frame gap (bytes)
++  (* quasi_static = "yes" *) logic [31:0] mac_gap;   //! MAC_IFG: inter-frame gap (bytes)
+   (* quasi_static = "yes" *) logic [31:0] mac_alo;   //! MAC_ADDR_LO: station MAC [31:0]
+   (* quasi_static = "yes" *) logic [31:0] mac_ahi;   //! MAC_ADDR_HI: station MAC [47:32]
+   (* quasi_static = "yes" *) logic [31:0] mc_lo;     //! MC_HASH_LO: multicast hash [31:0]
+@@ -1573,7 +1573,7 @@ module milan_csr #(
+   always_ff @(posedge aclk) begin : register_write
+     if (!aresetn) begin
+       scratch <= 32'h0; irq_mask <= 32'h0; irq_status <= 32'h0;
+-      mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
++      mac_ctrl <= 32'h13; mac_gap <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
+       mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
+       eth_guard <= 1'b1;                //! guarded from power-on (USER 08-06)
+       // CLS_* and the CBS window: no flops. Their documented reset values
+@@ -1678,7 +1678,7 @@ module milan_csr #(
+             if (s_axi_wdata[2]) irq_status[2] <= 1'b0;
+           end
+           A_MAC_CTRL:  mac_ctrl <= s_axi_wdata;
+-          A_MAC_IFG:   mac_ifg  <= s_axi_wdata;
++          A_MAC_IFG:   mac_gap  <= s_axi_wdata;
+           A_MAC_ALO:   mac_alo  <= s_axi_wdata;
+           A_MAC_AHI:   mac_ahi  <= s_axi_wdata;
+           A_MC_LO:     mc_lo    <= s_axi_wdata;
+@@ -2686,7 +2686,7 @@ module milan_csr #(
+   //! MAC_STATUS reports, so the register and the datapath can no longer
+   //! disagree about the link rate.
+   assign o_mac_is_1g    = mac_ctrl[5] ? mac_ctrl[4] : (i_speed == 2'd2);
+-  assign o_mac_ifg      = mac_ifg[7:0];
++  assign o_mac_ifg      = mac_gap[7:0];
+   assign o_mac_addr     = {mac_ahi[15:0], mac_alo};
+   assign o_mc_hash      = {mc_hi, mc_lo};
+   assign o_phy_reset_n  = phy_rst[0];

@@ -1,0 +1,13 @@
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 2871c35..7e0fcdf 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -95,7 +95,7 @@
+ `default_nettype none
+ 
+ module milan_csr #(
+-  parameter int NUM_QUEUES  = 5,             //! Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority
++  parameter int NUM_QUEUES  = 5,             // reviewer plant:! Number of HW traffic-class queues (reported in CAP.num_queues); q4 = highest priority
+   parameter int ADDR_WIDTH  = 16,            //! Byte-address width of the AXI-Lite window (16 => 64 KB)
+   parameter int N_LISTENERS_P = 1,           //! listener stream contexts addressable by the 0x800 window (A_STRM_SEL dir=0); idx >= N reads 0 / writes ignored
+   parameter int N_TALKERS_P   = 1,           //! talker stream contexts (A_STRM_SEL dir=1)
