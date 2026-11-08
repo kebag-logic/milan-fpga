@@ -1,0 +1,5 @@
+arm 3: a drop count that stops counting at 10 (a cap below the saturation) (expect caught): rc 1, caught
+FAIL [TAP] every frame of the burst is handed out or counted lost: got 0x4b, want 0x6c
+[TAP] burst: 108 frames offered, 65 handed out, 10 counted lost
+FAIL [TAP] the count saturates at 255: got 0xa, want 0xff
+checks: 66   failures: 2
