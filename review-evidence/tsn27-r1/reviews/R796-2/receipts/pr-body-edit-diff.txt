@@ -1,0 +1,8 @@
+PR #29 body edits (GitHub userContentEdits); lastEditedAt 2026-11-08T09:31:20Z
+edit 2026-11-08T09:31:20Z bytes 4846
+edit 2026-11-08T09:00:18Z bytes 4549
+--- body@2026-11-08T09:00:18Z
++++ body@2026-11-08T09:31:20Z
+@@ -37 +37 @@
+-This repository's own RV32 smoke images never called the helper, because the compiler expands the shift inline at `-O0` and `-O3`. Their text changes from 47508 to 47428 B (Debug) and from 36857 to 37653 B (Release, `-O3`). At `-O3` the unrolled loop no longer folds to one shift per byte.
++This repository's own RV32 smoke images never called the helper, because the compiler expands the shift inline at `-O0` and `-O3`. With the workflow's pinned toolchain (Ubuntu 24.04 `gcc-riscv64-unknown-elf`, from the hosted `rv32_smoke.map` at the base and at this head), `.text` plus `.rodata` changes from 47072 to 46992 B in Debug (-80 B) and from 36649 to 37577 B in Release, `-O3` (+928 B, all in `.text`). With the host's riscv64-elf-gcc 16.2.0 the same images give 47508 to 47428 B and 36857 to 37653 B (+796 B). At `-O3` the unrolled loop no longer folds to one shift per byte.
