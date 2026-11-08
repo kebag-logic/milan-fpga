@@ -1,0 +1,25 @@
+Note: Google Test filter = AcmpOwedProbe.*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AcmpOwedProbe
+[ RUN      ] AcmpOwedProbe.BindNoTimer
+PROBE bind_rx_no_timer answer_pass=9 position=8 probes_lost=0 busy_declined=2
+[       OK ] AcmpOwedProbe.BindNoTimer (0 ms)
+[ RUN      ] AcmpOwedProbe.BindOneTimer
+PROBE bind_rx_one_timer answer_pass=9 position=8 probes_lost=0 busy_declined=2
+[       OK ] AcmpOwedProbe.BindOneTimer (0 ms)
+[ RUN      ] AcmpOwedProbe.BindTwoTimers
+PROBE bind_rx_two_timers answer_pass=9 position=8 probes_lost=0 busy_declined=2
+[       OK ] AcmpOwedProbe.BindTwoTimers (0 ms)
+[ RUN      ] AcmpOwedProbe.GetRxStateOneTimer
+PROBE get_rx_state_one_timer answer_pass=9 position=8 probes_lost=1 busy_declined=1
+[       OK ] AcmpOwedProbe.GetRxStateOneTimer (0 ms)
+[ RUN      ] AcmpOwedProbe.GetRxStateTwoTimers
+PROBE get_rx_state_two_timers answer_pass=9 position=8 probes_lost=1 busy_declined=1
+[       OK ] AcmpOwedProbe.GetRxStateTwoTimers (0 ms)
+[----------] 5 tests from AcmpOwedProbe (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 5 tests.
+rc 0

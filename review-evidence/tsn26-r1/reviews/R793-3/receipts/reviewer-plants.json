@@ -1,0 +1,60 @@
+[
+  {
+    "name": "rv-bind-wait-set-when-full",
+    "rc": 0,
+    "tests": 113,
+    "failing": []
+  },
+  {
+    "name": "rv-hold-widened-to-the-timeout",
+    "rc": 0,
+    "tests": 113,
+    "failing": []
+  },
+  {
+    "name": "rv-hold-widened-to-every-timer",
+    "rc": 0,
+    "tests": 113,
+    "failing": []
+  },
+  {
+    "name": "rv-probe-held-never-set",
+    "rc": 1,
+    "tests": 113,
+    "failing": [
+      "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+      "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+      "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+    ]
+  },
+  {
+    "name": "rv-bind-wait-cleared-by-every-poll",
+    "rc": 0,
+    "tests": 113,
+    "failing": []
+  },
+  {
+    "name": "rv-hold-scan-skips-the-last-sink",
+    "rc": 1,
+    "tests": 113,
+    "failing": [
+      "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+      "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+    ]
+  },
+  {
+    "name": "rv-hold-whenever-full",
+    "rc": 1,
+    "tests": 113,
+    "failing": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+      "AcmpOwed.HoldEndsWithTheLastHeldProbe"
+    ]
+  },
+  {
+    "name": "rv-bind-unsets-no-hold",
+    "rc": 0,
+    "tests": 113,
+    "failing": []
+  }
+]
