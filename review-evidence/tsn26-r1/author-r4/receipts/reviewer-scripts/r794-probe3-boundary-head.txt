@@ -1,0 +1,19 @@
+Note: Google Test filter = AcmpOwedProbe3.*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AcmpOwedProbe3
+[ RUN      ] AcmpOwedProbe3.RetryTimerIsNotHeldBesideTheWaitingBind
+PROBE3 retry-timer beside waiting BIND_RX: bind_waiting=1 state_after=1 timer=0 probe_held=0 probes_held=0
+[       OK ] AcmpOwedProbe3.RetryTimerIsNotHeldBesideTheWaitingBind (0 ms)
+[ RUN      ] AcmpOwedProbe3.SecondNoRespIsNotHeldBesideTheWaitingBind
+PROBE3 second no-resp beside waiting BIND_RX: bind_waiting=1 state_after=5 probe_held=0 probes_held=0
+[       OK ] AcmpOwedProbe3.SecondNoRespIsNotHeldBesideTheWaitingBind (0 ms)
+[ RUN      ] AcmpOwedProbe3.BindDeclinedAtTheFullSetHoldsNoProbe
+PROBE3 retry with egress held after a BIND_RX declined at 8 owed: bind_waiting=0 probe_held=0 probes_held=0 probes_lost=1 state=4
+[       OK ] AcmpOwedProbe3.BindDeclinedAtTheFullSetHoldsNoProbe (0 ms)
+[----------] 3 tests from AcmpOwedProbe3 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 3 tests.
+rc 0

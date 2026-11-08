@@ -1,0 +1,18 @@
+ESCAPED rv-hold-whenever-full
+ESCAPED rv-bind-unsets-no-hold
+ESCAPED rv-hold-widened-to-every-timer
+ESCAPED rv-hold-scan-skips-the-last-sink
+ESCAPED rv-bind-wait-cleared-by-every-poll
+ESCAPED rv-hold-widened-to-the-timeout
+ESCAPED rv-bind-wait-set-when-full
+ESCAPED rv-probe-held-never-set
+{"CAUGHT": 0, "ESCAPED": 8, "ERROR": 0}
+rv-bind-wait-set-when-full: rc 1 tests 123 failing 1: AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe
+rv-hold-widened-to-the-timeout: rc 1 tests 123 failing 1: AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind
+rv-hold-widened-to-every-timer: rc 1 tests 123 failing 1: AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind
+rv-probe-held-never-set: rc 1 tests 123 failing 7: AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces, AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout, AcmpOwed.HoldEndsWithTheLastHeldProbe, AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem, AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind, AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold, AcmpOwed.SameTalkerRebindKeepsTheHeldProbe
+rv-bind-wait-cleared-by-every-poll: rc 1 tests 123 failing 1: AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold
+rv-hold-scan-skips-the-last-sink: rc 1 tests 123 failing 5: AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout, AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem, AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind, AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold, AcmpOwed.SameTalkerRebindKeepsTheHeldProbe
+rv-hold-whenever-full: rc 1 tests 123 failing 4: AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered, AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe, AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces, AcmpOwed.HoldEndsWithTheLastHeldProbe
+rv-bind-unsets-no-hold: rc 1 tests 123 failing 1: AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces
+rc 0

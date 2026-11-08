@@ -1,0 +1,14 @@
+Note: Google Test filter = AcmpOwedProbe5.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwedProbe5
+[ RUN      ] AcmpOwedProbe5.CommandsKeptBehindTheFirst
+PROBE5 BIND_RX then two GET_RX_STATE hold_ms=191: first answer_ms=200, 2nd kept answer_ms=202, 3rd kept answer_ms=203 (timeout 200)
+PROBE5 three GET_RX_STATE hold_ms=191: first answer_ms=200, 2nd kept answer_ms=201, 3rd kept answer_ms=202 (timeout 200)
+[       OK ] AcmpOwedProbe5.CommandsKeptBehindTheFirst (0 ms)
+[----------] 1 test from AcmpOwedProbe5 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+rc 0

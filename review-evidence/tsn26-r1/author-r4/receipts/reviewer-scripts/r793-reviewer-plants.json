@@ -1,0 +1,79 @@
+[
+  {
+    "name": "rv-bind-wait-set-when-full",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe"
+    ]
+  },
+  {
+    "name": "rv-hold-widened-to-the-timeout",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind"
+    ]
+  },
+  {
+    "name": "rv-hold-widened-to-every-timer",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.OnlyTimerProbesAreHeldBesideTheWaitingBind"
+    ]
+  },
+  {
+    "name": "rv-probe-held-never-set",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+      "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+      "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+      "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+      "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+      "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+      "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+    ]
+  },
+  {
+    "name": "rv-bind-wait-cleared-by-every-poll",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold"
+    ]
+  },
+  {
+    "name": "rv-hold-scan-skips-the-last-sink",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+      "AcmpOwed.KeptCommandsLeaveOnePassPerFrameOwedAheadOfThem",
+      "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+      "AcmpOwed.RefusedPollLeavesTheBindWaitingAndItsHold",
+      "AcmpOwed.SameTalkerRebindKeepsTheHeldProbe"
+    ]
+  },
+  {
+    "name": "rv-hold-whenever-full",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+      "AcmpOwed.BindDeclinedBehindTheFullSetHoldsNoProbe",
+      "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces",
+      "AcmpOwed.HoldEndsWithTheLastHeldProbe"
+    ]
+  },
+  {
+    "name": "rv-bind-unsets-no-hold",
+    "rc": 1,
+    "tests": 123,
+    "failing": [
+      "AcmpOwed.BindToAnotherTalkerEndsTheHoldOfTheProbeItReplaces"
+    ]
+  }
+]
