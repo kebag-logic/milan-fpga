@@ -315,11 +315,13 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
 
-  # The split placement's crossing structure (#665, ruling 6715535566 item 6):
+  # The split placement's crossing structure (#665):
   # tb/verilator/milan_dp's split_cdc_check.py reads KL_mbx_cdc's netlist, as
   # this job's pinned sv2v and Yosys make it, and refuses any reading across
-  # sys and milan_cd that skips cdc_handshake or cdc_pulse; its four planted
-  # raw crossings must each be refused. A job of its own, with the Yosys cache
+  # sys and milan_cd that skips cdc_handshake or cdc_pulse; its twelve plants
+  # must each be refused: four raw crossings, five wrong takes of the held
+  # bus, a reset from the other domain on each side, and a primitive clocked
+  # by a level. A job of its own, with the Yosys cache
   # and sv2v release of publication-census, so it lengthens no existing job.
   # The Makefile derives the processor's source list when it is read, so the
   # job fetches the RTL submodules.

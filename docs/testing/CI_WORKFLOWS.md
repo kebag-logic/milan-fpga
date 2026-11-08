@@ -428,13 +428,18 @@ its CPUs (see the resource bounds under
 the Verilator worker that owns that suite has no Yosys.
 
 The split placement's crossing structure runs in a job of its own,
-`split-cdc` (`make -C tb/verilator/milan_dp split-cdc`, #665, ruling
-6715535566 item 6). It runs `split_cdc_check.py --selftest`.
+`split-cdc` (`make -C tb/verilator/milan_dp split-cdc`, #665). It runs
+`split_cdc_check.py --selftest`.
 
 - It reads `KL_mbx_cdc`'s netlist, as the pinned sv2v and Yosys make it.
 - It refuses any reading across `sys` and `milan_cd` that skips
   `cdc_handshake` or `cdc_pulse`.
-- Its four planted raw crossings must each be refused.
+- Its twelve plants must each be refused by their own words. Four are raw
+  crossings: a publication, the LINK level, the settings read and a window
+  answer. Five take the held bus wrongly: on every cycle, on the commit
+  level, on the request pulse, while the pulse is low, and by another flop.
+  Two are resets from the other domain, one on each side. The last is a
+  primitive clocked by a level.
 
 It installs Yosys and sv2v as `publication-census` does, under the same cache
 key. It is a separate job so that no existing job grows near its timeout. It
