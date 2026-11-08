@@ -1,0 +1,30 @@
+Hosted runs at exact head: 42465293588 (pull_request) and 42465283076 (push); base run 38295188787 (push at 70936b77).
+== ci-pr
+gates 28 nonzero []
+plants 390 {'CAUGHT': 390}
+wire-put-be-skips-an-odd-field-first-byte CAUGHT rc 1 tests 1 ['Wire.W1PutBeWritesTheLowBytesMostSignificantFirst']
+wire-put-be-writes-past-an-odd-field CAUGHT rc 1 tests 1 ['Wire.W1PutBeWritesTheLowBytesMostSignificantFirst']
+rv32 Debug rc 0 imports ['__mulsi3', '__umodsi3', 'ctrl_reentry_assert', 'memcpy', 'memset', 'port_assert_failed'] unresolved []
+rv32 Release rc 0 imports ['__umodsi3', 'ctrl_reentry_assert', 'memcpy', 'memset'] unresolved []
+file                                                 lines    branches   after exclusions
+include/wire.h                                    14/14        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       792/792     392/392     lines 100.00 %  branches 100.00 %
+src/adp.c                                        205/207      97/104     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+== ci-push
+gates 28 nonzero []
+plants 390 {'CAUGHT': 390}
+wire-put-be-skips-an-odd-field-first-byte CAUGHT rc 1 tests 1 ['Wire.W1PutBeWritesTheLowBytesMostSignificantFirst']
+wire-put-be-writes-past-an-odd-field CAUGHT rc 1 tests 1 ['Wire.W1PutBeWritesTheLowBytesMostSignificantFirst']
+rv32 Debug rc 0 imports ['__mulsi3', '__umodsi3', 'ctrl_reentry_assert', 'memcpy', 'memset', 'port_assert_failed'] unresolved []
+rv32 Release rc 0 imports ['__umodsi3', 'ctrl_reentry_assert', 'memcpy', 'memset'] unresolved []
+file                                                 lines    branches   after exclusions
+include/wire.h                                    14/14        2/2       lines 100.00 %  branches 100.00 %
+src/acmp.c                                       792/792     392/392     lines 100.00 %  branches 100.00 %
+src/adp.c                                        205/207      97/104     lines 100.00 %  branches 100.00 %
+src/maap.c                                       209/209     140/140     lines 100.00 %  branches 100.00 %
+== RV32 smoke map output sections (CI toolchain), base 70936b77 vs head
+debug ci-base .text=45024 .rodata=2048 sum=47072 lshrdi3_in_map=0
+debug ci-pr .text=44944 .rodata=2048 sum=46992 lshrdi3_in_map=0
+release ci-base .text=34688 .rodata=1961 sum=36649 lshrdi3_in_map=0
+release ci-pr .text=35616 .rodata=1961 sum=37577 lshrdi3_in_map=0

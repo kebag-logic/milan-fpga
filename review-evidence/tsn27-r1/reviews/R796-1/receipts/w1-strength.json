@@ -1,0 +1,107 @@
+[
+ {
+  "mutant": "head",
+  "build_rc": 0,
+  "w1_rc": 0,
+  "w1_failed": false,
+  "needle_seen": false
+ },
+ {
+  "mutant": "base-wire",
+  "build_rc": 0,
+  "w1_rc": 0,
+  "w1_failed": false,
+  "needle_seen": false
+ },
+ {
+  "mutant": "plant-skips-odd-first-byte",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "plant-writes-past-odd",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "high-shift-16",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "high-never-shifted",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "no-crossing",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "top-byte-never-written",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "starts-one-short",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "off-by-one-store",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "high-from-bit-31",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "low-takes-high",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "width-capped-at-7",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "odd-width-rounded-down",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ },
+ {
+  "mutant": "byte-store-from-high",
+  "build_rc": 0,
+  "w1_rc": 1,
+  "w1_failed": true,
+  "needle_seen": true
+ }
+]

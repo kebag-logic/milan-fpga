@@ -1,0 +1,30 @@
+{
+ "name": "draft-high-never-shifted-without-w1",
+ "old": "\\t\\thigh >>= 8;\\n",
+ "new": "",
+ "wire_from": null,
+ "drop_w1": true,
+ "build_rc": 0,
+ "ctest_rc": 8,
+ "summary": "50% tests passed, 4 tests failed out of 8",
+ "failed_binaries": [
+  "adp_tests",
+  "entity_tests",
+  "maap_tests"
+ ],
+ "failed_tests": [
+  "AcmpCore.A1BindFromUnboundRespondsThenProbes",
+  "AcmpCore.A1BindWithoutStreamingWaitBindsStarted",
+  "AcmpCore.A2GetRxStateInEveryState",
+  "AdpCore.A0toA2Schedule",
+  "AdpCore.A3toA5DiscoverAndDiscard",
+  "AdpCore.AdvertisementFieldsMatchCaller",
+  "EntityYaml.AdpRoundTrip",
+  "EntityYaml.DaFreshRoundTrip",
+  "MaapCore.BeginBeforePortOperationalRetainsRange",
+  "MaapCore.DefendEchoAndIntersection",
+  "MaapCore.InitialAndThreeRetransmissions",
+  "MaapCore.LinkBounceDrawsAfterSuppliedRange",
+  "MaapCore.RestartDrawsNewRange"
+ ]
+}

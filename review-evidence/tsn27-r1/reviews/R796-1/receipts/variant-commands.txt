@@ -1,0 +1,12 @@
+# variant.py invocations (V=$PACKET/scripts/variant.py; all with --clone $CLONE --work $PACKET/scratch/variants)
+python3 -I $V --name head
+python3 -I $V --name head-without-w1 --drop-w1
+python3 -I $V --name base-wire-with-w1 --wire-from 70936b77
+python3 -I $V --name skip-odd-first-with-w1     --old '\tfor (unsigned i = bytes; i > 0u; --i) {\n' --new '\tfor (unsigned i = bytes; i > (bytes & 1u); --i) {\n'
+python3 -I $V --name skip-odd-first-without-w1  --drop-w1 --old (same) --new (same)
+python3 -I $V --name past-odd-with-w1           --old '\tfor (unsigned i = bytes; i > 0u; --i) {\n' --new '\tfor (unsigned i = bytes + (bytes & 1u); i > 0u; --i) {\n'
+python3 -I $V --name past-odd-without-w1        --drop-w1 --old (same) --new (same)
+python3 -I $V --name draft-high-shift-16-without-w1      --drop-w1 --old '(high << 24)' --new '(high << 16)'
+python3 -I $V --name draft-high-never-shifted-without-w1 --drop-w1 --old '\t\thigh >>= 8;\n' --new ''
+# draft-* runs: ctest reported adp_tests, acmp_tests (subprocess aborted), maap_tests and entity_tests failing;
+# the JSON failed_binaries field lists only the "(Failed)" entries.

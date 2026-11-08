@@ -1,0 +1,49 @@
+{
+ "head": {
+  "driver": "c687810b74b53b69c1fbdff7bfd0ec9da94eaa78",
+  "rc": 1,
+  "results_json_written": true,
+  "tail": [
+   "ERROR p5-wire-genuine-adp-arm",
+   "CAUGHT p6-header-with-source-genuine",
+   "{\"CAUGHT\": 2, \"ESCAPED\": 0, \"ERROR\": 4}"
+  ],
+  "statuses": {
+   "p1-header-with-source-unknown-arm": [
+    "ERROR",
+    "unknown mutation arm: bogus"
+   ],
+   "p2-wire-unknown-arm": [
+    "ERROR",
+    "unknown mutation arm: bogus"
+   ],
+   "p3-wire-no-arm": [
+    "ERROR",
+    "unknown mutation arm: wire"
+   ],
+   "p4-wire-genuine-acmp": [
+    "CAUGHT",
+    ""
+   ],
+   "p5-wire-genuine-adp-arm": [
+    "ERROR",
+    "Command '['$PACKET/scratch/errpath/head/campaign/p5-wire-genuine-adp-arm/adp', '--gtest_list_tests', '--gtest_filter=Wire.W1PutBeWritesTheLowBytesMostSignificantFirst']' returned non-zero exit status 1."
+   ],
+   "p6-header-with-source-genuine": [
+    "CAUGHT",
+    ""
+   ]
+  }
+ },
+ "base-driver": {
+  "driver": "70936b77dc41981e192438388cd0aced69954f18",
+  "rc": 1,
+  "results_json_written": false,
+  "tail": [
+   "    rc = run([cxx, *cppflags(arm), *test_cflags, \"-I\" + str(directory / \"include\"), \"-I\" + str(test_sources), \"-I\" + str(ROOT / \"examples\"), \"-c\", str(test_sources / SOURCES[arm]), \"-o\", str(test_obj)], local)",
+   "                                                                                                                                                                      ~~~~~~~^^^^^",
+   "KeyError: 'bogus'"
+  ],
+  "statuses": null
+ }
+}

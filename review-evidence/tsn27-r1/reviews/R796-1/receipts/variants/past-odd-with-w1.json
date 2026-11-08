@@ -1,0 +1,16 @@
+{
+ "name": "past-odd-with-w1",
+ "old": "\\tfor (unsigned i = bytes; i > 0u; --i) {\\n",
+ "new": "\\tfor (unsigned i = bytes + (bytes & 1u); i > 0u; --i) {\\n",
+ "wire_from": null,
+ "drop_w1": false,
+ "build_rc": 0,
+ "ctest_rc": 8,
+ "summary": "88% tests passed, 1 tests failed out of 8",
+ "failed_binaries": [
+  "acmp_tests"
+ ],
+ "failed_tests": [
+  "Wire.W1PutBeWritesTheLowBytesMostSignificantFirst"
+ ]
+}

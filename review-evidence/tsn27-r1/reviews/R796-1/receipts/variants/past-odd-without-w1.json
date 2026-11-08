@@ -1,0 +1,12 @@
+{
+ "name": "past-odd-without-w1",
+ "old": "\\tfor (unsigned i = bytes; i > 0u; --i) {\\n",
+ "new": "\\tfor (unsigned i = bytes + (bytes & 1u); i > 0u; --i) {\\n",
+ "wire_from": null,
+ "drop_w1": true,
+ "build_rc": 0,
+ "ctest_rc": 0,
+ "summary": "100% tests passed out of 8",
+ "failed_binaries": [],
+ "failed_tests": []
+}
