@@ -1,0 +1,37 @@
+Note: Google Test filter = AcmpOwedProbe2.*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AcmpOwedProbe2
+[ RUN      ] AcmpOwedProbe2.TimerProbesAgainstTheDeferredBind
+PROBE2 get_rx_state: hold_ms=60 expiring_probes=0 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=0 probes_lost_delta=0 busy_declined=1
+PROBE2 bind_rx: hold_ms=60 expiring_probes=0 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=0 probes_lost_delta=1 busy_declined=1
+PROBE2 get_rx_state: hold_ms=60 expiring_probes=1 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=0 probes_lost_delta=1 busy_declined=1
+PROBE2 bind_rx: hold_ms=60 expiring_probes=1 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=0 probes_lost_delta=2 busy_declined=1
+PROBE2 get_rx_state: hold_ms=60 expiring_probes=4 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=3 probes_lost_delta=1 busy_declined=1
+PROBE2 bind_rx: hold_ms=60 expiring_probes=4 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=3 probes_lost_delta=2 busy_declined=1
+PROBE2 get_rx_state: hold_ms=60 expiring_probes=14 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=13 probes_lost_delta=1 busy_declined=1
+PROBE2 bind_rx: hold_ms=60 expiring_probes=14 answer_pass=9 answer_position=8 answer_ms=69 within_200=1 probes_sent=13 probes_lost_delta=2 busy_declined=1
+[       OK ] AcmpOwedProbe2.TimerProbesAgainstTheDeferredBind (0 ms)
+[ RUN      ] AcmpOwedProbe2.AnsweredOnlyBindFromSevenOwed
+PROBE2 unknown-sink msg=10 from_7_owed taken_at_once=1 answer_pass=8 position=7 status=1 busy_declined=0
+PROBE2 unknown-sink msg=6 from_7_owed taken_at_once=1 answer_pass=8 position=7 status=1 busy_declined=0
+[       OK ] AcmpOwedProbe2.AnsweredOnlyBindFromSevenOwed (0 ms)
+[ RUN      ] AcmpOwedProbe2.BindHoldSweep
+PROBE2 bind sweep: hold_ms=0 answer_ms=9 within_200=1 probes_lost=1
+PROBE2 bind sweep: hold_ms=60 answer_ms=69 within_200=1 probes_lost=1
+PROBE2 bind sweep: hold_ms=131 answer_ms=140 within_200=1 probes_lost=1
+PROBE2 bind sweep: hold_ms=191 answer_ms=200 within_200=1 probes_lost=1
+PROBE2 bind sweep: hold_ms=192 answer_ms=201 within_200=0 probes_lost=1
+[       OK ] AcmpOwedProbe2.BindHoldSweep (0 ms)
+[ RUN      ] AcmpOwedProbe2.DocumentedBudgetAtTheMargin
+PROBE2 margin get_rx_state: hold_ms=191 expiring_probes=0 answer_pass=9 answer_position=8 answer_ms=200 within_200=1 probes_sent=0 probes_lost_delta=0 busy_declined=1
+PROBE2 margin bind_rx: hold_ms=191 expiring_probes=0 answer_pass=9 answer_position=8 answer_ms=200 within_200=1 probes_sent=0 probes_lost_delta=1 busy_declined=1
+PROBE2 margin get_rx_state: hold_ms=191 expiring_probes=1 answer_pass=9 answer_position=8 answer_ms=200 within_200=1 probes_sent=0 probes_lost_delta=1 busy_declined=1
+PROBE2 margin bind_rx: hold_ms=191 expiring_probes=1 answer_pass=9 answer_position=8 answer_ms=200 within_200=1 probes_sent=0 probes_lost_delta=2 busy_declined=1
+[       OK ] AcmpOwedProbe2.DocumentedBudgetAtTheMargin (0 ms)
+[----------] 4 tests from AcmpOwedProbe2 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+rc 0
