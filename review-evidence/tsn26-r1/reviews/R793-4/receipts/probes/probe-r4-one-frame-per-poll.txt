@@ -1,0 +1,13 @@
+PROBE r4 case=unknown-sink-bind,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=10 last_answer_position=9 probes_held=2 probes_lost=0 busy_declined=2
+PROBE r4 case=unknown-sink-bind,get port=one answer0_pass=9(formula 9) answer1_pass=11(formula 10) retry_position=9 last_answer_position=10 probes_held=1 probes_lost=0 busy_declined=2
+PROBE r4 case=same-talker-rebind,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=10 last_answer_position=9 probes_held=2 probes_lost=0 busy_declined=2
+PROBE r4 case=same-talker-rebind,get port=one answer0_pass=9(formula 9) answer1_pass=11(formula 10) retry_position=9 last_answer_position=10 probes_held=1 probes_lost=0 busy_declined=2
+PROBE r4 case=get,foreign,get port=all answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=-1 last_answer_position=9 probes_held=0 probes_lost=1 busy_declined=2
+PROBE r4 case=get,foreign,get port=one answer0_pass=9(formula 9) answer1_pass=10(formula 10) retry_position=-1 last_answer_position=9 probes_held=0 probes_lost=1 busy_declined=1
+PROBE r4b case=get,foreign,foreign,get@189 port=all answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=10 since_arrival_ms=199 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=get,foreign,foreign,get@189 port=one answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=12 since_arrival_ms=201 pos=11] probes_held=0 probes_lost=0 sent=12
+PROBE r4b case=unknown-bind,get@189 port=all answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=10 since_arrival_ms=199 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@189 port=one answer0[pass=9 since_arrival_ms=198 pos=8] answer1[pass=11 since_arrival_ms=200 pos=10] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@190(=200-(9+f)) port=all answer0[pass=9 since_arrival_ms=199 pos=8] answer1[pass=10 since_arrival_ms=200 pos=9] probes_held=0 probes_lost=1 sent=11
+PROBE r4b case=unknown-bind,get@190(=200-(9+f)) port=one answer0[pass=9 since_arrival_ms=199 pos=8] answer1[pass=11 since_arrival_ms=201 pos=10] probes_held=0 probes_lost=1 sent=11
+[  PASSED  ] 2 tests.
