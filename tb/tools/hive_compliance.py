@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """hive_compliance.py - check an ATDECC entity the way Hive checks it.
 
-    sudo ./hive_compliance.py --iface enp6s0 --target-eid 020000FFFE000001 \
-                              --target-mac 02:00:00:00:00:01
+    sudo ./hive_compliance.py --iface <host-iface> --target-eid 024B4CFFFE4B4C01 \
+                              --target-mac 02:4b:4c:4b:4c:01
 
 WHY THIS EXISTS. On 2026-07-27 every one of our own gates was green - 57/57
 Verilator suites, yosys 48/48, behave 113/113, lint at ratchet - while Hive

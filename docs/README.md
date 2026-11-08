@@ -71,7 +71,7 @@ Publish conflicts before continuing.
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
 | Reset on an AECP REBOOT | [End-station reset](design/REBOOT_RESET.md) |
-| Follow a stream's media clock | [Media-clock following, proposed](design/MEDIA_CLOCK_FOLLOWING.md) |
+| Follow a stream's media clock | [Media-clock following, implemented](design/MEDIA_CLOCK_FOLLOWING.md) |
 | Review the firmware saved-state store | [Saved-state store, F1](../sw/firmware/ctrl_nvm/README.md) |
 | Review the firmware AECP owner and its evidence | [AECP core and adapters, F5](../sw/firmware/ctrl/aecp/README.md) |
 | Review saved-state snapshot ownership | [Snapshot ownership, implemented](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
@@ -79,6 +79,7 @@ Publish conflicts before continuing.
 | Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
 | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
 | Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
+| Review the Mark II 32x32 datapath | [Mark II stream engines, proposed](design/MARK_II_STREAM_ENGINES.md) |
 
 ## Verification
 
@@ -126,6 +127,7 @@ It is not fully Milan-compliant.
 - Read the [dated Milan audit](testing/MILAN_V12_AUDIT_2026-08-16.md).
 - Read the [Milan roadmap](MILAN_V12_ROADMAP.md).
 - Read the [compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md).
+- Read the [stricter readings](reference/STRICTER_READINGS.md).
 - Read the [requirements register](reference/FR_NFR.md).
 - Review open Issues before planning delivery.
 

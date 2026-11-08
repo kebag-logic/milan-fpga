@@ -8,7 +8,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
+- **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
+- **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+- **[Unreleased - gPTP pin 1616fc8f](#unreleased---gptp-pin-1616fc8f)** -- clockAccuracy per board.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
@@ -50,6 +54,92 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
 
+## Unreleased - processor pin 92100657
+
+- Issue #845 adopts processor `92100657` (PR #213, issue #212).
+- FPGA-gPTP stays at `135afd04`.
+- A Stream Input may settle on an already registered Talker.
+- That Talker attribute now applies at the settle.
+- It may be a Talker Advertise or Talker Failed.
+- Milan v1.2 5.3.8.5 asks this.
+- So does 5.5.3.5.18 step 4.
+- The input declares within one T-MRP-JOIN of the settle.
+- Its SRP state, GET_RX_STATE and GET_STREAM_INFO follow at once.
+- Before, it waited for the talker's next declaration.
+- The port keeps one Talker registrar per Stream Input.
+- Shipping N is 2: the AAF and CRF inputs.
+- A value arriving while both are taken is not held.
+- Its input still waits for the talker's next declaration.
+- At the latest, the talker re-joins after the next LeaveAll.
+- A port receives every Talker declaration of its VLAN.
+- With more than two Talker values, most power-on settles wait.
+- A re-bind to the same stream keeps its registration.
+- A link down or up ends every Talker registration.
+- A settled input's registration ends too.
+- It reports a timed-out registration and withdraws its declaration.
+- That input leaves the settled state.
+- Milan v1.2 5.5.3.5.48 asks this.
+- Its three stream-valid flags clear.
+- `probing_status` becomes active when its talker is discovered, passive otherwise.
+- The talker's next declaration alone does not return it.
+- It must probe and settle again.
+- A value registered meanwhile applies at that settle.
+- 802.1Q-2022 Table 10-4: Flush! and Begin! give MT.
+- LINK_DOWN is Flush!; LINK_UP is Begin!.
+- Both processor ROM digests match the `a9e84b66` rows.
+- No top-level port, parameter or register changes.
+- The shipping route grows 503 LUTs and 478 FFs.
+- Placement leaves 70 of 15,850 slices free.
+- WNS is +0.198 ns; every corner meets the floor.
+- The resource gate refused this growth on all three endpoints.
+- It selects ExtraTimingOpt at +0.373 ns.
+- That route leaves 15 of 15,850 slices free.
+- The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts the growth.
+- The gate's records are re-recorded; `check` exits 0.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
+
+## Unreleased - station MAC from reset
+
+- Issue #839: the first MSRP PDU had an all-zero source.
+- The SRP engine runs from reset.
+- Firmware writes the station MAC in `configure_fabric()`.
+- That write came after the first PDU was built.
+- The datapath records each half's first CSR write.
+- Until both are written, four transmitters cannot start.
+- They are the processor lane, MAAP, AAF and CRF.
+- Control-lane frames take octets 6 to 11 from the CSR.
+- So a PDU built before the write still leaves correct.
+- The gPTP plane is not held.
+- Its program ROM carries the same station MAC.
+- `milan_csr` and the register map's fields are unchanged.
+- VERSION stays `0x0002_0060`.
+- The `bootsa` leg boots through `milan_init()`'s own order.
+- It grades every frame's source past ENTITY_AVAILABLE.
+- Two more boots write one half, then the other.
+- Two more enable MAAP, AAF and CRF from reset.
+- Each source that offers a frame then must be held.
+- The stamp must leave octets outside 6 to 11 unchanged.
+- `bootsa-mutants` plants the shipped defect and eleven more.
+
+## Unreleased - gPTP on the MII port
+
+- Issue #829: the gPTP plane timed no MII frame.
+- That port runs at 100 Mb/s.
+- `phy.sink` holds each MII octet for two clocks.
+- The launch observer read one octet per clock.
+- Its delimiter check failed on the held preamble.
+- So no frame was attributed.
+- No launch record came, and the engine waited for one.
+- Its event queue filled.
+- The observer now counts an octet where `valid` and `ready` coincide.
+- On GMII `ready` is a flop.
+- It is 1 from the first clock after reset.
+- The observer's own reset covers that reset.
+- So no octet is held on GMII.
+- The MII correction is 3770 ns.
+- The GMII correction is 426 ns.
+- `make -C tb/verilator/gptp_txts run-mii` runs the closed loop on this shape.
+
 ## Unreleased - AECP REBOOT resets the end station
 
 - Issue #787 adopts processor `a9e84b66` for its #203.
@@ -77,6 +167,32 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each soft reset grades its exchange and the gPTP relock.
 - The UART smoke grades a reboot with `--after-reboot`.
 - The behave SERVED table lists REBOOT.
+
+## Unreleased - gPTP pin 1616fc8f
+
+- Issue #843 adopts gPTP `1616fc8f`, PRs #99 and #101.
+- An unknown TLV may precede the Follow_Up information TLV.
+- A mastership sets the TLV values (11.4.4.3).
+- Announce timeout follows the received interval (10.3.9.1).
+- An Announce at the timeout instant ages the port first.
+- A Pdelay response past Milan's 15 ms bound counts lost.
+- clockAccuracy is per board: AX7101 `0x22`, Arty `0xFE`.
+- The builder passes `gptp.clock_accuracy` to `--clock-accuracy`.
+- An omitted key is `0xFE` (8.6.2.3 b).
+- The AX7101 model ids move; the Arty's stay.
+- The milan_dp gptp legs grade both values on the wire.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- Its route is the first with both lab-fix pins.
+- The best of three directives is AltSpreadLogic_high.
+- It reaches +0.242 ns WNS, over the build floor.
+- It uses 248 LUTs, 159 FFs and two DSPs more.
+- That is against dev's best, ExtraTimingOpt at +0.234 ns.
+- 16 of 15,850 slices remain.
+- The gate refused the LUT and DSP growth.
+- The 2026-11-06 maintainer decision accepts it.
+- `route-1x1` is re-recorded; the standalone records stay.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin 135afd04
 

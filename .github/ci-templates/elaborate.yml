@@ -215,6 +215,15 @@ jobs:
       # miss must cost one ~90 s Scala run, never a silent wrong answer. The
       # key covers every input that can change what the generator emits: the
       # argv sources, the pinned revisions, and the patch series itself.
+      # ONE JOB CARRIES THIS CACHE: the builder worker whose leg runs the
+      # elaboration gates, which generate this metadata. actions/cache@v4
+      # saves on every miss, so a job that never generates it saves an empty
+      # entry under this key and a later job restores it: a LiteX worker did,
+      # and so did builder worker 0, whose leg elaborates nothing (#737).
+      # scripts/ci_gate_workflows.py keeps this step and "Keep the generated
+      # CPU netlist arguments for the next run" on that worker alone. The
+      # Scala toolchain, the pinned pip downloads and the sv2v archive stay on
+      # both builders, and the LiteX workers carry none of the four.
       - name: Cache the generated CPU metadata
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
@@ -330,6 +339,16 @@ jobs:
       # time - so the aggregate cannot rot into a green that proves nothing.
       # This step needs exactly the interpreter the steps above installed and
       # patched, and the Verilator the three steps above put on PATH.
+      # scripts/ci_gate_workflows.py runs it in measured legs, each on a worker
+      # of its own: run whole after a builder leg it held that job within a
+      # minute of its 45-minute limit (#737). scripts/ci_litex_legs.py derives
+      # each leg's members from the runner's inventory, and the aggregate job
+      # requires every simulation to have run once and passed.
+      # The LiteX workers carry none of the builders' four shared caches (CPU
+      # metadata, Scala toolchain, pip downloads, sv2v archive): they neither
+      # restore nor save them, so only the builders populate those keys, and
+      # every LiteX run installs them and generates its CPU metadata cold.
+      # They keep the Verilator cache, which only they populate (#737).
       - name: Standalone LiteX simulation aggregate
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |

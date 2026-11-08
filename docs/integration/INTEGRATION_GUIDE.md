@@ -2,8 +2,8 @@
 
 This contract describes the current all-fabric shipping control plane.
 
-The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) selects each control owner.
-It preserves media and gPTP interfaces.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+It preserves media interfaces, and gPTP interfaces until F6.
 
 Use this contract when wiring `milan_datapath`.
 
@@ -63,6 +63,28 @@ GET_STREAM_INFO has two owners (#508).
 - It reads its listener record and SRP registrar live.
 - `milan_datapath` answers every other word and every validity flag.
 - Never add a second source for the processor's four fields.
+
+Processor pin `92100657` (processor #212) changes the SRP listener.
+
+- A Stream Input may settle on an already registered Talker.
+- It then declares within one MRP joinTime, 200 ms.
+- Milan v1.2 5.3.8.5 asks this.
+- The port keeps one Talker registrar per Stream Input.
+- Shipping N is 2: the AAF and CRF inputs.
+- A value arriving while both are taken is not held.
+- Its input waits for the talker's next declaration.
+- At the latest, the talker re-joins after the next LeaveAll.
+- A re-bind to the same stream keeps its registration.
+- A link down or up ends every Talker registration.
+- A registered settled input then reports a timed-out registration.
+- It leaves the settled state.
+- Milan v1.2 5.5.3.5.48 asks this.
+- Its three stream-valid flags clear.
+- `probing_status` becomes active when its talker is discovered, passive otherwise.
+- The talker's next declaration alone does not return it.
+- It must probe and settle again.
+- A value registered meanwhile applies at that settle.
+- The [pin page](../reference/SUBMODULES.md) gives the cases.
 
 ## Wire every group
 

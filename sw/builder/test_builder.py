@@ -331,6 +331,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "avdecc"))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(SOC_DIR))
+sys.path.append(str(ROOT / "syn/ooc"))
 
 import yaml  # noqa: E402
 
@@ -348,6 +349,7 @@ import nvm_shape  # noqa: E402
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
 import check_entity_shape as ces  # noqa: E402
+import dp_srcs  # noqa: E402
 
 CONFIGS = {
     "arty_current": ROOT / "configs/endstation_arty_current.yaml",
@@ -356,6 +358,12 @@ CONFIGS = {
     "ax7101_8x8": ROOT / "configs/endstation_ax7101_8x8.yaml",
     "ax7101_1x1_tdm8": ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml",
 }
+#: The clockAccuracy each board's configs state (#843, 802.1AS-2011
+#: 8.6.2.3), keyed by the board prefix of the CONFIGS name. The AX7101's
+#: oscillator is characterised to IEEE 1588-2008 Table 6's "within 250 ns"
+#: (the maintainer's 2026-11-05 decision); the Arty's is not, so 8.6.2.3 b)
+#: makes it 0xFE.
+GPTP_CLOCK_ACCURACY_BY_BOARD = {"ax7101": 0x22, "arty": 0xFE}
 OUT = HERE / "out"
 #: gate 24d's pin of the cluster namer: every object_name the builder produces
 #: for a loopback-bearing config and for the channel_names config, per
@@ -17963,6 +17971,10 @@ def test_baremetal_profile_contract() -> None:
         ("station MAC", lambda c: c["platform"].__setitem__(
             "mac_address", "02:00:00:00:00:03")),
         ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
+        #: #843: clockAccuracy is per config now (--clock-accuracy), so the
+        #: AX7101's 0x22 restated as 0xFE must reach the image too.
+        ("clockAccuracy", lambda c: c["gptp"].__setitem__(
+            "clock_accuracy", 0xFE)),
     )
     with tempfile.TemporaryDirectory() as td:
         for label, mutate in ucode_mutations:
@@ -17977,15 +17989,17 @@ def test_baremetal_profile_contract() -> None:
     # The former 80 MHz ROM variant violates the bare-metal build contract.
     # test_baremetal_clock_contract now requires its named refusal.
     # test_gptp_rom_clock separately proves the configured clock reaches ROM bytes.
-    print("  [gate 1b] gPTP ROM changes with station MAC and priority1; "
-          "the bare-metal fabric clock is fixed by the build contract")
+    print("  [gate 1b] gPTP ROM changes with station MAC, priority1 and "
+          "clockAccuracy; the bare-metal fabric clock is fixed by the build "
+          "contract")
 
-    #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:,
-    #! so every other field must REFUSE a divergent config value instead of
+    #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:
+    #! (priority1 and, since #843, clock_accuracy are consumed), so every
+    #! other field must REFUSE a divergent config value instead of
     #! shipping an AEM dataset the wire Announce contradicts (gate 26b owns
     #! the byte-exact descriptor half).
     pins = eb.gptp_engine_pins()
-    pinned = ("priority2", "clock_class", "clock_accuracy",
+    pinned = ("priority2", "clock_class",
               "offset_scaled_log_variance", "log_sync_interval",
               "log_announce_interval", "log_pdelay_interval")
     for field in pinned:
@@ -18262,6 +18276,237 @@ def test_reboot_egress_statement_gate_bites() -> None:
           f"{len(REBOOT_EGRESS_MUTATIONS)} cuts rejected, each naming its fact")
 
 
+#: The launch shape a PHY model states (#829). GMII states nothing, so its
+#: elaboration keeps the RTL defaults, one octet per 8 ns clock; MII has to
+#: state all four, or its reconstruction is wrong by a constant.
+LAUNCH_SHAPE_MUTATIONS = (
+    ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
+    ('"p_TXTS_DELTA_EXP_P": 45 * 2', '"p_TXTS_DELTA_EXP_P": 45'),
+    ('"GPTP_ETH_TICK_NS_P": 40', '"GPTP_ETH_TICK_NS_P": 8'),
+    ('"GPTP_ETH_CYC_PER_OCTET_P": 2', '"GPTP_ETH_CYC_PER_OCTET_P": 1'),
+    ('_PHY_MODEL_LAUNCH = {"gmii": {},', '_PHY_MODEL_LAUNCH = {"gmii": {"X": 1},'),
+    ('_PHY_MODEL_OBSERVER = {"gmii": {},', '_PHY_MODEL_OBSERVER = {"gmii": {"X": 1},'),
+)
+
+
+def _launch_shape_findings(soc):
+    """The findings of gate 1g against one milan_soc.py text."""
+    bad = [f"{old} is not stated" for old, _new in LAUNCH_SHAPE_MUTATIONS
+           if old not in soc]
+    for wiring in ('**_PHY_MODEL_OBSERVER[phy_model],',
+                   'for name, value in _PHY_MODEL_LAUNCH[phy_model].items()'):
+        if wiring not in soc:
+            bad.append(f"{wiring} is not wired")
+    return bad
+
+
+def test_gptp_launch_shape_follows_the_phy() -> None:
+    """Gate 1g: the launch observer and the plane take the PHY's octet shape."""
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    assert not _launch_shape_findings(soc), _launch_shape_findings(soc)
+    for old, new in LAUNCH_SHAPE_MUTATIONS:
+        assert old in soc, f"gate 1g: {old!r} is not in milan_soc.py"
+        bad = _launch_shape_findings(soc.replace(old, new))
+        assert bad, f"gate 1g accepted a milan_soc.py with {old!r} as {new!r}"
+    print(f"  [gate 1g mutation] {len(LAUNCH_SHAPE_MUTATIONS)}/"
+          f"{len(LAUNCH_SHAPE_MUTATIONS)} cuts rejected")
+
+
+#: What carries that shape from the datapath's parameters into the plane (#829):
+#: (datapath parameter, plane parameter, the GMII default, the MII value). Cut the
+#: octet binding and the plane expects 45 clocks against the observer's 90, and
+#: every frame is lost unmeasured. Cut the tick binding and the correction is
+#: wrong by 2976 ns.
+DATAPATH_SHAPE_WIRING = (
+    ("GPTP_ETH_TICK_NS_P", "ETH_TICK_NS_P", 8, 40),
+    ("GPTP_ETH_CYC_PER_OCTET_P", "ETH_CYC_PER_OCTET_P", 1, 2),
+)
+
+#: A macro an earlier source of the build defines, for gate 1h's controls. The
+#: gate's keeps fail if no earlier source defines it any more.
+DATAPATH_EARLIER_MACRO = "ETHERNET_PACKET_PKG_SV"
+
+
+def _datapath_as_built(rtl):
+    """(the datapath's module the build reads with this text, why it cannot).
+
+    Gate 1h catches accidental cuts of the two bindings and their defaults, read
+    as the build reads them. The answer is the front end's, on the defines,
+    include directories and whole ordered source list the build's own record
+    states, with this text in the datapath's place. So a comment, or an arm dead
+    under a macro from any earlier source, is gone before this gate reads
+    anything, and there is no model of that layer here to be wrong. No front end
+    is a refusal, not a stand-down: the jobs that run this file install it. It
+    parses and does not elaborate, so a `defparam` or a generate arm that never
+    elaborates stays outside this gate.
+    """
+    record, problems, _status = dp_srcs.ask_authority("milan_datapath")
+    assert record, f"gate 1h: the datapath's recipe: {problems}"
+    front_end = shutil.which(dp_srcs.FRONT_END)
+    assert front_end, f"gate 1h: {dp_srcs.FRONT_END} is not on PATH"
+    datapath = (ROOT / "hdl/milan/milan_datapath.sv").resolve()
+    with tempfile.TemporaryDirectory(prefix="gate1h.") as tmp:
+        planted = Path(tmp) / "milan_datapath.sv"
+        planted.write_text(rtl)
+        sources = [str(planted) if Path(src).resolve() == datapath else src
+                   for src in record["src"]]
+        assert sources.count(str(planted)) == 1, \
+            f"gate 1h: the build does not read {datapath.name} once: {record['src']}"
+        read = subprocess.run(
+            [front_end, "--pass-through",
+             *(f"-D{define}" for define in record["define"]),
+             # a source's own directory is searched first, and this copy has moved
+             "-I", str(ROOT / "hdl/milan"),
+             *(arg for incdir in record["incdir"] for arg in ("-I", incdir)),
+             *sources],
+            capture_output=True, text=True, timeout=300)
+    if read.returncode:
+        return "", f"the front end refuses it: {read.stderr[:300]}"
+    modules = re.findall(r"^\s*module\s+milan_datapath\b.*?^\s*endmodule\b",
+                         read.stdout, re.MULTILINE | re.DOTALL)
+    if len(modules) != 1:
+        return "", f"the build reads {len(modules)} milan_datapath modules, not one"
+    return modules[0], ""
+
+
+def _datapath_shape_findings(rtl):
+    """The findings of gate 1h against one milan_datapath.sv text."""
+    code, refused = _datapath_as_built(rtl)
+    if refused:
+        return [refused]
+    planes = re.findall(r"^\s*KL_gptp_shadow\b", code, re.MULTILINE)
+    if len(planes) != 1:
+        return [f"{len(planes)} planes instantiated, not one"]
+    plane = re.search(r"^\s*KL_gptp_shadow\s*#\((.*?)^\s*\)\s*u_gptp_shadow\(",
+                      code, re.MULTILINE | re.DOTALL)
+    if not plane:
+        return ["the one plane instantiated is not u_gptp_shadow"]
+    bad = []
+    for param, port, default, _mii in DATAPATH_SHAPE_WIRING:
+        declared = re.findall(rf"^\s*(\w+)\b[^=\n]*\b{param}\s*=(?!=)\s*(.*);$",
+                              code, re.MULTILINE)
+        if declared != [("parameter", str(default))]:
+            bad.append(f"{param} does not default to {default}: {declared}")
+        bound = re.findall(rf"^\s*\.{port}\((.*)\),?$", plane.group(1),
+                           re.MULTILINE)
+        if bound != [param]:
+            bad.append(f".{port} is not bound to {param}: {bound}")
+    return bad
+
+
+def _datapath_shape_cuts(rtl):
+    """Each defect gate 1h must refuse: (name, the planted text, what it names)."""
+    other_plane = ("    KL_gptp_shadow #(.TDATA_WIDTH_P(8)) u_gptp_shadow "
+                   "(.clk_i(axis_clk));\n    KL_gptp_shadow #(\n")
+    cuts = [("the plane renamed", rtl.replace(") u_gptp_shadow (", ") u_gptp_other ("),
+             "is not u_gptp_shadow"),
+            ("a second plane", rtl.replace("    KL_gptp_shadow #(\n", other_plane),
+             "planes instantiated"),
+            ("the datapath's module renamed",
+             rtl.replace("module milan_datapath ", "module milan_datapath_other "),
+             "milan_datapath modules"),
+            ("the datapath's module declared twice",
+             f"{rtl}\nmodule milan_datapath;\nendmodule\n", "milan_datapath modules")]
+    crossed = rtl
+    for param, port, default, mii in DATAPATH_SHAPE_WIRING:
+        line = re.search(rf"[ \t]*\.{port}\s*\(\s*{param}\s*\),", rtl).group()
+        binding = line.strip()
+        declared = re.search(rf"parameter\s+int\s+unsigned\s+{param}\s*=\s*"
+                             rf"{default}\s*,", rtl).group()
+        live = f"parameter int unsigned {param} = {mii},"
+        other = next(name for name, *_rest in DATAPATH_SHAPE_WIRING if name != param)
+        crossed = crossed.replace(line, f".{port} ({other}),")
+        not_bound = f".{port} is not bound"
+        not_default = f"{param} does not default"
+        cuts += [
+            (f"{port} cut", rtl.replace(line + "\n", ""), not_bound),
+            (f"{port} tied", rtl.replace(line, f".{port} ({default}),"), not_bound),
+            (f"{port} scaled", rtl.replace(line, f".{port} ({param} * 2),"), not_bound),
+            (f"{port} through a no-op", rtl.replace(line, f".{port} ({param} + 0),"),
+             not_bound),
+            (f"{port} on another parameter",
+             rtl.replace(line, f".{port} (GPTP_PHC_TICK_NS_P),"), not_bound),
+            (f"{port} bound twice", rtl.replace(line, f"{line}\n.{port} ({default}),"),
+             not_bound),
+            (f"{port} in a line comment", rtl.replace(line, f"// {binding}"), not_bound),
+            (f"{port} in a block comment", rtl.replace(line, f"/* {binding} */"),
+             not_bound),
+            (f"{port} tied, the binding left in a comment",
+             rtl.replace(line, f".{port} ({default}), // {binding}"), not_bound),
+            (f"{port} in a dead ifdef",
+             rtl.replace(line, f"`ifdef NEVER_DEFINED\n{binding}\n`endif"), not_bound),
+            (f"{port} only where the build does not define SYNTHESIS",
+             rtl.replace(line, f"`ifndef SYNTHESIS\n{binding}\n`endif"), not_bound),
+            (f"{param} default moved", rtl.replace(declared, live), not_default),
+            (f"{param} a localparam",
+             rtl.replace(declared, declared.replace("parameter", "localparam")),
+             not_default),
+            (f"{param} shadowed beside the plane", rtl.replace(
+                "    KL_gptp_shadow #(\n",
+                f"    localparam {live[:-1].removeprefix('parameter ')};\n"
+                "    KL_gptp_shadow #(\n"), not_default),
+            (f"{port} dead under a macro from an earlier source",
+             rtl.replace(line, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{binding}\n`endif"),
+             not_bound),
+            (f"{param} default dead under a macro from an earlier source, a live one "
+             "in its else",
+             rtl.replace(declared, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{declared}\n"
+                                   f"`else\n{live}\n`endif"), not_default),
+            (f"{param} default in a comment, a live one below",
+             rtl.replace(declared, f"// {declared}\n  {live}"), not_default),
+            (f"{param} default in a block comment, a live one below",
+             rtl.replace(declared, f"/* {declared} */\n  {live}"), not_default),
+            (f"{param} default in a dead ifdef, a live one in its else",
+             rtl.replace(declared, f"`ifdef NEVER_DEFINED\n{declared}\n`else\n{live}\n`endif"),
+             not_default),
+        ]
+    cuts.append(("the bindings crossed", crossed, "is not bound"))
+    return cuts
+
+
+def _datapath_shape_keeps(rtl):
+    """Spellings of the same code gate 1h must pass: it reads code, not this text."""
+    keeps = []
+    for param, port, default, _mii in DATAPATH_SHAPE_WIRING:
+        line = re.search(rf"[ \t]*\.{port}\s*\(\s*{param}\s*\),", rtl).group()
+        declared = re.search(rf"parameter\s+int\s+unsigned\s+{param}\s*=\s*"
+                             rf"{default}\s*,", rtl).group()
+        keeps += [
+            (f"{port} with a comment beside it", rtl.replace(line, f"{line} // why")),
+            (f"{port} in a live ifdef",
+             rtl.replace(line, f"`ifdef SYNTHESIS\n{line}\n`endif")),
+            (f"{port} live under a macro from an earlier source",
+             rtl.replace(line, f"`ifdef {DATAPATH_EARLIER_MACRO}\n{line}\n`endif")),
+            (f"{param} default with a comment inside it", rtl.replace(
+                declared, f"parameter int unsigned {param} = /* GMII */ {default},")),
+        ]
+    others = "".join(f"  parameter int unsigned {param} = {mii};\n"
+                     for param, _port, _default, mii in DATAPATH_SHAPE_WIRING)
+    keeps.append(("another module with these parameters and its own plane",
+                  f"{rtl}\nmodule beside_the_datapath;\n{others}"
+                  "  KL_gptp_shadow u_other ();\nendmodule\n"))
+    return keeps
+
+
+def test_gptp_datapath_carries_the_launch_shape() -> None:
+    """Gate 1h: milan_datapath hands the plane the shape the SoC states it."""
+    rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    assert not _datapath_shape_findings(rtl), _datapath_shape_findings(rtl)
+    cuts = _datapath_shape_cuts(rtl)
+    for name, planted, names in cuts:
+        assert planted != rtl, f"gate 1h: the control {name!r} planted nothing"
+        bad = _datapath_shape_findings(planted)
+        assert any(names in item for item in bad), \
+            f"gate 1h accepted a milan_datapath.sv with {name}: {bad}"
+    keeps = _datapath_shape_keeps(rtl)
+    for name, planted in keeps:
+        assert planted != rtl, f"gate 1h: the control {name!r} planted nothing"
+        bad = _datapath_shape_findings(planted)
+        assert not bad, f"gate 1h refused a milan_datapath.sv with {name}: {bad}"
+    print(f"  [gate 1h mutation] {len(cuts)}/{len(cuts)} cuts rejected, "
+          f"{len(keeps)}/{len(keeps)} equal spellings accepted")
+
+
 def _gptp_observer_reads_the_mac_stream(soc):
     """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
     instances = re.findall(
@@ -18275,6 +18520,7 @@ def _gptp_observer_reads_the_mac_stream(soc):
             ("i_eth_clk_i", 'ClockSignal("maceth_tx")'),
             ("i_eth_rst_n", '~ResetSignal("maceth_tx")'),
             ("i_gmii_tvalid_i", "self.phy.sink.valid"),
+            ("i_gmii_tready_i", "self.phy.sink.ready"),
             ("i_gmii_tdata_i", "self.phy.sink.data"),
             ("i_dp_clk_i", "ClockSignal(milan_cd)"),
             ("i_dp_rst_n", "~ResetSignal(milan_cd)")):
@@ -18288,13 +18534,13 @@ def _gptp_observer_reads_the_mac_stream(soc):
         "gate 1d: the launch observer may not drive the stream it observes"
     #: ...and the stream it reads is read, never written, by the MAC around
     #: it: `phy.sink` is connected by `core.source.connect(phy.sink)` inside
-    #: LiteEth and appears here only as this observation and the AECP
-    #: REBOOT's frame-end toggle (#787, gate 1f), which reads its valid,
-    #: ready and last
+    #: LiteEth and appears here only as this observation, whose `ready` is what
+    #: separates MII octets (#829), and the AECP REBOOT's frame-end toggle
+    #: (#787, gate 1f), which reads its valid, ready and last
     seam_uses = re.findall(r"self\.phy\.sink\.\w+", soc)
     assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.last",
-                                 "self.phy.sink.ready", "self.phy.sink.valid",
-                                 "self.phy.sink.valid"], \
+                                 "self.phy.sink.ready", "self.phy.sink.ready",
+                                 "self.phy.sink.valid", "self.phy.sink.valid"], \
         ("gate 1d: the MAC's `phy.sink` is touched somewhere other than the "
          f"launch observation and the frame-end toggle: {sorted(seam_uses)}")
 
@@ -26199,7 +26445,9 @@ def _assert_engine_pin_parser_derives(wire):
                "    e_hdr(p, 0x2, RA, 0x00, 54)\n"
                "    e_hdr(p, 0xB, RA, 0x01, 76)\n")
     got = eb.gptp_engine_pins(fixture)
-    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
+    #! clockAccuracy (the fixture's 0xFD) is not an engine pin since #843:
+    #! the config passes it per image, so the parser must not return it.
+    assert got == dict(priority2=247, clock_class=0xF7,
                        offset_scaled_log_variance=0x436B,
                        log_sync_interval=-4, log_announce_interval=1,
                        log_pdelay_interval=0), got
@@ -26228,6 +26476,34 @@ def _assert_engine_pin_parser_derives(wire):
         assert "0 live matches for e_hdr Sync TX, need exactly 1" in str(e), e
     #! and the fixture path never poisons the real cache
     assert eb.gptp_engine_pins() == wire
+
+
+def _assert_avb_interface_is_the_wire(wire: dict[str, int]) -> None:
+    """Gate 26b step 2: each config's AVB_INTERFACE clock bytes are the
+    engine's Announce dataset, clockAccuracy the board's own (#843)."""
+    # every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
+    # dataset (priority1, clockQuality, priority2, domain, intervals),
+    # clockAccuracy the board's own (GPTP_CLOCK_ACCURACY_BY_BOARD)
+    for name in sorted(CONFIGS):
+        cfg = eb.load_config(CONFIGS[name])
+        accuracy = GPTP_CLOCK_ACCURACY_BY_BOARD[name.split("_", 1)[0]]
+        assert cfg["gptp"]["clock_accuracy"] == accuracy, (
+            f"{name}: gptp.clock_accuracy 0x{cfg['gptp']['clock_accuracy']:X}"
+            f", the board's decided value is 0x{accuracy:X} (#843)")
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        avbi = image_descriptor(blob, 0x0009)
+        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
+                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
+                + bytes([accuracy, wire["priority2"], 0,
+                         wire["log_sync_interval"] & 0xFF,
+                         wire["log_announce_interval"] & 0xFF,
+                         wire["log_pdelay_interval"] & 0xFF]))
+        assert avbi[86:96] == want, (
+            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
+            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
+            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
+            f"wire does not carry ([R-parallel] on #228)")
 
 
 def test_gptp_dataset_matches_engine_announce() -> None:
@@ -26270,9 +26546,11 @@ def test_gptp_dataset_matches_engine_announce() -> None:
         v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*\w+,\s*({n}),\s*\d+\)\s*$",
                 f"{name} e_hdr")
         logints[name] = v - 256 if v >= 128 else v
+    #! clockAccuracy, bits 23:16 of CQ_C, is the generator's default only:
+    #! since #843 every image takes the config's value by --clock-accuracy,
+    #! so it is graded per config below, not as an engine pin.
     wire = dict(priority2=p2,
                 clock_class=(cq >> 24) & 0xFF,
-                clock_accuracy=(cq >> 16) & 0xFF,
                 offset_scaled_log_variance=cq & 0xFFFF,
                 log_sync_interval=logints["Sync"],
                 log_announce_interval=logints["Announce"],
@@ -26283,52 +26561,142 @@ def test_gptp_dataset_matches_engine_announce() -> None:
         f"endstation_builder.gptp_engine_pins() {eb.gptp_engine_pins()} != "
         f"this gate's own parse {wire} - one of the two readers of "
         f"gen_gptp_ucode.py has rotted")
-    #! The consumed set is priority1 alone (--p1; MAC and clock frequency
-    #! ride --mac/--clk-hz from platform/constraints).  If the engine grows
-    #! an argument for a pinned field, the field must MOVE to the consumed
-    #! path, not stay refused.
-    assert eb.GPTP_ENGINE_CONSUMED == ("priority1",)
-    assert re.search(r'add_argument\("--p1"', gen), \
-        "the engine generator no longer consumes --p1"
+    #! The consumed set is priority1 (--p1) and, since FPGA-gPTP #100 gave
+    #! the generator --clock-accuracy, clock_accuracy (#843); MAC and clock
+    #! frequency ride --mac/--clk-hz from platform/constraints.  If the
+    #! engine grows an argument for a pinned field, the field must MOVE to
+    #! the consumed path, not stay refused.
+    assert eb.GPTP_ENGINE_CONSUMED == ("priority1", "clock_accuracy")
+    for flag in ("--p1", "--clock-accuracy"):
+        assert re.search(rf'add_argument\("{flag}"', gen), \
+            f"the engine generator no longer consumes {flag}"
 
-    # 2. every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
-    #    dataset (priority1, clockQuality, priority2, domain, intervals)
-    for name in sorted(CONFIGS):
-        cfg = eb.load_config(CONFIGS[name])
-        overlay = eb.emit_aem_overlay(cfg)
-        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
-        avbi = image_descriptor(blob, 0x0009)
-        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
-                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
-                + bytes([wire["clock_accuracy"], wire["priority2"], 0,
-                         wire["log_sync_interval"] & 0xFF,
-                         wire["log_announce_interval"] & 0xFF,
-                         wire["log_pdelay_interval"] & 0xFF]))
-        assert avbi[86:96] == want, (
-            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
-            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
-            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
-            f"wire does not carry ([R-parallel] on #228)")
+    _assert_avb_interface_is_the_wire(wire)
 
-    # 3. a config OMITTING every pinned key is filled from the engine
+    # 3. a config OMITTING every pinned key is filled from the engine, and
+    #    an omitted clock_accuracy is 802.1AS-2011 8.6.2.3 b)'s 0xFE
     thin = _variant(CONFIGS["ax7101_1x1_tdm8"],
-                    lambda c: [c["gptp"].pop(k, None) for k in wire])
+                    lambda c: [c["gptp"].pop(k, None)
+                               for k in (*wire, "clock_accuracy")])
     cfg = eb.load_config(thin)
     thin.unlink()
     for k, v in wire.items():
         assert cfg["gptp"][k] == v, \
             f"omitted gptp.{k} resolved to {cfg['gptp'][k]}, engine says {v}"
+    assert cfg["gptp"]["clock_accuracy"] == 0xFE, (
+        f"omitted gptp.clock_accuracy resolved to "
+        f"0x{cfg['gptp']['clock_accuracy']:X}, 802.1AS-2011 8.6.2.3 b) "
+        f"says 0xFE")
 
     _assert_engine_pin_parser_derives(wire)
 
 
     print(f"  [gate 26b] AVB_INTERFACE == wire Announce for all "
           f"{len(CONFIGS)} configs: priority2 {wire['priority2']}, "
-          f"clockQuality 0x{cq:08X}, log intervals "
+          f"clockClass 0x{wire['clock_class']:02X}, variance "
+          f"0x{wire['offset_scaled_log_variance']:04X}, clockAccuracy per "
+          f"board (AX7101 0x22, Arty 0xFE), log intervals "
           f"{wire['log_sync_interval']}/{wire['log_announce_interval']}/"
           f"{wire['log_pdelay_interval']}; omitted keys fill from the "
-          f"engine; the parser refuses a missing or twice-declared "
-          f"constant ([R-parallel] on #228)")
+          f"engine and clockAccuracy from 8.6.2.3 b); the parser refuses a "
+          f"missing or twice-declared constant ([R-parallel] on #228)")
+
+
+def _gptp_image(args: list[str], out: Path) -> bytes:
+    """The engine generator's own image for `args`, written to `out`."""
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR), "-o",
+                    str(out), *args], check=True, capture_output=True,
+                   text=True)
+    return out.read_bytes()
+
+
+def _assert_clock_accuracy_refusals() -> None:
+    """Gate 26c: a value outside Table 6 is refused; both ends are kept."""
+    for v in (0x00, 0x1F, 0x32, 0x7F, 0x80, 0xFD, 0xFF):
+        bad = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                       lambda c, v=v: c["gptp"].__setitem__(
+                           "clock_accuracy", v))
+        try:
+            eb.load_config(bad)
+        except eb.ConfigError as e:
+            for part in ("gptp.clock_accuracy", f"0x{v:X}", "Table 6",
+                         "8.6.2.3"):
+                assert part in str(e), \
+                    f"0x{v:X} refused, but without {part!r}: {e}"
+        else:
+            raise AssertionError(
+                f"gate 26c: gptp.clock_accuracy 0x{v:X} was ACCEPTED - IEEE "
+                f"1588-2008 7.6.2.5 takes the value from Table 6 and "
+                f"802.1AS-2011 8.6.2.3 uses no other profile's range")
+        finally:
+            bad.unlink()
+    for v in (0x20, 0x31):
+        ok = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                      lambda c, v=v: c["gptp"].__setitem__(
+                          "clock_accuracy", v))
+        try:
+            assert eb.load_config(ok)["gptp"]["clock_accuracy"] == v
+        finally:
+            ok.unlink()
+
+
+def test_gptp_clock_accuracy_per_board() -> None:
+    """Gate 26c (#843): each config's clockAccuracy reaches its gPTP image.
+
+    FPGA-gPTP #100 gave the engine generator --clock-accuracy, so the
+    clockAccuracy a board announces (802.1AS-2011 8.6.2.3) is the board's
+    claim, not an engine constant. This gate builds a 0x22 config (the
+    AX7101) and a 0xFE config (the Arty) through eb.build and requires each
+    image to be byte-equal to the generator's own image for the options
+    gptp_ucode_args() gives that config, with --clock-accuracy carrying the
+    board's value, and the two values to give different images. A value
+    outside IEEE 1588-2008 Table 6 is refused. The wire half is
+    tb/verilator/milan_dp's `gptp` and `gptp-lat` legs, which run images
+    made from these two configs through the same options and grade the
+    clockAccuracy of the DUT's own Announce; this gate pins that pairing in
+    the leg's Makefile."""
+    with tempfile.TemporaryDirectory() as td:
+        images = {}
+        for name in ("ax7101_1x1_tdm8", "arty_current"):
+            want = GPTP_CLOCK_ACCURACY_BY_BOARD[name.split("_", 1)[0]]
+            result = eb.build(CONFIGS[name], Path(td) / "build")
+            args = eb.gptp_ucode_args(result["cfg"])
+            assert "--clock-accuracy" in args, (
+                f"gate 26c: {name}'s generator options {args} carry no "
+                f"--clock-accuracy, so its image announces the engine's "
+                f"default and not its board's value")
+            i = args.index("--clock-accuracy")
+            assert int(args[i + 1], 0) == want, (
+                f"gate 26c: {name} passes --clock-accuracy {args[i + 1]}, "
+                f"its board decided 0x{want:02X}")
+            built = Path(result["paths"]["gptp_ucode"]).read_bytes()
+            ref = _gptp_image(args, Path(td) / f"{name}.hex")
+            assert built == ref, (
+                f"gate 26c: {name}'s gptp_ucode.hex is not the generator's "
+                f"image for {args}")
+            other = list(args)
+            other[i + 1] = "0xFE" if want == 0x22 else "0x22"
+            assert _gptp_image(other, Path(td) / f"{name}-other.hex") \
+                != built, (f"gate 26c: {name}'s image does not change with "
+                           f"--clock-accuracy, so it does not carry it")
+            images[name] = built
+        assert images["ax7101_1x1_tdm8"] != images["arty_current"]
+    _assert_clock_accuracy_refusals()
+    mk = (ROOT / "tb/verilator/milan_dp/Makefile").read_text()
+    for config, var, want in (
+            ("endstation_ax7101_1x1_tdm8.yaml", "GPTP_LEG", 0x22),
+            ("endstation_arty_current.yaml", "GPTP_LAT", 0xFE)):
+        assert re.search(rf"^{var}_CONFIG = \.\./\.\./\.\./configs/"
+                         rf"{re.escape(config)}$", mk, re.M), \
+            f"gate 26c: milan_dp's {var}_CONFIG is no longer {config}"
+        assert re.search(rf"^{var}_ACCURACY = 0x{want:02X}$", mk, re.M), \
+            f"gate 26c: milan_dp's {var}_ACCURACY is no longer 0x{want:02X}"
+    print("  [gate 26c] clockAccuracy per board (#843): the AX7101 build's "
+          "image carries --clock-accuracy 0x22 and the Arty's 0xFE, each "
+          "byte-equal to the generator's image for gptp_ucode_args() and "
+          "different under the other value; values outside IEEE 1588-2008 "
+          "Table 6 refused; milan_dp's gptp and gptp-lat legs run those two "
+          "configs and grade the Announce octet on the wire")
 
 
 def test_pp_window_contract() -> None:
@@ -26484,6 +26852,77 @@ def _assert_image_spans_are_baked(name, ent, overlay, aem, aemi):
     #! = 1, so 0 is the only index SET_CONFIGURATION could select.
     assert _be_uint(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
     assert _be_uint(ent, 310, 2) == 0, f"{name}: current_configuration != 0"
+
+
+def test_station_mac_ul_bit_warns() -> None:
+    """Gate 28b (#840): the prototype identities, and the U/L-bit warning.
+
+    The decisions of 2026-11-05 give the AX7101 station MAC
+    02:4B:4C:4B:4C:01 and the Arty 02:4B:4C:4B:4C:02, both locally
+    administered, with entity_id and clockIdentity still MAC-derived, and
+    no octet of those EUI-64 identities 0x00 (#840). IEEE
+    802-2014 8.2 and 8.4 put the U/L bit at bit 1 of the first octet (also
+    IEEE 802.1AS-2011 8.5.2.2.1 NOTE 2). A set U/L bit is not an
+    IEEE-assigned EUI-48, which 802.1AS-2011 8.5.2.2.1 and IEEE 1588-2008
+    7.5.2.2.2 require of the MAC a clockIdentity is formed from, so the
+    builder WARNS and still builds: a warning, never a refusal.
+
+    Arms: every tracked config carries its decided address and entity_id,
+    no octet of which is zero, and draws exactly one warning; a universally
+    administered variant draws none, and so does one whose other first-octet
+    bits are set; setting bit 1 alone of that variant draws it back; and the
+    CLI writes the warning on stderr, keeps it off stdout, and exits 0 having
+    written its outputs."""
+    decided = {"ax7101_8x8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
+               "ax7101_1x1_tdm8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
+               "arty_current": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_4x4": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_8ch": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02)}
+    assert set(decided) == set(CONFIGS), \
+        f"gate 28b: decided identities {sorted(decided)} != configs {sorted(CONFIGS)}"
+    for name, (mac, eid) in decided.items():
+        cfg = eb.load_config(str(CONFIGS[name]))
+        assert cfg["platform"]["mac_address"] == mac, \
+            f"gate 28b {name}: station MAC {cfg['platform']['mac_address']}, decided {mac}"
+        assert eb.derive_entity_id(cfg) == eid, \
+            f"gate 28b {name}: entity_id {eb.derive_entity_id(cfg):016X}, decided {eid:016X}"
+        assert all(eid.to_bytes(8, "big")), \
+            f"gate 28b {name}: entity_id {eid:016X} has a zero octet"
+        warned = eb.identity_warnings(cfg)
+        assert len(warned) == 1 and mac in warned[0] and "U/L bit" in warned[0] \
+            and "#840" in warned[0], \
+            f"gate 28b {name}: locally administered {mac} drew {warned!r}, not one U/L warning"
+    print(f"  {len(decided)} configs: decided identity, no zero octet, one U/L-bit warning each")
+
+    def with_mac(mac: str) -> Callable[[dict], None]:
+        """A config mutation that sets the station MAC to `mac`."""
+        return lambda c: c["platform"].__setitem__("mac_address", mac)
+
+    # IEEE 802.1AS-2011 8.5.2.2.1 NOTE 4's universally administered example,
+    # the same with every other first-octet bit but I/G set, and each with
+    # the U/L bit alone set.
+    for mac, warns in (("ac:de:48:23:45:67", False), ("fc:de:48:23:45:67", False),
+                       ("ae:de:48:23:45:67", True), ("fe:de:48:23:45:67", True)):
+        cfg = eb.load_config(str(_variant(CONFIGS["ax7101_1x1_tdm8"], with_mac(mac))))
+        warned = eb.identity_warnings(cfg)
+        assert bool(warned) == warns, \
+            f"gate 28b: {mac} {'should' if warns else 'should not'} warn; got {warned!r}"
+    print("  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn")
+    out = Path(tempfile.mkdtemp(prefix="gate28b-"))
+    try:
+        cli = subprocess.run([sys.executable, str(HERE / "endstation_builder.py"),
+                              str(CONFIGS["ax7101_1x1_tdm8"]), "-o", str(out)],
+                             capture_output=True, text=True, timeout=600)
+        needle = "WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set"
+        assert cli.returncode == 0, \
+            f"gate 28b: the U/L warning refused the build: rc {cli.returncode} {cli.stderr[-300:]}"
+        assert needle in cli.stderr, f"gate 28b: CLI stderr lacks {needle!r}: {cli.stderr[-300:]}"
+        assert "WARNING" not in cli.stdout, "gate 28b: the warning reached stdout"
+        assert (out / "endstation_ax7101_1x1_tdm8" / "aem_overlay.json").is_file(), \
+            "gate 28b: a warned build wrote no AEM overlay"
+    finally:
+        shutil.rmtree(out, ignore_errors=True)
+    print("  CLI: warning on stderr, exit 0, outputs written")
 
 
 def test_image_identity_is_baked() -> None:
@@ -29299,6 +29738,8 @@ if __name__ == "__main__":
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
+               test_gptp_launch_shape_follows_the_phy,
+               test_gptp_datapath_carries_the_launch_shape,
                test_reboot_egress_statement,
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
@@ -29358,7 +29799,9 @@ if __name__ == "__main__":
                test_d10_names_reach_the_rom,
                test_gptp_domain_is_one_source,
                test_gptp_dataset_matches_engine_announce,
+               test_gptp_clock_accuracy_per_board,
                test_pp_window_contract,
+               test_station_mac_ul_bit_warns,
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
                test_schema_12_keys_reach_the_image,

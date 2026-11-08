@@ -185,11 +185,11 @@ otherwise `TCAM_CTRL[0]`.
 
 ### MAC_ADDR_LO (offset 0x108)
 
-station MAC `[31:0]` - **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words)
+station MAC `[31:0]` - **LSB-first**: wire byte 0 in `[7:0]`, byte 3 in `[31:24]` (a plain `memcpy` of the 6-byte address into two LE words). **Sequencing (#839):** the datapath records each half's first write since reset, on this CSR's own write handshake, and until both halves have been written it holds the frame start of every transmitter that takes its source address from this pair: the protocol processor's control lane (SRP, ADP, ACMP, AECP), MAAP, the AAF talkers and the CRF talker. Every control-lane frame also takes octets 6 to 11 from this pair as it leaves, so a PDU the processor built before the write leaves with the written address (IEEE 802.1AC-2016 11.1). Either order completes the pair, a read does not, and it stays complete until reset; rewriting the address later is not atomic across the two words. The fabric gPTP plane is not held: its source address is the station MAC the builder writes into its program ROM. No field, address or reset value changes
 
 ### MAC_ADDR_HI (offset 0x10C)
 
-station MAC `[47:32]` in `[15:0]` - wire byte 4 in `[7:0]`, byte 5 in `[15:8]`
+station MAC `[47:32]` in `[15:0]` - wire byte 4 in `[7:0]`, byte 5 in `[15:8]`. **Sequencing (#839):** the pair's second half; see `MAC_ADDR_LO`
 
 ### MAC_STATUS (offset 0x110)
 

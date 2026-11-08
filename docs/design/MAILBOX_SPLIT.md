@@ -39,8 +39,9 @@ define the interface. The numbers live in one place, the generated
 ## What moves, and what the fabric keeps
 
 The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
-fabric keeps framing and timestamps, the gPTP plane, the media path,
-the timers that carry hard deadlines, and an ingress filter. The two exchange
+fabric keeps framing and timestamps, the media path, the timers that carry
+hard deadlines, and an ingress filter. It keeps the gPTP plane until F6, then
+firmware owns the protocol and servo. The two exchange
 frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
 interrupt, 32-bit accesses only and no DMA.
 

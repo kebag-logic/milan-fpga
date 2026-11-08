@@ -35,6 +35,7 @@ DOCUMENTS = (
     ROOT / "docs" / "litex" / "CLOCK_DOMAINS.md",
     ROOT / "docs" / "reference" / "SUBMODULES.md",
     ROOT / "docs" / "reference" / "REGISTER_MAP.md",
+    ROOT / "docs" / "reference" / "STRICTER_READINGS.md",
     ROOT / "docs" / "DOCUMENTATION_AUDIT.md",
     ROOT / "docs" / "history" / "v1" / "README.md",
 )

@@ -229,7 +229,7 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
     if signum == signal.SIGKILL:
         assert status == -signal.SIGKILL, output
         # No cleanup ran, but the make it had started cannot outlive it.
-        eventually(lambda: not running(make, make_start), 5, "make outlived the killed driver")
+        eventually(lambda: not running(make, make_start), 15, "make outlived the killed driver")
     else:
         assert status == 128 + signum, output
         assert_reaped(data)

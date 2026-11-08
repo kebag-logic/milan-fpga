@@ -138,9 +138,12 @@ def test_gptp_rom_clock(skip: Callable[[str, str], None] = _print_skip) -> None:
             result = eb.build(path, directory, write_fragment=False)
             actual = Path(result["paths"]["gptp_ucode"]).read_bytes()
             expected_path = directory / "expected.hex"
+            # clockAccuracy is the config's own since #843 (--clock-accuracy,
+            # 802.1AS-2011 8.6.2.3), so the independent run states it too.
             command = [sys.executable, str(generator), "-o", str(expected_path),
                        "--mac", "0x" + cfg["platform"]["mac_address"].replace(":", ""),
-                       "--p1", str(cfg["gptp"]["priority1"])]
+                       "--p1", str(cfg["gptp"]["priority1"]),
+                       "--clock-accuracy", hex(cfg["gptp"]["clock_accuracy"])]
             clocks = cfg["constraints"]
             subprocess.run(command + ["--clk-hz", str(clocks["milan_clk_hz"])],
                            check=True, capture_output=True, text=True, timeout=60)
