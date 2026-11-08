@@ -1,0 +1,8 @@
+as-expected  control: the tracked text: clean (152 sinks)
+HOLE         fw_r captured every dp cycle, no qualifier at all: clean (152 sinks)
+HOLE         fw_r enabled by the raw sys-domain m_fw_send_i: clean (152 sinks)
+as-expected  fw_r enabled by the raw sys-domain request pulse: refused (152 sinks)
+             a crossing without a primitive: flop fw_r (dp) reads fw_send_q_r (sys)
+as-expected  a dp flop not named fw_r sampling the held bus: refused (152 sinks)
+             a crossing without a primitive: flop ev_dom_r (dp) reads m_fw_identify_i (sys)
+probes: 5   departures from the docstring's rule: 2

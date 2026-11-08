@@ -1,0 +1,3 @@
+argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware $REVIEWS/665s6-r792-1-packet/scratch/splitexp/elf/image-0-0-40000-268435456-None-None-3344-243-None-None-9000.elf
+export rc=0
+$REVIEWS/665s6-r792-1-packet/scratch/splitexp/out/gateware/alinx_ax7101.v

@@ -1,0 +1,24 @@
+PASS no event posts after reset
+PASS STREAM_INPUT 1 posts one pulse
+PASS ...with type STREAM_INPUT and index 1
+PASS three consecutive descriptors post three pulses
+PASS ...each with its own descriptor
+PASS an index past the table posts one ALL record (type 0xFFFF)
+PASS a repeated descriptor posts at least once and at most twice
+PASS AVB_INFO_CHANGED posts once
+PASS AS_PATH_CHANGED posts once
+PASS AMAP_LIVE_WRITE posts once
+PASS a GM change posts one pulse
+PASS ...with the new identity held
+PASS ...and its domain
+PASS two separate GM changes post two pulses
+PASS ...the last with the last identity
+PASS LINK up crosses
+PASS LINK down crosses
+PASS a 16-descriptor burst loses none
+PASS ...and posts each once
+checks: 19   failures: 0
+- $REVIEWS/665s6-r792-1-packet/scripts/tb_cdc_events.sv:179: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 25us; walltime 0.002 s; speed 14.420 ms/s
+- Verilator: cpu 0.002 s on 1 threads; allocated 7 MB

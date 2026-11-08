@@ -1,0 +1,22 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 217 md files + 1503 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+rc=0
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc=0
+$ python3 -B scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+$ python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 7/7
+traceability matrix up to date (83 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+$ python3 -B scripts/check_soc_sources.py
+SoC source gate: OK (47 instantiated modules all registered, 84 sources all present)
+rc=0
+$ python3 -B scripts/check_rtl_source_lists.py
+RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+rc=0

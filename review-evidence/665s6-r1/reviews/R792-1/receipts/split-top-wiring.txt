@@ -1,0 +1,21 @@
+KL_mbx_cdc clocks and resets:
+  .sys_clk_i(sys_clk)
+  .sys_rst_n((~sys_rst))
+  .dp_clk_i(milan_clk)
+  .dp_rst_n((~milan_rst))
+milan_datapath .axis_clk(milan_clk)   KL_mbx .clk_i(sys_clk)
+
+nets KL_mbx and milan_datapath share directly: 0
+
+ctl ports on milan_datapath: 80; bound to KL_mbx_cdc's d_* side: 72
+ctl ports not bound to KL_mbx_cdc (the frame ports, which the FIFOs carry):
+  .i_ctl_rx_ready(milansoc_milannic_i_ctl_rx_ready)
+  .i_ctl_tx_data(milansoc_milannic_i_ctl_tx_data)
+  .i_ctl_tx_last(milansoc_milannic_i_ctl_tx_last)
+  .i_ctl_tx_valid(milansoc_milannic_i_ctl_tx_valid)
+  .o_ctl_rx_data(milansoc_milannic_o_ctl_rx_data)
+  .o_ctl_rx_last(milansoc_milannic_o_ctl_rx_last)
+  .o_ctl_rx_valid(milansoc_milannic_o_ctl_rx_valid)
+  .o_ctl_tx_ready(milansoc_milannic_o_ctl_tx_ready)
+
+KL_mbx_cdc m_* ports whose net reaches KL_mbx's bindings: 82 of 82
