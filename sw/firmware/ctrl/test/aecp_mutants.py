@@ -405,7 +405,7 @@ DEFECTS = (
            ('App.UnboundStartAndStopAreSuccessfulNoOps',
             'get(p->bytes+16,2)>>11')),
     # #665: the ENTITY descriptor's available_index is the last ENTITY_AVAILABLE's
-    # (IEEE 1722.1-2021 Table 7.1), not ADP's next one, and 0 before any
+    # (IEEE 1722.1-2021 Table 7-2), not ADP's next one, and 0 before any
     defect('app-available-index-next', 'app/ctrl_app_aecp.c',
            'return next != 0u ? next - 1u : 0u;',
            'return next;',

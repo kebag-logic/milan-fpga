@@ -434,9 +434,9 @@ struct App : Nvm {
 };
 }
 
-// IEEE 1722.1-2021 Table 7.1: the ENTITY descriptor's available_index is the
+// IEEE 1722.1-2021 Table 7-2: the ENTITY descriptor's available_index is the
 // one the most recently sent ENTITY_AVAILABLE carried, the ADPDU a controller
-// compares it with (#665 issuecomment-6717765106, item 1), not ADP's 6.2.2.15
+// compares it with (#665), not ADP's 6.2.2.15
 // variable, which is already the next one's. 0 before the first; a link that
 // goes down keeps it (Milan v1.2 5.6.3.5.6), and the disable's ENTITY_DEPARTING
 // resets it to 0 (6.2.2.15).
