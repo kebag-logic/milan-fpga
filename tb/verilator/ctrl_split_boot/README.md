@@ -22,17 +22,21 @@ Keep the build directory outside the checkout:
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-8x8 --shape endstation_ax7101_8x8
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --regrade
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --placement-controls
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-native --native-controls
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
 ```
 
+The run generates the shape's flash map with `ctrl_service_budget/build.flash_map` from the split SoC export.
+Both platform links use that map, and both boot exports refuse any flash-device placement that differs from it.
 The run builds the runtime archives, then links the platform image (`ctrl_plat_image.py`) twice.
 The first link is against a provisional map, and the boot SoC's export with that image gives the SoC's own `csr.csv`.
 The second link is against that `csr.csv`, and the run refuses it unless the second export's rows equal the first's: the map does not depend on the image.
 It then builds the native model, runs it, and saves its exit status beside its log (`sim.status`).
 `--regrade` grades the log and the status a run left in the build directory.
 `--native-controls` grades the native controls, with no build ([What is graded](#what-is-graded)).
-`--self-test` grades them, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind.
+`--placement-controls` runs the placement controls on a finished run in the build directory, with one export for each that needs one.
+`--self-test` grades the native controls, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind. It ends with the placement controls, on one of those builds.
 Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 ## The SoC and the testbench
@@ -67,6 +71,7 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and the approved T_svc = 20 ms.
 - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
 - **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+- **Placement controls** (`--placement-controls` on a finished run, and last in `--self-test`): `split_soc.map_deviations` must find nothing on the true flash map, and must name a moved register, a register the SoC lacks, a moved window and a resized window. `boot_soc.build` must refuse, in its own words, an export given the map with `spiflash_master_cs` moved four bytes. Each planted defect of that refusal must then let the same map through: the refusal taken out of the build (`guard-removed`), and a `map_deviations` that finds nothing (`deviations-empty`). They need the product LiteX tree, as the boot does, and no hosted job runs them.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
 ## Results
@@ -85,19 +90,19 @@ The window alone leaves every UART figure as it was.
 At `4f58214f` the loop also read the store's clock as each pass starts and ran the store's owed step in a pass that took no input (THE STEP, `ctrl_loop.h`): 25.515 and 64.885 ms to ready, each longest gap 0.013 to 0.018 ms longer than that page's.
 At this head the step also has its age limit, and a changed record is marked without walking the records (#665): the boot is 25.477 and 64.584 ms to ready, the 8x8 `milan_status` span 4.161 ms against 3.976 ms, and no verdict moves.
 
-The boot's own figures before the CPU moved, with the platform image still built RV32I without the record mover or the word-wide primitives, and the CPU at 50 MHz:
-The rows marked staged are those two commands at that head: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
-The rows marked none are the same tree with that one call removed, a control.
-They equal, cell for cell, the figures this page recorded at firmware `b8628704`, before the SoC carried the stage.
+The boot's own figures before the CPU moved, with the platform image still built RV32I without the record mover or the word-wide primitives, and the CPU at 50 MHz, were measured after merging `dev-soft-core` `a68536fa` and giving both platform links and boot exports the generated map (#665, decision 6677095110).
+The rows marked staged are the two `run.py` commands above, at `93c6e9a544`: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
+The rows marked none are the same tree with that one call removed, a control, at `1de390e104`.
 
 | Shape | PHY stage | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---|---:|---:|---|---|---|
-| 1x1, one interface | staged | 84.393 ms | 4,219,673 | 18 of 18 equal | 21.530 / 1.962 / 1.265 ms | 2.524 / 1.238 / 1.267 ms |
-| 1x1, one interface | none | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
-| 8x8, one interface | staged | 184.658 ms | 9,232,883 | 18 of 18 equal | 40.200 / 2.855 / 2.206 ms | 4.051 / 2.131 / 1.857 ms |
-| 8x8, one interface | none | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
+| 1x1, one interface | staged | 84.372 ms | 4,218,617 | 18 of 18 equal | 21.546 / 1.963 / 1.266 ms | 2.527 / 1.239 / 1.268 ms |
+| 1x1, one interface | none | 84.362 ms | 4,218,076 | 18 of 18 equal | 21.547 / 1.963 / 1.267 ms | 2.526 / 1.239 / 1.267 ms |
+| 8x8, one interface | staged | 184.622 ms | 9,231,088 | 18 of 18 equal | 40.224 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms |
+| 8x8, one interface | none | 184.611 ms | 9,230,556 | 18 of 18 equal | 40.225 / 2.856 / 2.207 ms | 4.053 / 2.132 / 1.858 ms |
 
-There the stage cost the boot 523 CPU cycles at each shape, about 0.01 ms, and moved no UART figure by more than 0.003 ms, in either direction, and no verdict.
+There the stage cost the boot 541 CPU cycles at 1x1 and 532 at 8x8, about 0.01 ms, and moved no UART figure by more than 0.001 ms, in either direction, and no verdict.
+The prior measurements at `a68536fa`, on the stand-in flash addresses with the same PHY stage, reached ready at 84.393 and 184.658 ms.
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
