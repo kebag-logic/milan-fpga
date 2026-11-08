@@ -1,0 +1,61 @@
+sha256 4f4ca3663d486ead8b4c0550e40dd8afb47539eaa481d91ce89805e9618c122b size 485833; the whole log stays out of the packet.
++enumeration walks the whole descriptor tree as 64-bit beats, so a pass costs
++hundreds to a few thousand accesses (not measured here — count it off ISSUED
++across one enumeration if you need the real figure), which puts 65,535 tens to
++hundreds of enumerations away: days under a compliance campaign, not years.
++Once both rails read `0xFFFF` the **subtraction is dead** —
++the "one short of ISSUED" row above cannot be evaluated at all, and `stat[1]` /
++`stat[3]` are the only live reading of an outstanding access. The two rows that
++survive saturation are the two that matter most, because the fault counters do
++not advance on a healthy bus: `ISSUED = 0` still means *never asked*, and
++`TIMED OUT > 0` still means *asked and never answered*. There is no clear: these
++words answer "has this ever happened", never "is it happening now".
+ 
+-## Feature status
+-
+-These rows come from the feature status ledger.
+-
+-<!-- milan-feature-status:start -->
+-| Feature ID | Status | Canonical value |
+-|---|---|---|
+-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+-| `aaf.media-clock-following` | `implemented` | - |
+-| `gptp.fabric-product-owner` | `implemented` | - |
+-| `aem.served-command-set` | `implemented` | - |
+-| `aem.acquire-entity-refusal` | `not-supported` | - |
+-| `aem.mandatory-missing-set` | `implemented` | - |
+-| `stream-input.start-stop` | `implemented` | - |
+-| `stream-input.stopped-crf-observation` | `implemented` | - |
+-| `stream-format.set` | `implemented` | - |
+-| `stream-info.set-acc-lat` | `implemented` | - |
+-| `crf.media-clock-consumption` | `implemented` | - |
+-| `state.nonvolatile-persistence` | `partial` | - |
+-| `notifications.change-events` | `implemented` | - |
+-<!-- milan-feature-status:end -->
++| Offset | Name | Acc | Reset | Description |
++|--------|------|-----|-------|-------------|
++| `+0x00` | `desc_req` | RO | `0` | descriptor-image read bridge: `[31:16]` accesses **ISSUED** (one per bus access, counted at its start, not per held cycle), `[15:0]` accesses the bus **ACKED** without `err` |
++| `+0x04` | `desc_fault` | RO | `0` | `[31:16]` accesses answered with **err**, `[15:0]` accesses the watchdog **abandoned** with no answer at all |
++| `+0x08` | `resp_req` | RO | `0` | AECP response-buffer read+write bridge, same two fields. This face writes as well as reads: a write that faults voids the response rather than putting a half-written one on the wire |
++| `+0x0C` | `resp_fault` | RO | `0` | same two fields as `desc_fault`, for the response bridge |
++| `+0x10` | `stat` | RO | `0x5B00_0000` | live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[4]` the **LiteDRAM DFI hand-off has been seen** (see below), `[31:24]` constant presence tag `0x5B` -- the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters |
++
++> **What `stat[4]` measures, and what it does not.** It is `sw_seen & sel` on
++> LiteDRAM's DFI select (`litedram/dfii.py` `DFIInjector`, whose `sel` **resets
++> to 1**), so it reads 1 once the BIOS has taken the DFI to software control
++> and handed it back, i.e. once it got past `sdram_init`. It is a **proxy
++> for the boot's progress, not a readiness signal for the path the bridges
++> use**: the main-memory interconnect and memory controller sit beyond the
++> bridge observer, and nothing in this bank observes their final destination.
++> A build without DDR3 ties
++> the bit to 1. Its **position is the two-face shape's**: the flag is appended
++> after the per-face pairs, so a third bridge would move it to `[6]`.
++
++> **The bank is pinned to the LAST page of the CSR window** (`n_locs - 1`), not
++> auto-allocated. LiteX hands out the lowest free page at the moment a module is
++> added, and an auto-allocated bank here lands on `sdram`'s page and pushes
++> `sdram` **and** `spiflash` up `0x800` — moving the LiteSPI bank whose master
++> port at bank+`0x10` is a write path to the boot flash, under anything that
++> hard-codes it. Verified by csr.csv diff: no existing bank moved.
++> The absolute base is still the build's own `csr.csv`, exactly like every other
++> address in this section.

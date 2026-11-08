@@ -1,0 +1,9 @@
+# head 1de759d3e4d2cfd7d069cf812e5e6549ae8fcb33, plant reset_value_change: MAC_IFG reset 0x0C -> 0x0D in the flop reset and the defaults ROM (milan_csr.sv:1576, :2003)
+ hdl/common/csr/milan_csr.sv | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+--- gen_register_reference.py --check
+STALE docs/diagrams/regmap/mac.json
+STALE docs/diagrams/regmap/mac/MAC_IFG.svg
+STALE docs/diagrams/regmap/rtl_fingerprint.txt
+STALE docs/reference/REGISTER_MAP.md
+register reference: STALE (4 files); run python3 scripts/gen_register_reference.py --write

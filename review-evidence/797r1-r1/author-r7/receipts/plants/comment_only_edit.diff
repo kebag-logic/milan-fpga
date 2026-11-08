@@ -1,0 +1,13 @@
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 2871c3552a..4771d59b86 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -894,7 +894,7 @@ module milan_csr #(
+   //! UNGUARD by writing the magic 32'h554E_4C4B ("UNLK"); ANY other write
+   //! re-arms the guard. Software unguards once healthy and may re-arm
+   //! before risky work - the lease idiom, not a boot-once flag.
+-  localparam [ADDR_WIDTH-1:0] A_ETH_GUARD  = 'h7D8;  //! [0] guarded (RW via magic)
++  localparam [ADDR_WIDTH-1:0] A_ETH_GUARD  = 'h7D8;  //! [0] fenced (RW via magic)
+   // ---- 0x7DC inert AS_PATH compatibility ABI ---------------------------
+   localparam [ADDR_WIDTH-1:0] A_ASP_LO  = 'h7DC;
+   localparam [ADDR_WIDTH-1:0] A_ASP_HI  = 'h7E0;
