@@ -1,0 +1,11 @@
+
+== pre-build: tracked definition vs endstation_ax7101_1x1_tdm8 ==
+  [ok]   tracked ADP shape is endstation_ax7101_1x1_tdm8's = True
+----------------------------------------------------------------------
+checks: 1   failures: 0
+RESULT: PASS
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ax7101] design argv from <worktrees>/build-851a744-a566d4f9706f/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json (regenerated from configs/endstation_ax7101_1x1_tdm8.yaml); flow flags from cfg_ax7101
+LAUNCHED [ax7101_eppo] pid=106272 out=<litex>/work/build_ax7101_eppo_meas851a744ha566d4 log=<litex>/work/build_ax7101_eppo_meas851a744ha566d4.launch.log
+106272 python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf
+<litex>/work/build_ax7101_eppo_meas851a744ha566d4
