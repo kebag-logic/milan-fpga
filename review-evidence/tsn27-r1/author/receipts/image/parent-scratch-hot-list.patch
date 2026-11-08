@@ -1,0 +1,24 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index 44eb3855d2..a55442201c 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -107,7 +107,6 @@ SECTIONS
+ 		*-acmp.o(.text.respond)
+ 		*-acmp.o(.text.build)
+ 		*-acmp.o(.text.wire_put_be)
+-		*libcompiler_rt.a:lshrdi3.o(.text.__lshrdi3)
+ 		*-acmp.o(.text.transmit)
+ 		*-acmp.o(.text.publish)
+ 		*-acmp.o(.text.p_send)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 3e9e159fce..9df1a75e84 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -111,7 +111,6 @@ ctrl_mem forward
+ acmp respond
+ acmp build
+ acmp wire_put_be
+-libcompiler_rt.a:lshrdi3 __lshrdi3
+ acmp transmit
+ acmp publish
+ acmp p_send
