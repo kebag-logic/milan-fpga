@@ -1,0 +1,28 @@
+[ok]   the tracked sources: 253 sinks read their own domain
+[ok]   planted the publication block wired straight across: 
+       a crossing without a primitive: output d_pub_sid_o (dp) reads m_pub_sid_i (sys)
+[ok]   planted the LINK level taken straight across: 
+       a crossing without a primitive: flop m_link_up_o (sys) reads d_link_up_i (dp)
+[ok]   planted the settings read without their capture: 
+       a crossing without a primitive: output d_cur_config_o (dp) reads m_fw_cur_config_i (sys)
+[ok]   planted a window's answer taken straight across: 
+       a crossing without a primitive: output m_ctr_ans_data_o (sys) reads m_ctr_ans_data_o (dp)
+[ok]   planted the held bus taken on every datapath cycle: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the commit level, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the request pulse, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads fw_send_q_r, m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken while the pulse is low: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted a datapath flop other than fw_r sampling the held bus: 
+       a crossing without a primitive: flop ev_dom_r (dp) reads m_fw_identify_i (sys)
+[ok]   planted a destination reset from the other domain: 
+       a crossing without a primitive: u_pub.dest_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a source reset from the other domain: 
+       a crossing without a primitive: u_fw_ack.src_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a primitive clocked by a level: 
+       a clock that is not a clock input: u_fw_ack.dest_clk reads m_fw_send_i
+checks: 13   failures: 0

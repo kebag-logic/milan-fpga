@@ -1,0 +1,6 @@
+arm 2: the kept flag read one cycle early (combinational on the current state) (expect caught): rc 1, caught
+FAIL [TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost
+FAIL [TAP] every frame of the burst is handed out or counted lost: got 0x41, want 0x6c
+[TAP] burst: 108 frames offered, 65 handed out, 0 counted lost
+FAIL [TAP] the count saturates at 255: got 0x0, want 0xff
+checks: 66   failures: 3
