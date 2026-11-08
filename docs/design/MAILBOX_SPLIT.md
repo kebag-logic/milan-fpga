@@ -1536,13 +1536,14 @@ stale answer carries the older tag, which `KL_mbx` discards.
   the all-fabric datapath and on the split one, with the split image's own
   firmware platform on the RTL mailbox, and compares what each MAC sent,
   protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106,
-  issuecomment-6722002738). Two controllers drive it, and it reaches every row
-  of the F5 ledger. MSRP is compared by the declarations at each half's
-  LeaveAll boundaries, and each half's MSRP attributes are graded as Table 10-3
-  Applicant traces. An owed-difference list, apart from the ledger, holds what
-  the SRP adapter round owes and the fabric's #857 and #858. Its thirteen
-  plants (`make twin-plants`) are each refused by their words. At this head it
-  finds one defect no row may cover, which the
+  issuecomment-6722002738, issuecomment-6724570965). Two controllers drive it,
+  and it reaches every row of the F5 ledger. MSRP is compared by the
+  declarations at each half's LeaveAll boundaries. Each half's MSRP and MVRP
+  attributes are graded as Table 10-3 Applicant traces. An owed-difference
+  list, apart from the ledger, holds what the SRP adapter round owes and the
+  fabric's #857, #858 and #860. Its nineteen plants (`make twin-plants`) are
+  each refused by their words. At this head it finds nothing beyond its ledger
+  and owed rows, as the
   [`milan_dp` README](../../tb/verilator/milan_dp/README.md) states.
 - The twin's ledger has no rows for the AECP owner's Observed difference
   rows 5 and 6. At the processor pin `a9e84b66`, the fabric sends the
@@ -1551,10 +1552,13 @@ stale answer carries the older tag, which `KL_mbx` discards.
   only real differences, so the twin holds both equal (#665
   issuecomment-6722002738, item 1). The AECP owner's page is S11's.
 
-The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
-job runs `make split-cdc` (ruling 6715535566 item 6), and its
-`publication-census` job runs the split census. The identity, the population,
-the split leg's planted defects and the two-placement simulation are local.
+The split leg runs in the suite's default `make`. `make split` runs its binary
+only once it has linked, and `split_parallel.py` runs `make -j8 split` from a
+clean tree, with the race's old rule planted in its self-test (#665
+issuecomment-6724570965, item 3). `rtl-fast`'s `split-cdc` job runs
+`make split-cdc` (ruling 6715535566 item 6), and its `publication-census` job
+runs the split census. The identity, the population, the split leg's planted
+defects, its parallel gate and the two-placement simulation are local.
 
 ## Verification
 
@@ -1841,7 +1845,7 @@ report_timing_summary -delay_type max
 - **The two-placement comparison.** `make twin` runs the split firmware on
   the switched datapath beside the all-fabric processor and compares their
   frames ([The placement switch](#the-placement-switch)). What its owed rows
-  and its one open finding wait on is in the
+  wait on is in the
   [`milan_dp` README](../../tb/verilator/milan_dp/README.md).
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter

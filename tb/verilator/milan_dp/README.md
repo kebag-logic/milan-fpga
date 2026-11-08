@@ -106,8 +106,8 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-four planted defects
-- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, thirteen plants and what it finds
+- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-four planted defects and its make -j8 gate from a clean tree
+- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, nineteen plants and what it finds
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1137,6 +1137,24 @@ contract's registers or a datapath net its consumers read:
 | `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
 | `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO filled to its last word counts each control frame it loses once and no refused frame or one-beat runt, and the count saturates at 255 |
 
+`make split` runs the binary only once it has linked. The rule builds it
+(`build-split`), then runs it in a make of its own (`exec-split`). Both were
+once plain prerequisites, so a parallel make started the run beside the link.
+The run then failed on the missing binary, or ran an old one
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 3).
+
+[`split_parallel.py`](split_parallel.py) is the rule's gate. It clones the
+committed HEAD into a scratch directory, with each submodule the leg reads at
+its gitlink. Then it runs `make -j8 split` there, and passes on make's exit 0
+and the leg's `failures: 0`. Its `--selftest` first runs a stand-in simulator
+in two more clean trees. With the old rule planted, the run must fail on the
+missing binary. With HEAD's rule, it must pass.
+
+```sh
+python3 tb/verilator/milan_dp/split_parallel.py --selftest
+```
+
 `make split-mutants` runs `split_mutants.py`. It plants twenty-four defects
 into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
 `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
@@ -1172,8 +1190,9 @@ that simulation; the split leg leaves it idle.
 shipping AX7101 shape and compares what each MAC sent
 ([`twin_compare.py`](twin_compare.py)). The contract is the plan's section S6
 as [issuecomment-6716584453](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6716584453),
-[issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106)
-and [issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738)
+[issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106),
+[issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738)
+and [issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965)
 amend it.
 
 - **The all-fabric half** ([`twin_fabric.cpp`](twin_fabric.cpp)) is
@@ -1272,32 +1291,38 @@ other's last is not a difference while the other's next was not yet due.
 - each MRP participant's transmit opportunities (IEEE 802.1Q-2018 10.7.4, with
   Milan v1.2 Table 4.3's values): at most three in 300 ms, each LeaveAll 9.5
   to 15.74 s after the last, and a declaration repeated within 1.74 s;
-- each MSRP attribute's events, a trace a Table 10-3 Applicant can make
-  ([The MSRP Applicant grade](#the-msrp-applicant-grade));
-- MVRP: VID 2 declared before the first stream frame (Milan v1.2 4.3.2) and
-  while a sink is settled (4.4.1), its events an Applicant's (IEEE
-  802.1Q-2018 10.7).
+- each MSRP and MVRP attribute's events, a trace a Table 10-3 Applicant can
+  make ([The MRP Applicant grade](#the-mrp-applicant-grade));
+- MVRP's VID 2 declared before the first stream frame (Milan v1.2 4.3.2) and
+  while a sink is settled (4.4.1), beside the Table 10-3 grade of its events.
 
-### The MSRP Applicant grade
+### The MRP Applicant grade
 
 The halves send each MSRP attribute a different number of times. The counts
 follow the transmit opportunities and the LeaveAll timer's random draw (IEEE
 802.1Q-2018 10.7.4.3). So [`twin_mrp.py`](twin_mrp.py) grades each half's
-attributes on their own. Each attribute's events must be a trace the Applicant
-of Table 10-3 can make, with all its notes. The Registrar is Table 10-4's with
-the cell Milan v1.2 4.2.7.2.2 changes (IN / rLv! goes to MT at once).
-`operPointToPointMAC` is TRUE in both halves: the fabric ties the processor's
-`p2p_i` to 1, and the split's firmware configures both participants with it.
+attributes on their own, MSRP's and MVRP's alike
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 2). Each attribute's events must be a trace the Applicant of Table 10-3
+can make, with all its notes.
+
+- **The Registrar is the application's.** MSRP's is Table 10-4 with the cell
+  Milan v1.2 4.2.7.2.2 changes for the MSRP application: IN / rLv! goes to MT
+  at once. MVRP's is Table 10-4 as printed: IN / rLv! goes to LV.
+- **`operPointToPointMAC` is TRUE in both halves**, the port's for both its
+  participants. The fabric ties the processor's `p2p_i` to 1. The split's
+  firmware configures both participants with it.
 
 The grade reads, for each attribute:
 
-- **Each frame the half sent.** A frame that carries a LeaveAll is a txLA! for
-  every attribute of the participant. Its sLA also gives rise to rLA! against
-  every one of them (10.7.6.6, 10.7.9), before or after the txLA!. Any other
-  frame is a tx! for each attribute it carries.
-- **Each MSRP frame of the stimulus, as received.** None reaches either half
-  here, so the Registrar stays MT and `operPointToPointMAC` changes no
-  transition. The grade still applies both, as the tables state them.
+- **Each frame the half sent of the application.** A frame that carries a
+  LeaveAll is a txLA! for every attribute of the participant. Its sLA also
+  gives rise to rLA! against every one of them (10.7.6.6, 10.7.9), before or
+  after the txLA!. Any other frame is a tx! for each attribute it carries.
+- **Each frame of the stimulus of the application, as received.** None
+  reaches either half here, so the Registrar stays MT and
+  `operPointToPointMAC` changes no transition. The grade still applies both,
+  as the tables state them.
 - **The events no frame shows.** periodic! and leavetimer! may happen between
   any two frames.
 - **The application's requests.** The grade allows New!, Join! and Lv! only
@@ -1306,9 +1331,10 @@ The grade reads, for each attribute:
   withdrawn and made again with no Lv between them would be the application
   changing its mind unseen, and nothing in the stimulus causes that.
 
-The comparison then compares only the declaration state at the LeaveAll
-boundaries: which attributes each half declares there, and their values. A
-trace no Applicant can make is a defect, not a difference
+For MSRP, the comparison then compares only the declaration state at the
+LeaveAll boundaries: which attributes each half declares there, and their
+values. MVRP is not compared. A trace no Applicant can make is a defect, not a
+difference
 ([issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
 item 3).
 
@@ -1361,12 +1387,20 @@ It too is a finding once the defect has gone.
 | Row | Half | What it asserts | Owed to |
 |---|---|---|---|
 | `fabric-mvrp-leave-all` | all-fabric | its MVRP's one LeaveAll at 10201 ms, then VID 2's Lv at 20000 ms and no MVRPDU after it (IEEE 802.1Q-2018 10.7.9, Milan v1.2 Table 4.3) | #857 |
+| `fabric-domain-one-new` | all-fabric | its MSRP Domain's New x1 from 200 ms, then JoinMt x79 from 1000 ms, with no MSRPDU received (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again) | #860 |
+| `fabric-vid2-join-in` | all-fabric | its MVRP VID 2's New x1 from 5200 ms, JoinIn x15 from 6200 ms and Lv x1 from 20000 ms, with no MVRPDU received, so its Registrar MT throughout (Table 10-3; 10.7.6.3: sJ sends JoinIn only with the Registrar IN) | #860 |
 
-The split's MVRP grade is unchanged.
+Each `fabric-*` row covers only its own half's grade findings: the LeaveAll
+gap for #857, and each attribute's Table 10-3 findings for #860.
+
+The split's MVRP passes the Table 10-3 grade with no row. The Milan v1.2 4.3.2
+and 4.4.1 checks stay beside the grade
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 2).
 
 ### The plants
 
-`make twin-plants` runs thirteen plants. Each must be refused by its words
+`make twin-plants` runs nineteen plants. Each must be refused by its words
 twice. Against the unplanted capture of the half it plants, every finding must
 be about the planted protocol. That control also counts each grade finding the
 plant adds to the planted half, or takes from it. Between the placements, the
@@ -1375,7 +1409,9 @@ words must be in a finding the unplanted comparison does not make.
 The first three plant the split half as it runs (`twin_split.cpp --plant`).
 The rest plant a copy of one half's capture
 ([`twin_plants.py`](twin_plants.py), through `twin_compare.py --make-plant`).
-The last two plant the fabric's, where the fix of its owed defects would land.
+The last six plant the fabric's. Four of them land where the fix of an owed
+defect would. The other two keep #860's defect but change the trace its row
+asserts.
 
 | Plant | What it changes | Refused by, between the placements |
 |---|---|---|
@@ -1390,8 +1426,14 @@ The last two plant the fabric's, where the fix of its owed defects would land.
 | `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
 | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 | `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
+| `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
+| `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 | `vanished-mvrp-leave-all` | #857 fixed: the fabric's MVRP sends a LeaveAll every 12 s | `owed row fabric-mvrp-leave-all: the defect has gone` |
 | `vanished-available-index` | #858 fixed: the fabric's later ENTITY read carries available_index 1 | `owed row entity-available-index: the difference has gone` |
+| `vanished-domain-new` | #860 fixed for the Domain: the fabric's first JoinMt sent as a second New | `owed row fabric-domain-one-new: the defect has gone` |
+| `domain-trace-moved` | #860 kept, its trace changed: the fabric's first Domain JoinMt sent as JoinIn | `owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value 06030002: New x1 from ms 200, JoinIn x1 from ms 1000` |
+| `vanished-vid2-join-in` | #860 fixed for VID 2: the fabric's first JoinIn sent as a second New, each later JoinIn as JoinMt | `owed row fabric-vid2-join-in: the defect has gone` |
+| `vid2-registrar-in` | #860 kept, its Registrar changed: a peer's VID 2 JoinIn applied to the fabric at 6000 ms | `owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 MVRPDU(s)` |
 
 ### What it finds at this head
 
@@ -1400,24 +1442,32 @@ notices and the entity's own commands are equal apart from the ledger and the
 owed rows. The notices' `sequence_id` runs without a gap or a repeat in both
 halves. CONTROLLER_AVAILABLE's rises per controller in both: the fabric counts
 per controller (0 and 1 to the second, 0 to the first), the split per entity
-(0 and 2 to the second, 1 to the first). Both halves meet every timing bound
-and the MVRP grade. No stream frame is sent and no sink settles in this
-stimulus, so the MVRP grade holds without being tested. At every LeaveAll
-boundary both halves declare the Domain. The Talker attributes are the
+(0 and 2 to the second, 1 to the first). Both halves meet every timing bound.
+No stream frame is sent and no sink settles in this stimulus, so the 4.3.2
+and 4.4.1 checks hold without being tested. At every LeaveAll boundary both
+halves declare the Domain. The Talker attributes are the
 `split-talker-failed` owed row's.
 
-`make twin` exits 1 on one finding, which no ledger or owed row may cover:
+`make twin` exits 0: everything else is a ledger or an owed row. The split's
+Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its
+VID 2 is JoinMt from 12 ms: the firmware declares it with Join!, not New!,
+which takes VO to VP, then AA, then QA. Both pass the Table 10-3 grade.
 
-- **The fabric's MSRP Domain is not a Table 10-3 Applicant's trace.** It sends
-  New at 200 ms and JoinMt at 1000 ms. An Applicant that has sent one New is
-  in AN, and Table 10-3's tx! sends New again from AN. JoinMt follows only if
-  the application withdraws and re-declares the Domain unseen, or the
-  participant starts again, and nothing in the stimulus does either. The split
-  sends New twice (VN, then AN, then AA), as the table does. The processor
-  documents its Domain participant that way: one New at startup and at
-  LINK_UP, then the re-joins (`protocol-processor/hdl/srp/KL_srp_domain.sv`,
-  and section 6.1 of its SRP engine architecture). The ruling calls such a
-  trace a defect, not a difference.
+The fabric's Domain and VID 2 fail it, and the two #860 rows hold them:
+
+- **The Domain** is New at 200 ms, then JoinMt from 1000 ms. After one New an
+  Applicant is in AN, and Table 10-3's tx! sends New again from AN. The
+  processor documents its Domain participant that way: one New at startup and
+  at LINK_UP, then the re-joins
+  (`protocol-processor/hdl/srp/KL_srp_domain.sv`, and section 6.1 of its SRP
+  engine architecture).
+- **VID 2** is New at 5200 ms, then JoinIn from 6200 ms. From AN, Table
+  10-3's tx! sends New again, not a Join. No MVRPDU reaches the fabric, so its
+  Registrar is MT, and 10.7.6.3's sJ sends JoinMt, not JoinIn. The grade finds
+  JoinIn at 6200 ms, and the second VID 2 JoinIn inside the LeaveAll frame at
+  10201 ms.
+  The processor's MVRP participant re-joins with JoinIn only
+  (`protocol-processor/hdl/srp/KL_srp_vlan.sv`).
 
 ```sh
 make -C tb/verilator/milan_dp twin
