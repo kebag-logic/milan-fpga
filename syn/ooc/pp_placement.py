@@ -11,6 +11,10 @@ from pathlib import Path
 import re
 
 
+# f0-f4 is ruled dead (#665): the split moves every control protocol to the
+# firmware at once, so no image is built with only F0-F4 moved and no record
+# measures it. Do not select or extend it; it is removed at the flip together
+# with the all-fabric placement.
 PLACEMENTS = ("all-fabric", "f0-f4", "full-split")
 MARKER = "# baseline placement: "
 REPORT = "baseline_placement.tsv"
@@ -40,7 +44,7 @@ def limits(placement: str, role: str) -> tuple[int, int]:
         return count, count
     if role in ("mailbox", "gptp"):
         return 1, 1
-    if placement == "f0-f4":
+    if placement == "f0-f4":  # Ruled dead (#665); removed at the flip with all-fabric.
         if role == "wrapper":
             return 0, 1  # AECP may remain wrapped or be instantiated directly.
         if role in ("aecp", "notify"):
