@@ -141,13 +141,17 @@ def share_misses(results: list[dict]) -> list[str]:
 
 def stated_misses(results: list[dict]) -> list[str]:
     """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost THE RETRY's
-    search counts from (whole_grade.held, round_grade.held)."""
+    search counts from (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy items
+    dearer than its stated cost (poll_grade.held)."""
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
              for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
             [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
              f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
-             for g in results for o in g['passes'].get('rounds', {}).get('over', [])])
+             for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
+            [f"{g['group']}: " + ("a pass's polls base of " if o['kind'] == 'base' else f"a {o['kind']} item of ")
+             + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
+             for g in results for o in g['passes'].get('polls', {}).get('over', [])])
 
 
 def saves(results: list[dict]) -> list[dict]:
@@ -550,6 +554,16 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
               f'with a timer-driven MRPDU over its bound ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
         return 0 if caught else 1
+    if args.mutation in builder.POLL_CONTROLS:
+        # caught where every group the plant runs has a pass's polls base, or a heavy item, over its stated cost,
+        # each named by its group (poll_grade.held)
+        words = builder.POLL_CONTROLS[args.mutation]
+        want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
+        named = sorted({s.partition(':')[0] for s in late if words in s} & set(want))
+        caught = named == want and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
+              f'with {words!r} over its stated cost ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
+        return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
@@ -680,7 +694,7 @@ def main() -> int:
     import build as builder
     return verdict(args, groups, refusals, misses, shares,
                    late + notice_misses(results, n_if)
-                   + (stated if args.mutation in ('none', *builder.AGED_CONTROLS) else []))
+                   + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))
 
 
 if __name__ == '__main__':

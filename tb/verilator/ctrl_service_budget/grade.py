@@ -35,6 +35,7 @@ import re
 from dataclasses import dataclass, field
 
 import mrpdu_grade
+import poll_grade
 import round_grade
 import save_grade
 import save_window
@@ -936,6 +937,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
-                            stated=whole_grade.held(log, interfaces), rounds=round_grade.held(log, interfaces)),
+                            stated=whole_grade.held(log, interfaces), rounds=round_grade.held(log, interfaces),
+                            polls=poll_grade.held(log, interfaces)),
                 save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)

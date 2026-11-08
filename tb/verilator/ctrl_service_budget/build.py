@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 import notice_window
+import poll_items
 import save_window
 
 HERE = Path(__file__).resolve().parent
@@ -99,6 +100,7 @@ MUTATIONS = {
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+    **poll_items.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -110,6 +112,8 @@ AGED_CONTROLS = ('store-step-aged-heavier',)
 NOTICE_CONTROLS = ('retry-ageless',)
 #: The controls whose finding is every group's longest timer-driven MRPDU over its bound, with no refusal.
 SRP_CONTROLS = ('transmit-aged',)
+#: The controls whose finding is a pass's polls base or a heavy item over its stated cost, by its STATED words.
+POLL_CONTROLS = poll_items.CONTROLS
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -625,9 +629,10 @@ def entry_symbols(variant: str) -> tuple[str, ...]:
 STEP_SYMBOL = 'nvm_store_service'
 STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 #: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
-#: the commit of its return address: the saved-state store's boot and its service step, and THE
-#: RETRY's round (#665, round_grade.py).
-SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'))
+#: the commit of its return address: the saved-state store's boot and its service step, THE
+#: RETRY's round (#665, round_grade.py), and a pass's first and last firmware poll and the polls'
+#: heavy items (poll_grade.py).
+SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS)
 #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
 #: static function) pair: the state port's owners as the boot walks apply and the write path
 #: latches, the flash port's calls, and a round's attempts and the notices it builds (#665).

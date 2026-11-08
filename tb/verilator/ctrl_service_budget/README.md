@@ -122,6 +122,9 @@ Groups `notice-every-<k>` and `notice-burst-<k>` run every notice the model hold
 The first commit is held to `AECP_QUEUED_FIRST_MS` from its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every row to `AECP_QUEUED_MS` (`notice_window.queued_first_ms` and `queued_ms` read them from the headers), and `run.notice_misses` fails the run on either whatever its options record.
 [`whole_grade.py`](whole_grade.py) holds a pass given whole to a build or an aged step, whose round found nothing to do, to the cost `ctrl_loop.h` states for it at that point: THE RETRY's search counts the notices such a pass carries from those costs, so a dearer pass would carry fewer than the bound says with no pass over the share to show it. A pass over its stated cost prints `STATED` and fails the run whatever findings it records.
 [`round_grade.py`](round_grade.py) holds every round of THE RETRY, the testbench's `SPAN` line of `ctrl_loop.c`'s `round_of`, to `AECP_ROUND_COLD_US` + n x `AECP_NOTICE_US` + k x `AECP_ATTEMPT_US` at its point: n the notices it built, the `CALL` lines of `aecp.c`'s `finish` inside it, and k its refused attempts, its `aecp_command` calls less n. Each round costs its pass what it was admitted at, so a dearer round would overspend its pass with no row to show it; a round over its stated cost prints `STATED` and fails the run too.
+[`poll_grade.py`](poll_grade.py) holds the polls by source (#665, the round 22 ruling, item 1): a pass's polls, from its first firmware poll's entry (ADP's) to its last one's return (SRP's delivery), less the heavy items inside them, are its base, which every ordinary pass is charged, and each heavy item is its own function, which does its work only once its source has posted it: SRP's withdrawal and rebuild of an interface after a link change, its walk of a stale registrar, lwSRP's reclaim, a retained record's retry and an owed MRPDU, ACMP's owed frame and AECP's send (an ACMP or AECP call that committed no frame is the base's).
+Each is held to its stated cost at its point, `poll_grade.STATED_US`, the most measured over every group plus 5 % (a retained record's retry and an owed MRPDU, which no group stages, at the cost of the measured work that holds them): a pass's base or an item over its cost prints `STATED` and fails the run whatever findings it records.
+The testbench traces a pass's first and last firmware poll and every item ([`poll_items.py`](poll_items.py)); a test fixture's own poll comes after the firmware's and is not the polls'.
 
 [`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
 A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
@@ -1082,6 +1085,7 @@ Its checks:
 - each flash phase's aged windows open after the save's own flash event, under the grandmaster flood, two steps and the age's centiseconds later, at the age limit and one short of it, at eight delays across the whole tick; an aged window is graded only at the age its name declares, counted in the TICK records' centiseconds since its last step with every pass between them a work pass, and at the limit, once a centisecond came in it, only with a step taking its phase's heavy step in it, aged or run by a pass that took nothing, its pass a work pass or not;
 - a change marked while a save is in flight is a SET_NAME of the entity to another value, 1,035 ms and one step after a first, under the flood, and its worst case, restated, at both points, is the rest of the save in flight or its own first-dirty window, then its own save; it is timed to durable in the next save, and refused when marked inside the first change's first-dirty window or after the save in flight erased its slot;
   these six are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
+- a pass's polls less the heavy items inside them at its base's stated cost fits it and one a cycle over does not, and each item at its own; an ACMP or AECP call that committed no frame is the base's; an item after the polls is neither the base's nor a polls item; an item inside another is the outer one's; a pass at one interface is held to that point's costs; a base or an item over its cost is named and fails the run whatever findings it records: these are [`selftest_polls.py`](selftest_polls.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -1247,6 +1251,14 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | round: the notices it built are not counted | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
 | round: calls outside it are counted | calls outside a round count none of its notices or attempts |
 | round: in bus cycles, not CPU time | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| polls: no base is held to its cost | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: no item is held to its cost | each heavy item at its stated cost fits it and one a cycle over does not |
+| polls: the items are not taken from the base | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: an ACMP or AECP call that sent nothing is an item | an ACMP call that committed no ACMP frame is the base's |
+| polls: an item after the polls is theirs | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
+| polls: an item nested in another is counted twice | an item inside another is counted once, as the outer one |
+| polls: one point's costs at both | each point's polls costs are stated, every item's and the base's, the 8x8/2if base dearer than the 1x1/1if's |
+| polls: in bus cycles, not CPU time | a pass's base at its stated cost fits it and one a cycle over does not, every item inside it subtracted |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1305,6 +1317,18 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Every group's timer-driven MRPDU must then be over its 20 ms, with no refusal: it prints `CONTROL transmit-aged caught`, naming the groups; any group within its bound, a miss in another row, or a refusal is `ESCAPED`.
+
+The polls by source have two planted defects, each run on the `backlog` group, whose link change makes SRP withdraw and rebuild each interface.
+The first rebuilds through the participants' creation itself, not as the rebuild item (`open_interface` stays in the image, never taken, so its code layout and hot list hold), so the pass that rebuilds carries the rebuild in its base; the second creates the participants twice, so the rebuild item is heavier than its stated cost:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-polls-base --mutation polls-rebuild-in-the-base
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-polls-twice --mutation polls-rebuild-twice
+```
+
+Each must print its `STATED` line in `backlog`, a pass's polls base over its stated cost for the first and a rebuild item over its stated cost for the second, with no refusal: `CONTROL polls-rebuild-in-the-base caught` and `CONTROL polls-rebuild-twice caught`; no such line, or a refusal, is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

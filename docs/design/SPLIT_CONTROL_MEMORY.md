@@ -23,7 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, and a save's worst case under any input, with one build a pass either way.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, and the polls by source: a base every pass is charged and the heavy items, each at its stated cost.
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
 ## 1. Memory map
@@ -2034,6 +2034,31 @@ A pass given whole to a build of both MRPDUs at 8x8/2if has no room for a notice
 | every notice queued behind it (`AECP_QUEUED_MS`) | 22 ms, ceiling 25 | 62 ms, ceiling 70 |
 
 The 22 ms at 8x8/2if is the bound the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows the first notice there; the ceilings are those of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945) ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+
+### The polls by source
+
+Every ordinary pass runs every module's poll, and the response-time method of round 21 charged each ordinary pass the polls' heaviest measured instance, 800 us at 8x8/2if and 365 us at 1x1/1if.
+That instance was not a poll's: of its 75,836 CPU cycles (`notice-burst-2`, 8x8/2if), 22,473 are the firmware's seven polls and about 53,000 the `answering-every-port` fixture's own poll after them, which marks every notice the model holds once, as a test's stimulus.
+The polls are split by source (#665, the [round 22 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724377734), item 1): a pass's polls less its heavy items are its base, which every ordinary pass runs and is charged, and each heavy item is its own function that its module enters only once its source has posted it, charged by its own arrival bound.
+The firmware already runs each item as its own function, which does its work only once its source has posted it (ACMP's poll and AECP's `transmit` are entered every pass and return at once when nothing is owed, so an instance of those is a call that committed a frame of its channel), so this changes no code: at 8x8/2if the image's `rom` holds 122,876 bytes in the `answering-every-port` arm, 4 bytes under the granule past which the ledgered 57.5 tiles ([section 5](#5-fit)) would not hold, and a loop that dispatched the items itself would not fit there.
+[`poll_grade.py`](../../tb/verilator/ctrl_service_budget/poll_grade.py) holds each pass's base and each item to its stated cost, the most measured over every group plus 5 %, rounded up to 5 us, and its two plants run a heavy item in the base and a heavier item ([the harness's controls](../../tb/verilator/ctrl_service_budget/README.md#controls-and-self-test)).
+
+| Item | Function | Source, and its arrival bound in a window of W | 1x1/1if, us | 8x8/2if, us |
+|---|---|---|---:|---:|
+| the base | a pass's polls, from ADP's poll's entry to SRP's delivery's return, less the items inside | every ordinary pass | 155 | 280 |
+| withdraw | `srp_mbx.c` `reset_interface`, in the poll that sees the link level change | a link change, one an interface (R5's) | 90 | 245 |
+| rebuild | `open_interface`, one interface a poll | a link change, one an interface (R5's) | 290 | 630 |
+| walk | lwSRP's `mrp_attr_visit`, from a stale interface's snapshot | a centisecond of lwSRP's timers (`tick_ms`) or a build's declarations (THE TRANSMIT, a JoinTime a participant: IEEE 802.1Q-2018 10.7.4.1), one an interface an ordinary pass | 20 | 60 |
+| reclaim | lwSRP's `mrp_reclaim`, two participants an interface | an SRP record or a build | 25 | 35 |
+| retained | `apply_receive` of a record its participant refused for storage, one waiting at a time | an SRP record (`mailbox.yaml` `rate`), retried once a poll until it expires | 250 | 395 |
+| mrpdu | `build_mrpdu` of an MRPDU a build left owed (A3) | two a build | 405 | 1,215 |
+| acmp | ACMP's poll, a call that committed an ACMP frame (A3) | ACMP's and ADP's records (`mailbox.yaml` `rate`) and ACMP's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26) | 65 | 185 |
+| aecp | AECP's `transmit`, a call that committed an AECP frame | AECP's records (`mailbox.yaml` `rate`) and the registrations' probes (Milan v1.2 5.4.5.3) | 225 | 340 |
+
+Each figure is the most measured over every group of arm A and the `answering-every-port` arm, 3,645,481 and 2,129,314 polls sections at 1x1/1if and 8x8/2if, plus 5 % (the heaviest base is `notice-burst-5`'s at both points, 14,507 and 26,627 CPU cycles).
+No group stages a retained record or an MRPDU its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler makes, stated at the SRP record's cost, and an owed MRPDU is a part of a build of one, stated at that pass's cost (`CTRL_LOOP_BUILD_ONE_PASS_US`).
+An ordinary pass runs each item at most once, or once an interface (the withdrawal and the walk) and twice an interface (lwSRP's reclaim), so in a window of a few ordinary passes each item's arrival bound is nearly that count a pass: the split takes the charge off the passes, not off the window.
+By the response-time method, with the base and each item at its stated cost and arrival bound, R4, R5 and R6 still do not fit at either point, nor at the 32x32/2if model point: THE RETRY's firm rounds beside records, SRP's own burst and the other channels' records dominate them (#665, round 22).
 
 ### What is left
 

@@ -21,6 +21,7 @@ import build
 import grade
 import mrpdu_grade
 import notice_window
+import poll_grade
 import round_grade
 import run
 import save_grade
@@ -714,6 +715,24 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],
     'round: in bus cycles, not CPU time': lambda: [patch.object(
         round_grade, 'held', lambda log, n, f=round_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    'polls: no base is held to its cost': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != 'base']))(f(log, n)))],
+    'polls: no item is held to its cost': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] == 'base']))(f(log, n)))],
+    'polls: the items are not taken from the base': lambda: [patch.object(
+        poll_grade, 'instances', lambda log, traced, commits, start, end: [])],
+    'polls: an ACMP or AECP call that sent nothing is an item': lambda: [patch.dict(
+        poll_grade.ITEMS, acmp=('acmp_mbx:on_poll', None), aecp=('aecp:transmit', None))],
+    'polls: an item after the polls is theirs': lambda: [patch.object(
+        poll_grade, 'sections', lambda traced, f=poll_grade.sections: [(s, e + 10_000, ss) for s, e, ss in f(traced)])],
+    'polls: an item nested in another is counted twice': lambda: [patch.object(
+        poll_grade, 'outermost', lambda found: [(kind, e - s) for s, e, kind in found])],
+    "polls: one point's costs at both": lambda: [patch.object(
+        poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(2))],
+    'polls: in bus cycles, not CPU time': lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],
