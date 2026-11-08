@@ -1,0 +1,4 @@
+225c225
+<       EV_JOININ_C, EV_JOINMT_C: return (old_e == EV_NEW_C) ? EV_NEW_C : new_e;
+---
+>       EV_JOININ_C, EV_JOINMT_C: return new_e;

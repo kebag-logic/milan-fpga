@@ -1,0 +1,75 @@
+== evidence 2dd97058243e5afc2dc91d8989970cc9049c6b5b: route at the head (ExtraPostPlacementOpt)
+head 2d939d2dcb9664c08f7d2dc7b584987a1e0c0f8a
+tree 42c092d1a9ec53f3655aa3e3605105a14e79ee7b
+| Slice LUTs                 | 53033 |     0 |          0 |     63400 | 83.65 |
+| Slice Registers            | 54729 |     0 |          0 |    126800 | 43.16 |
+| Slice                                      | 15792 |     0 |          0 |     15850 | 99.63 |
+| Slice Registers                            | 54729 |     0 |          0 |    126800 | 43.16 |
+"corners":{"Fast_0C":{"wns":1.408,"whs":0.035},"Fast_85C":{"wns":1.408,"whs":0.035},"Slow_0C":{"wns":0.044,"whs":0.066},"Slow_85C":{"wns":0.044,"whs":0.066}},"wns_worst":0.044,"whs_worst":0.035
+
+       # of nets with routing errors.......... :           0 :
+Slack (MET) :             3.609ns  (required time - arrival time)
+  Path Group:             clk200_p
+  Logic Levels:           0  
+== evidence 2dd97058243e5afc2dc91d8989970cc9049c6b5b: resource gate against the thirteenth record
+endpoint route-1x1: <scratch>/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.044   0.035  <scratch>/w/ax7101/gateware
+  AltSpreadLogic_high        0.028   0.036  <scratch>/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.258   0.036  <scratch>/w/ax7101-ExtraTimingOpt
+directive ExtraTimingOpt selected: the best worst-corner WNS, 0.258 ns
+figure        baseline   candidate     delta  verdict
+LUT              52529       53050       521  REGRESSION: grew by more than 500
+FF               54582       54729       147  ok
+SLICE            15835       15831        -4  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.373       0.258    -0.115  ok
+WHS_ns           0.012       0.036     0.024  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.258  WHS_ns    0.102
+  Slow_85C  WNS_ns    0.258  WHS_ns    0.102
+  Fast_0C   WNS_ns    1.375  WHS_ns    0.036
+  Fast_85C  WNS_ns    1.375  WHS_ns    0.036
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +234, FF +97
+  u_pp: LUT +198, FF +97
+  u_pp/u_srp: LUT +99, FF +102
+  u_pp/u_srp/u_encoder: LUT +101, FF +99
+  u_pp/u_srp/u_listener: LUT -102, FF +0
+  u_pp/u_aecp: LUT +94, FF -2
+  u_pp/u_event_router: LUT -68, FF +0
+  u_pp/u_aecp/u_d3: LUT +67, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT +53, FF +0
+  u_pp/u_talker: LUT -41, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT -40, FF +0
+  u_nvm: LUT +38, FF +0
+RESULT: MATERIAL REGRESSION
+rc=1
+-- eto post-route utilisation
+| Slice LUTs                 | 53050 |     0 |          0 |     63400 | 83.68 |
+| Slice                                      | 15831 |     0 |          0 |     15850 | 99.88 |
+-- eppo post-route utilisation
+| Slice LUTs                 | 53033 |     0 |          0 |     63400 | 83.65 |
+| Slice                                      | 15792 |     0 |          0 |     15850 | 99.63 |
+-- aslh post-route utilisation
+| Slice LUTs                 | 53082 |     0 |          0 |     63400 | 83.73 |
+| Slice                                      | 15847 |     0 |          0 |     15850 | 99.98 |
+RESULT: PASS
+baseline PASS: 3 endpoints
+== evidence 425a829e46033442e9093825b4dbb8d69f4fab9c: dev 1eb5289d route on the same recipe
+== EXPORT 1eb5289db8fc9d139ce90cad2e380b4515793806 2026-11-07T20:30:25Z MemAvailable 53950624 kB
+| Slice LUTs                 | 52973 |     0 |          0 |     63400 | 83.55 |
+| Slice Registers            | 54595 |     0 |          0 |    126800 | 43.06 |
+| Slice                                      | 15817 |     0 |          0 |     15850 | 99.79 |
+| Slice Registers                            | 54595 |     0 |          0 |    126800 | 43.06 |
+endpoint route-1x1: <scratch>/route-dev/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.122   0.036  <scratch>/route-dev/w/ax7101/gateware
+  AltSpreadLogic_high        0.121   0.025  <scratch>/route-dev/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.234   0.033  <scratch>/route-dev/w/ax7101-ExtraTimingOpt
+directive ExtraTimingOpt selected: the best worst-corner WNS, 0.234 ns
+figure        baseline   candidate     delta  verdict
+LUT              52529       52973       444  ok
