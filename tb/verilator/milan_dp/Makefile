@@ -37,7 +37,7 @@
 #   make twin   - #665: the two-placement simulation, one stimulus on the
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
-#   make twin-plants - its three plants, each refused by its own words
+#   make twin-plants - its five plants, each refused by its own words
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator

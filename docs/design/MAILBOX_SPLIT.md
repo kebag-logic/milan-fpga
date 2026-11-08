@@ -847,7 +847,10 @@ the split datapath and reads every port.
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads
 ENTITY's `available_index` from the ADP owner (`ctrl_app_aecp.c`), as it
-answers GET_STREAM_INFO (the ruling).
+answers GET_STREAM_INFO (the ruling). The value is the one the most recently
+sent ENTITY_AVAILABLE carried, the ADPDU a controller compares it with (IEEE
+1722.1-2021 Table 7.1; #665 issuecomment-6717765106, item 1). ADP's own
+variable is one higher by then, as 6.2.2.15 increments it after each send.
 
 The list is not kept by hand. The first version copied one from a review
 comment, and it missed the started level and the Talker declarations (the
@@ -1529,9 +1532,12 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - The `milan_dp` two-placement simulation (`make twin`) runs one stimulus on
   the all-fabric datapath and on the split one, with the split image's own
   firmware platform on the RTL mailbox, and compares what each MAC sent,
-  protocol by protocol (#665 issuecomment-6716584453). Its three plants
-  (`make twin-plants`) are each refused by their words. At this head it
-  finds AECP, MSRP and MVRP differences, which the
+  protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106).
+  Two controllers drive it, and it reaches every row of the F5 ledger. An
+  owed-difference list, apart from the ledger, holds what the SRP adapter
+  round owes. Its five plants (`make twin-plants`) are each refused by their
+  words. At this head it finds differences neither the ledger nor the owed
+  list covers, which the
   [`milan_dp` README](../../tb/verilator/milan_dp/README.md) lists.
 
 The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
