@@ -1,0 +1,6 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945 workflow docs.yml job docs-gates-0 step ci_step_25: Install the pinned sv2v release
+# INSTEAD of the step as written (sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH):
+# sv2v --version
+sv2v --version | grep -Fx 'sv2v v0.0.12'
+sv2v v0.0.12
+sv2v v0.0.12

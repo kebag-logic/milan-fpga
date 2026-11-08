@@ -1,0 +1,12 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945 workflow rtl-fast.yml job firmware-verilator step ci_step_6: Install GoogleTest and GoogleMock and print the versions
+# INSTEAD of the step as written (sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written):
+# test -f /usr/include/gtest/gtest.h
+test -f /usr/include/gmock/gmock.h
+set -euo pipefail
+: # package index prepared above
+python3 -m pip install --quiet pyyaml
+g++ --version | head -n 1
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+g++ (GCC) 16.2.1 20260810

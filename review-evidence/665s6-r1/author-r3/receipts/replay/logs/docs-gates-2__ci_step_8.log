@@ -1,0 +1,8 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945 workflow docs.yml job docs-gates-2 step ci_step_8: Install diagram gate dependencies
+# INSTEAD of the step as written (sudo apt-get for librsvg2-bin, whose rsvg-convert is installed here; the step's pip half runs in the job's venv):
+# command -v rsvg-convert
+python3 -m pip install --quiet wavedrom==2.0.3.post3
+/usr/bin/rsvg-convert
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: pip install --upgrade pip
