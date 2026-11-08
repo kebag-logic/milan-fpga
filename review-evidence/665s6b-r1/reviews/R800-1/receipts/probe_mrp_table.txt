@@ -1,0 +1,47 @@
+[ok] Table 10-3 row New! equals the second transcription
+[ok] Table 10-3 row Join! equals the second transcription
+[ok] Table 10-3 row Lv! equals the second transcription
+[ok] Table 10-3 row rNew! equals the second transcription
+[ok] Table 10-3 row rJoinIn! equals the second transcription
+[ok] Table 10-3 row rIn! equals the second transcription
+[ok] Table 10-3 row rJoinMt! equals the second transcription
+[ok] Table 10-3 row rMt! equals the second transcription
+[ok] Table 10-3 row rLv! equals the second transcription
+[ok] rLA! row equals rLv! row (Table 10-3)
+[ok] tx! VO: twin ([s], VO) vs second (-, VO)
+[ok] tx! VP: twin (sJ, AA) vs second (sJ, AA)
+[ok] tx! VN: twin (sN, AN) vs second (sN, AN)
+[ok] tx! AN: twin (sN, QA) vs second (sN, QA)
+[ok] tx! AA: twin (sJ, QA) vs second (sJ, QA)
+[ok] tx! QA: twin ([sJ], QA) vs second (-, QA)
+[ok] tx! LA: twin (sL, VO) vs second (sL, VO)
+[ok] tx! AO: twin ([s], AO) vs second (-, AO)
+[ok] tx! QO: twin ([s], QO) vs second (-, QO)
+[ok] tx! AP: twin (sJ, QA) vs second (sJ, QA)
+[ok] tx! QP: twin ([s], QP) vs second (-, QP)
+[ok] tx! LO: twin (s, VO) vs second (s, VO)
+[ok] txLA! VO: twin ([s], LO) vs second (-, LO)
+[ok] txLA! VP: twin (s, AA) vs second (s, AA)
+[ok] txLA! VN: twin (sN, AN) vs second (sN, AN)
+[ok] txLA! AN: twin (sN, QA) vs second (sN, QA)
+[ok] txLA! AA: twin (sJ, QA) vs second (sJ, QA)
+[ok] txLA! QA: twin (sJ, QA) vs second (sJ, QA)
+[ok] txLA! LA: twin ([s], LO) vs second (-, LO)
+[ok] txLA! AO: twin ([s], LO) vs second (-, LO)
+[ok] txLA! QO: twin ([s], LO) vs second (-, LO)
+[ok] txLA! AP: twin (sJ, QA) vs second (sJ, QA)
+[ok] txLA! QP: twin (sJ, QA) vs second (sJ, QA)
+[ok] txLA! LO: twin ([s], LO) vs second (-, LO)
+[ok] New x2 then JoinMt, Registrar MT: legal (VN, AN, AA by note 8, QA/AA)
+[ok] New x1 then JoinMt: illegal (AN's tx! sends New)
+[ok] MVRP New x1 then JoinIn, Registrar MT: illegal
+[ok] MVRP New x2 then JoinIn, Registrar MT: illegal (10.7.6.3)
+[ok] MVRP Registrar IN by rJoinIn!, New x2, JoinIn: legal
+[ok] MVRP Registrar IN, New x1 then JoinIn: illegal (AN's tx! sends New whatever the Registrar)
+[ok] Registrar IN after a received JoinIn, then JoinMt: illegal
+[ok] MSRP: rLv! takes IN to MT at once (Milan 4.2.7.2.2), so a later JoinMt is legal
+[ok] MVRP: rLv! takes IN to LV (Table 10-4), sJ from LV sends JoinMt: legal
+[ok] Lv before any declaration: illegal
+[ok] withdrawn Lv, then a LeaveAll carrying Mt: legal
+[ok] a LeaveAll frame omitting a declared (QA/AA) attribute: illegal (txLA! sJ is not bracketed there)
+probe_mrp_table: PASS

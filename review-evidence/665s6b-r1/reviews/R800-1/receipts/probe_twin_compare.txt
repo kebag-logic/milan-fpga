@@ -1,0 +1,22 @@
+[ok] baseline: 0 findings, 13 notes
+[ok] baseline notes are only ['[LEDGER]', '[OWED]', '[TAIL]']
+[ok] ledger row root-configuration-index: holds, and is a real difference
+[ok] ledger row set-stream-info-current-fields: holds, and is a real difference
+[ok] ledger row system-unique-id: holds, and is a real difference
+[ok] ledger row default-format-override-notice: holds, and is a real difference
+[ok] ledger row reserved-message-type: holds, and is a real difference
+[ok] ledger row hdcp-apm-data: holds, and is a real difference
+[ok] row 5: STREAM_INPUT 0 GET_STREAM_INFO notices: 10 in each half, equal without sequence_id
+[ok] row 6: LOCK_ENTITY notices: 5 in each half, equal without sequence_id
+[ok] row 6: a fabric LOCK_ENTITY notice carries flags UNLOCK (1)
+  CONTROLLER_AVAILABLE ids: fabric {'the first controller': [0], 'the second controller': [0, 1]}, split {'the first controller': [1], 'the second controller': [0, 2]}
+[ok] the split's ids to one controller have a gap (so 'gaps allowed' is load-bearing)
+[ok] mutant sequence_id byte-compared: 2 finding(s), e.g. ['[DIFF] AECP command 0 differs at byte 35 (fabric 0000030000000000, split 0100030000000000): AECP command CONTROLLER_AVAILABLE to the first controller status 0 sequence_id 0 at ms 67997']
+[ok] mutant gaps refused: the split's grade finds ['[SEQ] split AECP: the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 2, not higher (IEEE 1722.1-2021 9.2.2.9)']
+[ok] the fabric's CONTROLLER_AVAILABLE grade is clean as built
+[ok] row fabric-mvrp-leave-all removed: 1 finding(s), each one it covered, e.g. ["[MRP] all-fabric MVRP: 64799 ms from ms 10201 to the next LeaveAll (or the run's end at 75000), outside 9500 to 15740"]
+[ok] row fabric-domain-one-new removed: 1 finding(s), each one it covered, e.g. ["[MRP] all-fabric MSRP Domain value 06030002: JoinMt at ms 1000 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 200"]
+[ok] row fabric-vid2-join-in removed: 2 finding(s), each one it covered, e.g. ["[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200"]
+[ok] row fabric-domain-one-new's trace changed: ["[MRP] all-fabric MSRP Domain value 06030002: JoinMt at ms 1000 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 200"]
+[ok] row fabric-vid2-join-in's trace changed: ["[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200"]
+probe_twin_compare: PASS

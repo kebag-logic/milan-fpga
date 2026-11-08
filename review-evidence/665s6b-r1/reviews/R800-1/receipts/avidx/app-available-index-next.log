@@ -1,0 +1,54 @@
+Note: Google Test filter = App.EntityReadSeesTheLastAdvertisedIndex
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from App
+[ RUN      ] App.EntityReadSeesTheLastAdvertisedIndex
+<packet>/scratch/mut/sw/firmware/ctrl/test/test_aecp.cpp:473: Failure
+Expected equality of these values:
+  read()
+    Which is: 3
+  last
+    Which is: 2
+ENTITY reads the last ENTITY_AVAILABLE's available_index
+
+  [FAIL] App.EntityReadSeesTheLastAdvertisedIndex: ENTITY reads the last ENTITY_AVAILABLE's available_index
+<packet>/scratch/mut/sw/firmware/ctrl/test/test_aecp.cpp:476: Failure
+Expected equality of these values:
+  read()
+    Which is: 3
+  advertised
+    Which is: 2
+a link down keeps the last ENTITY_AVAILABLE's available_index
+
+  [FAIL] App.EntityReadSeesTheLastAdvertisedIndex: a link down keeps the last ENTITY_AVAILABLE's available_index
+<packet>/scratch/mut/sw/firmware/ctrl/test/test_aecp.cpp:473: Failure
+Expected equality of these values:
+  read()
+    Which is: 4
+  last
+    Which is: 3
+ENTITY reads the last ENTITY_AVAILABLE's available_index
+
+  [FAIL] App.EntityReadSeesTheLastAdvertisedIndex: ENTITY reads the last ENTITY_AVAILABLE's available_index
+<packet>/scratch/mut/sw/firmware/ctrl/test/test_aecp.cpp:476: Failure
+Expected equality of these values:
+  read()
+    Which is: 4
+  advertised
+    Which is: 3
+a link down keeps the last ENTITY_AVAILABLE's available_index
+
+  [FAIL] App.EntityReadSeesTheLastAdvertisedIndex: a link down keeps the last ENTITY_AVAILABLE's available_index
+[  FAILED  ] App.EntityReadSeesTheLastAdvertisedIndex (13 ms)
+[----------] 1 test from App (13 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (13 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] App.EntityReadSeesTheLastAdvertisedIndex
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

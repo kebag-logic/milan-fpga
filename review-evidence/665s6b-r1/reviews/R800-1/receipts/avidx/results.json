@@ -1,0 +1,41 @@
+[
+  {
+    "name": "app-available-index-next",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "return next != 0u ? next - 1u : 0u;",
+    "new": "return next;",
+    "checks": [
+      [
+        "App.EntityReadSeesTheLastAdvertisedIndex",
+        "ENTITY reads the last ENTITY_AVAILABLE's available_index"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-available-index-unguarded",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "return next != 0u ? next - 1u : 0u;",
+    "new": "return next - 1u;",
+    "checks": [
+      [
+        "App.EntityReadSeesTheLastAdvertisedIndex",
+        "ENTITY reads 0 before the first ENTITY_AVAILABLE"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "control-unplanted",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "return next != 0u ? next - 1u : 0u;",
+    "new": "return next != 0u ? next - 1u : 0u;",
+    "checks": [
+      [
+        "App.EntityReadSeesTheLastAdvertisedIndex",
+        "ENTITY reads the last ENTITY_AVAILABLE's available_index"
+      ]
+    ],
+    "caught": false
+  }
+]

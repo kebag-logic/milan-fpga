@@ -1,0 +1,18 @@
+head e69d243a61a8ec1c1ad8c473f809e1351dab1b61
+command: python3 -I -B scripts/probe_available_index.py <second clean clone> <packet>/scratch/avidx (the two app-available-index-* defects of sw/firmware/ctrl/test/aecp_mutants.py through its own campaign, which plants a copy; plus control-unplanted, the same arm with no edit)
+reading: [ok] = the named check failed with its words (caught); control-unplanted is expected to print [ESCAPED] (its test passes, see avidx/control-unplanted.log); PASS requires both caught and the control not caught
+---
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-available-index-next: App.EntityReadSeesTheLastAdvertisedIndex
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-available-index-unguarded: App.EntityReadSeesTheLastAdvertisedIndex
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/avidx/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] control-unplanted: App.EntityReadSeesTheLastAdvertisedIndex
+results {'app-available-index-next': True, 'app-available-index-unguarded': True, 'control-unplanted': False}
+probe_available_index: PASS
