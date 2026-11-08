@@ -368,7 +368,7 @@ A datapath reset can leave a notice pending for every observation of every descr
 A single retried notice is committed within 20 ms of its port's answer.
 The first notice of a queue is committed within 20 ms of its port's answer at 1x1/1if and within 22 ms at 8x8/2if, which the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows there (`AECP_QUEUED_FIRST_MS`).
 Every notice queued behind it is committed within a bound derived from constants: the 8 ms retry spacing, the notices a pass carries at the stated costs, and the passes that carry them.
-Each stated cost is the most measured over every instance plus 5 %, and the CPU budget harness fails an instance over it.
+Each stated cost of a notice, of a round's cold start and of a pass given whole is the most measured over every instance plus 5 %, and the CPU budget harness fails a round or a pass given whole over its stated cost; a refused attempt's, `AECP_ATTEMPT_US`, is held by that round check and not restated.
 Derived per point at its own recipient count, that bound is 22 ms at 1x1/1if and 62 ms at 8x8/2if (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`), within ceilings of 25 ms and 70 ms, [amended on 2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945) with a 10 % margin over the derivation.
 Both bounds hold with other ports still refusing: each refused attempt is charged to its round, on the assumption that a port, one window read, answers for all it serves or for none, so a queue has at most all but one of the ports refusing.
 The same decision of 2026-11-08 allows two more rows 22 ms at 8x8/2if: an AECP record beside queued notices, and a link change composed with SRP's burst.

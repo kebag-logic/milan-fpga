@@ -2018,15 +2018,15 @@ A window opened from idle still takes no aged step among its records at this hea
 
 ### The queued notices at stated costs, and the first notice
 
-A stated cost is an upper bound: each is the most measured over every instance plus 5 %, rounded up to 5 us, and the CPU budget harness fails an instance over it (#665).
+A stated cost is an upper bound: a notice's, a round's cold start's and a pass given whole's are each the most measured over every instance plus 5 %, rounded up to 5 us, and the CPU budget harness fails a round or a pass over its stated cost (#665); a refused attempt's, `AECP_ATTEMPT_US` (34 us), is held by the round check and not restated.
 THE RETRY's round is admitted at `AECP_ROUND_COLD_US` once and `AECP_NOTICE_US` a notice, the line over every round measured: 85 and 255 us at 1x1/1if, 165 and 365 us at 8x8/2if (`aecp_mbx.h`).
 [`round_grade.py`](../../tb/verilator/ctrl_service_budget/round_grade.py) holds every round, its `round_of` span, to those costs and `AECP_ATTEMPT_US` a refused attempt, its notices and attempts counted from the calls inside it.
-A pass given whole to an aged step, a build of both of an interface's MRPDUs or a build of one is stated at 975, 675 and 405 us at 1x1/1if, and 1,030, 1,315 and 1,215 us at 8x8/2if (`ctrl_loop.h`; [`whole_grade.py`](../../tb/verilator/ctrl_service_budget/whole_grade.py) holds each).
+A pass given whole to an aged step, a build of both of an interface's MRPDUs or a build of one is stated at 975, 900 and 405 us at 1x1/1if, and 1,030, 1,995 and 1,215 us at 8x8/2if (`ctrl_loop.h`; [`whole_grade.py`](../../tb/verilator/ctrl_service_budget/whole_grade.py) holds each). The build of both is SRP's declarations of every stream after a link comes up, the `srp` group's: 85,420 CPU cycles at 1x1/1if and 189,591 at 8x8/2if.
 At those costs a round's own pass carries seven notices at 1x1/1if and four at 8x8/2if.
 
 THE RETRY's search (`ctrl_retry_search.py`) counts a queue with at most all but one of a round's ports refusing: a port's attempt is a window read, which answers for every notice it serves or for none, and every port serves a notice, so a queue has a port answering.
 With every port refusing, a window the port model does not admit, the first notice at 8x8/2if would be 28 ms; the search's control restores that window and must fail.
-A pass given whole to a build of both MRPDUs at 8x8/2if has no room for a notice beside three refused attempts, and the search counts it carrying none; the round's own pass must have room for one, or the queue has no bound.
+A pass given whole to a build of both MRPDUs at 8x8/2if has no room for a notice, and the search counts it carrying none; the round's own pass must have room for one, or the queue has no bound.
 
 | Bound | 1x1/1if | 8x8/2if |
 |---|---:|---:|

@@ -20,8 +20,9 @@ every port serves one (ports), so a queue has a port answering: at most AECP_ROU
 leave a round, a step and a build the same room, the fewer refusals leave the longer queue, so only that one is
 searched.
 
-A pass given whole to a build or an aged step may have no room for a notice past its attempts, and is searched carrying
-none. The round's own pass must have room for one, or a queue beside refused attempts would never be served.
+A pass given whole to a build or an aged step may have no room for a notice past its attempts, or none at all (a build
+of both of an interface's MRPDUs at 8x8/2if), and is searched carrying none. The round's own pass must have room for
+one, or a queue beside refused attempts would never be served.
 """
 from __future__ import annotations
 
@@ -196,7 +197,9 @@ def windows(c: dict[str, int], interfaces: int) -> list[Window]:
                              (c['CTRL_LOOP_BUILD_ONE_PASS_US'], 2 * interfaces)):
         rooms = {}
         for refused in range(c['refusing'] + 1):
-            carries = lambda spent_us, k=refused: (margin - spent_us - k * c['AECP_ATTEMPT_US']) // c['AECP_NOTICE_US']
+            # a pass whose own work leaves less than a notice carries none, never fewer
+            carries = lambda spent_us, k=refused: max(0, (margin - spent_us - k * c['AECP_ATTEMPT_US']) //
+                                                       c['AECP_NOTICE_US'])
             rooms.setdefault((carries(0), carries(c['CTRL_LOOP_STEP_PASS_US']), carries(build_us)), refused)
         for (whole, step, build), refused in rooms.items():
             window = Window(round_carries=whole, step_carries=step, build_carries=build, builds=builds, **common)

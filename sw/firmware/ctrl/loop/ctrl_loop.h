@@ -259,13 +259,15 @@ extern "C" {
 // The measured costs the bounds below rest on, in microseconds (CPU budget
 // harness; 100 cycles a microsecond). A pass given whole to an aged step, to a
 // build of both of an interface's MRPDUs, and to a build of one: each the
-// heaviest measured at its point plus 5 %, rounded up to 5 us, an aged step
-// never below its earlier figure, the harness failing a pass over its figure
-// (whole_grade.py; #665, a stated cost is an upper bound). At 8x8/2if, the
-// point THE DRAIN's sum binds: one record of SRP's burst, the first
-// registration of a burst and a centisecond's consumers.
+// heaviest measured at its point over every group plus 5 %, rounded up to 5 us,
+// an aged step never below its earlier figure, the harness failing a pass over
+// its figure (whole_grade.py; #665, a stated cost is an upper bound). The build
+// of both is SRP's declarations of every stream after a link comes up (the
+// srp group): at 8x8/2if it leaves THE RETRY's round no room for a notice. At
+// 8x8/2if, the point THE DRAIN's sum binds: one record of SRP's burst, the
+// first registration of a burst and a centisecond's consumers.
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 675u : 1315u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 900u : 1995u)
 #define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 405u : 1215u)
 #define CTRL_LOOP_SRP_RECORD_US 123u
 #define CTRL_LOOP_SRP_FIRST_US 400u
