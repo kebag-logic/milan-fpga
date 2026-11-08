@@ -1144,6 +1144,7 @@ the primitives as blackboxes and requires every flop, output and primitive
 input to read only its own clock's domain. The one allowance is the settings
 capture of the bus `KL_mbx` holds. Four plants of a raw crossing must each be
 refused. It needs the pinned sv2v and Yosys, so it is not a default case.
+`rtl-fast`'s `split-cdc` job runs it, in a job of its own.
 
 Not held here: the `EDIT` window, the counter-change and face events, the GM
 event, and the firmware itself. The two-placement comparison owes them.

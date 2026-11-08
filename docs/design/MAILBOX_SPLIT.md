@@ -1426,8 +1426,9 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist and
   refuses any crossing that skips a primitive, with four planted ones.
 
-The split leg runs in the suite's default `make`. The other four checks are
-local: no hosted job runs them yet, as workflow edits wait on #784.
+The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
+job runs `make split-cdc` (ruling 6715535566 item 6). The other three checks
+are local.
 
 ## Verification
 
