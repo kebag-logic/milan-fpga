@@ -1,0 +1,22 @@
+# head dafd49c1f9b79d3cc29534a9ab43d98360079d2b gate ci_scope_classify: git diff --no-renames --name-only 0a75aa774b89ac89351700f63dd8cbb89694af6c HEAD > <scratch>/tmp/rtl/changed-files && cat <scratch>/tmp/rtl/changed-files && python3 scripts/ci_scope.py < <scratch>/tmp/rtl/changed-files
+CHANGELOG.md
+docs/DOCUMENTATION_AUDIT.md
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+docs/findings/README.md
+docs/integration/INTEGRATION_GUIDE.md
+docs/reference/SUBMODULES.md
+docs/testing/TESTING.md
+protocol-processor
+syn/ooc/pp_resource_baseline.json
+syn/yosys/rom_digests.tsv
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/crflic_mutants.py
+tb/verilator/milan_dp/sim_crf_licence.cpp
+true

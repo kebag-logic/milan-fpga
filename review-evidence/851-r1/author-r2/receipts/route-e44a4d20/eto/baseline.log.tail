@@ -1,0 +1,60 @@
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:51 ; elapsed = 00:00:10 . Memory (MB): peak = 5252.926 ; gain = 0.000 ; free physical = 15859 ; free virtual = 80863
+# report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+# report_utilization -file baseline_utilization.rpt
+# report_timing_summary -max_paths 10 -file baseline_timing.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:50 ; elapsed = 00:00:11 . Memory (MB): peak = 5252.926 ; gain = 0.000 ; free physical = 15196 ; free virtual = 80022
+# set pf [open baseline_cells.tsv w]
+# puts $pf "cell\tprimitive"
+# foreach c [get_cells -hier -filter {IS_PRIMITIVE == 1}] {
+#   puts $pf "$c\t[get_property REF_NAME $c]"
+# }
+# close $pf
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Sun Nov  8 10:11:51 2026...

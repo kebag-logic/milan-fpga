@@ -1,0 +1,60 @@
+WARNING: [Synth 8-7129] Port io_writes_0_uopId[1] in module RegFileMem is either unconnected or has no load
+WARNING: [Synth 8-7129] Port io_writes_0_uopId[0] in module RegFileMem is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cpuResetCtrl_reset in module RegFileMem is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[2] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_param[2] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_param[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_param[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_size[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_size[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_denied in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port LsuCachelessTileLinkPlugin_logic_bridge_down_d_payload_corrupt in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[2] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[1] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchCachelessTileLinkPlugin_logic_bridge_down_d_payload_opcode[0] in module VexiiRiscv is either unconnected or has no load
+WARNING: [Synth 8-7129] Port FetchCachelessTileLinkPlugin_logic_bridge_down_d_payload_param[2] in module VexiiRiscv is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:39 ; elapsed = 00:00:46 . Memory (MB): peak = 3766.699 ; gain = 1779.016 ; free physical = 15890 ; free virtual = 71813
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:42 ; elapsed = 00:00:50 . Memory (MB): peak = 3766.699 ; gain = 1779.016 ; free physical = 15178 ; free virtual = 71182
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:42 ; elapsed = 00:00:50 . Memory (MB): peak = 3766.699 ; gain = 1779.016 ; free physical = 15176 ; free virtual = 71179
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 3766.707 ; gain = 0.000 ; free physical = 14852 ; free virtual = 70590
+INFO: [Netlist 29-17] Analyzing 109 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]
+INFO: [Timing 38-2] Deriving generated clocks [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc:570]
+Finished Parsing XDC File [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/alinx_ax7101_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/alinx_ax7101_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.08 . Memory (MB): peak = 4381.719 ; gain = 0.000 ; free physical = 16455 ; free virtual = 71938
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 42 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:01:20 ; elapsed = 00:01:18 . Memory (MB): peak = 4381.754 ; gain = 2394.070 ; free physical = 14552 ; free virtual = 69927
+349 Infos, 500 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:23 ; elapsed = 00:01:22 . Memory (MB): peak = 4381.754 ; gain = 2394.070 ; free physical = 14578 ; free virtual = 69953
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 3046.075; main = 3046.075; forked = 229.412
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4799.133; main = 4381.723; forked = 1032.430
+# quit
+INFO: [Common 17-206] Exiting Vivado at Sun Nov  8 08:34:40 2026...
