@@ -1,0 +1,17 @@
+$ python3 scripts/check_privacy.py --selftest
+privacy selftest: 14 commit controls pass
+rc=0
+$ python3 scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: exact #29 merge one-line exception; identity and content checks remain enabled
+privacy: 18 commits, 268 historical blobs, 98 current files; pass
+rc=0
+$ python3 scripts/check_comments.py
+comment lexer: $VALIDATION_TOOLS/clang-18/bin/clang-18
+comments: 34 code files and all mutation fragments pass
+rc=0
+$ python3 scripts/check_port_contracts.py --selftest
+port contracts: all name-removal controls refused
+port contracts: 20 meaning-removal controls refused
+port contracts: callbacks, fields, preconditions and counters present
+rc=0
