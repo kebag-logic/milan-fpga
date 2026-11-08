@@ -14,13 +14,12 @@ Each plant names the grade or row it is the plant of:
   * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
   * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
     against its Registrar (twin_mrp.py);
-  * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665
-    issuecomment-6724570965, item 2);
+  * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665);
   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
   * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
   * vanished-available-index: the #858 owed row's difference gone (OWED);
   * vanished-domain-new, vanished-vid2-join-in: the #860 owed rows' defects gone, where the fix would land
-    (OWED_GRADES; issuecomment-6724570965, items 1 and 2);
+    (OWED_GRADES);
   * domain-trace-moved, vid2-registrar-in: each #860 row's exact trace, the defect kept but the trace changed:
     the Domain's first Join sent as JoinIn, and VID 2 registered by a peer's MVRPDU.
 """

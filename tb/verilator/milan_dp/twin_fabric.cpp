@@ -14,8 +14,8 @@
 //      PP_DESC_BASE_P;
 //   3. nvm_boot()'s restore walk (PP_CTRL[1]) on blank media, to its terminal;
 //   4. entity_advertise(): PP_CTRL[0], then ADP_CTRL[0].
-// Two settings are simulation-only and stated here (#665 issuecomment-
-// 6716584453, item 1): the processor's and KL_maap's millisecond is
+// Two settings are simulation-only and stated here (#665): the
+// processor's and KL_maap's millisecond is
 // TWIN_MS_CYC datapath cycles (PP_TIM_DIV_US_P = 1, PP_TIM_DIV_MS_P and
 // MAAP_CLK_HZ_P, the Makefile's), and the MAAP_CTRL write carries MAAP's
 // pinned first range (seed_valid and seed_offset, milan_csr.sv 0x6CC).

@@ -4,7 +4,7 @@
 """split_parallel.py - the split leg under make -j8, from a clean tree (#665).
 
 `make split` builds the split leg's binary (build-split) and runs it (exec-split). Under a parallel make the
-run must not start before the binary has linked (#665 issuecomment-6724570965, item 3), so the rule runs
+run must not start before the binary has linked (#665), so the rule runs
 exec-split in a make of its own once build-split is done. This gate clones the checkout's committed HEAD into
 a scratch directory, each submodule the leg reads at its gitlink and taken from the checkout's own clone of
 it, and runs make -j8 split there. It passes when make exits 0 and the leg prints its own verdict with no
@@ -36,7 +36,7 @@ LEG = HERE.relative_to(ROOT)
 #: the submodules the leg reads, as the hosted suite jobs fetch them: the AXI-Stream FIFOs, both processors'
 #: sources and generators, and the stack its pin check proves
 SUBMODULES = ("third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/tsn-c-stack")
-#: HEAD's split rule, and the race's (#665 issuecomment-6724570965, item 3), which --selftest plants
+#: HEAD's split rule, and the race's (the run beside the link it needs), which --selftest plants
 RULE = "split: build-split\n\t$(MAKE) --no-print-directory exec-split\n"
 RACE = "split: build-split exec-split\n"
 #: the leg's verdict line, its failure count in group 1

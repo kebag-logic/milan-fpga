@@ -8,8 +8,7 @@ datapath's own ``i_ctl_*`` and ``o_ctl_*`` ports, which KL_mbx_cdc carries to
 the mailbox. census_ports.py rules, port by port, which faces the mailbox
 must carry. This module checks that the split datapath consumes every one of
 them: each publication field (contracts 2.2 and 2.4) and each contract 2.3
-field reaches the same consumers the wrapper's port fed (ruling 6715535566,
-item 2).
+field reaches the same consumers the wrapper's port fed (#665).
 
 THE NETLISTS. Each shape is elaborated twice by census_elab.py, at its own
 parameters and again with ``CTRL_SPLIT_P = 1``. The all-fabric netlist is the
@@ -64,10 +63,10 @@ THE RULES are census_rules.py's ``split-*`` entries, each enforced only where
                      and sinks, reaches a cone end
   split-beyond       no bit of an entry past the shape's own is read
 
-THE REBOOT HOLD (ruling 6715535566 item 3). The split carries no REBOOT
-request: reboot_req_o's net, pp_reboot_req_w, is a constant 0 there, so
-KL_reboot_ctrl's reboot_req_i never rises (split-tied holds it). The carrier
-is S11's.
+THE REBOOT HOLD (#665). The split carries no REBOOT request: reboot_req_o's
+net, pp_reboot_req_w, is a constant 0 there, so KL_reboot_ctrl's reboot_req_i
+never rises (split-tied holds it). The REBOOT carrier is not built yet; until
+it is, the hold is documented here.
 """
 
 from __future__ import annotations

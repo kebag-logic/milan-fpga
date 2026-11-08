@@ -4,8 +4,7 @@
 """twin_compare.py - the two-placement simulation's comparison (#665).
 
 It reads the capture each half wrote (twin_fabric.cpp, twin_split.cpp, decoded by twin_decode.py)
-and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453,
-issuecomment-6717765106, issuecomment-6722002738 and issuecomment-6724570965 amend it:
+and compares them by #665's two-placement comparison contract:
 
   * ADP, ACMP and MAAP: each protocol's frames as an ordered sequence, raw bytes equal. Times are
     never compared between the halves.
@@ -186,8 +185,7 @@ def response_key(s: Sent) -> tuple:
 RESPONSES = Ordering("AECP response", response_key, lambda s: s.data)
 #: the commands the entity sends, paired per controller by their command, compared without their sequence_id:
 #: IEEE 1722.1-2021 9.2.2.9 says only that it "is incremented on each command sent", not whether per entity or
-#: per controller, so each half's is graded on its own (twin_grades.grade_commands; issuecomment-6722002738,
-#: item 2)
+#: per controller, so each half's is graded on its own (twin_grades.grade_commands)
 COMMANDS = Ordering("AECP command", lambda s: (aecp(s).message_type, aecp(s).command), td.without_seq)
 
 
@@ -247,7 +245,7 @@ def runs(states: list[str]) -> list[tuple[str, int]]:
 
 
 def compare_declarations(fab: twin_mrp.Grade, spl: twin_mrp.Grade, left_out: set) -> list[str]:
-    """The declaration state at each half's LeaveAll boundaries (issuecomment-6722002738, item 3), the
+    """The declaration state at each half's LeaveAll boundaries (#665), the
     attributes an owed row covers left out: the halves' sequences of states equal, a run of equal states
     one state. The boundaries are paired by the states they show, in order, never by their times or their
     count, which the LeaveAll timer's random draw sets (IEEE 802.1Q-2018 10.7.4.3)."""
@@ -365,10 +363,10 @@ def holds_current(h: Half, sel: list[Sent]) -> bool:
 
 #: The F5 difference ledger (sw/firmware/ctrl/aecp/README.md, Observed difference rows 1 to 4, the
 #: Non-AEM contract's reserved type and HDCP_APM): the stimulus reaches every row (twin.hpp), and each
-#: asserts its exact values (#665 issuecomment-6717765106, item 6). Rows 5 (the started state's
+#: asserts its exact values (#665): a row no stimulus reaches is unproven. Rows 5 (the started state's
 #: GET_STREAM_INFO notice) and 6 (the release notice's UNLOCK flag) are not rows: at this processor pin
-#: the fabric sends both as the split does, and the ledger records only real differences
-#: (issuecomment-6722002738, item 1), so the notice comparison holds them equal.
+#: the fabric sends both as the split does, and the ledger records only real differences, so the
+#: notice comparison holds them equal.
 LEDGER = (
     Row("root-configuration-index", "IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1",
         lambda h: responses(h, 11),
@@ -457,11 +455,11 @@ SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d90001700000000000000200
                  (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
 SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
                "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
-SRP_ROUND = "the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3)"
+SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
 FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
                 "image's constant 0, and never reads ADP's")
 
-#: The owed-difference list, apart from the ledger (#665 issuecomment-6717765106): each row names the
+#: The owed-difference list, apart from the ledger (#665): each row names the
 #: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
 OWED = (
     Row("stream-output-0-notices", "Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed",
@@ -487,7 +485,7 @@ OWED = (
         lambda h, sel: entity_read(h, sel, 1),
         "the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1",
         "the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's", shown_aecp, FABRIC_INDEX,
-        "#858 (a release-image defect; issuecomment-6722002738, item 6)"),
+        "#858 (a release-image defect)"),
 )
 
 
@@ -527,7 +525,7 @@ FABRIC_DOMAIN = ("MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 fro
                  "Registrar MT throughout")
 FABRIC_VID2 = ("MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, "
                "its Registrar MT throughout")
-ONE_NEW = "#860 (a release-image defect; issuecomment-6724570965, items 1 and 2)"
+ONE_NEW = "#860 (a release-image defect)"
 
 
 def applicant_findings(application: str, key: tuple[int, str]) -> Callable[[str], bool]:
@@ -541,16 +539,15 @@ def traced(application: str, key: tuple[int, str]) -> Callable[[Capture], str]:
     return lambda cap: twin_mrp.trace_shown(cap, application, key)
 
 
-#: The owed defects a half's grade finds (issuecomment-6722002738, item 4; issuecomment-6724570965, items 1 and
-#: 2), apart from the differences OWED holds: each covers its grade findings while the half shows exactly the
-#: behaviour it asserts.
+#: The owed defects a half's grade finds (#857, #860), apart from the differences OWED holds: each covers its
+#: grade findings while the half shows exactly the behaviour it asserts.
 OWED_GRADES = (
     GradeRow("fabric-mvrp-leave-all",
              "IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring "
              "or not", "all-fabric",
              lambda f: f.startswith("[MRP] all-fabric MVRP: ") and "to the next LeaveAll" in f, mvrp_shown,
              FABRIC_MVRP, "the fabric's MVRP participant sends nothing, LeaveAll included, once it declares nothing",
-             "#857 (a release-image defect; issuecomment-6722002738, item 4)"),
+             "#857 (a release-image defect)"),
     GradeRow("fabric-domain-one-new",
              "IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again; Milan v1.2 4.2.7.2.1: the Domain declared "
              "after startup", "all-fabric", applicant_findings("MSRP", DOMAIN_KEY), traced("MSRP", DOMAIN_KEY),

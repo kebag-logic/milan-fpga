@@ -114,7 +114,7 @@ cone ending only at its three terminals, the map writer's exclusion and the
 REBOOT request's. Its findings join this census's.
 
 THE SPLIT PLACEMENT. census_split.py is the census's second population
-(#665, ruling 6715535566 item 2). ``--check`` elaborates every shape again
+(#665). ``--check`` elaborates every shape again
 with ``CTRL_SPLIT_P = 1`` and classifies each ``i_ctl_*`` and ``o_ctl_*`` port
 of that datapath under one class. It then requires every publication field
 and every contract 2.3 field and event to be consumed there as the wrapper's

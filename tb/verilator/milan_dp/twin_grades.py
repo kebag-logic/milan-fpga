@@ -4,8 +4,7 @@
 """twin_grades.py - the two-placement simulation's grades of each half on its own (#665).
 
 What a standard leaves random or bounded is graded against that bound in each half, never against the
-other half (#665 issuecomment-6716584453, item 1); what issuecomment-6717765106 rules is graded per half
-is graded here too:
+other half (#665); what #665 grades per half rather than compares is graded here too:
 
   * ADP's start delay, advertise interval and DISCOVER answer (Milan v1.2 5.6.3.5, Table 5.50);
   * MAAP's probe and announce intervals (IEEE 1722-2016 Table B.8);
@@ -14,13 +13,13 @@ is graded here too:
     (Milan v1.2 5.4.5.1);
   * the sequence_id of the commands the entity sends (CONTROLLER_AVAILABLE): per destination controller,
     rising in send order, gaps allowed, and each controller's response carrying its command's (IEEE
-    1722.1-2021 9.2.2.9 says only that it "is incremented on each command sent"; #665
-    issuecomment-6722002738, item 2);
+    1722.1-2021 9.2.2.9 says only that it "is incremented on each command sent", not whether per entity
+    or per controller);
   * each MRP participant's transmit opportunities (IEEE 802.1Q-2018 10.7.4; Milan v1.2 Table 4.3): no more
     than three in any 1.5 x JoinTime, LeaveAll within its interval, a declaration repeated within the
     periodic interval;
   * each MSRP and MVRP attribute's events, a trace an Applicant can make (IEEE 802.1Q-2018 Table 10-3;
-    twin_mrp.py; issuecomment-6722002738, item 3, and issuecomment-6724570965, item 2, for MVRP);
+    twin_mrp.py; Milan v1.2 4.2.7.2.2 for MSRP's Registrar);
   * MVRP (Milan v1.2 4.3.2, 4.4.1): VID 2 declared before the first stream frame and while any sink is
     settled, beside the Table 10-3 grade of its events.
 """

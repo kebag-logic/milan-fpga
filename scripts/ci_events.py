@@ -1341,8 +1341,8 @@ FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
 #: shape the builder builds, on its own runner (comment 6100024293).
 CENSUS_JOB = "publication-census"
-#: #665 S6b: the fast job that proves every KL_mbx_cdc crossing goes through an
-#: approved primitive, on its own runner (ruling 6715535566 item 6).
+#: #665: the fast job that proves every KL_mbx_cdc crossing goes through an
+#: approved primitive, on its own runner so it lengthens no existing job.
 SPLIT_CDC_JOB = "split-cdc"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
@@ -2491,7 +2491,7 @@ RTL_STEP_LISTS = {
              'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"',
          )},
     ),
-    # #665 S6b: the split crossing's structure, with the census's Yosys cache
+    # #665: the split crossing's structure, with the census's Yosys cache
     # and sv2v release; the fetch is the Makefile's, which derives the
     # processor's source list when it is read.
     (RTL_FAST, SPLIT_CDC_JOB): (

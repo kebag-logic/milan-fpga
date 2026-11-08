@@ -15,7 +15,7 @@ split datapath's CSR window.
 
 One simulation-only setting is compiled in: CTRL_PLAT_MAAP_PREFERRED, MAAP's
 first range, which the two-placement comparison pins in both placements
-(#665 issuecomment-6716584453, item 1). The image never defines it.
+(#665), so MAAP's frames compare as raw bytes. The image never defines it.
 
 Output, under --out: libtwinfw.a, and cflags, the include and define flags a
 C++ unit that includes the platform's headers needs, on one line. The C units

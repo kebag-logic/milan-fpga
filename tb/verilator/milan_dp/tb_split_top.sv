@@ -58,7 +58,7 @@ module tb_split_top
   input  wire                     link_up,
   //! ---- the datapath's CSR window (AXI4-Lite, on dp_clk): the platform
   //! firmware's ctrl_plat_io.h reaches it here in the two-placement
-  //! simulation (#665 S6b); sim_split.cpp leaves it idle
+  //! simulation (#665); sim_split.cpp leaves it idle
   input  wire  [15:0]             s_axi_awaddr,
   input  wire                     s_axi_awvalid,
   output wire                     s_axi_awready,

@@ -534,7 +534,7 @@ PLANTS = (
 # ---- the split datapath's control face (census_split.py) ----------------------
 # Each plant edits the split branch of a copy of the datapath, which is then
 # elaborated in both placements: the all-fabric netlist is the reference the
-# split one is judged against (#665, ruling 6715535566 item 2).
+# split one is judged against (#665).
 SPLIT_DA_GATE = "    assign pp_cd_acmp_declaring_w     = i_ctl_pub_da_gate[ACMP_SRC_C-1:0];"
 SPLIT_SID = "          i_ctl_pub_sid_valid[k] ? i_ctl_pub_sid[64*k +: 64] : 64'd0;"
 SPLIT_VID = "    assign pp_cd_srp_class_a_vid_w    = i_ctl_pub_dom_vid;"

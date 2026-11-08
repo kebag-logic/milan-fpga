@@ -186,8 +186,8 @@ def command_name(f: Aecp) -> str:
 
 
 def notice_key(s: Sent) -> tuple[int, tuple[int, int]]:
-    """A notice's sub-sequence: (command_type, (descriptor_type, descriptor_index)) (#665
-    issuecomment-6717765106, item 2)."""
+    """A notice's sub-sequence: (command_type, (descriptor_type, descriptor_index)) (#665; Milan v1.2
+    5.4.5.2 and Table 5.22 send each notice on its own state change and order no two triggers)."""
     f = aecp(s)
     return f.command, f.descriptor
 

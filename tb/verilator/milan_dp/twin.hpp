@@ -11,7 +11,7 @@
 // half's is one KL_mbx millisecond tick. The two clocks are never compared:
 // twin_compare.py compares each protocol's frames as an ordered sequence, and
 // grades a time a standard leaves random or bounded against that bound in
-// each half on its own (#665 issuecomment-6716584453, item 1).
+// each half on its own (#665).
 //
 // A controller (kController, at kControllerMac) enumerates and drives the
 // entity over AECP and ACMP, a peer talker's stream is bound and probed, and a
@@ -20,9 +20,9 @@
 // for unsolicited notifications, so the commands of the first are notified to
 // it (IEEE 1722.1-2021 7.5.2), and the F5 difference ledger's remaining rows
 // are reached: LOCK_ENTITY and its release, the Milan vendor-unique commands
-// (Milan v1.2 5.4.3, 5.4.4) and one HDCP_APM PDU (#665 issuecomment-6717765106,
-// item 6). A second read of ENTITY follows two ENTITY_AVAILABLE, so its
-// available_index is not the first ADPDU's 0 (issuecomment-6722002738, item 6).
+// (Milan v1.2 5.4.3, 5.4.4) and one HDCP_APM PDU (#665): a row no stimulus
+// reaches is unproven. A second read of ENTITY follows two ENTITY_AVAILABLE, so
+// its available_index is not the first ADPDU's 0 (#858).
 // Both controllers answer the entity's CONTROLLER_AVAILABLE as a live
 // controller does (controller_available_answer), so each stays registered to
 // the run's end, past the 60 s lock expiry. Every frame is written from the
@@ -65,8 +65,8 @@ constexpr std::uint64_t kPeerListener = 0x0303CAFEF00D0001ull;
 constexpr std::uint64_t kPeerMac = 0x001B920000AAull;
 
 //! MAAP's pinned first range, the simulation-only setting both halves take
-//! (#665 issuecomment-6716584453, item 1): offset 0x0100 of the IEEE 1722-2016
-//! B.4 pool, two addresses, one per talker source.
+//! (#665), so MAAP's frames compare as raw bytes: offset 0x0100 of the IEEE
+//! 1722-2016 B.4 pool, two addresses, one per talker source.
 constexpr std::uint64_t kMaapPoolBase = 0x91E0F0000000ull;
 constexpr std::uint16_t kMaapOffset = 0x0100;
 constexpr std::uint64_t kMaapPreferred = kMaapPoolBase + kMaapOffset;
@@ -250,8 +250,8 @@ struct Stimulus {
     Frame frame;
 };
 
-//! The scenario's stimulus, in time order (the plan's S6: ADP, ACMP, MAAP,
-//! AECP; SRP declares on its own).
+//! The scenario's stimulus, in time order (#665: ADP, ACMP, MAAP, AECP; SRP
+//! declares on its own).
 inline std::vector<Stimulus> scenario() {
     const std::uint16_t sin = 0x0005;   // STREAM_INPUT
     const std::uint16_t sout = 0x0006;  // STREAM_OUTPUT
@@ -277,7 +277,7 @@ inline std::vector<Stimulus> scenario() {
         {6500, "AECP START_STREAMING STREAM_INPUT 0, once stopped", aem(0x0022, descriptor(sin, 0), 23)},
         {7000, "ACMP UNBIND_RX sink 0", acmp(8, kPeerTalker, kEntityId, 0x0105)},
         // after each half's second ENTITY_AVAILABLE (available_index 1) and before its third, so ENTITY's
-        // available_index shows (IEEE 1722.1-2021 Table 7-2; #665 issuecomment-6722002738, item 6)
+        // available_index shows (IEEE 1722.1-2021 Table 7-2; #858)
         {7500, "AECP READ_DESCRIPTOR ENTITY 0, after two ENTITY_AVAILABLE", read_descriptor(0x0000, 0, 25)},
         {8000, "MAAP PROBE of the held range", maap_probe(kMaapPreferred, 2)},
         // the F5 difference ledger's rows (sw/firmware/ctrl/aecp/README.md)

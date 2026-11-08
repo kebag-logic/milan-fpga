@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """twin_mrp.py - the two-placement simulation's MRP Applicant grade, MSRP and MVRP (#665).
 
-Each MSRP and MVRP attribute a half sends is graded on its own, as a trace an Applicant can make (#665
-issuecomment-6722002738, item 3; issuecomment-6724570965, item 2 for MVRP): IEEE 802.1Q-2018 Table 10-3
+Each MSRP and MVRP attribute a half sends is graded on its own, as a trace an Applicant can make
+(#665): IEEE 802.1Q-2018 Table 10-3
 with its notes, the application's Registrar (REGISTRAR: Table 10-4, and for the MSRP application the cell
 Milan v1.2 4.2.7.2.2 changes, IN / rLv! -> MT at once in place of LV), and the operPointToPointMAC the
 half configures (OPER_P2P). The halves' event counts are not compared: they follow the transmit

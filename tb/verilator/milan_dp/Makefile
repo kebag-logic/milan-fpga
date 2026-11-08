@@ -864,9 +864,8 @@ exec-split:
 	./$(SPLIT_MDIR)/Vmilan_dp_split
 
 # the leg runs once its binary has linked, in a make of its own, so a parallel
-# make never starts it before the link or runs an old one mid-link (#665
-# issuecomment-6724570965, item 3; split_parallel.py runs make -j8 split from a
-# clean tree)
+# make never starts it before the link or runs an old one mid-link (#665;
+# split_parallel.py runs make -j8 split from a clean tree)
 split: build-split
 	$(MAKE) --no-print-directory exec-split
 
@@ -880,8 +879,8 @@ split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE
 split-cdc:
 	python3 split_cdc_check.py --selftest
 
-# #665: THE TWO-PLACEMENT SIMULATION (issuecomment-6715535566 item 1, and
-# issuecomment-6716584453). One stimulus (twin.hpp) runs on two halves at the
+# #665: THE TWO-PLACEMENT SIMULATION, the host-compiled firmware on the RTL
+# mailbox. One stimulus (twin.hpp) runs on two halves at the
 # shipping shape, and twin_compare.py compares what each MAC sent, protocol by
 # protocol. The all-fabric half (twin_fabric.cpp) is milan_datapath at
 # CTRL_SPLIT_P = 0, provisioned as milan_baremetal.c provisions it, its
