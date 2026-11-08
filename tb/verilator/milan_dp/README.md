@@ -106,7 +106,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its thirteen planted defects
+- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-two planted defects
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1117,7 +1117,8 @@ composes the split SoC's control path on two clocks:
 
 - `KL_mbx` at 100 MHz, its host port the bench's only way in;
 - `KL_mbx_cdc` and two byte FIFOs, sixteen bytes deep;
-- `milan_datapath` at 50 MHz with `CTRL_SPLIT_P = 1`, at the shipping AX7101 shape.
+- `milan_datapath` at 50 MHz with `CTRL_SPLIT_P = 1`, at the shipping AX7101 shape;
+- a second `KL_ctrl_split`, `u_tap`, from the datapath's own source, on the datapath clock and driven by the bench alone.
 
 The receive filter is pruned (`RXFILT_P = 0`), the straight wire it is when
 promiscuous. The gPTP plane is off, as in the broad legs: no face here reads it.
@@ -1127,17 +1128,19 @@ contract's registers or a datapath net its consumers read:
 
 | Section | What it holds |
 |---|---|
-| `[PUB]` | each publication field reaches its class-D consumer; a sink's stream_id only once `SID_VALID` is set; `STARTED` moves alone |
+| `[PUB]` | each publication field reaches its class-D consumer, the Talker declaration as ADVERTISE (the encoding GET_STREAM_INFO tells from FAILED); a sink's stream_id only once `SID_VALID` is set; `STARTED` moves alone |
 | `[FACE]` | a setting reaches the datapath only at its commit; the commit is acknowledged within `MBX_FACE_ACK_CYCLES` |
 | `[WIN]` | `CTR`, `AMAP` and `GSI` close `DONE` under their own tag; one request answered twice gives one non-empty word |
 | `[RX]` | an ADP frame reaches the adp ring whole; an AAF frame never reaches the mailbox |
 | `[TX]` | a frame committed to the adp ring leaves the MAC byte for byte |
 | `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
+| `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO counts each control frame it loses once and no refused frame, and the count saturates at 255 |
 
-`make split-mutants` runs `split_mutants.py`. It plants thirteen defects into
-copies of the datapath's split branch, `KL_mbx_cdc`, its window and
+`make split-mutants` runs `split_mutants.py`. It plants twenty-two defects
+into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
 `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
-check it names, after a clean control passes.
+check it names, after a clean control passes. Nine of them hold the Talker
+declaration's encoding, the tap's tuples and its drop count.
 
 `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
 the primitives as blackboxes and requires every flop, output and primitive

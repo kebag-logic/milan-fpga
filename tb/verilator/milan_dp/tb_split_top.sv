@@ -17,6 +17,12 @@
 //                The probes are the datapath nets each face must reach, read
 //                by hierarchical reference, so the bench sees what the
 //                datapath's consumers read rather than what the ports carry.
+//
+//                A second KL_ctrl_split, u_tap, built from the same source as
+//                the datapath's, sits on the datapath clock with its receive
+//                side driven by the bench and its byte side read by it: every
+//                tuple class the tap accepts or refuses, and the frames a full
+//                FIFO loses, which the datapath's MAC boundary cannot stall.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -73,7 +79,18 @@ module tb_split_top
   output wire                     p_restore_done,
   output wire                     p_nvm_backed,
   output wire  [15:0]             p_rx_frames,
-  output wire  [15:0]             p_tx_frames
+  output wire  [15:0]             p_tx_frames,
+  //! ---- u_tap: its receive tap and its byte side, the bench's own
+  input  wire  [63:0]             tap_tdata,
+  input  wire  [7:0]              tap_tkeep,
+  input  wire                     tap_tvalid,
+  input  wire                     tap_tlast,
+  output wire                     tap_valid,
+  output wire  [7:0]              tap_data,
+  output wire                     tap_last,
+  input  wire                     tap_ready,
+  output wire  [15:0]             tap_frames,
+  output wire  [7:0]              tap_drops
 );
 
   localparam int unsigned S = MBX_N_PUB_SOURCES_C;
@@ -346,6 +363,16 @@ module tb_split_top
   assign p_nvm_backed   = u_dp.pp_nvm_backed_w;
   assign p_rx_frames    = u_dp.pp_rx_frames_w;
   assign p_tx_frames    = u_dp.pp_tx_frames_w;
+
+  // ---- u_tap: the tap alone, on the datapath clock --------------------------------
+  KL_ctrl_split u_tap (
+    .clk_i(dp_clk), .rst_n(dp_rst_n),
+    .rx_tdata_i(tap_tdata), .rx_tkeep_i(tap_tkeep), .rx_tvalid_i(tap_tvalid), .rx_tready_i(1'b1),
+    .rx_tlast_i(tap_tlast),
+    .rx_valid_o(tap_valid), .rx_data_o(tap_data), .rx_last_o(tap_last), .rx_ready_i(tap_ready),
+    .tx_valid_i(1'b0), .tx_data_i(8'd0), .tx_last_i(1'b0), .tx_ready_o(),
+    .m_axis_tx_tdata(), .m_axis_tx_tkeep(), .m_axis_tx_tvalid(), .m_axis_tx_tlast(), .m_axis_tx_tready(1'b1),
+    .rx_frames_o(tap_frames), .rx_drops_o(tap_drops), .tx_frames_o());
 
   // the counts are the shape's: read so a width change is visible here
   logic unused_ok;

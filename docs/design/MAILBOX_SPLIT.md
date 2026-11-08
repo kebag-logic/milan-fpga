@@ -1390,7 +1390,10 @@ Each face the wrapper served is read from a `ctl` port, by its class in
 
 `KL_ctrl_split` carries the frames. Its tap keeps the wrapper's 4,096-byte
 frame FIFO and its one-byte-a-cycle drain. It passes only the subtypes and
-EtherTypes the mailbox has a channel for.
+EtherTypes the mailbox has a channel for. It counts each control frame the
+full FIFO loses in `PP_DIAG[15:8]`, saturating at 255. The count is read from
+the FIFO's own overflow indication, since a FIFO that drops when full never
+lowers its ready.
 
 The map writer goes because the firmware's AECP owner holds the maps
 (ruling 6410169666 item 1). Its registers rest at reset, but the restore's
