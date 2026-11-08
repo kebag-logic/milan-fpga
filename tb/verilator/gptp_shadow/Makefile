@@ -6,6 +6,11 @@ RTL_DIR    = ../../../hdl
 GPTP_DIR   = ../../../gptp-processor
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 UCODE_GEN  = $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+#: The clockQuality this harness's image announces (#843): the generator's
+#: CQ_C, read from the generator the image is built with. The image rule
+#: below passes no --clock-accuracy, so CQ_C's octet (0x22 since FPGA-gPTP
+#: #100) is the one on the wire, and sim_main.cpp's OUR_CQ is this value.
+OUR_CQ := $(shell python3 -I -c 'import runpy, sys; print(hex(runpy.run_path(sys.argv[1])["CQ_C"]))' $(UCODE_GEN))
 TOP        = gptp_shadow_wrap
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
@@ -14,7 +19,7 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE \
          -Wno-PINCONNECTEMPTY \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra -DOUR_CQ_TB=$(OUR_CQ)"
 SRCS = gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \

@@ -10,18 +10,20 @@ Issue #708's [record](#re-baseline-of-2026-10-16-processor-2cbed0a9) adopted pro
 Its [next record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopted processor `93fb0b2d` and FPGA-gPTP `55680bff` for #771, under an owner exception.
 Its [next record](#re-baseline-of-2026-10-23-issues-632-and-764) added the media clock phase alignment of #632 and #764 on its merge of dev `e5b480a3`, under two owner exceptions.
 Its [next record](#re-baseline-of-2026-10-28-processor-f65c8ff7) adopted processor `f65c8ff7` for #799 on dev `97aab1d0`, under an owner decision.
-The [current record](#re-baseline-of-2026-11-06-processor-92100657) adopts processor `92100657` for #845 on dev `87e9d03a`, under a maintainer decision.
+Its [next record](#re-baseline-of-2026-11-06-processor-92100657) adopted processor `92100657` for #845 on dev `87e9d03a`, under a maintainer decision.
+The [current route record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) adopts FPGA-gPTP `1616fc8f` for #843 on its merge of dev `1eb5289d`, under the same decision; the standalone records stay #845's.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
 The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`.
 Dev then moved the processor pin to `ed211803` (#780), and the #799 record moved it to `f65c8ff7`; the gPTP pin stayed `55680bff`.
-Dev then moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66`, and the current record moves the processor pin to `92100657`.
+Dev then moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66`, #845's record moved the processor pin to `92100657`, and the current route record moves the gPTP pin to `1616fc8f`.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-11-06, processor 92100657](#re-baseline-of-2026-11-06-processor-92100657)** -- The current record, under a maintainer decision: processor `92100657` on dev `87e9d03a`, remeasured at three endpoints, the route on the recipe's three directives with ExtraTimingOpt selected, sub-block movements, route-corner timing and input receipts.
+- **[Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f)** -- The current route record, under the same maintainer decision: FPGA-gPTP `1616fc8f` with processor `92100657` on the merge of dev `1eb5289d`, the route alone on the recipe's three directives with AltSpreadLogic_high selected, against dev's own route, the engine's share, route-corner timing and input receipts.
+- **[Re-baseline of 2026-11-06, processor 92100657](#re-baseline-of-2026-11-06-processor-92100657)** -- The preceding route record and the current standalone records, under a maintainer decision: processor `92100657` on dev `87e9d03a`, remeasured at three endpoints, the route on the recipe's three directives with ExtraTimingOpt selected, sub-block movements, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-28, processor f65c8ff7](#re-baseline-of-2026-10-28-processor-f65c8ff7)** -- The preceding record, under an owner decision: processor `f65c8ff7` and mailbox contract 2.3 on dev `97aab1d0`, remeasured at three endpoints, the same figures as before the contract change, sub-block movements, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-23, issues #632 and #764](#re-baseline-of-2026-10-23-issues-632-and-764)** -- The preceding record, under two owner exceptions: the media clock phase alignment on its merge of dev `e5b480a3`, remeasured at three endpoints, its share against dev's own route, the per-instance attribution, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)** -- The preceding record, under an owner exception: both pins adopted on dev `d77a8afd`, remeasured at three endpoints, with this adoption's share against dev's own measurement, the per-donor 1x1 ledger, route-corner timing and input receipts.
@@ -42,6 +44,101 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f
+
+This re-baseline records [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1616fc8f062fbf58c35ad31674b5b233207bbdb8` (FPGA-gPTP PRs #99 and #101, for its #98 and #100), with clockAccuracy per board.
+`route-1x1` measures lane commit `a6d7cdf3e29fd07f98e3fcd0b4d1402302f65a3e`, the lane's merge of dev `1eb5289db8fc9d139ce90cad2e380b4515793806`, with processor `92100657`.
+It is the first route with both lab-fix pins; the lane's later commits change no synthesis input.
+Dev merged PRs #841 and #842 after the [preceding record](#re-baseline-of-2026-11-06-processor-92100657) without a new one, so the differences below are theirs and this adoption's together.
+Only the route is re-recorded: the standalone endpoints synthesise `KL_pp_shadow`, which holds no gPTP logic, and no source, generic or processor image of it differs from dev `1eb5289d`'s export, so `ooc-1x1` and `ooc-8x8` keep the preceding record's figures.
+
+**Maintainer decision.** Against the preceding record the gate refused the route with exit 1.
+It grew by 692 LUTs against 500 and by two DSPs against 0.
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541) accepts the area growth of the mandatory lab fixes on the shipping image, with a re-baselined budget; it is the decision #845's record cites (https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981), and it names this gPTP pin.
+This record is written under that decision; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+
+The route was measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+It is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected AltSpreadLogic_high, so the record's flow names that directive where the preceding record's named ExtraTimingOpt.
+The resource gate reports matching measurement identities against the preceding record.
+Dev `1eb5289d` was routed the same way, one run at a time, for the comparison; against the preceding record its best directive, ExtraTimingOpt, passes the gate with exit 0.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,221 | 54,754 | 15,834 | 74 / 27 | 15 | 3,726 | +0.242 | +0.012 |
+
+| Directive | Dev WNS / WHS, worst corner | Dev LUT | Dev slice | This pin WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+| ExtraPostPlacementOpt | +0.122 / +0.036 ns | 52,845 | 15,841 | +0.062 / +0.024 ns | 53,166 | 54,757 | 15,846 | 4 |
+| ExtraTimingOpt, dev's selection | +0.234 / +0.033 ns | 52,973 | 15,817 | +0.058 / +0.031 ns | 53,234 | 54,755 | 15,834 | 16 |
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | **+692** | +172 | -1 | 0 / 0 | **+2** | -0.131 | 0.000 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+
+Best against best, against dev `1eb5289d`:
+
+| Figure | Dev `1eb5289d`, ExtraTimingOpt | This pin, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 52,973 | 53,221 | +248 |
+| FF | 54,595 | 54,754 | +159 |
+| Slice of 15,850 | 15,817 | 15,834 | +17 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 13 | 15 | +2 |
+| WNS / WHS, slow corners | +0.234 / +0.061 ns | +0.242 / +0.071 ns | +0.008 / +0.010 ns |
+| WNS / WHS, fast corners | +1.553 / +0.033 ns | +1.383 / +0.012 ns | -0.170 / -0.021 ns |
+
+On the same directive the routed hierarchy names the gPTP engine as the growth:
+
+| Directive | `u_engine` LUT, dev to this pin | FF | DSP | `alinx_ax7101` LUT | FF |
+|---|---:|---:|---:|---:|---:|
+| ExtraPostPlacementOpt | 4,235 to 4,710, +475 | +166 | +2 | +321 | +161 |
+| AltSpreadLogic_high | 4,236 to 4,705, +469 | +166 | +2 | +253 | +158 |
+| ExtraTimingOpt | 4,236 to 4,705, +469 | +166 | +2 | +261 | +160 |
+
+On AltSpreadLogic_high its `u_ucpu` holds +256 of those LUTs, `u_timer` +110 and `u_parser` +57; the two DSPs are the information TLV's frequency multiply.
+FPGA-gPTP #100's out-of-context figures predicted +475 LUTs and two DSPs.
+In the routed hierarchy of the selected route `milan_datapath` holds 44,631 LUTs and the wrapper 24,937.
+Against the preceding record the gate's sub-block rows, which it does not judge, move the wrapper by +42 LUTs and -4 FFs; no wrapper source changed.
+
+The selected route uses 87.5 RAM tiles and leaves 16 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS fell by 0.131 ns and is 0.212 ns above its +0.030 ns floor; WHS is 0.012 ns above zero.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.242 | +0.071 |
+| `Slow_85C` | +0.242 | +0.071 |
+| `Fast_0C` | +1.383 | +0.012 |
+| `Fast_85C` | +1.383 | +0.012 |
+
+The worst setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from the SDRAM bank machine's `milansoc_sdram_bankmachine6_row_reg[5]` to the write-to-read timer `milansoc_sdram_twtrcon_ready_reg`.
+Its data delay is 9.301 ns: 3.053 ns of logic and 6.248 ns of routing.
+The worst hold path runs from the SoC's `milansoc_rdat1_reg[2]` to the block RAM `storage_43_reg`, at +0.012 ns at the fast corners.
+
+The endpoint was written with `record --write` after its `check`, which returned 1.
+`check-baseline` passes, and `check` returns 0 against the new record.
+The endpoint note identifies the measured lane commit and cites the maintainer decision.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `3eb58b65ce9c76d6a47a412dfb5d626298cdf847e9caa57e9ceaffb0efd99df4` |
+
+All 6 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic; the one match is the script's own `set_msg_config` line.
+The synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Runs went one at a time.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 49.1 | `06f2cfbf372cbf12896b455c74285fff9377390b4963204b3161b76c681bac81` | 1,043,761 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 18.2 | `3279e647fd85d2987991f7b3eb0bea1bb5f8f715da21fefc09860651f6175d00` | 350,937 |
+| `route-1x1`, ExtraTimingOpt | 0 | 15.1 | `0026d6e546ea12a1c0cb674ac756f0313b3c03e8e4b1358bcd3f443c6b31523d` | 339,214 |
 
 ## Re-baseline of 2026-11-06, processor 92100657
 

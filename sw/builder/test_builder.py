@@ -358,6 +358,12 @@ CONFIGS = {
     "ax7101_8x8": ROOT / "configs/endstation_ax7101_8x8.yaml",
     "ax7101_1x1_tdm8": ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml",
 }
+#: The clockAccuracy each board's configs state (#843, 802.1AS-2011
+#: 8.6.2.3), keyed by the board prefix of the CONFIGS name. The AX7101's
+#: oscillator is characterised to IEEE 1588-2008 Table 6's "within 250 ns"
+#: (the maintainer's 2026-11-05 decision); the Arty's is not, so 8.6.2.3 b)
+#: makes it 0xFE.
+GPTP_CLOCK_ACCURACY_BY_BOARD = {"ax7101": 0x22, "arty": 0xFE}
 OUT = HERE / "out"
 #: gate 24d's pin of the cluster namer: every object_name the builder produces
 #: for a loopback-bearing config and for the channel_names config, per
@@ -17965,6 +17971,10 @@ def test_baremetal_profile_contract() -> None:
         ("station MAC", lambda c: c["platform"].__setitem__(
             "mac_address", "02:00:00:00:00:03")),
         ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
+        #: #843: clockAccuracy is per config now (--clock-accuracy), so the
+        #: AX7101's 0x22 restated as 0xFE must reach the image too.
+        ("clockAccuracy", lambda c: c["gptp"].__setitem__(
+            "clock_accuracy", 0xFE)),
     )
     with tempfile.TemporaryDirectory() as td:
         for label, mutate in ucode_mutations:
@@ -17979,15 +17989,17 @@ def test_baremetal_profile_contract() -> None:
     # The former 80 MHz ROM variant violates the bare-metal build contract.
     # test_baremetal_clock_contract now requires its named refusal.
     # test_gptp_rom_clock separately proves the configured clock reaches ROM bytes.
-    print("  [gate 1b] gPTP ROM changes with station MAC and priority1; "
-          "the bare-metal fabric clock is fixed by the build contract")
+    print("  [gate 1b] gPTP ROM changes with station MAC, priority1 and "
+          "clockAccuracy; the bare-metal fabric clock is fixed by the build "
+          "contract")
 
-    #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:,
-    #! so every other field must REFUSE a divergent config value instead of
+    #! [R-parallel] on #228: the engine consumes NOTHING else from gptp:
+    #! (priority1 and, since #843, clock_accuracy are consumed), so every
+    #! other field must REFUSE a divergent config value instead of
     #! shipping an AEM dataset the wire Announce contradicts (gate 26b owns
     #! the byte-exact descriptor half).
     pins = eb.gptp_engine_pins()
-    pinned = ("priority2", "clock_class", "clock_accuracy",
+    pinned = ("priority2", "clock_class",
               "offset_scaled_log_variance", "log_sync_interval",
               "log_announce_interval", "log_pdelay_interval")
     for field in pinned:
@@ -26432,7 +26444,9 @@ def _assert_engine_pin_parser_derives(wire):
                "    e_hdr(p, 0x2, RA, 0x00, 54)\n"
                "    e_hdr(p, 0xB, RA, 0x01, 76)\n")
     got = eb.gptp_engine_pins(fixture)
-    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
+    #! clockAccuracy (the fixture's 0xFD) is not an engine pin since #843:
+    #! the config passes it per image, so the parser must not return it.
+    assert got == dict(priority2=247, clock_class=0xF7,
                        offset_scaled_log_variance=0x436B,
                        log_sync_interval=-4, log_announce_interval=1,
                        log_pdelay_interval=0), got
@@ -26461,6 +26475,34 @@ def _assert_engine_pin_parser_derives(wire):
         assert "0 live matches for e_hdr Sync TX, need exactly 1" in str(e), e
     #! and the fixture path never poisons the real cache
     assert eb.gptp_engine_pins() == wire
+
+
+def _assert_avb_interface_is_the_wire(wire: dict[str, int]) -> None:
+    """Gate 26b step 2: each config's AVB_INTERFACE clock bytes are the
+    engine's Announce dataset, clockAccuracy the board's own (#843)."""
+    # every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
+    # dataset (priority1, clockQuality, priority2, domain, intervals),
+    # clockAccuracy the board's own (GPTP_CLOCK_ACCURACY_BY_BOARD)
+    for name in sorted(CONFIGS):
+        cfg = eb.load_config(CONFIGS[name])
+        accuracy = GPTP_CLOCK_ACCURACY_BY_BOARD[name.split("_", 1)[0]]
+        assert cfg["gptp"]["clock_accuracy"] == accuracy, (
+            f"{name}: gptp.clock_accuracy 0x{cfg['gptp']['clock_accuracy']:X}"
+            f", the board's decided value is 0x{accuracy:X} (#843)")
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        avbi = image_descriptor(blob, 0x0009)
+        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
+                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
+                + bytes([accuracy, wire["priority2"], 0,
+                         wire["log_sync_interval"] & 0xFF,
+                         wire["log_announce_interval"] & 0xFF,
+                         wire["log_pdelay_interval"] & 0xFF]))
+        assert avbi[86:96] == want, (
+            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
+            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
+            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
+            f"wire does not carry ([R-parallel] on #228)")
 
 
 def test_gptp_dataset_matches_engine_announce() -> None:
@@ -26503,9 +26545,11 @@ def test_gptp_dataset_matches_engine_announce() -> None:
         v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*\w+,\s*({n}),\s*\d+\)\s*$",
                 f"{name} e_hdr")
         logints[name] = v - 256 if v >= 128 else v
+    #! clockAccuracy, bits 23:16 of CQ_C, is the generator's default only:
+    #! since #843 every image takes the config's value by --clock-accuracy,
+    #! so it is graded per config below, not as an engine pin.
     wire = dict(priority2=p2,
                 clock_class=(cq >> 24) & 0xFF,
-                clock_accuracy=(cq >> 16) & 0xFF,
                 offset_scaled_log_variance=cq & 0xFFFF,
                 log_sync_interval=logints["Sync"],
                 log_announce_interval=logints["Announce"],
@@ -26516,52 +26560,142 @@ def test_gptp_dataset_matches_engine_announce() -> None:
         f"endstation_builder.gptp_engine_pins() {eb.gptp_engine_pins()} != "
         f"this gate's own parse {wire} - one of the two readers of "
         f"gen_gptp_ucode.py has rotted")
-    #! The consumed set is priority1 alone (--p1; MAC and clock frequency
-    #! ride --mac/--clk-hz from platform/constraints).  If the engine grows
-    #! an argument for a pinned field, the field must MOVE to the consumed
-    #! path, not stay refused.
-    assert eb.GPTP_ENGINE_CONSUMED == ("priority1",)
-    assert re.search(r'add_argument\("--p1"', gen), \
-        "the engine generator no longer consumes --p1"
+    #! The consumed set is priority1 (--p1) and, since FPGA-gPTP #100 gave
+    #! the generator --clock-accuracy, clock_accuracy (#843); MAC and clock
+    #! frequency ride --mac/--clk-hz from platform/constraints.  If the
+    #! engine grows an argument for a pinned field, the field must MOVE to
+    #! the consumed path, not stay refused.
+    assert eb.GPTP_ENGINE_CONSUMED == ("priority1", "clock_accuracy")
+    for flag in ("--p1", "--clock-accuracy"):
+        assert re.search(rf'add_argument\("{flag}"', gen), \
+            f"the engine generator no longer consumes {flag}"
 
-    # 2. every config's AVB_INTERFACE bytes 86..96 are BYTE-EXACT the wire
-    #    dataset (priority1, clockQuality, priority2, domain, intervals)
-    for name in sorted(CONFIGS):
-        cfg = eb.load_config(CONFIGS[name])
-        overlay = eb.emit_aem_overlay(cfg)
-        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
-        avbi = image_descriptor(blob, 0x0009)
-        want = (bytes([cfg["gptp"]["priority1"], wire["clock_class"]])
-                + wire["offset_scaled_log_variance"].to_bytes(2, "big")
-                + bytes([wire["clock_accuracy"], wire["priority2"], 0,
-                         wire["log_sync_interval"] & 0xFF,
-                         wire["log_announce_interval"] & 0xFF,
-                         wire["log_pdelay_interval"] & 0xFF]))
-        assert avbi[86:96] == want, (
-            f"{name}: AVB_INTERFACE clock dataset {avbi[86:96].hex()} != "
-            f"the engine's Announce dataset {want.hex()} (1722.1-2021 "
-            f"7.2.8 bytes 86..96) - the descriptor claims a clock the "
-            f"wire does not carry ([R-parallel] on #228)")
+    _assert_avb_interface_is_the_wire(wire)
 
-    # 3. a config OMITTING every pinned key is filled from the engine
+    # 3. a config OMITTING every pinned key is filled from the engine, and
+    #    an omitted clock_accuracy is 802.1AS-2011 8.6.2.3 b)'s 0xFE
     thin = _variant(CONFIGS["ax7101_1x1_tdm8"],
-                    lambda c: [c["gptp"].pop(k, None) for k in wire])
+                    lambda c: [c["gptp"].pop(k, None)
+                               for k in (*wire, "clock_accuracy")])
     cfg = eb.load_config(thin)
     thin.unlink()
     for k, v in wire.items():
         assert cfg["gptp"][k] == v, \
             f"omitted gptp.{k} resolved to {cfg['gptp'][k]}, engine says {v}"
+    assert cfg["gptp"]["clock_accuracy"] == 0xFE, (
+        f"omitted gptp.clock_accuracy resolved to "
+        f"0x{cfg['gptp']['clock_accuracy']:X}, 802.1AS-2011 8.6.2.3 b) "
+        f"says 0xFE")
 
     _assert_engine_pin_parser_derives(wire)
 
 
     print(f"  [gate 26b] AVB_INTERFACE == wire Announce for all "
           f"{len(CONFIGS)} configs: priority2 {wire['priority2']}, "
-          f"clockQuality 0x{cq:08X}, log intervals "
+          f"clockClass 0x{wire['clock_class']:02X}, variance "
+          f"0x{wire['offset_scaled_log_variance']:04X}, clockAccuracy per "
+          f"board (AX7101 0x22, Arty 0xFE), log intervals "
           f"{wire['log_sync_interval']}/{wire['log_announce_interval']}/"
           f"{wire['log_pdelay_interval']}; omitted keys fill from the "
-          f"engine; the parser refuses a missing or twice-declared "
-          f"constant ([R-parallel] on #228)")
+          f"engine and clockAccuracy from 8.6.2.3 b); the parser refuses a "
+          f"missing or twice-declared constant ([R-parallel] on #228)")
+
+
+def _gptp_image(args: list[str], out: Path) -> bytes:
+    """The engine generator's own image for `args`, written to `out`."""
+    subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR), "-o",
+                    str(out), *args], check=True, capture_output=True,
+                   text=True)
+    return out.read_bytes()
+
+
+def _assert_clock_accuracy_refusals() -> None:
+    """Gate 26c: a value outside Table 6 is refused; both ends are kept."""
+    for v in (0x00, 0x1F, 0x32, 0x7F, 0x80, 0xFD, 0xFF):
+        bad = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                       lambda c, v=v: c["gptp"].__setitem__(
+                           "clock_accuracy", v))
+        try:
+            eb.load_config(bad)
+        except eb.ConfigError as e:
+            for part in ("gptp.clock_accuracy", f"0x{v:X}", "Table 6",
+                         "8.6.2.3"):
+                assert part in str(e), \
+                    f"0x{v:X} refused, but without {part!r}: {e}"
+        else:
+            raise AssertionError(
+                f"gate 26c: gptp.clock_accuracy 0x{v:X} was ACCEPTED - IEEE "
+                f"1588-2008 7.6.2.5 takes the value from Table 6 and "
+                f"802.1AS-2011 8.6.2.3 uses no other profile's range")
+        finally:
+            bad.unlink()
+    for v in (0x20, 0x31):
+        ok = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                      lambda c, v=v: c["gptp"].__setitem__(
+                          "clock_accuracy", v))
+        try:
+            assert eb.load_config(ok)["gptp"]["clock_accuracy"] == v
+        finally:
+            ok.unlink()
+
+
+def test_gptp_clock_accuracy_per_board() -> None:
+    """Gate 26c (#843): each config's clockAccuracy reaches its gPTP image.
+
+    FPGA-gPTP #100 gave the engine generator --clock-accuracy, so the
+    clockAccuracy a board announces (802.1AS-2011 8.6.2.3) is the board's
+    claim, not an engine constant. This gate builds a 0x22 config (the
+    AX7101) and a 0xFE config (the Arty) through eb.build and requires each
+    image to be byte-equal to the generator's own image for the options
+    gptp_ucode_args() gives that config, with --clock-accuracy carrying the
+    board's value, and the two values to give different images. A value
+    outside IEEE 1588-2008 Table 6 is refused. The wire half is
+    tb/verilator/milan_dp's `gptp` and `gptp-lat` legs, which run images
+    made from these two configs through the same options and grade the
+    clockAccuracy of the DUT's own Announce; this gate pins that pairing in
+    the leg's Makefile."""
+    with tempfile.TemporaryDirectory() as td:
+        images = {}
+        for name in ("ax7101_1x1_tdm8", "arty_current"):
+            want = GPTP_CLOCK_ACCURACY_BY_BOARD[name.split("_", 1)[0]]
+            result = eb.build(CONFIGS[name], Path(td) / "build")
+            args = eb.gptp_ucode_args(result["cfg"])
+            assert "--clock-accuracy" in args, (
+                f"gate 26c: {name}'s generator options {args} carry no "
+                f"--clock-accuracy, so its image announces the engine's "
+                f"default and not its board's value")
+            i = args.index("--clock-accuracy")
+            assert int(args[i + 1], 0) == want, (
+                f"gate 26c: {name} passes --clock-accuracy {args[i + 1]}, "
+                f"its board decided 0x{want:02X}")
+            built = Path(result["paths"]["gptp_ucode"]).read_bytes()
+            ref = _gptp_image(args, Path(td) / f"{name}.hex")
+            assert built == ref, (
+                f"gate 26c: {name}'s gptp_ucode.hex is not the generator's "
+                f"image for {args}")
+            other = list(args)
+            other[i + 1] = "0xFE" if want == 0x22 else "0x22"
+            assert _gptp_image(other, Path(td) / f"{name}-other.hex") \
+                != built, (f"gate 26c: {name}'s image does not change with "
+                           f"--clock-accuracy, so it does not carry it")
+            images[name] = built
+        assert images["ax7101_1x1_tdm8"] != images["arty_current"]
+    _assert_clock_accuracy_refusals()
+    mk = (ROOT / "tb/verilator/milan_dp/Makefile").read_text()
+    for config, var, want in (
+            ("endstation_ax7101_1x1_tdm8.yaml", "GPTP_LEG", 0x22),
+            ("endstation_arty_current.yaml", "GPTP_LAT", 0xFE)):
+        assert re.search(rf"^{var}_CONFIG = \.\./\.\./\.\./configs/"
+                         rf"{re.escape(config)}$", mk, re.M), \
+            f"gate 26c: milan_dp's {var}_CONFIG is no longer {config}"
+        assert re.search(rf"^{var}_ACCURACY = 0x{want:02X}$", mk, re.M), \
+            f"gate 26c: milan_dp's {var}_ACCURACY is no longer 0x{want:02X}"
+    print("  [gate 26c] clockAccuracy per board (#843): the AX7101 build's "
+          "image carries --clock-accuracy 0x22 and the Arty's 0xFE, each "
+          "byte-equal to the generator's image for gptp_ucode_args() and "
+          "different under the other value; values outside IEEE 1588-2008 "
+          "Table 6 refused; milan_dp's gptp and gptp-lat legs run those two "
+          "configs and grade the Announce octet on the wire")
 
 
 def test_pp_window_contract() -> None:
@@ -29664,6 +29798,7 @@ if __name__ == "__main__":
                test_d10_names_reach_the_rom,
                test_gptp_domain_is_one_source,
                test_gptp_dataset_matches_engine_announce,
+               test_gptp_clock_accuracy_per_board,
                test_pp_window_contract,
                test_station_mac_ul_bit_warns,
                test_image_identity_is_baked,
