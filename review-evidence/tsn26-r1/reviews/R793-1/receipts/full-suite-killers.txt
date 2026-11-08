@@ -1,0 +1,23 @@
+acmp-full-queue-acts: rc 1 tests 106 failing 4: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken, AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-listener-drop-restored: rc 1 tests 106 failing 3: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken, AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+owed-talker-drop-restored: rc 1 tests 106 failing 2: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-room-off-by-one: rc 1 tests 106 failing 6: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered, AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet, AcmpOwed.OnlyOwnCommandsAreDeclined, AcmpOwed.ReadyPredicateMatchesTheOwedBound, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-ready-ignores-full: rc 1 tests 106 failing 1: AcmpOwed.ReadyPredicateMatchesTheOwedBound
+owed-ready-ignores-reentry: rc 1 tests 106 failing 1: AcmpOwed.ReadyPredicateMatchesTheOwedBound
+owed-ready-off-by-one: rc 1 tests 106 failing 1: AcmpOwed.ReadyPredicateMatchesTheOwedBound
+owed-decline-uncounted: rc 1 tests 106 failing 4: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken, AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-reentry-taken: rc 1 tests 106 failing 1: AcmpOwed.ReadyPredicateMatchesTheOwedBound
+owed-malformed-declined: rc 1 tests 106 failing 1: AcmpOwed.OnlyOwnCommandsAreDeclined
+owed-served-reported-declined: rc 1 tests 106 failing 4: AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet, AcmpOwed.OnlyOwnCommandsAreDeclined, AcmpOwed.ReadyPredicateMatchesTheOwedBound, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-declines-every-frame: rc 1 tests 106 failing 1: AcmpOwed.OnlyOwnCommandsAreDeclined
+owed-declines-foreign-listener: rc 1 tests 106 failing 1: AcmpOwed.OnlyOwnCommandsAreDeclined
+owed-declines-foreign-talker: rc 1 tests 106 failing 1: AcmpOwed.OnlyOwnCommandsAreDeclined
+owed-listener-acts-then-declines: rc 1 tests 106 failing 2: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+owed-talker-acts-then-declines: rc 1 tests 106 failing 2: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs, AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-get-rx-state-drop-restored: rc 1 tests 106 failing 1: AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+owed-bind-rx-drop-restored: rc 1 tests 106 failing 1: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs
+owed-unbind-rx-drop-restored: rc 1 tests 106 failing 1: AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+owed-probe-tx-drop-restored: rc 1 tests 106 failing 1: AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-get-tx-state-drop-restored: rc 1 tests 106 failing 1: AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs
+owed-disconnect-tx-drop-restored: rc 1 tests 106 failing 1: AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+owed-get-tx-connection-drop-restored: rc 1 tests 106 failing 1: AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime

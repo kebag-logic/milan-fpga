@@ -1,0 +1,25 @@
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[       OK ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[       OK ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[----------] 5 tests from AcmpCore (0 ms total)
+
+[----------] 6 tests from AcmpOwed
+[ RUN      ] AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet
+[       OK ] AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet (0 ms)
+[ RUN      ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime
+[       OK ] AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime (0 ms)
+[ RUN      ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken
+[       OK ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken (0 ms)
+[ RUN      ] AcmpOwed.ReadyPredicateMatchesTheOwedBound
+[       OK ] AcmpOwed.ReadyPredicateMatchesTheOwedBound (0 ms)
+[ RUN      ] AcmpOwed.OnlyOwnCommandsAreDeclined
+[       OK ] AcmpOwed.OnlyOwnCommandsAreDeclined (0 ms)
+[ RUN      ] AcmpOwed.ProbeBindRxAndGetTxStateServedAfterRedelivery
+PROBE bind_at=69 get_tx_at=70 probes_lost=1 busy_declined=2 sent=10 state=3
+[       OK ] AcmpOwed.ProbeBindRxAndGetTxStateServedAfterRedelivery (0 ms)
+[----------] 6 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 11 tests.
