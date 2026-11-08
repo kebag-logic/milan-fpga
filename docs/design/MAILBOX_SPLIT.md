@@ -99,7 +99,26 @@ requires each to be caught, after a clean positive control. It also builds
 the two-interface variant the suite uses, which must cross-check clean, and
 requires a four-interface one, whose blocks would overlap the global
 registers, to be refused. `--variant-interfaces N --out DIR` writes such a
-variant into a build directory, never into the tree. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
+variant into a build directory, never into the tree.
+
+A shape whose streams outgrow the contract's tables, which hold stream n at
+entry n of every interface's, takes a layout sized from its streams instead
+(#859): `--variant-interfaces N --variant-shape CONFIG --out DIR`
+(`mailbox_model.with_shape`). Each interface's bound-talker table and
+publication and face entries hold its own streams by their ordinal on it,
+stream n on interface n mod N as the split firmware places it, and each
+bit-per-source field is that many bits; the generated header defines
+`MBX_ENTRY_ORDINAL`, and the firmware's table writers place a stream through
+`mbx.h`'s `MBX_STREAM_ENTRY`. Entry strides stay the contract's, a block
+whose entries outgrow its interface stride takes the next power of two, and a
+block that no longer fits where the contract places it moves to the lowest
+free span of the window. At the 32x32 shape on two interfaces the primary
+carries 17 streams of each direction, both CRF streams among them; the
+bound-talker block leaves the register space for `0x3400`, the publication
+stride doubles to `0x400` and its sink entries start at `0x110`, and the face
+block's sink entries start at `0x210`. Nothing else moves, and the tracked
+outputs are never this layout (`--check`). The self-test generates it and
+refuses one a sink entry short of the primary's 17. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
 `KL_mbx_evt`) and the two bus adapters are written by hand against the
 package, so a contract change reaches them through the constants.
 

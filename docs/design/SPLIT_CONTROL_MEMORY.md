@@ -18,6 +18,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points for the size fixture and the target platform, the platform's added bytes by part, mapped out of context, and the ledger rows, with the largest point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
+- **[8. The simulation-only map](#8-the-simulation-only-map)** -- The map a shape the image build never routes links into, what makes an image its shape's, and the 32x32 image's banks with every byte over budget owed to #640.
 
 ## 1. Memory map
 
@@ -380,3 +381,34 @@ It had required "one cacheless RV32I control hart", which this cache contradicte
 It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
 [The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
 Any change to the cache's geometry, or a data cache, needs the owner's decision again.
+
+## 8. The simulation-only map
+
+A shape the image build never routes (the end-station builder's `simulation_only`, #859) links into a map of its own, stated in `ctrl_memory.py` as `SIMULATION`.
+The shipped map in [section 1](#1-memory-map) is unchanged, and no product build takes a simulation map: `ctrl_srp_image.py` links one only for a `simulation_only` config, and `milan_soc.py` refuses to route or load such a shape.
+
+| Map | Shape | `rom` | `sram` | What makes an image the shape's | Owed to |
+|---|---|---:|---:|---|---|
+| `32x32-two-interfaces` | `endstation_ax7101_32x32`, two interfaces | 256 KiB at `0x0000_0000` | 512 KiB at `0x1000_0000` | `image_arena` of 144,832 B, the SRP pool from its formula at 33 sources and 33 sinks on each of two interfaces (`srp_mbx.h`), beside `image_allocation` of 16 B | #640, the Mark II area plan |
+
+Each region is the smallest power of two that holds the shape's linked image, at the split placement's origins, so the CPU decodes it as one window and `add_ctrl_memory`'s origin check holds.
+`plan` refuses, under the `budget` rule, an image that does not carry the map's symbols at their sizes, and plans the shape's image past the budget with every byte over it ledgered by region and by its five largest objects.
+`test_ctrl_memory.py` plans a 32x32 image on the map, refuses it the shipped map and refuses an image with the 8x8 shape's pool the simulation map; a map planted without its symbols must turn the arm red.
+
+The 32x32 size fixture at `4ebd2a3b`, without saved state (`tb/verilator/ctrl_service_budget/build.py` on a clean clone):
+
+| | `rom` | `sram` | Total |
+|---|---:|---:|---:|
+| Need | 155,188 B | 310,544 B | 465,732 B |
+| Banks | 128 + 16 + 8 KiB, 38 RAMB36 | 256 + 32 + 16 KiB, 76 RAMB36 | 114.0 RAMB36 |
+| Over the 56-RAMB36 budget, owed to #640 | | | 237,568 B (58.0 RAMB36) |
+
+| Largest objects | Bytes | Region |
+|---|---:|---|
+| `image_arena`, the SRP pool | 144,832 | `sram` |
+| `aecp_entity_image`, the AEM image | 69,488 | `rom` |
+| `image_maps`, the audio map rows | 67,584 | `sram` |
+| `image_values`, the descriptors' values | 41,465 | `sram` |
+| `image_app`, the composed application | 15,136 | `sram` |
+
+The 1x1 and 8x8 images are the base's byte for byte: no rule or map they take changed.

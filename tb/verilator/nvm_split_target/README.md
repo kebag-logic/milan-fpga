@@ -33,7 +33,8 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm
 python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm-target-8x8
 ```
 
-`1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface, and `8x8` is `endstation_ax7101_8x8` with two, the CPU budget harness's two points.
+`1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface, and `8x8` is `endstation_ax7101_8x8` with two, the CPU budget harness's two points with saved state.
+The harness's third point, `32x32` (`endstation_ax7101_32x32`, #859), is built without saved state while #823 owns its record space, so it has none of these cases to run: `--point 32x32` prints each selected case as owed to #823 by name, builds nothing, runs nothing and exits 1, so no case counts as passing there.
 `--cases` selects cases; the `commit` case always runs, because the others boot the journal it writes.
 `--jobs` sets how many boots run at once.
 `--reuse-build` reuses each arm's build when every input its `build.json` records still attests (`build.reused`).

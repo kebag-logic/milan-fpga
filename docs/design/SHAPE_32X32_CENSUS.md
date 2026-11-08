@@ -1,8 +1,9 @@
 # The 32x32 two-interface shape: limits census
 
-Status: **census only** (#859, part of #665).
-No 32x32 configuration is in the tree.
-The saved-state record space, the mailbox contract's per-interface tables and the datapath's fixed-width stream fields need decisions first ([section 4](#4-what-needs-a-decision)).
+Status: **the simulation shape builds, links and runs in S2's CPU harness** (#859, part of #665).
+`configs/endstation_ax7101_32x32.yaml` is a simulation-only shape built without saved state, on the decisions of [section 4](#4-what-needs-a-decision).
+Its save groups are owed to #823 and its datapath to #640 ([section 5](#5-the-simulation-shape)).
+Sections 1 to 4 are the census of `dev-soft-core` `a9d69c77`, kept as measured there.
 
 The Mark II target is 32x32 streams (#640): 16x16 logical streams, each redundant on two networks.
 This page lists every per-shape limit such a shape crosses at `dev-soft-core` `a9d69c77`, where each limit is stated, what bounds it and the rule it follows.
@@ -11,18 +12,9 @@ This page lists every per-shape limit such a shape crosses at `dev-soft-core` `a
 
 - **[1. The shape](#1-the-shape)** -- The streams, their interfaces, what is kept from the 8x8 config, and how each limit was found.
 - **[2. Census](#2-census)** -- Every limit the shape crosses, by area, with where it is stated and each point's figure against it.
-  - [Generators](#generators) -- The builder's stream cap, its SRP row index, its name capacity, bandwidth and the resource estimate.
-  - [Firmware](#firmware) -- ACMP's sink and source tables, the F1 store's record set and slot, the SRP pool, and where the link stops.
-  - [Mailbox contract](#mailbox-contract) -- The per-interface tables, full at 16, the bit-per-source fields, the counter events, and the rings and buckets.
-  - [AEM descriptor image](#aem-descriptor-image) -- The packed image's size against the firmware's rom and the 64 KiB flash slot.
-  - [Name store](#name-store) -- The 395 writable names against the NAME block's 128 ids.
-  - [Saved-state records](#saved-state-records) -- The record count, each 16-id block and the image against one 64 KiB slot.
-  - [Stream DMAC and ID ranges](#stream-dmac-and-id-ranges) -- The MAAP allocation, its counts and the stream IDs, none crossed.
-  - [Firmware memory map](#firmware-memory-map) -- The 224 KiB regions and the 56-RAMB36 budget against the measured points and the shape's two largest objects.
-  - [Datapath RTL](#datapath-rtl) -- The five elaboration guards at 32 streams and the ones behind them.
-  - [Harness, gates and image build](#harness-gates-and-image-build) -- The point lists, the gates that take every config, and why nothing refuses to route a shape.
 - **[3. Rules for the limits that state none](#3-rules-for-the-limits-that-state-none)** -- The rule each unruled limit would follow at 32x32, and why.
-- **[4. What needs a decision](#4-what-needs-a-decision)** -- The three limits no rule can lift: the record space, the contract's tables and the datapath's stream fields.
+- **[4. What needs a decision](#4-what-needs-a-decision)** -- The three limits no rule can lift: the record space, the contract's tables and the datapath's stream fields, and the decision taken on each.
+- **[5. The simulation shape](#5-the-simulation-shape)** -- What each limit became, the save groups owed to #823 and the datapath guards owed to #640, each ring and bucket from its rate or timer, and the findings.
 
 ## 1. The shape
 
@@ -164,6 +156,14 @@ Nothing refuses to route a shape for its size: the resource verdict only labels 
 
 ## 4. What needs a decision
 
+The three limits below were decided on #859 (the ruling of 2026-11-08, issuecomment-6727773362), each by its option (a):
+
+- **the record space** stays #823's. The 32x32 simulation shape is built without saved state (no store groups, no record space, no journal image), and its save groups are owed to #823 by name;
+- **the contract's tables** are laid out from the shape's per-interface streams, each interface's own by its ordinal on it, so the primary holds 17 with both CRF streams; the tracked contract 2.4 outputs are unchanged;
+- **the datapath** waits for #640's redesign: the mailbox and the CPU harness run the point, and the five guards below are owed to #640.
+
+Section 5 records what each became.
+
 1. **The saved-state record space and slot (#823).**
    It blocks the builder, the firmware's F1 store and the fabric backend, and it fixes the contract's bound-talker rule at 16.
    #823's scope already names 32x32 and owns the choices: the record-ID width or allocation, the slot size or a compact name encoding, compatibility with today's journals, and the VERSION chain.
@@ -174,3 +174,72 @@ Nothing refuses to route a shape for its size: the resource verdict only labels 
 3. **The datapath's fixed-width stream fields.**
    The render crossbar's 3-bit stream field, the 4-bit talker indices, the map writer's cursors and the SRP row index.
    Widening them changes the datapath at every shape; #640's redesign replaces the per-stream engines they belong to.
+
+## 5. The simulation shape
+
+### What each limit became
+
+| Limit (section 2) | At the simulation shape | Where |
+|---|---|---|
+| 16 streams per direction | 32 per direction for a shape without saved state: the record blocks that set 16 bound nothing there, and 32 is the Mark II target (#640) | `sw/builder/endstation_builder.py`, `MAX_STREAMS_UNSAVED` |
+| SRP attribute rows, 32 | 65 rows built and marked planned against #640: the row index is the datapath's | `_marks_srp` |
+| Writable names, 128 | not bounded: a shape without saved state saves no name | `_adp_name_entries` |
+| ACMP sinks and sources, 16 | 33 and 33 through `ACMP_MAX_SINKS` and `ACMP_MAX_SOURCES`, set from the generated `CTRL_SRP_SINKS` and `CTRL_SRP_SOURCES` where they pass `acmp.h`'s defaults; no tsn-c-stack change | `sw/firmware/ctrl/test/ctrl_srp_image.py`, `acmp_sizing` |
+| F1 record set, names, container | none linked: the shape is built without saved state (`CTRL_SAVED_STATE_NONE`); the face publishes a restore that is done and a store that does not answer | `sw/firmware/ctrl/app/ctrl_app_aecp.c`, `ctrl_aecp_image.c` |
+| The SRP pool | 144,832 B, its formula at the shape (`srp_mbx.h`), the linked `image_arena` | [memory map](SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map) |
+| Per-interface tables and source bits, 16 | 17 entries and 17-bit fields: the layout sized from the shape, each interface's streams by ordinal | [the shape layout](MAILBOX_SPLIT.md), `gen_mailbox.py --variant-shape` |
+| `rom` and `sram`, 224 KiB | the simulation-only map: 256 KiB and 512 KiB; the image plans 114.0 RAMB36, 237,568 B over the budget owed to #640 by region and by its five largest objects | [memory map](SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map) |
+| The AEM image and its 64 KiB flash slot | the 69,488 B image is linked into `rom`; the slot binds only a flashed image, and this shape is never flashed | `milan_soc.py --simulation-only` |
+| Resource estimate, LUT 111.1 % | the image build refuses to route the shape: `--build` and `--load` with `--simulation-only` | `test_soc_options.py` |
+| Harness points | `ctrl_service_budget` and `nvm_split_target` take `--point 32x32`; the hook harness and `fw_service_budget` do not (below) | `run.py` |
+
+### Owed to #823 and #640
+
+**#823, the record space at the shape.** Every save group of S2's harness, the saved-state store's cases on the split CPU (`tb/verilator/nvm_split_target`): `commit`, `valid`, `absent`, `torn`, `version`, `guard` and the four planted controls `reorder-settle`, `reorder-bindings`, `guard-removed` and `slow-step`.
+At 32x32 the CPU harness reports each by name as owed to #823 and grades none, and `nvm_split_target --point 32x32` lists them and exits 1 without building.
+`fw_service_budget` boots the fabric placement's firmware on media built from the shape's record inventory, so it is owed to #823 as well; it is also the all-fabric SoC with the Milan datapath, below.
+
+**#640, the datapath at the shape.** The five guards the elaboration stops on (section 2, Datapath RTL), each owed to #640's redesign:
+
+| Guard | Bound | 32x32 |
+|---|---|---:|
+| `hdl/milan/KL_nvm_backend.sv:285-287`, the record blocks | 16 streams per direction | 33 |
+| `hdl/ieee1722/aaf/KL_render_queue.sv:324-325`, the render crossbar's stream field | 8 streams | 32 |
+| `hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:131-132`, the context index | 16 contexts | 33 |
+| `hdl/ieee1722/avtp/KL_media_clock_restart.sv:196-197`, the talker index | 16 talkers | 33 |
+| `hdl/milan/milan_datapath.sv:5228-5232`, the channel-map writer's cursors | 127 map entries | 256 output keys |
+
+Behind them: `KL_nvm_backend.sv:288-290` and `:294-295`, and the SRP row index `milan_csr.sv:614`.
+The publication census elaborates no simulation-only shape (`sw/mailbox/census_elab.py`), and neither does `fw_service_budget`, whose SoC is the all-fabric one with the datapath.
+
+### Rings and buckets
+
+The contract states no derivation for its rings and token buckets; S2's backlog bounds take each ring as given ([assumption A1](MAILBOX_SPLIT.md#service-latency)).
+The rule stated here: each bucket admits at least the channel's arrival rate at the shape, and each ring holds its bucket's burst of the channel's protocol frames, each from a cited rate or timer.
+A record is two header words and the frame's bytes in words.
+The bucket is the fabric's limiter, one per channel across both interfaces; it drops what arrives past it.
+
+| Channel | Frame, record | RX ring, records | Bucket: burst, then one each | Arrivals the shape adds, at 32x32/2if | Verdict |
+|---|---|---:|---|---|---|
+| adp | 82 B (`adp.h`, IEEE 1722.1-2021 Figure 6-1), 23 words | 256 words, 11 | 8, 10 ms (100/s) | each bound talker's ENTITY_AVAILABLE every 5,000 ms (Milan v1.2 Table 5.50): up to 33 talkers, 6.6/s | holds the rate and its burst; 33 refreshes at one instant pass 8, and a dropped one repeats within its 20 s valid time (IEEE 1722.1-2021 6.2.2.5), as 9 do at 8x8 |
+| acmp | 70 B (`acmp.h`), 20 words | 256 words, 12 | 16, 5 ms (200/s) | a PROBE_TX_RESPONSE a sink at most every TMR_NO_RESP, 200 ms (Milan v1.2 Table 5.26): 33 sinks, 165/s | holds the rate; **the ring holds 12 of its bucket's 16 at every shape** (finding) |
+| aecp | up to 1,514 B, 381 words | 512 words, 1 | 16, 5 ms | none: controllers' commands and the 16 registrations an interface (Milan v1.2 5.4.5.3) are the same at every shape | as at every shape: the ring holds one frame of the largest size (assumption A1) |
+| maap | 60 B (`maap.h`), 17 words | 128 words, 7 | 8, 20 ms | none: one range an interface (IEEE 1722-2016 B.3.4, Table B.8) | **the ring holds 7 of its bucket's 8 at every shape** (finding) |
+| srp | up to 1,514 B, 381 words | 1,024 words, 2 | 32, 2 ms | the bridge's MSRP and MVRP PDUs a JoinTime a port (IEEE 802.1Q-2018 10.7.4.1, Table 10-7; Milan v1.2 Table 4.3), larger with the shape's attributes: up to 17 Talker and 17 Listener attributes a port | holds the rate; PDU sizes at the shape are not measured |
+
+The transmit side, the firmware's largest burst on a channel against its TX ring:
+
+| Channel | TX ring, records | The shape's largest burst | Verdict |
+|---|---:|---|---|
+| acmp | 256 words, 12, and tsn-c-stack's 8 owed frames (`ACMP_OWED_MAX`) | a PROBE_TX_COMMAND from every bound sink whose delay expires in one pass (Milan v1.2 5.5.2.3): 33 | **short at 32x32** (finding): 20 of 33 leave and the rest are lost to a TMR_NO_RESP retry; at 8x8, 9 of 20. The rule gives 660 words, a 1,024-word ring, or 21 owed frames |
+| adp, maap | 128 words | one advertisement or probe an interface | holds |
+| aecp, srp | 512 words | THE RETRY's notices and the participants' MRPDUs; S2b's (#810) | not derived here |
+
+No ring or bucket of the shape's layout differs from the contract's: the shortfalls above are recorded, and sizing them is a decision for the issue each is filed under.
+
+### Findings
+
+- **tsn-c-stack's ACMP owed-release mask holds 32 sinks.** `third_party/tsn-c-stack/src/acmp.c` keeps `uint32_t release` and shifts `1u << k` by sink, so at 33 sinks sink 32's release (the CRF sink's) aliases sink 0's on RV32, and that sink's change notice is not held behind its owed response (#653). `acmp.h` takes `ACMP_MAX_SINKS` as a build define, but the mask does not follow it. A donor patch is drafted for the stack; the lane builds the pinned stack.
+- **AECP's face places a stream where the model's one AVB_INTERFACE says, interface 0.** ACMP, MAAP and SRP place stream n on interface n mod 2. The shape's layout holds each interface's own streams, so in that layout the face places a stream on the interface the split puts it on (`aecp_face.c`, `MBX_STREAM_HOME`). The contract's own layout is unchanged; a second AVB_INTERFACE is #394's.
+- **SRP's participant on each interface declares every source of the entity**, and in the shape's layout each interface publishes only its own sources' LICENCE and TALKER_DECL bits.
+- **The two rings that hold less than their bucket's burst at every shape**, ACMP's and MAAP's receive rings, and ACMP's transmit side at 32x32, above.

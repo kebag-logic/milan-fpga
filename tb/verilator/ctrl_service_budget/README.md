@@ -9,7 +9,7 @@ Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../.
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the three points, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
@@ -44,6 +44,18 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 57.5 RAMB36 against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
 The planner refuses the override on any other image, and the product SoC build names none.
+
+`32x32` is `endstation_ax7101_32x32` with two (#859), a simulation-only shape the image build never routes:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 32x32 \
+  --build-dir /tmp/budget-32x32 --record-budget-findings
+```
+
+It is built without saved state while #823 owns its record space, so its image links no store and no flash port, `build.py` makes no flash map, and the test SoC places the flash and `timer0` at the RV32 stand-ins' placeholders (`split_soc.stand_in_addresses`).
+Its image links into its simulation-only memory map, `32x32-two-interfaces` ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map), section 8), so the CPU netlist is generated for that map's regions.
+Its mailbox is the contract laid out from the shape's streams on each interface (`gen_mailbox.py --variant-shape`, [the shape layout](../../../docs/design/MAILBOX_SPLIT.md)), and the probes' publication addresses follow that layout (`scenario.Point.layout`).
+Every group runs there; the saved-state store's groups, which `nvm_split_target` runs, are each reported by name as owed to #823 (`OWED` lines, `results.json`'s `owed`, the table's last line) and none is graded.
 
 **The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
