@@ -928,8 +928,10 @@ exec-twin-sp:
 build-twin: build-twin-af build-twin-sp
 
 # the comparison: both halves' captures, then twin_compare.py, exit 1 on any
-# difference or any bound one half misses
-twin: build-twin exec-twin-sp exec-twin-af
+# difference or any bound one half misses. The halves run once both are built,
+# in a make of their own, so a parallel make never runs a binary mid-link.
+twin: build-twin
+	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
 
 # the three plants (twin_split.cpp --plant), each refused by its own words
@@ -937,7 +939,8 @@ twin: build-twin exec-twin-sp exec-twin-af
 # only finding, and against the all-fabric capture, as a finding the
 # unplanted comparison does not make
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
-twin-plants: build-twin exec-twin-sp exec-twin-af
+twin-plants: build-twin
+	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
 	  --report-only > $(TWIN_OUT)/unplanted.txt
 	set -e; for p in $(TWIN_PLANTS); do \
