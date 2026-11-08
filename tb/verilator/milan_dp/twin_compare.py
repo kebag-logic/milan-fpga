@@ -5,7 +5,7 @@
 
 It reads the capture each half wrote (twin_fabric.cpp, twin_split.cpp, decoded by twin_decode.py)
 and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453,
-issuecomment-6717765106 and issuecomment-6722002738 amend it:
+issuecomment-6717765106, issuecomment-6722002738 and issuecomment-6724570965 amend it:
 
   * ADP, ACMP and MAAP: each protocol's frames as an ordered sequence, raw bytes equal. Times are
     never compared between the halves.
@@ -26,8 +26,8 @@ issuecomment-6717765106 and issuecomment-6722002738 amend it:
   * Each half on its own: what a standard leaves random or bounded against that bound (ADP's and
     MAAP's intervals, the 240 ms AEM response), the notices' sequence_id per registered controller
     (Milan v1.2 5.4.5.1), the entity's own commands' sequence_id per controller, the MRP timers (IEEE
-    802.1Q-2018 10.7.4), each MSRP attribute's events as an Applicant's (Table 10-3), and MVRP (Milan
-    v1.2 4.3.2, 4.4.1; IEEE 802.1Q-2018 10.7), which is not compared across the halves.
+    802.1Q-2018 10.7.4), each MSRP and MVRP attribute's events as an Applicant's (Table 10-3), and
+    MVRP's VID 2 (Milan v1.2 4.3.2, 4.4.1), which is not compared across the halves.
 
 An ADP or MAAP frame one half sent past the other's last is not a difference when the other half's
 next one was not yet due at the run's end (its bound, TAIL_MS).
@@ -86,6 +86,16 @@ PLANT_WORDS = {
                              "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
     "vanished-available-index": "owed row entity-available-index: the difference has gone",
+    "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table "
+                    "10-3's tx! sends JoinMt",
+    "mvrp-received-join": "[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with "
+                          "the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing",
+    "vanished-domain-new": "owed row fabric-domain-one-new: the defect has gone",
+    "domain-trace-moved": "owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value "
+                          "06030002: New x1 from ms 200, JoinIn x1 from ms 1000",
+    "vanished-vid2-join-in": "owed row fabric-vid2-join-in: the defect has gone",
+    "vid2-registrar-in": "owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 "
+                         "from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 MVRPDU(s)",
 }
 #: the words of the control against the unplanted capture, where they differ
 SELF_WORDS = {
@@ -93,12 +103,21 @@ SELF_WORDS = {
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
     "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
     "vanished-available-index": "AECP response 13 differs at byte 81",
+    "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
+                           "ms 1000",
+    "domain-trace-moved": "[MRP] all-fabric MSRP Domain value 06030002: JoinIn at ms 1000 is not an Applicant's "
+                          "message",
+    "vanished-vid2-join-in": "the planted half no longer makes: [MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200",
+    "vid2-registrar-in": "[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN "
+                         "with the Registrar IN",
 }
 PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
                     "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "vanished-mvrp-leave-all": "MVRP",
-                    "vanished-available-index": "AECP"}
+                    "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
+                    "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
+                    "vid2-registrar-in": "MVRP"}
 
 
 # ---- the ordered raw-byte comparison ---------------------------------------
@@ -232,8 +251,8 @@ def compare_declarations(fab: twin_mrp.Grade, spl: twin_mrp.Grade, left_out: set
     attributes an owed row covers left out: the halves' sequences of states equal, a run of equal states
     one state. The boundaries are paired by the states they show, in order, never by their times or their
     count, which the LeaveAll timer's random draw sets (IEEE 802.1Q-2018 10.7.4.3)."""
-    rf = runs(twin_mrp.declarations(fab.boundaries, left_out))
-    rs = runs(twin_mrp.declarations(spl.boundaries, left_out))
+    rf = runs(twin_mrp.declarations(fab, left_out))
+    rs = runs(twin_mrp.declarations(spl, left_out))
     if [state for state, _ in rf] == [state for state, _ in rs]:
         return []
     return [f"[DIFF] MSRP declarations at the LeaveAll boundaries differ: the fabric's [{shown_runs(rf)}], "
@@ -500,9 +519,31 @@ def mvrp_shown(cap: Capture) -> str:
 
 #: The fabric's MVRP as #857 has it: one LeaveAll, then VID 2's Lv at 20 s and no PDU after it
 FABRIC_MVRP = "MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv)"
+#: The two attributes #860 has: the Domain the halves declare (Milan v1.2 4.2.7.2.1) and VID 2, its VLAN
+DOMAIN_KEY, VID2_KEY = (4, "06030002"), (1, "0002")
+#: The fabric's Domain as #860 has it: one New at 200 ms, then JoinMt at every periodic and LeaveAll, with no
+#: MSRPDU received; and its VID 2: one New at 5200 ms, then JoinIn from 6200 ms with no MVRPDU received
+FABRIC_DOMAIN = ("MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its "
+                 "Registrar MT throughout")
+FABRIC_VID2 = ("MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, "
+               "its Registrar MT throughout")
+ONE_NEW = "#860 (a release-image defect; issuecomment-6724570965, items 1 and 2)"
 
-#: The owed defects a half's grade finds (issuecomment-6722002738, item 4), apart from the differences OWED
-#: holds: each covers its grade findings while the half shows exactly the behaviour it asserts.
+
+def applicant_findings(application: str, key: tuple[int, str]) -> Callable[[str], bool]:
+    """Whether a grade finding is the all-fabric half's Table 10-3 finding of one attribute."""
+    head = f"[MRP] all-fabric {application} {twin_mrp.label_of(application, key)}: "
+    return lambda f: f.startswith(head)
+
+
+def traced(application: str, key: tuple[int, str]) -> Callable[[Capture], str]:
+    """A half's messages for one attribute, as an owed grade row asserts them (twin_mrp.trace_shown)."""
+    return lambda cap: twin_mrp.trace_shown(cap, application, key)
+
+
+#: The owed defects a half's grade finds (issuecomment-6722002738, item 4; issuecomment-6724570965, items 1 and
+#: 2), apart from the differences OWED holds: each covers its grade findings while the half shows exactly the
+#: behaviour it asserts.
 OWED_GRADES = (
     GradeRow("fabric-mvrp-leave-all",
              "IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring "
@@ -510,6 +551,16 @@ OWED_GRADES = (
              lambda f: f.startswith("[MRP] all-fabric MVRP: ") and "to the next LeaveAll" in f, mvrp_shown,
              FABRIC_MVRP, "the fabric's MVRP participant sends nothing, LeaveAll included, once it declares nothing",
              "#857 (a release-image defect; issuecomment-6722002738, item 4)"),
+    GradeRow("fabric-domain-one-new",
+             "IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again; Milan v1.2 4.2.7.2.1: the Domain declared "
+             "after startup", "all-fabric", applicant_findings("MSRP", DOMAIN_KEY), traced("MSRP", DOMAIN_KEY),
+             FABRIC_DOMAIN, "the fabric's Domain participant queues one New at startup and at LINK_UP, then re-joins "
+             "(KL_srp_domain.sv)", ONE_NEW),
+    GradeRow("fabric-vid2-join-in",
+             "IEEE 802.1Q-2018 Table 10-3, 10.7.6.3: from AN, tx! sends New again, and sJ sends JoinIn only with "
+             "the Registrar IN", "all-fabric", applicant_findings("MVRP", VID2_KEY), traced("MVRP", VID2_KEY),
+             FABRIC_VID2, "the fabric's MVRP participant declares a VID with one New, then re-joins it on every "
+             "periodic and LeaveAll tick with JoinIn, the only Join it sends (KL_srp_vlan.sv)", ONE_NEW),
 )
 
 

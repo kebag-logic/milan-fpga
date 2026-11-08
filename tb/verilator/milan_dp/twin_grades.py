@@ -19,10 +19,10 @@ is graded here too:
   * each MRP participant's transmit opportunities (IEEE 802.1Q-2018 10.7.4; Milan v1.2 Table 4.3): no more
     than three in any 1.5 x JoinTime, LeaveAll within its interval, a declaration repeated within the
     periodic interval;
-  * each MSRP attribute's events, a trace an Applicant can make (IEEE 802.1Q-2018 Table 10-3; twin_mrp.py;
-    issuecomment-6722002738, item 3);
-  * MVRP (Milan v1.2 4.3.2, 4.4.1; IEEE 802.1Q-2018 10.7): VID 2 declared before the first stream frame
-    and while any sink is settled, its events those of an Applicant.
+  * each MSRP and MVRP attribute's events, a trace an Applicant can make (IEEE 802.1Q-2018 Table 10-3;
+    twin_mrp.py; issuecomment-6722002738, item 3, and issuecomment-6724570965, item 2, for MVRP);
+  * MVRP (Milan v1.2 4.3.2, 4.4.1): VID 2 declared before the first stream frame and while any sink is
+    settled, beside the Table 10-3 grade of its events.
 """
 from __future__ import annotations
 
@@ -214,8 +214,8 @@ def settled_intervals(cap: Capture) -> list[tuple[int, int]]:
 
 def grade_mvrp(cap: Capture) -> tuple[list[str], dict]:
     """VID 2 declared before the first stream frame (Milan v1.2 4.3.2) and while any sink is settled, from
-    one JoinTime after it settles (4.4.1), its events those of an Applicant (IEEE 802.1Q-2018 10.7: a
-    declaration opens with New or a Join, and a Lv only withdraws one)."""
+    one JoinTime after it settles (4.4.1). Its events are an Applicant's when Table 10-3 says so
+    (grade_applicant), which also refuses a Lv before any declaration."""
     events = vid2_events(cap)
     found: list[str] = []
     if cap.first_stream_ms >= 0 and not declared_at(events, cap.first_stream_ms):
@@ -226,21 +226,22 @@ def grade_mvrp(cap: Capture) -> tuple[list[str], dict]:
         if not declared_at(events, t0 + JOIN_MAX_MS) or any(e.event == "Lv" for e in events if t0 < e.ms < t1):
             found.append(f"[MVRP] {cap.placement}: a sink settled from ms {t0} to {t1} without VID 2 declared "
                          "throughout (Milan v1.2 4.4.1)")
-    opened = next((e for e in events if e.event in td.DECLARING or e.event == "Lv"), None)
-    if opened is not None and opened.event == "Lv":
-        found.append(f"[MVRP] {cap.placement}: VID 2 withdrawn at ms {opened.ms} before it is declared "
-                     "(IEEE 802.1Q-2018 10.7)")
     first = next((e.ms for e in events if e.event in td.DECLARING), None)
     return found, {"mvrp_vid2_declared_from_ms": first, "mvrp_vid2_events": td.run_length([e.event for e in events]),
                    "first_stream_ms": cap.first_stream_ms, "settled_sinks_ms": intervals}
 
 
 def grade_applicant(cap: Capture) -> tuple[list[str], dict]:
-    """Each MSRP attribute's events against Table 10-3 (twin_mrp.py), and what it declares at each LeaveAll."""
-    found = twin_mrp.grade(cap)
-    return found.findings, {"msrp_leave_all_declarations": [[ms, shown] for (ms, _), shown in
-                                                            zip(found.boundaries,
-                                                                twin_mrp.declarations(found.boundaries, set()))]}
+    """Each MSRP and MVRP attribute's events against Table 10-3 (twin_mrp.py), and what each application
+    declares at each of its LeaveAlls."""
+    findings: list[str] = []
+    measured: dict = {}
+    for application in twin_mrp.APPLICATIONS:
+        found = twin_mrp.grade(cap, application)
+        findings += found.findings
+        measured[f"{application.lower()}_leave_all_declarations"] = [
+            [ms, shown] for (ms, _), shown in zip(found.boundaries, twin_mrp.declarations(found, set()))]
+    return findings, measured
 
 
 def grade(cap: Capture) -> tuple[list[str], dict]:

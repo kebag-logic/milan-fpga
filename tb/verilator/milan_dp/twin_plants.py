@@ -14,9 +14,15 @@ Each plant names the grade or row it is the plant of:
   * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
   * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
     against its Registrar (twin_mrp.py);
+  * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665
+    issuecomment-6724570965, item 2);
   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
   * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
-  * vanished-available-index: the #858 owed row's difference gone (OWED).
+  * vanished-available-index: the #858 owed row's difference gone (OWED);
+  * vanished-domain-new, vanished-vid2-join-in: the #860 owed rows' defects gone, where the fix would land
+    (OWED_GRADES; issuecomment-6724570965, items 1 and 2);
+  * domain-trace-moved, vid2-registrar-in: each #860 row's exact trace, the defect kept but the trace changed:
+    the Domain's first Join sent as JoinIn, and VID 2 registered by a peer's MVRPDU.
 """
 from __future__ import annotations
 
@@ -26,13 +32,17 @@ import twin_decode as td
 from twin_decode import Sent, aecp
 
 FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
-#: the peer's MAC (twin.hpp kPeerMac) and MSRP's destination, the nearest-bridge group address (IEEE
-#: 802.1Q-2018 Table 10-1)
+#: the peer's MAC (twin.hpp kPeerMac), MSRP's destination, the nearest-bridge group address, and MVRP's, the
+#: Customer Bridge MVRP address (IEEE 802.1Q-2018 Table 10-1)
 PEER_MAC = bytes.fromhex("001b920000aa")
 MSRP_DA = bytes.fromhex("0180c200000e")
 MSRP_ETHERTYPE = 0x22EA
+MVRP_DA = bytes.fromhex("0180c2000021")
+MVRP_ETHERTYPE = 0x88F5
 #: the Domain the halves declare (Milan v1.2 4.2.7.2.1: SRclassID 6, priority 3, VID 2)
 DOMAIN = bytes.fromhex("06030002")
+#: IEEE 802.1Q-2018 10.8.2.6: a single value's ThreePackedEvents octet is its event x 36
+NEW, JOIN_IN, JOIN_MT, LV = 0, 1, 3, 5
 
 
 def frame_fields(entry: dict) -> tuple[str, Sent] | None:
@@ -200,6 +210,58 @@ def plant_received_join(fabric: dict, split: dict) -> dict:
     return planted(split, "received-join")
 
 
+# ---- MVRP --------------------------------------------------------------------------
+
+
+def vid2_events(doc: dict) -> Iterator[tuple[dict, int]]:
+    """Each VID 2 vector of a capture's MVRP frames, as its frame entry and its ThreePackedEvents offset (one
+    value, its event the octet's first of three): IEEE 802.1Q-2018 10.8.1.2, 11.2.3.1, a Message with no
+    AttributeListLength, each vector a VectorHeader, a FirstValue of AttributeLength octets and its events."""
+    for entry in doc["frames"]:
+        found = frame_fields(entry)
+        if found is None or found[0] != "MVRP":
+            continue
+        data, offset = found[1].data, found[1].at + 1
+        while offset + 2 <= len(data) and data[offset:offset + 2] != b"\0\0":
+            length = data[offset + 1]
+            offset += 2
+            while offset + 2 <= len(data) and data[offset:offset + 2] != b"\0\0":
+                count = int.from_bytes(data[offset:offset + 2], "big") & 0x1FFF
+                if count == 1 and int.from_bytes(data[offset + 2:offset + 2 + length], "big") == 2:
+                    yield entry, offset + 2 + length
+                offset += 2 + length + (count + 2) // 3
+            offset += 2
+
+
+def vid2_frame(event: int) -> bytes:
+    """A peer's MVRPDU declaring VID 2 with one event, as the stimulus would apply it: ProtocolVersion 0, one
+    Message of AttributeType 1 (the VID) and AttributeLength 2, one vector, and the list's and the PDU's
+    EndMarks (IEEE 802.1Q-2018 10.8.1.2, 11.2.3.1)."""
+    pdu = bytes([0, 1, 2]) + bytes.fromhex("0001") + bytes.fromhex("0002") + bytes([event * 36]) + bytes(4)
+    return (MVRP_DA + PEER_MAC + MVRP_ETHERTYPE.to_bytes(2, "big") + pdu).ljust(td.MIN_FRAME, b"\0")
+
+
+def plant_mvrp_join_in(fabric: dict, split: dict) -> dict:
+    """The split's second VID 2 message, a JoinMt with its Registrar MT, re-encoded JoinIn, as the fabric sends
+    it: sJ sends JoinIn only with the Registrar IN (IEEE 802.1Q-2018 10.7.6.3)."""
+    del fabric
+    found = list(vid2_events(split))
+    if len(found) < 2 or bytes.fromhex(found[1][0]["hex"])[found[1][1]] != JOIN_MT * 36:
+        raise SystemExit("plant mvrp-join-in: the split's second VID 2 message is not a JoinMt")
+    set_byte(found[1][0], found[1][1], JOIN_IN * 36)
+    return planted(split, "mvrp-join-in")
+
+
+def plant_mvrp_received_join(fabric: dict, split: dict) -> dict:
+    """A peer's VID 2 JoinIn the split receives at 30500 ms, as the stimulus would apply it: MVRP's Registrar
+    (Table 10-4) goes IN, so its next sJ must be JoinIn (10.7.6.3), and the split, which never received it,
+    sends JoinMt."""
+    del fabric
+    split["applied"] = sorted(split["applied"] + [{"ms": 30500, "what": "MVRP VID 2 JoinIn from a peer (planted)",
+                                                   "hex": vid2_frame(JOIN_IN).hex()}], key=lambda a: a["ms"])
+    return planted(split, "mvrp-received-join")
+
+
 # ---- the fabric's owed defects gone ----------------------------------------------
 
 
@@ -229,6 +291,57 @@ def plant_vanished_available_index(fabric: dict, split: dict) -> dict:
     raise SystemExit("plant vanished-available-index: no response to the later ENTITY read")
 
 
+def fabric_domain(fabric: dict, name: str) -> list[tuple[dict, int]]:
+    """The fabric's Domain messages, which must open with one New and then a JoinMt (#860)."""
+    found = list(domain_events(fabric))
+    octets = [bytes.fromhex(e["hex"])[at] for e, at in found[:2]]
+    if octets != [NEW * 36, JOIN_MT * 36]:
+        raise SystemExit(f"plant {name}: the fabric's Domain does not open with one New, then JoinMt")
+    return found
+
+
+def plant_vanished_domain_new(fabric: dict, split: dict) -> dict:
+    """#860 fixed for the Domain: the fabric's first JoinMt (1000 ms) sent as a second New, so its Domain is New
+    twice, then JoinMt (Table 10-3: VN, AN, then AA by note 8 with the Registrar MT)."""
+    del split
+    entry, at = fabric_domain(fabric, "vanished-domain-new")[1]
+    set_byte(entry, at, NEW * 36)
+    return planted(fabric, "vanished-domain-new")
+
+
+def plant_domain_trace_moved(fabric: dict, split: dict) -> dict:
+    """The fabric's Domain still not an Applicant's, but its trace another than the #860 row asserts: its first
+    JoinMt (1000 ms) sent as JoinIn."""
+    del split
+    entry, at = fabric_domain(fabric, "domain-trace-moved")[1]
+    set_byte(entry, at, JOIN_IN * 36)
+    return planted(fabric, "domain-trace-moved")
+
+
+def plant_vanished_vid2_join_in(fabric: dict, split: dict) -> dict:
+    """#860 fixed for VID 2: the fabric's first JoinIn (6200 ms) sent as a second New and every later JoinIn as
+    JoinMt, its Registrar being MT (10.7.6.3); the Lv at 20000 ms kept."""
+    del split
+    found = list(vid2_events(fabric))
+    octets = [bytes.fromhex(e["hex"])[at] for e, at in found]
+    if octets[:2] != [NEW * 36, JOIN_IN * 36]:
+        raise SystemExit("plant vanished-vid2-join-in: the fabric's VID 2 does not open with New, then JoinIn")
+    set_byte(found[1][0], found[1][1], NEW * 36)
+    for (entry, at), octet in zip(found[2:], octets[2:]):
+        if octet == JOIN_IN * 36:
+            set_byte(entry, at, JOIN_MT * 36)
+    return planted(fabric, "vanished-vid2-join-in")
+
+
+def plant_vid2_registrar_in(fabric: dict, split: dict) -> dict:
+    """The fabric's VID 2 still sent New then JoinIn, but registered by a peer's VID 2 JoinIn at 6000 ms, so its
+    Registrar is no longer MT throughout, as the #860 row asserts."""
+    del split
+    fabric["applied"] = sorted(fabric["applied"] + [{"ms": 6000, "what": "MVRP VID 2 JoinIn from a peer (planted)",
+                                                     "hex": vid2_frame(JOIN_IN).hex()}], key=lambda a: a["ms"])
+    return planted(fabric, "vid2-registrar-in")
+
+
 Plant = Callable[[dict, dict], dict]
 #: the plants of the split half's capture (--make-plant writes the planted split capture)
 SPLIT_PLANTS: dict[str, Plant] = {
@@ -236,10 +349,13 @@ SPLIT_PLANTS: dict[str, Plant] = {
     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
+    "mvrp-join-in": plant_mvrp_join_in, "mvrp-received-join": plant_mvrp_received_join,
 }
 #: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)
 FABRIC_PLANTS: dict[str, Plant] = {
     "vanished-mvrp-leave-all": plant_vanished_mvrp_leave_all,
     "vanished-available-index": plant_vanished_available_index,
+    "vanished-domain-new": plant_vanished_domain_new, "domain-trace-moved": plant_domain_trace_moved,
+    "vanished-vid2-join-in": plant_vanished_vid2_join_in, "vid2-registrar-in": plant_vid2_registrar_in,
 }
 CAPTURE_PLANTS: dict[str, Plant] = {**SPLIT_PLANTS, **FABRIC_PLANTS}
