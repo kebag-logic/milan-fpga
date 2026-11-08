@@ -79,6 +79,7 @@ module tb_split_top
   output wire                     p_restore_done,
   output wire                     p_nvm_backed,
   output wire  [15:0]             p_rx_frames,
+  output wire  [7:0]              p_rx_drops,
   output wire  [15:0]             p_tx_frames,
   //! ---- u_tap: its receive tap and its byte side, the bench's own
   input  wire  [63:0]             tap_tdata,
@@ -90,7 +91,8 @@ module tb_split_top
   output wire                     tap_last,
   input  wire                     tap_ready,
   output wire  [15:0]             tap_frames,
-  output wire  [7:0]              tap_drops
+  output wire  [7:0]              tap_drops,
+  output wire                     tap_full
 );
 
   localparam int unsigned S = MBX_N_PUB_SOURCES_C;
@@ -362,6 +364,7 @@ module tb_split_top
   assign p_restore_done = u_dp.pp_restore_done_w;
   assign p_nvm_backed   = u_dp.pp_nvm_backed_w;
   assign p_rx_frames    = u_dp.pp_rx_frames_w;
+  assign p_rx_drops     = u_dp.pp_rx_drops_w;
   assign p_tx_frames    = u_dp.pp_tx_frames_w;
 
   // ---- u_tap: the tap alone, on the datapath clock --------------------------------
@@ -373,6 +376,7 @@ module tb_split_top
     .tx_valid_i(1'b0), .tx_data_i(8'd0), .tx_last_i(1'b0), .tx_ready_o(),
     .m_axis_tx_tdata(), .m_axis_tx_tkeep(), .m_axis_tx_tvalid(), .m_axis_tx_tlast(), .m_axis_tx_tready(1'b1),
     .rx_frames_o(tap_frames), .rx_drops_o(tap_drops), .tx_frames_o());
+  assign tap_full = u_tap.rx_fifo.full;   // no word of room: the case a runt overflows in
 
   // the counts are the shape's: read so a width change is visible here
   logic unused_ok;

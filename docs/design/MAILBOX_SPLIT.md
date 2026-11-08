@@ -1429,8 +1429,9 @@ stale answer carries the older tag, which `KL_mbx` discards.
   `full-split` population of `pp_placement.py` on the RTL, in every shape.
 - The [`milan_dp`](../../tb/verilator/milan_dp/README.md) split leg runs the
   control path end to end, and `KL_ctrl_split`'s tap alone: every tuple class
-  it accepts or refuses, and its drop count. `split_mutants.py` plants
-  twenty-two defects, each caught by the check it names.
+  it accepts or refuses, and its drop count, which it also reads on the
+  datapath's own tap after a burst at the MAC. `split_mutants.py` plants
+  twenty-four defects, each caught by the check it names.
 - `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist. Every
   flop, output and primitive input, the primitives' resets among them, must
   read only its own clock's domain, and every clock pin one of the two clocks.

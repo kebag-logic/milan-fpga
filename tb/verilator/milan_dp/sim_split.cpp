@@ -18,13 +18,14 @@
 //   [WIN]   each window's request is answered DONE under its own tag within
 //           its wait bound, by the datapath's answer logic
 //   [RX]    an ADP frame at the MAC reaches the adp ring whole; an AAF frame
-//           never reaches the mailbox
+//           never reaches the mailbox; a burst at the MAC past the datapath's
+//           own tap FIFO is counted in the datapath's PP_DIAG[15:8] net
 //   [TX]    a frame committed to the adp ring leaves the MAC byte for byte
 //   [LINK]  the datapath's effective link sets LINK.UP, and its loss clears it
 //   [TAP]   KL_ctrl_split alone (tb_split_top's u_tap): each tuple class it
 //           accepts is handed out whole and each it refuses is not; a burst
 //           past its FIFO loses frames, and each lost control frame is
-//           counted once, a refused frame never, saturating at 255
+//           counted once, a refused frame or a runt never, saturating at 255
 //
 // Each failing check prints FAIL with its label; the tally line is the
 // suite's verdict.
@@ -565,9 +566,10 @@ void check_tap(Tb& tb) {
 void check_tap_drops(Tb& tb) {
     auto* d = tb.dut();
     // the mailbox stalls, and the tap is offered 100 ADP frames of 64 bytes, 6,400 bytes at its
-    // 4,096-byte FIFO, then eight 16-byte ones that fill what room is left
+    // 4,096-byte FIFO, then one of 24 bytes and eight of 16 that fill what room is left, to its last word
     std::vector<std::vector<std::uint8_t>> kept;
     for (unsigned n = 0; n < 100; ++n) kept.push_back(tap_frame(kDaAdp, 0x22F0, 0xFA, n));
+    kept.push_back(tap_frame(kDaAdp, 0x22F0, 0xFA, 0x7Fu, 24));
     for (unsigned n = 0; n < 8; ++n) kept.push_back(tap_frame(kDaAdp, 0x22F0, 0xFA, 0x80u + n, 16));
     const std::size_t out0 = tb.tap_out.size();
     tb.tap_hold(true);
@@ -581,6 +583,13 @@ void check_tap_drops(Tb& tb) {
     (void)wait_for(tb, [&] { return tb.tap_idle(); }, 8000);
     tb.sys(40);
     tb.check_eq("[TAP] ...and not the refused frames a full FIFO turns away", d->tap_drops, lost);
+    // one-beat runts (8 bytes, shorter than any control frame) turned away by the full FIFO; with a
+    // word of room each would be stored and reclaimed instead, and this check would hold nothing
+    tb.check("[TAP] the burst leaves the FIFO full to its last word", d->tap_full);
+    for (unsigned n = 0; n < 8; ++n) tb.tap_send(tap_frame(kDaAdp, 0x22F0, 0xFA, 0x90u + n, 8));
+    (void)wait_for(tb, [&] { return tb.tap_idle(); }, 8000);
+    tb.sys(40);
+    tb.check_eq("[TAP] ...nor the one-beat runts a full FIFO turns away", d->tap_drops, lost);
     tb.tap_hold(false);
     tb.sys(40000);
     const std::size_t handed = tb.tap_out.size() - out0;
@@ -605,6 +614,25 @@ void check_tap_drops(Tb& tb) {
     tb.sys(40000);
 }
 
+//! The datapath's own tap, through its PP_DIAG[15:8] net (pp_rx_drops_w): it reads 0 while
+//! nothing was lost, and a burst at the MAC, eight bytes a cycle at a tap that drains one,
+//! loses frames it counts there, each frame of the burst handed out or counted lost.
+void check_dp_drops(Tb& tb) {
+    auto* d = tb.dut();
+    tb.check_eq("[RX] the datapath's drop count reads 0 while its tap has lost nothing", d->p_rx_drops, 0);
+    const std::uint16_t frames0 = d->p_rx_frames;
+    const auto f = mbx_tb::adpdu(2, kOwnEid);
+    constexpr unsigned kBurst = 100;
+    for (unsigned n = 0; n < kBurst; ++n) tb.mac_rx(f);
+    tb.sys(40000);
+    const unsigned lost = d->p_rx_drops;
+    const unsigned handed = static_cast<std::uint16_t>(d->p_rx_frames - frames0);
+    tb.check("[RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count", lost > 0);
+    tb.check_eq("[RX] ...and every frame of it is handed out or counted lost", handed + lost, kBurst);
+    std::printf("[RX] burst at the MAC: %u frames offered, %u handed out, %u counted lost\n", kBurst, handed,
+                lost);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -621,6 +649,7 @@ int main(int argc, char** argv) {
     check_link(tb);
     check_tap(tb);
     check_tap_drops(tb);
+    check_dp_drops(tb);
     std::printf("ran %llu mailbox cycles\n", static_cast<unsigned long long>(tb.sys_cycles()));
     dut->final();
     return tb.finish();

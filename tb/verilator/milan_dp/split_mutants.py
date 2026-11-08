@@ -126,6 +126,16 @@ ARMS = (
      "      if (drop_p_w & (rx_drops_o != 8'hFF))    rx_drops_o  <= rx_drops_o + 8'd1;",
      "      if (drop_p_w)                            rx_drops_o  <= rx_drops_o + 8'd1;",
      "[TAP] the count saturates at 255"),
+    ("a drop count that counts runts", CTLS,
+     "      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w);",
+     "      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w)"
+     " || (tap_r == TAP_HEAD0_S);",
+     "[TAP] ...nor the one-beat runts a full FIFO turns away"),
+    ("the datapath's drop count tied off", DP,
+     "      .rx_drops_o       (pp_rx_drops_w),\n      .tx_frames_o      (pp_tx_frames_w)\n    );",
+     "      .rx_drops_o       (),\n      .tx_frames_o      (pp_tx_frames_w)\n    );\n"
+     "    assign pp_rx_drops_w = 8'd0;",
+     "[RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count"),
 )
 
 
