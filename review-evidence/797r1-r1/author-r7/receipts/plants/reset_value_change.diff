@@ -1,0 +1,22 @@
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 2871c3552a..a0a48a2cc8 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -1573,7 +1573,7 @@ module milan_csr #(
+   always_ff @(posedge aclk) begin : register_write
+     if (!aresetn) begin
+       scratch <= 32'h0; irq_mask <= 32'h0; irq_status <= 32'h0;
+-      mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
++      mac_ctrl <= 32'h13; mac_ifg <= 32'h0D; mac_alo <= 32'h0; mac_ahi <= 32'h0;
+       mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
+       eth_guard <= 1'b1;                //! guarded from power-on (USER 08-06)
+       // CLS_* and the CBS window: no flops. Their documented reset values
+@@ -2000,7 +2000,7 @@ module milan_csr #(
+                                           1'b1, 1'b1, 1'b1, 1'b0,
+                                           4'h0, 4'(NUM_QUEUES) };
+       A_MAC_CTRL[10:0]:   csr_default = 32'h13;
+-      A_MAC_IFG[10:0]:    csr_default = 32'h0C;
++      A_MAC_IFG[10:0]:    csr_default = 32'h0D;
+       A_PHY_RST[10:0]:    csr_default = 32'h1;
+       A_CLS_CTRL[10:0]:   csr_default = 32'h5;
+       A_CLS_MAP[10:0]:    csr_default = 32'h00FAC688;
