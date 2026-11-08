@@ -1,0 +1,15 @@
+# Bare-metal RV32 images: 715d208 exported to <scratch>/xa and 376486b to <scratch>/xb (paths of equal length),
+# each built with python3 scripts/baremetal.py --work <scratch>/xN-rv32 --jobs 4; then the clean-clone gate build.
+# columns: configuration, ELF bytes, section sizes, acmp.c object text, ELF sha256
+715d208 (xa), rc 0:
+debug elf 150332 .text 49812 .rodata 2048 .bss 8 acmp.o-text 21321 sha256 2ad76eb02e8e0633cd48e5b78936fe5cc285c1cf79b4a764a6ab0271ce430324
+release elf 50504 .text 38668 .rodata 1961 .bss 8 acmp.o-text 19365 sha256 f1fd4b902e73676c67985024f7b5e8e4650cedf605efdabd000484cbf067a7c2
+376486b (xb), rc 0:
+debug elf 150332 .text 49812 .rodata 2048 .bss 8 acmp.o-text 21321 sha256 84006929ed2285fed8d09eca8e3d7f0adeb3c6f30d22176a5c1e6ee76c0b72a5
+release elf 50504 .text 38668 .rodata 1961 .bss 8 acmp.o-text 19365 sha256 f1fd4b902e73676c67985024f7b5e8e4650cedf605efdabd000484cbf067a7c2
+376486b clean-clone gate build (<scratch>/rv32-final), rc 0:
+debug elf 150400 .text 49812 .rodata 2048 .bss 8 acmp.o-text 21321 sha256 cd003ba8fb98109a129fe85da27eba2719864e8b0523091ed487b77c60dbed80
+release elf 50504 .text 38668 .rodata 1961 .bss 8 acmp.o-text 19365 sha256 f1fd4b902e73676c67985024f7b5e8e4650cedf605efdabd000484cbf067a7c2
+# The Debug ELF records its build path, so its sha256 differs between builds; byte sizes are equal for xa and xb.
+# git diff --stat 715d208 376486b -- src include examples:
+(empty above means no core, header or example change)

@@ -1,0 +1,19 @@
+Note: Google Test filter = AcmpOwedProbe7.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwedProbe7
+[ RUN      ] AcmpOwedProbe7.CommandsAfterTheTakenBindDelayTheHeldRetry
+PROBE7 mode=0 later_commands=0 (declined at arrival 0): BIND_RX taken in pass 2; held retry owed in pass 3; stated owed by pass 3; excess 0 pass(es); probes_held=2 probes_lost=0
+PROBE7 mode=1 later_commands=1 (declined at arrival 0): BIND_RX taken in pass 2; held retry owed in pass 4; stated owed by pass 3; excess 1 pass(es); probes_held=3 probes_lost=0
+PROBE7 mode=2 later_commands=1 (declined at arrival 1): BIND_RX taken in pass 2; held retry owed in pass 4; stated owed by pass 3; excess 1 pass(es); probes_held=3 probes_lost=0
+PROBE7 mode=1 later_commands=3 (declined at arrival 0): BIND_RX taken in pass 2; held retry owed in pass 6; stated owed by pass 3; excess 3 pass(es); probes_held=5 probes_lost=0
+PROBE7 mode=2 later_commands=3 (declined at arrival 3): BIND_RX taken in pass 2; held retry owed in pass 6; stated owed by pass 3; excess 3 pass(es); probes_held=5 probes_lost=0
+PROBE7 mode=1 later_commands=10 (declined at arrival 0): BIND_RX taken in pass 2; held retry owed in pass 13; stated owed by pass 3; excess 10 pass(es); probes_held=12 probes_lost=0
+PROBE7 mode=2 later_commands=10 (declined at arrival 10): BIND_RX taken in pass 2; held retry owed in pass 13; stated owed by pass 3; excess 10 pass(es); probes_held=12 probes_lost=0
+[       OK ] AcmpOwedProbe7.CommandsAfterTheTakenBindDelayTheHeldRetry (0 ms)
+[----------] 1 test from AcmpOwedProbe7 (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+rc 0

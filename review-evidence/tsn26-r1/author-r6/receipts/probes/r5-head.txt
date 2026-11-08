@@ -1,0 +1,15 @@
+Note: Google Test filter = AcmpOwed.R5ProbeLongHeldWait
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpOwed
+[ RUN      ] AcmpOwed.R5ProbeLongHeldWait
+PROBE r5 long-hold sink2 states: [pass=1 state=2 held=1] [pass=3 state=3 held=0] [pass=5602 state=4 held=0]
+PROBE r5 long-hold: sink3 held through pass 5602; probes_lost=0; PROBE_TX: [sink2 pass=11] [sink2 pass=5610] [sink3 pass=5611]
+PROBE r5 long-hold: sink 2 PROBE_TX owed before sink 3's held retry left = 2
+[       OK ] AcmpOwed.R5ProbeLongHeldWait (18 ms)
+[----------] 1 test from AcmpOwed (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (18 ms total)
+[  PASSED  ] 1 test.
+rc 0

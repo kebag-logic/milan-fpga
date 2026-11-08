@@ -1,0 +1,6 @@
+{
+ "name": "owed-held-probe-owed-at-the-poll",
+ "path": "src/acmp.c",
+ "old": "\t\t\ta->bind_waiting = false;\n\t\t\tfinish(a);",
+ "new": "\t\t\tstatic uint32_t seen;\n\t\t\tbool first = !a->bind_waiting && seen == a->busy_declined;\n\t\t\tseen = a->busy_declined;\n\t\t\ta->bind_waiting = false;\n\t\t\tfor (unsigned k = 0; first && k < a->cfg.n_sinks; ++k) {\n\t\t\t\tif (a->sinks[k].probe_held) {\n\t\t\t\t\tsm_expired(a, k);\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t}\n\t\t\tfinish(a);"
+}
