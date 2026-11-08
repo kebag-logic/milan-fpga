@@ -1,0 +1,13 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144: R792-1 cdc_check_probes.py (unchanged)
+as-expected  control: the tracked text: clean (253 sinks)
+as-expected  fw_r captured every dp cycle, no qualifier at all: refused (253 sinks)
+             a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+as-expected  fw_r enabled by the raw sys-domain m_fw_send_i: refused (253 sinks)
+             a crossing without a primitive: flop fw_r (dp) reads m_fw_send_i (sys)
+             a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+as-expected  fw_r enabled by the raw sys-domain request pulse: refused (253 sinks)
+             a crossing without a primitive: flop fw_r (dp) reads fw_send_q_r, m_fw_send_i (sys)
+             a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+as-expected  a dp flop not named fw_r sampling the held bus: refused (253 sinks)
+             a crossing without a primitive: flop ev_dom_r (dp) reads m_fw_identify_i (sys)
+probes: 5   departures from the docstring's rule: 0

@@ -1,0 +1,8 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144: build-split with CTLS_SRC = 6584b7bf's KL_ctrl_split.sv, then the leg (must fail)
+# (filtered: verdict lines; Verilator warnings omitted; rc file is the filter's)
+FAIL [TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost
+FAIL [TAP] every frame of the burst is handed out or counted lost: got 0x41, want 0x6c
+[TAP] burst: 108 frames offered, 65 handed out, 0 counted lost
+FAIL [TAP] the count saturates at 255: got 0x0, want 0xff
+checks: 66   failures: 3
+3 failures expected (fails on round 1's RTL)
