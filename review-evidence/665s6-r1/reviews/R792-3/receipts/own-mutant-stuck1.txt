@@ -1,0 +1,5 @@
+# head e6d27f3a, own mutant stuck1 on copy probe2: build+run rc 2 (2 = make exec-split failed, required)
+FAIL [RX] the datapath's drop count reads 0 while its tap has lost nothing: got 0x1, want 0x0
+FAIL [RX] ...and every frame of it is handed out or counted lost: got 0x65, want 0x64
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 43 counted lost
+checks: 71   failures: 2
