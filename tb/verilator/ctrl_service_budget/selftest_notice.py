@@ -74,16 +74,21 @@ def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
 
 
 def queue_checks() -> list[Check]:
-    """The queued notices' bound: read from the headers, each point's own, and the first of a queue held to T_svc."""
+    """The queued notices' bounds: read from the headers, each point's own, the first of a queue held to its own."""
     got = notice_window.queued_ms(1), notice_window.queued_ms(2)
-    rows = lambda first, last: [dict(group='g', probes=[
-        dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=60.0, within_budget=True),
-        dict(status='measured', path=[notice_window.QUEUED, 0], ms=last, budget_ms=60.0, within_budget=last <= 60.0)])]
-    verdicts = tuple(len(run.notice_misses(rows(*r))) for r in ((19.0, 57.0), (21.0, 57.0), (19.0, 61.0)))
-    return [("a queued notice's bound is the constants', 20 ms at one interface and 60 ms at two", got == (20, 60),
+    first = notice_window.queued_first_ms(1), notice_window.queued_first_ms(2)
+    rows = lambda first, last, bound: [dict(group='g', probes=[
+        dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=bound, within_budget=True),
+        dict(status='measured', path=[notice_window.QUEUED, 0], ms=last, budget_ms=bound,
+             within_budget=last <= bound)])]
+    verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
+                     ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1)))
+    return [("a queued notice's bound is the constants', 22 ms at one interface and 62 ms at two", got == (22, 62),
              str(got)),
-            ("a queue's first notice is held to T_svc and every other to the queue's bound", verdicts == (0, 1, 1),
-             str(verdicts))]
+            ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
+             first == (20, 22), str(first)),
+            ("a queue's first notice is held to its point's own bound and every other to the queue's bound",
+             verdicts == (0, 1, 1, 0, 1), str(verdicts))]
 
 
 def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem_response: Callable,
@@ -100,10 +105,10 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
     g = scenario.Group('notice-retried-0')
     timed = dict(path=['mrpdu', 0], status='measured')
     results = lambda r: [dict(group='notice-retried-0', probes=[r, timed])]
-    verdicts = tuple(run.verdict(args, [g], [], [], [], run.notice_misses(results(r))) for r in (within, late))
+    verdicts = tuple(run.verdict(args, [g], [], [], [], run.notice_misses(results(r), 2)) for r in (within, late))
     out.append(('a retried notice later than its bound fails the run whatever the options record, and one within '
                 'it passes', verdicts == (0, 1), str(verdicts)))
-    untimed = run.notice_misses([dict(group='notice-retried-0', probes=[within])])
+    untimed = run.notice_misses([dict(group='notice-retried-0', probes=[within])], 2)
     out.append(('a group that holds its load across the timers with no MRPDU they owed fails the run',
                 len(untimed) == 1 and 'no timer-driven MRPDU' in untimed[0], str(untimed)))
     control = argparse.Namespace(cpu_regions='cover', mutation='retry-ageless', record_budget_findings=True,

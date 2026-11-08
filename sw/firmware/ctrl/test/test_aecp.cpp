@@ -2451,7 +2451,7 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     }
     EXPECT_EQ(pending(),0u);
     EXPECT_NE(first,0u);
-    EXPECT_LE(first,AECP_NOTICE_MS)<<"the first queued notice within its own bound";
+    EXPECT_LE(first,AECP_QUEUED_FIRST_MS)<<"the first queued notice within its own bound";
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
 }
 

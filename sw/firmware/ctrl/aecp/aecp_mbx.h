@@ -12,13 +12,13 @@ extern "C" {
 // waits while the queue is full; a power of two, so its wrap is a mask.
 #define AECP_MBX_COMPLETIONS 32u
 // THE RETRY's notices (ctrl_loop.h, #665), each to every registration of every interface, at what a round spends of its
-// pass: a recipient's share, in quarter microseconds, and the notice's own, 320 us to 32 recipients and 220 us to 16,
-// and once a round AECP_ROUND_COLD_US, what its first attempt pays cold, the line over the rounds measured (CPU budget
-// harness). A round takes as many as what its pass has left holds (aecp.c, scan): five in a pass of its own at 8x8/2if,
-// eight at 1x1/1if, and fewer beside refused attempts, each charged AECP_ATTEMPT_US.
-#define AECP_RECIPIENT_QUARTER_US 25u
-#define AECP_NOTICE_US (MBX_N_IF * AECP_REGISTRATIONS * AECP_RECIPIENT_QUARTER_US / 4u + 120u)
-#define AECP_ROUND_COLD_US (MBX_N_IF * 80u)
+// pass: a notice, 365 us to 32 recipients and 255 us to 16, and once a round AECP_ROUND_COLD_US, what its first attempt
+// pays cold. Each is the line C + n x W over every round the CPU budget harness measured, plus 5 %, rounded up to 5 us
+// (#665: a stated cost is an upper bound, and the harness fails a round over C + n x W + k x AECP_ATTEMPT_US,
+// round_grade.py). A round takes as many as what its pass has left holds (aecp.c, scan): four in a pass of its own at
+// 8x8/2if, seven at 1x1/1if, and fewer beside refused attempts, each charged AECP_ATTEMPT_US.
+#define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
+#define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 165u)
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
 // While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
 // composed burst holds have the CPU those passes leave. Each round that builds beside records spends a yield, whatever
@@ -32,16 +32,20 @@ extern "C" {
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
 #define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
 // The bound of FR_NFR.md 3.4.1 on notices queued behind one another (the owner's ruling of 2026-11-06, #665), every
-// constant above in it. The first retried notice commits within AECP_NOTICE_MS of its port's answer. Every notice
-// queued behind it commits within AECP_QUEUED_MS: the 8 ms spacing, then AECP_QUEUED_PASSES passes of THE SHARE for
-// AECP_NOTICES_MOST notices at the point's own recipient count, 60 ms at 8x8/2if and 20 ms at 1x1/1if, each its
-// ceiling. The passes come from a search of what the loop may be made to do (ctrl_retry_search.py, a gate): each pass
-// charged all of THE SHARE, at most THE DRAIN's passes, an interface's builds, the aged steps, a retry's due time
-// anywhere in the spacing and every count of refusing ports, charged to every round. aecp_mbx.c holds AECP_QUEUED_MS
-// to its ceiling.
-#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 6u : 26u)
+// constant above in it. The first notice of a queue commits within AECP_QUEUED_FIRST_MS of its port's answer: 18 ms by
+// the search at 1x1/1if, held to T_svc, and 22 ms at 8x8/2if, the bound the maintainer's decision of 2026-11-08
+// allows it there. Every notice queued behind it commits within AECP_QUEUED_MS: the 8 ms spacing, then
+// AECP_QUEUED_PASSES passes of THE SHARE for AECP_NOTICES_MOST notices at the point's own recipient count, 62 ms at
+// 8x8/2if and 22 ms at 1x1/1if, within the ceilings of 70 and 25 ms (#665, amended 2026-11-07 with a 10 % margin over
+// the search). The passes come from a search of what the loop may be made to do (ctrl_retry_search.py, a gate): each
+// pass charged all of THE SHARE, at most THE DRAIN's passes, an interface's builds, the aged steps, a retry's due time
+// anywhere in the spacing and every count of refusing ports a queue admits, AECP_ROUND_PORTS - 1 at most since a port
+// answers for every notice it serves or for none, charged to every round. aecp_mbx.c holds AECP_QUEUED_MS to its
+// ceiling.
+#define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
+#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 7u : 27u)
 #define AECP_QUEUED_MS (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)
-#define AECP_QUEUED_CEILING_MS (MBX_N_IF == 1u ? 20u : 60u)
+#define AECP_QUEUED_CEILING_MS (MBX_N_IF == 1u ? 25u : 70u)
 struct aecp_mbx_completion {
 	uint32_t cookie;
 	uint16_t end;

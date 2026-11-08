@@ -65,6 +65,14 @@ def queued_ms(interfaces: int) -> int:
     return spacing + int(one if interfaces == 1 else two) * int(share.share_ms())
 
 
+def queued_first_ms(interfaces: int) -> int:
+    """AECP_QUEUED_FIRST_MS at that many interfaces (aecp_mbx.h): the bound the first notice of a queue meets, T_svc at
+    one interface and 22 ms at two (the maintainer's decision of 2026-11-08, FR_NFR.md 3.4.1)."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp_mbx.h').read_text()
+    one, two = re.search(r'#define AECP_QUEUED_FIRST_MS \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
+    return int(one if interfaces == 1 else two)
+
+
 def wait_ms(now_ms: int) -> str:
     """A step that waits for NOW_MS to reach now_ms (sim_main.cpp's `wait ms`)."""
     return f'wait ms {now_ms}'

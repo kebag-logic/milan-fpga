@@ -21,6 +21,7 @@ import build
 import grade
 import mrpdu_grade
 import notice_window
+import round_grade
 import run
 import save_grade
 import save_window
@@ -681,9 +682,10 @@ MUTANTS: dict[str, Patches] = {
     "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(
         build, 'AGED_CONTROLS', ())],
     "notice: a retried notice later than its bound is a budget finding only": lambda: [patch.object(
-        run, 'notice_misses', lambda results: [])],
+        run, 'notice_misses', lambda results, interfaces: [])],
     'notice: a retried notice is held to its ceiling, not its bound': lambda: [patch.object(
-        run, 'notice_misses', lambda results: [n['group'] for n in run.notices(results) if not n['within_ceiling']])],
+        run, 'notice_misses', lambda results, interfaces: [n['group'] for n in run.notices(results)
+                                                       if not n['within_ceiling']])],
     "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
     "notice: the port answers before the load": lambda: [patch.object(
         notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
@@ -698,7 +700,20 @@ MUTANTS: dict[str, Patches] = {
     "notice: a queued notice's bound is the first's": lambda: [patch.object(
         notice_window, 'queued_ms', lambda interfaces: scenario.T_SVC_MS)],
     "notice: the first of a queue is held to the queue's bound": lambda: [patch.object(
-        scenario, 'T_SVC_MS', 60.0)],
+        notice_window, 'queued_first_ms', notice_window.queued_ms)],
+    'notice: the first of a queue is held to T_svc at both points (earlier rule)': lambda: [patch.object(
+        notice_window, 'queued_first_ms', lambda interfaces: scenario.T_SVC_MS)],
+    'round: no round is held to its cost': lambda: [patch.object(
+        round_grade, 'held', lambda log, n, f=round_grade.held: dict(f(log, n), over=[]))],
+    'round: a refused attempt is free': lambda: [patch.object(
+        round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: dict(f(interfaces), attempt=0))],
+    "round: one point's costs at both": lambda: [patch.object(
+        round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: f(2))],
+    'round: the notices it built are not counted': lambda: [patch.object(round_grade, 'BUILT', 'aecp:none')],
+    'round: calls outside it are counted': lambda: [patch.object(
+        round_grade, 'inside', lambda cycles, start, end: len(cycles))],
+    'round: in bus cycles, not CPU time': lambda: [patch.object(
+        round_grade, 'held', lambda log, n, f=round_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],

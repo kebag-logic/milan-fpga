@@ -13,10 +13,15 @@ Applicant that moves with its join timer idle; and an aged step each CTRL_LOOP_S
 which lag their ticks by at most what THE TRANSMIT's bound allows them.
 
 A notice whose port refuses is not in the queue, and costs a round AECP_ATTEMPT_US: a round tries each of
-AECP_ROUND_PORTS ports once (aecp.c, scan). So each search also runs with every count of refusing ports, its notices
-out of the queue and its attempts charged to every round ahead of the notices, whether or not they are due, which no
-round can exceed. Where two counts leave a round, a step and a build the same room, the fewer refusals leave the longer
-queue, so only that one is searched.
+AECP_ROUND_PORTS ports once (aecp.c, scan). So each search also runs with every count of refusing ports a queue admits,
+its notices out of the queue and its attempts charged to every round ahead of the notices, whether or not they are due,
+which no round can exceed. A port's attempt is a window read, which answers for every notice it serves or for none, and
+every port serves one (ports), so a queue has a port answering: at most AECP_ROUND_PORTS - 1 refuse. Where two counts
+leave a round, a step and a build the same room, the fewer refusals leave the longer queue, so only that one is
+searched.
+
+A pass given whole to a build or an aged step may have no room for a notice past its attempts, and is searched carrying
+none. The round's own pass must have room for one, or a queue beside refused attempts would never be served.
 """
 from __future__ import annotations
 
@@ -68,9 +73,20 @@ def constants(interfaces: int) -> dict[str, int]:
              'CTRL_LOOP_SRP_DRAINS', 'CTRL_LOOP_STEP_AGE', 'CTRL_LOOP_T_SVC_MS', 'AECP_RETRY_MAX_MS',
              'AECP_REGISTRATIONS', 'AECP_NOTICE_US', 'AECP_ROUND_PACE_MS', 'AECP_ROUND_YIELD_PACE_MS',
              'AECP_ROUND_YIELD_NOTICES', 'AECP_ROUND_YIELDS', 'AECP_ROUND_FIRM_NOTICES', 'AECP_QUEUED_PASSES',
-             'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_NOTICES_MOST', 'AECP_ATTEMPT_US', 'AECP_ROUND_PORTS',
-             'AECP_ROUND_COLD_US')
-    return {name: value(name) for name in names}
+             'AECP_QUEUED_MS', 'AECP_QUEUED_CEILING_MS', 'AECP_QUEUED_FIRST_MS', 'AECP_NOTICES_MOST',
+             'AECP_ATTEMPT_US', 'AECP_ROUND_PORTS', 'AECP_ROUND_COLD_US')
+    out = {name: value(name) for name in names}
+    out['refusing'] = len(ports(interfaces)) - 1
+    return out
+
+
+def ports(interfaces: int) -> list[str]:
+    """The ports a round tries, one attempt each (aecp.h, AECP_ROUND_PORTS; aecp.c, scan): GET_STREAM_INFO's and
+    GET_COUNTERS', which every notice of those commands reads through the first interface's window, and each AVB
+    interface's GET_AVB_INFO and GET_AS_PATH, through its own. Each serves a notice of Milan v1.2 Table 5.22 at every
+    shape: every shape has a stream, and every AVB interface its GET_AVB_INFO and GET_AS_PATH notices."""
+    return ['GET_STREAM_INFO', 'GET_COUNTERS', *(f'{command} {i}' for i in range(interfaces)
+                                                 for command in ('GET_AVB_INFO', 'GET_AS_PATH'))]
 
 
 @dataclass(frozen=True)
@@ -157,6 +173,13 @@ def latest(w: Window, target: int) -> int:
                for events in (False, True))
 
 
+@lru_cache(maxsize=None)
+def searched(w: Window) -> tuple[int, int]:
+    """The first and the last notice's latest commit in a window, searched once whatever the constants it is checked
+    against."""
+    return latest(w, 1), latest(w, w.notices)
+
+
 def windows(c: dict[str, int], interfaces: int) -> list[Window]:
     """The searches of a point: its builds of both MRPDUs and its builds of one, at each count of refusing ports."""
     margin = c['CTRL_LOOP_SHARE_US'] - c['CTRL_LOOP_SHARE_MARGIN_US'] - c['AECP_ROUND_COLD_US']
@@ -172,7 +195,7 @@ def windows(c: dict[str, int], interfaces: int) -> list[Window]:
     for build_us, builds in ((c['CTRL_LOOP_BUILD_PASS_US'], interfaces),
                              (c['CTRL_LOOP_BUILD_ONE_PASS_US'], 2 * interfaces)):
         rooms = {}
-        for refused in range(c['AECP_ROUND_PORTS'] + 1):
+        for refused in range(c['refusing'] + 1):
             carries = lambda spent_us, k=refused: (margin - spent_us - k * c['AECP_ATTEMPT_US']) // c['AECP_NOTICE_US']
             rooms.setdefault((carries(0), carries(c['CTRL_LOOP_STEP_PASS_US']), carries(build_us)), refused)
         for (whole, step, build), refused in rooms.items():
@@ -181,22 +204,35 @@ def windows(c: dict[str, int], interfaces: int) -> list[Window]:
     return out
 
 
+#: What the first notice of a queue may take, in ms, by interfaces: T_svc at 1x1/1if, and 22 ms at 8x8/2if by the
+#: maintainer's decision of 2026-11-08 (FR_NFR.md 3.4.1).
+FIRST_ALLOWED_MS = {1: 20, 2: 22}
+
+
 def findings(interfaces: int, planted: dict[str, int] | None = None) -> tuple[list[str], list[str]]:
     """What the search found at a point, and every way it exceeds what aecp_mbx.h states, or a planted restatement."""
     c = {**constants(interfaces), **(planted or {})}
     log, wrong, longest = [], [], 0
+    if len(ports(interfaces)) != c['AECP_ROUND_PORTS']:
+        wrong.append(f'the port model at {interfaces} interface(s) is not AECP_ROUND_PORTS')
     for w in windows(c, interfaces):
-        first, last = latest(w, 1), latest(w, w.notices)
+        if w.round_carries == 0:
+            # no round would build one, so the queue has no bound to search
+            wrong.append(f"the round's own pass at {interfaces} interface(s) has no room for a notice past its "
+                         'attempts')
+            continue
+        first, last = searched(w)
         longest = max(longest, last)
-        if min(w.round_carries, w.step_carries, w.build_carries) == 0:
-            wrong.append(f'a pass given whole at {interfaces} interface(s) has no room for a notice past its attempts')
         log.append(f'{interfaces} interface(s): {w.notices} notices, {w.round_carries}/{w.step_carries}/'
                    f'{w.build_carries} a round, step and build, {w.builds} builds, {w.steps} steps: first {first} ms, '
-                   f'last {last} ms (stated {c["AECP_QUEUED_MS"]} ms)')
-        if first > c['CTRL_LOOP_T_SVC_MS']:
-            wrong.append(f'the first notice at {interfaces} interface(s): {first} ms over T_svc')
+                   f'last {last} ms (stated {c["AECP_QUEUED_FIRST_MS"]} and {c["AECP_QUEUED_MS"]} ms)')
+        if first > c['AECP_QUEUED_FIRST_MS']:
+            wrong.append(f'the first notice at {interfaces} interface(s): {first} ms over AECP_QUEUED_FIRST_MS')
         if last > c['AECP_QUEUED_MS']:
             wrong.append(f'the last notice at {interfaces} interface(s): {last} ms over AECP_QUEUED_MS')
+    if c['AECP_QUEUED_FIRST_MS'] > FIRST_ALLOWED_MS[interfaces]:
+        wrong.append(f'AECP_QUEUED_FIRST_MS at {interfaces} interface(s) over the {FIRST_ALLOWED_MS[interfaces]} ms '
+                     'it may take')
     if longest < c['AECP_QUEUED_MS']:
         wrong.append(f'AECP_QUEUED_MS at {interfaces} interface(s) is not the search\'s {longest} ms: restate it')
     if c['AECP_QUEUED_MS'] > c['AECP_QUEUED_CEILING_MS']:
@@ -204,9 +240,13 @@ def findings(interfaces: int, planted: dict[str, int] | None = None) -> tuple[li
     return log, wrong
 
 
-#: The search's planted controls at two interfaces: a constant restated, and the words its finding must carry.
-CONTROLS = (({'AECP_QUEUED_MS': 62}, 'is not the search'), ({'AECP_ATTEMPT_US': 40}, 'has no room for a notice'),
-            ({'AECP_QUEUED_MS': 58}, 'over AECP_QUEUED_MS'), ({'AECP_QUEUED_CEILING_MS': 58}, 'over its ceiling'))
+#: The search's planted controls at two interfaces: a constant restated, and the words its finding must carry. The
+#: window restored to every port refusing, which the port model does not admit with a queue, puts the first notice at
+#: 28 ms; the first notice's bound at T_svc is the one 8x8/2if had before the maintainer's decision of 2026-11-08.
+CONTROLS = (({'AECP_QUEUED_MS': 64}, 'is not the search'), ({'AECP_ATTEMPT_US': 300}, 'has no room for a notice'),
+            ({'AECP_QUEUED_MS': 60}, 'over AECP_QUEUED_MS'), ({'AECP_QUEUED_CEILING_MS': 60}, 'over its ceiling'),
+            ({'refusing': 6}, 'over AECP_QUEUED_FIRST_MS'), ({'AECP_QUEUED_FIRST_MS': 20}, 'over AECP_QUEUED_FIRST_MS'),
+            ({'AECP_QUEUED_FIRST_MS': 24}, 'it may take'))
 
 
 def controls() -> list[str]:

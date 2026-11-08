@@ -140,11 +140,14 @@ def share_misses(results: list[dict]) -> list[str]:
 
 
 def stated_misses(results: list[dict]) -> list[str]:
-    """Each pass given whole to a build or an aged step dearer than the cost THE RETRY's search counts from
-    (whole_grade.held)."""
-    return [f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
-            f"{g['passes']['stated']['limits'][o['kind']]:,}"
-            for g in results for o in g['passes'].get('stated', {}).get('over', [])]
+    """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost THE RETRY's
+    search counts from (whole_grade.held, round_grade.held)."""
+    return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
+             f"{g['passes']['stated']['limits'][o['kind']]:,}"
+             for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
+            [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
+             f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
+             for g in results for o in g['passes'].get('rounds', {}).get('over', [])])
 
 
 def saves(results: list[dict]) -> list[dict]:
@@ -205,9 +208,10 @@ def notices(results: list[dict]) -> list[dict]:
             if r.get('status') == 'measured' and r['path'][0] in (notice_window.PATH, notice_window.QUEUED)]
 
 
-def notice_misses(results: list[dict]) -> list[str]:
-    """Each retried notice committed later than its bound after its port's answer: a failure whatever the options
-    record, since the bound is the construction's (ctrl_loop.h, THE RETRY; aecp.h)."""
+def notice_misses(results: list[dict], interfaces: int) -> list[str]:
+    """Each retried notice committed later than its bound after its port's answer, at a point of that many
+    interfaces: a failure whatever the options record, since the bound is the construction's (ctrl_loop.h, THE RETRY;
+    aecp.h, aecp_mbx.h)."""
     import notice_window
     import scenario
     rows = notices(results)
@@ -217,12 +221,13 @@ def notice_misses(results: list[dict]) -> list[str]:
     for g in results:
         if g['group'].startswith('notice-retried-') and not any(r['path'][0] == 'mrpdu' for r in g['probes']):
             late.append(f"{g['group']}: no timer-driven MRPDU under its load")
-    # the first of a queue keeps the retried notice's own bound (FR_NFR.md 3.4.1), and those behind it the queue's
+    # the first of a queue keeps its own bound, AECP_QUEUED_FIRST_MS (FR_NFR.md 3.4.1), and those behind it the queue's
+    bound = notice_window.queued_first_ms(interfaces)
     for group in {n['group'] for n in rows if n['path'][0] == notice_window.QUEUED}:
         first = min(n['ms'] for n in rows if n['group'] == group)
-        if first > scenario.T_SVC_MS:
+        if first > bound:
             late.append(f"{group}: its first notice committed {first:.3f} ms after its port's answer, "
-                        f'over its bound {scenario.T_SVC_MS:g} ms')
+                        f'over its bound {bound:g} ms')
     return late
 
 
@@ -368,7 +373,7 @@ def summary(point: str, build: str, results: list[dict], refusals: list[str], mi
                 windows=windows(results), composed_maximum=composed_maximum(results),
                 refusals=refusals, misses=misses, share_misses=list(shares), saves=saves(results),
                 save_misses=save_misses(results), aged=aged(results), notices=notices(results),
-                notice_misses=notice_misses(results))
+                notice_misses=notice_misses(results, POINTS[point][1]))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -674,7 +679,7 @@ def main() -> int:
         print('STATED', line)
     import build as builder
     return verdict(args, groups, refusals, misses, shares,
-                   late + notice_misses(results)
+                   late + notice_misses(results, n_if)
                    + (stated if args.mutation in ('none', *builder.AGED_CONTROLS) else []))
 
 

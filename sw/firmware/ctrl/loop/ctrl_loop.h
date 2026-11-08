@@ -256,16 +256,17 @@ extern "C" {
 // save would take a step every four ticks under such input (nvm_store.h)
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
-// The measured costs the bounds below rest on, in microseconds, each the
-// heaviest at its point rounded up (CPU budget harness; 100 cycles a microsecond):
-// a pass given whole to an aged step, to a build of both of an interface's
-// MRPDUs, and to a build of one, the harness holding each to its figure
-// (whole_grade.py); and at 8x8/2if, the point THE DRAIN's sum binds, one record
-// of SRP's burst, the first registration of a burst and a centisecond's
-// consumers.
-#define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 980u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 900u : 1250u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 700u : 980u)
+// The measured costs the bounds below rest on, in microseconds (CPU budget
+// harness; 100 cycles a microsecond). A pass given whole to an aged step, to a
+// build of both of an interface's MRPDUs, and to a build of one: each the
+// heaviest measured at its point plus 5 %, rounded up to 5 us, an aged step
+// never below its earlier figure, the harness failing a pass over its figure
+// (whole_grade.py; #665, a stated cost is an upper bound). At 8x8/2if, the
+// point THE DRAIN's sum binds: one record of SRP's burst, the first
+// registration of a burst and a centisecond's consumers.
+#define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 675u : 1315u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 405u : 1215u)
 #define CTRL_LOOP_SRP_RECORD_US 123u
 #define CTRL_LOOP_SRP_FIRST_US 400u
 #define CTRL_LOOP_TICK_US 430u

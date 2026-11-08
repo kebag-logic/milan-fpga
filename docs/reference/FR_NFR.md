@@ -365,10 +365,14 @@ No extra budget is granted at timer arm, expiry or retry.
 Notices queued behind one another have their own bound, by the [owner's ruling of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), [as amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6682851386).
 At most 16 controllers register per AVB Interface (Milan v1.2 5.3.4.2), and each registration is notified on its own port (Milan v1.2 5.4.5.1): 16 recipients at 1x1/1if and at most 32 at 8x8/2if.
 A datapath reset can leave a notice pending for every observation of every descriptor that has one: 12 at 1x1/1if and 40 at 8x8/2if.
-The first retried notice is committed within 20 ms of its port's answer.
-Every notice queued behind it is committed within a bound derived from constants: the 8 ms retry spacing, the notices a pass carries at the measured fan-out cost, and the passes that carry them.
-Derived per point at its own recipient count, that bound is 20 ms at 1x1/1if and 60 ms at 8x8/2if, each its ceiling (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`).
-Both bounds hold with other ports still refusing: each refused attempt is charged to its round, on the assumption that a port, one window read, answers for all it serves or for none.
+A single retried notice is committed within 20 ms of its port's answer.
+The first notice of a queue is committed within 20 ms of its port's answer at 1x1/1if and within 22 ms at 8x8/2if, which the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows there (`AECP_QUEUED_FIRST_MS`).
+Every notice queued behind it is committed within a bound derived from constants: the 8 ms retry spacing, the notices a pass carries at the stated costs, and the passes that carry them.
+Each stated cost is the most measured over every instance plus 5 %, and the CPU budget harness fails an instance over it.
+Derived per point at its own recipient count, that bound is 22 ms at 1x1/1if and 62 ms at 8x8/2if (`AECP_QUEUED_MS`, `sw/firmware/ctrl/aecp/aecp_mbx.h`), within ceilings of 25 ms and 70 ms, [amended on 2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945) with a 10 % margin over the derivation.
+Both bounds hold with other ports still refusing: each refused attempt is charged to its round, on the assumption that a port, one window read, answers for all it serves or for none, so a queue has at most all but one of the ports refusing.
+The same decision of 2026-11-08 allows two more rows 22 ms at 8x8/2if: an AECP record beside queued notices, and a link change composed with SRP's burst.
+Every other row, and every row at 1x1/1if, keeps T_svc.
 A zero random draw gives `W=0`.
 For a periodic expiry alone, the deadline starts the service interval.
 State-machine inputs requiring no transmission finish at state/timer commitment.

@@ -119,8 +119,9 @@ Every pass that carries the store's step is printed, a `STEPPASS` line or `step=
 [`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
 The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
 Groups `notice-every-<k>` and `notice-burst-<k>` run every notice the model holds pending at once, each its own row, in the `answering-every-port` arm: 40 at 8x8/2if and 12 at 1x1/1if, the second with the composed burst 6 ms after the answer.
-The first commit is held to 20 ms from its port's answer and every row to `AECP_QUEUED_MS` (`notice_window.queued_ms` reads it from the headers), and `run.notice_misses` fails the run on either whatever its options record.
+The first commit is held to `AECP_QUEUED_FIRST_MS` from its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every row to `AECP_QUEUED_MS` (`notice_window.queued_first_ms` and `queued_ms` read them from the headers), and `run.notice_misses` fails the run on either whatever its options record.
 [`whole_grade.py`](whole_grade.py) holds a pass given whole to a build or an aged step, whose round found nothing to do, to the cost `ctrl_loop.h` states for it at that point: THE RETRY's search counts the notices such a pass carries from those costs, so a dearer pass would carry fewer than the bound says with no pass over the share to show it. A pass over its stated cost prints `STATED` and fails the run whatever findings it records.
+[`round_grade.py`](round_grade.py) holds every round of THE RETRY, the testbench's `SPAN` line of `ctrl_loop.c`'s `round_of`, to `AECP_ROUND_COLD_US` + n x `AECP_NOTICE_US` + k x `AECP_ATTEMPT_US` at its point: n the notices it built, the `CALL` lines of `aecp.c`'s `finish` inside it, and k its refused attempts, its `aecp_command` calls less n. Each round costs its pass what it was admitted at, so a dearer round would overspend its pass with no row to show it; a round over its stated cost prints `STATED` and fails the run too.
 
 [`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
 A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
@@ -1226,8 +1227,9 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | transmit: any row over its bound catches the aged build's plant | the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row |
 | transmit: a timer's row ends at the first build, with no frame | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
 | transmit: a timer's row starts at its entry, not at the deadline | a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms |
-| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 20 ms at one interface and 60 ms at two |
-| notice: the first of a queue is held to the queue's bound | a queue's first notice is held to T_svc and every other to the queue's bound |
+| notice: a queued notice's bound is the first's | a queued notice's bound is the constants', 22 ms at one interface and 62 ms at two |
+| notice: the first of a queue is held to the queue's bound | a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two |
+| notice: the first of a queue is held to T_svc at both points (earlier rule) | a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two |
 | load: any window may hold the flood's last change | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
 | load: an aged window may hold no more than its row's | an aged window may hold the flood's last change past its row's, one and no more, and no fewer; a window under no flood holds its row's exactly |
 | stated: no pass is held to its cost | a build pass at its stated cost fits it and one a cycle over it does not |
@@ -1239,6 +1241,12 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | stated: an aged step's silent pass is not held | an aged step in a pass that wrote nothing to the mailbox is held too |
 | stated: an aged step is not held | a step pass at its stated cost fits it and one a cycle over it does not |
 | stated: in bus cycles, not CPU time | a build pass at its stated cost fits it and one a cycle over it does not |
+| round: no round is held to its cost | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| round: a refused attempt is free | each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 |
+| round: one point's costs at both | each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32 |
+| round: the notices it built are not counted | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
+| round: calls outside it are counted | calls outside a round count none of its notices or attempts |
+| round: in bus cycles, not CPU time | a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.

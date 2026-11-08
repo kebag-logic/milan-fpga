@@ -32,9 +32,9 @@ extern "C" {
 // that follows, under any input, a backlog or input that leaves no pass empty
 // included, and committed to every recipient in that pass. A datapath reset can
 // leave AECP_NOTICES_MOST notices pending at once, each round taking what its
-// pass has room for: FR_NFR.md 3.4.1 bounds the first of them by AECP_NOTICE_MS
-// from its port's answer and those queued behind it by AECP_QUEUED_MS, which
-// aecp_mbx.h derives. That holds while nothing waits ahead of a round: a
+// pass has room for: FR_NFR.md 3.4.1 bounds the first of them by
+// AECP_QUEUED_FIRST_MS from its port's answer and those queued behind it by
+// AECP_QUEUED_MS, which aecp_mbx.h derives. That holds while nothing waits ahead of a round: a
 // response owed is committed first (ctrl_loop.h, A3), and while a command waits
 // on its apply (AECP_WAIT_MS) or a START or STOP is pending no round builds.
 // Measured from the port's answer to the last recipient's commit, under every

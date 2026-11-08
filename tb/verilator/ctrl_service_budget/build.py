@@ -625,16 +625,17 @@ def entry_symbols(variant: str) -> tuple[str, ...]:
 STEP_SYMBOL = 'nvm_store_service'
 STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 #: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
-#: the commit of its return address: the saved-state store's boot and its service step (#665).
-SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service')
+#: the commit of its return address: the saved-state store's boot and its service step, and THE
+#: RETRY's round (#665, round_grade.py).
+SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'))
 #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
 #: static function) pair: the state port's owners as the boot walks apply and the write path
-#: latches, and the flash port's calls (#665).
+#: latches, the flash port's calls, and a round's attempts and the notices it builds (#665).
 CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_restore', 'aecp_map_restore',
                 'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
                 'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
                 ('nvm_flash_litespi', 'ls_program'), ('nvm_flash_litespi', 'ls_erase'),
-                ('nvm_flash_litespi', 'ls_busy'))
+                ('nvm_flash_litespi', 'ls_busy'), 'aecp_command', ('aecp', 'finish'))
 
 
 def traced(table: dict[str, int], elf: Path, names: tuple, modules: tuple[list[str], list]) -> list[tuple]:
