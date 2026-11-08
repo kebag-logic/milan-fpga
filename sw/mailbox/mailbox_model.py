@@ -217,6 +217,9 @@ class Contract:
     tests: tuple[tuple[str, int, str], ...]
     tmr_ops: tuple[tuple[str, int], ...]
     channels: tuple[Channel, ...]
+    #: A layout sized from a shape (with_shape, #859): each interface's table
+    #: entries and source bits are its own streams, by their ordinal on it.
+    entry_ordinal: bool = False
 
 
 @dataclass(frozen=True)
@@ -423,6 +426,15 @@ def _check_blocks(contract: Contract) -> None:
     if contract.bound_talkers * contract.bnd_entry_stride > contract.bnd_stride:
         raise ContractError(f"{contract.bound_talkers} bound-talker entries spill out of their "
                             f"{contract.bnd_stride:#x} interface stride")
+    # A shape's layout (with_shape) may hold the bound-talker block in the window
+    # above the register space, clear of every ring and block there.
+    in_window = contract.bnd_base >= REGISTER_SPACE_BYTES
+    if in_window:
+        end = contract.bnd_base + contract.interfaces * contract.bnd_stride
+        clash = [(s, e) for s, e in _window_spans(contract, "bnd") if s < end and contract.bnd_base < e]
+        if end > contract.window_bytes or clash:
+            raise ContractError(f"the bound-talker block {contract.bnd_base:#x}..{end:#x} leaves the window or "
+                                f"overlaps {clash}")
     for base, stride, regs, count, label in (
             (contract.if_base, contract.if_stride, contract.if_registers, contract.interfaces, "interface"),
             (contract.iff_base, contract.iff_stride, contract.iff_registers, contract.interfaces,
@@ -438,7 +450,8 @@ def _check_blocks(contract: Contract) -> None:
                 if label == "bound-talker entry":   # entry e of interface i, i's block a whole stride
                     i, e = divmod(k, contract.bound_talkers)
                     at = base + i * contract.bnd_stride + e * stride + reg.offset
-                if at >= REGISTER_SPACE_BYTES or at in globals_at:
+                if (at >= REGISTER_SPACE_BYTES and not (in_window and label == "bound-talker entry")) \
+                        or at in globals_at:
                     raise ContractError(f"{label} {k} {reg.name} at {at:#x} collides or leaves the register space")
                 globals_at.add(at)
 
@@ -676,6 +689,88 @@ def with_interfaces(contract: Contract, interfaces: int) -> Contract:
     return variant
 
 
+def _pow2_at_least(value: int) -> int:
+    """The smallest power of two not below value."""
+    return 1 << max(0, value - 1).bit_length()
+
+
+def _window_spans(contract: Contract, skip: str = "") -> list[tuple[int, int]]:
+    """(start, end) of everything the window holds above the register space, but the block named skip."""
+    blocks = {"pub": (contract.pub_base, contract.interfaces * contract.pub_stride),
+              "face": (contract.face_base, contract.interfaces * contract.face_stride)}
+    if contract.bnd_base >= REGISTER_SPACE_BYTES:
+        blocks["bnd"] = (contract.bnd_base, contract.interfaces * contract.bnd_stride)
+    spans = [(base, base + size) for name, (base, size) in blocks.items() if name != skip]
+    spans.append((contract.evt_base, contract.evt_base + 4 * contract.evt_words))
+    for ch in contract.channels:
+        spans += [(ch.rx_base, ch.rx_base + 4 * ch.rx_words), (ch.tx_base, ch.tx_base + 4 * ch.tx_words)]
+    return sorted(spans)
+
+
+def _placed(contract: Contract, block: str, base: int, size: int) -> int:
+    """The block's base where it is, if it is clear of every other span, else the lowest base above the
+    register space, aligned to its size, that is."""
+    def clear(at: int) -> bool:
+        return all(not (start < at + size and at < end) for start, end in _window_spans(contract, block))
+    if clear(base) and base + size <= contract.window_bytes:
+        return base
+    at = REGISTER_SPACE_BYTES
+    while at + size <= contract.window_bytes:
+        if clear(at):
+            return at
+        at += size
+    raise ContractError(f"no {size:#x} bytes of the window are free for the {block} block")
+
+
+def _source_bits(registers: tuple[Register, ...], names: tuple[str, ...], sources: int) -> tuple[Register, ...]:
+    """The registers with each named one's single field `sources` bits wide."""
+    out = []
+    for r in registers:
+        if r.name in names:
+            (f,) = r.fields
+            r = replace(r, fields=(replace(f, width=sources),))
+        out.append(r)
+    return tuple(out)
+
+
+#: The publication registers that carry one bit per talker source.
+PUB_SOURCE_BIT_REGS = ("DA_GATE", "LICENCE", "TALKER_DECL")
+
+
+def with_shape(contract: Contract, interfaces: int, sources: int, sinks: int) -> Contract:
+    """The contract laid out for a shape's per-interface stream counts (#859).
+
+    Each interface's bound-talker table and publication and face entries hold
+    `sources` talker and `sinks` listener streams, a stream's entry its
+    ordinal on its interface (entry_ordinal), and each bit-per-source field is
+    `sources` bits. Entry strides stay the contract's; a block whose entries
+    outgrow its interface stride takes the next power of two, and a block that
+    no longer fits where the contract places it moves to the lowest free span
+    of the window. Nothing else moves. The tracked outputs are never this
+    layout; refused as load() refuses."""
+    v = replace(contract, interfaces=interfaces, bound_talkers=sinks, pub_sources=sources, pub_sinks=sinks,
+                entry_ordinal=True)
+    # publication: the registers, the source entries, then the sink entries
+    src_end = v.pub_source_base + sources * v.pub_source_stride
+    sink_base = max(v.pub_sink_base, -(-src_end // v.pub_sink_stride) * v.pub_sink_stride)
+    v = replace(v, pub_sink_base=sink_base,
+                pub_stride=_pow2_at_least(max(v.pub_stride, sink_base + sinks * v.pub_sink_stride)),
+                pub_registers=_source_bits(v.pub_registers, PUB_SOURCE_BIT_REGS, sources))
+    v = replace(v, pub_base=_placed(v, "pub", v.pub_base, interfaces * v.pub_stride))
+    # face: the settings and windows, the source entries, then the sink entries
+    src_end = v.face_source_base + sources * v.face_source_stride
+    sink_base = max(v.face_sink_base, -(-src_end // v.face_sink_stride) * v.face_sink_stride)
+    v = replace(v, face_sink_base=sink_base,
+                face_stride=_pow2_at_least(max(v.face_stride, sink_base + sinks * v.face_sink_stride)))
+    v = replace(v, face_base=_placed(v, "face", v.face_base, interfaces * v.face_stride))
+    # bound-talker: in the register space where it fits, else the window
+    v = replace(v, bnd_stride=_pow2_at_least(max(v.bnd_stride, sinks * v.bnd_entry_stride)))
+    if v.bnd_base + interfaces * v.bnd_stride > REGISTER_SPACE_BYTES:
+        v = replace(v, bnd_base=_placed(v, "bnd", REGISTER_SPACE_BYTES, interfaces * v.bnd_stride))
+    _check_contract(v)
+    return v
+
+
 def _check_contract(contract: Contract) -> None:
     """The cross-item rules no single item can check."""
     if not 1 <= contract.interfaces <= 4 or not 1 <= contract.timers <= 64:
@@ -868,6 +963,9 @@ def constants(contract: Contract) -> list[Constant]:
            Constant("ETHERTYPE_BYTE", contract.ethertype_byte, "wire byte of the EtherType", False),
            Constant("SUBTYPE_BYTE", contract.subtype_byte, "wire byte of the AVTP subtype", False),
            Constant("MSG_TYPE_BYTE", contract.msg_type_byte, "wire byte whose low nibble is message_type", False)]
+    if contract.entry_ordinal:
+        out.append(Constant("ENTRY_ORDINAL", 1, "a shape's layout: stream n is entry n / N_IF of interface "
+                            "n mod N_IF's tables and source bits (#859)", False))
     out += [Constant(f"DST_{name.upper()}", value, doc, False) for name, value, doc in contract.dsts]
     out += [Constant(f"TEST_{name.upper()}", value, doc, False) for name, value, doc in contract.tests]
     out += [Constant(f"TMR_OP_{name.upper()}", value, f"TMR_CMD.OP {name}", False)

@@ -40,13 +40,17 @@ be refused. A clean run of the tracked outputs is the positive control.
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
 directory, cross-checked; the mailbox suite builds its per-interface own-MAC
-checks on a two-interface variant. It never writes the tree.
+checks on a two-interface variant. It never writes the tree. With
+``--variant-shape CONFIG`` the per-interface tables are sized from CONFIG's
+streams, each interface's own streams by their ordinal on it (#859); the
+self-test refuses that layout one sink entry short.
 
 Usage:
     python3 sw/mailbox/gen_mailbox.py --write
     python3 sw/mailbox/gen_mailbox.py --check --crosscheck
     python3 sw/mailbox/gen_mailbox.py --selftest
     python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out obj_if2/gen
+    python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 --variant-shape configs/endstation_ax7101_32x32.yaml --out obj_32/gen
 
 Exit 0 = clean; 1 = drift, a mismatch, or a self-test arm that did not bite;
 2 = the contract itself is refused.
@@ -65,7 +69,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
-from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces  # noqa: E402
+from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces, with_shape  # noqa: E402
 from mailbox_skeleton import emit_sv_top  # noqa: E402
 
 REPO = HERE.parent.parent
@@ -186,6 +190,55 @@ def write_variant(contract: Contract, interfaces: int, out: Path) -> list[str]:
         (out / Path(path).name).write_text(texts[path], encoding="utf-8")
         print(f"wrote {out / Path(path).name} ({interfaces} interfaces)")
     return crosscheck(variant, texts)
+
+
+def shape_streams(config: Path) -> tuple[int, int]:
+    """The talker sources and listener sinks a config's entity has, the CRF pair included: the
+    counts ADP advertises, from the end-station builder's own derivation."""
+    sys.path.insert(0, str(REPO / "sw/builder"))
+    import endstation_builder as eb
+    adp = eb.emit_aem_overlay(eb.load_config(str(config)))["adp"]
+    return int(adp["talker_stream_sources"]), int(adp["listener_stream_sinks"])
+
+
+def per_interface(streams: int, interfaces: int) -> list[int]:
+    """The streams each interface carries when stream n is on interface n mod interfaces (#859, the
+    split firmware's placement, sw/firmware/ctrl/test/ctrl_aecp_image.c)."""
+    return [len(range(i, streams, interfaces)) for i in range(interfaces)]
+
+
+def shape_findings(variant: Contract, sources: int, sinks: int) -> list[str]:
+    """Each table of a shape's layout holds every stream its interface carries, by its ordinal."""
+    found = []
+    for i, (s, k) in enumerate(zip(per_interface(sources, variant.interfaces),
+                                   per_interface(sinks, variant.interfaces))):
+        for entries, holds, needs in (("bound-talker entries", variant.bound_talkers, k),
+                                      ("publication and face sink entries", variant.pub_sinks, k),
+                                      ("publication and face source entries", variant.pub_sources, s)):
+            if holds < needs:
+                found.append(f"interface {i} carries {needs} streams but has {holds} {entries}")
+    if not variant.entry_ordinal:
+        found.append("the layout does not index each interface's streams by their ordinal")
+    return found
+
+
+def shape_variant(contract: Contract, config: Path, interfaces: int) -> tuple[Contract, int, int]:
+    """The contract laid out for a config's per-interface stream counts, and those totals."""
+    sources, sinks = shape_streams(config)
+    return (with_shape(contract, interfaces, max(per_interface(sources, interfaces)),
+                       max(per_interface(sinks, interfaces))), sources, sinks)
+
+
+def write_shape_variant(contract: Contract, config: Path, interfaces: int, out: Path) -> list[str]:
+    """write_variant for the layout sized from a config's streams (#859): the package, the skeleton
+    and the header in `out`; the findings of the cross-check and of shape_findings, which must be none."""
+    variant, sources, sinks = shape_variant(contract, config, interfaces)
+    texts = generate(variant)
+    out.mkdir(parents=True, exist_ok=True)
+    for path in VARIANT_OUTPUTS:
+        (out / Path(path).name).write_text(texts[path], encoding="utf-8")
+        print(f"wrote {out / Path(path).name} ({config.stem}, {interfaces} interfaces)")
+    return crosscheck(variant, texts) + shape_findings(variant, sources, sinks)
 
 
 def _plant(texts: dict[str, str], path: str, old: str, new: str) -> dict[str, str]:
@@ -433,6 +486,20 @@ def selftest() -> int:
             failures += 1
         except ContractError as exc:
             print(f"[ok] variant of 4 interfaces: refused ({exc})")
+        # The 32x32 shape's layout (#859) holds every stream of each interface; a layout one
+        # entry short of the primary's 17 sinks is refused by name.
+        shape = REPO / "configs/endstation_ax7101_32x32.yaml"
+        found = write_shape_variant(contract, shape, 2, Path(tmp) / "shape")
+        print(f"[{'ok' if not found else 'FAIL'}] layout of the 32x32 shape on 2 interfaces: "
+              f"{found[0] if found else 'cross-checks clean and holds every stream'}")
+        failures += bool(found)
+        variant, sources, sinks = shape_variant(contract, shape, 2)
+        short = with_shape(contract, 2, variant.pub_sources, variant.pub_sinks - 1)
+        found = shape_findings(short, sources, sinks)
+        bit = any("interface 0 carries 17 streams but has 16 bound-talker entries" in f for f in found)
+        print(f"[{'ok' if bit else 'FAIL'}] a layout one sink entry short: "
+              f"{found[0] if found else 'NOTHING FOUND'}")
+        failures += not bit
     print(f"selftest: {failures} arm(s) failed")
     return 1 if failures else 0
 
@@ -446,6 +513,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--selftest", action="store_true", help="prove both checks can fail")
     ap.add_argument("--variant-interfaces", type=int, metavar="N",
                     help="write the package, skeleton and header for N interfaces into --out")
+    ap.add_argument("--variant-shape", type=Path, metavar="CONFIG",
+                    help="with --variant-interfaces: the layout sized from CONFIG's streams on each interface")
     ap.add_argument("--out", type=Path, help="the build directory a variant is written into")
     args = ap.parse_args(argv)
     if args.selftest:
@@ -455,7 +524,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.variant_interfaces is not None:
             if args.out is None:
                 ap.error("--variant-interfaces needs --out")
-            found = write_variant(contract, args.variant_interfaces, args.out)
+            found = (write_variant(contract, args.variant_interfaces, args.out) if args.variant_shape is None
+                     else write_shape_variant(contract, args.variant_shape, args.variant_interfaces, args.out))
             for f in found:
                 print(f"[FAIL] {f}")
             return 1 if found else 0
