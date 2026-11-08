@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""twin_plants.py - the two-placement simulation's capture plants (#665).
+
+Each plant writes a copy of one half's capture (twin.hpp Capture) with one planted difference, which
+twin_compare.py must refuse by the plant's words (twin_compare.PLANT_WORDS), against the unplanted capture
+and between the placements (make twin-plants). SPLIT_PLANTS plant the split half's capture and FABRIC_PLANTS
+the all-fabric half's: an owed defect of the fabric gone is planted where the fix would land.
+
+Each plant names the grade or row it is the plant of:
+  * uncovered-field, vanished-owed: a difference no row covers, and an owed difference gone (OWED);
+  * command-byte: the entity's own commands are still byte-compared, sequence_id aside;
+  * command-sequence, response-sequence: the commands' sequence_id per controller (grade_commands);
+  * table-10-3, received-join: an MSRP attribute's trace against Table 10-3, and through a received MRPDU,
+    against its Registrar (twin_mrp.py);
+  * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
+  * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
+  * vanished-available-index: the #858 owed row's difference gone (OWED).
+"""
+from __future__ import annotations
+
+from collections.abc import Callable, Iterator
+
+import twin_decode as td
+from twin_decode import Sent, aecp
+
+FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
+#: the peer's MAC (twin.hpp kPeerMac) and MSRP's destination, the nearest-bridge group address (IEEE
+#: 802.1Q-2018 Table 10-1)
+PEER_MAC = bytes.fromhex("001b920000aa")
+MSRP_DA = bytes.fromhex("0180c200000e")
+MSRP_ETHERTYPE = 0x22EA
+#: the Domain the halves declare (Milan v1.2 4.2.7.2.1: SRclassID 6, priority 3, VID 2)
+DOMAIN = bytes.fromhex("06030002")
+
+
+def frame_fields(entry: dict) -> tuple[str, Sent] | None:
+    """A capture entry's protocol and frame, padded as the comparison reads it, or None for no compared one."""
+    data = bytes.fromhex(entry["hex"]).ljust(td.MIN_FRAME, b"\0")
+    found = td.classify(data)
+    return (found[0], Sent(entry["ms"], data, found[1])) if found else None
+
+
+def aecp_doc_frame(entry: dict) -> td.Aecp | None:
+    """A capture entry's AECPDU fields, or None for any other frame."""
+    found = frame_fields(entry)
+    return aecp(found[1]) if found and found[0] == "AECP" else None
+
+
+def planted(doc: dict, name: str) -> dict:
+    """The capture, marked with the plant it carries."""
+    doc["notes"]["plant"] = name
+    return doc
+
+
+def set_byte(entry: dict, at: int, value: int) -> None:
+    """One byte of a capture entry's frame set to `value`."""
+    data = bytearray(bytes.fromhex(entry["hex"]))
+    data[at] = value
+    entry["hex"] = data.hex()
+
+
+# ---- AECP --------------------------------------------------------------------------
+
+
+def plant_uncovered_field(fabric: dict, split: dict) -> dict:
+    """A fourth difference, in a field no row covers: the first GET_STREAM_INFO notice of STREAM_INPUT 0 to
+    the first controller, msrp_accumulated_latency's last octet inverted (frame byte 65)."""
+    del fabric
+    for entry in split["frames"]:
+        f = aecp_doc_frame(entry)
+        if f and f.unsolicited and (f.command, f.descriptor) == (0x000F, (5, 0)) and f.controller == FIRST:
+            set_byte(entry, 65, bytes.fromhex(entry["hex"])[65] ^ 0xFF)
+            return planted(split, "uncovered-field")
+    raise SystemExit("plant uncovered-field: no GET_STREAM_INFO notice of STREAM_INPUT 0 to plant")
+
+
+def plant_vanished_owed(fabric: dict, split: dict) -> dict:
+    """An owed difference gone: the split capture carries the fabric's GET_STREAM_INFO notices of
+    STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
+    owed = [e for e in fabric["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
+            and (f.command, f.descriptor) == (0x000F, (6, 0))]
+    if not owed:
+        raise SystemExit("plant vanished-owed: the fabric capture has no STREAM_OUTPUT 0 notice to copy")
+    split["frames"] = sorted(split["frames"] + owed, key=lambda e: e["ms"])
+    return planted(split, "vanished-owed")
+
+
+def controller_available(doc: dict, to: int) -> list[dict]:
+    """The split's CONTROLLER_AVAILABLE commands to one controller, in send order."""
+    return [e for e in doc["frames"] if (f := aecp_doc_frame(e)) and f.message_type == 0 and f.command == 0x0003
+            and f.target == to]
+
+
+def plant_command_byte(fabric: dict, split: dict) -> dict:
+    """The entity's first CONTROLLER_AVAILABLE command to the first controller with its controller_entity_id's
+    last octet inverted (frame byte 33): the command compare reads every byte but the sequence_id."""
+    del fabric
+    found = controller_available(split, FIRST)
+    if not found:
+        raise SystemExit("plant command-byte: no CONTROLLER_AVAILABLE command to the first controller")
+    set_byte(found[0], 33, bytes.fromhex(found[0]["hex"])[33] ^ 0xFF)
+    return planted(split, "command-byte")
+
+
+def plant_command_sequence(fabric: dict, split: dict) -> dict:
+    """The entity's second CONTROLLER_AVAILABLE command to the second controller given the first's
+    sequence_id, so the ids to that controller do not rise."""
+    del fabric
+    found = controller_available(split, SECOND)
+    if len(found) < 2:
+        raise SystemExit("plant command-sequence: fewer than two CONTROLLER_AVAILABLE commands to the second "
+                         "controller")
+    first = bytes.fromhex(found[0]["hex"])
+    set_byte(found[1], 34, first[34])
+    set_byte(found[1], 35, first[35])
+    return planted(split, "command-sequence")
+
+
+def plant_response_sequence(fabric: dict, split: dict) -> dict:
+    """The first controller's answer to the entity's CONTROLLER_AVAILABLE, as the stimulus applied it, with a
+    sequence_id one higher than its command's."""
+    del fabric
+    for entry in split["applied"]:
+        if entry["what"] == "AECP CONTROLLER_AVAILABLE response, the first controller":
+            seq = (int.from_bytes(bytes.fromhex(entry["hex"])[34:36], "big") + 1) & 0xFFFF
+            set_byte(entry, 34, seq >> 8)
+            set_byte(entry, 35, seq & 0xFF)
+            return planted(split, "response-sequence")
+    raise SystemExit("plant response-sequence: the first controller never answered a CONTROLLER_AVAILABLE")
+
+
+# ---- MSRP --------------------------------------------------------------------------
+
+
+def msrp_vectors(data: bytes, at: int) -> Iterator[tuple[int, int, int]]:
+    """Each VectorAttribute of an MSRP frame (IEEE 802.1Q-2018 10.8.1.2): its AttributeType, the offset of
+    its VectorHeader and its ThreePackedEvents' offset."""
+    offset = at + 1
+    while offset + 4 <= len(data) and data[offset:offset + 2] != b"\0\0":
+        kind, length = data[offset], data[offset + 1]
+        end = offset + 4 + int.from_bytes(data[offset + 2:offset + 4], "big")
+        vector = offset + 4
+        while vector + 2 <= end and data[vector:vector + 2] != b"\0\0":
+            count = int.from_bytes(data[vector:vector + 2], "big") & 0x1FFF
+            yield kind, vector, vector + 2 + length
+            vector += 2 + length + (count + 2) // 3 + ((count + 3) // 4 if kind == 3 else 0)
+        offset = end
+
+
+def domain_events(doc: dict) -> Iterator[tuple[dict, int]]:
+    """Each MSRP frame of a capture carrying the Domain, and its Domain vector's ThreePackedEvents offset (one
+    value, its event the octet's first of three)."""
+    for entry in doc["frames"]:
+        found = frame_fields(entry)
+        if found is None or found[0] != "MSRP":
+            continue
+        s = found[1]
+        for kind, vector, packed in msrp_vectors(s.data, s.at):
+            if kind == 4 and s.data[vector + 2:vector + 6] == DOMAIN:
+                yield entry, packed
+
+
+def plant_table_10_3(fabric: dict, split: dict) -> dict:
+    """The split's Domain sends New once, as the fabric's does: its second New (from AN) re-encoded JoinMt
+    (IEEE 802.1Q-2018 10.8.2.6: JoinMt is 3, so the octet is 3 x 36)."""
+    del fabric
+    news = [(e, at) for e, at in domain_events(split) if bytes.fromhex(e["hex"])[at] // 36 == 0]
+    if len(news) < 2:
+        raise SystemExit("plant table-10-3: the split's Domain does not send New twice")
+    set_byte(news[1][0], news[1][1], 3 * 36)
+    return planted(split, "table-10-3")
+
+
+def plant_leave_all_declaration(fabric: dict, split: dict) -> dict:
+    """The split's Domain withdrawn from its first frame at or after 30000 ms: a Lv there and Mt in every later
+    frame, a legal Applicant's trace (Lv! in QA, then LA, VO and LO), so only the declaration state at the
+    later LeaveAll boundaries differs."""
+    del fabric
+    later = [(e, at) for e, at in domain_events(split) if e["ms"] >= 30000]
+    if not later:
+        raise SystemExit("plant leave-all-declaration: no Domain after 30000 ms")
+    set_byte(later[0][0], later[0][1], 5 * 36)
+    for entry, at in later[1:]:
+        set_byte(entry, at, 4 * 36)
+    return planted(split, "leave-all-declaration")
+
+
+def plant_received_join(fabric: dict, split: dict) -> dict:
+    """A peer's MSRP Domain JoinIn the split receives at 30500 ms, as the stimulus would apply it: its Registrar
+    goes IN (IEEE 802.1Q-2018 Table 10-4), so its next sJ must be JoinIn (10.7.6.3), and the split, which never
+    received it, sends JoinMt."""
+    del fabric
+    pdu = bytes([0, 4, 4]) + (2 + 4 + 1 + 2).to_bytes(2, "big") + bytes.fromhex("0001") + DOMAIN + bytes([1 * 36])
+    pdu += bytes(4)
+    frame = (MSRP_DA + PEER_MAC + MSRP_ETHERTYPE.to_bytes(2, "big") + pdu).ljust(td.MIN_FRAME, b"\0")
+    split["applied"] = sorted(split["applied"] + [{"ms": 30500, "what": "MSRP Domain JoinIn from a peer (planted)",
+                                                   "hex": frame.hex()}], key=lambda a: a["ms"])
+    return planted(split, "received-join")
+
+
+# ---- the fabric's owed defects gone ----------------------------------------------
+
+
+def plant_vanished_mvrp_leave_all(fabric: dict, split: dict) -> dict:
+    """#857 fixed: the fabric's MVRP sends a LeaveAll every 12 s after its one at 10201 ms, each an MRPDU of
+    one LeaveAll vector of no value (IEEE 802.1Q-2018 10.8.2.4, 11.2.3.1), from its own header."""
+    del split
+    own = [e for e in fabric["frames"] if (f := frame_fields(e)) and f[0] == "MVRP"]
+    if not own:
+        raise SystemExit("plant vanished-mvrp-leave-all: the fabric sent no MVRP")
+    header = bytes.fromhex(own[0]["hex"])[:14]
+    pdu = bytes([0, 1, 2]) + bytes.fromhex("2000") + bytes.fromhex("0002") + bytes(4)
+    added = [{"ms": ms, "hex": (header + pdu).ljust(td.MIN_FRAME, b"\0").hex()} for ms in range(22201, 75000, 12000)]
+    fabric["frames"] = sorted(fabric["frames"] + added, key=lambda e: e["ms"])
+    return planted(fabric, "vanished-mvrp-leave-all")
+
+
+def plant_vanished_available_index(fabric: dict, split: dict) -> dict:
+    """#858 fixed: the fabric's ENTITY descriptor of the later read carries its last ENTITY_AVAILABLE's
+    available_index, 1 (frame byte 81, the index's last octet)."""
+    del split
+    for entry in fabric["frames"]:
+        f = aecp_doc_frame(entry)
+        if f and f.message_type == 1 and f.command == 0x0004 and f.controller == FIRST and f.seq == 25:
+            set_byte(entry, 14 + 64 + 3, 1)
+            return planted(fabric, "vanished-available-index")
+    raise SystemExit("plant vanished-available-index: no response to the later ENTITY read")
+
+
+Plant = Callable[[dict, dict], dict]
+#: the plants of the split half's capture (--make-plant writes the planted split capture)
+SPLIT_PLANTS: dict[str, Plant] = {
+    "uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed,
+    "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
+    "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
+    "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
+}
+#: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)
+FABRIC_PLANTS: dict[str, Plant] = {
+    "vanished-mvrp-leave-all": plant_vanished_mvrp_leave_all,
+    "vanished-available-index": plant_vanished_available_index,
+}
+CAPTURE_PLANTS: dict[str, Plant] = {**SPLIT_PLANTS, **FABRIC_PLANTS}

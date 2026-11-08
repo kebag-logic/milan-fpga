@@ -259,11 +259,29 @@ def unpad_mrp(data: bytes, at: int) -> bytes:
     return data[:offset + 2] if offset + 2 <= len(data) else data
 
 
-def msrp_events(s: Sent) -> tuple[list[Event], bool]:
-    """Every attribute event of one MSRP frame, in encounter order, and whether it carried a LeaveAll."""
+def msrp_frame(s: Sent) -> tuple[list[Event], frozenset[int]]:
+    """Every attribute event of one MSRP frame, in encounter order, and the attribute types its LeaveAll
+    covers (IEEE 802.1Q-2018 10.8.2.6: a LeaveAll in a Message applies to the Message's type)."""
     d = srp_wire_compare.decode_frame(unpad_mrp(s.data, s.at))
     return ([Event(s.ms, e[0], e[1], EVENTS[e[2]], e[3], e[4]) for e in d["events"]],
-            bool(d["leave_all_types"]))
+            frozenset(d["leave_all_types"]))
+
+
+def msrp_events(s: Sent) -> tuple[list[Event], bool]:
+    """Every attribute event of one MSRP frame, in encounter order, and whether it carried a LeaveAll."""
+    events, leave_all = msrp_frame(s)
+    return events, bool(leave_all)
+
+
+def received(cap: Capture, proto: str) -> list[Sent]:
+    """The stimulus frames of one protocol a half received, as the comparison reads its own."""
+    found = []
+    for a in cap.applied:
+        data = a.data.ljust(MIN_FRAME, b"\0")
+        kind = classify(data)
+        if kind is not None and kind[0] == proto:
+            found.append(Sent(a.ms, data, kind[1]))
+    return found
 
 
 def mvrp_events(s: Sent) -> tuple[list[Event], bool]:

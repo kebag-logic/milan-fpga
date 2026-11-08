@@ -4,27 +4,30 @@
 """twin_compare.py - the two-placement simulation's comparison (#665).
 
 It reads the capture each half wrote (twin_fabric.cpp, twin_split.cpp, decoded by twin_decode.py)
-and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453 and
-issuecomment-6717765106 amend it:
+and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453,
+issuecomment-6717765106 and issuecomment-6722002738 amend it:
 
   * ADP, ACMP and MAAP: each protocol's frames as an ordered sequence, raw bytes equal. Times are
     never compared between the halves.
   * AECP: the solicited responses as one ordered sequence, raw bytes equal; the unsolicited notices
     as ordered sub-sequences per (command_type, descriptor_type, descriptor_index), sequence_id out
-    of the byte compare; the commands the entity sends (CONTROLLER_AVAILABLE) per controller, raw
-    bytes. Equal apart from the F5 difference ledger (LEDGER, sw/firmware/ctrl/aecp/README.md), each
+    of the byte compare; the commands the entity sends (CONTROLLER_AVAILABLE) per controller, also
+    with sequence_id out of the byte compare (IEEE 1722.1-2021 9.2.2.9 leaves its counter's scope
+    open). Equal apart from the F5 difference ledger (LEDGER, sw/firmware/ctrl/aecp/README.md), each
     row asserting its exact fabric and split values, a row that does not hold a finding.
-  * MSRP per attribute: for each attribute type and value, the ordered sequence of its events equal
-    (IEEE 802.1Q-2018 10.8.2.6), the MRPDU and Message grouping not compared (10.8 leaves it to the
-    Applicant) and LeaveAll not part of the event (its timer is random, 10.7.4.3).
-  * Apart from the ledger, the owed-difference list (OWED): differences a later step owes the fix
-    of. Each row names the difference, its cause and the owing step and asserts its exact fabric
-    and split values, so any other difference still fails; a row whose difference has gone is a
-    finding too, so the lane that fixes it deletes the row.
+  * MSRP: only the declaration state, each attribute declared or not and its value, at each half's
+    LeaveAll boundaries (twin_mrp.py), in order, a run of equal states one state. The event counts
+    follow the transmit opportunities and the LeaveAll timer's random draw (IEEE 802.1Q-2018 10.7.4.3),
+    so they are graded in each half, not compared.
+  * Apart from the ledger, the owed-difference list (OWED, and OWED_GRADES for a defect one half's grade
+    finds): differences a later step owes the fix of. Each row names the difference, its cause and the
+    owing step and asserts its exact values, so any other difference still fails; a row whose
+    difference has gone is a finding too, so the lane that fixes it deletes the row.
   * Each half on its own: what a standard leaves random or bounded against that bound (ADP's and
     MAAP's intervals, the 240 ms AEM response), the notices' sequence_id per registered controller
-    (Milan v1.2 5.4.5.1), the MRP timers (IEEE 802.1Q-2018 10.7.4) and MVRP (Milan v1.2 4.3.2, 4.4.1;
-    IEEE 802.1Q-2018 10.7), which is not compared across the halves.
+    (Milan v1.2 5.4.5.1), the entity's own commands' sequence_id per controller, the MRP timers (IEEE
+    802.1Q-2018 10.7.4), each MSRP attribute's events as an Applicant's (Table 10-3), and MVRP (Milan
+    v1.2 4.3.2, 4.4.1; IEEE 802.1Q-2018 10.7), which is not compared across the halves.
 
 An ADP or MAAP frame one half sent past the other's last is not a difference when the other half's
 next one was not yet due at the run's end (its bound, TAIL_MS).
@@ -33,12 +36,14 @@ next one was not yet due at the run's end (its bound, TAIL_MS).
       every finding as "[DIFF] ...", "[SEQ] ...", "[MRP] ...", "[MVRP] ..." or "[TIME] ...", exit 1 on any
       (0 with --report-only, which only writes the plants' baseline)
   twin_compare.py FABRIC.json SPLIT.json --plant NAME --baseline BASE.json
-      the split capture was planted: exit 0 only when the comparison refuses it with the plant's words
-      (PLANT_WORDS), in a finding the unplanted comparison (BASE.json, a --report) does not make
+      one half's capture was planted (the split's, or the fabric's for a FABRIC_PLANTS plant): exit 0 only
+      when the comparison refuses it with the plant's words (PLANT_WORDS), in a finding the unplanted
+      comparison (BASE.json, a --report) does not make
   twin_compare.py SPLIT.json PLANTED.json --plant NAME --self
-      the control: the split capture against its planted copy, every finding about the planted protocol
+      the control: a capture against its planted copy, every finding about the planted protocol (the
+      comparison's, and each grade finding the plant adds to the planted half or takes from it)
   twin_compare.py FABRIC.json SPLIT.json --make-plant NAME --out PLANTED.json
-      write a capture plant (CAPTURE_PLANTS): the split capture with its planted difference
+      write a capture plant (CAPTURE_PLANTS): the planted half's capture with its planted difference
 """
 from __future__ import annotations
 
@@ -53,6 +58,8 @@ from pathlib import Path
 import twin_decode as td
 from twin_decode import Capture, Sent, aecp, describe, recipient, role
 import twin_grades
+import twin_mrp
+from twin_plants import CAPTURE_PLANTS
 
 #: a periodic frame's latest next departure, for the tail rule: ADP's advertise period and largest
 #: delay (Milan v1.2 Table 5.50), MAAP's announce interval and its variation (IEEE 1722-2016 Table B.8)
@@ -66,11 +73,32 @@ PLANT_WORDS = {
                             "to the second controller",
     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
     "vanished-owed": "owed row stream-output-0-notices: the difference has gone",
+    "command-byte": "AECP command 0 differs at byte 33",
+    "command-sequence": "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0",
+    "response-sequence": "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its "
+                         "command's 1",
+    "table-10-3": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: "
+                  "from AN, Table 10-3's tx! sends New",
+    "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
+                     "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
+                     "nothing",
+    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
+                             "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
+    "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
+    "vanished-available-index": "owed row entity-available-index: the difference has gone",
 }
-#: the words of the control against the unplanted split capture, where it differs
-SELF_WORDS = {"vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0"}
+#: the words of the control against the unplanted capture, where they differ
+SELF_WORDS = {
+    "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
+    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
+    "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
+    "vanished-available-index": "AECP response 13 differs at byte 81",
+}
 PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
-                    "uncovered-field": "AECP", "vanished-owed": "AECP"}
+                    "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
+                    "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
+                    "received-join": "MSRP", "leave-all-declaration": "MSRP", "vanished-mvrp-leave-all": "MVRP",
+                    "vanished-available-index": "AECP"}
 
 
 # ---- the ordered raw-byte comparison ---------------------------------------
@@ -137,7 +165,11 @@ def response_key(s: Sent) -> tuple:
 
 
 RESPONSES = Ordering("AECP response", response_key, lambda s: s.data)
-COMMANDS = Ordering("AECP command", lambda s: (aecp(s).message_type, aecp(s).command), lambda s: s.data)
+#: the commands the entity sends, paired per controller by their command, compared without their sequence_id:
+#: IEEE 1722.1-2021 9.2.2.9 says only that it "is incremented on each command sent", not whether per entity or
+#: per controller, so each half's is graded on its own (twin_grades.grade_commands; issuecomment-6722002738,
+#: item 2)
+COMMANDS = Ordering("AECP command", lambda s: (aecp(s).message_type, aecp(s).command), td.without_seq)
 
 
 def notice_ordering(key: tuple) -> Ordering:
@@ -168,14 +200,15 @@ def compare_aecp(fab: list[Sent], spl: list[Sent], run_ms: int) -> tuple[list[st
     return findings, notes
 
 
-# ---- MSRP per attribute ------------------------------------------------------
+# ---- MSRP: the declarations at the LeaveAll boundaries -------------------------
 
 Attributes = dict[tuple[int, str], list[str]]
 
 
 def msrp_attributes(frames: list[Sent]) -> Attributes:
     """Each MSRP attribute's ordered events (its ThreePacked event, and its FourPacked one where it has
-    one), whatever MRPDU and Message carried them; LeaveAll is not part of the event."""
+    one), whatever MRPDU and Message carried them; LeaveAll is not part of the event. The owed rows read
+    them."""
     found: Attributes = {}
     for s in frames:
         for e in td.msrp_events(s)[0]:
@@ -183,11 +216,33 @@ def msrp_attributes(frames: list[Sent]) -> Attributes:
     return found
 
 
-def compare_attributes(fab: Attributes, spl: Attributes) -> list[str]:
-    """Every attribute whose event sequence differs between the halves."""
-    return [f"[DIFF] MSRP {td.attribute_label(*k)}: the fabric's events [{td.run_length(fab.get(k, []))}], "
-            f"the split's [{td.run_length(spl.get(k, []))}]"
-            for k in sorted(set(fab) | set(spl)) if fab.get(k, []) != spl.get(k, [])]
+def runs(states: list[str]) -> list[tuple[str, int]]:
+    """A sequence of declaration states as runs, a state and how many boundaries in a row show it."""
+    found: list[tuple[str, int]] = []
+    for state in states:
+        if found and found[-1][0] == state:
+            found[-1] = (state, found[-1][1] + 1)
+        else:
+            found.append((state, 1))
+    return found
+
+
+def compare_declarations(fab: twin_mrp.Grade, spl: twin_mrp.Grade, left_out: set) -> list[str]:
+    """The declaration state at each half's LeaveAll boundaries (issuecomment-6722002738, item 3), the
+    attributes an owed row covers left out: the halves' sequences of states equal, a run of equal states
+    one state. The boundaries are paired by the states they show, in order, never by their times or their
+    count, which the LeaveAll timer's random draw sets (IEEE 802.1Q-2018 10.7.4.3)."""
+    rf = runs(twin_mrp.declarations(fab.boundaries, left_out))
+    rs = runs(twin_mrp.declarations(spl.boundaries, left_out))
+    if [state for state, _ in rf] == [state for state, _ in rs]:
+        return []
+    return [f"[DIFF] MSRP declarations at the LeaveAll boundaries differ: the fabric's [{shown_runs(rf)}], "
+            f"the split's [{shown_runs(rs)}]"]
+
+
+def shown_runs(found: list[tuple[str, int]]) -> str:
+    """Declaration-state runs as a finding prints them: "{Domain value 06030002} x6"."""
+    return ", ".join(f"{state} x{n}" for state, n in found)
 
 
 def msrp_headers(frames: list[Sent]) -> set[str]:
@@ -243,12 +298,6 @@ def stimulus(h: Half, seq: int) -> bytes:
     return d[36:26 + ((d[16] & 0x07) << 8 | d[17])]
 
 
-def after(h: Half, seq: int, frames: list[Sent], within_ms: int = 50) -> list[Sent]:
-    """The frames sent within `within_ms` after the response to the first controller's command `seq`."""
-    answered = [s.ms for s in responses(h, seq)]
-    return [s for s in frames if answered and answered[0] <= s.ms <= answered[0] + within_ms]
-
-
 def body(s: Sent) -> bytes:
     """A PDU's bytes after its sequence_id, to its control_data_length."""
     return s.data[s.at + 22:s.at + 12 + td.control_length(s)]
@@ -295,19 +344,12 @@ def holds_current(h: Half, sel: list[Sent]) -> bool:
         and not any(fields[len(current):])
 
 
-def released(h: Half) -> list[Sent]:
-    """The LOCK_ENTITY notices of a release: locked_id 0 (IEEE 1722.1-2021 7.4.2.1)."""
-    return [s for s in notices(h, 0x0001, (0, 0)) if not any(s.data[s.at + 28:s.at + 36])]
-
-
-def lock_flags(sel: list[Sent]) -> list[tuple[int, int]]:
-    """Each release notice's recipient and flags."""
-    return [(recipient(s), int.from_bytes(s.data[s.at + 24:s.at + 28], "big")) for s in sel]
-
-
-#: The F5 difference ledger (sw/firmware/ctrl/aecp/README.md, Observed difference rows 1 to 6, the
+#: The F5 difference ledger (sw/firmware/ctrl/aecp/README.md, Observed difference rows 1 to 4, the
 #: Non-AEM contract's reserved type and HDCP_APM): the stimulus reaches every row (twin.hpp), and each
-#: asserts its exact values (#665 issuecomment-6717765106, item 6).
+#: asserts its exact values (#665 issuecomment-6717765106, item 6). Rows 5 (the started state's
+#: GET_STREAM_INFO notice) and 6 (the release notice's UNLOCK flag) are not rows: at this processor pin
+#: the fabric sends both as the split does, and the ledger records only real differences
+#: (issuecomment-6722002738, item 1), so the notice comparison holds them equal.
 LEDGER = (
     Row("root-configuration-index", "IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1",
         lambda h: responses(h, 11),
@@ -338,20 +380,6 @@ LEDGER = (
         == [(SECOND, 0, bytes.fromhex("0205022002006000"))],
         "no SET_STREAM_FORMAT notice for the default-valued SET",
         "one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller", shown_aecp),
-    Row("start-stop-stream-info-notice",
-        "Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2; aecp/README.md, Observed difference row 5",
-        lambda h: after(h, 10, notices(h, 0x000F, (5, 0))) + after(h, 23, notices(h, 0x000F, (5, 0))),
-        lambda h, sel: sel == [],
-        lambda h, sel: [recipient(s) for s in sel] == [FIRST, SECOND, FIRST, SECOND],
-        "no GET_STREAM_INFO notice for STREAM_INPUT 0's changed started state at the STOP or the START",
-        "one GET_STREAM_INFO notice of STREAM_INPUT 0 to each controller at the STOP and at the START",
-        shown_aecp),
-    Row("lock-release-flag", "IEEE 1722.1-2021 7.4.2.1; aecp/README.md, Observed difference row 6",
-        released,
-        lambda h, sel: lock_flags(sel) == [(SECOND, 0), (FIRST, 0), (SECOND, 0)],
-        lambda h, sel: lock_flags(sel) == [(SECOND, 1), (FIRST, 1), (SECOND, 1)],
-        "the release notices (the UNLOCK's, the expiry's to both) with flags 0, the owner 0",
-        "the release notices with flags 1 (UNLOCK), the owner 0", shown_aecp),
     Row("reserved-message-type", "IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract",
         lambda h: responses(h, 14),
         lambda h, sel: statuses(sel) == [(11, 1)],
@@ -364,6 +392,38 @@ LEDGER = (
         "HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length",
         "HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept", shown_aecp),
 )
+
+#: the ENTITY descriptor's available_index in a READ_DESCRIPTOR response: the descriptor follows the
+#: configuration_index and its reserved octets (IEEE 1722.1-2021 7.4.5.2), the field at its octet 36 (Table
+#: 7-2: "the same as the available_index field in ATDECC Discovery Protocol", 6.2.2.15)
+AVAILABLE_INDEX_AT = 28 + 36
+
+
+def available_index(s: Sent) -> int:
+    """The available_index of a READ_DESCRIPTOR response's ENTITY descriptor."""
+    return int.from_bytes(s.data[s.at + AVAILABLE_INDEX_AT:s.at + AVAILABLE_INDEX_AT + 4], "big")
+
+
+def but_available_index(s: Sent) -> bytes:
+    """A READ_DESCRIPTOR response after its sequence_id, its ENTITY descriptor's available_index left out."""
+    d, k = body(s), AVAILABLE_INDEX_AT - 22
+    return d[:k] + d[k + 4:]
+
+
+def advertised(h: Half, before_ms: int) -> list[int]:
+    """The available_index of each ENTITY_AVAILABLE the half sent before `before_ms` (IEEE 1722.1-2021 6.2.2.15)."""
+    return [int.from_bytes(s.data[s.at + 36:s.at + 40], "big") for s in h.capture.frames.get("ADP", [])
+            if s.data[s.at + 1] & 0x0F == 0 and s.ms < before_ms]
+
+
+def entity_read(h: Half, sel: list[Sent], index: int) -> bool:
+    """One SUCCESS response to the later ENTITY read, after exactly two ENTITY_AVAILABLE (available_index 0
+    and 1): the ENTITY descriptor the first read returned (the response comparison holds that one equal
+    across the halves), with available_index `index`."""
+    first = responses(h, 2)
+    return (statuses(sel) == [(1, 0)] and len(first) == 1 and available_index(sel[0]) == index
+            and but_available_index(sel[0]) == but_available_index(first[0]) and advertised(h, sel[0].ms) == [0, 1])
+
 
 #: STREAM_OUTPUT 0's GET_STREAM_INFO fields as the fabric notifies them: its talker declared after the
 #: PROBE_TX (stream_id, accumulated latency, the MAAP address, VLAN 2), and withdrawn about 15 s later
@@ -379,6 +439,8 @@ SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d90001700000000000000200
 SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
                "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
 SRP_ROUND = "the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3)"
+FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
+                "image's constant 0, and never reads ADP's")
 
 #: The owed-difference list, apart from the ledger (#665 issuecomment-6717765106): each row names the
 #: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
@@ -399,7 +461,75 @@ OWED = (
         "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
         "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
         SRP_ROUND),
+    Row("entity-available-index",
+        "IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's",
+        lambda h: responses(h, 25),
+        lambda h, sel: entity_read(h, sel, 0),
+        lambda h, sel: entity_read(h, sel, 1),
+        "the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1",
+        "the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's", shown_aecp, FABRIC_INDEX,
+        "#858 (a release-image defect; issuecomment-6722002738, item 6)"),
 )
+
+
+@dataclass(frozen=True)
+class GradeRow:
+    """An owed defect one half's grade finds: the half, the grade findings the row covers, the exact behaviour
+    it asserts, its cause and the step that owes the fix. A row whose findings have gone is a finding, so the
+    lane that fixes the defect deletes the row."""
+
+    name: str
+    clause: str
+    placement: str
+    covers: Callable[[str], bool]
+    shown: Callable[[Capture], str]
+    says: str
+    cause: str
+    owed_to: str
+
+
+def mvrp_shown(cap: Capture) -> str:
+    """A half's MVRP as the #857 row reads it: each LeaveAll's millisecond, and its last MRPDU's events."""
+    frames = cap.frames.get("MVRP", [])
+    if not frames:
+        return "no MVRPDU"
+    events = ", ".join(f"VID {e.value} {e.event}" for e in td.mvrp_events(frames[-1])[0])
+    return (f"MVRP LeaveAll at ms {[s.ms for s in frames if td.mvrp_events(s)[1]]}, its last MVRPDU at ms "
+            f"{frames[-1].ms} ({events})")
+
+
+#: The fabric's MVRP as #857 has it: one LeaveAll, then VID 2's Lv at 20 s and no PDU after it
+FABRIC_MVRP = "MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv)"
+
+#: The owed defects a half's grade finds (issuecomment-6722002738, item 4), apart from the differences OWED
+#: holds: each covers its grade findings while the half shows exactly the behaviour it asserts.
+OWED_GRADES = (
+    GradeRow("fabric-mvrp-leave-all",
+             "IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring "
+             "or not", "all-fabric",
+             lambda f: f.startswith("[MRP] all-fabric MVRP: ") and "to the next LeaveAll" in f, mvrp_shown,
+             FABRIC_MVRP, "the fabric's MVRP participant sends nothing, LeaveAll included, once it declares nothing",
+             "#857 (a release-image defect; issuecomment-6722002738, item 4)"),
+)
+
+
+def apply_grade_rows(cap: Capture, findings: list[str]) -> tuple[list[str], list[str]]:
+    """Each owed grade row of one half: while it holds, the findings it covers are taken out. The half's
+    remaining grade findings, with any the rows make, and the notes."""
+    rest, notes = list(findings), []
+    for row in (r for r in OWED_GRADES if r.placement == cap.placement):
+        covered = [f for f in findings if row.covers(f)]
+        if not covered:
+            rest.append(f"[DIFF] owed row {row.name}: the defect has gone, the {cap.placement} half's grade finds "
+                        f"none of it; the lane that fixed it ({row.owed_to}) deletes the row")
+        elif row.shown(cap) == row.says:
+            rest = [f for f in rest if f not in covered]
+            notes.append(f"[OWED] {row.name}: the {cap.placement} half sends {row.says} ({row.clause}; "
+                         f"cause: {row.cause}; owed to {row.owed_to})")
+        else:
+            rest.append(f"[DIFF] owed row {row.name} does not hold: the {cap.placement} half sent {row.shown(cap)} "
+                        f"(the row: {row.says})")
+    return rest, notes
 
 
 def apply_rows(rows: tuple[Row, ...], fab: Half, spl: Half, owed: bool) -> tuple[list, list, list[str], list[str]]:
@@ -434,51 +564,22 @@ def normalized(items: list) -> list:
     return [td.without_seq(x) if isinstance(x, Sent) else x for x in items]
 
 
-# ---- the capture plants ---------------------------------------------------------
-
-def aecp_doc_frame(entry: dict) -> td.Aecp | None:
-    """A capture entry's AECPDU fields, or None for any other frame."""
-    data = bytes.fromhex(entry["hex"]).ljust(td.MIN_FRAME, b"\0")
-    found = td.classify(data)
-    return aecp(Sent(entry["ms"], data, found[1])) if found and found[0] == "AECP" else None
-
-
-def plant_uncovered_field(fabric: dict, split: dict) -> dict:
-    """A fourth difference, in a field no row covers: the first GET_STREAM_INFO notice of STREAM_INPUT 0 to
-    the first controller, msrp_accumulated_latency's last octet inverted (frame byte 65)."""
-    del fabric
-    for entry in split["frames"]:
-        f = aecp_doc_frame(entry)
-        if f and f.unsolicited and (f.command, f.descriptor) == (0x000F, (5, 0)) and f.controller == FIRST:
-            data = bytearray(bytes.fromhex(entry["hex"]))
-            data[65] ^= 0xFF
-            entry["hex"] = data.hex()
-            split["notes"]["plant"] = "uncovered-field"
-            return split
-    raise SystemExit("plant uncovered-field: no GET_STREAM_INFO notice of STREAM_INPUT 0 to plant")
-
-
-def plant_vanished_owed(fabric: dict, split: dict) -> dict:
-    """An owed difference gone: the split capture carries the fabric's GET_STREAM_INFO notices of
-    STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
-    owed = [e for e in fabric["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
-            and (f.command, f.descriptor) == (0x000F, (6, 0))]
-    if not owed:
-        raise SystemExit("plant vanished-owed: the fabric capture has no STREAM_OUTPUT 0 notice to copy")
-    split["frames"] = sorted(split["frames"] + owed, key=lambda e: e["ms"])
-    split["notes"]["plant"] = "vanished-owed"
-    return split
-
-
-#: the plants twin_compare.py writes into a copy of the split capture (--make-plant)
-CAPTURE_PLANTS = {"uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed}
-
-
 # ---- the verdict --------------------------------------------------------------
 
+def compare_rows(hf: Half, hs: Half) -> tuple[list[Sent], list[Sent], set, list[str], list[str]]:
+    """The ledger and the owed rows between the placements: the AECP frames no row covers, the MSRP attributes
+    an owed row covers, the notes and the findings."""
+    aecp_f, aecp_s, notes, findings = apply_rows(LEDGER, hf, hs, owed=False)
+    aecp_f, aecp_s, n, d = apply_rows(OWED, Half(aecp_f, hf.msrp, hf.capture), Half(aecp_s, hs.msrp, hs.capture),
+                                      owed=True)
+    owed_msrp = {x[0] for row in OWED for x in row.select(hf) + row.select(hs) if not isinstance(x, Sent)}
+    return aecp_f, aecp_s, owed_msrp, notes + n, findings + d
+
+
 def compare(fab: Capture, spl: Capture, between_placements: bool = True) -> dict:
-    """Every finding and note of the two captures. The ledger, the owed list and the grades are the two
-    placements' comparison's; the plants' control compares the split half with its own planted copy."""
+    """Every finding and note of the two captures. The ledger, the owed lists and each half's grades are the
+    two placements' comparison's. The plants' control compares a half with its own planted copy, and adds each
+    grade finding the plant gives the planted half or takes from it."""
     findings: list[str] = []
     notes: list[str] = []
     run_ms = min(fab.run_ms, spl.run_ms)
@@ -489,30 +590,28 @@ def compare(fab: Capture, spl: Capture, between_placements: bool = True) -> dict
         notes += n
     hf = Half(fab.frames.get("AECP", []), msrp_attributes(fab.frames.get("MSRP", [])), fab)
     hs = Half(spl.frames.get("AECP", []), msrp_attributes(spl.frames.get("MSRP", [])), spl)
-    msrp_f, msrp_s = dict(hf.msrp), dict(hs.msrp)
-    aecp_f, aecp_s = hf.aecp, hs.aecp
+    aecp_f, aecp_s, owed_msrp = hf.aecp, hs.aecp, set()
     if between_placements:
-        aecp_f, aecp_s, n, d = apply_rows(LEDGER, hf, hs, owed=False)
+        aecp_f, aecp_s, owed_msrp, n, d = compare_rows(hf, hs)
         notes += n
         findings += d
-        aecp_f, aecp_s, n, d = apply_rows(OWED, Half(aecp_f, hf.msrp, fab), Half(aecp_s, hs.msrp, spl), owed=True)
-        notes += n
-        findings += d
-        for item in [x for row in OWED for x in row.select(hf) + row.select(hs) if not isinstance(x, Sent)]:
-            msrp_f.pop(item[0], None)
-            msrp_s.pop(item[0], None)
     d, n = compare_aecp(aecp_f, aecp_s, run_ms)
     findings += d
     notes += n
-    findings += compare_attributes(msrp_f, msrp_s)
+    findings += compare_declarations(twin_mrp.grade(fab), twin_mrp.grade(spl), owed_msrp)
     if msrp_headers(fab.frames.get("MSRP", [])) != msrp_headers(spl.frames.get("MSRP", [])):
         findings.append("[DIFF] MSRP: the halves' frames carry different Ethernet headers")
+    (gf, mf), (gs, ms) = twin_grades.grade(fab), twin_grades.grade(spl)
     measured = {}
     if between_placements:
-        for cap in (fab, spl):
-            f, m = twin_grades.grade(cap)
-            findings += f
+        for cap, graded, m in ((fab, gf, mf), (spl, gs, ms)):
+            rest, n = apply_grade_rows(cap, graded)
+            findings += rest
+            notes += n
             measured[cap.placement] = m
+    else:
+        findings += [f for f in gs if f not in gf]
+        findings += [f"[GRADE] the planted half no longer makes: {f}" for f in gf if f not in gs]
     return {"findings": findings, "notes": notes, "measured": measured,
             "counts": {c.placement: {p: len(v) for p, v in sorted(c.frames.items())} for c in (fab, spl)}}
 

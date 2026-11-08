@@ -37,7 +37,7 @@
 #   make twin   - #665: the two-placement simulation, one stimulus on the
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
-#   make twin-plants - its five plants, each refused by its own words
+#   make twin-plants - its thirteen plants, each refused by its own words
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -935,14 +935,18 @@ twin: build-twin
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
 
 # the plants, each refused by its own words (twin_compare.py PLANT_WORDS):
-# against the unplanted split capture, every finding about the planted
-# protocol, and against the all-fabric capture, as a finding the unplanted
+# against the unplanted capture of the half it plants, every finding about the
+# planted protocol, and between the placements, as a finding the unplanted
 # comparison does not make. The first three plant the split half as it runs
-# (twin_split.cpp --plant); the last two plant a copy of its capture
-# (twin_compare.py --make-plant): a difference in a field no row covers, and
-# an owed difference gone
+# (twin_split.cpp --plant); the rest plant a copy of one half's capture
+# (twin_plants.py, through twin_compare.py --make-plant): the split's for a
+# difference no row covers, an owed difference gone, the entity's commands and
+# their sequence_id, the MSRP Applicant grade and the LeaveAll declarations;
+# the fabric's for its owed defects gone (#857, #858)
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
-TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed
+TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
+  table-10-3 received-join leave-all-declaration
+TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index
 twin-plants: build-twin
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
@@ -958,6 +962,13 @@ twin-plants: build-twin
 	    --out $(TWIN_OUT)/split-$$p.json; \
 	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
 	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
+	set -e; for p in $(TWIN_FABRIC_PLANTS); do \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --make-plant $$p \
+	    --out $(TWIN_OUT)/fabric-$$p.json; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/fabric-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric-$$p.json $(TWIN_OUT)/split.json --plant $$p \
 	    --baseline $(TWIN_OUT)/report.json; \
 	done
 

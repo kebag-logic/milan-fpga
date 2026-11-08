@@ -21,7 +21,9 @@
 // it (IEEE 1722.1-2021 7.5.2), and the F5 difference ledger's remaining rows
 // are reached: LOCK_ENTITY and its release, the Milan vendor-unique commands
 // (Milan v1.2 5.4.3, 5.4.4) and one HDCP_APM PDU (#665 issuecomment-6717765106,
-// item 6). Both controllers answer the entity's CONTROLLER_AVAILABLE as a live
+// item 6). A second read of ENTITY follows two ENTITY_AVAILABLE, so its
+// available_index is not the first ADPDU's 0 (issuecomment-6722002738, item 6).
+// Both controllers answer the entity's CONTROLLER_AVAILABLE as a live
 // controller does (controller_available_answer), so each stays registered to
 // the run's end, past the 60 s lock expiry. Every frame is written from the
 // clauses cited beside it.
@@ -274,6 +276,9 @@ inline std::vector<Stimulus> scenario() {
         {6200, "AECP STOP_STREAMING STREAM_INPUT 0", aem(0x0023, descriptor(sin, 0), 10)},
         {6500, "AECP START_STREAMING STREAM_INPUT 0, once stopped", aem(0x0022, descriptor(sin, 0), 23)},
         {7000, "ACMP UNBIND_RX sink 0", acmp(8, kPeerTalker, kEntityId, 0x0105)},
+        // after each half's second ENTITY_AVAILABLE (available_index 1) and before its third, so ENTITY's
+        // available_index shows (IEEE 1722.1-2021 Table 7-2; #665 issuecomment-6722002738, item 6)
+        {7500, "AECP READ_DESCRIPTOR ENTITY 0, after two ENTITY_AVAILABLE", read_descriptor(0x0000, 0, 25)},
         {8000, "MAAP PROBE of the held range", maap_probe(kMaapPreferred, 2)},
         // the F5 difference ledger's rows (sw/firmware/ctrl/aecp/README.md)
         {9000, "AECP READ_DESCRIPTOR ENTITY 0 at configuration 1", read_descriptor(0x0000, 0, 11, 1)},

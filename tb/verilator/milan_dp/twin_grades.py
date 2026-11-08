@@ -12,15 +12,22 @@ is graded here too:
   * each AEM, vendor-unique and HDCP_APM command answered within 240 ms (IEEE 1722.1-2021 9.3.2.6);
   * the notices' sequence_id: per registered controller, one increment per notice, no gap and no repeat
     (Milan v1.2 5.4.5.1);
+  * the sequence_id of the commands the entity sends (CONTROLLER_AVAILABLE): per destination controller,
+    rising in send order, gaps allowed, and each controller's response carrying its command's (IEEE
+    1722.1-2021 9.2.2.9 says only that it "is incremented on each command sent"; #665
+    issuecomment-6722002738, item 2);
   * each MRP participant's transmit opportunities (IEEE 802.1Q-2018 10.7.4; Milan v1.2 Table 4.3): no more
     than three in any 1.5 x JoinTime, LeaveAll within its interval, a declaration repeated within the
     periodic interval;
+  * each MSRP attribute's events, a trace an Applicant can make (IEEE 802.1Q-2018 Table 10-3; twin_mrp.py;
+    issuecomment-6722002738, item 3);
   * MVRP (Milan v1.2 4.3.2, 4.4.1; IEEE 802.1Q-2018 10.7): VID 2 declared before the first stream frame
     and while any sink is settled, its events those of an Applicant.
 """
 from __future__ import annotations
 
 import twin_decode as td
+import twin_mrp
 from twin_decode import Capture, Sent, aecp, role
 
 
@@ -98,6 +105,44 @@ def grade_sequence(cap: Capture) -> tuple[list[str], dict]:
              "higher (Milan v1.2 5.4.5.1)"
              for c, run in sorted(seqs.items()) for a, b in zip(run, run[1:]) if (b - a) % 65536 != 1]
     return found, {"notice_sequence_ids": {td.who(c): run for c, run in sorted(seqs.items())}}
+
+
+#: CONTROLLER_AVAILABLE's command_type (IEEE 1722.1-2021 Table 7-140)
+CONTROLLER_AVAILABLE = 0x0003
+
+
+def answers(cap: Capture) -> dict[int, list[tuple[int, int]]]:
+    """Each controller's AEM_RESPONSE to the entity's CONTROLLER_AVAILABLE, as the stimulus applied it: the
+    millisecond and the sequence_id, per controller (its target_entity_id)."""
+    found: dict[int, list[tuple[int, int]]] = {}
+    for s in td.received(cap, "AECP"):
+        f = aecp(s)
+        if f.message_type == 1 and f.command == CONTROLLER_AVAILABLE:
+            found.setdefault(f.target, []).append((s.ms, f.seq))
+    return found
+
+
+def grade_commands(cap: Capture) -> tuple[list[str], dict]:
+    """The sequence_id of the commands the entity sends: per destination controller, each higher than the last
+    (gaps allowed, modulo 2^16), and each controller's response, in order, carrying its command's."""
+    sent: dict[int, list[tuple[int, int]]] = {}
+    for s in cap.frames.get("AECP", []):
+        if role(s) == "command":
+            sent.setdefault(td.recipient(s), []).append((s.ms, aecp(s).seq))
+    got = answers(cap)
+    found = [f"[SEQ] {cap.placement} AECP: the CONTROLLER_AVAILABLE commands to {td.who(c)} go from sequence_id "
+             f"{a} to {b}, not higher (IEEE 1722.1-2021 9.2.2.9)"
+             for c, run in sorted(sent.items()) for (_, a), (_, b) in zip(run, run[1:])
+             if not 0 < (b - a) % 65536 < 32768]
+    for c in sorted(set(sent) | set(got)):
+        commands_to, responses_from = sent.get(c, []), got.get(c, [])
+        if len(commands_to) != len(responses_from):
+            found.append(f"[SEQ] {cap.placement} AECP: {len(commands_to)} CONTROLLER_AVAILABLE command(s) to "
+                         f"{td.who(c)}, {len(responses_from)} response(s) from it")
+        found += [f"[SEQ] {cap.placement} AECP: {td.who(c)}'s CONTROLLER_AVAILABLE response at ms {t} carries "
+                  f"sequence_id {r}, its command's {q}"
+                  for (_, q), (t, r) in zip(commands_to, responses_from) if q != r]
+    return found, {"controller_available_ids": {td.who(c): [q for _, q in run] for c, run in sorted(sent.items())}}
 
 
 #: IEEE 802.1Q-2018 Table 10-7 as Milan v1.2 Table 4.3 sets it (docs/reference/FR_NFR.md): JoinTime 200 ms
@@ -190,11 +235,20 @@ def grade_mvrp(cap: Capture) -> tuple[list[str], dict]:
                    "first_stream_ms": cap.first_stream_ms, "settled_sinks_ms": intervals}
 
 
+def grade_applicant(cap: Capture) -> tuple[list[str], dict]:
+    """Each MSRP attribute's events against Table 10-3 (twin_mrp.py), and what it declares at each LeaveAll."""
+    found = twin_mrp.grade(cap)
+    return found.findings, {"msrp_leave_all_declarations": [[ms, shown] for (ms, _), shown in
+                                                            zip(found.boundaries,
+                                                                twin_mrp.declarations(found.boundaries, set()))]}
+
+
 def grade(cap: Capture) -> tuple[list[str], dict]:
     """Every grade of one half."""
     found: list[str] = []
     measured: dict = {}
-    for grader in (grade_adp, grade_maap, grade_aecp, grade_sequence, grade_mrp, grade_mvrp):
+    for grader in (grade_adp, grade_maap, grade_aecp, grade_sequence, grade_commands, grade_mrp, grade_applicant,
+                   grade_mvrp):
         f, m = grader(cap)
         found += f
         measured.update(m)
