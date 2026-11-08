@@ -1,0 +1,1372 @@
+[
+ {
+  "plant": "acmp-full-queue-acts",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 102,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-listener-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 104,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-talker-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-room-off-by-one",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 101,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-ready-ignores-full",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-ready-ignores-reentry",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-ready-off-by-one",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-decline-uncounted",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 104,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-reentry-taken",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-malformed-declined",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-served-reported-declined",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 103,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-declines-every-frame",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-declines-foreign-listener",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-declines-foreign-talker",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-listener-acts-then-declines",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-talker-acts-then-declines",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-get-rx-state-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-bind-rx-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 106,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-unbind-rx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-probe-tx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-get-tx-state-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ],
+   "rc": 0,
+   "tests": 111,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-disconnect-tx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-get-tx-connection-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "rc": 0,
+   "tests": 111,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-ready-one-slot",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-bind-one-slot",
+  "registered_killers": [
+   "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 108,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-bind-owes-one",
+  "registered_killers": [
+   "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "rc": 0,
+   "tests": 108,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-bind-answer-lost-after-decline",
+  "registered_killers": [
+   "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+   "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 109,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedBindIsAnsweredAfterTheHold",
+    "AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-get-tx-state-answer-lost-after-decline",
+  "registered_killers": [
+   "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpOwed.DeclinedGetTxStateIsAnsweredAfterTheHold"
+   ],
+   "escapes": false
+  }
+ },
+ {
+  "plant": "owed-timer-probe-not-held",
+  "registered_killers": [
+   "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-hold-skips-delay",
+  "registered_killers": [
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-hold-skips-retry",
+  "registered_killers": [
+   "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-held-probe-lost",
+  "registered_killers": [
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 111,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-bind-wait-unset",
+  "registered_killers": [
+   "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-bind-wait-kept",
+  "registered_killers": [
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-hold-uncounted",
+  "registered_killers": [
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout",
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-hold-rearmed-late",
+  "registered_killers": [
+   "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-held-flag-kept",
+  "registered_killers": [
+   "AcmpOwed.HoldEndsWithTheLastHeldProbe"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpOwed.HoldEndsWithTheLastHeldProbe",
+    "AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind"
+   ],
+   "rc": 0,
+   "tests": 111,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 0,
+   "tests": 110,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "acmp-stop-keeps-the-hold",
+  "registered_killers": [
+   "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 113,
+   "failed": [
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+   ]
+  },
+  "without_its_killers": {
+   "excluded": [
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+   ],
+   "rc": 0,
+   "tests": 112,
+   "failed": [],
+   "escapes": true
+  },
+  "without_round3_tests": {
+   "rc": 1,
+   "tests": 110,
+   "failed": [
+    "AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing"
+   ],
+   "escapes": false
+  }
+ }
+]

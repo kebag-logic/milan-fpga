@@ -1,0 +1,500 @@
+Note: Google Test filter = AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind:AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpOwed
+[ RUN      ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2970: Failure
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2971: Failure
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2974: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2976: Failure
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2982: Failure
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2970: Failure
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2971: Failure
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2974: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2976: Failure
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2982: Failure
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 4
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2970: Failure
+Expected equality of these values:
+  taken_in
+    Which is: 6
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2971: Failure
+Expected equality of these values:
+  a.busy_declined
+    Which is: 6
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2974: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 13
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2976: Failure
+Expected equality of these values:
+  position(s)
+    Which is: 12
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2982: Failure
+Value of: own.msg == spec::MSG_PROBE_TX_COMMAND && own.listener_uid == 1u && own.talker == kTkA
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred binding's own probe leaves right after its answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 1
+  taken_in + 1u + c.behind + j
+    Which is: 7
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 2
+  taken_in + 1u + c.behind + j
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 3
+  taken_in + 1u + c.behind + j
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2994: Failure
+Value of: q.msg == spec::MSG_PROBE_TX_COMMAND && q.listener_uid == others[j] && q.seq == sink.probe_seq
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe leaves after the deferred binding's frames, in sink order
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2996: Failure
+Expected equality of these values:
+  owed_in[j]
+    Which is: 4
+  taken_in + 1u + c.behind + j
+    Which is: 10
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe is owed in the pass after the BIND_RX is taken, one pass per probe before it
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2998: Failure
+Value of: sink.timer == ACMP_TIMER_NO_RESP && !sink.timer_held && !sink.probe_held && sink.timer_deadline == left.at + spec::TMR_NO_RESP_MS
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+each held probe was sent, and its timeout runs from when it left
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2970: Failure
+Expected equality of these values:
+  taken_in
+    Which is: 3
+  2u
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is declined once more at one free slot and taken in pass two
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2971: Failure
+Expected equality of these values:
+  a.busy_declined
+    Which is: 3
+  2u + c.behind
+    Which is: 2
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no probe makes the deferred BIND_RX wait another pass
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2974: Failure
+Expected equality of these values:
+  s->at - released
+    Which is: 10
+  8u + 1u
+    Which is: 9
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the deferred BIND_RX is answered in pass ACMP_OWED_MAX + 1 though other probes fall due
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2976: Failure
+Expected equality of these values:
+  position(s)
+    Which is: 9
+  8u
+    Which is: 8
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no held probe leaves ahead of the deferred BIND_RX answer
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2978: Failure
+Expected equality of these values:
+  a.probes_lost
+    Which is: 3
+  0u
+    Which is: 0
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+no probe held for the deferred BIND_RX is lost
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:2979: Failure
+Expected equality of these values:
+  fk.sent.size()
+    Which is: 11
+  8u + 2u + c.behind + others.size()
+    Which is: 14
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+the owed frames, the BIND_RX answer and its probe, and every held probe leave
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind (0 ms)
+[ RUN      ] AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:3019: Failure
+Expected equality of these values:
+  s->at - arrival
+    Which is: 201
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:3021: Failure
+Value of: a.probes_lost == 0u && a.probes_held != 0u && fk.sent.size() == 8u + 2u + retries
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+at the margin every probe falling due is held and sent, none lost
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:3019: Failure
+Expected equality of these values:
+  s->at - arrival
+    Which is: 204
+  kCommandTimeoutMs
+    Which is: 200
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+a 191 ms hold leaves the deferred BIND_RX exactly the documented passes of its 200 ms timeout
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+<scratch>/val-final/mutations/baseline/tests/test_acmp.cpp:3021: Failure
+Value of: a.probes_lost == 0u && a.probes_held != 0u && fk.sent.size() == 8u + 2u + retries
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_396286dd324c8067635a648bfa21cf14
+at the margin every probe falling due is held and sent, none lost
+TSN_MESSAGE_END_bf3021e7d279855fce9555f96cf90cb4
+
+
+[  FAILED  ] AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout (0 ms)
+[----------] 2 tests from AcmpOwed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind
+[  FAILED  ] AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout
+
+ 2 FAILED TESTS
