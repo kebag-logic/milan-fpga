@@ -1,0 +1,36 @@
+# python3 syn/ooc/pp_resource_gate.py check <scratch>/w/ax7101/gateware --endpoint route-1x1 --comparison <scratch>/w/ax7101-AltSpreadLogic_high --comparison <scratch>/w/ax7101-ExtraTimingOpt --baseline <scratch>/record/baseline-merge-e44a4d20.json
+endpoint route-1x1: <scratch>/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.112   0.036  <scratch>/w/ax7101/gateware
+  AltSpreadLogic_high         0.21   0.036  <scratch>/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.018   0.036  <scratch>/w/ax7101-ExtraTimingOpt
+directive AltSpreadLogic_high selected: the best worst-corner WNS, 0.21 ns
+figure        baseline   candidate     delta  verdict
+LUT              53050       53428       378  ok
+FF               54729       54837       108  ok
+SLICE            15831       15829        -2  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          15         2  REGRESSION: grew by more than 0
+WNS_ns           0.258        0.21    -0.048  ok
+WHS_ns           0.036       0.036       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns     0.21  WHS_ns    0.069
+  Slow_85C  WNS_ns     0.21  WHS_ns    0.069
+  Fast_0C   WNS_ns     1.52  WHS_ns    0.036
+  Fast_85C  WNS_ns     1.52  WHS_ns    0.036
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_aecp/u_dyn: LUT +87, FF +0
+  u_pp: LUT +66, FF +4
+  wrapper: LUT +55, FF +4
+  u_pp/u_aecp/u_d3: LUT -50, FF +0
+  u_pp/u_talker: LUT +47, FF +0
+  u_pp/u_aecp: LUT +46, FF +0
+  u_pp/u_srp: LUT -26, FF +3
+  u_pp/u_aecp/u_ucpu: LUT +26, FF +0
+  u_pp/u_srp/u_listener: LUT -22, FF +0
+  u_nvm: LUT -16, FF +0
+  u_pp/u_listener: LUT -13, FF +0
+  u_pp/u_srp/u_domain: LUT -8, FF +0
+RESULT: MATERIAL REGRESSION

@@ -1,0 +1,129 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Nov  8 09:28:23 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_timing -delay_type max -max_paths 1 -nworst 1 -sort_by slack -input_pins -file <scratch>/paths/eppo/Slow_85C_worst_setup.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.112ns  (required time - arrival time)
+  Source:                 milansoc_write_w_buffer_readable_reg/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_17_reg_0_15_0_5/RAMA/WE
+                            (rising edge-triggered cell RAMD32 clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.355ns  (logic 2.520ns (26.938%)  route 6.835ns (73.062%))
+  Logic Levels:           13  (LUT2=3 LUT3=2 LUT4=4 LUT5=2 LUT6=2)
+  Clock Path Skew:        -0.040ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.754ns = ( 16.754 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.180ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0                                                     r  BUFG/I
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7486, routed)        1.510     7.180    sys_clk
+    SLICE_X55Y184        FDRE                                         r  milansoc_write_w_buffer_readable_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X55Y184        FDRE (Prop_fdre_C_Q)         0.348     7.528 r  milansoc_write_w_buffer_readable_reg/Q
+                         net (fo=6, routed)           0.504     8.032    milansoc_write_w_buffer_readable
+    SLICE_X55Y185                                                     r  milansoc_grant_i_9/I1
+    SLICE_X55Y185        LUT3 (Prop_lut3_I1_O)        0.242     8.274 r  milansoc_grant_i_9/O
+                         net (fo=3, routed)           0.416     8.690    milansoc_grant_i_9_n_0
+    SLICE_X48Y183                                                     r  milansoc_grant_i_8/I3
+    SLICE_X48Y183        LUT4 (Prop_lut4_I3_O)        0.267     8.957 r  milansoc_grant_i_8/O
+                         net (fo=1, routed)           0.636     9.593    milansoc_grant_i_8_n_0
+    SLICE_X53Y183                                                     r  alinx_ax7101_LUT5_166/I2
+    SLICE_X53Y183        LUT5 (Prop_lut5_I2_O)        0.105     9.698 f  alinx_ax7101_LUT5_166/O
+                         net (fo=2, routed)           0.356    10.053    milansoc_grant_i_3_n_0
+    SLICE_X51Y183                                                     f  milansoc_sdram_bankmachine0_produce[2]_i_5/I1
+    SLICE_X51Y183        LUT2 (Prop_lut2_I1_O)        0.105    10.158 r  milansoc_sdram_bankmachine0_produce[2]_i_5/O
+                         net (fo=36, routed)          0.758    10.916    milansoc_cmd_payload_we
+    SLICE_X52Y186                                                     r  alinx_ax7101_LUT4_142/I1
+    SLICE_X52Y186        LUT4 (Prop_lut4_I1_O)        0.105    11.021 r  alinx_ax7101_LUT4_142/O
+                         net (fo=7, routed)           0.695    11.717    milansoc_sdram_bankmachine2_produce[2]_i_3_n_0
+    SLICE_X53Y188                                                     r  milansoc_sdram_bankmachine5_level[3]_i_3/I1
+    SLICE_X53Y188        LUT4 (Prop_lut4_I1_O)        0.115    11.832 r  milansoc_sdram_bankmachine5_level[3]_i_3/O
+                         net (fo=4, routed)           0.676    12.508    milansoc_sdram_bankmachine5_level[3]_i_3_n_0
+    SLICE_X53Y187                                                     r  alinx_ax7101_LUT5_173/I1
+    SLICE_X53Y187        LUT5 (Prop_lut5_I1_O)        0.267    12.775 f  alinx_ax7101_LUT5_173/O
+                         net (fo=1, routed)           0.450    13.225    alinx_ax7101_net_301
+    SLICE_X53Y183                                                     f  alinx_ax7101_LUT4_147/I3
+    SLICE_X53Y183        LUT4 (Prop_lut4_I3_O)        0.105    13.330 f  alinx_ax7101_LUT4_147/O
+                         net (fo=2, routed)           0.509    13.839    alinx_ax7101_net_302
+    SLICE_X53Y185                                                     f  alinx_ax7101_LUT2_98/I1
+    SLICE_X53Y185        LUT2 (Prop_lut2_I1_O)        0.107    13.946 r  alinx_ax7101_LUT2_98/O
+                         net (fo=17, routed)          0.183    14.129    alinx_ax7101_net_694
+    SLICE_X53Y185                                                     r  alinx_ax7101_LUT6_1456/I5
+    SLICE_X53Y185        LUT6 (Prop_lut6_I5_O)        0.274    14.403 f  alinx_ax7101_LUT6_1456/O
+                         net (fo=1, routed)           0.315    14.718    alinx_ax7101_net_695
+    SLICE_X55Y185                                                     f  alinx_ax7101_LUT2_346/I1
+    SLICE_X55Y185        LUT2 (Prop_lut2_I1_O)        0.105    14.823 r  alinx_ax7101_LUT2_346/O
+                         net (fo=4, routed)           0.457    15.280    alinx_ax7101_net_699
+    SLICE_X57Y185                                                     r  storage_17_reg_0_15_0_5_i_8/I2
+    SLICE_X57Y185        LUT3 (Prop_lut3_I2_O)        0.108    15.388 f  storage_17_reg_0_15_0_5_i_8/O
+                         net (fo=9, routed)           0.496    15.884    storage_17_reg_0_15_0_5_i_8_n_0
+    SLICE_X61Y184                                                     f  alinx_ax7101_LUT6_1460/I5
+    SLICE_X61Y184        LUT6 (Prop_lut6_I5_O)        0.267    16.151 r  alinx_ax7101_LUT6_1460/O
+                         net (fo=16, routed)          0.384    16.535    storage_17_reg_0_15_0_5/WE
+    SLICE_X58Y183        RAMD32                                       r  storage_17_reg_0_15_0_5/RAMA/WE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0                                                     r  BUFG/I
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7486, routed)        1.396    16.754    storage_17_reg_0_15_0_5/WCLK
+    SLICE_X58Y183        RAMD32                                       r  storage_17_reg_0_15_0_5/RAMA/CLK
+                         clock pessimism              0.386    17.140    <hidden>
+                         clock uncertainty           -0.058    17.083    <hidden>
+    SLICE_X58Y183        RAMD32 (Setup_ramd32_CLK_WE)
+                                                     -0.435    16.648    storage_17_reg_0_15_0_5/RAMA
+  -------------------------------------------------------------------
+                         required time                         16.648    <hidden>
+                         arrival time                         -16.535    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.112    <hidden>
+
+
+
+

@@ -1,0 +1,201 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Nov  8 10:12:38 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_timing -delay_type max -max_paths 1 -nworst 1 -sort_by slack -input_pins -file <scratch>/paths/eto/Slow_85C_worst_setup.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.018ns  (required time - arrival time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/desc_base_r_reg[5]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]/R
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        19.444ns  (logic 6.367ns (32.745%)  route 13.077ns (67.255%))
+  Logic Levels:           34  (CARRY4=10 LUT2=7 LUT3=2 LUT4=2 LUT5=6 LUT6=7)
+  Clock Path Skew:        -0.052ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.683ns = ( 26.683 - 20.000 ) 
+    Source Clock Delay      (SCD):    7.047ns
+    Clock Pessimism Removal (CPR):    0.312ns
+  Clock Uncertainty:      0.063ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5                                                     r  BUFG_1/I
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=53145, routed)       1.377     7.047    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/out
+    SLICE_X49Y99         FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/desc_base_r_reg[5]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X49Y99         FDRE (Prop_fdre_C_Q)         0.379     7.426 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/desc_base_r_reg[5]/Q
+                         net (fo=2, routed)           0.745     8.171    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/desc_base_r_reg_n_0_[5]
+    SLICE_X48Y99                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT2_61/I0
+    SLICE_X48Y99         LUT2 (Prop_lut2_I0_O)        0.105     8.276 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT2_61/O
+                         net (fo=1, routed)           0.000     8.276    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_net_771
+    SLICE_X48Y99                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/cfg_r_reg[15]_i_16/S[1]
+    SLICE_X48Y99         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.457     8.733 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/cfg_r_reg[15]_i_16/CO[3]
+                         net (fo=1, routed)           0.001     8.734    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/cfg_r_reg[15]_i_16_n_0
+    SLICE_X48Y100                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_126/CI
+    SLICE_X48Y100        CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.265     8.999 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_126/O[1]
+                         net (fo=3, routed)           0.484     9.483    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_126_n_6
+    SLICE_X51Y100                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT2_73/I1
+    SLICE_X51Y100        LUT2 (Prop_lut2_I1_O)        0.250     9.733 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT2_73/O
+                         net (fo=1, routed)           0.000     9.733    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_net_783
+    SLICE_X51Y100                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_143/S[3]
+    SLICE_X51Y100        CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.332    10.065 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_143/CO[3]
+                         net (fo=1, routed)           0.000    10.065    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_143_n_0
+    SLICE_X51Y101                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_140/CI
+    SLICE_X51Y101        CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.265    10.330 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/name_r_reg_i_140/O[1]
+                         net (fo=1, routed)           0.448    10.778    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/data4[11]
+    SLICE_X55Y102                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT5_156/I2
+    SLICE_X55Y102        LUT5 (Prop_lut5_I2_O)        0.250    11.028 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT5_156/O
+                         net (fo=1, routed)           0.523    11.552    milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_net_196
+    SLICE_X58Y102                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT5_157/I4
+    SLICE_X58Y102        LUT5 (Prop_lut5_I4_O)        0.105    11.657 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT5_157/O
+                         net (fo=1, routed)           0.557    12.213    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/name_r_reg_3
+    SLICE_X58Y99                                                      f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_121/I0
+    SLICE_X58Y99         LUT6 (Prop_lut6_I0_O)        0.105    12.318 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_121/O
+                         net (fo=15, routed)          0.701    13.019    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_45
+    SLICE_X52Y99                                                      f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_41/I4
+    SLICE_X52Y99         LUT5 (Prop_lut5_I4_O)        0.105    13.124 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_41/O
+                         net (fo=22, routed)          0.540    13.664    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_r[15]_i_3_n_0
+    SLICE_X58Y98                                                      f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_i_31/I0
+    SLICE_X58Y98         LUT4 (Prop_lut4_I0_O)        0.105    13.769 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_i_31/O
+                         net (fo=2, routed)           0.394    14.164    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_i_31_n_0
+    SLICE_X58Y98                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_123/I2
+    SLICE_X58Y98         LUT6 (Prop_lut6_I2_O)        0.105    14.269 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_123/O
+                         net (fo=1, routed)           0.375    14.643    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_761
+    SLICE_X58Y96                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_reg_i_8/DI[0]
+    SLICE_X58Y96         CARRY4 (Prop_carry4_DI[0]_CO[3])
+                                                      0.457    15.100 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_reg_i_8/CO[3]
+                         net (fo=1, routed)           0.000    15.100    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_reg_i_8_n_0
+    SLICE_X58Y97                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_reg_i_2/CI
+    SLICE_X58Y97         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100    15.200 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_v_r_reg_i_2/CO[3]
+                         net (fo=2, routed)           0.695    15.895    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/u_dyn/in_range_w
+    SLICE_X52Y93                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_41/I1
+    SLICE_X52Y93         LUT2 (Prop_lut2_I1_O)        0.105    16.000 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_41/O
+                         net (fo=43, routed)          0.667    16.667    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_138
+    SLICE_X54Y89                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rd_data_r[15]_i_5/I0
+    SLICE_X54Y89         LUT2 (Prop_lut2_I0_O)        0.105    16.772 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rd_data_r[15]_i_5/O
+                         net (fo=25, routed)          0.703    17.475    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/cfg_r_reg[15]_i_4_0
+    SLICE_X56Y87                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_209/I2
+    SLICE_X56Y87         LUT6 (Prop_lut6_I2_O)        0.105    17.580 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_209/O
+                         net (fo=2, routed)           0.574    18.154    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/u_dyn/val_w[28]
+    SLICE_X58Y90                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_154/I1
+    SLICE_X58Y90         LUT5 (Prop_lut5_I1_O)        0.105    18.259 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_154/O
+                         net (fo=1, routed)           0.560    18.819    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_394
+    SLICE_X59Y92                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_112/I3
+    SLICE_X59Y92         LUT4 (Prop_lut4_I3_O)        0.105    18.924 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_112/O
+                         net (fo=1, routed)           0.000    18.924    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_828
+    SLICE_X59Y92                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_60/S[1]
+    SLICE_X59Y92         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.457    19.381 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_60/CO[3]
+                         net (fo=1, routed)           0.000    19.381    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_60_n_0
+    SLICE_X59Y93                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_49/CI
+    SLICE_X59Y93         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    19.479 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_49/CO[3]
+                         net (fo=1, routed)           0.000    19.479    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_49_n_0
+    SLICE_X59Y94                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_33/CI
+    SLICE_X59Y94         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098    19.577 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_33/CO[3]
+                         net (fo=1, routed)           0.000    19.577    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_33_n_0
+    SLICE_X59Y95                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_24/CI
+    SLICE_X59Y95         CARRY4 (Prop_carry4_CI_CO[1])
+                                                      0.132    19.709 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_24/CO[1]
+                         net (fo=1, routed)           0.744    20.453    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r_reg[47]_i_24_n_2
+    SLICE_X70Y98                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_479/I3
+    SLICE_X70Y98         LUT6 (Prop_lut6_I3_O)        0.275    20.728 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_479/O
+                         net (fo=1, routed)           0.316    21.044    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_478
+    SLICE_X71Y99                                                      r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT3_81/I2
+    SLICE_X71Y99         LUT3 (Prop_lut3_I2_O)        0.105    21.149 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT3_81/O
+                         net (fo=2, routed)           0.536    21.685    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[47]_i_18_n_0
+    SLICE_X74Y100                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[42]_i_4/I1
+    SLICE_X74Y100        LUT2 (Prop_lut2_I1_O)        0.105    21.790 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[42]_i_4/O
+                         net (fo=14, routed)          0.704    22.494    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[42]_i_4_n_0
+    SLICE_X78Y107                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[8]_i_3/I0
+    SLICE_X78Y107        LUT3 (Prop_lut3_I0_O)        0.106    22.600 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[8]_i_3/O
+                         net (fo=8, routed)           0.371    22.971    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[8]_i_3_n_0
+    SLICE_X79Y106                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[0]_i_2/I1
+    SLICE_X79Y106        LUT2 (Prop_lut2_I1_O)        0.288    23.259 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[0]_i_2/O
+                         net (fo=3, routed)           0.558    23.817    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[0]_i_2_n_0
+    SLICE_X79Y109                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_506/I3
+    SLICE_X79Y109        LUT6 (Prop_lut6_I3_O)        0.268    24.085 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_506/O
+                         net (fo=1, routed)           0.249    24.334    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_504
+    SLICE_X81Y110                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_507/I5
+    SLICE_X81Y110        LUT6 (Prop_lut6_I5_O)        0.105    24.439 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_507/O
+                         net (fo=1, routed)           0.113    24.552    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_513
+    SLICE_X81Y110                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_514/I4
+    SLICE_X81Y110        LUT6 (Prop_lut6_I4_O)        0.105    24.657 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_514/O
+                         net (fo=1, routed)           0.228    24.885    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_524
+    SLICE_X81Y111                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_171/I3
+    SLICE_X81Y111        LUT5 (Prop_lut5_I3_O)        0.105    24.990 f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_171/O
+                         net (fo=1, routed)           0.253    25.243    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_529
+    SLICE_X79Y112                                                     f  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_172/I4
+    SLICE_X79Y112        LUT5 (Prop_lut5_I4_O)        0.105    25.348 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_172/O
+                         net (fo=9, routed)           0.360    25.708    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_530
+    SLICE_X78Y112                                                     r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_83/I1
+    SLICE_X78Y112        LUT2 (Prop_lut2_I1_O)        0.105    25.813 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_83/O
+                         net (fo=26, routed)          0.678    26.491    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r[31]_i_1_n_0
+    SLICE_X80Y116        FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    22.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    22.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    23.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    23.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371    25.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5                                                     r  BUFG_1/I
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    25.358 r  BUFG_1/O
+                         net (fo=53145, routed)       1.325    26.683    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/out
+    SLICE_X80Y116        FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]/C
+                         clock pessimism              0.312    26.995    <hidden>
+                         clock uncertainty           -0.063    26.932    <hidden>
+    SLICE_X80Y116        FDRE (Setup_fdre_C_R)       -0.423    26.509    milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]
+  -------------------------------------------------------------------
+                         required time                         26.509    <hidden>
+                         arrival time                         -26.491    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.018    <hidden>
+
+
+
+

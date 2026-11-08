@@ -1,0 +1,5 @@
+# head dafd49c1f9b79d3cc29534a9ab43d98360079d2b gate fw_boundary: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 1 (1 s)
+REFUSED: sw/firmware/gtest/fw_rv32_selftest.py exited 1 under the capture, so it may have compiled less than it does: Error: ('hosted headers restored', '<scratch>/tmp/fw3/fw-rv32-7a8582t0/interfaces.c:9:50: error: unknown type name \'va_list\'\n    9 | int format(char *dst, size_t n, const char *fmt, va_list ap) {\n      |                                                  ^~~~~~~\n<scratch>/tmp/fw3/fw-rv32-7a8582t0/interfaces.c:6:1: note: \'va_list\' is defined in header \'<stdarg.h>\'; this is probably fixable by adding \'#include <stdarg.h>\'\n    5 | #include <assert.h>\n  +++ |+#include <stdarg.h>\n    6 | _Static_assert(sizeof(uintptr_t) == 4, "RV32 pointers");\n')

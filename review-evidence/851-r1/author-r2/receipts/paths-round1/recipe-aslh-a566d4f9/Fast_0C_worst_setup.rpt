@@ -1,0 +1,76 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Nov  8 08:51:27 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_timing -delay_type max -max_paths 1 -nworst 1 -sort_by slack -input_pins -file <scratch>/paths-r1/recipe-aslh-a566d4f9/Fast_0C_worst_setup.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             1.580ns  (required time - arrival time)
+  Source:                 FDPE_18/C
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            FDPE_19/D
+                            (rising edge-triggered cell FDPE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Fast Process Corner)
+  Requirement:            2.000ns  (MaxDelay Path 2.000ns)
+  Data Path Delay:        0.376ns  (logic 0.175ns (46.600%)  route 0.201ns (53.400%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.000ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    1.522ns
+    Source Clock Delay      (SCD):    2.037ns
+    Clock Pessimism Removal (CPR):    0.516ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+  Timing Exception:       MaxDelay Path 2.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock eth_clocks0_rx rise edge)
+                                                      0.000     0.000 r  <hidden>
+    K18                                               0.000     0.000 r  eth_clocks0_rx
+                         net (fo=0)                   0.000     0.000    eth_clocks0_rx
+    K18                                                               r  eth_clocks0_rx_IBUF_inst/I
+    K18                  IBUF (Prop_ibuf_I_O)         0.444     0.444 r  eth_clocks0_rx_IBUF_inst/O
+                         net (fo=2, routed)           0.695     1.139    eth_clocks0_rx_IBUF
+    BUFGCTRL_X0Y16                                                    r  BUFG_8/I
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.029     1.168 r  BUFG_8/O
+                         net (fo=414, routed)         0.870     2.037    eth_tx_clk
+    SLICE_X4Y62          FDPE                                         r  FDPE_18/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X4Y62          FDPE (Prop_fdpe_C_Q)         0.175     2.212 r  FDPE_18/Q
+                         net (fo=1, routed)           0.201     2.413    impl_xilinxasyncresetsynchronizerimpl9_rst_meta
+    SLICE_X4Y62          FDPE                                         r  FDPE_19/D
+  -------------------------------------------------------------------    -------------------
+
+                         max delay                    2.000     2.000    <hidden>
+    K18                                               0.000     2.000 r  eth_clocks0_rx
+                         net (fo=0)                   0.000     2.000    eth_clocks0_rx
+    K18                                                               r  eth_clocks0_rx_IBUF_inst/I
+    K18                  IBUF (Prop_ibuf_I_O)         0.256     2.256 r  eth_clocks0_rx_IBUF_inst/O
+                         net (fo=2, routed)           0.640     2.896    eth_clocks0_rx_IBUF
+    BUFGCTRL_X0Y16                                                    r  BUFG_8/I
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.026     2.922 r  BUFG_8/O
+                         net (fo=414, routed)         0.600     3.522    eth_tx_clk
+    SLICE_X4Y62          FDPE                                         r  FDPE_19/C
+                         clock pessimism              0.516     4.037    <hidden>
+                         clock uncertainty           -0.035     4.002    <hidden>
+    SLICE_X4Y62          FDPE (Setup_fdpe_C_D)       -0.009     3.993    FDPE_19
+  -------------------------------------------------------------------
+                         required time                          3.993    <hidden>
+                         arrival time                          -2.413    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.580    <hidden>
+
+
+
+
