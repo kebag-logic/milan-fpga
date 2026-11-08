@@ -1,0 +1,5 @@
+docs/DOCUMENTATION_AUDIT.md: docs/reference/REGISTER_MAP_CLASSES.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 314:
+  committed: | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | current | no
+  generated: | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | stale | 1 fi
+regenerate with: python3 scripts/docs_inventory.py --write
