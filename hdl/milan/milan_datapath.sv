@@ -711,7 +711,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_licence,     //! LICENCE.ACTIVE per source
   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_talker_decl, //! TALKER_DECL.DECLARED per source
   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_pub_src_sid,     //! SRC_SID per source
-  input  wire [31:0]                  i_ctl_pub_idle_slope,  //! IDLE_SLOPE.BPS
+  input  wire [31:0]                  i_ctl_pub_idle_slope_bps, //! IDLE_SLOPE.BPS
   input  wire [11:0]                  i_ctl_pub_dom_vid,     //! SR_DOMAIN.VID
   input  wire [2:0]                   i_ctl_pub_dom_prio,    //! SR_DOMAIN.PRIORITY
   input  wire                         i_ctl_pub_dom_adopted, //! SR_DOMAIN.ADOPTED
@@ -728,7 +728,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire [15:0]                  i_ctl_clk_src_index,   //! F_CLOCK.SOURCE_INDEX
   input  wire                         i_ctl_lock_held,       //! F_AECP.LOCK_HELD
   input  wire                         i_ctl_dyn_dirty,       //! F_AECP.DYN_DIRTY
-  input  wire [CTRL_ENTRIES_P*32-1:0] i_ctl_pt_offset,       //! F_PT_OFFSET.NS per source
+  input  wire [CTRL_ENTRIES_P*32-1:0] i_ctl_pt_offset_ns,    //! F_PT_OFFSET.NS per source
   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pt_offset_v,     //! F_SRC_VALID.PT_OFFSET per source
   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_fmt_out,         //! F_FMT_OUT per source
   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_fmt_out_v,       //! F_SRC_VALID.FMT_OUT per source
@@ -9973,7 +9973,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign pp_cd_srp_active_w         = i_ctl_pub_licence[ACMP_SRC_C-1:0];
     assign pp_cd_srp_sr_admitted_w    = i_ctl_pub_licence[ACMP_SRC_C-1:0];
     assign pp_cd_src_stream_id_w      = i_ctl_pub_src_sid[ACMP_SRC_C*64-1:0];
-    assign pp_cd_srp_sum_slope_bps_w  = i_ctl_pub_idle_slope;
+    assign pp_cd_srp_sum_slope_bps_w  = i_ctl_pub_idle_slope_bps;
     assign pp_cd_srp_class_a_vid_w    = i_ctl_pub_dom_vid;
     assign pp_cd_srp_class_a_prio_w   = i_ctl_pub_dom_prio;
     assign pp_cd_srp_domain_adopted_w = i_ctl_pub_dom_adopted;
@@ -10010,7 +10010,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign pp_aecp_clk_src_index_w = i_ctl_clk_src_index;
     assign aecp_locked             = i_ctl_lock_held;
     assign pp_aecp_dyn_dirty_w     = i_ctl_dyn_dirty;
-    assign pp_aecp_pt_offset_w     = i_ctl_pt_offset[ACMP_SRC_C*32-1:0];
+    assign pp_aecp_pt_offset_w     = i_ctl_pt_offset_ns[ACMP_SRC_C*32-1:0];
     assign pp_aecp_pt_offset_v_w   = i_ctl_pt_offset_v[ACMP_SRC_C-1:0];
     assign pp_aecp_fmt_out_w       = i_ctl_fmt_out[ACMP_SRC_C*64-1:0];
     assign pp_aecp_fmt_out_v_w     = i_ctl_fmt_out_v[ACMP_SRC_C-1:0];
