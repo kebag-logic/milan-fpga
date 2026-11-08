@@ -578,8 +578,8 @@ def _plant(directory: Path, name: str, old: str, new: str) -> None:
 PLANTS = (
     ("a child FF figure", "map_hierarchy.rpt", "| m | 2 | 2 | 0 | 0 | 2 | 1", "| m | 2 | 2 | 0 | 0 | 3 | 1",
      "ancestry: top FF"),
-    ("a parent LUT above its parts", "map_hierarchy.rpt", "|     g_af_pp.pp_shadow | m | 6", "|     g_af_pp.pp_shadow | m | 5",
-     "milan_datapath LUT exceeds its parts"),
+    ("a parent LUT above its parts", "map_hierarchy.rpt", "|     g_af_pp.pp_shadow | m | 6",
+     "|     g_af_pp.pp_shadow | m | 5", "milan_datapath LUT exceeds its parts"),
     ("the flat LUT total", "map_utilization.rpt", "| Slice LUTs | 10 |", "| Slice LUTs | 11 |",
      "flat report: LUT"),
     ("a census flip-flop", "map_cells.tsv", "leaf/c\tFDRE", "leaf/c\tLUT6", "census: top/leaf FF"),
@@ -597,8 +597,8 @@ PLANTS = (
      "census: top/milan_datapath/g_af_pp.pp_shadow LUTRAM counts"),
     ("a cell owned by a row that is not a leaf", "map_cells.tsv",
      "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
-     "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1\nmilan_datapath/s\tFDRE\tLEAF\tSLICE_X2Y0\t"
-     "SLICEL.A5FF", "census: cells owned by non-leaf rows"),
+     "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1\n"
+     "milan_datapath/s\tFDRE\tLEAF\tSLICE_X2Y0\tSLICEL.A5FF", "census: cells owned by non-leaf rows"),
 )
 
 
@@ -610,7 +610,8 @@ def selftest() -> int:
         clean.mkdir()
         figures, scopes = _fixture(clean)
         result = build(clean, figures, scopes)
-        if round(result["table"]["top"]["SLICE"], 6) != 3 or ranked(result)[0]["block"] != "milan_datapath/g_af_pp.pp_shadow":
+        top_block = ranked(result)[0]["block"]
+        if round(result["table"]["top"]["SLICE"], 6) != 3 or top_block != "milan_datapath/g_af_pp.pp_shadow":
             problems.append("clean fixture: slices or ranking wrong")
         record_plants = (("a recorded total", {**figures, "FF": 9}, scopes, "record: FF"),
                          ("a recorded processor scope", figures, {"wrapper": {"LUT": 7}}, "scope 'wrapper' LUT"))

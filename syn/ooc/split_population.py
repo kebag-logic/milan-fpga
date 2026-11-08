@@ -38,6 +38,7 @@ import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
+from typing import NamedTuple
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
@@ -95,9 +96,17 @@ def tree_counts(text: str, top: str) -> Counter:
     return count
 
 
-def elaborate_tree(files: list[Path], incdirs: list[Path], defines: tuple[str, ...], top: str,
-                   params: tuple[tuple[str, int], ...], overlay: dict[Path, str], work: Path) -> Counter:
-    """sv2v over files, Yosys's hierarchy at top with params, and the instance counts below top."""
+class FrontEnd(NamedTuple):
+    """What sv2v reads: the files, the include directories and the defines."""
+    files: list[Path]
+    incdirs: list[Path]
+    defines: tuple[str, ...]
+
+
+def elaborate_tree(front: FrontEnd, top: str, params: tuple[tuple[str, int], ...], overlay: dict[Path, str],
+                   work: Path) -> Counter:
+    """sv2v over the front end's files, Yosys's hierarchy at top with params, and the instance counts below top."""
+    files, incdirs, defines = front
     tree = work / "tree"
     tree.mkdir(parents=True, exist_ok=True)
     for _gen, image in ce.ROMS:       # $readmemh reads them from the elaborator's directory
@@ -133,8 +142,9 @@ def shape_counts(job: tuple[int, dict[str, str]]) -> tuple[str, dict[str, int]]:
     work = Path(tempfile.mkdtemp(prefix="split-population-"))
     try:
         ce.WORK.roms()
-        dp = elaborate_tree([Path(s).resolve() for s in rcp.sources], [Path(d).resolve() for d in rcp.incdirs],
-                            rcp.defines, ce.TOP, (*shape.params, ("CTRL_SPLIT_P", 1)), overlay, work / "dp")
+        front = FrontEnd([Path(s).resolve() for s in rcp.sources], [Path(d).resolve() for d in rcp.incdirs],
+                         rcp.defines)
+        dp = elaborate_tree(front, ce.TOP, (*shape.params, ("CTRL_SPLIT_P", 1)), overlay, work / "dp")
         side_dir = work / "mbx"
         side_dir.mkdir()
         mb = _mailbox([REPO / f for f in MAILBOX_SOURCES], overlay, side_dir)
@@ -150,7 +160,7 @@ def _mailbox(files: list[Path], overlay: dict[Path, str], work: Path) -> Counter
     for top in ("KL_mbx_cdc", "KL_mbx"):
         sub = work / top
         sub.mkdir()
-        out += elaborate_tree(files, [], (), top, (), overlay, sub)
+        out += elaborate_tree(FrontEnd(files, [], ()), top, (), overlay, sub)
     return out
 
 
@@ -179,7 +189,8 @@ def survey(jobs: int, overlay: dict[Path, str] | None = None, only: int | None =
 PLANTS = (
     ("the processor left in the split", "  generate if (CTRL_SPLIT_P == 0) begin : g_af_pp\n",
      "  generate if (1) begin : g_af_pp\n", "wrapper (KL_pp_shadow) count 1, expected 0..0"),
-    ("the fabric MAAP engine left in the split", "  generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_maap\n",
+    ("the fabric MAAP engine left in the split",
+     "  generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_maap\n",
      "  generate if (MAAP_P != 0) begin : g_maap\n", "maap (KL_maap) count 1, expected 0..0"),
 )
 
@@ -206,6 +217,7 @@ def selftest(jobs: int) -> int:
 
 
 def main() -> int:
+    """--check every shape, or --selftest; the exit status is the verdict."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--check", action="store_true", help="every shape's split population within its limits")
     ap.add_argument("--selftest", action="store_true", help="the plants fail, the tracked sources pass")

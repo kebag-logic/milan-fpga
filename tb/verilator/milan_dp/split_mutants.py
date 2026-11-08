@@ -73,7 +73,8 @@ ARMS = (
      "          end else begin",
      "[WIN] ...and that word is not the empty one"),
     ("a tap that hands out the media subtypes", CTLS,
-     "  assign accept_w = ((etype_w == ET_1722_C)\n                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
+     "  assign accept_w = ((etype_w == ET_1722_C)\n"
+     "                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
      "                         || (subtype_w == ST_ACMP_C) || (subtype_w == ST_MAAP_C)))",
      "  assign accept_w = (etype_w == ET_1722_C)",
      "[RX] ...and the tap hands out no frame"),
@@ -135,11 +136,12 @@ def build_and_run(mdir: Path, overrides: dict[str, Path]) -> tuple[int, str]:
     built = subprocess.run(args, capture_output=True, text=True, env=dict(os.environ))
     if built.returncode:
         return -1, built.stdout[-3000:] + built.stderr[-3000:]
-    ran = subprocess.run([str(mdir / "Vmilan_dp_split")], capture_output=True, text=True, cwd=HERE, timeout=1800)
+    ran = subprocess.run([str(mdir / "Vmilan_dp_split")], capture_output=True, text=True, cwd=HERE)
     return ran.returncode, ran.stdout + ran.stderr
 
 
 def main() -> int:
+    """Every arm, or --only one, or --list them; the exit status is the verdict."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--only")
@@ -170,7 +172,8 @@ def main() -> int:
             copy.write_text(text.replace(old, new))
             rc, out = build_and_run(copy.parent / "obj", {VAR[src]: copy})
             caught = rc > 0 and any(line.startswith(f"FAIL {label}") for line in out.splitlines())
-            print(f"{'ok  ' if caught else 'FAIL'} {name}: {'caught by ' + label if caught else f'rc {rc}, not caught by {label}'}")
+            verdict = f"caught by {label}" if caught else f"rc {rc}, not caught by {label}"
+            print(f"{'ok  ' if caught else 'FAIL'} {name}: {verdict}")
             if not caught:
                 print("\n".join(line for line in out.splitlines() if line.startswith("FAIL") or "error" in line)[:2000])
             bad += not caught

@@ -95,52 +95,60 @@ def netlist(cdc: Path, win: Path, work: Path) -> dict:
     return json.loads((work / "net.json").read_text())["modules"][TOP]
 
 
-def findings(mod: dict) -> tuple[int, list[str]]:
-    """(sinks checked, every crossing without a primitive)."""
-    names, aliases, driver = {}, defaultdict(set), {}
-    for n, v in mod["netnames"].items():
-        for b in v["bits"]:
-            if isinstance(b, int):
-                aliases[b].add(n)
-                if b not in names or "$" in names[b]:
-                    names[b] = n
-    for p, v in mod["ports"].items():
-        if v["direction"] == "input":
-            for b in v["bits"]:
-                driver[b] = ("in", p)
-    clock_bit = {mod["ports"][c]["bits"][0]: d for c, d in CLOCKS.items()}
-    flop_dom, prim_dom = {}, {}
-    for n, c in mod["cells"].items():
-        dirs = c.get("port_directions", {})
-        if "CLK" in c["connections"]:
-            flop_dom[n] = clock_bit.get(c["connections"]["CLK"][0], "?")
-        elif c["type"] in PRIM_CLOCKS:
-            s, d = (clock_bit.get(c["connections"][k][0], "?") for k in PRIM_CLOCKS[c["type"]])
-            prim_dom[n] = (s, d)
-        for p, bits in c["connections"].items():
-            if dirs.get(p) == "output":
-                for b in bits:
-                    if isinstance(b, int):
-                        driver[b] = (n, p)
+class Netlist:
+    """KL_mbx_cdc's flattened netlist, read for the domain of every source a sink reads."""
 
-    def domain_of(src: tuple[str, str]) -> str | None:
+    def __init__(self, mod: dict) -> None:
+        self.mod = mod
+        self.names: dict[int, str] = {}
+        self.aliases: dict[int, set[str]] = defaultdict(set)
+        self.driver: dict[int, tuple[str, str]] = {}
+        for n, v in mod["netnames"].items():
+            for b in v["bits"]:
+                if isinstance(b, int):
+                    self.aliases[b].add(n)
+                    if b not in self.names or "$" in self.names[b]:
+                        self.names[b] = n
+        for p, v in mod["ports"].items():
+            if v["direction"] == "input":
+                for b in v["bits"]:
+                    self.driver[b] = ("in", p)
+        clock_bit = {mod["ports"][c]["bits"][0]: d for c, d in CLOCKS.items()}
+        self.flop_dom: dict[str, str] = {}
+        self.prim_dom: dict[str, tuple[str, str]] = {}
+        for n, c in mod["cells"].items():
+            dirs = c.get("port_directions", {})
+            if "CLK" in c["connections"]:
+                self.flop_dom[n] = clock_bit.get(c["connections"]["CLK"][0], "?")
+            elif c["type"] in PRIM_CLOCKS:
+                s, d = (clock_bit.get(c["connections"][k][0], "?") for k in PRIM_CLOCKS[c["type"]])
+                self.prim_dom[n] = (s, d)
+            for p, bits in c["connections"].items():
+                if dirs.get(p) == "output":
+                    for b in bits:
+                        if isinstance(b, int):
+                            self.driver[b] = (n, p)
+        self.memo: dict[tuple[int, bool], frozenset] = {}
+
+    def domain_of(self, src: tuple[str, str]) -> str | None:
+        """A source's domain: an input's by its name, a flop's by its clock, a primitive output's
+        by its side; None for a combinational cell's output."""
         n, p = src
         if n == "in":
-            return CLOCKS.get(p, "sys" if p.startswith(("m_", "sys_")) else "dp" if p.startswith(("d_", "dp_")) else "?")
-        if n in flop_dom:
-            return flop_dom[n]
-        if n in prim_dom:
-            return prim_dom[n][0] if p in SRC_SIDE else prim_dom[n][1]
+            by_name = "sys" if p.startswith(("m_", "sys_")) else "dp" if p.startswith(("d_", "dp_")) else "?"
+            return CLOCKS.get(p, by_name)
+        if n in self.flop_dom:
+            return self.flop_dom[n]
+        if n in self.prim_dom:
+            return self.prim_dom[n][0] if p in SRC_SIDE else self.prim_dom[n][1]
         return None
 
-    def gated(cell: dict) -> bool:
+    def gated(self, cell: dict) -> bool:
         """A $mux whose select is u_fw_req's dest_pulse, straight."""
-        return (cell["type"] == "$mux" and mod["cells"].get(GATE[0], {}).get("type") == "cdc_pulse"
-                and driver.get(cell["connections"]["S"][0]) == GATE)
+        return (cell["type"] == "$mux" and self.mod["cells"].get(GATE[0], {}).get("type") == "cdc_pulse"
+                and self.driver.get(cell["connections"]["S"][0]) == GATE)
 
-    memo: dict[tuple[int, bool], frozenset] = {}
-
-    def sources(bit, taken: bool = False) -> frozenset:
+    def sources(self, bit: int | str, taken: bool = False) -> frozenset:
         """The ((cell, port), taken) sources a bit reads through combinational cells alone.
 
         ``taken`` is true on a path that passed the B input of a gated $mux:
@@ -149,81 +157,92 @@ def findings(mod: dict) -> tuple[int, list[str]]:
         if not isinstance(bit, int):
             return frozenset()
         key = (bit, taken)
-        if key in memo:
-            return memo[key]
-        memo[key] = frozenset()
-        src = driver.get(bit)
+        if key in self.memo:
+            return self.memo[key]
+        self.memo[key] = frozenset()
+        src = self.driver.get(bit)
         if src is None:
             out = frozenset()
-        elif domain_of(src) is not None:
+        elif self.domain_of(src) is not None:
             out = frozenset({(src, taken)})
         else:
-            cell = mod["cells"][src[0]]
+            cell = self.mod["cells"][src[0]]
             dirs = cell.get("port_directions", {})
-            gate = gated(cell)
-            out = frozenset().union(*(sources(b, taken or (gate and p == "B"))
+            gate = self.gated(cell)
+            out = frozenset().union(*(self.sources(b, taken or (gate and p == "B"))
                                       for p, bits in cell["connections"].items()
                                       if dirs.get(p) != "output" for b in bits))
-        memo[key] = out
+        self.memo[key] = out
         return out
 
-    def label_of(s: tuple[str, str]) -> str:
+    def label_of(self, s: tuple[str, str]) -> str:
+        """A source as a finding names it: an input by name, a flop by its Q net, a primitive by its port."""
         if s[0] == "in":
             return s[1]
-        if s[0] in flop_dom:
-            return names.get(mod["cells"][s[0]]["connections"].get("Q", [None])[0], s[0])
+        if s[0] in self.flop_dom:
+            return self.names.get(self.mod["cells"][s[0]]["connections"].get("Q", [None])[0], s[0])
         return f"{s[0]}.{s[1]}"
 
-    clock_src = {("in", c) for c in CLOCKS}
-    sinks: list[tuple[str, str, list, bool]] = []
-    clock_sinks: list[tuple[str, int]] = []
-    for n, c in mod["cells"].items():
-        if n in flop_dom:
-            q = c["connections"]["Q"][0]
-            held = HELD_FLOP in aliases.get(q, ())
-            label = f"flop {HELD_FLOP if held else names.get(q, n)}"
-            sinks.append((label, flop_dom[n],
-                          [b for p, bits in c["connections"].items() if p not in ("CLK", "Q") for b in bits], held))
-            clock_sinks.append((f"{label}'s CLK", c["connections"]["CLK"][0]))
-        elif n in prim_dom:
-            for p, bits in c["connections"].items():
-                if p in SRC_SINKS:
-                    sinks.append((f"{n}.{p}", prim_dom[n][0], list(bits), False))
-                elif p in DEST_SINKS:
-                    sinks.append((f"{n}.{p}", prim_dom[n][1], list(bits), False))
-            for p in PRIM_CLOCKS[c["type"]]:
-                clock_sinks.append((f"{n}.{p}", c["connections"][p][0]))
-    for p, v in mod["ports"].items():
-        if v["direction"] == "output":
-            sinks.append((f"output {p}", "sys" if p.startswith("m_") else "dp", list(v["bits"]), False))
+    def sinks(self) -> tuple[list[tuple[str, str, list, bool]], list[tuple[str, int]]]:
+        """(each sink: its label, domain, bits and whether it is the held flop; each clock pin and its bit)."""
+        sinks: list[tuple[str, str, list, bool]] = []
+        clock_sinks: list[tuple[str, int]] = []
+        for n, c in self.mod["cells"].items():
+            if n in self.flop_dom:
+                q = c["connections"]["Q"][0]
+                held = HELD_FLOP in self.aliases.get(q, ())
+                label = f"flop {HELD_FLOP if held else self.names.get(q, n)}"
+                sinks.append((label, self.flop_dom[n],
+                              [b for p, bits in c["connections"].items() if p not in ("CLK", "Q") for b in bits], held))
+                clock_sinks.append((f"{label}'s CLK", c["connections"]["CLK"][0]))
+            elif n in self.prim_dom:
+                for p, bits in c["connections"].items():
+                    if p in SRC_SINKS:
+                        sinks.append((f"{n}.{p}", self.prim_dom[n][0], list(bits), False))
+                    elif p in DEST_SINKS:
+                        sinks.append((f"{n}.{p}", self.prim_dom[n][1], list(bits), False))
+                for p in PRIM_CLOCKS[c["type"]]:
+                    clock_sinks.append((f"{n}.{p}", c["connections"][p][0]))
+        for p, v in self.mod["ports"].items():
+            if v["direction"] == "output":
+                sinks.append((f"output {p}", "sys" if p.startswith("m_") else "dp", list(v["bits"]), False))
+        return sinks, clock_sinks
+
+
+def findings(mod: dict) -> tuple[int, list[str]]:
+    """(sinks checked, every crossing without a primitive)."""
+    net = Netlist(mod)
+    sinks, clock_sinks = net.sinks()
     out = []
     for label, dom, bits, held in sinks:
         bad, untaken = defaultdict(set), set()
         for b in bits:
-            for s, taken in sources(b):
-                d = domain_of(s)
+            for s, taken in net.sources(b):
+                d = net.domain_of(s)
                 if d in (dom, None):
                     continue
                 if held and s[0] == "in" and held_bus(s[1]):
                     if not taken:
                         untaken.add(s[1])
                     continue
-                bad[d].add(label_of(s))
+                bad[d].add(net.label_of(s))
         out += [f"a crossing without a primitive: {label} ({dom}) reads {', '.join(sorted(v))} ({d})"
                 for d, v in sorted(bad.items())]
         if untaken:
             out.append(f"a crossing without a primitive: {label} ({dom}) takes the held bus "
                        f"{', '.join(sorted(untaken))} (sys) other than through a $mux selected by "
                        f"{GATE[0]}.{GATE[1]}")
+    clock_src = {("in", c) for c in CLOCKS}
     for label, bit in clock_sinks:
-        if driver.get(bit) not in clock_src:
-            src = driver.get(bit)
+        src = net.driver.get(bit)
+        if src not in clock_src:
             out.append(f"a clock that is not a clock input: {label} reads "
-                       f"{label_of(src) if src else 'a constant'}")
+                       f"{net.label_of(src) if src else 'a constant'}")
     return len(sinks) + len(clock_sinks), out
 
 
 def run(cdc: Path = CDC, win: Path = WIN) -> tuple[int, list[str]]:
+    """(sinks checked, findings) of KL_mbx_cdc built from these two sources."""
     with tempfile.TemporaryDirectory(prefix="split-cdc-") as tmp:
         return findings(netlist(cdc, win, Path(tmp)))
 
@@ -279,6 +298,7 @@ PLANTS = (
 
 
 def main() -> int:
+    """The tracked sources, and with --selftest every plant; the exit status is the verdict."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
