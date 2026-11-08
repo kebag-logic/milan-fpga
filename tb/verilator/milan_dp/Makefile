@@ -934,17 +934,28 @@ twin: build-twin
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
 
-# the three plants (twin_split.cpp --plant), each refused by its own words
-# (twin_compare.py PLANT_WORDS): against the unplanted split capture, as the
-# only finding, and against the all-fabric capture, as a finding the
-# unplanted comparison does not make
+# the plants, each refused by its own words (twin_compare.py PLANT_WORDS):
+# against the unplanted split capture, every finding about the planted
+# protocol, and against the all-fabric capture, as a finding the unplanted
+# comparison does not make. The first three plant the split half as it runs
+# (twin_split.cpp --plant); the last two plant a copy of its capture
+# (twin_compare.py --make-plant): a difference in a field no row covers, and
+# an owed difference gone
 TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed
 twin-plants: build-twin
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
 	  --report-only > $(TWIN_OUT)/unplanted.txt
 	set -e; for p in $(TWIN_PLANTS); do \
 	  ./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp $(TWIN_OUT)/split-$$p.json --plant $$p; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
+	set -e; for p in $(TWIN_CAPTURE_PLANTS); do \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --make-plant $$p \
+	    --out $(TWIN_OUT)/split-$$p.json; \
 	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
 	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
 	    --baseline $(TWIN_OUT)/report.json; \

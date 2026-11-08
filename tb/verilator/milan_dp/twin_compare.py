@@ -3,38 +3,42 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """twin_compare.py - the two-placement simulation's comparison (#665).
 
-It reads the capture each half wrote (twin_fabric.cpp, twin_split.cpp: every
-control frame its MAC sent, with the modeled millisecond it left at) and
-compares them by the contract of the plan's section S6 as #665
-issuecomment-6716584453 amends it:
+It reads the capture each half wrote (twin_fabric.cpp, twin_split.cpp, decoded by twin_decode.py)
+and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453 and
+issuecomment-6717765106 amend it:
 
-  * ADP, ACMP, MAAP and AECP: each protocol's frames as an ordered sequence,
-    raw bytes equal. Times are never compared between the halves.
-  * AECP: equal apart from the F5 difference ledger (LEDGER below,
-    sw/firmware/ctrl/aecp/README.md); each row asserts its exact fabric and
-    split values, and a row that does not hold is a finding.
-  * SRP: MSRP's decoded multiset per transmit opportunity, in order across
-    opportunities, through sw/firmware/ctrl/test/srp_wire_compare.py; MVRP,
-    whose MRPDU that decoder does not read, as an ordered raw-byte sequence.
-  * Timing: what a standard leaves random or bounded is graded against that
-    bound in each half on its own (TIMING below).
+  * ADP, ACMP and MAAP: each protocol's frames as an ordered sequence, raw bytes equal. Times are
+    never compared between the halves.
+  * AECP: the solicited responses as one ordered sequence, raw bytes equal; the unsolicited notices
+    as ordered sub-sequences per (command_type, descriptor_type, descriptor_index), sequence_id out
+    of the byte compare; the commands the entity sends (CONTROLLER_AVAILABLE) per controller, raw
+    bytes. Equal apart from the F5 difference ledger (LEDGER, sw/firmware/ctrl/aecp/README.md), each
+    row asserting its exact fabric and split values, a row that does not hold a finding.
+  * MSRP per attribute: for each attribute type and value, the ordered sequence of its events equal
+    (IEEE 802.1Q-2018 10.8.2.6), the MRPDU and Message grouping not compared (10.8 leaves it to the
+    Applicant) and LeaveAll not part of the event (its timer is random, 10.7.4.3).
+  * Apart from the ledger, the owed-difference list (OWED): differences a later step owes the fix
+    of. Each row names the difference, its cause and the owing step and asserts its exact fabric
+    and split values, so any other difference still fails; a row whose difference has gone is a
+    finding too, so the lane that fixes it deletes the row.
+  * Each half on its own: what a standard leaves random or bounded against that bound (ADP's and
+    MAAP's intervals, the 240 ms AEM response), the notices' sequence_id per registered controller
+    (Milan v1.2 5.4.5.1), the MRP timers (IEEE 802.1Q-2018 10.7.4) and MVRP (Milan v1.2 4.3.2, 4.4.1;
+    IEEE 802.1Q-2018 10.7), which is not compared across the halves.
 
-Both halves are compared as the wire carries them: a frame shorter than 60
-bytes is padded with zeros to 60, as the SoC's MAC pads it (LiteEthMACCore
-with_padding, sw/litex/milan_soc.py; IEEE 802.3-2018 3.2.7). An ADP or MAAP
-frame one half sent past the other's last is not a difference when the other
-half's next one was not yet due at the run's end (its bound, TAIL_MS).
+An ADP or MAAP frame one half sent past the other's last is not a difference when the other half's
+next one was not yet due at the run's end (its bound, TAIL_MS).
 
   twin_compare.py FABRIC.json SPLIT.json [--report OUT.json] [--report-only]
-      every finding as "[DIFF] ..." or "[TIME] ...", exit 1 on any (0 with
-      --report-only, which only writes the plants' baseline)
+      every finding as "[DIFF] ...", "[SEQ] ...", "[MRP] ...", "[MVRP] ..." or "[TIME] ...", exit 1 on any
+      (0 with --report-only, which only writes the plants' baseline)
   twin_compare.py FABRIC.json SPLIT.json --plant NAME --baseline BASE.json
-      the split capture was planted (twin_split.cpp --plant NAME): exit 0 only
-      when the comparison refuses it with the plant's words (PLANT_WORDS), in a
-      finding the unplanted comparison (BASE.json, a --report) does not make
+      the split capture was planted: exit 0 only when the comparison refuses it with the plant's words
+      (PLANT_WORDS), in a finding the unplanted comparison (BASE.json, a --report) does not make
   twin_compare.py SPLIT.json PLANTED.json --plant NAME --self
-      the control: the split capture against its planted copy, which must
-      differ by exactly the plant's finding
+      the control: the split capture against its planted copy, every finding about the planted protocol
+  twin_compare.py FABRIC.json SPLIT.json --make-plant NAME --out PLANTED.json
+      write a capture plant (CAPTURE_PLANTS): the split capture with its planted difference
 """
 from __future__ import annotations
 
@@ -46,208 +50,27 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[2] / "sw/firmware/ctrl/test"))
-import srp_wire_compare  # noqa: E402
+import twin_decode as td
+from twin_decode import Capture, Sent, aecp, describe, recipient, role
+import twin_grades
 
-MIN_FRAME = 60
-AVTP = 0x22F0
-SUBTYPES = {0xFA: "ADP", 0xFB: "AECP", 0xFC: "ACMP", 0xFE: "MAAP"}
-ETHERTYPES = {0x22EA: "MSRP", 0x88F5: "MVRP"}
-#: a periodic frame's latest next departure, for the tail rule: ADP's
-#: advertise period and largest delay (Milan v1.2 Table 5.50), MAAP's
-#: announce interval and its variation (IEEE 1722-2016 Table B.8)
+#: a periodic frame's latest next departure, for the tail rule: ADP's advertise period and largest
+#: delay (Milan v1.2 Table 5.50), MAAP's announce interval and its variation (IEEE 1722-2016 Table B.8)
 TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
-#: each plant's words (twin_split.cpp --plant), which its refusal must carry
+
+#: each plant's words, which its refusal against the all-fabric capture must carry
 PLANT_WORDS = {
     "byte-flip": "ADP frame 1 differs at byte 34",
-    "srp-plus-k": "declares stream_id 0200000000010001",
-    "missing-notification": "the fabric sent and the split did not: AECP AEM_RESPONSE u=1 GET_STREAM_INFO",
+    "srp-plus-k": "MSRP Talker Failed stream_id 0200000000010001",
+    "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
+                            "to the second controller",
+    "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
+    "vanished-owed": "owed row stream-output-0-notices: the difference has gone",
 }
-PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP"}
-
-
-@dataclass(frozen=True)
-class Sent:
-    """One control frame: the millisecond it left at, its padded bytes and where its protocol PDU starts."""
-
-    ms: int
-    data: bytes
-    at: int
-
-
-@dataclass
-class Capture:
-    """One half's capture, its frames grouped by protocol in the order its MAC sent them."""
-
-    placement: str
-    run_ms: int
-    notes: dict
-    applied: list
-    frames: dict[str, list[Sent]]
-
-
-def classify(data: bytes) -> tuple[str, int] | None:
-    """The protocol of a control frame and its PDU's offset, past an optional C-tag."""
-    at = 12
-    kind = int.from_bytes(data[at:at + 2], "big")
-    if kind == 0x8100:
-        at += 4
-        kind = int.from_bytes(data[at:at + 2], "big")
-    at += 2
-    if kind in ETHERTYPES:
-        return ETHERTYPES[kind], at
-    if kind == AVTP and at < len(data) and data[at] in SUBTYPES:
-        return SUBTYPES[data[at]], at
-    return None
-
-
-def load(path: Path) -> Capture:
-    """Read a capture; every frame padded as the MAC pads it."""
-    doc = json.loads(path.read_text())
-    frames: dict[str, list[Sent]] = {}
-    for entry in doc["frames"]:
-        data = bytes.fromhex(entry["hex"])
-        found = classify(data)
-        if found is None:
-            raise SystemExit(f"{path}: a frame of no compared protocol at ms {entry['ms']}")
-        frames.setdefault(found[0], []).append(Sent(entry["ms"], data.ljust(MIN_FRAME, b"\0"), found[1]))
-    return Capture(doc["placement"], doc["run_ms"], doc["notes"], doc["applied"], frames)
-
-
-# ---- AECP's fields (IEEE 1722.1-2021 Figure 9-1, 9.2.1.2) ------------------
-
-AEM_COMMANDS = {0x0004: "READ_DESCRIPTOR", 0x0008: "SET_STREAM_FORMAT", 0x0009: "GET_STREAM_FORMAT",
-                0x000E: "SET_STREAM_INFO", 0x000F: "GET_STREAM_INFO", 0x0022: "START_STREAMING",
-                0x0023: "STOP_STREAMING", 0x0024: "REGISTER_UNSOLICITED_NOTIFICATION", 0x0029: "GET_COUNTERS"}
-
-
-@dataclass(frozen=True)
-class Aecp:
-    """The fields of one AECPDU the comparison names."""
-
-    message_type: int
-    status: int
-    seq: int
-    unsolicited: bool
-    command: int
-    descriptor: tuple[int, int]
-
-
-def aecp(s: Sent) -> Aecp:
-    """Decode the AECPDU at s.at."""
-    d, at = s.data, s.at
-    command = int.from_bytes(d[at + 22:at + 24], "big")
-    return Aecp(d[at + 1] & 0x0F, d[at + 2] >> 3, int.from_bytes(d[at + 20:at + 22], "big"),
-                bool(command & 0x8000), command & 0x7FFF,
-                (int.from_bytes(d[at + 24:at + 26], "big"), int.from_bytes(d[at + 26:at + 28], "big")))
-
-
-def describe(proto: str, s: Sent) -> str:
-    """A frame as a finding names it."""
-    if proto != "AECP":
-        return f"{proto} message_type {s.data[s.at + 1] & 0x0F} at ms {s.ms}"
-    f = aecp(s)
-    if f.message_type != 1:
-        return f"AECP message_type {f.message_type} status {f.status} sequence_id {f.seq} at ms {s.ms}"
-    name = AEM_COMMANDS.get(f.command, f"command {f.command:#06x}")
-    return (f"AECP AEM_RESPONSE u={int(f.unsolicited)} {name} descriptor {f.descriptor[0]:#06x}/"
-            f"{f.descriptor[1]} status {f.status} sequence_id {f.seq} at ms {s.ms}")
-
-
-def key(proto: str, s: Sent) -> tuple:
-    """What two frames must share to be paired: the message, and for AECP its command and descriptor."""
-    if proto != "AECP":
-        return (s.data[s.at + 1] & 0x0F,)
-    f = aecp(s)
-    return (f.message_type, f.unsolicited, f.command, f.descriptor)
-
-
-# ---- the F5 difference ledger -----------------------------------------------
-
-@dataclass(frozen=True)
-class Row:
-    """One ledger row: the command it covers (by the stimulus's sequence_id), its clause, and its exact values."""
-
-    name: str
-    clause: str
-    seq: int
-    fabric: Callable[[list[Sent]], bool]
-    split: Callable[[list[Sent]], bool]
-    fabric_says: str
-    split_says: str
-
-
-def responses(frames: list[Sent], seq: int) -> list[Aecp]:
-    """The solicited responses carrying one command's sequence_id."""
-    return [f for f in map(aecp, frames) if f.seq == seq and not f.unsolicited]
-
-
-#: SET_STREAM_INFO's response fields past its descriptor pair (IEEE 1722.1-2021 7.4.15.2): flags first
-STREAM_INFO_FIELDS = slice(28, 28 + 80)
-
-
-def stream_info_fields(frames: list[Sent], seq: int) -> list[bytes]:
-    """The fields of each solicited response with that sequence_id."""
-    return [s.data[s.at + STREAM_INFO_FIELDS.start:s.at + STREAM_INFO_FIELDS.stop] for s in frames
-            if aecp(s).seq == seq and not aecp(s).unsolicited]
-
-
-def current_stream_info(frames: list[Sent], descriptor: tuple[int, int]) -> bytes | None:
-    """The fields of the last GET_STREAM_INFO notification for a descriptor: its current stream info."""
-    found = [s for s in frames if aecp(s).command == 0x000F and aecp(s).descriptor == descriptor]
-    return found[-1].data[found[-1].at + STREAM_INFO_FIELDS.start:found[-1].at + STREAM_INFO_FIELDS.stop] \
-        if found else None
-
-
-def holds_current(frames: list[Sent], seq: int, descriptor: tuple[int, int]) -> bool:
-    """One response, whose fields are the descriptor's current stream info: its last notice's fields (the
-    notice's shorter length), then zero."""
-    fields, current = stream_info_fields(frames, seq), current_stream_info(frames, descriptor)
-    return current is not None and len(fields) == 1 and fields[0][:len(current)] == current \
-        and not any(fields[0][len(current):])
-
-
-#: The rows this stimulus exercises (twin.hpp's sequence_ids 11, 12 and 14);
-#: README rows it does not exercise are named in the milan_dp README.
-LEDGER = (
-    Row("root-configuration-index", "IEEE 1722.1-2021 7.4.5.1/2 (aecp/README.md, Observed difference row 1)", 11,
-        lambda fr: [(x.status, x.descriptor) for x in responses(fr, 11)] == [(7, (1, 0))],
-        lambda fr: [(x.status, x.descriptor) for x in responses(fr, 11)] == [(0, (0, 0))],
-        "one response, BAD_ARGUMENTS, the received configuration_index 1",
-        "one response, SUCCESS, the ENTITY descriptor at configuration_index 0"),
-    Row("set-stream-info-current-fields", "IEEE 1722.1-2021 7.4.15.1 (aecp/README.md, Observed difference row 2)",
-        12,
-        lambda fr: [x.status for x in responses(fr, 12)] == [11] and stream_info_fields(fr, 12) == [bytes(80)],
-        lambda fr: [x.status for x in responses(fr, 12)] == [11] and holds_current(fr, 12, (5, 0)),
-        "one response, NOT_SUPPORTED, the command's fields echoed (all zero)",
-        "one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's)"),
-    Row("reserved-message-type", "IEEE 1722.1-2021 Table 9-1, 9.2.2.4 (aecp/README.md, Non-AEM contract)", 14,
-        lambda fr: [(x.message_type, x.status) for x in responses(fr, 14)] == [(11, 1)],
-        lambda fr: responses(fr, 14) == [],
-        "one frame, message_type 11, status 1",
-        "nothing"),
-)
-
-
-def apply_ledger(fab: list[Sent], spl: list[Sent]) -> tuple[list[Sent], list[Sent], list[str], list[str]]:
-    """Each row's frames out of both sequences, each row checked; the remaining sequences, notes and findings."""
-    notes: list[str] = []
-    findings: list[str] = []
-    for row in LEDGER:
-        f, s = responses(fab, row.seq), responses(spl, row.seq)
-        if row.fabric(fab) and row.split(spl):
-            notes.append(f"[LEDGER] {row.name}: the fabric sends {row.fabric_says}, the split {row.split_says} "
-                         f"({row.clause})")
-        else:
-            findings.append(f"[DIFF] AECP ledger row {row.name} does not hold: the fabric sent "
-                            f"{[(x.message_type, x.status, x.descriptor) for x in f]} (the row: {row.fabric_says}), "
-                            f"the split {[(x.message_type, x.status, x.descriptor) for x in s]} "
-                            f"(the row: {row.split_says})")
-        covered = {row.seq}
-        fab = [x for x in fab if aecp(x).seq not in covered or aecp(x).unsolicited]
-        spl = [x for x in spl if aecp(x).seq not in covered or aecp(x).unsolicited]
-    return fab, spl, notes, findings
+#: the words of the control against the unplanted split capture, where it differs
+SELF_WORDS = {"vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0"}
+PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
+                    "uncovered-field": "AECP", "vanished-owed": "AECP"}
 
 
 # ---- the ordered raw-byte comparison ---------------------------------------
@@ -264,20 +87,35 @@ def tail_allowed(proto: str, extra: list[Sent], other: list[Sent], run_ms: int) 
     return run_ms - other[-1].ms < TAIL_MS[proto] and extra[0].ms > other[-1].ms
 
 
-def compare_ordered(proto: str, fab: list[Sent], spl: list[Sent], run_ms: int) -> tuple[list[str], list[str]]:
+@dataclass(frozen=True)
+class Ordering:
+    """How one sequence is compared: its name in a finding, what pairs two frames, what is compared."""
+
+    label: str
+    key: Callable[[Sent], tuple]
+    body: Callable[[Sent], bytes]
+
+
+def raw_ordering(proto: str) -> Ordering:
+    """A protocol compared frame by frame on its message_type, raw bytes."""
+    return Ordering(f"{proto} frame", lambda s: (s.data[s.at + 1] & 0x0F,), lambda s: s.data)
+
+
+def compare_ordered(proto: str, fab: list[Sent], spl: list[Sent], run_ms: int,
+                    order: Ordering) -> tuple[list[str], list[str]]:
     """Pair the two sequences in order by key, then compare each pair's bytes; findings and notes."""
     findings: list[str] = []
     notes: list[str] = []
-    matcher = difflib.SequenceMatcher(None, [key(proto, x) for x in fab], [key(proto, x) for x in spl],
+    matcher = difflib.SequenceMatcher(None, [order.key(x) for x in fab], [order.key(x) for x in spl],
                                       autojunk=False)
     for op, i1, i2, j1, j2 in matcher.get_opcodes():
         if op == "equal":
             for i, j in zip(range(i1, i2), range(j1, j2)):
-                if fab[i].data != spl[j].data:
-                    at = first_byte(fab[i].data, spl[j].data)
-                    findings.append(f"[DIFF] {proto} frame {i} differs at byte {at} (fabric "
-                                    f"{fab[i].data[at:at + 8].hex()}, split {spl[j].data[at:at + 8].hex()}): "
-                                    f"{describe(proto, fab[i])}")
+                a, b = order.body(fab[i]), order.body(spl[j])
+                if a != b:
+                    at = first_byte(a, b)
+                    findings.append(f"[DIFF] {order.label} {i} differs at byte {at} (fabric {a[at:at + 8].hex()}, "
+                                    f"split {b[at:at + 8].hex()}): {describe(proto, fab[i])}")
             continue
         last = i2 == len(fab) and j2 == len(spl)
         if last and j1 == j2 and tail_allowed(proto, fab[i1:i2], spl, run_ms):
@@ -290,143 +128,389 @@ def compare_ordered(proto: str, fab: list[Sent], spl: list[Sent], run_ms: int) -
     return findings, notes
 
 
-# ---- SRP --------------------------------------------------------------------
+# ---- AECP --------------------------------------------------------------------
 
-def compare_msrp(fab: list[Sent], spl: list[Sent]) -> list[str]:
-    """Each transmit opportunity's decoded multiset, in order across opportunities (srp_wire_compare.py)."""
+def response_key(s: Sent) -> tuple:
+    """What pairs two solicited responses: the controller, the message type, the sequence_id, the command."""
+    f = aecp(s)
+    return (f.controller, f.message_type, f.seq, f.command, f.descriptor)
+
+
+RESPONSES = Ordering("AECP response", response_key, lambda s: s.data)
+COMMANDS = Ordering("AECP command", lambda s: (aecp(s).message_type, aecp(s).command), lambda s: s.data)
+
+
+def notice_ordering(key: tuple) -> Ordering:
+    """One notice sub-sequence: its frames paired by recipient, compared without their sequence_id."""
+    command, pair = key
+    name = td.AEM_COMMANDS.get(command, f"command {command:#06x}")
+    return Ordering(f"AECP notice {name} {pair[0]:#06x}/{pair[1]} frame", lambda s: (recipient(s),), td.without_seq)
+
+
+def compare_aecp(fab: list[Sent], spl: list[Sent], run_ms: int) -> tuple[list[str], list[str]]:
+    """The responses in order; the notices per (command_type, descriptor) in order, sequence_id
+    excluded; the entity's own commands per controller."""
+    findings, notes = compare_ordered("AECP", [x for x in fab if role(x) == "response"],
+                                      [x for x in spl if role(x) == "response"], run_ms, RESPONSES)
+    keys = sorted({td.notice_key(x) for x in fab + spl if role(x) == "notice"})
+    for key in keys:
+        d, n = compare_ordered("AECP", [x for x in fab if role(x) == "notice" and td.notice_key(x) == key],
+                               [x for x in spl if role(x) == "notice" and td.notice_key(x) == key], run_ms,
+                               notice_ordering(key))
+        findings += d
+        notes += n
+    for entity in sorted({recipient(x) for x in fab + spl if role(x) == "command"}):
+        d, n = compare_ordered("AECP", [x for x in fab if role(x) == "command" and recipient(x) == entity],
+                               [x for x in spl if role(x) == "command" and recipient(x) == entity], run_ms,
+                               COMMANDS)
+        findings += d
+        notes += n
+    return findings, notes
+
+
+# ---- MSRP per attribute ------------------------------------------------------
+
+Attributes = dict[tuple[int, str], list[str]]
+
+
+def msrp_attributes(frames: list[Sent]) -> Attributes:
+    """Each MSRP attribute's ordered events (its ThreePacked event, and its FourPacked one where it has
+    one), whatever MRPDU and Message carried them; LeaveAll is not part of the event."""
+    found: Attributes = {}
+    for s in frames:
+        for e in td.msrp_events(s)[0]:
+            found.setdefault((e.kind, e.value), []).append(e.event if e.four is None else f"{e.event}/{e.four}")
+    return found
+
+
+def compare_attributes(fab: Attributes, spl: Attributes) -> list[str]:
+    """Every attribute whose event sequence differs between the halves."""
+    return [f"[DIFF] MSRP {td.attribute_label(*k)}: the fabric's events [{td.run_length(fab.get(k, []))}], "
+            f"the split's [{td.run_length(spl.get(k, []))}]"
+            for k in sorted(set(fab) | set(spl)) if fab.get(k, []) != spl.get(k, [])]
+
+
+def msrp_headers(frames: list[Sent]) -> set[str]:
+    """The Ethernet headers a half's MSRP frames carry."""
+    return {s.data[:14].hex() for s in frames}
+
+
+# ---- the F5 difference ledger and the owed-difference list -------------------
+
+@dataclass(frozen=True)
+class Half:
+    """What a row reads in one half: its AECP frames, its MSRP attributes and its stimulus."""
+
+    aecp: list[Sent]
+    msrp: Attributes
+    capture: Capture
+
+
+@dataclass(frozen=True)
+class Row:
+    """One row: what it covers in a half, its clause, the exact value each half must show and how a
+    finding prints what a half showed. Owed rows also name their cause and owing step."""
+
+    name: str
+    clause: str
+    select: Callable[[Half], list]
+    fabric: Callable[[Half, list], bool]
+    split: Callable[[Half, list], bool]
+    fabric_says: str
+    split_says: str
+    shown: Callable[[list], str]
+    cause: str = ""
+    owed_to: str = ""
+
+
+def responses(h: Half, seq: int) -> list[Sent]:
+    """The solicited responses to the first controller's command with that sequence_id."""
+    return [s for s in h.aecp if role(s) == "response" and aecp(s).seq == seq
+            and aecp(s).controller == 0x1111222233334444]
+
+
+def notices(h: Half, command: int, pair: tuple[int, int]) -> list[Sent]:
+    """The notices of one (command_type, descriptor) sub-sequence."""
+    return [s for s in h.aecp if role(s) == "notice" and td.notice_key(s) == (command, pair)]
+
+
+def stimulus(h: Half, seq: int) -> bytes:
+    """The first controller's command with that sequence_id, as applied: its bytes after the sequence_id,
+    to its control_data_length."""
+    d = next(a.data for a in h.capture.applied if a.data[14] == 0xFB and a.data[15] & 1 == 0
+             and int.from_bytes(a.data[26:34], "big") == 0x1111222233334444
+             and int.from_bytes(a.data[34:36], "big") == seq)
+    return d[36:26 + ((d[16] & 0x07) << 8 | d[17])]
+
+
+def after(h: Half, seq: int, frames: list[Sent], within_ms: int = 50) -> list[Sent]:
+    """The frames sent within `within_ms` after the response to the first controller's command `seq`."""
+    answered = [s.ms for s in responses(h, seq)]
+    return [s for s in frames if answered and answered[0] <= s.ms <= answered[0] + within_ms]
+
+
+def body(s: Sent) -> bytes:
+    """A PDU's bytes after its sequence_id, to its control_data_length."""
+    return s.data[s.at + 22:s.at + 12 + td.control_length(s)]
+
+
+def shown_aecp(frames: list) -> str:
+    """AECP frames as a finding prints them."""
+    return "[" + "; ".join(f"{td.command_name(aecp(s))} to {td.who(recipient(s))} status {aecp(s).status} "
+                           f"{body(s).hex()}" for s in frames) + "]"
+
+
+def shown_msrp(attributes: list) -> str:
+    """MSRP attributes as a finding prints them."""
+    return "[" + "; ".join(f"MSRP {td.attribute_label(*k)}: {td.run_length(v)}" for k, v in attributes) + "]"
+
+
+FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
+MVU = td.MVU_PROTOCOL
+SYSTEM_UNIQUE_ID = bytes.fromhex("0102030405060708")
+
+
+def configuration(s: Sent) -> int:
+    """A READ_DESCRIPTOR PDU's configuration_index (IEEE 1722.1-2021 7.4.5.1)."""
+    return int.from_bytes(s.data[s.at + 24:s.at + 26], "big")
+
+
+def statuses(frames: list[Sent]) -> list[tuple[int, int]]:
+    """Each frame's message_type and status."""
+    return [(aecp(s).message_type, aecp(s).status) for s in frames]
+
+
+def current_fields(h: Half, before_ms: int) -> bytes | None:
+    """STREAM_INPUT 0's current stream info: its last GET_STREAM_INFO notice's fields before `before_ms`."""
+    found = [s for s in notices(h, 0x000F, (5, 0)) if s.ms <= before_ms]
+    return td.stream_info(found[-1]) if found else None
+
+
+def holds_current(h: Half, sel: list[Sent]) -> bool:
+    """One NOT_SUPPORTED response whose fields are STREAM_INPUT 0's current stream info (its last notice's,
+    over the notice's shorter length), then zero."""
+    current = current_fields(h, sel[0].ms) if len(sel) == 1 else None
+    fields = td.stream_info(sel[0]) if sel else b""
+    return statuses(sel) == [(1, 11)] and current is not None and fields[:len(current)] == current \
+        and not any(fields[len(current):])
+
+
+def released(h: Half) -> list[Sent]:
+    """The LOCK_ENTITY notices of a release: locked_id 0 (IEEE 1722.1-2021 7.4.2.1)."""
+    return [s for s in notices(h, 0x0001, (0, 0)) if not any(s.data[s.at + 28:s.at + 36])]
+
+
+def lock_flags(sel: list[Sent]) -> list[tuple[int, int]]:
+    """Each release notice's recipient and flags."""
+    return [(recipient(s), int.from_bytes(s.data[s.at + 24:s.at + 28], "big")) for s in sel]
+
+
+#: The F5 difference ledger (sw/firmware/ctrl/aecp/README.md, Observed difference rows 1 to 6, the
+#: Non-AEM contract's reserved type and HDCP_APM): the stimulus reaches every row (twin.hpp), and each
+#: asserts its exact values (#665 issuecomment-6717765106, item 6).
+LEDGER = (
+    Row("root-configuration-index", "IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1",
+        lambda h: responses(h, 11),
+        lambda h, sel: [(aecp(s).status, configuration(s), aecp(s).descriptor) for s in sel] == [(7, 1, (0, 0))],
+        lambda h, sel: [(aecp(s).status, configuration(s), aecp(s).descriptor) for s in sel] == [(0, 0, (0, 0))],
+        "one response, BAD_ARGUMENTS, the received configuration_index 1",
+        "one response, SUCCESS, the ENTITY descriptor at configuration_index 0", shown_aecp),
+    Row("set-stream-info-current-fields", "IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2",
+        lambda h: responses(h, 12),
+        lambda h, sel: statuses(sel) == [(1, 11)] and td.stream_info(sel[0]) == bytes(80),
+        holds_current,
+        "one response, NOT_SUPPORTED, the command's fields echoed (all zero)",
+        "one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's)",
+        shown_aecp),
+    Row("system-unique-id", "Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3",
+        lambda h: responses(h, 18) + responses(h, 19),
+        lambda h, sel: statuses(sel) == [(7, 1), (7, 1)]
+        and [body(s) for s in sel] == [stimulus(h, 18), stimulus(h, 19)],
+        lambda h, sel: statuses(sel) == [(7, 0), (7, 0)]
+        and [body(s) for s in sel] == [MVU + bytes.fromhex(f"000{c}0000") + SYSTEM_UNIQUE_ID for c in (1, 2)],
+        "SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed",
+        "SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id "
+        "0102030405060708", shown_aecp),
+    Row("default-format-override-notice", "Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4",
+        lambda h: notices(h, 0x0008, (5, 0)),
+        lambda h, sel: sel == [],
+        lambda h, sel: [(recipient(s), aecp(s).status, s.data[s.at + 28:s.at + 36]) for s in sel]
+        == [(SECOND, 0, bytes.fromhex("0205022002006000"))],
+        "no SET_STREAM_FORMAT notice for the default-valued SET",
+        "one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller", shown_aecp),
+    Row("start-stop-stream-info-notice",
+        "Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2; aecp/README.md, Observed difference row 5",
+        lambda h: after(h, 10, notices(h, 0x000F, (5, 0))) + after(h, 23, notices(h, 0x000F, (5, 0))),
+        lambda h, sel: sel == [],
+        lambda h, sel: [recipient(s) for s in sel] == [FIRST, SECOND, FIRST, SECOND],
+        "no GET_STREAM_INFO notice for STREAM_INPUT 0's changed started state at the STOP or the START",
+        "one GET_STREAM_INFO notice of STREAM_INPUT 0 to each controller at the STOP and at the START",
+        shown_aecp),
+    Row("lock-release-flag", "IEEE 1722.1-2021 7.4.2.1; aecp/README.md, Observed difference row 6",
+        released,
+        lambda h, sel: lock_flags(sel) == [(SECOND, 0), (FIRST, 0), (SECOND, 0)],
+        lambda h, sel: lock_flags(sel) == [(SECOND, 1), (FIRST, 1), (SECOND, 1)],
+        "the release notices (the UNLOCK's, the expiry's to both) with flags 0, the owner 0",
+        "the release notices with flags 1 (UNLOCK), the owner 0", shown_aecp),
+    Row("reserved-message-type", "IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract",
+        lambda h: responses(h, 14),
+        lambda h, sel: statuses(sel) == [(11, 1)],
+        lambda h, sel: sel == [],
+        "one frame, message_type 11, status 1", "nothing", shown_aecp),
+    Row("hdcp-apm-data", "IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract",
+        lambda h: responses(h, 22),
+        lambda h, sel: statuses(sel) == [(9, 1)] and [body(s) for s in sel] == [stimulus(h, 22)],
+        lambda h, sel: statuses(sel) == [(9, 1)] and [body(s) for s in sel] == [bytes(6)],
+        "HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length",
+        "HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept", shown_aecp),
+)
+
+#: STREAM_OUTPUT 0's GET_STREAM_INFO fields as the fabric notifies them: its talker declared after the
+#: PROBE_TX (stream_id, accumulated latency, the MAAP address, VLAN 2), and withdrawn about 15 s later
+OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "0200000000010000" "001e8480" "91e0f0000100" "00" "00"
+                              "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
+OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
+                               "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
+#: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
+#: Advertise for source 0, the split's Talker Failed for both sources
+FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
+SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d900017000000000000002000000000102"),
+                 (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
+SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
+               "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
+SRP_ROUND = "the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3)"
+
+#: The owed-difference list, apart from the ledger (#665 issuecomment-6717765106): each row names the
+#: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
+OWED = (
+    Row("stream-output-0-notices", "Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed",
+        lambda h: notices(h, 0x000F, (6, 0)),
+        lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
+        == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
+        lambda h, sel: sel == [],
+        "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
+        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
+    Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
+        lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
+        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+        == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
+        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
+        == [(SPLIT_TALKERS[0], "New x2, JoinMt x89"), (SPLIT_TALKERS[1], "New x2, JoinMt x89")],
+        "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
+        "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
+        SRP_ROUND),
+)
+
+
+def apply_rows(rows: tuple[Row, ...], fab: Half, spl: Half, owed: bool) -> tuple[list, list, list[str], list[str]]:
+    """Check each row in both halves and take what it covers out of them; the remaining AECP frames,
+    the remaining MSRP attributes, the notes and the findings."""
+    notes: list[str] = []
     findings: list[str] = []
-    for k, (a, b) in enumerate(zip(fab, spl)):
-        ca = srp_wire_compare.canonical_opportunity([unpad_mrp(a.data)])
-        cb = srp_wire_compare.canonical_opportunity([unpad_mrp(b.data)])
-        if ca == cb:
-            continue
-        only_f = [e for e in ca["events"] if e not in cb["events"]]
-        only_s = [e for e in cb["events"] if e not in ca["events"]]
-        findings.append(f"[DIFF] MSRP opportunity {k} (ms {a.ms} and {b.ms}): the decoded multisets differ; "
-                        f"fabric only {declared(only_f)}, split only {declared(only_s)}, LeaveAll fabric "
-                        f"{ca['leave_all_types']} split {cb['leave_all_types']}")
-    if len(fab) != len(spl):
-        findings.append(f"[DIFF] MSRP: the fabric sent {len(fab)} transmit opportunities, the split {len(spl)}")
-    return findings
+    covered_f: list = []
+    covered_s: list = []
+    kind = "owed row" if owed else "AECP ledger row"
+    for row in rows:
+        f, s = row.select(fab), row.select(spl)
+        covered_f += f
+        covered_s += s
+        if owed and normalized(f) == normalized(s):
+            findings.append(f"[DIFF] {kind} {row.name}: the difference has gone, both halves send "
+                            f"{row.shown(f)}; the lane that fixed it ({row.owed_to}) deletes the row")
+        elif row.fabric(fab, f) and row.split(spl, s):
+            tail = f"; cause: {row.cause}; owed to {row.owed_to}" if owed else ""
+            notes.append(f"[{'OWED' if owed else 'LEDGER'}] {row.name}: the fabric sends {row.fabric_says}, "
+                         f"the split {row.split_says} ({row.clause}{tail})")
+        else:
+            findings.append(f"[DIFF] {kind} {row.name} does not hold: the fabric sent {row.shown(f)} (the row: "
+                            f"{row.fabric_says}), the split {row.shown(s)} (the row: {row.split_says})")
+    rest_f = [x for x in fab.aecp if not any(x is y for y in covered_f)]
+    rest_s = [x for x in spl.aecp if not any(x is y for y in covered_s)]
+    return rest_f, rest_s, notes, findings
 
 
-def declared(evs: list) -> str:
-    """Decoded events as a finding names them: AttributeType, the declaration it declares, its event."""
-    return "[" + "; ".join(f"type {e[0]} declares stream_id {e[1][:16]} event {e[3]}" if e[0] in (1, 2, 3)
-                           else f"type {e[0]} value {e[1]} event {e[3]}" for e in evs) + "]"
+def normalized(items: list) -> list:
+    """A row's selection as two halves could share it: notices without their sequence_id."""
+    return [td.without_seq(x) if isinstance(x, Sent) else x for x in items]
 
 
-def unpad_mrp(data: bytes) -> bytes:
-    """The MSRP frame up to its PDU EndMark (IEEE 802.1Q-2018 10.8.1.2), the MAC's pad dropped: each message
-    is AttributeType, AttributeLength and AttributeListLength, then that many bytes. A frame that never
-    reaches its EndMark is returned whole, for srp_wire_compare.py's decoder to refuse by name."""
-    offset = 15
-    while offset + 4 <= len(data) and data[offset:offset + 2] != b"\0\0":
-        offset += 4 + int.from_bytes(data[offset + 2:offset + 4], "big")
-    return data[:offset + 2] if offset + 2 <= len(data) else data
+# ---- the capture plants ---------------------------------------------------------
+
+def aecp_doc_frame(entry: dict) -> td.Aecp | None:
+    """A capture entry's AECPDU fields, or None for any other frame."""
+    data = bytes.fromhex(entry["hex"]).ljust(td.MIN_FRAME, b"\0")
+    found = td.classify(data)
+    return aecp(Sent(entry["ms"], data, found[1])) if found and found[0] == "AECP" else None
 
 
-# ---- timing, each half against its bound ------------------------------------
-
-def gaps(frames: list[Sent]) -> list[int]:
-    """The milliseconds between consecutive frames."""
-    return [b.ms - a.ms for a, b in zip(frames, frames[1:])]
-
-
-def grade_adp(cap: Capture) -> tuple[list[str], dict]:
-    """ADP's start delay, advertise interval and DISCOVER answer (Milan v1.2 5.6.3.5, Table 5.50; IEEE
-    1722.1-2021 6.2.2.6 valid_time)."""
-    adp = [x for x in cap.frames.get("ADP", []) if x.data[x.at + 1] & 0x0F == 0]
-    boot = int(cap.notes.get("boot_ms", 0))
-    found: list[str] = []
-    if not adp:
-        return [f"[TIME] {cap.placement} ADP: no ENTITY_AVAILABLE"], {}
-    valid_ms = (adp[0].data[adp[0].at + 2] >> 3) * 2000
-    if adp[0].ms - boot > 2000:
-        found.append(f"[TIME] {cap.placement} ADP: the first ENTITY_AVAILABLE {adp[0].ms - boot} ms after the "
-                     "entity started, past Milan v1.2 5.6.3.5.2's 2000 ms")
-    found += [f"[TIME] {cap.placement} ADP: {g} ms between ENTITY_AVAILABLEs, past Milan v1.2 Table 5.50's "
-              f"9000 ms or valid_time's {valid_ms} ms" for g in gaps(adp) if g > 9000 or g >= valid_ms]
-    asked = [a["ms"] for a in cap.applied if a["what"].startswith("ADP ENTITY_DISCOVER")]
-    for t in asked:
-        answer = next((x.ms for x in adp if x.ms >= t), None)
-        if answer is None or answer - t > 4000:
-            found.append(f"[TIME] {cap.placement} ADP: the ENTITY_DISCOVER at ms {t} answered at {answer}, "
-                         "past Milan v1.2 5.6.3.5.3's 4000 ms")
-    return found, {"adp_start_ms": adp[0].ms - boot, "adp_gaps_ms": gaps(adp), "adp_valid_time_ms": valid_ms}
+def plant_uncovered_field(fabric: dict, split: dict) -> dict:
+    """A fourth difference, in a field no row covers: the first GET_STREAM_INFO notice of STREAM_INPUT 0 to
+    the first controller, msrp_accumulated_latency's last octet inverted (frame byte 65)."""
+    del fabric
+    for entry in split["frames"]:
+        f = aecp_doc_frame(entry)
+        if f and f.unsolicited and (f.command, f.descriptor) == (0x000F, (5, 0)) and f.controller == FIRST:
+            data = bytearray(bytes.fromhex(entry["hex"]))
+            data[65] ^= 0xFF
+            entry["hex"] = data.hex()
+            split["notes"]["plant"] = "uncovered-field"
+            return split
+    raise SystemExit("plant uncovered-field: no GET_STREAM_INFO notice of STREAM_INPUT 0 to plant")
 
 
-def grade_maap(cap: Capture) -> tuple[list[str], dict]:
-    """MAAP's probe and announce intervals (IEEE 1722-2016 Table B.8)."""
-    maap = cap.frames.get("MAAP", [])
-    probes = [x for x in maap if x.data[x.at + 1] & 0x0F == 1]
-    announces = [x for x in maap if x.data[x.at + 1] & 0x0F == 3]
-    found = [f"[TIME] {cap.placement} MAAP: {g} ms between PROBEs, outside MAAP_PROBE_INTERVAL_BASE 500 + "
-             "VARIATION 100" for g in gaps(probes) if not 500 <= g <= 600]
-    found += [f"[TIME] {cap.placement} MAAP: {g} ms between ANNOUNCEs, outside MAAP_ANNOUNCE_INTERVAL_BASE "
-              "30000 + VARIATION 2000" for g in gaps(announces) if not 30000 <= g <= 32000]
-    return found, {"maap_probe_gaps_ms": gaps(probes), "maap_announce_gaps_ms": gaps(announces)}
+def plant_vanished_owed(fabric: dict, split: dict) -> dict:
+    """An owed difference gone: the split capture carries the fabric's GET_STREAM_INFO notices of
+    STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
+    owed = [e for e in fabric["frames"] if (f := aecp_doc_frame(e)) and f.unsolicited
+            and (f.command, f.descriptor) == (0x000F, (6, 0))]
+    if not owed:
+        raise SystemExit("plant vanished-owed: the fabric capture has no STREAM_OUTPUT 0 notice to copy")
+    split["frames"] = sorted(split["frames"] + owed, key=lambda e: e["ms"])
+    split["notes"]["plant"] = "vanished-owed"
+    return split
 
 
-def grade_aecp(cap: Capture) -> tuple[list[str], dict]:
-    """Each AEM command's response within 240 ms (IEEE 1722.1-2021 9.3.2.6, as aecp.h cites it)."""
-    asked = {k + 1: a["ms"] for k, a in enumerate(x for x in cap.applied if x["what"].startswith("AECP"))}
-    took = {}
-    for s in cap.frames.get("AECP", []):
-        f = aecp(s)
-        if not f.unsolicited and f.seq in asked and f.seq not in took:
-            took[f.seq] = s.ms - asked[f.seq]
-    found = [f"[TIME] {cap.placement} AECP: sequence_id {q} answered after {t} ms, past 240 ms"
-             for q, t in took.items() if t > 240]
-    return found, {"aecp_response_ms": took}
-
-
-def grade(cap: Capture) -> tuple[list[str], dict]:
-    """Every timing grade of one half."""
-    found: list[str] = []
-    measured: dict = {}
-    for grader in (grade_adp, grade_maap, grade_aecp):
-        f, m = grader(cap)
-        found += f
-        measured.update(m)
-    return found, measured
+#: the plants twin_compare.py writes into a copy of the split capture (--make-plant)
+CAPTURE_PLANTS = {"uncovered-field": plant_uncovered_field, "vanished-owed": plant_vanished_owed}
 
 
 # ---- the verdict --------------------------------------------------------------
 
-#: SRP's two protocols repeat one difference at every transmit opportunity, so
-#: their findings are listed to this many, then counted; every other
-#: protocol's are listed whole
-SRP_LISTED = 3
-
-
-def capped(proto: str, findings: list[str]) -> list[str]:
-    """An SRP protocol's first findings and the count of the rest; any other protocol's, whole."""
-    if proto not in ("MSRP", "MVRP") or len(findings) <= SRP_LISTED:
-        return findings
-    return findings[:SRP_LISTED] + [f"[DIFF] {proto}: {len(findings) - SRP_LISTED} more difference(s), "
-                                    "the first listed above"]
-
 def compare(fab: Capture, spl: Capture, between_placements: bool = True) -> dict:
-    """Every finding and note of the two captures. The ledger and the timing grades are the two placements'
-    comparison's; the plants' control compares the split half with its own planted copy."""
+    """Every finding and note of the two captures. The ledger, the owed list and the grades are the two
+    placements' comparison's; the plants' control compares the split half with its own planted copy."""
     findings: list[str] = []
     notes: list[str] = []
     run_ms = min(fab.run_ms, spl.run_ms)
-    for proto in ("ADP", "ACMP", "MAAP", "AECP", "MVRP"):
-        f, s = fab.frames.get(proto, []), spl.frames.get(proto, [])
-        if proto == "AECP" and between_placements:
-            f, s, n, d = apply_ledger(f, s)
-            notes += n
-            findings += d
-        d, n = compare_ordered(proto, f, s, run_ms)
-        findings += capped(proto, d)
+    for proto in ("ADP", "ACMP", "MAAP"):
+        d, n = compare_ordered(proto, fab.frames.get(proto, []), spl.frames.get(proto, []), run_ms,
+                               raw_ordering(proto))
+        findings += d
         notes += n
-    findings += capped("MSRP", compare_msrp(fab.frames.get("MSRP", []), spl.frames.get("MSRP", [])))
+    hf = Half(fab.frames.get("AECP", []), msrp_attributes(fab.frames.get("MSRP", [])), fab)
+    hs = Half(spl.frames.get("AECP", []), msrp_attributes(spl.frames.get("MSRP", [])), spl)
+    msrp_f, msrp_s = dict(hf.msrp), dict(hs.msrp)
+    aecp_f, aecp_s = hf.aecp, hs.aecp
+    if between_placements:
+        aecp_f, aecp_s, n, d = apply_rows(LEDGER, hf, hs, owed=False)
+        notes += n
+        findings += d
+        aecp_f, aecp_s, n, d = apply_rows(OWED, Half(aecp_f, hf.msrp, fab), Half(aecp_s, hs.msrp, spl), owed=True)
+        notes += n
+        findings += d
+        for item in [x for row in OWED for x in row.select(hf) + row.select(hs) if not isinstance(x, Sent)]:
+            msrp_f.pop(item[0], None)
+            msrp_s.pop(item[0], None)
+    d, n = compare_aecp(aecp_f, aecp_s, run_ms)
+    findings += d
+    notes += n
+    findings += compare_attributes(msrp_f, msrp_s)
+    if msrp_headers(fab.frames.get("MSRP", [])) != msrp_headers(spl.frames.get("MSRP", [])):
+        findings.append("[DIFF] MSRP: the halves' frames carry different Ethernet headers")
     measured = {}
     if between_placements:
         for cap in (fab, spl):
-            f, m = grade(cap)
+            f, m = twin_grades.grade(cap)
             findings += f
             measured[cap.placement] = m
     return {"findings": findings, "notes": notes, "measured": measured,
@@ -435,9 +519,8 @@ def compare(fab: Capture, spl: Capture, between_placements: bool = True) -> dict
 
 def plant_verdict(report: dict, name: str, baseline: list[str] | None) -> int:
     """0 when the plant is refused by its words, in a finding the baseline does not make (or, for --self, with
-    every finding about the planted protocol: a frame dropped between two of one key reads as a pair that
-    differs and one missing)."""
-    words = PLANT_WORDS[name]
+    every finding about the planted protocol)."""
+    words = PLANT_WORDS[name] if baseline is not None else SELF_WORDS.get(name, PLANT_WORDS[name])
     hits = [f for f in report["findings"] if words in f]
     if baseline is None:
         ok = bool(hits) and all(PLANTED_PROTOCOL[name] in f for f in report["findings"])
@@ -448,7 +531,7 @@ def plant_verdict(report: dict, name: str, baseline: list[str] | None) -> int:
 
 
 def main() -> int:
-    """Compare two captures, or grade a plant."""
+    """Compare two captures, grade a plant, or write a capture plant."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("fabric", type=Path)
     parser.add_argument("split", type=Path)
@@ -456,10 +539,18 @@ def main() -> int:
     parser.add_argument("--plant", choices=sorted(PLANT_WORDS))
     parser.add_argument("--baseline", type=Path)
     parser.add_argument("--self", dest="self_control", action="store_true")
+    parser.add_argument("--make-plant", choices=sorted(CAPTURE_PLANTS))
+    parser.add_argument("--out", type=Path)
     parser.add_argument("--report-only", action="store_true",
                         help="write the report and exit 0: the plants' baseline, whose verdict is make twin's")
     args = parser.parse_args()
-    fab, spl = load(args.fabric), load(args.split)
+    if args.make_plant:
+        planted = CAPTURE_PLANTS[args.make_plant](json.loads(args.fabric.read_text()),
+                                                 json.loads(args.split.read_text()))
+        args.out.write_text(json.dumps(planted) + "\n")
+        print(f"plant {args.make_plant}: written to {args.out.name}")
+        return 0
+    fab, spl = td.load(args.fabric), td.load(args.split)
     report = compare(fab, spl, between_placements=not args.self_control)
     for line in report["notes"] + report["findings"]:
         print(line)
