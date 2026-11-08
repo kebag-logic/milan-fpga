@@ -10,10 +10,10 @@ a scratch directory, each submodule the leg reads at its gitlink and taken from 
 it, and runs make -j8 split there. It passes when make exits 0 and the leg prints its own verdict with no
 failure ("failures: 0").
 
---selftest first proves the gate can fail for the race, with a stand-in simulator: it writes the leg's binary,
-which only prints a passing verdict, a few seconds after it is started. In one clean tree the split rule is
-planted as the race had it (split: build-split exec-split, the run a prerequisite beside the build), and the
-run must fail with the binary missing; in another the rule is HEAD's, and it must pass. Then the real run.
+--selftest first proves the gate can fail for the race: in another clean tree the split rule is planted as the
+race had it (split: build-split exec-split, the run a prerequisite beside the build), and make -j8 split there
+must fail with the binary missing. The planted run has no prerequisite and the build takes minutes, so the run
+starts long before the link. Then the real run, with HEAD's rule, must pass.
 
   python3 tb/verilator/milan_dp/split_parallel.py [--selftest] [--keep] [MAKE ARGUMENT ...]
 
@@ -43,17 +43,6 @@ RACE = "split: build-split exec-split\n"
 VERDICT = re.compile(r"^checks: \d+\s+failures: (\d+)$", re.MULTILINE)
 #: what the race leaves in make's output: the run started before the binary existed
 MISSING = "Vmilan_dp_split: No such file or directory"
-#: the stand-in simulator: it writes, after DELAY seconds, the binary Verilator would build (its --Mdir and -o)
-DELAY = 3
-STAND_IN = f'''import sys, time
-from pathlib import Path
-args = sys.argv[1:]
-binary = Path(args[args.index("--Mdir") + 1]) / args[args.index("-o") + 1]
-time.sleep({DELAY})
-binary.parent.mkdir(parents=True, exist_ok=True)
-binary.write_text("#!/bin/sh\\necho 'checks: 1   failures: 0'\\n")
-binary.chmod(0o755)
-'''
 
 
 class NoTree(Exception):
@@ -115,19 +104,15 @@ def arm(name: str, tree: Path, extra: list[str], expect_pass: bool) -> bool:
     return ok
 
 
-def selftest(work: Path) -> bool:
-    """The planted race refused and HEAD's rule passed, each in a clean tree, under the stand-in simulator."""
-    stand_in = work / "stand_in.py"
-    stand_in.write_text(STAND_IN)
-    simulator = [f"VERILATOR={sys.executable} {stand_in}"]
+def selftest(work: Path, extra: list[str]) -> bool:
+    """The race's rule, planted in a clean tree, refused: make -j8 split fails with the binary missing."""
     race = clean_tree(work / "race")
     makefile = race / LEG / "Makefile"
     text = makefile.read_text()
     if text.count(RULE) != 1:
         raise NoTree(f"{LEG / 'Makefile'} does not hold the split rule once, so its race cannot be planted")
     makefile.write_text(text.replace(RULE, RACE))
-    ok = arm("selftest, the race's rule planted", race, simulator, expect_pass=False)
-    return arm("selftest, HEAD's rule", clean_tree(work / "rule"), simulator, expect_pass=True) and ok
+    return arm("selftest, the race's rule planted", race, extra, expect_pass=False)
 
 
 def main() -> int:
@@ -139,7 +124,7 @@ def main() -> int:
     args = parser.parse_args()
     work = Path(tempfile.mkdtemp(prefix="split-parallel-"))
     try:
-        ok = selftest(work) if args.selftest else True
+        ok = selftest(work, args.make_args) if args.selftest else True
         ok = arm("make -j8 split from a clean tree", clean_tree(work / "tree"), args.make_args, True) and ok
     except NoTree as refused:
         print(f"split_parallel: REFUSED: {refused}", flush=True)

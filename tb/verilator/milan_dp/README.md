@@ -1147,9 +1147,10 @@ item 3).
 [`split_parallel.py`](split_parallel.py) is the rule's gate. It clones the
 committed HEAD into a scratch directory, with each submodule the leg reads at
 its gitlink. Then it runs `make -j8 split` there, and passes on make's exit 0
-and the leg's `failures: 0`. Its `--selftest` first runs a stand-in simulator
-in two more clean trees. With the old rule planted, the run must fail on the
-missing binary. With HEAD's rule, it must pass.
+and the leg's `failures: 0`. Its `--selftest` first plants the old rule in
+another clean tree, where `make -j8 split` must fail on the missing binary.
+The planted run has no prerequisite and the build takes minutes, so the run
+starts long before the link.
 
 ```sh
 python3 tb/verilator/milan_dp/split_parallel.py --selftest
