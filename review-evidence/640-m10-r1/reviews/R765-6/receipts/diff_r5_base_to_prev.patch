@@ -1,0 +1,328 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 2fb947e457..c40d441115 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -129,2 +129,2 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
+-[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
+-Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
++[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted target.
++Mark II needs fewer than 20,000 `xc7a100t` LUTs at 32x32.
+@@ -180 +180,3 @@ The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptan
+-That is fewer than 20,000 LUTs at 32x32, with timing met.
++That is fewer than 20,000 LUTs at 32x32.
++
++The image must also fit Block RAM, with timing met.
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 79d2937abc..12b310862a 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -4,10 +4,19 @@
+-Status: **F0 implemented behind a default-off build switch.** The all-fabric
+-build is unchanged and remains the shipping image. This page is the design
+-of the contract between the fabric and the bare-metal control-plane firmware.
+-The split integrates before P3; milestone 13 retains the hard-core port.
+-Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
+-tests and the co-simulation build; no image links that firmware yet.
+-Lane F-INT adds the [publication block](#the-publication-block) (contract
+-2.2), where the firmware owner writes the class-D state the split placement's
+-datapath reads; nothing reads it until the placement switch lands.
+-The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
++Status: **F0 implemented behind a default-off build switch.**
++The all-fabric build is unchanged and remains the shipping image.
++
++This page designs the fabric's contract with the control-plane firmware.
++The split integrates before P3.
++
++Milestone 13 retains the hard-core port.
++Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware.
++
++The host tests and the co-simulation build compile it.
++No image links that firmware yet.
++
++Lane F-INT adds the [publication block](#the-publication-block), contract 2.2.
++There the firmware owner writes the class-D state.
++
++The split placement's datapath reads that state.
++Nothing reads it until the placement switch lands.
++
++The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+@@ -14,0 +24 @@ All-fabric stays the shipping default until F2 to F5 acceptance.
++
+@@ -16,5 +26,6 @@ That acceptance covers all streams, counters and the audio soak.
+-The owner decisions of
+-2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
+-and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
+-define the interface. The numbers live in one place, the generated
+-[reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
++
++The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
++So does the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665).
++
++The numbers live in one place, the generated [reference page](../reference/MAILBOX_CONTRACT.md).
++This page explains them.
+@@ -41,6 +52,13 @@ define the interface. The numbers live in one place, the generated
+-The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
+-fabric keeps framing and timestamps, the media path, the timers that carry
+-hard deadlines, and an ingress filter. It keeps the gPTP plane until F6, then
+-firmware owns the protocol and servo. The two exchange
+-frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
+-interrupt, 32-bit accesses only and no DMA.
++The bare-metal core runs ADP, ACMP, MAAP, SRP and AECP.
++SRP runs through lwSRP.
++
++The fabric keeps framing, timestamps and the media path.
++It also keeps hard-deadline timers and an ingress filter.
++
++It keeps the gPTP plane until #665 lane F6.
++Then firmware owns the protocol and servo.
++
++The two exchange frames through packet mailboxes.
++Those are block-RAM rings with a doorbell per ring.
++
++There is one interrupt, 32-bit accesses only and no DMA.
+@@ -133,3 +151 @@ in words, and storage the producer writes only past the consumer's tail.
+-- **Event record:** four words. The sources are a link level change, a
+-  grandmaster change published by the gPTP plane, a fabric timer expiry with
+-  the tag of the arm it belongs to, and the centisecond tick.
++- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. Its sources also include fabric timer expiries, tagged by arm. The centisecond tick is the fourth source.
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 5df2ae3115..c54ca3e0ba 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -17,2 +17,2 @@ This page changes documentation only.
+-- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.45k.
+-- **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
++- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.75k.
++- **[LiteX removal stages](#litex-removal-stages)** -- Three stages and every LiteX block's fate.
+@@ -20 +20 @@ This page changes documentation only.
+-- **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
++- **[Mark II decisions](#mark-ii-decisions)** -- Owner and manager rulings, 2026-10-31 and 2026-11-02.
+@@ -40,2 +40,4 @@ This page changes documentation only.
+-- **Owner estimate:** about 34.2k LUTs once the processor leaves.
+-  The six owner levers then reach about 20.7k centrally.
++- **Start estimate:** about 31.0k LUTs once the processor leaves.
++  The owner's 34.2k counted the CPU twice ([lever 4](#lever-4-accounting)).
++- **The six owner levers** then reach about 21.0k centrally.
++  Lever 4 saves nothing: it was that double count.
+@@ -45 +47 @@ This page changes documentation only.
+-  The central estimate lands near 21.45k, above the ceiling.
++  The central estimate lands near 21.75k, above the ceiling.
+@@ -110,2 +112,2 @@ These hierarchical rows are read from them:
+-| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
+-| `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Kept; lever 4 removes the second split CPU instead |
++| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | The switch-over and LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
++| `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Replaced by the split CPU, the one hart ([lever 4](#lever-4-accounting)) |
+@@ -149 +151,3 @@ It is estimated from measured parts, not one routed image.
+-=34,223 about 34.2k LUTs (estimate)
++=34,223 the owner's 34.2k (estimate)
++- 3,249 SoC CPU, already in the 52,008 (measured row)
++=30,974 about 31.0k LUTs, CPU counted once (derived)
+@@ -151,0 +156,26 @@ It is estimated from measured parts, not one routed image.
++### Lever 4 accounting
++
++The basis already holds the SoC CPU, 3,249 LUTs.
++`MilanSoC` under `--ctrl-mailbox` has always built one hart.
++
++The split CPU replaces it; no second hart exists.
++The owner's chain counted both CPUs ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407)).
++
++| Figure | LUT | Kind | Source |
++|---|---:|---|---|
++| SoC CPU in the basis | 3,249 | Measured | Basis hierarchical placement report, row `VexiiRiscvLitex_f5f08b170311db53220574624f819159` |
++| Split CPU, 16 KiB instruction cache, behind the clock crossing | 3,948 | Measured | Out-of-context netlist, [#665 S2b round 12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407); 3,543 on `sys` without the crossing |
++| The one CPU's net change | +699 | Derived | 3,948 - 3,249 |
++| Start, CPU counted once | 30,974 | Derived | 34,223 - 3,249 |
++| After levers 1 to 3, central | 27,224 | Derived | 30,974 - 1,000 - 1,000 - 1,750 |
++| After lever 4 | 27,224 | Derived | Lever 4 saves 0 |
++| The owner's chain after lever 4, crediting the 3,249 | 27,224 | Derived | 34,223 - 3,750 - 3,249 |
++
++After lever 4 both chains reach 27,224 LUTs.
++Lever 4 only removed the double count.
++
++Its middle figure, 3.55k, overstated that by 0.3k.
++So totals from lever 4 on rise about 0.3k.
++
++### Lever order
++
+@@ -154,0 +185,3 @@ Each saving is the middle of its estimate.
++Running totals start from 30,974, CPU counted once.
++They are derived, not the owner's figures.
++
+@@ -157,6 +190,6 @@ Each saving is the middle of its estimate.
+-| 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~33.2k |
+-| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~32.2k |
+-| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~30.5k |
+-| 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | ~3.55k | ~26.9k |
+-| 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~25.9k |
+-| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~20.7k |
++| 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~30.0k |
++| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~29.0k |
++| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~27.2k |
++| 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | 0, an [accounting correction](#lever-4-accounting); the owner's table had ~3.55k | ~27.2k |
++| 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~26.2k |
++| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~21.0k |
+@@ -167 +200 @@ A routed image measures each lever before the next.
+-The owner's ranges put all six at 19k to 22k.
++The ranges then give 19.8k to 22.4k.
+@@ -174 +207 @@ The 32x32 shape then adds and recovers these estimates:
+-| Owner levers 1 to 6 | ~20.7k | 19.1k to 22.4k | The owner's table and ranges |
++| Owner levers 1 to 6 | ~21.0k | 19.8k to 22.4k | The owner's ranges from 30,974; lever 4 saves 0 |
+@@ -180 +213 @@ The 32x32 shape then adds and recovers these estimates:
+-| **32x32 estimate** | **~21.45k** | **17.8k to 25.45k** | Sum |
++| **32x32 estimate** | **~21.75k** | **18.5k to 25.45k** | Sum |
+@@ -182 +215 @@ The 32x32 shape then adds and recovers these estimates:
+-Centrally, the image misses the ceiling by about 1.45k.
++Centrally, the image misses the ceiling by about 1.75k.
+@@ -198 +231 @@ A routed-image measurement follows each stage.
+-| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware from flash into Block RAM | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
++| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY. The BIOS ROM and SRAM, 18 RAMB36 measured, already left at the switch-over (M8a-1, [Mark I ledger](#firmware-and-block-ram-ledger)) | Lever 1, ~1.0k LUTs |
+@@ -200 +233,9 @@ A routed-image measurement follows each stage.
+-| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
++| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the FIFOs of stage 3 blocks. The 29 generated FIFO RAMB36 leave earlier, each with its block ([census](#litex-block-census)) | Lever 2, ~1.0k, and the rest of the -1.75k |
++
++Stage 1's Change cell keeps the owner's words.
++The [census](#litex-block-census) places the BIOS at the switch-over.
++
++The switch-over removes the BIOS and its ROM and SRAM.
++Until stage 3, `ctrl_memory`'s banks hold both regions.
++
++Stage 1 drops DDR3 and fills `rom` from flash ([D18](#mark-ii-decisions)).
+@@ -225,0 +267,115 @@ Both ports stay timestamped for redundancy.
++### Stage 1 boot and bus
++
++Stage 1's loader copies the firmware image from QSPI flash.
++It copies it into Block RAM, then starts it ([D18](#mark-ii-decisions)).
++
++The image gets its own flash slot ([D21](#mark-ii-decisions)).
++Its range is free, erase-aligned, never reserved or used.
++
++The bitstream and AEM slots keep their offsets and budgets.
++No image goes in the bitstream slot's tail.
++
++The stage 1 lane states the slot's offset and budget.
++They go in `FLASHBOOT_LAYOUT` and the generated layout page.
++
++Until then, [QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md#layout-baremetal---shipping-ax7101) describes the shipping layout.
++
++Masters use the SoC bus, never the CPU's DMA port.
++The [stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) measured the DMA route hanging.
++
++Through that port, 3 reads were issued and none answered.
++Its cause is not established.
++
++With the masters on the SoC bus, the entity advertised.
++All 33 descriptors read back byte-identical.
++
++Both are measurements, not a diagnosis.
++
++The processor's three masters leave at the switch-over.
++Any later master also attaches to the SoC bus.
++
++### LiteX block census
++
++[D19](#mark-ii-decisions) removes every LiteX block, beyond DDR3 and the BIOS.
++Each block below names its stage and its fate.
++
++Rows follow the basis build's module tree and CSR map.
++LUT figures are the basis's placed rows.
++
++The switch-over's split build adds the last two rows.
++Every tree node and CSR register maps to one row.
++
++The LiteX top is one flat row, 5,119 LUTs.
++Its blocks have no placed row of their own.
++
++No fate below is a LiteX block.
++
++| Block today | Placed row, LUT | Stage | Fate |
++|---|---|---|---|
++| CPU wrapper `VexiiRiscvLitex_*`: the VexiiRiscv core and its LiteX-side bridges | `VexiiRiscvLitex_*` 3,249, of which `vexiis_0_logic_core` 1,150 | 3 | Replaced: the VexiiRiscv core stays, generated without LiteX, in the first-party top ([D15](#mark-ii-decisions)) |
++| Interrupt controller: LiteX's IRQ handler, the UART and timer event managers, the core's PLIC and CLINT | `peripheral_plic_intc_thread_logic` 34; `peripheral_clint_thread_core` 55 and `peripheral_clint_time_cc_driver` 3 | 3 | Removed, nothing in its place: the firmware enables no interrupt and polls |
++| Clock and reset generation `_CRG`: system PLL, audio PLL and MMCM, clock buffers, reset synchronizers | LiteX top | 3 | Replaced by the first-party top's clocking and reset ([D15](#mark-ii-decisions)) |
++| `_CRG`'s 200 MHz `idelay` clock and the `IDELAYCTRL`, built while DDR3 or Ethernet is; that clock is also the audio MMCM's `PSCLK` and the media-clock servo's `ps_clk_i` | LiteX top | 3 | Replaced by the first-party top's clocking ([D15](#mark-ii-decisions)), which keeps today's 200 MHz `PSCLK` for the audio MMCM and the servo. Stage 1 removes neither: Ethernet still builds both. All 32 `IDELAYE2` in the basis are DDR3's, and GMII uses none, so the top builds an `IDELAYCTRL` only if the stage 2 MAC uses an `IDELAYE2` |
++| `ctrl` (`SoCController`): reset, scratch, bus errors | LiteX top | 3 | Removed, nothing in its place: no firmware reads it; reboot is `KL_reboot_ctrl`'s configuration reload |
++| Identifier `identifier_mem` | LiteX top | 3 | Removed, nothing in its place: `milan_csr`'s VERSION identifies the image |
++| `timer0` (`Timer`) | LiteX top | 3 | Replaced by a first-party free-running counter on the system clock; its one reader is the flash driver's elapsed time |
++| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
++| SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
++| Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII` with its clocking and PHY reset, the TX FIFO `tx_sf`, the crossings `mac_tx_cdc` and `mac_rx_cdc`, and their CSRs) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs. The PHY reset pin gets a first-party driver that keeps both its uses: the power-on pulse, and `KL_reboot_ctrl`'s hold before a reload ([reboot](REBOOT_RESET.md#1-the-decision)), crossed with the approved CDC primitives |
++| MDIO (`LiteEthPHYMDIO`), a bit-bang register pair | LiteX top | 2 | Replaced by a first-party MDIO pin register; the firmware keeps the protocol |
++| `MilanMAC`'s first-party parts: `KL_gptp_gmii_launch`, `KL_mac_rmon_events`, the `ICAPE2` reload port | 192 and 51; the port in the LiteX top | 3 | Kept, first-party; they move into the top |
++| `MilanMAC`'s `link_status` CSR: the link, speed and duplex the firmware publishes from MDIO, which `milan_csr`'s MAC_STATUS reads (REQ-MAC-03); the 2-flop crossing of link and duplex | LiteX top | 3 | Replaced by a first-party register the firmware writes, feeding the same three datapath inputs; its crossing uses the approved CDC primitives |
++| `MilanMAC`'s `loopback` CSR and its TX-to-RX mux | LiteX top | 3 | Removed, nothing in its place: nothing in the repository writes it, and at its reset value 0 the datapath reaches the MAC |
++| SoC bus and CSR interconnect: Wishbone interconnect, AXI-Lite and Wishbone adapters, `csr_bridge`, `csr_bankarray`, `csr_interconnect`; the CPU's peripheral bridge and its crossing | `peripheral_toAxiLite4_logic_bridge` 227 and `ioBus_to_peripheral_bus_cc` 166; the rest in the LiteX top | 3 | Replaced by the first-party top's fixed AXI4-Lite interconnect ([D15](#mark-ii-decisions)) |
++| `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
++| The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105, `dma_bridge_write_bridge` 176 and `dma_filter_down_to_unified_mBus_cc` 104; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
++| DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port, its clock crossing, ready stage and width adapter; `_CRG`'s two 400 MHz `sys4x` clocks | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
++| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed at the switch-over: the split build runs no BIOS and builds no integrated ROM ([split memory](SPLIT_CONTROL_MEMORY.md)). `ctrl_memory`'s `rom` banks hold the region and the reset entry until stage 3, then first-party Block RAM (the `ctrl_memory` row). From stage 1 the boot loader fills `rom` from the flash copy ([D18](#mark-ii-decisions)) |
++| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed at the switch-over: the split build builds no integrated SRAM. `ctrl_memory`'s `sram` banks hold the region until stage 3, then first-party Block RAM (the `ctrl_memory` row) |
++| LEDs or GPIO; the `user_led0` pin | None built | - | No LiteX LED or GPIO block exists; `user_led0` is the datapath's identify output, a pin the top keeps |
++| Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the last bank | Not in the basis; 35.0 tiles mapped at 1x1 ([fit](SPLIT_CONTROL_MEMORY.md#5-fit)) | 3 | Replaced by first-party Block RAM in the top: main memory on chip (D4), which the boot loader fills ([D18](#mark-ii-decisions)). From stage 1, `rom` is filled from the flash copy, not the configuration image |
++| Split build: `ctrl_mbx`'s LiteX parts, its `EventManager`, the CSR bank holding it and its millisecond tick | Not in the basis | 3 | The event manager and CSR bank are removed, nothing in their place: the firmware polls `KL_mbx`'s own status and reads no `ctrl_mbx` CSR. A first-party counter in the top replaces the tick |
++
++The 29 generated FIFO RAMB36 belong to rows above.
++Each leaves with the block that owns it.
++
++### Console UART
++
++[D20](#mark-ii-decisions) replaces the UART with a first-party one.
++It has transmit and receive only, and no RTS/CTS.
++
++Receive is polled, since no interrupt controller remains.
++The firmware drains the whole receive buffer once per pass.
++
++| Item | Value | Kind | Source |
++|---|---|---|---|
++| Line | 115,200 baud, 8 data bits, no parity, 1 stop bit: 10 bits a character | Basis build | `--uart-baudrate 115200` |
++| Character time | 86.806 µs | Derived | 10 / 115,200 s |
++| Console loss, LiteX UART with a 16-byte receive FIFO, polled, interrupts off, no BIOS | A 22-character line lost characters on 17 of 300 sends; a 14-character line lost none of 300 | Measured | [Stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) |
++| What that loss shows | 16 characters fill that FIFO in 1.389 ms. A 14-character line never fills it, so the losses need the polled loop away for longer | Derived | 16 x 86.806 µs |
++| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound, if the share holds | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); both are #665's S2b work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), not merged |
++| Characters that complete within that gap | 24 | Derived | 23 character times are 1.997 ms; 24 are 2.083 ms |
++| Receive buffer | 32 bytes, the next power of two | Chosen, under the share | At least 24 |
++| What 32 bytes hold | No gap shorter than 2.778 ms loses a character; a line of up to 32 characters fits whole at any gap | Derived | 32 x 86.806 µs |
++| Under dev's T_svc = 10 ms | Dev states no per-pass share. Taking 10 ms as the gap, 116 characters complete, so the buffer would be 128 bytes, holding 11.111 ms | Derived | [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing); 115 character times are 9.983 ms, 116 are 10.069 ms |
++| At 32x32 | The longest pass is estimated 1.7 to 5.9 ms over the share, so the 32-byte bound does not hold there | Estimate | [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407) |
++| Beyond that bound | A pass over the share already breaks a service bound; console characters lost then are accepted | Rule | D20; console input ranks below the protocol work |
++
++The share and the 20 ms budget come from S2b.
++That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), is not merged.
++
++Dev's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) still proposes T_svc = 10 ms.
++Taking 10 ms as the gap gives 128 bytes.
++
++So 32 bytes holds only while passes fit the share.
++If the share changes, derive the buffer again.
++
++At 32x32, #665 estimates passes over the share.
++There the loss rule applies, not the 32-byte bound.
++
++Console input ranks below the protocol work.
++Its handling never stretches a service bound.
++
++Losing console characters beyond the stated bound is accepted.
++Until stage 3, LiteX's 16-byte buffer stays: the measured case.
++
+@@ -232 +388 @@ Of those, 29 are generated FIFOs, 18 BIOS memory.
+-All 47 leave with the three LiteX stages.
++All 47 are gone once LiteX stage 3 ends.
+@@ -258,0 +415,4 @@ Measure its reductions before any lane relies on them.
++| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; the image sits in its own flash slot (D21) |
++| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
++| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a polled receive buffer, 32 bytes under the S2b share |
++| D21, firmware flash slot | [Manager, 2026-11-02](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the firmware image gets its own flash slot, sized for the image, in a free erase-aligned range that is neither reserved (`journal`, `user`) nor used; the bitstream and AEM slots keep their offsets and budgets; the image does not go in the bitstream slot's tail, since that would tie its offset to the bitstream's size, which changes from build to build | The [stage 1](#stage-1-boot-and-bus) lane adds the slot to `FLASHBOOT_LAYOUT` and the generated layout page, and states its offset and budget there |
+@@ -271,2 +431,2 @@ Measurements queue serially; no heavy builds overlap.
+-| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~34.2k | Routed image; suites; bench; NFR-REL-03 |
+-| 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; boot loader | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
++| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~31.0k | Routed image; suites; bench; NFR-REL-03 |
++| 2 | LiteX stage 1, lever 1 | Drop DDR3 (lane 1 already drops the BIOS memory); a boot loader filling `rom` from the firmware's QSPI flash copy (D18); the firmware's own flash slot (D21); masters on the SoC bus | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
+@@ -277 +437 @@ Measurements queue serially; no heavy builds overlap.
+-| 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
++| 7 | Lever 4 | One CPU, no second hart; the split already builds one | Lanes 1 and 6; service bounds at 32x32 | 0 ([accounting](#lever-4-accounting)) | Service hooks at four times the 8x8 load |
+diff --git a/docs/findings/README.md b/docs/findings/README.md
+index e1ed7ec8ac..cc249961e4 100644
+--- a/docs/findings/README.md
++++ b/docs/findings/README.md
+@@ -26 +26 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
+-| [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the NFR-RES-01 gap. At the measurement revision, Yosys ignored converted elaboration guards. Since #651, both synthesis flows refuse active guards. At the measurement revision the builder accepted an 8x8 TDM8 configuration the saved-state backend refused (235 names against 128); since #652 the builder refuses that shape before generation. |
++| [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the gap to NFR-RES-01's former 60 % target. At the measurement revision, Yosys ignored converted elaboration guards. Since #651, both synthesis flows refuse active guards. At the measurement revision the builder accepted an 8x8 TDM8 configuration the saved-state backend refused (235 names against 128); since #652 the builder refuses that shape before generation. |
