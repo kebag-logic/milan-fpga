@@ -1,0 +1,733 @@
+# head 72816d26a7e2a29db5bc198ff65056ee4c5790b4 lane step style_blocks_vs_r5: python3 -I $VALIDATION_STORAGE/640-a720p/tools/style_touched.py $VALIDATION_STORAGE/640-a720p/gates/extra/wt d85da3297f0b664ac4f2b63eac3c5fd36ed4eb73 CHANGELOG.md REQUIREMENTS.md docs/DOCUMENTATION_AUDIT.md docs/ENDSTATION_BUILDER.md docs/README.md docs/design/AREA_BUDGET.md docs/design/GPTP_PLANE.md docs/design/MARK_II_AREA_PLAN.md docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md docs/design/TIME_SYNC.md docs/findings/234_PP_SHADOW_AREA_BASELINE.md docs/findings/397_SERVICE_BUDGET.md docs/findings/README.md docs/guides/VERIFICATION_DEVELOPER.md docs/guides/gptp/HDL_DEVELOPER.md docs/guides/gptp/MANAGER.md docs/guides/gptp/SYSTEM_INTEGRATOR.md docs/guides/gptp/TEST_DEVELOPER.md docs/integration/BAREMETAL_FIRMWARE.md docs/integration/INTEGRATION_GUIDE.md docs/litex/CLOCK_DOMAINS.md docs/reference/REGISTER_MAP.md docs/reference/STRICTER_READINGS.md docs/reference/SUBMODULES.md docs/testing/CI_WORKFLOWS.md docs/testing/TESTING.md docs/traceability/ieee8021as.md sw/builder/README-parameters.md tb/verilator/fw_service_budget/README.md tb/verilator/gptp_txts/README.md tb/verilator/milan_dp/README.md tb/verilator/pp_shadow/README.md 
+CHANGELOG.md: 0 finding(s) in changed blocks
+REQUIREMENTS.md:203: sentence has 65 words; maximum is 10: Scope note (egress reference plane, #360): the egress timestamp is the frame's LAUNCH, observed by at the MAC's own transmit stream one register stage before th
+REQUIREMENTS.md:203: sentence has 29 words; maximum is 10: It is NOT a capture at the MAC boundary and NOT a queue allowance: the store-and-forward wait sits between the ledger entry and the launch, outside the reconstr
+REQUIREMENTS.md:203: sentence has 19 words; maximum is 10: A frame whose launch cannot be reconstructed is published as an explicit loss at , never as a substitute time.
+REQUIREMENTS.md:203: sentence has 39 words; maximum is 10: The DIGITAL bound is verified in against an independent pad oracle over the product's own converted MAC; the remaining offset from that register stage to the pa
+REQUIREMENTS.md:203: paragraph has 152 words; maximum is 20: Scope note (egress reference plane, #360): the egress timestamp is the frame's LAUNCH, observed by `KL_gptp_gmii_launch` at the MAC's own transmit stream one re
+REQUIREMENTS.md:203: paragraph has too many sentences: Scope note (egress reference plane, #360): the egress timestamp is the frame's LAUNCH, observed by `KL_gptp_gmii_launch` at the MAC's own transmit stream one re
+REQUIREMENTS.md: 6 finding(s) in changed blocks
+docs/DOCUMENTATION_AUDIT.md: 0 finding(s) in changed blocks
+docs/ENDSTATION_BUILDER.md: 0 finding(s) in changed blocks
+docs/README.md: 0 finding(s) in changed blocks
+docs/design/AREA_BUDGET.md:9: sentence has 34 words; maximum is 10: The issue #234 baseline records the shipping route at #843's lane commit , its merge of dev , with processor and FPGA-gPTP , and the standalone endpoints at #84
+docs/design/AREA_BUDGET.md:9: sentence has 11 words; maximum is 10: Its figures back the protocol processor budget and resource gate below.
+docs/design/AREA_BUDGET.md:9: paragraph has 74 words; maximum is 20: The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue [#231](https://github.com/kebag-logic/milan-fpga/issues/231). It also records
+docs/design/AREA_BUDGET.md:9: paragraph has too many sentences: The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue [#231](https://github.com/kebag-logic/milan-fpga/issues/231). It also records
+docs/design/AREA_BUDGET.md:100: sentence has 12 words; maximum is 10: Issue #234 first measured the shipping 1x1 image at dev , processor pin .
+docs/design/AREA_BUDGET.md:100: sentence has 12 words; maximum is 10: Combination F was measured for #682 at parent after merging dev , processor .
+docs/design/AREA_BUDGET.md:100: sentence has 14 words; maximum is 10: It explicitly limits synthesis to one worker; the flow identity records this memory setting.
+docs/design/AREA_BUDGET.md:100: sentence has 18 words; maximum is 10: Issue #686 re-recorded all three endpoints on 2026-10-08 at , its merge of dev , after 's Annex B change.
+docs/design/AREA_BUDGET.md:100: sentence has 21 words; maximum is 10: Issue #645 then re-recorded all three endpoints on merge result , including dev , the GMII capture change and the listener settle recentre.
+docs/design/AREA_BUDGET.md:100: sentence has 20 words; maximum is 10: Issue #696 then re-recorded all three endpoints on merge result , its merge of dev , after 's remaining Annex B corrections.
+docs/design/AREA_BUDGET.md:100: sentence has 13 words; maximum is 10: After merging dev , #696 re-recorded them at lane head for 's first-draw change.
+docs/design/AREA_BUDGET.md:100: sentence has 16 words; maximum is 10: Issue #708 then re-recorded all three endpoints at lane head , its merge of dev , adopting processor .
+docs/design/AREA_BUDGET.md:100: sentence has 15 words; maximum is 10: Issue #771 then re-recorded all three endpoints at lane head , dev with processor and FPGA-gPTP .
+docs/design/AREA_BUDGET.md:100: sentence has 27 words; maximum is 10: Its growth exceeded the LUT tolerances at every endpoint and the 8x8 FF tolerance; it is recorded under an owner exception, and Mark II (#640) addresses it.
+docs/design/AREA_BUDGET.md:100: sentence has 24 words; maximum is 10: Issue #632 then re-recorded all three endpoints at lane head , its merge of dev , for the media clock phase alignment of #632 and #764.
+docs/design/AREA_BUDGET.md:100: sentence has 34 words; maximum is 10: Its route growth exceeded the slice and RAMB18 tolerances; it is recorded under the owner's block-RAM exception and its extension to the LUT, FF and slice growt
+docs/design/AREA_BUDGET.md:100: sentence has 14 words; maximum is 10: Issue #799 then re-recorded all three endpoints at lane head on dev , adopting processor .
+docs/design/AREA_BUDGET.md:100: sentence has 30 words; maximum is 10: Its growth exceeded the route's LUT tolerance and both standalone LUT and FF tolerances; it is recorded under the owner decision of 2026-10-28, and Mark II (#64
+docs/design/AREA_BUDGET.md:100: sentence has 13 words; maximum is 10: Issue #845 then re-recorded all three endpoints on dev , adopting processor with FPGA-gPTP .
+docs/design/AREA_BUDGET.md:100: sentence has 28 words; maximum is 10: Its growth exceeded the LUT and FF tolerances at all three endpoints; it is recorded under the maintainer decision of 2026-11-06, and Mark II (#640) recovers th
+docs/design/AREA_BUDGET.md:100: sentence has 18 words; maximum is 10: Issue #843 then re-recorded the route endpoint at lane commit , its merge of dev , adopting FPGA-gPTP with processor .
+docs/design/AREA_BUDGET.md:100: sentence has 24 words; maximum is 10: Its route growth exceeded the LUT and DSP tolerances; it is recorded under the same maintainer decision, and Mark II (#640) recovers the area.
+docs/design/AREA_BUDGET.md:100: sentence has 26 words; maximum is 10: Its standalone endpoints keep #845's records: their top, , holds no gPTP logic, and no source, generic or processor image of it differs from dev 's export.
+docs/design/AREA_BUDGET.md:100: sentence has 20 words; maximum is 10: That route and those standalone records are the gate's record; the route's receipts and differences retain the preceding route record.
+docs/design/AREA_BUDGET.md:100: sentence has 15 words; maximum is 10: The route record's placement directive is now AltSpreadLogichigh, the one flow difference the gate allows.
+docs/design/AREA_BUDGET.md:100: sentence has 11 words; maximum is 10: The #686 flow identity matches F, the one synthesis worker included.
+docs/design/AREA_BUDGET.md:100: sentence has 27 words; maximum is 10: The #686 repository inputs differ from F's only in [](../../hdl/ieee1722/maap/KLmaap.sv) and comment lines of [](../../hdl/milan/milandatapath.sv); the processo
+docs/design/AREA_BUDGET.md:100: paragraph has 548 words; maximum is 20: Issue [#234](https://github.com/kebag-logic/milan-fpga/issues/234) first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`. Later reco
+docs/design/AREA_BUDGET.md:100: paragraph has too many sentences: Issue [#234](https://github.com/kebag-logic/milan-fpga/issues/234) first measured the shipping 1x1 image at dev `1269cdaf`, processor pin `631eeb34`. Later reco
+docs/design/AREA_BUDGET.md:155: sentence has 22 words; maximum is 10: The slice row is the binding limit: the selected route places 15,834 slices, so placement has 16 of 15,850 left.
+docs/design/AREA_BUDGET.md:155: sentence has 14 words; maximum is 10: The shipping route at FPGA-gPTP (#806) on processor placed 15,823 slices, 27 left.
+docs/design/AREA_BUDGET.md:155: sentence has 15 words; maximum is 10: That route met the build floor at every corner, at +0.032 / +0.034 ns.
+docs/design/AREA_BUDGET.md:155: sentence has 21 words; maximum is 10: Its WNS was 0.408 ns under the +0.440 ns record then held, beyond the 0.25 ns fall tolerance.
+docs/design/AREA_BUDGET.md:155: sentence has 15 words; maximum is 10: Before #818 the gate refused that fall; under #818 it prints a WARNING and passes.
+docs/design/AREA_BUDGET.md:155: sentence has 20 words; maximum is 10: Timing recovery is ruled under #814/#818; #806's route meets the build floor at every corner on its best directive.
+docs/design/AREA_BUDGET.md:155: sentence has 16 words; maximum is 10: The #787 route, processor with the REBOOT reset, places 15,793 slices, so 57 are left.
+docs/design/AREA_BUDGET.md:155: sentence has 28 words; maximum is 10: That route's WNS, +0.107 ns, was 0.333 ns under the +0.440 ns record; its worst path was the SoC's SDRAM port arbitration, outside the change.
+docs/design/AREA_BUDGET.md:155: sentence has 18 words; maximum is 10: The re-pin to processor , routed with the #814 cuts on the recipe's three directives, passes the #818 gate.
+docs/design/AREA_BUDGET.md:155: sentence has 23 words; maximum is 10: Its best directive, AltSpreadLogichigh, has WNS +0.365 ns at every slow corner, 52,021 LUTs and 63 of 15,850 slices left.
+docs/design/AREA_BUDGET.md:155: sentence has 20 words; maximum is 10: The next growth on the shipping image therefore has no slice room and needs its own owner decision (the extension).
+docs/design/AREA_BUDGET.md:155: sentence has 11 words; maximum is 10: The maintainer decision of 2026-11-06 accepts it, with a re-baselined budget.
+docs/design/AREA_BUDGET.md:155: sentence has 20 words; maximum is 10: That decision covers the mandatory lab fixes on the shipping image: this processor pin and the gPTP pin of #843.
+docs/design/AREA_BUDGET.md:155: sentence has 13 words; maximum is 10: The integrated image with every lab fix is routed before the release build.
+docs/design/AREA_BUDGET.md:155: sentence has 13 words; maximum is 10: Against the twelfth record the gate refused that growth: exited 1 on , and .
+docs/design/AREA_BUDGET.md:155: sentence has 20 words; maximum is 10: The route and ran in the gate's own form at lane commit , and at ; later commits change no synthesis input.
+docs/design/AREA_BUDGET.md:155: sentence has 16 words; maximum is 10: Its re-recorded route was the thirteenth record, and exited 0 on all three endpoints against it.
+docs/design/AREA_BUDGET.md:155: sentence has 16 words; maximum is 10: On the gate selects ExtraTimingOpt, the best of the three directives at WNS +0.373 ns.
+docs/design/AREA_BUDGET.md:155: sentence has 15 words; maximum is 10: It refused 52,529 LUTs (+517, tolerance +500) and 54,582 FFs (+875, tolerance +600).
+docs/design/AREA_BUDGET.md:155: sentence has 19 words; maximum is 10: That route's 15,835 slices (+55, tolerance +80), block RAM, DSP, WNS and WHS passed; 15 slices are left.
+docs/design/AREA_BUDGET.md:155: sentence has 14 words; maximum is 10: All three directives route without error and meet the build floor at every corner:
+docs/design/AREA_BUDGET.md:155: paragraph has 392 words; maximum is 20: The table is the gate's record. The slice row is the binding limit: the selected route places 15,834 slices, so placement has 16 of 15,850 left. The shipping ro
+docs/design/AREA_BUDGET.md:155: paragraph has too many sentences: The table is the gate's record. The slice row is the binding limit: the selected route places 15,834 slices, so placement has 16 of 15,850 left. The shipping ro
+docs/design/AREA_BUDGET.md:185: sentence has 22 words; maximum is 10: On it refused 24,996 LUTs (+650, tolerance +250) and 20,934 FFs (+530, tolerance +250); RAMB36, RAMB18 and DSP are unchanged.
+docs/design/AREA_BUDGET.md:185: sentence has 24 words; maximum is 10: On it refused 36,864 LUTs (+2,708, tolerance +316) and 32,036 FFs (+2,254, tolerance +339); RAMB36, RAMB18 and DSP are unchanged.
+docs/design/AREA_BUDGET.md:185: sentence has 14 words; maximum is 10: These deltas are from the records, so they include dev's own movement since then.
+docs/design/AREA_BUDGET.md:185: sentence has 23 words; maximum is 10: On ExtraPostPlacementOpt dev reads 51,994 LUTs and 54,101 FFs, so the adoption's own share there is +503 LUTs and +478 FFs.
+docs/design/AREA_BUDGET.md:185: sentence has 30 words; maximum is 10: No standalone figure exists at dev's pin ; the latest measured, at processor , was -53 LUTs and +7 FFs on and +104 LUTs and +16 FFs on , from the twelfth record
+docs/design/AREA_BUDGET.md:185: sentence has 20 words; maximum is 10: The gate's sub-block rows, which it does not judge, put the SRP listener at +416 LUTs and +523 FFs on .
+docs/design/AREA_BUDGET.md:185: sentence has 13 words; maximum is 10: The adoption of FPGA-gPTP (#843) is the other lab-fix pin that decision covers.
+docs/design/AREA_BUDGET.md:185: sentence has 15 words; maximum is 10: Its route, at lane commit , its merge of dev , is the first with both pins.
+docs/design/AREA_BUDGET.md:185: sentence has 11 words; maximum is 10: Against the thirteenth record the gate refused it: exited 1 on .
+docs/design/AREA_BUDGET.md:185: sentence has 16 words; maximum is 10: On the gate selects AltSpreadLogichigh, the best of the three directives at WNS +0.242 ns.
+docs/design/AREA_BUDGET.md:185: sentence has 14 words; maximum is 10: It refused 53,221 LUTs (+692, tolerance +500) and 15 DSPs (+2, tolerance 0).
+docs/design/AREA_BUDGET.md:185: sentence has 24 words; maximum is 10: That route's 54,754 FFs (+172, tolerance +600), 15,834 slices (-1, tolerance +80), block RAM, WNS and WHS passed; 16 slices are left.
+docs/design/AREA_BUDGET.md:185: sentence has 13 words; maximum is 10: The table above holds that route, re-recorded with , and exits 0 against it.
+docs/design/AREA_BUDGET.md:185: sentence has 11 words; maximum is 10: The standalone endpoints keep #845's records, since holds no gPTP logic.
+docs/design/AREA_BUDGET.md:185: sentence has 14 words; maximum is 10: Dev routed with the same recipe; its best directive, ExtraTimingOpt, passes the thirteenth record.
+docs/design/AREA_BUDGET.md:185: sentence has 14 words; maximum is 10: All six routes complete without error and meet the build floor at every corner:
+docs/design/AREA_BUDGET.md:185: paragraph has 284 words; maximum is 20: On `ooc-1x1` it refused 24,996 LUTs (+650, tolerance +250) and 20,934 FFs (+530, tolerance +250); RAMB36, RAMB18 and DSP are unchanged. On `ooc-8x8` it refused 
+docs/design/AREA_BUDGET.md:185: paragraph has too many sentences: On `ooc-1x1` it refused 24,996 LUTs (+650, tolerance +250) and 20,934 FFs (+530, tolerance +250); RAMB36, RAMB18 and DSP are unchanged. On `ooc-8x8` it refused 
+docs/design/AREA_BUDGET.md:209: sentence has 22 words; maximum is 10: Best against best, the adoption adds 248 LUTs, 159 FFs, 17 slices and two DSPs, and WNS rises by 0.008 ns.
+docs/design/AREA_BUDGET.md:209: sentence has 31 words; maximum is 10: On each directive the gPTP engine grows by 469 to 475 LUTs, 166 FFs and two DSPs, FPGA-gPTP #100's FollowUp information TLV logic; the rest of the image moves b
+docs/design/AREA_BUDGET.md:209: sentence has 21 words; maximum is 10: The routed critical setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+docs/design/AREA_BUDGET.md:209: sentence has 25 words; maximum is 10: It runs from the SDRAM bank machine's to the write-to-read timer ; its data delay is 9.301 ns, of which 6.248 ns is routing.
+docs/design/AREA_BUDGET.md:209: sentence has 37 words; maximum is 10: The preceding #845 image, at , used 52,529 LUTs and 15,835 slices, 15 free, at +0.373 / +0.012 ns; its critical path had 15 logic levels from the SDRAM bank mac
+docs/design/AREA_BUDGET.md:209: sentence has 45 words; maximum is 10: The #799 image before it, at , used 52,012 LUTs and 15,780 slices, 70 free, at +0.440 / +0.036 ns, under the owner decision of 2026-10-28; its critical path had
+docs/design/AREA_BUDGET.md:209: sentence has 36 words; maximum is 10: The #632 image before that, at , used 51,259 LUTs and 15,835 slices, 15 free, at +0.236 / +0.028 ns; its critical path had 13 logic levels from the SoC's write 
+docs/design/AREA_BUDGET.md:209: sentence has 40 words; maximum is 10: The #771 image before that one, at , used 50,759 LUTs and 15,728 slices, 122 free, at +0.291 / +0.036 ns; its critical path had 14 logic levels from the SDRAM c
+docs/design/AREA_BUDGET.md:209: sentence has 39 words; maximum is 10: The #708 image before that, at , used 49,613 LUTs and 15,725 slices, 125 free, at +0.215 / +0.036 ns; its critical path had 17 logic levels from the AXI-Lite-to
+docs/design/AREA_BUDGET.md:209: sentence has 33 words; maximum is 10: The #696 first-draw image before that, at , used 50,013 LUTs and 15,753 slices, 97 free, at +0.233 / +0.017 ns; its critical path had 27 logic levels inside the
+docs/design/AREA_BUDGET.md:209: sentence has 22 words; maximum is 10: The #696 image before that, at , used 50,230 LUTs and 15,823 slices, 27 free, at +0.114 / +0.036 ns.
+docs/design/AREA_BUDGET.md:209: sentence has 21 words; maximum is 10: The #645 image before that used 50,267 LUTs and 15,779 slices, 71 free, at +0.299 / +0.031 ns.
+docs/design/AREA_BUDGET.md:209: sentence has 21 words; maximum is 10: The #686 image before that used 50,391 LUTs and 15,788 slices, 62 free, at +0.241 / +0.029 ns.
+docs/design/AREA_BUDGET.md:209: sentence has 37 words; maximum is 10: The earlier F image used 49,957 LUTs and 15,734 slices, 116 free, at +0.124 / +0.031 ns; its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bri
+docs/design/AREA_BUDGET.md:209: sentence has 21 words; maximum is 10: The E image before F used 49,888 LUTs and 15,805 slices, 45 free, at +0.101 / +0.031 ns.
+docs/design/AREA_BUDGET.md:209: paragraph has 461 words; maximum is 20: Best against best, the adoption adds 248 LUTs, 159 FFs, 17 slices and two DSPs, and WNS rises by 0.008 ns. On each directive the gPTP engine `u_engine` grows by
+docs/design/AREA_BUDGET.md:209: paragraph has too many sentences: Best against best, the adoption adds 248 LUTs, 159 FFs, 17 slices and two DSPs, and WNS rises by 0.008 ns. On each directive the gPTP engine `u_engine` grows by
+docs/design/AREA_BUDGET.md:228: sentence has 16 words; maximum is 10: The standalone wrapper uses 24,996 LUTs, 39.4 % of the device, at the shipping clock.
+docs/design/AREA_BUDGET.md:228: sentence has 13 words; maximum is 10: The superseded #229 milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
+docs/design/AREA_BUDGET.md:228: sentence has 17 words; maximum is 10: Read as , that stack names 44,631 LUTs in the routed image, 70.4 % of the device.
+docs/design/AREA_BUDGET.md:228: sentence has 11 words; maximum is 10: The wrapper names 24,937 of them in that rebuilt hierarchy.
+docs/design/AREA_BUDGET.md:228: paragraph has 64 words; maximum is 20: The standalone wrapper uses 24,996 LUTs, 39.4 % of the device, at the shipping clock. The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229
+docs/design/AREA_BUDGET.md:228: paragraph has too many sentences: The standalone wrapper uses 24,996 LUTs, 39.4 % of the device, at the shipping clock. The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229
+docs/design/AREA_BUDGET.md:242: sentence has 13 words; maximum is 10: All else unchanged, at the #799 record, that needed a 10,521-LUT wrapper.
+docs/design/AREA_BUDGET.md:242: paragraph has 23 words; maximum is 20: All else unchanged, at the [#799](https://github.com/kebag-logic/milan-fpga/issues/799) record, that needed a 10,521-LUT wrapper. That meant removing 13,972 LUT
+docs/design/AREA_BUDGET.md:488: sentence has 65 words; maximum is 10: At base the comparison record was #645's 50,267-LUT route; #696's 50,013-LUT route replaced it, #708's 49,613-LUT route replaced that, #771's 50,759-LUT route r
+docs/design/AREA_BUDGET.md:488: sentence has 11 words; maximum is 10: Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
+docs/design/AREA_BUDGET.md:488: paragraph has 129 words; maximum is 20: The [step-1 ledger](MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status) records **STOP** at base `7c1b52be`. F0-F4 firmware exists, but parent datapath integra
+docs/design/AREA_BUDGET.md:488: paragraph has too many sentences: The [step-1 ledger](MARK_II_AREA_PLAN.md#m0s-step-1-intermediate-status) records **STOP** at base `7c1b52be`. F0-F4 firmware exists, but parent datapath integra
+docs/design/AREA_BUDGET.md:589: sentence has 16 words; maximum is 10: The first re-baseline recorded PR #634's growth on 2026-10-03, in PR #638, which added the gate.
+docs/design/AREA_BUDGET.md:589: sentence has 11 words; maximum is 10: The issue #234 baseline gives its delta per endpoint and sub-block.
+docs/design/AREA_BUDGET.md:589: sentence has 11 words; maximum is 10: The second re-baseline records the adopted image on dev for #661.
+docs/design/AREA_BUDGET.md:589: sentence has 14 words; maximum is 10: The third re-baseline records processor on dev for #682, including its changed measurement flow.
+docs/design/AREA_BUDGET.md:589: sentence has 16 words; maximum is 10: The fourth re-baseline records the same processor after #682 merges dev , under the same measurement flow.
+docs/design/AREA_BUDGET.md:589: sentence has 14 words; maximum is 10: The fifth records #686's change on its merge of dev , under the same flow.
+docs/design/AREA_BUDGET.md:589: sentence has 40 words; maximum is 10: Against F, its route moved by +434 LUTs, -11 FFs and +54 slices, and its WNS rose from +0.124 to +0.241 ns while WHS fell from +0.031 to +0.029 ns; both standal
+docs/design/AREA_BUDGET.md:589: sentence has 43 words; maximum is 10: In #686's routed hierarchy uses 429 LUTs and 279 FFs, against 479 and 267 for the previous in the resource map, and the wrapper 47 LUTs fewer than F; the rest o
+docs/design/AREA_BUDGET.md:589: sentence has 12 words; maximum is 10: The sixth re-baseline records #645 and #647 on their merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 23 words; maximum is 10: Against #686, its route moved by -124 LUTs, +150 FFs and -9 slices, with WNS +0.058 ns and WHS +0.002 ns.
+docs/design/AREA_BUDGET.md:589: sentence has 11 words; maximum is 10: The seventh records #696's remaining corrections on its merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 29 words; maximum is 10: Against #645, its route moved by -37 LUTs, -105 FFs and +44 slices, with WNS -0.185 ns and WHS +0.005 ns; both standalone records kept every figure.
+docs/design/AREA_BUDGET.md:589: sentence has 16 words; maximum is 10: In its routed hierarchy uses 425 LUTs and 339 FFs, against 429 and 279 at #686.
+docs/design/AREA_BUDGET.md:589: sentence has 14 words; maximum is 10: The eighth records #696's first-draw change at lane head , after its merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 27 words; maximum is 10: Its route moved by -217 LUTs, -2 FFs and -70 slices, with WNS +0.119 ns and WHS -0.019 ns; both standalone records kept every figure.
+docs/design/AREA_BUDGET.md:589: sentence has 15 words; maximum is 10: The ninth records #708's adoption of processor at lane head , after its merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 19 words; maximum is 10: Against dev 's own export, its route inputs differ only in the six processor RTL files the pin changes.
+docs/design/AREA_BUDGET.md:589: sentence has 32 words; maximum is 10: Against the eighth, its route moved by -400 LUTs, -1,953 FFs and -28 slices, with WNS -0.018 ns and WHS +0.019 ns, and RAMB18 fell from 27 to 25.
+docs/design/AREA_BUDGET.md:589: sentence has 20 words; maximum is 10: The RAMB18 fall and most of the FF fall are dev's Mark II M7, which merged under D7 without re-recording.
+docs/design/AREA_BUDGET.md:589: sentence has 24 words; maximum is 10: The standalone records moved by +135 LUTs and +42 FFs at 1x1 and +76 LUTs and +71 FFs at 8x8, the processor's own change.
+docs/design/AREA_BUDGET.md:589: sentence has 16 words; maximum is 10: All three endpoints passed against the preceding records before being written; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: sentence has 21 words; maximum is 10: The tenth records #771's adoption of processor and FPGA-gPTP at lane head , dev with both pins and the eight parent adaptations.
+docs/design/AREA_BUDGET.md:589: sentence has 44 words; maximum is 10: Against the ninth, its route moved by +1,146 LUTs, +479 FFs and +3 slices, with WNS +0.076 ns and WHS unchanged; the standalone records moved by +514 LUTs and +
+docs/design/AREA_BUDGET.md:589: sentence has 34 words; maximum is 10: Against dev measured the same way, this adoption's own share is +770 route LUTs, +462 LUTs at 1x1, and +2,185 LUTs and +769 FFs at 8x8; dev's own records passed
+docs/design/AREA_BUDGET.md:589: sentence has 33 words; maximum is 10: Those shares exceed the LUT tolerances and the 8x8 FF tolerance, so the gate refused all three endpoints; the owner exception accepts the adoption's area for no
+docs/design/AREA_BUDGET.md:589: sentence has 16 words; maximum is 10: Its findings section carries the per-donor 1x1 ledger the decision cites; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: sentence has 17 words; maximum is 10: The eleventh records #632 and #764's media clock phase alignment at lane head , its merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 28 words; maximum is 10: Dev 's synthesis inputs differ from the tenth's only in comment lines of three files, so the tenth measures dev's own design and the movement is this change's.
+docs/design/AREA_BUDGET.md:589: sentence has 34 words; maximum is 10: Against the tenth, its route moved by +500 LUTs, +376 FFs and +107 slices, with RAMB18 +2, DSP -1, WNS -0.055 ns and WHS -0.008 ns; both standalone records kept
+docs/design/AREA_BUDGET.md:589: sentence has 40 words; maximum is 10: The slice and RAMB18 growth exceed their tolerances, so the gate refused the route; the owner's block-RAM exception and its extension to the LUT, FF and slice g
+docs/design/AREA_BUDGET.md:589: sentence has 12 words; maximum is 10: Its findings section carries the per-instance attribution; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: sentence has 22 words; maximum is 10: The twelfth records #799's adoption of processor (its #202, #205 and #206) with mailbox contract 2.3, at lane head on dev .
+docs/design/AREA_BUDGET.md:589: sentence has 24 words; maximum is 10: Dev merged PRs #777, #778, #779 and #783 after the eleventh without a new record, so its differences are theirs and this adoption's together.
+docs/design/AREA_BUDGET.md:589: sentence has 49 words; maximum is 10: Against the eleventh, its route moved by +753 LUTs, +499 FFs and -55 slices, with RAM, DSP unchanged, WNS +0.204 ns and WHS +0.008 ns; the standalone records mo
+docs/design/AREA_BUDGET.md:589: sentence has 19 words; maximum is 10: Almost all of it is the processor's #202 logic: the move, its quarantine and the owed Leave, per source.
+docs/design/AREA_BUDGET.md:589: sentence has 33 words; maximum is 10: The LUT growth exceeds every endpoint's tolerance and the standalone FF growth both, so the gate refused all three endpoints; the owner decision of 2026-10-28 a
+docs/design/AREA_BUDGET.md:589: sentence has 22 words; maximum is 10: The same figures were measured before the lane's mailbox contract 2.3 change, which moved no figure; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: sentence has 13 words; maximum is 10: The thirteenth records #845's adoption of processor (its #212) on dev , with FPGA-gPTP .
+docs/design/AREA_BUDGET.md:589: sentence has 15 words; maximum is 10: The route and are measured at lane commit , at ; no synthesis input differs between them.
+docs/design/AREA_BUDGET.md:589: sentence has 25 words; maximum is 10: Dev moved the gPTP pin and the processor pin after the twelfth without a new record, so its differences are theirs and this adoption's together.
+docs/design/AREA_BUDGET.md:589: sentence has 50 words; maximum is 10: Against the twelfth, its route moved by +517 LUTs, +875 FFs and +55 slices, with RAM and DSP unchanged, WNS -0.067 ns and WHS -0.024 ns; the standalone records 
+docs/design/AREA_BUDGET.md:589: sentence has 19 words; maximum is 10: The gate refused all three endpoints; the maintainer decision of 2026-11-06 accepts it, and Mark II (#640) recovers it.
+docs/design/AREA_BUDGET.md:589: sentence has 15 words; maximum is 10: The record now names ExtraTimingOpt, the directive the gate selected; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: sentence has 21 words; maximum is 10: The fourteenth re-records the route alone for #843's adoption of FPGA-gPTP on dev , with processor ; the standalone records stay the thirteenth's.
+docs/design/AREA_BUDGET.md:589: sentence has 11 words; maximum is 10: The route is measured at lane commit , the merge of dev .
+docs/design/AREA_BUDGET.md:589: sentence has 22 words; maximum is 10: Dev merged PRs #841 and #842 after the thirteenth without a new record, so its differences are theirs and this adoption's together.
+docs/design/AREA_BUDGET.md:589: sentence has 28 words; maximum is 10: Against the thirteenth, the route moved by +692 LUTs, +172 FFs, -1 slice and +2 DSPs, with RAM unchanged, WNS -0.131 ns and WHS 0.000 ns.
+docs/design/AREA_BUDGET.md:589: sentence has 20 words; maximum is 10: The gate refused the LUT and DSP growth; the same maintainer decision accepts it, and Mark II (#640) recovers it.
+docs/design/AREA_BUDGET.md:589: sentence has 15 words; maximum is 10: The record now names AltSpreadLogichigh, the directive the gate selected; every policy value stays unchanged.
+docs/design/AREA_BUDGET.md:589: paragraph has 1143 words; maximum is 20: The first re-baseline recorded PR [#634](https://github.com/kebag-logic/milan-fpga/issues/634)'s growth on 2026-10-03, in PR [#638](https://github.com/kebag-log
+docs/design/AREA_BUDGET.md:589: paragraph has too many sentences: The first re-baseline recorded PR [#634](https://github.com/kebag-logic/milan-fpga/issues/634)'s growth on 2026-10-03, in PR [#638](https://github.com/kebag-log
+docs/design/AREA_BUDGET.md: 150 finding(s) in changed blocks
+docs/design/GPTP_PLANE.md: 0 finding(s) in changed blocks
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 19 words; maximum is 10: At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 13 words; maximum is 10: #696 then re-recorded it twice, to 50,013 LUTs with 74/27 unchanged.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 13 words; maximum is 10: #708 then re-recorded it at processor , to 49,613 LUTs and 74/25.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 19 words; maximum is 10: #771 then re-recorded it at processor and FPGA-gPTP , under an owner exception, to 50,759 LUTs and 74/25.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 30 words; maximum is 10: #632 then re-recorded it for the media clock phase alignment, under two owner exceptions (block RAM; LUT, FF and slices), to 51,259 LUTs, 15,835 slices and 74/2
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 20 words; maximum is 10: #799 then re-recorded it at processor , under an owner decision, to 52,012 LUTs, 15,780 slices and 74/27.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 20 words; maximum is 10: #845 then re-recorded it at processor , under a maintainer decision, to 52,529 LUTs, 15,835 slices and 74/27.
+docs/design/MARK_II_AREA_PLAN.md:1091: sentence has 35 words; maximum is 10: #843 has since re-recorded it at FPGA-gPTP , under the same decision, now at 53,221 LUTs, 15,834 slices and 74/27; that record is the comparison anchor, and the
+docs/design/MARK_II_AREA_PLAN.md:1091: paragraph has 218 words; maximum is 20: No route was started; no new resource figure is claimed. At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives. [#696]
+docs/design/MARK_II_AREA_PLAN.md:1091: paragraph has too many sentences: No route was started; no new resource figure is claimed. At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives. [#696]
+docs/design/MARK_II_AREA_PLAN.md: 10 finding(s) in changed blocks
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 22 words; maximum is 10: Its firmware adds the #840 PHY init, which writes a 1000BASE-T-only advertisement and restarts negotiation once, and inlines the MDIO bit routine.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 18 words; maximum is 10: Its configs carry the station MACs and , and the capture harness addresses the configured MAC and its entityid.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 28 words; maximum is 10: The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out; the census and the processor pins are those of the receipt before.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 21 words; maximum is 10: The #840 round-1 lane measured that one, at , for its first PHY init and prototype identity; the lane started it itself.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 13 words; maximum is 10: The #70 assignment of 2026-10-30 required the one before that, at on dev .
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 18 words; maximum is 10: Its firmware reports the entity enable as a request and the held enable at the restore wait's timeout.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 14 words; maximum is 10: It also polls the PHY on every boot path past the CSR identity check.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 13 words; maximum is 10: The capture harness, clocks and census are unchanged; the processor pins are dev's.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 15 words; maximum is 10: The #671 round-8 assignment required the previous one, at the merge of dev into #671.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 13 words; maximum is 10: That merge brought dev's MAAP and stream frame-counter RTL into the capture SoC.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 11 words; maximum is 10: Its firmware, capture harness, processor pins, clocks and census were unchanged.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 15 words; maximum is 10: The #671 round-7 assignment required the previous one, at the merge of dev into #671.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 14 words; maximum is 10: That merge joined the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 17 words; maximum is 10: The #621 receipt on dev binds the earlier firmware, and the #671 round-5 receipt the earlier harness.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 11 words; maximum is 10: The #671 round-5 assignment required the one before that on #671.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 21 words; maximum is 10: Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 11 words; maximum is 10: That change distinguished failed judgements from failed re-stages on the console.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 16 words; maximum is 10: The #671 round-2 assignment required the previous one, for the console report of the writer's hold.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 12 words; maximum is 10: The #671 assignment required the one before, for the boot read-fault rule.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 20 words; maximum is 10: In parallel, on dev, the #621 final ruling required a remeasurement of the firmware before #671, at the #629 census.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 12 words; maximum is 10: That receipt measured commit , tree , firmware SHA-256 , protocol-processor pin and gPTP-processor pin .
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: sentence has 25 words; maximum is 10: Capture-SoC RTL changes on dev moved the timing figures from the receipt before it; a dev 8x8 configuration change moved only its recorded configuration hash.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: paragraph has 524 words; maximum is 20: Timing. MEASURED on 2026-11-06 in the [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md). The [capture procedure](https://github.com/ke
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1633: paragraph has too many sentences: Timing. MEASURED on 2026-11-06 in the [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md). The [capture procedure](https://github.com/ke
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 11 words; maximum is 10: The acceptance limit is therefore 24.5 ms, half that floor.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 14 words; maximum is 10: The previous receipt, #840's round 1, measured 13.85922 ms at the same census.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 31 words; maximum is 10: 67 of 96 captures repeat its system-cycle counts: every 1x1 capture and the 100 MHz ON arm, 15 of 16 8x8 OFF captures and 4 of 16 at 100 MHz OFF.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 11 words; maximum is 10: No 8x8 contract ON capture repeats; the firmware's code layout moved.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 23 words; maximum is 10: The #70 receipt before it measured 13.86052 ms, and #671's round 8 13.86328 ms, and so did the two before that.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 24 words; maximum is 10: The #621 receipt on dev measured 13.86318 ms, a 3.5345x floor ratio and a 10.63682 ms margin, at the same census.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 11 words; maximum is 10: The historical pre-word-copy maximum was 24.30246 ms, at that census.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 26 words; maximum is 10: Since the #70 receipt the firmware changed in its PHY path only, which this SoC compiles out; , the backend's capture hold and the census are unchanged.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: sentence has 17 words; maximum is 10: The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: paragraph has 246 words; maximum is 20: The backend retains its nominal 50 ms hold. Its free-running millisecond tick gives a 49 ms guaranteed floor. The first tick can arrive immediately after ARM. T
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1680: paragraph has too many sentences: The backend retains its nominal 50 ms hold. Its free-running millisecond tick gives a 49 ms guaranteed floor. The first tick can arrive immediately after ARM. T
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1699: sentence has 11 words; maximum is 10: The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1699: paragraph has 28 words; maximum is 20: Each point contains 16 captures per traffic arm. The published maximum includes every capture in both arms. The 1x1 maximum is 3.96810 ms (12.3485x floor ratio)
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1699: paragraph has too many sentences: Each point contains 16 captures per traffic arm. The published maximum includes every capture in both arms. The 1x1 maximum is 3.96810 ms (12.3485x floor ratio)
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712: sentence has 21 words; maximum is 10: The #70 receipt, at , measured 1x1 3.95892 to 3.96490 ms ON and 3.90676 to 3.91178 ms OFF.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712: sentence has 19 words; maximum is 10: At 8x8 it measured 13.84558 to 13.86052 ms ON and 13.67538 to 13.68956 ms OFF.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712: sentence has 20 words; maximum is 10: Its 100 MHz comparison measured 10.41876 to 10.42630 ms ON and 10.41406 to 10.41516 ms OFF.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712: paragraph has 60 words; maximum is 20: The #70 receipt, at `c71364bd`, measured 1x1 3.95892 to 3.96490 ms ON and 3.90676 to 3.91178 ms OFF. At 8x8 it measured 13.84558 to 13.86052 ms ON and 13.67538 
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1712: paragraph has too many sentences: The #70 receipt, at `c71364bd`, measured 1x1 3.95892 to 3.96490 ms ON and 3.90676 to 3.91178 ms OFF. At 8x8 it measured 13.84558 to 13.86052 ms ON and 13.67538 
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: Both shapes use the contract's 50 MHz CPU and aligned edges.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: The worst 8x8 copy is 13.86384 ms across both arms.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: It covers 13,210 bytes and 164 records, including output maps.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: Its ratio to the guaranteed 49 ms floor is 3.5344x.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 16 words; maximum is 10: The previous receipt, #840's round 1, measured 13.85922 ms, with a 10.64078 ms margin.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 22 words; maximum is 10: The #70 receipt measured 13.86052 ms (a 10.63948 ms margin), and #671's round 8 13.86328 ms (10.63672 ms).
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 15 words; maximum is 10: The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 15 words; maximum is 10: At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: The 100 MHz 8x8 comparison is non-contract: 10.43279 ms maximum.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: sentence has 11 words; maximum is 10: Instruction/access cost factors and the blanket twofold penalty are retired.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: paragraph has 267 words; maximum is 20: [Section 18](#18-cost) gives the current receipt's identities and six maxima. Both shapes use the contract's 50 MHz CPU and aligned edges. Each has 16 captures 
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1868: paragraph has too many sentences: [Section 18](#18-cost) gives the current receipt's identities and six maxima. Both shapes use the contract's 50 MHz CPU and aligned edges. Each has 16 captures 
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md: 56 finding(s) in changed blocks
+docs/design/TIME_SYNC.md: 0 finding(s) in changed blocks
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 13 words; maximum is 10: Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 11 words; maximum is 10: The 2026-10-07 re-baseline records processor pin after merging dev for #682.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 11 words; maximum is 10: Issue #686 re-recorded the three endpoints on 2026-10-08 after merging dev .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 11 words; maximum is 10: Issues #645 and #647 re-recorded them on their merge of dev .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 12 words; maximum is 10: Issue #696 re-recorded them with its corrections on its merge of dev .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 12 words; maximum is 10: Its next record added #696's first-draw change on its merge of dev .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 13 words; maximum is 10: Its next record adopted processor and FPGA-gPTP for #771, under an owner exception.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 22 words; maximum is 10: Its next record added the media clock phase alignment of #632 and #764 on its merge of dev , under two owner exceptions.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 13 words; maximum is 10: Its next record adopted processor for #799 on dev , under an owner decision.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 13 words; maximum is 10: Its next record adopted processor for #845 on dev , under a maintainer decision.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 22 words; maximum is 10: The current route record adopts FPGA-gPTP for #843 on its merge of dev , under the same decision; the standalone records stay #845's.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 12 words; maximum is 10: Those earlier records cover the processor adoption and parent AAF packetizer change.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 15 words; maximum is 10: The #771 record moved the processor pin from to and the gPTP pin from to .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 19 words; maximum is 10: Dev then moved the processor pin to (#780), and the #799 record moved it to ; the gPTP pin stayed .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 29 words; maximum is 10: Dev then moved the gPTP pin to and the processor pin to , #845's record moved the processor pin to , and the current route record moves the gPTP pin to .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: sentence has 13 words; maximum is 10: The area budget states the budget and the gate built on these figures.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: paragraph has 266 words; maximum is 20: Measured 2026-10-03 for issue #234, the first step of the #229 area epic. The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records pr
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:3: paragraph has too many sentences: Measured 2026-10-03 for issue #234, the first step of the #229 area epic. The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records pr
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:25: sentence has 45 words; maximum is 10: Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f -- The current route record, under the same maintainer decision: FPGA-gPTP with processor on the merge of dev , th
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:26: sentence has 42 words; maximum is 10: Re-baseline of 2026-11-06, processor 92100657 -- The preceding route record and the current standalone records, under a maintainer decision: processor on dev , 
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:27: sentence has 39 words; maximum is 10: Re-baseline of 2026-10-28, processor f65c8ff7 -- The preceding record, under an owner decision: processor and mailbox contract 2.3 on dev , remeasured at three 
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: sentence has 21 words; maximum is 10: This re-baseline records #843's adoption of FPGA-gPTP (FPGA-gPTP PRs #99 and #101, for its #98 and #100), with clockAccuracy per board.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: sentence has 17 words; maximum is 10: It is the first route with both lab-fix pins; the lane's later commits change no synthesis input.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: sentence has 24 words; maximum is 10: Dev merged PRs #841 and #842 after the preceding record without a new one, so the differences below are theirs and this adoption's together.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: sentence has 35 words; maximum is 10: Only the route is re-recorded: the standalone endpoints synthesise , which holds no gPTP logic, and no source, generic or processor image of it differs from dev
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: paragraph has 107 words; maximum is 20: This re-baseline records [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1616fc8f062fbf58c35ad31674b5b233207bbdb8` (FPGA-g
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:50: paragraph has too many sentences: This re-baseline records [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1616fc8f062fbf58c35ad31674b5b233207bbdb8` (FPGA-g
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: sentence has 12 words; maximum is 10: Against the preceding record the gate refused the route with exit 1.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: sentence has 13 words; maximum is 10: It grew by 692 LUTs against 500 and by two DSPs against 0.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: sentence has 35 words; maximum is 10: The maintainer decision of 2026-11-06 accepts the area growth of the mandatory lab fixes on the shipping image, with a re-baselined budget; it is the decision #
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: sentence has 13 words; maximum is 10: This record is written under that decision; Mark II (#640) recovers the area.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: sentence has 13 words; maximum is 10: Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: paragraph has 88 words; maximum is 20: **Maintainer decision.** Against the preceding record the gate refused the route with exit 1. It grew by 692 LUTs against 500 and by two DSPs against 0. The [ma
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:56: paragraph has too many sentences: **Maintainer decision.** Against the preceding record the gate refused the route with exit 1. It grew by 692 LUTs against 500 and by two DSPs against 0. The [ma
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: sentence has 12 words; maximum is 10: The route was measured through the recipe with , with 32 and 1.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: sentence has 24 words; maximum is 10: It is judged on its route set: the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: sentence has 17 words; maximum is 10: The gate selected AltSpreadLogichigh, so the record's flow names that directive where the preceding record's named ExtraTimingOpt.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: sentence has 11 words; maximum is 10: The resource gate reports matching measurement identities against the preceding record.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: sentence has 28 words; maximum is 10: Dev was routed the same way, one run at a time, for the comparison; against the preceding record its best directive, ExtraTimingOpt, passes the gate with exit 0
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: paragraph has 92 words; maximum is 20: The route was measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.m
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:62: paragraph has too many sentences: The route was measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.m
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:95: sentence has 14 words; maximum is 10: On the same directive the routed hierarchy names the gPTP engine as the growth:
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:103: sentence has 20 words; maximum is 10: On AltSpreadLogichigh its holds +256 of those LUTs, +110 and +57; the two DSPs are the information TLV's frequency multiply.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:103: sentence has 17 words; maximum is 10: In the routed hierarchy of the selected route holds 44,631 LUTs and the wrapper 24,937.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:103: sentence has 26 words; maximum is 10: Against the preceding record the gate's sub-block rows, which it does not judge, move the wrapper by +42 LUTs and -4 FFs; no wrapper source changed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:103: paragraph has 73 words; maximum is 20: On AltSpreadLogic_high its `u_ucpu` holds +256 of those LUTs, `u_timer` +110 and `u_parser` +57; the two DSPs are the information TLV's frequency multiply. FPGA
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:103: paragraph has too many sentences: On AltSpreadLogic_high its `u_ucpu` holds +256 of those LUTs, `u_timer` +110 and `u_parser` +57; the two DSPs are the information TLV's frequency multiply. FPGA
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:108: sentence has 13 words; maximum is 10: The selected route uses 87.5 RAM tiles and leaves 16 slices free.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:108: sentence has 17 words; maximum is 10: Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:108: sentence has 24 words; maximum is 10: WNS fell by 0.131 ns and is 0.212 ns above its +0.030 ns floor; WHS is 0.012 ns above zero.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:108: paragraph has 54 words; maximum is 20: The selected route uses 87.5 RAM tiles and leaves 16 slices free. Each route's status report has no unrouted net or routing error, and the IOB packing check pas
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:108: paragraph has too many sentences: The selected route uses 87.5 RAM tiles and leaves 16 slices free. Each route's status report has no unrouted net or routing error, and the IOB packing check pas
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: sentence has 20 words; maximum is 10: The worst setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: sentence has 11 words; maximum is 10: It runs from the SDRAM bank machine's to the write-to-read timer .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: sentence has 18 words; maximum is 10: Its data delay is 9.301 ns: 3.053 ns of logic and 6.248 ns of routing.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: sentence has 20 words; maximum is 10: The worst hold path runs from the SoC's to the block RAM , at +0.012 ns at the fast corners.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: paragraph has 69 words; maximum is 20: The worst setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath. It runs from the SDRAM bank machine's `milansoc_sdram_b
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:119: paragraph has too many sentences: The worst setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath. It runs from the SDRAM bank machine's `milansoc_sdram_b
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:124: sentence has 13 words; maximum is 10: The endpoint note identifies the measured lane commit and cites the maintainer decision.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:124: paragraph has 31 words; maximum is 20: The endpoint was written with `record --write` after its `check`, which returned 1. `check-baseline` passes, and `check` returns 0 against the new record. The e
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:124: paragraph has too many sentences: The endpoint was written with `record --write` after its `check`, which returned 1. `check-baseline` passes, and `check` returns 0 against the new record. The e
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:132: sentence has 11 words; maximum is 10: All 6 recorded memory-image entries were rehashed after measurement and match.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:132: sentence has 15 words; maximum is 10: No completed measurement log contains a diagnostic; the one match is the script's own line.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:132: paragraph has 39 words; maximum is 20: All 6 recorded memory-image entries were rehashed after measurement and match. No completed measurement log contains a `Synth 8-4445` diagnostic; the one match 
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:132: paragraph has too many sentences: All 6 recorded memory-image entries were rehashed after measurement and match. No completed measurement log contains a `Synth 8-4445` diagnostic; the one match 
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: sentence has 13 words; maximum is 10: This re-baseline records #845's adoption of processor (protocol-processor PR #213, for its #212).
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: sentence has 11 words; maximum is 10: measures lane commit , out of context only; it was not routed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: sentence has 14 words; maximum is 10: No synthesis input differs between those commits, and the lane's later commits change none.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: sentence has 29 words; maximum is 10: Dev moved the gPTP pin to and the processor pin to after the preceding record without a new one, so the differences below are theirs and this adoption's togethe
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: paragraph has 85 words; maximum is 20: This re-baseline records [#845](https://github.com/kebag-logic/milan-fpga/issues/845)'s adoption of processor `9210065779b0f698fd7bdb22323a1ed5b8482677` (protoc
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:145: paragraph has too many sentences: This re-baseline records [#845](https://github.com/kebag-logic/milan-fpga/issues/845)'s adoption of processor `9210065779b0f698fd7bdb22323a1ed5b8482677` (protoc
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 13 words; maximum is 10: Against the preceding record the gate refused all three endpoints with exit 1.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 34 words; maximum is 10: The route grew by 517 LUTs and 875 FFs against 500 and 600; by 650 LUTs and 530 FFs against 250 each; by 2,708 LUTs and 2,254 FFs against 316 and 339.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 22 words; maximum is 10: The maintainer decision of 2026-11-06 accepts the area growth of the mandatory lab fixes on the shipping image, with a re-baselined budget.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 25 words; maximum is 10: It covers this processor pin and the gPTP pin of #843, and the integrated image with every lab fix is routed before the release build.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 13 words; maximum is 10: This record is written under that decision; Mark II (#640) recovers the area.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: sentence has 13 words; maximum is 10: Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: paragraph has 122 words; maximum is 20: **Maintainer decision.** Against the preceding record the gate refused all three endpoints with exit 1. The route grew by 517 LUTs and 875 FFs against 500 and 6
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:152: paragraph has too many sentences: **Maintainer decision.** Against the preceding record the gate refused all three endpoints with exit 1. The route grew by 517 LUTs and 875 FFs against 500 and 6
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: sentence has 13 words; maximum is 10: All three endpoints were measured through the recipe with , with 32 and 1.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: sentence has 25 words; maximum is 10: The route is judged on its route set: the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: sentence has 17 words; maximum is 10: The gate selected ExtraTimingOpt, so the record's flow names that directive where the preceding record's named ExtraPostPlacementOpt.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: sentence has 18 words; maximum is 10: An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: sentence has 11 words; maximum is 10: The resource gate reports matching measurement identities against the preceding record.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: paragraph has 84 words; maximum is 20: All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 a
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:159: paragraph has too many sentences: All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 a
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:186: sentence has 23 words; maximum is 10: On ExtraPostPlacementOpt dev reads 51,994 LUTs and 54,101 FFs, so this adoption's own share there is +503 LUTs and +478 FFs.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:186: sentence has 17 words; maximum is 10: No standalone figure exists at dev's pin , so its share of the standalone growth is not measured.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:186: sentence has 24 words; maximum is 10: The latest standalone figures, at processor , were -53 LUTs and +7 FFs on and +104 LUTs and +16 FFs on , from the preceding record.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:186: paragraph has 64 words; maximum is 20: On ExtraPostPlacementOpt dev `cc204c6f` reads 51,994 LUTs and 54,101 FFs, so this adoption's own share there is +503 LUTs and +478 FFs. No standalone figure exi
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:186: paragraph has too many sentences: On ExtraPostPlacementOpt dev `cc204c6f` reads 51,994 LUTs and 54,101 FFs, so this adoption's own share there is +503 LUTs and +478 FFs. No standalone figure exi
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:190: sentence has 24 words; maximum is 10: The gate prints each endpoint's largest sub-block movements against the preceding record, LUT and FF; a block it did not list is marked so:
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:190: paragraph has 24 words; maximum is 20: The gate prints each endpoint's largest sub-block movements against the preceding record, LUT and FF; a block it did not list is marked so:
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204: sentence has 26 words; maximum is 10: In the routed hierarchy, moved by +388 LUTs to 43,906, of which the wrapper moved by +402 to 24,895 and by -67 to 473.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204: sentence has 16 words; maximum is 10: The rest of the datapath moved by +53 LUTs, and the image outside it by +129.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204: sentence has 13 words; maximum is 10: The 8x8 listener holds nine Stream Inputs where the 1x1 listener holds two.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204: paragraph has 55 words; maximum is 20: In the routed hierarchy, `milan_datapath` moved by +388 LUTs to 43,906, of which the wrapper moved by +402 to 24,895 and `KL_maap` by -67 to 473. The rest of th
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204: paragraph has too many sentences: In the routed hierarchy, `milan_datapath` moved by +388 LUTs to 43,906, of which the wrapper moved by +402 to 24,895 and `KL_maap` by -67 to 473. The rest of th
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: sentence has 13 words; maximum is 10: The selected route uses 87.5 RAM tiles and leaves 15 slices free.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: sentence has 17 words; maximum is 10: Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: sentence has 24 words; maximum is 10: WNS fell by 0.067 ns and is 0.343 ns above its +0.030 ns floor; WHS is 0.012 ns above zero.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: sentence has 19 words; maximum is 10: Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: paragraph has 73 words; maximum is 20: The selected route uses 87.5 RAM tiles and leaves 15 slices free. Each route's status report has no unrouted net or routing error, and the IOB packing check pas
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:208: paragraph has too many sentences: The selected route uses 87.5 RAM tiles and leaves 15 slices free. Each route's status report has no unrouted net or routing error, and the IOB packing check pas
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: sentence has 20 words; maximum is 10: The worst setup path has 15 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: sentence has 11 words; maximum is 10: It runs from the SDRAM bank machine's to the write-to-read timer .
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: sentence has 18 words; maximum is 10: Its data delay is 9.170 ns: 3.100 ns of logic and 6.070 ns of routing.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: sentence has 22 words; maximum is 10: The worst hold path runs from the AECP response block's to the block RAM , at +0.012 ns at the fast corners.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: paragraph has 71 words; maximum is 20: The worst setup path has 15 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath. It runs from the SDRAM bank machine's `milansoc_sdram_b
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:220: paragraph has too many sentences: The worst setup path has 15 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath. It runs from the SDRAM bank machine's `milansoc_sdram_b
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:225: sentence has 13 words; maximum is 10: Each endpoint was written with after its , which returned 1 at all three.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:225: sentence has 12 words; maximum is 10: passes, and returns 0 at all three endpoints against the new record.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:225: sentence has 13 words; maximum is 10: The endpoint notes identify the measured lane commit and cite the maintainer decision.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:225: paragraph has 38 words; maximum is 20: Each endpoint was written with `record --write` after its `check`, which returned 1 at all three. `check-baseline` passes, and `check` returns 0 at all three en
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:225: paragraph has too many sentences: Each endpoint was written with `record --write` after its `check`, which returned 1 at all three. `check-baseline` passes, and `check` returns 0 at all three en
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:235: sentence has 11 words; maximum is 10: All 18 recorded memory-image entries were rehashed after measurement and match.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:235: sentence has 13 words; maximum is 10: The largest Vivado memory peak was 8,827 MB, in the shipping route.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:235: paragraph has 44 words; maximum is 20: All 18 recorded memory-image entries were rehashed after measurement and match. No completed measurement log contains a `Synth 8-4445` diagnostic. Each synthesi
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:235: paragraph has too many sentences: All 18 recorded memory-image entries were rehashed after measurement and match. No completed measurement log contains a `Synth 8-4445` diagnostic. Each synthesi
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md: 119 finding(s) in changed blocks
+docs/findings/397_SERVICE_BUDGET.md:11: sentence has 13 words; maximum is 10: Its firmware loads the AEM image before and walks on every boot path.
+docs/findings/397_SERVICE_BUDGET.md:11: sentence has 13 words; maximum is 10: The #840 round-2 assignment re-measured the PHY poll figures, for the PHY init.
+docs/findings/397_SERVICE_BUDGET.md:11: paragraph has 43 words; maximum is 20: Its firmware loads the AEM image before `nvm_boot()` and walks on every boot path. The [#840 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issue
+docs/findings/397_SERVICE_BUDGET.md:11: paragraph has too many sentences: Its firmware loads the AEM image before `nvm_boot()` and walks on every boot path. The [#840 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issue
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 12 words; maximum is 10: Each MDIO transfer is a full Clause-22 frame with a 32-bit preamble.
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 13 words; maximum is 10: It is a read, or one of the PHY init's three writes (#840).
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 18 words; maximum is 10: The poll envelope begins at retired heartbeat entry and includes clock acquisition, transactions, negotiation resolution and publication bookkeeping.
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 19 words; maximum is 10: The scheduling charge is , where P is the largest measured complete poll and T is the largest measured transaction.
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 16 words; maximum is 10: Nine reads cover discovery, two BMSR reads, BMCR, extended status and both local/peer negotiation pairs.
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 15 words; maximum is 10: The discovery poll adds the PHY init's four reads and three writes (#840): sixteen transactions.
+docs/findings/397_SERVICE_BUDGET.md:260: sentence has 24 words; maximum is 10: Using the complete observed poll as bookkeeping allowance deliberately counts observed transaction time twice; the longer fallback path is bounded, not claimed 
+docs/findings/397_SERVICE_BUDGET.md:260: paragraph has 117 words; maximum is 20: Each MDIO transfer is a full Clause-22 frame with a 32-bit preamble. It is a read, or one of the PHY init's three writes (#840). The poll envelope begins at ret
+docs/findings/397_SERVICE_BUDGET.md:260: paragraph has too many sentences: Each MDIO transfer is a full Clause-22 frame with a 32-bit preamble. It is a read, or one of the PHY init's three writes (#840). The poll envelope begins at ret
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 14 words; maximum is 10: All six plans ran on both shapes; the duty tables above remain the measurement.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 12 words; maximum is 10: T and P are maxima across the six plans of a shape.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 13 words; maximum is 10: Worst duty plus UART is the largest steady-state armed bound less 250 ms.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 11 words; maximum is 10: P is the discovery poll, which now carries the PHY init.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 14 words; maximum is 10: At a call and return per bit doubled every transaction on the cacheless core.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 17 words; maximum is 10: That firmware measured 16963 cycles per 8x8 transaction, a 247411-cycle poll and a 5.18819 ms charge.
+docs/findings/397_SERVICE_BUDGET.md:281: sentence has 23 words; maximum is 10: Each run grades its own charge, so its largest PHY publication bound is: (The and rows apply the same grading to measurement runs.)
+docs/findings/397_SERVICE_BUDGET.md:281: paragraph has 130 words; maximum is 20: These figures were re-measured at `4ab1bca0116897c3e02bfe92206df0fd81d6dcb9` for #840. All six plans ran on both shapes; the duty tables above remain the `18199
+docs/findings/397_SERVICE_BUDGET.md:281: paragraph has too many sentences: These figures were re-measured at `4ab1bca0116897c3e02bfe92206df0fd81d6dcb9` for #840. All six plans ran on both shapes; the duty tables above remain the `18199
+docs/findings/397_SERVICE_BUDGET.md: 22 finding(s) in changed blocks
+docs/findings/README.md: 0 finding(s) in changed blocks
+docs/guides/VERIFICATION_DEVELOPER.md: 0 finding(s) in changed blocks
+docs/guides/gptp/HDL_DEVELOPER.md: 0 finding(s) in changed blocks
+docs/guides/gptp/MANAGER.md: 0 finding(s) in changed blocks
+docs/guides/gptp/SYSTEM_INTEGRATOR.md: 0 finding(s) in changed blocks
+docs/guides/gptp/TEST_DEVELOPER.md: 0 finding(s) in changed blocks
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 21 words; maximum is 10: writes the AEM image raw as the non-bit member of a proved transition; it must not receive a LiteX FBI header.
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 32 words; maximum is 10: The one supported transition is a fabric-baremetal refresh: the target AEM image verifies first and the target bit commits last, so the old autonomous fabric ow
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 18 words; maximum is 10: Layouts naming a retired boot image (#259) or a non-fabric owner are refused before any programmer I/O.
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 16 words; maximum is 10: At build time the firmware receives the image length, CRC32 and DRAM destination as generated constants.
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 21 words; maximum is 10: The PHC is enabled by the CSR reset and the option-on fabric gPTP plane starts independently of the AVDECC AEM image.
+docs/integration/BAREMETAL_FIRMWARE.md:103: sentence has 41 words; maximum is 10: The fabric holds every transmitter that takes its source address from until step 2 has written both words (#839); the gPTP plane's address is the same station M
+docs/integration/BAREMETAL_FIRMWARE.md:103: paragraph has 163 words; maximum is 20: `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a proved transition; it must not receive a LiteX FBI header. The one supported transiti
+docs/integration/BAREMETAL_FIRMWARE.md:103: paragraph has too many sentences: `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a proved transition; it must not receive a LiteX FBI header. The one supported transiti
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: BMSR latch handling publishes a latched loss, then resolves current state in the same poll.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 13 words; maximum is 10: A second MDIO read separates the loss and recovery publications across the CDC.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 11 words; maximum is 10: Once found, the PHY init advertises 1000BASE-T full duplex only (#840).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 29 words; maximum is 10: It first needs the PHY's 1000BASE-T full duplex ability: bit 1.8, then bit 15.13 (IEEE 802.3-2022 22.2.4.2.16, 22.2.4.4.3).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 20 words; maximum is 10: Bit 1.8 comes from the poll's own register 1 read, so a latched loss stays the poll's to publish.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: It writes register 9 with 1000BASE-T full duplex and keeps its MASTER-SLAVE bits (Table 40-3).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 11 words; maximum is 10: Its test-mode, half duplex and reserved bits are written as zero.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 20 words; maximum is 10: It writes register 4 without 10/100 or 100BASE-T4, keeping the selector and pause bits (28.2.4.1.3).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 22 words; maximum is 10: It then enables (22.2.4.1.4) and restarts (22.2.4.1.7) auto-negotiation through register 0, once per boot.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 16 words; maximum is 10: An unacknowledged read of registers 15, 4, 9 or 0 writes nothing; the next poll retries.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 17 words; maximum is 10: The AX7101 MAC runs at 1 Gb/s only, so a partner without 1000BASE-T gets no link.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 14 words; maximum is 10: MACSTATUS then reports the link down, instead of a silent 100 Mb/s link.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 13 words; maximum is 10: A PHY without that ability is never written and keeps its own advertisement.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 17 words; maximum is 10: That is the retired Arty's 10/100 PHY, whose MII MAC runs 10 and 100 Mb/s.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 14 words; maximum is 10: The poll runs on every boot path that passed the CSR identity check (#70).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 14 words; maximum is 10: arms it before its shape check, so the persistence-disabled path publishes the link too.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: That path also installs the console idle hook; the writer behind it is never admitted.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 11 words; maximum is 10: Its peer starts every bit the PHY init clears at one.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: Two gigabit arms start the selector, pause, MASTER-SLAVE, power-down and loopback bits in opposite states.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 28 words; maximum is 10: The init's other pass-through bits are unmodified by construction and not graded: register 4 bits 15, 13 and 12, and register 0 bits 13 and 8 to 0.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 18 words; maximum is 10: The peer refuses registers 15, 9, 4 and 0 in turn, and each refusal must leave no write.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: The host driver grades each property by name, and fifty-one planted mutants each fail one.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 14 words; maximum is 10: Two PHYs without 1000BASE-T full duplex ability are discovered afresh and must stay unwritten.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 16 words; maximum is 10: The one with register 15 must have it read once per boot, not on every poll.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 13 words; maximum is 10: A gigabit PHY with auto-negotiation disabled must have it enabled by the restart.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 12 words; maximum is 10: The stated maximum publication period is 250 ms for the measured duties.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: The other half covers the longest measured duty stretch, UART blocking and a poll charge.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 13 words; maximum is 10: That charge is the measured complete poll plus sixteen maximum measured MDIO transactions.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 12 words; maximum is 10: The discovery poll adds the PHY init's four reads and three writes.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 12 words; maximum is 10: Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 19 words; maximum is 10: The MDIO bit routine is inlined into both frame loops, so a write costs about what a read does.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 13 words; maximum is 10: On the cacheless core a call per bit had doubled every transaction (#840).
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: The service harness's four plans grade this derived bound against 250 ms on both shapes.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 15 words; maximum is 10: At none reports a PHY finding, and the 8x8 trigger reserve is 3.19136 ms.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: sentence has 12 words; maximum is 10: The findings page records transaction and complete-poll timings on the target CPU.
+docs/integration/BAREMETAL_FIRMWARE.md:2167: paragraph has 696 words; maximum is 20: Firmware also publishes PHY state through the existing MDIO window. Clause-22 reads obtain link, negotiated speed and duplex. MDIO sampling follows IEEE 802.3 s
+docs/integration/BAREMETAL_FIRMWARE.md:2167: paragraph has too many sentences: Firmware also publishes PHY state through the existing MDIO window. Clause-22 reads obtain link, negotiated speed and duplex. MDIO sampling follows IEEE 802.3 s
+docs/integration/BAREMETAL_FIRMWARE.md: 45 finding(s) in changed blocks
+docs/integration/INTEGRATION_GUIDE.md: 0 finding(s) in changed blocks
+docs/litex/CLOCK_DOMAINS.md: 0 finding(s) in changed blocks
+docs/reference/REGISTER_MAP.md:423: paragraph has 55 words; maximum is 20: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The existing CDC carri
+docs/reference/REGISTER_MAP.md:423: paragraph has too many sentences: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The existing CDC carri
+docs/reference/REGISTER_MAP.md: 2 finding(s) in changed blocks
+docs/reference/STRICTER_READINGS.md: 0 finding(s) in changed blocks
+docs/reference/SUBMODULES.md: 0 finding(s) in changed blocks
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 11 words; maximum is 10: [](../../scripts/citoolcacheisolation.py) is the control, run natively with no container.
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 41 words; maximum is 10: It copies a CPython installation into a planted tool cache and runs every elaboration leg's setup steps, read from the workflow at a revision, side by side: its
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 20 words; maximum is 10: Each leg has its own home, temporary directory, workspace and environment files, and every step of all legs starts together.
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 48 words; maximum is 10: It passes only when every step of every leg passes, each leg's LiteX interpreter and VexiiRiscv checkout are under that leg's , gate 23h and its negative contro
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 39 words; maximum is 10: The patch checks are read from the driver's , not its exit code: the driver records a check that finds no interpreter importing , and as NOT RUN and still exits
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 17 words; maximum is 10: drops the job-private step from every leg, as a revision before it does; that run must fail.
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 42 words; maximum is 10: then runs each leg's elaboration gate step, all started together, before the final comparison, so the Scala generation is inside it too; it needs the three sour
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 14 words; maximum is 10: The report records a hash of the planted and of the final tool-cache manifest.
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 17 words; maximum is 10: may be relative or absolute; every path argument is made absolute before anything is derived from it.
+docs/testing/CI_WORKFLOWS.md:1590: sentence has 20 words; maximum is 10: The control needs network access for the pins and the VexiiRiscv clone, and PyYAML in the interpreter that runs it:
+docs/testing/CI_WORKFLOWS.md:1590: paragraph has 269 words; maximum is 20: [`scripts/ci_toolcache_isolation.py`](../../scripts/ci_toolcache_isolation.py) is the control, run natively with no container. It copies a CPython installation 
+docs/testing/CI_WORKFLOWS.md:1590: paragraph has too many sentences: [`scripts/ci_toolcache_isolation.py`](../../scripts/ci_toolcache_isolation.py) is the control, run natively with no container. It copies a CPython installation 
+docs/testing/CI_WORKFLOWS.md:1621: sentence has 12 words; maximum is 10: Worker 1 runs leg 1, the other 102 gates in inventory order.
+docs/testing/CI_WORKFLOWS.md:1621: sentence has 23 words; maximum is 10: [](../../scripts/cibuilderlegs.py) reads the inventory from the driver's , passes each leg's names to and binds the driver's to the head and tree.
+docs/testing/CI_WORKFLOWS.md:1621: sentence has 12 words; maximum is 10: With no , the driver still runs all 103 gates in one process.
+docs/testing/CI_WORKFLOWS.md:1621: sentence has 23 words; maximum is 10: The documentation workflow divides its builder command, , into the same two legs: runs leg 0 and runs leg 1 beside the contract self-tests.
+docs/testing/CI_WORKFLOWS.md:1621: paragraph has 93 words; maximum is 20: That command runs in two measured legs (#737). Worker 0 runs leg 0, `test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102 gates in invento
+docs/testing/CI_WORKFLOWS.md:1621: paragraph has too many sentences: That command runs in two measured legs (#737). Worker 0 runs leg 0, `test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102 gates in invento
+docs/testing/CI_WORKFLOWS.md:1654: sentence has 97 words; maximum is 10: Independently, workers 2, 3 and 4 each install Verilator and run one measured leg of , the one aggregate that owns the standalone LiteX simulations in (#297): i
+docs/testing/CI_WORKFLOWS.md:1654: paragraph has 97 words; maximum is 20: Independently, workers 2, 3 and 4 each install Verilator and run one measured leg of `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone Lit
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 41 words; maximum is 10: Run whole after builder leg 1 on worker 1, the eight simulations took 18 to 25 minutes hosted and held that job within a minute of its 45-minute limit (#737), s
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 24 words; maximum is 10: [](../../scripts/cilitexlegs.py) reads the inventory from the runner's and assigns each member, longest measured hosted time first, to the least-loaded of three
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 18 words; maximum is 10: It passes each leg's names to the runner's , which runs exactly those and still reconciles the whole inventory.
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 19 words; maximum is 10: A member's measured time is its own verdict row in a LiteX leg on a worker of its own.
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 42 words; maximum is 10: The legs are derived from the leg receipts of run 41583428850, the first hosted run with the legs apart (), and each must fit at , each member's largest time ov
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 20 words; maximum is 10: Inside the old aggregate, after a builder leg in the same job, members cost otherwise ( 113 seconds there, 280 alone).
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 32 words; maximum is 10: A member with no measured time, a measurement for a member the inventory lost, and a leg above , 926 seconds, at are refused, so a new simulation cannot join a 
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 22 words; maximum is 10: keeps a cold LiteX worker, by the projection in Protected merge bar, 600 seconds inside its own 45-minute limit, runner queueing excluded.
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 17 words; maximum is 10: The leg receipt binds the runner's per-member verdict rows () and its exit to the head and tree.
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 53 words; maximum is 10: The aggregate refuses unless every simulation ran exactly once, in its measured leg, and passed: a simulation dropped from its leg, run in a second leg, failed,
+docs/testing/CI_WORKFLOWS.md:1663: sentence has 23 words; maximum is 10: The legs hold 461 (), 440 (, and the three shortest) and 520 measured seconds ( and ) in run 41583428850, and 477, 448 and 794 at .
+docs/testing/CI_WORKFLOWS.md:1663: paragraph has 311 words; maximum is 20: Run whole after builder leg 1 on worker 1, the eight simulations took 18 to 25 minutes hosted and held that job within a minute of its 45-minute limit (#737), s
+docs/testing/CI_WORKFLOWS.md:1663: paragraph has too many sentences: Run whole after builder leg 1 on worker 1, the eight simulations took 18 to 25 minutes hosted and held that job within a minute of its 45-minute limit (#737), s
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 28 words; maximum is 10: The LiteX workers carry none of the four caches the builder workers share: the sv2v archive, the pinned pip downloads, the Scala toolchain and the generated CPU
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 20 words; maximum is 10: saves on every miss, so a job that never generates the CPU metadata saves an empty entry under its key.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 20 words; maximum is 10: In run 41583428850, worker 2 saved the metadata key first as an empty 202-byte entry and worker 3 restored it.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 40 words; maximum is 10: Builder worker 0 did the same: its leg elaborates nothing, and it saved the key empty (200 or 201 bytes) in runs 41470524727, 41476923392 and 41678609075 and re
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 32 words; maximum is 10: One job now carries the metadata cache and the step that fills its directory: the builder worker whose leg holds the gates that elaborate the SoC through the in
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 14 words; maximum is 10: Those gates generate the metadata, and a local cold run of alone writes it.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 25 words; maximum is 10: The only other job that generates it is LiteX worker 4, for , which keeps its own cold so that one job alone saves the key.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 30 words; maximum is 10: [](../../scripts/cigateworkflows.py) removes the four steps from workers 2 to 4, and the metadata cache and its fill step from builder worker 0, after the insta
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 23 words; maximum is 10: Each builder and each LiteX worker must first carry each of them exactly once, so a renamed or a lost step is refused.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 32 words; maximum is 10: plants a builder without its metadata cache, a LiteX worker repeating it, the generating builder without its fill step, a LiteX worker repeating that step, and 
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 21 words; maximum is 10: The LiteX workers keep the Verilator cache, which only they populate, and the local act runner's trusted action set is unchanged.
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 31 words; maximum is 10: Every LiteX run pays the cost: it downloads those inputs, and generates its CPU metadata cold, in 280, 224, 284, 240 and 277 seconds in the runs with the legs a
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 35 words; maximum is 10: Its 100 to 113 seconds inside the old aggregate were not a cache restore: the key held nothing in any cited run, and builder leg 1 had generated the metadata ea
+docs/testing/CI_WORKFLOWS.md:1694: sentence has 11 words; maximum is 10: The projections in Protected merge bar already carry the cold figure.
+docs/testing/CI_WORKFLOWS.md:1694: paragraph has 369 words; maximum is 20: The LiteX workers carry none of the four caches the builder workers share: the sv2v archive, the pinned pip downloads, the Scala toolchain and the generated CPU
+docs/testing/CI_WORKFLOWS.md:1694: paragraph has too many sentences: The LiteX workers carry none of the four caches the builder workers share: the sv2v archive, the pinned pip downloads, the Scala toolchain and the generated CPU
+docs/testing/CI_WORKFLOWS.md:1727: sentence has 33 words; maximum is 10: Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any interpreter that imports + and otherwise declar
+docs/testing/CI_WORKFLOWS.md:1727: paragraph has 33 words; maximum is 20: Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any interpreter that imports `migen` + `litex` and 
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 31 words; maximum is 10: A documentation-only PR (the documentation classes in Fast feedback) must emit the two exhaustive aggregate checks as skipped and must complete the fast aggrega
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 36 words; maximum is 10: That is permitted only when itself succeeds and explicitly publishes ; a gate failure, cancellation, or missing output makes both aggregates run and fail on abs
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 21 words; maximum is 10: Do not add workflow-level , , or branch filtering to any required context: a workflow that never starts leaves its required name pending.
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 20 words; maximum is 10: The three documentation jobs are independent required siblings, so a failure in or blocks the PR even when itself succeeds.
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 12 words; maximum is 10: pins the complete generated job graphs and the original ordered gate commands.
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 12 words; maximum is 10: and are fail-closed aggregates over three docs workers and five elaboration workers.
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 13 words; maximum is 10: Their condition also runs the verifier after a dependency fails or is cancelled.
+docs/testing/CI_WORKFLOWS.md:3055: sentence has 11 words; maximum is 10: Missing, failed, cancelled and skipped worker jobs all fail the aggregate.
+docs/testing/CI_WORKFLOWS.md:3055: paragraph has 179 words; maximum is 20: Conditional job skipping is part of the contract. A documentation-only PR (the documentation classes in [Fast feedback](#fast-feedback)) must emit the two exhau
+docs/testing/CI_WORKFLOWS.md:3055: paragraph has too many sentences: Conditional job skipping is part of the contract. A documentation-only PR (the documentation classes in [Fast feedback](#fast-feedback)) must emit the two exhau
+docs/testing/CI_WORKFLOWS.md:3129: sentence has 11 words; maximum is 10: That worker one projection carried the LiteX aggregate's 597-second window of .
+docs/testing/CI_WORKFLOWS.md:3129: sentence has 26 words; maximum is 10: By 2026-11-03 the aggregate step took 1087, 1161 and 1485 seconds hosted, and worker one 2079, 2233 and 2672, in runs 41470524727, 41526004847 and 41554508699 (
+docs/testing/CI_WORKFLOWS.md:3129: sentence has 32 words; maximum is 10: Run 41476923392 was cancelled at the 45-minute limit inside it in attempts 1 to 3, after 1495, 1511 and 1506 seconds of the step and 2735, 2734 and 2740 of the 
+docs/testing/CI_WORKFLOWS.md:3129: sentence has 13 words; maximum is 10: The aggregate now runs in three LiteX legs on workers 2 to 4.
+docs/testing/CI_WORKFLOWS.md:3129: paragraph has 82 words; maximum is 20: That worker one projection carried the LiteX aggregate's 597-second window of `f6260253`. By 2026-11-03 the aggregate step took 1087, 1161 and 1485 seconds host
+docs/testing/CI_WORKFLOWS.md:3129: paragraph has too many sentences: That worker one projection carried the LiteX aggregate's 597-second window of `f6260253`. By 2026-11-03 the aggregate step took 1087, 1161 and 1485 seconds host
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 43 words; maximum is 10: Every elaboration figure below is a sum of components, and each component is the largest value it took over the cited hosted runs: 41470524727, 41476923392 (att
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 26 words; maximum is 10: A worker's setup is its job span less its gate steps and its Verilator source build, so it holds checkout, installs, cache transfers, recording and upload.
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 21 words; maximum is 10: Its largest is 739 seconds (worker 1, run 41705989293 attempt 2), and that one figure is the setup of every projection.
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 33 words; maximum is 10: Builder leg 0 took at most 1130 seconds (run 41583428850) and builder leg 1 at most 1119 (run 41476923392 attempt 3), so worker zero projects at 1869 seconds an
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 26 words; maximum is 10: Their largest measured job times with the LiteX legs apart are 1535 (worker zero, run 41705989293 attempt 1) and 1449 (worker one, run 41705989293 attempt 2).
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 36 words; maximum is 10: The cold Verilator source build took at most 431 seconds (worker 3, run 41678609075 attempt 1) and the runner self-test, its leg step less its verdict rows, at 
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 48 words; maximum is 10: in holds each member's largest verdict row over the runs with the legs apart, 41583428850, 41678609075 attempts 1 and 3 and 41705989293 attempts 1 and 2, where 
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 30 words; maximum is 10: At the legs hold 477, 448 and 794 seconds, so the LiteX workers project cold at 1651, 1622 and 1968 seconds, and at 1220, 1191 and 1537 with Verilator restored.
+docs/testing/CI_WORKFLOWS.md:3137: sentence has 51 words; maximum is 10: Their measured spans were 585, 616 and 1226 seconds in run 41583428850, 706, 1021 and 1178 in run 41678609075 attempt 1, 906, 930 and 1194 in its attempt 3, 141
+docs/testing/CI_WORKFLOWS.md:3137: paragraph has 314 words; maximum is 20: Every elaboration figure below is a sum of components, and each component is the largest value it took over the cited hosted runs: 41470524727, 41476923392 (att
+docs/testing/CI_WORKFLOWS.md:3137: paragraph has too many sentences: Every elaboration figure below is a sum of components, and each component is the largest value it took over the cited hosted runs: 41470524727, 41476923392 (att
+docs/testing/CI_WORKFLOWS.md:3165: sentence has 24 words; maximum is 10: Each elaborate worker is compared with its own 45-minute limit, 2700 seconds, not with the workflow's 30 minutes, which #737 acceptance 1 keeps open.
+docs/testing/CI_WORKFLOWS.md:3165: sentence has 30 words; maximum is 10: is 2700 less 600 seconds of stated headroom for hosted variance, the setup, the cold Verilator build and the self-test: 926 seconds, against the 794 the fullest
+docs/testing/CI_WORKFLOWS.md:3165: sentence has 26 words; maximum is 10: derives it from those named constants, and , through the LiteX leg controls, requires each LiteX worker's generated limit to equal the 2700 seconds it starts fr
+docs/testing/CI_WORKFLOWS.md:3165: paragraph has 86 words; maximum is 20: Each elaborate worker is compared with its own 45-minute limit, 2700 seconds, not with the workflow's 30 minutes, which #737 acceptance 1 keeps open. The table 
+docs/testing/CI_WORKFLOWS.md:3165: paragraph has too many sentences: Each elaborate worker is compared with its own 45-minute limit, 2700 seconds, not with the workflow's 30 minutes, which #737 acceptance 1 keeps open. The table 
+docs/testing/CI_WORKFLOWS.md:3174: sentence has 18 words; maximum is 10: The allowance after the slowest worker is built the same way, and enters only the workflow figure below.
+docs/testing/CI_WORKFLOWS.md:3174: sentence has 38 words; maximum is 10: The aggregate fetches only the head, so it projects at the largest depth-one checkout of the cited runs, 26 seconds (, run 41705989293 attempt 1), plus its larg
+docs/testing/CI_WORKFLOWS.md:3174: sentence has 35 words; maximum is 10: That attempt's limit cancelled the aggregate inside its old full-history checkout, but 82 of those 85 seconds passed before its first step started, which a head
+docs/testing/CI_WORKFLOWS.md:3174: sentence has 14 words; maximum is 10: took at most 183 seconds and at most 29 (both run 41705989293 attempt 1).
+docs/testing/CI_WORKFLOWS.md:3174: paragraph has 115 words; maximum is 20: The allowance after the slowest worker is built the same way, and enters only the workflow figure below. The `elaborate` aggregate fetches only the head, so it 
+docs/testing/CI_WORKFLOWS.md:3174: paragraph has too many sentences: The allowance after the slowest worker is built the same way, and enters only the workflow figure below. The `elaborate` aggregate fetches only the head, so it 
+docs/testing/CI_WORKFLOWS.md:3187: sentence has 51 words; maximum is 10: Hosted runs at later heads, including those of the change that set these figures, do not reopen them; they feed the next re-measurement under #737 acceptance 1,
+docs/testing/CI_WORKFLOWS.md:3187: sentence has 34 words; maximum is 10: The components are the setup, each builder leg, the cold Verilator build, the runner self-test, the aggregate's checkout and the rest of its span, the collector
+docs/testing/CI_WORKFLOWS.md:3187: sentence has 16 words; maximum is 10: The job limit and the 600-second headroom are not measurements and do not change by it.
+docs/testing/CI_WORKFLOWS.md:3187: sentence has 15 words; maximum is 10: , every projection in this section and the table below are then recomputed from the figures.
+docs/testing/CI_WORKFLOWS.md:3187: sentence has 21 words; maximum is 10: The LiteX legs are re-derived only when one no longer fits at , which refuses; they are then derived from , which becomes .
+docs/testing/CI_WORKFLOWS.md:3187: paragraph has 147 words; maximum is 20: The cited runs are frozen at the list above (#737). Hosted runs at later heads, including those of the change that set these figures, do not reopen them; they f
+docs/testing/CI_WORKFLOWS.md:3187: paragraph has too many sentences: The cited runs are frozen at the list above (#737). Hosted runs at later heads, including those of the change that set these figures, do not reopen them; they f
+docs/testing/CI_WORKFLOWS.md:3201: sentence has 17 words; maximum is 10: Until that re-measurement, a later hosted run is judged by the job limit, not by these figures.
+docs/testing/CI_WORKFLOWS.md:3201: sentence has 41 words; maximum is 10: It is a finding only if a job reaches its timeout, an elaborate worker's measured span is above 2100 seconds (its 2700-second limit less the 600-second headroom
+docs/testing/CI_WORKFLOWS.md:3201: sentence has 16 words; maximum is 10: A component above its figure here, inside those limits, is an observation for #737 acceptance 1.
+docs/testing/CI_WORKFLOWS.md:3201: paragraph has 74 words; maximum is 20: Until that re-measurement, a later hosted run is judged by the job limit, not by these figures. It is a finding only if a job reaches its timeout, an elaborate 
+docs/testing/CI_WORKFLOWS.md:3201: paragraph has too many sentences: Until that re-measurement, a later hosted run is judged by the job limit, not by these figures. It is a finding only if a job reaches its timeout, an elaborate 
+docs/testing/CI_WORKFLOWS.md:3208: sentence has 27 words; maximum is 10: Those projections hold with the LiteX workers carrying none of the builders' shared caches, so that every LiteX run installs them and generates its CPU metadata
+docs/testing/CI_WORKFLOWS.md:3208: sentence has 53 words; maximum is 10: No LiteX leg of any run with the legs apart had CPU metadata: in run 41583428850 workers 2 and 4 missed the key and worker 3 restored worker 2's empty entry, an
+docs/testing/CI_WORKFLOWS.md:3208: sentence has 12 words; maximum is 10: 's 280, 224, 284, 240 and 277 seconds are therefore cold figures.
+docs/testing/CI_WORKFLOWS.md:3208: sentence has 23 words; maximum is 10: Inside the old aggregate it took 100 to 113 seconds on metadata that builder leg 1 had generated earlier in the same job.
+docs/testing/CI_WORKFLOWS.md:3208: paragraph has 125 words; maximum is 20: Those projections hold with the LiteX workers carrying none of the builders' shared caches, so that every LiteX run installs them and generates its CPU metadata
+docs/testing/CI_WORKFLOWS.md:3208: paragraph has too many sentences: Those projections hold with the LiteX workers carrying none of the builders' shared caches, so that every LiteX run installs them and generates its CPU metadata
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 11 words; maximum is 10: The four synthesis workers download the head-bound archive and prove versions.
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 13 words; maximum is 10: A cache miss therefore adds no source build inside a timed synthesis worker.
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 23 words; maximum is 10: The cold tool projection uses the review's conservative 600-second build estimate plus 120 seconds; the bounded sixteen-CPU local build measured 360.05 seconds.
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 13 words; maximum is 10: This is a projection for standard hosted runners, not a hosted cold-build result.
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 20 words; maximum is 10: Synthesis workers retain their measured 494/25/32/31-second baseline windows, plus 60 seconds for download, extraction and execution evidence.
+docs/testing/CI_WORKFLOWS.md:3220: sentence has 21 words; maximum is 10: Each row's own bound is 60% of its job's limit, except the elaborate workers', which is their 45-minute limit itself (#737).
+docs/testing/CI_WORKFLOWS.md:3220: paragraph has 125 words; maximum is 20: Yosys compilation now runs once in prerequisite `yosys-tool`. Its pinned source and cache-key construction are preserved. Source compilation uses the measured c
+docs/testing/CI_WORKFLOWS.md:3220: paragraph has too many sentences: Yosys compilation now runs once in prerequisite `yosys-tool`. Its pinned source and cache-key construction are preserved. Source compilation uses the measured c
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 18 words; maximum is 10: Worker 3 carries at 1448 seconds: 172 inside its bound and 352 inside 30 minutes, before downstream collection.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 14 words; maximum is 10: Worker 5 carries 's kept 1400-second budget at 1522 seconds: 98 inside its bound.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 30 words; maximum is 10: Allowing 60 seconds each for aggregate and collector, one 120-second watcher interval and 30 seconds for the tail gives 1665 seconds, about 27.8 minutes: 135 se
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 23 words; maximum is 10: With its builder undivided, the merged workload put the builder worker at 1602 seconds and the workflow at 1872, about 31.2 minutes.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 24 words; maximum is 10: Elaboration's workflow figure is a measurement against #737 acceptance 1, not a bound: no gate refuses it, and acceptance 1 stays open on #737.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 14 words; maximum is 10: Its workers are bound by their own 45-minute limit, as the table above states.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 38 words; maximum is 10: By the component-maxima rule its slowest worker is builder worker zero at 1869 seconds with Verilator restored, and LiteX worker 4 at 1968 at a cold Verilator k
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 29 words; maximum is 10: With the 443-second allowance the workflow projects at 2312 seconds, about 38.5 minutes, and at 2411, about 40.2 minutes, cold: 512 and 611 seconds above thirty
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 35 words; maximum is 10: Before run 41705989293 raised the setup and the allowance, the allowance was 398 seconds and the figures 2013 and 2111; before attempt 3 of run 41678609075 rais
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 44 words; maximum is 10: Over attempt 1's maxima, which gave 1723 seconds, most of the rise is setup, 739 seconds in run 41705989293 against 255: the full-history worker checkout took u
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 33 words; maximum is 10: A shallower worker checkout would widen the checkout contract in that the local act runner trusts, and a pip cache on the LiteX workers would reverse their carr
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 55 words; maximum is 10: Run 41583428850, the first hosted run with the LiteX legs apart, did not meet #737 acceptance 1, the workflow inside 30 minutes from its first job start to its 
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 30 words; maximum is 10: waited 1268 seconds for a runner and the aggregate 388, while the docs, fast and full RTL workflows of that head ran beside it, the full one with 19 shards.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 16 words; maximum is 10: Three LiteX legs put one more concurrent runner per head in that queue than two would.
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 32 words; maximum is 10: But queueing is an account-level limit that every workflow at a head shares, and one runner fewer would not have brought that run inside 30 minutes, so the thre
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 45 words; maximum is 10: Run 41678609075 did not meet acceptance 1 either: attempt 1 ended 1767 seconds after its first job start, but the aggregate's limit cancelled it before the unio
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 20 words; maximum is 10: With the LiteX simulations on worker one, its measured 2672 seconds put the workflow at 2942, about 49 minutes (#737).
+docs/testing/CI_WORKFLOWS.md:3268: sentence has 17 words; maximum is 10: Undivided at , worker zero projected at 1608 seconds and the workflow at 1878, about 31.3 minutes.
+docs/testing/CI_WORKFLOWS.md:3268: paragraph has 612 words; maximum is 20: Verilator figures already include their 122-second overhead allowance. Worker 3 carries `gptp_tables` at 1448 seconds: 172 inside its bound and 352 inside 30 mi
+docs/testing/CI_WORKFLOWS.md:3268: paragraph has too many sentences: Verilator figures already include their 122-second overhead allowance. Worker 3 carries `gptp_tables` at 1448 seconds: 172 inside its bound and 352 inside 30 mi
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 17 words; maximum is 10: Each worker records the source gate IDs and the actual step outcomes reported by the workflow runtime.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 19 words; maximum is 10: The aggregate recomputes the inventory from the same template and requires its exact union, with each gate executed once.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 20 words; maximum is 10: The existing documentation-only elaboration skip remains valid only with a recorded false scope and matching skipped outcomes on every worker.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 23 words; maximum is 10: Each worker that runs a builder leg, , , and , also uploads its builder leg receipt, and each of to uploads its LiteX leg receipt.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 29 words; maximum is 10: When the builder or LiteX legs ran, the same aggregate step requires their union as described in Elaboration; when elaboration's were skipped, any builder or Li
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 20 words; maximum is 10: The union digests of and cover the step outcomes and the per-gate builder verdicts, and for the per-simulation LiteX verdicts.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 19 words; maximum is 10: drops one gate from every claim, corrupts source identities and plants each unsuccessful job outcome; all must be refused.
+docs/testing/CI_WORKFLOWS.md:3321: sentence has 21 words; maximum is 10: The CI contract applies its original negative controls to the template steps and separately mutates every generated worker and aggregate step.
+docs/testing/CI_WORKFLOWS.md:3321: paragraph has 192 words; maximum is 20: Each worker records the source gate IDs and the actual step outcomes reported by the workflow runtime. The aggregate recomputes the inventory from the same temp
+docs/testing/CI_WORKFLOWS.md:3321: paragraph has too many sentences: Each worker records the source gate IDs and the actual step outcomes reported by the workflow runtime. The aggregate recomputes the inventory from the same temp
+docs/testing/CI_WORKFLOWS.md:3341: sentence has 20 words; maximum is 10: The aggregate reads the head's tree and nothing else, so it checks out the head alone, at 's default depth.
+docs/testing/CI_WORKFLOWS.md:3341: sentence has 40 words; maximum is 10: Its full-history fetch took 260 seconds in run 41678609075 attempt 1 against its 3-minute limit, which cancelled the run before the union proof and did so again
+docs/testing/CI_WORKFLOWS.md:3341: sentence has 16 words; maximum is 10: Its limit stays 3 minutes, set from its 111-second projection above with 69 seconds of margin.
+docs/testing/CI_WORKFLOWS.md:3341: sentence has 21 words; maximum is 10: reads the merge base of a pull request's base and head, and took at most 183 seconds against its 15 minutes.
+docs/testing/CI_WORKFLOWS.md:3341: sentence has 14 words; maximum is 10: Each worker's scope step diffs the head against its parent under its 45 minutes.
+docs/testing/CI_WORKFLOWS.md:3341: paragraph has 121 words; maximum is 20: The `elaborate` aggregate reads the head's tree and nothing else, so it checks out the head alone, at `actions/checkout`'s default depth. Its full-history fetch
+docs/testing/CI_WORKFLOWS.md:3341: paragraph has too many sentences: The `elaborate` aggregate reads the head's tree and nothing else, so it checks out the head alone, at `actions/checkout`'s default depth. Its full-history fetch
+docs/testing/CI_WORKFLOWS.md: 152 finding(s) in changed blocks
+docs/testing/TESTING.md:214: sentence has 11 words; maximum is 10: INT/TERM cancellation instead returns 130/143 without a completed summary.
+docs/testing/TESTING.md:214: sentence has 16 words; maximum is 10: The driver then stops and reaps its owned command subtree, as the cleanup table below states.
+docs/testing/TESTING.md:214: paragraph has 93 words; maximum is 20: INT/TERM cancellation instead returns 130/143 without a completed summary. The first signal stops later suite launches permanently. Selection, lock waits, prefl
+docs/testing/TESTING.md:214: paragraph has too many sentences: INT/TERM cancellation instead returns 130/143 without a completed summary. The first signal stops later suite launches permanently. Selection, lock waits, prefl
+docs/testing/TESTING.md:255: sentence has 21 words; maximum is 10: This page states the owner's cleanup as exactly the behaviours in this table, each with the owner control that pins it.
+docs/testing/TESTING.md:255: sentence has 15 words; maximum is 10: Its mutants, in in , prove it: each fails that control, with words of that failure.
+docs/testing/TESTING.md:255: sentence has 15 words; maximum is 10: Beside each control is the domain it covers: which signals, which passes and which times.
+docs/testing/TESTING.md:255: sentence has 22 words; maximum is 10: Times are cleanup's, on the owner's clock, and each deadline fails the run in the first census pass at or past it.
+docs/testing/TESTING.md:255: sentence has 24 words; maximum is 10: checks its rows on a starved owner, whose clock lands a tick, about a microsecond, short of each stated time and then on it.
+docs/testing/TESTING.md:255: sentence has 14 words; maximum is 10: A listing can also state a census, which places a pass at its time.
+docs/testing/TESTING.md:255: sentence has 19 words; maximum is 10: Between stated times the starved owner's passes are half a second apart; a listing's domain is its listed passes.
+docs/testing/TESTING.md:255: sentence has 23 words; maximum is 10: Its resume-timing matrix resumes a cancelled shell in each class of census pass, at the earliest and the latest pass of the class.
+docs/testing/TESTING.md:255: sentence has 13 words; maximum is 10: A cell's domain is its listed resume, not the whole of its class.
+docs/testing/TESTING.md:255: sentence has 35 words; maximum is 10: The first pass of cleanup is always inside grace, since its clock is its own length, at most half a second, so the first pass past grace is the first at or past
+docs/testing/TESTING.md:255: sentence has 26 words; maximum is 10: In each cell the shell is alone after the resume, or its trap starts a command, listed from the pass after the resume, live or not.
+docs/testing/TESTING.md:255: sentence has 35 words; maximum is 10: A live descendant new since the first census is a real process, which the product sees as live; any other is a number no process has, which, like a zombie, it s
+docs/testing/TESTING.md:255: sentence has 11 words; maximum is 10: Each cell's listing has the words below, which its failure prints.
+docs/testing/TESTING.md:255: paragraph has 281 words; maximum is 20: This page states the owner's cleanup as exactly the behaviours in this table, each with the owner control that pins it. Its mutants, in `MUTANTS` in `scripts/pr
+docs/testing/TESTING.md:255: paragraph has too many sentences: This page states the owner's cleanup as exactly the behaviours in this table, each with the owner control that pins it. Its mutants, in `MUTANTS` in `scripts/pr
+docs/testing/TESTING.md:279: sentence has 29 words; maximum is 10: In the matrix, a trap's command after a resume in the first pass or pass 2 is listed inside grace, where is sent; after any later one, past grace.
+docs/testing/TESTING.md:279: sentence has 40 words; maximum is 10: Beside the matrix, its other listings resume the shell at 1 s, 3 s, 5.5 s and a tick before 14 s, with its trap's command listed from the resume pass, and never
+docs/testing/TESTING.md:279: sentence has 22 words; maximum is 10: One more lists a command its child's trap starts, from the second pass, while the cancelled shell is stopped and never resumed.
+docs/testing/TESTING.md:279: sentence has 26 words; maximum is 10: Two more resume a lone shell inside a class of pass, not at either end: at 1 s, inside grace, and at 10 s, past it.
+docs/testing/TESTING.md:279: sentence has 43 words; maximum is 10: Two more list a parent from the first census whose live child from the first census outlives its own , beside a cancelled shell never resumed and under it: a st
+docs/testing/TESTING.md:279: paragraph has 160 words; maximum is 20: In the matrix, a trap's command after a resume in the first pass or pass 2 is listed inside grace, where `SIGTERM` is sent; after any later one, past grace. Bes
+docs/testing/TESTING.md:279: paragraph has too many sentences: In the matrix, a trap's command after a resume in the first pass or pass 2 is listed inside grace, where `SIGTERM` is sent; after any later one, past grace. Bes
+docs/testing/TESTING.md:285: sentence has 15 words; maximum is 10: Beside the matrix, its liveness cells list a live descendant new since the first census:
+docs/testing/TESTING.md:296: sentence has 23 words; maximum is 10: The next-to-last in-grace cell is listed with a command that is not live as well: a next-to-last in-grace resume and its trap command.
+docs/testing/TESTING.md:296: paragraph has 23 words; maximum is 20: The next-to-last in-grace cell is listed with a command that is not live as well: a next-to-last in-grace resume and its trap command.
+docs/testing/TESTING.md:298: sentence has 33 words; maximum is 10: Each listing whose census has grown by the second pass is kept again, early: with a census stated a tick after the first pass, the first to list what is new sin
+docs/testing/TESTING.md:298: paragraph has 40 words; maximum is 20: Each listing whose census has grown by the second pass is kept again, early: with a census stated a tick after the first pass, the first to list what is new sin
+docs/testing/TESTING.md:333: sentence has 19 words; maximum is 10: after each signal, so a stopped descendant acts on its during grace: ends it by 4 s without one.
+docs/testing/TESTING.md:334: sentence has 22 words; maximum is 10: A first-census parent's extra second after grace, to reap a leaf killed then: the row above still bounds its by 4 s.
+docs/testing/TESTING.md:336: sentence has 23 words; maximum is 10: A stated cleanup behaviour is a row of this table; one that no control pins is on the list above, with the reason.
+docs/testing/TESTING.md:336: sentence has 13 words; maximum is 10: Every published mutant of is in , and the next reviewer's mutant joins it.
+docs/testing/TESTING.md:336: sentence has 22 words; maximum is 10: It names the control it must fail, with words of that failure, and the table names it in the row it breaks.
+docs/testing/TESTING.md:336: sentence has 12 words; maximum is 10: A mutant that breaks no row names no control, and says why.
+docs/testing/TESTING.md:336: sentence has 15 words; maximum is 10: Beside the preflight, its explicit campaign below runs each against its control, and against all.
+docs/testing/TESTING.md:336: sentence has 12 words; maximum is 10: The shadow lifecycle controls also exercise cancellation with both production drivers nested.
+docs/testing/TESTING.md:336: paragraph has 97 words; maximum is 20: A stated cleanup behaviour is a row of this table; one that no control pins is on the list above, with the reason. Every published mutant of `scripts/owned_proc
+docs/testing/TESTING.md:336: paragraph has too many sentences: A stated cleanup behaviour is a row of this table; one that no control pins is on the list above, with the reason. Every published mutant of `scripts/owned_proc
+docs/testing/TESTING.md:490: sentence has 17 words; maximum is 10: The default retains eighteen ordinary commands in this order: , , , #774's , processor #202's and (#799), , , , , , , , , , #637's and , then
+docs/testing/TESTING.md:496: sentence has 17 words; maximum is 10: It holds the shape's image and its generator log, and is removed once the image is read.
+docs/testing/TESTING.md:496: sentence has 13 words; maximum is 10: The #658 leg runs in the pool; its focused and targets remain available.
+docs/testing/TESTING.md:496: sentence has 12 words; maximum is 10: So do #637's and legs, with focused targets of the same names.
+docs/testing/TESTING.md:496: sentence has 11 words; maximum is 10: The leg and its default controls left for wall clock (#621).
+docs/testing/TESTING.md:496: sentence has 11 words; maximum is 10: Explicit mutation campaigns above retain their separate targets and full inventories.
+docs/testing/TESTING.md:496: paragraph has 204 words; maximum is 20: All run through the two-child pool after their builds. `SIM_JOBS=1` runs that same inventory sequentially. The eight `sim_nxn` legs write unique `milan_nxn_*` s
+docs/testing/TESTING.md:496: paragraph has too many sentences: All run through the two-child pool after their builds. `SIM_JOBS=1` runs that same inventory sequentially. The eight `sim_nxn` legs write unique `milan_nxn_*` s
+docs/testing/TESTING.md:781: sentence has 54 words; maximum is 10: The inventory is pinned inside the runner, then reconciled against in both directions on every run: a pinned name whose file is gone is a failure (), and a pres
+docs/testing/TESTING.md:781: sentence has 14 words; maximum is 10: Each script's output goes to its own and a failure names the exact script.
+docs/testing/TESTING.md:781: sentence has 95 words; maximum is 10: Exit 0 is a complete pass; 1-89 counts the findings; 90 means nothing failed but a member was skipped for a declared reason - either no interpreter importing + 
+docs/testing/TESTING.md:781: sentence has 52 words; maximum is 10: The hosted owner is the workflow (CIWORKFLOWS.md), which runs the aggregate in three measured legs on workers of their own (#737), each running the selftest and
+docs/testing/TESTING.md:781: sentence has 26 words; maximum is 10: runs exactly the named members and still reconciles the whole inventory; each run writes , one row per member it ran, which binds into its leg receipt.
+docs/testing/TESTING.md:781: paragraph has 245 words; maximum is 20: The inventory is **pinned inside the runner**, then reconciled against `sw/litex/` in both directions on every run: a pinned name whose file is gone is a failur
+docs/testing/TESTING.md:781: paragraph has too many sentences: The inventory is **pinned inside the runner**, then reconciled against `sw/litex/` in both directions on every run: a pinned name whose file is gone is a failur
+docs/testing/TESTING.md: 56 finding(s) in changed blocks
+docs/traceability/ieee8021as.md: 0 finding(s) in changed blocks
+sw/builder/README-parameters.md: 0 finding(s) in changed blocks
+tb/verilator/fw_service_budget/README.md:105: sentence has 22 words; maximum is 10: PHY publication reserves a 125 ms trigger phase plus the duty stretch, UART allowance and a conservative poll charge within 250 ms.
+tb/verilator/fw_service_budget/README.md:105: sentence has 12 words; maximum is 10: The charge adds sixteen maximum measured transactions to the measured complete poll.
+tb/verilator/fw_service_budget/README.md:105: sentence has 13 words; maximum is 10: The discovery poll adds the PHY init's four reads and three writes (#840).
+tb/verilator/fw_service_budget/README.md:105: sentence has 12 words; maximum is 10: Startup AEM and restore report isolated service-plus-poll costs without a trigger phase.
+tb/verilator/fw_service_budget/README.md:105: sentence has 13 words; maximum is 10: Observed gaps between status readbacks independently grade startup and runtime within 250 ms.
+tb/verilator/fw_service_budget/README.md:105: paragraph has 123 words; maximum is 20: PHY publication reserves a 125 ms trigger phase plus the duty stretch, UART allowance and a conservative poll charge within 250 ms. The charge adds sixteen maxi
+tb/verilator/fw_service_budget/README.md:105: paragraph has too many sentences: PHY publication reserves a 125 ms trigger phase plus the duty stretch, UART allowance and a conservative poll charge within 250 ms. The charge adds sixteen maxi
+tb/verilator/fw_service_budget/README.md: 7 finding(s) in changed blocks
+tb/verilator/gptp_txts/README.md:64: sentence has 40 words; maximum is 10: builds the same harness over the MII stages of the same chain (#829): 25 MHz at the wire, one octet per two clocks, and an oracle that reads the nibbles on four
+tb/verilator/gptp_txts/README.md:64: sentence has 25 words; maximum is 10: It runs twice, with the MAC system side at 80 MHz and at 100 MHz, because that fault's report left the system clock's part open.
+tb/verilator/gptp_txts/README.md:64: sentence has 11 words; maximum is 10: The correction it grades is 3770 ns, derived in GPTPPLANE.md.
+tb/verilator/gptp_txts/README.md:64: paragraph has 76 words; maximum is 20: `make run-mii` builds the same harness over the MII stages of the same chain (#829): 25 MHz at the wire, one octet per two clocks, and an oracle that reads the 
+tb/verilator/gptp_txts/README.md:64: paragraph has too many sentences: `make run-mii` builds the same harness over the MII stages of the same chain (#829): 25 MHz at the wire, one octet per two clocks, and an oracle that reads the 
+tb/verilator/gptp_txts/README.md:74: sentence has 60 words; maximum is 10: It proves the reconstruction is the launch: every frame inside the published digital bound, a mean inside one nanosecond over two hundred phase-varied frames (1
+tb/verilator/gptp_txts/README.md:74: sentence has 29 words; maximum is 10: It measures the retired capture in the same run and prints how far ahead of the launch it was, isolated and queued, which is the defect as a number.
+tb/verilator/gptp_txts/README.md:74: paragraph has 89 words; maximum is 20: It proves the reconstruction is the launch: every frame inside the published digital bound, a mean inside one nanosecond over two hundred phase-varied frames (1
+tb/verilator/gptp_txts/README.md:90: sentence has 70 words; maximum is 10: The default target runs the suite on both shapes and then , which plants one defect at a time - the observation point, each register-stage term of the correctio
+tb/verilator/gptp_txts/README.md:90: sentence has 13 words; maximum is 10: It then removes the two binaries, because each holds its shape's last defect.
+tb/verilator/gptp_txts/README.md:90: paragraph has 83 words; maximum is 20: The default target runs the suite on both shapes and then `mutants.py`, which plants one defect at a time - the observation point, each register-stage term of t
+tb/verilator/gptp_txts/README.md: 11 finding(s) in changed blocks
+tb/verilator/milan_dp/README.md:110: sentence has 55 words; maximum is 10: The #839 station MAC from reset (objbootsa) -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the
+tb/verilator/milan_dp/README.md:820: sentence has 13 words; maximum is 10: It plants each defect in a copy of the processor tree or of .
+tb/verilator/milan_dp/README.md:820: sentence has 13 words; maximum is 10: Each mutant must fail its named checks and still pass its named holds.
+tb/verilator/milan_dp/README.md:820: sentence has 12 words; maximum is 10: Measured on 2026-11-06 at processor : the clean leg passes 499/499 checks.
+tb/verilator/milan_dp/README.md:820: paragraph has 51 words; maximum is 20: **Failing arms.** `make unb-mutants` runs `unb_mutants.py`. It plants each defect in a copy of the processor tree or of `KL_crf_rx`. `CRFRX_SRC` in the Makefile
+tb/verilator/milan_dp/README.md:820: paragraph has too many sentences: **Failing arms.** `make unb-mutants` runs `unb_mutants.py`. It plants each defect in a copy of the processor tree or of `KL_crf_rx`. `CRFRX_SRC` in the Makefile
+tb/verilator/milan_dp/README.md:1116: sentence has 40 words; maximum is 10: The first MSRP PDU of every boot therefore left with source address 00:00:00:00:00:00 (IEEE 802.1AC-2016 11.1 and IEEE 802.1Q-2022 6.8.1: the sourceaddress is t
+tb/verilator/milan_dp/README.md:1116: paragraph has 57 words; maximum is 20: The defect: the processor's SRP engine runs from reset. The firmware writes the station MAC only in `configure_fabric()`. The first MSRP PDU of every boot there
+tb/verilator/milan_dp/README.md:1116: paragraph has too many sentences: The defect: the processor's SRP engine runs from reset. The firmware writes the station MAC only in `configure_fabric()`. The first MSRP PDU of every boot there
+tb/verilator/milan_dp/README.md:1122: sentence has 25 words; maximum is 10: Beside the CSR instance, records the first write to each half of the pair, observed on the CSR slave's own write handshake, so is unchanged.
+tb/verilator/milan_dp/README.md:1122: sentence has 34 words; maximum is 10: Until both halves are written, the datapath holds the four transmitters that take their source address from that pair (the processor's control lane, MAAP, the A
+tb/verilator/milan_dp/README.md:1122: sentence has 14 words; maximum is 10: It also stamps octets 6 to 11 of every control-lane frame from the pair.
+tb/verilator/milan_dp/README.md:1122: sentence has 18 words; maximum is 10: The stamp is needed because the processor builds a PDU into its TX slot before it offers it.
+tb/verilator/milan_dp/README.md:1122: sentence has 25 words; maximum is 10: The gPTP plane is not held: its program ROM carries the same station MAC, and its path to the MAC stays free of runtime gates.
+tb/verilator/milan_dp/README.md:1122: paragraph has 122 words; maximum is 20: The fix it grades is in `milan_datapath`. Beside the CSR instance, `mac_addr_seq` records the first write to each half of the `MAC_ADDR_LO/HI` pair, observed on
+tb/verilator/milan_dp/README.md:1122: paragraph has too many sentences: The fix it grades is in `milan_datapath`. Beside the CSR instance, `mac_addr_seq` records the first write to each half of the `MAC_ADDR_LO/HI` pair, observed on
+tb/verilator/milan_dp/README.md:1133: sentence has 19 words; maximum is 10: Its only edits route the CSR load and store to this harness's AXI4-Lite master and blank the store's fence.
+tb/verilator/milan_dp/README.md:1133: sentence has 16 words; maximum is 10: It also reads the stage order out of and refuses a firmware that calls another stage.
+tb/verilator/milan_dp/README.md:1133: sentence has 50 words; maximum is 10: The leg runs a 400 ms BIOS window with no CSR access, then the four stages in that order: , (no CSR access; the builder's AEM image is served from reset), (stoo
+tb/verilator/milan_dp/README.md:1133: sentence has 19 words; maximum is 10: A controller then asks one READDESCRIPTOR and one GETTXSTATECOMMAND, and the AAF talker is opened through the diagnostic bypass.
+tb/verilator/milan_dp/README.md:1133: sentence has 15 words; maximum is 10: Once MAAP holds its claim, a listener sends one PROBETXCOMMAND to the AAF stream output.
+tb/verilator/milan_dp/README.md:1133: sentence has 37 words; maximum is 10: The destination is then valid (Milan v1.2 4.3.3.1), so the talker declares its Talker Advertise and first joins its VLAN by MVRP (Milan v1.2 4.3.2), and an MVRP
+tb/verilator/milan_dp/README.md:1133: sentence has 26 words; maximum is 10: The talker refuses a probe until its destination allocation has been answered, so the leg repeats the probe, up to five times, until it answers SUCCESS.
+tb/verilator/milan_dp/README.md:1133: paragraph has 217 words; maximum is 20: The boot is the firmware's, not a copy of it. `gen_boot_fw.py` copies the CSR accessors, `configure_fabric()` and `entity_advertise()` out of `sw/firmware/milan
+tb/verilator/milan_dp/README.md:1133: paragraph has too many sentences: The boot is the firmware's, not a copy of it. `gen_boot_fw.py` copies the CSR accessors, `configure_fabric()` and `entity_advertise()` out of `sw/firmware/milan
+tb/verilator/milan_dp/README.md:1154: sentence has 25 words; maximum is 10: Two more boots then grade the pair's sequencing in an order the firmware does not use: one half alone, 300 processor ms, then the other.
+tb/verilator/milan_dp/README.md:1154: sentence has 20 words; maximum is 10: Either half alone must open no CSR-addressed transmitter, and the second must release the processor's frame with the whole address.
+tb/verilator/milan_dp/README.md:1154: paragraph has 45 words; maximum is 20: Two more boots then grade the pair's sequencing in an order the firmware does not use: one half alone, 300 processor ms, then the other. Either half alone must 
+tb/verilator/milan_dp/README.md:1159: sentence has 18 words; maximum is 10: Two more boots then enable the three transmitters that enables only after the pair, at reset release instead.
+tb/verilator/milan_dp/README.md:1159: sentence has 17 words; maximum is 10: Each writes , (enable and the bypass) and with the firmware's own boot words, before any MAC write.
+tb/verilator/milan_dp/README.md:1159: sentence has 13 words; maximum is 10: It then holds the pair unwritten for 400 processor ms and writes it.
+tb/verilator/milan_dp/README.md:1159: sentence has 17 words; maximum is 10: The first boot enables MAAP, and MAAP and the CRF talker offer frames inside the held window.
+tb/verilator/milan_dp/README.md:1159: paragraph has 73 words; maximum is 20: Two more boots then enable the three transmitters that `configure_fabric()` enables only after the pair, at reset release instead. Each writes `MAAP_CTRL`, `AAF
+tb/verilator/milan_dp/README.md:1159: paragraph has too many sentences: Two more boots then enable the three transmitters that `configure_fabric()` enables only after the pair, at reset release instead. Each writes `MAAP_CTRL`, `AAF
+tb/verilator/milan_dp/README.md:1172: sentence has 11 words; maximum is 10: MAAP sends a PROBE only once the previous one has left
+tb/verilator/milan_dp/README.md:1173: sentence has 11 words; maximum is 10: (), and its first stays in , its (), until a beat is accepted ();
+tb/verilator/milan_dp/README.md:1178: sentence has 28 words; maximum is 10: So the second boot leaves MAAP off, which opens the AAF gate's MAAP term, and the AAF talker and the CRF talker offer frames inside the held window.
+tb/verilator/milan_dp/README.md:1178: sentence has 21 words; maximum is 10: Each source that offered must not have sent, and each must send from the station MAC once the pair is written.
+tb/verilator/milan_dp/README.md:1178: paragraph has 49 words; maximum is 20: So the second boot leaves MAAP off, which opens the AAF gate's MAAP term, and the AAF talker and the CRF talker offer frames inside the held window. Each source
+tb/verilator/milan_dp/README.md:1183: sentence has 19 words; maximum is 10: It grades every frame of the first boot (through the controller's and the listener's exchanges) on valid/ready at :
+tb/verilator/milan_dp/README.md:1186: sentence has 13 words; maximum is 10: the processor offered a frame before the station MAC was written, so the
+tb/verilator/milan_dp/README.md:1191: sentence has 12 words; maximum is 10: each fixed-address protocol's destination (octets 0 to 5) is its own for
+tb/verilator/milan_dp/README.md:1192: sentence has 13 words; maximum is 10: MSRP, MVRP, gPTP, ADP, ACMP and MAAP, and the controller's MAC for AECP;
+tb/verilator/milan_dp/README.md:1193: sentence has 14 words; maximum is 10: every frame is a known protocol's: its EtherType (octets 12 and 13, or 16
+tb/verilator/milan_dp/README.md:1194: sentence has 16 words; maximum is 10: and 17 behind a C-TAG) and, for AVTP, its subtype name one of the graded kinds;
+tb/verilator/milan_dp/README.md:1196: sentence has 14 words; maximum is 10: MSRP, MVRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent, and
+tb/verilator/milan_dp/README.md:1197: sentence has 12 words; maximum is 10: CRF frames too where the config declares the CRF Media Clock Output;
+tb/verilator/milan_dp/README.md:1200: sentence has 30 words; maximum is 10: On the stamp's own valid/ready, in every boot, it compares each control-lane octet outside octets 6 to 11 with the same octet entering the stamp (the IFG gasket
+tb/verilator/milan_dp/README.md:1200: sentence has 13 words; maximum is 10: The octet's position is the leg's own count of the frame's kept octets.
+tb/verilator/milan_dp/README.md:1200: paragraph has 48 words; maximum is 20: On the stamp's own valid/ready, in every boot, it compares each control-lane octet outside octets 6 to 11 with the same octet entering the stamp (the IFG gasket
+tb/verilator/milan_dp/README.md:1200: paragraph has too many sentences: On the stamp's own valid/ready, in every boot, it compares each control-lane octet outside octets 6 to 11 with the same octet entering the stamp (the IFG gasket
+tb/verilator/milan_dp/README.md:1207: sentence has 13 words; maximum is 10: that each source it requires offered a frame while the pair was unwritten
+tb/verilator/milan_dp/README.md:1208: sentence has 37 words; maximum is 10: (its own , ahead of the transmit gate): MAAP and the CRF talker in the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot (CRF where the confi
+tb/verilator/milan_dp/README.md:1208: paragraph has 37 words; maximum is 20: (its own `tvalid`, ahead of the transmit gate): MAAP and the CRF talker in the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot (CRF where t
+tb/verilator/milan_dp/README.md:1211: sentence has 12 words; maximum is 10: that no frame of that source left before the pair was written;
+tb/verilator/milan_dp/README.md:1212: sentence has 15 words; maximum is 10: that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it
+tb/verilator/milan_dp/README.md:1214: sentence has 11 words; maximum is 10: that no CSR-addressed frame left early, no frame carried the all-zero
+tb/verilator/milan_dp/README.md:1222: sentence has 25 words; maximum is 10: The first is the defect as shipped, no hold and no stamp: it fails on the all-zero source address and on the MSRP frame's source.
+tb/verilator/milan_dp/README.md:1222: paragraph has 45 words; maximum is 20: `bootsa_mutants.py` plants twelve controls in copies of the RTL. Each must fail the leg by every check it names. The first is the defect as shipped, no hold and
+tb/verilator/milan_dp/README.md:1222: paragraph has too many sentences: `bootsa_mutants.py` plants twelve controls in copies of the RTL. Each must fail the leg by every check it names. The first is the defect as shipped, no hold and
+tb/verilator/milan_dp/README.md:1231: sentence has 12 words; maximum is 10: let the stamp's beat position wrap past the source address instead of
+tb/verilator/milan_dp/README.md:1233: sentence has 14 words; maximum is 10: take the hold away from MAAP, the AAF talkers and the CRF talker together,
+tb/verilator/milan_dp/README.md:1234: sentence has 19 words; maximum is 10: which fails the MAAP and CRF checks of the MAAP-on boot and the AAF check of the MAAP-off boot;
+tb/verilator/milan_dp/README.md:1236: sentence has 14 words; maximum is 10: take the hold away from each of the three alone, which fails that source's
+tb/verilator/milan_dp/README.md: 64 finding(s) in changed blocks
+tb/verilator/pp_shadow/README.md: 0 finding(s) in changed blocks

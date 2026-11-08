@@ -1,0 +1,169 @@
+# head 72816d26a7e2a29db5bc198ff65056ee4c5790b4 lane step census_coverage_control: ! python3 -I $HOME/milan-fpga-management/2026-09-23/640-a720l/evidence/census/census_coverage.py $VALIDATION_STORAGE/640-a720p/gates/extra/control_r1 $HOME/milan-fpga-management/2026-09-23/640-a720l/evidence/census/basis_soc_hierarchy.txt $HOME/milan-fpga-management/2026-09-23/640-a720l/evidence/census/basis_csr.csv $HOME/milan-fpga-management/2026-09-23/640-a720l/evidence/census/basis_place_top_excerpt.rpt
+tree | bus (SoCBusHandler) | SoC bus and CSR interconnect | stage 3
+tree | csr (SoCCSRHandler) | SoC bus and CSR interconnect | stage 3
+tree | irq (SoCIRQHandler) | Interrupt controller | stage 3
+tree | ctrl (SoCController) | `ctrl` (`SoCController`) | stage 3
+tree | cpu (VexiiRiscv) | CPU wrapper | stage 3
+tree | cpu.soc_bus (SoCBusHandler) | SoC bus and CSR interconnect | stage 3
+tree | cpu.memory_port_cdc0 (AXIClockDomainCrossing) | DDR3: | stage 1
+tree | cpu.memory_port_stage0 (AXIReadyStage) | DDR3: | stage 1
+tree | cpu.[BB:VexiiRiscvLitex_f5f08b170311db53220574624f819159] | CPU wrapper | stage 3
+tree | dma_bus (SoCBusHandler) | The processor's memory paths | stage Switch-over, lane 1
+tree | rom (SRAM) | BIOS ROM `rom` | stage 1
+tree | sram (SRAM) | BIOS SRAM `sram` | stage 1
+tree | identifier (Identifier) | Identifier `identifier_mem` | stage 3
+tree | uart (UART) | UART (`RS232PHY` | stage 3
+tree | timer0 (Timer) | `timer0` | stage 3
+tree | crg (_CRG) | Clock and reset generation | stage 3
+tree | crg.pll (S7PLL) | Clock and reset generation | stage 3
+tree | crg.idelayctrl (S7IDELAYCTRL) | MISSING: row key '`idelay` clock' matches 0 rows
+tree | crg.[BB:PLLE2_ADV] | Clock and reset generation | stage 3
+tree | crg.[BB:BUFG] | Clock and reset generation | stage 3
+tree | crg.[BB:MMCME2_ADV] | Clock and reset generation | stage 3
+tree | crg.[BB:BUFG] | Clock and reset generation | stage 3
+tree | ddrphy (A7DDRPHY) | DDR3: | stage 1
+tree | sdram (LiteDRAMCore) | DDR3: | stage 1
+tree | litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen] | DDR3: | stage 1
+tree | spiflash (LiteSPI) | SPI flash | stage 2
+tree | milan_mac (MilanMAC) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.phy (LiteEthPHYGMII) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.core (LiteEthMACCore) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.tx_sf (PacketFIFO) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.mac_tx_cdc (ClockDomainCrossing) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.mac_rx_cdc (ClockDomainCrossing) | Ethernet MAC and PHY | stage 2
+tree | milan_mac.[BB:KL_gptp_gmii_launch] | `MilanMAC`'s first-party parts | stage 3
+tree | milan_mac.[BB:KL_mac_rmon_events] | `MilanMAC`'s first-party parts | stage 3
+tree | milan_mac.[BB:ICAPE2] | `MilanMAC`'s first-party parts | stage 3
+tree | milan (MilanNIC) | `milan_axil_cdc` | stage 3
+tree | milan.milan_axil_cdc (AXILiteClockDomainCrossing) | `milan_axil_cdc` | stage 3
+tree | milan.descmem_req_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.descmem_rsp_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.respmem_req_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.respmem_rsp_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.respmem_wr_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.respmem_wd_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.nvmmem_req_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.nvmmem_rsp_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.nvmmem_wr_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.nvmmem_wd_cdc (ClockDomainCrossing) | The processor's memory paths | stage Switch-over, lane 1
+tree | milan.[BB:milan_datapath] | first-party, outside the census
+tree | descmem_fsm (FSM) | The processor's memory paths | stage Switch-over, lane 1
+tree | respmem_fsm (FSM) | The processor's memory paths | stage Switch-over, lane 1
+tree | nvmmem_fsm (FSM) | The processor's memory paths | stage Switch-over, lane 1
+tree | ppmem (_PPMemDiag) | The processor's memory paths | stage Switch-over, lane 1
+tree | csr_bridge (Wishbone2CSR) | SoC bus and CSR interconnect | stage 3
+tree | csr_bankarray (CSRBankArray) | SoC bus and CSR interconnect | stage 3
+tree | csr_interconnect (InterconnectShared) | SoC bus and CSR interconnect | stage 3
+csr csr_base | ctrl | `ctrl` (`SoCController`) | stage 3
+csr csr_base | ddrphy | DDR3: | stage 1
+csr csr_base | identifier_mem | Identifier `identifier_mem` | stage 3
+csr csr_base | milan_mac | Ethernet MAC and PHY | stage 2
+csr csr_base | sdram | DDR3: | stage 1
+csr csr_base | spiflash | SPI flash | stage 2
+csr csr_base | timer0 | `timer0` | stage 3
+csr csr_base | uart | UART (`RS232PHY` | stage 3
+csr csr_base | ppmem | The processor's memory paths | stage Switch-over, lane 1
+csr csr_register | ctrl_reset | `ctrl` (`SoCController`) | stage 3
+csr csr_register | ctrl_scratch | `ctrl` (`SoCController`) | stage 3
+csr csr_register | ctrl_bus_errors | `ctrl` (`SoCController`) | stage 3
+csr csr_register | ddrphy_rst | DDR3: | stage 1
+csr csr_register | ddrphy_dly_sel | DDR3: | stage 1
+csr csr_register | ddrphy_half_sys8x_taps | DDR3: | stage 1
+csr csr_register | ddrphy_wlevel_en | DDR3: | stage 1
+csr csr_register | ddrphy_wlevel_strobe | DDR3: | stage 1
+csr csr_register | ddrphy_rdly_dq_rst | DDR3: | stage 1
+csr csr_register | ddrphy_rdly_dq_inc | DDR3: | stage 1
+csr csr_register | ddrphy_rdly_dq_bitslip_rst | DDR3: | stage 1
+csr csr_register | ddrphy_rdly_dq_bitslip | DDR3: | stage 1
+csr csr_register | ddrphy_wdly_dq_bitslip_rst | DDR3: | stage 1
+csr csr_register | ddrphy_wdly_dq_bitslip | DDR3: | stage 1
+csr csr_register | ddrphy_rdphase | DDR3: | stage 1
+csr csr_register | ddrphy_wrphase | DDR3: | stage 1
+csr csr_register | milan_mac_phy_crg_reset | Ethernet MAC and PHY | stage 2
+csr csr_register | milan_mac_phy_mdio_w | MDIO (`LiteEthPHYMDIO`) | stage 2
+csr csr_register | milan_mac_phy_mdio_r | MDIO (`LiteEthPHYMDIO`) | stage 2
+csr csr_register | milan_mac_core_preamble_crc | Ethernet MAC and PHY | stage 2
+csr csr_register | milan_mac_core_rx_datapath_preamble_errors | Ethernet MAC and PHY | stage 2
+csr csr_register | milan_mac_core_rx_datapath_crc_errors | Ethernet MAC and PHY | stage 2
+csr csr_register | milan_mac_loopback | MISSING: row key '`loopback` CSR' matches 0 rows
+csr csr_register | milan_mac_link_status | MISSING: row key '`link_status` CSR' matches 0 rows
+csr csr_register | sdram_dfii_control | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_command | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_command_issue | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_address | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_baddress | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_wrdata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi0_rddata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_command | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_command_issue | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_address | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_baddress | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_wrdata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi1_rddata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_command | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_command_issue | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_address | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_baddress | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_wrdata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi2_rddata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_command | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_command_issue | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_address | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_baddress | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_wrdata | DDR3: | stage 1
+csr csr_register | sdram_dfii_pi3_rddata | DDR3: | stage 1
+csr csr_register | spiflash_phy_clk_divisor | SPI flash | stage 2
+csr csr_register | spiflash_phy_mode | SPI flash | stage 2
+csr csr_register | spiflash_mmap_clk_divisor | SPI flash | stage 2
+csr csr_register | spiflash_mmap_dummy_bits | SPI flash | stage 2
+csr csr_register | spiflash_master_cs | SPI flash | stage 2
+csr csr_register | spiflash_master_phyconfig | SPI flash | stage 2
+csr csr_register | spiflash_master_rxtx | SPI flash | stage 2
+csr csr_register | spiflash_master_status | SPI flash | stage 2
+csr csr_register | spiflash_master_clk_divisor | SPI flash | stage 2
+csr csr_register | timer0_load | `timer0` | stage 3
+csr csr_register | timer0_reload | `timer0` | stage 3
+csr csr_register | timer0_en | `timer0` | stage 3
+csr csr_register | timer0_update_value | `timer0` | stage 3
+csr csr_register | timer0_value | `timer0` | stage 3
+csr csr_register | timer0_ev_status | `timer0` | stage 3
+csr csr_register | timer0_ev_pending | `timer0` | stage 3
+csr csr_register | timer0_ev_enable | `timer0` | stage 3
+csr csr_register | uart_rxtx | UART (`RS232PHY` | stage 3
+csr csr_register | uart_txfull | UART (`RS232PHY` | stage 3
+csr csr_register | uart_rxempty | UART (`RS232PHY` | stage 3
+csr csr_register | uart_ev_status | UART (`RS232PHY` | stage 3
+csr csr_register | uart_ev_pending | UART (`RS232PHY` | stage 3
+csr csr_register | uart_ev_enable | UART (`RS232PHY` | stage 3
+csr csr_register | uart_txempty | UART (`RS232PHY` | stage 3
+csr csr_register | uart_rxfull | UART (`RS232PHY` | stage 3
+csr csr_register | ppmem_desc_req | The processor's memory paths | stage Switch-over, lane 1
+csr csr_register | ppmem_desc_fault | The processor's memory paths | stage Switch-over, lane 1
+csr csr_register | ppmem_resp_req | The processor's memory paths | stage Switch-over, lane 1
+csr csr_register | ppmem_resp_fault | The processor's memory paths | stage Switch-over, lane 1
+csr csr_register | ppmem_stat | The processor's memory paths | stage Switch-over, lane 1
+placed | (VexiiRiscvLitex_f5f08b170311db53220574624f819159) 664 LUT | CPU wrapper | stage 3
+placed | dma_bridge_read_bridge 105 LUT | The processor's memory paths | stage Switch-over, lane 1
+placed | dma_bridge_write_bridge 176 LUT | The processor's memory paths | stage Switch-over, lane 1
+placed | dma_filter_down_to_unified_mBus_cc 104 LUT | The processor's memory paths | stage Switch-over, lane 1
+placed | ioBus_to_peripheral_bus_cc 166 LUT | SoC bus and CSR interconnect | stage 3
+placed | mem_toAxi4_logic_bridge 225 LUT | DDR3: | stage 1
+placed | peripheral_bus_decoder_core 58 LUT | CPU wrapper | stage 3
+placed | peripheral_clint_thread_core 55 LUT | Interrupt controller | stage 3
+placed | peripheral_clint_time_cc_driver 3 LUT | Interrupt controller | stage 3
+placed | peripheral_plic_intc_thread_logic 34 LUT | Interrupt controller | stage 3
+placed | peripheral_toAxiLite4_logic_bridge 227 LUT | SoC bus and CSR interconnect | stage 3
+placed | unified_mBus_arbiter_core 96 LUT | CPU wrapper | stage 3
+placed | unified_mBus_to_mem_toAxi4_up_widthAdapter 136 LUT | DDR3: | stage 1
+placed | vexiis_0_logic_core 1150 LUT | CPU wrapper | stage 3
+split | CtrlMemory wishbone.SRAM banks | MISSING: row key '`ctrl_memory`' matches 0 rows
+split | CtrlMemory wishbone.Decoder | MISSING: row key '`ctrl_memory`' matches 0 rows
+split | CtrlMemory error answer past the last bank | MISSING: row key '`ctrl_memory`' matches 0 rows
+split | CtrlMailbox EventManager | MISSING: row key "`ctrl_mbx`'s LiteX parts" matches 0 rows
+split | ctrl_mbx CSR bank | MISSING: row key "`ctrl_mbx`'s LiteX parts" matches 0 rows
+split | CtrlMailbox millisecond tick | MISSING: row key "`ctrl_mbx`'s LiteX parts" matches 0 rows
+split | ctrl_mbx bus slave window | SoC bus and CSR interconnect | stage 3
+split | ctrl_mbx interrupt line | Interrupt controller | stage 3
+split | split drops BIOS ROM and SRAM | BIOS ROM `rom` | stage 1
+census rows: 18; rows no object maps to: ['`idelay` clock', '`link_status` CSR', '`loopback` CSR', '`ctrl_memory`', "`ctrl_mbx`'s LiteX parts"] (LEDs or GPIO: none built)
+RESULT: FAIL
