@@ -1,0 +1,70 @@
+{
+  "clone_head": "526f937cde45e3a591fb3b9484ffdcaddbdfa144",
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "cycle_break": "fixture image (ctrl_srp_image.py --with-aecp --layout split) -> split export -> csr.csv -> platform image (ctrl_plat_image.py) -> split export; csr.csv rows equal",
+  "runtime": {
+    "from": "built",
+    "libc.a": "9e5da6423f6ccd4e130d088e9bef2f86b6eef8acde13a19b0e2dbffb8cecdc83",
+    "libcompiler_rt.a": "cddb0ee0834116bcacdf8ea46ad149424f57be502c805686752c47153b568aff"
+  },
+  "csr_csv_rows_sha256": "0ff60a16ba68781f5db19144cd11397d50415220511da2bea59d2e54865ffeaa",
+  "fixture_elf": {
+    "path": "<scratch>/splitfw/fixture/ctrl_app.elf",
+    "sha256": "5653c2845f567749b41697acc34c0945291453abf3e66948ec263c1c17ff0847",
+    "split": {
+      "rom": {
+        "bytes": 104448,
+        "banks": [
+          65536,
+          32768,
+          4096,
+          2048
+        ],
+        "RAMB36": 25,
+        "RAMB18": 1
+      },
+      "sram": {
+        "bytes": 46272,
+        "banks": [
+          32768,
+          8192,
+          4096,
+          2048
+        ],
+        "RAMB36": 11,
+        "RAMB18": 1
+      },
+      "tiles": 37.0,
+      "budget_tiles": 56
+    }
+  },
+  "elf": {
+    "path": "<scratch>/splitfw/plat/ctrl_app.elf",
+    "sha256": "547d4c70a2f56e6313e7da7ed12c66a8f330147dbc66a07ebe23f1a3f6feaa5d",
+    "split": {
+      "rom": {
+        "bytes": 109552,
+        "banks": [
+          65536,
+          32768,
+          8192,
+          4096
+        ],
+        "RAMB36": 27,
+        "RAMB18": 0
+      },
+      "sram": {
+        "bytes": 47168,
+        "banks": [
+          32768,
+          16384
+        ],
+        "RAMB36": 12,
+        "RAMB18": 0
+      },
+      "tiles": 39.0,
+      "budget_tiles": 56
+    }
+  }
+}

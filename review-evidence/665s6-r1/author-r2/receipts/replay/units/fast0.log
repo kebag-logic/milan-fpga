@@ -1,0 +1,40 @@
+=== run_job.py rtl-fast.yml changes 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+changes__ci_step_1	rc=0	Set CPU-derived job budgets
+changes__scope	rc=0	Classify the change conservatively
+changes__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+changes done, failed 0
+=== run_job.py rtl-fast.yml verilator-lint 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+verilator-lint__ci_step_1	rc=0	Set CPU-derived job budgets
+verilator-lint__ci_step_2	rc=0	Fetch RTL dependencies
+verilator-lint__ci_packages_3	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+verilator-lint__ci_step_6	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+verilator-lint__ci_step_7	rc=0	Run the ratcheted whole-tree lint gate
+verilator-lint__ci_step_8	rc=0	Prove protocol-processor source lists are derived
+verilator-lint__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+verilator-lint done, failed 0
+=== run_job.py rtl-fast.yml bdd-conformance 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+bdd-conformance__ci_step_1	rc=0	Set CPU-derived job budgets
+bdd-conformance__ci_step_3	rc=0	Fetch the processor model inputs
+bdd-conformance__ci_step_4	rc=0	Install behave
+bdd-conformance__ci_step_5	rc=1	Run the specification-facing suite
+bdd-conformance__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+bdd-conformance done, failed 1
+=== run_job.py rtl-fast.yml yosys-tool 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+yosys-tool__ci_step_1	rc=0	Set CPU-derived job budgets
+yosys-tool__ci_packages_2	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+yosys-tool__ci_step_5	NOT RUN	builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs
+yosys-tool__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+yosys-tool done, failed 0
+=== run_job.py rtl-fast.yml yosys-elaboration 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+yosys-elaboration__ci_step_1	rc=0	Set CPU-derived job budgets
+yosys-elaboration__ci_step_2	rc=0	Fetch RTL dependencies
+yosys-elaboration__ci_step_4	rc=0	Install the pinned Yosys and prove the version
+yosys-elaboration__ci_step_6	rc=1	Install the pinned sv2v release
+yosys-elaboration__ci_step_7	rc=0	Elaborate the integration-heavy tops
+yosys-elaboration__ci_step_8	rc=0	Prove the OOC read sets come from run.sh and refuse a bad one
+yosys-elaboration__ci_step_9	rc=0	Prove ooc.sh generates the ROMs and fails on a failed top
+yosys-elaboration__ci_step_10	rc=0	Prove both synthesis flows refuse active elaboration guards
+yosys-elaboration__ci_step_11	rc=0	Prove the result cache refuses a planted entry
+yosys-elaboration__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+yosys-elaboration done, failed 1
+batch done, 2 job(s) with a failed step

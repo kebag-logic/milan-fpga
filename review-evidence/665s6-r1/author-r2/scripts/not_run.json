@@ -1,0 +1,144 @@
+{
+ "about": "Rules for run_job.py: a run: step matching a rule is not run as written. Without 'instead' it is not run at all; with 'instead' the stated command runs in its place and its rc is the step's. Rules match workflow, job and step id or name as full regular expressions; the first match wins.",
+ "rules": [
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Record actual job execution",
+   "reason": "ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Record executed gate outcomes",
+   "reason": "ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context"
+  },
+  {
+   "workflow": ".*",
+   "job": "ci-manifest",
+   "name": ".*",
+   "reason": "ci-manifest collects the hosted run's uploaded artifacts (GITHUB_RUN_ID, GH_TOKEN)"
+  },
+  {
+   "workflow": ".*",
+   "job": "ci-fail-fast|ci-cancel-tail",
+   "name": ".*",
+   "reason": "watches or cancels a hosted run and its sibling workflows (GH_TOKEN); never run locally"
+  },
+  {
+   "workflow": "docs.yml",
+   "job": "docs-check",
+   "name": ".*",
+   "reason": "the aggregate: it verifies the three legs' uploaded receipts through the hosted needs context; the legs' gates ran here, each job on its own clone"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate",
+   "name": ".*",
+   "reason": "the aggregate: it verifies the two legs' uploaded receipts through the hosted needs context; the legs' gates ran here"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Resolve exact package downloads.*",
+   "reason": "resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Install the pinned sv2v release|Install sv2v for the netlist-level suite owner",
+   "reason": "sudo install into /usr/local/bin; /usr/local/bin/sv2v is already v0.0.12, and the pinned sv2v-v0.0.12 is on PATH",
+   "instead": "sv2v --version\nsv2v --version | grep -Fx 'sv2v v0.0.12'"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Install diagram gate dependencies",
+   "reason": "sudo apt-get for librsvg2-bin, whose rsvg-convert is installed here; the step's pip half runs in the job's venv",
+   "instead": "command -v rsvg-convert\npython3 -m pip install --quiet wavedrom==2.0.3.post3"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Build Verilator from source on cache miss",
+   "reason": "the cache-miss path; the host's pinned Verilator 5.050 build ($VALIDATION_TOOLS/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Build Yosys from source on cache miss|Package the pinned Yosys build|Restore the pinned Yosys build",
+   "reason": "builds, packages or restores the runner's /opt/yosys with sudo; the host's Yosys 0.66 (/usr/bin/yosys) stands for it, and the install step's version proof runs"
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Install the pinned Yosys and prove the version",
+   "reason": "sudo ln of /opt/yosys into /usr/local/bin, and the bundled ABC's revision file; the host's /usr/bin/yosys is 0.66, its ABC linked in; the version proof runs",
+   "instead": "yosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\""
+  },
+  {
+   "workflow": ".*",
+   "job": ".*",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "reason": "sudo apt-get for libgtest-dev and libgmock-dev, and dpkg-query; those lines are dropped and the host's GoogleTest and GoogleMock headers proved instead; the step's other lines (its pip install and the compiler versions) run as written",
+   "drop": "^\\s*(sudo apt-get|dpkg-query)\\b.*$",
+   "prepend": "test -f /usr/include/gtest/gtest.h\ntest -f /usr/include/gmock/gmock.h"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-[01]",
+   "name": "Put a job-private Python environment on PATH|Install LiteX at the pinned revisions|Place the VexiiRiscv source at the revision LiteX pins|Apply the toolchain patch series|Keep the generated CPU netlist arguments for the next run",
+   "reason": "sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install"
+  },
+  {
+   "workflow": "elaborate.yml",
+   "job": "elaborate-gates-[01]",
+   "name": "Install sbt",
+   "reason": "sudo tar of sbt 1.10.7 into /opt; the gate environment's sbt (/usr/bin/sbt) and its caches stand for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "physical-gptp",
+   "name": ".*",
+   "reason": "the job's if: holds only for schedule and workflow_dispatch events, so a pull_request does not run it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards",
+   "name": "Run this exhaustive suite shard",
+   "reason": "the same suites run in the full sweep as four native shard units (run_all_suites.sh --shard k/4, the owner's method); the 19-way --ci-pieces split partitions the same population (receipts/sweep/)"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-shards",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "reason": "clones and builds tsn-gen at TSN_GEN_REV deca300c; the host's build of that revision is TSN_GEN_ROOT for the sweep"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "verilator-suites|union-.*",
+   "name": ".*",
+   "reason": "an aggregate of the 19 --ci-pieces workers' uploaded logs and receipts (download-artifact, the hosted needs context); the sweep's own tally (receipts/sweep/) stands for it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "name": "Require every shard to have validated this run's SHA|Require every Yosys worker to pass",
+   "reason": "reads the hosted needs context and the shards' uploaded TARGET_SHA files; each local shard ran on a clone at the head, its first log line naming it"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "yosys-portability",
+   "name": "Reconcile the live inventory and structural gates",
+   "reason": "reads the four shards' results from download-artifact; here yosys_tally.py reads the four local shards' results directories, passed as its roots (YOSYS_RESULT_ROOTS)",
+   "instead": "set -euo pipefail\nsyn/yosys/run.sh --list > \"$RUNNER_TEMP/expected-yosys-tops\"\npython3 scripts/yosys_tally.py $YOSYS_RESULT_ROOTS --expected \"$RUNNER_TEMP/expected-yosys-tops\" --require-structural"
+  },
+  {
+   "workflow": "rtl.yml",
+   "job": "full-ci-gate",
+   "name": "Assert the repository default branch is dev",
+   "reason": "reads the default branch with the hosted run's github.token; read here with the host's own read-only GitHub login",
+   "instead": "set -euo pipefail\nunset GH_TOKEN\nobserved=\"$(gh api \"repos/$GITHUB_REPOSITORY\" --jq .default_branch 2>/dev/null || echo unreadable)\"\necho \"observed default branch: $observed\"\npython3 scripts/ci_events.py --require-default-branch --event \"$GITHUB_EVENT_NAME\" --observed \"$observed\""
+  }
+ ]
+}

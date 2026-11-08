@@ -1,0 +1,21 @@
+=== run_job.py elaborate.yml elaborate-gates-1 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8 --gate-env
+elaborate-gates-1__ci_step_1	rc=0	Set CPU-derived job budgets
+elaborate-gates-1__scope	rc=0	Decide whether this head needs an elaboration
+elaborate-gates-1__ci_step_4	rc=0	Fetch the source dependencies the elaboration reads
+elaborate-gates-1__ci_step_6	rc=0	Install the pinned sv2v release
+elaborate-gates-1__ci_step_8	NOT RUN	sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install
+elaborate-gates-1__ci_step_10	NOT RUN	sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install
+elaborate-gates-1__ci_step_13	NOT RUN	sudo tar of sbt 1.10.7 into /opt; the gate environment's sbt (/usr/bin/sbt) and its caches stand for it
+elaborate-gates-1__ci_step_14	NOT RUN	sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install
+elaborate-gates-1__ci_step_15	NOT RUN	sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install
+elaborate-gates-1__ci_step_17	rc=0	Install and verify the pinned RV32 SDK
+elaborate-gates-1__gate_15_1	rc=0	Elaboration gates, leg 1 of 2
+elaborate-gates-1__ci_packages_17	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+elaborate-gates-1__ci_step_22	NOT RUN	the cache-miss path; the host's pinned Verilator 5.050 build (<tools>/verilator-v5.050) stands for the restored /opt/verilator, and the next step proves its version
+elaborate-gates-1__ci_step_23	rc=0	Put Verilator on PATH and prove the version
+elaborate-gates-1__gate_19	rc=0	Standalone LiteX simulation aggregate
+elaborate-gates-1__ci_step_25	NOT RUN	sets up a job-private LiteX at the pinned revisions with its patch series and VexiiRiscv netlist cache; the job runs in the lane gate environment (run_job.py --gate-env), whose LiteX virtual environment carries them, and patching it here would change a shared install
+elaborate-gates-1__ci_step_26	NOT RUN	ci_gate_receipts.py record reads CI_GATE_STEPS, the hosted toJSON(steps) context
+elaborate-gates-1__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+elaborate-gates-1 done, failed 0
+batch done, 0 job(s) with a failed step

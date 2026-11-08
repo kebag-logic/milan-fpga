@@ -1,0 +1,10 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144 workflow rtl.yml job full-ci-gate step ci_step_4: Assert the repository default branch is dev
+# INSTEAD of the step as written (reads the default branch with the hosted run's github.token; read here with the host's own read-only GitHub login):
+# set -euo pipefail
+unset GH_TOKEN
+observed="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"
+echo "observed default branch: $observed"
+python3 scripts/ci_events.py --require-default-branch --event "$GITHUB_EVENT_NAME" --observed "$observed"
+observed default branch: unreadable
+default_branch=unreadable expected=dev event=pull_request (informational)
+default-branch: WARNING, 'unreadable' is not 'dev'; this pull_request run continues, the next scheduled or dispatched run will refuse

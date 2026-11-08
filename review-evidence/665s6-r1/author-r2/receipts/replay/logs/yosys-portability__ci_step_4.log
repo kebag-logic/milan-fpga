@@ -1,0 +1,6 @@
+# head 526f937cde45e3a591fb3b9484ffdcaddbdfa144 workflow rtl.yml job yosys-portability step ci_step_4: Reconcile the live inventory and structural gates
+# INSTEAD of the step as written (reads the four shards' results from download-artifact; run_job.py's --steps run of it reads the four local shards' results, linked under RUNNER_TEMP/all-yosys-results):
+# set -euo pipefail
+syn/yosys/run.sh --list > "$RUNNER_TEMP/expected-yosys-tops"
+python3 scripts/yosys_tally.py $YOSYS_RESULT_ROOTS --expected "$RUNNER_TEMP/expected-yosys-tops" --require-structural
+Yosys evidence: expected=62 observed=62 errors=0

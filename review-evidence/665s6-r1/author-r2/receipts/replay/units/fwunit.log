@@ -1,0 +1,13 @@
+=== run_job.py rtl-fast.yml firmware-unit 526f937cde45e3a591fb3b9484ffdcaddbdfa144 <scratch>/replay --base-tip a9d69c774dee18b90eead74c9f2dda24cf8fdeb8
+firmware-unit__ci_step_1	rc=0	Set CPU-derived job budgets
+firmware-unit__ci_step_3	rc=0	Fetch RTL dependencies
+firmware-unit__ci_packages_2	NOT RUN	resolves an apt package index into the runner's download cache for a sudo apt-get install; this host has no apt, and the tool each package carries is installed here (see the install step)
+firmware-unit__ci_step_6	rc=0	Install GoogleTest and GoogleMock and print the versions
+firmware-unit__ci_step_7	rc=0	Prove the tally reads a failing and a crashing test as failures
+firmware-unit__ci_step_9	rc=0	Install and verify the pinned RV32 SDK
+firmware-unit__ci_step_10	rc=0	Run the control-plane firmware suites and RV32 builds
+firmware-unit__ci_step_11	rc=0	Run the saved-state store suites and its RV32 build
+firmware-unit__ci_step_12	rc=0	Hold the firmware coverage ratchet
+firmware-unit__ci_record	NOT RUN	ci_runtime_evidence.py record reads CI_STEP_RESULTS, the hosted toJSON(steps) context, and uploads to the run
+firmware-unit done, failed 0
+batch done, 0 job(s) with a failed step
