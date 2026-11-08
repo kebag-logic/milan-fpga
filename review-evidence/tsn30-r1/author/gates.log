@@ -1,0 +1,15 @@
+$ python3 scripts/check_privacy.py --selftest
+privacy selftest: 13 commit controls pass
+rc=0
+$ python3 scripts/check_privacy.py
+privacy: exact owner squash metadata exception; content scanning remains enabled
+privacy: 17 commits, 264 historical blobs, 98 current files; pass
+rc=0
+$ git stash-equivalent: main without the change
+privacy: exact owner squash metadata exception; content scanning remains enabled
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496: commit message must be one line
+rc=1
+$ python3 scripts/check_comments.py
+comment lexer: $VALIDATION_TOOLS/clang-18/bin/clang-18
+comments: 34 code files and all mutation fragments pass
+rc=0
