@@ -1416,7 +1416,7 @@ boundary both halves declare the Domain. The Talker attributes are the
   sends New twice (VN, then AN, then AA), as the table does. The processor documents its
   Domain participant that way: one New at startup and at LINK_UP, then the
   re-joins (section 6.1 of
-  [10_srp_engine.md](../../../protocol-processor/docs/architecture/10_srp_engine.md)).
+  `protocol-processor/docs/architecture/10_srp_engine.md`).
   The ruling calls such a trace a defect, not a difference.
 
 ```sh
