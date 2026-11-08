@@ -176,10 +176,16 @@ void SplitHalf::tx_take() {
     for (unsigned i = 0; i < 8; ++i)
         if (d_->tx_tkeep & (1u << i)) tx_cur_.push_back(static_cast<std::uint8_t>(d_->tx_tdata >> (8 * i)));
     if (!d_->tx_tlast) return;
+    twin::Frame answer;
+    const char* who = nullptr;
     if (cap_ != nullptr && twin::is_control(tx_cur_)) {
         cap_->frames.push_back({ms_, tx_cur_});
+        if (twin::controller_available_answer(tx_cur_, &answer, &who)) {
+            rx_q_.push_back(answer);
+            cap_->applied.push_back({ms_, who, answer});
+        }
     } else if (cap_ != nullptr) {
-        ++cap_->stream_frames;
+        cap_->stream_frame(ms_);
     }
     tx_cur_.clear();
 }
@@ -312,7 +318,7 @@ void millisecond(SplitHalf& half, const std::vector<twin::Stimulus>& stim, std::
                  twin::Capture* cap) {
     while (*next < stim.size() && stim[*next].ms <= half.ms()) {
         half.mac_rx(stim[*next].frame);
-        cap->applied.push_back({half.ms(), stim[*next].what});
+        cap->applied.push_back({half.ms(), stim[*next].what, stim[*next].frame});
         ++*next;
     }
     half.tick_ms();

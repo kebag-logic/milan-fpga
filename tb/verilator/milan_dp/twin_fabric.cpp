@@ -192,10 +192,16 @@ void FabricHalf::tx_edge() {
         if (dut_->m_axis_mac_tx_tkeep & (1u << i))
             tx_cur_.push_back(static_cast<std::uint8_t>(dut_->m_axis_mac_tx_tdata >> (8 * i)));
     if (!dut_->m_axis_mac_tx_tlast) return;
+    twin::Frame answer;
+    const char* who = nullptr;
     if (cap_ != nullptr && twin::is_control(tx_cur_)) {
         cap_->frames.push_back({ms(), tx_cur_});
+        if (twin::controller_available_answer(tx_cur_, &answer, &who)) {
+            rx_q_.push_back(answer);
+            cap_->applied.push_back({ms(), who, answer});
+        }
     } else if (cap_ != nullptr) {
-        ++cap_->stream_frames;
+        cap_->stream_frame(ms());
     }
     tx_cur_.clear();
 }
@@ -318,7 +324,7 @@ void FabricHalf::run(twin::Capture* cap) {
     while (ms() < twin::kRunMs) {
         while (next < stim.size() && stim[next].ms <= ms()) {
             rx_q_.push_back(stim[next].frame);
-            cap->applied.push_back({ms(), stim[next].what});
+            cap->applied.push_back({ms(), stim[next].what, stim[next].frame});
             ++next;
         }
         tick();

@@ -16,7 +16,15 @@
 // A controller (kController, at kControllerMac) enumerates and drives the
 // entity over AECP and ACMP, a peer talker's stream is bound and probed, and a
 // peer probes the MAAP range both halves hold, which they defend (IEEE
-// 1722-2016 B.3). Every frame is written from the clauses cited beside it.
+// 1722-2016 B.3). A second controller (kController2, at its own MAC) registers
+// for unsolicited notifications, so the commands of the first are notified to
+// it (IEEE 1722.1-2021 7.5.2), and the F5 difference ledger's remaining rows
+// are reached: LOCK_ENTITY and its release, the Milan vendor-unique commands
+// (Milan v1.2 5.4.3, 5.4.4) and one HDCP_APM PDU (#665 issuecomment-6717765106,
+// item 6). Both controllers answer the entity's CONTROLLER_AVAILABLE as a live
+// controller does (controller_available_answer), so each stays registered to
+// the run's end, past the 60 s lock expiry. Every frame is written from the
+// clauses cited beside it.
 
 #ifndef TWIN_HPP
 #define TWIN_HPP
@@ -45,9 +53,11 @@ constexpr std::uint64_t kMaapMulticast = 0x91E0F000FF00ull;  // IEEE 1722-2016 T
 //! (configs/endstation_ax7101_1x1_tdm8.yaml; adp_entity_gen.h).
 constexpr std::uint64_t kEntityId = 0x020000FFFE000001ull;
 constexpr std::uint64_t kEntityMac = 0x020000000001ull;
-//! The controller, a peer talker and a peer listener.
+//! The controller, a second controller, a peer talker and a peer listener.
 constexpr std::uint64_t kController = 0x1111222233334444ull;
 constexpr std::uint64_t kControllerMac = 0x001B92000099ull;
+constexpr std::uint64_t kController2 = 0x2222333344445555ull;
+constexpr std::uint64_t kController2Mac = 0x001B9200009Bull;
 constexpr std::uint64_t kPeerTalker = 0x0202DEADBEEF0001ull;
 constexpr std::uint64_t kPeerListener = 0x0303CAFEF00D0001ull;
 constexpr std::uint64_t kPeerMac = 0x001B920000AAull;
@@ -63,8 +73,9 @@ constexpr std::uint64_t kMaapPreferred = kMaapPoolBase + kMaapOffset;
 #endif
 static_assert(TWIN_FW_MAAP_PREFERRED == kMaapPreferred, "both halves pin MAAP at one range");
 
-//! How long both halves run, in modeled milliseconds.
-constexpr std::uint32_t kRunMs = 36000;
+//! How long both halves run, in modeled milliseconds: past the expiry of the
+//! lock taken at 11400 ms and never released (Milan v1.2 5.4.2.2, 60 s).
+constexpr std::uint32_t kRunMs = 75000;
 
 inline void put_be(Frame& f, std::size_t at, std::uint64_t v, unsigned n) {
     for (unsigned i = 0; i < n; ++i) {
@@ -103,15 +114,24 @@ inline Frame acmp(std::uint8_t message_type, std::uint64_t talker, std::uint64_t
     return f;
 }
 
-//! An AEM_COMMAND (IEEE 1722.1-2021 Figure 9-1, 9.2.1.2) from the controller
+//! A controller: its entity ID and the MAC its frames come from.
+struct Controller {
+    std::uint64_t id;
+    std::uint64_t mac;
+};
+constexpr Controller kFirst{kController, kControllerMac};
+constexpr Controller kSecond{kController2, kController2Mac};
+
+//! An AEM_COMMAND (IEEE 1722.1-2021 Figure 9-1, 9.2.1.2) from a controller
 //! to the entity's MAC; control_data_length counts from controller_entity_id.
-inline Frame aem(std::uint16_t command_type, const std::vector<std::uint8_t>& payload, std::uint16_t seq) {
-    Frame f = eth(kEntityMac, kControllerMac, kEtherAvtp, 38 + payload.size());
+inline Frame aem(std::uint16_t command_type, const std::vector<std::uint8_t>& payload, std::uint16_t seq,
+                 Controller from = kFirst) {
+    Frame f = eth(kEntityMac, from.mac, kEtherAvtp, 38 + payload.size());
     f[14] = kSubAecp;
     f[15] = 0;
     put_be(f, 16, 12 + payload.size(), 2);
     put_be(f, 18, kEntityId, 8);
-    put_be(f, 26, kController, 8);
+    put_be(f, 26, from.id, 8);
     put_be(f, 34, seq, 2);
     put_be(f, 36, command_type, 2);
     for (std::size_t k = 0; k < payload.size(); ++k) {
@@ -127,11 +147,20 @@ inline std::vector<std::uint8_t> descriptor(std::uint16_t type, std::uint16_t in
 }
 
 //! READ_DESCRIPTOR (IEEE 1722.1-2021 7.4.5.1): the configuration, then the pair.
-inline Frame read_descriptor(std::uint16_t type, std::uint16_t index, std::uint16_t seq, std::uint8_t config = 0) {
+inline Frame read_descriptor(std::uint16_t type, std::uint16_t index, std::uint16_t seq, std::uint8_t config = 0,
+                             Controller from = kFirst) {
     std::vector<std::uint8_t> p{0, config, 0, 0};
     const std::vector<std::uint8_t> d = descriptor(type, index);
     p.insert(p.end(), d.begin(), d.end());
-    return aem(0x0004, p, seq);
+    return aem(0x0004, p, seq, from);
+}
+
+//! LOCK_ENTITY (IEEE 1722.1-2021 7.4.2.1) of the ENTITY descriptor: flags
+//! (UNLOCK is bit 0), locked_id 0, descriptor_type and descriptor_index 0.
+inline Frame lock_entity(bool unlock, std::uint16_t seq) {
+    std::vector<std::uint8_t> p(16, 0);
+    p[3] = unlock ? 1 : 0;
+    return aem(0x0001, p, seq);
 }
 
 //! A MAAP PROBE from the peer for `count` addresses at `start` (IEEE 1722-2016 B.2).
@@ -171,6 +200,40 @@ inline Frame aecp_other(std::uint8_t message_type, const std::vector<std::uint8_
     return f;
 }
 
+//! A Milan vendor-unique command (Milan v1.2 5.4.3.2, Table 5.18): the MVU
+//! protocol_id 00-1B-C5-0A-C1-00, r 0 and command_type, the halfword at @30,
+//! then the command's octets from @32, in the figure its clause gives.
+inline Frame mvu(std::uint16_t command_type, std::uint16_t at30, const std::vector<std::uint8_t>& octets,
+                 std::uint16_t seq) {
+    std::vector<std::uint8_t> d{0x00, 0x1B, 0xC5, 0x0A, 0xC1, 0x00,
+                                static_cast<std::uint8_t>(command_type >> 8), static_cast<std::uint8_t>(command_type),
+                                static_cast<std::uint8_t>(at30 >> 8), static_cast<std::uint8_t>(at30)};
+    d.insert(d.end(), octets.begin(), octets.end());
+    return aecp_other(6, d, seq);
+}
+
+//! SET_SYSTEM_UNIQUE_ID's system_unique_id (Milan v1.2 5.4.4.2, Figure 5.5;
+//! 0 is the default it forbids).
+constexpr std::uint64_t kSystemUniqueId = 0x0102030405060708ull;
+
+//! SET_MEDIA_CLOCK_REFERENCE_INFO's octets from @32 (Milan v1.2 5.4.4.4,
+//! Figure 5.6, clock domain 0 at @30), the command the processor's model
+//! sends (tests/steps/aecp_engine_model.py): flags 0x03, both Table 5.21
+//! flags; octets 0, 0 and 0x80; four reserved octets; the domain named
+//! "DEFAULT", zero padded to 64 octets.
+inline std::vector<std::uint8_t> mcr_info() {
+    std::vector<std::uint8_t> o{0x03, 0x00, 0x00, 0x80, 0, 0, 0, 0, 'D', 'E', 'F', 'A', 'U', 'L', 'T'};
+    o.resize(8 + 64, 0);
+    return o;
+}
+
+//! An HDCP_APM_COMMAND (IEEE 1722.1-2021 9.7): its fixed header after the
+//! sequence_id (two HDCP data octets, flags 0, fragment offset 0), then the
+//! two data octets.
+inline Frame hdcp_apm(std::uint16_t seq) {
+    return aecp_other(8, {0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0xDE, 0xAD}, seq);
+}
+
 //! The shipping shape's STREAM_INPUT 0 format, its default (ADP_STRIN0_FMT_C,
 //! the Makefile's TWIN_IN0_FMT out of the shape header both halves build).
 #ifndef TWIN_IN0_FMT
@@ -193,6 +256,9 @@ inline std::vector<Stimulus> scenario() {
     return {
         {2500, "ADP ENTITY_DISCOVER", discover()},
         {3000, "AECP REGISTER_UNSOLICITED_NOTIFICATION", aem(0x0024, {0, 0, 0, 0}, 1)},
+        {3050, "AECP REGISTER_UNSOLICITED_NOTIFICATION, the second controller",
+         aem(0x0024, {0, 0, 0, 0}, 0x0201, kSecond)},
+        {3060, "AECP READ_DESCRIPTOR ENTITY 0, the second controller", read_descriptor(0x0000, 0, 0x0202, 0, kSecond)},
         {3100, "AECP READ_DESCRIPTOR ENTITY 0", read_descriptor(0x0000, 0, 2)},
         {3200, "AECP READ_DESCRIPTOR CONFIGURATION 0", read_descriptor(0x0001, 0, 3)},
         {3300, "AECP READ_DESCRIPTOR STREAM_INPUT 0", read_descriptor(sin, 0, 4)},
@@ -206,6 +272,7 @@ inline std::vector<Stimulus> scenario() {
         {5500, "ACMP GET_TX_STATE source 0", acmp(4, kEntityId, kPeerListener, 0x0104)},
         {6000, "AECP START_STREAMING STREAM_INPUT 0", aem(0x0022, descriptor(sin, 0), 9)},
         {6200, "AECP STOP_STREAMING STREAM_INPUT 0", aem(0x0023, descriptor(sin, 0), 10)},
+        {6500, "AECP START_STREAMING STREAM_INPUT 0, once stopped", aem(0x0022, descriptor(sin, 0), 23)},
         {7000, "ACMP UNBIND_RX sink 0", acmp(8, kPeerTalker, kEntityId, 0x0105)},
         {8000, "MAAP PROBE of the held range", maap_probe(kMaapPreferred, 2)},
         // the F5 difference ledger's rows (sw/firmware/ctrl/aecp/README.md)
@@ -213,6 +280,16 @@ inline std::vector<Stimulus> scenario() {
         {9200, "AECP SET_STREAM_INFO STREAM_INPUT 0, no sub-command", set_stream_info(sin, 0, 12)},
         {9400, "AECP SET_STREAM_FORMAT STREAM_INPUT 0 to its default", set_stream_format(sin, 0, kIn0Format, 13)},
         {9600, "AECP reserved message_type 10", aecp_other(10, {0, 0, 0, 0}, 14)},
+        {9800, "AECP LOCK_ENTITY ENTITY 0", lock_entity(false, 15)},
+        {10000, "AECP LOCK_ENTITY ENTITY 0, UNLOCK", lock_entity(true, 16)},
+        {10200, "AECP MVU GET_MILAN_INFO", mvu(0x0000, 0, {}, 17)},
+        {10400, "AECP MVU SET_SYSTEM_UNIQUE_ID",
+         mvu(0x0001, 0, {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, 18)},
+        {10600, "AECP MVU GET_SYSTEM_UNIQUE_ID", mvu(0x0002, 0, {}, 19)},
+        {10800, "AECP MVU SET_MEDIA_CLOCK_REFERENCE_INFO clock domain 0", mvu(0x0003, 0, mcr_info(), 20)},
+        {11000, "AECP MVU GET_MEDIA_CLOCK_REFERENCE_INFO clock domain 0", mvu(0x0004, 0, {}, 21)},
+        {11200, "AECP HDCP_APM_COMMAND", hdcp_apm(22)},
+        {11400, "AECP LOCK_ENTITY ENTITY 0, left to expire", lock_entity(false, 24)},
     };
 }
 
@@ -242,6 +319,37 @@ inline bool is_control(const Frame& f) {
     return sub == kSubAdp || sub == kSubAecp || sub == kSubAcmp || sub == kSubMaap;
 }
 
+//! A live controller's answer to the entity's CONTROLLER_AVAILABLE (Milan
+//! v1.2 5.4.5.3; IEEE 1722.1-2021 7.4.4): when `sent` is that AEM_COMMAND
+//! addressed to one of the two controllers, its AEM_RESPONSE SUCCESS from that
+//! controller's MAC, with the command's sequence_id, so both stay registered
+//! and see every notice to the run's end. `who` names the controller.
+inline bool controller_available_answer(const Frame& sent, Frame* answer, const char** who) {
+    std::uint16_t t = 0;
+    std::size_t at = 0;
+    if (!ethertype(sent, &t, &at) || t != kEtherAvtp || at + 24 > sent.size() || sent[at] != kSubAecp ||
+        (sent[at + 1] & 0x0F) != 0 || sent[at + 22] != 0x00 || sent[at + 23] != 0x03) {
+        return false;
+    }
+    std::uint64_t target = 0;
+    for (unsigned k = 0; k < 8; ++k) target = target << 8 | sent[at + 4 + k];
+    const Controller* from = target == kController ? &kFirst : target == kController2 ? &kSecond : nullptr;
+    if (from == nullptr) return false;
+    *answer = eth(kEntityMac, from->mac, kEtherAvtp, 38);
+    Frame& f = *answer;
+    f[14] = kSubAecp;
+    f[15] = 1;                                   // AEM_RESPONSE, status SUCCESS
+    put_be(f, 16, 12, 2);
+    put_be(f, 18, from->id, 8);                  // target_entity_id: the controller answering
+    for (unsigned k = 0; k < 8; ++k) f[26 + k] = sent[at + 12 + k];   // controller_entity_id: the entity
+    f[34] = sent[at + 20];                       // the command's sequence_id
+    f[35] = sent[at + 21];
+    put_be(f, 36, 0x0003, 2);
+    *who = from == &kFirst ? "AECP CONTROLLER_AVAILABLE response, the first controller"
+                           : "AECP CONTROLLER_AVAILABLE response, the second controller";
+    return true;
+}
+
 //! One frame a half's MAC sent, and the modeled millisecond it left at.
 struct Sent {
     std::uint32_t ms;
@@ -265,23 +373,39 @@ struct Capture {
     std::string placement;
     std::string ms_unit;
     std::vector<Sent> frames;
-    std::vector<std::pair<std::uint32_t, std::string>> applied;
+    //! each stimulus frame as applied: its millisecond, its name and its bytes
+    struct Applied {
+        std::uint32_t ms;
+        std::string what;
+        Frame frame;
+    };
+    std::vector<Applied> applied;
     std::uint64_t stream_frames = 0;
+    //! the millisecond the first stream frame left at, or -1: MVRP is graded against it (Milan v1.2 4.3.2)
+    std::int64_t first_stream_ms = -1;
     std::vector<std::pair<std::string, std::string>> notes;
+
+    //! Count one stream frame, and note the first one's millisecond.
+    void stream_frame(std::uint32_t ms) {
+        if (stream_frames++ == 0) first_stream_ms = ms;
+    }
 
     bool write(const char* path) const {
         std::FILE* fh = std::fopen(path, "w");
         if (fh == nullptr) return false;
-        std::fprintf(fh, "{\"placement\": \"%s\", \"ms_unit\": \"%s\", \"run_ms\": %u, \"stream_frames\": %llu,\n",
-                     placement.c_str(), ms_unit.c_str(), kRunMs, static_cast<unsigned long long>(stream_frames));
+        std::fprintf(fh,
+                     "{\"placement\": \"%s\", \"ms_unit\": \"%s\", \"run_ms\": %u, \"stream_frames\": %llu, "
+                     "\"first_stream_ms\": %lld,\n",
+                     placement.c_str(), ms_unit.c_str(), kRunMs, static_cast<unsigned long long>(stream_frames),
+                     static_cast<long long>(first_stream_ms));
         std::fprintf(fh, " \"notes\": {");
         for (std::size_t k = 0; k < notes.size(); ++k) {
             std::fprintf(fh, "%s\"%s\": \"%s\"", k ? ", " : "", notes[k].first.c_str(), notes[k].second.c_str());
         }
         std::fprintf(fh, "},\n \"applied\": [");
         for (std::size_t k = 0; k < applied.size(); ++k) {
-            std::fprintf(fh, "%s\n  {\"ms\": %u, \"what\": \"%s\"}", k ? "," : "", applied[k].first,
-                         applied[k].second.c_str());
+            std::fprintf(fh, "%s\n  {\"ms\": %u, \"what\": \"%s\", \"hex\": \"%s\"}", k ? "," : "", applied[k].ms,
+                         applied[k].what.c_str(), hex(applied[k].frame).c_str());
         }
         std::fprintf(fh, "],\n \"frames\": [");
         for (std::size_t k = 0; k < frames.size(); ++k) {
