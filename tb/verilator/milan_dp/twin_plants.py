@@ -16,6 +16,8 @@ Each plant names the grade or row it is the plant of:
     against its Registrar (twin_mrp.py);
   * mvrp-join-in, mvrp-received-join: the same grade of an MVRP attribute, the split's VID 2 (#665);
   * leave-all-declaration: the declaration state at the LeaveAll boundaries (compare_declarations);
+  * leave-all-omission: a LeaveAll frame that leaves out a declared attribute, against Table 10-3's txLA!
+    (twin_mrp.py);
   * vanished-mvrp-leave-all: the #857 owed row's defect gone (OWED_GRADES);
   * vanished-available-index: the #858 owed row's difference gone (OWED);
   * vanished-domain-new, vanished-vid2-join-in: the #860 owed rows' defects gone, where the fix would land
@@ -196,6 +198,31 @@ def plant_leave_all_declaration(fabric: dict, split: dict) -> dict:
     return planted(split, "leave-all-declaration")
 
 
+def plant_leave_all_omission(fabric: dict, split: dict) -> dict:
+    """The split's first MSRP LeaveAll frame at or after 20000 ms that carries the declared Domain, its Domain
+    value's vector taken out and the Message's AttributeListLength shortened, its LeaveAll kept: a txLA! that
+    sends nothing for a declared attribute, which Table 10-3 allows only from a state whose txLA! action is
+    none or bracketed (IEEE 802.1Q-2018 10.7.6.6, 10.7.9; twin_mrp.py)."""
+    del fabric
+    for entry in split["frames"]:
+        found = frame_fields(entry)
+        if found is None or found[0] != "MSRP" or entry["ms"] < 20000 or 4 not in td.msrp_frame(found[1])[1]:
+            continue
+        data = bytearray(bytes.fromhex(entry["hex"]))
+        message = found[1].at + 1
+        for kind, vector, packed in msrp_vectors(found[1].data, found[1].at):
+            while message + 4 + int.from_bytes(data[message + 2:message + 4], "big") <= vector:
+                message += 4 + int.from_bytes(data[message + 2:message + 4], "big")
+            if kind == 4 and data[vector + 2:vector + 6] == DOMAIN and data[vector + 1] == 1 and data[vector] < 0x20:
+                size = packed + 1 - vector  # its VectorHeader, the value and one ThreePackedEvents octet
+                listed = int.from_bytes(data[message + 2:message + 4], "big")
+                data[message + 2:message + 4] = (listed - size).to_bytes(2, "big")
+                del data[vector:vector + size]
+                entry["hex"] = bytes(data).hex()
+                return planted(split, "leave-all-omission")
+    raise SystemExit("plant leave-all-omission: no split MSRP LeaveAll frame carrying the Domain after 20000 ms")
+
+
 def plant_received_join(fabric: dict, split: dict) -> dict:
     """A peer's MSRP Domain JoinIn the split receives at 30500 ms, as the stimulus would apply it: its Registrar
     goes IN (IEEE 802.1Q-2018 Table 10-4), so its next sJ must be JoinIn (10.7.6.3), and the split, which never
@@ -348,6 +375,7 @@ SPLIT_PLANTS: dict[str, Plant] = {
     "command-byte": plant_command_byte, "command-sequence": plant_command_sequence,
     "response-sequence": plant_response_sequence, "table-10-3": plant_table_10_3,
     "received-join": plant_received_join, "leave-all-declaration": plant_leave_all_declaration,
+    "leave-all-omission": plant_leave_all_omission,
     "mvrp-join-in": plant_mvrp_join_in, "mvrp-received-join": plant_mvrp_received_join,
 }
 #: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)

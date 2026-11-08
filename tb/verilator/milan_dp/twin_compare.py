@@ -83,6 +83,8 @@ PLANT_WORDS = {
                      "nothing",
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
                              "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
+    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
+                          "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
     "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
     "vanished-available-index": "owed row entity-available-index: the difference has gone",
     "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table "
@@ -113,7 +115,8 @@ SELF_WORDS = {
 PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
                     "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
-                    "received-join": "MSRP", "leave-all-declaration": "MSRP", "vanished-mvrp-leave-all": "MVRP",
+                    "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
+                    "vanished-mvrp-leave-all": "MVRP",
                     "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
                     "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
                     "vid2-registrar-in": "MVRP"}
