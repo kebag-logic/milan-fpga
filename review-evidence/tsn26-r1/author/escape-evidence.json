@@ -1,0 +1,430 @@
+[
+ {
+  "plant": "acmp-full-queue-acts",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-listener-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+   ]
+  }
+ },
+ {
+  "plant": "owed-talker-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-room-off-by-one",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-ready-ignores-full",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-ready-ignores-reentry",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-ready-off-by-one",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-decline-uncounted",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-reentry-taken",
+  "registered_killers": [
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-malformed-declined",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-served-reported-declined",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "AcmpOwed.ReadyPredicateMatchesTheOwedBound"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+    "AcmpOwed.OnlyOwnCommandsAreDeclined",
+    "AcmpOwed.ReadyPredicateMatchesTheOwedBound",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-declines-every-frame",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-declines-foreign-listener",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-declines-foreign-talker",
+  "registered_killers": [
+   "AcmpOwed.OnlyOwnCommandsAreDeclined"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.OnlyOwnCommandsAreDeclined"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.OnlyOwnCommandsAreDeclined",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-listener-acts-then-declines",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+   ]
+  }
+ },
+ {
+  "plant": "owed-talker-acts-then-declines",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  }
+ },
+ {
+  "plant": "owed-get-rx-state-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-bind-rx-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-unbind-rx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-probe-tx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-get-tx-state-drop-restored",
+  "registered_killers": [
+   "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-disconnect-tx-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ },
+ {
+  "plant": "owed-get-tx-connection-drop-restored",
+  "registered_killers": [
+   "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+  ],
+  "full_suite": {
+   "rc": 1,
+   "tests": 106,
+   "failed": [
+    "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime"
+   ]
+  },
+  "without_sole_killer": {
+   "excluded": "AcmpOwed.TalkerCommandsBehindTheOwedSetAreAnsweredInTime",
+   "rc": 0,
+   "tests": 105,
+   "failed": [],
+   "escapes": true
+  }
+ }
+]
