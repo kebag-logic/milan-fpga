@@ -1,0 +1,8 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945: python3 syn/ooc/pp_placement_selftest.py; python3 syn/ooc/pp_baseline.py --selftest
+selftest rc 0
+placement Tcl all-fabric: control and every role reversal at synthesis/route PASS
+placement Tcl f0-f4: control and every role reversal at synthesis/route PASS
+placement Tcl full-split: control and every role reversal at synthesis/route PASS
+placement recipe: legacy parity, split preparation, selection marker, ROM and endpoint refusals PASS
+baseline export selftest: 3 default and worker-capped scripts, attribution constraint, CLI containment refusal PASS
+baseline rc 0
