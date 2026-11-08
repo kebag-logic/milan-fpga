@@ -22,6 +22,9 @@ static const struct aecp_descriptor *current(struct aecp_face *f, uint16_t type,
 static unsigned interface_of(struct aecp_face *f, const struct aecp_descriptor *d)
 {
 	unsigned i = d->length >= INTERFACE_AT + 2u ? (unsigned)wire_be16(d->value + INTERFACE_AT) : MBX_N_IF;
+	// a layout sized from the shape holds a stream on the interface the split
+	// places it on, which the model's one AVB_INTERFACE does not name (#859, #394)
+	i = MBX_STREAM_HOME(i, d->index);
 	return i < f->core->cfg.interfaces ? i : MBX_N_IF;
 }
 
@@ -86,7 +89,7 @@ static void publish(struct aecp_face *f, unsigned i, bool settings, const struct
 	for (unsigned k = 0; every && k < MBX_N_PUB_SINKS + MBX_N_PUB_SOURCES; ++k) {
 		bool input = k < MBX_N_PUB_SINKS;
 		const struct aecp_descriptor *d = current(f, input ? STREAM_INPUT : STREAM_OUTPUT,
-							  (uint16_t)(input ? k : k - MBX_N_PUB_SINKS));
+							  (uint16_t)MBX_ENTRY_STREAM(i, input ? k : k - MBX_N_PUB_SINKS));
 		if (d != NULL && interface_of(f, d) == i) {
 			write_stream(f, i, d);
 		}

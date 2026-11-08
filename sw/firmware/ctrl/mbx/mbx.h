@@ -31,6 +31,32 @@
 
 #include "mbx_contract.h"
 
+// A stream's place in the per-interface tables: the bound-talker table, the
+// publication and face entries and the bit-per-source fields (#859). A layout
+// sized from a shape's streams (MBX_ENTRY_ORDINAL, gen_mailbox.py
+// --variant-shape) holds each interface's own streams by their ordinal on it,
+// stream n on interface n mod MBX_N_IF as the split firmware places it, so an
+// interface's tables carry no other interface's streams. Every other layout
+// holds stream n at entry n of each interface's tables (mailbox.yaml).
+// MBX_STREAM_ON(i, n): stream n has entries on interface i. MBX_STREAM_HOME(i, n):
+// the interface whose tables hold stream n, i when every interface's do.
+// MBX_STREAM_ENTRY(n): its entry there. MBX_ENTRY_STREAM(i, e): the stream entry
+// e of interface i holds. MBX_STREAM_ENTRIES(count): the entries count streams
+// need on the interface that holds the most.
+#ifdef MBX_ENTRY_ORDINAL
+#define MBX_STREAM_ON(i, n) ((n) % MBX_N_IF == (i))
+#define MBX_STREAM_HOME(i, n) ((n) % MBX_N_IF)
+#define MBX_STREAM_ENTRY(n) ((n) / MBX_N_IF)
+#define MBX_ENTRY_STREAM(i, e) ((e) * MBX_N_IF + (i))
+#define MBX_STREAM_ENTRIES(count) (((count) + MBX_N_IF - 1u) / MBX_N_IF)
+#else
+#define MBX_STREAM_ON(i, n) 1
+#define MBX_STREAM_HOME(i, n) (i)
+#define MBX_STREAM_ENTRY(n) (n)
+#define MBX_ENTRY_STREAM(i, e) (e)
+#define MBX_STREAM_ENTRIES(count) (count)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

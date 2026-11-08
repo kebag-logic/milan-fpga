@@ -5,9 +5,11 @@
 #include "ctrl_app_aecp.h"
 #include "aecp_image.h"
 #include "aecp_entity_gen.h"
+#ifndef CTRL_SAVED_STATE_NONE
 #include "acmp_nvm.h"
 #include "nvm_store.h"
 #include "nvm_flash_litespi.h"
+#endif
 #include "adp_entity_gen.h"
 #include "wire.h"
 #ifdef CTRL_IMAGE_SRP
@@ -45,17 +47,23 @@ static void licence(void *ctx, unsigned interface, unsigned source, bool active)
 
 static struct aecp_mbx image_aecp;
 static struct ctrl_app_aecp image_aecp_bridge;
+#ifndef CTRL_SAVED_STATE_NONE
 static struct aecp_nvm image_state;
 static struct acmp_nvm image_binding;
+#endif
 static struct aecp_model image_model;
 static struct aecp_descriptor image_descriptors[AECP_ENTITY_DESCRIPTORS];
 static uint8_t image_values[AECP_ENTITY_VALUE_BYTES];
 static struct aecp_event image_events[AECP_ENTITY_DESCRIPTORS];
 static uint32_t image_latency[AECP_ENTITY_OUTPUTS];
 static struct aecp_mapping image_maps[AECP_ENTITY_MAP_ROWS];
+#ifndef CTRL_SAVED_STATE_NONE
 static struct aecp_mapping image_map_scratch[AECP_ENTITY_MAP_MAX];
+#endif
 static struct aecp_map image_map_pools[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(image_maps);
+#ifndef CTRL_SAVED_STATE_NONE
 static const struct aecp_value image_names[AECP_ENTITY_NAMES] = AECP_ENTITY_NAMES_INIT;
+#endif
 
 // The observation and physical-apply ports are contract 2.3's face block
 // (aecp_face.c). GET_AS_PATH stays an explicit unavailable observation: this
@@ -93,6 +101,7 @@ int main(void)
     for (unsigned n=0;n<CTRL_SRP_SINKS;++n) image_acmp.sink_interface[n]=n%MBX_N_IF;
     for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) image_acmp.source_interface[n]=n%MBX_N_IF;
     aecp_face_init(&image_face,&image_platform);
+#ifndef CTRL_SAVED_STATE_NONE
     if (!ctrl_app_compose(&image_app,&cfg) ||
         !ctrl_app_compose_aecp(&image_app,&image_aecp_bridge,&image_aecp,&aecp,
             &image_face.ports,&image_state) ||
@@ -102,6 +111,13 @@ int main(void)
     acmp_nvm_init(&image_binding,&image_app.acmp.acmp,NVM_G_BIND,&image_state.port);
     nvm_flash_litespi_power_on();
     nvm_store_boot(&nvm_flash_litespi,&image_binding.port);
+#else
+    // Without saved state (#859) nothing is restored between compose and open.
+    if (!ctrl_app_compose(&image_app,&cfg) ||
+        !ctrl_app_compose_aecp(&image_app,&image_aecp_bridge,&image_aecp,&aecp,
+            &image_face.ports,NULL) ||
+        !ctrl_app_aecp_attach_face(&image_aecp_bridge,&image_face)) return 5;
+#endif
     if (!ctrl_app_open(&image_app,&cfg)) {
 #else
     if (!ctrl_app_start(&image_app,&cfg)) {
@@ -129,8 +145,12 @@ int main(void)
         return 2;
     }
 #endif
+#ifndef CTRL_SAVED_STATE_NONE
     if (!ctrl_app_open_aecp(&image_aecp_bridge) ||
         !ctrl_loop_add_tick(&image_app.loop,nvm_store_service)) return 6;
+#else
+    if (!ctrl_app_open_aecp(&image_aecp_bridge)) return 6;
+#endif
     ctrl_loop_run(&image_app.loop);
     return 0;
 }

@@ -25,6 +25,14 @@ extern "C" {
 typedef void (*maap_allocation_fn)(void *ctx, unsigned interface, uint64_t base,
 				 uint16_t count, bool valid);
 
+// The cached declaration answers hold one bit per talker source of the entity:
+// a 32-bit word up to ACMP's default, a 64-bit one for a shape past 32 (#859).
+#if ACMP_MAX_SOURCES > 32u
+typedef uint64_t maap_mbx_demand;
+#else
+typedef uint32_t maap_mbx_demand;
+#endif
+
 struct maap_mbx_if {
 	struct maap core;
 	uint8_t slot;
@@ -42,7 +50,7 @@ struct maap_mbx {
 	uint32_t foreign_if;
 	struct acmp *acmp;
 	uint32_t published_gate[MBX_N_IF];
-	uint32_t demand; // Cached acmp_declaring answers, including source DA validity.
+	maap_mbx_demand demand; // Cached acmp_declaring answers, including source DA validity.
 };
 
 // Bind the declaration owner before attaching the adapter. No owner means
@@ -51,8 +59,9 @@ void maap_mbx_bind_acmp(struct maap_mbx *m, struct acmp *acmp);
 
 // Every interface owns its own MAC, machine and timer slot. allocation must
 // be supplied and returns without waiting or calling any protocol core. count
-// is the entity's talker sources, one address each, at most the publication
-// block's MBX_N_PUB_SOURCES: before each allocation is reported, the adapter
+// is the entity's talker sources, one address each, as many as the publication
+// block's MBX_N_PUB_SOURCES hold (mbx.h's MBX_STREAM_ENTRIES): before each
+// allocation is reported, the adapter
 // writes the interface's DA_GATE (valid range and cached ACMP declaration).
 bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t count,
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx);

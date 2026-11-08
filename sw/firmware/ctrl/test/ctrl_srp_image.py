@@ -14,7 +14,10 @@ and still holds them. The saved-state store comes from --nvm-source
 (sw/firmware/ctrl_nvm by default). Its flash port compiles against the RV32
 stand-ins' placeholder addresses, or with --flash-map against the headers
 gen_flash_port.py generated from a split SoC's csr.csv, whose clock must be the
-shape's (#665).
+shape's (#665). A shape the builder builds without saved state (saved_state:
+none, #859) links no store and no flash port; a shape whose streams pass
+acmp.h's sink and source tables sizes them at its counts; a simulation_only
+shape links into its simulation memory map (sw/litex/ctrl_memory.py).
 """
 from __future__ import annotations
 import argparse
@@ -63,12 +66,51 @@ def flash_port(flash_map: Path | None, clock_hz: int) -> list[str]:
     return [f"-I{flash_map}"]
 
 
+def shape_options(config: Path) -> tuple[bool, bool]:
+    """The builder's simulation_only and whether the shape keeps saved state (#859)."""
+    sys.path.insert(0,str(ROOT/"sw/builder"))
+    import endstation_builder as eb
+    cfg=eb.load_config(str(config))
+    return cfg["simulation_only"],cfg["saved_state"] != "none"
+
+
+def acmp_sizing(stack: Path, header: Path) -> list[str]:
+    """ACMP's sink and source tables at the shape's CTRL_SRP_SINKS and CTRL_SRP_SOURCES, the CRF
+    streams included, where they pass acmp.h's defaults, which it takes as build defines (#859); a
+    shape within the defaults keeps them."""
+    defaults={name:int(n) for name,n in re.findall(r"^#define ACMP_MAX_(SINKS|SOURCES) (\d+)u$",
+                                                   (stack/"include/acmp.h").read_text(),re.M)}
+    counts={name:int(re.search(rf"^#define CTRL_SRP_{name} (\d+)u$",header.read_text(),re.M).group(1))
+            for name in ("SINKS","SOURCES")}
+    if sorted(defaults) != ["SINKS","SOURCES"]:
+        raise Refusal(f"{stack/'include/acmp.h'}: its ACMP_MAX_SINKS and ACMP_MAX_SOURCES defaults are unread")
+    if all(counts[name] <= defaults[name] for name in counts):
+        return []
+    return [f"-DACMP_MAX_{name}={max(counts[name],defaults[name])}u" for name in ("SINKS","SOURCES")]
+
+
+def simulation_map(config: Path, interfaces: int) -> str:
+    """The SIMULATION map ctrl_memory.py states for this simulation_only shape, or a refusal."""
+    names=[name for name,point in ctrl_memory.SIMULATION.items()
+           if (point.shape,point.interfaces) == (config.stem,interfaces)]
+    if not names:
+        raise Refusal(f"{config.stem} is simulation-only and sw/litex/ctrl_memory.py states no simulation "
+                      f"memory map for it at {interfaces} interfaces")
+    return names[0]
+
+
 def aecp_inputs(tree: Tree, config: Path, out: Path, nvm: Path,
-                flash_map: Path | None) -> tuple[list[str], list[Path]]:
-    """Add the generated AECP model and the existing saved-state owner, the store from nvm."""
+                flash_map: Path | None, saved: bool = True) -> tuple[list[str], list[Path]]:
+    """Add the generated AECP model and the existing saved-state owner, the store from nvm; without
+    saved state (#859), the model alone."""
+    from aecp_arms import AECP_SOURCES
+    if not saved:
+        checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
+                 "-o",str(out/"aecp_entity_gen.h")])
+        sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_face.c")]
+        return [f"-I{tree.src/'aecp'}"],[*sources,tree.src/"app/ctrl_app_aecp.c"]
     sys.path.insert(0,str(NVM_DIR/"test"))
     import nvm_bench
-    from aecp_arms import AECP_SOURCES
     shape=nvm_bench.shape_inputs(config,out/"nvm-shape")
     header=nvm_bench.shape_header(shape.shape,shape.donor,shape.ident)
     nvm_bench.write_headers(out/"gen",header,shape.clock_hz)
@@ -95,14 +137,15 @@ def verify_abi(cc: str, elf: Path) -> None:
 
 
 def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
-         layout: str) -> tuple[Path, Path]:
-    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld)."""
+         layout: str, simulation: str | None = None) -> tuple[Path, Path]:
+    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld), in
+    the split placement's regions or a simulation map's (ctrl_memory.SIMULATION)."""
     elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
     script,ldflags=HERE/"ctrl_image.ld",[]
     if layout == "split":
         start=out/"ctrl_split_start.o"
         checked([cc,"-march=rv32i","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
-        (out/"regions.ld").write_text(ctrl_memory.regions_ld())
+        (out/"regions.ld").write_text(ctrl_memory.regions_ld(*ctrl_memory.regions(simulation)))
         script,ldflags=src/"plat/ctrl_split.ld",[f"-L{out}",str(start)]
     checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
              "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
@@ -142,14 +185,24 @@ def main() -> int:
             raise Refusal("--ledgered-point plans a split image; it needs --layout split")
         if args.flash_map is not None and not args.with_aecp:
             raise Refusal("--flash-map maps the saved-state store's flash port, which only --with-aecp links")
+        simulation_only,saved=shape_options(args.config)
+        if args.flash_map is not None and not saved:
+            raise Refusal("--flash-map maps the saved-state store's flash port; this shape is built without "
+                          "saved state (#859)")
+        simulation=(simulation_map(args.config.resolve(),args.interfaces)
+                    if simulation_only and args.layout == "split" else None)
+        if simulation is not None and args.ledgered_point is not None:
+            raise Refusal("a simulation map ledgers its own bytes; it takes no --ledgered-point")
         cc=fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")
         tree=source_tree(args.ctrl_source.resolve(),args.stack_source.resolve(),out)
         variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
+        sizing=acmp_sizing(tree.stack,out/"srp_entity_gen.h")
         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
                  "-o",str(out/"adp_entity_gen.h")])
-        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections",*sizing,
+               *([] if saved else ["-DCTRL_SAVED_STATE_NONE"])]
         nvm=args.nvm_source.resolve()
         inc += [f"-I{out}",f"-I{nvm}",*fw_rv32.includes(cc)]
         sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
@@ -158,7 +211,7 @@ def main() -> int:
             if args.without_srp:
                 raise Refusal("AECP sizing requires the complete SRP composition")
             flash_map=args.flash_map.resolve() if args.flash_map else None
-            extra_inc, extra_sources = aecp_inputs(tree,args.config,out,nvm,flash_map)
+            extra_inc, extra_sources = aecp_inputs(tree,args.config,out,nvm,flash_map,saved)
             inc += extra_inc
             sources += extra_sources
         libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
@@ -176,7 +229,7 @@ def main() -> int:
         findings=fw_rv32.object_findings(cc,objects)
         if findings:
             raise Refusal(str(findings))
-        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
+        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout,simulation)
         nm=cc.removesuffix("gcc")+"nm"
         verify_abi(cc,elf)
         symbols=checked([nm,"-S",str(elf)])
@@ -194,10 +247,16 @@ def main() -> int:
         if args.with_aecp:
             required -= {"ctrl_app_start","ctrl_app_start_maap"}
             required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
-                         "aecp_rx","aecp_poll","aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
-                         "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
-                         "nvm_store_boot","nvm_store_service","image_aecp","image_descriptors",
-                         "image_values","image_events","image_maps","image_map_pools","image_map_scratch"}
+                         "aecp_rx","aecp_poll","image_aecp","image_descriptors",
+                         "image_values","image_events","image_maps","image_map_pools"}
+            if saved:
+                required |= {"aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
+                             "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
+                             "nvm_store_boot","nvm_store_service","image_map_scratch"}
+            else:
+                forbidden_store={"aecp_nvm_poll","acmp_nvm_init","nvm_store_boot","nvm_store_service"}
+                if forbidden_store & names:
+                    raise Refusal(f"a shape without saved state links the store: {sorted(forbidden_store)}")
         if required-names:
             raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")
         size=checked([cc.removesuffix("gcc")+"size","-A",str(elf)])
@@ -217,10 +276,14 @@ def main() -> int:
             records.append({"name":path.name,"size":path.stat().st_size,
                             "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
         report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,"aecp":args.with_aecp,
+                **({} if saved else {"saved_state":"none"}),**({"acmp_sizing":sizing} if sizing else {}),
                 "sections":sections,"static_storage":storage,"artifacts":records,
                 "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack"))}
         if args.layout == "split":
-            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf),ledgered=args.ledgered_point).summary()
+            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf),ledgered=args.ledgered_point,
+                                             simulation=simulation).summary()
+            if simulation is not None:
+                report["simulation_map"]=simulation
         else:
             report["ram_span"]=addresses["__image_end"]-addresses["__image_start"]
         (out/"symbols.txt").write_text(symbols)

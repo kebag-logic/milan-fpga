@@ -2,10 +2,20 @@
 // Deferred protocol delivery (#678) and response-before-notice ordering (#653).
 #include "ctrl_app_aecp.h"
 #include "mbx_wire.h"
+#ifndef CTRL_SAVED_STATE_NONE
 #include "nvm_store.h"
+#endif
 #include <string.h>
 
+// CTRL_SAVED_STATE_NONE: a simulation shape built without saved state (#859),
+// whose builder writes no record space while #823 owns it at that shape. AECP
+// is composed with no state port; nothing is restored, latched or saved, and
+// the face publishes a restore that is done and a store that does not answer.
+
 _Static_assert(CTRL_APP_AECP_SLOT < MBX_N_TIMERS, "AECP needs its own timer slot");
+#ifndef CTRL_SAVED_STATE_NONE
+_Static_assert(ACMP_MAX_SINKS <= 32u, "the bindings owed to the store are one bit a sink of a 32-bit word");
+#endif
 
 static bool locked(void *ctx, uint64_t *owner)
 {
@@ -28,7 +38,9 @@ static void srp(void *ctx, unsigned index, const struct acmp_stream *value)
 static void persist(void *ctx, unsigned index)
 {
 	struct ctrl_app_aecp *c = ctx;
+#ifndef CTRL_SAVED_STATE_NONE
 	c->bindings |= 1u << index;
+#endif
 	c->acmp_owner->persist(c->acmp_owner->ctx, index);
 }
 
@@ -86,7 +98,9 @@ static bool counters(void *ctx, unsigned interface, uint16_t type, uint16_t inde
 static void changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t index)
 {
 	struct ctrl_app_aecp *c = ctx;
+#ifndef CTRL_SAVED_STATE_NONE
 	aecp_nvm_changed(c->state, kind, type, index);
+#endif
 	c->environment->changed(c->environment->ctx, kind, type, index);
 }
 
@@ -114,6 +128,7 @@ static bool applied(void *ctx)
 	return c->environment->applied(c->environment->ctx);
 }
 
+#ifndef CTRL_SAVED_STATE_NONE
 void ctrl_app_aecp_store_words(const struct nvm_status *s, uint32_t *restore, uint32_t *nvm, bool *dirty)
 {
 	bool done = s->terminal != NVM_T_NONE;
@@ -141,6 +156,14 @@ static void publish_store(struct ctrl_app_aecp *c)
 	ctrl_app_aecp_store_words(nvm_store_status(), &restore, &nvm, &dirty);
 	aecp_face_status(c->face, restore, nvm, dirty);
 }
+#else
+// No store: the restore sequencing is done with nothing to restore, and no
+// store answers (F_NVM.BACKED clear).
+static void publish_store(struct ctrl_app_aecp *c)
+{
+	aecp_face_status(c->face, mbx_place(1u, MBX_F_RESTORE_DONE_LSB, MBX_F_RESTORE_DONE_WIDTH), 0u, false);
+}
+#endif
 
 // The face block's events (contract 2.3): each a Table 5.22 notification of
 // Milan v1.2 5.4.5.2, input events behind their causal ACMP responses (#653).
@@ -186,16 +209,22 @@ static bool deliver(void *ctx)
 			aecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);
 		}
 	}
+#ifndef CTRL_SAVED_STATE_NONE
 	bool pending = aecp_nvm_poll(c->state);
+#else
+	bool pending = false;
+#endif
 	if (c->face != NULL) {
 		publish_store(c);
 		pending = aecp_face_poll(c->face) || pending;
 	}
 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
+#ifndef CTRL_SAVED_STATE_NONE
 		if ((c->bindings & (1u << n)) != 0u) {
 			c->bindings &= ~(1u << n);
 			nvm_store_changed(NVM_G_BIND, n);
 		}
+#endif
 		if (c->input_events[n] != 0u) {
 			if (acmp_change_pending(a, n)) pending = true;
 			else {
@@ -236,7 +265,9 @@ bool ctrl_app_aecp_attach_face(struct ctrl_app_aecp *c, struct aecp_face *face)
 
 bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 {
+#ifndef CTRL_SAVED_STATE_NONE
 	if (!c->state->released) return false;
+#endif
 	if (c->face != NULL) {
 		// the restored settings and the store's status reach the datapath, acknowledged, before AECP does
 		publish_store(c);

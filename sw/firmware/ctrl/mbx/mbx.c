@@ -234,6 +234,11 @@ bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool st
 
 bool mbx_pub_licensed(unsigned interface, unsigned source)
 {
+#ifdef MBX_ENTRY_ORDINAL
+	// source s's bit is on its own interface (mbx.h), whichever asks
+	interface = MBX_STREAM_HOME(interface, source);
+	source = MBX_STREAM_ENTRY(source);
+#endif
 	return interface < MBX_N_IF && source < MBX_N_PUB_SOURCES &&
 	       ((mbx_field(mbx_hal_read32(pub_reg(interface, MBX_PUB_REG_LICENCE)), MBX_LICENCE_ACTIVE_LSB,
 			   MBX_LICENCE_ACTIVE_WIDTH) >> source) & 1u) != 0u;
@@ -257,6 +262,13 @@ bool mbx_face_write(unsigned interface, uint32_t reg, uint32_t value)
 
 bool mbx_face_write_source(unsigned interface, unsigned source, uint32_t reg, uint32_t value)
 {
+#ifdef MBX_ENTRY_ORDINAL
+	// source s's entry is on its own interface (mbx.h)
+	if (!MBX_STREAM_ON(interface, source)) {
+		return false;
+	}
+	source = MBX_STREAM_ENTRY(source);
+#endif
 	if (source >= MBX_N_PUB_SOURCES) {
 		return false;
 	}
@@ -265,6 +277,13 @@ bool mbx_face_write_source(unsigned interface, unsigned source, uint32_t reg, ui
 
 bool mbx_face_write_sink(unsigned interface, unsigned sink, uint32_t reg, uint32_t value)
 {
+#ifdef MBX_ENTRY_ORDINAL
+	// sink k's entry is on its own interface (mbx.h)
+	if (!MBX_STREAM_ON(interface, sink)) {
+		return false;
+	}
+	sink = MBX_STREAM_ENTRY(sink);
+#endif
 	if (sink >= MBX_N_PUB_SINKS) {
 		return false;
 	}

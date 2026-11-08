@@ -8,11 +8,12 @@
 #include <string.h>
 
 // The interfaces' slots fit the bank, so MBX_N_TIMERS - MBX_N_IF cannot wrap;
-// and sink k is entry k of its interface's bound-talker table, which holds as
-// many entries as the core has sinks (the contract's bound_talkers).
+// and sink k is entry MBX_STREAM_ENTRY(k) of its interface's bound-talker
+// table, which holds every sink the core places there (the contract's
+// bound_talkers; mbx.h).
 _Static_assert(MBX_N_TIMERS >= MBX_N_IF, "every interface needs a timer slot");
-_Static_assert(ACMP_MAX_SINKS <= MBX_N_BOUND, "every sink needs a bound-talker entry");
-_Static_assert(ACMP_MAX_SINKS <= MBX_N_PUB_SINKS, "every sink needs a publication entry");
+_Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+_Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_PUB_SINKS, "every sink needs a publication entry");
 
 static bool port_send(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
 {
@@ -54,23 +55,29 @@ static uint32_t port_seed(void *ctx)
 	return mbx_now_ms();
 }
 
-// Sink k is entry k of its interface's bound-talker table; the sinks fit the
-// table (above) and acmp_mbx_init held the interfaces to the mailbox's, so the
-// driver's refusal never applies.
+// Sink k is entry MBX_STREAM_ENTRY(k) of its interface's bound-talker table;
+// the sinks fit the table (above) and acmp_mbx_init held the interfaces to the
+// mailbox's, so the driver's refusal never applies.
 static void port_admit(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t talker_entity_id)
 {
+#ifdef MBX_ENTRY_ORDINAL
+	sink = MBX_STREAM_ENTRY(sink);
+#endif
 	(void)ctx;
 	(void)mbx_filter_set_bound_talker(interface, sink, bound, talker_entity_id);
 }
 
-// Sink k is entry k of its interface's publication block, as of its
-// bound-talker table: the sinks fit (above) and the interfaces are the
+// Sink k is entry MBX_STREAM_ENTRY(k) of its interface's publication block, as
+// of its bound-talker table: the sinks fit (above) and the interfaces are the
 // mailbox's, so the driver's refusal never applies. A stream_id that did not
 // move is not rewritten: BINDING alone carries the bound or started move, and
 // SID_VALID stays as it was, so the stream never leaves the datapath.
 static void port_publish(void *ctx, unsigned interface, unsigned sink, bool bound, bool started, uint64_t stream_id,
 			 bool stream_moved)
 {
+#ifdef MBX_ENTRY_ORDINAL
+	sink = MBX_STREAM_ENTRY(sink);
+#endif
 	(void)ctx;
 	if (stream_moved) {
 		(void)mbx_pub_sink(interface, sink, bound, started, stream_id);
@@ -88,6 +95,16 @@ bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const stru
 	if (first_slot > MBX_N_TIMERS - MBX_N_IF || cfg->n_interfaces > MBX_N_IF) {
 		return false;
 	}
+#ifdef MBX_ENTRY_ORDINAL
+	// A layout sized from the shape holds stream n on interface n mod MBX_N_IF
+	// only (mbx.h), so a stream the core places elsewhere has no entry.
+	for (unsigned k = 0; k < cfg->n_sinks; ++k) {
+		if (!MBX_STREAM_ON(cfg->sink_interface[k], k)) return false;
+	}
+	for (unsigned s = 0; s < cfg->n_sources; ++s) {
+		if (!MBX_STREAM_ON(cfg->source_interface[s], s)) return false;
+	}
+#endif
 	m->ports.ctx = m;
 	m->ports.send = port_send;
 	m->ports.now_ms = port_now;

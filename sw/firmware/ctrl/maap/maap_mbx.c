@@ -41,7 +41,7 @@ static void refresh_demand(struct maap_mbx *m)
 			// The owner supplies per-source destination validity and retires
 			// observed probe expiry. Only dispatch may call a protocol core.
 			if (acmp_declaring(m->acmp, s)) {
-				m->demand |= UINT32_C(1) << s;
+				m->demand |= (maap_mbx_demand)1 << s;
 			}
 		}
 	}
@@ -52,9 +52,9 @@ static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t
 	uint32_t gate = 0u;
 	if (m->acmp != NULL) {
 		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
-			bool demand = (m->demand & (UINT32_C(1) << s)) != 0u;
+			bool demand = (m->demand & ((maap_mbx_demand)1 << s)) != 0u;
 			if (m->acmp->cfg.source_interface[s] == interface && valid && s < count && demand) {
-				gate |= UINT32_C(1) << s;
+				gate |= UINT32_C(1) << MBX_STREAM_ENTRY(s);
 			}
 		}
 	}
@@ -102,7 +102,13 @@ bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t co
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx)
 {
 	memset(m, 0, sizeof *m);
+#ifdef MBX_ENTRY_ORDINAL
+	// a shape's layout holds each interface's own sources (mbx.h)
+	if (first_slot > MBX_N_TIMERS - MBX_N_IF || allocation == NULL ||
+	    MBX_STREAM_ENTRIES(count) > MBX_N_PUB_SOURCES) {
+#else
 	if (first_slot > MBX_N_TIMERS - MBX_N_IF || allocation == NULL || count > MBX_N_PUB_SOURCES) {
+#endif
 		return false;
 	}
 	m->ports = (struct maap_ports){m, send_frame, arm, cancel, range, clock_ms};

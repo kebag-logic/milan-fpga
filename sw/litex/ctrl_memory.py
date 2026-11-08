@@ -165,6 +165,7 @@ class Plan:
     ram_banks: tuple[int, ...]
     budget: float = BUDGET_TILES        # what the plan was held to
     ledgered: str | None = None         # the LEDGERED point it was planned as, if any
+    owed: Mapping[str, object] | None = None   # a SIMULATION map's ledger past BUDGET_TILES
 
     @property
     def tiles(self) -> float:
@@ -179,9 +180,10 @@ class Plan:
                     "RAMB36": sum(b // TILE_BYTES for b in banks),
                     "RAMB18": sum(b == GRANULE_BYTES for b in banks)}
         held = {} if self.ledgered is None else {"ledgered": self.ledgered, "ledgered_tiles": self.budget}
+        owed = {} if self.owed is None else {"owed": dict(self.owed)}
         return {"rom": region(self.rom_bytes, self.rom_banks),
                 "sram": region(self.ram_bytes, self.ram_banks),
-                "tiles": self.tiles, "budget_tiles": BUDGET_TILES, **held}
+                "tiles": self.tiles, "budget_tiles": BUDGET_TILES, **held, **owed}
 
 
 @dataclass(frozen=True)
@@ -219,6 +221,71 @@ LEDGERED: dict[str, Ledgered] = {
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image)"),
 }
+
+
+@dataclass(frozen=True)
+class Simulated:
+    """A memory map for a shape the image build never routes (simulation_only, #859)."""
+
+    shape: str                              # the shape's config stem
+    interfaces: int
+    symbols: tuple[tuple[str, int], ...]    # (symbol, size): what makes an image that shape's
+    rom: Region
+    ram: Region
+    owed: str                               # what recovers every byte past BUDGET_TILES
+
+
+#: The simulation-only memory maps (#859): a shape the image build refuses to
+#: route (the end-station builder's simulation_only) links into regions sized
+#: for it, at this map's origins, and is planned past BUDGET_TILES with every
+#: byte over it ledgered to `owed`, by region and by its five largest objects.
+#: No routed image takes one: ctrl_srp_image.py links a simulation map only
+#: for a simulation_only config, and `plan` refuses an image that is not the
+#: map's shape, which is its SRP pool (image_arena, SRP_POOL_ARENA_BYTES from
+#: its formula in sw/firmware/ctrl/srp/srp_mbx.h at the shape's 33 sources and
+#: 33 sinks on each of two interfaces) beside the size fixture's
+#: two-interface table. Each region is the smallest power of two that holds
+#: the shape's linked image, so the CPU decodes it as one window.
+SIMULATION: dict[str, Simulated] = {
+    "32x32-two-interfaces": Simulated(
+        "endstation_ax7101_32x32", 2, (("image_arena", 144_832), ("image_allocation", 16)),
+        Region("rom", ROM.origin, 0x4_0000), Region("sram", RAM.origin, 0x8_0000),
+        "#640, the Mark II area plan: a 32x32 shape's firmware memory"),
+}
+
+
+def simulated(image: Image, name: str) -> Simulated:
+    """SIMULATION[name], refused for any image that is not its shape's."""
+    point = SIMULATION.get(name)
+    if point is None:
+        raise Refusal("budget", f"no simulation map is named {name!r}; there are {sorted(SIMULATION)}")
+    carried = {symbol: image.symbols.get(symbol, (0, None))[1] for symbol, _ in point.symbols}
+    if carried != dict(point.symbols):
+        raise Refusal("budget", f"the simulation map {name!r} is for the {point.shape} image alone, the one "
+                      f"carrying {dict(point.symbols)}; this image carries {carried}")
+    return point
+
+
+def _owed(image: Image, need: "Plan", point: Simulated) -> dict[str, object]:
+    """The bytes past BUDGET_TILES, by region and by the five largest objects, and whom they are owed to."""
+    allocated = sum(need.rom_banks) + sum(need.ram_banks)
+    regions = {r.name: {"need": n, "allocated": sum(b)}
+               for r, n, b in ((point.rom, need.rom_bytes, need.rom_banks), (point.ram, need.ram_bytes,
+                                                                              need.ram_banks))}
+    objects = sorted(((size, name, next((r.name for r in (point.rom, point.ram)
+                                         if r.holds(value, value + size)), "-"))
+                      for name, (value, size) in image.symbols.items() if size), reverse=True)[:5]
+    return {"to": point.owed, "budget_bytes": BUDGET_BYTES, "allocated_bytes": allocated,
+            "over_bytes": max(0, allocated - BUDGET_BYTES), "regions": regions,
+            "largest": [{"symbol": name, "bytes": size, "region": region} for size, name, region in objects]}
+
+
+def regions(simulation: str | None = None) -> tuple[Region, Region]:
+    """The rom and sram regions: the split placement's, or a SIMULATION map's."""
+    if simulation is None:
+        return ROM, RAM
+    point = SIMULATION[simulation]
+    return point.rom, point.ram
 
 
 def ledgered_tiles(image: Image, name: str) -> float:
@@ -349,12 +416,25 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
 
 
 def plan(image: Image, rom: Region = ROM, ram: Region = RAM,
-         budget: float = BUDGET_TILES, ledgered: str | None = None) -> Plan:
+         budget: float = BUDGET_TILES, ledgered: str | None = None, simulation: str | None = None) -> Plan:
     """The banks the image needs, refused when its map is wrong or it exceeds the budget.
 
     `ledgered` names a LEDGERED point; its tiles replace the budget, and any
-    image that is not that point is refused.
+    image that is not that point is refused. `simulation` names a SIMULATION
+    map: the image is checked against that map's regions, any image that is
+    not its shape is refused, and the plan ledgers what passes the budget.
     """
+    if simulation is not None:
+        point = simulated(image, simulation)
+        rom, ram = point.rom, point.ram
+        check_map(image, rom, ram)
+        rom_end = max((s.lma + s.size for s in image.sections if s.loaded), default=rom.origin)
+        ram_end = max((s.vma + s.size for s in image.sections if ram.holds(s.vma, s.vma + s.size)),
+                      default=ram.origin)
+        need = Plan(rom_end - rom.origin, ram_end - ram.origin, banks(rom_end - rom.origin),
+                    banks(ram_end - ram.origin), (rom.size + ram.size) / TILE_BYTES)
+        return Plan(need.rom_bytes, need.ram_bytes, need.rom_banks, need.ram_banks, need.budget,
+                    owed=_owed(image, need, point))
     check_map(image, rom, ram)
     if ledgered is not None:
         budget = ledgered_tiles(image, ledgered)
