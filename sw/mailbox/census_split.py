@@ -489,6 +489,25 @@ def _split_bits(net: Any, named: tuple) -> list:
     return out
 
 
+@dataclass(frozen=True)
+class _Ctx:
+    """One shape's split census in progress: the split netlist's flow and sources, the all-fabric face, the
+    rows the datapath declares, the contract and the frame block's cell."""
+
+    fl: Any
+    pc: ModuleType
+    back: Back
+    face: AfFace
+    rows: dict[str, tuple[str, Face]]
+    contract: Contract
+    frames: list[str]
+
+    @property
+    def net(self) -> Any:
+        """The split netlist."""
+        return self.fl.net
+
+
 def survey_split(fl: Any, pc: ModuleType, face: AfFace | None, shape: str,
                  table: dict[str, dict[str, Face]] | None = None) -> SplitSurvey:
     """The split census of one shape: fl is the split netlist's flow, face the all-fabric face of the shape."""
@@ -496,7 +515,6 @@ def survey_split(fl: Any, pc: ModuleType, face: AfFace | None, shape: str,
     net = fl.net
     contract = _contract()
     out: list[str] = []
-    # ---- the placement --------------------------------------------------------------
     if live("split-placement"):
         out += [f"the split datapath holds {c.kind} cell {n}: the split builds no {c.kind}"
                 for n, c in sorted(net.cells.items()) if c.kind in GONE]
@@ -506,87 +524,120 @@ def survey_split(fl: Any, pc: ModuleType, face: AfFace | None, shape: str,
     if len(frames) != 1 and live("split-placement"):
         out.append(f"the split datapath holds {len(frames)} {CTRL_SPLIT} cells, not one")
     if face is None:
-        out.append("the all-fabric netlist of this shape holds no pp_shadow cell to read the faces from")
+        out.append(f"the all-fabric netlist of the shape {shape} holds no pp_shadow cell to read the faces from")
         return SplitSurvey({}, out)
     out += _table_findings(table, net.ports, contract)
     out += _face_findings(table)
-    back = Back(fl, pc)
+    rows = {port: (cls, row) for cls in CLASSES for port, row in table.get(cls, {}).items() if port in net.ports}
+    ctx = _Ctx(fl, pc, Back(fl, pc), face, rows, contract, frames)
     if live("split-placement"):
         out += [f"the map writer's net {n}, which the all-fabric exclusion names, comes from "
                 f"{', '.join(sorted(srcs))} in the split, not a constant: the split builds no map writer"
                 for n in census_ports.REMOVED_WITH_WRAPPER if n in net.names
-                for srcs in [back.closure(net.names[n])] if srcs]
-    rows = {port: (cls, row) for cls in CLASSES for port, row in table.get(cls, {}).items() if port in net.ports}
-    # ---- split-drives: each wrapper output's net, driven by the rows standing for it -------
+                for srcs in [ctx.back.closure(net.names[n])] if srcs]
+    out += _drives(ctx) + _tied(ctx) + _frame_block(ctx) + _field_reads(ctx)
+    consumed, found = _consumed(ctx)
+    out += found
+    counts = {cls: sum(1 for p in table.get(cls, {}) if p in net.ports) for cls in CLASSES}
+    counts["ports"] = sum(1 for p in net.ports if CTL.match(p))
+    counts["consumed"] = consumed
+    counts["unread"] = sum(1 for p in UNREAD_BOTH if p in rows)
+    return SplitSurvey(counts, out)
+
+
+def _drives(ctx: _Ctx) -> list[str]:
+    """split-drives: each wrapper output's net driven by the rows standing for it, each ctl output by the net
+    its wrapper input read."""
+    if not live("split-drives"):
+        return []
     standing: dict[str, list[str]] = defaultdict(list)
-    for port, (_cls, row) in rows.items():
+    for port, (_cls, row) in ctx.rows.items():
         for s in row.stands:
             if isinstance(s, str):
                 standing[s].append(port)
-    for wport in sorted(standing):
-        if wport not in face.dirs or not live("split-drives"):
-            continue
-        named = face.bits.get(wport, ())
+    out: list[str] = []
+    for wport in sorted(w for w in standing if w in ctx.face.dirs):
         want = set(standing[wport])
-        if face.dirs[wport] == "output":
-            out += _drives_out(net, back, named, wport, want, rows, face)
+        if ctx.face.dirs[wport] == "output":
+            out += _drives_out(ctx, wport, want)
         else:
-            out += _drives_in(net, back, named, wport, want)
-    # ---- split-tied: the G outputs and the class-D values the block does not carry ----------
-    for wport in sorted(p for p in (*census_ports.PORTS["G"], *TIED_C) if face.dirs.get(p) == "output"):
+            out += _drives_in(ctx, wport, want)
+    return out
+
+
+def _tied(ctx: _Ctx) -> list[str]:
+    """split-tied: the G outputs' nets and the class-D values the block does not carry are constants."""
+    out: list[str] = []
+    for wport in sorted(p for p in (*census_ports.PORTS["G"], *TIED_C) if ctx.face.dirs.get(p) == "output"):
         if wport in FRAME_PORTS or not live("split-tied"):
             continue
-        named = face.bits.get(wport, ())
-        bits = [b for b in _split_bits(net, named) if b is not None]
+        named = ctx.face.bits.get(wport, ())
+        bits = [b for b in _split_bits(ctx.net, named) if b is not None]
         ruled = G_DRIVEN.get(wport, ("",))[0]
         srcs: set[tuple] = set()
         for b in bits:
-            srcs |= back.sources(b)
+            srcs |= ctx.back.sources(b)
         driven = sorted({s[1] for s in srcs if s[0] == "net"} | {f"{s[1]}.{s[2]}" for s in srcs if s[0] == "cell"})
         if ruled and driven == [ruled]:
             continue
-        driven = sorted(back.closure(bits))
+        driven = sorted(ctx.back.closure(bits))
         if driven:
             name = sorted({x[0] for x in named if isinstance(x, tuple)})
             kind = "G output" if wport in census_ports.PORTS["G"] else "class-D value the block does not carry"
             out.append(f"{', '.join(name)}, the net of the wrapper's {kind} {wport}, is driven by {', '.join(driven)} "
                        f"in the split, not a constant" + (f" or {ruled}" if ruled else ""))
-    # ---- split-frame-block -------------------------------------------------------------
-    if frames and live("split-frame-block"):
-        fcell = net.cells[frames[0]]
-        for wport in FRAME_PORTS:
-            named = list(face.bits.get(wport, ()))
-            have = [net.bit_name[b] if isinstance(b, int) else b for b in fcell.conns.get(wport, ())]
-            if have != named:
-                out.append(f"{frames[0]}.{wport} carries {_names(have)}, not {_names(named)}, which the wrapper's "
-                           f"{wport} carried")
-        for port, (_cls, row) in sorted(rows.items()):
-            for s in row.stands:
-                if isinstance(s, tuple) and fcell.conns.get(s[1]) != net.ports[port][1]:
-                    out.append(f"{port} does not reach {frames[0]}.{s[1]}")
-    # ---- split-field-reads -------------------------------------------------------------
-    if live("split-field-reads"):
-        field_rows = {k for k, r in pc.CENSUS.items() if r.kind == "field"}
-        for wire, consumer in sorted(field_rows & face.reads):
-            hits = pc.first_hop(fl, wire) if wire in net.names else {}
-            if consumer not in hits:
-                out.append(f"the field read {wire} -> {consumer} does not hold in the split datapath")
-            elif not any(k == "wire" for k, _ in pc.cone(fl, hits[consumer])):
-                out.append(f"the field read {wire} -> {consumer} reaches no wire in the split datapath")
-    # ---- split-consumed and split-beyond -------------------------------------------------
-    live_bits = _live(fl, pc)
-    consumed = 0
-    for port, (cls, row) in sorted(rows.items()):
-        d, pbits = net.ports[port]
+    return out
+
+
+def _frame_block(ctx: _Ctx) -> list[str]:
+    """split-frame-block: KL_ctrl_split takes the wrapper's frame ports net for net, and the M rows its ports."""
+    if not ctx.frames or not live("split-frame-block"):
+        return []
+    out: list[str] = []
+    fcell = ctx.net.cells[ctx.frames[0]]
+    for wport in FRAME_PORTS:
+        named = list(ctx.face.bits.get(wport, ()))
+        have = [ctx.net.bit_name[b] if isinstance(b, int) else b for b in fcell.conns.get(wport, ())]
+        if have != named:
+            out.append(f"{ctx.frames[0]}.{wport} carries {_names(have)}, not {_names(named)}, which the wrapper's "
+                       f"{wport} carried")
+    for port, (_cls, row) in sorted(ctx.rows.items()):
+        for s in row.stands:
+            if isinstance(s, tuple) and fcell.conns.get(s[1]) != ctx.net.ports[port][1]:
+                out.append(f"{port} does not reach {ctx.frames[0]}.{s[1]}")
+    return out
+
+
+def _field_reads(ctx: _Ctx) -> list[str]:
+    """split-field-reads: each field read of the class-D census holds in the split and reaches the wire."""
+    if not live("split-field-reads"):
+        return []
+    out: list[str] = []
+    field_rows = {k for k, r in ctx.pc.CENSUS.items() if r.kind == "field"}
+    for wire, consumer in sorted(field_rows & ctx.face.reads):
+        hits = ctx.pc.first_hop(ctx.fl, wire) if wire in ctx.net.names else {}
+        if consumer not in hits:
+            out.append(f"the field read {wire} -> {consumer} does not hold in the split datapath")
+        elif not any(k == "wire" for k, _ in ctx.pc.cone(ctx.fl, hits[consumer])):
+            out.append(f"the field read {wire} -> {consumer} reaches no wire in the split datapath")
+    return out
+
+
+def _consumed(ctx: _Ctx) -> tuple[int, list[str]]:
+    """split-consumed and split-beyond: (the live bits consumed, every finding)."""
+    live_bits = _live(ctx.fl, ctx.pc)
+    consumed, out = 0, []
+    for port, (_cls, row) in sorted(ctx.rows.items()):
+        d, pbits = ctx.net.ports[port]
         if d != "input":
             continue
-        n = {"source": face.n_src, "sink": face.n_snk}.get(row.per)
-        keep = len(pbits) if n is None else len(pbits) // contract.entries * n
+        n = {"source": ctx.face.n_src, "sink": ctx.face.n_snk}.get(row.per)
+        keep = len(pbits) if n is None else len(pbits) // ctx.contract.entries * n
         reached = [isinstance(b, int) and b in live_bits for b in pbits[:keep]]
         consumed += sum(reached)
         what = row.carrier[0] if len(row.carrier) == 1 else " + ".join(row.carrier)
         if port in UNREAD_BOTH:
-            af_read = sorted(s for s in row.stands if s in face.read)
+            af_read = sorted(s for s in row.stands if s in ctx.face.read)
             if any(reached) and live("split-consumed"):
                 out.append(f"split port {port} is consumed in the split: drop it from UNREAD_BOTH")
             elif af_read and live("split-consumed"):
@@ -596,31 +647,27 @@ def survey_split(fl: Any, pc: ModuleType, face: AfFace | None, shape: str,
             out.append(f"split port {port} bit {reached.index(False)} reaches no cone end: the split datapath does "
                        f"not consume {what}")
         for k, b in enumerate(pbits[keep:], keep):
-            if isinstance(b, int) and fl.fanout.get(b) and live("split-beyond"):
+            if isinstance(b, int) and ctx.fl.fanout.get(b) and live("split-beyond"):
                 out.append(f"split port {port} bit {k} is read, past the shape's {n} {row.per}(s)")
                 break
-    counts = {cls: sum(1 for p in table.get(cls, {}) if p in net.ports) for cls in CLASSES}
-    counts["ports"] = sum(1 for p in net.ports if CTL.match(p))
-    counts["consumed"] = consumed
-    counts["unread"] = sum(1 for p in UNREAD_BOTH if p in rows)
-    return SplitSurvey(counts, out)
+    return consumed, out
 
 
-def _drives_out(net: Any, back: Back, named: tuple, wport: str, want: set[str], rows: dict,
-                face: AfFace) -> list[str]:
+def _drives_out(ctx: _Ctx, wport: str, want: set[str]) -> list[str]:
     """A wrapper output's net in the split: driven by exactly the ports standing for it, bit for bit where one
     port alone does."""
+    named = ctx.face.bits.get(wport, ())
     out: list[str] = []
     got: set[str] = set()
-    for k, b in enumerate(_split_bits(net, named)):
+    for k, b in enumerate(_split_bits(ctx.net, named)):
         if b is None:
             return [f"{named[k][0]}, the net of the wrapper's {wport}, is not in the split datapath"]
-        srcs = back.sources(b)
+        srcs = ctx.back.sources(b)
         got |= {s[1] for s in srcs if s[0] == "net"} | {f"{s[1]}.{s[2]}" for s in srcs if s[0] == "cell"}
         hits = [s for s in srcs if s[0] == "net"]
         if len(want) == 1 and not out and len(hits) == 1 and hits[0][1] in want:
             port = hits[0][1]
-            at = _expected(rows[port][1], wport, face, k, len(net.ports[port][1]))
+            at = _expected(ctx.rows[port][1], wport, ctx.face, k, len(ctx.net.ports[port][1]))
             if at is not None and hits[0][2] not in at:
                 out.append(f"{named[k][0]}[{named[k][1]}], the net of the wrapper's {wport}, is driven by "
                            f"{port}[{hits[0][2]}], not {port}[{at.start}]")
@@ -631,15 +678,16 @@ def _drives_out(net: Any, back: Back, named: tuple, wport: str, want: set[str], 
     return out
 
 
-def _drives_in(net: Any, back: Back, named: tuple, wport: str, want: set[str]) -> list[str]:
+def _drives_in(ctx: _Ctx, wport: str, want: set[str]) -> list[str]:
     """A ctl output standing for a wrapper input: driven by the net that input read, bit for bit."""
+    named = ctx.face.bits.get(wport, ())
     out: list[str] = []
     want_names = {x[0] for x in named if isinstance(x, tuple)}
     for port in sorted(want):
         got: set[str] = set()
         shifted = ""
-        for k, b in enumerate(net.ports[port][1]):
-            hits = [s for s in back.sources(b) if s[0] == "net"]
+        for k, b in enumerate(ctx.net.ports[port][1]):
+            hits = [s for s in ctx.back.sources(b) if s[0] == "net"]
             got |= {s[1] for s in hits}
             if (not shifted and k < len(named) and isinstance(named[k], tuple) and len(hits) == 1
                     and hits[0][1] in want_names and (hits[0][1], hits[0][2]) != named[k]):
