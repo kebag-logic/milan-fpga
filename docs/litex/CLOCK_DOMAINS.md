@@ -241,6 +241,8 @@ Conditional paths exist only when their features are elaborated.
 | MMCM phase-command batches | Milan → `i_ps_clk` | Servo `cdc_handshake`; phase runner waits for `PSDONE` |
 | Servo phase-runner reset | Milan → `i_ps_clk` | Servo `psrst_sync_r`, two `ASYNC_REG` stages; the first is false-pathed from Milan ([#817](https://github.com/kebag-logic/milan-fpga/issues/817)) |
 | MMCM DRP commands/replies | Milan → MMCM DCLK interface | DCLK equals Milan; no separate DRP clock domain |
+| Split placement's control frames (`--ctrl-mailbox` only) | Milan → `sys`; `sys` → Milan | `ctl_rx_cdc` and `ctl_tx_cdc`, two `_axis_dp_cdc` FIFOs of one byte and its last flag ([#665](https://github.com/kebag-logic/milan-fpga/issues/665)) |
+| Split placement's publication, settings, windows and events (`--ctrl-mailbox` only) | `sys` ↔ Milan | `KL_mbx_cdc`: the publication block by a free-running `cdc_handshake`; the settings bus `KL_mbx` holds, taken on one `cdc_pulse` and acknowledged on another; each window by a `cdc_handshake` each way, under its tag; the events, GM identity and LINK level by a free-running `cdc_handshake` ([placement switch](../design/MAILBOX_SPLIT.md#the-placement-switch)) |
 
 `_axis_dp_cdc` supplies the named packet/memory stream crossings.
 Each uses a 16-beat buffered asynchronous FIFO here.

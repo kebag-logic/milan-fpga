@@ -4,7 +4,7 @@
 """placement_identity.py - the all-fabric datapath, elaborated in every shape, digested so two trees compare.
 
 THE QUESTION. milan_datapath.sv gains the control placement switch, CTRL_SPLIT_P
-(#665 F-INT PR 2). Off, the default, the datapath must elaborate to the
+(#665). Off, the default, the datapath must elaborate to the
 netlist it elaborated to before the switch, in every shape the builder builds.
 This tool states that netlist as one digest per shape, so a tree before the
 switch and a tree after it compare shape by shape.
@@ -104,6 +104,64 @@ def template(name: str) -> str:
     return COUNTER.sub("$#", POSITION.sub("@", name))
 
 
+def _unscope(name: str) -> str:
+    """A name without the all-fabric generate scope."""
+    return FABRIC_SCOPE.sub(r"\1", name)
+
+
+def _fabric_cells(top: dict) -> dict:
+    """The datapath's cells by unscoped name, without those that only tie a split output.
+
+    A split output must come from a constant, and no other cell may read a split port.
+    """
+    split_bits = {b for p, v in top["ports"].items() if SPLIT_PORT.match(p)
+                  for b in v["bits"] if isinstance(b, int)}
+    cells = {}
+    for name, c in top["cells"].items():
+        dirs = c.get("port_directions", {})
+        outs = [b for p, bits in c["connections"].items() if dirs.get(p) == "output"
+                for b in bits if isinstance(b, int)]
+        ins = [b for p, bits in c["connections"].items() if dirs.get(p) != "output" for b in bits]
+        if outs and set(outs) <= split_bits:
+            if any(isinstance(b, int) for b in ins):
+                raise IdentityError(f"the split port bit(s) cell {name} drives come from a net, not a constant")
+            continue
+        read = split_bits & {b for b in ins if isinstance(b, int)}
+        if read:
+            hit = sorted(p for p, v in top["ports"].items() if SPLIT_PORT.match(p) and read & set(v["bits"]))
+            raise IdentityError(f"cell {name} reads the split port {', '.join(hit)}: the all-fabric build reads it")
+        key = _unscope(name)
+        if key in cells:
+            raise IdentityError(f"cells {name} and another read as {key}")
+        cells[key] = c
+    return cells
+
+
+def _bit_names(nets: dict) -> tuple[dict, dict]:
+    """(each bit's first source name, each other bit's first made name's template)."""
+    fixed, made_name = {}, {}
+    for n, v in nets.items():
+        for i, b in enumerate(v["bits"]):
+            if isinstance(b, int):
+                if "$" not in n:
+                    fixed.setdefault(b, f"{n}[{i}]")
+                else:
+                    made_name.setdefault(b, template(n))
+    return fixed, made_name
+
+
+def _memory_labels(memories: dict, cells: dict) -> dict:
+    """Each memory's label: its source name, else a digest of it and its initialisers."""
+    inits: dict[str, list] = {}
+    for c in cells.values():
+        if c["type"].startswith("$meminit"):
+            inits.setdefault(_unscope(str(c["parameters"].get("MEMID", ""))), []).append(json.dumps(
+                [c["type"], {k: v for k, v in _clean(c.get("parameters", {})).items() if k != "MEMID"},
+                 c["connections"]], sort_keys=True))
+    return {m: (m if "$" not in m else "mem:" + _h(_clean(v), sorted(inits.get(m, []))))
+            for m, v in memories.items()}
+
+
 def canonical(doc: dict) -> dict:
     """The canonical form of the datapath module in Yosys's JSON doc.
 
@@ -120,48 +178,17 @@ def canonical(doc: dict) -> dict:
     for p, want in SPLIT_PARAMS.items():
         if p in params and int(str(params.pop(p)), 2) != want:
             raise IdentityError(f"the switch's parameter {p} is not at its default {want}")
-    unscope = lambda n: FABRIC_SCOPE.sub(r"\1", n)  # noqa: E731
-    split_bits = {b for p, v in top["ports"].items() if SPLIT_PORT.match(p) for b in v["bits"] if isinstance(b, int)}
-    cells = {}
-    for name, c in top["cells"].items():
-        dirs = c.get("port_directions", {})
-        outs = [b for p, bits in c["connections"].items() if dirs.get(p) == "output" for b in bits if isinstance(b, int)]
-        ins = [b for p, bits in c["connections"].items() if dirs.get(p) != "output" for b in bits]
-        if outs and set(outs) <= split_bits:
-            if any(isinstance(b, int) for b in ins):
-                raise IdentityError(f"the split port bit(s) cell {name} drives come from a net, not a constant")
-            continue
-        read = split_bits & {b for b in ins if isinstance(b, int)}
-        if read:
-            hit = sorted(p for p, v in top["ports"].items() if SPLIT_PORT.match(p) and read & set(v["bits"]))
-            raise IdentityError(f"cell {name} reads the split port {', '.join(hit)}: the all-fabric build reads it")
-        key = unscope(name)
-        if key in cells:
-            raise IdentityError(f"cells {name} and another read as {key}")
-        cells[key] = c
-    nets = {unscope(n): v for n, v in top["netnames"].items() if not SPLIT_PORT.match(n)}
-    fixed, made_name = {}, {}
-    for n, v in nets.items():
-        for i, b in enumerate(v["bits"]):
-            if isinstance(b, int):
-                if "$" not in n:
-                    fixed.setdefault(b, f"{n}[{i}]")
-                else:
-                    made_name.setdefault(b, template(n))
-    memories = {unscope(n): v for n, v in top.get("memories", {}).items()}
-    inits: dict[str, list] = {}
-    for c in cells.values():
-        if c["type"].startswith("$meminit"):
-            inits.setdefault(unscope(str(c["parameters"].get("MEMID", ""))), []).append(json.dumps(
-                [c["type"], {k: v for k, v in _clean(c.get("parameters", {})).items() if k != "MEMID"},
-                 c["connections"]], sort_keys=True))
-    mem_label = {m: (m if "$" not in m else "mem:" + _h(_clean(v), sorted(inits.get(m, []))))
-                 for m, v in memories.items()}
+    cells = _fabric_cells(top)
+    nets = {_unscope(n): v for n, v in top["netnames"].items() if not SPLIT_PORT.match(n)}
+    fixed, made_name = _bit_names(nets)
+    memories = {_unscope(n): v for n, v in top.get("memories", {}).items()}
+    mem_label = _memory_labels(memories, cells)
 
     def params_of(c: dict) -> dict:
+        """A cell's parameters, a memory it names by its label."""
         p = _clean(c.get("parameters", {}))
         if "MEMID" in p:
-            m = unscope(str(p["MEMID"]))
+            m = _unscope(str(p["MEMID"]))
             p["MEMID"] = mem_label.get(m, m)
         return p
 
@@ -182,6 +209,7 @@ def canonical(doc: dict) -> dict:
     every |= {b for n in cells for _p, bits in ports_in[n] + ports_out[n] for b in bits if isinstance(b, int)}
 
     def bit_labels() -> dict:
+        """Each bit's label: its source name, else the cell output that drives it."""
         out = {}
         for b in every:
             if b in fixed:
@@ -223,7 +251,8 @@ def canonical(doc: dict) -> dict:
         "attributes": _clean(top.get("attributes", {})),
         "ports": {p: {"direction": v["direction"], "bits": ref(v["bits"])}
                   for p, v in sorted(top["ports"].items()) if not SPLIT_PORT.match(p)},
-        "nets": {n: {"hide": v.get("hide_name", 0), "width": len(v["bits"]), "attributes": _clean(v.get("attributes", {}))}
+        "nets": {n: {"hide": v.get("hide_name", 0), "width": len(v["bits"]),
+                     "attributes": _clean(v.get("attributes", {}))}
                  for n, v in sorted(nets.items()) if "$" not in n},
         "named_cells": dict(sorted(named.items())),
         "made_cells": sorted(made_recs),
@@ -339,6 +368,7 @@ def selftest(jobs: int) -> int:
 
 
 def main() -> int:
+    """Dump a tree's digests, compare two dumps, or run the self-test; the exit status is the verdict."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--dump", type=Path, help="write every shape's digest of the tree to this file")
     ap.add_argument("--tree", type=Path, default=HERE.parent.parent, help="the checkout to elaborate")

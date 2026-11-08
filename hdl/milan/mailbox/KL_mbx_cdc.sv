@@ -4,7 +4,7 @@
 //  File        : KL_mbx_cdc.sv
 //  Description : The split placement's crossing between the mailbox (KL_mbx,
 //                the CPU's clock, sys) and the datapath (milan_datapath's
-//                clock, milan_cd), one interface (#665 F-INT PR 2). The
+//                clock, milan_cd), one interface (#665). The
 //                control frames cross in the SoC's async FIFOs; everything
 //                else crosses here, through the approved primitives alone
 //                (CONTRIBUTING.md section 1):
@@ -56,11 +56,12 @@ module KL_mbx_cdc
   input  wire              dp_rst_n,      //! synchronous active-low reset, dp
 
   // ---- the mailbox side (sys), interface 0 of KL_mbx -----------------------
+  //! the publication block, as KL_mbx's pub_*_o carry it
   input  wire  [S_C-1:0]   m_pub_da_gate_i,
   input  wire  [S_C-1:0]   m_pub_licence_i,
   input  wire  [S_C-1:0]   m_pub_talker_decl_i,
   input  wire  [S_C*64-1:0] m_pub_src_sid_i,
-  input  wire  [31:0]      m_pub_idle_slope_i,
+  input  wire  [31:0]      m_pub_idle_slope_bps_i,
   input  wire  [11:0]      m_pub_dom_vid_i,
   input  wire  [2:0]       m_pub_dom_prio_i,
   input  wire              m_pub_dom_adopted_i,
@@ -70,22 +71,23 @@ module KL_mbx_cdc
   input  wire  [K_C*64-1:0] m_pub_sid_i,
   input  wire              m_fw_send_i,         //! a commit waits: every m_fw_* holds
   output logic             m_fw_ack_p_o,        //! the datapath took it
+  //! the settings KL_mbx holds from fw_send_o until fw_ack_p_i, its fw_*_o
   input  wire  [15:0]      m_fw_cur_config_i,
   input  wire  [7:0]       m_fw_identify_i,
   input  wire  [15:0]      m_fw_clk_src_index_i,
   input  wire              m_fw_lock_held_i,
   input  wire              m_fw_dyn_dirty_i,
-  input  wire  [S_C*32-1:0] m_fw_pt_offset_i,
+  input  wire  [S_C*32-1:0] m_fw_pt_offset_ns_i,
   input  wire  [S_C-1:0]   m_fw_pt_offset_v_i,
   input  wire  [S_C*64-1:0] m_fw_fmt_out_i,
   input  wire  [S_C-1:0]   m_fw_fmt_out_v_i,
   input  wire  [K_C*64-1:0] m_fw_fmt_in_i,
   input  wire  [K_C-1:0]   m_fw_fmt_in_v_i,
   input  wire  [5:0]       m_fw_restore_i,      //! {RB, CLOSED, BLANK, FAIL, DONE, BUSY}
-  input  wire  [2:0]       m_fw_rs_cause_i,
-  input  wire  [1:0]       m_fw_restore_cause_i,
+  input  wire  [2:0]       m_fw_rs_cause_i,      //! F_RESTORE.RS_CAUSE
+  input  wire  [1:0]       m_fw_restore_cause_i, //! F_RESTORE.CAUSE
   input  wire  [5:0]       m_fw_nvm_i,          //! {IMG_VALID, PEND, STALE, DIRTY, ALARM, BACKED}
-  input  wire  [3:0]       m_fw_nvm_verdict_i,
+  input  wire  [3:0]       m_fw_nvm_verdict_i,   //! F_NVM.VERDICT
   //! the four windows: a request with its tag and fields, held while open
   input  wire              m_ctr_req_i,
   input  wire  [MBX_CTR_STATUS_TAG_WIDTH_C-1:0] m_ctr_tag_i,
@@ -142,11 +144,12 @@ module KL_mbx_cdc
   output logic [7:0]       m_gptp_domain_o,
 
   // ---- the datapath side (dp), milan_datapath's ctl ports ------------------
+  //! the publication block's last snapshot to land, to its i_ctl_pub_*
   output logic [S_C-1:0]   d_pub_da_gate_o,
   output logic [S_C-1:0]   d_pub_licence_o,
   output logic [S_C-1:0]   d_pub_talker_decl_o,
   output logic [S_C*64-1:0] d_pub_src_sid_o,
-  output logic [31:0]      d_pub_idle_slope_o,
+  output logic [31:0]      d_pub_idle_slope_bps_o,
   output logic [11:0]      d_pub_dom_vid_o,
   output logic [2:0]       d_pub_dom_prio_o,
   output logic             d_pub_dom_adopted_o,
@@ -154,12 +157,13 @@ module KL_mbx_cdc
   output logic [K_C-1:0]   d_pub_sid_valid_o,
   output logic [K_C-1:0]   d_pub_started_o,
   output logic [K_C*64-1:0] d_pub_sid_o,
+  //! the settings of the last commit the datapath took, to its class-F i_ctl_*
   output logic [15:0]      d_cur_config_o,
   output logic [7:0]       d_identify_o,
   output logic [15:0]      d_clk_src_index_o,
   output logic             d_lock_held_o,
   output logic             d_dyn_dirty_o,
-  output logic [S_C*32-1:0] d_pt_offset_o,
+  output logic [S_C*32-1:0] d_pt_offset_ns_o,
   output logic [S_C-1:0]   d_pt_offset_v_o,
   output logic [S_C*64-1:0] d_fmt_out_o,
   output logic [S_C-1:0]   d_fmt_out_v_o,
@@ -170,6 +174,8 @@ module KL_mbx_cdc
   output logic [1:0]       d_restore_cause_o,
   output logic [5:0]       d_nvm_o,
   output logic [3:0]       d_nvm_verdict_o,
+  //! the four windows, to the datapath's answer logic: req and the fields
+  //! held until the answer, and the answer and wait back
   output logic             d_ctr_req_o,
   output logic [15:0]      d_ctr_type_o,
   output logic [15:0]      d_ctr_index_o,
@@ -205,6 +211,8 @@ module KL_mbx_cdc
   input  wire  [63:0]      d_gsi_data_i,
   input  wire              d_gsi_wait_i,
   input  wire              d_ctr_chg_valid_i,   //! one descriptor a cycle while any is pending
+  //! the counter change's descriptor, the three face events, the effective
+  //! link, and the grandmaster's change, identity and domain
   input  wire  [15:0]      d_ctr_chg_type_i,
   input  wire  [15:0]      d_ctr_chg_index_i,
   input  wire              d_avb_chg_p_i,
@@ -223,7 +231,7 @@ module KL_mbx_cdc
   logic [PUB_W_C-1:0] pub_src_w, pub_dst_w;
   logic               pub_send_r, pub_rcv_w;
   assign pub_src_w = {m_pub_da_gate_i, m_pub_licence_i, m_pub_talker_decl_i, m_pub_src_sid_i,
-                      m_pub_idle_slope_i, m_pub_dom_vid_i, m_pub_dom_prio_i, m_pub_dom_adopted_i,
+                      m_pub_idle_slope_bps_i, m_pub_dom_vid_i, m_pub_dom_prio_i, m_pub_dom_adopted_i,
                       m_pub_bound_i, m_pub_sid_valid_i, m_pub_started_i, m_pub_sid_i};
   //! send, wait for the destination's capture, drop for one cycle, send again
   always_ff @(posedge sys_clk_i) begin : pub_loop
@@ -233,10 +241,11 @@ module KL_mbx_cdc
   end : pub_loop
   cdc_handshake #(.WIDTH(PUB_W_C)) u_pub (
     .src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_in(pub_src_w), .src_send(pub_send_r), .src_rcv(pub_rcv_w),
+    // dest_req is unread: the datapath reads dest_out as a level
     .dest_clk(dp_clk_i), .dest_rst_n(dp_rst_n), .dest_out(pub_dst_w), .dest_req());
   //! dest_out holds the last snapshot until the next one lands
   assign {d_pub_da_gate_o, d_pub_licence_o, d_pub_talker_decl_o, d_pub_src_sid_o,
-          d_pub_idle_slope_o, d_pub_dom_vid_o, d_pub_dom_prio_o, d_pub_dom_adopted_o,
+          d_pub_idle_slope_bps_o, d_pub_dom_vid_o, d_pub_dom_prio_o, d_pub_dom_adopted_o,
           d_pub_bound_o, d_pub_sid_valid_o, d_pub_started_o, d_pub_sid_o} = pub_dst_w;
 
   // ======================================================================= //
@@ -246,7 +255,7 @@ module KL_mbx_cdc
                                    + 6 + 3 + 2 + 6 + 4;
   logic [FW_W_C-1:0] fw_bus_w, fw_r;
   assign fw_bus_w = {m_fw_cur_config_i, m_fw_identify_i, m_fw_clk_src_index_i, m_fw_lock_held_i,
-                     m_fw_dyn_dirty_i, m_fw_pt_offset_i, m_fw_pt_offset_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i,
+                     m_fw_dyn_dirty_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i,
                      m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_restore_i, m_fw_rs_cause_i, m_fw_restore_cause_i,
                      m_fw_nvm_i, m_fw_nvm_verdict_i};
   //! Two cdc_pulse crossings, with KL_mbx's hold in place of cdc_handshake's
@@ -268,7 +277,7 @@ module KL_mbx_cdc
     if (!dp_rst_n)        fw_r <= '0;
     else if (fw_take_p_w) fw_r <= fw_bus_w;
   end : fw_take
-  assign {d_cur_config_o, d_identify_o, d_clk_src_index_o, d_lock_held_o, d_dyn_dirty_o, d_pt_offset_o,
+  assign {d_cur_config_o, d_identify_o, d_clk_src_index_o, d_lock_held_o, d_dyn_dirty_o, d_pt_offset_ns_o,
           d_pt_offset_v_o, d_fmt_out_o, d_fmt_out_v_o, d_fmt_in_o, d_fmt_in_v_o, d_restore_o, d_rs_cause_o,
           d_restore_cause_o, d_nvm_o, d_nvm_verdict_o} = fw_r;
 

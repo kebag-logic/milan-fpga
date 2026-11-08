@@ -987,7 +987,7 @@ def add_milan_datapath(host: Module, platform: object,
     if pps:
         dp_params["p_PPS_P"] = 1
         dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
-    # #665 F-INT PR 2: the split placement, emitted ONLY when selected, so an
+    # #665: the split placement, emitted ONLY when selected, so an
     # all-fabric build's generated top .v carries no new parameter or port and
     # its export is unchanged. milan_datapath defaults CTRL_SPLIT_P to 0.
     if ctrl_split:
@@ -2883,7 +2883,7 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_wb.sv",
 ]
 
-# ---- #665 F-INT PR 2: the split placement's datapath face ----------------------------------------
+# ---- #665: the split placement's datapath face ---------------------------------------------------
 # With --ctrl-mailbox the datapath is built with CTRL_SPLIT_P = 1 (no protocol
 # processor, no KL_maap) and its ctl ports bind the mailbox through
 # KL_mbx_cdc. Neither list below is added to an all-fabric build, so its
@@ -2903,11 +2903,11 @@ CTRL_SPLIT_PORTS = (
     ("o_ctl_link_up", 1, True), ("o_ctl_gm_change_p", 1, True), ("o_ctl_gm_id", 64, True),
     ("o_ctl_gptp_domain", 8, True),
     ("i_ctl_pub_da_gate", _E, False), ("i_ctl_pub_licence", _E, False), ("i_ctl_pub_talker_decl", _E, False),
-    ("i_ctl_pub_src_sid", _E * 64, False), ("i_ctl_pub_idle_slope", 32, False), ("i_ctl_pub_dom_vid", 12, False),
+    ("i_ctl_pub_src_sid", _E * 64, False), ("i_ctl_pub_idle_slope_bps", 32, False), ("i_ctl_pub_dom_vid", 12, False),
     ("i_ctl_pub_dom_prio", 3, False), ("i_ctl_pub_dom_adopted", 1, False), ("i_ctl_pub_bound", _E, False),
     ("i_ctl_pub_sid_valid", _E, False), ("i_ctl_pub_started", _E, False), ("i_ctl_pub_sid", _E * 64, False),
     ("i_ctl_cur_config", 16, False), ("i_ctl_identify", 8, False), ("i_ctl_clk_src_index", 16, False),
-    ("i_ctl_lock_held", 1, False), ("i_ctl_dyn_dirty", 1, False), ("i_ctl_pt_offset", _E * 32, False),
+    ("i_ctl_lock_held", 1, False), ("i_ctl_dyn_dirty", 1, False), ("i_ctl_pt_offset_ns", _E * 32, False),
     ("i_ctl_pt_offset_v", _E, False), ("i_ctl_fmt_out", _E * 64, False), ("i_ctl_fmt_out_v", _E, False),
     ("i_ctl_fmt_in", _E * 64, False), ("i_ctl_fmt_in_v", _E, False), ("i_ctl_restore", 6, False),
     ("i_ctl_rs_cause", 3, False), ("i_ctl_restore_cause", 2, False), ("i_ctl_nvm", 6, False),
@@ -2931,13 +2931,14 @@ CTRL_SPLIT_PORTS = (
 _CTRL_CDC_DP = {
     "d_pub_da_gate_o": "i_ctl_pub_da_gate", "d_pub_licence_o": "i_ctl_pub_licence",
     "d_pub_talker_decl_o": "i_ctl_pub_talker_decl", "d_pub_src_sid_o": "i_ctl_pub_src_sid",
-    "d_pub_idle_slope_o": "i_ctl_pub_idle_slope", "d_pub_dom_vid_o": "i_ctl_pub_dom_vid",
+    "d_pub_idle_slope_bps_o": "i_ctl_pub_idle_slope_bps", "d_pub_dom_vid_o": "i_ctl_pub_dom_vid",
     "d_pub_dom_prio_o": "i_ctl_pub_dom_prio", "d_pub_dom_adopted_o": "i_ctl_pub_dom_adopted",
     "d_pub_bound_o": "i_ctl_pub_bound", "d_pub_sid_valid_o": "i_ctl_pub_sid_valid",
     "d_pub_started_o": "i_ctl_pub_started", "d_pub_sid_o": "i_ctl_pub_sid",
     "d_cur_config_o": "i_ctl_cur_config", "d_identify_o": "i_ctl_identify",
     "d_clk_src_index_o": "i_ctl_clk_src_index", "d_lock_held_o": "i_ctl_lock_held",
-    "d_dyn_dirty_o": "i_ctl_dyn_dirty", "d_pt_offset_o": "i_ctl_pt_offset", "d_pt_offset_v_o": "i_ctl_pt_offset_v",
+    "d_dyn_dirty_o": "i_ctl_dyn_dirty", "d_pt_offset_ns_o": "i_ctl_pt_offset_ns",
+    "d_pt_offset_v_o": "i_ctl_pt_offset_v",
     "d_fmt_out_o": "i_ctl_fmt_out", "d_fmt_out_v_o": "i_ctl_fmt_out_v", "d_fmt_in_o": "i_ctl_fmt_in",
     "d_fmt_in_v_o": "i_ctl_fmt_in_v", "d_restore_o": "i_ctl_restore", "d_rs_cause_o": "i_ctl_rs_cause",
     "d_restore_cause_o": "i_ctl_restore_cause", "d_nvm_o": "i_ctl_nvm", "d_nvm_verdict_o": "i_ctl_nvm_verdict",
@@ -2963,7 +2964,7 @@ _CTRL_CDC_MBX = {
     "m_fw_send_i": "fw_send_o", "m_fw_ack_p_o": "fw_ack_p_i", "m_fw_cur_config_i": "fw_entity_cur_config_o",
     "m_fw_identify_i": "fw_entity_identify_o", "m_fw_clk_src_index_i": "fw_clock_source_index_o",
     "m_fw_lock_held_i": "fw_aecp_lock_held_o", "m_fw_dyn_dirty_i": "fw_aecp_dyn_dirty_o",
-    "m_fw_pt_offset_i": "fw_pt_offset_ns_o", "m_fw_pt_offset_v_i": "fw_pt_offset_v_o",
+    "m_fw_pt_offset_ns_i": "fw_pt_offset_ns_o", "m_fw_pt_offset_v_i": "fw_pt_offset_v_o",
     "m_fw_fmt_out_i": "fw_fmt_out_o", "m_fw_fmt_out_v_i": "fw_fmt_out_v_o", "m_fw_fmt_in_i": "fw_fmt_in_o",
     "m_fw_fmt_in_v_i": "fw_fmt_in_v_o", "m_fw_rs_cause_i": "fw_restore_rs_cause_o",
     "m_fw_restore_cause_i": "fw_restore_cause_o", "m_fw_nvm_verdict_i": "fw_nvm_verdict_o",
@@ -3034,8 +3035,8 @@ class CtrlMailbox(LiteXModule):
     hand-written SystemVerilog sw/mailbox/gen_mailbox.py checks against the
     contract, and KL_mbx_cdc is the crossing.
 
-    WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665 F-INT
-    PR 2) the mailbox's datapath side is connected: the control frames both
+    WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665)
+    the mailbox's datapath side is connected: the control frames both
     ways through two async FIFOs (`_axis_dp_cdc`), and the publication block
     (contract 2.2, 2.4), the face block's settings, windows and events
     (contract 2.3), the LINK level and the GM event through KL_mbx_cdc, between
@@ -3155,7 +3156,7 @@ class CtrlMailbox(LiteXModule):
             i_dp_clk_i=ClockSignal(milan_cd), i_dp_rst_n=~ResetSignal(milan_cd),
             i_m_pub_da_gate_i=pub["o_pub_da_gate_o"], i_m_pub_licence_i=pub["o_pub_licence_o"],
             i_m_pub_talker_decl_i=pub["o_pub_talker_decl_o"], i_m_pub_src_sid_i=pub["o_pub_src_sid_o"],
-            i_m_pub_idle_slope_i=pub["o_pub_idle_slope_bps_o"], i_m_pub_dom_vid_i=pub["o_pub_dom_vid_o"],
+            i_m_pub_idle_slope_bps_i=pub["o_pub_idle_slope_bps_o"], i_m_pub_dom_vid_i=pub["o_pub_dom_vid_o"],
             i_m_pub_dom_prio_i=pub["o_pub_dom_prio_o"], i_m_pub_dom_adopted_i=pub["o_pub_dom_adopted_o"],
             i_m_pub_bound_i=pub["o_pub_bound_o"], i_m_pub_sid_valid_i=pub["o_pub_sid_valid_o"],
             i_m_pub_started_i=pub["o_pub_started_o"], i_m_pub_sid_i=pub["o_pub_sid_o"],
@@ -3746,7 +3747,7 @@ class MilanSoC(SoCCore):
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
-                                  # #665 F-INT PR 2: the mailbox SoC is the
+                                  # #665: the mailbox SoC is the
                                   # split placement, CTRL_SPLIT_P = 1
                                   ctrl_split=bool(ctrl_mailbox),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// sim_split.cpp - the split placement's control path, end to end (#665 F-INT PR 2).
+// sim_split.cpp - the split placement's control path, end to end (#665).
 //
 // tb_split_top composes KL_mbx (100 MHz, the mailbox's clock), KL_mbx_cdc, two
 // byte FIFOs and milan_datapath with CTRL_SPLIT_P = 1 (50 MHz, the datapath's
@@ -21,6 +21,10 @@
 //           never reaches the mailbox
 //   [TX]    a frame committed to the adp ring leaves the MAC byte for byte
 //   [LINK]  the datapath's effective link sets LINK.UP, and its loss clears it
+//   [TAP]   KL_ctrl_split alone (tb_split_top's u_tap): each tuple class it
+//           accepts is handed out whole and each it refuses is not; a burst
+//           past its FIFO loses frames, and each lost control frame is
+//           counted once, a refused frame never, saturating at 255
 //
 // Each failing check prints FAIL with its label; the tally line is the
 // suite's verdict.
@@ -28,7 +32,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <deque>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "Vtb_split_top.h"
@@ -58,6 +64,10 @@ class Tb {
         } else if (u_ % 4 == 1) {
             const bool rising = !d_->dp_clk;
             if (rising) {
+                tap_beat_ = d_->tap_tvalid;
+                tap_take_ = d_->tap_valid && d_->tap_ready;
+                tap_byte_ = d_->tap_data;
+                tap_byte_last_ = d_->tap_last;
                 rx_take_ = d_->rx_tvalid && d_->rx_tready;
                 tx_take_ = d_->tx_tvalid && d_->tx_tready;
                 tx_data_ = d_->tx_tdata;
@@ -89,6 +99,8 @@ class Tb {
         d_->s_axi_arvalid = 0;
         d_->s_axi_bready = 1;
         d_->s_axi_rready = 1;
+        d_->tap_tvalid = 0;
+        d_->tap_ready = 1;
         sys(20);
         d_->sys_rst_n = 1;
         d_->dp_rst_n = 1;
@@ -126,7 +138,24 @@ class Tb {
         }
     }
 
+    //! Queue a frame for u_tap's receive side, little lane order; the tap takes a beat a cycle.
+    void tap_send(const std::vector<std::uint8_t>& f) {
+        for (std::size_t k = 0; k < f.size(); k += 8) {
+            Beat b{};
+            for (std::size_t j = 0; j < 8 && k + j < f.size(); ++j) {
+                b.data |= static_cast<std::uint64_t>(f[k + j]) << (8u * j);
+                b.keep |= 1u << j;
+            }
+            b.last = (k + 8 >= f.size());
+            tap_q_.push_back(b);
+        }
+    }
+    //! Hold u_tap's byte side (the mailbox not ready), or release it.
+    void tap_hold(bool hold) { d_->tap_ready = hold ? 0 : 1; }
+    bool tap_idle() const { return tap_q_.empty() && !d_->tap_tvalid; }
+
     std::vector<std::vector<std::uint8_t>> tx_frames;   //!< every frame the MAC sent
+    std::vector<std::vector<std::uint8_t>> tap_out;     //!< every frame u_tap handed out
     std::uint64_t sys_cycles() const { return sys_cycles_; }
     Vtb_split_top* dut() { return d_; }
 
@@ -169,6 +198,23 @@ class Tb {
     }
 
     void on_dp_rise() {
+        if (tap_beat_ && !tap_q_.empty()) tap_q_.pop_front();
+        if (tap_q_.empty()) {
+            d_->tap_tvalid = 0;
+            d_->tap_tlast = 0;
+        } else {
+            d_->tap_tvalid = 1;
+            d_->tap_tdata = tap_q_.front().data;
+            d_->tap_tkeep = tap_q_.front().keep;
+            d_->tap_tlast = tap_q_.front().last;
+        }
+        if (tap_take_) {
+            tap_cur_.push_back(tap_byte_);
+            if (tap_byte_last_) {
+                tap_out.push_back(tap_cur_);
+                tap_cur_.clear();
+            }
+        }
         if (rx_take_ && !rx_q_.empty()) rx_q_.erase(rx_q_.begin());
         if (rx_q_.empty()) {
             d_->rx_tvalid = 0;
@@ -200,6 +246,12 @@ class Tb {
     std::uint64_t tx_data_ = 0;
     std::uint32_t tx_keep_ = 0;
     std::vector<std::uint8_t> tx_cur_;
+    std::deque<Beat> tap_q_;
+    bool tap_beat_ = false;
+    bool tap_take_ = false;
+    bool tap_byte_last_ = false;
+    std::uint8_t tap_byte_ = 0;
+    std::vector<std::uint8_t> tap_cur_;
     int checks_ = 0;
     int fail_ = 0;
 };
@@ -256,7 +308,8 @@ void check_pub(Tb& tb) {
     tb.check_eq("[PUB] DA_GATE.OPEN reaches the talker's declaration predicate", d->p_declaring & 1u, 1);
     tb.check_eq("[PUB] LICENCE.ACTIVE reaches the stream gate's ACTIVE term", d->p_active & 1u, 1);
     tb.check_eq("[PUB] ...and its admitted term", d->p_admitted & 1u, 1);
-    tb.check_eq("[PUB] TALKER_DECL.DECLARED reaches the declaration state, not NONE", d->p_tk_decl0 != 0, 1);
+    // the declaration state's encoding {0 NONE, 1 ADVERTISE, 2 FAILED}, as GET_STREAM_INFO reads it
+    tb.check_eq("[PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE", d->p_tk_decl0, 1);
     tb.check_eq("[PUB] the talker stream_id reaches the framer", d->p_src_sid0, src_sid);
     tb.check_eq("[PUB] IDLE_SLOPE.BPS", d->p_slope, 1234567u);
     tb.check_eq("[PUB] SR_DOMAIN.VID", d->p_vid, 2);
@@ -332,7 +385,7 @@ void check_windows(Tb& tb) {
     const Win gsi{"GSI", MBX_FACE_REG_GSI_REQ, MBX_FACE_REG_GSI_CMD, MBX_FACE_REG_GSI_STATUS, MBX_FACE_REG_GSI_DATA_LO,
                   MBX_FACE_REG_GSI_DATA_HI, MBX_GSI_STATUS_DONE_LSB, MBX_GSI_STATUS_TIMEOUT_LSB,
                   MBX_GSI_STATUS_TAG_LSB, MBX_WIN_GSI_WAIT_CYCLES};
-    // GET_COUNTERS of STREAM_OUTPUT 0 (IEEE 1722.1-2021 7.4.42), word 0, its counters_valid
+    // GET_COUNTERS of STREAM_OUTPUT 0 (IEEE 1722.1-2021 7.4.42), word 0, its STREAM_START counter
     tb.wr(face(MBX_FACE_REG_CTR_REQ), (0x0006u << MBX_CTR_REQ_TYPE_LSB) | (0u << MBX_CTR_REQ_INDEX_LSB));
     tb.wr(face(MBX_FACE_REG_CTR_WORD), 0u);
     std::uint64_t data = 0;
@@ -453,6 +506,111 @@ void check_link(Tb& tb) {
                 static_cast<unsigned long long>(again));
 }
 
+//! A frame of n bytes for u_tap: destination, a source, the EtherType, the subtype byte, then a pattern.
+std::vector<std::uint8_t> tap_frame(std::uint64_t da, std::uint16_t etype, std::uint8_t subtype, unsigned tag,
+                                    std::size_t n = 64) {
+    std::vector<std::uint8_t> f(n);
+    for (std::size_t i = 0; i < n; ++i) f[i] = static_cast<std::uint8_t>(tag + i);
+    for (unsigned i = 0; i < 6; ++i) f[i] = static_cast<std::uint8_t>(da >> (8u * (5u - i)));
+    for (unsigned i = 6; i < 12; ++i) f[i] = static_cast<std::uint8_t>(0x20u + i);
+    f[12] = static_cast<std::uint8_t>(etype >> 8);
+    f[13] = static_cast<std::uint8_t>(etype);
+    f[14] = subtype;
+    return f;
+}
+
+constexpr std::uint64_t kDaAdp = 0x91E0F0010000ull;    // the ADP and ACMP multicast address (IEEE 1722.1-2021)
+constexpr std::uint64_t kDaMaap = 0x91E0F000FF00ull;   // the MAAP multicast address (IEEE 1722-2016 Annex B)
+constexpr std::uint64_t kDaMsrp = 0x0180C200000Eull;   // MSRP's group address (IEEE 802.1Q)
+constexpr std::uint64_t kDaMvrp = 0x0180C2000021ull;   // MVRP's group address (IEEE 802.1Q)
+constexpr std::uint64_t kDaUnicast = 0x001122334455ull;
+
+void check_tap(Tb& tb) {
+    auto* d = tb.dut();
+    struct Tuple {
+        const char* what;
+        std::uint64_t da;
+        std::uint16_t etype;
+        std::uint8_t subtype;
+        bool kept;
+    };
+    // the subtypes of IEEE 1722.1-2021 (ADP, AECP, ACMP) and IEEE 1722-2016 Annex B (MAAP) on
+    // EtherType 0x22F0; MSRP (0x22EA) and MVRP (0x88F5) only at their own group address
+    static const Tuple kTuples[] = {
+        {"ADP (0x22F0, subtype 0xFA)", kDaAdp, 0x22F0, 0xFA, true},
+        {"AECP (0x22F0, subtype 0xFB)", kDaUnicast, 0x22F0, 0xFB, true},
+        {"ACMP (0x22F0, subtype 0xFC)", kDaAdp, 0x22F0, 0xFC, true},
+        {"MAAP (0x22F0, subtype 0xFE)", kDaMaap, 0x22F0, 0xFE, true},
+        {"MSRP at 01-80-C2-00-00-0E", kDaMsrp, 0x22EA, 0x00, true},
+        {"MVRP at 01-80-C2-00-00-21", kDaMvrp, 0x88F5, 0x00, true},
+        {"MSRP's EtherType at MVRP's group address", kDaMvrp, 0x22EA, 0x00, false},
+        {"MVRP's EtherType at MSRP's group address", kDaMsrp, 0x88F5, 0x00, false},
+        {"MSRP's EtherType at a unicast address", kDaUnicast, 0x22EA, 0x00, false},
+        {"AAF (0x22F0, subtype 0x02)", kDaAdp, 0x22F0, 0x02, false},
+        {"a 0x22F0 subtype with no control channel (0xFD)", kDaAdp, 0x22F0, 0xFD, false},
+    };
+    unsigned tag = 0;
+    for (const Tuple& t : kTuples) {
+        const std::size_t out0 = tb.tap_out.size();
+        const std::uint16_t frames0 = d->tap_frames;
+        const auto f = tap_frame(t.da, t.etype, t.subtype, tag++);
+        tb.tap_send(f);
+        tb.sys(400);
+        if (t.kept) {
+            const std::string label = std::string("[TAP] ") + t.what + " is handed out whole, and counted";
+            tb.check(label.c_str(), tb.tap_out.size() == out0 + 1 && tb.tap_out.back() == f &&
+                                        d->tap_frames == static_cast<std::uint16_t>(frames0 + 1));
+        } else {
+            const std::string label = std::string("[TAP] ") + t.what + " is refused";
+            tb.check(label.c_str(), tb.tap_out.size() == out0 && d->tap_frames == frames0);
+        }
+    }
+    tb.check_eq("[TAP] a FIFO that never filled has lost nothing", d->tap_drops, 0);
+}
+
+void check_tap_drops(Tb& tb) {
+    auto* d = tb.dut();
+    // the mailbox stalls, and the tap is offered 100 ADP frames of 64 bytes, 6,400 bytes at its
+    // 4,096-byte FIFO, then eight 16-byte ones that fill what room is left
+    std::vector<std::vector<std::uint8_t>> kept;
+    for (unsigned n = 0; n < 100; ++n) kept.push_back(tap_frame(kDaAdp, 0x22F0, 0xFA, n));
+    for (unsigned n = 0; n < 8; ++n) kept.push_back(tap_frame(kDaAdp, 0x22F0, 0xFA, 0x80u + n, 16));
+    const std::size_t out0 = tb.tap_out.size();
+    tb.tap_hold(true);
+    for (const auto& f : kept) tb.tap_send(f);
+    (void)wait_for(tb, [&] { return tb.tap_idle(); }, 8000);
+    tb.sys(40);
+    const unsigned lost = d->tap_drops;
+    tb.check("[TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost", lost > 0);
+    // refused frames turned away by the full FIFO lose no control frame
+    for (unsigned n = 0; n < 8; ++n) tb.tap_send(tap_frame(kDaAdp, 0x22F0, 0x02, n));
+    (void)wait_for(tb, [&] { return tb.tap_idle(); }, 8000);
+    tb.sys(40);
+    tb.check_eq("[TAP] ...and not the refused frames a full FIFO turns away", d->tap_drops, lost);
+    tb.tap_hold(false);
+    tb.sys(40000);
+    const std::size_t handed = tb.tap_out.size() - out0;
+    tb.check_eq("[TAP] every frame of the burst is handed out or counted lost", handed + lost, kept.size());
+    tb.check("[TAP] ...and the FIFO holds 4,096 bytes of it before it loses one", handed >= 4096u / 64u);
+    std::size_t at = 0;
+    bool in_order = true;
+    for (std::size_t i = out0; i < tb.tap_out.size(); ++i) {
+        while (at < kept.size() && kept[at] != tb.tap_out[i]) ++at;
+        in_order = in_order && at < kept.size();
+        ++at;
+    }
+    tb.check("[TAP] ...each frame handed out whole and in order", in_order);
+    std::printf("[TAP] burst: %zu frames offered, %zu handed out, %u counted lost\n", kept.size(), handed, lost);
+    // a second burst of 320 frames: 255 lost or more, and the count holds at 255
+    tb.tap_hold(true);
+    for (unsigned n = 0; n < 320; ++n) tb.tap_send(tap_frame(kDaAdp, 0x22F0, 0xFA, n));
+    (void)wait_for(tb, [&] { return tb.tap_idle(); }, 20000);
+    tb.sys(40);
+    tb.check_eq("[TAP] the count saturates at 255", d->tap_drops, 255);
+    tb.tap_hold(false);
+    tb.sys(40000);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -467,6 +625,8 @@ int main(int argc, char** argv) {
     check_rx(tb);
     check_tx(tb);
     check_link(tb);
+    check_tap(tb);
+    check_tap_drops(tb);
     std::printf("ran %llu mailbox cycles\n", static_cast<unsigned long long>(tb.sys_cycles()));
     dut->final();
     return tb.finish();

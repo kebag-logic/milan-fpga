@@ -242,4 +242,12 @@ DUT_READER_DISPOSITIONS = {
         "snapshot, reset value, stage-1 claim) into a copy and requires the named lockstep check "
         "to fail; expected values come from the frozen e8454e27 block and the harness, never "
         "from the text it mutates",
+    "tb/verilator/milan_dp/split_mutants.py":
+        "mutation campaign; it plants one defect of the split placement's control path from its own "
+        "table into an isolated copy and requires the check the arm names to fail in a completed run; "
+        "no expected value is read from the text",
+    "tb/verilator/milan_dp/split_cdc_check.py":
+        "structural CDC check; it elaborates KL_mbx_cdc and its window, judges each sink's clock "
+        "domain from the netlist, and plants raw crossings into isolated copies, each refused by its "
+        "own words; no expected value is read from the text",
 }

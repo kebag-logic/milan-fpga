@@ -825,10 +825,12 @@ Contract 2.4 adds a source entry per talker stream for the stream_id it
 declares (#799, the ruling on its STOP, comment 6460917634).
 Firmware writes each value before the response that promises it
 ([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
-datapath of the split placement reads the block through `KL_mbx`'s `pub_*_o`
-ports by a static, build-time selection, which the placement switch adds
-after F5. The all-fabric build carries no mailbox, so it is unchanged; the
-`--ctrl-mailbox` SoC names the ports and leaves them unread.
+datapath of the split placement reads the block from `KL_mbx`'s `pub_*_o`
+ports, which `KL_mbx_cdc` carries to its `i_ctl_pub_*` ports. The selection
+is static and made at build time by
+[the placement switch](#the-placement-switch), `CTRL_SPLIT_P`. The all-fabric
+build carries no mailbox, so it is unchanged. The `--ctrl-mailbox` SoC builds
+the split datapath and reads every port.
 
 | Value | Register, interface i | Writer | Written before | Processor output it stands for |
 |---|---|---|---|---|
@@ -1393,7 +1395,10 @@ Each face the wrapper served is read from a `ctl` port, by its class in
 
 `KL_ctrl_split` carries the frames. Its tap keeps the wrapper's 4,096-byte
 frame FIFO and its one-byte-a-cycle drain. It passes only the subtypes and
-EtherTypes the mailbox has a channel for.
+EtherTypes the mailbox has a channel for. It counts each control frame the
+full FIFO loses in `PP_DIAG[15:8]`, saturating at 255. The count is read from
+the FIFO's own overflow indication, since a FIFO that drops when full never
+lowers its ready.
 
 The map writer goes because the firmware's AECP owner holds the maps
 (ruling 6410169666 item 1). Its registers rest at reset, but the restore's
@@ -1506,10 +1511,17 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - [`split_population.py`](../../syn/ooc/split_population.py) holds the
   `full-split` population of `pp_placement.py` on the RTL, in every shape.
 - The [`milan_dp`](../../tb/verilator/milan_dp/README.md) split leg runs the
-  control path end to end. `split_mutants.py` plants thirteen defects, each
-  caught by the check it names.
-- `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist and
-  refuses any crossing that skips a primitive, with four planted ones.
+  control path end to end, and `KL_ctrl_split`'s tap alone: every tuple class
+  it accepts or refuses, and its drop count. `split_mutants.py` plants
+  twenty-two defects, each caught by the check it names.
+- `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist. Every
+  flop, output and primitive input, the primitives' resets among them, must
+  read only its own clock's domain, and every clock pin one of the two clocks.
+  Its one allowance is the settings capture: `fw_r` takes `KL_mbx`'s held
+  bus only through the multiplexer `u_fw_req`'s destination pulse selects.
+  Twelve plants are each refused by their own words. That `KL_mbx` holds the
+  bus until the acknowledgement is its own behaviour, which the split leg's
+  `[FACE]` checks hold.
 - The publication census's second population,
   [The split's control face](#the-splits-control-face), sees every
   publication and contract 2.3 field consumed in each shape's split
@@ -1838,10 +1850,12 @@ report_timing_summary -delay_type max
   face as firmware-written state until the flip (issuecomment-6716584453,
   item 2), each with its ledger row.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
-  firmware's AECP owner takes REBOOT, a face-block level being the expected
-  end state (the ruling of comment 6554243203). Ruling 6715535566 item 3
-  moves the carrier to S11 and holds `reboot_req_i` at 0 until then; the
-  split census proves the hold.
+  firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
+  request its carrier, a face-block level being the expected end state (the
+  ruling of comment 6554243203); until then the split ties `reboot_req_i` to
+  0. Its split elaboration must then pass the port census without the REBOOT
+  exclusion ([Every port, one class](#every-port-one-class)). The split
+  census proves the hold.
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
   the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the

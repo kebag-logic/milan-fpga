@@ -4414,16 +4414,16 @@ def _load_soc(cfg, cons):
     return soc
 
 
-#: control.placement (#665 F-INT PR 2): who runs ADP, ACMP, AECP, MAAP and SRP.
+#: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
 #: all-fabric, the default until the flip: the protocol processor and KL_maap
 #: in the datapath. split: the bare-metal control firmware through the
 #: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with
 #: CTRL_SPLIT_P = 1. The two placements build from one tree, one recipe and one
 #: config file, differing in this key alone.
 CONTROL_PLACEMENTS = ("all-fabric", "split")
-#: Where a split build reads its control firmware: the linked platform image
-#: (sw/firmware/ctrl/test/ctrl_plat_image.py), under this config's builder
-#: output, repository-relative as milan_soc.py resolves --ctrl-firmware.
+#: Where a split build reads its control firmware: the linked platform image,
+#: under this config's builder output, repository-relative as milan_soc.py
+#: resolves --ctrl-firmware.
 CTRL_FIRMWARE_ELF = "ctrl_app.elf"
 
 

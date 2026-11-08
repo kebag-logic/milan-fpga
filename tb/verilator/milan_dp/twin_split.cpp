@@ -212,6 +212,9 @@ void SplitHalf::reset() {
     d_->s_axi_arvalid = 0;
     d_->s_axi_bready = 0;
     d_->s_axi_rready = 0;
+    // tb_split_top's second KL_ctrl_split, the split leg's tap, idle here
+    d_->tap_tvalid = 0;
+    d_->tap_ready = 1;
     sys(20);
     d_->sys_rst_n = 1;
     d_->dp_rst_n = 1;

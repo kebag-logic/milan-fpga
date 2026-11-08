@@ -9,7 +9,7 @@
 ------------------------------------------------------------------------------
   File        : KL_ctrl_split.sv
   Description : The split placement's control frames, in the datapath clock
-                (#665 F-INT PR 2). With CTRL_SPLIT_P = 1, milan_datapath
+                (#665). With CTRL_SPLIT_P = 1, milan_datapath
                 builds no KL_pp_shadow, and this block carries what the
                 wrapper's two frame faces carried, between the fabric and the
                 mailbox's byte streams (docs/design/MAILBOX_SPLIT.md):
@@ -37,8 +37,10 @@
 
                 THE COUNTERS are the wrapper's three, at the same CSR words
                 (PP rx/tx frames and drops): a frame handed out and a frame
-                sent, each wrapping at 16 bits, and a beat a full FIFO
-                refused, saturating at 255.
+                sent, each wrapping at 16 bits, and a control frame lost to
+                a full FIFO, saturating at 255 (PP_DIAG[15:8]). A FIFO that
+                drops when full never lowers tready, so the loss is read
+                from the FIFO's own overflow indication, not the handshake.
 ------------------------------------------------------------------------------
 */
 //---------------------------------------------------------------------------//
@@ -49,8 +51,8 @@ module KL_ctrl_split #(
     //! the tap's FIFO, in bytes: the wrapper's own (KL_pp_shadow)
     parameter int unsigned RX_FIFO_BYTES_P = 4096
 ) (
-    input  wire                        clk_i,
-    input  wire                        rst_n,
+    input  wire                        clk_i,        //! the datapath's clock
+    input  wire                        rst_n,        //! synchronous active-low reset
     //! ---- the fabric's receive tap (input only, qualified on the handshake)
     input  wire [TDATA_WIDTH_P-1:0]    rx_tdata_i,
     input  wire [TDATA_WIDTH_P/8-1:0]  rx_tkeep_i,
@@ -70,12 +72,12 @@ module KL_ctrl_split #(
     //! ---- the control lane's beats (ctl_tx_mux's s_data leg)
     output logic [TDATA_WIDTH_P-1:0]   m_axis_tx_tdata,  //! little lane order
     output logic [TDATA_WIDTH_P/8-1:0] m_axis_tx_tkeep,  //! contiguous from lane 0
-    output logic                       m_axis_tx_tvalid,
-    output logic                       m_axis_tx_tlast,
-    input  wire                        m_axis_tx_tready,
+    output logic                       m_axis_tx_tvalid, //! a beat is offered
+    output logic                       m_axis_tx_tlast,  //! the frame's last beat
+    input  wire                        m_axis_tx_tready, //! the lane takes the beat
     //! ---- the wrapper's three counters
     output logic [15:0]                rx_frames_o,  //! control frames handed out, wrapping
-    output logic [7:0]                 rx_drops_o,   //! beats a full FIFO refused, saturating
+    output logic [7:0]                 rx_drops_o,   //! control frames a full FIFO lost, saturating
     output logic [15:0]                tx_frames_o   //! control frames sent, wrapping
 );
 
@@ -171,11 +173,22 @@ module KL_ctrl_split #(
     end
   end : tap_state
 
-  //! a beat of a frame being kept, refused by a full FIFO: the frame is lost
-  logic drop_p_w;
-  assign drop_p_w = fw_valid_w & ~fw_ready_w
-                  & ((tap_r == TAP_HEAD0_S) || (tap_r == TAP_HEAD1_S)
-                     || (tap_r == TAP_BODY_S));
+  //! A frame the tap kept, lost to a full FIFO (#665). With FRAME_FIFO and
+  //! DROP_WHEN_FULL the FIFO holds tready high and drops a frame it has no
+  //! room for by itself, raising status_overflow for the cycle after that
+  //! frame's last beat (verilog-axis axis_fifo). A runt or a refused frame
+  //! ends marked bad and is reclaimed either way, so its overflow loses no
+  //! control frame: the count takes an overflow only after the last beat of
+  //! a frame the tap kept, as that beat records it.
+  logic drop_p_w, ff_overflow_w, last_kept_r;
+  always_ff @(posedge clk_i) begin : drop_track
+    if (!rst_n) begin
+      last_kept_r <= 1'b0;
+    end else if (fw_valid_w && fw_ready_w && fw_last_w) begin
+      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w);
+    end
+  end : drop_track
+  assign drop_p_w = ff_overflow_w & last_kept_r;
 
   logic [TDATA_WIDTH_P-1:0] ff_data_w;
   logic [KEEP_W_C-1:0]      ff_keep_w;
@@ -216,7 +229,7 @@ module KL_ctrl_split #(
     .m_axis_tid         (),
     .m_axis_tdest       (),
     .m_axis_tuser       (),
-    .status_overflow    (),
+    .status_overflow    (ff_overflow_w),
     .status_bad_frame   (),
     .status_good_frame  (),
     .status_depth       (),

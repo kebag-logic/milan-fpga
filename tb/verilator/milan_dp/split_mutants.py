@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""split_mutants.py - the split leg's planted defects, each caught by the check it names (#665 F-INT PR 2).
+"""split_mutants.py - the split leg's planted defects, each caught by the check it names (#665).
 
 Each arm plants one defect into a copy of one source of the split placement's
 control path (the datapath's split branch, KL_mbx_cdc, its window or
@@ -73,7 +73,8 @@ ARMS = (
      "          end else begin",
      "[WIN] ...and that word is not the empty one"),
     ("a tap that hands out the media subtypes", CTLS,
-     "  assign accept_w = ((etype_w == ET_1722_C)\n                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
+     "  assign accept_w = ((etype_w == ET_1722_C)\n"
+     "                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
      "                         || (subtype_w == ST_ACMP_C) || (subtype_w == ST_MAAP_C)))",
      "  assign accept_w = (etype_w == ET_1722_C)",
      "[RX] ...and the tap hands out no frame"),
@@ -89,6 +90,42 @@ ARMS = (
      "      ev_hold_r <= {d_link_up_i, ev_pend_r[EV_W_C-2:0] | ev_new_w[EV_W_C-2:0]};",
      "      ev_hold_r <= {1'b0, ev_pend_r[EV_W_C-2:0] | ev_new_w[EV_W_C-2:0]};",
      "[LINK] the datapath's effective link reaches LINK.UP"),
+    ("the Talker declaration published as FAILED", DP,
+     "      assign pp_cd_srp_tk_decl_state_w[2*s +: 2] = {1'b0, i_ctl_pub_talker_decl[s]};",
+     "      assign pp_cd_srp_tk_decl_state_w[2*s +: 2] = {i_ctl_pub_talker_decl[s], 1'b0};",
+     "[PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE"),
+    ("a tap that refuses MSRP", CTLS,
+     "                 || ((da_r == DA_MSRP_C) && (etype_w == ET_MSRP_C))",
+     "                 || 1'b0",
+     "[TAP] MSRP at 01-80-C2-00-00-0E is handed out whole, and counted"),
+    ("a tap that refuses MVRP", CTLS,
+     "                 || ((da_r == DA_MVRP_C) && (etype_w == ET_MVRP_C));",
+     "                 || 1'b0;",
+     "[TAP] MVRP at 01-80-C2-00-00-21 is handed out whole, and counted"),
+    ("a tap that refuses MAAP", CTLS,
+     "                         || (subtype_w == ST_ACMP_C) || (subtype_w == ST_MAAP_C)))",
+     "                         || (subtype_w == ST_ACMP_C)))",
+     "[TAP] MAAP (0x22F0, subtype 0xFE) is handed out whole, and counted"),
+    ("a tap that takes MSRP at any address", CTLS,
+     "                 || ((da_r == DA_MSRP_C) && (etype_w == ET_MSRP_C))",
+     "                 || (etype_w == ET_MSRP_C)",
+     "[TAP] MSRP's EtherType at MVRP's group address is refused"),
+    ("a drop count read from the FIFO's tready", CTLS,
+     "  assign drop_p_w = ff_overflow_w & last_kept_r;",
+     "  assign drop_p_w = fw_valid_w & ~fw_ready_w;",
+     "[TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost"),
+    ("a drop count that counts refused frames", CTLS,
+     "  assign drop_p_w = ff_overflow_w & last_kept_r;",
+     "  assign drop_p_w = ff_overflow_w;",
+     "[TAP] ...and not the refused frames a full FIFO turns away"),
+    ("a drop count that misses a frame kept at its second beat", CTLS,
+     "      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w);",
+     "      last_kept_r <= (tap_r == TAP_BODY_S);",
+     "[TAP] every frame of the burst is handed out or counted lost"),
+    ("a drop count that wraps", CTLS,
+     "      if (drop_p_w & (rx_drops_o != 8'hFF))    rx_drops_o  <= rx_drops_o + 8'd1;",
+     "      if (drop_p_w)                            rx_drops_o  <= rx_drops_o + 8'd1;",
+     "[TAP] the count saturates at 255"),
 )
 
 
@@ -99,11 +136,12 @@ def build_and_run(mdir: Path, overrides: dict[str, Path]) -> tuple[int, str]:
     built = subprocess.run(args, capture_output=True, text=True, env=dict(os.environ))
     if built.returncode:
         return -1, built.stdout[-3000:] + built.stderr[-3000:]
-    ran = subprocess.run([str(mdir / "Vmilan_dp_split")], capture_output=True, text=True, cwd=HERE, timeout=1800)
+    ran = subprocess.run([str(mdir / "Vmilan_dp_split")], capture_output=True, text=True, cwd=HERE)
     return ran.returncode, ran.stdout + ran.stderr
 
 
 def main() -> int:
+    """Every arm, or --only one, or --list them; the exit status is the verdict."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--only")
@@ -134,7 +172,8 @@ def main() -> int:
             copy.write_text(text.replace(old, new))
             rc, out = build_and_run(copy.parent / "obj", {VAR[src]: copy})
             caught = rc > 0 and any(line.startswith(f"FAIL {label}") for line in out.splitlines())
-            print(f"{'ok  ' if caught else 'FAIL'} {name}: {'caught by ' + label if caught else f'rc {rc}, not caught by {label}'}")
+            verdict = f"caught by {label}" if caught else f"rc {rc}, not caught by {label}"
+            print(f"{'ok  ' if caught else 'FAIL'} {name}: {verdict}")
             if not caught:
                 print("\n".join(line for line in out.splitlines() if line.startswith("FAIL") or "error" in line)[:2000])
             bad += not caught

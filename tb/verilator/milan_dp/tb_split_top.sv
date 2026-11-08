@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------//
 //  File        : tb_split_top.sv
 //  Description : The split placement's control path as the SoC composes it
-//                (#665 F-INT PR 2), for sim_split.cpp: KL_mbx on the mailbox
+//                (#665), for sim_split.cpp: KL_mbx on the mailbox
 //                clock, KL_mbx_cdc, the two byte crossings, and milan_datapath
 //                with CTRL_SPLIT_P = 1 on the datapath clock. The host port
 //                is KL_mbx's own, so a check reaches the datapath only
@@ -17,6 +17,12 @@
 //                The probes are the datapath nets each face must reach, read
 //                by hierarchical reference, so the bench sees what the
 //                datapath's consumers read rather than what the ports carry.
+//
+//                A second KL_ctrl_split, u_tap, built from the same source as
+//                the datapath's, sits on the datapath clock with its receive
+//                side driven by the bench and its byte side read by it: every
+//                tuple class the tap accepts or refuses, and the frames a full
+//                FIFO loses, which the datapath's MAC boundary cannot stall.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -93,7 +99,18 @@ module tb_split_top
   output wire                     p_restore_done,
   output wire                     p_nvm_backed,
   output wire  [15:0]             p_rx_frames,
-  output wire  [15:0]             p_tx_frames
+  output wire  [15:0]             p_tx_frames,
+  //! ---- u_tap: its receive tap and its byte side, the bench's own
+  input  wire  [63:0]             tap_tdata,
+  input  wire  [7:0]              tap_tkeep,
+  input  wire                     tap_tvalid,
+  input  wire                     tap_tlast,
+  output wire                     tap_valid,
+  output wire  [7:0]              tap_data,
+  output wire                     tap_last,
+  input  wire                     tap_ready,
+  output wire  [15:0]             tap_frames,
+  output wire  [7:0]              tap_drops
 );
 
   localparam int unsigned S = MBX_N_PUB_SOURCES_C;
@@ -227,12 +244,12 @@ module tb_split_top
   KL_mbx_cdc u_cdc (
     .sys_clk_i(sys_clk), .sys_rst_n, .dp_clk_i(dp_clk), .dp_rst_n,
     .m_pub_da_gate_i(pub_da_gate), .m_pub_licence_i(pub_licence), .m_pub_talker_decl_i(pub_talker_decl),
-    .m_pub_src_sid_i(pub_src_sid), .m_pub_idle_slope_i(pub_idle_slope), .m_pub_dom_vid_i(pub_dom_vid),
+    .m_pub_src_sid_i(pub_src_sid), .m_pub_idle_slope_bps_i(pub_idle_slope), .m_pub_dom_vid_i(pub_dom_vid),
     .m_pub_dom_prio_i(pub_dom_prio), .m_pub_dom_adopted_i(pub_dom_adopted), .m_pub_bound_i(pub_bound),
     .m_pub_sid_valid_i(pub_sid_valid), .m_pub_started_i(pub_started), .m_pub_sid_i(pub_sid),
     .m_fw_send_i(fw_send), .m_fw_ack_p_o(fw_ack_p), .m_fw_cur_config_i(fw_cur_config),
     .m_fw_identify_i(fw_identify), .m_fw_clk_src_index_i(fw_clk_src), .m_fw_lock_held_i(fw_lock_held),
-    .m_fw_dyn_dirty_i(fw_dyn_dirty), .m_fw_pt_offset_i(fw_pt_offset), .m_fw_pt_offset_v_i(fw_pt_offset_v),
+    .m_fw_dyn_dirty_i(fw_dyn_dirty), .m_fw_pt_offset_ns_i(fw_pt_offset), .m_fw_pt_offset_v_i(fw_pt_offset_v),
     .m_fw_fmt_out_i(fw_fmt_out), .m_fw_fmt_out_v_i(fw_fmt_out_v), .m_fw_fmt_in_i(fw_fmt_in),
     .m_fw_fmt_in_v_i(fw_fmt_in_v),
     .m_fw_restore_i({fw_r_rb, fw_r_closed, fw_r_blank, fw_r_fail, fw_r_done, fw_r_busy}),
@@ -256,11 +273,11 @@ module tb_split_top
     .m_link_up_o(m_link_up), .m_gm_change_p_o(m_gm_change_p), .m_gm_id_o(m_gm_id),
     .m_gptp_domain_o(m_gptp_domain),
     .d_pub_da_gate_o(d_da_gate), .d_pub_licence_o(d_licence), .d_pub_talker_decl_o(d_talker_decl),
-    .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_o(d_idle_slope), .d_pub_dom_vid_o(d_dom_vid),
+    .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_bps_o(d_idle_slope), .d_pub_dom_vid_o(d_dom_vid),
     .d_pub_dom_prio_o(d_dom_prio), .d_pub_dom_adopted_o(d_dom_adopted), .d_pub_bound_o(d_bound),
     .d_pub_sid_valid_o(d_sid_valid), .d_pub_started_o(d_started), .d_pub_sid_o(d_sid),
     .d_cur_config_o(d_cur_config), .d_identify_o(d_identify), .d_clk_src_index_o(d_clk_src),
-    .d_lock_held_o(d_lock_held), .d_dyn_dirty_o(d_dyn_dirty), .d_pt_offset_o(d_pt_offset),
+    .d_lock_held_o(d_lock_held), .d_dyn_dirty_o(d_dyn_dirty), .d_pt_offset_ns_o(d_pt_offset),
     .d_pt_offset_v_o(d_pt_offset_v), .d_fmt_out_o(d_fmt_out), .d_fmt_out_v_o(d_fmt_out_v),
     .d_fmt_in_o(d_fmt_in), .d_fmt_in_v_o(d_fmt_in_v), .d_restore_o(d_restore), .d_rs_cause_o(d_rs_cause),
     .d_restore_cause_o(d_restore_cause), .d_nvm_o(d_nvm), .d_nvm_verdict_o(d_nvm_verdict),
@@ -317,11 +334,11 @@ module tb_split_top
     .o_ctl_link_up(d_link_up), .o_ctl_gm_change_p(d_gm_change_p), .o_ctl_gm_id(d_gm_id),
     .o_ctl_gptp_domain(d_gptp_domain),
     .i_ctl_pub_da_gate(d_da_gate), .i_ctl_pub_licence(d_licence), .i_ctl_pub_talker_decl(d_talker_decl),
-    .i_ctl_pub_src_sid(d_src_sid), .i_ctl_pub_idle_slope(d_idle_slope), .i_ctl_pub_dom_vid(d_dom_vid),
+    .i_ctl_pub_src_sid(d_src_sid), .i_ctl_pub_idle_slope_bps(d_idle_slope), .i_ctl_pub_dom_vid(d_dom_vid),
     .i_ctl_pub_dom_prio(d_dom_prio), .i_ctl_pub_dom_adopted(d_dom_adopted), .i_ctl_pub_bound(d_bound),
     .i_ctl_pub_sid_valid(d_sid_valid), .i_ctl_pub_started(d_started), .i_ctl_pub_sid(d_sid),
     .i_ctl_cur_config(d_cur_config), .i_ctl_identify(d_identify), .i_ctl_clk_src_index(d_clk_src),
-    .i_ctl_lock_held(d_lock_held), .i_ctl_dyn_dirty(d_dyn_dirty), .i_ctl_pt_offset(d_pt_offset),
+    .i_ctl_lock_held(d_lock_held), .i_ctl_dyn_dirty(d_dyn_dirty), .i_ctl_pt_offset_ns(d_pt_offset),
     .i_ctl_pt_offset_v(d_pt_offset_v), .i_ctl_fmt_out(d_fmt_out), .i_ctl_fmt_out_v(d_fmt_out_v),
     .i_ctl_fmt_in(d_fmt_in), .i_ctl_fmt_in_v(d_fmt_in_v), .i_ctl_restore(d_restore), .i_ctl_rs_cause(d_rs_cause),
     .i_ctl_restore_cause(d_restore_cause), .i_ctl_nvm(d_nvm), .i_ctl_nvm_verdict(d_nvm_verdict),
@@ -367,6 +384,16 @@ module tb_split_top
   assign p_nvm_backed   = u_dp.pp_nvm_backed_w;
   assign p_rx_frames    = u_dp.pp_rx_frames_w;
   assign p_tx_frames    = u_dp.pp_tx_frames_w;
+
+  // ---- u_tap: the tap alone, on the datapath clock --------------------------------
+  KL_ctrl_split u_tap (
+    .clk_i(dp_clk), .rst_n(dp_rst_n),
+    .rx_tdata_i(tap_tdata), .rx_tkeep_i(tap_tkeep), .rx_tvalid_i(tap_tvalid), .rx_tready_i(1'b1),
+    .rx_tlast_i(tap_tlast),
+    .rx_valid_o(tap_valid), .rx_data_o(tap_data), .rx_last_o(tap_last), .rx_ready_i(tap_ready),
+    .tx_valid_i(1'b0), .tx_data_i(8'd0), .tx_last_i(1'b0), .tx_ready_o(),
+    .m_axis_tx_tdata(), .m_axis_tx_tkeep(), .m_axis_tx_tvalid(), .m_axis_tx_tlast(), .m_axis_tx_tready(1'b1),
+    .rx_frames_o(tap_frames), .rx_drops_o(tap_drops), .tx_frames_o());
 
   // the counts are the shape's: read so a width change is visible here
   logic unused_ok;

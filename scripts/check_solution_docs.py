@@ -181,13 +181,8 @@ PORT_GROUPS = (
     PortGroup("End-station reset", "`o_reboot_phy_hold`, `o_icap_*`, `i_ethtxend_tgl`",
               "Hold the PHY in reset, after the MAC's last frame, and drive ICAPE2 for an AECP REBOOT",
               "Leave open, toggle 0: a REBOOT only goes offline", (r"o_reboot_phy_hold|i_ethtxend_tgl", r"o_icap_.*")),
-    PortGroup(
-        "Interrupt",
-        "`o_irq_csr`",
-        "Route the aggregate CSR interrupt",
-        "Leave the output open during smoke tests",
-        (r"o_irq_csr",),
-    ),
+    PortGroup("Interrupt", "`o_irq_csr`", "Route the aggregate CSR interrupt",
+              "Leave the output open during smoke tests", (r"o_irq_csr",)),
     PortGroup(
         "Identify output",
         "`o_identify`",
@@ -210,13 +205,9 @@ PORT_GROUPS = (
         (r"i2s_.*", r"tdm_.*", r"media_lrclk_o"),
     ),
     PortGroup("PPS output", "`pps_o`", "Carry the PHC second boundary to a pin", "Leave the output open", (r"pps_o",)),
-    PortGroup(
-        "Split control face",
-        "`i_ctl_*`, `o_ctl_*`",
-        "Bind the mailbox through `KL_mbx_cdc` when `CTRL_SPLIT_P` = 1",
-        "Tie every `i_ctl_*` to 0; leave the outputs open",
-        (r"[io]_ctl_.*",),
-    ),
+    PortGroup("Split control face", "`i_ctl_*`, `o_ctl_*`",
+              "Bind the mailbox through `KL_mbx_cdc` when `CTRL_SPLIT_P` = 1",
+              "Tie every `i_ctl_*` to 0; leave the outputs open", (r"[io]_ctl_.*",)),
 )
 
 STALE_DEFAULT_PHRASES = (

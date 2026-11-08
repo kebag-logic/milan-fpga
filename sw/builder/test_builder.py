@@ -23487,7 +23487,7 @@ def test_clock_plan_instance_gate_bites() -> None:
 #  or a derivation that moves on either side, turns it red.
 
 
-#: gate 23m's split cases (#665 F-INT PR 2): a config with control.placement:
+#: gate 23m's split cases (#665): a config with control.placement:
 #: split, labelled "<config>+split". Its argv's --ctrl-firmware names a
 #: synthetic image the split SoC's control memory accepts
 #: (sw/litex/test_ctrl_memory.py's GOOD layout), so the run reaches the
@@ -23598,7 +23598,7 @@ def test_datapath_params_gate_bites() -> None:
           f"not state, and the split placement's CTRL_SPLIT_P dropped")
 
 
-#  gate 23n (#665 F-INT PR 2) - control.placement: ONE KEY, BOTH PLACEMENTS.
+#  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
 #
 #  Every tracked config is all-fabric: it states no CTRL_SPLIT_P and emits no
 #  split flag, so its argv, fragment and shape are what they were. Its split
