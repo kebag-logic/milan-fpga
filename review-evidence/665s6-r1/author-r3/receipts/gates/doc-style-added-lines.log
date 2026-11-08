@@ -1,0 +1,28 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945 in final: python3 <mgmt>/665s6-a745c/scripts/doc_style_added.py 526f937c
+head e6d27f3a188286a5d5e30094e07453e2bbea1945, lines added since 526f937c
+docs/ENDSTATION_BUILDER.md: not in the gate population; findings on added lines: 0
+docs/design/MAILBOX_SPLIT.md: not in the gate population; findings on added lines: 7
+    sentence has 11 words; maximum is 10: One datapath parameter and one config key select the placement (#665).
+    sentence has 12 words; maximum is 10: Both placements build from one tree, one recipe and one config file.
+    sentence has 32 words; maximum is 10: no and no map writer (#665): the processor's engines are not placed one at a time, so the split removes the wh
+    sentence has 31 words; maximum is 10: Its registers rest at reset, but the restore's it accepts or refuses, and its drop count, which it also reads 
+    sentence has 21 words; maximum is 10: request its carrier, a face-block level being the expected end state, decided in that lane; until then the spl
+    paragraph has 124 words; maximum is 20: switch (#665), which wires that side. One datapath parameter and one config key select the placement (#665). B
+    paragraph has too many sentences: switch (#665), which wires that side. One datapath parameter and one config key select the placement (#665). B
+docs/design/SPLIT_CONTROL_MEMORY.md: not in the gate population; findings on added lines: 3
+    sentence has 15 words; maximum is 10: The split image's boot, service checks and route are M8a-2, after the placement switch (#665).
+    sentence has 18 words; maximum is 10: The placement switch (#665) removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
+    paragraph has 33 words; maximum is 20: The split image's boot, service checks and route are M8a-2, after the placement switch (#665). The placement s
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md: not in the gate population; findings on added lines: 6
+    sentence has 11 words; maximum is 10: The split moves every control protocol to the firmware at once.
+    sentence has 13 words; maximum is 10: No image is built with only F0-F4 moved, and no record measures one.
+    sentence has 11 words; maximum is 10: It is removed at the flip together with the all-fabric placement.
+    sentence has 15 words; maximum is 10: The recipe below is kept only until the flip removes it; it is not run.
+    paragraph has 62 words; maximum is 20: The `f0-f4` selection is ruled dead (#665). The split moves every control protocol to the firmware at once. No
+    paragraph has too many sentences: The `f0-f4` selection is ruled dead (#665). The split moves every control protocol to the firmware at once. No
+tb/verilator/milan_dp/README.md: not in the gate population; findings on added lines: 5
+    sentence has 23 words; maximum is 10: The split placement's control path (objsplit, #665) -- KLmbx through KLmbxcdc to the CTRLSPLITP = 1 datapath, 
+    sentence has 12 words; maximum is 10: It plants twenty-four defects check it names, after a clean control passes.
+    sentence has 22 words; maximum is 10: Eleven of them hold the Talker declaration's encoding, the tap's tuples and its drop count, and the datapath's
+    paragraph has 35 words; maximum is 20: `make split-mutants` runs `split_mutants.py`. It plants twenty-four defects check it names, after a clean cont
+    paragraph has too many sentences: `make split-mutants` runs `split_mutants.py`. It plants twenty-four defects check it names, after a clean cont

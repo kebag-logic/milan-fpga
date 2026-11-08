@@ -1,0 +1,14 @@
+# The split leg built from the worktree with sim_split.cpp minus its one 24-byte frame (every other line as committed at daf8d96a), to show the full-FIFO guard can fail; the file was restored after (cmp equal).
+[PUB] SID_VALID to the listener: 9 mailbox cycles
+[FACE] commit to BUSY clear: 3 polls
+[WIN] CTR round 0: status 0x102 data 0x0 in 8 polls
+[WIN] CTR round 1: status 0x202 data 0x0 in 8 polls
+[WIN] AMAP: status 0x102 data 0x1 in 13 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 7 polls
+[TX] commit to the MAC's last byte: 205 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 3, up again after 3
+FAIL [TAP] the burst leaves the FIFO full to its last word
+[TAP] burst: 108 frames offered, 65 handed out, 43 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+ran 133389 mailbox cycles
+checks: 71   failures: 1

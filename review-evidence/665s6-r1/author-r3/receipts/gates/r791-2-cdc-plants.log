@@ -1,0 +1,10 @@
+# head e6d27f3a188286a5d5e30094e07453e2bbea1945 in probes: python3 -I <mgmt>/665s6-r791-2/scripts/cdc_plants.py <scratch>/probes
+control: a comment: PASSED the check (253 sinks)
+R1 the held bus sampled every dp cycle: refused (253 sinks)
+    a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+R2 u_pub's dest reset from the sys domain: refused (253 sinks)
+    a crossing without a primitive: u_pub.dest_rst_n (dp) reads sys_rst_n (sys)
+R3 the held bus captured on a sys-domain level: refused (253 sinks)
+    a crossing without a primitive: flop fw_r (dp) reads m_fw_send_i (sys)
+    a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+raw crossings the check let through: 0
