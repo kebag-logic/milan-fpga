@@ -1,0 +1,33 @@
+# F1 verification, old head 1de759d3 vs new head 06c89f1d48c73ec1977791f2a2c4f99579ae4853
+## 1de759d3
+findings in data file: 65
+re-verify: quote not found rows: 19
+re-verify rows on the two reference pages: 16
+status rows of the two pages:
+  | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 11 finding(s): D0-006, D0-007, D0-008, D0-014, D0-015, D0-016, D0-017, D0-057, D0-058, D0-059, D0-060 | D0
+  | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 6 finding(s): D0-018, D0-040, D0-041, D0-042, D0-043, D0-044 | D0
+## HEAD
+findings in data file: 50
+re-verify: quote not found rows: 5
+re-verify rows on the two reference pages: 2
+status rows of the two pages:
+  | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 1 finding(s): D0-057 | D0
+  | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 1 finding(s): D0-040 | D0
+## removed IDs left anywhere in the tree at HEAD (expect none)
+none
+## kept IDs: Findings rows at HEAD (own page + copies)
+D0-040 rows=5 copy_rows=4
+D0-057 rows=8 copy_rows=7
+## D0-018 correction on the page
+102:| `0x7D8` | ETH_GUARD (Ethernet kill switch) | **needed** | live, armed from power-on | Refuses the CPU's Ethernet d
+## D0-009 in the data file at 1de759d3
+0
+## diff stat 1de759d3..HEAD
+ docs/DOCUMENTATION_AUDIT.md |  19 +-------
+ scripts/docs_inventory.json | 111 --------------------------------------------
+ 2 files changed, 2 insertions(+), 128 deletions(-)
+## status cell of the two pages at HEAD
+[docs/reference/REGISTER_MAP.md]
+| stale | 1 finding(s): D0-057 |
+[docs/reference/REGISTER_MAP_CLASSES.md]
+| stale | 1 finding(s): D0-040 |
