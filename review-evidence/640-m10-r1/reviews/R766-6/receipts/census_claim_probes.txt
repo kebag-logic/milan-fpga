@@ -1,0 +1,25 @@
+## files dev changed under sw/ fw/ firmware/ (base..dev)
+sw/builder/README-parameters.md
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+sw/builder/test_clock_contract.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+sw/firmware/nvm_hosttest/phy_host.c
+sw/firmware/nvm_hosttest/phy_peer.h
+sw/firmware/nvm_hosttest/test_phy_firmware.py
+sw/litex/gen_mac_tx_model.py
+sw/litex/test_gptp_tx_timestamp.py
+## loopback writers at head
+## timer0 readers at head (non-doc)
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:84:	timer0_update_value_write(1);
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:85:	return timer0_value_read();
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:264:	timer0_en_write(0);
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:265:	timer0_load_write(0xffffffffu);
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:266:	timer0_reload_write(0xffffffffu);
+72816d26:sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:267:	timer0_en_write(1);
+72816d26:tb/verilator/nvm_capture_cpu/firmware.py:12:    timer0_update_value_write(1);
+72816d26:tb/verilator/nvm_capture_cpu/firmware.py:13:    return timer0_value_read();
+72816d26:tb/verilator/nvm_capture_cpu/firmware.py:36:    timer0_en_write(0);
+72816d26:tb/verilator/nvm_capture_cpu/firmware.py:37:    timer0_reload_write(0xffffffffu);
+## irq enables at head (firmware C)
+## ctrl_ reads at head (firmware C)
