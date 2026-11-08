@@ -1,0 +1,185 @@
+{
+ "gateware": {
+  "rc": 0,
+  "seconds": 2863,
+  "log_sha256": "3edc0c488172d74d445e8aa896d350ecdd2b9c07bd0a1472b1433216750f0560",
+  "log_bytes": 872461,
+  "peak_mb": 8255.699,
+  "synth_8_4445": 0,
+  "synth_8_6901": [
+   "WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [<scratch>/gclone/hdl/milan/milan_datapath.sv:3483]"
+  ],
+  "images_match": 6,
+  "images_differ": 0,
+  "hierarchy": {
+   "alinx_ax7101": {
+    "module": "(top)",
+    "lut": 53033,
+    "depth": 2
+   },
+   "milan_datapath": {
+    "module": "milan_datapath",
+    "lut": 44528,
+    "depth": 4
+   },
+   "pp_shadow": {
+    "module": "KL_pp_shadow",
+    "lut": 25116,
+    "depth": 6
+   },
+   "u_pp": {
+    "module": "protocol_processor_top",
+    "lut": 24386,
+    "depth": 8
+   },
+   "u_encoder": {
+    "module": "KL_srp_encoder",
+    "lut": 1432,
+    "depth": 12
+   }
+  }
+ },
+ "ax7101-ooc": {
+  "rc": 0,
+  "seconds": 768,
+  "log_sha256": "8dfce40e9e17e564ce0dff0670ef6759226d5ddba751f9593091f9f44f12de8f",
+  "log_bytes": 314995,
+  "peak_mb": 5402.277,
+  "synth_8_4445": 0,
+  "synth_8_6901": [
+   "WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [<scratch>/gclone/hdl/milan/milan_datapath.sv:3483]"
+  ],
+  "images_match": 6,
+  "images_differ": 0,
+  "hierarchy": {
+   "u_pp": {
+    "module": "protocol_processor_top",
+    "lut": 24521,
+    "depth": 4
+   },
+   "u_maap": {
+    "module": "KL_pp_maap",
+    "lut": 689,
+    "depth": 6
+   },
+   "u_encoder": {
+    "module": "KL_srp_encoder",
+    "lut": 1561,
+    "depth": 8
+   }
+  }
+ },
+ "ax7101-AltSpreadLogic_high": {
+  "rc": 0,
+  "seconds": 1157,
+  "log_sha256": "30407127317b2409ff44dea10bc4785dd2385d360193559d4d8d133574a6f245",
+  "log_bytes": 433200,
+  "peak_mb": 5423.176,
+  "synth_8_4445": 0,
+  "synth_8_6901": [],
+  "hierarchy": {
+   "alinx_ax7101": {
+    "module": "(top)",
+    "lut": 53082,
+    "depth": 2
+   },
+   "milan_datapath": {
+    "module": "milan_datapath",
+    "lut": 44568,
+    "depth": 4
+   },
+   "pp_shadow": {
+    "module": "KL_pp_shadow",
+    "lut": 25145,
+    "depth": 6
+   },
+   "u_pp": {
+    "module": "protocol_processor_top",
+    "lut": 24410,
+    "depth": 8
+   },
+   "u_encoder": {
+    "module": "KL_srp_encoder",
+    "lut": 1433,
+    "depth": 12
+   }
+  }
+ },
+ "ax7101-ExtraTimingOpt": {
+  "rc": 0,
+  "seconds": 1111,
+  "log_sha256": "523fd8cf7b0ebee24d3a8835acb96d8cd349958be22a68e68a2cbfd15445c5a8",
+  "log_bytes": 209693,
+  "peak_mb": 5244.855,
+  "synth_8_4445": 0,
+  "synth_8_6901": [],
+  "hierarchy": {
+   "alinx_ax7101": {
+    "module": "(top)",
+    "lut": 53050,
+    "depth": 2
+   },
+   "milan_datapath": {
+    "module": "milan_datapath",
+    "lut": 44563,
+    "depth": 4
+   },
+   "pp_shadow": {
+    "module": "KL_pp_shadow",
+    "lut": 25129,
+    "depth": 6
+   },
+   "u_pp": {
+    "module": "protocol_processor_top",
+    "lut": 24398,
+    "depth": 8
+   },
+   "u_encoder": {
+    "module": "KL_srp_encoder",
+    "lut": 1435,
+    "depth": 12
+   }
+  }
+ },
+ "ax8x8-rtl": {
+  "rc": 0,
+  "seconds": 73,
+  "log_sha256": "ea41f42b168e8df8fbb4110ac5e1f31f562c8d4e2fb639bbf908bf71a5d8db6f",
+  "log_bytes": 207245,
+  "peak_mb": 4379.621,
+  "synth_8_4445": 0,
+  "synth_8_6901": [
+   "WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [<scratch>/gclone8/hdl/milan/milan_datapath.sv:3483]"
+  ]
+ },
+ "ax8x8-ooc": {
+  "rc": 0,
+  "seconds": 2286,
+  "log_sha256": "505426a4522177d92f8c455218d8f3318fe4a90d4d08f73142d72c81e4db7135",
+  "log_bytes": 318599,
+  "peak_mb": 6490.668,
+  "synth_8_4445": 0,
+  "synth_8_6901": [
+   "WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [<scratch>/gclone8/hdl/milan/milan_datapath.sv:3483]"
+  ],
+  "images_match": 6,
+  "images_differ": 0,
+  "hierarchy": {
+   "u_pp": {
+    "module": "protocol_processor_top",
+    "lut": 35793,
+    "depth": 4
+   },
+   "u_maap": {
+    "module": "KL_pp_maap",
+    "lut": 729,
+    "depth": 6
+   },
+   "u_encoder": {
+    "module": "KL_srp_encoder",
+    "lut": 1573,
+    "depth": 8
+   }
+  }
+ }
+}
