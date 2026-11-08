@@ -107,6 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its thirteen planted defects
+- **[The two-placement simulation (obj_twin_*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with three plants and what it finds
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1147,7 +1148,120 @@ refused. It needs the pinned sv2v and Yosys, so it is not a default case.
 `rtl-fast`'s `split-cdc` job runs it, in a job of its own.
 
 Not held here: the `EDIT` window, the counter-change and face events, the GM
-event, and the firmware itself. The two-placement comparison owes them.
+event, and the firmware itself. The two-placement simulation below runs the
+firmware.
+
+`tb_split_top` brings the datapath's CSR window (its AXI4-Lite port) out for
+that simulation; the split leg leaves it idle.
+
+## The two-placement simulation (`obj_twin_*`, #665)
+
+`make twin` runs one stimulus ([`twin.hpp`](twin.hpp)) on two halves at the
+shipping AX7101 shape and compares what each MAC sent
+([`twin_compare.py`](twin_compare.py)). The contract is the plan's section S6
+as [issuecomment-6716584453](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6716584453)
+amends it.
+
+- **The all-fabric half** ([`twin_fabric.cpp`](twin_fabric.cpp)) is
+  `milan_datapath` at `CTRL_SPLIT_P = 0`, provisioned as `milan_baremetal.c`'s
+  `milan_init()` does. It makes `configure_fabric()`'s fifteen writes through
+  `ctrl_plat_csr.c`, which the platform trace proves equal to
+  `milan_baremetal.c`'s. It serves the build's AEM image from main memory and
+  runs `nvm_boot()`'s restore walk on blank media to its terminal. Then it
+  makes `entity_advertise()`'s two enables.
+- **The split half** ([`twin_split.cpp`](twin_split.cpp)) is `tb_split_top`
+  with the split image's own platform, `ctrl_plat.c`'s boot and composition.
+  [`twin_fw.py`](twin_fw.py) builds that firmware for the host, as the
+  firmware's boot test builds it. `mbx_hal.h` is `KL_mbx`'s host port, as in
+  `tb/verilator/mbx`'s co-simulation. The CSR window is the datapath's
+  AXI4-Lite port, and the flash is the store's blank host model. The boot
+  reaches its ready state.
+- **Two settings are simulation-only.** The processor's and `KL_maap`'s
+  millisecond is `TWIN_MS_CYC` (1000) datapath cycles: `PP_TIM_DIV_US_P = 1`,
+  `PP_TIM_DIV_MS_P` and `MAAP_CLK_HZ_P`. MAAP's first range is pinned in both
+  halves at offset 0x0100 of the pool. The fabric takes it on its `MAAP_CTRL`
+  write (`seed_valid`, `seed_offset`), the firmware as
+  `CTRL_PLAT_MAAP_PREFERRED`. No product default changes.
+- **Both datapaths elaborate alike** apart from the placement: the receive
+  filter pruned and the gPTP plane off, as `tb_split_top` has them. Neither
+  takes the broad legs' `-G` compressions.
+
+The split half's millisecond is one `KL_mbx` tick. The bench services the
+loop until it owes nothing, so the firmware is never late against its own
+clock. The two clocks are never compared.
+
+### The comparison
+
+| Protocol | How the halves are compared |
+|---|---|
+| ADP, ACMP, MAAP | each protocol's frames in order, raw bytes equal |
+| AECP | the same, apart from the F5 difference ledger; each row asserts its exact fabric and split values |
+| MSRP | the decoded multiset per transmit opportunity, in order across opportunities (`srp_wire_compare.py`) |
+| MVRP | in order, raw bytes equal (`srp_wire_compare.py` reads MSRP only) |
+
+Frames are compared as the wire carries them: one shorter than 60 bytes is
+padded with zeros to 60, as the SoC's MAC pads it (`LiteEthMACCore`
+`with_padding`, `milan_soc.py`). An ADP or MAAP frame one half sent after the
+other's last is not a difference while the other's next was not yet due.
+
+Each half is graded on its own against these bounds:
+
+- ADP's first `ENTITY_AVAILABLE` within 2000 ms (Milan v1.2 5.6.3.5.2);
+- ADP's advertise gaps within 9000 ms (Milan v1.2 Table 5.50) and its
+  `valid_time` (IEEE 1722.1-2021 6.2.2.6);
+- an `ENTITY_DISCOVER` answered within 4000 ms (Milan v1.2 5.6.3.5.3);
+- MAAP's probe gaps in 500 to 600 ms and its announce gaps in 30000 to
+  32000 ms (IEEE 1722-2016 Table B.8);
+- each AEM response within 240 ms (IEEE 1722.1-2021 9.3.2.6).
+
+The ledger rows this stimulus exercises are listed below. Rows 3, 5 and 6 of
+`sw/firmware/ctrl/aecp/README.md`'s table need a second controller or the
+Milan vendor-unique commands, so they are not exercised here.
+
+| Row | Fabric | Split |
+|---|---|---|
+| `root-configuration-index` (row 1) | `BAD_ARGUMENTS`, configuration_index 1 echoed | `SUCCESS`, the ENTITY descriptor at configuration_index 0 |
+| `set-stream-info-current-fields` (row 2) | `NOT_SUPPORTED`, the command's fields echoed | `NOT_SUPPORTED`, STREAM_INPUT 0's current fields |
+| `reserved-message-type` (non-AEM) | message_type 11, status 1 | nothing |
+
+### The plants
+
+`make twin-plants` plants each one in the split half's capture
+(`twin_split.cpp --plant`). Each must be refused by its words twice: against
+the unplanted split capture, every finding about the planted protocol, and
+against the all-fabric capture, in a finding the unplanted comparison does not
+make.
+
+| Plant | What it changes | Refused by |
+|---|---|---|
+| `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
+| `srp-plus-k` | the first Talker vector's FirstValue one higher | `declares stream_id 0200000000010001` |
+| `missing-notification` | the unsolicited response after STOP_STREAMING dropped | `the fabric sent and the split did not: AECP AEM_RESPONSE u=1 GET_STREAM_INFO` |
+
+### What it finds at this head
+
+ADP (6 frames), ACMP (7) and MAAP (7) are equal, byte for byte, in order.
+Both halves meet every timing bound above. `make twin` exits 1 on these
+differences, none of them in the ledger:
+
+- **AECP.** The ENTITY descriptor's `available_index` is 0 in the fabric and
+  1 in the split after one ADPDU. At the bind, the fabric sends its
+  GET_COUNTERS notice before GET_STREAM_INFO, the split the reverse, so every
+  later notice's sequence_id differs. Only the fabric sends GET_STREAM_INFO
+  notices for STREAM_OUTPUT 0, after the PROBE_TX and at 20 s.
+- **MSRP.** The split declares Talker Failed for both sources from its boot.
+  The fabric declares its Domain from boot and Talker Advertise for source 0
+  after the PROBE_TX. The split's sources stay unallocated until an SRP
+  adapter entry takes MAAP's range
+  ([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
+  The two halves also pack Domain and Talker into different MRPDUs.
+- **MVRP.** The split declares VID 2 from its boot, the fabric only once its
+  talker declares, with other events.
+
+```sh
+make -C tb/verilator/milan_dp twin
+make -C tb/verilator/milan_dp twin-plants
+```
 
 ## GM step re-base leg (#387)
 

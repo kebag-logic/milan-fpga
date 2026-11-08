@@ -1447,8 +1447,19 @@ too (`UNREAD_BOTH`):
 - `F_AECP.DYN_DIRTY` (`i_ctl_dyn_dirty`);
 - `EDIT_VALUE` (`i_ctl_edit_value`).
 
-So the split loses no consumer. Whether contract 2.3 keeps these four on the
-datapath face is an open item.
+So the split loses no consumer. They stay on the datapath face as
+firmware-written state (#665 issuecomment-6716584453, item 2): dropping one is
+a contract change, which waits for the flip (S13). The plan's "every contract
+2.3 field consumed" therefore reads "consumed, or proven unread in both
+placements". The census keeps proving `UNREAD_BOTH` for each, and each has
+its ledger row:
+
+| Field | Port | Ledger row: why no datapath block reads it |
+|---|---|---|
+| `F_ENTITY.CUR_CONFIG` | `i_ctl_cur_config` | The entity has one configuration, and no datapath block selects by it; the firmware's AECP owner answers for it. |
+| `F_ENTITY.IDENTIFY` | `i_ctl_identify` | The IDENTIFY indication drives no datapath logic in either placement; it is graded at the bench (S12). |
+| `F_AECP.DYN_DIRTY` | `i_ctl_dyn_dirty` | The saved state's dirty mark is the firmware store's; no datapath block reads it in either placement. |
+| `EDIT_VALUE` | `i_ctl_edit_value` | The map editor's answer does not depend on it in either placement. |
 
 Its 14 rules are the `split-*` entries of
 [`census_rules.py`](../../sw/mailbox/census_rules.py).
@@ -1502,12 +1513,19 @@ stale answer carries the older tag, which `KL_mbx` discards.
 - The publication census's second population,
   [The split's control face](#the-splits-control-face), sees every
   publication and contract 2.3 field consumed in each shape's split
-  elaboration.
+  elaboration, or proven unread in both placements.
+- The `milan_dp` two-placement simulation (`make twin`) runs one stimulus on
+  the all-fabric datapath and on the split one, with the split image's own
+  firmware platform on the RTL mailbox, and compares what each MAC sent,
+  protocol by protocol (#665 issuecomment-6716584453). Its three plants
+  (`make twin-plants`) are each refused by their words. At this head it
+  finds AECP, MSRP and MVRP differences, which the
+  [`milan_dp` README](../../tb/verilator/milan_dp/README.md) lists.
 
 The split leg runs in the suite's default `make`. `rtl-fast`'s `split-cdc`
 job runs `make split-cdc` (ruling 6715535566 item 6), and its
-`publication-census` job runs the split census. The identity, the population
-and the split leg's planted defects are local.
+`publication-census` job runs the split census. The identity, the population,
+the split leg's planted defects and the two-placement simulation are local.
 
 ## Verification
 
@@ -1816,8 +1834,9 @@ report_timing_summary -delay_type max
   `F_ENTITY.IDENTIFY`, `F_AECP.DYN_DIRTY` and `EDIT_VALUE` cross into the
   split datapath, which reads none of them; the all-fabric datapath reads
   their wrapper nets nowhere either
-  ([The split's control face](#the-splits-control-face)). Whether contract
-  2.3 keeps them on the datapath face needs a ruling.
+  ([The split's control face](#the-splits-control-face)). They stay on the
+  face as firmware-written state until the flip (issuecomment-6716584453,
+  item 2), each with its ledger row.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
   firmware's AECP owner takes REBOOT, a face-block level being the expected
   end state (the ruling of comment 6554243203). Ruling 6715535566 item 3
