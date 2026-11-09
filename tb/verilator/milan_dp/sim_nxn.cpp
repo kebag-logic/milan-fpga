@@ -2726,10 +2726,10 @@ class NxnDatapathHarness {
         const long t = uns_log_cycle;
         auto& r = *dut->rootp;
         if (unb_tr.txreq < 0
-            && r.milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__lstn_txreq_valid_w)
+            && r.milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__lstn_txreq_valid_w)
             unb_tr.txreq = t;
         if (unb_tr.fall < 0
-            && !((r.milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__bound_hold_r >> s) & 1u))
+            && !((r.milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__bound_hold_r >> s) & 1u))
             unb_tr.fall = t;
         if (unb_tr.mu < 0 && unb_mu(s) != unb_mu_q) unb_tr.mu = t;
         if (unb_tr.dirty < 0 && unb_dirty(s)) unb_tr.dirty = t;
@@ -4587,8 +4587,8 @@ class NxnDatapathHarness {
     //! the clipped default, not whatever it once clipped.
     void dynmap_stage_an_output_row_in_the_window(uint64_t fout, long in_n,
                                                   long out_n) {
-        auto& row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
-        auto& valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
+        auto& row = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
+        auto& valid = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
         row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
         valid = static_cast<uint8_t>(valid | 1u);
         for (int c = 0; c < 64; c++) step();
@@ -4674,7 +4674,7 @@ class NxnDatapathHarness {
     //! the D3 writer's CLOSED flag: from the next clock on the restore has
     //! ended CLOSED, as an unprovable image or a failed roll-back ends it
     void dynmap_close_the_restore() {
-        dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__closed_r = 1;
+        dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__closed_r = 1;
     }
 
     //! One CSR map write of `word` at CHMAP_SEL `sel` in a fresh boot, whose
@@ -4786,10 +4786,10 @@ class NxnDatapathHarness {
     //! and only the sweep after the terminal can write it into the RAMs.
     void dynmap_roll_back_to_closed(uint64_t fin, uint64_t fout, long in_n,
                                     long out_n) {
-        auto& in_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_r;
-        auto& in_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_v_r;
-        auto& out_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
-        auto& out_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
+        auto& in_row = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_r;
+        auto& in_valid = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_v_r;
+        auto& out_row = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
+        auto& out_valid = dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
         bring_the_datapath_out_of_reset();
         in_row[0] = (fin & ~(0x3FFull << 22)) | (4ull << 22);
         out_row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
@@ -5106,7 +5106,7 @@ class NxnDatapathHarness {
     long maprec_power_cycle(const char* tag, bool d3_rolled_back) {
         maprec_cut_the_power();
         if (d3_rolled_back)
-            dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__rb_r = 1;
+            dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__rb_r = 1;
         axi_write(kPpCtrl, axi_read(kPpCtrl) | 0x2u);
         const long t_go = nm_cycle;
         long t_done = -1;
@@ -5396,14 +5396,14 @@ class NxnDatapathHarness {
             if (dut->rootp->milan_datapath__DOT__pp_amap_req_w
                 && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
                 met_the_hold = true;
-            if (dut->rootp->milan_datapath__DOT__pp_shadow__DOT__enable_i
+            if (dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__enable_i
                 && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
                 enabled_early = true;
         });
         for (int c = 0; c < 64; c++) step();
         ck("[MAPREC] held GET: the entity enable waits for the map restore",
            static_cast<unsigned long>(!enabled_early
-               && dut->rootp->milan_datapath__DOT__pp_shadow__DOT__enable_i), 1);
+               && dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__enable_i), 1);
         ck("[MAPREC] held GET: it reached the read face inside the map restore",
            static_cast<unsigned long>(met_the_hold), 1);
         MapSet got;
@@ -5554,8 +5554,8 @@ class NxnDatapathHarness {
         for (long c = 0; c < 3000000L && took < 0; c++) {
             step();
             if (dut->rootp->milan_datapath__DOT__amr_req_r
-                && !dut->rootp->milan_datapath__DOT__pp_shadow__DOT__da_map_r
-                && dut->rootp->milan_datapath__DOT__pp_shadow__DOT__nvm_busy_w)
+                && !dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__da_map_r
+                && dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__nvm_busy_w)
                 contended = true;
             //! PP_STAT's pend stays up here by design: a name's accepted write
             //! keeps its sticky source until reset, as the parent has not

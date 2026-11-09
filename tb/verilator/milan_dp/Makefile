@@ -31,6 +31,9 @@
 #   make counters - #726 packet/reset/cadence checks at shipping and largest shapes
 #   make counters-f5 - the same windows through the firmware mailbox fixture
 #   make counters-mutants - named defects plus each check-omission escape
+#   make split - #665: the split placement's control path, end to end
+#   make split-mutants - that leg's planted defects (split_mutants.py)
+#   make split-cdc - every KL_mbx_cdc crossing through an approved primitive
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -134,6 +137,9 @@ DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
 # #602: override only a disposable restart-engine copy for source-change mutants.
 MCR_SRC ?= $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv
+# #665: the split's frame block, and its crossing below, overridable so
+# split_mutants.py builds a MUTATED copy through the split leg's recipe
+CTLS_SRC ?= $(RTL_DIR)/milan/KL_ctrl_split.sv
 # #387: the clock-validity block, overridable the same way so the gmstep
 # leg's negative controls elaborate a MUTATED copy through its recipe (their
 # runner joins the tree with the #387 datapath edit).
@@ -191,6 +197,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(CLKV_SRC) \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(C)/KL_link_guard.sv $(RTL_DIR)/milan/KL_reboot_ctrl.sv \
+       $(CTLS_SRC) \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee1722/aaf/aaf_talker_i2s.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv \
@@ -682,7 +689,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -705,6 +712,7 @@ CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipp
 CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
 CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
 CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
+CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
 
 # Keep the original ordered build and bounded simulation phases.
 # Each selected CI invocation prepares shared inputs before building cases.
@@ -826,6 +834,42 @@ exec-ax1x1:
 # large blast radius for no gain.
 build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
+
+# #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
+# KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
+# CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
+# does; sim_split.cpp reaches the datapath only through the contract's
+# registers. Its own top, so the datapath's -G flags are not handed to it.
+SPLIT_MDIR ?= obj_split
+MBX_DIR = $(RTL_DIR)/milan/mailbox
+CDC_SRC ?= $(MBX_DIR)/KL_mbx_cdc.sv
+CDCW_SRC ?= $(MBX_DIR)/KL_mbx_cdc_window.sv
+SPLIT_SRCS = $(MBX_DIR)/KL_mbx_pkg.sv $(MBX_DIR)/KL_mbx_ring.sv $(MBX_DIR)/KL_mbx_rx.sv \
+       $(MBX_DIR)/KL_mbx_tx.sv $(MBX_DIR)/KL_mbx_evt.sv $(MBX_DIR)/KL_mbx.sv \
+       $(CDCW_SRC) $(CDC_SRC) $(AXIS_DIR)/axis_async_fifo.v tb_split_top.sv
+define SPLIT_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+  --Mdir $(SPLIT_MDIR) -CFLAGS "-I$(CURDIR)/../../../sw/firmware/ctrl/mbx -I$(CURDIR)/../mbx -Wall -Wextra" \
+  $(SRCS) $(SPLIT_SRCS) sim_split.cpp -o Vmilan_dp_split
+endef
+
+build-split: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(SPLIT_BUILD)
+
+exec-split:
+	./$(SPLIT_MDIR)/Vmilan_dp_split
+
+split: build-split exec-split
+
+# the split leg's planted defects, each caught by the check it names
+split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	python3 split_mutants.py
+
+# the split crossing's structure: every KL_mbx_cdc crossing through a primitive
+# (split_cdc_check.py), and twelve plants each refused. It needs the pinned sv2v
+# and Yosys, which not every hosted suite shard installs, so it is not a case.
+split-cdc:
+	python3 split_cdc_check.py --selftest
 
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk

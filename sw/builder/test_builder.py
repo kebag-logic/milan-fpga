@@ -22198,6 +22198,19 @@ def _module_source(module):
     return None
 
 
+def _prune_guard_re(param):
+    """The `generate if` guard a prune parameter may carry.
+
+    `(PARAM != 0)` alone, or conjoined with the split placement's
+    `(CTRL_SPLIT_P == 0)` (#665: the split builds no KL_maap). A conjunction
+    keeps the property gate 23d pins, that PARAM = 0 prunes the block; a
+    disjunction or an inverted test would not, and does not match.
+    """
+    p = re.escape(param)
+    return (r"generate if \((?:%s != 0|\(%s != 0\) && \(CTRL_SPLIT_P == 0\))\) "
+            r"begin : (\w+)" % (p, p))
+
+
 def _prune_guard_site(param, rtl):
     """Find the source text that carries `param`'s `generate if`, and the name
     the guard uses there.
@@ -22210,7 +22223,7 @@ def _prune_guard_site(param, rtl):
     Anything else - including a parameter that is passed to a child which does
     not guard it either - returns (None, param) and fails the gate.
     """
-    if re.search(r"generate if \(%s != 0\) begin : \w+" % re.escape(param), rtl):
+    if re.search(_prune_guard_re(param), rtl):
         return rtl, param
 
     #: `Module #( .A (X), .B (Y) ) inst (` - the parameter block, balanced
@@ -22230,8 +22243,7 @@ def _prune_guard_site(param, rtl):
         child = _module_source(m.group(1))
         if child is None:
             continue
-        if re.search(r"generate if \(%s != 0\) begin : \w+"
-                     % re.escape(bind.group(1)), child):
+        if re.search(_prune_guard_re(bind.group(1)), child):
             return child, bind.group(1)
     return None, param
 
@@ -22312,6 +22324,15 @@ def test_optional_block_names_reach_the_rtl() -> None:
     """
     soc = (ROOT / "sw/litex/milan_soc.py").read_text()
     rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    # the guard spelling the gate accepts, and the ones it must still refuse
+    for text, ok in (("generate if (MAAP_P != 0) begin : g_x", True),
+                     ("generate if ((MAAP_P != 0) && (CTRL_SPLIT_P == 0)) begin : g_x", True),
+                     ("generate if ((MAAP_P != 0) || (CTRL_SPLIT_P == 0)) begin : g_x", False),
+                     ("generate if ((MAAP_P == 0) && (CTRL_SPLIT_P == 0)) begin : g_x", False),
+                     ("generate if ((MAAP_P != 0) && (CTRL_SPLIT_P != 0)) begin : g_x", False),
+                     ("generate if (CTRL_SPLIT_P == 0) begin : g_x", False)):
+        assert bool(re.search(_prune_guard_re("MAAP_P"), text)) == ok, (
+            f"the prune guard pattern {'refuses' if ok else 'accepts'} `{text}`")
     routes = _optional_block_prune_chain(soc)
     # 1. the SoC's own keyword -> parameter map, parsed from the literal
     soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
@@ -22351,8 +22372,7 @@ def test_optional_block_names_reach_the_rtl() -> None:
         assert where is not None, (
             f"{param} guards no `generate if`, in milan_datapath.sv or in any "
             f"module the datapath binds it to")
-        g = re.search(r"generate if \(%s != 0\) begin : (\w+)"
-                      % re.escape(guard), where)
+        g = re.search(_prune_guard_re(guard), where)
         tail = where[g.end():]
         nxt = tail.find("generate if (")
         arm = tail[:nxt if nxt > 0 else len(tail)]
@@ -23467,6 +23487,38 @@ def test_clock_plan_instance_gate_bites() -> None:
 #  or a derivation that moves on either side, turns it red.
 
 
+#: gate 23m's split cases (#665): a config with control.placement:
+#: split, labelled "<config>+split". Its argv's --ctrl-firmware names a
+#: synthetic image the split SoC's control memory accepts
+#: (sw/litex/test_ctrl_memory.py's GOOD layout), so the run reaches the
+#: datapath Instance with no firmware build.
+SPLIT_SUFFIX = "+split"
+SPLIT_CASES = ("ax7101_1x1_tdm8",)
+
+
+def _split_cfg(cfg):
+    """cfg with control.placement: split."""
+    out = copy.deepcopy(cfg)
+    out["control"] = {"placement": "split"}
+    return out
+
+
+def _case_argv(name, elf_dir, python):
+    """(cfg, argv) of a gate 23m case: a config's own, or its split variant with a synthetic firmware,
+    written by `python` (the LiteX interpreter test_ctrl_memory.py imports under)."""
+    if not name.endswith(SPLIT_SUFFIX):
+        return _config_argv(name)
+    base, _argv = _config_argv(name[:-len(SPLIT_SUFFIX)])
+    cfg = _split_cfg(base)
+    argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg["name"])]
+    code = ("import sys; from pathlib import Path; import test_ctrl_memory as t; "
+            "print(t.elf(Path(sys.argv[1]), t.GOOD))")
+    made = subprocess.run([python, "-c", code, str(elf_dir)], cwd=SOC_DIR, capture_output=True, text=True,
+                          check=True, env=dict(os.environ, PYTHONHASHSEED="0"))
+    argv[argv.index("--ctrl-firmware") + 1] = made.stdout.strip().splitlines()[-1]
+    return cfg, argv
+
+
 def _datapath_param_contract(got, cfgs):
     """Every disagreement between the live Instance keywords and eb.datapath_params()."""
     bad = []
@@ -23492,11 +23544,12 @@ def test_datapath_params_match_the_instance() -> None:
     if python is None:
         return
     cfgs, runs = {}, []
-    for name in CONFIGS:
-        cfgs[name], argv = _config_argv(name)
-        runs.append((name, argv))
-    t0 = time.time()
-    bad = _datapath_param_contract(_instance_params(python, runs), cfgs)
+    with tempfile.TemporaryDirectory() as elf_dir:
+        for name in [*CONFIGS, *(c + SPLIT_SUFFIX for c in SPLIT_CASES)]:
+            cfgs[name], argv = _case_argv(name, elf_dir, python)
+            runs.append((name, argv))
+        t0 = time.time()
+        bad = _datapath_param_contract(_instance_params(python, runs), cfgs)
     assert not bad, "gate 23m:\n  " + "\n  ".join(bad)
     print(f"  [gate 23m] {len(runs)} real milan_soc.py elaborations in "
           f"{time.time() - t0:.0f} s: for every config the integer "
@@ -23518,6 +23571,9 @@ DATAPATH_PARAM_MUTATIONS = (
      [("    if loopback_lane:\n",
        '    dp_params["p_PROBE_EXTRA_P"] = 1\n    if loopback_lane:\n', 1)],
      "arty_current", "PROBE_EXTRA_P"),
+    ("the split SoC stops reaching CTRL_SPLIT_P",
+     [('        dp_params["p_CTRL_SPLIT_P"] = 1', '        dp_params["p_CTRL_SPLIT_P"] = 0', 1)],
+     "ax7101_1x1_tdm8+split", "CTRL_SPLIT_P"),
 )
 
 
@@ -23528,17 +23584,78 @@ def test_datapath_params_gate_bites() -> None:
         return
     t0 = time.time()
     for why, mutations, name, param in DATAPATH_PARAM_MUTATIONS:
-        cfg, argv = _config_argv(name)
-        bad = _datapath_param_contract(
-            _instance_params(python, [(name, argv)], mutations), {name: cfg})
+        with tempfile.TemporaryDirectory() as elf_dir:
+            cfg, argv = _case_argv(name, elf_dir, python)
+            bad = _datapath_param_contract(
+                _instance_params(python, [(name, argv)], mutations), {name: cfg})
         assert any(line.startswith(f"{name}: the SoC binds {param}=")
                    for line in bad), (
             f"gate 23m accepted a milan_soc.py in which {why}: {bad}")
     print(f"  [gate 23m mutation] {len(DATAPATH_PARAM_MUTATIONS)}/"
           f"{len(DATAPATH_PARAM_MUTATIONS)} cuts rejected in "
           f"{time.time() - t0:.0f} s, each naming its keyword: a binding "
-          f"dropped to 0, a value one short, and a keyword the builder does "
-          f"not state")
+          f"dropped to 0, a value one short, a keyword the builder does "
+          f"not state, and the split placement's CTRL_SPLIT_P dropped")
+
+
+#  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
+#
+#  Every tracked config is all-fabric: it states no CTRL_SPLIT_P and emits no
+#  split flag, so its argv, fragment and shape are what they were. Its split
+#  variant differs in exactly CTRL_SPLIT_P = 1 and the trailing
+#  --ctrl-mailbox --ctrl-firmware <the split image>, a path under the
+#  config's own builder output. A bad value, an unknown key and a key that
+#  is not a mapping are refused by name.
+
+
+def _placement_findings(builder, cfgs):
+    """Every way the placement key's emission departs from the gate's contract."""
+    out = []
+    for name, cfg in cfgs.items():
+        params, argv = builder.datapath_params(cfg), builder.emit_soc_argv(cfg)
+        if cfg["control"] != {"placement": "all-fabric"}:
+            out.append(f"{name}: a tracked config is {cfg['control']}, not all-fabric")
+        if "CTRL_SPLIT_P" in params or {"--ctrl-mailbox", "--ctrl-firmware"} & set(argv):
+            out.append(f"{name}: an all-fabric config states the split")
+        split = _split_cfg(cfg)
+        sp, sa = builder.datapath_params(split), builder.emit_soc_argv(split)
+        if sp != {**params, "CTRL_SPLIT_P": 1}:
+            out.append(f"{name}+split: its parameters differ from the config's by more than CTRL_SPLIT_P = 1")
+        fw = builder.ctrl_firmware_path(split)
+        if sa != argv + ["--ctrl-mailbox", "--ctrl-firmware", fw]:
+            out.append(f"{name}+split: its argv differs from the config's by more than the split flags")
+        if fw != f"sw/builder/out/{split['name']}/{builder.CTRL_FIRMWARE_ELF}":
+            out.append(f"{name}+split: --ctrl-firmware names {fw}, not the split image under its builder output")
+    return out
+
+
+def test_control_placement_key() -> None:
+    """gate 23n - control.placement: all-fabric by default, split differing in the key alone."""
+    cfgs = {name: eb.load_config(str(path)) for name, path in CONFIGS.items()}
+    bad = _placement_findings(eb, cfgs)
+    assert not bad, "gate 23n:\n  " + "\n  ".join(bad)
+    doc = yaml.safe_load(CONFIGS["ax7101_1x1_tdm8"].read_text())
+    with tempfile.TemporaryDirectory() as tmp:
+        for value, words in (({"placement": "both"}, "control.placement 'both' is not one of all-fabric, split"),
+                             ({"placment": "split"}, "control: unknown key(s) ['placment']"),
+                             ("split", "control: must be a mapping")):
+            path = Path(tmp) / "endstation_ax7101_1x1_tdm8.yaml"
+            path.write_text(yaml.safe_dump(dict(doc, control=value)))
+            try:
+                eb.load_config(str(path))
+            except eb.ConfigError as exc:
+                assert words in str(exc), f"gate 23n: {value!r} refused for the wrong reason: {exc}"
+            else:
+                raise AssertionError(f"gate 23n: control {value!r} was accepted")
+    # negative control: a split variant that names the fabric firmware is a finding
+    fabric = types.SimpleNamespace(**{k: getattr(eb, k) for k in ("datapath_params", "emit_soc_argv",
+                                                                  "CTRL_FIRMWARE_ELF")})
+    fabric.ctrl_firmware_path = lambda cfg: "sw/firmware/milan_baremetal/milan_baremetal.elf"
+    assert any("not the split image" in f for f in _placement_findings(fabric, cfgs)), (
+        "gate 23n accepted a split key that links the fabric firmware")
+    print(f"  [gate 23n] {len(cfgs)} configs all-fabric, each split variant differing in CTRL_SPLIT_P = 1 and "
+          f"--ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key "
+          f"naming the fabric firmware refused")
 
 
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
@@ -29302,6 +29419,7 @@ if __name__ == "__main__":
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
+               test_control_placement_key,
                test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
