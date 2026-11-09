@@ -208,6 +208,13 @@ MAX_STREAMS_SAVED = 16
 MAX_STREAMS_UNSAVED = 32
 
 
+def config_simulation(path):
+    """A config's (simulation_only, saved_state) as load_config reads them,
+    from the document alone: for the checks that take every config, so each
+    can state which shapes it holds (#859)."""
+    return _load_simulation(_load_document(str(path)))
+
+
 def _load_simulation(cfg):
     """simulation_only and saved_state (#859): only a simulation shape may be
     built without saved state."""

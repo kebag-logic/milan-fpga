@@ -243,6 +243,20 @@ def coverage(cfgs: list[Path], out: Path, jobs: int) -> int:
     return 1 if failed else 0
 
 
+def saved_state_configs() -> list[Path]:
+    """Every configs/endstation_*.yaml the builder builds with saved state, each one without it (a simulation
+    shape, #859) named and left out: the store has no record set there while #823 owns its record space."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    out = []
+    for path in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+        if eb.config_simulation(path)[1] == "none":
+            print(f"{path.stem}: built without saved state (#859), no store shape to run")
+        else:
+            out.append(path)
+    return out
+
+
 def main() -> int:
     """Grade every shipped shape; with --self-test, the planted defects too."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -260,7 +274,7 @@ def main() -> int:
     if args.build_only and args.self_test:
         ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
     fw_gtest.EXECUTION.run = not args.build_only
-    cfgs = args.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    cfgs = args.config or saved_state_configs()
     if args.coverage is not None:
         return coverage(cfgs, args.coverage.resolve(), args.jobs)
     findings: list[str] = []

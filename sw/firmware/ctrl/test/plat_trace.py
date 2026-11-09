@@ -127,7 +127,13 @@ def arm(src: Path, out: Path) -> Outcome:
     lines, failures, checks = [], 0, 0
     reference: dict[str, list[tuple[int, int]]] = {}
     try:
+        sys.path.insert(0, str(ROOT / "sw/builder"))
+        import endstation_builder as eb
         for config in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+            if eb.config_simulation(config)[0]:
+                # a simulation-only shape (#859) is never the target platform: the image build refuses to route it
+                lines.append(f"  {config.stem}: simulation-only (#859), no target platform image")
+                continue
             work = out / config.stem
             want = baremetal_writes(config, work)
             got = platform_writes(src, config, work / "platform")

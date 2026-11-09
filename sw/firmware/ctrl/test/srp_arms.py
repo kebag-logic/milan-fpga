@@ -146,9 +146,20 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
 
 
 def all_shapes(tree: Tree, lwsrp: Path, rv32: bool = False) -> list[Outcome]:
-    """Exercise static storage at every shipped entity shape and interface count."""
+    """Exercise static storage at every shipped entity shape and interface count. A simulation-only shape (#859)
+    is the CPU budget harness's two-interface point: it is linked for RV32 at two interfaces only, where its layout
+    holds 17 streams an interface (one interface would hold 33, past the contract's 32), and the host suite, which
+    offers one MRPDU a sink before any time passes, past SRP's burst of 32 at 33 sinks, is not built for it."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
     outcomes = []
     for config in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+        if eb.config_simulation(config)[0]:
+            if rv32:
+                o = arm_srp_rv32(tree, lwsrp, 2, config)
+                outcomes.append(Outcome(o.arm, o.rc, f"  {config.stem}: simulation-only (#859), RV32 at two "
+                                                     f"interfaces only, no host shape suite\n{o.log}"))
+            continue
         for interfaces in (1, 2):
             outcomes.append(arm_srp(tree, lwsrp, interfaces, test="srp_shape.cpp", config=config))
             if rv32:

@@ -946,17 +946,31 @@ def self_test_read_faults(benches: list[Bench], work: Path, firmware_text: str) 
     return findings
 
 
+def saved_state_configs() -> list[Path]:
+    """Every configs/endstation_*.yaml the builder builds with saved state, each one without it (a simulation
+    shape, #859) named and left out: it has no record set to grade while #823 owns its record space."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    out = []
+    for path in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+        if eb.config_simulation(path)[1] == "none":
+            print(f"{path.stem}: built without saved state (#859), no record set to grade")
+        else:
+            out.append(path)
+    return out
+
+
 def main() -> int:
-    """Grade every shipped shape; with --self-test, the controls too."""
+    """Grade every shipped shape with saved state; with --self-test, the controls too."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--config", action="append", type=Path,
-                    help="configs to grade (default: every configs/endstation_*.yaml)")
+                    help="configs to grade (default: every configs/endstation_*.yaml with saved state)")
     ap.add_argument("--self-test", action="store_true",
                     help="also plant each writer defect and require a finding")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4,
                     help="threads check 13 walks its cases on")
     a = ap.parse_args()
-    cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    cfgs = a.config or saved_state_configs()
     firmware_text = FIRMWARE.read_text()
     import test_boot_walk as bootwalk
     import test_disabled_writer as disabled
