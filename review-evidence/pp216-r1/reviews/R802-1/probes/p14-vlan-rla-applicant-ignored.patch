@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 435c0ae..9bf93ce 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -264,7 +264,7 @@ module KL_srp_vlan
+     for (int unsigned i = 0; i < N_VIDS_P; i++) begin
+       app_ev_w[i] = rx_hit_w[i] ? rx_nx_w : app_r[i];
+       if (leaveall_tick_i && alloc_r[i])
+-        app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_RLA_C, reg_r[i], p2p_i);
++        app_ev_w[i] = app_ev_w[i];
+       if (periodic_tick_i && alloc_r[i])
+         app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);
+     end

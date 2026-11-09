@@ -1,0 +1,18 @@
+== group applicant
+FAIL: AP3: with its Registrar IN (the peer's JoinIn) every VID 2 Join is JoinIn (10.7.6.3; sent JoinMt@5401 JoinMt@5601 JoinMt@6001 JoinMt@7001 JoinMt@8001)
+TOTAL_CLOCKS 3478482
+18 checks: 17 PASS, 1 FAIL
+== group domjoin
+FAIL: DJ2: the peer declaring our Domain: JoinIn, got 3
+FAIL: DJ3: a peer LeaveAll re-declaring the Domain: our re-join is JoinIn, got 3
+FAIL: DJ3: a peer LeaveAll re-declaring the Domain with JoinIn: rLA! owes our re-join, JoinIn, got 3
+TOTAL_CLOCKS 176094
+6 checks: 3 PASS, 3 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+JOIN listener vid7_joinmt=4 gaps=1000-1000
+TOTAL_CLOCKS 192347
+11 checks: 11 PASS, 0 FAIL
+== group onevec
+TOTAL_CLOCKS 15599718
+12 checks: 12 PASS, 0 FAIL

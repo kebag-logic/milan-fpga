@@ -1,0 +1,15 @@
+== group applicant
+TOTAL_CLOCKS 3478482
+18 checks: 18 PASS, 0 FAIL
+== group domjoin
+TOTAL_CLOCKS 176094
+6 checks: 6 PASS, 0 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+JOIN listener vid7_joinmt=4 gaps=1000-1000
+TOTAL_CLOCKS 192347
+11 checks: 11 PASS, 0 FAIL
+== group onevec
+FAIL: OV8: DECLARE_TALKER on a new VID in each tenth of the periodic! second: the VID goes New, the Talker Advertise is declared, and no MRPDU carries a value twice (0 of 59 frames; 6 of 10 declared)
+TOTAL_CLOCKS 15599718
+12 checks: 11 PASS, 1 FAIL

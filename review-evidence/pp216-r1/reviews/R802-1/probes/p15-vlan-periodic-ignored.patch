@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 435c0ae..194c762 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -266,7 +266,7 @@ module KL_srp_vlan
+       if (leaveall_tick_i && alloc_r[i])
+         app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_RLA_C, reg_r[i], p2p_i);
+       if (periodic_tick_i && alloc_r[i])
+-        app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);
++        app_ev_w[i] = app_ev_w[i];
+     end
+     // a new entry's Applicant starts in VO (Begin!)
+     one_st_w = (apply_new_w && !alloc_r[one_ix_w]) ? SRP_AP_VO_C : app_ev_w[one_ix_w];

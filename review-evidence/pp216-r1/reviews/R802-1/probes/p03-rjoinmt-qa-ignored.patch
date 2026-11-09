@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..7453832 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -152,7 +152,7 @@ package srp_pkg;
+       SRP_AE_RIN_C: if (p2p && (st == SRP_AP_AA_C)) nx = SRP_AP_QA_C;   // note 5
+       SRP_AE_RJOINMT_C, SRP_AE_RMT_C: begin
+         case (st)
+-          SRP_AP_QA_C: nx = SRP_AP_AA_C;
++          SRP_AP_QA_C: nx = SRP_AP_QA_C;
+           SRP_AP_QO_C: nx = SRP_AP_AO_C;
+           SRP_AP_QP_C: nx = SRP_AP_AP_C;
+           SRP_AP_LO_C: nx = SRP_AP_VO_C;

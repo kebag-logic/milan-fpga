@@ -1,0 +1,82 @@
+control srp_encoder : rc=0 PASS
+control srp_top applicant: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top timers: rc=0 PASS
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+leaveall-expiry-lost: rc=2 failures=16 KILLED tags=M1,M12,M2,M3,M5,M8,M9
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+mvrp-stale-expiry-honoured: rc=2 failures=7 KILLED tags=P6
+mvrp-flag-at-expiry: rc=2 failures=11 KILLED tags=P4,P5,P6,P7
+r-flag-ignores-edge-peer: rc=2 failures=1 KILLED tags=P7
+join-sent-at-handover: rc=2 failures=2 KILLED tags=R1,R3
+count-up-unsends: rc=2 failures=2 KILLED tags=R2,R3
+join-sent-at-handover: rc=2 failures=2 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+domain-rejoin-always-joinin: rc=2 failures=14 KILLED tags=D1 four tx!,D2 periodic JoinMt,D3 LeaveAll re-join, then AA (1,D3 the tx! after the LeaveAll's re-join sends JoinMt from AA, then QA,D8 re-joins carry the ADOPTED declaration (0,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt (1,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv),DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes),DT2 a tx! with nothing to send (QA) is done within four clocks,DT3 a tx! with the queue full is owed until its message fits, then served (1
+domain-rejoin-always-joinin: rc=2 failures=2 KILLED tags=DJ1,DJ4
+domain-rejoin-always-joinin: rc=2 failures=1 KILLED tags=Q2
+domain-rejoin-always-joinmt: rc=2 failures=12 KILLED tags=B1-domain,D8 re-joins carry the ADOPTED declaration (0,DA2 a received Mt in QA owes the re-join,DA4 a received JoinMt in QA owes the re-join,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=12 KILLED tags=B1-domain,D8 re-joins carry the ADOPTED declaration (0,DA2 a received Mt in QA owes the re-join,DA4 a received JoinMt in QA owes the re-join,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=3 KILLED tags=DJ2,DJ3
+domain-rejoin-at-request: rc=2 failures=6 KILLED tags=D3 LeaveAll re-join, then AA (3,D8 re-joins carry the ADOPTED declaration (0,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN,PV12 a received LeaveAll and periodic! in one window
+domain-rx-leaveall-dropped: rc=2 failures=5 KILLED tags=D3 LeaveAll re-join, then AA (nothing),D3 the tx! after the LeaveAll's re-join sends JoinMt from AA, then QA,D8 re-joins carry the ADOPTED declaration (0,DR3 a peer LeaveAll re-declared before tx!,PV12 the Domain handed over two re-joins (1 events)
+domain-rx-leaveall-dropped: rc=2 failures=1 KILLED tags=DJ3
+domain-leaveall-after-receive: rc=2 failures=1 KILLED tags=DR8 a registering event in the LeaveAll's clock keeps IN
+domain-adoption-drops-registrar: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration (0,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR9 the adopted value is registered
+domain-capture-unregistered: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration (0,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR9 the adopted value is registered
+domain-pending-lv-ignored: rc=2 failures=1 KILLED tags=DR10 an adoption withdrawn before it applies re-joins JoinMt (1
+domain-link-keeps-registrar: rc=2 failures=4 KILLED tags=DR11 LINK_DOWN and LINK_UP clear the registration,DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes),DT2 a tx! with nothing to send (QA) is done within four clocks,DT3 a tx! with the queue full is owed until its message fits, then served (1
+top-domain-lv-unwired: rc=2 failures=1 KILLED tags=DJ4
+top-domain-tx-every-clock: rc=2 failures=5 KILLED tags=DJ1,DJ2,DJ3,DJ4
+top-domain-tx-unwired: rc=2 failures=5 KILLED tags=DJ1,DJ2,DJ3,DJ4
+second-queueing: rc=2 failures=68 KILLED tags=PV1 two re-joins of one Domain value,PV10,PV10 a value offered after another searched past its entry merges into it (taken after 4 clocks, 4 pending),PV11 own LeaveAll MRPDU,PV11 the re-join merged (3 pending),PV12 New, New and a LeaveAll's re-join in one window,PV12 a received LeaveAll and periodic! in one window,PV12 two tx! of a fresh declaration before one drain,PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain,PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed,PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv,PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready,PV2 New then a re-join,PV3 JoinMt then JoinIn,PV4 Lv then New,PV4 Lv then a join,PV4 New then Lv,PV4 a re-join then Lv,PV5 In then JoinMt,PV5 JoinIn then Mt,PV5 Lv then Mt,PV5 Mt then In,PV6 Listener New Ready then Mt Ignore,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed,PV7 a value again after its successor,PV9 VID 2 New then two re-joins,PV9 three re-join walks of VID 2 and VID 7
+join-displaces-new: rc=2 failures=4 KILLED tags=PV12 New, New and a LeaveAll's re-join in one window,PV2 New then a re-join,PV6 Listener New Ready then a re-join AskingFailed,PV9 VID 2 New then two re-joins
+push-twice-encoder-appends: rc=2 failures=11 KILLED tags=OV0,OV1,OV10,OV2,OV3,OV4,OV5,OV6,OV7,OV8,OV9
+push-taken-in-alloc: rc=2 failures=4 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+push-taken-in-alloc: rc=2 failures=4 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+domain-one-new: rc=2 failures=1 KILLED tags=AP1
+domain-one-new: rc=2 failures=3 KILLED tags=D1 LINK_UP declares with New!,D1 four tx!,DR11 LINK_DOWN and LINK_UP clear the registration
+vlan-one-new: rc=2 failures=1 KILLED tags=AP2
+vlan-one-new: rc=2 failures=7 KILLED tags=V1 first user,V1 four tx!,V5 JoinMt VID 2 and New VID 5 (3,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR10 note 8,VR11 a VID allocated again starts with its Registrar MT
+vlan-joinin-registrar-mt: rc=2 failures=3 KILLED tags=AP2,AP3
+vlan-joinin-registrar-mt: rc=2 failures=13 KILLED tags=B1-vlan,V1 four tx!,V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing,V3 periodic JoinMt VID 2, its Registrar MT (802.1Q-2018 10.7.6.3; 1,V5 JoinMt VID 2 and New VID 5 (1,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR11 a VID allocated again starts with its Registrar MT,VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join,VR6 a received LeaveAll takes the Registrar to LV,VR8 the own LeaveAll's tx! ages the Registrar to LV
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=6 KILLED tags=L7 the LeaveAll-only MVRPDU,L7 the LeaveAll-only MVRPDU is captured,L7 the deferred LeaveAll-only MVRPDU,L7 the deferred LeaveAll-only MVRPDU follows
+top-mvrp-la-flag-dropped: rc=2 failures=4 KILLED tags=AP5,AP6
+talker-one-new: rc=2 failures=1 KILLED tags=AP4
+listener-one-new: rc=2 failures=1 KILLED tags=AP4
+top-mvrp-drain-at-tick: rc=2 failures=1 KILLED tags=AP2
+top-round-ignores-domain: rc=2 failures=1 KILLED tags=AP7
+domain-txla-row-ignored: rc=2 failures=2 KILLED tags=AP5,AP6
+domain-txla-row-ignored: rc=2 failures=1 KILLED tags=DR4 own LeaveAll
+domain-tx-done-at-serve: rc=2 failures=1 KILLED tags=DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes)
+domain-tx-owed-dropped: rc=2 failures=1 KILLED tags=DT3 a tx! with the queue full is owed until its message fits, then served (3
+domain-applicant-deaf: rc=2 failures=2 KILLED tags=DA1 a received JoinIn in AA leaves nothing to send,DA3 a received In in AA (point-to-point) leaves nothing to send
+domain-applicant-any-value: rc=2 failures=1 KILLED tags=DA5 a received Mt of another Domain value moves nothing
+vlan-registrar-never-in: rc=2 failures=1 KILLED tags=AP3
+vlan-registrar-never-in: rc=2 failures=4 KILLED tags=VR1 a received JoinIn of the VID,VR10 note 8,VR5 a received JoinMt registers and owes the re-join,VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-rlv-ignored: rc=2 failures=1 KILLED tags=AP3
+vlan-rlv-ignored: rc=2 failures=3 KILLED tags=VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-rx-any-vid: rc=2 failures=3 KILLED tags=VR10 note 8,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-s-registers: rc=2 failures=1 KILLED tags=VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-leaveall-keeps-in: rc=2 failures=1 KILLED tags=VR6 a received LeaveAll takes the Registrar to LV
+vlan-rx-loses-to-leaveall: rc=2 failures=1 KILLED tags=VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-txla-keeps-in: rc=2 failures=1 KILLED tags=VR8 the own LeaveAll's tx! ages the Registrar to LV
+vlan-applicant-deaf: rc=2 failures=5 KILLED tags=VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join,VR5 a received JoinMt registers and owes the re-join,VR9 a received JoinIn or In in AA leaves nothing to send
+vlan-note8-ignores-registrar: rc=2 failures=1 KILLED tags=VR10 note 8
+vlan-registrar-kept-on-allocation: rc=2 failures=1 KILLED tags=VR11 a VID allocated again starts with its Registrar MT
+vlan-leave-abandoned: rc=2 failures=4 KILLED tags=V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing,V6 last user out -> Lv VID 2,V9 Lv VID 5 when its only user leaves,V9 fresh first user -> New again
+vlan-leave-abandoned: rc=2 failures=1 KILLED tags=R4
+vlan-rejoin-of-leaving-allocates: rc=2 failures=8 KILLED tags=B1 VLAN frame captured,B1 one Domain and one VLAN re-join bridged got 1 0,B1-vlan,V10 a VID re-joined before its Lv went out sends New, no Lv (5,W4 sent again after the next transmission,W5 and after the re-joins leave,W5 re-joined entries stay sent
+vlan-walk-frees-lo: rc=2 failures=1 KILLED tags=V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing
+81 checks: 81 PASS, 0 FAIL

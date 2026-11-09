@@ -1,0 +1,16 @@
+== group applicant
+FAIL: AP5: MVRP declaring nothing since Begin! sends a LeaveAll within 15.5 s, and again 9.5 to 15.5 s after each (802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3; LeaveAlls at 10601 ms, Begin! at 0)
+FAIL: AP6: with every declaration withdrawn MVRP sends a LeaveAll within 15.5 s of VID 2's Lv, and again 9.5 to 15.5 s after each (802.1Q-2018 10.7.9, Table 10-5; Lv at 3001 ms, LeaveAlls at 10601 ms)
+TOTAL_CLOCKS 3478482
+18 checks: 16 PASS, 2 FAIL
+== group domjoin
+TOTAL_CLOCKS 176094
+6 checks: 6 PASS, 0 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+JOIN listener vid7_joinmt=4 gaps=1000-1000
+TOTAL_CLOCKS 192347
+11 checks: 11 PASS, 0 FAIL
+== group onevec
+TOTAL_CLOCKS 15599718
+12 checks: 12 PASS, 0 FAIL

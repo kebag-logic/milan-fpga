@@ -1,0 +1,17 @@
+== group applicant
+FAIL: AP1: the Domain declared at LINK_UP with no peer sends New, New, then JoinMt on three consecutive transmit opportunities, the first New at the first (802.1Q-2018 Table 10-3; LINK_UP at 0 ms, sent New@202 New@402 JoinMt@1202 JoinMt@2202 JoinMt@3202 JoinMt@4202)
+FAIL: AP2: VID 2 declared with no peer sends New, New, then JoinMt on three consecutive transmit opportunities, the first New at the first (802.1Q-2018 Table 10-3; declared at 300 ms, sent New@401 New@601 JoinMt@1001 JoinMt@2001 JoinMt@3001 JoinMt@4001)
+FAIL: AP7: the MRPDU of the tx! after eleven adoptions carries the eleven Lvs and the adopted Domain's New, though its search ends after the stream walks (11 pending, 0 Lvs, adopted 0, its messages nothing)
+TOTAL_CLOCKS 3487323
+18 checks: 15 PASS, 3 FAIL
+== group domjoin
+TOTAL_CLOCKS 176094
+6 checks: 6 PASS, 0 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+JOIN listener vid7_joinmt=4 gaps=1000-1000
+TOTAL_CLOCKS 192347
+11 checks: 11 PASS, 0 FAIL
+== group onevec
+TOTAL_CLOCKS 15599718
+12 checks: 12 PASS, 0 FAIL

@@ -1,0 +1,54 @@
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index ed8a043..85a1684 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -722,6 +722,7 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"link")) check_a_link_change_ends_the_port_talker_registrations();
+     if (!*group || !strcmp(group,"onevec")) check_one_vector_per_value();
+     if (!*group || !strcmp(group,"applicant")) check_each_applicant_follows_table_10_3();
++    if (!strcmp(group,"r802link")) r802_link_bounce();
+ 
+     // issue #214: every MRPDU this run captured, in every scenario above,
+     // carries each attribute value at most once
+@@ -3885,6 +3886,33 @@ class SrpTopHarness {
+     return all;
+   }
+ 
++  // reviewer probe (disposable): a VID Registrar IN across LINK_DOWN / LINK_UP
++  void r802_link_bounce() {
++    h.reset(); d->link_up_i = 1; h.run_ms(300);
++    const size_t f0 = h.archive.size();
++    h.op(OP_DECL_TK, 0, own_sid(0), 0x91e0f0010100ULL, 2, 29, 1);
++    h.run_ms(1500);
++    h.sync();
++    h.feed(mrpdu_body(false, {Msg{1, 2, false, {Vec{false, 1, fv_vid(2), {EV_JOININ}, {}}}}}), false);
++    h.run_ms(1500);
++    const auto before = messages_of(false, 1, 2, f0);
++    const uint32_t down = d->now_ms_o;
++    d->link_up_i = 0; h.run_ms(30); d->link_up_i = 1;
++    const size_t f2 = h.archive.size();
++    const uint32_t up = d->now_ms_o;
++    h.run_ms(2500);
++    const auto after = messages_of(false, 1, 2, f2);
++    const auto dom = messages_of(true, 4, DOM_VALUE, f2);
++    const auto la = leaveall_ms(false, f0);
++    printf("R802LINK before: %s\n", shown216(before, 16).c_str());
++    printf("R802LINK link down at %u, up at %u\n", down, up);
++    printf("R802LINK VID 2 after LINK_UP: %s\n", shown216(after, 16).c_str());
++    printf("R802LINK Domain after LINK_UP: %s\n", shown216(dom, 16).c_str());
++    printf("R802LINK MVRP LeaveAlls: %s\n", shown_ms(la).c_str());
++    int joinin = 0;
++    for (const Msg216& x : after) joinin += x.ev == EV_JOININ;
++    CHECK(joinin == 0, "R802LINK: after LINK_DOWN (Flush!) and LINK_UP (Begin!) VID 2's Registrar is MT, so no JoinIn (%d JoinIn: %s)", joinin, shown216(after, 16).c_str());
++  }
+   void check_each_applicant_follows_table_10_3() {
+     check_ap_domain_declared_with_no_peer();
+     check_ap_vid_and_talker_declared_with_no_peer();
+@@ -4100,6 +4128,6 @@ int main(int argc, char** argv) {
+       && strcmp(group,"guards") && strcmp(group,"restart")
+       && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")
+       && strcmp(group,"domjoin") && strcmp(group,"share") && strcmp(group,"link")
+-      && strcmp(group,"onevec") && strcmp(group,"applicant")) return 2;
++      && strcmp(group,"onevec") && strcmp(group,"applicant") && strcmp(group,"r802link")) return 2;
+   return harness.run(group);
+ }

@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_domain.sv b/hdl/srp/KL_srp_domain.sv
+index 8076b26..96cd229 100644
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -190,7 +190,7 @@ module KL_srp_domain
+   always_comb begin : applicant_next
+     app_rx_w  = (rxdom_any_i && rx_is_decl_w)
+               ? srp_app_rx_next(app_r, rxdom_ev_i, p2p_i) : app_r;
+-    app_la_w  = (leaveall_tick_i && !leaveall_own_i && declared_r)
++    app_la_w  = (1'b0 && leaveall_tick_i && !leaveall_own_i && declared_r)
+               ? srp_app_next(app_rx_w, SRP_AE_RLA_C, reg_in_r, p2p_i) : app_rx_w;
+     app_per_w = (periodic_tick_i && declared_r)
+               ? srp_app_next(app_la_w, SRP_AE_PER_C, reg_in_r, p2p_i) : app_la_w;

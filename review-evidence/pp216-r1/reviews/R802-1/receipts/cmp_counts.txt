@@ -1,0 +1,72 @@
+reset-retains-intent                   srp_top      phases     measured   1 recorded 1
+empty-canceled-pdu                     srp_top      peer       measured   1 recorded 1
+leaveall-expiry-lost                   srp_top      peer       measured  16 recorded 18  <-- DIFFERS
+my-expiry-pulse                        srp_top      phases     measured  62 recorded 62
+r-collect-blocks-pushes                srp_top      congestion measured   4 recorded 4
+r-mvrp-start-during-prepare            srp_encoder             measured   5 recorded None
+mvrp-stale-expiry-honoured             srp_top      restart    measured   7 recorded 1  <-- DIFFERS
+mvrp-flag-at-expiry                    srp_top      restart    measured  11 recorded 11
+r-flag-ignores-edge-peer               srp_top      restart    measured   1 recorded 1
+join-sent-at-handover                  srp_top      join       measured   2 recorded 2
+count-up-unsends                       srp_top      join       measured   2 recorded 2
+join-sent-at-handover                  srp_encoder             measured   2 recorded 2
+count-up-unsends                       srp_encoder             measured   2 recorded 2
+domain-rejoin-always-joinin            srp_encoder             measured  14 recorded 14
+domain-rejoin-always-joinin            srp_top      domjoin    measured   2 recorded 2
+domain-rejoin-always-joinin            srp_top      timers     measured   1 recorded 1
+domain-rejoin-always-joinmt            srp_encoder             measured  12 recorded 12
+domain-rejoin-always-joinmt            srp_encoder             measured  12 recorded 12
+domain-rejoin-always-joinmt            srp_top      domjoin    measured   3 recorded 3
+domain-rejoin-at-request               srp_encoder             measured   6 recorded 6
+domain-rx-leaveall-dropped             srp_encoder             measured   5 recorded 5
+domain-rx-leaveall-dropped             srp_top      domjoin    measured   1 recorded 1
+domain-leaveall-after-receive          srp_encoder             measured   1 recorded 1
+domain-adoption-drops-registrar        srp_encoder             measured   3 recorded 3
+domain-capture-unregistered            srp_encoder             measured   3 recorded 3
+domain-pending-lv-ignored              srp_encoder             measured   1 recorded 1
+domain-link-keeps-registrar            srp_encoder             measured   4 recorded 4
+top-domain-lv-unwired                  srp_top      domjoin    measured   1 recorded 1
+top-domain-tx-every-clock              srp_top      domjoin    measured   5 recorded 5
+top-domain-tx-unwired                  srp_top      domjoin    measured   5 recorded 5
+second-queueing                        srp_encoder             measured  68 recorded 68
+join-displaces-new                     srp_encoder             measured   4 recorded 4
+push-twice-encoder-appends             srp_top      onevec     measured  11 recorded 11
+push-taken-in-alloc                    srp_encoder             measured   4 recorded 4
+push-taken-in-alloc                    srp_encoder             measured   4 recorded 4
+domain-one-new                         srp_top      applicant  measured   1 recorded 1
+domain-one-new                         srp_encoder             measured   3 recorded 3
+vlan-one-new                           srp_top      applicant  measured   1 recorded 1
+vlan-one-new                           srp_encoder             measured   7 recorded 7
+vlan-joinin-registrar-mt               srp_top      applicant  measured   3 recorded 3
+vlan-joinin-registrar-mt               srp_encoder             measured  13 recorded 13
+mvrp-leaveall-needs-content            srp_top      applicant  measured   4 recorded 4
+mvrp-leaveall-needs-content            srp_top      applicant  measured   4 recorded 4
+mvrp-leaveall-needs-content            srp_encoder             measured   6 recorded 6
+top-mvrp-la-flag-dropped               srp_top      applicant  measured   4 recorded 4
+talker-one-new                         srp_top      applicant  measured   1 recorded 1
+listener-one-new                       srp_top      applicant  measured   1 recorded 1
+top-mvrp-drain-at-tick                 srp_top      applicant  measured   1 recorded 1
+top-round-ignores-domain               srp_top      applicant  measured   1 recorded 1
+domain-txla-row-ignored                srp_top      applicant  measured   2 recorded 2
+domain-txla-row-ignored                srp_encoder             measured   1 recorded 1
+domain-tx-done-at-serve                srp_encoder             measured   1 recorded 1
+domain-tx-owed-dropped                 srp_encoder             measured   1 recorded 1
+domain-applicant-deaf                  srp_encoder             measured   2 recorded 2
+domain-applicant-any-value             srp_encoder             measured   1 recorded 1
+vlan-registrar-never-in                srp_top      applicant  measured   1 recorded 1
+vlan-registrar-never-in                srp_encoder             measured   4 recorded 4
+vlan-rlv-ignored                       srp_top      applicant  measured   1 recorded 1
+vlan-rlv-ignored                       srp_encoder             measured   3 recorded 3
+vlan-rx-any-vid                        srp_encoder             measured   3 recorded 3
+vlan-s-registers                       srp_encoder             measured   1 recorded 1
+vlan-leaveall-keeps-in                 srp_encoder             measured   1 recorded 1
+vlan-rx-loses-to-leaveall              srp_encoder             measured   1 recorded 1
+vlan-txla-keeps-in                     srp_encoder             measured   1 recorded 1
+vlan-applicant-deaf                    srp_encoder             measured   5 recorded 5
+vlan-note8-ignores-registrar           srp_encoder             measured   1 recorded 1
+vlan-registrar-kept-on-allocation      srp_encoder             measured   1 recorded 1
+vlan-leave-abandoned                   srp_encoder             measured   4 recorded 4
+vlan-leave-abandoned                   srp_top      join       measured   1 recorded 1
+vlan-rejoin-of-leaving-allocates       srp_encoder             measured   8 recorded 7  <-- DIFFERS
+vlan-walk-frees-lo                     srp_encoder             measured   1 recorded 1
+differing: 3

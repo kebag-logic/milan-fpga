@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..cf7231b 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -169,7 +169,7 @@ package srp_pkg;
+       end
+       SRP_AE_PER_C: begin
+         case (st)
+-          SRP_AP_QA_C: nx = SRP_AP_AA_C;
++          SRP_AP_QA_C: nx = SRP_AP_QA_C;
+           SRP_AP_QP_C: nx = SRP_AP_AP_C;
+           default:     nx = st;
+         endcase

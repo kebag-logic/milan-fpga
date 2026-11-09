@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..44f23fd 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -228,7 +228,7 @@ package srp_pkg;
+     logic [2:0] sj;
+     logic [2:0] s;
+     logic [3:0] m;
+-    sj = reg_in ? SRP_EV_JOININ : SRP_EV_JOINMT;
++    sj = SRP_EV_JOINMT;
+     s  = reg_in ? SRP_EV_IN : SRP_EV_MT;
+     m  = 4'd0;
+     if (!txla) begin

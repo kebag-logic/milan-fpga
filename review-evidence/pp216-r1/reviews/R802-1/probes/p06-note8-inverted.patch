@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..8cde049 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -178,7 +178,7 @@ package srp_pkg;
+         case (st)
+           SRP_AP_VP_C: nx = SRP_AP_AA_C;
+           SRP_AP_VN_C: nx = SRP_AP_AN_C;
+-          SRP_AP_AN_C: nx = reg_in ? SRP_AP_QA_C : SRP_AP_AA_C;   // note 8
++          SRP_AP_AN_C: nx = reg_in ? SRP_AP_AA_C : SRP_AP_QA_C;   // note 8
+           SRP_AP_AA_C: nx = SRP_AP_QA_C;
+           SRP_AP_LA_C: nx = SRP_AP_VO_C;
+           SRP_AP_AP_C: nx = SRP_AP_QA_C;

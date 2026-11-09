@@ -1,0 +1,17 @@
+== group applicant
+FAIL: AP5: MSRP sends a LeaveAll within 15.5 s and again 9.5 to 15.5 s after each, each carrying the Domain JoinMt (Table 10-3 txLA! from QA; LeaveAlls at 14206 25406 ms, 1 with the Domain JoinMt)
+FAIL: AP6: MSRP sends a LeaveAll within 15.5 s and again 9.5 to 15.5 s after each, each carrying the Domain JoinMt (LeaveAlls at 14206 25406 35406 ms, 1 with the Domain JoinMt)
+TOTAL_CLOCKS 3478482
+18 checks: 16 PASS, 2 FAIL
+== group domjoin
+TOTAL_CLOCKS 176094
+6 checks: 6 PASS, 0 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+JOIN listener vid7_joinmt=4 gaps=1000-1000
+TOTAL_CLOCKS 192347
+11 checks: 11 PASS, 0 FAIL
+== group onevec
+FAIL: OV5: the own MVRP LeaveAll in each tenth of the periodic! second: its LeaveAll MRPDU carries VID 2 once and no MRPDU carries a value twice (0 of 291 frames; 10 placed, 10 fired, 2 with a periodic! in the window, 2 LeaveAll MRPDUs with VID 2 once)
+TOTAL_CLOCKS 15599718
+12 checks: 11 PASS, 1 FAIL

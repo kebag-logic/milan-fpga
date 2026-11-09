@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..d3489ea 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -162,7 +162,7 @@ package srp_pkg;
+       SRP_AE_RLV_C, SRP_AE_RLA_C: begin
+         case (st)
+           SRP_AP_VO_C, SRP_AP_AO_C, SRP_AP_QO_C: nx = SRP_AP_LO_C;
+-          SRP_AP_AN_C: nx = SRP_AP_VN_C;
++          SRP_AP_AN_C: nx = SRP_AP_AN_C;
+           SRP_AP_AA_C, SRP_AP_QA_C, SRP_AP_AP_C, SRP_AP_QP_C: nx = SRP_AP_VP_C;   // note 9
+           default:     nx = st;                // VP, VN, LA (note 10), LO
+         endcase

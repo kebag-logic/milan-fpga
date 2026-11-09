@@ -1,0 +1,18 @@
+== group applicant
+FAIL: AP3: VID 2 with its Registrar MT sends JoinMt, never JoinIn (802.1Q-2018 10.7.6.3; 0 JoinIn, 1 JoinMt: New@401 New@601 JoinMt@801)
+FAIL: AP3: with its Registrar IN (the peer's JoinIn) every VID 2 Join is JoinIn (10.7.6.3; sent JoinIn@5401 JoinIn@5601)
+TOTAL_CLOCKS 3478482
+18 checks: 16 PASS, 2 FAIL
+== group domjoin
+TOTAL_CLOCKS 176094
+6 checks: 6 PASS, 0 FAIL
+== group join
+JOIN talker ready_ms=1 rise_ms=201 mvrp_accept=8054 rise=8055
+FAIL: R4: then JoinMt VID 7 on the periodic cadence (0 x 0-0 ms)
+JOIN listener vid7_joinmt=0 gaps=0-0
+TOTAL_CLOCKS 192347
+11 checks: 10 PASS, 1 FAIL
+== group onevec
+FAIL: OV10: the transmitter held 250-1050 ms across join rounds and periodic!, then released: no MRPDU carries a value twice (0 of 12 frames)
+TOTAL_CLOCKS 15599718
+12 checks: 11 PASS, 1 FAIL

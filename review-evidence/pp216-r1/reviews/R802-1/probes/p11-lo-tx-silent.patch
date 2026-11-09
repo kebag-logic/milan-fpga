@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/srp_pkg.sv b/hdl/srp/srp_pkg.sv
+index de8cdf1..09f7fad 100644
+--- a/hdl/srp/srp_pkg.sv
++++ b/hdl/srp/srp_pkg.sv
+@@ -236,7 +236,7 @@ package srp_pkg;
+         SRP_AP_VP_C, SRP_AP_AA_C, SRP_AP_AP_C: m = {1'b1, sj};
+         SRP_AP_VN_C, SRP_AP_AN_C:             m = {1'b1, SRP_EV_NEW};
+         SRP_AP_LA_C:                          m = {1'b1, SRP_EV_LV};
+-        SRP_AP_LO_C:                          m = {1'b1, s};
++        SRP_AP_LO_C:                          m = 4'd0;
+         default:                              m = 4'd0;   // VO, QA, AO, QO, QP
+       endcase
+     end else begin

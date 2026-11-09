@@ -1,0 +1,19 @@
+p01-tx-aa-stays	hdl/srp/srp_pkg.sv	182	SRP_AP_AA_C: nx = SRP_AP_QA_C;	SRP_AP_AA_C: nx = SRP_AP_AA_C;
+p02-periodic-qa-ignored	hdl/srp/srp_pkg.sv	172	SRP_AP_QA_C: nx = SRP_AP_AA_C;	SRP_AP_QA_C: nx = SRP_AP_QA_C;
+p03-rjoinmt-qa-ignored	hdl/srp/srp_pkg.sv	155	SRP_AP_QA_C: nx = SRP_AP_AA_C;	SRP_AP_QA_C: nx = SRP_AP_QA_C;
+p04-rlv-rla-declarer-ignored	hdl/srp/srp_pkg.sv	166	nx = SRP_AP_VP_C;	nx = st;
+p05-rla-an-ignored	hdl/srp/srp_pkg.sv	165	SRP_AP_AN_C: nx = SRP_AP_VN_C;	SRP_AP_AN_C: nx = SRP_AP_AN_C;
+p06-note8-inverted	hdl/srp/srp_pkg.sv	181	reg_in ? SRP_AP_QA_C : SRP_AP_AA_C	reg_in ? SRP_AP_AA_C : SRP_AP_QA_C
+p07-txla-qa-silent	hdl/srp/srp_pkg.sv	246	SRP_AP_AA_C, SRP_AP_QA_C, SRP_AP_AP_C, SRP_AP_QP_C: m	SRP_AP_AA_C, SRP_AP_AP_C, SRP_AP_QP_C: m
+p08-rjoinin-aa-ignored	hdl/srp/srp_pkg.sv	146	SRP_AP_AA_C: nx = SRP_AP_QA_C;	SRP_AP_AA_C: nx = SRP_AP_AA_C;
+p09-note4-inverted	hdl/srp/srp_pkg.sv	145	p2p ? st : SRP_AP_AP_C	p2p ? SRP_AP_AP_C : st
+p10-note5-inverted	hdl/srp/srp_pkg.sv	152	if (p2p && (st == SRP_AP_AA_C))	if (!p2p && (st == SRP_AP_AA_C))
+p11-lo-tx-silent	hdl/srp/srp_pkg.sv	239	m = {1'b1, s};	m = 4'd0;
+p12-txla-vp-stays	hdl/srp/srp_pkg.sv	192	SRP_AP_VP_C: nx = SRP_AP_AA_C;	SRP_AP_VP_C: nx = SRP_AP_VP_C;
+p13-tx-la-stays	hdl/srp/srp_pkg.sv	183	SRP_AP_LA_C: nx = SRP_AP_VO_C;	SRP_AP_LA_C: nx = SRP_AP_LA_C;
+p14-vlan-rla-applicant-ignored	hdl/srp/KL_srp_vlan.sv	267	app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_RLA_C, reg_r[i], p2p_i);	app_ev_w[i] = app_ev_w[i];
+p15-vlan-periodic-ignored	hdl/srp/KL_srp_vlan.sv	269	app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);	app_ev_w[i] = app_ev_w[i];
+p16-mvrp-leaveall-no-redraw	hdl/srp/KL_srp_top.sv	1307	need_draw_r[1] <= 1'b1;	need_draw_r[1] <= 1'b0;
+p17-domain-rla-ignored	hdl/srp/KL_srp_domain.sv	193	(leaveall_tick_i && !leaveall_own_i && declared_r)	(1'b0 && leaveall_tick_i && !leaveall_own_i && declared_r)
+p18-sj-always-joinmt	hdl/srp/srp_pkg.sv	231	sj = reg_in ? SRP_EV_JOININ : SRP_EV_JOINMT;	sj = SRP_EV_JOINMT;
+p19-txla-vp-sends-sj	hdl/srp/srp_pkg.sv	244	m = {1'b1, s};	m = {1'b1, sj};

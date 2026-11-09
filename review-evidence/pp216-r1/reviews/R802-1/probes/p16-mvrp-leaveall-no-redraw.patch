@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 96e4721..7af774e 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1304,7 +1304,7 @@ module KL_srp_top
+           default: begin             // CAD_LA_MVRP_C
+             if (!la_rearm_w[1]) begin
+               la_mvrp_pend_r <= 1'b1;  // Active: sLA at the next MVRP tx!
+-              need_draw_r[1] <= 1'b1;
++              need_draw_r[1] <= 1'b0;
+             end
+           end
+         endcase
