@@ -1,0 +1,31 @@
+docs/design/AREA_BUDGET.md: identical +/- line sets (8 lines)
+docs/design/MAILBOX_SPLIT.md: identical +/- line sets (64 lines)
+docs/design/MARK_II_AREA_PLAN.md: identical +/- line sets (210 lines)
+docs/findings/README.md: identical +/- line sets (2 lines)
+== blob identity of branch pages P6 vs H
+docs/design/AREA_BUDGET.md P6=4b382d8ac7b36af58b74638e3506b61ffb5becc2 H=92b1661d4e417faf6499ed5dad938a5e3a7e01fb D6=fcc6265dcdd01e60276b2ac456eab8e27e1329db D=a2504f6f90c723c896555346761525ed781ee40c
+docs/design/MAILBOX_SPLIT.md P6=12b310862ad8e73d543be9a0630f204248335c70 H=12b310862ad8e73d543be9a0630f204248335c70 D6=79d2937abc16df338350f75742478a502848527a D=79d2937abc16df338350f75742478a502848527a
+docs/design/MARK_II_AREA_PLAN.md P6=540e5b903cd02bf16114ddcf298a20456815c8b3 H=350c898ec75ff88a530ff88d481a7387f1999141 D6=c41ad713235d9ee558c12c2fdba1418e99c256a5 D=b2843e673294bc117cec6afcbc48d15d5738637c
+docs/findings/README.md P6=49b24faaf3bb039750f22af7674fabfde526a09b H=ef6c72103e0b648932be884d0bfac758031317ed D6=8dc4630ca066f6384c8d41b8982ba49116792663 D=22e2e71b03568f40ee3374b0b789b61c498bdd18
+== files changed by dev D6..D
+ CHANGELOG.md                                 |  36 +++
+ docs/DOCUMENTATION_AUDIT.md                  |   2 +-
+ docs/design/AREA_BUDGET.md                   |  66 +++--
+ docs/design/MARK_II_AREA_PLAN.md             |   5 +-
+ docs/diagrams/PNG_MANIFEST.json              |   4 +-
+ docs/diagrams/submodule_boundaries.drawio    |   2 +-
+ docs/diagrams/submodule_boundaries.png       | Bin 437799 -> 436989 bytes
+ docs/diagrams/submodule_boundaries.svg       |   2 +-
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md | 138 ++++++++-
+ docs/findings/README.md                      |   2 +-
+ docs/integration/INTEGRATION_GUIDE.md        |  22 ++
+ docs/reference/SUBMODULES.md                 | 141 ++++++++-
+ docs/testing/TESTING.md                      |   2 +-
+ protocol-processor                           |   2 +-
+ syn/ooc/pp_resource_baseline.json            | 408 +++++++++++++--------------
+ syn/yosys/rom_digests.tsv                    |   2 +
+ tb/verilator/milan_dp/Makefile               |   5 +-
+ tb/verilator/milan_dp/README.md              |   4 +-
+ tb/verilator/milan_dp/crflic_mutants.py      |  75 ++++-
+ tb/verilator/milan_dp/sim_crf_licence.cpp    | 126 +++++++++
+ 20 files changed, 796 insertions(+), 248 deletions(-)

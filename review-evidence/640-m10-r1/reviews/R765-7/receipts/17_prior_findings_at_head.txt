@@ -1,0 +1,9 @@
+== MARK_II lines 1-1098: H vs P6 differing line numbers
+61c61
+(:61 expected only)
+== P6 total lines 1909, H total 1910
+H:231 | 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions))
+H:233 | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the FIFOs of stage 3 blocks. The 29 generated FIFO RAMB36 leave earlier
+H:239 Until stage 3, `ctrl_memory`'s banks hold both regions.
+H:336 | Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the las
+H:368 Taking 10 ms as the gap gives 128 bytes.
