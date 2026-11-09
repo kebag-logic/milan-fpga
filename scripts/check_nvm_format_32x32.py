@@ -9,8 +9,11 @@ tree's definitions. This gate fails when any of them drifts:
   1. every generated block on the page equals the block rendered now;
   2. every inline figure on the page reads the value recomputed now;
   3. every block and inline key on the page is one the script computes;
-  4. every cited file:line still carries the token it was cited for;
-  5. the documentation index links the page.
+  4. every cited token is on exactly one line of its file, so a line that
+     moves keeps its citation true;
+  5. the page cites every one of its prose anchors (tables.CITED) by token
+     and file, and no line by its number;
+  6. the documentation index links the page.
 
 A generated block sits between `<!-- nvm-format: begin NAME -->` and
 `<!-- nvm-format: end NAME -->`; an inline figure is
@@ -29,6 +32,7 @@ import copy
 import re
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -43,6 +47,8 @@ INDEX = ROOT / "docs/README.md"
 INDEX_LINK = "(design/SAVED_STATE_FORMAT_32X32.md)"
 BLOCK_RE = re.compile(r"<!-- nvm-format: begin (\w+) -->\n(.*?)<!-- nvm-format: end \1 -->", re.S)
 INLINE_RE = re.compile(r"<!-- fig:(\w+) -->(.*?)<!-- /fig -->")
+#: a file cited by line number, `path/file.ext:123`, which the next edit above the line makes false
+LINE_CITE_RE = re.compile(r"`([\w./-]+\.[A-Za-z]\w*):(\d+)`")
 
 
 def rendered(r: dict) -> tuple[dict[str, str], dict[str, str]]:
@@ -51,8 +57,9 @@ def rendered(r: dict) -> tuple[dict[str, str], dict[str, str]]:
             fmt.figure_map(r))
 
 
-def findings(page: str, index: str, r: dict, anchors: tuple) -> list[str]:
-    """Every disagreement between the page, the tree and the figures."""
+def findings(page: str, index: str, r: dict, anchors: tuple,
+             read: Callable[[tables.Anchor], str] = tables.tree_text) -> list[str]:
+    """Every disagreement between the page, the tree (as `read` gives each cited file) and the figures."""
     try:
         want_blocks, want_figs = rendered(r)
     except RuntimeError as err:
@@ -72,7 +79,11 @@ def findings(page: str, index: str, r: dict, anchors: tuple) -> list[str]:
             bad.append(f"FINDING: inline figure {key} is not a figure the script computes")
         elif value != want_figs[key]:
             bad.append(f"FINDING: inline figure {key} reads {value}, recomputed {want_figs[key]}")
-    bad += [f"FINDING: anchor {a}" for a in tables.anchor_findings(anchors)]
+    bad += [f"FINDING: anchor {a}" for a in tables.anchor_findings(anchors, read)]
+    bad += [f"FINDING: the page cites `{m.group(1)}:{m.group(2)}` by line number; cite a token "
+            f"the gate checks instead" for m in LINE_CITE_RE.finditer(page)]
+    bad += [f"FINDING: the page no longer cites {tables.cited(a)}"
+            for a in tables.CITED if tables.cited(a) not in page]
     if [tuple(b) for b in r["declared"]] != [tuple(b) for b in r["space"]["blocks"]]:
         bad.append("FINDING: the layout 3 declaration (nvm_layout3.h) is not the bound shape's derived space")
     if INDEX_LINK not in index:
@@ -158,8 +169,18 @@ def self_test() -> int:
         print("  " + line)
     for name, (plant, want) in PAGE_PLANTS.items():
         expect(name, findings(plant(page), index, r, anchors), want)
-    moved = (tables.Anchor(**{**vars(anchors[0]), "line": anchors[0].line + 1}),) + anchors[1:]
-    expect("anchor", findings(page, index, r, moved), "FINDING: anchor")
+    gone = (tables.Anchor(**{**vars(anchors[0]), "token": anchors[0].token + " planted"}),) + anchors[1:]
+    expect("anchor", findings(page, index, r, gone), "no longer carries")
+    common = (tables.Anchor(**{**vars(anchors[0]), "token": "#define"}),) + anchors[1:]
+    expect("anchor-unique", findings(page, index, r, common), "an anchor's token must be on one line")
+    expect("line-number", findings(page + "\nSee `sw/litex/milan_soc.py:179`.\n", index, r, anchors),
+           "by line number")
+    first = tables.cited(tables.CITED[0])
+    expect("citation", findings(page.replace(first, "it"), index, r, anchors), "the page no longer cites")
+    # the control: every cited file with 300 lines more above its first, as a merge may leave it
+    shifted = findings(page, index, r, anchors, read=lambda a: "\n" * 300 + tables.tree_text(a))
+    failed += bool(shifted)
+    print(f"control moved-lines: {len(shifted)} finding(s)")
     expect("index", findings(page, index.replace(INDEX_LINK, "(design/X.md)"), r, anchors),
            "FINDING: the docs index does not link")
     moved_decl = copy.deepcopy(r)

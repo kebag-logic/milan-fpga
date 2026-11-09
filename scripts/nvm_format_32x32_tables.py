@@ -5,17 +5,20 @@
 
 `scripts/nvm_format_32x32.py` computes the figures; this module formats them,
 renders the page's generated tables, and holds the two inventories the page
-cites by file:line: every layer carrying `record_id` (or the bound the format
-changes) and the VERSION chain. Each anchor names a token its line must still
-carry, so a moved line reddens scripts/check_nvm_format_32x32.py instead of
-leaving a stale citation. Processor sources are named by stem and located
-through scripts/pp_srcs.py, never spelled out here.
+cites: every layer carrying `record_id` (or the bound the format changes) and
+the VERSION chain. Each anchor names a file and a token that must be on
+exactly one of its lines. The page cites the file and the token, never a line
+number, so a line moved by an unrelated edit keeps the citation true, and a
+token that is gone or no longer unique reddens scripts/check_nvm_format_32x32.py.
+Processor sources are named by stem and located through scripts/pp_srcs.py,
+never spelled out here.
 """
 
 from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,11 +28,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 @dataclass(frozen=True)
 class Anchor:
-    """One cited line: where it is, what it must still read, and the change."""
+    """One cited line: its file, the token only that line carries, what it holds, and the change."""
 
     layer: str
     where: str      # a tree path, or "pp:<stem>" for a processor source
-    line: int
     token: str
     today: str
     change: str
@@ -52,126 +54,142 @@ def shown(where: str) -> str:
     return str(resolve(where).relative_to(ROOT))
 
 
-#: What the all-fabric rows answer since #823 issue comment 6730985093: the
-#: format is the split placement's, and the all-fabric
-#: placement keeps KLJ2 and today's limits.
+#: What the all-fabric rows answer (#823): the format is the split placement's,
+#: and the all-fabric placement keeps KLJ2 and today's limits.
 KEEP = "unchanged: the all-fabric placement keeps KLJ2"
 
 LAYERS = (
-    # ---- the split placement: the one declaration and its two readers (round 3)
-    Anchor("Declaration", "sw/firmware/ctrl_nvm/nvm_layout3.h", 47, "#define NVM3_CAP_NAME 907u",
+    # ---- the split placement: the one declaration and its two readers
+    Anchor("Declaration", "sw/firmware/ctrl_nvm/nvm_layout3.h", "#define NVM3_CAP_NAME 907u",
            "NAME block, 907 ids", "the one declaration, every block's capacity"),
-    Anchor("Declaration", "sw/firmware/ctrl_nvm/nvm_layout3.h", 63, "#define NVM3_ID_SPACE (NVM3_ID_NAME",
+    Anchor("Declaration", "sw/firmware/ctrl_nvm/nvm_layout3.h", "#define NVM3_ID_SPACE (NVM3_ID_NAME",
            "1,129 ids", "bases chained from the capacities"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", 49, "#define NVM_REC_HDR    NVM3_REC_HDR",
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "#define NVM_REC_HDR    NVM3_REC_HDR",
            "10-byte header", "layout 3"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", 170, "_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME",
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME",
            "the NAME block's refusal", "compile time, from the declaration"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", 139,
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h",
            "#define NVM_JOURNAL_OFFSET MILAN_FLASH_JOURNAL_KLJ3_OFFSET", "journal_klj3", "the 640 KiB journal"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", 148, "#define NVM_KLJ3_MAX       NVM_SLOT_BYTES",
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "#define NVM_KLJ3_MAX       NVM_SLOT_BYTES",
            "container up to a slot", "KLJ3 rule 3"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c", 43,
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c",
            "static const uint16_t nvm_mapout_entries[NVM_MAP_PORTS]", "32 ports, 16-bit counts", "done"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c", 284, "if (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)",
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c", "if (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)",
            "KLJ2 refused `VD_VER`", "decision 2"),
-    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.h", 67, "uint16_t id;", "16-bit id", "done"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", 551, "rec[4] == (uint8_t)(r.id >> 8)",
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.h", "uint16_t id;", "16-bit id", "done"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "rec[4] == (uint8_t)(r.id >> 8)",
            "16-bit id at bytes 4 and 5", "done"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", 60, "#define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)",
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "#define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)",
            "open bits, 36 words", "decision 6"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", 131, "v->count++;", "the open records' count",
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "v->count++;", "the open records' count",
            "decision 6"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", 465, "nvm_legacy_check();",
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "nvm_legacy_check();",
            "today's journal read, never written", "decision 2"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", 807, "(++nvm.block < NVM_ERASE_BLOCKS)",
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "(++nvm.block < NVM_ERASE_BLOCKS)",
            "every block the container spans", "the whole-image commit"),
-    Anchor("F1 port", "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c", 181,
+    Anchor("F1 port", "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
            "return addr >= NVM_JOURNAL_OFFSET &&", "writes only journal_klj3", "done"),
-    Anchor("F1 link", "sw/litex/ctrl_memory.py", 384, "def stage_bytes(shape: object)",
-           "stage = KLJ3 container", "the append path is round 4"),
-    Anchor("F1 link", "sw/litex/milan_soc.py", 4682, "split_constants(_nvm_split, _nvm_shape)",
+    Anchor("F1 link", "sw/litex/ctrl_memory.py", "def stage_bytes(shape: object)",
+           "stage = KLJ3 container", "whole container until the append path"),
+    Anchor("F1 link", "sw/litex/milan_soc.py", "split_constants(_nvm_split, _nvm_shape)",
            "the split SoC's constants", "from the builder's split output"),
-    Anchor("F1 link", "sw/litex/milan_soc.py", 179, '"journal_klj3": {"offset": 0xE4_0000',
+    Anchor("F1 link", "sw/litex/milan_soc.py", '"journal_klj3": {"offset": 0xE4_0000',
            "640 KiB journal", "below today's"),
-    Anchor("Builder", "sw/builder/endstation_builder.py", 2790, "def emit_nvm_split(",
+    Anchor("Builder", "sw/builder/endstation_builder.py", "def emit_nvm_split(",
            "nvm_split.json", "refused over a layout 3 block"),
-    Anchor("Scripts", "scripts/nvm_klj3.py", 128, 'hdr = struct.pack(">HBBHH"', "16-bit id frame",
+    Anchor("Scripts", "scripts/nvm_klj3.py", 'hdr = struct.pack(">HBBHH"', "16-bit id frame",
            "the split's reference"),
-    Anchor("Scripts", "scripts/nvm_layout3.py", 111, "def read(", "the declaration's reader", "done"),
+    Anchor("Scripts", "scripts/nvm_layout3.py", "def read(", "the declaration's reader", "done"),
     # ---- the all-fabric placement: the processor's port and its managers
-    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", 182, "HDR_LEN_C  = 16'd8", "8-byte header", KEEP),
-    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", 135, "[7:0]  nvm_record_id_i", "8-bit record id in", KEEP),
-    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", 160, "[7:0]  dev_region_o", "8-bit region out", KEEP),
-    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", 115, "MAX_PAYLOAD_P = 1024", "1,024-byte payload cap", KEEP),
-    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", 127, "REC_ID_BASE_P = 8'h20", "BINDING base 32", KEEP),
-    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", 137, "LAYOUT_VER_P  = 8'h02", "layout 2", KEEP),
-    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", 139, "DEB_TICKS_P   = 500", "500 ms window", KEEP),
-    Anchor("F07.8 framing", "pp:KL_aecp_nvm_writer", 397, "function automatic logic [7:0] sel_base_f",
+    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", "HDR_LEN_C  = 16'd8", "8-byte header", KEEP),
+    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", "[7:0]  nvm_record_id_i", "8-bit record id in", KEEP),
+    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", "[7:0]  dev_region_o", "8-bit region out", KEEP),
+    Anchor("F07.8 framing", "pp:KL_pp_nvm_port", "MAX_PAYLOAD_P = 1024", "1,024-byte payload cap", KEEP),
+    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", "REC_ID_BASE_P = 8'h20", "BINDING base 32", KEEP),
+    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", "LAYOUT_VER_P  = 8'h02", "layout 2", KEEP),
+    Anchor("F07.8 framing", "pp:KL_acmp_nvm_shadow", "DEB_TICKS_P   = 500", "500 ms window", KEEP),
+    Anchor("F07.8 framing", "pp:KL_aecp_nvm_writer", "function automatic logic [7:0] sel_base_f",
            "fixed bases 0, 2, 10, 48, 64, 80, 128", KEEP),
-    Anchor("F07.8 framing", "pp:KL_aecp_nvm_writer", 193, "DEB_MS_P       = 500", "500 ms window", KEEP),
-    Anchor("F07.8 framing", "pp:KL_pp_nvm_mgr_arb", 79, "[7:0]  m0_rid_i", "8-bit ids, both managers", KEEP),
-    Anchor("F07.8 framing", "pp:protocol_processor_top", 598, "[7:0]  nvm_dev_region_o",
+    Anchor("F07.8 framing", "pp:KL_aecp_nvm_writer", "DEB_MS_P       = 500", "500 ms window", KEEP),
+    Anchor("F07.8 framing", "pp:KL_pp_nvm_mgr_arb", "[7:0]  m0_rid_i", "8-bit ids, both managers", KEEP),
+    Anchor("F07.8 framing", "pp:protocol_processor_top", "[7:0]  nvm_dev_region_o",
            "8-bit region at the top", KEEP),
     # ---- the all-fabric placement: the parent's device face and the backend
-    Anchor("`dev_region_i`", "hdl/milan/KL_nvm_backend.sv", 156, "[7:0]  dev_region_i", "8-bit region in", KEEP),
-    Anchor("`dev_region_i`", "hdl/milan/KL_pp_shadow.sv", 1064, "logic [7:0]  pp_dev_region_w",
+    Anchor("`dev_region_i`", "hdl/milan/KL_nvm_backend.sv", "[7:0]  dev_region_i", "8-bit region in", KEEP),
+    Anchor("`dev_region_i`", "hdl/milan/KL_pp_shadow.sv", "logic [7:0]  pp_dev_region_w",
            "8-bit wire to the backend", KEEP),
-    Anchor("`dev_region_i`", "hdl/milan/KL_pp_shadow.sv", 417, "[7:0]  mrec_region_i", "8-bit map-writer id", KEEP),
-    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", 243, "ID_NAME_C  = 'h80", "fixed id blocks", KEEP),
-    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", 228, "REC_HDR_C = 8", "8-byte header", KEEP),
-    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", 531, "logic [255:0]          open_r",
+    Anchor("`dev_region_i`", "hdl/milan/KL_pp_shadow.sv", "[7:0]  mrec_region_i", "8-bit map-writer id", KEEP),
+    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", "ID_NAME_C  = 'h80", "fixed id blocks", KEEP),
+    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", "REC_HDR_C = 8", "8-byte header", KEEP),
+    Anchor("Backend decode", "hdl/milan/KL_nvm_backend.sv", "logic [255:0]          open_r",
            "256 ownership bits", KEEP),
-    Anchor("Backend refusals", "hdl/milan/KL_nvm_backend.sv", 248, "N_NAME_MAX_C = 128", "128 names", KEEP),
-    Anchor("Backend refusals", "hdl/milan/KL_nvm_backend.sv", 285, "N_STREAM_IN_P > 16",
+    Anchor("Backend refusals", "hdl/milan/KL_nvm_backend.sv", "N_NAME_MAX_C = 128", "128 names", KEEP),
+    Anchor("Backend refusals", "hdl/milan/KL_nvm_backend.sv", "N_STREAM_IN_P > 16",
            "16 streams per direction", KEEP),
-    Anchor("Map writer", "hdl/milan/milan_datapath.sv", 5252, "amr_rid_w  = 8'h60 + 8'(p)", "ids 96 + port", KEEP),
-    Anchor("Map writer", "hdl/milan/milan_datapath.sv", 318, "debounce (DR2a,", "500 ms window", KEEP),
-    Anchor("Firmware, shipping writer", "sw/firmware/milan_baremetal/milan_baremetal.c", 258,
+    Anchor("Map writer", "hdl/milan/milan_datapath.sv", "amr_rid_w  = 8'h60 + 8'(p)", "ids 96 + port", KEEP),
+    Anchor("Map writer", "hdl/milan/milan_datapath.sv", "debounce (DR2a,", "500 ms window", KEEP),
+    Anchor("Firmware, shipping writer", "sw/firmware/milan_baremetal/milan_baremetal.c",
            "NVM_ID_NAME  0x80u", "fixed id blocks", KEEP),
-    Anchor("Firmware, shipping writer", "sw/firmware/milan_baremetal/milan_baremetal.c", 329,
+    Anchor("Firmware, shipping writer", "sw/firmware/milan_baremetal/milan_baremetal.c",
            "NVM_SLOT_BYTES (MILAN_FLASH_JOURNAL_SIZE / 2u)", "two 64 KiB slots", KEEP),
-    Anchor("Builder", "sw/builder/endstation_builder.py", 1465, "if len(lst) > 16:",
+    Anchor("Builder", "sw/builder/endstation_builder.py", "if len(lst) > 16:",
            "16 streams per direction", "kept: a #859 census limit, not this format's"),
-    Anchor("Builder", "sw/builder/endstation_builder.py", 2746, "if aem_name_entries > capacity:",
+    Anchor("Builder", "sw/builder/endstation_builder.py", "if aem_name_entries > capacity:",
            "128 names, the all-fabric shape header", KEEP),
-    Anchor("Builder", "sw/builder/endstation_builder.py", 2354, '"nvm_base": base +', "64 KiB sub-windows", KEEP),
-    Anchor("Scripts", "scripts/nvm_contract.py", 152, "ALLOC = {", "layout 2's fixed blocks", KEEP),
-    Anchor("Scripts", "scripts/nvm_klj2.py", 89, 'struct.pack(">HBBH"', "8-bit id frame", KEEP),
-    Anchor("Mailbox contract", "sw/mailbox/mailbox.yaml", 93, "bound_talkers: 16",
+    Anchor("Builder", "sw/builder/endstation_builder.py", '"nvm_base": base +', "64 KiB sub-windows", KEEP),
+    Anchor("Scripts", "scripts/nvm_contract.py", "ALLOC = {", "layout 2's fixed blocks", KEEP),
+    Anchor("Scripts", "scripts/nvm_klj2.py", 'struct.pack(">HBBH"', "8-bit id frame", KEEP),
+    Anchor("Mailbox contract", "sw/mailbox/mailbox.yaml", "bound_talkers: 16",
            "16 bound talkers, as the BINDING block", "a #859 decision, not this format"),
 )
 
 #: the page's other file:line citations, held the same way
 CITED = (
-    Anchor("name count", "sw/builder/endstation_builder.py", 2715, "def aem_name_count(", "", ""),
-    Anchor("capacity reader", "sw/builder/endstation_builder.py", 2695, "def nvm_name_capacity(", "", ""),
-    Anchor("key owner", "hdl/milan/milan_datapath.sv", 5211, "owner register only ever holds", "", ""),
-    Anchor("datasheet", "scripts/nvm_contract.py", 112, "Micron N25Q128 Table 32", "", ""),
-    Anchor("flash map", "sw/litex/milan_soc.py", 179, '"journal_klj3": {"offset": 0xE4_0000', "", ""),
-    Anchor("SPI clock", "sw/litex/milan_soc.py", 3367, "clk_freq=int(12.5e6)", "", ""),
-    Anchor("Arty flash part", "sw/litex/milan_soc.py", 3352, "S25FL128S(SpiCodes.READ_1_1_1)", "", ""),
+    Anchor("name count", "sw/builder/endstation_builder.py", "def aem_name_count(", "", ""),
+    Anchor("capacity reader", "sw/builder/endstation_builder.py", "def nvm_name_capacity(", "", ""),
+    Anchor("key owner", "hdl/milan/milan_datapath.sv", "owner register only ever holds", "", ""),
+    Anchor("datasheet", "scripts/nvm_contract.py", "Micron N25Q128 Table 32", "", ""),
+    Anchor("flash map", "sw/litex/milan_soc.py", '"journal_klj3": {"offset": 0xE4_0000', "", ""),
+    Anchor("SPI clock", "sw/litex/milan_soc.py", "clk_freq=int(12.5e6)", "", ""),
+    Anchor("Arty flash part", "sw/litex/milan_soc.py", "S25FL128S(SpiCodes.READ_1_1_1)", "", ""),
 )
 
 VERSION_CHAIN = (
-    Anchor("CSR", "hdl/common/csr/milan_csr.sv", 201, "VERSION = 32'h0002_0060", "", ""),
-    Anchor("CSR suite", "tb/verilator/csr/sim_main.cpp", 355, "0x00020060", "", ""),
-    Anchor("Datapath", "tb/verilator/milan_dp/sim_main.cpp", 291, "0x00020060", "", ""),
-    Anchor("Every stream shape", "tb/verilator/milan_dp/sim_nxn.cpp", 3189, "0x00020060", "", ""),
-    Anchor("gPTP option", "tb/verilator/milan_dp/sim_gptp.cpp", 860, "0x00020060", "", ""),
-    Anchor("Pruning", "tb/verilator/milan_dp/sim_prune.cpp", 351, "0x00020060", "", ""),
+    Anchor("CSR", "hdl/common/csr/milan_csr.sv", "VERSION = 32'h0002_0060", "", ""),
+    Anchor("CSR suite", "tb/verilator/csr/sim_main.cpp", "0x00020060", "", ""),
+    Anchor("Datapath", "tb/verilator/milan_dp/sim_main.cpp", "0x00020060", "", ""),
+    Anchor("Every stream shape", "tb/verilator/milan_dp/sim_nxn.cpp", "0x00020060", "", ""),
+    Anchor("gPTP option", "tb/verilator/milan_dp/sim_gptp.cpp", "0x00020060", "", ""),
+    Anchor("Pruning", "tb/verilator/milan_dp/sim_prune.cpp", "0x00020060", "", ""),
 )
 
 
-def anchor_findings(anchors: tuple[Anchor, ...]) -> list[str]:
-    """Every anchor whose line no longer carries its token."""
+def tree_text(a: Anchor) -> str:
+    """The text of the file an anchor cites, as the tree holds it."""
+    return resolve(a.where).read_text()
+
+
+def anchor_lines(a: Anchor, read: Callable[[Anchor], str] = tree_text) -> list[int]:
+    """The lines, counted from 1, of the anchor's file that carry its token."""
+    return [k for k, text in enumerate(read(a).splitlines(), 1) if a.token in text]
+
+
+def anchor_findings(anchors: tuple[Anchor, ...], read: Callable[[Anchor], str] = tree_text) -> list[str]:
+    """Every anchor whose token is gone from its file or is on more than one line."""
     bad = []
     for a in anchors:
-        lines = resolve(a.where).read_text().splitlines()
-        text = lines[a.line - 1] if 0 < a.line <= len(lines) else ""
-        if a.token not in text:
-            bad.append(f"{shown(a.where)}:{a.line} no longer reads `{a.token}`")
+        hits = anchor_lines(a, read)
+        if not hits:
+            bad.append(f"{shown(a.where)} no longer carries `{a.token}`")
+        elif len(hits) > 1:
+            bad.append(f"{shown(a.where)} carries `{a.token}` on lines {', '.join(map(str, hits))}; "
+                       f"an anchor's token must be on one line")
     return bad
+
+
+def cited(a: Anchor) -> str:
+    """How the page cites an anchor: its token, then its file."""
+    return f"`{a.token}` in `{shown(a.where)}`"
 
 
 # ------------------------------------------------------------- formatting ----
@@ -452,15 +470,15 @@ def block_compaction(r: dict, points: tuple) -> str:
 
 
 def block_layers() -> str:
-    """Section 6: every layer, by file:line: what it reads at this head and its state after round 3."""
-    rows = [[a.layer, f"`{shown(a.where)}:{a.line}`", a.today, a.change] for a in LAYERS]
-    return table(["Layer", "Where", "Reads", "Round 3"], rows, right=4)
+    """Section 6: every layer, by file and token: what it holds and its state."""
+    rows = [[a.layer, f"`{shown(a.where)}`", f"`{a.token}`", a.today, a.change] for a in LAYERS]
+    return table(["Layer", "File", "Line carrying", "Holds", "Change"], rows, right=5)
 
 
 def block_version() -> str:
     """Section 5: the VERSION chain."""
-    rows = [[a.layer, f"`{shown(a.where)}:{a.line}`", f"`{a.token}`"] for a in VERSION_CHAIN]
-    return table(["Assertion", "Where", "Reads today"], rows, right=3)
+    rows = [[a.layer, f"`{shown(a.where)}`", f"`{a.token}`"] for a in VERSION_CHAIN]
+    return table(["Assertion", "File", "Line carrying"], rows, right=3)
 
 
 def block_area(r: dict, points: tuple, est: dict) -> str:
@@ -492,46 +510,55 @@ def block_limits(fmap: dict) -> str:
     return table(["Case", "Value", "Basis"], [[a, str(b), c] for a, b, c in rows], right=3)
 
 
+#: The state column: done in the split's store, or with the append path
+#: (decisions 3, 4, 5 and 7), which follows this format.
+DONE, APPEND = "done, split", "with the append path"
+
 TESTS = (
     ("NAME first id {name_first}",
      "F1 `name_block_ends`; builder gate 39 pins it; the reference gate holds every id in its block",
-     "`name_base_moved`; a block before NAME grown", "round 3, split"),
+     "`name_base_moved`; a block before NAME grown", DONE),
     ("NAME last id {name_last}",
-     "F1 at {t32_names} names: `name_block_ends`, `capacity_round_trip` over two erase blocks",
-     "`name_last_dropped`; `first_block_only`", "round 3, split"),
+     "F1 at {t32_names} names: `name_block_ends`; `capacity_round_trip` over two erase blocks; "
+     "`capacity_commit_over_stale`, a commit over an older container, each erase at its block's address",
+     "`name_last_dropped`; `first_block_only`; `erase_first_block_every_time`", DONE),
     ("NAME one past, {name_past}",
      "F1 `one_past_refused` and the parity table, `VD_REC`; {name_cap_over} names do not compile",
-     "`id_space_unbounded`; the NAME assert removed", "round 3, split"),
+     "`id_space_unbounded`; the NAME assert removed", DONE),
     ("Every other block", "each block's first id read from the declaration; the reference gate's ledger at every shape",
-     "the last name left out of the reference's inventory", "round 3, split"),
+     "the last name left out of the reference's inventory", DONE),
     ("Capacity", "builder gate 39: the 32x32 TDM8 overlay's {t32_names} names accepted, one more refused; "
      "the all-fabric header still refuses it", "capacity 906 and 908; the all-fabric bound read from the split's",
-     "round 3, split"),
+     DONE),
     ("Old journal on boot", "F1 `klj2_journal_refused`, `klj2_in_slot_refused`, `klj2_journal_unreadable`: "
-     "blank, `VD_VER` recorded, today's journal unwritten",
-     "`klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`", "round 3, split"),
-    ("Append order", "a delta over the base: the last value wins", "segments applied in reverse", "round 4"),
+     "blank, `VD_VER` recorded, today's journal unwritten; `legacy_other_format_not_recorded`, "
+     "`own_refusal_kept_over_legacy`; `klj2_journal_at_its_flash_map_address`, today's slots from the flash map",
+     "`klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`, "
+     "`legacy_any_nonblank_header`, `ver_overrides_own_refusal`, `legacy_b_wrong_place`", DONE),
+    ("Append order", "a delta over the base: the last value wins", "segments applied in reverse", APPEND),
     ("Torn append", "a cut at every page restores the last closing segment",
-     "a segment accepted without its CRC", "round 4"),
+     "a segment accepted without its CRC", APPEND),
     ("Torn compaction", "a cut at every page boots the old slot, losing nothing",
-     "authority moved before the new trailer verifies", "round 4"),
+     "authority moved before the new trailer verifies", APPEND),
     ("Erase in progress", "a save during the background erase suspends it",
-     "the save waits for the erase", "round 4"),
+     "the save waits for the erase", APPEND),
     ("Save bound", "model time, change to verified, at most {bound_ms} ms at 32x32 TDM8",
-     "a {fw_window_now_ms} ms firmware window", "round 4"),
-    ("Reserve exhausted", "the save waits, is published pending and is not lost", "the save dropped", "round 4"),
-    ("Commit deadline", "at least twice the worst append at every shape", "a 300 ms deadline", "round 4"),
+     "a {fw_window_now_ms} ms firmware window", APPEND),
+    ("Reserve exhausted", "the save waits, is published pending and is not lost", "the save dropped", APPEND),
+    ("Commit deadline", "at least twice the worst append at every shape", "a 300 ms deadline", APPEND),
     ("Payload cap", "the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`)",
      "none: the 1,024 B `MAX_PAYLOAD_P` is the processor's", "all-fabric unchanged"),
     ("Fit", "the container within one slot, asserted at compile time; base and log", "a two-block slot",
-     "round 4"),
+     APPEND),
     ("VERSION", "the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, "
-     "majors 2 and 4)", "`no_version_check`", "round 3; the gateware VERSION open (section 5)"),
+     "majors 2 and 4)", "`no_version_check`", "done, split; the gateware VERSION not moved, as ruled (#823)"),
+    ("Map entry widths", "a count past the codec's table does not compile: 256 entries on an input port, "
+     "65,536 on an output port", "either width assert removed", DONE),
 )
 
 
 def block_tests(fmap: dict) -> str:
-    """Section 8: the test plan, one plant per rule, and the round each lands in."""
+    """Section 8: the test plan, one plant per rule, and its state."""
     rows = [[f"T{k}", rule.format(**fmap), test.format(**fmap), plant.format(**fmap), state]
             for k, (rule, test, plant, state) in enumerate(TESTS, 1)]
     return table(["#", "Rule", "Test", "Plant that must be caught", "State"], rows, right=5)

@@ -113,8 +113,8 @@ PROPOSAL = {
     "log_per_base": 1,
     # a compaction starts when half the log is used
     "reserve_fraction_den": 2,
-    # A3's suspend latency, graded at its typical value (#823 issue comment
-    # 6730985093 item 3): N25Q128 datasheet section 9.1.20 and
+    # A3's suspend latency, graded at its typical value (#823: the datasheet
+    # gives no maximum): N25Q128 datasheet section 9.1.20 and
     # Table 17, "Suspend Latency, Erase", 15 us typical, no maximum given
     "susp_typ_us": 15,
     # the 3-byte-address command overheads of the writer's opcodes
