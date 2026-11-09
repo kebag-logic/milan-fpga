@@ -159,6 +159,10 @@ FLASHBOOT_AEM = FLASHBOOT_LAYOUT["aem"]
 #            "a torn write cannot damage the other slot" is then a property of
 #            the flash geometry, not a promise from a log-structured fs, and the
 #            slot is readable before any mount.
+#   journal_klj3  2 x 320 KiB = slot A / slot B of five erase blocks, RAW: the
+#            split placement's KLJ3 saved state (#823), written only by its
+#            store (sw/firmware/ctrl_nvm), which reads journal's two headers
+#            and never writes them; the all-fabric writer never touches it.
 #   user     raw bare-metal records: entity/group names, channel maps, mixer
 #            state, and the rotating compressed CTF fault log. There is no
 #            filesystem or target-OS mount associated with this region.

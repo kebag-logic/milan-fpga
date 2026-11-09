@@ -540,7 +540,8 @@ the retired flash-partition emitter derived the same
 
 | Offset | Size | Slot | Written by |
 |---|---|---|---|
-| `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw | the persistence writer only |
+| `0xE4_0000` | 640 KiB | **`journal_klj3`** -- 2 x 320 KiB slots of five erase blocks, slot A and slot B, raw: the split placement's KLJ3 | the split placement's store only (`sw/firmware/ctrl_nvm`) |
+| `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw: the all-fabric placement's KLJ2 | the all-fabric persistence writer only |
 | `0xF0_0000` | 1 MiB | `user` -- writable region, unclaimed today | no current product owner |
 
 `journal` is raw and filesystem-free on purpose. Each slot is exactly one erase
@@ -550,6 +551,11 @@ before any mount -- which is where a fast connect wants to happen. A reflash
 must not erase either slot: a gateware update that silently wipes saved bindings
 is worse than having none, because the entity then comes back unbound
 *sometimes*.
+
+`journal_klj3` is the same design at the split placement's size (#823).
+Each of its slots is five erase blocks, and a commit erases every block its container spans.
+The split's store writes only there.
+It reads the two headers of `journal` and never writes it, so a rollback to an all-fabric image finds that journal intact.
 
 **Board applicability.** The AX7101 has the reservation. A board without it gets
 no journal, and the degradation is part of the design: no journal, no replay,

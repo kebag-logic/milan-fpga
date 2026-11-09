@@ -55,9 +55,11 @@ The AEM slot sits at `0x40_0000`, immediately after the bitstream budget.
 Always flash the AEM from the same build as the bitstream: its entity/model identity,
 length, CRC and destination are compiled into that firmware.
 
-The `journal` and `user` ranges are RESERVED: no manifest writes them and a
-reflash must not erase them. The saved-state journal that used those slots
-was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
+The `journal_klj3`, `journal` and `user` ranges are RESERVED: no manifest
+writes them and a reflash must not erase them. `journal_klj3`, the 640 KiB
+directly below `journal`, holds the split placement's saved state: only its
+store writes there (#823). The saved-state journal that used `journal` and
+`user` was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
 writes or reads them today. Persistence is a genuine loss, not a relocation:
 the protocol processor's NVM face is answered by a blank-flash responder, so a
 restore walk always completes with zero records and nothing survives a power
