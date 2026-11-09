@@ -1,0 +1,28 @@
+scripts/nvm_format_32x32.py:116:     # A3's suspend latency, graded at its typical value (#823 issue comment
+scripts/nvm_format_32x32.py:117:     # 6730985093 item 3): N25Q128 datasheet section 9.1.20 and
+scripts/nvm_format_32x32_tables.py:55: #: What the all-fabric rows answer since #823 issue comment 6730985093: the
+scripts/nvm_format_32x32_tables.py:61:     # ---- the split placement: the one declaration and its two readers (round 3)
+scripts/nvm_format_32x32_tables.py:92:            "stage = KLJ3 container", "the append path is round 4"),
+scripts/nvm_format_32x32_tables.py:455:     """Section 6: every layer, by file:line: what it reads at this head and its state after round 3."""
+scripts/nvm_format_32x32_tables.py:457:     return table(["Layer", "Where", "Reads", "Round 3"], rows, right=4)
+scripts/nvm_format_32x32_tables.py:498:      "`name_base_moved`; a block before NAME grown", "round 3, split"),
+scripts/nvm_format_32x32_tables.py:501:      "`name_last_dropped`; `first_block_only`", "round 3, split"),
+scripts/nvm_format_32x32_tables.py:504:      "`id_space_unbounded`; the NAME assert removed", "round 3, split"),
+scripts/nvm_format_32x32_tables.py:506:      "the last name left out of the reference's inventory", "round 3, split"),
+scripts/nvm_format_32x32_tables.py:509:      "round 3, split"),
+scripts/nvm_format_32x32_tables.py:512:      "`klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`", "round 3, split"),
+scripts/nvm_format_32x32_tables.py:513:     ("Append order", "a delta over the base: the last value wins", "segments applied in reverse", "round 4"),
+scripts/nvm_format_32x32_tables.py:515:      "a segment accepted without its CRC", "round 4"),
+scripts/nvm_format_32x32_tables.py:517:      "authority moved before the new trailer verifies", "round 4"),
+scripts/nvm_format_32x32_tables.py:519:      "the save waits for the erase", "round 4"),
+scripts/nvm_format_32x32_tables.py:521:      "a {fw_window_now_ms} ms firmware window", "round 4"),
+scripts/nvm_format_32x32_tables.py:522:     ("Reserve exhausted", "the save waits, is published pending and is not lost", "the save dropped", "round 4"),
+scripts/nvm_format_32x32_tables.py:523:     ("Commit deadline", "at least twice the worst append at every shape", "a 300 ms deadline", "round 4"),
+scripts/nvm_format_32x32_tables.py:527:      "round 4"),
+scripts/nvm_format_32x32_tables.py:529:      "majors 2 and 4)", "`no_version_check`", "round 3; the gateware VERSION open (section 5)"),
+sw/builder/test_builder.py:29255: #: the split by #823 issue comment 6730985093): the NAME block's first and last id and
+sw/firmware/ctrl_nvm/nvm_klj2.c:3:  * nvm_klj2.c - the container and F07.8 record codec (#665 lane F1), in the
+sw/firmware/ctrl_nvm/nvm_klj2.h:4:  * (#665 lane F1), for the shape nvm_shape.h describes.
+sw/firmware/ctrl_nvm/nvm_layout3.h:4:  * placement's (#823 decision 1, scoped to the split by #823 issue comment
+sw/firmware/ctrl_nvm/nvm_layout3.h:5:  * 6730985093).
+sw/firmware/ctrl_nvm/nvm_shape.h:4:  * build time (#665 lane F1), in the split placement's format (#823).

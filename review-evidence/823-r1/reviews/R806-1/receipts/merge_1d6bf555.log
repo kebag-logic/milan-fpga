@@ -1,0 +1,79 @@
+Auto-merging docs/design/SPLIT_CONTROL_MEMORY.md
+Auto-merging scripts/ci_events.py
+Auto-merging sw/builder/endstation_builder.py
+Auto-merging sw/builder/test_builder.py
+Auto-merging sw/firmware/ctrl/test/ctrl_configs.py
+Auto-merging sw/firmware/ctrl/test/test_aecp.cpp
+Auto-merging sw/litex/milan_soc.py
+Merge made by the 'ort' strategy.
+ .github/ci-templates/docs.yml                    |   4 +
+ .github/workflows/docs.yml                       |   4 +
+ docs/README.md                                   |   1 +
+ docs/design/SAVED_STATE_FASTCONNECT.md           |   3 +
+ docs/design/SAVED_STATE_FORMAT_32X32.md          | 542 ++++++++++++++++++++++
+ docs/design/SPLIT_CONTROL_MEMORY.md              |  22 +-
+ scripts/check_nvm_format_32x32.py                | 202 ++++++++
+ scripts/check_nvm_klj3.py                        | 337 ++++++++++++++
+ scripts/ci_events.py                             |   4 +
+ scripts/nvm_format_32x32.py                      | 558 +++++++++++++++++++++++
+ scripts/nvm_format_32x32_tables.py               | 551 ++++++++++++++++++++++
+ scripts/nvm_klj3.py                              | 273 +++++++++++
+ scripts/nvm_layout3.py                           | 150 ++++++
+ sw/builder/endstation_builder.py                 |  94 +++-
+ sw/builder/test_builder.py                       | 205 ++++++++-
+ sw/firmware/ctrl/test/aecp_arms.py               |   2 +-
+ sw/firmware/ctrl/test/ctrl_arms.py               |   2 +-
+ sw/firmware/ctrl/test/ctrl_configs.py            |   7 +
+ sw/firmware/ctrl/test/ctrl_image.py              |   2 +-
+ sw/firmware/ctrl/test/ctrl_srp_image.py          |   2 +-
+ sw/firmware/ctrl/test/plat_arms.py               |   2 +-
+ sw/firmware/ctrl/test/test_acmp_nvm.cpp          |  18 +-
+ sw/firmware/ctrl/test/test_aecp.cpp              |   6 +-
+ sw/firmware/ctrl_nvm/README.md                   |  86 +++-
+ sw/firmware/ctrl_nvm/host/nvm_fmodel.c           |  28 +-
+ sw/firmware/ctrl_nvm/host/nvm_fmodel.h           |  10 +-
+ sw/firmware/ctrl_nvm/nvm_klj2.c                  | 165 ++++---
+ sw/firmware/ctrl_nvm/nvm_klj2.h                  |  28 +-
+ sw/firmware/ctrl_nvm/nvm_layout3.h               |  65 +++
+ sw/firmware/ctrl_nvm/nvm_shape.h                 | 186 +++++---
+ sw/firmware/ctrl_nvm/nvm_store.c                 | 139 ++++--
+ sw/firmware/ctrl_nvm/nvm_store.h                 |  10 +
+ sw/firmware/ctrl_nvm/plat/gen_flash_port.py      |  86 ++--
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    |  11 +-
+ sw/firmware/ctrl_nvm/test/nvm_bench.py           | 110 +++--
+ sw/firmware/ctrl_nvm/test/nvm_fixture.py         | 199 ++++++--
+ sw/firmware/ctrl_nvm/test/nvm_mutants.py         |  85 +++-
+ sw/firmware/ctrl_nvm/test/nvm_rig.cpp            |  21 +-
+ sw/firmware/ctrl_nvm/test/nvm_suite.cpp          |  10 +-
+ sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py       |  66 ++-
+ sw/firmware/ctrl_nvm/test/test_nvm_boot.cpp      |  67 ++-
+ sw/firmware/ctrl_nvm/test/test_nvm_capacity.cpp  |  80 ++++
+ sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp     |  19 +-
+ sw/firmware/ctrl_nvm/test/test_nvm_flashmock.cpp |  14 +-
+ sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp    |   2 +-
+ sw/firmware/ctrl_nvm/test/test_nvm_vector.cpp    |  21 +-
+ sw/firmware/ctrl_nvm/test/test_nvm_write.cpp     |  30 +-
+ sw/firmware/gtest/README.md                      |  12 +-
+ sw/firmware/gtest/coverage.ratchet               |   4 +-
+ sw/firmware/gtest/fw_rv32_selftest.py            |   2 +-
+ sw/litex/ctrl_memory.py                          |  22 +-
+ sw/litex/ctrl_memory_ledger.py                   |   2 +-
+ sw/litex/ctrl_memory_probe.py                    |   2 +-
+ sw/litex/milan_soc.py                            |  19 +-
+ sw/litex/test_ctrl_memory.py                     |   4 +-
+ tb/verilator/nvm_split_target/README.md          |  13 +-
+ tb/verilator/nvm_split_target/run.py             |   2 +-
+ tb/verilator/nvm_split_target/target_cases.py    |  34 +-
+ tb/verilator/nvm_split_target/target_grade.py    |   8 +-
+ tb/verilator/nvm_split_target/target_selftest.py |  17 +-
+ 60 files changed, 4153 insertions(+), 517 deletions(-)
+ create mode 100644 docs/design/SAVED_STATE_FORMAT_32X32.md
+ create mode 100644 scripts/check_nvm_format_32x32.py
+ create mode 100644 scripts/check_nvm_klj3.py
+ create mode 100644 scripts/nvm_format_32x32.py
+ create mode 100644 scripts/nvm_format_32x32_tables.py
+ create mode 100644 scripts/nvm_klj3.py
+ create mode 100644 scripts/nvm_layout3.py
+ create mode 100644 sw/firmware/ctrl_nvm/nvm_layout3.h
+ create mode 100644 sw/firmware/ctrl_nvm/test/test_nvm_capacity.cpp
+rc=0

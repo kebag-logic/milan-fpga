@@ -1,0 +1,9 @@
+tree $REVIEWS/823-r806-1-packet/scratch/tree_a
+prepared endstation_ax7101_1x1_tdm8
+  self-test OK: no_ascending               caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: duplicate record id: codec 0, klj2_decode 7
+  self-test OK: no_blankcheck              caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-stuck: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+  self-test OK: no_version_check           caught by wrong_version_falls_back; first: [FAIL] Ports/NvmBoth.wrong_version_falls_back/model: major 2: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 5
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: model: invariant protected=3
+  self-test OK: frame_crc_init             caught by vector_round_trip, change_commit_bytes; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: the committed container differs from nvm_klj2.py's for the sam
+  self-test OK: pad_not_zero               caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj3.py's
+named mutants graded: 6, not caught or not built: 0

@@ -1,0 +1,10 @@
+tree $REVIEWS/823-r806-1-packet/scratch/tree_a
+prepared endstation_ax7101_1x1_tdm8
+  self-test OK: open_count_kept            caught by open_count; first: [FAIL] Ports/NvmBoth.open_count/model: both captured: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'atte
+  self-test OK: open_count_doubled         caught by open_count; first: [FAIL] Ports/NvmBoth.open_count/model: two records changed, one twice: {'abandoned': 0, 'abandoned_vd': 0, 'ap
+  self-test OK: first_block_only           caught by capacity_round_trip; first: [FAIL] Ports/NvmBoth.capacity_round_trip/model: the commit at capacity: {'abandoned': 0, 'abandoned_vd': 0, 'a
+  self-test OK: name_base_moved            caught by name_block_ends, golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: golden restore state: {'abandoned': 0, 'abandoned_vd': 0, 'applied'
+  self-test OK: id_space_unbounded         caught by one_past_refused, verdict_parity; first: [FAIL] Ports/NvmBoth.verdict_parity/model: parity: record id 1129, past the layout 3 space: store 3, klj3_deco
+  self-test OK: name_last_dropped          caught by name_block_ends, capacity_round_trip; first: [FAIL] NvmCapacity.name_block_ends: the last name is id 0; the reference's 1128, the block's last 1128
+  self-test OK: litespi_guard_admits_klj2  caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=2
+named mutants graded: 7, not caught or not built: 0

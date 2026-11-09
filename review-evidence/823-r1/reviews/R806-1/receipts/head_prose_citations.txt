@@ -1,0 +1,12 @@
+page:76 -> sw/builder/endstation_builder.py:2714: 
+page:185 -> hdl/milan/milan_datapath.sv:5211: //! an output key's owner register only ever holds a value below
+page:203 -> sw/litex/milan_soc.py:179: "journal_klj3": {"offset": 0xE4_0000, "size": 0x0A_0000},   # 640 KiB, raw A/B
+page:266 -> scripts/nvm_contract.py:112: # Micron N25Q128 Table 32 "AC Characteristics", MAXIMUM column: tSE = 3 s for
+page:267 -> sw/litex/milan_soc.py:3361: # read; at 25 MHz SCK the sampling window is huge vs a 112.5 MHz sys. Flashboot
+page:269 -> sw/litex/milan_soc.py:3346: from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+page:385 -> hdl/common/csr/milan_csr.sv:201: parameter logic [31:0] VERSION = 32'h0002_0060
+page:386 -> tb/verilator/csr/sim_main.cpp:355: ck("VERSION",       axi_read(A_VERSION), 0x00020060);
+page:387 -> tb/verilator/milan_dp/sim_main.cpp:291: ck("VERSION",       axi_read(A_VERSION), 0x00020060);
+page:388 -> tb/verilator/milan_dp/sim_nxn.cpp:3189: axi_read(A_VERSION), 0x00020060);
+page:389 -> tb/verilator/milan_dp/sim_gptp.cpp:860: expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
+page:390 -> tb/verilator/milan_dp/sim_prune.cpp:351: ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020060);

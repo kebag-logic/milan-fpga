@@ -1,0 +1,6 @@
+test_split_record_space_bounds_the_split_output:
+  [gate 39] layout 3 read from sw/firmware/ctrl_nvm/nvm_layout3.h: NAME ids 222 to 1128 of 1129; the 32x32 TDM8 shape's 907 names accepted by the split output, 908 refused; the all-fabric header refuses the same shape (N_NAME_MAX_C) and its 32 rows; the 1x1 build writes nvm_split.json
+  [gate 39] 10/10 planted defects turned their check red: #define NVM3_CAP_NAME 906u; #define NVM3_CAP_NAME 908u; a block before NAME grown; refusal naming no figure; refusal removed; the all-fabric bound read from the split's; declaration commented out; declaration in hex; declaration repeated; NAME base off the chain
+
+SUBSET: 1 of 107 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

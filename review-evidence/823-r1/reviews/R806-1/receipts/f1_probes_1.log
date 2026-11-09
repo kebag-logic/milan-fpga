@@ -1,0 +1,8 @@
+tree $REVIEWS/823-r806-1-packet/scratch/tree_a
+prepared endstation_ax7101_1x1_tdm8
+PROBE p02_frame_id_high_byte_zero: CAUGHT by ['NvmModel.authority_unknown', 'NvmModel.media_verdicts', 'NvmModel.read_disagreement', 'Ports/NvmBoth.blankcheck_tail/litespi', 'Ports/NvmBoth.blankcheck_tail/model', 'Ports/NvmBoth.capacity_round_trip/litespi'] (21 tests)
+PROBE p04_frame_reserved_byte_set: CAUGHT by ['NvmModel.authority_unknown', 'NvmModel.media_verdicts', 'NvmModel.read_disagreement', 'NvmModel.settle_after_the_last_record', 'Ports/NvmBoth.blankcheck_tail/litespi', 'Ports/NvmBoth.blankcheck_tail/model'] (26 tests)
+PROBE p03_decode_id_low_byte_only: CAUGHT by ['NvmCodec.codec_loaded_prefix', 'NvmCodec.codec_parity', 'NvmCodec.codec_room', 'NvmFlashMock.reads_differ_in_verdict', 'NvmModel.authority_unknown', 'NvmModel.fallback_restage'] (58 tests)
+PROBE p08_ver_overrides_own_refusal: SURVIVED (no test failed)
+PROBE p07_legacy_any_nonblank_header: SURVIVED (no test failed)
+PROBE p01_legacy_slot_a_only: CAUGHT by ['Ports/NvmBoth.klj2_journal_refused/litespi', 'Ports/NvmBoth.klj2_journal_refused/model'] (2 tests)

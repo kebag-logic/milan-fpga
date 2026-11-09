@@ -1,0 +1,8 @@
+tree $REVIEWS/823-r806-1-packet/scratch/tree_a
+prepared endstation_ax7101_1x1_tdm8
+  self-test OK: legacy_read_fault_recorded caught by klj2_journal_unreadable; first: [FAIL] NvmModel.klj2_journal_unreadable: an unreadable KLJ2 header: {'abandoned': 0, 'abandoned_vd': 0, 'appli
+  self-test OK: klj2_reinterpreted         caught by klj2_in_slot_refused, verdict_parity; first: [FAIL] Ports/NvmBoth.verdict_parity/model: parity: major version 2: store 0, klj3_decode 2
+  self-test OK: reserved_byte_ignored      caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: the reserved header byte set: codec 0, klj2_decode 7
+  self-test OK: legacy_reason_dropped      caught by klj2_journal_refused; first: [FAIL] Ports/NvmBoth.klj2_journal_refused/model: the blank boot's verdict names the KLJ2 journal: {'abandoned'
+  self-test OK: klj2_not_recognised        caught by klj2_in_slot_refused, verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: the shipping writer's KLJ2 container: codec 1, klj2_decode 2
+  self-test OK: legacy_not_read            caught by klj2_journal_refused; first: [FAIL] Ports/NvmBoth.klj2_journal_refused/model: KLJ2 journal in today's slot 0, then a commit: {'abandoned': 
