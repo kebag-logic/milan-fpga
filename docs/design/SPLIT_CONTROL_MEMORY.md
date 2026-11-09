@@ -23,8 +23,8 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, and the polls by source: a base every pass is charged and the heavy items, each at its stated cost.
-- **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, held to 0.70.
+- **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
 ## 1. Memory map
 
@@ -2060,6 +2060,48 @@ No group stages a retained record or an MRPDU its ring refused, so those two hav
 An ordinary pass runs each item at most once, or once an interface (the withdrawal and the walk) and twice an interface (lwSRP's reclaim), so in a window of a few ordinary passes each item's arrival bound is nearly that count a pass: the split takes the charge off the passes, not off the window.
 By the response-time method, with the base and each item at its stated cost and arrival bound, R4, R5 and R6 still do not fit at either point, nor at the 32x32/2if model point: THE RETRY's firm rounds beside records, SRP's own burst and the other channels' records dominate them (#665, round 22).
 
+### The long-window load
+
+A row's bound counts every source's arrivals in its window. At or above a load of 1.0, the work the sources bring in a long window is more than the CPU does in it, so no order of the work and no window length bounds a row. [`load_grade.py`](../../tb/verilator/ctrl_service_budget/load_grade.py) computes that load at 1x1/1if, 8x8/2if and 32x32/2if and holds 8x8/2if and 32x32/2if to 0.70 (#665, the [round 24 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6734415848), item 2), which leaves room for the rows:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+```
+
+Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`) or a protocol timer, times its stated cost. The gate reads each timer from the tree, so a changed constant changes the load, and it fails a term with no source in its term list. A pass's own cost, its events' fixed part and its polls' base, is no source; the gate reports it beside the load.
+
+| Term | Source and its rate | Clause |
+|---|---|---|
+| `rec.aecp`, `rec.acmp`, `rec.adp`, `rec.maap` | one record a refill of the channel's limiter, the same at every shape | `mailbox.yaml` `rate` |
+| `srp` | SRP's records, one a refill, or its retries of a record its participant refused for storage, never both: see below | `mailbox.yaml` `rate`; `srp_mbx.c` |
+| `item.reclaim` | two participants a record or a build | lwSRP's `mrp_reclaim` |
+| `item.aecp` | one an AECP record, and one a registration a probe retry | Milan v1.2 5.4.5.3 (`aecp.c`: 250 ms) |
+| `item.acmp` | one an ACMP record, one an ADP record and one a sink's TMR_NO_RESP | Milan v1.2 5.6.4.1; 5.5.2.3, Table 5.26 (`ACMP_TMR_NO_RESP_MS`, 200 ms) |
+| `ticks` | a TICK a centisecond, its consumers at the larger of their measured and stated (`CTRL_LOOP_TICK_US`) cost | `mailbox.yaml` `tick_ms` |
+| `item.walk` | one an interface a centisecond, and one a build's declaration | lwSRP's timers; THE TRANSMIT |
+| `builds`, `item.mrpdu` | THE TRANSMIT: one a JoinTime a participant; at most two owed MRPDUs a build | IEEE 802.1Q-2018 10.7.4.1, Table 10-7; Milan v1.2 Table 4.3 (`SRP_JOIN_CS`, 200 ms) |
+| `steps` | one aged step each `CTRL_LOOP_STEP_AGE` + 1 centiseconds | THE STEP (`ctrl_loop.h`) |
+| `timers` | each slot at its own expiry rate: ADP's advertise timer, its delay re-armed by an ADP record and each bound sink's discovery aging; each sink's TMR_NO_RESP; MAAP's probe; each registration's probe retry and each descriptor's COUNTERS_CHANGED | Milan v1.2 5.6.3.5.9, Table 5.50 (`ADP_ADVERTISE_MS`), 5.6.3.5.3, IEEE 1722.1-2021 6.2.2.5 (2 s); Milan v1.2 5.5.2.3, Table 5.26; IEEE 1722-2016 B.3.4.2, Table B.8 (`MAAP_PROBE_BASE_MS` less `MAAP_PROBE_VARIATION_MS`); Milan v1.2 5.4.5.3, 5.4.5.2, Table 5.22 (`holdoff_ms`) |
+| `gm` | the grandmaster event, coalesced: at most one an interface an Announce, a peer delay exchange and an announce receipt timeout | IEEE 802.1AS-2011 10.7.2.2 (1 s), 11.5.2.2 (1 s), 10.7.3.2 (3 intervals) |
+
+Not terms: a LINK change has no arrival rate (R5's definition counts one an interface); THE RETRY's rounds drain a queue a datapath reset leaves, at most `AECP_NOTICES_MOST`, a burst and not a rate.
+
+**The three per-pass terms, from their sources** (the round 24 ruling, item 5). The response-time method of rounds 21 to 23 charged three terms a pass:
+
+- One event a timer slot each ordinary pass becomes each slot's own expiry rate: the sinks that can be due in a window, at their timers.
+- One grandmaster event an interface a pass becomes its message intervals.
+- A retained SRP record retried once for each SRP record becomes the retry's own rule. SRP's poll tries a retained record once a poll, for at most `SRP_RX_RETRY_MS` (1 s) after its arrival, and takes no other SRP record while one waits. The product's image defines no `CTRL_MBX_WFI`, so its loop never sleeps (`mbx_plat_mmio.c`), and a loop that does sleep wakes at once on SRP's receive level while records wait in its ring (`ctrl_loop.h`), so while a record waits every pass retries it. Its retries' share of the CPU is then the retained record's cost over that cost plus a pass's own: 0.58, 0.56 and 0.59 at 1x1/1if, 8x8/2if and 32x32/2if at the stated costs. The rule bounds the retries by the passes, not by a rate, so SRP's channel brings the larger of its records' rate and that share.
+
+At this head (`load_grade.py --check`; the stated costs and their sources are the gate's `STATED_US`, `poll_grade.STATED_US` and `ctrl_loop.h`'s, and [section 14](#the-costs-at-32x322if-measured) gives the 32x32/2if costs):
+
+| Point | Load | Ceiling | Its three largest terms | A pass's own cost, us |
+|---|---:|---:|---|---:|
+| 1x1/1if | 0.905 | reported | `srp` 0.581, `item.aecp` 0.059, `rec.acmp` 0.056 | 180 |
+| 8x8/2if | **1.181** | 0.70 | `srp` 0.560, `item.aecp` 0.112, `rec.acmp` 0.087 | 310 |
+| 32x32/2if | **2.209** | 0.70 | `srp` 0.585, `item.acmp` 0.306, `item.mrpdu` 0.299 | 610 |
+
+Both held points are over the ceiling, so the gate fails at this head. SRP's retained retry is the largest term at every point, and 1x1/1if is over 0.70 too. With SRP's channel at its records' rate alone, the loads would be 0.449, 0.819 and 2.054. So without the retry the load is still over the ceiling at 8x8/2if: ACMP's records, its owed frame and its timer slot's expiries together 0.184, AECP's owed frames 0.112. At 32x32/2if ACMP's three are 0.637, and THE TRANSMIT's builds and their owed MRPDUs 0.449.
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
@@ -2073,13 +2115,13 @@ By the response-time method, with the base and each item at its stated cost and 
 - **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
 - **The margins at this head:** 0.235 ms on the 8x8 last SRP record (arm A), and 9,580 cycles on the share (a pass that takes a record, 1.904 ms at 8x8/2if); every pass class sits at least 6,490 cycles, the data layout's measured swing, under the share at both points, at the head's layout and at the struct-ends layout ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
+- **The long-window load is over its 0.70 ceiling** at 8x8/2if (1.181) and 32x32/2if (2.209), and 0.905 at 1x1/1if ([above](#the-long-window-load)). Its largest term at every point is SRP's retained retry, which its rule bounds by the passes, not by a rate.
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
 ## 14. The 32x32 estimate
 
 Mark II's shape is 32x32: 16x16 logical streams, each redundant on both networks, on one TDM8 bus ([owner, 2026-10-31](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753)).
-No such shape exists yet, so nothing here measures it.
-The first table is a derivation from this branch's measurements, marked as an estimate, against T_svc = 20 ms and each family's ceiling; the one-CPU table is measured; the gPTP share is an assumption, labelled as one.
+The rows' table below is a derivation from this branch's measurements at 1x1/1if and 8x8/2if, marked as an estimate, against T_svc = 20 ms and each family's ceiling. The per-item costs are measured on a 32x32/2if simulation shape (#859); the one-CPU table is measured; the gPTP share is an assumption, labelled as one.
 
 ### The estimate
 
@@ -2120,6 +2162,43 @@ So the last AECP and SRP records and the per-pass share miss whichever way the g
 Against `5e2651d5`'s estimate the longest pass is lower (1.85 ms at 8x8/2if against 1.99) and the other channels' last records are later (ACMP 8.90 ms against 8.54, ADP 6.77 against 6.07): THE TICK's cap gives a pass that dispatches a centisecond one record of a channel ([section 13](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)), so those records wait a pass more for each such pass.
 The last SRP record waits for its channel's 32 records at two a pass, so its row is about sixteen passes, and every pass carries the polls' per-stream cost: an idle pass takes about 8,700 CPU cycles at 1x1/1if and 15,400 at 8x8/2if, where the loop calls THE TRANSMIT's and THE RETRY's clients in every pass that takes nothing (the commonest shortest pass of the four backlog windows' idle runs, arm A).
 The derivation has limits a measurement would not: 8x8/2if already holds its streams per interface, so a 32x32 interface holds twice its streams where the entity holds four times, which makes U an upper reading for the per-interface work (SRP); nothing here knows the cost of 64-stream tables that were never linked, and the Block RAM they need binds first ([the area plan](MARK_II_AREA_PLAN.md)).
+
+### The costs at 32x32/2if, measured
+
+The round 22 model carried each cost to 32x32/2if by L, the line through 1x1/1if and 8x8/2if. The round 24 ruling asks for measured costs ([issuecomment-6734415848](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6734415848), item 3).
+Lane S15 (#859) built a 32x32/2if simulation shape: 32 talker and 32 listener streams on two interfaces, no saved state, run by this harness's `--point 32x32`. S15's own harness runs `dev-soft-core`'s firmware and grades rows and passes; it carries neither `poll_grade.py` nor the traced handlers that cut a pass into its items.
+So each cost here is this branch's image on S15's shape, the shape merged with this branch's harness in a scratch clone and traced as at the other two points (arm A's groups, every save group owed to #823 there, and the `answering-every-port` arm). The other two columns are this head's, at 1x1/1if and 8x8/2if, arm A's groups but the save groups and the `answering-every-port` arm; for the records, the events and a centisecond's consumers the load gate states the larger of these and round 21's measurement over every group of arm A.
+Each figure is the most measured plus 5 %, rounded up to 5 us, at sys, 100 MHz. L's error is its projection less the measured cost, over the measured cost:
+
+| Cost | 1x1/1if, us | 8x8/2if, us | 32x32/2if measured, us | L at 32x32/2if, us | L error | 8x8/2if over 1x1/1if | 32x32/2if over 1x1/1if |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| the polls' base (`base`) | 150 | 290 | 590 | 770 | +31% | 1.93 | 3.93 |
+| a pass given whole to a build of both MRPDUs (`build`) | 895 | 1,990 | 10,810 | 5,744 | -47% | 2.22 | 12.08 |
+| a pass given whole to a build of one (`build_one`) | 400 | 1,025 | 7,485 | 3,168 | -58% | 2.56 | 18.71 |
+| a centisecond's consumers (`centisecond`) | 125 | 380 | 950 | 1,254 | +32% | 3.04 | 7.60 |
+| ACMP's timer slot (TMR_NO_RESP) (`event.ACMP`) | 180 | 340 | 845 | 889 | +5% | 1.89 | 4.69 |
+| ADP's timer slot (`event.ADP`) | 105 | 105 | 100 | 105 | +5% | 1.00 | 0.95 |
+| AECP's timer slot (`event.AECP`) | 60 | 95 | 55 | 215 | +291% | 1.58 | 0.92 |
+| a grandmaster event (`event.GM`) | 35 | 320 | 25 | 1,297 | +5089% | 9.14 | 0.71 |
+| a LINK event (`event.LINK`) | 155 | 340 | 1,560 | 974 | -38% | 2.19 | 10.06 |
+| MAAP's timer slot (`event.MAAP`) | 160 | 215 | 295 | 404 | +37% | 1.34 | 1.84 |
+| a TICK event (`event.TICK`) | 40 | 30 | 30 | -4 | -114% | 0.75 | 0.75 |
+| a pass's events, none taken (`events_none`) | 25 | 25 | 20 | 25 | +25% | 1.00 | 0.80 |
+| ACMP's owed frame (`item.acmp`) | 65 | 175 | 665 | 552 | -17% | 2.69 | 10.23 |
+| AECP's owed frame (`item.aecp`) | 225 | 340 | 345 | 734 | +113% | 1.51 | 1.53 |
+| an interface's rebuild (`item.rebuild`) | 295 | 635 | 3,300 | 1,801 | -45% | 2.15 | 11.19 |
+| lwSRP's reclaim (`item.reclaim`) | 25 | 40 | 100 | 91 | -9% | 1.60 | 4.00 |
+| a registrar's walk (`item.walk`) | 20 | 50 | 135 | 153 | +13% | 2.50 | 6.75 |
+| an interface's withdrawal (`item.withdraw`) | 90 | 245 | 1,385 | 776 | -44% | 2.72 | 15.39 |
+| an ACMP record (`record.acmp`) | 280 | 435 | 980 | 966 | -1% | 1.55 | 3.50 |
+| an ADP record (`record.adp`) | 105 | 235 | 735 | 681 | -7% | 2.24 | 7.00 |
+| an AECP record (`record.aecp`) | 205 | 260 | 205 | 449 | +119% | 1.27 | 1.00 |
+| a MAAP record (`record.maap`) | 85 | 120 | 205 | 240 | +17% | 1.41 | 2.41 |
+| an SRP record (`record.srp`) | 245 | 390 | 860 | 887 | +3% | 1.59 | 3.51 |
+
+L is within 10 % for the SRP, ACMP and ADP records, ACMP's and ADP's timer slots and lwSRP's reclaim, and off by more elsewhere. It under-projects every cost that walks every attribute: the builds by about half, a link change's withdrawal and rebuild by 45 %. AECP's record and its owed frame do not grow from 8x8/2if to 32x32/2if (260 to 205 us, 340 to 345 us), so L, which carries their growth from 1x1/1if on, over-projects them by about double.
+No group stages a retained record's retry or an owed MRPDU at any point, so those two have no measured line here either. The load counts them at an SRP record's cost and at a build of one's (`load_grade.py`).
+Grown more than 25 % from 1x1/1if to 8x8/2if: every record, each of ACMP's, MAAP's and AECP's timer slots, a centisecond's consumers, the polls' base, a grandmaster event, a LINK event, the builds and every heavy item of the polls. Not grown: ADP's timer slot, a TICK and a pass's events with none taken. The builds, the withdrawal, the rebuild and the walk grow with the attributes an interface declares or registers. The ACMP and ADP records, ACMP's slot and its owed frame grow with the sinks: the ACMP core walks every sink after every entry. The SRP record grows with the attributes its MRPDU carries and its participants hold.
 
 ### One CPU, measured
 

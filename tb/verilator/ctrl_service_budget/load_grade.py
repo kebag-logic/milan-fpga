@@ -7,8 +7,9 @@ The load is the work the sources bring per millisecond of a window long enough t
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
-At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows (the round 24 ruling, item 2:
-0.70 at 8x8/2if and 32x32/2if). No term is kept as a margin: each has its source, and one without a source fails.
+At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows (#665
+issuecomment-6734415848, item 2: 0.70 at 8x8/2if and 32x32/2if). No term is kept as a margin: each has its source,
+and one without a source fails.
 
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
@@ -16,10 +17,11 @@ The terms (per millisecond):
   srp            SRP's records, one a refill as rec.<channel>'s, or its retries of a record its participant refused
                  for storage (srp_mbx.c, the poll: one attempt a poll while one waits, for at most SRP_RX_RETRY_MS
                  after its arrival, and no other SRP record taken meanwhile, srp_mbx.c's ready). The retry's own rule
-                 bounds it by the passes, not by a rate: the loop runs back to back (ctrl_loop_run), so while one
-                 waits every pass retries it. SRP's channel brings the larger of its records and its retries, never
-                 both: its records' rate, or the retries' share of a pass that carries one, the retained record's
-                 cost over that pass's own cost and its.
+                 bounds it by the passes, not by a rate: the product's image defines no CTRL_MBX_WFI, so its loop
+                 never sleeps (mbx_plat_mmio.c), and one that sleeps wakes at once on SRP's receive level while its
+                 records wait, so while one waits every pass retries it. SRP's channel brings the larger of its
+                 records and its retries, never both: its records' rate, or the retries' share of a pass that
+                 carries one, the retained record's cost over that pass's own cost and its.
   item.reclaim   lwSRP's reclaim of an interface's freed attributes (mrp_reclaim, entered after an SRP record or a
                  build left one to free): two participants a record or a build.
   item.aecp      AECP's owed response, a completed command's notification or a probe: one an AECP record, and one a
@@ -36,7 +38,8 @@ The terms (per millisecond):
   item.mrpdu     an MRPDU a build's ring had no room for (A3 of ctrl_loop.h): at most two a build.
   steps          THE STEP: one aged step each CTRL_LOOP_STEP_AGE + 1 centiseconds (ctrl_loop.h).
   timers         each timer slot at its own expiry rate, the sinks that can be due within a window at their timers:
-                 ADP's (one an ADP record, which re-arms its delay, Milan v1.2 5.6.3.5.3; each bound sink's discovery
+                 ADP's (its advertise timer once ADP_ADVERTISE_MS, Milan v1.2 5.6.3.5.9, Table 5.50; one an ADP
+                 record, which re-arms its delay, Milan v1.2 5.6.3.5.3; each bound sink's discovery
                  aging at the least valid time, 2 s, IEEE 1722.1-2021 6.2.2.5), ACMP's (a sink's TMR_NO_RESP, Milan
                  v1.2 5.5.2.3, Table 5.26), MAAP's probe (IEEE 1722-2016 B.3.4.2, Table B.8: MAAP_PROBE_BASE_MS less
                  MAAP_PROBE_VARIATION_MS) and AECP's (a registration's probe retry, 250 ms, Milan v1.2 5.4.5.3; a
@@ -64,7 +67,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The ceiling a point's load is held to (the round 24 ruling, item 2); 1x1/1if is reported, not held.
+#: The ceiling a point's load is held to (#665 issuecomment-6734415848, item 2); 1x1/1if is reported, not held.
 CEILING = {'8x8/2if': 0.70, '32x32/2if': 0.70}
 #: Each point's counts: interfaces, sinks an interface (counted all on each), registrations an interface
 #: (aecp.h, AECP_REGISTRATIONS) and the descriptors with counters (each stream's, each AVB interface's and each clock
@@ -73,19 +76,27 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
 #: The stated costs in microseconds at each point, each the most measured over every instance plus 5 %, rounded up to
-#: 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). The polls' base and items at 1x1/1if and
-#: 8x8/2if are poll_grade.py's, which the harness holds every measured pass to; THE TRANSMIT's builds and THE STEP's
-#: pass are ctrl_loop.h's at 1x1/1if and 8x8/2if; the records', the events' and the centisecond's are the harness's
-#: traced handlers' (docs/design/SPLIT_CONTROL_MEMORY.md section 14). 32x32/2if is measured on the 32x32 simulation
-#: shape (#859), every cost its own.
+#: 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and 8x8/2if the polls' base and
+#: items are poll_grade.py's, which the harness holds every measured pass to, and THE TRANSMIT's builds and THE STEP's
+#: pass are ctrl_loop.h's; the records', the events', a centisecond's consumers' and a pass's events' fixed part are
+#: this table's, the larger of two traced measurements: every group of arm A on bc98d727's image, and arm A's groups
+#: but the save groups, with the answering-every-port arm's, on this image (docs/design/SPLIT_CONTROL_MEMORY.md
+#: section 14). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each
+#: cost its own; no group stages a retained record's retry or an owed MRPDU at any point, so they are stated at an SRP
+#: record's cost and at a build of one's, as poll_grade.py states them; the shape has no saved state, so THE STEP's
+#: pass is stated at ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 250, 'record.aecp': 200, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
-                'event.ADP': 100, 'event.ACMP': 170, 'event.MAAP': 160, 'event.AECP': 60, 'event.TICK': 35,
-                'event.GM': 35, 'centisecond': 120, 'events_none': 25},
-    '8x8/2if': {'record.srp': 395, 'record.aecp': 255, 'record.acmp': 430, 'record.adp': 230, 'record.maap': 125,
+    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+                'event.ADP': 105, 'event.ACMP': 180, 'event.MAAP': 160, 'event.AECP': 60, 'event.TICK': 40,
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25},
+    '8x8/2if': {'record.srp': 395, 'record.aecp': 260, 'record.acmp': 435, 'record.adp': 235, 'record.maap': 125,
                 'event.ADP': 110, 'event.ACMP': 340, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 390, 'events_none': 30},
-    '32x32/2if': {}}
+                'event.GM': 320, 'centisecond': 390, 'events_none': 30},
+    '32x32/2if': {'record.srp': 860, 'record.aecp': 205, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
+                  'event.ADP': 100, 'event.ACMP': 845, 'event.MAAP': 295, 'event.AECP': 55, 'event.TICK': 30,
+                  'event.GM': 25, 'centisecond': 950, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
+                  'item.retained': 860, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp': 345, 'item.walk': 135,
+                  'build': 10810, 'build_one': 7485, 'step': 1030}}
 #: The least valid_time an ADPDU may carry, in ms: one unit of two seconds (IEEE 1722.1-2021 6.2.2.5), the
 #: shortest a bound sink's discovery aging can run.
 ADP_LEAST_VALID_MS = 2000
@@ -103,7 +114,7 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
     """The integer constants the load reads from the tree, at that many interfaces."""
     text = ''.join((root / p).read_text() for p in (
         'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'third_party/tsn-c-stack/include/acmp.h',
-        'third_party/tsn-c-stack/include/maap.h'))
+        'third_party/tsn-c-stack/include/maap.h', 'third_party/tsn-c-stack/include/adp.h'))
     found = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
 
     def value(name: str) -> int:
@@ -117,7 +128,7 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
             raise ValueError(f'{name} is {body!r}, neither an integer nor a ternary on MBX_N_IF')
         return int(pick[2] if n_if == int(pick[1]) else pick[3])
     names = (*HEADER_COSTS, 'CTRL_LOOP_TICK_US', 'CTRL_LOOP_STEP_AGE', 'SRP_RX_RETRY_MS', 'SRP_JOIN_CS',
-             'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS')
+             'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS')
     return {n: value(n) for n in names}
 
 
@@ -172,7 +183,7 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     out['item.mrpdu'] = 2 * n_builds * c['item.mrpdu'] / join_ms
     out['steps'] = c['step'] / (k['tick_ms'] * (h['CTRL_LOOP_STEP_AGE'] + 1))
     maap_ms = h['MAAP_PROBE_BASE_MS'] - h['MAAP_PROBE_VARIATION_MS']
-    adp = c['event.ADP'] * (1 / refill['adp'] + s['sinks_per_if'] / ADP_LEAST_VALID_MS)
+    adp = c['event.ADP'] * (1 / refill['adp'] + 1 / h['ADP_ADVERTISE_MS'] + s['sinks_per_if'] / ADP_LEAST_VALID_MS)
     acmp = c['event.ACMP'] * s['sinks_per_if'] / no_resp
     aecp = c['event.AECP'] * (n_if * s['registrations'] / probe + s['counter_descriptors'] / k['holdoff_ms'])
     out['timers'] = n_if * (adp + acmp + c['event.MAAP'] / maap_ms) + aecp
@@ -245,22 +256,77 @@ def controls(root: Path) -> list[str]:
     dropped['8x8/2if'].pop('event.ACMP')
     if not any("no stated cost 'event.ACMP'" in f for f in findings(root, dropped, fit)):
         escaped.append('a stated cost missing')
-    # the retry's own rule: a retained record's retries counted once a record, not by the passes
-    if not load(root, '8x8/2if', base)['srp'] > base['8x8/2if']['record.srp'] / contract(root)['refill']['srp'] / 1000:
+    # the retry's own rule: a retained record is retried every pass while it waits, so SRP's channel brings at least
+    # the retries' share of a pass that carries one, whatever its records bring (once a record is not the rule)
+    c8 = stated(root, '8x8/2if', base)
+    share = c8['item.retained'] / (c8['events_none'] + c8['base'] + c8['item.retained'])
+    if not load(root, '8x8/2if', base)['srp'] >= share - 1e-9:
         escaped.append('the retained retry counted once a record')
-    # a timer slot counted at one an ordinary pass rather than at its expiry rate: the ACMP slot's term scales with
-    # the sinks over TMR_NO_RESP, so doubling the sinks must double it
+    # a timer slot counted once an ordinary pass rather than at its expiry rate: ACMP's slot brings each sink's
+    # TMR_NO_RESP once ACMP_TMR_NO_RESP_MS, so doubling the sinks adds at least that many more expiries
     one = load(root, '8x8/2if', base)['timers']
-    POINTS['8x8/2if']['sinks_per_if'] *= 2
+    s = POINTS['8x8/2if']
+    s['sinks_per_if'] *= 2
     try:
         two = load(root, '8x8/2if', base)['timers']
     finally:
-        POINTS['8x8/2if']['sinks_per_if'] //= 2
-    if not two > one:
+        s['sinks_per_if'] //= 2
+    acmp = s['n_if'] * s['sinks_per_if'] * base['8x8/2if']['event.ACMP'] / macros(root, 2)['ACMP_TMR_NO_RESP_MS']
+    if not two - one >= acmp / 1000 - 1e-9:
         escaped.append('a timer slot counted per pass')
-    # a term the load counts with no source in its term list (the round 24 ruling, item 5)
+    # a term the load counts with no source in its term list (#665 issuecomment-6734415848, item 5)
     if 'item.unsourced' not in unsourced({**load(root, '8x8/2if', base), 'item.unsourced': 0.0}):
         escaped.append('a term without a source')
+    return escaped
+
+
+#: Each arrival bound's period the load reads from the tree, and the terms it sets: halving the period must raise
+#: those terms, so a term that does not read its source is refused (each arrival bound's plant).
+PERIODS = {'refill.aecp': ('rec.aecp', 'item.aecp'), 'refill.acmp': ('rec.acmp', 'item.acmp'),
+           'refill.adp': ('rec.adp', 'item.acmp', 'timers'), 'refill.maap': ('rec.maap',),
+           'refill.srp': ('srp', 'item.reclaim'), 'tick_ms': ('ticks', 'item.walk', 'steps'),
+           'holdoff_ms': ('timers',), 'SRP_JOIN_CS': ('builds', 'item.mrpdu', 'item.reclaim', 'item.walk'),
+           'CTRL_LOOP_STEP_AGE': ('steps',), 'ACMP_TMR_NO_RESP_MS': ('item.acmp', 'timers'),
+           'MAAP_PROBE_BASE_MS': ('timers',), 'ADP_ADVERTISE_MS': ('timers',), 'probe': ('item.aecp', 'timers')}
+
+
+def halved(name: str) -> tuple:
+    """The module's readers with one period halved, as (macros, contract, probe_retry_ms)."""
+    m0, c0, p0 = macros, contract, probe_retry_ms
+
+    def m(root: Path, n_if: int) -> dict[str, int]:
+        """macros, the period halved if it is one of the headers'."""
+        out = m0(root, n_if)
+        if name in out:
+            out[name] = max(0, out[name] // 2) if name == 'CTRL_LOOP_STEP_AGE' else out[name] / 2
+        return out
+
+    def c(root: Path) -> dict:
+        """contract, the period halved if it is one of the contract's."""
+        out = c0(root)
+        if name.startswith('refill.'):
+            out['refill'] = dict(out['refill'], **{name[7:]: out['refill'][name[7:]] / 2})
+        elif name in out:
+            out[name] = out[name] / 2
+        return out
+    return m, c, (lambda root: p0(root) / 2) if name == 'probe' else p0
+
+
+def period_controls(root: Path) -> list[str]:
+    """Each arrival bound whose halved period leaves its terms' load unchanged: a term not read from its source."""
+    escaped = []
+    point = '8x8/2if'
+    before = load(root, point)
+    for name, terms in PERIODS.items():
+        g = globals()
+        saved = g['macros'], g['contract'], g['probe_retry_ms']
+        g['macros'], g['contract'], g['probe_retry_ms'] = halved(name)
+        try:
+            after = load(root, point)
+        finally:
+            g['macros'], g['contract'], g['probe_retry_ms'] = saved
+        if not sum(after[k] for k in terms) > sum(before[k] for k in terms):
+            escaped.append(f'the period {name} not read')
     return escaped
 
 
@@ -271,9 +337,10 @@ CONTROLS = ('a cost over the ceiling', 'a stated cost missing', 'the retained re
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
     """The harness self-test's checks of this gate: every planted defect refused."""
-    escaped = controls(ROOT)
+    escaped = controls(ROOT) + period_controls(ROOT)
+    names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in CONTROLS]
+            for name in names]
 
 
 def main() -> int:
@@ -284,10 +351,11 @@ def main() -> int:
     args = ap.parse_args()
     rc = 0
     if args.selftest:
-        escaped = controls(ROOT)
+        escaped = controls(ROOT) + period_controls(ROOT)
         for name in escaped:
             print(f'ESCAPED {name}')
-        print(f'load gate: {len(CONTROLS) - len(escaped)} of {len(CONTROLS)} planted controls refused')
+        total = len(CONTROLS) + len(PERIODS)
+        print(f'load gate: {total - len(escaped)} of {total} planted controls refused')
         rc |= bool(escaped)
     if args.check or not args.selftest:
         print('\n'.join(report(ROOT)))

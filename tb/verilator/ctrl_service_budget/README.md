@@ -1338,7 +1338,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 Each must print its `STATED` line in `backlog`, a pass's polls base over its stated cost for the first and a rebuild item over its stated cost for the second, with no refusal: `CONTROL polls-rebuild-in-the-base caught` and `CONTROL polls-rebuild-twice caught`; no such line, or a refusal, is `ESCAPED`.
 
-The load gate has five planted defects, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, a timer slot counted once a pass rather than at its expiry rate, and a term with no source in the term list. Each must be refused; one that is not prints `ESCAPED`.
+The load gate has five planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, a timer slot counted once a pass rather than at its expiry rate, and a term with no source in the term list; and for each period the load reads from the tree (each channel's refill, `tick_ms`, `holdoff_ms`, `SRP_JOIN_CS`, `CTRL_LOOP_STEP_AGE`, `ACMP_TMR_NO_RESP_MS`, `MAAP_PROBE_BASE_MS`, `ADP_ADVERTISE_MS` and a registration's probe retry), the period halved, which must raise the terms it sets (`load_grade.PERIODS`). Each must be refused; one that is not prints `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 
