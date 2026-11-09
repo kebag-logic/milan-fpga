@@ -1,0 +1,15 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 suite milan_dp timeout 4800 on 24-31
+make rc=0 elapsed=2289s
+verdict rc=0
+checks: 13796   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  clone: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+tally rc=1

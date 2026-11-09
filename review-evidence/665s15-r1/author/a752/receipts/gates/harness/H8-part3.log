@@ -1,0 +1,22 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 part 3/4
+groups: acmp-noresp,srp,backlog-owed,aecp-fanout
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part3/acmp-noresp.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part3/srp.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part3/backlog-owed.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part3/aecp-fanout.txt -
+BUDGET backlog.owed.if0: 118.835 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 369.652 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 369.651 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 369.650 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 369.650 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 43.024 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 60.400 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 143.341 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 43.009 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 32.020 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 156.396 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 11.816 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 12.889 ms over T_svc 10 ms
+4 groups graded, 0 refusals, 13 T_svc misses (13 of 44 probe instances, 10 of 39 paths)
+elapsed=1052s
+rc=0

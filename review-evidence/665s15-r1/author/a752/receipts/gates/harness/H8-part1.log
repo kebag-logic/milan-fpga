@@ -1,0 +1,27 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 part 1/4
+groups: adp-advertise,backlog-adp,adp-discover,adp-gm,acmp-cmd
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part1/adp-advertise.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part1/backlog-adp.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part1/adp-gm.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part1/acmp-cmd.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part1/adp-discover.txt -
+BUDGET backlog.adp_available.if0: 47.493 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.first.if0: 11.851 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 58.630 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.first.if0: 11.860 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 103.310 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.first.if0: 11.896 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if1: 314.111 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.first.if0: 11.886 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 58.667 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 547.529 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if1: never released, at least 547.509 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if0: 16.738 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if0: 12.473 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if0: 16.547 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 16.491 ms over T_svc 10 ms
+BUDGET acmp.bind_rx.if1: 16.940 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if1: 13.643 ms over T_svc 10 ms
+5 groups graded, 0 refusals, 17 T_svc misses (17 of 45 probe instances, 17 of 37 paths)
+elapsed=1056s
+rc=0

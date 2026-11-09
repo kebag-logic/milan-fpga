@@ -1,0 +1,285 @@
+{
+ "logs": 17,
+ "least_cycles": {},
+ "parts": {
+  "centisecond_consumers": {
+   "most_cycles": 138867,
+   "stated_us": 1460,
+   "instances": 5224,
+   "where": [
+    "runs/acmp-noresp.log",
+    157802446
+   ]
+  },
+  "poll.acmp_mbx:on_poll": {
+   "most_cycles": 52777,
+   "stated_us": 555,
+   "instances": 15244,
+   "where": [
+    "runs/backlog-owed.log",
+    149858706
+   ]
+  },
+  "poll.adp_mbx:on_poll": {
+   "most_cycles": 489,
+   "stated_us": 10,
+   "instances": 15244,
+   "where": [
+    "runs/acmp-cmd.log",
+    8692623
+   ]
+  },
+  "poll.aecp_idle": {
+   "most_cycles": 276281,
+   "stated_us": 2905,
+   "instances": 15095,
+   "where": [
+    "runs/aecp-fanout.log",
+    67797560
+   ]
+  },
+  "poll.aecp_mbx:poll": {
+   "most_cycles": 427836,
+   "stated_us": 4495,
+   "instances": 15242,
+   "where": [
+    "runs/aecp-fanout.log",
+    60431427
+   ]
+  },
+  "poll.aecp_one_frame": {
+   "most_cycles": 160418,
+   "stated_us": 1685,
+   "instances": 128,
+   "where": [
+    "runs/backlog-adp-refill.log",
+    149248934
+   ]
+  },
+  "poll.aecp_sending": {
+   "most_cycles": 427836,
+   "stated_us": 4495,
+   "instances": 147,
+   "where": [
+    "runs/aecp-fanout.log",
+    60431427
+   ]
+  },
+  "poll.ctrl_app_aecp:deliver": {
+   "most_cycles": 68470,
+   "stated_us": 720,
+   "instances": 15242,
+   "where": [
+    "runs/aecp.log",
+    60540857
+   ]
+  },
+  "poll.ctrl_app_srp:deliver": {
+   "most_cycles": 10678,
+   "stated_us": 115,
+   "instances": 15242,
+   "where": [
+    "runs/acmp-cmd.log",
+    59133830
+   ]
+  },
+  "poll.maap_mbx:poll": {
+   "most_cycles": 16253,
+   "stated_us": 175,
+   "instances": 15242,
+   "where": [
+    "runs/acmp-cmd.log",
+    61389037
+   ]
+  },
+  "poll.srp_mbx:poll": {
+   "most_cycles": 441446,
+   "stated_us": 4640,
+   "instances": 15242,
+   "where": [
+    "runs/backlog-owed.log",
+    157908500
+   ]
+  },
+  "poll_idle.acmp_mbx:on_poll": {
+   "most_cycles": 1528,
+   "stated_us": 20,
+   "instances": 15236,
+   "where": [
+    "runs/backlog-owed.log",
+    148184733
+   ]
+  },
+  "poll_idle.adp_mbx:on_poll": {
+   "most_cycles": 489,
+   "stated_us": 10,
+   "instances": 15244,
+   "where": [
+    "runs/acmp-cmd.log",
+    8692623
+   ]
+  },
+  "poll_idle.aecp_mbx:poll": {
+   "most_cycles": 276281,
+   "stated_us": 2905,
+   "instances": 15095,
+   "where": [
+    "runs/aecp-fanout.log",
+    67797560
+   ]
+  },
+  "poll_idle.ctrl_app_aecp:deliver": {
+   "most_cycles": 68470,
+   "stated_us": 720,
+   "instances": 15242,
+   "where": [
+    "runs/aecp.log",
+    60540857
+   ]
+  },
+  "poll_idle.ctrl_app_srp:deliver": {
+   "most_cycles": 10678,
+   "stated_us": 115,
+   "instances": 15242,
+   "where": [
+    "runs/acmp-cmd.log",
+    59133830
+   ]
+  },
+  "poll_idle.maap_mbx:poll": {
+   "most_cycles": 16253,
+   "stated_us": 175,
+   "instances": 15242,
+   "where": [
+    "runs/acmp-cmd.log",
+    61389037
+   ]
+  },
+  "poll_idle.srp_mbx:poll": {
+   "most_cycles": 346033,
+   "stated_us": 3635,
+   "instances": 15153,
+   "where": [
+    "runs/srp.log",
+    153426187
+   ]
+  },
+  "poll_rebuilding.srp_mbx:poll": {
+   "most_cycles": 251180,
+   "stated_us": 2640,
+   "instances": 1,
+   "where": [
+    "runs/backlog.log",
+    143188313
+   ]
+  },
+  "poll_sending.acmp_mbx:on_poll": {
+   "most_cycles": 52777,
+   "stated_us": 555,
+   "instances": 8,
+   "where": [
+    "runs/backlog-owed.log",
+    149858706
+   ]
+  },
+  "poll_sending.aecp_mbx:poll": {
+   "most_cycles": 427836,
+   "stated_us": 4495,
+   "instances": 147,
+   "where": [
+    "runs/aecp-fanout.log",
+    60431427
+   ]
+  },
+  "poll_sending.srp_mbx:poll": {
+   "most_cycles": 441446,
+   "stated_us": 4640,
+   "instances": 88,
+   "where": [
+    "runs/backlog-owed.log",
+    157908500
+   ]
+  },
+  "polls": {
+   "most_cycles": 688178,
+   "stated_us": 7230,
+   "instances": 4104,
+   "where": [
+    "runs/acmp-cmd.log",
+    57431305
+   ]
+  },
+  "polls_idle": {
+   "most_cycles": 688178,
+   "stated_us": 7230,
+   "instances": 3958,
+   "where": [
+    "runs/acmp-cmd.log",
+    57431305
+   ]
+  },
+  "polls_less_aecp": {
+   "most_cycles": 480025,
+   "stated_us": 5045,
+   "instances": 4104,
+   "where": [
+    "runs/acmp-cmd.log",
+    57431305
+   ]
+  },
+  "rebuild": {
+   "most_cycles": 183400,
+   "stated_us": 1930,
+   "instances": 38,
+   "where": [
+    "runs/adp-link.log",
+    48581363
+   ]
+  },
+  "record.acmp": {
+   "most_cycles": 93301,
+   "stated_us": 980,
+   "instances": 88,
+   "where": [
+    "runs/acmp-disc.log",
+    42256258
+   ]
+  },
+  "record.adp": {
+   "most_cycles": 56549,
+   "stated_us": 595,
+   "instances": 54,
+   "where": [
+    "runs/acmp-disc.log",
+    53946511
+   ]
+  },
+  "record.aecp": {
+   "most_cycles": 157113,
+   "stated_us": 1650,
+   "instances": 148,
+   "where": [
+    "runs/aecp-fanout.log",
+    60255789
+   ]
+  },
+  "record.maap": {
+   "most_cycles": 25319,
+   "stated_us": 270,
+   "instances": 30,
+   "where": [
+    "runs/backlog-adp-refill.log",
+    148604397
+   ]
+  },
+  "record.srp": {
+   "most_cycles": 55301,
+   "stated_us": 585,
+   "instances": 70,
+   "where": [
+    "runs/backlog-owed.log",
+    148068053
+   ]
+  }
+ }
+}

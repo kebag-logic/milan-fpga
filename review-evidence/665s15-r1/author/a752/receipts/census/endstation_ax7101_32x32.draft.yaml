@@ -1,0 +1,379 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (gaps attack item 4).
+# Shape: AX7101 8x8 - the item-5 NxN test shape for the full end-station.
+# 8 AAF listener + 8 AAF talker streams, 8ch each, TDM16 physical audio
+# (16 channels per direction: the first two streams' worth are physical,
+# the rest virtual per the wire-truth rule). VALIDATES today; streams 2..8
+# and the TDM16 ser/des are marked "planned" (items 5 / 4-audio subtask).
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.2.0"
+
+entity:
+  name: "Milan FPGA 32x32"
+  entity_model_id: hash-derived      # EUI-64 from the model shape (recipe in
+                                     # sw/builder/README-parameters.md); same
+                                     # shape -> same id, shape change -> new
+                                     # id. No pin: nothing flashed with this
+                                     # shape yet.
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  # NO firmware_version KEY: it is DERIVED from the gateware's own VERSION
+  # parameter (hdl/common/csr/milan_csr.sv, the read-only 0x004 register) as
+  # major.minor.rev, and declaring one here is refused by the builder.
+  # Optional `firmware_rev: N` (default 0) bumps the third component for a
+  # respin that changes no CSR ABI.
+  serial_number: "AX7101-0001"
+  group_name: ""
+
+board:
+  target: ax7101
+  features:
+    fabric_gptp: true   # the one product owner (#116, #259)
+    # AREA_BUDGET tier-1 prunes, applied 2026-07-28 when the 0x0019 fabric
+    # (per-index counters, the all-context mirror, the silence fill, the
+    # journal) took the 8x8 to 66,290 LUTs against the xc7a100t's 63,400
+    # (Vivado DRC UTLZ-1, all seeds identically). Both prunes are the
+    # honest kind - the doc's "dead when" column applies verbatim:
+    i2s_playback: false   # the AX routes NO audio pads at all
+                          # (_connectors = []); the block drives
+                          # unconnected Signals on this board
+    latency_taps: false   # pure instrumentation; stays PRESENT on the
+                          # Arty build, so item-11's telemetry lives on
+                          # the board with the known-good analog loop
+    render_lpf: false     # dependency of i2s_playback: false; the area round
+                          # measured this prune at 428 LUT / 756 FF / 0 DSP
+    datapath_probes: false # AREA_80 static-conversion row (2026-07-29):
+                          # closed-finding diagnostics (APRB/PBK); pruned to
+                          # unlock AreaOptimized_medium synthesis - the AX
+                          # timing under _high was congestion-systemic
+                          # (three re-timed paths later still -1.x on fresh
+                          # route-dominated cones)
+  constraints:
+    sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
+    milan_clk_hz: 50000000           # BAREMETAL_FIRMWARE.md build contract (#565)
+    l2_bytes: 0                      # #259 bare-metal cacheless product
+    phy: gmii-1g                     # RTL8211E GMII
+    gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
+    floorplan: true
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest
+    uart_baudrate: 115200
+    num_queues: 5
+    eth_port: e1                     # MUST match the physical cable, which is
+                                     # on e1 (USER 2026-07-27) - and the
+                                     # shipping bitstream was built with the e1
+                                     # default. e2 remains the fallback for the
+                                     # 2026-07-22 e1 GMII-RX cold-soak fault:
+                                     # move the cable FIRST, then change this.
+                                     # See docs/integration/BUILDING.md.
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01" # stream t declares base + t (the
+                                     # MAAP-base+uid rule of the N-ctx ACMP
+                                     # talker responder)
+  class_queue: 4                     # 802.1Q order: q4 = SR class A
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # per-talker MaxFrameSize from the AAF
+                                     # format: 24 B AVTPDU header + 6 samples
+                                     # x C ch x 4 octets (the KL_aaf_packetizer
+                                     # identity; MaxFrameSize + 42 = the exact
+                                     # wire slot). 8ch -> 216 B -> 16.512 Mb/s
+                                     # per stream, 8 streams = 17.6% of the
+                                     # gigabit port.
+    interval_frames: 1
+
+platform:
+  mac_address: "02:00:00:00:00:01"   # board 1
+  pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
+
+gptp:
+  # ONE source (USER 2026-08-05): these values generate the
+  # AVB_INTERFACE descriptor's clock fields and fabric microcode.
+  # priority1 248 = the Milan end-station DEFAULT: the device DEFERS rather
+  # than contesting the grandmaster role (Milan gPTP compliance posture is
+  # 246|248, and 248 is the deferring end of it). The older 238 "AX bench
+  # posture" deliberately BEAT the switch's 246 claim so the board would win
+  # the BMCA - useful for a bring-up bench, wrong for a shipping end station
+  # and wrong for a compliance run. Change HERE, nowhere else. The rest are
+  # the local-clock dataset the fabric gPTP engine announces from constants
+  # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
+  # stated value the engine does not announce ([R-parallel] on #228). The
+  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
+  # engine announces 0x436A), so the key is deleted and derived.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+
+  # THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  # MANDATORY for every board whose gPTP plane is on: the builder refuses a
+  # config that omits them, because a generated default would hide an
+  # unmeasured board behind a number nobody took.
+  #
+  # The fabric gPTP plane is the ONLY consumer. It subtracts the ingress
+  # value from every arrival stamp and adds the egress value to every
+  # reconstructed launch. PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544)
+  # stay inert scratch with no timestamp consumer, so nothing applies a
+  # correction twice; the applied pair is published read-only at 0x7F0.
+  #
+  # THE SUM IS MEASURED, THE SPLIT IS NOT. An inline tap on the DUT link
+  # (2026-09-20) compared the Pdelay turnaround seen on the wire with the
+  # t3 - t2 this board claims, against a certified peer on the same tap:
+  # 875 ns of total stamp error, +/-25 ns. The digital distance inside
+  # milan_datapath is PROVED ZERO in both directions by
+  # tb/verilator/milan_dp's gPTP leg, which prints and grades the counted
+  # cycles, so the whole 875 ns is physical plus the LiteEth receive chain.
+  # Splitting it needs a second instrument the project does not have, so
+  # the split is 3:1 receive:transmit - the 1000BASE-T receive DSP
+  # dominates - because the RTL8211E datasheet states no latency figure to
+  # use instead. 656 + 219 = 875. The split error moves the synchronized
+  # offset by its WHOLE value (the peer delay does not move, so nothing
+  # absorbs it); issue #488 owns the instrument that would close it.
+  ingress_latency_ns: 656
+  egress_latency_ns: 219
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]       # honest advertisement: 48k render only
+  media_clock_sources: [internal, crf, input_stream] # INTERNAL 0, CRF 1, AAF listener k at 2 + k (#629)
+  default_source: internal
+  crf_sink: true
+  crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
+    enabled: true                    # media inputs => CRF Media Clock Output;
+                                     # the builder rejects the config without
+                                     # it). Runtime gaps are graded in the
+                                     # current audit B3.
+    format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
+                                     # type 1 AUDIO_SAMPLE, 48k, interval 96,
+                                     # 1 ts/PDU)
+  audio_pll_hz: 24576000             # the CRF/DAC media clock, and it is
+                                     # 24.576 MHz BY CONTRACT: KL_crf_tx
+                                     # divides it /512 for the 48 kHz CRF
+                                     # event and KL_i2s_playback /2 /8 /512
+                                     # for the DAC. The TDM MASTER's bit clock
+                                     # is NOT this clock - TDM32 x 32-bit slots
+                                     # @48k needs BCLK 49.152 MHz and therefore
+                                     # a 98.304 MHz serial-domain clock, which
+                                     # milan_soc.py _CRG takes from a SECOND
+                                     # output of the SAME audio MMCM (see its
+                                     # `audio_tdm_hz` plan). milan_datapath
+                                     # REFUSES at elaboration any clock that is
+                                     # not an exact even multiple of the bit
+                                     # clock, so this cannot drift silently.
+
+audio_interface:
+  kind: tdm32                        # 32 slots per direction = 16 pairs.
+                                     # USER 2026-07-28 ("do not use TDM8 use
+                                     # TDM32 then"): TDM32 is what lets FOUR of
+                                     # the eight 8-channel talkers be fully
+                                     # backed (each consumes 4 pair slots),
+                                     # where TDM16 backs two and TDM8 one.
+                                     # MASTER role - the fabric generates
+                                     # bclk/fsync (KL_tdm_capture_master), so
+                                     # the front-end is real without a codec
+                                     # driving it; a SLAVE build's bclk/fsync
+                                     # are tied to 0 in milan_soc.py and it
+                                     # would yield no pairs at all.
+  word_length_bits: 24               # 24-in-32 slots
+  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES, and on
+    capture: 0                       # the AX7101 that is NOTHING, in either
+    render: 0                        # direction. Measured 2026-07-28 by
+                                     # reading the platform and the SoC
+                                     # wrapper, not by guessing:
+                                     #   sw/litex/platforms/alinx_ax7101.py
+                                     #     ships `_connectors = []` - no Pmod
+                                     #     header exists on this board, so
+                                     #   sw/litex/milan_soc.py leaves
+                                     #     `self.i2s_pads = None` and wires
+                                     #     `i_i2s_sdout_i = 0`: the capture
+                                     #     front-end clocks in a CONSTANT
+                                     #     ZERO, and i2s_mclk/sclk/lrck go to
+                                     #     dangling Signal()s;
+                                     #   the TDM pins are tied off in the same
+                                     #     wrapper ("neither board has a TDM
+                                     #     header today": i_tdm_bclk_i = 0,
+                                     #     i_tdm_fsync_i = 0, i_tdm_data_i =
+                                     #     0), so `kind: tdm16` selects the
+                                     #     deserializer but there is no wire
+                                     #     behind it either.
+                                     # Declaring 16 physical channels here
+                                     # would be the roadmap-item-00 defect in
+                                     # miniature: an advertised capability the
+                                     # fabric cannot back. 0 is the truth, and
+                                     # it is WHY the loopback pool below is
+                                     # not a nicety - it is the only source on
+                                     # this board that can hand a talker
+                                     # per-channel-distinct audio.
+  cluster_mapping:
+    policy: role-pools               # D8: the port's cluster block is a
+                                     # role-tagged POOL, not a copy of the
+                                     # stream's channel count. Widths come
+                                     # from the platform declaration above
+                                     # plus the pools below - never hardcoded.
+    pools:
+      pilot: true                    # one KL_tone_gen Pilot cluster per
+                                     # talker port (D8; fan-out onto many
+                                     # stream channels is legal SELECTION and
+                                     # wants the D7 target-keyed store)
+      loopback: 8                    # D8 stream-loopback lane, talker ports
+                                     # only: the RECEIVED stream channels
+                                     # offered back as talker sources, same
+                                     # media-clock domain so coherent. Talker
+                                     # t's pool starts at rx stream t channel
+                                     # 0, so the eight talkers see eight
+                                     # DIFFERENT sources rather than eight
+                                     # copies of one. 8 (not 64) keeps the
+                                     # packed image at 19,520 B - the full
+                                     # 64-wide pool D8 sketches is a D6-sized
+                                     # model (BRAM hot stub + DRAM bulk tree).
+                                     # USER 2026-07-28: "For the AX Loopback,
+                                     # use the loopback cluster created."
+                                     # The clusters stay declared; whether
+                                     # this BUILD can feed them is the
+                                     # separate `fabric` fact below.
+    fabric:                          # WHICH POOL SOURCES THIS BUILD BUILDS
+                                     # (task #65). A pool is a model fact; a
+                                     # source is a build fact, and letting
+                                     # them disagree is what shipped a talker
+                                     # that answered GET_AUDIO_MAP perfectly
+                                     # and streamed digital silence.
+      loopback_lane: false           # milan_soc --loopback-lane ->
+                                     # milan_datapath LOOPBACK_P, which wires
+                                     # KL_chan_map_capture's SRC_LOOP bucket
+                                     # (src 5) to the depacketizer payload
+                                     # clone so talker t really carries rx
+                                     # stream t. The RTL and its TB are DONE
+                                     # and green (tb/verilator/milan_dp
+                                     # obj_nxn8 runs with LOOPBACK_P=1) - the
+                                     # blocker is purely area: measured OOC
+                                     # on the leaf at this 8x8 shape, driving
+                                     # the bucket costs +2303 LUT / +1542 FF
+                                     # (32 pair holds x 48 b that cannot be
+                                     # LUTRAM: the bank takes a reset and two
+                                     # writes per beat, so it is flops plus a
+                                     # 32:1 48-bit read mux). This device is
+                                     # at 61,039/63,400 LUT and dies in
+                                     # PACKING, so the lane does not fit
+                                     # today. Flip this to true when the fit
+                                     # campaign lands and the power-on map
+                                     # returns to the loopback pool by
+                                     # itself - one fact, both consumers.
+
+# protocol-processor descriptor model lint (hdl/aecp/desc/model_lint.py).
+# Milan v1.2 5.3.3.8 requires an AUDIO_CLUSTER in every Stream Port Input;
+# the D8 role-pool inputs below carry none until #584 lands. The waiver names
+# that one check on those eight ports, travels into the packed document, is
+# listed in the layout report, and is refused once any of them passes.
+model_lint_waivers:
+  - rule: L1
+    check: port-cluster-minimum
+    configuration: 0
+    type: STREAM_PORT_INPUT
+    first: 0
+    last: 31
+    reason: "kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER"
+
+streams:
+  listeners:
+    # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:
+    # "The Stream Port Input of a Configuration shall not contain any
+    # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
+    # dynamic mappings on all of its Stream Port Inputs." Each port drops
+    # its static AUDIO_MAP and advertises number_of_maps=0 (1722.1-2021
+    # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
+    # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
+    # to min(clusters, 8) = 8 here, so each port is ONE fixed partition.
+    # 8 ports x 8 mono clusters = 64 store keys = the chmap64 render map
+    # address space exactly; keys past CHMAP_PHYS_C are model-only (the
+    # board renders 10 physical channels - milan_datapath drops the write
+    # rather than aliasing it).
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 1", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 2", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 3", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 4", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 5", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 6", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 7", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 8", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 9", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 10", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 11", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 12", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 13", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 14", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 15", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 16", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 17", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 18", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 19", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 20", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 21", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 22", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 23", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 24", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 25", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 26", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 27", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 28", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 29", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 30", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 31", channels: 8, map_mode: dynamic }
+    # No `formats` list: current format = the Milan 6.2 Base format for
+    # `channels` at clocking.sampling_rate_hz (0x0205022002006000 = AAF PCM32
+    # 48 kHz 8ch), then 6.4's family DERIVED after it as the 6.5 ut string
+    # 0x0215022002006000. Milan 6.4 also wants the SAME rate in every Stream
+    # Input that advertises a Base format in this Configuration, which is one
+    # more reason the eight rows must not be able to drift apart by hand.
+    # clusters default = channels (8 mono clusters per stream port)
+  talkers:
+    # The declared and emitted AAF width is eight channels. The TDM32 capture
+    # front end supplies 16 pair slots, enough to physically back four of the
+    # eight talkers; the remaining bound talkers frame legal silence through
+    # KL_pair_zero_fill. scripts/check_wire_accountability.py grades both the
+    # wire width and the separate source-coverage limit.
+    #
+    # `clusters` is IGNORED under cluster_mapping.policy role-pools (D8): the
+    # port's cluster block is the sum of its declared pools, not a copy of a
+    # stream field. It is kept only so alternate cluster policies remain
+    # expressible; it does not describe the wire format or physical backing.
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 3", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 4", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 5", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 6", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 7", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 8", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 9", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 10", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 11", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 12", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 13", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 14", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 15", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 16", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 17", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 18", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 19", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 20", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 21", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 22", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 23", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 24", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 25", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 26", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 27", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 28", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 29", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 30", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 31", channels: 8, map_mode: dynamic, clusters: 2 }
