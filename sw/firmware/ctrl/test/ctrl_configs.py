@@ -159,6 +159,10 @@ OUTSIDE = {
     "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
     "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
                             "compile no control-stack source",
+    "sw/builder/test_builder.py": "the end-station builder's gates; gate 40 (#859) runs the firmware's three "
+                                  "entity-header generators at the pinned shapes and compares what they write by "
+                                  "SHA-256; its own compiles build host probes and the bare-metal census, no "
+                                  "control-stack source",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
