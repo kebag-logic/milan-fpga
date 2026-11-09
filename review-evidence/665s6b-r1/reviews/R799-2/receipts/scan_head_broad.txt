@@ -1,0 +1,24 @@
+hdl/milan/KL_ctrl_split.sv:77: input  wire                        m_axis_tx_tready, //! the lane takes the beat
+hdl/milan/KL_ctrl_split.sv:186: last_kept_r <= 1'b0;
+sw/mailbox/census_plants.py:545: SPLIT_REBOOT = "    assign pp_reboot_req_w      = 1'b0;"
+sw/mailbox/census_plants.py:546: SPLIT_OVER_LIMIT = "    assign pp_cd_srp_over_limit_w      = 1'b0;"
+sw/mailbox/census_plants.py:596: Plant("a face notification never raised", "datapath", ((SPLIT_AVB_CHG, "    assign o_ctl_avb_chg_p     = 1'b0;"),),
+sw/mailbox/placement_identity.py:171: attributes and its name's template, and each round adds the labels of
+sw/mailbox/placement_identity.py:175: cells share one only when no round tells them apart."""
+syn/resmap/resmap_map.py:614: if round(result["table"]["top"]["SLICE"], 6) != 3 or top_block != "milan_datapath/g_af_pp.pp_shadow":
+tb/verilator/milan_dp/sim_split.cpp:142: //! Queue a frame for u_tap's receive side, little lane order; the tap takes a beat a cycle.
+tb/verilator/milan_dp/split_mutants.py:94: "      assign pp_cd_srp_tk_decl_state_w[2*s +: 2] = {1'b0, i_ctl_pub_talker_decl[s]};",
+tb/verilator/milan_dp/split_mutants.py:95: "      assign pp_cd_srp_tk_decl_state_w[2*s +: 2] = {i_ctl_pub_talker_decl[s], 1'b0};",
+tb/verilator/milan_dp/split_mutants.py:99: "                 || 1'b0",
+tb/verilator/milan_dp/split_mutants.py:103: "                 || 1'b0;",
+tb/verilator/milan_dp/tb_split_top.sv:394: .rx_tdata_i(tap_tdata), .rx_tkeep_i(tap_tkeep), .rx_tvalid_i(tap_tvalid), .rx_tready_i(1'b1),
+tb/verilator/milan_dp/tb_split_top.sv:397: .tx_valid_i(1'b0), .tx_data_i(8'd0), .tx_last_i(1'b0), .tx_ready_o(),
+tb/verilator/milan_dp/tb_split_top.sv:398: .m_axis_tx_tdata(), .m_axis_tx_tkeep(), .m_axis_tx_tvalid(), .m_axis_tx_tlast(), .m_axis_tx_tready(1'b1),
+tb/verilator/milan_dp/twin_compare.py:24: difference has gone is a finding too, so the lane that fixes it deletes the row.
+tb/verilator/milan_dp/twin_compare.py:452: OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
+tb/verilator/milan_dp/twin_compare.py:499: lane that fixes the defect deletes the row."""
+tb/verilator/milan_dp/twin_compare.py:575: f"none of it; the lane that fixed it ({row.owed_to}) deletes the row")
+tb/verilator/milan_dp/twin_compare.py:600: f"{row.shown(f)}; the lane that fixed it ({row.owed_to}) deletes the row")
+tb/verilator/milan_dp/twin_fabric.cpp:173: //! The MAC's receive side: the queue's head frame, eight bytes a beat, lane 0 first.
+tb/verilator/milan_dp/twin_plants.py:92: STREAM_OUTPUT 0, each at its own millisecond, as the lane that fixes the talker's state would send them."""
+23 line(s)

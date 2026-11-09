@@ -1,0 +1,44 @@
+.github/ci-templates/rtl-fast.yml:318: # The split placement's crossing structure (#665, ruling 6715535566 item 6):
+scripts/ci_events.py:1344: #: #665 S6b: the fast job that proves every KL_mbx_cdc crossing goes through an
+scripts/ci_events.py:1345: #: approved primitive, on its own runner (ruling 6715535566 item 6).
+scripts/ci_events.py:2494: # #665 S6b: the split crossing's structure, with the census's Yosys cache
+sw/firmware/ctrl/app/ctrl_app_aecp.c:108: // ENTITY_AVAILABLE carried (#665 issuecomment-6717765106, item 1). ADP's
+sw/firmware/ctrl/test/test_aecp.cpp:439: // compares it with (#665 issuecomment-6717765106, item 1), not ADP's 6.2.2.15
+sw/mailbox/census_plants.py:537: # split one is judged against (#665, ruling 6715535566 item 2).
+sw/mailbox/census_split.py:11: field reaches the same consumers the wrapper's port fed (ruling 6715535566,
+sw/mailbox/census_split.py:67: THE REBOOT HOLD (ruling 6715535566 item 3). The split carries no REBOOT
+sw/mailbox/census_split.py:70: is S11's.
+sw/mailbox/publication_census.py:117: (#665, ruling 6715535566 item 2). ``--check`` elaborates every shape again
+tb/verilator/milan_dp/Makefile:868: # issuecomment-6724570965, item 3; split_parallel.py runs make -j8 split from a
+tb/verilator/milan_dp/Makefile:883: # #665: THE TWO-PLACEMENT SIMULATION (issuecomment-6715535566 item 1, and
+tb/verilator/milan_dp/Makefile:884: # issuecomment-6716584453). One stimulus (twin.hpp) runs on two halves at the
+tb/verilator/milan_dp/split_parallel.py:7: run must not start before the binary has linked (#665 issuecomment-6724570965, item 3), so the rule runs
+tb/verilator/milan_dp/split_parallel.py:39: #: HEAD's split rule, and the race's (#665 issuecomment-6724570965, item 3), which --selftest plants
+tb/verilator/milan_dp/tb_split_top.sv:61: //! simulation (#665 S6b); sim_split.cpp leaves it idle
+tb/verilator/milan_dp/twin.hpp:14: // each half on its own (#665 issuecomment-6716584453, item 1).
+tb/verilator/milan_dp/twin.hpp:23: // (Milan v1.2 5.4.3, 5.4.4) and one HDCP_APM PDU (#665 issuecomment-6717765106,
+tb/verilator/milan_dp/twin.hpp:25: // available_index is not the first ADPDU's 0 (issuecomment-6722002738, item 6).
+tb/verilator/milan_dp/twin.hpp:68: //! (#665 issuecomment-6716584453, item 1): offset 0x0100 of the IEEE 1722-2016
+tb/verilator/milan_dp/twin.hpp:280: // available_index shows (IEEE 1722.1-2021 Table 7-2; #665 issuecomment-6722002738, item 6)
+tb/verilator/milan_dp/twin_compare.py:7: and compares them by the contract of the plan's section S6 as #665 issuecomment-6716584453,
+tb/verilator/milan_dp/twin_compare.py:8: issuecomment-6717765106, issuecomment-6722002738 and issuecomment-6724570965 amend it:
+tb/verilator/milan_dp/twin_compare.py:189: #: per controller, so each half's is graded on its own (twin_grades.grade_commands; issuecomment-6722002738,
+tb/verilator/milan_dp/twin_compare.py:250: """The declaration state at each half's LeaveAll boundaries (issuecomment-6722002738, item 3), the
+tb/verilator/milan_dp/twin_compare.py:368: #: asserts its exact values (#665 issuecomment-6717765106, item 6). Rows 5 (the started state's
+tb/verilator/milan_dp/twin_compare.py:371: #: (issuecomment-6722002738, item 1), so the notice comparison holds them equal.
+tb/verilator/milan_dp/twin_compare.py:460: SRP_ROUND = "the SRP adapter round after S2b (#665 ruling 6505997821; issuecomment-6717765106, item 3)"
+tb/verilator/milan_dp/twin_compare.py:464: #: The owed-difference list, apart from the ledger (#665 issuecomment-6717765106): each row names the
+tb/verilator/milan_dp/twin_compare.py:490: "#858 (a release-image defect; issuecomment-6722002738, item 6)"),
+tb/verilator/milan_dp/twin_compare.py:530: ONE_NEW = "#860 (a release-image defect; issuecomment-6724570965, items 1 and 2)"
+tb/verilator/milan_dp/twin_compare.py:544: #: The owed defects a half's grade finds (issuecomment-6722002738, item 4; issuecomment-6724570965, items 1 and
+tb/verilator/milan_dp/twin_compare.py:553: "#857 (a release-image defect; issuecomment-6722002738, item 4)"),
+tb/verilator/milan_dp/twin_decode.py:190: issuecomment-6717765106, item 2)."""
+tb/verilator/milan_dp/twin_fabric.cpp:17: // Two settings are simulation-only and stated here (#665 issuecomment-
+tb/verilator/milan_dp/twin_fw.py:18: (#665 issuecomment-6716584453, item 1). The image never defines it.
+tb/verilator/milan_dp/twin_grades.py:7: other half (#665 issuecomment-6716584453, item 1); what issuecomment-6717765106 rules is graded per half
+tb/verilator/milan_dp/twin_grades.py:18: issuecomment-6722002738, item 2);
+tb/verilator/milan_dp/twin_grades.py:23: twin_mrp.py; issuecomment-6722002738, item 3, and issuecomment-6724570965, item 2, for MVRP);
+tb/verilator/milan_dp/twin_mrp.py:7: issuecomment-6722002738, item 3; issuecomment-6724570965, item 2 for MVRP): IEEE 802.1Q-2018 Table 10-3
+tb/verilator/milan_dp/twin_plants.py:18: issuecomment-6724570965, item 2);
+tb/verilator/milan_dp/twin_plants.py:23: (OWED_GRADES; issuecomment-6724570965, items 1 and 2);
+43 line(s)

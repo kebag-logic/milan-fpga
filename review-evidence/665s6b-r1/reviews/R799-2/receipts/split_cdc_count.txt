@@ -1,0 +1,49 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+split_cdc_check.py PLANTS (line 258), names:
+    ("the publication block wired straight across"
+    ("the LINK level taken straight across"
+    ("the settings read without their capture"
+    ("a window's answer taken straight across"
+    ("the held bus taken on every datapath cycle"
+    ("the held bus taken on the commit level, in the mailbox's clock"
+    ("the held bus taken on the request pulse, in the mailbox's clock"
+    ("the held bus taken while the pulse is low"
+    ("a datapath flop other than fw_r sampling the held bus"
+    ("a destination reset from the other domain"
+    ("a source reset from the other domain"
+    ("a primitive clocked by a level"
+count: 12
+split_cdc_check.py changed since e69d243a: 0 file(s)
+
+the Verilator worker that owns that suite has no Yosys.
+
+The split placement's crossing structure runs in a job of its own,
+`split-cdc` (`make -C tb/verilator/milan_dp split-cdc`, #665). It runs
+`split_cdc_check.py --selftest`.
+
+- It reads `KL_mbx_cdc`'s netlist, as the pinned sv2v and Yosys make it.
+- It refuses any reading across `sys` and `milan_cd` that skips
+  `cdc_handshake` or `cdc_pulse`.
+- Its twelve plants must each be refused by their own words. Four are raw
+  crossings: a publication, the LINK level, the settings read and a window
+  answer. Five take the held bus wrongly: on every cycle, on the commit
+  level, on the request pulse, while the pulse is low, and by another flop.
+  Two are resets from the other domain, one on each side. The last is a
+  primitive clocked by a level.
+
+
+          python3 -m pip install --quiet pyyaml
+          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
+
+  # The split placement's crossing structure (#665):
+  # tb/verilator/milan_dp's split_cdc_check.py reads KL_mbx_cdc's netlist, as
+  # this job's pinned sv2v and Yosys make it, and refuses any reading across
+  # sys and milan_cd that skips cdc_handshake or cdc_pulse; its twelve plants
+  # must each be refused: four raw crossings, five wrong takes of the held
+  # bus, a reset from the other domain on each side, and a primitive clocked
+  # by a level. A job of its own, with the Yosys cache
+  # and sv2v release of publication-census, so it lengthens no existing job.
+  # The Makefile derives the processor's source list when it is read, so the
+  # job fetches the RTL submodules.
+  split-cdc:
+    needs: changes

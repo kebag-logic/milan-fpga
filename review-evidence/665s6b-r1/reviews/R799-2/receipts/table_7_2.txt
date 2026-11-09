@@ -1,0 +1,9 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+$ git grep -n "Table 7\.1" -- sw/firmware/ctrl
+rc=1
+$ git grep -n "Table 7-2" -- (the three AECP files)
+sw/firmware/ctrl/app/ctrl_app_aecp.c:106:// 1722.1-2021 Table 7-2), and a controller can only compare it with the
+sw/firmware/ctrl/test/aecp_mutants.py:408:    # (IEEE 1722.1-2021 Table 7-2), not ADP's next one, and 0 before any
+sw/firmware/ctrl/test/test_aecp.cpp:437:// IEEE 1722.1-2021 Table 7-2: the ENTITY descriptor's available_index is the
+sw/firmware/ctrl/test/test_aecp.cpp:1006:            unsigned offset=d.type==0?(name==0?48:180):4; // IEEE Table 7-2
+sw/firmware/ctrl/test/test_aecp.cpp:1766:    EXPECT_EQ(Bytes(out.begin()+42,out.end()),expected)<<"IEEE Table 7-2 group_name changes only bytes 180 through 243";
