@@ -1,0 +1,78 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 1f2d3e6..0126196 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -381,6 +381,16 @@ would give JoinIn, never JoinIn without IN (§10.7.6.3).
+ a small set of registered VIDs, kept apart from the membership table, would remove it.
+ Recorded in [10 §6.2](architecture/10_srp_engine.md#sec-10-vid-applicant).
+ 
++#### <a id="gap-19"></a>GAP-19 [Minor] — MRP: LINK_DOWN (Flush!) does not signal leavealltimer! to the LeaveAll state machine
++Found in the SRP engine ([#216](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/216)), not in the reviewed document. This engine maps LINK_DOWN to
++Flush! for the Domain participant, the VID Registrars and the listener registrars (10 §6.1,
++§6.2, §6.4). IEEE 802.1Q-2018 §10.7.5.2 also signals leavealltimer! (§10.7.5.22) to the
++LeaveAll state machine at a Flush!: Table 10-5 then starts a fresh leavealltimer and enters
++Active, whose tx! is sLA. Neither the MSRP nor the MVRP participant's LeaveAll state machine
++takes the link input, so a LINK_DOWN leaves each on the `T-MRP-LEAVEALL` cycle it was on.
++**Disposition**: kept, since issue [#216](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/216) changes no MRP timers (Milan v1.2 Table 4.3).
++Recorded in [10 §6.2](architecture/10_srp_engine.md#sec-10-vid-link).
++
+ ## 6. Compliance matrix (F00.1)
+ 
+ <a id="fig-00-matrix"></a>
+@@ -533,7 +543,7 @@ verification).
+ 
+ | REQ | Clause | Requirement | Mand | Cov | Finding | Arch | Doc | Ver |
+ |---|---|---|---|---|---|---|---|---|
+-| REQ-SRP-001 | Milan Table 4.3 | MRP timers: joinTime 200 ms (180–240), LeaveTime 5000 ms (4500–7500), leavealltimer 10–15 s, periodictimer 1000 ms (900–1500) | shall | A; traced | [GAP-04](#gap-04) | T-MRP-* | 10 §9, 08 §2 | TIM |
++| REQ-SRP-001 | Milan Table 4.3 | MRP timers: joinTime 200 ms (180–240), LeaveTime 5000 ms (4500–7500), leavealltimer 10–15 s, periodictimer 1000 ms (900–1500) | shall | A; traced | [GAP-04](#gap-04), [GAP-19](#gap-19) | T-MRP-* | 10 §9, 08 §2 | TIM |
+ | REQ-SRP-002 | Milan §4.2.7.1.2 | Malformed MRPDU: may process up to the bad field, then discard the rest of that vector-attribute list and all subsequent messages in the PDU | shall | A; traced | [GAP-04](#gap-04) | decoder tolerance | 10 §3 | TOL |
+ | REQ-SRP-003 | Milan §4.2.7.1.3 | EndMark transmitted as explicit 0x0000 when padding follows | shall | A; traced | [GAP-04](#gap-04) | vector encoder | 10 §3 | DIR |
+ | REQ-SRP-004 | Milan §4.2.7.2.1 | Class A Domain: priority 3 / default VID 2 at startup and link-up; adopt received params + re-declare on differing declaration; Domain TX independent of gPTP port state | shall | A; traced | [GAP-04](#gap-04) | Domain FSM F10.2 | 10 §6.1 | DIR |
+@@ -596,6 +606,7 @@ verification).
+ | [GAP-16](#gap-16) | Blocker | ADP advertise SM + talker-discovery SM (entity table dropped) | [04](architecture/04_adp_engine.md) | MTXW | [#85](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/85) |
+ | [GAP-17](#gap-17) | Blocker | Originator + inflight table (CONTROLLER_AVAILABLE); the landed origins: RX-only dispatch, expiry bus, engine-internal SELF jobs; MGMT not supported | [03 §5](architecture/03_packet_engine.md) | RND: `tb/originator` R (the inflight model) | [#86](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/86) (lane C6) |
+ | [GAP-18](#gap-18) | Minor | Kept as a disclosed, conservative deviation: a VID's Registrar exists from its first local join, so a registration made before it is seen from the peer's next declaration | [10 §6.2](architecture/10_srp_engine.md#sec-10-vid-applicant) | DIR: `tb/srp_encoder` VR11 (a VID allocated again starts with its Registrar MT) | the deviation itself ([#216](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/216)) |
++| [GAP-19](#gap-19) | Minor | Disclosed omission: LINK_DOWN's Flush! reaches the Registrars, and signals no leavealltimer! to either participant's LeaveAll state machine; issue #216 changes no MRP timers | [10 §6.2](architecture/10_srp_engine.md#sec-10-vid-link) | none: the omission is not graded | owed, not filed |
+ 
+ The **Open residue** column records the audit of 2026-09-18 at main `6a878f6`: each finding was
+ checked against what `hdl/` and `tb/` carry, not against this table. A linked issue tracks what is
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index c260a9b..36911b5 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -506,7 +506,8 @@ before the first user's join is seen IN only from that peer's next declaration.
+ recorded deviation ([00 GAP-18](../00_MILAN_COMPLIANCE_REVIEW.md#gap-18)): Table 10-3 note 11
+ lets the Applicant of a value in VO, AO or QO be discarded, and covers the Applicant only; the
+ Registrar, per Table 10-4, would read IN from that peer's declaration. It errs the conservative
+-way: JoinMt where IN would give JoinIn, never JoinIn without IN. The last user's leave is Lv! (LA): the entry stays until its tx! sends the Lv
++way: JoinMt where IN would give JoinIn, never JoinIn without IN.
++The last user's leave is Lv! (LA): the entry stays until its tx! sends the Lv
+ (after a txLA!, LO, until the next tx! sends the s it owes), and a first user meanwhile is
+ New! on the same Applicant (VN), so no Lv goes out. Up to issue #216 a VID had no
+ Registrar: it was New once, then JoinIn at every `periodic!` and LeaveAll, JoinIn with the
+@@ -521,16 +522,20 @@ registration made before a link change is never answered JoinIn after it (§10.7
+ also Begin! on every VID Applicant (Table 10-3: VO from every state), then New! on each VID with
+ users (VN): the new link partner gets New, New, then the Join, as it does for the Domain. A VID
+ whose last user has left (LA or LO, its Lv or s owed) is VO there with nothing owed, and the
+-next tx! walk discards its entry: the new partner never saw it declared. Flush! is a Registrar
+-event only (§10.7.5.2), so LINK_DOWN leaves the Applicants as they are, and their messages until
+-LINK_UP go out while the link is down. A link change wins over a received value of its clock,
++next tx! walk discards its entry: the new partner never saw it declared. Table 10-3 has no
++Flush! row, so LINK_DOWN leaves the Applicants as they are, and their messages until LINK_UP go
++out while the link is down. §10.7.5.2 also signals leavealltimer! to the LeaveAll state machine
++at a Flush!; this engine's LINK_DOWN does not, on either participant, since issue #216 changes
++no MRP timers ([00 GAP-19](../00_MILAN_COMPLIANCE_REVIEW.md#gap-19)). A link change wins
++over a received value of its clock,
+ as on the Domain and the listener registrars, and comes before that clock's user join or leave
+ and its tx!. A message the tx! walk holds for the encoder when the link comes up was decided
+ before it: it is withdrawn, and the VID takes that walk's tx! restarted, so it sends New. A
+ message the encoder has already taken from that walk still leaves in the walk's MRPDU, as a
+ Domain message the encoder holds does across LINK_DOWN; the walk takes a few clocks per held
+-VID. A link change does not reset the talker's streaming licence (below). `tb/srp_encoder`
+-VR14 to VR18 and `tb/srp_top` AP8 grade it, each check with a planted mutant; VR12 and VR13
++VID. A link change does not reset `vid_sent_o`, the talker's streaming licence of
++[Join before the stream](#sec-10-join-before-stream) below. `tb/srp_encoder` VR14 to VR18 and
++`tb/srp_top` AP8 grade it, each check with a planted mutant; VR12 and VR13
+ hold the VP rows of each VID's Applicant, as DA6 and DA7 do for the Domain (§6.1).
+ 
+ Membership is refcounted **per VID, keyed by each user's own stream VID** — a talker

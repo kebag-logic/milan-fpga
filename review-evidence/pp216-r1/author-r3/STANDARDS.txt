@@ -1,0 +1,13 @@
+Clauses read for round 3 (IEEE 802.1Q-2018, the edition the docs cite).
+
+- 10.7.5.2 Flush!: "A Flush! event signals to the Registrar state machine that there is a need to rapidly
+  deregister information on the Port ..." Second paragraph: "When a Flush! event occurs for a given Port and
+  spanning tree instance, a leavealltimer! event (10.7.5.22) is also signaled to the LeaveAll state machine for that
+  Port and spanning tree instance." So Flush! is not a Registrar event only: the 10 section 6.2 basis now cites
+  Table 10-3's lack of a Flush! row for the Applicants, and the leavealltimer! is disclosed as GAP-19.
+- 10.7.5.22 leavealltimer!: "deemed to have occurred either when the leavealltimer associated with that state machine
+  expires or when a Flush! event (10.7.5.2) occurs for the Port and spanning tree instance associated with that state
+  machine."
+- 10.7.9 and Table 10-5: a single LeaveAll state machine per full MRP Participant; leavealltimer! in Active or
+  Passive: Start leavealltimer, go to Active; Active's tx!: sLA, then Passive. GAP-19 states this effect.
+- Table 10-3 (Applicant): no Flush! row (re-read at round 2; unchanged).

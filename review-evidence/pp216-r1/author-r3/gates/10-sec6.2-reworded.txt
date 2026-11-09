@@ -1,0 +1,14 @@
+whose last user has left (LA or LO, its Lv or s owed) is VO there with nothing owed, and the
+next tx! walk discards its entry: the new partner never saw it declared. Table 10-3 has no
+Flush! row, so LINK_DOWN leaves the Applicants as they are, and their messages until LINK_UP go
+out while the link is down. §10.7.5.2 also signals leavealltimer! to the LeaveAll state machine
+at a Flush!; this engine's LINK_DOWN does not, on either participant, since issue #216 changes
+no MRP timers ([00 GAP-19](../00_MILAN_COMPLIANCE_REVIEW.md#gap-19)). A link change wins
+over a received value of its clock,
+as on the Domain and the listener registrars, and comes before that clock's user join or leave
+and its tx!. A message the tx! walk holds for the encoder when the link comes up was decided
+before it: it is withdrawn, and the VID takes that walk's tx! restarted, so it sends New. A
+message the encoder has already taken from that walk still leaves in the walk's MRPDU, as a
+Domain message the encoder holds does across LINK_DOWN; the walk takes a few clocks per held
+VID. A link change does not reset `vid_sent_o`, the talker's streaming licence of
+[Join before the stream](#sec-10-join-before-stream) below. `tb/srp_encoder` VR14 to VR18 and
