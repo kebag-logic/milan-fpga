@@ -31,6 +31,13 @@
 #   make counters - #726 packet/reset/cadence checks at shipping and largest shapes
 #   make counters-f5 - the same windows through the firmware mailbox fixture
 #   make counters-mutants - named defects plus each check-omission escape
+#   make split - #665: the split placement's control path, end to end
+#   make split-mutants - that leg's planted defects (split_mutants.py)
+#   make split-cdc - every KL_mbx_cdc crossing through an approved primitive
+#   make twin   - #665: the two-placement simulation, one stimulus on the
+#                 all-fabric and the split datapath, compared protocol by
+#                 protocol (twin_compare.py); exit 1 on any difference
+#   make twin-plants - its twenty plants, each refused by its own words
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -134,6 +141,9 @@ DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
 # #602: override only a disposable restart-engine copy for source-change mutants.
 MCR_SRC ?= $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv
+# #665: the split's frame block, and its crossing below, overridable so
+# split_mutants.py builds a MUTATED copy through the split leg's recipe
+CTLS_SRC ?= $(RTL_DIR)/milan/KL_ctrl_split.sv
 # #387: the clock-validity block, overridable the same way so the gmstep
 # leg's negative controls elaborate a MUTATED copy through its recipe (their
 # runner joins the tree with the #387 datapath edit).
@@ -191,6 +201,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(CLKV_SRC) \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(C)/KL_link_guard.sv $(RTL_DIR)/milan/KL_reboot_ctrl.sv \
+       $(CTLS_SRC) \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee1722/aaf/aaf_talker_i2s.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv \
@@ -682,7 +693,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -705,6 +716,7 @@ CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipp
 CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
 CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
 CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
+CASE_OPTIONS_split = --banner "---- \#665: the split placement's control path, KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath ----" ./$(SPLIT_MDIR)/Vmilan_dp_split
 
 # Keep the original ordered build and bounded simulation phases.
 # Each selected CI invocation prepares shared inputs before building cases.
@@ -826,6 +838,145 @@ exec-ax1x1:
 # large blast radius for no gain.
 build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
+
+# #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
+# KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
+# CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
+# does; sim_split.cpp reaches the datapath only through the contract's
+# registers. Its own top, so the datapath's -G flags are not handed to it.
+SPLIT_MDIR ?= obj_split
+MBX_DIR = $(RTL_DIR)/milan/mailbox
+CDC_SRC ?= $(MBX_DIR)/KL_mbx_cdc.sv
+CDCW_SRC ?= $(MBX_DIR)/KL_mbx_cdc_window.sv
+SPLIT_SRCS = $(MBX_DIR)/KL_mbx_pkg.sv $(MBX_DIR)/KL_mbx_ring.sv $(MBX_DIR)/KL_mbx_rx.sv \
+       $(MBX_DIR)/KL_mbx_tx.sv $(MBX_DIR)/KL_mbx_evt.sv $(MBX_DIR)/KL_mbx.sv \
+       $(CDCW_SRC) $(CDC_SRC) $(AXIS_DIR)/axis_async_fifo.v tb_split_top.sv
+define SPLIT_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+  --Mdir $(SPLIT_MDIR) -CFLAGS "-I$(CURDIR)/../../../sw/firmware/ctrl/mbx -I$(CURDIR)/../mbx -Wall -Wextra" \
+  $(SRCS) $(SPLIT_SRCS) sim_split.cpp -o Vmilan_dp_split
+endef
+
+build-split: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(SPLIT_BUILD)
+
+exec-split:
+	./$(SPLIT_MDIR)/Vmilan_dp_split
+
+# the leg runs once its binary has linked, in a make of its own, so a parallel
+# make never starts it before the link or runs an old one mid-link (#665;
+# split_parallel.py runs make -j8 split from a clean tree)
+split: build-split
+	$(MAKE) --no-print-directory exec-split
+
+# the split leg's planted defects, each caught by the check it names
+split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	python3 split_mutants.py
+
+# the split crossing's structure: every KL_mbx_cdc crossing through a primitive
+# (split_cdc_check.py), and twelve plants each refused. It needs the pinned sv2v
+# and Yosys, which not every hosted suite shard installs, so it is not a case.
+split-cdc:
+	python3 split_cdc_check.py --selftest
+
+# #665: THE TWO-PLACEMENT SIMULATION, the host-compiled firmware on the RTL
+# mailbox. One stimulus (twin.hpp) runs on two halves at the
+# shipping shape, and twin_compare.py compares what each MAC sent, protocol by
+# protocol. The all-fabric half (twin_fabric.cpp) is milan_datapath at
+# CTRL_SPLIT_P = 0, provisioned as milan_baremetal.c provisions it, its
+# processor and KL_maap on a millisecond of TWIN_MS_CYC cycles (simulation
+# only). The split half (twin_split.cpp) is tb_split_top with the platform
+# firmware, built for the host by twin_fw.py, on KL_mbx's host port and the
+# datapath's CSR window. Both datapaths elaborate alike apart from the
+# placement: the receive filter pruned (the promiscuous posture
+# configure_fabric() sets) and the gPTP plane off, as tb_split_top has them;
+# neither takes the broad legs' -G compressions. MAAP's first range is pinned
+# in both at TWIN_MAAP_PREFERRED (simulation only).
+TWIN_MS_CYC ?= 1000
+TWIN_MAAP_PREFERRED = 0x91e0f0000100
+TWIN_CFG = ../../../configs/endstation_ax7101_1x1_tdm8.yaml
+TWIN_FW ?= obj_twin_fw
+TWIN_AF_MDIR ?= obj_twin_af
+TWIN_SP_MDIR ?= obj_twin_sp
+TWIN_OUT ?= obj_twin
+TWIN_GFLAGS = -GRXFILT_P=0 -GGPTP_PLANE_EN_P=0
+.PHONY: twin-fw build-twin-af exec-twin-af build-twin-sp exec-twin-sp build-twin twin twin-plants
+TWIN_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_AX1_F))ULL $$(cat $(TWIN_FW)/cflags)
+
+twin-fw: stack-pin
+	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+
+$(TWIN_AF_MDIR)/aemi.bin: $(TWIN_CFG)
+	python3 ../../../sw/builder/endstation_builder.py $(TWIN_CFG) -o $(TWIN_AF_MDIR)/aem-build
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(TWIN_AF_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $@
+
+build-twin-af: twin-fw $(TWIN_AF_MDIR)/aemi.bin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G%,$(VFLAGS)) $(TWIN_GFLAGS) --Mdir $(TWIN_AF_MDIR) \
+	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(TWIN_MS_CYC) -GMAAP_CLK_HZ_P=$(TWIN_MS_CYC)000 \
+	  -CFLAGS "-DTWIN_MS_CYC=$(TWIN_MS_CYC) $(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  $(SRCS) twin_fabric.cpp -o Vmilan_dp_twin_af
+
+exec-twin-af:
+	@mkdir -p $(TWIN_OUT)
+	./$(TWIN_AF_MDIR)/Vmilan_dp_twin_af $(TWIN_AF_MDIR)/aemi.bin $(TWIN_OUT)/fabric.json
+
+build-twin-sp: twin-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin_sp
+
+exec-twin-sp:
+	@mkdir -p $(TWIN_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp $(TWIN_OUT)/split.json
+
+build-twin: build-twin-af build-twin-sp
+
+# the comparison: both halves' captures, then twin_compare.py, exit 1 on any
+# difference or any bound one half misses. The halves run once both are built,
+# in a make of their own, so a parallel make never runs a binary mid-link.
+twin: build-twin
+	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
+	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
+
+# the plants, each refused by its own words (twin_compare.py PLANT_WORDS):
+# against the unplanted capture of the half it plants, every finding about the
+# planted protocol, and between the placements, as a finding the unplanted
+# comparison does not make. The first three plant the split half as it runs
+# (twin_split.cpp --plant); the rest plant a copy of one half's capture
+# (twin_plants.py, through twin_compare.py --make-plant): the split's for a
+# difference no row covers, an owed difference gone, the entity's commands and
+# their sequence_id, the MSRP and MVRP Applicant grade, a LeaveAll that leaves
+# out a declared attribute and the LeaveAll declarations; the fabric's for its owed defects gone (#857, #858, #860), and
+# for the #860 rows' exact traces
+TWIN_PLANTS = byte-flip srp-plus-k missing-notification
+TWIN_CAPTURE_PLANTS = uncovered-field vanished-owed command-byte command-sequence response-sequence \
+  table-10-3 received-join leave-all-declaration leave-all-omission mvrp-join-in mvrp-received-join
+TWIN_FABRIC_PLANTS = vanished-mvrp-leave-all vanished-available-index vanished-domain-new domain-trace-moved \
+  vanished-vid2-join-in vid2-registrar-in
+twin-plants: build-twin
+	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
+	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
+	  --report-only > $(TWIN_OUT)/unplanted.txt
+	set -e; for p in $(TWIN_PLANTS); do \
+	  ./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp $(TWIN_OUT)/split-$$p.json --plant $$p; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
+	set -e; for p in $(TWIN_CAPTURE_PLANTS); do \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --make-plant $$p \
+	    --out $(TWIN_OUT)/split-$$p.json; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/split.json $(TWIN_OUT)/split-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split-$$p.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
+	set -e; for p in $(TWIN_FABRIC_PLANTS); do \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --make-plant $$p \
+	    --out $(TWIN_OUT)/fabric-$$p.json; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/fabric-$$p.json --plant $$p --self; \
+	  python3 -B twin_compare.py $(TWIN_OUT)/fabric-$$p.json $(TWIN_OUT)/split.json --plant $$p \
+	    --baseline $(TWIN_OUT)/report.json; \
+	done
 
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk
@@ -957,4 +1108,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT)

@@ -483,7 +483,7 @@ class PpShadowHarness {
     std::vector<uint8_t> pending_live_state() {
         const auto* rp = dut->rootp;
         std::vector<uint8_t> state;
-        pending_append(state, rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_store__DOT__name_r);
+        pending_append(state, rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_store__DOT__name_r);
         pending_append(state, rp->milan_datapath__DOT__amap_in_store_r);
         pending_append(state, rp->milan_datapath__DOT__amap_out_owner_v_r);
         pending_append(state, rp->milan_datapath__DOT__amap_out_owner_r);
@@ -497,16 +497,16 @@ class PpShadowHarness {
         ++pending.cycle;
         if (pending.watching) pending.before = pending_live_state();
         const auto* rp = dut->rootp;
-        const bool name = rp->milan_datapath__DOT__pp_shadow__DOT__aecp_name_wr_w;
-        const bool map = rp->milan_datapath__DOT__pp_shadow__DOT__amap_edit_req_o
-            && rp->milan_datapath__DOT__pp_shadow__DOT__amap_edit_phase_o == 5;
+        const bool name = rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__aecp_name_wr_w;
+        const bool map = rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__amap_edit_req_o
+            && rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__amap_edit_phase_o == 5;
         pending.names += name;
         pending.maps += map && !pending.map_held;
         pending.map_held = map;
-        if (rp->milan_datapath__DOT__pp_shadow__DOT__aecp_nvm_stb_w) {
+        if (rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__aecp_nvm_stb_w) {
             ++pending.marks;
             pending.wrong_group +=
-                rp->milan_datapath__DOT__pp_shadow__DOT__aecp_nvm_mark_w
+                rp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__aecp_nvm_mark_w
                 != pending.mark_group;
             if (pending.first_mark < 0) pending.first_mark = pending.cycle;
         }
@@ -2235,11 +2235,11 @@ class PpShadowHarness {
     static constexpr uint64_t kCrfSid = 0x0200000000010001ULL;
 
     uint32_t processor_ms() const {
-        return dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__now_ms_w;
+        return dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__now_ms_w;
     }
 
     uint32_t own_leaveall_deadline_ms() const {
-        return dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__cad_dl_r[3];
+        return dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__cad_dl_r[3];
     }
 
     unsigned crf_stream_stops() const {
@@ -2340,7 +2340,7 @@ class PpShadowHarness {
         for (int c = 0; c < 1100 * PP_MS_CYCLES && processor_ms() < target; ++c) step();
         ck("#608 expiry-window stimulus reaches deadline + 1 ms", processor_ms(), target);
         const unsigned registrar =
-            (dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__u_talker__DOT__reg_r >> 2) & 3;
+            (dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__u_talker__DOT__reg_r >> 2) & 3;
         ck("#608 timer expiry preserves IN until own transmit action", registrar, 1);
         printf("CRF_STOP own_deadline_ms=%u withdrawal_ms=%u registrar=%u\n",
                deadline, processor_ms(), registrar);

@@ -4483,6 +4483,38 @@ def _load_soc(cfg, cons):
     return soc
 
 
+#: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
+#: all-fabric, the default until the flip: the protocol processor and KL_maap
+#: in the datapath. split: the bare-metal control firmware through the
+#: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with
+#: CTRL_SPLIT_P = 1. The two placements build from one tree, one recipe and one
+#: config file, differing in this key alone.
+CONTROL_PLACEMENTS = ("all-fabric", "split")
+#: Where a split build reads its control firmware: the linked platform image,
+#: under this config's builder output, repository-relative as milan_soc.py
+#: resolves --ctrl-firmware.
+CTRL_FIRMWARE_ELF = "ctrl_app.elf"
+
+
+def _load_control(cfg):
+    """The control placement: a mapping with one key, `placement`, all-fabric when absent."""
+    raw = cfg.get("control") or {}
+    if not isinstance(raw, dict):
+        raise ConfigError("control: must be a mapping")
+    unknown = sorted(set(raw) - {"placement"})
+    if unknown:
+        raise ConfigError(f"control: unknown key(s) {unknown}")
+    placement = raw.get("placement", CONTROL_PLACEMENTS[0])
+    if placement not in CONTROL_PLACEMENTS:
+        raise ConfigError(f"control.placement '{placement}' is not one of {', '.join(CONTROL_PLACEMENTS)}")
+    return {"placement": placement}
+
+
+def ctrl_firmware_path(cfg: dict[str, Any]) -> str:
+    """The repository-relative control firmware a split build of cfg reads (--ctrl-firmware)."""
+    return f"sw/builder/out/{cfg['name']}/{CTRL_FIRMWARE_ELF}"
+
+
 def load_config(path: str) -> dict[str, Any]:
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -4499,6 +4531,7 @@ def load_config(path: str) -> dict[str, Any]:
     phys, pools = interface["physical_channels"], interface["cluster_pools"]
     listeners, talkers = _load_streams(cfg, path, clocking)
     soc = _load_soc(cfg, cons)
+    control = _load_control(cfg)
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
@@ -4538,6 +4571,7 @@ def load_config(path: str) -> dict[str, Any]:
         clocking=clocking, interface=interface,
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
         platform=platform, features=features, gptp=gptp, names=names,
+        control=control,
         # protocol-processor model lint waivers, passed through to the packed
         # document unread; the packer validates and reports them
         model_lint_waivers=list(cfg.get("model_lint_waivers") or []),
@@ -5123,6 +5157,9 @@ def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
         if not block_present(cfg, name):
             out[param] = 0
     out.update(reboot_mac_statement(cfg))
+    # the split placement: stated only when selected, as the SoC binds it
+    if cfg["control"]["placement"] == "split":
+        out["CTRL_SPLIT_P"] = 1
     return out
 
 
@@ -5150,6 +5187,10 @@ def emit_soc_argv(cfg: dict[str, Any]) -> list[str]:
     argv += [f"--scala-args={a}" for a in soc["scala_args"]]
     argv += ["--uart-baudrate", str(c["uart_baudrate"])]
     argv += ["--cpu-count", str(soc["cpu_count"])]
+    # the split placement: the mailbox SoC, which builds the datapath with
+    # CTRL_SPLIT_P = 1 and boots the control firmware from block RAM
+    if cfg["control"]["placement"] == "split":
+        argv += ["--ctrl-mailbox", "--ctrl-firmware", ctrl_firmware_path(cfg)]
     return argv
 
 

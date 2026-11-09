@@ -99,7 +99,7 @@ LUT_KINDS = ((re.compile(r"LUT[1-6]"), "logic_LUT"), (re.compile(r"RAM[DS](32|64
 FLAT_ROWS = {"Slice LUTs": "LUT", "Slice Registers": "FF", "Slice": "SLICE",
              "RAMB36/FIFO*": "RAMB36", "RAMB18": "RAMB18", "DSPs": "DSP"}
 #: The recorded scopes are relative to the wrapper; the map names it in full.
-WRAPPER_SUFFIX = "/milan_datapath/pp_shadow"
+WRAPPER_SUFFIX = "/milan_datapath/g_af_pp.pp_shadow"
 #: The SoC top is one flat generated module, so its own row is split by cell NAME: a register keeps its
 #: signal's name, so flip-flops attribute exactly; a LUT the optimizer renamed is counted as anonymous.
 #: First match wins. Every cell lands in exactly one class, so the classes sum to the own row.
@@ -529,7 +529,7 @@ def _fixture(directory: Path) -> tuple[dict, dict]:
         _row(3, "(top)", (3, 3, 0, 0, 2, 0, 0, 0)),
         _row(3, "leaf", (2, 2, 0, 0, 2, 1, 0, 0)),
         _row(3, "milan_datapath", (6, 5, 1, 0, 4, 0, 0, 1)),
-        _row(5, "pp_shadow", (6, 5, 1, 0, 4, 0, 0, 1)),
+        _row(5, "g_af_pp.pp_shadow", (6, 5, 1, 0, 4, 0, 0, 1)),
     ]
     (directory / "map_hierarchy.rpt").write_text("\n".join(report) + "\n")
     flat = ["| Slice LUTs | 10 |", "| Slice Registers | 8 |", "| Slice | 3 |", "| RAMB36/FIFO* | 1 |",
@@ -540,22 +540,22 @@ def _fixture(directory: Path) -> tuple[dict, dict]:
               "pad_q\tFDRE\tLEAF\tOLOGIC_X0Y1\tOLOGICE2.OUTFF",
               "leaf/c\tFDRE\tLEAF\tSLICE_X1Y0\tAFF", "leaf/d\tFDRE\tLEAF\tSLICE_X1Y0\tBFF",
               "leaf/m\tRAMB36E1\tLEAF\tRAMB36_X0Y0\tRAMB36E1",
-              "milan_datapath/pp_shadow/e\tFDRE\tLEAF\tSLICE_X2Y0\tAFF",
-              "milan_datapath/pp_shadow/f\tFDRE\tLEAF\tSLICE_X2Y0\tBFF",
-              "milan_datapath/pp_shadow/g\tFDRE\tLEAF\tSLICE_X2Y0\tCFF",
-              "milan_datapath/pp_shadow/h\tFDRE\tLEAF\tSLICE_X2Y0\tDFF",
-              "milan_datapath/pp_shadow/k\tCARRY4\tLEAF\tSLICE_X2Y0\tCARRY4",
-              "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
+              "milan_datapath/g_af_pp.pp_shadow/e\tFDRE\tLEAF\tSLICE_X2Y0\tAFF",
+              "milan_datapath/g_af_pp.pp_shadow/f\tFDRE\tLEAF\tSLICE_X2Y0\tBFF",
+              "milan_datapath/g_af_pp.pp_shadow/g\tFDRE\tLEAF\tSLICE_X2Y0\tCFF",
+              "milan_datapath/g_af_pp.pp_shadow/h\tFDRE\tLEAF\tSLICE_X2Y0\tDFF",
+              "milan_datapath/g_af_pp.pp_shadow/k\tCARRY4\tLEAF\tSLICE_X2Y0\tCARRY4",
+              "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
               # Ten LUT sites: own logic and the leaf share site X1Y0 A (top's adjustment -1), and the processor's
               # one LUT-RAM cell sits inside a MACRO wrapper the census lists apart.
               "o1\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.A6LUT", "o2\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.B6LUT",
               "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.A5LUT",
               "leaf/l1\tLUT6\tLEAF\tSLICE_X1Y0\tSLICEL.A6LUT", "leaf/l2\tLUT6\tLEAF\tSLICE_X1Y0\tSLICEL.B6LUT",
-              *(f"milan_datapath/pp_shadow/q{letter}\tLUT6\tLEAF\tSLICE_X2Y0\tSLICEL.{letter}6LUT"
+              *(f"milan_datapath/g_af_pp.pp_shadow/q{letter}\tLUT6\tLEAF\tSLICE_X2Y0\tSLICEL.{letter}6LUT"
                 for letter in "ABCD"),
-              "milan_datapath/pp_shadow/q5\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.C6LUT",
-              "milan_datapath/pp_shadow/rm\tRAM32M\tMACRO\tSLICE_X0Y0\tSLICEM.D6LUT",
-              "milan_datapath/pp_shadow/rm/RAMD_D1\tRAMD32\tINTERNAL\tSLICE_X0Y0\tSLICEM.D6LUT"]
+              "milan_datapath/g_af_pp.pp_shadow/q5\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.C6LUT",
+              "milan_datapath/g_af_pp.pp_shadow/rm\tRAM32M\tMACRO\tSLICE_X0Y0\tSLICEM.D6LUT",
+              "milan_datapath/g_af_pp.pp_shadow/rm/RAMD_D1\tRAMD32\tINTERNAL\tSLICE_X0Y0\tSLICEM.D6LUT"]
     (directory / "map_cells.tsv").write_text("\n".join(census) + "\n")
     figures = {"LUT": 10, "FF": 8, "SLICE": 3, "RAMB36": 1, "RAMB18": 0, "DSP": 1, "CARRY4": 1}
     scopes = {"wrapper": {"LUT": 6, "FF": 4, "DSP": 1, "CARRY4": 1}}
@@ -578,8 +578,8 @@ def _plant(directory: Path, name: str, old: str, new: str) -> None:
 PLANTS = (
     ("a child FF figure", "map_hierarchy.rpt", "| m | 2 | 2 | 0 | 0 | 2 | 1", "| m | 2 | 2 | 0 | 0 | 3 | 1",
      "ancestry: top FF"),
-    ("a parent LUT above its parts", "map_hierarchy.rpt", "|     pp_shadow | m | 6", "|     pp_shadow | m | 5",
-     "milan_datapath LUT exceeds its parts"),
+    ("a parent LUT above its parts", "map_hierarchy.rpt", "|     g_af_pp.pp_shadow | m | 6",
+     "|     g_af_pp.pp_shadow | m | 5", "milan_datapath LUT exceeds its parts"),
     ("the flat LUT total", "map_utilization.rpt", "| Slice LUTs | 10 |", "| Slice LUTs | 11 |",
      "flat report: LUT"),
     ("a census flip-flop", "map_cells.tsv", "leaf/c\tFDRE", "leaf/c\tLUT6", "census: top/leaf FF"),
@@ -594,11 +594,11 @@ PLANTS = (
     ("a LUT site shared by two blocks", "map_cells.tsv", "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.A5LUT",
      "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.C5LUT", "census: top LUT counts"),
     ("a LUT-RAM cell counted as logic", "map_cells.tsv", "rm/RAMD_D1\tRAMD32", "rm/RAMD_D1\tLUT6",
-     "census: top/milan_datapath/pp_shadow LUTRAM counts"),
+     "census: top/milan_datapath/g_af_pp.pp_shadow LUTRAM counts"),
     ("a cell owned by a row that is not a leaf", "map_cells.tsv",
-     "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
-     "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1\nmilan_datapath/s\tFDRE\tLEAF\tSLICE_X2Y0\t"
-     "SLICEL.A5FF", "census: cells owned by non-leaf rows"),
+     "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
+     "milan_datapath/g_af_pp.pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1\n"
+     "milan_datapath/s\tFDRE\tLEAF\tSLICE_X2Y0\tSLICEL.A5FF", "census: cells owned by non-leaf rows"),
 )
 
 
@@ -610,7 +610,8 @@ def selftest() -> int:
         clean.mkdir()
         figures, scopes = _fixture(clean)
         result = build(clean, figures, scopes)
-        if round(result["table"]["top"]["SLICE"], 6) != 3 or ranked(result)[0]["block"] != "milan_datapath/pp_shadow":
+        top_block = ranked(result)[0]["block"]
+        if round(result["table"]["top"]["SLICE"], 6) != 3 or top_block != "milan_datapath/g_af_pp.pp_shadow":
             problems.append("clean fixture: slices or ranking wrong")
         record_plants = (("a recorded total", {**figures, "FF": 9}, scopes, "record: FF"),
                          ("a recorded processor scope", figures, {"wrapper": {"LUT": 7}}, "scope 'wrapper' LUT"))

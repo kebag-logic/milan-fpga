@@ -214,7 +214,7 @@ def prepare(gateware: Path, output: Path, log: Path | None,
     if attribution_only:
         if log is not None:
             raise ValueError("attribution requires an integrated build")
-        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\n"
+        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/g_af_pp.pp_shadow]\n"
         (gateware / "baseline_boundary.xdc").write_text(constraint)
         prefix += "read_xdc baseline_boundary.xdc\n"
     output.mkdir(parents=True, exist_ok=True)
@@ -551,7 +551,7 @@ def export_selftest() -> None:
         prepare(gateware, gateware, None, True, attribution_only=True)
         script = (gateware / "baseline_integrated.tcl").read_text()
         constraint = (gateware / "baseline_boundary.xdc").read_text()
-        expected = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\n"
+        expected = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/g_af_pp.pp_shadow]\n"
         if constraint != expected or "read_xdc baseline_boundary.xdc\n" not in script:
             raise AssertionError("attribution boundary constraint is absent or changed")
         if script.index("read_xdc baseline_boundary.xdc") > script.index("synth_design "):

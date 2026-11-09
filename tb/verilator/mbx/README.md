@@ -53,7 +53,11 @@ in turn and requires the arms planted against it to be let through. Since
 contract 2.3 it also names every port of the wrapper cell under one class
 ([`census_ports.py`](../../../sw/mailbox/census_ports.py)) and follows each G
 output's cone to its ruled terminals; its 18 plants ride on arms that already
-elaborate the tracked sources. It needs
+elaborate the tracked sources. Its second population
+([`census_split.py`](../../../sw/mailbox/census_split.py)) elaborates each shape
+again with `CTRL_SPLIT_P = 1` and requires every `i_ctl_*` and `o_ctl_*` port
+of that datapath in one class, each consumed as the wrapper port it stands for
+was, with its own 14 rules and 23 arms. It needs
 sv2v and Yosys on `PATH` (or named by `SV2V=` and `YOSYS=`) at the versions
 `rtl-fast.yml` pins, and refuses any other, which is why `make` does not run
 it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`

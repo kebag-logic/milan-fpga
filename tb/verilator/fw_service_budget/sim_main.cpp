@@ -38,7 +38,7 @@ public:
         }
         phy_.sample(dut, cycle_);
         if (!dut.sys_reset) {
-            const bool backed = dut.rootp->sim->__PVT__milan_datapath__DOT__pp_shadow__DOT__u_nvm__DOT__backed_r;
+            const bool backed = dut.rootp->sim->__PVT__milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_nvm__DOT__backed_r;
             if (backed_seen_ && !backed) ++unbacked_cycles_;
             backed_seen_ = backed_seen_ || backed;
         }

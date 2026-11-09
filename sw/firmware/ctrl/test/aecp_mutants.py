@@ -82,8 +82,8 @@ DEFECTS = (
            '(void)available;',
            ('Core.EntityAvailableIndexUsesTheIngressObservation',
             'ENTITY reads current ADP available index'),
-           ('App.EntityReadSeesTheRealAdpAdvertisementCount',
-            'ENTITY sees N advertisements from the ADP owner')),
+           ('App.EntityReadSeesTheLastAdvertisedIndex',
+            "ENTITY reads the last ENTITY_AVAILABLE's available_index")),
     defect('hdcp-data-length-echo', 'aecp.c',
            'wire_put_be(a->response + 36, 0u, 2);',
            'wire_put_be(a->response + 36, wire_be16(p + 22), 2);',
@@ -404,6 +404,18 @@ DEFECTS = (
            'acmp_set_started(a, c->start_index, c->start_value)',
            ('App.UnboundStartAndStopAreSuccessfulNoOps',
             'get(p->bytes+16,2)>>11')),
+    # #665: the ENTITY descriptor's available_index is the last ENTITY_AVAILABLE's
+    # (IEEE 1722.1-2021 Table 7-2), not ADP's next one, and 0 before any
+    defect('app-available-index-next', 'app/ctrl_app_aecp.c',
+           'return next != 0u ? next - 1u : 0u;',
+           'return next;',
+           ('App.EntityReadSeesTheLastAdvertisedIndex',
+            "ENTITY reads the last ENTITY_AVAILABLE's available_index")),
+    defect('app-available-index-unguarded', 'app/ctrl_app_aecp.c',
+           'return next != 0u ? next - 1u : 0u;',
+           'return next - 1u;',
+           ('App.EntityReadSeesTheLastAdvertisedIndex',
+            'ENTITY reads 0 before the first ENTITY_AVAILABLE')),
     # #665 F-INT: the split datapath's started level, skipped by the bridge or
     # published only after the START/STOP response is committed; each keeps
     # the bridge's refusals, so only the publication tells it apart
