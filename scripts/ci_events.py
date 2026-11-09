@@ -1055,6 +1055,8 @@ CARRIER_STEP_LISTS = {
          "run": (
              'python3 scripts/check_nvm_record_space.py',
              'python3 scripts/check_nvm_record_space.py --self-test',
+             'python3 scripts/check_nvm_format_32x32.py',
+             'python3 scripts/check_nvm_format_32x32.py --self-test',
          )},
         {"name": "Capture measurement census and clock gate",
          "run": (
