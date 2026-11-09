@@ -86,6 +86,18 @@
 //
 //   J. The global anti-wedge invariant: accepted == answered over every cycle.
 //
+//   DR. A control frame LOST TO A FULL FIFO IS COUNTED (#854). The tap cannot
+//      backpressure the MAC and its FIFO drops a whole frame it has no room
+//      for while holding tready high, so the drop count must come from the
+//      FIFO's own overflow indication. 100 back-to-back 64-byte ADP frames
+//      (and eight of 16 bytes, kept at their second beat) outrun the
+//      serializer's one byte a cycle; the harness counts every frame the
+//      serializer hands to the processor, whole and in order, and requires
+//      the frames offered less the frames handed out to equal PP_DIAG[15:8].
+//      A refused frame that meets the full FIFO loses no control frame and is
+//      not counted, and the count saturates at 255. (A one-beat runt never
+//      reaches the tap here: rx_mac_filter ahead of it drops every runt.)
+//
 // The talker source enable is NOT a -G any more: KL_pp_shadow's SRC_EN_MASK_P
 // is deleted and milan_datapath drives cfg_src_en_i from the entity shape
 // ({ACMP_SRC_C{1'b1}}), so every declared STREAM_OUTPUT is live on every
@@ -135,7 +147,7 @@ class PpShadowHarness {
     //! `final()` and frees it on every path out, so there is no teardown at
     //! the bottom of this function to skip (R.11, R.20, C.149)
     int run(bool pending_only, bool first_probe_only, bool crf_stop_only,
-            bool reboot_only) {
+            bool reboot_only, bool drops_only) {
         const milan::tb::Model<Vmilan_datapath> model;
         dut = model.get();                  // the harness's observing pointer
 
@@ -147,6 +159,8 @@ class PpShadowHarness {
 
         if (reboot_only) {
             grade_reboot_resets_the_end_station();
+        } else if (drops_only) {
+            grade_control_frames_lost_to_a_full_fifo_are_counted();
         } else if (first_probe_only) {
             provision_the_identity_before_enable();
             enable_the_entity_and_read_the_class_d_baseline();
@@ -182,8 +196,10 @@ class PpShadowHarness {
             grade_heal_before_answer();
             grade_backend_rejection_reaches_the_processor();
             grade_generated_domain_binding();
+            //! after every check that reads the drop count as 0
+            grade_control_frames_lost_to_a_full_fifo_are_counted();
         }
-        if (!first_probe_only && !crf_stop_only && !reboot_only) {
+        if (!first_probe_only && !crf_stop_only && !reboot_only && !drops_only) {
             grade_pending_live_writes();
 #if DECLARATION_OUTPUTS == 2
             if (!pending_only) grade_crf_stop_regression();
@@ -1935,6 +1951,163 @@ class PpShadowHarness {
         after = axi_read(A_PP_DIAG) & 0xFF;
         ck("8 IPv4 frames REJECTED (rx_frames flat)", after - before, 0);
         ck("and none of them was counted as a drop", (axi_read(A_PP_DIAG) >> 8) & 0xFF, 0);
+    }
+
+    // ---- DR. a control frame lost to a full FIFO is counted (#854) --------
+    //! What the harness saw leave the tap's serializer, and the FIFO's own
+    //! overflow strobes, over one burst.
+    struct TapTally {
+        std::vector<std::vector<uint8_t>> handed;   //!< whole frames, in order
+        std::vector<uint8_t> partial;               //!< the frame being serialized
+        unsigned overflows = 0;                     //!< status_overflow cycles
+    };
+
+    //! one cycle's view of the serializer's byte stream into the processor
+    void tap_sample(TapTally& t) {
+        const auto* rp = dut->rootp;
+        if (rp->milan_datapath__DOT__pp_shadow__DOT__ff_overflow_w) t.overflows++;
+        if (!rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_valid_w) return;
+        t.partial.push_back(rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_data_w);
+        if (rp->milan_datapath__DOT__pp_shadow__DOT__pp_rx_last_w) {
+            t.handed.push_back(t.partial);
+            t.partial.clear();
+        }
+    }
+
+    //! Every frame back to back on the MAC RX port, one beat a cycle while
+    //! the port is ready, then `tail` idle cycles for the serializer to
+    //! drain; the tap is sampled on every cycle of both.
+    TapTally inject_burst(const std::vector<std::vector<uint8_t>>& frames, int tail) {
+        std::vector<uint64_t> bw;
+        std::vector<uint8_t> bk, bl;
+        for (const auto& f : frames) {
+            const size_t beats = (f.size() + 7) / 8;
+            for (size_t b = 0; b < beats; b++) {
+                uint64_t w = 0;
+                uint8_t k = 0;
+                for (size_t i = 8 * b; i < f.size() && i < 8 * b + 8; i++) {
+                    w |= static_cast<uint64_t>(f[i]) << (8 * (i % 8));
+                    k |= static_cast<uint8_t>(1u << (i % 8));
+                }
+                bw.push_back(w); bk.push_back(k); bl.push_back(b == beats - 1);
+            }
+        }
+        TapTally t;
+        dut->m_axis_mac_tx_tready = 1;
+        size_t idx = 0;
+        int idle = 0;
+        while (idle < tail) {
+            if (idx < bw.size()) {
+                dut->s_axis_mac_rx_tdata  = bw[idx];
+                dut->s_axis_mac_rx_tkeep  = bk[idx];
+                dut->s_axis_mac_rx_tvalid = 1;
+                dut->s_axis_mac_rx_tlast  = bl[idx];
+            } else {
+                dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+                idle++;
+            }
+            lo();
+            tap_sample(t);
+            const bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+            hi();
+            if (in_acc) idx++;
+        }
+        dut->s_axis_mac_rx_tvalid = 0;
+        return t;
+    }
+
+    //! An ADP ENTITY_DISCOVER header cut to `len` bytes, its last byte the tag
+    //! that tells the frames of a burst apart.
+    std::vector<uint8_t> drop_adp(size_t len, uint8_t tag) {
+        std::vector<uint8_t> f(kAdpduWireBytes);
+        build_adp_discover(f.data());
+        f.resize(len);
+        f[len - 1] = tag;
+        return f;
+    }
+
+    //! true when every frame handed out is an offered frame, whole and in order
+    bool handed_in_order(const TapTally& t, const std::vector<std::vector<uint8_t>>& offered) {
+        size_t at = 0;
+        for (const auto& h : t.handed) {
+            while (at < offered.size() && offered[at] != h) at++;
+            if (at == offered.size()) return false;
+            at++;
+        }
+        return t.partial.empty();
+    }
+
+    //! The FIFO holds RX_FIFO_BYTES_P (4,096) and drains one word every nine
+    //! cycles, so this many idle cycles empties it from full with margin.
+    static constexpr int kDrainCycles = 8000;
+
+    uint32_t drop_count() { return (axi_read(A_PP_DIAG) >> 8) & 0xFF; }
+
+    void grade_control_frames_lost_to_a_full_fifo_are_counted() {
+        printf("[DR] a control frame lost to a full FIFO is counted (#854)\n");
+        run_idle(kDrainCycles);
+        ck("DR the drop count reads 0 while nothing was lost", drop_count(), 0);
+
+        // 100 back-to-back 64-byte ADP frames, then eight of 16 bytes that the
+        // tap keeps at their second beat: 6,528 bytes at a 4,096-byte FIFO
+        std::vector<std::vector<uint8_t>> kept;
+        for (unsigned n = 0; n < 100; n++) kept.push_back(drop_adp(64, static_cast<uint8_t>(n)));
+        for (unsigned n = 0; n < 8; n++) kept.push_back(drop_adp(16, static_cast<uint8_t>(0x80 + n)));
+        TapTally a = inject_burst(kept, kDrainCycles);
+        const uint32_t lost_a = static_cast<uint32_t>(kept.size() - a.handed.size());
+        const uint32_t count_a = drop_count();
+        char det[128];
+        snprintf(det, sizeof det, "%zu offered, %zu handed out, %u lost, count %u",
+                 kept.size(), a.handed.size(), lost_a, count_a);
+        printf("  DR burst: %s\n", det);
+        ck_true("DR a burst past the FIFO loses frames and counts them", lost_a > 0 && count_a > 0, det);
+        ck("DR the burst's lost frames equal the drop count", count_a, lost_a);
+        ck_true("DR ...each frame handed out whole and in order", handed_in_order(a, kept),
+                "against the offered sequence");
+        ck_true("DR ...and the FIFO holds 4,096 bytes of it before it loses one",
+                a.handed.size() >= 4096u / 64u, det);
+
+        // refused frames between kept ones, turned away by the full FIFO: none
+        // of them is a control frame lost. A frame behind one the FIFO dropped
+        // finds that frame's words reclaimed, so it meets a FIFO that is full
+        // only behind a kept frame that took its last words: 100 frames of 64
+        // bytes fill it, then each refused frame follows a 16-byte frame, which
+        // commits whenever two words are free
+        std::vector<std::vector<uint8_t>> mixed, mixed_kept;
+        for (unsigned n = 0; n < 100; n++) {
+            mixed_kept.push_back(drop_adp(64, static_cast<uint8_t>(n)));
+            mixed.push_back(mixed_kept.back());
+        }
+        for (unsigned n = 0; n < 100; n++) {
+            mixed_kept.push_back(drop_adp(16, static_cast<uint8_t>(0x80 + n)));
+            mixed.push_back(mixed_kept.back());
+            std::vector<uint8_t> ip(64);
+            build_ipv4(ip.data());
+            ip[63] = static_cast<uint8_t>(n);
+            mixed.push_back(ip);
+        }
+        TapTally b = inject_burst(mixed, kDrainCycles);
+        const uint32_t lost_b = static_cast<uint32_t>(mixed_kept.size() - b.handed.size());
+        const uint32_t count_b = drop_count() - count_a;
+        snprintf(det, sizeof det, "%u kept lost, count +%u, %u FIFO overflows", lost_b, count_b, b.overflows);
+        printf("  DR refused burst: %s\n", det);
+        ck_true("DR the refused frames met the full FIFO", b.overflows > lost_b, det);
+        ck("DR ...and are not counted: the kept frames lost equal the count", count_b, lost_b);
+        ck_true("DR ...the kept frames handed out whole and in order", handed_in_order(b, mixed_kept),
+                "against the offered kept sequence");
+
+        // 400 more: past 255 lost in all, and the count holds at 255
+        std::vector<std::vector<uint8_t>> flood;
+        for (unsigned n = 0; n < 400; n++) flood.push_back(drop_adp(64, static_cast<uint8_t>(n)));
+        TapTally d = inject_burst(flood, kDrainCycles);
+        const uint32_t lost_all = lost_a + lost_b +
+                                  static_cast<uint32_t>(flood.size() - d.handed.size());
+        snprintf(det, sizeof det, "%u frames lost in all", lost_all);
+        printf("  DR flood: %s\n", det);
+        ck_true("DR the bursts lose more than 255 frames in all", lost_all > 255, det);
+        ck("DR the count saturates at 255", drop_count(), 255);
+        run_idle(kDrainCycles);
+        ck("DR ...and holds there", drop_count(), 255);
     }
 
     // ---- D. SUBSTITUTION: it transmits, and the wire CARRIES it ------------
@@ -4555,5 +4728,6 @@ int main(int argc, char** argv) {
     return harness.run(argc == 2 && std::strcmp(argv[1], "--pending-only") == 0,
                        argc == 2 && std::strcmp(argv[1], "--first-probe-only") == 0,
                        argc == 2 && std::strcmp(argv[1], "--crf-stop-only") == 0,
-                       argc == 2 && std::strcmp(argv[1], "--reboot-only") == 0);
+                       argc == 2 && std::strcmp(argv[1], "--reboot-only") == 0,
+                       argc == 2 && std::strcmp(argv[1], "--drops-only") == 0);
 }

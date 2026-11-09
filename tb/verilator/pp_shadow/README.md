@@ -11,6 +11,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 - **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
 - **[Pending from live writes](#pending-from-live-writes)** -- Real programs expose the unsaved interval.
 - **[The reset on an AECP REBOOT (#787)](#the-reset-on-an-aecp-reboot-787)** -- Section `[RB]`: a REBOOT on the wire, its frames graded at a MAC model's wire-side output, then the PHY hold and the IPROG words at the datapath ports.
+- **[Control frames lost to a full FIFO (#854)](#control-frames-lost-to-a-full-fifo-854)** -- Section `[DR]`: bursts past the tap's FIFO, the frames lost equal to `PP_DIAG[15:8]`, refused frames not counted, saturation at 255, and six planted arms.
 - **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
 - **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
 - **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
@@ -160,6 +161,42 @@ defect in a private copy of `milan_datapath.sv` or `KL_reboot_ctrl.sv` and must 
 | `egress-ignores-the-mac-fifo` | the wait ends once the port is idle | the same |
 | `egress-without-a-bound` | a MAC that never finishes keeps the hold off | RB dead transmit clock: the PHY hold still rises |
 | `txend-unwired` | the frame-end toggle is not connected | RB advertising: ...and at most two ticks and eight clocks after it |
+
+## Control frames lost to a full FIFO (#854)
+
+Section `[DR]` grades `PP_DIAG[15:8]`, the count of control frames the tap loses to a full FIFO. The tap cannot
+backpressure the MAC, and its FIFO (`FRAME_FIFO`, `DROP_WHEN_FULL`) holds `tready` high and drops a whole frame it
+has no room for, so the count is read from the FIFO's own overflow indication, not the handshake. The harness counts
+every frame the serializer hands to the processor at the serializer's own byte stream (`drops_probes.vlt`) and
+grades the count against the frames offered less the frames handed out:
+
+- **A burst**: 100 back-to-back 64-byte ADP frames, then eight of 16 bytes kept at their second beat, at eight bytes
+  a cycle into a 4,096-byte FIFO that drains one byte a cycle. The serializer into the processor has no ready, so it
+  is never stalled; the burst outruns it. Frames are lost, the count equals them, every frame handed out is whole
+  and in order, and the FIFO holds 4,096 bytes of the burst before it loses one.
+- **Refused frames**: the FIFO is filled with 100 frames of 64 bytes, then 100 IPv4 frames each behind a 16-byte
+  ADP frame. Refused frames meet the full FIFO (its overflow strobes outnumber the kept frames lost) and are not
+  counted: the kept frames lost equal the count.
+- **Saturation**: 400 more frames take the frames lost past 255, and the count reads 255 and holds there.
+
+A one-beat runt never reaches the tap in this build: `rx_mac_filter` ahead of it drops every runt.
+
+```sh
+make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--drops-only
+make -C tb/verilator/pp_shadow drops-mutant
+```
+
+`drops-mutant` builds the base leg and runs `[DR]` alone. The clean control must pass. Each arm then plants one
+defect in a private copy of `KL_pp_shadow.sv` or `milan_datapath.sv` and must fail its named check:
+
+| Arm | Plant | Named check |
+|---|---|---|
+| `count-removed` | the drop count never moves | DR a burst past the FIFO loses frames and counts them |
+| `count-from-tready` | the count read from the FIFO's tready, the construction #854 reported | the same |
+| `counts-refused` | every FIFO overflow counted, a refused frame's too | DR ...and are not counted: the kept frames lost equal the count |
+| `misses-second-beat` | a frame kept at its second beat not counted | DR the burst's lost frames equal the drop count |
+| `wraps` | the count wraps instead of saturating at 255 | DR the count saturates at 255 |
+| `diag-tied-off` | the count never reaches `PP_DIAG[15:8]` | DR a burst past the FIFO loses frames and counts them |
 
 ## The premise inverted (2026-08-13)
 

@@ -2466,7 +2466,10 @@ first — EtherType `0x22F0` on any destination address, plus the two MRP pairs
 (`01:80:C2:00:00:0E` + `0x22EA` MSRP, `01:80:C2:00:00:21` + `0x88F5` MVRP) —
 and only control frames enter the frame FIFO ahead of the serialiser. Control
 traffic is orders of magnitude below the serialiser's rate, so `[15:8]` should
-be flat; a moving drop count is a real signal, not background.
+be flat; a moving drop count is a real signal, not background. The FIFO drops a
+frame it has no room for while holding `tready` high, so the count is taken from
+the FIFO's own overflow indication, one per control frame lost, and saturates
+at 255 (#854).
 
 **When this window says the entity model is broken, it cannot say why.** The
 descriptor-store and response-buffer faults reached through the side-port
