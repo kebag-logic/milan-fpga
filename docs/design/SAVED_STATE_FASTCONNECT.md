@@ -611,6 +611,9 @@ the next person to move a section in this page has to re-run that grep by hand.
 
 ## 6. The record image format: KLJ2
 
+This section is the all-fabric placement's format, which that placement keeps.
+The split placement's store writes KLJ3 over layout 3 instead, in its own journal (#823): [the 32x32 format page](SAVED_STATE_FORMAT_32X32.md), sections 2 and 5.
+
 The deleted page's `KLJ1` v1 is **not** carried forward, and the round-1 claim
 that it was is withdrawn. It cannot be carried forward: its records were six
 fixed little-endian words that were literally the six register writes of a plane

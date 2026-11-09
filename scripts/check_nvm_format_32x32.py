@@ -73,6 +73,8 @@ def findings(page: str, index: str, r: dict, anchors: tuple) -> list[str]:
         elif value != want_figs[key]:
             bad.append(f"FINDING: inline figure {key} reads {value}, recomputed {want_figs[key]}")
     bad += [f"FINDING: anchor {a}" for a in tables.anchor_findings(anchors)]
+    if [tuple(b) for b in r["declared"]] != [tuple(b) for b in r["space"]["blocks"]]:
+        bad.append("FINDING: the layout 3 declaration (nvm_layout3.h) is not the bound shape's derived space")
     if INDEX_LINK not in index:
         bad.append("FINDING: the docs index does not link the page")
     return bad
@@ -160,6 +162,10 @@ def self_test() -> int:
     expect("anchor", findings(page, index, r, moved), "FINDING: anchor")
     expect("index", findings(page, index.replace(INDEX_LINK, "(design/X.md)"), r, anchors),
            "FINDING: the docs index does not link")
+    moved_decl = copy.deepcopy(r)
+    group, first, last, cap = moved_decl["declared"][-1]
+    moved_decl["declared"][-1] = (group, first, last - 1, cap - 1)
+    expect("declaration", findings(page, index, moved_decl, anchors), "FINDING: the layout 3 declaration")
     bent = copy.deepcopy(r)
     bent["rule"][("tdm8", 2)] += 1
     expect("rule", findings(page, index, bent, anchors), "is not one line in N")

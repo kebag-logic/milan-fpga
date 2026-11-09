@@ -75,7 +75,7 @@ Publish conflicts before continuing.
 | Review the firmware AECP owner and its evidence | [AECP core and adapters, F5](../sw/firmware/ctrl/aecp/README.md) |
 | Review saved-state snapshot ownership | [Snapshot ownership, implemented](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
 | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
-| Review the saved-state format up to 32x32 | [Saved-state format 32x32, proposed](design/SAVED_STATE_FORMAT_32X32.md) |
+| Review the saved-state format up to 32x32 | [Saved-state format 32x32, split placement](design/SAVED_STATE_FORMAT_32X32.md) |
 | Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
 | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
 | Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |

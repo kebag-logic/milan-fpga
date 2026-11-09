@@ -46,6 +46,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import nvm_contract as contract  # noqa: E402
+import nvm_layout3  # noqa: E402
 from nvm_contract import Shape  # noqa: E402
 from nvm_shape import binding_base, inventory, output_map_entries  # noqa: E402
 import nvm_format_32x32_tables as tables  # noqa: E402
@@ -112,12 +113,16 @@ PROPOSAL = {
     "log_per_base": 1,
     # a compaction starts when half the log is used
     "reserve_fraction_den": 2,
+    # A3's suspend latency, graded at its typical value (#823 issue comment
+    # 6730985093 item 3): N25Q128 datasheet section 9.1.20 and
+    # Table 17, "Suspend Latency, Erase", 15 us typical, no maximum given
+    "susp_typ_us": 15,
     # the 3-byte-address command overheads of the writer's opcodes
     # (milan_baremetal.c NVM_CMD_*): WREN 1, PP 1 + 3, RDSR 1 + 1, READ 1 + 3
     "wren_bytes": 1, "pp_cmd_bytes": 4, "rdsr_bytes": 2, "read_cmd_bytes": 4,
 }
 
-#: ESTIMATES for section 7, each labelled on the page; round 2 measures them
+#: ESTIMATES for section 7, each labelled on the page; none is measured (#823)
 AREA_EST = {"lut_per_open_bit": 3, "ff_per_open_bit": 1, "mux_inputs_per_lut": 4,
             "ram_open_lut": 100, "width_lut": 40, "width_ff": 24}
 
@@ -397,6 +402,10 @@ def save_path(figs: dict, flash: dict) -> dict:
     s["fabric_ms"] = PROPOSAL["w_prod_ms"] + PROPOSAL["w_fw_ms"] + t_page + t_seg
     s["split_ms"] = PROPOSAL["w_fw_ms"] + t_page + t_seg
     s["susp_allow_ms"] = PROPOSAL["bound_ms"] - s["fabric_ms"]
+    s["susp_typ_ms"] = PROPOSAL["susp_typ_us"] / 1000.0
+    s["susp_margin"] = math.floor(s["susp_allow_ms"] / s["susp_typ_ms"])
+    s["split_typ_ms"] = s["split_ms"] + s["susp_typ_ms"]
+    s["fabric_typ_ms"] = s["fabric_ms"] + s["susp_typ_ms"]
     s["no_suspend_ms"] = PROPOSAL["w_prod_ms"] + PROPOSAL["w_fw_ms"] + contract.T_SE_MAX_MS + t_seg
     name_rec = PROPOSAL["rec_hdr_bytes"] + contract.NAME_BYTES
     s["name_rec"] = name_rec
@@ -487,7 +496,8 @@ def compute(out: Path) -> dict:
     est = area(figs, space)
     lifts = {p.key: built[p.key].lifts for p in POINTS if p.lifted}
     refusals = {p.key: built[p.key].aemi_refusal for p in POINTS}
-    return {"points": figs, "rule": rule, "space": space, "save": save, "window": win,
+    declared = [(b.group, b.base, b.last, b.cap) for b in nvm_layout3.read().blocks]
+    return {"points": figs, "rule": rule, "space": space, "declared": declared, "save": save, "window": win,
             "area": est, "lifts": lifts, "refusals": refusals, "flash": flash,
             "base": base, "windows_now": windows_now(), "version": csr_version(),
             "max_payload_cap": contract.MAX_PAYLOAD,

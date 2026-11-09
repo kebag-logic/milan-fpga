@@ -1,12 +1,18 @@
 # Saved-state format for shapes up to 32x32
 
-Status: **proposed, design only** (#823, round 1).
-Nothing in the tree implements it, and nothing here changes RTL, firmware or the builder.
-The choices are hard to reverse, so section 9 asks for a ruling first.
+Status: **ruled; the record space and framing implemented for the split placement** (#823, round 3).
+Decisions 1 to 7 were ruled as recommended ([round 2](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730773797)).
+The [round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730985093) scopes them to the split placement.
+The append-only save path (decisions 3, 4, 5 and 7) is round 4.
+
+**The format is the split placement's.**
+The 32x32 shape is split-only, and the processor goes away in Mark II.
+So the F1 store (`sw/firmware/ctrl_nvm`) carries layout 3 and KLJ3.
+**The all-fabric placement keeps KLJ2** and today's limits: the processor, `KL_nvm_backend` and `milan_baremetal.c` are unchanged.
 
 The Mark II target is 32x32 streams (#640): 16x16 logical streams, each redundant on two networks.
 The [#859 census](https://github.com/kebag-logic/milan-fpga/issues/859#issuecomment-6727746272) found the saved-state format blocks that shape.
-This page proposes the format for every shape up to 32x32 with two interfaces, sized for the TDM8 cluster model.
+This page sizes the format for every shape up to 32x32 with two interfaces, for the TDM8 cluster model.
 The owner's bound is a save of at most 0.5 s, worst case, from the change to durable in flash ([#823](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397)).
 
 Every figure on this page is recomputed from the tree:
@@ -25,7 +31,7 @@ Every figure on this page is recomputed from the tree:
 - **[6. Every layer that carries record_id](#6-every-layer-that-carries-record_id)** -- Every layer by file:line, what it holds today and its change, each line checked by the gate.
 - **[7. Area and timing risk, ESTIMATE](#7-area-and-timing-risk-estimate)** -- The fabric backend's change at each point, labelled as an estimate for round 2 to measure.
 - **[8. Test plan](#8-test-plan)** -- The issue's tests, one rule per row, each with the planted mutant that must be caught.
-- **[9. Decisions requested](#9-decisions-requested)** -- The rulings the design needs before any implementation, each with its recommendation and its alternative.
+- **[9. Decisions ruled](#9-decisions-ruled)** -- The seven decisions as ruled, the split placement they apply to, and the one question left open: the gateware VERSION.
 - **[10. Reproduce](#10-reproduce)** -- The commands that recompute and check every figure on this page.
 
 ## 1. The shapes and the two name models
@@ -86,7 +92,7 @@ The two formulas are that count for two config families:
 
 ## 2. The record space
 
-**Recommendation: one derived allocation, sized by the bound shape.**
+**Decision 1, ruled: one derived allocation, sized by the bound shape.**
 Each block holds the bound shape's count for its group, in today's order.
 The ids are the same for every shape, so a decoder's bases are constants.
 
@@ -124,15 +130,23 @@ The ids are the same for every shape, so a decoder's bases are constants.
 <!-- nvm-format: end ids -->
 
 **One declaration, two readers.**
-The block sizes are stated once, as RTL parameters beside today's `N_NAME_MAX_C`.
-The builder reads them as it reads `N_NAME_MAX_C` today (`sw/builder/endstation_builder.py:2694`).
-So the builder's refusal and the RTL `$error` bound by the same numbers.
-The builder's <!-- fig:lift_stream_cap -->16<!-- /fig -->-stream cap becomes the BINDING block's size, less the CRF stream.
+The block sizes are stated once, in `sw/firmware/ctrl_nvm/nvm_layout3.h`.
+Each base is the sum of the capacities before it.
+- **The F1 store's codec** compiles it, and refuses at compile time a shape whose count outgrows a block.
+- **The builder's split output** reads it through `scripts/nvm_layout3.py`: `emit_nvm_split` writes `nvm_split.json` beside the overlay and refuses a model over any block.
+- The split SoC (`milan_soc.py --ctrl-mailbox`) and the F1 host bench build the store from that file.
 
-**Alternative: a packed allocation per shape.**
+The gate fails when the declaration is not the table above, as the builder derives it from the bound shape.
+The bound shape fills every stream block and the NAME block exactly.
+
+The split reads no RTL `$error` for this space: its store is firmware.
+The all-fabric placement keeps its own bounds.
+`KL_nvm_backend` still refuses above <!-- fig:lift_name_capacity -->128<!-- /fig --> names, and the builder's shape header with it.
+The builder's <!-- fig:lift_stream_cap -->16<!-- /fig -->-stream cap stays too: it is a #859 census limit, not this format's.
+
+**The alternative not taken: a packed allocation per shape.**
 Blocks would hold only the shape's own counts, so the 1x1 would keep <!-- fig:p1_records -->54<!-- /fig --> ids below 256.
 Bases would then vary with the shape, and every producer would take them as parameters.
-That buys nothing a format change can keep: the new framing changes every shape's bytes anyway.
 
 ## 3. The image, the slot and the window
 
@@ -164,7 +178,7 @@ Three things this arithmetic shows:
 
 ### The slot: derived size, no compact name encoding
 
-**Recommendation: derive the slot size, and keep names at 64 bytes.**
+**Decision 3, ruled: derive the slot size, and keep names at 64 bytes.**
 
 - A compact name encoding cannot lower the worst case.
   Every writable name may hold all 64 octets (IEEE 1722.1-2021 SET_NAME), and Milan 5.3.13 persists each one.
@@ -186,15 +200,21 @@ Its size is the smallest erase-block count holding twice the bound's base:
 | Free flash below it | 10,432 KiB | after the AEM slot |
 <!-- nvm-format: end slot -->
 
-The new journal sits directly below today's.
-Today's <!-- fig:old_journal_kib -->128<!-- /fig --> KiB journal is never written, so the release image still finds its own after a rollback.
-The region is stated in `FLASHBOOT_RESERVED` (`sw/litex/milan_soc.py:173`), the flash map's one source.
+The new journal sits directly below today's, as `journal_klj3` in `FLASHBOOT_RESERVED` (`sw/litex/milan_soc.py:179`).
+That is the flash map's one source, so every build reserves it.
+Today's <!-- fig:old_journal_kib -->128<!-- /fig --> KiB journal is never written by the split store, so an all-fabric image still finds its own after a rollback.
+
+**Round 3 places the journal; round 4 fills the log.**
+The F1 store's two slots are the journal's halves.
+Its whole-image commit is unchanged: it erases the blocks its container spans, from the slot's first, then programs and verifies.
+At the shipped shapes that is one block, as today.
 
 ### The ppmem window and the F1 stage
 
+This subsection is the all-fabric placement's, which keeps KLJ2: nothing in it is implemented.
 The all-fabric window keeps two sub-windows below the response buffer: the live image and the private stage.
-Each grows from <!-- fig:sub_now_kib -->64<!-- /fig --> KiB to <!-- fig:sub_new_kib -->192<!-- /fig --> KiB, the bound's base rounded to erase blocks.
-The <!-- fig:window_kib -->1,024<!-- /fig --> KiB window then leaves <!-- fig:desc_room -->651,264<!-- /fig --> B for the descriptor image.
+Each would grow from <!-- fig:sub_now_kib -->64<!-- /fig --> KiB to <!-- fig:sub_new_kib -->192<!-- /fig --> KiB, the bound's base rounded to erase blocks.
+The <!-- fig:window_kib -->1,024<!-- /fig --> KiB window would then leave <!-- fig:desc_room -->651,264<!-- /fig --> B for the descriptor image.
 
 <!-- nvm-format: begin window -->
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
@@ -209,8 +229,9 @@ Today the window holds the image plus 135,168 B; the proposal, plus 397,312 B, o
 <!-- nvm-format: end window -->
 
 The split's F1 store has no DDR3, so its stage is block RAM (#640 D4).
-Today it holds the whole container: <!-- fig:p32_f1_stage_now -->99,088<!-- /fig --> B at the census shape.
-An append needs only one page and one record, <!-- fig:t32_f1_stage_new -->2,378<!-- /fig --> B at 32x32.
+In round 3 it still holds the whole container, now KLJ3: its ten-byte headers add two bytes a record.
+In KLJ2 that was <!-- fig:p32_f1_stage_now -->99,088<!-- /fig --> B at the census shape.
+Round 4's append needs only one page and one record, <!-- fig:t32_f1_stage_new -->2,378<!-- /fig --> B at 32x32.
 Compaction streams record by record from the owners, so it needs no more.
 
 ## 4. The save path and its 0.5 s bound
@@ -275,7 +296,7 @@ A change then never waits for an earlier segment, only for the page in flight.
 
 **The erase.** Without erase suspend a save can land behind a whole tSE: <!-- fig:no_suspend_ms -->3,399.37<!-- /fig --> ms.
 With it, the bound holds if the suspend latency stays under <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms.
-The tree cites no suspend figure, so round 2 sources it from the datasheet (decision 5).
+Assumption A3 below grades it.
 
 <!-- nvm-format: begin limits -->
 | Case | Value | Basis |
@@ -298,6 +319,11 @@ The bound holds under three stated assumptions:
 - **A2.** Averaged over a compaction and the following erase, saves fill at most the reserve: <!-- fig:rate_pages_s -->24.4<!-- /fig --> pages a second.
   Past that, a save waits for compaction and is published pending, never lost.
 - **A3.** The flash suspends an erase for a program in another block, within the room above.
+  The part has erase suspend (N25Q128 datasheet, section 9.1.20 and Table 17).
+  Its suspend latency is <!-- fig:susp_typ_us -->15<!-- /fig --> us **typical, with no maximum given**: the bound's one typical term, as the round 3 ruling grades it.
+  The split's worst save is then <!-- fig:split_typ_ms -->304.72<!-- /fig --> ms.
+  The room is <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms, so a suspend <!-- fig:susp_margin -->6,352<!-- /fig --> times its typical value would still fit.
+  Round 4's writer times every suspend and reports a slow one.
 
 No design meets the bound for an arbitrary burst.
 At tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms the flash programs one page per <!-- fig:t_pp_ms -->5<!-- /fig --> ms, so a whole 32x32 rewrite takes seconds.
@@ -327,24 +353,31 @@ A boot that finds a torn delta also owes one compaction before its next append.
 
 ## 5. Compatibility and the VERSION chain
 
-**Recommendation: refuse today's journal and boot blank, with the reason recorded.**
+**Decision 2, ruled and implemented in the split's store: refuse today's journal and boot blank, with the reason recorded.**
 
-- A KLJ2 image is refused with `VD_VER` and never reinterpreted, as KLJ1 was (FASTCONNECT section 6.2).
-- The new writer never writes today's journal, so a rollback to the release image finds its journal intact.
-- At boot, a valid KLJ2 header in today's region is reported: the verdict, a console line and a status bit.
+- A KLJ2 container is refused with `VD_VER` and never reinterpreted, as KLJ1 was (FASTCONNECT section 6.2).
+  The F1 codec recognises the KLJ2 magic before it reads anything else.
+- The split store never writes today's journal: its port refuses a program or erase outside `journal_klj3`.
+  So a rollback to an all-fabric image finds its journal intact.
+- At boot the store reads the two headers of today's journal.
+  A KLJ2 header sets its bit in the status field `legacy`.
+  When the store's own slots are blank, the boot's verdict is `VD_VER`, not `VD_BLANK`.
+- A read of today's journal that fails records nothing: that journal is never the split store's authority.
 - The cost is one lost saved state per upgraded board: it boots unbound, as from blank flash.
 
-**Alternative: import today's journal once.**
+**The alternative not taken: import today's journal once.**
 Both writers would keep a KLJ2 decoder and an id translation for one boot.
-That keeps saved bindings across the upgrade, at the cost of a second decoder in the F1 store's block RAM.
 
 **The VERSION chain step.**
 
-- The container's magic becomes `KLJ3` and its `FMT_VER` major 3; acceptance rule 3's cap becomes the slot.
-- A KLJ2 header in today's region is recognised as the previous format, hence `VD_VER`.
-- F07.8 `layout_version` goes from 2 to 3: a <!-- fig:rec_hdr_bytes -->10<!-- /fig -->-byte header with a 16-bit `record_id`.
-- The gateware VERSION minor advances by one at round 2's head, from today's <!-- fig:version_minor -->96<!-- /fig -->.
-  Its five simulation assertions move together, as [the split architecture's section 7](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip) lists:
+- The container's magic becomes `KLJ3` and its `FMT_VER` major 3; acceptance rule 3's cap becomes the slot. Done.
+- A KLJ2 header in either journal is recognised as the previous format, hence `VD_VER`. Done.
+- F07.8 `layout_version` goes from 2 to 3: a <!-- fig:rec_hdr_bytes -->10<!-- /fig -->-byte header with a 16-bit `record_id`. Done.
+- **The gateware VERSION is not moved, and is an open question.**
+  It stays at minor <!-- fig:version_minor -->96<!-- /fig -->.
+  Round 3 changes no gateware, and the all-fabric placement must stay unchanged.
+  [The split architecture's section 7](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip) binds VERSION to the placement an image runs.
+  The split's VERSION lands with the default flip, with these five assertions:
 
 <!-- nvm-format: begin version -->
 | Assertion | Where | Reads today |
@@ -360,61 +393,61 @@ That keeps saved bindings across the upgrade, at the cost of a second decoder in
 ## 6. Every layer that carries record_id
 
 Each row is cited by file:line, and the gate checks that each line still reads what it was cited for.
+The split's rows are what round 3 changed.
+The all-fabric rows are unchanged: that placement keeps KLJ2.
 
 <!-- nvm-format: begin layers -->
-| Layer | Where | Today | Change |
+| Layer | Where | Reads | Round 3 |
 |---|---|---|---|
-| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:182` | 8-byte header | 10-byte header, layout 3 |
-| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:135` | 8-bit record id in | 16-bit field, 11 bits decoded |
-| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:160` | 8-bit region out | widen with the id |
-| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:115` | 1,024-byte payload cap | derived: the shape's largest payload |
-| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:127` | BINDING base 32 | derived BINDING base |
-| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:137` | layout 2 | layout 3 |
-| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:139` | 500 ms window | the producer window of section 5 |
-| F07.8 framing | `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:397` | fixed bases 0, 2, 10, 48, 64, 80, 128 | derived bases |
-| F07.8 framing | `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:193` | 500 ms window | the producer window of section 5 |
-| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:79` | 8-bit ids, both managers | widen with the id |
-| F07.8 framing | `protocol-processor/hdl/top/protocol_processor_top.sv:598` | 8-bit region at the top | widen with the id |
-| `dev_region_i` | `hdl/milan/KL_nvm_backend.sv:156` | 8-bit region in | widen with the id |
-| `dev_region_i` | `hdl/milan/KL_pp_shadow.sv:1064` | 8-bit wire to the backend | widen with the id |
-| `dev_region_i` | `hdl/milan/KL_pp_shadow.sv:417` | 8-bit map-writer id | widen with the id |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:243` | fixed id blocks | derived blocks of section 2 |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:228` | 8-byte header | 10-byte header |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:311` | 9-bit compare | 12-bit compare |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:194` | 16 map ports per table | 32 ports: one more index bit |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:531` | 256 ownership bits | one bit per id, section 7 |
-| Backend decode | `hdl/milan/KL_nvm_backend.sv:1124` | 256-id ownership loop | the derived id count |
-| Backend refusals | `hdl/milan/KL_nvm_backend.sv:248` | 128 names | the derived NAME block |
-| Backend refusals | `hdl/milan/KL_nvm_backend.sv:285` | 16 streams per direction | the derived stream blocks |
-| Backend refusals | `hdl/milan/KL_nvm_backend.sv:288` | 16 stream ports | the derived map blocks |
-| Map writer | `hdl/milan/milan_datapath.sv:5252` | ids 96 + port | derived MAPS_IN base |
-| Map writer | `hdl/milan/milan_datapath.sv:5262` | ids 112 + port | derived MAPS_OUT base |
-| Map writer | `hdl/milan/milan_datapath.sv:5229` | 127-entry cursors | cursors for 264 output keys |
-| Map writer | `hdl/milan/milan_datapath.sv:318` | 500 ms window | the producer window of section 5 |
-| Firmware, shipping writer | `sw/firmware/milan_baremetal/milan_baremetal.c:258` | fixed id blocks | generated bases |
-| Firmware, shipping writer | `sw/firmware/milan_baremetal/milan_baremetal.c:373` | 8-bit block base and count | 16-bit |
-| Firmware, shipping writer | `sw/firmware/milan_baremetal/milan_baremetal.c:329` | two 64 KiB slots | the slot and log of section 4 |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_shape.h:132` | 256 ids | the derived id count |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_shape.h:133` | 128 names | the derived NAME block |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_shape.h:134` | image within one slot | base within one slot |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_shape.h:136` | one erase block | the derived slot |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_shape.h:33` | 64 KiB container | format 3 bound |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_klj2.c:37` | 16 ports, 8-bit counts | 32 ports, 16-bit counts |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_klj2.h:62` | 8-bit id | 16-bit |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:490` | id at header byte 3 | 16-bit id at bytes 4 and 5 |
-| Firmware, F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:54` | 8 ownership words | the derived id count |
-| F1 link | `sw/litex/ctrl_memory.py:384` | stage = container | stage = one page and one record |
-| F1 link | `sw/litex/milan_soc.py:4653` | 64 KiB image | the base bound |
-| F1 link | `sw/litex/milan_soc.py:3547` | 64 KiB live window | the derived sub-window |
-| F1 link | `sw/litex/milan_soc.py:173` | 128 KiB journal | kept; a new journal below it |
-| Builder | `sw/builder/endstation_builder.py:1464` | 16 streams per direction | read from the record space |
-| Builder | `sw/builder/endstation_builder.py:2740` | 128 names | the derived NAME block |
-| Builder | `sw/builder/endstation_builder.py:2353` | 64 KiB sub-windows | the derived sub-windows |
-| Scripts | `scripts/nvm_contract.py:60` | 256 ids | the derived id count |
-| Scripts | `scripts/nvm_contract.py:152` | fixed blocks | derived blocks |
-| Scripts | `scripts/nvm_contract.py:34` | 8-byte header | 10-byte header |
-| Scripts | `scripts/nvm_shape.py:131` | 16 map ports | the shape's ports |
-| Scripts | `scripts/nvm_klj2.py:89` | 8-bit id frame | 16-bit id frame |
+| Declaration | `sw/firmware/ctrl_nvm/nvm_layout3.h:47` | NAME block, 907 ids | the one declaration, every block's capacity |
+| Declaration | `sw/firmware/ctrl_nvm/nvm_layout3.h:63` | 1,129 ids | bases chained from the capacities |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_shape.h:49` | 10-byte header | layout 3 |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_shape.h:170` | the NAME block's refusal | compile time, from the declaration |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_shape.h:139` | journal_klj3 | the 640 KiB journal |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_shape.h:148` | container up to a slot | KLJ3 rule 3 |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_klj2.c:43` | 32 ports, 16-bit counts | done |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_klj2.c:284` | KLJ2 refused `VD_VER` | decision 2 |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_klj2.h:67` | 16-bit id | done |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:551` | 16-bit id at bytes 4 and 5 | done |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:60` | open bits, 36 words | decision 6 |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:131` | the open records' count | decision 6 |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:465` | today's journal read, never written | decision 2 |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c:807` | every block the container spans | the whole-image commit |
+| F1 port | `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:181` | writes only journal_klj3 | done |
+| F1 link | `sw/litex/ctrl_memory.py:384` | stage = KLJ3 container | the append path is round 4 |
+| F1 link | `sw/litex/milan_soc.py:4682` | the split SoC's constants | from the builder's split output |
+| F1 link | `sw/litex/milan_soc.py:179` | 640 KiB journal | below today's |
+| Builder | `sw/builder/endstation_builder.py:2790` | nvm_split.json | refused over a layout 3 block |
+| Scripts | `scripts/nvm_klj3.py:127` | 16-bit id frame | the split's reference |
+| Scripts | `scripts/nvm_layout3.py:111` | the declaration's reader | done |
+| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:182` | 8-byte header | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:135` | 8-bit record id in | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:160` | 8-bit region out | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:115` | 1,024-byte payload cap | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:127` | BINDING base 32 | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:137` | layout 2 | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:139` | 500 ms window | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:397` | fixed bases 0, 2, 10, 48, 64, 80, 128 | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:193` | 500 ms window | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:79` | 8-bit ids, both managers | unchanged: the all-fabric placement keeps KLJ2 |
+| F07.8 framing | `protocol-processor/hdl/top/protocol_processor_top.sv:598` | 8-bit region at the top | unchanged: the all-fabric placement keeps KLJ2 |
+| `dev_region_i` | `hdl/milan/KL_nvm_backend.sv:156` | 8-bit region in | unchanged: the all-fabric placement keeps KLJ2 |
+| `dev_region_i` | `hdl/milan/KL_pp_shadow.sv:1064` | 8-bit wire to the backend | unchanged: the all-fabric placement keeps KLJ2 |
+| `dev_region_i` | `hdl/milan/KL_pp_shadow.sv:417` | 8-bit map-writer id | unchanged: the all-fabric placement keeps KLJ2 |
+| Backend decode | `hdl/milan/KL_nvm_backend.sv:243` | fixed id blocks | unchanged: the all-fabric placement keeps KLJ2 |
+| Backend decode | `hdl/milan/KL_nvm_backend.sv:228` | 8-byte header | unchanged: the all-fabric placement keeps KLJ2 |
+| Backend decode | `hdl/milan/KL_nvm_backend.sv:531` | 256 ownership bits | unchanged: the all-fabric placement keeps KLJ2 |
+| Backend refusals | `hdl/milan/KL_nvm_backend.sv:248` | 128 names | unchanged: the all-fabric placement keeps KLJ2 |
+| Backend refusals | `hdl/milan/KL_nvm_backend.sv:285` | 16 streams per direction | unchanged: the all-fabric placement keeps KLJ2 |
+| Map writer | `hdl/milan/milan_datapath.sv:5252` | ids 96 + port | unchanged: the all-fabric placement keeps KLJ2 |
+| Map writer | `hdl/milan/milan_datapath.sv:318` | 500 ms window | unchanged: the all-fabric placement keeps KLJ2 |
+| Firmware, shipping writer | `sw/firmware/milan_baremetal/milan_baremetal.c:258` | fixed id blocks | unchanged: the all-fabric placement keeps KLJ2 |
+| Firmware, shipping writer | `sw/firmware/milan_baremetal/milan_baremetal.c:329` | two 64 KiB slots | unchanged: the all-fabric placement keeps KLJ2 |
+| Builder | `sw/builder/endstation_builder.py:1465` | 16 streams per direction | kept: a #859 census limit, not this format's |
+| Builder | `sw/builder/endstation_builder.py:2746` | 128 names, the all-fabric shape header | unchanged: the all-fabric placement keeps KLJ2 |
+| Builder | `sw/builder/endstation_builder.py:2354` | 64 KiB sub-windows | unchanged: the all-fabric placement keeps KLJ2 |
+| Scripts | `scripts/nvm_contract.py:152` | layout 2's fixed blocks | unchanged: the all-fabric placement keeps KLJ2 |
+| Scripts | `scripts/nvm_klj2.py:89` | 8-bit id frame | unchanged: the all-fabric placement keeps KLJ2 |
 | Mailbox contract | `sw/mailbox/mailbox.yaml:93` | 16 bound talkers, as the BINDING block | a #859 decision, not this format |
 <!-- nvm-format: end layers -->
 
@@ -423,7 +456,11 @@ Its 16 bound talkers follow the BINDING block today, and the census puts its tab
 
 ## 7. Area and timing risk, ESTIMATE
 
-**Every number in this section is an estimate.** Round 2 measures them under the #818 gate.
+**Every number in this section is an estimate, for the all-fabric placement's backend.**
+That placement keeps KLJ2, so none of it is built; the section stays as the ruling's record.
+In the split, decision 6's open bits are the F1 store's: two word arrays of 36 words at layout 3, each with a count of its bits set.
+The store asks the count, not the words, whether any record is open.
+Area applies to the split once round 4 lands, under #818's gate.
 
 - **At 1x1 and 8x8 the change is small.**
   The ownership vector keeps one bit per record: <!-- fig:p1_open_ff -->54<!-- /fig --> and <!-- fig:p8_open_ff -->164<!-- /fig -->, as today.
@@ -453,44 +490,42 @@ The issue's scope item 4, with one plant per rule.
 Each plant is a mutant of the implementation that its test must catch.
 
 <!-- nvm-format: begin tests -->
-| # | Rule | Test | Plant that must be caught |
-|---|---|---|---|
-| T1 | NAME first id 222 | accepted by the builder, the backend decode, F1 and the codec | NAME base off by one |
-| T2 | NAME last id 1,128 | the 32x32 TDM8 overlay's 907 names round trip | block end taken as exclusive |
-| T3 | NAME one past, 1,129 | backend `dev_err`, F1 refusal, builder `ConfigError`, RTL `$error` | the refusal removed |
-| T4 | Every other block | first, last and one-past id of each block in section 2 | one block sized by the wrong count |
-| T5 | Capacity | 907 names accepted, one more refused, in the builder and the RTL | the builder reads a second copy of the bound |
-| T6 | Old journal on boot | a KLJ2 journal boots blank with `VD_VER` recorded; its slots stay unwritten | a reader that reinterprets major 2 |
-| T7 | Append order | a delta over the base: the last value wins | segments applied in reverse |
-| T8 | Torn append | a cut at every page restores the last closing segment | a segment accepted without its CRC |
-| T9 | Torn compaction | a cut at every page boots the old slot, losing nothing | authority moved before the new trailer verifies |
-| T10 | Erase in progress | a save during the background erase suspends it | the save waits for the erase |
-| T11 | Save bound | model time, change to verified, at most 500 ms at 32x32 TDM8 | a 1,000 ms firmware window |
-| T12 | Reserve exhausted | the save waits, is published pending and is not lost | the save dropped |
-| T13 | Commit deadline | at least twice the worst append at every shape | a 300 ms deadline |
-| T14 | Payload cap | `MAX_PAYLOAD_P` covers 2,112 B | the 1,024 B default |
-| T15 | Fit | base, log and window fit at every shape | a two-block slot |
-| T16 | VERSION | the five assertions read the new VERSION | one left at today's |
+| # | Rule | Test | Plant that must be caught | State |
+|---|---|---|---|---|
+| T1 | NAME first id 222 | F1 `name_block_ends`; builder gate 39 pins it; the reference gate holds every id in its block | `name_base_moved`; a block before NAME grown | round 3, split |
+| T2 | NAME last id 1,128 | F1 at 907 names: `name_block_ends`, `capacity_round_trip` over two erase blocks | `name_last_dropped`; `first_block_only` | round 3, split |
+| T3 | NAME one past, 1,129 | F1 `one_past_refused` and the parity table, `VD_REC`; 908 names do not compile | `id_space_unbounded`; the NAME assert removed | round 3, split |
+| T4 | Every other block | each block's first id read from the declaration; the reference gate's ledger at every shape | the last name left out of the reference's inventory | round 3, split |
+| T5 | Capacity | builder gate 39: the 32x32 TDM8 overlay's 907 names accepted, one more refused; the all-fabric header still refuses it | capacity 906 and 908; the all-fabric bound read from the split's | round 3, split |
+| T6 | Old journal on boot | F1 `klj2_journal_refused`, `klj2_in_slot_refused`, `klj2_journal_unreadable`: blank, `VD_VER` recorded, today's journal unwritten | `klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped` | round 3, split |
+| T7 | Append order | a delta over the base: the last value wins | segments applied in reverse | round 4 |
+| T8 | Torn append | a cut at every page restores the last closing segment | a segment accepted without its CRC | round 4 |
+| T9 | Torn compaction | a cut at every page boots the old slot, losing nothing | authority moved before the new trailer verifies | round 4 |
+| T10 | Erase in progress | a save during the background erase suspends it | the save waits for the erase | round 4 |
+| T11 | Save bound | model time, change to verified, at most 500 ms at 32x32 TDM8 | a 1,000 ms firmware window | round 4 |
+| T12 | Reserve exhausted | the save waits, is published pending and is not lost | the save dropped | round 4 |
+| T13 | Commit deadline | at least twice the worst append at every shape | a 300 ms deadline | round 4 |
+| T14 | Payload cap | the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`) | none: the 1,024 B `MAX_PAYLOAD_P` is the processor's | all-fabric unchanged |
+| T15 | Fit | the container within one slot, asserted at compile time; base and log | a two-block slot | round 4 |
+| T16 | VERSION | the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, majors 2 and 4) | `no_version_check` | round 3; the gateware VERSION open (section 5) |
 <!-- nvm-format: end tests -->
 
-Round 2 also runs the full sweep, rtl-fast, the builder bank and the LiteX simulations, as #823 asks.
+Each round 3 row names the F1 host suite's tests (`sw/firmware/ctrl_nvm/test`), builder gate 39 or the reference gate (`scripts/check_nvm_klj3.py`).
+Each plant is planted by that suite's self-test.
 
-## 9. Decisions requested
+## 9. Decisions ruled
 
-- **1. The record space.** Recommended: the derived allocation of section 2, 11 bits in a 16-bit field.
-  Alternative: a packed allocation per shape.
-- **2. Compatibility.** Recommended: refuse KLJ2 with `VD_VER`, boot blank, record the reason.
-  Alternative: import a KLJ2 journal once at boot.
-- **3. The slot.** Recommended: a derived slot of <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's.
-  Alternative: a compact output-map encoding, reversing #501's per-port capacity.
-- **4. The windows.** Recommended: <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows, superseding DR2a.
-  Alternative: keep DR2a and measure the bound from the window's close, not the change.
-- **5. The erase.** Recommended: background erase with erase suspend, its latency sourced in round 2.
-  Alternative: no suspend, and a save behind an erase allowed <!-- fig:no_suspend_ms -->3,399.37<!-- /fig --> ms.
-- **6. Ownership at 32x32.** Recommended: open bits in distributed RAM with a count.
-  Alternative: flop-held bits, as today.
-- **7. The commit deadline.** Recommended: <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append.
-  Alternative: keep <!-- fig:commit_now_ms -->8,000<!-- /fig --> ms, which no longer detects a stalled append inside the bound.
+The seven decisions were ruled as recommended, and the round 3 ruling scopes them to the split placement.
+
+- **1. The record space:** the derived allocation of section 2, 11 bits in a 16-bit field. Implemented, round 3.
+- **2. Compatibility:** refuse KLJ2 with `VD_VER`, boot blank, record the reason. Implemented, round 3.
+- **3. The slot:** <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's. The journal is placed in round 3; its log is round 4.
+- **4. The windows:** <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows. Round 4, for the split's firmware window.
+- **5. The erase:** background erase with suspend, graded at the typical latency (A3). Round 4.
+- **6. Ownership:** open bits with a count. Implemented in the split's store, round 3.
+- **7. The commit deadline:** <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append. Round 4.
+
+**Open: the gateware VERSION** (section 5). Round 3 leaves it at today's value and asks for a ruling.
 
 ## 10. Reproduce
 
@@ -499,6 +534,9 @@ python3 scripts/nvm_format_32x32.py
 python3 scripts/nvm_format_32x32.py --blocks
 python3 scripts/check_nvm_format_32x32.py
 python3 scripts/check_nvm_format_32x32.py --self-test
+python3 scripts/check_nvm_klj3.py --self-test
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test
+python3 sw/builder/test_builder.py --gates test_split_record_space_bounds_the_split_output
 ```
 
 After a change to a definition, `python3 scripts/check_nvm_format_32x32.py --write` regenerates every figure here.
