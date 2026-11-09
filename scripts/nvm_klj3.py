@@ -87,6 +87,7 @@ def inventory3(shape: Shape) -> list[Record]:
     dc, recs = shape.dc, []
 
     def add(group: str, index: int, payload: int) -> None:
+        """Append one row, its id None when the group's block cannot reach the index."""
         b = LAYOUT.block(group)
         recs.append((group, index, b.base + index if index < b.cap else None, payload, b.cap))
 

@@ -418,7 +418,7 @@ The all-fabric rows are unchanged: that placement keeps KLJ2.
 | F1 link | `sw/litex/milan_soc.py:4682` | the split SoC's constants | from the builder's split output |
 | F1 link | `sw/litex/milan_soc.py:179` | 640 KiB journal | below today's |
 | Builder | `sw/builder/endstation_builder.py:2790` | nvm_split.json | refused over a layout 3 block |
-| Scripts | `scripts/nvm_klj3.py:127` | 16-bit id frame | the split's reference |
+| Scripts | `scripts/nvm_klj3.py:128` | 16-bit id frame | the split's reference |
 | Scripts | `scripts/nvm_layout3.py:111` | the declaration's reader | done |
 | F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:182` | 8-byte header | unchanged: the all-fabric placement keeps KLJ2 |
 | F07.8 framing | `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:135` | 8-bit record id in | unchanged: the all-fabric placement keeps KLJ2 |

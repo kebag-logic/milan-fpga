@@ -96,7 +96,7 @@ LAYERS = (
            "640 KiB journal", "below today's"),
     Anchor("Builder", "sw/builder/endstation_builder.py", 2790, "def emit_nvm_split(",
            "nvm_split.json", "refused over a layout 3 block"),
-    Anchor("Scripts", "scripts/nvm_klj3.py", 127, 'hdr = struct.pack(">HBBHH"', "16-bit id frame",
+    Anchor("Scripts", "scripts/nvm_klj3.py", 128, 'hdr = struct.pack(">HBBHH"', "16-bit id frame",
            "the split's reference"),
     Anchor("Scripts", "scripts/nvm_layout3.py", 111, "def read(", "the declaration's reader", "done"),
     # ---- the all-fabric placement: the processor's port and its managers

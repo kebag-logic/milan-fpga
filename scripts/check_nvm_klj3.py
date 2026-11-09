@@ -174,6 +174,7 @@ def check_refusals(b: Built) -> list[str]:
     at = k3.HDR + offs[min(fr)]
 
     def rewrite(rid: int, header: Callable[[bytes], bytes]) -> bytes:
+        """The container with record `rid`'s header rewritten by `header`, its crc16 closing."""
         f = fr[rid]
         hdr = header(f[:8])
         return k3.klj3_assemble({**fr, rid: hdr + struct.pack(">H", crc16_ccitt(hdr + f[10:])) + f[10:]}, IDENT)[0]
@@ -244,7 +245,8 @@ def _decode_reserved_ignored(blob, ident, expect):
         plen = struct.unpack_from(">H", out, pos + 6)[0]
         if out[pos + 3]:
             out[pos + 3] = 0
-            out[pos + 8:pos + 10] = struct.pack(">H", crc16_ccitt(bytes(out[pos:pos + 8] + out[pos + 10:pos + 10 + plen])))
+            body = bytes(out[pos:pos + 8] + out[pos + 10:pos + 10 + plen])
+            out[pos + 8:pos + 10] = struct.pack(">H", crc16_ccitt(body))
         pos += 10 + plen
     return REAL["klj3_decode"](reseal(bytes(out)), ident, expect)
 
