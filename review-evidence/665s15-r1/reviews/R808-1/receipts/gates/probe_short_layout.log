@@ -1,0 +1,5 @@
+shape acmp/acmp_mbx.c: rc=0 entries=17/17
+short acmp/acmp_mbx.c: rc=1 entries=16/16
+    $REVIEWS/665s15-r808-1-packet/scratch/probe-short/short/acmp/acmp_mbx.c:15:1: error: static assertion failed: "every sink needs a bound-talker entry"
+    $REVIEWS/665s15-r808-1-packet/scratch/probe-short/short/acmp/acmp_mbx.c:16:1: error: static assertion failed: "every sink needs a publication entry"
+PROBE firmware link refuses the short layout and accepts the shape's

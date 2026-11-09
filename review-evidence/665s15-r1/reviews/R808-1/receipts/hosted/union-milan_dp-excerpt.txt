@@ -1,0 +1,27 @@
+# Union milan_dp (job 129244069098) at 7aa6ef0c: step list and the failing assertion
+Set up job: success
+Run actions/checkout@v4: success
+Set CPU-derived job budgets: success
+Fetch inventory dependencies: success
+Download executed case evidence: success
+Require successful owners and every case exactly once: failure
+Upload verified suite union: skipped
+Record actual job execution: success
+Upload actual job execution: success
+Post Run actions/checkout@v4: success
+Complete job: success
+--- log lines 320-333 (ANSI stripped)
+      "rtl": "true",
+      "target_sha": "b8718bb231a668806b6efa25bb2ea4f5c453d584"
+    }
+  },
+  "verilator-shards": {
+    "result": "cancelled",
+    "outputs": {}
+  }
+}
+2026-11-09T15:20:19.9748619Z ##[endgroup]
+2026-11-09T15:20:20.0453978Z Traceback (most recent call last):
+2026-11-09T15:20:20.0454420Z   File "<stdin>", line 3, in <module>
+2026-11-09T15:20:20.0455449Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'run_full': 'true', 'rtl': 'true', 'target_sha': 'b8718bb231a668806b6efa25bb2ea4f5c453d584'}}, 'verilator-shards': {'result': 'cancelled', 'outputs': {}}}
+2026-11-09T15:20:20.0605476Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,20 @@
+test_control_placement_key:
+  [gate 23n] 5 configs all-fabric, each split variant differing in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused
+test_simulation_shape_option:
+  [gate 39] the 32x32 simulation shape builds without saved state; saved_state: none is refused on a shape that may be routed and the simulation shape writes no routed output, each by its words
+  [gate 39] 2/2 planted defects turned it red: the option accepted on any shape: saved_state: none on a shape that may be routed: accepted; the simulation shape writing routed outputs: --write-rtl of the simulation shape: accepted
+test_shipped_shape_outputs_unchanged:
+wrote /tmp/gate41-3lcde9n8/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote /tmp/gate41-3lcde9n8/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote /tmp/gate41-3lcde9n8/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+wrote /tmp/gate41-9dicbxqm/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote /tmp/gate41-9dicbxqm/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote /tmp/gate41-9dicbxqm/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+wrote /tmp/gate41-qvk0u3xk/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote /tmp/gate41-qvk0u3xk/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote /tmp/gate41-qvk0u3xk/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+  [gate 41] the 1x1 and 8x8 shapes' 33 generated outputs (ax7101_1x1_tdm8 15, ax7101_8x8 18) are byte-identical to shape_outputs_golden.json
+  [gate 41] 1/1 planted defect turned it red: the simulation mark on every shape (ax7101_1x1_tdm8 builder:build_plan: changed)
+
+SUBSET: 3 of 108 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

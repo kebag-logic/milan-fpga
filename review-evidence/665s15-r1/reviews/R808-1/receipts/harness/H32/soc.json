@@ -1,0 +1,185 @@
+{
+  "sources": [
+    "$REVIEWS/665s15-r808-1-packet/scratch/runs/H32-build/mbx-variant/KL_mbx_pkg.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/clone-head/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/clone-head/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/clone-head/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/clone-head/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/runs/H32-build/mbx-variant/KL_mbx.sv",
+    "$REVIEWS/665s15-r808-1-packet/scratch/clone-head/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_be5058e57f94265dafafcb0a4320af67.v",
+    "$REVIEWS/665s15-r808-1-packet/scratch/runs/H32-build/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "shape": "endstation_ax7101_32x32",
+  "interfaces": 2,
+  "addresses": {
+    "mailbox": 2147483648,
+    "spiflash": 4026544128,
+    "timer0": 4026546176,
+    "flash": 536870912,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "netlist": "VexiiRiscvLitex_be5058e57f94265dafafcb0a4320af67",
+  "vexii_soc_args": {
+    "cpu_count": "1",
+    "imsic_interrupt_number": "0",
+    "l2_bytes": "0",
+    "l2_self_flush": "None",
+    "l2_ways": "4",
+    "mac_sg": "[]",
+    "video": "[]",
+    "with_aplic": "False",
+    "with_axi3": "False",
+    "with_axilite_xlen": "False",
+    "with_cpu_clk": "True",
+    "with_dma": "True",
+    "with_jtag_instruction": "False",
+    "with_jtag_tap": "False"
+  },
+  "vexii_args": " --with-isa=,zicsr,zifencei,i --xlen=32 --fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1 --reset-vector 0",
+  "memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      524288,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      524288,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "fetch_l1": "split",
+  "fetch_l1_geometry": [
+    64,
+    1
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 155196,
+      "banks": [
+        131072,
+        16384,
+        8192
+      ],
+      "RAMB36": 38,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 310544,
+      "banks": [
+        262144,
+        32768,
+        16384
+      ],
+      "RAMB36": 76,
+      "RAMB18": 0
+    },
+    "tiles": 114.0,
+    "budget_tiles": 56,
+    "owed": {
+      "to": "#640, the Mark II area plan: a 32x32 shape's firmware memory",
+      "budget_bytes": 229376,
+      "allocated_bytes": 466944,
+      "over_bytes": 237568,
+      "regions": {
+        "rom": {
+          "need": 155196,
+          "allocated": 155648
+        },
+        "sram": {
+          "need": 310544,
+          "allocated": 311296
+        }
+      },
+      "largest": [
+        {
+          "symbol": "image_arena",
+          "bytes": 144832,
+          "region": "sram"
+        },
+        {
+          "symbol": "aecp_entity_image",
+          "bytes": 69488,
+          "region": "rom"
+        },
+        {
+          "symbol": "image_maps",
+          "bytes": 67584,
+          "region": "sram"
+        },
+        {
+          "symbol": "image_values",
+          "bytes": 41465,
+          "region": "sram"
+        },
+        {
+          "symbol": "image_app",
+          "bytes": 15136,
+          "region": "sram"
+        }
+      ]
+    }
+  },
+  "mailbox_layout": "shape",
+  "simulation_map": "32x32-two-interfaces"
+}

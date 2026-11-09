@@ -1,0 +1,9 @@
+# 8x8/2if harness build inputs, head 7aa6ef0c (clone-head2) vs base 1d6bf555 (clone-base2), build.py endstation_ax7101_8x8 2
+image/ctrl_app.elf head 548a04b1581224b66c1ec866a72e491389d5f03a5e17416f1b906c78677d2fbe base 548a04b1581224b66c1ec866a72e491389d5f03a5e17416f1b906c78677d2fbe
+budget_config.hpp head 1529461287520fdce91e9b103e7bf19b59886e6e46c207e5d4bdbcc64c2a8dc9 base 1529461287520fdce91e9b103e7bf19b59886e6e46c207e5d4bdbcc64c2a8dc9
+gateware/*.init: identical (6 files)
+gateware/sim.v: differs only in its generation date line (4 diff lines, the Date comment)
+csr.csv: differs only in its 'Auto-generated ... on <date>' line
+group scripts (scenario.all_groups at the base build.json): identical 17 17 []
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:24.21
+	Maximum resident set size (kbytes): 357592

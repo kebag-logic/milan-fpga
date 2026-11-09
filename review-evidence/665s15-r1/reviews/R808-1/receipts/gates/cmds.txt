@@ -1,0 +1,13 @@
+builder_subset python3 sw/builder/test_builder.py --gates test_control_placement_key,test_simulation_shape_option,test_shipped_shape_outputs_unchanged
+py_idiom python3 scripts/check_py_idiom.py
+soc_options python3 sw/builder/test_soc_options.py
+gen_mailbox_check python3 sw/mailbox/gen_mailbox.py --check --crosscheck
+gen_mailbox_selftest python3 sw/mailbox/gen_mailbox.py --selftest
+ctrl_memory python3 sw/litex/test_ctrl_memory.py
+harness_selftest python3 -B tb/verilator/ctrl_service_budget/run.py --self-test
+target_32x32 python3 -B tb/verilator/nvm_split_target/run.py --point 32x32 --build-dir $REVIEWS/665s15-r808-1-packet/scratch/nvm-target-32x32
+docs_check python3 scripts/docs_check.py
+record_space python3 scripts/check_nvm_record_space.py
+baremetal python3 scripts/check_baremetal_only.py --check
+builder_32x32 python3 sw/builder/endstation_builder.py configs/endstation_ax7101_32x32.yaml -o $REVIEWS/665s15-r808-1-packet/scratch/shape32
+entity_shape python3 scripts/check_entity_shape.py

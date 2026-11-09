@@ -1,0 +1,132 @@
+{
+  "shape": "endstation_ax7101_32x32",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "saved_state": "none",
+  "acmp_sizing": [
+    "-DACMP_MAX_SINKS=33u",
+    "-DACMP_MAX_SOURCES=33u"
+  ],
+  "simulation_map": "32x32-two-interfaces",
+  "sections": {
+    ".text": 78480,
+    ".rodata": 74922,
+    ".data": 1792,
+    ".bss": 300548,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 136,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 152,
+    "image_allocation": 16,
+    "image_app": 15136,
+    "image_arena": 144832,
+    "image_descriptors": 7360,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 9200,
+    "image_face": 88,
+    "image_latency": 132,
+    "image_licences": 66,
+    "image_map_pools": 1792,
+    "image_maps": 67584,
+    "image_model": 12,
+    "image_platform": 56,
+    "image_sources": 2112,
+    "image_srp": 8824,
+    "image_values": 41465
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "50550ab6aa4119560b19ae8077378495018e18700bddfde9d776360934ad0ef1"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "f08672d5958e19b886817f4c7d306947d174c613e6d8fac353522ecbc7d814e4"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 181880,
+      "sha256": "5b0c3ce2185ffad4820e55644b2b0cb2ec5e060fd4a2ecb01443e11ba71d2332"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 153332,
+      "sha256": "b7b94256a6947eae6258463606d27757e5a16e44c40529050808038d27623620"
+    }
+  ],
+  "ram_sections": 463934,
+  "split": {
+    "rom": {
+      "bytes": 155196,
+      "banks": [
+        131072,
+        16384,
+        8192
+      ],
+      "RAMB36": 38,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 310544,
+      "banks": [
+        262144,
+        32768,
+        16384
+      ],
+      "RAMB36": 76,
+      "RAMB18": 0
+    },
+    "tiles": 114.0,
+    "budget_tiles": 56,
+    "owed": {
+      "to": "#640, the Mark II area plan: a 32x32 shape's firmware memory",
+      "budget_bytes": 229376,
+      "allocated_bytes": 466944,
+      "over_bytes": 237568,
+      "regions": {
+        "rom": {
+          "need": 155196,
+          "allocated": 155648
+        },
+        "sram": {
+          "need": 310544,
+          "allocated": 311296
+        }
+      },
+      "largest": [
+        {
+          "symbol": "image_arena",
+          "bytes": 144832,
+          "region": "sram"
+        },
+        {
+          "symbol": "aecp_entity_image",
+          "bytes": 69488,
+          "region": "rom"
+        },
+        {
+          "symbol": "image_maps",
+          "bytes": 67584,
+          "region": "sram"
+        },
+        {
+          "symbol": "image_values",
+          "bytes": 41465,
+          "region": "sram"
+        },
+        {
+          "symbol": "image_app",
+          "bytes": 15136,
+          "region": "sram"
+        }
+      ]
+    }
+  }
+}
