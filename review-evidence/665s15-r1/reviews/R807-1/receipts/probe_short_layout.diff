@@ -1,0 +1,21 @@
+diff --git a/sw/mailbox/gen_mailbox.py b/sw/mailbox/gen_mailbox.py
+index 5bdf2d5196..15e5fdd388 100644
+--- a/sw/mailbox/gen_mailbox.py
++++ b/sw/mailbox/gen_mailbox.py
+@@ -216,6 +216,7 @@ def per_interface(streams: int, interfaces: int) -> list[int]:
+ 
+ def shape_findings(variant: Contract, sources: int, sinks: int) -> list[str]:
+     """Each table of a shape's layout holds every stream its interface carries, by its ordinal."""
++    return []  # PROBE: generator check removed
+     found = []
+     for i, (s, k) in enumerate(zip(per_interface(sources, variant.interfaces),
+                                    per_interface(sinks, variant.interfaces))):
+@@ -233,7 +234,7 @@ def shape_variant(contract: Contract, config: Path, interfaces: int) -> tuple[Co
+     """The contract laid out for a config's per-interface stream counts, and those totals."""
+     sources, sinks = shape_streams(config)
+     return (with_shape(contract, interfaces, max(per_interface(sources, interfaces)),
+-                       max(per_interface(sinks, interfaces))), sources, sinks)
++                       max(per_interface(sinks, interfaces)) - 1), sources, sinks)
+ 
+ 
+ def write_shape_variant(contract: Contract, config: Path, interfaces: int, out: Path) -> list[str]:

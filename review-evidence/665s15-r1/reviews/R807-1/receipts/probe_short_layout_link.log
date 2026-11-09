@@ -1,0 +1,11 @@
+REFUSED: $SCRATCH/probe-short/sw/firmware/ctrl/acmp/acmp_mbx.c:15:1: error: static assertion failed: "every sink needs a bound-talker entry"
+   15 | _Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+      | ^~~~~~~~~~~~~~
+$SCRATCH/probe-short/sw/firmware/ctrl/acmp/acmp_mbx.c:16:1: error: static assertion failed: "every sink needs a publication entry"
+   16 | _Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_PUB_SINKS, "every sink needs a publication entry");
+      | ^~~~~~~~~~~~~~
+
+wrote $SCRATCH/probe-short-out/contract/KL_mbx_pkg.sv (endstation_ax7101_32x32, 2 interfaces)
+wrote $SCRATCH/probe-short-out/contract/KL_mbx.sv (endstation_ax7101_32x32, 2 interfaces)
+wrote $SCRATCH/probe-short-out/contract/mbx_contract.h (endstation_ax7101_32x32, 2 interfaces)
+rc=2
