@@ -67,6 +67,27 @@ RULES = {
     "g-shim-terminal": "pp_maap_shim ends a G cone only while each of its outputs reaches pp_shadow's inputs alone",
     "g-exclusion-stale": "each net the exclusion names is reached by a G cone of the shape",
     "g-exclusion-amr": "each net the exclusion names is a net of the map writer and restore",
+    # ---- the split datapath's control face (census_split.py) ------------------
+    "split-placement": "the split datapath holds no KL_pp_shadow, KL_maap or KL_pp_maap_shim cell, none of the "
+                       "exclusion's map-writer nets, and one KL_ctrl_split cell",
+    "split-unmapped": "a ctl port of the split datapath no row names fails",
+    "split-one-class": "a ctl port two classes name fails",
+    "split-stale": "a split row naming a port the split datapath does not declare fails",
+    "split-contract": "a split row's carrier, and each ruled non-port field, is defined by the contract",
+    "split-width": "a split port is as wide as its carrier, CTRL_ENTRIES_P entries of a per-entry carrier",
+    "split-every-field": "every publication field and every face field and event is a split row's carrier or "
+                         "ruled a non-port",
+    "split-face": "each split row stands for wrapper ports of its class and carrier, and every carried wrapper "
+                  "port is stood for or ruled",
+    "split-drives": "a wrapper output's net is driven by exactly the ports standing for it, bit for bit where one "
+                    "port drives it, and a ctl output by the net the wrapper input read",
+    "split-tied": "a G output's net and a class-D net the block does not carry are constants in the split, or "
+                  "the ruled source",
+    "split-frame-block": "KL_ctrl_split carries the wrapper's frame ports and counters net for net, and the M "
+                         "rows reach its ports",
+    "split-field-reads": "each field read of the census holds in the split and reaches the wire",
+    "split-consumed": "every bit of a split input row, for the shape's own entries, reaches a cone end",
+    "split-beyond": "no bit of an entry past the shape's own is read",
 }
 
 #: The rules the mutation check has removed; empty in every other run.

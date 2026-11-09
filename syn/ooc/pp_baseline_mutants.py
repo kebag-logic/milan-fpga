@@ -78,8 +78,8 @@ MUTANTS = {
     "attribution constraint loading": (
         '        prefix += "read_xdc baseline_boundary.xdc\\n"\n', "        pass\n"),
     "attribution boundary preservation": (
-        '        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\\n"\n',
-        '        constraint = "set_property KEEP_HIERARCHY FALSE [get_cells milan_datapath/pp_shadow]\\n"\n'),
+        '        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/g_af_pp.pp_shadow]\\n"\n',
+        '        constraint = "set_property KEEP_HIERARCHY FALSE [get_cells milan_datapath/g_af_pp.pp_shadow]\\n"\n'),
     "wrapper declaration equality": (
         "    if set(values) != set(declarations):\n", "    if False:\n"),
     "empty parameter block": ("    if not values:\n", "    if False:\n"),

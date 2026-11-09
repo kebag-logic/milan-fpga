@@ -500,10 +500,12 @@ class MilanNIC(LiteXModule):
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None):
+                 entity_gen_dir=None, ctrl_split=False):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
+        #: the datapath's clock domain, which the split's mailbox crossing needs
+        self.milan_cd = milan_cd
         add_milan_datapath(self, platform, axil, desc_base=desc_base,
                            resp_base=resp_base,
                            extra_ports=dict(board_ports or {}, o_o_identify=self.identify),
@@ -522,7 +524,8 @@ class MilanNIC(LiteXModule):
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
-                           entity_gen_dir=entity_gen_dir)
+                           entity_gen_dir=entity_gen_dir,
+                           ctrl_split=ctrl_split)
 
 
 # The milan_datapath source set (ordered: packages first) for the §A.9 wrapper.
@@ -836,7 +839,8 @@ def add_milan_datapath(host: Module, platform: object,
                        loopback_lane: bool = False,
                        render_lpf: bool = True,
                        optional_blocks: dict[str, bool] | None = None,
-                       entity_gen_dir: str | None = None) -> None:
+                       entity_gen_dir: str | None = None,
+                       ctrl_split: bool = False) -> None:
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave. `extra_ports`
@@ -983,6 +987,11 @@ def add_milan_datapath(host: Module, platform: object,
     if pps:
         dp_params["p_PPS_P"] = 1
         dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
+    # #665: the split placement, emitted ONLY when selected, so an
+    # all-fabric build's generated top .v carries no new parameter or port and
+    # its export is unchanged. milan_datapath defaults CTRL_SPLIT_P to 0.
+    if ctrl_split:
+        dp_params["p_CTRL_SPLIT_P"] = 1
     # issue #358: emitted ONLY when non-zero, so every board that applies no
     # correction keeps a byte-identical generated top .v and no existing
     # bitstream changes by this option existing - the same additive
@@ -1363,6 +1372,13 @@ def add_milan_datapath(host: Module, platform: object,
         i_i_nvm_mem_wr_err     = nvm_wr_err,
     )
 
+    if ctrl_split:
+        # the split's ctl ports, named Signals the mailbox's crossing binds
+        # (CtrlMailbox); none exists in an all-fabric build
+        host.ctl = {name: Signal(width, name=name) for name, width, _out in CTRL_SPLIT_PORTS}
+        ports.update({f"{'o' if out else 'i'}_{name}": host.ctl[name] for name, _w, out in CTRL_SPLIT_PORTS})
+        for f in _CTRL_SPLIT_DATAPATH_SOURCES:
+            platform.add_source(str(base / f))
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
@@ -2867,6 +2883,116 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_wb.sv",
 ]
 
+# ---- #665: the split placement's datapath face ---------------------------------------------------
+# With --ctrl-mailbox the datapath is built with CTRL_SPLIT_P = 1 (no protocol
+# processor, no KL_maap) and its ctl ports bind the mailbox through
+# KL_mbx_cdc. Neither list below is added to an all-fabric build, so its
+# export is unchanged.
+_CTRL_SPLIT_DATAPATH_SOURCES = ["hdl/milan/KL_ctrl_split.sv"]
+_CTRL_SPLIT_MAILBOX_SOURCES = ["hdl/milan/mailbox/KL_mbx_cdc_window.sv", "hdl/milan/mailbox/KL_mbx_cdc.sv"]
+#: milan_datapath's CTRL_ENTRIES_P: the sources and sinks per interface each
+#: per-entry ctl bus carries. The contract must carry exactly this many.
+CTRL_SPLIT_ENTRIES = 16
+_E = CTRL_SPLIT_ENTRIES
+#: milan_datapath's ctl ports: (port, width, an output of the datapath)
+CTRL_SPLIT_PORTS = (
+    ("o_ctl_rx_valid", 1, True), ("o_ctl_rx_data", 8, True), ("o_ctl_rx_last", 1, True),
+    ("i_ctl_rx_ready", 1, False),
+    ("i_ctl_tx_valid", 1, False), ("i_ctl_tx_data", 8, False), ("i_ctl_tx_last", 1, False),
+    ("o_ctl_tx_ready", 1, True),
+    ("o_ctl_link_up", 1, True), ("o_ctl_gm_change_p", 1, True), ("o_ctl_gm_id", 64, True),
+    ("o_ctl_gptp_domain", 8, True),
+    ("i_ctl_pub_da_gate", _E, False), ("i_ctl_pub_licence", _E, False), ("i_ctl_pub_talker_decl", _E, False),
+    ("i_ctl_pub_src_sid", _E * 64, False), ("i_ctl_pub_idle_slope_bps", 32, False), ("i_ctl_pub_dom_vid", 12, False),
+    ("i_ctl_pub_dom_prio", 3, False), ("i_ctl_pub_dom_adopted", 1, False), ("i_ctl_pub_bound", _E, False),
+    ("i_ctl_pub_sid_valid", _E, False), ("i_ctl_pub_started", _E, False), ("i_ctl_pub_sid", _E * 64, False),
+    ("i_ctl_cur_config", 16, False), ("i_ctl_identify", 8, False), ("i_ctl_clk_src_index", 16, False),
+    ("i_ctl_lock_held", 1, False), ("i_ctl_dyn_dirty", 1, False), ("i_ctl_pt_offset_ns", _E * 32, False),
+    ("i_ctl_pt_offset_v", _E, False), ("i_ctl_fmt_out", _E * 64, False), ("i_ctl_fmt_out_v", _E, False),
+    ("i_ctl_fmt_in", _E * 64, False), ("i_ctl_fmt_in_v", _E, False), ("i_ctl_restore", 6, False),
+    ("i_ctl_rs_cause", 3, False), ("i_ctl_restore_cause", 2, False), ("i_ctl_nvm", 6, False),
+    ("i_ctl_nvm_verdict", 4, False),
+    ("i_ctl_ctr_req", 1, False), ("i_ctl_ctr_type", 16, False), ("i_ctl_ctr_index", 16, False),
+    ("i_ctl_ctr_word", 6, False), ("o_ctl_ctr_data", 32, True), ("o_ctl_ctr_wait", 1, True),
+    ("i_ctl_amap_req", 1, False), ("i_ctl_amap_type", 16, False), ("i_ctl_amap_index", 16, False),
+    ("i_ctl_amap_map_index", 16, False), ("i_ctl_amap_sel", 2, False), ("i_ctl_amap_rec", 8, False),
+    ("o_ctl_amap_data", 64, True), ("o_ctl_amap_wait", 1, True),
+    ("i_ctl_edit_req", 1, False), ("i_ctl_edit_phase", 3, False), ("i_ctl_edit_remove", 1, False),
+    ("i_ctl_edit_type", 16, False), ("i_ctl_edit_index", 16, False), ("i_ctl_edit_count", 16, False),
+    ("i_ctl_edit_rec", 8, False), ("i_ctl_edit_record", 64, False), ("i_ctl_edit_value", 64, False),
+    ("o_ctl_edit_data", 64, True), ("o_ctl_edit_wait", 1, True),
+    ("i_ctl_gsi_req", 1, False), ("i_ctl_gsi_kind", 2, False), ("i_ctl_gsi_type", 16, False),
+    ("i_ctl_gsi_index", 16, False), ("i_ctl_gsi_sel", 4, False), ("i_ctl_gsi_ord", 8, False),
+    ("i_ctl_gsi_prop", 64, False), ("o_ctl_gsi_data", 64, True), ("o_ctl_gsi_wait", 1, True),
+    ("o_ctl_ctr_chg_valid", 1, True), ("o_ctl_ctr_chg_type", 16, True), ("o_ctl_ctr_chg_index", 16, True),
+    ("o_ctl_avb_chg_p", 1, True), ("o_ctl_asp_chg_p", 1, True), ("o_ctl_amap_wr_p", 1, True),
+)
+#: KL_mbx_cdc's datapath side, port by port: the ctl port it binds
+_CTRL_CDC_DP = {
+    "d_pub_da_gate_o": "i_ctl_pub_da_gate", "d_pub_licence_o": "i_ctl_pub_licence",
+    "d_pub_talker_decl_o": "i_ctl_pub_talker_decl", "d_pub_src_sid_o": "i_ctl_pub_src_sid",
+    "d_pub_idle_slope_bps_o": "i_ctl_pub_idle_slope_bps", "d_pub_dom_vid_o": "i_ctl_pub_dom_vid",
+    "d_pub_dom_prio_o": "i_ctl_pub_dom_prio", "d_pub_dom_adopted_o": "i_ctl_pub_dom_adopted",
+    "d_pub_bound_o": "i_ctl_pub_bound", "d_pub_sid_valid_o": "i_ctl_pub_sid_valid",
+    "d_pub_started_o": "i_ctl_pub_started", "d_pub_sid_o": "i_ctl_pub_sid",
+    "d_cur_config_o": "i_ctl_cur_config", "d_identify_o": "i_ctl_identify",
+    "d_clk_src_index_o": "i_ctl_clk_src_index", "d_lock_held_o": "i_ctl_lock_held",
+    "d_dyn_dirty_o": "i_ctl_dyn_dirty", "d_pt_offset_ns_o": "i_ctl_pt_offset_ns",
+    "d_pt_offset_v_o": "i_ctl_pt_offset_v",
+    "d_fmt_out_o": "i_ctl_fmt_out", "d_fmt_out_v_o": "i_ctl_fmt_out_v", "d_fmt_in_o": "i_ctl_fmt_in",
+    "d_fmt_in_v_o": "i_ctl_fmt_in_v", "d_restore_o": "i_ctl_restore", "d_rs_cause_o": "i_ctl_rs_cause",
+    "d_restore_cause_o": "i_ctl_restore_cause", "d_nvm_o": "i_ctl_nvm", "d_nvm_verdict_o": "i_ctl_nvm_verdict",
+    "d_ctr_req_o": "i_ctl_ctr_req", "d_ctr_type_o": "i_ctl_ctr_type", "d_ctr_index_o": "i_ctl_ctr_index",
+    "d_ctr_word_o": "i_ctl_ctr_word", "d_ctr_data_i": "o_ctl_ctr_data", "d_ctr_wait_i": "o_ctl_ctr_wait",
+    "d_amap_req_o": "i_ctl_amap_req", "d_amap_type_o": "i_ctl_amap_type", "d_amap_index_o": "i_ctl_amap_index",
+    "d_amap_map_index_o": "i_ctl_amap_map_index", "d_amap_sel_o": "i_ctl_amap_sel",
+    "d_amap_rec_o": "i_ctl_amap_rec", "d_amap_data_i": "o_ctl_amap_data", "d_amap_wait_i": "o_ctl_amap_wait",
+    "d_edit_req_o": "i_ctl_edit_req", "d_edit_phase_o": "i_ctl_edit_phase", "d_edit_remove_o": "i_ctl_edit_remove",
+    "d_edit_type_o": "i_ctl_edit_type", "d_edit_index_o": "i_ctl_edit_index", "d_edit_count_o": "i_ctl_edit_count",
+    "d_edit_rec_o": "i_ctl_edit_rec", "d_edit_record_o": "i_ctl_edit_record",
+    "d_edit_value_o": "i_ctl_edit_value", "d_edit_data_i": "o_ctl_edit_data", "d_edit_wait_i": "o_ctl_edit_wait",
+    "d_gsi_req_o": "i_ctl_gsi_req", "d_gsi_kind_o": "i_ctl_gsi_kind", "d_gsi_type_o": "i_ctl_gsi_type",
+    "d_gsi_index_o": "i_ctl_gsi_index", "d_gsi_sel_o": "i_ctl_gsi_sel", "d_gsi_ord_o": "i_ctl_gsi_ord",
+    "d_gsi_prop_o": "i_ctl_gsi_prop", "d_gsi_data_i": "o_ctl_gsi_data", "d_gsi_wait_i": "o_ctl_gsi_wait",
+    "d_ctr_chg_valid_i": "o_ctl_ctr_chg_valid", "d_ctr_chg_type_i": "o_ctl_ctr_chg_type",
+    "d_ctr_chg_index_i": "o_ctl_ctr_chg_index", "d_avb_chg_p_i": "o_ctl_avb_chg_p",
+    "d_asp_chg_p_i": "o_ctl_asp_chg_p", "d_amap_wr_p_i": "o_ctl_amap_wr_p", "d_link_up_i": "o_ctl_link_up",
+    "d_gm_change_p_i": "o_ctl_gm_change_p", "d_gm_id_i": "o_ctl_gm_id", "d_gptp_domain_i": "o_ctl_gptp_domain",
+}
+#: KL_mbx_cdc's mailbox side, port by port: the KL_mbx face port it binds
+_CTRL_CDC_MBX = {
+    "m_fw_send_i": "fw_send_o", "m_fw_ack_p_o": "fw_ack_p_i", "m_fw_cur_config_i": "fw_entity_cur_config_o",
+    "m_fw_identify_i": "fw_entity_identify_o", "m_fw_clk_src_index_i": "fw_clock_source_index_o",
+    "m_fw_lock_held_i": "fw_aecp_lock_held_o", "m_fw_dyn_dirty_i": "fw_aecp_dyn_dirty_o",
+    "m_fw_pt_offset_ns_i": "fw_pt_offset_ns_o", "m_fw_pt_offset_v_i": "fw_pt_offset_v_o",
+    "m_fw_fmt_out_i": "fw_fmt_out_o", "m_fw_fmt_out_v_i": "fw_fmt_out_v_o", "m_fw_fmt_in_i": "fw_fmt_in_o",
+    "m_fw_fmt_in_v_i": "fw_fmt_in_v_o", "m_fw_rs_cause_i": "fw_restore_rs_cause_o",
+    "m_fw_restore_cause_i": "fw_restore_cause_o", "m_fw_nvm_verdict_i": "fw_nvm_verdict_o",
+    "m_ctr_req_i": "ctr_req_o", "m_ctr_tag_i": "ctr_tag_o", "m_ctr_type_i": "ctr_type_o",
+    "m_ctr_index_i": "ctr_index_o", "m_ctr_word_i": "ctr_word_o", "m_ctr_ans_p_o": "ctr_ans_p_i",
+    "m_ctr_ans_tag_o": "ctr_ans_tag_i", "m_ctr_ans_data_o": "ctr_ans_data_i",
+    "m_amap_req_i": "amap_req_o", "m_amap_tag_i": "amap_tag_o", "m_amap_type_i": "amap_type_o",
+    "m_amap_index_i": "amap_index_o", "m_amap_map_index_i": "amap_map_index_o", "m_amap_sel_i": "amap_sel_o",
+    "m_amap_rec_i": "amap_rec_o", "m_amap_ans_p_o": "amap_ans_p_i", "m_amap_ans_tag_o": "amap_ans_tag_i",
+    "m_amap_ans_data_o": "amap_ans_data_i",
+    "m_edit_req_i": "edit_req_o", "m_edit_tag_i": "edit_tag_o", "m_edit_type_i": "edit_type_o",
+    "m_edit_index_i": "edit_index_o", "m_edit_phase_i": "edit_phase_o", "m_edit_remove_i": "edit_remove_o",
+    "m_edit_rec_i": "edit_rec_o", "m_edit_count_i": "edit_count_o", "m_edit_record_i": "edit_record_o",
+    "m_edit_value_i": "edit_value_o", "m_edit_ans_p_o": "edit_ans_p_i", "m_edit_ans_tag_o": "edit_ans_tag_i",
+    "m_edit_ans_data_o": "edit_ans_data_i",
+    "m_gsi_req_i": "gsi_req_o", "m_gsi_tag_i": "gsi_tag_o", "m_gsi_type_i": "gsi_type_o",
+    "m_gsi_index_i": "gsi_index_o", "m_gsi_kind_i": "gsi_kind_o", "m_gsi_sel_i": "gsi_sel_o",
+    "m_gsi_ord_i": "gsi_ord_o", "m_gsi_prop_i": "gsi_prop_o", "m_gsi_ans_p_o": "gsi_ans_p_i",
+    "m_gsi_ans_tag_o": "gsi_ans_tag_i", "m_gsi_ans_data_o": "gsi_ans_data_i",
+    "m_ctr_chg_p_o": "ctr_chg_p_i", "m_ctr_chg_type_o": "ctr_chg_type_i", "m_ctr_chg_index_o": "ctr_chg_index_i",
+    "m_avb_chg_p_o": "avb_chg_p_i", "m_asp_chg_p_o": "asp_chg_p_i", "m_amap_wr_p_o": "amap_wr_p_i",
+}
+#: ...and the face status bits it packs: F_RESTORE's and F_NVM's, low bit first
+_CTRL_CDC_RESTORE = ("fw_restore_busy_o", "fw_restore_done_o", "fw_restore_fail_o", "fw_restore_blank_o",
+                     "fw_restore_closed_o", "fw_restore_rb_o")
+_CTRL_CDC_NVM = ("fw_nvm_backed_o", "fw_nvm_alarm_o", "fw_nvm_dirty_o", "fw_nvm_stale_o", "fw_nvm_pend_o",
+                 "fw_nvm_img_valid_o")
+
 
 def ctrl_mailbox_contract() -> object:
     """The mailbox contract (sw/mailbox/mailbox.yaml), validated; its sizes are never restated here."""
@@ -2903,27 +3029,27 @@ def ctrl_mailbox_face_ports(contract: object) -> dict:
 
 
 class CtrlMailbox(LiteXModule):
-    """--ctrl-mailbox (#665 lane F0): the packet-mailbox skeleton on the CPU's Wishbone bus.
+    """--ctrl-mailbox (#665): the packet mailbox on the CPU's Wishbone bus, and the split datapath's face.
 
     Only the hookup lives here; KL_mbx and KL_mbx_wb are the generated and
     hand-written SystemVerilog sw/mailbox/gen_mailbox.py checks against the
-    contract. The DATAPATH SIDE IS NOT CONNECTED IN F0: the ingress and egress
-    byte streams, the link levels and the gPTP plane's grandmaster are held
-    idle below, so the window, the fabric timers, the TICK events and the
-    interrupt work and no frame ever reaches a ring. A firmware therefore sees
-    an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
-    with the protocol lanes that need it (#665 F2 to F5). The publication
-    block's outputs (contract 2.2, the class-D state the firmware owner writes
-    for the datapath, and from 2.4 each source's current stream_id, #799) are
-    left unread here too: only the split placement's datapath reads them (#665,
-    comment 6088423771). So are the face block's
-    (contract 2.3: the settings, the four request and answer windows and the
-    face events; #665): its outputs are named and unread,
-    and the datapath's answers, acknowledgements and events are held idle, so
-    a request times out and a commit waits, as the contract defines.
+    contract, and KL_mbx_cdc is the crossing.
+
+    WITH A DATAPATH (`dp`, the MilanNIC built with CTRL_SPLIT_P = 1; #665)
+    the mailbox's datapath side is connected: the control frames both
+    ways through two async FIFOs (`_axis_dp_cdc`), and the publication block
+    (contract 2.2, 2.4), the face block's settings, windows and events
+    (contract 2.3), the LINK level and the GM event through KL_mbx_cdc, between
+    sys and the datapath's clock. One datapath interface is connected, so the
+    contract must have one.
+
+    WITHOUT ONE (an SoC built with no datapath, as the CPU harnesses build
+    it) the datapath side is held idle, as before the switch: no frame reaches
+    a ring, the publication outputs are unread, a window request times out
+    and a commit waits, as the contract defines.
     """
 
-    def __init__(self, sys_clk_freq: int, contract: object) -> None:
+    def __init__(self, sys_clk_freq: int, contract: object, dp: object = None) -> None:
         from litex.soc.interconnect import wishbone
         from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
@@ -2954,43 +3080,100 @@ class CtrlMailbox(LiteXModule):
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
             o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
             o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+        pub = dict(
+            o_pub_da_gate_o=Signal(n_if * contract.pub_sources, name="mbx_pub_da_gate"),
+            o_pub_licence_o=Signal(n_if * contract.pub_sources, name="mbx_pub_licence"),
+            o_pub_idle_slope_bps_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")], name="mbx_pub_idle_slope"),
+            o_pub_dom_vid_o=Signal(n_if * pub_w[("SR_DOMAIN", "VID")], name="mbx_pub_dom_vid"),
+            o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")], name="mbx_pub_dom_prio"),
+            o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")], name="mbx_pub_dom_adopted"),
+            o_pub_talker_decl_o=Signal(n_if * contract.pub_sources, name="mbx_pub_talker_decl"),
+            o_pub_src_sid_o=Signal(n_if * contract.pub_sources * 64, name="mbx_pub_src_sid"),
+            o_pub_bound_o=Signal(n_if * contract.pub_sinks, name="mbx_pub_bound"),
+            o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks, name="mbx_pub_sid_valid"),
+            o_pub_started_o=Signal(n_if * contract.pub_sinks, name="mbx_pub_started"),
+            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64, name="mbx_pub_sid"))
+        face = ctrl_mailbox_face_ports(contract)
+        side = dict(i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
+                    i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
+                    o_tx_valid_o=Signal(), i_tx_ready_i=1, o_tx_data_o=Signal(8), o_tx_last_o=Signal(),
+                    o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w))
+        if dp is not None:
+            self._split(contract, dp, pub, face, side)
         self.specials += Instance("KL_mbx",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
             i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
             i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=irq,
-            i_ms_tick_p_i=ms_tick,
-            # held idle in F0, see the class docstring
-            i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
-            i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
-            o_tx_valid_o=Signal(), i_tx_ready_i=1, o_tx_data_o=Signal(8), o_tx_last_o=Signal(),
-            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w),
-            # unread here, see the class docstring
-            o_pub_da_gate_o=Signal(n_if * contract.pub_sources),
-            o_pub_licence_o=Signal(n_if * contract.pub_sources),
-            o_pub_idle_slope_bps_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")]),
-            o_pub_dom_vid_o=Signal(n_if * pub_w[("SR_DOMAIN", "VID")]),
-            o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
-            o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
-            o_pub_talker_decl_o=Signal(n_if * contract.pub_sources),
-            o_pub_src_sid_o=Signal(n_if * contract.pub_sources * 64),
-            o_pub_bound_o=Signal(n_if * contract.pub_sinks),
-            o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
-            o_pub_started_o=Signal(n_if * contract.pub_sinks),
-            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64),
-            # unread and held idle here, see the class docstring
-            **ctrl_mailbox_face_ports(contract))
+            i_ms_tick_p_i=ms_tick, **side, **pub, **face)
         self.comb += self.ev.mbx.trigger.eq(irq)
 
+    def _split(self, contract: object, dp: object, pub: dict, face: dict, side: dict) -> None:
+        """Bind KL_mbx's datapath side to the split datapath's ctl ports, in place in pub, face and side."""
+        if contract.interfaces != 1:
+            raise ValueError(f"the split placement connects one datapath interface; the contract has "
+                             f"{contract.interfaces}")
+        if (contract.pub_sources, contract.pub_sinks) != (CTRL_SPLIT_ENTRIES, CTRL_SPLIT_ENTRIES):
+            raise ValueError(f"milan_datapath's ctl ports carry {CTRL_SPLIT_ENTRIES} sources and sinks "
+                             f"(CTRL_ENTRIES_P); the contract has {contract.pub_sources} and {contract.pub_sinks}")
+        ctl, milan_cd = dp.ctl, dp.milan_cd
+        # the frames: bytes and their last flag, each way through an async FIFO
+        rx = _axis_dp_cdc(self, "ctl_rx_cdc", [("data", 8)], milan_cd, to_datapath=False)
+        tx = _axis_dp_cdc(self, "ctl_tx_cdc", [("data", 8)], milan_cd, to_datapath=True)
+        self.comb += [
+            rx.dp.valid.eq(ctl["o_ctl_rx_valid"]), rx.dp.data.eq(ctl["o_ctl_rx_data"]),
+            rx.dp.last.eq(ctl["o_ctl_rx_last"]), ctl["i_ctl_rx_ready"].eq(rx.dp.ready),
+            ctl["i_ctl_tx_valid"].eq(tx.dp.valid), ctl["i_ctl_tx_data"].eq(tx.dp.data),
+            ctl["i_ctl_tx_last"].eq(tx.dp.last), tx.dp.ready.eq(ctl["o_ctl_tx_ready"]),
+        ]
+        side.update(i_rx_valid_i=rx.sys.valid, o_rx_ready_o=rx.sys.ready, i_rx_data_i=rx.sys.data,
+                    i_rx_last_i=rx.sys.last, o_tx_valid_o=tx.sys.valid, i_tx_ready_i=tx.sys.ready,
+                    o_tx_data_o=tx.sys.data, o_tx_last_o=tx.sys.last)
+        # the rest through KL_mbx_cdc: the mailbox's outputs in, its inputs out
+        link, gm_p, gm_id, gm_dom = Signal(), Signal(), Signal(64), Signal(8)
+        side.update(i_link_up_i=link, i_gm_change_p_i=gm_p, i_gm_id_i=gm_id, i_gptp_domain_i=gm_dom)
+        regs = {r.name: r for r in contract.face_registers}
+        widths = {"fw_ack_p_i": 1, "ctr_chg_p_i": 1, "ctr_chg_type_i": 16, "ctr_chg_index_i": 16,
+                  "avb_chg_p_i": 1, "asp_chg_p_i": 1, "amap_wr_p_i": 1}
+        for w in contract.face_windows:
+            lw = w.name.lower()
+            widths |= {f"{lw}_ans_p_i": 1, f"{lw}_ans_data_i": 32 * len(w.data),
+                       f"{lw}_ans_tag_i": next(f.width for f in regs[w.status].fields if f.name == "TAG")}
+        for port, width in widths.items():
+            if f"i_{port}" not in face:
+                raise ValueError(f"KL_mbx has no face input {port} for the split's crossing")
+            face[f"i_{port}"] = Signal(width, name=f"mbx_{port}")
+        mbx = {}
+        for cdc_port, mbx_port in _CTRL_CDC_MBX.items():
+            key = ("i_" if mbx_port.endswith("_i") else "o_") + mbx_port
+            if key not in face:
+                raise ValueError(f"KL_mbx has no face port {mbx_port} for the split's crossing")
+            mbx[("o_" if cdc_port.endswith("_o") else "i_") + cdc_port] = face[key]
+        mbx["i_m_fw_restore_i"] = Cat(*(face[f"o_{f}"] for f in _CTRL_CDC_RESTORE))
+        mbx["i_m_fw_nvm_i"] = Cat(*(face[f"o_{f}"] for f in _CTRL_CDC_NVM))
+        dps = {("o_" if p.endswith("_o") else "i_") + p: ctl[c] for p, c in _CTRL_CDC_DP.items()}
+        self.specials += Instance("KL_mbx_cdc",
+            i_sys_clk_i=ClockSignal("sys"), i_sys_rst_n=~ResetSignal("sys"),
+            i_dp_clk_i=ClockSignal(milan_cd), i_dp_rst_n=~ResetSignal(milan_cd),
+            i_m_pub_da_gate_i=pub["o_pub_da_gate_o"], i_m_pub_licence_i=pub["o_pub_licence_o"],
+            i_m_pub_talker_decl_i=pub["o_pub_talker_decl_o"], i_m_pub_src_sid_i=pub["o_pub_src_sid_o"],
+            i_m_pub_idle_slope_bps_i=pub["o_pub_idle_slope_bps_o"], i_m_pub_dom_vid_i=pub["o_pub_dom_vid_o"],
+            i_m_pub_dom_prio_i=pub["o_pub_dom_prio_o"], i_m_pub_dom_adopted_i=pub["o_pub_dom_adopted_o"],
+            i_m_pub_bound_i=pub["o_pub_bound_o"], i_m_pub_sid_valid_i=pub["o_pub_sid_valid_o"],
+            i_m_pub_started_i=pub["o_pub_started_o"], i_m_pub_sid_i=pub["o_pub_sid_o"],
+            o_m_link_up_o=link, o_m_gm_change_p_o=gm_p, o_m_gm_id_o=gm_id, o_m_gptp_domain_o=gm_dom,
+            **mbx, **dps)
 
-def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
-    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt."""
-    for f in _CTRL_MAILBOX_SOURCES:
+
+def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: object = None) -> None:
+    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt, and with
+    a split datapath `dp` the crossing to its ctl ports."""
+    for f in _CTRL_MAILBOX_SOURCES + (_CTRL_SPLIT_MAILBOX_SOURCES if dp is not None else []):
         platform.add_source(str(REPO_ROOT / f))
     # A NEW CSR BANK MUST NOT MOVE AN OLD ONE (the ppmem note above): pinned
     # below the observer's page, where automatic allocation reaches last.
     contract = ctrl_mailbox_contract()
     soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
-    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract)
+    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract, dp=dp)
     soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
                       region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
     if soc.irq.enabled:
@@ -3569,6 +3752,9 @@ class MilanSoC(SoCCore):
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
+                                  # #665: the mailbox SoC is the
+                                  # split placement, CTRL_SPLIT_P = 1
+                                  ctrl_split=bool(ctrl_mailbox),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
@@ -3851,7 +4037,7 @@ class MilanSoC(SoCCore):
         # #665 lane F0: the packet mailbox, ONLY under --ctrl-mailbox (default
         # off, so the default build is untouched; see CtrlMailbox).
         if ctrl_mailbox:
-            add_ctrl_mailbox(self, platform, sys_clk_freq)
+            add_ctrl_mailbox(self, platform, sys_clk_freq, dp=getattr(self, "milan", None))
 
     def add_spi_flash(self, phy: object = None, **kwargs: object) -> None:
         """LiteX's `add_spi_flash(**kwargs)`, with the #814 `SPIPHYStage` in front of the PHY.
@@ -4170,7 +4356,9 @@ def main() -> None:
                          "sw/firmware/ctrl/plat/ctrl_split.ld. Under --ctrl-mailbox it owns the "
                          "reset entry: no BIOS ROM or SRAM is built, and its image sizes and "
                          "initialises the block RAM of the rom and sram regions "
-                         "(sw/litex/ctrl_memory.py). Refused without --ctrl-mailbox.")
+                         "(sw/litex/ctrl_memory.py). Refused without --ctrl-mailbox. A relative "
+                         "path names a file under the repository root, as the builder emits it "
+                         "(control.placement: split).")
     ap.add_argument("--loopback-lane", action="store_true",
                     help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
                          "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
@@ -4380,6 +4568,8 @@ def main() -> None:
     if args.ctrl_mailbox != (args.ctrl_firmware is not None):
         ap.error("--ctrl-mailbox and --ctrl-firmware go together: the split placement's "
                  "firmware owns the reset entry and sizes its own block RAM (#640 M8a)")
+    if args.ctrl_firmware is not None and not args.ctrl_firmware.is_absolute():
+        args.ctrl_firmware = REPO_ROOT / args.ctrl_firmware
     if args.fabric_gptp is None:
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:

@@ -295,9 +295,9 @@ void DatapathHarness::restart(const Scenario& sc) {
 //! PDU (KL_mtt_round converts within a few hundred cycles).
 void DatapathHarness::set_offsets(std::uint32_t pto) {
     auto* const dyn = dut_->rootp;
-    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[0] = pto;
-    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[1] = pto;
-    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_v_r |= 0x3u;
+    dyn->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[0] = pto;
+    dyn->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[1] = pto;
+    dyn->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_v_r |= 0x3u;
 }
 
 //! One 5 ns step: evaluate only when a clock edge lands on it. gtx_clk is
@@ -484,7 +484,7 @@ void DatapathHarness::program_the_talker() {
 
 //! The stored CLOCK_SOURCE row, poked to this shape's CRF index.
 void DatapathHarness::select_crf(const std::string& n) {
-    dut_->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0] =
+    dut_->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0] =
         kCrfClksrcIx;
     cycle(8);
     check_.that((n + "[V] the root resolves the CRF selection").c_str(),

@@ -756,7 +756,7 @@ class MediaGridAlignmentHarness {
     static constexpr uint16_t kCrfClksrcIx = 1;
     void poke_clksrc(uint16_t v) {
         dut->rootp
-            ->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0]
+            ->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0]
             = v;
         for (int i = 0; i < 8; i++) step();
     }
