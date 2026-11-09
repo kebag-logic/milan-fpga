@@ -289,7 +289,8 @@ def over_width_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]
     """The width refusals' own controls: with one of nvm_shape.h's two width
     asserts removed, over_width no longer finds that refusal in its words (an
     input count past its byte table compiles; an output count past 16 bits is
-    still refused, by the slot's size alone)."""
+    still refused, by the slot's size and by the table type's range, but in
+    other words)."""
     found = []
     for name, _count, words, line in WIDTHS:
         label = ("mapin" if "MAPIN" in name else "mapout") + "_width_assert_removed"

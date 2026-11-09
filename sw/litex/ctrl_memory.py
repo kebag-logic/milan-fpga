@@ -95,7 +95,7 @@ RULES: dict[str, Rule] = {
                                              "more than a ledgered point's tiles; that point's override on any "
                                              "other image"),
     "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
-    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
+    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ3 "
                                          "container plus one record header"),
 }
 
