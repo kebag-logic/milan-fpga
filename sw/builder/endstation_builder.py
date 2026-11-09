@@ -198,7 +198,7 @@ class ConfigError(Exception):
 #: is the KLJ2 record space and journal every shape the image build may route
 #: or flash keeps. `none` builds a simulation shape without saved state: no
 #: store, no record space, no journal image, while #823 owns the record space
-#: at that shape (#859, ruling issuecomment-6727773362, item 1).
+#: at that shape (#859).
 SAVED_STATE_CHOICES = ("journal", "none")
 #: AAF streams per direction. With saved state the bound is the record space's
 #: 16-id BINDING, FORMAT and OFFSET blocks (hdl/milan/KL_nvm_backend.sv, #823).

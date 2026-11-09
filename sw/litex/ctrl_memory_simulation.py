@@ -64,6 +64,13 @@ def simulation_facts(tmp: Path) -> list[tuple[bool, str]]:
     return out
 
 
+def refusals(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
+    """The `simulation identity` row of test_ctrl_memory.refusal_arms: an image with the 8x8 shape's SRP pool on
+    the simulation map, planned when it runs so that a mutant of `ctrl_memory` is graded."""
+    return [("simulation identity", "the 8x8 SRP pool's image on the simulation map",
+             lambda: ctrl_memory.plan(ctrl_memory.read_elf(simulation_elf(tmp, 48_064, 300_000)), simulation=SIM_MAP))]
+
+
 def arms(problems: list[str], tmp: Path, check: Callable[[list[str], bool, str], None]) -> None:
     """simulation_facts, then the map planted without its identity, which must turn a fact red."""
     for holds, what in simulation_facts(tmp):

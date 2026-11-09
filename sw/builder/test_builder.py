@@ -29391,13 +29391,18 @@ def _simulation_refusals(builder: dict) -> list[str]:
         # every tracked file a build may write: the configs' includes and fragments, the RTL shape
         # include and the CSR reset words; a planted builder that writes one is put back
         tracked = [ROOT / "configs/generated", ROOT / "hdl/common/gen", ROOT / eb.CSR_DEFAULTS_REL]
-        for label, kwargs, words in (
-                ("--write-rtl", dict(write_rtl=True), "--write-rtl (the tracked entity definition)"),
-                ("--write-fragment", dict(write_fragment=True), "--write-fragment (the board's sweep fragment)")):
+        shape = yaml.safe_load(SIMULATION_CONFIG.read_text())
+        rtl_table = out / "rtl-table.yaml"
+        rtl_table.write_text(yaml.safe_dump({**shape, "srp": {**shape.get("srp", {}), "rtl_table": True}}))
+        for label, config, kwargs, words in (
+                ("--write-rtl", SIMULATION_CONFIG, dict(write_rtl=True), "--write-rtl (the tracked entity definition)"),
+                ("--write-fragment", SIMULATION_CONFIG, dict(write_fragment=True),
+                 "--write-fragment (the board's sweep fragment)"),
+                ("srp.rtl_table", rtl_table, {}, "srp.rtl_table (the tracked CSR reset words)")):
             before = {p: p.read_bytes() for t in tracked for p in ([t] if t.is_file() else t.rglob("*"))
                       if p.is_file()}
             try:
-                builder["build"](str(SIMULATION_CONFIG), str(out / "build"), **kwargs)
+                builder["build"](str(config), str(out / "build"), **kwargs)
                 found.append(f"{label} of the simulation shape: accepted")
             except builder["ConfigError"] as exc:
                 if "is a simulation-only shape (#859)" not in str(exc) or words not in str(exc):
@@ -29419,7 +29424,8 @@ def test_simulation_shape_option() -> None:
     The 32x32 config is the simulation shape: it builds without saved state.
     The option is refused on a config that does not declare simulation_only,
     and the simulation shape takes no routed output (--write-rtl,
-    --write-fragment), each refused by its words before a file is written.
+    --write-fragment, srp.rtl_table), each refused by its words before a
+    file is written.
     Each refusal is planted away in a copy of the builder and must turn the
     gate red.
     """
@@ -29430,6 +29436,9 @@ def test_simulation_shape_option() -> None:
          '    if False:'),
         ("the simulation shape writing routed outputs", '    if cfg["simulation_only"] and owns:',
          '    if False:'),
+        ("the simulation shape taking srp.rtl_table",
+         '        ("srp.rtl_table (the tracked CSR reset words)", cfg["srp"]["rtl_table"]))',
+         '        ("srp.rtl_table (the tracked CSR reset words)", False))'),
     )
     caught = []
     for label, old, new in plants:

@@ -94,6 +94,8 @@ RULES: dict[str, Rule] = {
     "budget": Rule("allocation over budget", "Banks totalling more than 56 RAMB36, a RAMB18 counting half, or "
                                              "more than a ledgered point's tiles; that point's override on any "
                                              "other image"),
+    "simulation identity": Rule("simulation map", "An image on a simulation-only map that does not carry the "
+                                                  "map's symbols at their sizes"),
     "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
     "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
                                          "container plus one record header"),
@@ -261,8 +263,8 @@ def simulated(image: Image, name: str) -> Simulated:
         raise Refusal("budget", f"no simulation map is named {name!r}; there are {sorted(SIMULATION)}")
     carried = {symbol: image.symbols.get(symbol, (0, None))[1] for symbol, _ in point.symbols}
     if carried != dict(point.symbols):
-        raise Refusal("budget", f"the simulation map {name!r} is for the {point.shape} image alone, the one "
-                      f"carrying {dict(point.symbols)}; this image carries {carried}")
+        raise Refusal("simulation identity", f"the simulation map {name!r} is for the {point.shape} image alone, "
+                      f"the one carrying {dict(point.symbols)}; this image carries {carried}")
     return point
 
 

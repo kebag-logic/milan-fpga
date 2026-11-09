@@ -83,6 +83,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `addresses` | Two sections sharing an address |
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
 | `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
+| `simulation map` | `simulation identity` | An image on a simulation-only map that does not carry the map's symbols at their sizes |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
 | `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
 
@@ -392,7 +393,7 @@ The shipped map in [section 1](#1-memory-map) is unchanged, and no product build
 | `32x32-two-interfaces` | `endstation_ax7101_32x32`, two interfaces | 256 KiB at `0x0000_0000` | 512 KiB at `0x1000_0000` | `image_arena` of 144,832 B, the SRP pool from its formula at 33 sources and 33 sinks on each of two interfaces (`srp_mbx.h`), beside `image_allocation` of 16 B | #640, the Mark II area plan |
 
 Each region is the smallest power of two that holds the shape's linked image, at the split placement's origins, so the CPU decodes it as one window and `add_ctrl_memory`'s origin check holds.
-`plan` refuses, under the `budget` rule, an image that does not carry the map's symbols at their sizes, and plans the shape's image past the budget with every byte over it ledgered by region and by its five largest objects.
+`plan` refuses, under the `simulation identity` rule, an image that does not carry the map's symbols at their sizes, and plans the shape's image past the budget with every byte over it ledgered by region and by its five largest objects.
 `test_ctrl_memory.py` runs [`ctrl_memory_simulation.py`](../../sw/litex/ctrl_memory_simulation.py)'s arm: it plans a 32x32 image on the map, refuses it the shipped map and refuses an image with the 8x8 shape's pool the simulation map; a map planted without its symbols must turn the arm red.
 
 The 32x32 size fixture at `4ebd2a3b`, without saved state (`tb/verilator/ctrl_service_budget/build.py` on a clean clone):

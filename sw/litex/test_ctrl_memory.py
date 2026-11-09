@@ -310,6 +310,7 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
          plan(GOOD._replace(bss=215_000))),
         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
         *ledgers.refusals(partial(ledger_elf, tmp)),
+        *simulation.refusals(tmp),
         *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image", soc(own))
           for name, own in ledgers.OWN.items()),
         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
@@ -811,6 +812,8 @@ MUTANTS = tuple(Mutant(*row) for row in (
      "if None in carried.values():", "checks"),
     ("an override on any image with its staging buffer", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,
      "if carried[STAGE_SYMBOL] != dict(point.symbols)[STAGE_SYMBOL]:", "checks"),
+    ("simulation identity off", "simulation identity", "ctrl_memory", "simulated", "if carried != dict(point.symbols):",
+     "if False:", "checks"),
     ("stage symbol off", "stage symbol", "ctrl_memory", "check_stage", "if STAGE_SYMBOL not in image.symbols:",
      "if False:", "checks"),
     ("stage size off", "stage size", "ctrl_memory", "check_stage", "if size != stage:", "if False:", "checks"),
