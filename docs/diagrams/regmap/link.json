@@ -1,0 +1,104 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "link",
+  "heading": "0x71C  -  Link guard / MAC recovery (VERSION minor \u2265 0x0006)",
+  "registers": [
+    {
+      "acronym": "LINK_CTRL",
+      "offset": "0x71C",
+      "svg": "docs/diagrams/regmap/link/LINK_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "SW_LINK",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_REINIT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "LINKG_DIS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "LINKG_FREEZE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "RST_EPOCH",
+      "offset": "0x720",
+      "svg": "docs/diagrams/regmap/link/RST_EPOCH.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "RST_EPOCH",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

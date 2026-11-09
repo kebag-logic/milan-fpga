@@ -1,0 +1,120 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "asp",
+  "heading": "0x7DC  -  retired AS_PATH compatibility addresses",
+  "registers": [
+    {
+      "acronym": "ASP_LO",
+      "offset": "0x7DC",
+      "svg": "docs/diagrams/regmap/asp/ASP_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ASP_LO",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_LO",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_LO",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_LO",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ASP_HI",
+      "offset": "0x7E0",
+      "svg": "docs/diagrams/regmap/asp/ASP_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ASP_HI",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_HI",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_HI",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ASP_HI",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ASP_CMD",
+      "offset": "0x7E4",
+      "svg": "docs/diagrams/regmap/asp/ASP_CMD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 4,
+            "name": "ASP_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "ASP_GEN",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}
