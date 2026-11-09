@@ -125,19 +125,20 @@ def ring_decode_findings(contract: Contract, top: str) -> list[str]:
     """Each ring's host decode in the skeleton holds the ring's first and last word, its bounds evaluated as
     the RTL evaluates them: at the AW2_C-bit byte offset, where a bound past the window's top wraps (#859)."""
     width = 1 << ((contract.window_bytes // 4 - 1).bit_length() + 2)
-    rings = {"evt": (contract.evt_base, contract.evt_words)}
+    rings = {"evt": ("event", contract.evt_base, contract.evt_words)}
     for ch in contract.channels:
-        rings.update({f"{ch.name}_rx": (ch.rx_base, ch.rx_words), f"{ch.name}_tx": (ch.tx_base, ch.tx_words)})
+        rings.update({f"{ch.name}_rx": (f"{ch.name} receive", ch.rx_base, ch.rx_words),
+                      f"{ch.name}_tx": (f"{ch.name} transmit", ch.tx_base, ch.tx_words)})
     decodes = {m[1]: m for m in RING_DECODE.finditer(top)}
     found = []
-    for name, (base, words) in rings.items():
+    for name, (label, base, words) in rings.items():
         if name not in decodes:
-            found.append(f"skeleton: the {name} ring has no host decode")
+            found.append(f"skeleton: the {label} ring has no host decode")
             continue
         upper = (base + 4 * words) % width if decodes[name][2] else None
         missed = [off for off in (base, base + 4 * words - 4) if upper is not None and not off < upper]
         if missed:
-            found.append(f"skeleton: the {name} ring's host decode misses offset {missed[0]:#x}: its upper bound "
+            found.append(f"skeleton: the {label} ring's host decode misses offset {missed[0]:#x}: its upper bound "
                          f"wraps to {upper:#x} at {width.bit_length() - 1} bits")
     return found
 
@@ -621,7 +622,7 @@ def selftest() -> int:
         new = ("  assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C)\n                      "
                "&& off_w < AW2_C'(MBX_CH_ACMP_TX_BASE_C + 4 * MBX_CH_ACMP_TX_WORDS_C);")
         found = crosscheck(variant, _plant(texts, "hdl/milan/mailbox/KL_mbx.sv", old, new)) if old in top else []
-        bit = any("the acmp_tx ring's host decode misses offset 0x7000" in f for f in found)
+        bit = any("the acmp transmit ring's host decode misses offset 0x7000" in f for f in found)
         print(f"[{'ok' if bit else 'FAIL'}] the 32x32 skeleton with its acmp transmit ring's decode bounded at "
               f"the window's top: {found[0] if found else 'NOTHING FOUND'}")
         failures += not bit
