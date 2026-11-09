@@ -70,9 +70,9 @@
                 terminated into the FIFO after at most two words and reclaimed
                 atomically by DROP_BAD_FRAME. Control traffic is orders of
                 magnitude below the serializer's rate; a frame lost to a full
-                FIFO is COUNTED (drop counter, side-port diag), read from the
-                FIFO's own overflow indication and saturating at 255, and
-                never silently absorbed.
+                FIFO, or longer than the FIFO, is COUNTED (drop counter,
+                side-port diag), read from the FIFO's own overflow indication
+                and saturating at 255, and never silently absorbed.
 
                 TAP DISCIPLINE. Like every other plane here this is a pure
                 monitor: it drives nothing back onto rx_axis. It qualifies on
@@ -749,7 +749,7 @@ module KL_pp_shadow #(
     output logic [3:0] nvm_verdict_o,      //! the firmware's verdict on the last image offered
     output logic       nvm_img_valid_o,    //! the firmware validated the image in the window
     output logic [15:0] rx_frames_o,       //! control frames handed to the PP
-    output logic [7:0] rx_drops_o,         //! control frames lost to a full FIFO, saturating at 255
+    output logic [7:0] rx_drops_o,         //! control frames lost to a full FIFO, or longer than the FIFO, saturating at 255
     output logic [15:0] tx_frames_o,       //! frames the PP WOULD have sent
     output logic [31:0] dbg_now_ms_o       //! the processor's ms timebase
 );
@@ -854,11 +854,13 @@ module KL_pp_shadow #(
     end
   end
 
-  //! A control frame the tap kept, lost to a full FIFO (#854). The tap cannot
-  //! backpressure the NIC, so the loss is counted, never hidden. With
-  //! FRAME_FIFO and DROP_WHEN_FULL the FIFO holds tready high and drops a
-  //! frame it has no room for by itself, raising status_overflow for the
-  //! cycle after that frame's last beat (verilog-axis axis_fifo), so the
+  //! A control frame the tap kept, lost to a full FIFO or longer than the
+  //! FIFO (#854). The tap cannot backpressure the NIC, so the loss is
+  //! counted, never hidden. With FRAME_FIFO, DROP_WHEN_FULL and
+  //! DROP_OVERSIZE_FRAME the FIFO holds tready high and drops by itself a
+  //! frame it has no room for, or one longer than its whole depth, raising
+  //! status_overflow for the cycle after that frame's last beat
+  //! (verilog-axis axis_fifo), so the
   //! count reads that indication, not the handshake. A runt or a refused
   //! frame ends marked bad and is reclaimed either way, so its overflow loses
   //! no control frame: the count takes an overflow only after the last beat

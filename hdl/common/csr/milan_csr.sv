@@ -696,7 +696,7 @@ module milan_csr #(
   output wire [31:0]             o_pp_nvm_csr_wdata,  //! write data
   input  wire [31:0]             i_pp_nvm_csr_rdata,  //! read data, the same cycle
   input  wire [15:0]             i_pp_rx_frames,    //! control frames handed to the PP
-  input  wire [7:0]              i_pp_rx_drops,     //! frames lost to a full FIFO
+  input  wire [7:0]              i_pp_rx_drops,     //! control frames lost to a full FIFO, or longer than the FIFO
   input  wire [15:0]             i_pp_tx_frames,    //! frames the PP WOULD have sent
 
   // ---- Interrupt (REQ-CSR-04) ----
