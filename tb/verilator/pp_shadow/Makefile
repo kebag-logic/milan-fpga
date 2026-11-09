@@ -160,8 +160,15 @@ ci-list:
 $(addprefix run-,$(RUN_CASES)): run-%: build-%
 	$(MAKE) --no-print-directory exec-$*
 
+# RXFILT=0 builds the base leg with rx_mac_filter pruned (RXFILT_P = 0, the
+# builder's --no-rx-mac-filter), so a one-beat runt reaches the tap; the
+# harness then expects runts at the full FIFO in section [DR]. Not a default
+# leg: drops_mutant.py builds it (#854).
+RXFILT ?= 1
+RXFILT_G = $(if $(filter 0,$(RXFILT)),-GRXFILT_P=0 -CFLAGS "-DRXFILT_PRUNED=1 -Wall -Wextra")
+
 build-base: ltn_rom.hex ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir $(BUILD_DIR) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(RXFILT_G) --Mdir $(BUILD_DIR) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
 
 exec-base:
 	$(BUILD_DIR)/Vpp_shadow_sim $(SIM_ARGS)
@@ -202,9 +209,10 @@ reboot-mutant:
 	python3 reboot_mutant.py
 
 # Section [DR] against a tap whose drop count is removed, read from tready,
-# or otherwise wrong (#854): drops_mutant.py requires its named check to fail.
+# or otherwise wrong (#854): drops_mutant.py runs [DR] in the base leg and in
+# the base leg built with RXFILT=0, and requires each arm's named check to fail.
 drops-mutant:
 	python3 drops_mutant.py
 
 clean:
-	rm -rf obj_dir obj_vid73 obj_crf obj_pending ltn_rom.hex ucode.hex
+	rm -rf obj_dir obj_vid73 obj_crf obj_pending obj_rxfilt0 ltn_rom.hex ucode.hex

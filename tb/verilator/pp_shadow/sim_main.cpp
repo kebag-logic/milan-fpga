@@ -91,12 +91,18 @@
 //      for while holding tready high, so the drop count must come from the
 //      FIFO's own overflow indication. 100 back-to-back 64-byte ADP frames
 //      (and eight of 16 bytes, kept at their second beat) outrun the
-//      serializer's one byte a cycle; the harness counts every frame the
-//      serializer hands to the processor, whole and in order, and requires
-//      the frames offered less the frames handed out to equal PP_DIAG[15:8].
-//      A refused frame that meets the full FIFO loses no control frame and is
-//      not counted, and the count saturates at 255. (A one-beat runt never
-//      reaches the tap here: rx_mac_filter ahead of it drops every runt.)
+//      serializer, which drains eight bytes every nine cycles (one byte a
+//      cycle while it holds a word, one cycle to pop each word); the harness
+//      counts every frame the serializer hands to the processor, whole and in
+//      order, and requires the frames offered less the frames handed out to
+//      equal PP_DIAG[15:8]. A refused frame that meets the full FIFO loses no
+//      control frame and is not counted. A one-beat runt is not counted
+//      either: rx_mac_filter ahead of the tap drops every runt, and a build
+//      that prunes the filter (RXFILT_P = 0, RXFILT_PRUNED here, which
+//      drops_mutant.py builds) lets runts meet the full FIFO. A frame as long
+//      as the FIFO (4,096 bytes) fits; one byte longer, the FIFO drops it
+//      even when empty, and it is lost and counted. The count saturates at
+//      255.
 //
 // The talker source enable is NOT a -G any more: KL_pp_shadow's SRC_EN_MASK_P
 // is deleted and milan_datapath drives cfg_src_en_i from the entity shape
@@ -133,6 +139,13 @@
 
 #ifndef DECLARATION_OUTPUTS
 #define DECLARATION_OUTPUTS 1
+#endif
+
+//! 1 in a build of milan_datapath with RXFILT_P = 0 (the Makefile's RXFILT=0,
+//! which drops_mutant.py builds): no rx_mac_filter ahead of the tap, so a
+//! one-beat runt reaches it (#854)
+#ifndef RXFILT_PRUNED
+#define RXFILT_PRUNED 0
 #endif
 
 namespace {
@@ -2041,7 +2054,76 @@ class PpShadowHarness {
     //! cycles, so this many idle cycles empties it from full with margin.
     static constexpr int kDrainCycles = 8000;
 
+    //! whether a one-beat runt offered at the MAC reaches the tap in this build
+    static constexpr bool kRuntsReachTheTap = RXFILT_PRUNED != 0;
+
     uint32_t drop_count() { return (axi_read(A_PP_DIAG) >> 8) & 0xFF; }
+
+    //! One-beat runts between kept frames, in the refused burst's shape: 100
+    //! frames of 64 bytes fill the FIFO, then each 8-byte runt follows a
+    //! 16-byte frame. rx_mac_filter drops every runt ahead of the tap, so in a
+    //! filtered build none reaches the FIFO; with the filter pruned
+    //! (RXFILT_PRUNED) runts meet the full FIFO, and a runt is never a control
+    //! frame lost. Returns the kept frames lost.
+    uint32_t grade_runts_at_a_full_fifo_are_not_counted() {
+        char det[128];
+        std::vector<std::vector<uint8_t>> runted, runted_kept;
+        for (unsigned n = 0; n < 100; n++) {
+            runted_kept.push_back(drop_adp(64, static_cast<uint8_t>(n)));
+            runted.push_back(runted_kept.back());
+        }
+        for (unsigned n = 0; n < 100; n++) {
+            runted_kept.push_back(drop_adp(16, static_cast<uint8_t>(0x80 + n)));
+            runted.push_back(runted_kept.back());
+            runted.push_back(drop_adp(8, static_cast<uint8_t>(0xC0 + (n & 0x3F))));
+        }
+        const uint32_t before_r = drop_count();
+        TapTally r = inject_burst(runted, kDrainCycles);
+        const uint32_t lost_r = static_cast<uint32_t>(runted_kept.size() - r.handed.size());
+        const uint32_t count_r = drop_count() - before_r;
+        snprintf(det, sizeof det, "100 runts offered, %u kept lost, count +%u, %u FIFO overflows",
+                 lost_r, count_r, r.overflows);
+        printf("  DR runt burst (%s): %s\n", kRuntsReachTheTap ? "rx_mac_filter pruned" : "filtered", det);
+        ck_true("DR the runt burst loses kept frames", lost_r > 0, det);
+        if (kRuntsReachTheTap) {
+            ck_true("DR with the filter pruned the runts meet the full FIFO", r.overflows > lost_r, det);
+        } else {
+            ck("DR the filter drops every runt ahead of the tap: one overflow per kept frame lost",
+               r.overflows, lost_r);
+        }
+        ck("DR ...and runts are not counted: the kept frames lost equal the count", count_r, lost_r);
+        ck_true("DR ...the kept frames of the runt burst handed out whole and in order",
+                handed_in_order(r, runted_kept), "against the offered kept sequence");
+        return lost_r;
+    }
+
+    //! A frame as long as the FIFO (4,096 bytes, 512 words) fits in it empty
+    //! and is handed out whole; one byte longer, the FIFO drops it by itself
+    //! although it is empty (DROP_OVERSIZE_FRAME), so it is lost and counted,
+    //! and the frame behind it still gets through. Returns the frames lost.
+    uint32_t grade_a_frame_longer_than_the_fifo_is_counted() {
+        char det[128];
+        const uint32_t before_e = drop_count();
+        const std::vector<std::vector<uint8_t>> fits{drop_adp(4096, 0x5A)};
+        TapTally e = inject_burst(fits, kDrainCycles);
+        snprintf(det, sizeof det, "%zu of 1 handed out, %u FIFO overflows, count +%u",
+                 e.handed.size(), e.overflows, drop_count() - before_e);
+        printf("  DR 4,096-byte frame: %s\n", det);
+        ck_true("DR a frame as long as the FIFO is kept and handed out whole",
+                e.overflows == 0 && handed_in_order(e, fits) && e.handed.size() == 1, det);
+        ck("DR ...and is not counted", drop_count() - before_e, 0);
+        const std::vector<std::vector<uint8_t>> longer{drop_adp(4097, 0x5B), drop_adp(64, 0x5C)};
+        TapTally g = inject_burst(longer, kDrainCycles);
+        const uint32_t count_g = drop_count() - before_e;
+        snprintf(det, sizeof det, "2 offered, %zu handed out, %u FIFO overflows, count +%u",
+                 g.handed.size(), g.overflows, count_g);
+        printf("  DR 4,097-byte frame, then 64 bytes: %s\n", det);
+        ck_true("DR a frame longer than the FIFO is lost and the frame behind it handed out",
+                g.overflows == 1 && g.handed.size() == 1 && g.handed[0] == longer[1] && g.partial.empty(), det);
+        ck("DR the frame longer than the FIFO is counted", count_g, 1);
+        return static_cast<uint32_t>(fits.size() - e.handed.size()) +
+               static_cast<uint32_t>(longer.size() - g.handed.size());
+    }
 
     void grade_control_frames_lost_to_a_full_fifo_are_counted() {
         printf("[DR] a control frame lost to a full FIFO is counted (#854)\n");
@@ -2096,11 +2178,14 @@ class PpShadowHarness {
         ck_true("DR ...the kept frames handed out whole and in order", handed_in_order(b, mixed_kept),
                 "against the offered kept sequence");
 
+        const uint32_t lost_r = grade_runts_at_a_full_fifo_are_not_counted();
+        const uint32_t lost_e = grade_a_frame_longer_than_the_fifo_is_counted();
+
         // 400 more: past 255 lost in all, and the count holds at 255
         std::vector<std::vector<uint8_t>> flood;
         for (unsigned n = 0; n < 400; n++) flood.push_back(drop_adp(64, static_cast<uint8_t>(n)));
         TapTally d = inject_burst(flood, kDrainCycles);
-        const uint32_t lost_all = lost_a + lost_b +
+        const uint32_t lost_all = lost_a + lost_b + lost_r + lost_e +
                                   static_cast<uint32_t>(flood.size() - d.handed.size());
         snprintf(det, sizeof det, "%u frames lost in all", lost_all);
         printf("  DR flood: %s\n", det);
