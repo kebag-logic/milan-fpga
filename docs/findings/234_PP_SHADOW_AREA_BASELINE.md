@@ -12,19 +12,21 @@ Its [next record](#re-baseline-of-2026-10-23-issues-632-and-764) added the media
 Its [next record](#re-baseline-of-2026-10-28-processor-f65c8ff7) adopted processor `f65c8ff7` for #799 on dev `97aab1d0`, under an owner decision.
 Its [next record](#re-baseline-of-2026-11-06-processor-92100657) adopted processor `92100657` for #845 on dev `87e9d03a`, under a maintainer decision.
 Its [next record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) adopted FPGA-gPTP `1616fc8f` for #843 on its merge of dev `1eb5289d`, under the same decision, and kept #845's standalone records.
-The [current record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) adopts processor `044cb25f` for #851 on its merge of dev `0a75aa77`, the first image with all four lab fixes.
+Its [next record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) adopted processor `044cb25f` for #851 on its merge of dev `0a75aa77`, the first image with all four lab fixes.
+The [current record](#re-baseline-of-2026-11-09-the-control-frame-drop-count) adds #854's control-frame drop count on dev `ac0a01e3`, with no pin moved.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
 The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`.
 Dev then moved the processor pin to `ed211803` (#780), and the #799 record moved it to `f65c8ff7`; the gPTP pin stayed `55680bff`.
 Dev then moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66`, and the #845 record moved the processor pin to `92100657`.
-The #843 record moved the gPTP pin to `1616fc8f`, and the current record moves the processor pin to `044cb25f`.
+The #843 record moved the gPTP pin to `1616fc8f`, and the #851 record moved the processor pin to `044cb25f`; the current record moves no pin.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)** -- The current record: processor `044cb25f` on the merge of dev `0a75aa77`, the first image with all four lab fixes, remeasured at three endpoints, the route on the recipe's three directives with AltSpreadLogic_high selected, the adoption's share on both bases, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-09, the control-frame drop count](#re-baseline-of-2026-11-09-the-control-frame-drop-count)** -- The current record: #854's control-frame drop count on dev `ac0a01e3`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at one directive against the preceding record's own route, the tap's own share, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)** -- The preceding record: processor `044cb25f` on the merge of dev `0a75aa77`, the first image with all four lab fixes, remeasured at three endpoints, the route on the recipe's three directives with AltSpreadLogic_high selected, the adoption's share on both bases, sub-block movements, route-corner timing, worst paths and input receipts.
 - **[Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f)** -- The preceding route record, under the same maintainer decision: FPGA-gPTP `1616fc8f` with processor `92100657` on the merge of dev `1eb5289d`, the route alone on the recipe's three directives with AltSpreadLogic_high selected, against dev's own route, the engine's share, route-corner timing and input receipts.
 - **[Re-baseline of 2026-11-06, processor 92100657](#re-baseline-of-2026-11-06-processor-92100657)** -- The route record before it and the standalone records before the current ones, under a maintainer decision: processor `92100657` on dev `87e9d03a`, remeasured at three endpoints, the route on the recipe's three directives with ExtraTimingOpt selected, sub-block movements, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-28, processor f65c8ff7](#re-baseline-of-2026-10-28-processor-f65c8ff7)** -- The preceding record, under an owner decision: processor `f65c8ff7` and mailbox contract 2.3 on dev `97aab1d0`, remeasured at three endpoints, the same figures as before the contract change, sub-block movements, route-corner timing and input receipts.
@@ -47,6 +49,126 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-11-09, the control-frame drop count
+
+This re-baseline records [#854](https://github.com/kebag-logic/milan-fpga/issues/854): the all-fabric tap's control-frame drop count, `PP_DIAG[15:8]`, now read from its FIFO's own overflow indication.
+All three endpoints measure lane commit `7a19f62b4e622d1d7d563184363a42e2644776c1` on dev `ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36`, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input.
+Processor `044cb25f` and FPGA-gPTP `1616fc8f` are unchanged.
+`ooc-8x8` is out of context only; it was not routed.
+From the [preceding record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)'s commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves: the diff lists documentation, testbench files and the baseline JSON only.
+So the differences below are this change's, and on the route the selected directive's.
+On dev `drop_evt_w` is constant 0, so synthesis removes the 8-bit count and the FIFO's overflow register; both now exist, with `last_kept_r`, the register of the last beat's classification.
+From dev to `7a19f62b` the synthesis inputs that differ are `KL_pp_shadow.sv` and one comment line of `milan_csr.sv`.
+
+**Gate verdict.** Against the preceding record `check` exits 0 on all three endpoints.
+The route grew by 106 LUTs against 500, `ooc-1x1` by 10 against 250 and `ooc-8x8` by 10 against 316.
+All three are re-recorded, because the change moves the shipping image ([area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate)).
+Every tolerance, floor and ceiling stays unchanged, and every gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+The route is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected ExtraPostPlacementOpt, the shipping directive.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,534 | 54,850 | 15,820 | 74 / 27 | 15 | 3,741 | +0.166 | +0.032 |
+| `ooc-1x1` | 25,209 | 21,020 | - | 16 / 3 | 8 | 1,649 | +3.327 | +0.159 |
+| `ooc-8x8` | 37,058 | 32,126 | - | 21 / 5 | 8 | 2,329 | +1.139 | +0.159 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.166 / +0.032 ns | 53,534 | 54,850 | 15,820 | 30 |
+| AltSpreadLogic_high | +0.147 / +0.036 ns | 53,513 | 54,847 | 15,846 | 4 |
+| ExtraTimingOpt | +0.127 / +0.036 ns | 53,512 | 54,847 | 15,846 | 4 |
+
+Every directive meets the +0.030 ns WNS floor and the 0 ns WHS floor at every signoff corner; the gate judges the selected route against the floors, and the shipping image is built from that route.
+The ExtraPostPlacementOpt figures equal the change's first route, at lane commit `e87f2179`, whose synthesis inputs differ from `7a19f62b` only in comment lines.
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | +106 | +13 | -9 | 0 / 0 | 0 | -0.044 | -0.004 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | +10 | +10 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | +10 | +10 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+**The change at one directive.** The preceding record selected AltSpreadLogic_high, and this one ExtraPostPlacementOpt, so the route row above compares two directives.
+The preceding record's own ExtraPostPlacementOpt route, in its section, is the same directive on the same base:
+
+| Figure | Preceding record, ExtraPostPlacementOpt | This record, ExtraPostPlacementOpt | Change |
+|---|---:|---:|---:|
+| LUT | 53,383 | 53,534 | +151 |
+| FF | 54,837 | 54,850 | +13 |
+| Slice | 15,848 | 15,820 | -28 |
+| WNS / WHS, worst corner | +0.112 / +0.036 ns | +0.166 / +0.032 ns | +0.054 / -0.004 ns |
+
+At one directive WNS rose, so the 0.044 ns fall against the record is the change of selected directive, not this change.
+The LUT figure moves with placement at either directive; the flip-flop figure, +13 at both, is the change's.
+
+**The tap's own share.** The gate's `wrapper` row is the `KL_pp_shadow` instance total, its children included: `u_pp`, the processor, `ctl_fifo`, the tap's FIFO, and `u_nvm`.
+Its own logic is the wrapper less those children:
+
+| Scope | `route-1x1` LUT / FF | `ooc-1x1` LUT / FF | `ooc-8x8` LUT / FF |
+|---|---:|---:|---:|
+| the wrapper, the instance total | +35 / +10 | +10 / +10 | +10 / +10 |
+| `u_pp` | +27 / 0 | 0 / 0 | 0 / 0 |
+| `ctl_fifo` | +1 / +1 | +3 / +1 | +4 / +1 |
+| `u_nvm` | -1 / 0 | 0 / 0 | 0 / 0 |
+| the tap's own logic | +8 / +9 | +7 / +9 | +6 / +9 |
+
+Out of context the processor does not move, so the standalone rows are the change alone: +9 FFs in the tap, the 8-bit count and `last_kept_r`, and +1 FF in `ctl_fifo`, its overflow register, with 6 to 7 LUTs in the tap and 3 or 4 in the FIFO.
+On the route `u_pp` moved by +27 LUTs with no RTL change: that is placement and optimization across two directives, which the [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) counts against the change all the same.
+The gate's other listed route rows, which it does not judge, are all inside `u_pp`: `u_listener` +19, `u_aecp/u_d3` -11, and seven rows of 3 LUTs or fewer.
+In the routed hierarchy, `milan_datapath` moved by +133 LUTs to 44,964, of which the wrapper moved by +35 to 25,219.
+The rest of the datapath moved by +98 LUTs, and the image outside it by -27.
+
+The selected route uses 87.5 RAM tiles and leaves 30 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS is 0.136 ns above its +0.030 ns floor; WHS is 0.032 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.166 | +0.050 |
+| `Slow_85C` | +0.166 | +0.050 |
+| `Fast_0C` | +1.633 | +0.032 |
+| `Fast_85C` | +1.633 | +0.032 |
+
+Each path below is `report_timing`'s worst path of the selected routed checkpoint at the named corners, and its slack equals that corner's WNS or WHS.
+The worst setup path has 37 logic levels on the 20 ns processor clock, inside the wrapper and outside the tap.
+It runs from the AECP microcode CPU's `u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_aecp/u_d3/deb_cnt_r_reg[13]`.
+Its data delay is 19.393 ns: 6.494 ns of logic and 12.899 ns of routing.
+The worst hold path is in the SoC, from the CPU's memory-bus register `mBusAxi_w_s2mPipe_rData_data_reg[252]` to the block RAM `storage_11_reg_3`, at +0.032 ns at the fast corners.
+AltSpreadLogic_high's and ExtraTimingOpt's worst setup paths are in the SoC, on its 10 ns clock.
+
+Each endpoint was written with `record --write` after its `check`, which returned 0 at all three against the preceding record.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane commit, the preceding record's figures and the one-directive comparison.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `401aabd7080837073732ee56c3f990a7e845d488708d2c15b8e6db707ad04840` |
+| `ooc-1x1` | `27ef2ef69d4a14c6d29c5354a7d646ad32ec93e4db9ea60be2dbe34cc169ee56` |
+| `ooc-8x8` | `f185c126b037e9cef3bd9dec0f1e830d885944ec6537cfce133090e68455d5ae` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Up to three Vivado runs went at once, each in its own slot: `rtl-8x8` and `ooc-8x8` beside the shipping route's synthesis, then the two comparison routes and `ooc-1x1` beside its place and route.
+The largest Vivado memory peak was 8,537 MB, in the shipping route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 68.1 | `fc2be49d556d3dcdb24ea2bdcc6a5f17fd877116f5f4b39350e22d03dab0f9d6` | 910,032 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 27.0 | `0c251dd4e9d642ab2c2dcd7beb40fcf439443a17d4f69b76514a169d2bcd7ba9` | 453,021 |
+| `route-1x1`, ExtraTimingOpt | 0 | 22.9 | `f2e986d942d622b23352bde2d8a74cd159e9231dfc584ab4f91b7678db4e956c` | 412,791 |
+| `ooc-1x1` | 0 | 21.0 | `f359269d9b7f87d53f950f5f9dfb37140b054a63edfafddaa121e15ab3584a3c` | 315,782 |
+| `rtl-8x8` | 0 | 1.3 | `f1b773a309c50be82aa4c1d0bd149c71502865db9196caf9e704b033ef6f1a46` | 207,987 |
+| `ooc-8x8` | 0 | 37.8 | `2e7cd457ed0a821c45ec102bf57efdbf13cb1560f46fc8a791cadd4dca1a3a4d` | 319,267 |
 
 ## Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f
 
