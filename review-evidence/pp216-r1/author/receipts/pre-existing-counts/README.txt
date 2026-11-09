@@ -1,0 +1,1 @@
+arm-base-stale.tsv / .log: tools/arm_counts.py at the base 044cb25f for the seven arms whose tb/srp_top README counts differ from the 06cce32 campaign (tools/cmp_counts.py). Each base count equals the head count, so the README figures were stale before issue #216 and are left as they are; listed in HANDOFF.md.

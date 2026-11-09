@@ -1,0 +1,118 @@
+control srp_admission : rc=0 PASS
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+control srp_top applicant: rc=0 PASS
+control srp_top armdelay: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top link: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+control srp_top lvleave: rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top share: rc=0 PASS
+control srp_top storage: rc=0 PASS
+control srp_top timers: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+pending-peer-ignored: rc=2 failures=26 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=8 KILLED tags=M1,M2,M3,M4
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+round-completion-lost: rc=2 failures=6 KILLED tags=N13,N3,N4,N5,N6,N8
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+empty-canceled-pdu: rc=0 failures=0 UNPROVEN tags=
+h/pp216-a754<tmp>/camp/srp-leaveall-e8q4l9e7/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-e8q4l9e7/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.621 MB sources in 15 modules, into 4.169 MB in 10 C++ files needing 0.003 MB
+- Verilator: Walltime 79.917 s (elab=0.172, cvt=1.981, bld=77.402); cpu 1.046 s on 2 threads; allocated 92.066 MB
+./obj_dir/Vsrp_top_sim peer
+LEAVEALL_PEER release=3 rx_minus_accept=3 actions=1
+LEAVEALL_PEER release=4 rx_minus_accept=2 actions=1
+LEAVEALL_PEER release=5 rx_minus_accept=1 actions=1
+LEAVEALL_PEER release=6 rx_minus_accept=0 actions=0
+LEAVEALL_PEER release=7 rx_minus_accept=-1 actions=0
+LEAVEALL_PEER release=8 rx_minus_accept=-2 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-12 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-11 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-10 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-9 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-8 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-7 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-6 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-5 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-4 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-3 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-2 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=-1 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=0 actions=0
+LEAVEALL_EXPIRY peer_minus_expiry=1 actions=0
+TOTAL_CLOCKS 20063207
+90 checks: 90 PASS, 0 FAIL
+make: Leaving directory '<scratch><tmp>/camp/srp-leaveall-e8q4l9e7/tb/srp_top'
+
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+leaveall-expiry-lost: rc=2 failures=16 KILLED tags=M1,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot: rc=2 failures=21 KILLED tags=M1,M11,M12,M5,M6,M8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+mvrp-expiry-only-redraw: rc=2 failures=17 KILLED tags=P2,P3,P6
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+mvrp-stale-expiry-honoured: rc=2 failures=7 KILLED tags=P6
+mvrp-passive-lost: rc=2 failures=5 KILLED tags=P4,P5,P6,P7
+mvrp-flag-at-expiry: rc=2 failures=11 KILLED tags=P4,P5,P6,P7
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+r-rearm-no-inflight: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-inflight: rc=2 failures=6 KILLED tags=P6
+r-rearm-no-deadline: rc=2 failures=3 KILLED tags=M10

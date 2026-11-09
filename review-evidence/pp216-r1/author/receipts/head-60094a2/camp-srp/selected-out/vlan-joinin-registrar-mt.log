@@ -1,0 +1,33 @@
+make: Entering directory '<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder'
+verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+make[1]: Entering directory '<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder/obj_dir'
+g++  -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder -Wall -Wextra   -c -o verilated.o <toolchain>/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder -Wall -Wextra   -c -o verilated_threads.o <toolchain>/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 <toolchain>/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsrp_tb_wrap.cpp Vsrp_tb_wrap___024root__0.cpp Vsrp_tb_wrap__ConstPool__0__Slow.cpp Vsrp_tb_wrap___024root__Slow.cpp Vsrp_tb_wrap___024root__0__Slow.cpp Vsrp_tb_wrap__Syms__Slow.cpp > Vsrp_tb_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder -Wall -Wextra   -c -o Vsrp_tb_wrap__ALL.o Vsrp_tb_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_tb_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_sim
+rm Vsrp_tb_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.455 MB sources in 8 modules, into 0.694 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 21.639 s (elab=0.027, cvt=0.150, bld=21.392); cpu 0.179 s on 2 threads; allocated 52.070 MB
+./obj_dir/Vsrp_sim
+FAIL: V1 four tx!: New, New again (AN), JoinMt (AA), then nothing (QA), each done (0:VID2 0:VID2 1:VID2)
+FAIL: V3 periodic JoinMt VID 2, its Registrar MT (802.1Q-2018 10.7.6.3; 1:VID2)
+FAIL: V5 JoinMt VID 2 and New VID 5 (1:VID2 0:VID5)
+FAIL: V5 the own LeaveAll's tx! (txLA!): JoinMt VID 2 and New VID 5, then QA (1:VID2 0:VID5)
+FAIL: V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing
+FAIL: B1-vlan: byte-exact against the independent packer
+  exp: 01 80 c2 00 00 21 02 4b 4c 00 00 01 88 f5 00 01 02 00 01 00 05 6c 00 00 00 00
+  got: 01 80 c2 00 00 21 02 4b 4c 00 00 01 88 f5 00 01 02 00 01 00 05 24 00 00 00 00
+FAIL: VR0 VID 2 declared: New, New, JoinMt (0:VID2 0:VID2 1:VID2)
+FAIL: VR2 a received Lv: its Registrar LV, the re-join JoinMt (1:VID2)
+FAIL: VR3 a received JoinIn of another VID changes neither its Registrar nor its message
+FAIL: VR4 a received In or Mt registers nothing; the Mt owes the re-join: JoinMt (1:VID2)
+FAIL: VR6 a received LeaveAll takes the Registrar to LV: JoinMt (1:VID2)
+FAIL: VR8 the own LeaveAll's tx! ages the Registrar to LV: JoinMt (1:VID2)
+FAIL: VR11 a VID allocated again starts with its Registrar MT: New, New, JoinMt (0:VID4 0:VID4 1:VID4)
+1646 checks: 1633 PASS, 13 FAIL
+make: *** [Makefile:20: run] Error 1
+make: Leaving directory '<scratch><tmp>/camp/srp-leaveall-_pvg8_s9/tb/srp_encoder'

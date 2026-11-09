@@ -1,0 +1,351 @@
+control srp_admission : rc=0 PASS
+control srp_encoder : rc=0 PASS
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+control srp_top applicant: rc=0 PASS
+control srp_top armdelay: rc=0 PASS
+control srp_top congestion: rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top edge: rc=0 PASS
+control srp_top guards: rc=0 PASS
+control srp_top join: rc=0 PASS
+control srp_top link: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+control srp_top lvleave: rc=0 PASS
+control srp_top onevec: rc=0 PASS
+control srp_top peer: rc=0 PASS
+control srp_top phases: rc=0 PASS
+control srp_top restart: rc=0 PASS
+control srp_top share: rc=0 PASS
+control srp_top storage: rc=0 PASS
+control srp_top timers: rc=0 PASS
+bad-listener-length: rc=2 failures=1 KILLED tags=K12
+repeated-action: rc=2 failures=5 KILLED tags=N10,N12,N13,N4,N8
+expiry-event: rc=2 failures=81 KILLED tags=K1,K11,K12,K2,K4,K5,K9
+before-slot: rc=2 failures=30 KILLED tags=L1,L4
+talker-no-own: rc=2 failures=25 KILLED tags=K2,K4,K8
+listener-no-own: rc=2 failures=13 KILLED tags=K11,K6
+talker-lost-txla: rc=2 failures=12 KILLED tags=T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+talker-strict-lv: rc=2 failures=24 KILLED tags=K2,K4
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-sid-ignored: rc=2 failures=33 KILLED tags=K12,K3,K5,K8
+talker-no-renewal: rc=2 failures=1 KILLED tags=K7
+listener-no-renewal: rc=2 failures=1 KILLED tags=K7
+talker-no-expiry: rc=2 failures=1 KILLED tags=K8
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+pending-peer-ignored: rc=2 failures=26 KILLED tags=M1,M10,M2,M3
+encoder-peer-ignored: rc=2 failures=20 KILLED tags=M1,M11,M12,M2,M3,M6,M7
+mvrp-supersedes-msrp: rc=2 failures=8 KILLED tags=M1,M2,M3,M4
+reset-retains-intent: rc=2 failures=1 KILLED tags=K10
+full-drain-missing: rc=2 failures=7 KILLED tags=N10,N13,N3,N4,N5,N6,N8
+already-full-missed: rc=2 failures=1 KILLED tags=N10
+round-completion-lost: rc=2 failures=6 KILLED tags=N13,N3,N4,N5,N6,N8
+own-flags-missing: rc=2 failures=4 KILLED tags=N10,N12,N5,N6
+expiry-congestion: rc=2 failures=5 KILLED tags=N1,N11,N12,N2,N9
+missing-registrar-edge: rc=2 failures=38 KILLED tags=L2,L3
+empty-canceled-pdu: rc=2 failures=1 KILLED tags=M11
+reserved-slot-not-reused: rc=2 failures=1 KILLED tags=M12
+renewal-congestion: rc=2 failures=1 KILLED tags=N7
+leaveall-expiry-lost: rc=2 failures=16 KILLED tags=M1,M12,M2,M3,M5,M8,M9
+expiry-outranks-peer: rc=2 failures=1 KILLED tags=M10
+repeated-expiry-queued: rc=2 failures=1 KILLED tags=N12
+receive-priority-lost: rc=2 failures=2 KILLED tags=L2
+action-omitted: rc=2 failures=6 KILLED tags=N10,N12,N13,N3,N4,N8
+preparation-before-slot: rc=2 failures=21 KILLED tags=M1,M11,M12,M5,M6,M8
+table-one-short: rc=2 failures=8 KILLED tags=N10,N13,N3,N4,N5,N6,N8,N9
+my-expiry-pulse: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+my-join-edge-peer: rc=2 failures=2 KILLED tags=O3,O4
+my-cancel-eats-new-intent: rc=2 failures=1 KILLED tags=O2
+my-edge-cancel-lost: rc=2 failures=2 KILLED tags=M6,M7
+my-la-outranks-leave: rc=2 failures=2 KILLED tags=L2
+my-drop-join-during-wait: rc=2 failures=1 KILLED tags=O6
+my-no-walk-at-sLA: rc=2 failures=5 KILLED tags=N10,N12,N13,N5,N6
+my-reuse-flags-ignore-cancel: rc=2 failures=1 KILLED tags=O4
+r-expiry-pulse-restored: rc=2 failures=62 KILLED tags=K11,K12,K2,K4,K5
+r-cancel-latch-dropped: rc=2 failures=1 KILLED tags=O1
+r-cancel-consumes-new-intent: rc=2 failures=1 KILLED tags=O2
+r-join-start-guard-dropped: rc=2 failures=2 KILLED tags=O3,O4
+r-sink-receive-priority-lost: rc=2 failures=2 KILLED tags=O5
+r-join-coalesce-dropped: rc=2 failures=1 KILLED tags=O6
+r-la-only-emission-lost: rc=2 failures=1 KILLED tags=M12
+r-collect-blocks-pushes: rc=2 failures=4 KILLED tags=N12,N13,N5,N6
+r-accept-edge-drain-lost: rc=2 failures=1 KILLED tags=N10
+r-reuse-without-action: rc=2 failures=1 KILLED tags=M12
+r-mvrp-start-during-prepare: rc=2 failures=5 KILLED tags=B1-vlan,O8
+canceled-content-never-drains: rc=2 failures=1 KILLED tags=O7
+expiry-only-redraw: rc=2 failures=15 KILLED tags=P1,P3
+mvrp-expiry-only-redraw: rc=2 failures=17 KILLED tags=P2,P3,P6
+stale-expiry-honoured: rc=2 failures=7 KILLED tags=M10
+mvrp-stale-expiry-honoured: rc=2 failures=7 KILLED tags=P6
+mvrp-passive-lost: rc=2 failures=5 KILLED tags=P4,P5,P6,P7
+mvrp-flag-at-expiry: rc=2 failures=11 KILLED tags=P4,P5,P6,P7
+rearm-at-issue: rc=2 failures=8 KILLED tags=P8
+r-rearm-no-inflight: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-inflight: rc=2 failures=6 KILLED tags=P6
+r-rearm-no-deadline: rc=2 failures=3 KILLED tags=M10
+r-rearm-no-deadline: rc=2 failures=8 KILLED tags=P8
+r-flag-ignores-edge-peer: rc=2 failures=1 KILLED tags=P7
+join-ms-400: rc=2 failures=2 KILLED tags=Q1,Q2
+periodic-ms-3000: rc=2 failures=1 KILLED tags=Q2
+draw-kind-0: rc=2 failures=6 KILLED tags=Q1,Q2,Q3,Q4
+licence-ignores-join: rc=2 failures=3 KILLED tags=R1,R3
+licence-ignores-join: rc=2 failures=3 KILLED tags=T ACTIVE drops when the VID membership is gone,T not ACTIVE on another VID's transmitted join,T not ACTIVE while the VID's join is untransmitted
+join-sent-at-handover: rc=2 failures=2 KILLED tags=R1,R3
+count-up-unsends: rc=2 failures=2 KILLED tags=R2,R3
+listener-lane-cut: rc=2 failures=3 KILLED tags=R4
+join-sent-at-handover: rc=2 failures=2 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent
+count-up-unsends: rc=2 failures=2 KILLED tags=W4 a second user of VID 7 keeps it sent,W4 one user left
+tx-strobe-any-app: rc=2 failures=1 KILLED tags=W1 no strobe for an MSRP MRPDU
+tf-heads-swapped: rc=2 failures=8 KILLED tags=TF1,TF2
+tf-head-at-write-pointer: rc=2 failures=8 KILLED tags=TF1,TF4
+tf-listener-push-dropped: rc=2 failures=4 KILLED tags=TF2
+tf-ls-written-at-tk-pointer: rc=2 failures=8 KILLED tags=TF2,TF5
+tf-tk-head-read-ahead: rc=2 failures=13 KILLED tags=TF1,TF1 precondition,TF4
+tf-ls-head-reads-tk-ram: rc=2 failures=17 KILLED tags=TF1,TF2,TF3,TF4,TF5
+tf-tk-write-at-rptr: rc=2 failures=8 KILLED tags=TF1,TF4
+tf-full-guard-31: rc=2 failures=4 KILLED tags=TF4
+tf-tk-write-ignores-full: rc=2 failures=4 KILLED tags=TF4
+tf-ls-write-ignores-full: rc=2 failures=4 KILLED tags=TF5
+walk-record-written-on-close: rc=2 failures=4 KILLED tags=WK3
+wtsp-first-open-only: rc=2 failures=53 KILLED tags=WK13,WK2,WK3,WK4,WK9
+wtsp-read-at-gate-source: rc=2 failures=80 KILLED tags=WK1,WK13,WK2,WK4,WK9
+wtsp-read-at-source-0: rc=2 failures=83 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wtsp-latency-field-shifted: rc=2 failures=113 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wtsp-latency-shifted: rc=2 failures=113 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wtsp-rank-dropped: rc=2 failures=55 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wtsp-prio-rank-swapped: rc=2 failures=102 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wid-ram-first-open-only: rc=2 failures=40 KILLED tags=WK13,WK2,WK3,WK4,WK9
+wid-ram-read-at-gate-source: rc=2 failures=72 KILLED tags=WK1,WK13,WK2,WK4,WK9
+wid-ram-read-neighbour: rc=2 failures=88 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wid-flops-da-of-gate-source: rc=2 failures=8 KILLED tags=WK1,WK13,WK2,WK4,WK9
+wid-flops-sid-of-source-0: rc=2 failures=9 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+wid-flops-vid-of-source-0: rc=2 failures=9 KILLED tags=WK1,WK13,WK2,WK3,WK4,WK5,WK9
+talker-vid-unreset: rc=2 failures=4 KILLED tags=WK5
+wsid-ram-first-settle-only: rc=2 failures=30 KILLED tags=WK10,WK12,WK8
+wsid-ram-written-on-teardown: rc=2 failures=2 KILLED tags=WK7
+wsid-flops-of-control-sink: rc=2 failures=6 KILLED tags=WK10,WK12,WK6,WK8
+wsid-flops-read-sink-0: rc=2 failures=7 KILLED tags=WK10,WK12,WK6,WK7,WK8
+wtsp-write-ignores-ready: rc=2 failures=4 KILLED tags=WK9
+wsid-write-ignores-ready: rc=2 failures=4 KILLED tags=WK10,WK11
+slope-stored-at-stage-2-index: rc=2 failures=1333 KILLED tags=grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2
+slope-stored-at-source-0: rc=2 failures=1521 KILLED tags=cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2
+slope-store-source-0-only: rc=2 failures=1201 KILLED tags=cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2
+slope-read-source-0: rc=2 failures=578 KILLED tags=grant belongs to the current declaration after pipeline evaluation N=2,live granted sum stays within the ceiling N=2,refused current TSpec never pulses a grant N=2,round publishes coherent bounded sum N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2
+lv-second-lv-ends: rc=2 failures=16 KILLED tags=S1,S2
+lv-never-ends: rc=2 failures=16 KILLED tags=S2,S3
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+lv-expiry-last: rc=2 failures=48 KILLED tags=SC1
+lv-expiry-dropped: rc=2 failures=89 KILLED tags=K leavetimer! -> MT,K one LISTENER_REG_CHANGE, got 0,K source 3 no longer ACTIVE,L expiry -> MT + unregistered,PS19,PS21,PS8,SC1,T reg
+lv-sweep-misses-collision: rc=2 failures=16 KILLED tags=SC3
+listener-rebind-abandons-leave: rc=2 failures=16 KILLED tags=PS13,PS14,PS4,RB1,RB4,RB6,RB8,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17
+listener-declaration-not-held: rc=2 failures=17 KILLED tags=PS13,PS14,PS4,RB1,RB4,RB6,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16
+listener-park-never-retires: rc=2 failures=16 KILLED tags=PS13,PS14,PS4,RB1,RB4,RB6,RB7,SH14,SH15,SH16
+listener-reprobe-abandons-leave: rc=2 failures=3 KILLED tags=PS24,RB2
+listener-reprobe-parks-own-stream: rc=2 failures=5 KILLED tags=PS20,PS3,RB3,RB5
+walk-ignores-leave-copy: rc=2 failures=34 KILLED tags=WK11,WK12
+lsid-ram-read-sink-0: rc=2 failures=24 KILLED tags=WK11,WK12
+lsid-flops-read-sink-0: rc=2 failures=2 KILLED tags=WK11,WK12
+lsid-ram-written-with-new-stream: rc=2 failures=28 KILLED tags=WK11,WK12
+listener-csid-ram-ignores-park: rc=2 failures=3 KILLED tags=RB4,RB5,SH17
+listener-csid-ram-ignores-park: rc=2 failures=14 KILLED tags=WK12
+listener-csid-flops-ignores-park: rc=2 failures=3 KILLED tags=WK12
+listener-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=RB5
+listener-lo-not-owed: rc=2 failures=2 KILLED tags=RB6,RB8
+listener-park-retires-on-txla: rc=2 failures=2 KILLED tags=RB7,SH23
+listener-parked-applies-rx: rc=2 failures=1 KILLED tags=RB8
+listener-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=RB9
+listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=WK11,WK12
+listener-park-never-retires: rc=2 failures=34 KILLED tags=WK10,WK12,WK8
+listener-aa-tx-stays-aa: rc=2 failures=4 KILLED tags=WK12 precondition
+domain-rejoin-always-joinin: rc=2 failures=14 KILLED tags=D1 four tx!,D2 periodic JoinMt,D3 LeaveAll re-join, then AA (1,D3 the tx! after the LeaveAll's re-join sends JoinMt from AA, then QA,D8 re-joins carry the ADOPTED declaration (0,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt (1,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv),DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes),DT2 a tx! with nothing to send (QA) is done within four clocks,DT3 a tx! with the queue full is owed until its message fits, then served (1
+domain-rejoin-always-joinin: rc=2 failures=2 KILLED tags=DJ1,DJ4
+domain-rejoin-always-joinin: rc=2 failures=1 KILLED tags=Q2
+domain-rejoin-always-joinmt: rc=2 failures=12 KILLED tags=B1-domain,D8 re-joins carry the ADOPTED declaration (0,DA2 a received Mt in QA owes the re-join,DA4 a received JoinMt in QA owes the re-join,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=12 KILLED tags=B1-domain,D8 re-joins carry the ADOPTED declaration (0,DA2 a received Mt in QA owes the re-join,DA4 a received JoinMt in QA owes the re-join,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered,PV12 a received LeaveAll and periodic! in one window
+domain-rejoin-always-joinmt: rc=2 failures=3 KILLED tags=DJ2,DJ3
+domain-rejoin-at-request: rc=2 failures=6 KILLED tags=D3 LeaveAll re-join, then AA (3,D8 re-joins carry the ADOPTED declaration (0,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN,PV12 a received LeaveAll and periodic! in one window
+domain-rx-leaveall-dropped: rc=2 failures=5 KILLED tags=D3 LeaveAll re-join, then AA (nothing),D3 the tx! after the LeaveAll's re-join sends JoinMt from AA, then QA,D8 re-joins carry the ADOPTED declaration (0,DR3 a peer LeaveAll re-declared before tx!,PV12 the Domain handed over two re-joins (1 events)
+domain-rx-leaveall-dropped: rc=2 failures=1 KILLED tags=DJ3
+domain-leaveall-keeps-in: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration (0,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DR6 peer withdrawal (Lv)
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DJ4
+domain-lv-any-value: rc=2 failures=1 KILLED tags=DR7 an Lv of another Domain value leaves the registration IN
+domain-leaveall-after-receive: rc=2 failures=1 KILLED tags=DR8 a registering event in the LeaveAll's clock keeps IN
+domain-adoption-drops-registrar: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration (0,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR9 the adopted value is registered
+domain-capture-unregistered: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration (0,DR10 an adoption withdrawn before it applies re-joins JoinMt (3,DR9 the adopted value is registered
+domain-pending-lv-ignored: rc=2 failures=1 KILLED tags=DR10 an adoption withdrawn before it applies re-joins JoinMt (1
+domain-link-keeps-registrar: rc=2 failures=4 KILLED tags=DR11 LINK_DOWN and LINK_UP clear the registration,DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes),DT2 a tx! with nothing to send (QA) is done within four clocks,DT3 a tx! with the queue full is owed until its message fits, then served (1
+top-domain-lv-unwired: rc=2 failures=1 KILLED tags=DJ4
+top-domain-tx-every-clock: rc=2 failures=5 KILLED tags=DJ1,DJ2,DJ3,DJ4
+top-domain-tx-unwired: rc=2 failures=5 KILLED tags=DJ1,DJ2,DJ3,DJ4
+listener-settle-compare-dropped: rc=2 failures=3 KILLED tags=SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=45 KILLED tags=PS12,PS13,PS20,PS21,SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-rider-not-quiet: rc=2 failures=15 KILLED tags=SH1,SH14,SH18,SH19,SH2,SH21,SH24,SH4,SH6
+listener-teardown-applies-lv: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
+listener-handover-drops-state: rc=2 failures=15 KILLED tags=PS13,SH18,SH19,SH2,SH24,SH4,SH7,SH8
+listener-withdraw-ignores-riders: rc=2 failures=15 KILLED tags=SH10,SH11,SH12,SH13,SH16,SH2,SH4,SH6,SH7
+listener-withdraw-ignores-riders: rc=2 failures=6 KILLED tags=SW2,SW4,SW5,SW6,SW7
+listener-teardown-keeps-declaring: rc=2 failures=84 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,PS13,PS14,PS20,PS21,PS22,PS23,PS3,PS4,PS5,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17,SH2,SH21,SH23,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+listener-group-order-reversed: rc=2 failures=14 KILLED tags=PS12,SH1,SH18,SH19,SH24,SH3,SH4,SH5,SH8,SH9
+listener-rider-settle-hands-over: rc=2 failures=2 KILLED tags=SH5,SH9
+listener-type-not-combined: rc=2 failures=6 KILLED tags=SH6
+listener-type-not-combined: rc=2 failures=1 KILLED tags=SW3
+listener-handover-forgets-walk-mark: rc=2 failures=3 KILLED tags=SH24,SH7
+listener-settle-parks-shared-stream: rc=2 failures=2 KILLED tags=SH20,SH8
+listener-group-op-during-settle: rc=2 failures=1 KILLED tags=SH9
+listener-parked-outside-groups: rc=2 failures=7 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15,SH16
+listener-parked-outside-groups: rc=2 failures=2 KILLED tags=SW4,SW6
+listener-settle-skips-leave-copies: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+listener-settle-skips-leave-copies: rc=2 failures=2 KILLED tags=SW4,SW6
+listener-merge-keeps-park: rc=2 failures=4 KILLED tags=SH10,SH11,SH12,SH13
+listener-retire-skips-group-mark: rc=2 failures=2 KILLED tags=SH15,SH21
+listener-park-drops-matcher-pairs: rc=2 failures=1 KILLED tags=SH16
+listener-repark-takes-matcher-pairs: rc=2 failures=1 KILLED tags=SH17
+listener-two-parks-grouped: rc=2 failures=1 KILLED tags=SH23
+listener-walk-ends-owing-a-transmit: rc=2 failures=12 KILLED tags=PS4,RB1,RB4,RB6,RB7,SH16,SH18,SH19,SH20,SH24
+listener-walk-marks-only-served-slots: rc=2 failures=1 KILLED tags=SH22
+listener-walk-marks-group-only-on-retire: rc=2 failures=1 KILLED tags=SH21
+listener-walk-done-before-second-pass: rc=2 failures=3 KILLED tags=SH15,SH24
+talker-reopen-abandons-leave: rc=2 failures=9 KILLED tags=TP1,TP4,TP6,TP7,TP8,TP9
+talker-reopen-abandons-leave: rc=2 failures=19 KILLED tags=WK13
+talker-park-never-retires: rc=2 failures=3 KILLED tags=TP1,TP4,TP7
+talker-reopen-parks-own-stream: rc=2 failures=2 KILLED tags=TP2,TP3
+talker-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=TP3
+talker-lo-not-owed: rc=2 failures=2 KILLED tags=TP4,TP8
+talker-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=TP5
+talker-close-keeps-join: rc=2 failures=1 KILLED tags=TP6
+talker-park-retires-on-txla: rc=2 failures=1 KILLED tags=TP7
+talker-parked-applies-rx: rc=2 failures=1 KILLED tags=TP8
+talker-park-keeps-matcher: rc=2 failures=1 KILLED tags=TP9
+walk-ignores-talker-leave-copy: rc=2 failures=5 KILLED tags=TP1,TP4,TP6,TP7,TP8
+walk-ignores-talker-leave-copy: rc=2 failures=15 KILLED tags=WK13
+lwid-read-source-0: rc=2 failures=11 KILLED tags=WK13
+lwtsp-read-at-gate-source: rc=2 failures=11 KILLED tags=WK13
+lwid-written-from-source-0: rc=2 failures=11 KILLED tags=WK13
+talker-leave-copy-rewritten-while-parked: rc=2 failures=15 KILLED tags=WK13
+pt-seed-dropped: rc=2 failures=26 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS18,PS19,PS2,PS4,PS5,PS7,PS8,PS9
+pt-seed-dropped: rc=2 failures=26 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS18,PS19,PS2,PS4,PS5,PS7,PS8,PS9
+presettle-removed: rc=2 failures=37 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS18,PS19,PS2,PS20,PS21,PS3,PS4,PS5,PS7,PS8,PS9,RB1,RB4,RB6,RB7
+pt-never-holds: rc=2 failures=26 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS18,PS19,PS2,PS4,PS5,PS7,PS8,PS9
+seed-no-registered-strobe: rc=2 failures=26 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS19,PS2,PS20,PS21,PS3,PS4,PS5,PS7,PS8,PS9
+seed-type-advertise: rc=2 failures=8 KILLED tags=PS11,PS17,PS2,PS4,PS5
+seed-drops-failure-information: rc=2 failures=5 KILLED tags=PS17,PS2,PS4,PS5
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+pt-rlv-ignored: rc=2 failures=6 KILLED tags=PS11,PS6,RB2,SH14,SH15
+pt-leavetimer-never-expires: rc=2 failures=4 KILLED tags=PS7,PS9
+pt-leaveall-ignored: rc=2 failures=11 KILLED tags=PS15,PS19,PS7,PS8,PS9
+pt-leaveall-any-lane: rc=2 failures=1 KILLED tags=PS7
+seed-lv-fresh-deadline: rc=2 failures=3 KILLED tags=PS15,PS19,PS8
+seed-lv-unguarded: rc=2 failures=1 KILLED tags=PS15
+seed-from-current-state: rc=2 failures=2 KILLED tags=PS9
+pt-match-ignores-da: rc=2 failures=1 KILLED tags=PS10
+pt-vid-high-bits-ignored: rc=2 failures=1 KILLED tags=PS10
+pt-allocation-overwrites-entry-0: rc=2 failures=6 KILLED tags=L9,PS11,PS13,PS15,PS16
+park-retire-ignores-group: rc=2 failures=1 KILLED tags=PS13
+park-retire-without-hold: rc=2 failures=2 KILLED tags=PS14
+seed-keeps-expiry-strobe: rc=2 failures=1 KILLED tags=PS15
+pt-alloc-any-event: rc=2 failures=9 KILLED tags=PS16
+pt-fcode-first-only: rc=2 failures=1 KILLED tags=PS17
+pt-lat-on-alloc-only: rc=2 failures=3 KILLED tags=PS17
+pt-type-on-alloc-only: rc=2 failures=1 KILLED tags=PS17
+seed-on-teardown: rc=2 failures=2 KILLED tags=PS18
+pt-rlv-on-lv-ends: rc=2 failures=2 KILLED tags=PS19
+rebind-same-not-kept: rc=2 failures=5 KILLED tags=PS20,PS21
+keep-ignores-da: rc=2 failures=1 KILLED tags=PS20
+keep-ignores-vlan: rc=2 failures=1 KILLED tags=PS20
+keep-declares-seed-type: rc=2 failures=2 KILLED tags=PS20
+keep-latency-strobe-dropped: rc=2 failures=2 KILLED tags=PS20
+unarmed-registrar-deaf: rc=2 failures=2 KILLED tags=PS21
+keep-ignores-expiry: rc=2 failures=1 KILLED tags=PS21
+unarmed-indicates: rc=2 failures=1 KILLED tags=PS22
+unarmed-fail-chg: rc=2 failures=1 KILLED tags=PS22
+unarmed-unregistered: rc=2 failures=1 KILLED tags=PS22
+unarmed-latency-strobe: rc=2 failures=1 KILLED tags=PS22
+unarmed-publishes-latency: rc=2 failures=2 KILLED tags=PS18,PS22
+unarmed-dbg-registrar: rc=2 failures=2 KILLED tags=L A8 disarms the matcher,PS22
+pt-link-flush-dropped: rc=2 failures=6 KILLED tags=PS23,PS24
+link-begin-dropped: rc=2 failures=1 KILLED tags=PS23
+unarmed-link-flush-dropped: rc=2 failures=1 KILLED tags=PS23
+keep-on-link-clock: rc=2 failures=1 KILLED tags=PS23
+top-listener-link-unwired: rc=2 failures=1 KILLED tags=LK1
+settled-link-flush-dropped: rc=2 failures=11 KILLED tags=PS24
+settled-link-unpublished: rc=2 failures=5 KILLED tags=PS24
+link-withdraw-dropped: rc=2 failures=6 KILLED tags=PS24
+link-clock-indicates: rc=2 failures=1 KILLED tags=PS24
+settled-link-keeps-lv-slot: rc=2 failures=1 KILLED tags=PS24
+pt-expiry-sign-bit: rc=2 failures=6 KILLED tags=PS15,PS19,PS8
+seed-deadline-rebuild-drops-now: rc=2 failures=4 KILLED tags=PS15,PS19,PS8,PS9
+second-queueing: rc=2 failures=68 KILLED tags=PV1 two re-joins of one Domain value,PV10,PV10 a value offered after another searched past its entry merges into it (taken after 4 clocks, 4 pending),PV11 own LeaveAll MRPDU,PV11 the re-join merged (3 pending),PV12 New, New and a LeaveAll's re-join in one window,PV12 a received LeaveAll and periodic! in one window,PV12 two tx! of a fresh declaration before one drain,PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain,PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed,PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv,PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready,PV2 New then a re-join,PV3 JoinMt then JoinIn,PV4 Lv then New,PV4 Lv then a join,PV4 New then Lv,PV4 a re-join then Lv,PV5 In then JoinMt,PV5 JoinIn then Mt,PV5 Lv then Mt,PV5 Mt then In,PV6 Listener New Ready then Mt Ignore,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed,PV7 a value again after its successor,PV9 VID 2 New then two re-joins,PV9 three re-join walks of VID 2 and VID 7
+join-displaces-new: rc=2 failures=4 KILLED tags=PV12 New, New and a LeaveAll's re-join in one window,PV2 New then a re-join,PV6 Listener New Ready then a re-join AskingFailed,PV9 VID 2 New then two re-joins
+push-twice-encoder-appends: rc=2 failures=11 KILLED tags=OV0,OV1,OV10,OV2,OV3,OV4,OV5,OV6,OV7,OV8,OV9
+leave-does-not-replace: rc=2 failures=4 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID New then Lv,PV4 New then Lv,PV4 a re-join then Lv
+s-displaces-declaration: rc=2 failures=3 KILLED tags=PV5 JoinIn then Mt,PV5 Lv then Mt,PV6 Listener New Ready then Mt Ignore
+listener-type-oldest: rc=2 failures=4 KILLED tags=PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready,PV6 Listener New Ready then a re-join AskingFailed,PV6 Listener Ready then AskingFailed
+merge-ignores-type: rc=2 failures=2 KILLED tags=PV8 three types of one StreamID
+search-no-restart: rc=2 failures=3 KILLED tags=PV10,PV10 a value offered after another searched past its entry merges into it (taken after 2 clocks, 4 pending)
+msrp-read-taken-by-any-search: rc=2 failures=3 KILLED tags=PV13 an MVRP search beside an MSRP drain,PV13 an absent VID offered beside an MSRP drain
+mvrp-read-taken-by-any-search: rc=2 failures=2 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an absent Domain value offered beside an MVRP drain
+search-survives-accept: rc=2 failures=8 KILLED tags=PV13 an MSRP search beside an MVRP drain,PV13 an MVRP search beside an MSRP drain,PV13 an absent Domain value offered beside an MVRP drain,PV13 an absent VID offered beside an MSRP drain
+identity-drops-top-octet: rc=2 failures=48 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0, bit 0,PV14 two type 1 StreamIDs that differ only in octet 0, bit 1,PV14 two type 1 StreamIDs that differ only in octet 0, bit 2,PV14 two type 1 StreamIDs that differ only in octet 0, bit 3,PV14 two type 1 StreamIDs that differ only in octet 0, bit 4,PV14 two type 1 StreamIDs that differ only in octet 0, bit 5,PV14 two type 1 StreamIDs that differ only in octet 0, bit 6,PV14 two type 1 StreamIDs that differ only in octet 0, bit 7,PV14 two type 2 StreamIDs that differ only in octet 0, bit 0,PV14 two type 2 StreamIDs that differ only in octet 0, bit 1,PV14 two type 2 StreamIDs that differ only in octet 0, bit 2,PV14 two type 2 StreamIDs that differ only in octet 0, bit 3,PV14 two type 2 StreamIDs that differ only in octet 0, bit 4,PV14 two type 2 StreamIDs that differ only in octet 0, bit 5,PV14 two type 2 StreamIDs that differ only in octet 0, bit 6,PV14 two type 2 StreamIDs that differ only in octet 0, bit 7,PV14 two type 3 StreamIDs that differ only in octet 0, bit 0,PV14 two type 3 StreamIDs that differ only in octet 0, bit 1,PV14 two type 3 StreamIDs that differ only in octet 0, bit 2,PV14 two type 3 StreamIDs that differ only in octet 0, bit 3,PV14 two type 3 StreamIDs that differ only in octet 0, bit 4,PV14 two type 3 StreamIDs that differ only in octet 0, bit 5,PV14 two type 3 StreamIDs that differ only in octet 0, bit 6,PV14 two type 3 StreamIDs that differ only in octet 0, bit 7
+identity-drops-top-octet: rc=2 failures=48 KILLED tags=PV14 two type 1 StreamIDs that differ only in octet 0, bit 0,PV14 two type 1 StreamIDs that differ only in octet 0, bit 1,PV14 two type 1 StreamIDs that differ only in octet 0, bit 2,PV14 two type 1 StreamIDs that differ only in octet 0, bit 3,PV14 two type 1 StreamIDs that differ only in octet 0, bit 4,PV14 two type 1 StreamIDs that differ only in octet 0, bit 5,PV14 two type 1 StreamIDs that differ only in octet 0, bit 6,PV14 two type 1 StreamIDs that differ only in octet 0, bit 7,PV14 two type 2 StreamIDs that differ only in octet 0, bit 0,PV14 two type 2 StreamIDs that differ only in octet 0, bit 1,PV14 two type 2 StreamIDs that differ only in octet 0, bit 2,PV14 two type 2 StreamIDs that differ only in octet 0, bit 3,PV14 two type 2 StreamIDs that differ only in octet 0, bit 4,PV14 two type 2 StreamIDs that differ only in octet 0, bit 5,PV14 two type 2 StreamIDs that differ only in octet 0, bit 6,PV14 two type 2 StreamIDs that differ only in octet 0, bit 7,PV14 two type 3 StreamIDs that differ only in octet 0, bit 0,PV14 two type 3 StreamIDs that differ only in octet 0, bit 1,PV14 two type 3 StreamIDs that differ only in octet 0, bit 2,PV14 two type 3 StreamIDs that differ only in octet 0, bit 3,PV14 two type 3 StreamIDs that differ only in octet 0, bit 4,PV14 two type 3 StreamIDs that differ only in octet 0, bit 5,PV14 two type 3 StreamIDs that differ only in octet 0, bit 6,PV14 two type 3 StreamIDs that differ only in octet 0, bit 7
+identity-vid-low-octet-only: rc=2 failures=8 KILLED tags=PV15 VID 2 and the VID that differs only in bit 10,PV15 VID 2 and the VID that differs only in bit 11,PV15 VID 2 and the VID that differs only in bit 8,PV15 VID 2 and the VID that differs only in bit 9
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+merge-keeps-older-value: rc=2 failures=2 KILLED tags=PV16 two Talker Advertise values of one StreamID, later fields changed,PV16 two Talker Failed values of one StreamID, later fields changed
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-merge-never-written: rc=2 failures=3 KILLED tags=PV17 VID JoinIn then Lv,PV17 VID Lv then New,PV17 VID New then Lv
+mvrp-lv-keeps-joinin: rc=2 failures=1 KILLED tags=PV17 VID JoinIn then Lv
+mvrp-lv-keeps-new: rc=2 failures=1 KILLED tags=PV17 VID New then Lv
+mvrp-new-keeps-lv: rc=2 failures=1 KILLED tags=PV17 VID Lv then New
+listener-type-s-over-s-kept: rc=2 failures=2 KILLED tags=PV18 Listener In Ready then Mt AskingFailed,PV18 Listener Mt AskingFailed then In Ready
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+unknown-type-held-while-pending: rc=2 failures=3 KILLED tags=PV19 an unknown MSRP type taken at once beside a pending value,PV19 an unknown MVRP type taken at once beside a pending value,PV19 both dropped (0 strobes)
+push-on-drain-start: rc=2 failures=10 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a Domain value on the prepared LeaveAll round's start clock,PV20 a VID on the MVRP drain's start clock
+push-on-drain-start: rc=2 failures=10 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a Domain value on the prepared LeaveAll round's start clock,PV20 a VID on the MVRP drain's start clock
+push-on-prepared-start: rc=2 failures=4 KILLED tags=PV20 a Domain value on the prepared LeaveAll round's start clock
+push-on-prepared-start: rc=2 failures=4 KILLED tags=PV20 a Domain value on the prepared LeaveAll round's start clock
+push-taken-in-alloc: rc=2 failures=4 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+push-taken-in-alloc: rc=2 failures=4 KILLED tags=PV20 a Domain value on the MSRP drain's start clock,PV20 a VID on the MVRP drain's start clock
+listener-shares-nothing-encoder-appends: rc=2 failures=6 KILLED tags=OV0,SW1,SW2,SW3
+domain-one-new: rc=2 failures=1 KILLED tags=AP1
+domain-one-new: rc=2 failures=3 KILLED tags=D1 LINK_UP declares with New!,D1 four tx!,DR11 LINK_DOWN and LINK_UP clear the registration
+vlan-one-new: rc=2 failures=1 KILLED tags=AP2
+vlan-one-new: rc=2 failures=7 KILLED tags=V1 first user,V1 four tx!,V5 JoinMt VID 2 and New VID 5 (3,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR10 note 8,VR11 a VID allocated again starts with its Registrar MT
+vlan-joinin-registrar-mt: rc=2 failures=3 KILLED tags=AP2,AP3
+vlan-joinin-registrar-mt: rc=2 failures=13 KILLED tags=B1-vlan,V1 four tx!,V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing,V3 periodic JoinMt VID 2, its Registrar MT (802.1Q-2018 10.7.6.3; 1,V5 JoinMt VID 2 and New VID 5 (1,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR11 a VID allocated again starts with its Registrar MT,VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join,VR6 a received LeaveAll takes the Registrar to LV,VR8 the own LeaveAll's tx! ages the Registrar to LV
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=6 KILLED tags=L7 the LeaveAll-only MVRPDU,L7 the LeaveAll-only MVRPDU is captured,L7 the deferred LeaveAll-only MVRPDU,L7 the deferred LeaveAll-only MVRPDU follows
+top-mvrp-la-flag-dropped: rc=2 failures=4 KILLED tags=AP5,AP6
+talker-one-new: rc=2 failures=1 KILLED tags=AP4
+listener-one-new: rc=2 failures=1 KILLED tags=AP4
+top-mvrp-drain-at-tick: rc=2 failures=1 KILLED tags=AP2
+top-round-ignores-domain: rc=2 failures=1 KILLED tags=AP7
+domain-txla-row-ignored: rc=2 failures=2 KILLED tags=AP5,AP6
+domain-txla-row-ignored: rc=2 failures=1 KILLED tags=DR4 own LeaveAll
+domain-tx-done-at-serve: rc=2 failures=1 KILLED tags=DT1 a tx! whose message the encoder has not taken is not done; done once, after it (1 strobes)
+domain-tx-owed-dropped: rc=2 failures=1 KILLED tags=DT3 a tx! with the queue full is owed until its message fits, then served (3
+domain-applicant-deaf: rc=2 failures=2 KILLED tags=DA1 a received JoinIn in AA leaves nothing to send,DA3 a received In in AA (point-to-point) leaves nothing to send
+domain-applicant-any-value: rc=2 failures=1 KILLED tags=DA5 a received Mt of another Domain value moves nothing
+vlan-registrar-never-in: rc=2 failures=1 KILLED tags=AP3
+vlan-registrar-never-in: rc=2 failures=4 KILLED tags=VR1 a received JoinIn of the VID,VR10 note 8,VR5 a received JoinMt registers and owes the re-join,VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-rlv-ignored: rc=2 failures=1 KILLED tags=AP3
+vlan-rlv-ignored: rc=2 failures=3 KILLED tags=VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-rx-any-vid: rc=2 failures=3 KILLED tags=VR10 note 8,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-s-registers: rc=2 failures=1 KILLED tags=VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-leaveall-keeps-in: rc=2 failures=1 KILLED tags=VR6 a received LeaveAll takes the Registrar to LV
+vlan-rx-loses-to-leaveall: rc=2 failures=1 KILLED tags=VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-txla-keeps-in: rc=2 failures=1 KILLED tags=VR8 the own LeaveAll's tx! ages the Registrar to LV
+vlan-applicant-deaf: rc=2 failures=5 KILLED tags=VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join,VR5 a received JoinMt registers and owes the re-join,VR9 a received JoinIn or In in AA leaves nothing to send
+vlan-note8-ignores-registrar: rc=2 failures=1 KILLED tags=VR10 note 8
+vlan-registrar-kept-on-allocation: rc=2 failures=1 KILLED tags=VR11 a VID allocated again starts with its Registrar MT
+vlan-leave-abandoned: rc=2 failures=4 KILLED tags=V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing,V6 last user out -> Lv VID 2,V9 Lv VID 5 when its only user leaves,V9 fresh first user -> New again
+vlan-leave-abandoned: rc=2 failures=1 KILLED tags=R4
+vlan-rejoin-of-leaving-allocates: rc=2 failures=8 KILLED tags=B1 VLAN frame captured,B1 one Domain and one VLAN re-join bridged got 1 0,B1-vlan,V10 a VID re-joined before its Lv went out sends New, no Lv (5,W4 sent again after the next transmission,W5 and after the re-joins leave,W5 re-joined entries stay sent
+vlan-walk-frees-lo: rc=2 failures=1 KILLED tags=V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing
+assertion coverage: 184/184; missing=[]
+350 checks: 350 PASS, 0 FAIL

@@ -1,0 +1,33 @@
+Clauses read for issue #216 (PDFs as supplied, text extracted locally; short quotations only).
+
+IEEE 802.1Q-2018
+- 10.7.7 Applicant state machine: "A full MRP Participant maintains a single instance of the Applicant state
+  machine (Table 10-3) for each Attribute value for which the Participant needs to maintain state information."
+- Table 10-3, rows used: New! (VO, VP, AA, QA, LA, AO, QO, AP, QP, LO -> VN; VN, AN unchanged); tx! (VN: sN -> AN;
+  AN: sN -> QA, note 8; AA: sJ -> QA; QA: [sJ]; VP: sJ -> AA; LA: sL -> VO; LO: s -> VO); txLA! (VN: sN -> AN; AN, AA,
+  AP, QP: sN or sJ -> QA; QA: sJ; VP: s -> AA; VO, LA, AO, QO: [s] -> LO); periodic! (QA -> AA, QP -> AP); rLv!/rLA!
+  (AN -> VN; AA, QA, AP, QP -> VP; VO, AO, QO -> LO); rJoinIn! (AA -> QA; VO, VP ignored when point-to-point, note 4);
+  rIn! (AA -> QA only when operPointToPointMAC, note 5); rJoinMt!/rMt! (QA -> AA, QO -> AO, QP -> AP, LO -> VO).
+  Note 8: "QA if the Registrar is IN, and AA otherwise." Note 11: VO, AO and QO "can be discarded".
+- 10.7.6.2 sN: "The AttributeEvent value New is encoded".
+- 10.7.6.3 sJ: "If the Registrar state is IN, then the AttributeEvent value JoinIn is encoded ... If the Registrar
+  state is MT or LV, then the AttributeEvent value JoinMt is encoded".
+- 10.7.6.6 sLA: "The sLA action also gives rise to a rLA! event ... against all instances of the Applicant state
+  machine, or the Registrar state machine, associated with the MRP participant."
+- Table 10-4 Registrar: rNew!/rJoinIn!/rJoinMt! -> IN; rLv!/rLA!/txLA! in IN -> LV (start leavetimer); Begin! -> MT.
+- 10.7.9 LeaveAll state machine: "A single LeaveAll state machine exists for each full MRP Participant."
+- Table 10-5: Begin! and leavealltimer! start the timer; leavealltimer! -> Active ("Request opportunity to transmit on
+  entry to the Active state"); tx! in Active: sLA -> Passive; rLA! -> Passive, timer restarted.
+- 10.7.5.20 rLA! and its NOTE (a LeaveAll for each Attribute Type of the application).
+- 10.8.2.8 f): "If the number of AttributeEvent values is zero, FirstValue is ignored and the value is skipped.
+  However, FirstValue is still present, and of the correct length".
+
+IEEE 802.1Q-2022: Table 10-3 and Table 10-5 read again; the rows above are unchanged.
+
+Milan v1.2
+- 4.2.7.1.1, Table 4.3: leavealltimer "± 0.5 s", default "10-15 s", min 9.5 s, max 15.5 s; joinTime 200 ms (180 to
+  240); periodictimer 1000 ms (900 to 1500). Unchanged by this issue.
+- 4.2.7.2.1 Domain Declarations: "After startup or a Link Up event, a PAAD shall use SR Class Priority 3 and Default
+  VLAN ID 2 for Class A, and send MSRPDUs declaring an MSRP Domain for Class A using these parameters."
+- 4.2.7.2.2: "For the MSRP application", IN / rLv! -> (Lv) -> MT. The MVRP Registrar keeps Table 10-4 as printed.
+- 4.2.7.3: "A PAAD shall support MVRP."

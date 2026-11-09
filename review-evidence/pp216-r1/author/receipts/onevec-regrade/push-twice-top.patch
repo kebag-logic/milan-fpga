@@ -1,0 +1,24 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -767,12 +767,17 @@
+     end
+   end
+ 
+-  assign dom_ev_ready_w  = enc_ev_ready_w && dom_ev_valid_w;
+-  assign vlan_ev_ready_w = enc_ev_ready_w && !dom_ev_valid_w
++  logic dup_r;
++  always_ff @(posedge clk_i) begin : push_twice
++    if (!rst_n) dup_r <= 1'b0;
++    else if (enc_ev_valid_w && enc_ev_ready_w) dup_r <= !dup_r;
++  end
++  assign dom_ev_ready_w  = dup_r && enc_ev_ready_w && dom_ev_valid_w;
++  assign vlan_ev_ready_w = dup_r && enc_ev_ready_w && !dom_ev_valid_w
+                          && vlan_ev_valid_w;
+-  assign tk_ev_ready_w   = enc_ev_ready_w && !dom_ev_valid_w
++  assign tk_ev_ready_w   = dup_r && enc_ev_ready_w && !dom_ev_valid_w
+                          && !vlan_ev_valid_w && tk_ev_valid_w;
+-  assign ls_ev_ready_w   = enc_ev_ready_w && !dom_ev_valid_w
++  assign ls_ev_ready_w   = dup_r && enc_ev_ready_w && !dom_ev_valid_w
+                          && !vlan_ev_valid_w && !tk_ev_valid_w
+                          && ls_ev_valid_w;
+ 
