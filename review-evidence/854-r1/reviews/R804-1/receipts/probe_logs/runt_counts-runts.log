@@ -1,0 +1,9 @@
+[PROBE-RUNT] runts at a full FIFO (RXFILT_P=0 build)
+  [PASS] PR the drop count reads 0 while nothing was lost got=0x00000000 exp=0x00000000
+  PR runt burst: 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 157, 157 FIFO overflows
+  [PASS] PR kept frames were lost                   100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 157, 157 FIFO overflows
+  [PASS] PR runts met the full FIFO (overflows exceed kept lost) 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 157, 157 FIFO overflows
+  [FAIL] PR runts are not counted: the kept frames lost equal the count got=0x0000009D exp=0x0000006C
+  [PASS] PR the kept frames handed out whole and in order 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 157, 157 FIFO overflows
+pp_shadow: 5 checks, 1 failures
+RESULT: FAIL

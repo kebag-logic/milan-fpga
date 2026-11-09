@@ -1,0 +1,9 @@
+control: exit 0 (ran)
+    PR runt burst: 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 108, 157 FIFO overflows
+    [PASS] PR runts met the full FIFO (overflows exceed kept lost) 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 108, 157 FIFO overflows
+    [PASS] PR runts are not counted: the kept frames lost equal the count got=0x0000006C exp=0x0000006C
+    RESULT: PASS
+counts-runts: KILLED (exit 1)
+    PR runt burst: 100 runts offered, 200 kept offered, 92 handed, 108 kept lost, count 157, 157 FIFO overflows
+    [FAIL] PR runts are not counted: the kept frames lost equal the count got=0x0000009D exp=0x0000006C
+    RESULT: FAIL
