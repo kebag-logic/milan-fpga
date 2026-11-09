@@ -1,0 +1,29 @@
+Clauses read for issue #216, round 2 (PDFs as supplied, text extracted locally; short quotations only). The round 1
+record (Table 10-3 rows, notes 4, 5, 8, 11; 10.7.6.2, 10.7.6.3, 10.7.6.6; Table 10-4; 10.7.9 and Table 10-5;
+10.8.2.8 f; Milan v1.2 4.2.7.1.1 Table 4.3, 4.2.7.2.1, 4.2.7.2.2, 4.2.7.3) still applies.
+
+IEEE 802.1Q-2018
+- 10.7.5.1 Begin!: "The state machine is initialized or reinitialized."
+- 10.7.5.2 Flush!: "A Flush! event signals to the Registrar state machine that there is a need to rapidly
+  deregister information on the Port associated with the state machine". It is a Registrar event; Table 10-3 has
+  no Flush! row. (Its second paragraph also signals leavealltimer! to the LeaveAll state machine; this engine does
+  not, and this round changes no LeaveAll timing: MRP timers are out of scope.)
+- 10.7.5.3 Re-declare!: signalled to "the Applicant and Registrar state machines" on a port role change; not used.
+- Table 10-3, Begin! row: VO from every state (VO "-", VP, VN, AN, AA, QA, LA, AO, QO, AP, QP, LO -> VO).
+  New! row: VN from every state but VN and AN.
+  rJoinIn! row: VP -> AP with note 4 ("Ignored (no transition) if point-to-point subset or if operPointToPointMAC
+  is TRUE"); AP -> QP; AA -> QA.
+  tx! row: VP sends sJ -> AA; AA sJ -> QA; AP sJ -> QA.
+  txLA! row: VP sends s -> AA; AP sends sJ -> QA.
+- Table 10-4: Begin! -> MT from IN, LV and MT; Flush! -> MT from IN and LV (Lv indication), MT stays MT.
+- 10.7.8 Registrar state machine: "A full MRP Participant maintains a single instance of this state machine for
+  each Attribute value that is currently registered, or that the Registrar state machine is in the process of
+  deregistering."
+- Table 10-3 note 11: "The VO, AO, and QO states represent states where the attribute is neither being declared
+  by the Participant nor being registered by any other station on the LAN. In implementations where dynamic
+  creation and discarding of state machines is desirable, the state machine can be discarded when in any of these
+  states" (the Applicant's table; GAP-18 records that it does not cover a Registrar that would read IN).
+- 10.7.6.3 sJ: JoinIn only with the Registrar IN, JoinMt in MT or LV (unchanged from round 1).
+
+The engine maps LINK_DOWN to Flush! and LINK_UP to Begin! (10 section 6.1 for the Domain, issue #212 for the
+listener registrars, and now each VID), per the round 2 ruling on issue #216.

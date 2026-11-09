@@ -1,0 +1,2069 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Running command `read_verilog all.v; hierarchy -check -top KL_srp_domain ; synth_xilinx -family xc7 -flatten -top KL_srp_domain; tee -o <scratch>/runs/area-60094a2-out/domain.stat stat' --
+
+1. Executing Verilog-2005 frontend: all.v
+Parsing Verilog input from `all.v' to AST representation.
+Generating RTLIL representation for module `\KL_acmp_nvm_shadow'.
+Generating RTLIL representation for module `\KL_acmp_talker'.
+Note: Assuming pure combinatorial block at all.v:1284.2-1424.5 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at all.v:1840.2-1920.5 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Note: Assuming pure combinatorial block at all.v:1921.2-1945.5 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Generating RTLIL representation for module `\KL_pp_acmp_listener'.
+Generating RTLIL representation for module `\KL_pp_acmp_lsn_admit'.
+Generating RTLIL representation for module `\KL_adp_engine'.
+Warning: Replacing memory \tpend_deadline_r with list of registers. See all.v:3830
+Warning: Replacing memory \adv_st_r with list of registers. See all.v:3828
+Generating RTLIL representation for module `\KL_aecp_ca_originator'.
+Generating RTLIL representation for module `\KL_aecp_desc_mem_guard'.
+Generating RTLIL representation for module `\KL_aecp_desc_store'.
+Generating RTLIL representation for module `\KL_aecp_dyn_state'.
+Generating RTLIL representation for module `\KL_aecp_engine'.
+Generating RTLIL representation for module `\KL_aecp_notify'.
+Generating RTLIL representation for module `\KL_aecp_nvm_writer'.
+Generating RTLIL representation for module `\KL_aecp_resp_buf'.
+Generating RTLIL representation for module `\KL_aecp_ucpu'.
+Generating RTLIL representation for module `\KL_pp_prng'.
+Generating RTLIL representation for module `\KL_pp_timer_service'.
+Generating RTLIL representation for module `\KL_pp_maap'.
+Generating RTLIL representation for module `\KL_pp_dispatch'.
+Generating RTLIL representation for module `\KL_pp_dispatch_fifo'.
+Generating RTLIL representation for module `\KL_pp_event_router'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See all.v:13620
+Warning: Replacing memory \payload_r with list of registers. See all.v:13619
+Generating RTLIL representation for module `\KL_pp_normalizer'.
+Generating RTLIL representation for module `\KL_pp_nvm_mgr_arb'.
+Generating RTLIL representation for module `\KL_pp_nvm_port'.
+Generating RTLIL representation for module `\KL_pp_originator'.
+Generating RTLIL representation for module `\KL_pp_release_merge'.
+Generating RTLIL representation for module `\KL_pp_rx_slots'.
+Generating RTLIL representation for module `\KL_pp_rx_validator'.
+Generating RTLIL representation for module `\KL_pp_scoreboard'.
+Generating RTLIL representation for module `\KL_pp_side_port'.
+Generating RTLIL representation for module `\KL_pp_trace_ring'.
+Generating RTLIL representation for module `\KL_pp_tx_arbiter'.
+Warning: Replacing memory \age_r with list of registers. See all.v:16465
+Generating RTLIL representation for module `\KL_pp_tx_slots'.
+Generating RTLIL representation for module `\KL_srp_admission'.
+Generating RTLIL representation for module `\KL_srp_decoder'.
+Generating RTLIL representation for module `\KL_srp_domain'.
+Generating RTLIL representation for module `\KL_srp_encoder'.
+Note: Assuming pure combinatorial block at all.v:18410.2-18474.5 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Generating RTLIL representation for module `\KL_srp_listener_fsm'.
+Generating RTLIL representation for module `\KL_srp_talker_fsm'.
+Generating RTLIL representation for module `\KL_srp_top'.
+Warning: Replacing memory \tf_cnt_r with list of registers. See all.v:21802
+Warning: Replacing memory \tf_q_r with list of registers. See all.v:21728
+Warning: Replacing memory \tf_wptr_r with list of registers. See all.v:21798, all.v:21721
+Generating RTLIL representation for module `\KL_srp_vlan'.
+Generating RTLIL representation for module `\KL_mrp_strip'.
+Generating RTLIL representation for module `\protocol_processor_top'.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+
+2.2. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+Removing unused module `\protocol_processor_top'.
+Removing unused module `\KL_mrp_strip'.
+Removing unused module `\KL_srp_vlan'.
+Removing unused module `\KL_srp_top'.
+Removing unused module `\KL_srp_talker_fsm'.
+Removing unused module `\KL_srp_listener_fsm'.
+Removing unused module `\KL_srp_encoder'.
+Removing unused module `\KL_srp_decoder'.
+Removing unused module `\KL_srp_admission'.
+Removing unused module `\KL_pp_tx_slots'.
+Removing unused module `\KL_pp_tx_arbiter'.
+Removing unused module `\KL_pp_trace_ring'.
+Removing unused module `\KL_pp_side_port'.
+Removing unused module `\KL_pp_scoreboard'.
+Removing unused module `\KL_pp_rx_validator'.
+Removing unused module `\KL_pp_rx_slots'.
+Removing unused module `\KL_pp_release_merge'.
+Removing unused module `\KL_pp_originator'.
+Removing unused module `\KL_pp_nvm_port'.
+Removing unused module `\KL_pp_nvm_mgr_arb'.
+Removing unused module `\KL_pp_normalizer'.
+Removing unused module `\KL_pp_event_router'.
+Removing unused module `\KL_pp_dispatch_fifo'.
+Removing unused module `\KL_pp_dispatch'.
+Removing unused module `\KL_pp_maap'.
+Removing unused module `\KL_pp_timer_service'.
+Removing unused module `\KL_pp_prng'.
+Removing unused module `\KL_aecp_ucpu'.
+Removing unused module `\KL_aecp_resp_buf'.
+Removing unused module `\KL_aecp_nvm_writer'.
+Removing unused module `\KL_aecp_notify'.
+Removing unused module `\KL_aecp_engine'.
+Removing unused module `\KL_aecp_dyn_state'.
+Removing unused module `\KL_aecp_desc_store'.
+Removing unused module `\KL_aecp_desc_mem_guard'.
+Removing unused module `\KL_aecp_ca_originator'.
+Removing unused module `\KL_adp_engine'.
+Removing unused module `\KL_pp_acmp_lsn_admit'.
+Removing unused module `\KL_pp_acmp_listener'.
+Removing unused module `\KL_acmp_talker'.
+Removing unused module `\KL_acmp_nvm_shadow'.
+Removed 41 unused modules.
+
+3. Executing SYNTH_XILINX pass.
+
+3.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_sim.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_sim.v' to AST representation.
+Generating RTLIL representation for module `\VCC'.
+Generating RTLIL representation for module `\GND'.
+Generating RTLIL representation for module `\IBUF'.
+Generating RTLIL representation for module `\IBUFG'.
+Generating RTLIL representation for module `\OBUF'.
+Generating RTLIL representation for module `\IOBUF'.
+Generating RTLIL representation for module `\OBUFT'.
+Generating RTLIL representation for module `\BUFG'.
+Generating RTLIL representation for module `\BUFGCTRL'.
+Generating RTLIL representation for module `\BUFHCE'.
+Generating RTLIL representation for module `\INV'.
+Generating RTLIL representation for module `\LUT1'.
+Generating RTLIL representation for module `\LUT2'.
+Generating RTLIL representation for module `\LUT3'.
+Generating RTLIL representation for module `\LUT4'.
+Generating RTLIL representation for module `\LUT5'.
+Generating RTLIL representation for module `\LUT6'.
+Generating RTLIL representation for module `\LUT6_2'.
+Generating RTLIL representation for module `\$__ABC9_LUT7'.
+Generating RTLIL representation for module `\$__ABC9_LUT8'.
+Generating RTLIL representation for module `\MUXCY'.
+Generating RTLIL representation for module `\MUXF5'.
+Generating RTLIL representation for module `\MUXF6'.
+Generating RTLIL representation for module `\MUXF7'.
+Generating RTLIL representation for module `\MUXF8'.
+Generating RTLIL representation for module `\MUXF9'.
+Generating RTLIL representation for module `\XORCY'.
+Generating RTLIL representation for module `\CARRY4'.
+Generating RTLIL representation for module `\CARRY8'.
+Generating RTLIL representation for module `\ORCY'.
+Generating RTLIL representation for module `\MULT_AND'.
+Generating RTLIL representation for module `\FDRE'.
+Generating RTLIL representation for module `\FDRE_1'.
+Generating RTLIL representation for module `\FDSE'.
+Generating RTLIL representation for module `\FDSE_1'.
+Generating RTLIL representation for module `\FDRSE'.
+Generating RTLIL representation for module `\FDRSE_1'.
+Generating RTLIL representation for module `\FDCE'.
+Generating RTLIL representation for module `\FDCE_1'.
+Generating RTLIL representation for module `\FDPE'.
+Generating RTLIL representation for module `\FDPE_1'.
+Generating RTLIL representation for module `\FDCPE'.
+Generating RTLIL representation for module `\FDCPE_1'.
+Generating RTLIL representation for module `\LDCE'.
+Generating RTLIL representation for module `\LDPE'.
+Generating RTLIL representation for module `\LDCPE'.
+Generating RTLIL representation for module `\AND2B1L'.
+Generating RTLIL representation for module `\OR2L'.
+Generating RTLIL representation for module `\RAM16X1S'.
+Generating RTLIL representation for module `\RAM16X1S_1'.
+Generating RTLIL representation for module `\RAM32X1S'.
+Generating RTLIL representation for module `\RAM32X1S_1'.
+Generating RTLIL representation for module `\RAM64X1S'.
+Generating RTLIL representation for module `\RAM64X1S_1'.
+Generating RTLIL representation for module `\RAM128X1S'.
+Generating RTLIL representation for module `\RAM128X1S_1'.
+Generating RTLIL representation for module `\RAM256X1S'.
+Generating RTLIL representation for module `\RAM512X1S'.
+Generating RTLIL representation for module `\RAM16X2S'.
+Generating RTLIL representation for module `\RAM32X2S'.
+Generating RTLIL representation for module `\RAM64X2S'.
+Generating RTLIL representation for module `\RAM16X4S'.
+Generating RTLIL representation for module `\RAM32X4S'.
+Generating RTLIL representation for module `\RAM16X8S'.
+Generating RTLIL representation for module `\RAM32X8S'.
+Generating RTLIL representation for module `\RAM16X1D'.
+Generating RTLIL representation for module `\RAM16X1D_1'.
+Generating RTLIL representation for module `\RAM32X1D'.
+Generating RTLIL representation for module `\RAM32X1D_1'.
+Generating RTLIL representation for module `\RAM64X1D'.
+Generating RTLIL representation for module `\RAM64X1D_1'.
+Generating RTLIL representation for module `\RAM128X1D'.
+Generating RTLIL representation for module `\RAM256X1D'.
+Generating RTLIL representation for module `\RAM32M'.
+Generating RTLIL representation for module `\RAM32M16'.
+Generating RTLIL representation for module `\RAM64M'.
+Generating RTLIL representation for module `\RAM64M8'.
+Generating RTLIL representation for module `\RAM32X16DR8'.
+Generating RTLIL representation for module `\RAM64X8SW'.
+Generating RTLIL representation for module `\ROM16X1'.
+Generating RTLIL representation for module `\ROM32X1'.
+Generating RTLIL representation for module `\ROM64X1'.
+Generating RTLIL representation for module `\ROM128X1'.
+Generating RTLIL representation for module `\ROM256X1'.
+Generating RTLIL representation for module `\SRL16'.
+Generating RTLIL representation for module `\SRL16E'.
+Generating RTLIL representation for module `\SRLC16'.
+Generating RTLIL representation for module `\SRLC16E'.
+Generating RTLIL representation for module `\SRLC32E'.
+Generating RTLIL representation for module `\CFGLUT5'.
+Generating RTLIL representation for module `\MULT18X18'.
+Generating RTLIL representation for module `\MULT18X18S'.
+Generating RTLIL representation for module `\MULT18X18SIO'.
+Generating RTLIL representation for module `\DSP48A'.
+Generating RTLIL representation for module `\DSP48A1'.
+Generating RTLIL representation for module `\DSP48'.
+Generating RTLIL representation for module `\DSP48E1'.
+Generating RTLIL representation for module `\RAMB18E1'.
+Generating RTLIL representation for module `\RAMB36E1'.
+Successfully finished Verilog frontend.
+
+3.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_xtra.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_xtra.v' to AST representation.
+Generating RTLIL representation for module `\RAMB4_S1'.
+Generating RTLIL representation for module `\RAMB4_S2'.
+Generating RTLIL representation for module `\RAMB4_S4'.
+Generating RTLIL representation for module `\RAMB4_S8'.
+Generating RTLIL representation for module `\RAMB4_S16'.
+Generating RTLIL representation for module `\RAMB4_S1_S1'.
+Generating RTLIL representation for module `\RAMB4_S1_S2'.
+Generating RTLIL representation for module `\RAMB4_S1_S4'.
+Generating RTLIL representation for module `\RAMB4_S1_S8'.
+Generating RTLIL representation for module `\RAMB4_S1_S16'.
+Generating RTLIL representation for module `\RAMB4_S2_S2'.
+Generating RTLIL representation for module `\RAMB4_S2_S4'.
+Generating RTLIL representation for module `\RAMB4_S2_S8'.
+Generating RTLIL representation for module `\RAMB4_S2_S16'.
+Generating RTLIL representation for module `\RAMB4_S4_S4'.
+Generating RTLIL representation for module `\RAMB4_S4_S8'.
+Generating RTLIL representation for module `\RAMB4_S4_S16'.
+Generating RTLIL representation for module `\RAMB4_S8_S8'.
+Generating RTLIL representation for module `\RAMB4_S8_S16'.
+Generating RTLIL representation for module `\RAMB4_S16_S16'.
+Generating RTLIL representation for module `\RAMB16_S1'.
+Generating RTLIL representation for module `\RAMB16_S2'.
+Generating RTLIL representation for module `\RAMB16_S4'.
+Generating RTLIL representation for module `\RAMB16_S9'.
+Generating RTLIL representation for module `\RAMB16_S18'.
+Generating RTLIL representation for module `\RAMB16_S36'.
+Generating RTLIL representation for module `\RAMB16_S1_S1'.
+Generating RTLIL representation for module `\RAMB16_S1_S2'.
+Generating RTLIL representation for module `\RAMB16_S1_S4'.
+Generating RTLIL representation for module `\RAMB16_S1_S9'.
+Generating RTLIL representation for module `\RAMB16_S1_S18'.
+Generating RTLIL representation for module `\RAMB16_S1_S36'.
+Generating RTLIL representation for module `\RAMB16_S2_S2'.
+Generating RTLIL representation for module `\RAMB16_S2_S4'.
+Generating RTLIL representation for module `\RAMB16_S2_S9'.
+Generating RTLIL representation for module `\RAMB16_S2_S18'.
+Generating RTLIL representation for module `\RAMB16_S2_S36'.
+Generating RTLIL representation for module `\RAMB16_S4_S4'.
+Generating RTLIL representation for module `\RAMB16_S4_S9'.
+Generating RTLIL representation for module `\RAMB16_S4_S18'.
+Generating RTLIL representation for module `\RAMB16_S4_S36'.
+Generating RTLIL representation for module `\RAMB16_S9_S9'.
+Generating RTLIL representation for module `\RAMB16_S9_S18'.
+Generating RTLIL representation for module `\RAMB16_S9_S36'.
+Generating RTLIL representation for module `\RAMB16_S18_S18'.
+Generating RTLIL representation for module `\RAMB16_S18_S36'.
+Generating RTLIL representation for module `\RAMB16_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S18_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S9'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S18'.
+Generating RTLIL representation for module `\RAMB16BWE_S36_S36'.
+Generating RTLIL representation for module `\RAMB16BWER'.
+Generating RTLIL representation for module `\RAMB8BWER'.
+Generating RTLIL representation for module `\FIFO16'.
+Generating RTLIL representation for module `\RAMB16'.
+Generating RTLIL representation for module `\RAMB32_S64_ECC'.
+Generating RTLIL representation for module `\FIFO18'.
+Generating RTLIL representation for module `\FIFO18_36'.
+Generating RTLIL representation for module `\FIFO36'.
+Generating RTLIL representation for module `\FIFO36_72'.
+Generating RTLIL representation for module `\RAMB18'.
+Generating RTLIL representation for module `\RAMB36'.
+Generating RTLIL representation for module `\RAMB18SDP'.
+Generating RTLIL representation for module `\RAMB36SDP'.
+Generating RTLIL representation for module `\FIFO18E1'.
+Generating RTLIL representation for module `\FIFO36E1'.
+Generating RTLIL representation for module `\FIFO18E2'.
+Generating RTLIL representation for module `\FIFO36E2'.
+Generating RTLIL representation for module `\RAMB18E2'.
+Generating RTLIL representation for module `\RAMB36E2'.
+Generating RTLIL representation for module `\URAM288'.
+Generating RTLIL representation for module `\URAM288_BASE'.
+Generating RTLIL representation for module `\DSP48E'.
+Generating RTLIL representation for module `\DSP48E2'.
+Generating RTLIL representation for module `\FDDRCPE'.
+Generating RTLIL representation for module `\FDDRRSE'.
+Generating RTLIL representation for module `\IFDDRCPE'.
+Generating RTLIL representation for module `\IFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRCPE'.
+Generating RTLIL representation for module `\OFDDRRSE'.
+Generating RTLIL representation for module `\OFDDRTCPE'.
+Generating RTLIL representation for module `\OFDDRTRSE'.
+Generating RTLIL representation for module `\IDDR2'.
+Generating RTLIL representation for module `\ODDR2'.
+Generating RTLIL representation for module `\IDDR'.
+Generating RTLIL representation for module `\IDDR_2CLK'.
+Generating RTLIL representation for module `\ODDR'.
+Generating RTLIL representation for module `\IDELAYCTRL'.
+Generating RTLIL representation for module `\IDELAY'.
+Generating RTLIL representation for module `\ISERDES'.
+Generating RTLIL representation for module `\OSERDES'.
+Generating RTLIL representation for module `\IODELAY'.
+Generating RTLIL representation for module `\ISERDES_NODELAY'.
+Generating RTLIL representation for module `\IODELAYE1'.
+Generating RTLIL representation for module `\ISERDESE1'.
+Generating RTLIL representation for module `\OSERDESE1'.
+Generating RTLIL representation for module `\IDELAYE2'.
+Generating RTLIL representation for module `\ODELAYE2'.
+Generating RTLIL representation for module `\ISERDESE2'.
+Generating RTLIL representation for module `\OSERDESE2'.
+Generating RTLIL representation for module `\PHASER_IN'.
+Generating RTLIL representation for module `\PHASER_IN_PHY'.
+Generating RTLIL representation for module `\PHASER_OUT'.
+Generating RTLIL representation for module `\PHASER_OUT_PHY'.
+Generating RTLIL representation for module `\PHASER_REF'.
+Generating RTLIL representation for module `\PHY_CONTROL'.
+Generating RTLIL representation for module `\IDDRE1'.
+Generating RTLIL representation for module `\ODDRE1'.
+Generating RTLIL representation for module `\IDELAYE3'.
+Generating RTLIL representation for module `\ODELAYE3'.
+Generating RTLIL representation for module `\ISERDESE3'.
+Generating RTLIL representation for module `\OSERDESE3'.
+Generating RTLIL representation for module `\BITSLICE_CONTROL'.
+Generating RTLIL representation for module `\RIU_OR'.
+Generating RTLIL representation for module `\RX_BITSLICE'.
+Generating RTLIL representation for module `\RXTX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE'.
+Generating RTLIL representation for module `\TX_BITSLICE_TRI'.
+Generating RTLIL representation for module `\IODELAY2'.
+Generating RTLIL representation for module `\IODRP2'.
+Generating RTLIL representation for module `\IODRP2_MCB'.
+Generating RTLIL representation for module `\ISERDES2'.
+Generating RTLIL representation for module `\OSERDES2'.
+Generating RTLIL representation for module `\IBUF_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUF_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUF_ANALOG'.
+Generating RTLIL representation for module `\IBUFE3'.
+Generating RTLIL representation for module `\IBUFDS'.
+Generating RTLIL representation for module `\IBUFDS_DLY_ADJ'.
+Generating RTLIL representation for module `\IBUFDS_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_IBUFDISABLE'.
+Generating RTLIL representation for module `\IBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IBUFDSE3'.
+Generating RTLIL representation for module `\IBUFDS_DPHY'.
+Generating RTLIL representation for module `\IBUFGDS'.
+Generating RTLIL representation for module `\IBUFGDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUF_DCIEN'.
+Generating RTLIL representation for module `\IOBUF_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFE3'.
+Generating RTLIL representation for module `\IOBUFDS'.
+Generating RTLIL representation for module `\IOBUFDS_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_DCIEN'.
+Generating RTLIL representation for module `\IOBUFDS_DIFF_OUT_INTERMDISABLE'.
+Generating RTLIL representation for module `\IOBUFDSE3'.
+Generating RTLIL representation for module `\OBUFDS'.
+Generating RTLIL representation for module `\OBUFDS_DPHY'.
+Generating RTLIL representation for module `\OBUFTDS'.
+Generating RTLIL representation for module `\KEEPER'.
+Generating RTLIL representation for module `\PULLDOWN'.
+Generating RTLIL representation for module `\PULLUP'.
+Generating RTLIL representation for module `\DCIRESET'.
+Generating RTLIL representation for module `\HPIO_VREF'.
+Generating RTLIL representation for module `\BUFGCE'.
+Generating RTLIL representation for module `\BUFGCE_1'.
+Generating RTLIL representation for module `\BUFGMUX'.
+Generating RTLIL representation for module `\BUFGMUX_1'.
+Generating RTLIL representation for module `\BUFGMUX_CTRL'.
+Generating RTLIL representation for module `\BUFGMUX_VIRTEX4'.
+Generating RTLIL representation for module `\BUFG_GT'.
+Generating RTLIL representation for module `\BUFG_GT_SYNC'.
+Generating RTLIL representation for module `\BUFG_PS'.
+Generating RTLIL representation for module `\BUFGCE_DIV'.
+Generating RTLIL representation for module `\BUFH'.
+Generating RTLIL representation for module `\BUFIO2'.
+Generating RTLIL representation for module `\BUFIO2_2CLK'.
+Generating RTLIL representation for module `\BUFIO2FB'.
+Generating RTLIL representation for module `\BUFPLL'.
+Generating RTLIL representation for module `\BUFPLL_MCB'.
+Generating RTLIL representation for module `\BUFIO'.
+Generating RTLIL representation for module `\BUFIODQS'.
+Generating RTLIL representation for module `\BUFR'.
+Generating RTLIL representation for module `\BUFMR'.
+Generating RTLIL representation for module `\BUFMRCE'.
+Generating RTLIL representation for module `\DCM'.
+Generating RTLIL representation for module `\DCM_SP'.
+Generating RTLIL representation for module `\DCM_CLKGEN'.
+Generating RTLIL representation for module `\DCM_ADV'.
+Generating RTLIL representation for module `\DCM_BASE'.
+Generating RTLIL representation for module `\DCM_PS'.
+Generating RTLIL representation for module `\PMCD'.
+Generating RTLIL representation for module `\PLL_ADV'.
+Generating RTLIL representation for module `\PLL_BASE'.
+Generating RTLIL representation for module `\MMCM_ADV'.
+Generating RTLIL representation for module `\MMCM_BASE'.
+Generating RTLIL representation for module `\MMCME2_ADV'.
+Generating RTLIL representation for module `\MMCME2_BASE'.
+Generating RTLIL representation for module `\PLLE2_ADV'.
+Generating RTLIL representation for module `\PLLE2_BASE'.
+Generating RTLIL representation for module `\MMCME3_ADV'.
+Generating RTLIL representation for module `\MMCME3_BASE'.
+Generating RTLIL representation for module `\PLLE3_ADV'.
+Generating RTLIL representation for module `\PLLE3_BASE'.
+Generating RTLIL representation for module `\MMCME4_ADV'.
+Generating RTLIL representation for module `\MMCME4_BASE'.
+Generating RTLIL representation for module `\PLLE4_ADV'.
+Generating RTLIL representation for module `\PLLE4_BASE'.
+Generating RTLIL representation for module `\BUFT'.
+Generating RTLIL representation for module `\IN_FIFO'.
+Generating RTLIL representation for module `\OUT_FIFO'.
+Generating RTLIL representation for module `\HARD_SYNC'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3E'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN3A'.
+Generating RTLIL representation for module `\STARTUP_SPARTAN6'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX4'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX5'.
+Generating RTLIL representation for module `\STARTUP_VIRTEX6'.
+Generating RTLIL representation for module `\STARTUPE2'.
+Generating RTLIL representation for module `\STARTUPE3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3'.
+Generating RTLIL representation for module `\CAPTURE_SPARTAN3A'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX4'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX5'.
+Generating RTLIL representation for module `\CAPTURE_VIRTEX6'.
+Generating RTLIL representation for module `\CAPTUREE2'.
+Generating RTLIL representation for module `\ICAP_SPARTAN3A'.
+Generating RTLIL representation for module `\ICAP_SPARTAN6'.
+Generating RTLIL representation for module `\ICAP_VIRTEX4'.
+Generating RTLIL representation for module `\ICAP_VIRTEX5'.
+Generating RTLIL representation for module `\ICAP_VIRTEX6'.
+Generating RTLIL representation for module `\ICAPE2'.
+Generating RTLIL representation for module `\ICAPE3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN3A'.
+Generating RTLIL representation for module `\BSCAN_SPARTAN6'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX4'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX5'.
+Generating RTLIL representation for module `\BSCAN_VIRTEX6'.
+Generating RTLIL representation for module `\BSCANE2'.
+Generating RTLIL representation for module `\DNA_PORT'.
+Generating RTLIL representation for module `\DNA_PORTE2'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX4'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX5'.
+Generating RTLIL representation for module `\FRAME_ECC_VIRTEX6'.
+Generating RTLIL representation for module `\FRAME_ECCE2'.
+Generating RTLIL representation for module `\FRAME_ECCE3'.
+Generating RTLIL representation for module `\FRAME_ECCE4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX4'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX5'.
+Generating RTLIL representation for module `\USR_ACCESS_VIRTEX6'.
+Generating RTLIL representation for module `\USR_ACCESSE2'.
+Generating RTLIL representation for module `\POST_CRC_INTERNAL'.
+Generating RTLIL representation for module `\SUSPEND_SYNC'.
+Generating RTLIL representation for module `\KEY_CLEAR'.
+Generating RTLIL representation for module `\MASTER_JTAG'.
+Generating RTLIL representation for module `\SPI_ACCESS'.
+Generating RTLIL representation for module `\EFUSE_USR'.
+Generating RTLIL representation for module `\SYSMON'.
+Generating RTLIL representation for module `\XADC'.
+Generating RTLIL representation for module `\SYSMONE1'.
+Generating RTLIL representation for module `\SYSMONE4'.
+Generating RTLIL representation for module `\GTPA1_DUAL'.
+Generating RTLIL representation for module `\GT11_CUSTOM'.
+Generating RTLIL representation for module `\GT11_DUAL'.
+Generating RTLIL representation for module `\GT11CLK'.
+Generating RTLIL representation for module `\GT11CLK_MGT'.
+Generating RTLIL representation for module `\GTP_DUAL'.
+Generating RTLIL representation for module `\GTX_DUAL'.
+Generating RTLIL representation for module `\CRC32'.
+Generating RTLIL representation for module `\CRC64'.
+Generating RTLIL representation for module `\GTHE1_QUAD'.
+Generating RTLIL representation for module `\GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTXE1'.
+Generating RTLIL representation for module `\IBUFDS_GTHE1'.
+Generating RTLIL representation for module `\GTHE2_CHANNEL'.
+Generating RTLIL representation for module `\GTHE2_COMMON'.
+Generating RTLIL representation for module `\GTPE2_CHANNEL'.
+Generating RTLIL representation for module `\GTPE2_COMMON'.
+Generating RTLIL representation for module `\GTXE2_CHANNEL'.
+Generating RTLIL representation for module `\GTXE2_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE2'.
+Generating RTLIL representation for module `\GTHE3_CHANNEL'.
+Generating RTLIL representation for module `\GTHE3_COMMON'.
+Generating RTLIL representation for module `\GTYE3_CHANNEL'.
+Generating RTLIL representation for module `\GTYE3_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3'.
+Generating RTLIL representation for module `\OBUFDS_GTE3_ADV'.
+Generating RTLIL representation for module `\GTHE4_CHANNEL'.
+Generating RTLIL representation for module `\GTHE4_COMMON'.
+Generating RTLIL representation for module `\GTYE4_CHANNEL'.
+Generating RTLIL representation for module `\GTYE4_COMMON'.
+Generating RTLIL representation for module `\IBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4'.
+Generating RTLIL representation for module `\OBUFDS_GTE4_ADV'.
+Generating RTLIL representation for module `\GTM_DUAL'.
+Generating RTLIL representation for module `\IBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM'.
+Generating RTLIL representation for module `\OBUFDS_GTM_ADV'.
+Generating RTLIL representation for module `\HSDAC'.
+Generating RTLIL representation for module `\HSADC'.
+Generating RTLIL representation for module `\RFDAC'.
+Generating RTLIL representation for module `\RFADC'.
+Generating RTLIL representation for module `\PCIE_A1'.
+Generating RTLIL representation for module `\PCIE_EP'.
+Generating RTLIL representation for module `\PCIE_2_0'.
+Generating RTLIL representation for module `\PCIE_2_1'.
+Generating RTLIL representation for module `\PCIE_3_0'.
+Generating RTLIL representation for module `\PCIE_3_1'.
+Generating RTLIL representation for module `\PCIE40E4'.
+Generating RTLIL representation for module `\PCIE4CE4'.
+Generating RTLIL representation for module `\EMAC'.
+Generating RTLIL representation for module `\TEMAC'.
+Generating RTLIL representation for module `\TEMAC_SINGLE'.
+Generating RTLIL representation for module `\CMAC'.
+Generating RTLIL representation for module `\CMACE4'.
+Generating RTLIL representation for module `\MCB'.
+Generating RTLIL representation for module `\HBM_REF_CLK'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_APB'.
+Generating RTLIL representation for module `\HBM_SNGLBLI_INTF_AXI'.
+Generating RTLIL representation for module `\HBM_ONE_STACK_INTF'.
+Generating RTLIL representation for module `\HBM_TWO_STACK_INTF'.
+Generating RTLIL representation for module `\PPC405_ADV'.
+Generating RTLIL representation for module `\PPC440'.
+Generating RTLIL representation for module `\PS7'.
+Generating RTLIL representation for module `\PS8'.
+Generating RTLIL representation for module `\ILKN'.
+Generating RTLIL representation for module `\ILKNE4'.
+Generating RTLIL representation for module `\VCU'.
+Generating RTLIL representation for module `\FE'.
+Successfully finished Verilog frontend.
+
+3.3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.3.1. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+
+3.3.2. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+Removed 0 unused modules.
+
+3.4. Executing PROC pass (convert processes to netlists).
+
+3.4.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 6 empty switches in `\KL_srp_domain.$proc$all.v:17789$79672'.
+Found and cleaned up 1 empty switch in `\KL_srp_domain.$proc$all.v:17606$79659'.
+Cleaned up 7 empty switches.
+
+3.4.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 4 switch rules as full_case in process $proc$all.v:17800$79787 in module KL_srp_domain.
+Marked 17 switch rules as full_case in process $proc$all.v:17789$79672 in module KL_srp_domain.
+Marked 5 switch rules as full_case in process $proc$all.v:17606$79659 in module KL_srp_domain.
+Removed a total of 0 dead cases.
+
+3.4.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 6 redundant assignments.
+Promoted 62 assignments to connections.
+
+3.4.4. Executing PROC_INIT pass (extract init attributes).
+
+3.4.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.4.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~34 debug messages>
+
+3.4.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_srp_domain.$proc$all.v:17910$79806'.
+Creating decoders for process `\KL_srp_domain.$proc$all.v:17800$79787'.
+     1/22: $0\evt_domain_change_o[0:0]
+     2/22: $0\pend_in_r[0:0]
+     3/22: $0\reg_in_r[0:0]
+     4/22: $0\tx_done_o[0:0]
+     5/22: $0\app_r[3:0]
+     6/22: $0\link_q_r[0:0]
+     7/22: $0\txw_r[0:0]
+     8/22: $0\txp_la_r[0:0]
+     9/22: $0\txp_r[0:0]
+    10/22: $0\rx_pend_vid_r[15:0]
+    11/22: $0\rx_pend_prio_r[7:0]
+    12/22: $0\rx_pend_v_r[0:0]
+    13/22: $0\q1_val_r[31:0]
+    14/22: $0\q0_val_r[31:0]
+    15/22: $0\q1_ev_r[2:0]
+    16/22: $0\q0_ev_r[2:0]
+    17/22: $0\q1_valid_r[0:0]
+    18/22: $0\q0_valid_r[0:0]
+    19/22: $0\declared_r[0:0]
+    20/22: $0\adopted_r[0:0]
+    21/22: $0\decl_vid_r[15:0]
+    22/22: $0\decl_prio_r[7:0]
+Creating decoders for process `\KL_srp_domain.$proc$all.v:17789$79672'.
+     1/42: $2\srp_pkg_srp_app_next$func$all.v:17797$79638.nx[3:0]$79782
+     2/42: $1\srp_pkg_srp_app_next$func$all.v:17797$79638.nx[3:0]$79781
+     3/42: $2\srp_pkg_srp_app_next$func$all.v:17797$79637.nx[3:0]$79780
+     4/42: $1\srp_pkg_srp_app_next$func$all.v:17797$79637.nx[3:0]$79779
+     5/42: $3\srp_pkg_srp_app_msg$func$all.v:17796$79636.m[3:0]$79778
+     6/42: $2\srp_pkg_srp_app_msg$func$all.v:17796$79636.m[3:0]$79777
+     7/42: $1\srp_pkg_srp_app_msg$func$all.v:17796$79636.m[3:0]$79776
+     8/42: $2\srp_pkg_srp_app_next$func$all.v:17794$79635.nx[3:0]$79769
+     9/42: $1\srp_pkg_srp_app_next$func$all.v:17794$79635.nx[3:0]$79768
+    10/42: $2\srp_pkg_srp_app_next$func$all.v:17793$79634.nx[3:0]$79763
+    11/42: $1\srp_pkg_srp_app_next$func$all.v:17793$79634.nx[3:0]$79762
+    12/42: $3\srp_pkg_srp_app_next$func$all.v:17783$79633.nx[3:0]$79759
+    13/42: $2\srp_pkg_srp_app_next$func$all.v:17783$79633.nx[3:0]$79758
+    14/42: $3\srp_pkg_srp_app_next$func$all.v:17782$79632.nx[3:0]$79757
+    15/42: $2\srp_pkg_srp_app_next$func$all.v:17782$79632.nx[3:0]$79756
+    16/42: $3\srp_pkg_srp_app_next$func$all.v:17781$79631.nx[3:0]$79755
+    17/42: $2\srp_pkg_srp_app_next$func$all.v:17781$79631.nx[3:0]$79754
+    18/42: $3\srp_pkg_srp_app_next$func$all.v:17780$79630.nx[3:0]$79753
+    19/42: $2\srp_pkg_srp_app_next$func$all.v:17780$79630.nx[3:0]$79750
+    20/42: $3\srp_pkg_srp_app_next$func$all.v:17779$79629.nx[3:0]$79747
+    21/42: $2\srp_pkg_srp_app_next$func$all.v:17779$79629.nx[3:0]$79746
+    22/42: $1\srp_pkg_srp_app_rx_next$func$all.v:17792$79628.nx[3:0]$79725
+    23/42: $1\srp_pkg_srp_app_next$func$all.v:17779$79629.$result[3:0]$79726
+    24/42: $1\srp_pkg_srp_app_next$func$all.v:17779$79629.nx[3:0]$79729
+    25/42: $1\srp_pkg_srp_app_next$func$all.v:17779$79629.p2p[0:0]$79728
+    26/42: $1\srp_pkg_srp_app_next$func$all.v:17779$79629.st[3:0]$79727
+    27/42: $1\srp_pkg_srp_app_next$func$all.v:17783$79633.nx[3:0]$79745
+    28/42: $1\srp_pkg_srp_app_next$func$all.v:17783$79633.p2p[0:0]$79744
+    29/42: $1\srp_pkg_srp_app_next$func$all.v:17783$79633.st[3:0]$79743
+    30/42: $1\srp_pkg_srp_app_next$func$all.v:17783$79633.$result[3:0]$79742
+    31/42: $1\srp_pkg_srp_app_next$func$all.v:17782$79632.nx[3:0]$79741
+    32/42: $1\srp_pkg_srp_app_next$func$all.v:17782$79632.p2p[0:0]$79740
+    33/42: $1\srp_pkg_srp_app_next$func$all.v:17782$79632.st[3:0]$79739
+    34/42: $1\srp_pkg_srp_app_next$func$all.v:17782$79632.$result[3:0]$79738
+    35/42: $1\srp_pkg_srp_app_next$func$all.v:17781$79631.nx[3:0]$79737
+    36/42: $1\srp_pkg_srp_app_next$func$all.v:17781$79631.p2p[0:0]$79736
+    37/42: $1\srp_pkg_srp_app_next$func$all.v:17781$79631.st[3:0]$79735
+    38/42: $1\srp_pkg_srp_app_next$func$all.v:17781$79631.$result[3:0]$79734
+    39/42: $1\srp_pkg_srp_app_next$func$all.v:17780$79630.nx[3:0]$79733
+    40/42: $1\srp_pkg_srp_app_next$func$all.v:17780$79630.p2p[0:0]$79732
+    41/42: $1\srp_pkg_srp_app_next$func$all.v:17780$79630.st[3:0]$79731
+    42/42: $1\srp_pkg_srp_app_next$func$all.v:17780$79630.$result[3:0]$79730
+Creating decoders for process `\KL_srp_domain.$proc$all.v:17606$79659'.
+     1/6: $3\pend_in_nx_w[0:0]
+     2/6: $3\reg_in_nx_w[0:0]
+     3/6: $2\pend_in_nx_w[0:0]
+     4/6: $2\reg_in_nx_w[0:0]
+     5/6: $1\pend_in_nx_w[0:0]
+     6/6: $1\reg_in_nx_w[0:0]
+
+3.4.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_srp_domain.\_sv2v_0' from process `\KL_srp_domain.$proc$all.v:17910$79806'.
+No latch inferred for signal `\KL_srp_domain.\tx_la_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\app_rx_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\app_la_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\app_per_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\app_tx_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\app_nx_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\tx_msg_w' from process `\KL_srp_domain.$proc$all.v:17789$79672'.
+No latch inferred for signal `\KL_srp_domain.\reg_in_nx_w' from process `\KL_srp_domain.$proc$all.v:17606$79659'.
+No latch inferred for signal `\KL_srp_domain.\pend_in_nx_w' from process `\KL_srp_domain.$proc$all.v:17606$79659'.
+
+3.4.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_srp_domain.\link_q_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93914' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\tx_done_o' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93915' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\evt_domain_change_o' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93916' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\decl_prio_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93917' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\decl_vid_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93918' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\adopted_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93919' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\declared_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93920' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q0_valid_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93921' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q1_valid_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93922' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q0_ev_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93923' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q1_ev_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93924' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q0_val_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93925' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\q1_val_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93926' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\rx_pend_v_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93927' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\rx_pend_prio_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93928' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\rx_pend_vid_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93929' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\app_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93930' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\txp_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93931' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\txp_la_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93932' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\txw_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93933' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\reg_in_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93934' with positive edge clock.
+Creating register for signal `\KL_srp_domain.\pend_in_r' using process `\KL_srp_domain.$proc$all.v:17800$79787'.
+  created $dff cell `$procdff$93935' with positive edge clock.
+
+3.4.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.4.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_srp_domain.$proc$all.v:17910$79806'.
+Found and cleaned up 12 empty switches in `\KL_srp_domain.$proc$all.v:17800$79787'.
+Removing empty process `KL_srp_domain.$proc$all.v:17800$79787'.
+Found and cleaned up 17 empty switches in `\KL_srp_domain.$proc$all.v:17789$79672'.
+Removing empty process `KL_srp_domain.$proc$all.v:17789$79672'.
+Found and cleaned up 5 empty switches in `\KL_srp_domain.$proc$all.v:17606$79659'.
+Removing empty process `KL_srp_domain.$proc$all.v:17606$79659'.
+Cleaned up 34 empty switches.
+
+3.4.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~29 debug messages>
+
+3.5. Executing CHECK pass (checking for obvious problems).
+Checking module KL_srp_domain...
+Found and reported 0 problems.
+
+3.6. Executing FLATTEN pass (flatten design).
+
+3.7. Executing TRIBUF pass.
+
+3.8. Executing DEMINOUT pass (demote inout ports to input or output).
+
+3.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 42 unused cells and 303 unused wires.
+<suppressed ~43 debug messages>
+
+3.11. Executing CHECK pass (checking for obvious problems).
+Checking module KL_srp_domain...
+Found and reported 0 problems.
+
+3.12. Executing OPT pass (performing simple optimizations).
+
+3.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 299 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 252 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 251 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+<suppressed ~144 debug messages>
+Removed a total of 48 cells.
+
+3.12.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$93746.
+    dead port 2/2 on $mux $procmux$93735.
+    dead port 2/2 on $mux $procmux$93731.
+    dead port 2/2 on $mux $procmux$93721.
+    dead port 2/2 on $mux $procmux$93718.
+    dead port 1/2 on $mux $procmux$93694.
+    dead port 2/2 on $mux $procmux$93685.
+    dead port 2/2 on $mux $procmux$93751.
+    dead port 2/2 on $mux $procmux$93787.
+    dead port 2/2 on $mux $procmux$93780.
+    dead port 2/2 on $mux $procmux$93766.
+    dead port 2/2 on $mux $procmux$93760.
+Removed 12 multiplexer ports.
+<suppressed ~242 debug messages>
+
+3.12.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+    New ctrl vector for $pmux cell $procmux$93661: { $auto$opt_reduce.cc:135:opt_pmux$93939 $auto$opt_reduce.cc:135:opt_pmux$93937 $procmux$93692_CMP $procmux$93693_CMP [0] }
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 1 changes.
+
+3.12.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 240 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+3.12.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.12.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 0 unused cells and 49 unused wires.
+<suppressed ~1 debug messages>
+
+3.12.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.12.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.12.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~230 debug messages>
+
+3.12.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+    New ctrl vector for $pmux cell $procmux$93790: { $procmux$93719_CMP $auto$opt_reduce.cc:135:opt_pmux$93941 $procmux$93761_CMP $procmux$93781_CMP }
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 1 changes.
+
+3.12.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.12.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.12.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.12.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.12.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.12.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~229 debug messages>
+
+3.12.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.12.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.12.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.12.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.12.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.12.23. Finished fast OPT passes. (There is nothing left to do.)
+
+3.13. Executing FSM pass (extract and optimize FSM).
+
+3.13.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking KL_srp_domain.app_r as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+Not marking KL_srp_domain.q1_ev_r as FSM state register:
+    Users of register don't seem to benefit from recoding.
+
+3.13.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+3.13.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+3.13.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.13.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+3.13.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+3.13.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+3.13.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+3.14. Executing OPT pass (performing simple optimizations).
+
+3.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~229 debug messages>
+
+3.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$93915 ($dff) from module KL_srp_domain (D = $procmux$93460_Y, Q = \tx_done_o, rval = 1'0).
+Adding SRST signal on $procdff$93935 ($dff) from module KL_srp_domain (D = $procmux$93438_Y, Q = \pend_in_r, rval = 1'0).
+Adding SRST signal on $procdff$93934 ($dff) from module KL_srp_domain (D = $procmux$93449_Y, Q = \reg_in_r, rval = 1'0).
+Adding SRST signal on $procdff$93914 ($dff) from module KL_srp_domain (D = \link_up_i, Q = \link_q_r, rval = 1'0).
+Adding SRST signal on $procdff$93933 ($dff) from module KL_srp_domain (D = $procmux$93479_Y, Q = \txw_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$93954 ($sdff) from module KL_srp_domain (D = 1'1, Q = \txw_r).
+Adding SRST signal on $procdff$93932 ($dff) from module KL_srp_domain (D = $procmux$93486_Y, Q = \txp_la_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$93960 ($sdff) from module KL_srp_domain (D = \tx_la_w, Q = \txp_la_r).
+Adding SRST signal on $procdff$93931 ($dff) from module KL_srp_domain (D = $procmux$93493_Y, Q = \txp_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$93966 ($sdff) from module KL_srp_domain (D = 1'1, Q = \txp_r).
+Adding SRST signal on $procdff$93930 ($dff) from module KL_srp_domain (D = $procmux$93468_Y [1], Q = \app_r [1], rval = 1'0).
+Adding SRST signal on $procdff$93930 ($dff) from module KL_srp_domain (D = { \app_nx_w [3:2] \app_nx_w [0] }, Q = { \app_r [3:2] \app_r [0] }, rval = 3'000).
+Adding SRST signal on $procdff$93929 ($dff) from module KL_srp_domain (D = $procmux$93500_Y, Q = \rx_pend_vid_r, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$93982 ($sdff) from module KL_srp_domain (D = \rxdom_vid_i, Q = \rx_pend_vid_r).
+Adding SRST signal on $procdff$93928 ($dff) from module KL_srp_domain (D = $procmux$93505_Y, Q = \rx_pend_prio_r, rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$93984 ($sdff) from module KL_srp_domain (D = \surf_prio_w, Q = \rx_pend_prio_r).
+Adding SRST signal on $procdff$93927 ($dff) from module KL_srp_domain (D = $procmux$93515_Y, Q = \rx_pend_v_r, rval = 1'0).
+Adding SRST signal on $procdff$93926 ($dff) from module KL_srp_domain (D = $procmux$93528_Y, Q = \q1_val_r, rval = 0).
+Adding EN signal on $auto$ff.cc:337:slice$93991 ($sdff) from module KL_srp_domain (D = { 8'00000110 \decl_prio_r \decl_vid_r }, Q = \q1_val_r).
+Adding SRST signal on $procdff$93925 ($dff) from module KL_srp_domain (D = $procmux$93548_Y, Q = \q0_val_r, rval = 0).
+Adding SRST signal on $procdff$93924 ($dff) from module KL_srp_domain (D = $procmux$93558_Y, Q = \q1_ev_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$93998 ($sdff) from module KL_srp_domain (D = \tx_msg_w [2:0], Q = \q1_ev_r).
+Adding SRST signal on $procdff$93923 ($dff) from module KL_srp_domain (D = $procmux$93578_Y, Q = \q0_ev_r, rval = 3'000).
+Adding SRST signal on $procdff$93922 ($dff) from module KL_srp_domain (D = $procmux$93590_Y, Q = \q1_valid_r, rval = 1'0).
+Adding SRST signal on $procdff$93921 ($dff) from module KL_srp_domain (D = $procmux$93610_Y, Q = \q0_valid_r, rval = 1'0).
+Adding SRST signal on $procdff$93920 ($dff) from module KL_srp_domain (D = $procmux$93619_Y, Q = \declared_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$94015 ($sdff) from module KL_srp_domain (D = 1'1, Q = \declared_r).
+Adding SRST signal on $procdff$93919 ($dff) from module KL_srp_domain (D = $procmux$93630_Y, Q = \adopted_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$94021 ($sdff) from module KL_srp_domain (D = 1'1, Q = \adopted_r).
+Adding SRST signal on $procdff$93918 ($dff) from module KL_srp_domain (D = $procmux$93641_Y, Q = \decl_vid_r, rval = 16'0000000000000010).
+Adding EN signal on $auto$ff.cc:337:slice$94031 ($sdff) from module KL_srp_domain (D = \rx_pend_vid_r, Q = \decl_vid_r).
+Adding SRST signal on $procdff$93917 ($dff) from module KL_srp_domain (D = $procmux$93652_Y, Q = \decl_prio_r, rval = 8'00000011).
+Adding EN signal on $auto$ff.cc:337:slice$94041 ($sdff) from module KL_srp_domain (D = \rx_pend_prio_r, Q = \decl_prio_r).
+Adding SRST signal on $procdff$93916 ($dff) from module KL_srp_domain (D = $procmux$93433_Y, Q = \evt_domain_change_o, rval = 1'0).
+Setting constant 0-bit at position 24 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+Setting constant 0-bit at position 27 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+Setting constant 0-bit at position 28 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+Setting constant 0-bit at position 29 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+Setting constant 0-bit at position 30 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+Setting constant 0-bit at position 31 on $auto$ff.cc:337:slice$93992 ($sdffe) from module KL_srp_domain.
+
+3.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 55 unused cells and 55 unused wires.
+<suppressed ~56 debug messages>
+
+3.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~163 debug messages>
+
+3.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 225 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 209 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 197 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+<suppressed ~84 debug messages>
+Removed a total of 28 cells.
+
+3.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 0 unused cells and 28 unused wires.
+<suppressed ~1 debug messages>
+
+3.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.14.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.14.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~163 debug messages>
+
+3.14.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.14.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 197 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.14.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.14.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.14.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.14.23. Finished fast OPT passes. (There is nothing left to do.)
+
+3.15. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 26) from FF cell KL_srp_domain.$auto$ff.cc:337:slice$94052 ($sdffe).
+Removed top 5 bits (of 8) from port B of cell KL_srp_domain.$le$all.v:17599$79639 ($le).
+Removed top 6 bits (of 14) from port A of cell KL_srp_domain.$add$all.v:17599$79640 ($add).
+Removed top 1 bits (of 14) from port B of cell KL_srp_domain.$add$all.v:17599$79640 ($add).
+Removed top 11 bits (of 14) from port B of cell KL_srp_domain.$gt$all.v:17599$79641 ($gt).
+Removed top 5 bits (of 8) from port A of cell KL_srp_domain.$sub$all.v:17600$79643 ($sub).
+Removed top 1 bits (of 3) from mux cell KL_srp_domain.$ternary$all.v:17654$79773 ($mux).
+Removed top 3 bits (of 4) from mux cell KL_srp_domain.$ternary$all.v:17752$79783 ($mux).
+Removed top 2 bits (of 4) from mux cell KL_srp_domain.$procmux$93468 ($mux).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93676_CMP2 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93681_CMP1 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93691_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_srp_domain.$procmux$93692_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_srp_domain.$procmux$93692_CMP1 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_srp_domain.$procmux$93693_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93693_CMP1 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93702_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93707_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93707_CMP1 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_srp_domain.$procmux$93708_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93709_CMP1 ($eq).
+Removed top 2 bits (of 4) from port B of cell KL_srp_domain.$procmux$93716_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93745_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93776_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell KL_srp_domain.$procmux$93777_CMP0 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_srp_domain.$procmux$93778_CMP0 ($eq).
+Removed top 1 bits (of 3) from port B of cell KL_srp_domain.$procmux$93793_CMP0 ($eq).
+Removed top 1 bits (of 3) from port B of cell KL_srp_domain.$procmux$93794_CMP0 ($eq).
+Removed top 2 bits (of 3) from port B of cell KL_srp_domain.$procmux$93795_CMP0 ($eq).
+Removed top 2 bits (of 4) from mux cell KL_srp_domain.$procmux$93465 ($mux).
+Removed top 1 bits (of 3) from wire KL_srp_domain.$0\srp_pkg_srp_app_msg$func$all.v:17796$79636.sj[2:0]$79712.
+Removed top 3 bits (of 4) from wire KL_srp_domain.$ternary$all.v:17752$79783_Y.
+Removed top 2 bits (of 4) from wire KL_srp_domain.$procmux$93468_Y.
+Removed top 2 bits (of 4) from wire KL_srp_domain.$procmux$93465_Y.
+Removed top 5 bits (of 32) from wire KL_srp_domain.q1_val_r.
+
+3.16. Executing PEEPOPT pass (run peephole optimizers).
+
+3.17. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 0 unused cells and 5 unused wires.
+<suppressed ~1 debug messages>
+
+3.18. Executing PMUX2SHIFTX pass.
+Inspecting $pmux cell KL_srp_domain/$procmux$93790.
+  data width: 4 (next power-of-2 = 4, log2 = 2)
+  checking ctrl signal \rxdom_ev_i
+    best permutation: \rxdom_ev_i
+    best xor mask: 3'000
+      0: 3'001 -> 3'001 -> 3'001: $2\srp_pkg_srp_app_next$func$all.v:17779$79629.nx[3:0]$79746
+      1: 3'010 -> 3'010 -> 3'010: $2\srp_pkg_srp_app_next$func$all.v:17780$79630.nx[3:0]$79750
+      3: 3'101 -> 3'101 -> 3'101: $2\srp_pkg_srp_app_next$func$all.v:17783$79633.nx[3:0]$79758
+    choices: 3
+    min choice: 1
+    max choice: 5
+    range density: 60%
+    absolute density: 50%
+    full case: false
+    created $shiftx cell $auto$pmux2shiftx.cc:714:execute$94061.
+Inspecting $pmux cell KL_srp_domain/$procmux$93661.
+  data width: 4 (next power-of-2 = 4, log2 = 2)
+  checking ctrl signal \app_per_w
+    best permutation: \app_per_w
+    best xor mask: 4'0000
+      0: 4'0001 -> 4'0001 -> 4'0001: 4'0100
+      1: 4'0010 -> 4'0010 -> 4'0010: 4'0011
+      2: 4'0011 -> 4'0011 -> 4'0011: { 3'010 $auto$wreduce.cc:514:run$94054 [0] }
+    choices: 3
+    min choice: 1
+    max choice: 3
+    range density: 100%
+    absolute density: 75%
+    full case: false
+    created $shiftx cell $auto$pmux2shiftx.cc:714:execute$94065.
+Inspecting $pmux cell KL_srp_domain/$procmux$93726.
+  data width: 4 (next power-of-2 = 4, log2 = 2)
+  checking ctrl signal \app_r
+    best permutation: \app_r
+    best xor mask: 4'0000
+      0: 4'1011 -> 4'1011 -> 4'1011: 4'0000
+      1: 4'1010 -> 4'1010 -> 4'1010: 4'1001
+      2: 4'1000 -> 4'1000 -> 4'1000: 4'0111
+      3: 4'0101 -> 4'0101 -> 4'0101: 4'0100
+    choices: 4
+    min choice: 5
+    max choice: 11
+    range density: 57%
+    absolute density: 33%
+    full density: 25%
+    full case: false
+    offset: 4'0101
+    created $shiftx cell $auto$pmux2shiftx.cc:714:execute$94071.
+Inspecting $pmux cell KL_srp_domain/$procmux$93774.
+  data width: 4 (next power-of-2 = 4, log2 = 2)
+  checking ctrl signal \app_r
+    best permutation: \app_r
+    best xor mask: 4'0000
+      0: 4'1001 -> 4'1001 -> 4'1001: 4'1010
+      1: 4'0111 -> 4'0111 -> 4'0111: 4'1000
+      2: 4'0100 -> 4'0100 -> 4'0100: 4'0101
+      3: 4'0001 -> 4'0001 -> 4'0001: $ternary$all.v:17718$79749_Y
+      4: 4'0000 -> 4'0000 -> 4'0000: $ternary$all.v:17717$79748_Y
+    choices: 5
+    min choice: 0
+    max choice: 9
+    range density: 50%
+    absolute density: 50%
+    full density: 31%
+    full case: false
+    created $shiftx cell $auto$pmux2shiftx.cc:714:execute$94075.
+Removed 5 unused cells and 5 unused wires.
+
+3.19. Executing SORT pass.
+
+3.20. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+3.21. Executing TECHMAP pass (map to technology primitives).
+
+3.21.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/mul2dsp.v
+Parsing Verilog input from `/usr/bin/../share/yosys/mul2dsp.v' to AST representation.
+Generating RTLIL representation for module `\_80_mul'.
+Generating RTLIL representation for module `\_90_soft_mul'.
+Successfully finished Verilog frontend.
+
+3.21.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/xc7_dsp_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/xc7_dsp_map.v' to AST representation.
+Generating RTLIL representation for module `$__MUL25X18'.
+Successfully finished Verilog frontend.
+
+3.21.3. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~5 debug messages>
+
+3.22. Executing OPT_EXPR pass (perform const folding).
+
+3.23. Executing WREDUCE pass (reducing word size of cells).
+
+3.24. Executing XILINX_DSP pass (pack resources into DSPs).
+
+3.25. Executing TECHMAP pass (map to technology primitives).
+
+3.25.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/cmp2lut.v
+Parsing Verilog input from `/usr/bin/../share/yosys/cmp2lut.v' to AST representation.
+Generating RTLIL representation for module `\_90_lut_cmp_'.
+Successfully finished Verilog frontend.
+
+3.25.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/cmp2lcu.v
+Parsing Verilog input from `/usr/bin/../share/yosys/cmp2lcu.v' to AST representation.
+Generating RTLIL representation for module `\_80_lcu_cmp_'.
+Generating RTLIL representation for module `$__CMP2LCU'.
+Successfully finished Verilog frontend.
+
+3.25.3. Continuing TECHMAP pass.
+Using template $paramod$d35d91067b4cf9d05d4e668fab3f463c740204af\_80_lcu_cmp_ for cells of type $le.
+Using template $paramod$73f3a06cce1303fab2538a99a97d89beba8d182f\_80_lcu_cmp_ for cells of type $gt.
+Using template $paramod$39d23a4d3dfc2e927240e79db0da881770fae439\_80_lcu_cmp_ for cells of type $ge.
+Using template $paramod$bfbe68de43414c5b64d219d15ed544c62212228a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$2ceb6b4b5131e85097496893fed38c6447e4f636$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$36f0375d3e68885a7d74aad8ba8b57a741913332$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$50de89db3df35d697eea57a2971c8287a97b6104$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$604bf707c335a47a78fdf5691e8d1cb219157661$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$2474d62acccdb8576665153c98f9e2a122360fae$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$38c90539899289aaa629c74c51bf283533a9c865$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6869fdb643f17c013983afefca4eabb027b5355c$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$d7450352bff9f44738a9c79ea44d4268bbb12310$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$bc4159e909f22fa81f9005fa8f48ad449598fe0a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$6ea7dcd6aba399e24a8670c18d30d035b829dae9$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$481cb9e0c2fc2443dd51ada0ca81b88d753555c7$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$1c361fff2d18e824ce38eba4748cc96193a430f5$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$65ed4aa6a569a25f6a9bb24392657d8bca40a2f8$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5f980047fe10a8be5666d111021e57d5854aa83b$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$abd3e3ec56ca8c4e96e0f454de33fb628df4cd44$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$89167d1932c7133e94b8926fe56f4b5fc8fbb701$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$c3fcbbd760b11a645a84e725c760cee33f76a02d$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5fdb9f1835defa70fba534448210ae4e9273f343$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$3610575dd7114a9ff7a07ef8a8e511252300b81e$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$a2dd25c1ba1a15e2659d8f10e42ee72ffd3d063a$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$16ff1ab0799e14eebca39fe07b850dde0c2d8e85$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4de1e97fcbbdc7ca48239a6c205823125e76f368$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$ff5ee1af90a461e919625990aebca1a4f5233543$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$5dcaaf7565303137ded8996c562ee06ee3056612$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$4b4fbcbdd7b68caf8ebdcd362da862b00bab2ca1$__CMP2LCU for cells of type $__CMP2LCU.
+Using template $paramod$f0a7389ae002486becb5c3590dd498e83ef8c1d8$__CMP2LCU for cells of type $__CMP2LCU.
+No more expansions possible.
+<suppressed ~775 debug messages>
+
+3.26. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module KL_srp_domain:
+  creating $macc model for $add$all.v:17600$79644 ($add).
+  creating $macc model for $auto$pmux2shiftx.cc:685:execute$94066 ($sub).
+  creating $macc model for $add$all.v:17599$79640 ($add).
+  creating $macc model for $sub$all.v:17600$79643 ($sub).
+  merging $macc model for $sub$all.v:17600$79643 into $add$all.v:17600$79644.
+  creating $alu model for $macc $add$all.v:17599$79640.
+  creating $alu model for $macc $auto$pmux2shiftx.cc:685:execute$94066.
+  creating $macc cell for $add$all.v:17600$79644: $auto$alumacc.cc:382:replace_macc$94238
+  creating $alu cell for $auto$pmux2shiftx.cc:685:execute$94066: $auto$alumacc.cc:512:replace_alu$94239
+  creating $alu cell for $add$all.v:17599$79640: $auto$alumacc.cc:512:replace_alu$94242
+  created 2 $alu and 1 $macc cells.
+
+3.27. Executing SHARE pass (SAT-based resource sharing).
+
+3.28. Executing OPT pass (performing simple optimizations).
+
+3.28.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~85 debug messages>
+
+3.28.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 264 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 258 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+<suppressed ~18 debug messages>
+Removed a total of 6 cells.
+
+3.28.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/7 on $pmux $procmux$93661.
+    dead port 2/7 on $pmux $procmux$93661.
+    dead port 3/7 on $pmux $procmux$93661.
+    dead port 1/6 on $pmux $procmux$93726.
+    dead port 2/6 on $pmux $procmux$93726.
+    dead port 3/6 on $pmux $procmux$93726.
+    dead port 4/6 on $pmux $procmux$93726.
+    dead port 1/7 on $pmux $procmux$93774.
+    dead port 2/7 on $pmux $procmux$93774.
+    dead port 3/7 on $pmux $procmux$93774.
+    dead port 4/7 on $pmux $procmux$93774.
+    dead port 5/7 on $pmux $procmux$93774.
+    dead port 1/6 on $pmux $procmux$93790.
+    dead port 2/6 on $pmux $procmux$93790.
+    dead port 4/6 on $pmux $procmux$93790.
+Removed 15 multiplexer ports.
+<suppressed ~169 debug messages>
+
+3.28.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.28.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 258 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.28.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.28.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 1 unused cells and 326 unused wires.
+<suppressed ~2 debug messages>
+
+3.28.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.28.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.28.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~169 debug messages>
+
+3.28.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.28.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 257 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.28.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.28.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.28.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.28.16. Finished fast OPT passes. (There is nothing left to do.)
+
+3.29. Executing MEMORY pass.
+
+3.29.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+3.29.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+3.29.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+3.29.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+3.29.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+3.29.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.29.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+3.29.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+3.29.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.29.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.30. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.31. Executing MEMORY_LIBMAP pass (mapping memories to cells).
+
+3.32. Executing TECHMAP pass (map to technology primitives).
+
+3.32.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/lutrams_xc5v_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/lutrams_xc5v_map.v' to AST representation.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_SP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_DP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_QP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_OP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_SDP_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_64X8SW_'.
+Generating RTLIL representation for module `$__XILINX_LUTRAM_32X16DR8_'.
+Successfully finished Verilog frontend.
+
+3.32.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~9 debug messages>
+
+3.33. Executing TECHMAP pass (map to technology primitives).
+
+3.33.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/brams_xc6v_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/brams_xc6v_map.v' to AST representation.
+Generating RTLIL representation for module `$__XILINX_BLOCKRAM_TDP_'.
+Generating RTLIL representation for module `$__XILINX_BLOCKRAM_SDP_'.
+Successfully finished Verilog frontend.
+
+3.33.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~4 debug messages>
+
+3.34. Executing OPT pass (performing simple optimizations).
+
+3.34.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~10 debug messages>
+
+3.34.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 253 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.34.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.34.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 0 unused cells and 4 unused wires.
+<suppressed ~1 debug messages>
+
+3.34.5. Finished fast OPT passes.
+
+3.35. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+3.36. Executing OPT pass (performing simple optimizations).
+
+3.36.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.36.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 253 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.36.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~134 debug messages>
+
+3.36.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+    Consolidated identical input bits for $mux cell $ternary$all.v:17654$79773:
+      Old ports: A=2'11, B=2'01, Y=$0\srp_pkg_srp_app_msg$func$all.v:17796$79636.sj[2:0]$79712
+      New ports: A=1'1, B=1'0, Y=$0\srp_pkg_srp_app_msg$func$all.v:17796$79636.sj[2:0]$79712 [1]
+      New connections: $0\srp_pkg_srp_app_msg$func$all.v:17796$79636.sj[2:0]$79712 [0] = 1'1
+    Consolidated identical input bits for $mux cell $ternary$all.v:17655$79774:
+      Old ports: A=3'100, B=3'010, Y=$0\srp_pkg_srp_app_msg$func$all.v:17796$79636.s[2:0]$79713
+      New ports: A=2'10, B=2'01, Y=$0\srp_pkg_srp_app_msg$func$all.v:17796$79636.s[2:0]$79713 [2:1]
+      New connections: $0\srp_pkg_srp_app_msg$func$all.v:17796$79636.s[2:0]$79713 [0] = 1'0
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 2 changes.
+
+3.36.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 253 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.36.6. Executing OPT_SHARE pass.
+
+3.36.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.36.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.36.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~1 debug messages>
+
+3.36.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.36.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_srp_domain..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~130 debug messages>
+
+3.36.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_srp_domain.
+Performed a total of 0 changes.
+
+3.36.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 253 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Removed a total of 0 cells.
+
+3.36.14. Executing OPT_SHARE pass.
+
+3.36.15. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.36.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+
+3.36.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+
+3.36.18. Finished fast OPT passes. (There is nothing left to do.)
+
+3.37. Executing XILINX_SRL pass (Xilinx shift register extraction).
+
+3.38. Executing TECHMAP pass (map to technology primitives).
+
+3.38.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+3.38.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/arith_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/arith_map.v' to AST representation.
+Generating RTLIL representation for module `\_80_xilinx_lcu'.
+Generating RTLIL representation for module `\_80_xilinx_alu'.
+Successfully finished Verilog frontend.
+
+3.38.3. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$a3910cdbf45ede10b1a0bbe00416f25d2f065089\_80_xilinx_alu for cells of type $alu.
+Using template $paramod$bdf5a3352ee7c932cd6e1795ea927baed5528acc\_80_xilinx_alu for cells of type $alu.
+Using extmapper maccmap for cells of type $macc_v2.
+  add \rxdom_prio_i (8 bits, unsigned)
+  sub \rxdom_class_id_i (8 bits, unsigned)
+  add 8'00000110 (8 bits, unsigned)
+Using template $paramod$constmap:1d33788941baff19b6862b9223703f2f745be75b$paramod$12540c368a98d8a9a2e97f753aa85cc2f89b44ef\_90_shift_shiftx for cells of type $shiftx.
+Using template $paramod$constmap:84603531136a4b025b0cccbb9a5e040aa3f3ec6d$paramod$d94762e258ad4c42e90871cf70866cb6e24d1d88\_90_shift_shiftx for cells of type $shift.
+Using template $paramod$constmap:b40d52c010e1d56f14959c2a8186d0b834b59ff7$paramod$2be0aa29c1c3220f1b05dd8b7552a97134acb226\_90_shift_shiftx for cells of type $shiftx.
+Using template $paramod$constmap:ad6258b18ee71c21623153a6afedc45101fda680$paramod$c4af84a88f08396941ab65e1029fed5d14b402fd\_90_shift_shiftx for cells of type $shift.
+Using template $paramod$constmap:31cb2ece42e6233178782aa2baf9f0bc021a210a$paramod$9e7f9dfeecea23fd5a2aca34480dbc508d207469\_90_shift_shiftx for cells of type $shiftx.
+Using template $paramod$constmap:ab5c9812e34ef8c56f23d02ea7c6ddd8b1183cf0$paramod$12be233703988a40dbf1663c94eac39c0be3109e\_90_shift_shiftx for cells of type $shift.
+Using template $paramod$constmap:303cad45362a54cc6086f997d8ded93412328c5c$paramod$64b81626b5b193ca64adb7dfec84b6b2a7ae47a4\_90_shift_shiftx for cells of type $shiftx.
+Using template $paramod$constmap:16391d1ced80fcb23abe6cb2bb405e8d8cad74c4$paramod$668e5d07f3bce97239d1250eeb1ca795f8777aa4\_90_shift_shiftx for cells of type $shift.
+Using extmapper simplemap for cells of type $sdffe.
+Using extmapper simplemap for cells of type $sdff.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=s32'00000000000000000000000000000010 for cells of type $lcu.
+Using template $paramod\_80_xilinx_lcu\WIDTH=s32'00000000000000000000000000000011 for cells of type $lcu.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $pmux.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001000 for cells of type $fa.
+Using template $paramod$d51eee4c9fcba52409138601871da9e4f5c9e97c\_80_xilinx_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $pos.
+Using extmapper simplemap for cells of type $xor.
+No more expansions possible.
+<suppressed ~2166 debug messages>
+
+3.39. Executing OPT pass (performing simple optimizations).
+
+3.39.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~342 debug messages>
+
+3.39.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_srp_domain'.
+Computing hashes of 1487 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1337 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1266 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1241 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1228 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1227 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+Computing hashes of 1226 cells of `\KL_srp_domain'.
+Finding duplicate cells in `\KL_srp_domain'.
+<suppressed ~783 debug messages>
+Removed a total of 261 cells.
+
+3.39.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+3.39.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_domain..
+Removed 225 unused cells and 412 unused wires.
+<suppressed ~226 debug messages>
+
+3.39.5. Finished fast OPT passes.
+
+3.40. Executing IOPADMAP pass (mapping inputs/outputs to IO-PAD cells).
+Mapping port KL_srp_domain.adopted_o using OBUF.
+Mapping port KL_srp_domain.class_a_prio_o using OBUF.
+Mapping port KL_srp_domain.class_a_vid_o using OBUF.
+Mapping port KL_srp_domain.clk_i using IBUF.
+Mapping port KL_srp_domain.dbg_app_state_o using OBUF.
+Mapping port KL_srp_domain.dom_ev_event_o using OBUF.
+Mapping port KL_srp_domain.dom_ev_ready_i using IBUF.
+Mapping port KL_srp_domain.dom_ev_valid_o using OBUF.
+Mapping port KL_srp_domain.dom_ev_value_o using OBUF.
+Mapping port KL_srp_domain.evt_domain_change_o using OBUF.
+Mapping port KL_srp_domain.leaveall_own_i using IBUF.
+Mapping port KL_srp_domain.leaveall_tick_i using IBUF.
+Mapping port KL_srp_domain.link_up_i using IBUF.
+Mapping port KL_srp_domain.p2p_i using IBUF.
+Mapping port KL_srp_domain.periodic_tick_i using IBUF.
+Mapping port KL_srp_domain.rst_n using IBUF.
+Mapping port KL_srp_domain.rxdom_any_i using IBUF.
+Mapping port KL_srp_domain.rxdom_class_id_i using IBUF.
+Mapping port KL_srp_domain.rxdom_ev_i using IBUF.
+Mapping port KL_srp_domain.rxdom_lv_i using IBUF.
+Mapping port KL_srp_domain.rxdom_nov_i using IBUF.
+Mapping port KL_srp_domain.rxdom_prio_i using IBUF.
+Mapping port KL_srp_domain.rxdom_valid_i using IBUF.
+Mapping port KL_srp_domain.rxdom_vid_i using IBUF.
+Mapping port KL_srp_domain.tx_done_o using OBUF.
+Mapping port KL_srp_domain.tx_tick_i using IBUF.
+
+3.41. Executing TECHMAP pass (map to technology primitives).
+
+3.41.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+3.41.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `$__SHREG_'.
+Generating RTLIL representation for module `$__XILINX_SHREG_'.
+Generating RTLIL representation for module `$__XILINX_MUXF78'.
+Successfully finished Verilog frontend.
+
+3.41.3. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~80 debug messages>
+Removed 0 unused cells and 7 unused wires.
+
+3.42. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+
+3.43. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_domain.
+<suppressed ~44 debug messages>
+
+3.44. Executing ABC pass (technology mapping using ABC).
+
+3.44.1. Extracting gate netlist of module `\KL_srp_domain' to `<abc-temp-dir>/input.blif'..
+
+3.44.1.1. Executed ABC.
+Extracted 911 gates and 1120 wires to a netlist network with 207 inputs and 182 outputs.
+Running ABC script: <abc-temp-dir>/abc.script
+ABC: ======== ABC command line "source <abc-temp-dir>/abc.script"
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lut <abc-temp-dir>/lutdefs.txt 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + dch -f 
+ABC: + if 
+ABC: + mfs2 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+3.44.1.2. Re-integrating ABC results.
+ABC RESULTS:              $lut cells:      282
+ABC RESULTS:        internal signals:      731
+ABC RESULTS:           input signals:      207
+ABC RESULTS:          output signals:      182
+Removing temp directory.
+Removing global temp directory.
+Removed 0 unused cells and 657 unused wires.
+
+3.45. Executing TECHMAP pass (map to technology primitives).
+
+3.45.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/ff_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/ff_map.v' to AST representation.
+Generating RTLIL representation for module `$_DFFE_NP0P_'.
+Generating RTLIL representation for module `$_DFFE_PP0P_'.
+Generating RTLIL representation for module `$_DFFE_NP1P_'.
+Generating RTLIL representation for module `$_DFFE_PP1P_'.
+Generating RTLIL representation for module `$_DFFSRE_NPPP_'.
+Generating RTLIL representation for module `$_DFFSRE_PPPP_'.
+Generating RTLIL representation for module `$_SDFFE_NP0P_'.
+Generating RTLIL representation for module `$_SDFFE_PP0P_'.
+Generating RTLIL representation for module `$_SDFFE_NP1P_'.
+Generating RTLIL representation for module `$_SDFFE_PP1P_'.
+Generating RTLIL representation for module `$_DLATCH_NP0_'.
+Generating RTLIL representation for module `$_DLATCH_PP0_'.
+Generating RTLIL representation for module `$_DLATCH_NP1_'.
+Generating RTLIL representation for module `$_DLATCH_PP1_'.
+Generating RTLIL representation for module `$_DLATCH_NPP_'.
+Generating RTLIL representation for module `$_DLATCH_PPP_'.
+Successfully finished Verilog frontend.
+
+3.45.2. Continuing TECHMAP pass.
+Using template $paramod$_SDFFE_PP0P_\_TECHMAP_WIREINIT_Q_=1'x for cells of type $_SDFFE_PP0P_.
+Using template $paramod$_SDFFE_PP1P_\_TECHMAP_WIREINIT_Q_=1'x for cells of type $_SDFFE_PP1P_.
+No more expansions possible.
+<suppressed ~168 debug messages>
+
+3.46. Executing XILINX_SRL pass (Xilinx shift register extraction).
+
+3.47. Executing TECHMAP pass (map to technology primitives).
+
+3.47.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/lut_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/lut_map.v' to AST representation.
+Generating RTLIL representation for module `$lut'.
+Successfully finished Verilog frontend.
+
+3.47.2. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/xilinx/cells_map.v
+Parsing Verilog input from `/usr/bin/../share/yosys/xilinx/cells_map.v' to AST representation.
+Generating RTLIL representation for module `$__SHREG_'.
+Generating RTLIL representation for module `$__XILINX_SHREG_'.
+Generating RTLIL representation for module `$__XILINX_MUXF78'.
+Successfully finished Verilog frontend.
+
+3.47.3. Continuing TECHMAP pass.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0110 for cells of type $lut.
+Using template $paramod$80fd3f90b6a7b38da9d25588666decbe3adaf5ec$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0100 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1001 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10110100 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01001011 for cells of type $lut.
+Using template $paramod$c5b694ec89d7629b942ccf6a9be1d39e24f8edec$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0001 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'01000000 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1000 for cells of type $lut.
+Using template $paramod$272652f6c6fbe9a75eff76e45cc7e2788835518b$lut for cells of type $lut.
+Using template $paramod$0168072450226b493f7201bdb9fc41a6a0b6f539$lut for cells of type $lut.
+Using template $paramod$911ce2c2ed06f63589760952a728b60224a26237$lut for cells of type $lut.
+Using template $paramod$decd7d44aed8170c3826b15dbafe01496fe539f9$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11100111 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00011100 for cells of type $lut.
+Using template $paramod$9ce83c401f07863ef6c07aa36141bf86d010bac8$lut for cells of type $lut.
+Using template $paramod$9b5415039a90404bbb5d6c01f9531d530cf00a83$lut for cells of type $lut.
+Using template $paramod$475dd91f979769d90e7dcf83f90dc716d3a4b61f$lut for cells of type $lut.
+Using template $paramod$7b7b02f57bd231c413470fe9cacd82cd00112d12$lut for cells of type $lut.
+Using template $paramod$ef73170942b53699e084a1f4e35ba1debf2e88d5$lut for cells of type $lut.
+Using template $paramod$062504bac180090ce81d692e22f47e8aa09922f1$lut for cells of type $lut.
+Using template $paramod$da2d47a2d65e68db64322f84983a7b5be8da1621$lut for cells of type $lut.
+Using template $paramod$a7935832d436eb6d56cf62922793581a110f86c1$lut for cells of type $lut.
+Using template $paramod$682589e0a937ace65cf05beb3430447fe501ec98$lut for cells of type $lut.
+Using template $paramod$0ec51fdf2bcfd4e20d03e3da627e769ba9142d19$lut for cells of type $lut.
+Using template $paramod$70ec949e05685d64b61441e426a611aa8a5fcd40$lut for cells of type $lut.
+Using template $paramod$ad435fb1005a5ea4b1fe8474f7d8f4eacfa6562f$lut for cells of type $lut.
+Using template $paramod$9fa3637caaf5c9448f782292003e8bc8176445a0$lut for cells of type $lut.
+Using template $paramod$cf78fe7e58508e34e429cb9c79dc30526fed5004$lut for cells of type $lut.
+Using template $paramod$e2adae6a3f322fe523a45cc2fbfe43ca5972fda7$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1110 for cells of type $lut.
+Using template $paramod$90bcb22390abbfef19c7924b52a5fde5e5853305$lut for cells of type $lut.
+Using template $paramod$cbbd1165a9d2af72911496af37ff26a1a0e1d9ce$lut for cells of type $lut.
+Using template $paramod$e714f6b84be263067e36b488c05afb6281c85dec$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00110101 for cells of type $lut.
+Using template $paramod$2a79bca7528347656c14adc275a3d6a12b817e3b$lut for cells of type $lut.
+Using template $paramod$4870eff398507fb3667087e45c018a8cef651a33$lut for cells of type $lut.
+Using template $paramod$b23228bb0a8e0b5e8c0a40130ccdf2eb000acaa6$lut for cells of type $lut.
+Using template $paramod$f5790de0c17edb73ec439ce6cb5da54f74c45697$lut for cells of type $lut.
+Using template $paramod$c39bd6578b6273efcf88173dfc73b0af65d1a415$lut for cells of type $lut.
+Using template $paramod$74af98efac069cc12e978717a1ddb5e623867fae$lut for cells of type $lut.
+Using template $paramod$46a4cfc0ba865ee6123f7ff2b1bee5032e48ce27$lut for cells of type $lut.
+Using template $paramod$1cc1e6c95cb93c1e7215a54baec4a56581f580b4$lut for cells of type $lut.
+Using template $paramod$c6b23251d37d8c71dee81bbcc26cfc0ce19a8a08$lut for cells of type $lut.
+Using template $paramod$6c1b4972ab23ecb10ee9387e0ac34c7f749e714c$lut for cells of type $lut.
+Using template $paramod$c3253157bfd3ca03dee9962fff8c0e1fd2214a8b$lut for cells of type $lut.
+Using template $paramod$42bd75795282cf6b9f047ad54e749603a5576553$lut for cells of type $lut.
+Using template $paramod$6273cba91bd4a24b60bc8e09a63d404cbe468451$lut for cells of type $lut.
+Using template $paramod$ee19d45db61acb4c70d938b97483a4ed4b792645$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'1011 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000010\LUT=4'0111 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00001000 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11111000 for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'10110000 for cells of type $lut.
+Using template $paramod$35dd23ba9920bf99348c3751705b6f029576af7c$lut for cells of type $lut.
+Using template $paramod$aebda286573992ea12c5e1bd613b29a1d8d32eac$lut for cells of type $lut.
+Using template $paramod$43779580bfffd5d5a9f321249a174febf1dac288$lut for cells of type $lut.
+Using template $paramod$bb40a0e4513a7cdea320069d4b9929c2eebcb939$lut for cells of type $lut.
+Using template $paramod$f44e1eab45e047e709d5dfed32527eb1f7745488$lut for cells of type $lut.
+Using template $paramod$97ca0f161df2a3aea43b6e8fc6d3135d10493c4d$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'11001010 for cells of type $lut.
+Using template $paramod$3fafd2c0eee8b0d037c486b1abe133914bb9b799$lut for cells of type $lut.
+Using template $paramod$c503edd616ef39e0cee34494c423cefd359d54ea$lut for cells of type $lut.
+Using template $paramod$8ad44ec504c4bda9c1e4d1cff32daf7775e8a6f9$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000011\LUT=8'00001110 for cells of type $lut.
+Using template $paramod$987ba47d9f22b1c8fde8a2d7a2abff4be5df6ab8$lut for cells of type $lut.
+Using template $paramod$5fb0e6417d004c1c0ef8f8d3bdf78be4ff8ac31f$lut for cells of type $lut.
+Using template $paramod$d820609b194b433cc2a1d363b0603a16f7720ec6$lut for cells of type $lut.
+Using template $paramod$4028726ae9e5870894954eb01f27f604b2e5a041$lut for cells of type $lut.
+Using template $paramod$lut\WIDTH=32'00000000000000000000000000000001\LUT=2'01 for cells of type $lut.
+Using template $paramod$5f4136c2f0bd5489253ffbe997240ef610954687$lut for cells of type $lut.
+Using template $paramod$1ad01e4eb6eb88665d273717223f0891e659bf3f$lut for cells of type $lut.
+Using template $paramod$4c1f25968a343e8f637ec52b47069366e1d71c38$lut for cells of type $lut.
+Using template $paramod$ed2409ed7f256228c709d5d3c213492fa86bdec8$lut for cells of type $lut.
+Using template $paramod$3ae6f3416023ad6ad098c8d3e98afe5ecde9c4cb$lut for cells of type $lut.
+Using template $paramod$9b7d501e2fa18d1677bf254bcfcd57bc381697bf$lut for cells of type $lut.
+Using template $paramod$6a6792a4facb483bfe2d0ac3306daeb2d4e09d6c$lut for cells of type $lut.
+Using template $paramod$20884f69b32b08b0b1dfaa75cddeec541ddf7283$lut for cells of type $lut.
+Using template $paramod$3bc4271c05a23e1b74cc4b05dfee73a42786fa43$lut for cells of type $lut.
+Using template $paramod$2b67a802b0036a2ef67c6eb869f0895a00fb8a95$lut for cells of type $lut.
+Using template $paramod$d03a123c01cbf9e6596b7a68bf7c7a7b3bae67b2$lut for cells of type $lut.
+Using template $paramod$692927e279b3d5c42ee4aacb287247c0b34943ed$lut for cells of type $lut.
+Using template $paramod$718d2adb339d417d1938e1627fd12559cff39368$lut for cells of type $lut.
+Using template $paramod$7fb0dd8a686a94263e393e25e6cfc33e19b35107$lut for cells of type $lut.
+Using template $paramod$4ae8083d7055e28fb34c75e82e56aba87a8aeb18$lut for cells of type $lut.
+Using template $paramod$21d75eb9bb7675890de0b45245a000ea548da47f$lut for cells of type $lut.
+Using template $paramod$418aba4199a2409c8109aa59a2e0e568ef8a6fe9$lut for cells of type $lut.
+Using template $paramod$29cc4c73f4e2c16aee915ecbeb4af26f3183abf7$lut for cells of type $lut.
+Using template $paramod$e50cca6584899a182f0ea2b2b4e87450e4e8441f$lut for cells of type $lut.
+Using template $paramod$6b171176763a0693015add96249b9efb04a5cb6c$lut for cells of type $lut.
+Using template $paramod$e71acd1fd0d505c5322a040014ca4f2fbd36a053$lut for cells of type $lut.
+Using template $paramod$6c33e34a8f8a5ded0a70e5d54ed06210e812ce2f$lut for cells of type $lut.
+Using template $paramod$e67e9f7872c093d087739592766e956f27acf06c$lut for cells of type $lut.
+Using template $paramod$b1e0319193a032b531f5ad204c658dca2c79c36d$lut for cells of type $lut.
+Using template $paramod$6a5699fdce3fe324e7b36e108b766c346348fa8b$lut for cells of type $lut.
+Using template $paramod$a2b4ddfa3906001b2ef9f2414d79c3048f2a3a6e$lut for cells of type $lut.
+Using template $paramod$7690d29a43b3ff40d17e028e4aaa6d640f71b929$lut for cells of type $lut.
+Using template $paramod$1a0e2b41b703e4f9a4473c978be3fcac3e4019a9$lut for cells of type $lut.
+Using template $paramod$f9d5cb7f3a24a3978811c5219d2f4f07ec60cef0$lut for cells of type $lut.
+Using template $paramod$6216eedf1c5f2bdf0973f7aa817f2cd29f0d2d79$lut for cells of type $lut.
+Using template $paramod$fced1e4a68a3ccd8a77f0172a7a27e31013c73a7$lut for cells of type $lut.
+Using template $paramod$feb318e809e9738db7e13a2d8ae00179e76d6094$lut for cells of type $lut.
+Using template $paramod$9e1121e144e9c27f0c4fd4cd2ae9b04b4f96afe4$lut for cells of type $lut.
+Using template $paramod$3399b3cb51e173fd9dedfa691d97512baa7183c5$lut for cells of type $lut.
+Using template $paramod$9d6baca645759b00af527e3efffe76aaa8123eef$lut for cells of type $lut.
+Using template $paramod$81988664ad6df58458a80a359ae470eead20903a$lut for cells of type $lut.
+Using template $paramod$257f457fe3148d90776fbdfaa193af392b63690e$lut for cells of type $lut.
+Using template $paramod$dd24b40d92d2b4411deb1c82dcc4eaeac2354ec6$lut for cells of type $lut.
+Using template $paramod$dc1f2b8cf4f23c4a3e5babec332874d7e3b588e8$lut for cells of type $lut.
+Using template $paramod$130a2810b369c15176a8d60c57249bf60f7dc3f9$lut for cells of type $lut.
+Using template $paramod$b5c635515035b28d8c5af3fea17da48ec28fcdc5$lut for cells of type $lut.
+Using template $paramod$6b5581a383b14311e28e5ae0a1feddd1b042741a$lut for cells of type $lut.
+Using template $paramod$da3c32d97f0d4d7a5fab87cb00334f93820945da$lut for cells of type $lut.
+Using template $paramod$2198dc094cb53bc75d320c7913737558568df566$lut for cells of type $lut.
+Using template $paramod$a5763bf6276dba640667d9b925e2f79f0771d14c$lut for cells of type $lut.
+Using template $paramod$3be2a37334a5a9d712650f1521e64ec9ce57149b$lut for cells of type $lut.
+No more expansions possible.
+<suppressed ~1893 debug messages>
+
+3.48. Executing XILINX_DFFOPT pass (optimize FF control signal usage).
+Optimizing FFs in KL_srp_domain.
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95147/reg_in_r (3 -> 5)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95059/q1_valid_r (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95103/rx_pend_v_r (3 -> 5)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95028/$iopadmap$evt_domain_change_o (3 -> 4)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95135/app_r (4 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95090/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95093/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95094/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95095/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95096/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95097/q0_val_r (5 -> 6)
+  Merging D + R LUTs for $auto$ff.cc:337:slice$95153/pend_in_r (2 -> 4)
+
+3.49. Executing OPT_LUT_INS pass (discard unused LUT inputs).
+Optimizing LUTs in KL_srp_domain.
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97603.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97604.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97605.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97606.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97607.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97599.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97599.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97612.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 5)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97632.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 5)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97695.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 1)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97698.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97700.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 1)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97606.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97605.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97604.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97603.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97602.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97602.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97607.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97620.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97597.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 4)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97618.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 1)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97632.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 5)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97599.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 0)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97597.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97695.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 4)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97695.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 5)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97700.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut0 (6 -> 5)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97700.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 4)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97750.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 3)
+  Optimizing lut $abc$97569$auto$blifparse.cc:557:parse_blif$97723.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.genblk1.lut1 (6 -> 5)
+
+3.50. Executing CLKBUFMAP pass (inserting clock buffers).
+Inserting BUFG on KL_srp_domain.$iopadmap$clk_i[0].
+Removed 19 unused cells and 1603 unused wires.
+
+3.51. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `KL_srp_domain'. Setting top module to KL_srp_domain.
+
+3.51.1. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+
+3.51.2. Analyzing design hierarchy..
+Top module:  \KL_srp_domain
+Removed 0 unused modules.
+
+3.52. Printing statistics.
+
+=== KL_srp_domain ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      402 wires
+     1127 wire bits
+       94 public wires
+      379 public wire bits
+       26 ports
+      118 port bits
+      420 cells
+        1   BUFG
+       60   IBUF
+       86   INV
+        3   LUT1
+       52   LUT2
+       42   LUT3
+       12   LUT4
+       20   LUT5
+       86   LUT6
+       58   OBUF
+      178 submodules
+        8   CARRY4
+      125   FDRE
+        3   FDSE
+       31   MUXF7
+       11   MUXF8
+
+   Estimated number of LCs:        160
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+      420 KL_srp_domain
+
+        +----------Count including submodules.
+        | 
+      402 wires
+     1127 wire bits
+       94 public wires
+      379 public wire bits
+       26 ports
+      118 port bits
+        - memories
+        - memory bits
+        - processes
+      420 cells
+        1   BUFG
+       60   IBUF
+       86   INV
+        3   LUT1
+       52   LUT2
+       42   LUT3
+       12   LUT4
+       20   LUT5
+       86   LUT6
+       58   OBUF
+      178 submodules
+        8   CARRY4
+      125   FDRE
+        3   FDSE
+       31   MUXF7
+       11   MUXF8
+
+   Estimated number of LCs:        160
+
+3.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_srp_domain...
+Found and reported 0 problems.
+
+4. Printing statistics.
+
+=== KL_srp_domain ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      402 wires
+     1127 wire bits
+       94 public wires
+      379 public wire bits
+       26 ports
+      118 port bits
+      598 cells
+        1   BUFG
+        8   CARRY4
+      125   FDRE
+        3   FDSE
+       60   IBUF
+       86   INV
+        3   LUT1
+       52   LUT2
+       42   LUT3
+       12   LUT4
+       20   LUT5
+       86   LUT6
+       31   MUXF7
+       11   MUXF8
+       58   OBUF
+
+Warnings: 8 unique messages, 8 total
+End of script. Logfile hash: 0757e16cab, time: 78.52s, user: 42.19s, system: 1.40s, MEM: 434.11 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 90% 19x read_verilog (39 sec), 2% 1x synth_xilinx (1 sec), ...

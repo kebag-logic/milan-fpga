@@ -1,0 +1,35 @@
+verilator --cc --exe --build -j 0 --savable --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/streamprobe/tree/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '<scratch>/streamprobe/tree/tb/srp_top/obj_dir'
+g++  -I.  -MMD -I<toolchain>/verilator-v5.050/share/verilator/include -I<toolchain>/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/streamprobe/tree/tb/srp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+make[1]: Leaving directory '<scratch>/streamprobe/tree/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 19.236 s (elab=0.000, cvt=0.000, bld=19.235); cpu 0.002 s on 2 threads; allocated 29.672 MB
+./obj_dir/Vsrp_top_sim streamlink
+STREAMLINK case the peer sends nothing after the bounce
+STREAMLINK before: talker New@405 New@605 JoinMt@804 JoinMt@1205 JoinMt@2205 JoinMt@3205
+STREAMLINK before: listener New@405 New@605 JoinMt@804 JoinMt@1205 JoinMt@2205 JoinMt@3205
+STREAMLINK before: tk_decl(0)=1 ls_decl(0)=2 tk_reg(0)=1 active(0)=0
+STREAMLINK frames that left during the 30 ms link down: 0
+STREAMLINK during link down: tk_decl(0)=1 ls_decl(0)=0 tk_reg(0)=0
+STREAMLINK link down at 3301 ms, up at 3331 ms
+STREAMLINK after LINK_UP: talker JoinMt@4203 JoinMt@5203 JoinMt@6203
+STREAMLINK after LINK_UP: listener Lv@3403
+STREAMLINK after LINK_UP: VID 2 New@3401 New@3601 JoinMt@3801 JoinMt@4001 JoinMt@5001 JoinMt@6001
+STREAMLINK after LINK_UP: Domain New@3403 New@3602 JoinMt@3802 JoinMt@4203 JoinMt@5203 JoinMt@6203
+STREAMLINK after: tk_decl(0)=1 ls_decl(0)=0 tk_reg(0)=0 active(0)=0
+STREAMLINK case the peer declares its Talker Advertise again 100 ms after LINK_UP
+STREAMLINK before: talker New@405 New@605 JoinMt@804 JoinMt@1205 JoinMt@2205 JoinMt@3205
+STREAMLINK before: listener New@405 New@605 JoinMt@804 JoinMt@1205 JoinMt@2205 JoinMt@3205
+STREAMLINK before: tk_decl(0)=1 ls_decl(0)=2 tk_reg(0)=1 active(0)=0
+STREAMLINK frames that left during the 30 ms link down: 0
+STREAMLINK during link down: tk_decl(0)=1 ls_decl(0)=0 tk_reg(0)=0
+STREAMLINK link down at 3301 ms, up at 3331 ms
+STREAMLINK after LINK_UP: talker JoinMt@4205 JoinMt@5205 JoinMt@6205
+STREAMLINK after LINK_UP: listener Lv@3403 New@3603 New@3803 JoinMt@4003 JoinMt@4205 JoinMt@5205 JoinMt@6205
+STREAMLINK after LINK_UP: VID 2 New@3401 New@3601 JoinMt@3801 JoinMt@4001 JoinMt@5001 JoinMt@6001
+STREAMLINK after LINK_UP: Domain New@3403 New@3603 JoinMt@3803 JoinMt@4205 JoinMt@5205 JoinMt@6205
+STREAMLINK after: tk_decl(0)=1 ls_decl(0)=2 tk_reg(0)=1 active(0)=0
+TOTAL_CLOCKS 510584
+2 checks: 2 PASS, 0 FAIL

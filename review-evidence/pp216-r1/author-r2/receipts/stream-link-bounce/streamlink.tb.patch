@@ -1,0 +1,67 @@
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index 0b96961..d73c476 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -722,6 +722,7 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"link")) check_a_link_change_ends_the_port_talker_registrations();
+     if (!*group || !strcmp(group,"onevec")) check_one_vector_per_value();
+     if (!*group || !strcmp(group,"applicant")) check_each_applicant_follows_table_10_3();
++    if (!strcmp(group,"streamlink")) probe_streams_across_a_link_bounce();
+ 
+     // issue #214: every MRPDU this run captured, in every scenario above,
+     // carries each attribute value at most once
+@@ -4123,6 +4124,46 @@ class SrpTopHarness {
+           "10-3; up at %u ms, sent %s)", up, shown216(after, 12).c_str());
+   }
+ 
++  // disposable probe (report only): the stream declarations across a link bounce
++  void probe_streams_across_a_link_bounce() {
++    for (int refeed = 0; refeed < 2; refeed++) {
++      h.reset(); d->link_up_i = 1; h.run_ms(300);
++      const size_t f0 = h.archive.size();
++      h.op(OP_DECL_TK, 0, own_sid(0), 0x91e0f0010100ULL, 2, 29, 1);
++      h.op(OP_DECL_LS, 0, SIDX, DAX, 2, 0, 0, DECL_READY);
++      const auto tav = mrpdu_body(true, {Msg{1, 25, false, {Vec{false, 1,
++             fv_talker(SIDX, DAX, 2, 0x0100, 1, 3, 1, 0x00012345), {EV_JOININ}, {}}}}});
++      h.feed(tav, true);
++      h.run_ms(3000);
++      printf("STREAMLINK case %s\n", refeed ? "the peer declares its Talker Advertise again 100 ms after LINK_UP"
++                                            : "the peer sends nothing after the bounce");
++      printf("STREAMLINK before: talker %s\n", shown216(messages_of(true, 1, own_sid(0), f0), 12).c_str());
++      printf("STREAMLINK before: listener %s\n", shown216(messages_of(true, 3, SIDX, f0), 12).c_str());
++      printf("STREAMLINK before: tk_decl(0)=%d ls_decl(0)=%d tk_reg(0)=%d active(0)=%d\n",
++             h.tk_decl(0), h.ls_decl(0), h.tk_reg(0), h.active(0) ? 1 : 0);
++      const uint32_t down = d->now_ms_o;
++      const size_t fd = h.archive.size();
++      d->link_up_i = 0; h.run_ms(30);
++      const size_t fd_end = h.archive.size();
++      printf("STREAMLINK frames that left during the 30 ms link down: %zu\n", fd_end - fd);
++      printf("STREAMLINK during link down: tk_decl(0)=%d ls_decl(0)=%d tk_reg(0)=%d\n",
++             h.tk_decl(0), h.ls_decl(0), h.tk_reg(0));
++      d->link_up_i = 1;
++      const uint32_t up = d->now_ms_o;
++      const size_t f1 = h.archive.size();
++      if (refeed) { h.run_ms(100); h.feed(tav, true); }
++      h.run_ms(3000);
++      printf("STREAMLINK link down at %u ms, up at %u ms\n", down, up);
++      printf("STREAMLINK after LINK_UP: talker %s\n", shown216(messages_of(true, 1, own_sid(0), f1), 12).c_str());
++      printf("STREAMLINK after LINK_UP: listener %s\n", shown216(messages_of(true, 3, SIDX, f1), 12).c_str());
++      printf("STREAMLINK after LINK_UP: VID 2 %s\n", shown216(messages_of(false, 1, 2, f1), 12).c_str());
++      printf("STREAMLINK after LINK_UP: Domain %s\n", shown216(messages_of(true, 4, DOM_VALUE, f1), 12).c_str());
++      printf("STREAMLINK after: tk_decl(0)=%d ls_decl(0)=%d tk_reg(0)=%d active(0)=%d\n",
++             h.tk_decl(0), h.ls_decl(0), h.tk_reg(0), h.active(0) ? 1 : 0);
++    }
++    CHECK(true, "STREAMLINK probe ran");
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;
+@@ -4142,6 +4183,6 @@ int main(int argc, char** argv) {
+       && strcmp(group,"guards") && strcmp(group,"restart")
+       && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")
+       && strcmp(group,"domjoin") && strcmp(group,"share") && strcmp(group,"link")
+-      && strcmp(group,"onevec") && strcmp(group,"applicant")) return 2;
++      && strcmp(group,"onevec") && strcmp(group,"applicant") && strcmp(group,"streamlink")) return 2;
+   return harness.run(group);
+ }

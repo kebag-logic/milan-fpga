@@ -1,0 +1,13 @@
+valid-gate-only: rc=2 1659 checks: 1658 PASS, 1 FAIL
+    FAIL: VR18 a LINK_UP while the walk holds VID 2's JoinIn withdraws it: the walk sends New (0:VID2)
+push-return-only: rc=2 1659 checks: 1657 PASS, 2 FAIL
+    FAIL: VR18 a LINK_UP while the walk holds VID 2's JoinIn withdraws it: the walk sends New (1:VID2)
+    FAIL: VR18 a LINK_UP on the clock the walk evaluates VID 2 comes first: the walk sends New, not the JoinIn of AA (0:VID2)
+registrar-rise-only: rc=2 1659 checks: 1657 PASS, 2 FAIL
+    FAIL: VR14 LINK_DOWN (Flush!) takes VID 2's Registrar from IN to MT and leaves its Applicant: the re-join is JoinMt (1:VID2)
+    FAIL: VR16 a received JoinIn on the clock of LINK_DOWN or LINK_UP leaves the Registrar MT, and LINK_UP leaves VN
+registrar-fall-only: rc=2 1659 checks: 1657 PASS, 2 FAIL
+    FAIL: VR15 LINK_UP (Begin!) takes VID 2's Registrar from IN to MT and restarts its Applicant (VN): New, New, then JoinMt (3:VID2)
+    FAIL: VR16 a received JoinIn on the clock of LINK_DOWN or LINK_UP leaves the Registrar MT, and LINK_UP leaves VN
+begin-by-alloc: rc=2 1659 checks: 1658 PASS, 1 FAIL
+    FAIL: VR17 a VID whose Lv is owed and that has no user is VO at LINK_UP (Begin!): no Lv and no New go out (0:VID2 0:VID2)

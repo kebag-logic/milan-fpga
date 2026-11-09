@@ -1,0 +1,29 @@
+domain-applicant-deaf srp_encoder - rc=2 failures=3: DA1, DA3, DA7
+domain-one-new srp_encoder - rc=2 failures=4: D1 (2), DR11, DA6
+domain-rejoin-always-joinin srp_encoder - rc=2 failures=16: D1, D2, D3 (2), D8, DR1, DR4, DR5, DR6, DR10, DR11, DT1, DT2, DT3, DA6, DA7
+domain-rejoin-always-joinmt srp_encoder - rc=2 failures=13: D8, DR2, DR3, DR5, DR7, DR8, DR9, DR10, DA2, DA4, B1-domain, DA6, PV12
+domain-rejoin-at-request srp_encoder - rc=2 failures=7: D3, D8, DR3a, DR3, DR8, DA6, PV12
+domain-rx-leaveall-dropped srp_encoder - rc=2 failures=6: D3 (2), D8, DR3, DA6, PV12
+domain-txla-row-ignored srp_encoder - rc=2 failures=2: DR4, DA7
+vlan-applicant-deaf srp_encoder - rc=2 failures=6: VR2, VR3, VR4, VR5, VR9, VR13
+vlan-joinin-registrar-mt srp_encoder - rc=2 failures=19: V1, V3, V5 (2), V11, B1-vlan, VR0, VR2, VR3, VR4, VR6, VR8, VR11, VR12, VR13, VR14 (2), VR15, VR18
+vlan-one-new srp_encoder - rc=2 failures=10: V1 (2), V5 (2), VR0, VR10, VR11, VR12, VR14, VR18
+vlan-registrar-never-in srp_encoder - rc=2 failures=9: VR1, VR5, VR7, VR10, VR12, VR14, VR15, VR18 (2)
+vlan-rlv-ignored srp_encoder - rc=2 failures=4: VR2, VR3, VR4, VR13
+vlan-link-keeps-registrar srp_encoder - rc=2 failures=3: VR14, VR15, VR16
+vlan-link-no-begin srp_encoder - rc=2 failures=5: VR15, VR16, VR17, VR18 (2)
+vlan-link-rx-wins srp_encoder - rc=2 failures=1: VR16
+vlan-link-keeps-leaving srp_encoder - rc=2 failures=1: VR17
+vlan-link-push-kept srp_encoder - rc=2 failures=2: VR18 (2)
+vlan-link-after-tx srp_encoder - rc=2 failures=1: VR18
+vp-rjoinin-ignores-note4 srp_encoder - rc=2 failures=2: DA6, VR12
+vp-txla-stays-vp srp_encoder - rc=2 failures=2: DA7, VR13
+vp-txla-sends-sj srp_encoder - rc=2 failures=2: DA7, VR13
+join-sent-at-handover srp_encoder - rc=2 failures=2: W2, W3
+vlan-rx-loses-to-leaveall srp_encoder - rc=2 failures=1: VR7
+vlan-joinin-registrar-mt srp_top applicant rc=2 failures=5: AP2, AP3 (2), AP8 (2)
+vlan-registrar-never-in srp_top applicant rc=2 failures=2: AP3, AP8
+vlan-link-keeps-registrar srp_top applicant rc=2 failures=2: AP8 (2)
+vlan-link-no-begin srp_top applicant rc=2 failures=1: AP8
+top-vlan-link-unwired srp_top applicant rc=2 failures=2: AP8 (2)
+vlan-rlv-ignored srp_top applicant rc=2 failures=1: AP3
