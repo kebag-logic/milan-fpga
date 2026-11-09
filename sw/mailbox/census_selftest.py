@@ -17,6 +17,10 @@ the census table:
                      exclusion, or one consumer added to the netlist, each
                      judged on the netlist of an arm that elaborated the
                      tracked sources, so none elaborates again (#665)
+  the split arms     census_plants.SPLIT_PLANTS, each elaborated in both
+                     placements, a positive control of the tracked sources in
+                     both, and census_plants.split_arms(): the split table,
+                     each judged on that control's netlists (census_split.py)
 
 THE MUTATION CHECK (#665, comment 6100024293). Each arm names the rule of
 census_rules.RULES whose removal must let it through (the positive control
@@ -43,16 +47,17 @@ from typing import Any
 
 import census_ports
 import census_rules
+import census_split
 import publication_census as pc
 from census_elab import RECIPE, WORK, CensusError, Shape, shapes, toolchain
-from census_plants import PLANTS, apply, port_arms
+from census_plants import PLANTS, apply, port_arms, split_arms
 from census_rules import RULES
 
 HERE = Path(__file__).resolve().parent
 #: The rules whose removal changes the elaboration: an arm judged without one is elaborated again.
 ELABORATION = frozenset({"shapes", "shape-params", "shape-header", "opener-guard", "keep-names"})
 #: The modules whose live() tests are the census's rules.
-ENFORCERS = ("census_elab.py", "publication_census.py", "census_ports.py")
+ENFORCERS = ("census_elab.py", "publication_census.py", "census_ports.py", "census_split.py")
 LIVE = re.compile(r'\blive\("([^"]+)"\)')
 
 
@@ -71,6 +76,7 @@ class Arm:
     excluded: Any = None
     plant: Any = None
     rides: bool = False                     # judged on the netlist of a tracked-source arm, never elaborated
+    split: Any = None                       # publication_census.SplitPlan: also censused in the split placement
 
 
 def arms(src: pc.Sources) -> list[Arm]:
@@ -80,7 +86,12 @@ def arms(src: pc.Sources) -> list[Arm]:
     out = [Arm("positive control, the tracked sources", src, pc.CENSUS, None, "keep-names"),
            Arm("negative control, a class-D wire named in a comment", note, pc.CENSUS, None, None)]
     out += [Arm(p.what, apply(src, p), pc.CENSUS, p.word, p.rule, p.at,
-                p.edits[0] if p.where == "toolchain" else ()) for p in PLANTS]
+                p.edits[0] if p.where == "toolchain" else (), split=pc.SplitPlan() if p.split else None)
+            for p in PLANTS]
+    out.append(Arm("positive control, the tracked sources in both placements", src, pc.CENSUS, None, None,
+                   split=pc.SplitPlan()))
+    out += [Arm(f"split census: {a.what}", src, pc.CENSUS, a.word, a.rule, rides=True, split=pc.SplitPlan(a.ports))
+            for a in split_arms(census_split.SPLIT_PORTS, census_split.Face)]
     key = ("pp_cd_srp_tk_decl_state_w", "crft_class_a_w")
     out.append(Arm("a field the contract lacks", src, {**pc.CENSUS, key: pc.Row("field", "TALKER_DECL.DECLARE", "")},
                    "which the publication block does not define", "unknown-field"))
@@ -129,7 +140,7 @@ def outcome(arm: Arm, known: set[str], nets: dict) -> list[str]:
     try:
         if arm.tool:
             return pinned(*arm.tool)
-        plan = pc.Plan(pick(arm.at), 1, nets, arm.ports, arm.excluded, arm.plant)
+        plan = pc.Plan(pick(arm.at), 1, nets, arm.ports, arm.excluded, arm.plant, arm.split)
         got, _ = pc.census(arm.src, arm.table, known, plan)
         return got
     except CensusError as exc:
@@ -214,11 +225,15 @@ def selftest(src: pc.Sources, known: set[str], jobs: int) -> int:
     among them, so they add no elaboration."""
     began, every = time.monotonic(), arms(src)
     every.sort(key=lambda a: -sum(w != "recipe" for w in a.at))       # stable: the larger shapes first
-    riders = [a for a in every if a.rides]
-    hosts = [a for a in every if not a.rides and a.src is src and a.at == ("recipe",) and not a.tool]
-    if riders and not hosts:
-        raise CensusError("no arm elaborates the tracked sources for the port arms to ride on")
-    load = {id(h): tuple(riders[k::len(hosts)]) for k, h in enumerate(hosts)}
+    load: dict[int, tuple[Arm, ...]] = {}
+    for both in (False, True):
+        # a split arm rides on an arm that elaborated the tracked sources in both placements
+        riders = [a for a in every if a.rides and (a.split is not None) == both]
+        hosts = [a for a in every if not a.rides and a.src is src and a.at == ("recipe",) and not a.tool
+                 and (a.split is not None) == both]
+        if riders and not hosts:
+            raise CensusError("no arm elaborates the tracked sources for the port arms to ride on")
+        load |= {id(h): tuple(riders[k::len(hosts)]) for k, h in enumerate(hosts)}
     jobs_list = [(a, known, load.get(id(a), ())) for a in every if not a.rides]
     # stable: the larger shapes first, then the hosts carrying port arms
     jobs_list.sort(key=lambda j: (-sum(w != "recipe" for w in j[0].at), -len(j[2])))

@@ -38,7 +38,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
 - **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's and REBOOT request's exclusions, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
-- **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports, the crossing into the mailbox's clock, and the proofs that the all-fabric build is unchanged.
+- **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports and the census that sees each consumed, the crossing into the mailbox's clock, and the proofs that the all-fabric build is unchanged.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
@@ -847,7 +847,10 @@ the split datapath and reads every port.
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads
 ENTITY's `available_index` from the ADP owner (`ctrl_app_aecp.c`), as it
-answers GET_STREAM_INFO (the ruling).
+answers GET_STREAM_INFO (the ruling). The value is the one the most recently
+sent ENTITY_AVAILABLE carried, the ADPDU a controller compares it with (IEEE
+1722.1-2021 Table 7-2; #665 issuecomment-6717765106, item 1). ADP's own
+variable is one higher by then, as 6.2.2.15 increments it after each send.
 
 The list is not kept by hand. The first version copied one from a review
 comment, and it missed the started level and the Talker declarations (the
@@ -1006,9 +1009,10 @@ on the wire and map to the block, 14 are CSR status, and 16 are the answer
 face.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
-the shapes' and the tools' included, 31 in all, and the port census's 12
-([below](#every-port-one-class)), 43 in all; the census enforces each only
-where it tests that name.
+the shapes' and the tools' included, 31 in all. It adds the port census's 12
+([below](#every-port-one-class)) and the split census's 14
+([The split's control face](#the-splits-control-face)), 57 in all. The census
+enforces each only where it tests that name.
 
 The census's self-test
 ([`census_selftest.py`](../../sw/mailbox/census_selftest.py)) elaborates a
@@ -1162,9 +1166,10 @@ owner applies the restore (#637, comment 6009661573), so the datapath's map
 writer and restore, block `amr_fsm`, goes with the wrapper. A G cone
 therefore stops at the 25 `amr_*` nets `REMOVED_WITH_WRAPPER` names and at
 the locals sv2v makes inside that block. Each named net must be reached by a
-G cone of the shape, and each must be a net of the map writer. **Acceptance
-item of the placement switch:** its split elaboration drops the exclusion,
-and the census passes without it.
+G cone of the shape, and each must be a net of the map writer. The split
+elaboration needs no such exclusion: its census
+([The split's control face](#the-splits-control-face)) proves each of these
+nets a constant there.
 
 The ruling
 [6554243203](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6554243203)
@@ -1174,9 +1179,10 @@ wait, the PHY hold and the configuration reload. In the split the firmware's
 AECP owner takes REBOOT, and the split has no carrier for the request yet. So
 `reboot_req_o` is G, and its cone stops at the one cell input
 `REBOOT_TERMINAL` names, `reboot_ctrl.reboot_req_i`, and at no other input of
-that cell. A second consumer of the same net is still the wire. **Acceptance
-item of the placement switch:** it gives REBOOT its carrier, drops this
-exclusion, and the census passes without it.
+that cell. A second consumer of the same net is still the wire. The split
+carries no REBOOT request: ruling 6715535566 item 3 holds `reboot_req_i` at 0
+until S11 gives REBOOT its carrier. The split census proves the hold:
+`pp_reboot_req_w` is a constant there, so it needs no exclusion either.
 
 The census's 12 new rules (`port-*`, `g-*` in
 [`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
@@ -1403,6 +1409,88 @@ The map writer goes because the firmware's AECP owner holds the maps
 (#665). Its registers rest at reset, but the restore's
 hold, which is 0.
 
+### The split's control face
+
+[`census_split.py`](../../sw/mailbox/census_split.py) is the publication
+census's second population (ruling 6715535566 item 2). `--check` elaborates
+each of the six shapes again with `CTRL_SPLIT_P = 1`. Its population is every
+`i_ctl_*` and `o_ctl_*` port of that datapath, 80 in every shape:
+
+| Class | Ports | Carrier |
+|---|---:|---|
+| C | 12 | a publication field |
+| F | 16 | a face setting or status |
+| R | 34 | a window's request or answer |
+| E | 6 | a face event |
+| M | 12 | a `KL_mbx` port |
+
+Each row names the wrapper ports of [Every port, one class](#every-port-one-class)
+it stands for. The same shape's all-fabric netlist is the reference: its
+`pp_shadow` cell names the nets each wrapper port drove or read. The split
+netlist must reach those nets from the rows that stand for them.
+
+- **The placement.** No `KL_pp_shadow`, `KL_maap` or `KL_pp_maap_shim`, one
+  `KL_ctrl_split`, and each of the map writer's excluded nets a constant.
+- **The table.** Every ctl port in one class, as wide as its carrier. Every
+  publication field, face field and face event is a row's carrier, or ruled
+  in `NOT_PORTS`: `F_CTRL.READY`, the commit handshake, and each window's
+  own `BUSY`, `TIMEOUT` and `TAG`.
+- **The nets.** A wrapper output's net is driven by exactly the rows
+  standing for it, bit for bit where one row alone drives it. A ctl output
+  is driven by the net its wrapper input read.
+- **The ties.** Each G output's net and each class-D value the block does
+  not carry is a constant. The one ruled exception is the host window's
+  acknowledgement, which follows its request.
+- **The frames.** `KL_ctrl_split` carries the wrapper's frame ports and
+  frame counters net for net.
+- **The reads.** Each field read of the class-D census holds in the split
+  and reaches the wire.
+- **Consumed.** Every bit of an input row, for the shape's own sources and
+  sinks, reaches a cone end. No bit of a later entry is read.
+
+Four rows are read in neither placement. Their wrapper outputs drive nets no
+datapath block reads, and the census proves that in the all-fabric netlist
+too (`UNREAD_BOTH`):
+
+- `F_ENTITY.CUR_CONFIG` (`i_ctl_cur_config`);
+- `F_ENTITY.IDENTIFY` (`i_ctl_identify`);
+- `F_AECP.DYN_DIRTY` (`i_ctl_dyn_dirty`);
+- `EDIT_VALUE` (`i_ctl_edit_value`).
+
+So the split loses no consumer. They stay on the datapath face as
+firmware-written state (#665 issuecomment-6716584453, item 2): dropping one is
+a contract change, which waits for the flip (S13). The plan's "every contract
+2.3 field consumed" therefore reads "consumed, or proven unread in both
+placements". The census keeps proving `UNREAD_BOTH` for each, and each has
+its ledger row:
+
+| Field | Port | Ledger row: why no datapath block reads it |
+|---|---|---|
+| `F_ENTITY.CUR_CONFIG` | `i_ctl_cur_config` | The entity has one configuration, and no datapath block selects by it; the firmware's AECP owner answers for it. |
+| `F_ENTITY.IDENTIFY` | `i_ctl_identify` | The IDENTIFY indication drives no datapath logic in either placement; it is graded at the bench (S12). |
+| `F_AECP.DYN_DIRTY` | `i_ctl_dyn_dirty` | The saved state's dirty mark is the firmware store's; no datapath block reads it in either placement. |
+| `EDIT_VALUE` | `i_ctl_edit_value` | The map editor's answer does not depend on it in either placement. |
+
+Its 14 rules are the `split-*` entries of
+[`census_rules.py`](../../sw/mailbox/census_rules.py).
+Each has an arm in [`census_plants.py`](../../sw/mailbox/census_plants.py),
+23 in all. Seventeen plant a copy of the datapath, elaborated in both
+placements.
+
+- The processor, the MAAP engine and the map writer left in the split.
+- A class-D consumer on a G tie-off, and one that reads the port around its
+  net.
+- A stream_id without `SID_VALID`, twice: its net, and `SID_VALID` unread.
+- Half a field dropped, and a setting from another setting's port.
+- Two bits of a packed setting swapped, and an answer from another window.
+- A face notification never raised.
+- The REBOOT request driven, and a value the block does not carry driven.
+- The frame block on another net, a later entry read, and a port no row
+  names.
+
+Six edit the table and ride on a positive control of the tracked sources in
+both placements.
+
 ### The crossing
 
 `KL_mbx_cdc` crosses everything but the frames between the mailbox's clock
@@ -1440,15 +1528,43 @@ stale answer carries the older tag, which `KL_mbx` discards.
   Twelve plants are each refused by their own words. That `KL_mbx` holds the
   bus until the acknowledgement is its own behaviour, which the split leg's
   `[FACE]` checks hold.
+- The publication census's second population,
+  [The split's control face](#the-splits-control-face), sees every
+  publication and contract 2.3 field consumed in each shape's split
+  elaboration, or proven unread in both placements.
+- The `milan_dp` two-placement simulation (`make twin`) runs one stimulus on
+  the all-fabric datapath and on the split one, with the split image's own
+  firmware platform on the RTL mailbox, and compares what each MAC sent,
+  protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106,
+  issuecomment-6722002738, issuecomment-6724570965). Two controllers drive it,
+  and it reaches every row of the F5 ledger. MSRP is compared by the
+  declarations at each half's LeaveAll boundaries. Each half's MSRP and MVRP
+  attributes are graded as Table 10-3 Applicant traces. An owed-difference
+  list, apart from the ledger, holds what the SRP adapter round owes and the
+  fabric's #857, #858 and #860. Its twenty plants (`make twin-plants`) are
+  each refused by their words. At this head it finds nothing beyond its ledger
+  and owed rows, as the
+  [`milan_dp` README](../../tb/verilator/milan_dp/README.md) states.
+- The twin's ledger has no rows for the AECP owner's Observed difference
+  rows 5 and 6. At the processor pin `a9e84b66`, the fabric sends the
+  GET_STREAM_INFO notice for a STREAM_INPUT's changed started state, and
+  release notices with the UNLOCK flag, as the split does. The ledger records
+  only real differences, so the twin holds both equal (#665
+  issuecomment-6722002738, item 1). The AECP owner's page is S11's.
 
-The split leg runs in the suite's default `make`. The other four checks are
-local: no hosted job runs them yet, as workflow edits wait on #784.
+The split leg runs in the suite's default `make`. `make split` runs its binary
+only once it has linked, and `split_parallel.py` runs `make -j8 split` from a
+clean tree, with the race's old rule planted in its self-test (#665
+issuecomment-6724570965, item 3). `rtl-fast`'s `split-cdc` job runs
+`make split-cdc` (ruling 6715535566 item 6), and its `publication-census` job
+runs the split census. The identity, the population, the split leg's planted
+defects, its parallel gate and the two-placement simulation are local.
 
 ## Verification
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 139 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 163 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, the [split census's](#the-splits-control-face) 23, a positive and a negative control and a positive control in both placements; each of its 57 rules (31 of the class-D census, 12 of the port census, 14 of the split census) removed in turn, each letting its arms through. In each shape's split elaboration, each of the datapath's 80 ctl ports in one class (C 12, F 16, R 34, E 6, M 12), every publication and contract 2.3 field consumed but the four read in neither placement |
 | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 525 at one interface and 532 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 570 at one interface, 577 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
@@ -1726,10 +1842,11 @@ report_timing_summary -delay_type max
 
 ## Open items
 
-- **The two-placement comparison.** The placement switch connects the
-  datapath, but no simulation yet runs the split firmware on it beside the
-  all-fabric processor and compares their frames
-  ([The placement switch](#the-placement-switch)).
+- **The two-placement comparison.** `make twin` runs the split firmware on
+  the switched datapath beside the all-fabric processor and compares their
+  frames ([The placement switch](#the-placement-switch)). What its owed rows
+  wait on is in the
+  [`milan_dp` README](../../tb/verilator/milan_dp/README.md).
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter
   the SRP channel's transmit ring as header plus MRPDU. Target integration
@@ -1747,16 +1864,20 @@ report_timing_summary -delay_type max
   ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
   the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.
-- **The face block's datapath side** (contract 2.3) is connected by the
-  placement switch. No census yet follows its ports and the publication
-  block's through the split elaboration, as the class-D census follows the
-  wrapper's.
+- **Four face fields no datapath block reads.** `F_ENTITY.CUR_CONFIG`,
+  `F_ENTITY.IDENTIFY`, `F_AECP.DYN_DIRTY` and `EDIT_VALUE` cross into the
+  split datapath, which reads none of them; the all-fabric datapath reads
+  their wrapper nets nowhere either
+  ([The split's control face](#the-splits-control-face)). They stay on the
+  face as firmware-written state until the flip (issuecomment-6716584453,
+  item 2), each with its ledger row.
 - **The AECP REBOOT request** (#787) has no carrier in the split: the
   firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
   request its carrier, a face-block level being the expected end state, decided
   in that lane; until then the split ties `reboot_req_i` to
   0. Its split elaboration must then pass the port census without the REBOOT
-  exclusion ([Every port, one class](#every-port-one-class)).
+  exclusion ([Every port, one class](#every-port-one-class)). The split
+  census proves the hold.
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
   the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the

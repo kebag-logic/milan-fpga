@@ -94,6 +94,12 @@ class Tb {
         d_->rx_tvalid = 0;
         d_->tx_tready = 1;
         d_->link_up = 1;
+        // the CSR window stays idle here: no request, every response taken
+        d_->s_axi_awvalid = 0;
+        d_->s_axi_wvalid = 0;
+        d_->s_axi_arvalid = 0;
+        d_->s_axi_bready = 1;
+        d_->s_axi_rready = 1;
         d_->tap_tvalid = 0;
         d_->tap_ready = 1;
         sys(20);
