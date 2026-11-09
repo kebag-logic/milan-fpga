@@ -58,7 +58,8 @@ Its mailbox is the contract laid out from the shape's streams on each interface 
 Every group runs there; the saved-state store's groups, which `nvm_split_target` runs, are each reported by name as owed to #823 (`OWED` lines, `results.json`'s `owed`, the table's last line) and none is graded.
 Every bounded wait of its scripts is four times as long (`shape_point.wait_scale`: the point's streams over the 8x8 shape's 18, rounded up; 1 at `1x1` and `8x8`, whose scripts are unchanged).
 A wait bounds how long a step waits for its event and grades nothing; with the 8x8 waits a GET_TX_STATE answered 54.5 ms after its command at `32x32`, after the next probe's frame had gone in, and the probe was refused unmeasured.
-So is the owed row's settle before its composed window, which the defined load needs to begin with an empty event ring: at `32x32` the pass that queues the held responses lasts 65 ms and no pass is idle, so with the 8x8 shape's 50 ms four ticks were still in the ring at the window's first instant, two of the fifteen grandmaster changes did not fit, and the row was refused.
+So is the owed row's settle before its composed window, which the defined load needs to begin with an empty event ring: at `32x32` the pass that queues the held responses lasts 65 ms, so with the 8x8 shape's 50 ms four ticks were still in the ring at the window's first instant, two of the fifteen grandmaster changes did not fit, and the row was refused.
+No two consecutive passes are idle at `32x32` (each 10 ms tick's pass writes the mailbox), so each `wait quiet 3` of its scripts ends at its bound, a `TIMEOUT` step, as a bounded wait may; the settle is a fixed wait for that reason.
 [`selftest_shape.py`](selftest_shape.py) holds the self-test's checks of this point: its owed save groups, its layout's addresses and its scaled waits.
 
 **The commit acknowledgement is at the contract's bound.**
