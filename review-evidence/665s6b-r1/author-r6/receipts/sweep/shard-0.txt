@@ -1,0 +1,24 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: bash scripts/run_all_suites.sh <logs> --wait --shard 0/4 (own clone, unit MemoryMax 10G, MAKEFLAGS -j4, pinned Verilator 5.050)
+full log: 494 bytes, sha256 5bd494fab052ee3c6980782352c2525bd0b961ae726d63c6e9376563ddd54bb7
+---
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+PASS     milan_dp
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 360992   in-suite failures: 0
+logs: <scratch>/sweep/shard-0/logs

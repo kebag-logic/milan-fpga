@@ -1,0 +1,141 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: ci_replay.py local worker 2's log: rtl__union-capture_coherence's first attempt (clone assertion; the tick driver had started the same instance at the same second), then the others
+full log: 6541 bytes, sha256 a5b7da8c36693a9ca5cdcb7dd2863a1a09acaa732c69592a4df58ef43b8b4d64
+---
+23:28:57 local: docs__docs-gates-0
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/docs__docs-gates-0/bin/python3 -m pip install --upgrade pip
+docs__docs-gates-0: success
+23:52:23 local: docs__docs-gates-0 rc 0
+23:52:23 local: elaborate__ci-fail-fast
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/elaborate__ci-fail-fast/bin/python3 -m pip install --upgrade pip
+elaborate__ci-fail-fast: success
+23:52:27 local: elaborate__ci-fail-fast rc 0
+23:52:27 local: rtl-fast__changes
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl-fast__changes/bin/python3 -m pip install --upgrade pip
+rtl-fast__changes: success
+23:53:00 local: rtl-fast__changes rc 0
+23:53:01 local: rtl-fast__verilator-lint
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl-fast__verilator-lint/bin/python3 -m pip install --upgrade pip
+rtl-fast__verilator-lint: success
+23:53:41 local: rtl-fast__verilator-lint rc 0
+23:53:41 local: docs__docs-check
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/docs__docs-check/bin/python3 -m pip install --upgrade pip
+docs__docs-check: success
+23:53:49 local: docs__docs-check rc 0
+23:53:49 local: docs__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/docs__ci-manifest/bin/python3 -m pip install --upgrade pip
+docs__ci-manifest: success
+23:53:58 local: docs__ci-manifest rc 0
+23:53:58 local: docs__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/docs__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+docs__ci-cancel-tail: success
+23:54:03 local: docs__ci-cancel-tail rc 0
+23:54:04 local: rtl-fast__yosys-tool
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl-fast__yosys-tool/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-tool: success
+23:54:09 local: rtl-fast__yosys-tool rc 0
+23:54:09 local: rtl-fast__yosys-elaboration
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl-fast__yosys-elaboration/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-elaboration: success
+00:12:43 local: rtl-fast__yosys-elaboration rc 0
+00:12:44 local: rtl-fast__firmware-verilator
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl-fast__firmware-verilator/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-verilator: success
+00:25:43 local: rtl-fast__firmware-verilator rc 0
+00:25:43 local: rtl__verilator-shards__6
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__verilator-shards__6/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__6: success
+00:39:00 local: rtl__verilator-shards__6 rc 0
+00:39:00 local: rtl__verilator-shards__14
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__verilator-shards__14/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__14: success
+01:04:50 local: rtl__verilator-shards__14 rc 0
+01:04:51 local: rtl__yosys-shards__2
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__yosys-shards__2/bin/python3 -m pip install --upgrade pip
+rtl__yosys-shards__2: success
+01:06:50 local: rtl__yosys-shards__2 rc 0
+01:06:50 local: rtl__union-milan_dp
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__union-milan_dp/bin/python3 -m pip install --upgrade pip
+rtl__union-milan_dp: success
+01:06:56 local: rtl__union-milan_dp rc 0
+01:06:57 local: rtl__union-capture_coherence
+Traceback (most recent call last):
+  File "<home>/milan-fpga-management/2026-09-23/665s6b-a746f/tools/ci_replay.py", line 759, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<home>/milan-fpga-management/2026-09-23/665s6b-a746f/tools/ci_replay.py", line 738, in main
+    return run_job(head, sys.argv[3], sys.argv[4], int(sys.argv[5]) if len(sys.argv) > 5 else 0)
+  File "<home>/milan-fpga-management/2026-09-23/665s6b-a746f/tools/ci_replay.py", line 447, in run_job
+    clone(head, wt, home)
+    ~~~~~^^^^^^^^^^^^^^^^
+  File "<home>/milan-fpga-management/2026-09-23/665s6b-a746f/tools/ci_replay.py", line 325, in clone
+    assert git("rev-parse", "HEAD", cwd=wt) == head and git("status", "--porcelain", cwd=wt) == ""
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+01:06:57 local: rtl__union-capture_coherence rc 1
+01:06:58 local: rtl__union-maap
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__union-maap/bin/python3 -m pip install --upgrade pip
+rtl__union-maap: success
+01:07:03 local: rtl__union-maap rc 0
+01:07:04 local: rtl__union-milan_dp_render
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__union-milan_dp_render/bin/python3 -m pip install --upgrade pip
+rtl__union-milan_dp_render: success
+01:07:11 local: rtl__union-milan_dp_render rc 0
+01:07:11 local: rtl__union-pp_shadow
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__union-pp_shadow/bin/python3 -m pip install --upgrade pip
+rtl__union-pp_shadow: success
+01:07:18 local: rtl__union-pp_shadow rc 0
+01:11:19 local: rtl__yosys-portability
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__yosys-portability/bin/python3 -m pip install --upgrade pip
+rtl__yosys-portability: success
+01:11:23 local: rtl__yosys-portability rc 0
+01:11:23 local: rtl__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__ci-manifest/bin/python3 -m pip install --upgrade pip
+rtl__ci-manifest: success
+01:11:29 local: rtl__ci-manifest rc 0
+01:11:29 local: rtl__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <tmp>/venvs/rtl__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+rtl__ci-cancel-tail: success
+01:11:33 local: rtl__ci-cancel-tail rc 0
+local: every instance has a result
+rc=0

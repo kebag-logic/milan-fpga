@@ -1,0 +1,15 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: python3 -B tools/probe_omission_mutants.py <clone>/tb/verilator/milan_dp <clone>/tb/verilator/milan_dp/obj_twin <scratch>/probe/omission
+full log: 1296 bytes, sha256 82f819a2f96c4a5ff368c99ba34e20ea9f189d9134ad6d10d1062ac7c1e6c5ea
+---
+head: ok
+  self: plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+  between: plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+txla-qa-bracketed: CAUGHT
+  self: plant leave-all-omission: ESCAPED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+  between: plant leave-all-omission: ESCAPED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+txla-aa-sends-nothing: CAUGHT
+  self: plant leave-all-omission: ESCAPED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+  between: plant leave-all-omission: ESCAPED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+PASS
+rc=0

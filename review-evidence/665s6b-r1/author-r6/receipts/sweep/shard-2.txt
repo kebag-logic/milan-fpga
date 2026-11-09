@@ -1,0 +1,26 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: bash scripts/run_all_suites.sh <logs> --wait --shard 2/4 (own clone, unit MemoryMax 10G, MAKEFLAGS -j4, pinned Verilator 5.050)
+full log: 595 bytes, sha256 63ce7b6d53db148f6067907f28dd92b08a121b9abf9d99d03d659ad5889231d0
+---
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     capture_coherence
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+PASS     maap
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 284228   in-suite failures: 0
+logs: <scratch>/sweep/shard-2/logs

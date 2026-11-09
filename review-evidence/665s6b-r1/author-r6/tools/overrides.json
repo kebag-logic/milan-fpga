@@ -1,0 +1,37 @@
+{
+ "*/*/ci_packages_*": {
+  "skip": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+ },
+ "name:Build Verilator from source on cache miss": {
+  "skip": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+ },
+ "name:Build Yosys from source on cache miss": {
+  "skip": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+ },
+ "name:Install the pinned Yosys and prove the version": {
+  "replace": "set -euo pipefail\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\nyosys -V | grep -F 86f2ddeb\n",
+  "reason": "the version proof runs as the step's; the host's Yosys is a package at the pinned commit with ABC linked in, so there is no yosys-abc binary or ABC_REV file to link and print"
+ },
+ "*/ci-manifest/ci_collect": {
+  "skip": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+ },
+ "*/ci-fail-fast/ci_observe": {
+  "skip": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+ },
+ "*/ci-fail-fast/ci_step_3": {
+  "skip": "cancels a hosted run and its sibling workflows through the GitHub API (GH_TOKEN); never run outside a hosted run"
+ },
+ "*/ci-cancel-tail/*": {
+  "skip": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+ },
+ "rtl/full-ci-gate/ci_step_4": {
+  "skip": "reads the repository's default branch through the GitHub API (gh api, GH_TOKEN); not authenticated here, and the step would read 'unreadable'"
+ },
+ "rtl-fast/firmware-boundary/ci_step_6": {
+  "replace": "set -euo pipefail\npython3 -c 'import yaml, migen, litex; print(\"pyyaml\", yaml.__version__); print(\"migen\", migen.__file__); print(\"litex\", litex.__file__)'\npacman -Q gtest\ng++ --version | head -n 1\n",
+  "reason": "the boundary gate's LiteX is the pinned tree in its own venv, the one the split image recipe uses; the step's pip install of sw/litex/litex_pins.txt would rewrite that venv, so this proves the venv carries pyyaml, migen and LiteX; GoogleTest from pacman (no apt)"
+ },
+ "*/ci-manifest/ci_upload": {
+  "skip": "uploads the manifest that ci_collect writes from a hosted run's artifacts; ci_collect does not run here (no hosted run)"
+ }
+}
