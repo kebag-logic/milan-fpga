@@ -1,0 +1,163 @@
+# HANDOFF: [A753d] #823 round 4 (sync and fix)
+
+Status: DONE. REVIEW READY posted 2026-11-09 19:4x as issuecomment-6748055403, at 30ca4b21 (not pushed).
+
+- Lane: $LANES/823-name-cap, branch 823-nvm-format
+- Start head: f3e902f2a9 (round 3, [A753c]); merge target origin/dev-soft-core 1d6bf555 (verified tip at 15:20)
+- origin https://github.com/kebag-logic/milan-fpga.git (verified)
+- Authority: #823 issuecomment-6742264763 ([A10] round 4 ruling) on R805-1 (PR #863 issuecomment-6742254074)
+  and R806-1 (issuecomment-6741711708).
+- Scratch: $VALIDATION_STORAGE/823-a753d
+- Identity: the prompt names this session [A753d] (round 4) and its output dir 823-a753d; two later lines
+  say "[A753c]" (round 3's identity, carried over from round 3's prompt). Posting as [A753d], since
+  [A753c] is the previous round's executor.
+
+## Progress
+- [x] TAKEN posted: issuecomment-6742338270 (text TAKEN.md), 15:3x CET
+- [~] (1) merge 1d6bf555 (merge commit 3bcf0cdd, tree a643419a = the reviewers' merge-tree; drift gate 5 findings as reported), drift gate on merged tree, anchors by token, 7 files checked
+- [ ] (2) step byte bound counts the layout 3 header, check fails on layout 2 figure
+- [ ] (3) journal_klj3 in FASTCONNECT section 5 (+ milan_soc.py map comment, flash diagram, QSPI_FLASHBOOT)
+- [ ] (4) legacy negative paths + slot B address pinned; multi-block erase on non-blank flash; plants
+- [ ] (5) VERSION wording via generator
+- [ ] (6) RS1-RS4
+- [ ] (7) MAPIN/MAPOUT width asserts with plants
+- [ ] gates on clean clone of merged head
+- [ ] REVIEW READY posted
+
+## Files both sides changed (a9d69c77..f3e902f2 and a9d69c77..1d6bf555)
+docs/design/SPLIT_CONTROL_MEMORY.md, scripts/ci_events.py, sw/builder/endstation_builder.py,
+sw/builder/test_builder.py, sw/firmware/ctrl/test/ctrl_configs.py, sw/firmware/ctrl/test/test_aecp.cpp,
+sw/litex/milan_soc.py. No submodule moved on either side.
+
+### Semantic check of the 7 (read on the merged tree 3bcf0cdd)
+- SPLIT_CONTROL_MEMORY.md: theirs rewords "F-INT PR 2" -> "the placement switch (#665)" (lines 4, 167); ours edits
+  the 8x8 table, section 5 stage figures and the KLJ3 table. Disjoint; RS3 (line 86 KLJ2 wording, 144 figures) open.
+- scripts/ci_events.py: theirs adds SPLIT_CDC_JOB (rtl-fast split-cdc) and its env; ours adds 4 commands to the
+  docs NVM record-space step list. Disjoint step lists.
+- endstation_builder.py: theirs adds control.placement (_load_control, CTRL_SPLIT_P, --ctrl-mailbox argv);
+  ours adds nvm_split_capacity/emit_nvm_split (written for every build, independent of the placement).
+  A split-placement build gets --ctrl-mailbox from the builder and reads its nvm_split.json from the same out dir.
+- test_builder.py: theirs adds gate 23m split cases and _prune_guard_re; ours adds gate 39. Gate 23m's spy stops
+  at Instance("milan_datapath"), before main()'s nvm_split.json read, so the split case needs no split output.
+- ctrl_configs.py: both add OUTSIDE/SUITES dict entries (theirs twin_compare/decode/fw; ours nvm_layout3 etc.).
+- test_aecp.cpp: theirs rewrites EntityReadSeesTheLastAdvertisedIndex; ours renames macros in two Nvm tests.
+- milan_soc.py: theirs is the S6a placement switch (CtrlMailbox, ctrl_split on MilanNIC, relative --ctrl-firmware);
+  ours adds journal_klj3, the split_constants import and the --ctrl-mailbox nvm block. _pp_windows is still set
+  under --ctrl-mailbox (milan_soc.py, `self._pp_windows = {`), so the block runs. Only the page's line anchors moved.
+- Beyond the 7: theirs adds tb/verilator/milan_dp twin (twin_fw.py compiles nvm_klj2.c, nvm_store.c, nvm_fmodel.c;
+  twin_split.cpp sets nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_B + NVM_SLOT_BYTES)). Reads are not windowed in the
+  model (fm_admit guards media changes only), so the legacy header reads at 0xEE_0000 are served. The twin is in no
+  workflow or sweep: run `make -C tb/verilator/milan_dp twin` and `twin-plants` on the clean clone as merge evidence.
+
+## Implementation (15:40-16:10, uncommitted until the plants grade)
+- (1) Anchors: tables.Anchor has no line; anchor_lines/anchor_findings require the token on exactly one line;
+  the page prints file + token (no line numbers); prose citations are "`token` in `path`" for each CITED anchor;
+  the gate refuses any `path:NNN` citation on the page and requires every CITED citation; self-test plants
+  anchor (gone), anchor-unique, line-number, citation, plus a control that prepends 300 lines to every cited file
+  (0 findings). Page gate 0 findings on the merged tree; self-test PASS (12 plants + control).
+- (2) nvm_store.c step bytes `(NVM_REC_HDR - 2u) + r.plen`; NVM_STEP_BOUND `+ (NVM_REC_HDR - 2u)`; service_bound
+  wants `2*max_plen + rec_hdr - 2` with rec_hdr from the fixture (reference REC_HDR3); plant step_bytes_layout2.
+  README: max(256, 2 x P + 8), 280 B at 1x1, 1,160 at 8x8.
+- (3) FASTCONNECT section 5 row + paragraph; QSPI_FLASHBOOT RESERVED paragraph; milan_soc.py slot comment;
+  flash_layout.{svg,drawio} regenerated by flash_layout.gen.py, png by rsvg-convert -w 1800 (the committed base
+  png does not reproduce byte for byte with this renderer: recorded as a limit).
+- (4) test_nvm_boot.cpp: legacy_other_format_not_recorded, own_refusal_kept_over_legacy,
+  klj2_journal_at_its_flash_map_address (rig word --load-at ADDR:NAME; fixture legacy_a/b, journal_a/b,
+  erase_block from FLASHBOOT_RESERVED / FLASH_ERASE_BLOCK via flash_map.literal). test_nvm_capacity.cpp:
+  capacity_commit_over_stale (A, B, A at capacity; erase addresses from nvm_fmodel erase_addr[16]; golden@3).
+  Plants: legacy_any_nonblank_header, ver_overrides_own_refusal, legacy_b_wrong_place (nvm_shape.h),
+  erase_first_block_every_time. 127 mutants.
+- (5) VERSION: page sections 5, 9, contents; T16 "done, split; the gateware VERSION not moved, as ruled (#823)".
+  Round labels on the page replaced by "done, split" / "with the append path" (the append path is round 5).
+- (6) RS1: nvm_layout3.h, test_builder.py gate 39 comment, nvm_format_32x32.py A3 comment, tables KEEP/LAYERS
+  comments; also "(#665 lane F1)" -> "(#665, the F1 store)" in nvm_klj2.c/.h and nvm_shape.h (lines in the delta).
+  RS2 by the token citations. RS3: SPLIT_CONTROL_MEMORY lines 86 and 144, page section 4 "container header,
+  KLJ3 in the split", nvm_store.c erase comment. RS4: PR-BODY.md.
+- (7) nvm_shape.h NVM_MAPI_WIDE/NVM_MAPO_WIDE asserts. The MAPIN one is skipped under NVM_DOCTORED_MAPIN, which only
+  the doctored DR3b binary's store compile defines (nvm_bench cflags), so that build still reaches the run-time
+  check and keeps its coverage. test_ctrl_nvm.py over_width (256 / 65,536, -Wno-overflow, words required) and
+  over_width_control (each assert removed: MAPIN compiles; MAPOUT refused by the slot assert, not in its words).
+  Note: an output count over 65,535 is already refused by the container-fits-slot assert; the width assert gives
+  it its own words.
+- Quick checks on the working tree: F1 suite at 1x1 rc 0 (112 tests; capacity 6, suite 98); py idiom rc 0 after
+  annotating `read`; cpp idiom, doc paths, docs_check, hygiene, gen_toc --check/--verify-anchors (venv),
+  em dash --base 1d6bf555, check_nvm_klj3, check_nvm_record_space, flash_map: rc 0.
+- Plant grading: unit milan-823-a753d-grade1 (CPUs 96-103), tools/grade_some.py, log $VALIDATION_STORAGE/823-a753d/grade1.log.
+- Gate tools copied to $VALIDATION_STORAGE/823-a753d/gates/tools (paths repointed); not_run.json + 5 split-cdc entries.
+
+## Committed (16:03), head 8c66ab1e33056cefb2abc044b52f8e27f50475b1
+- 3bcf0cdd merge of 1d6bf555 (tree a643419a); 57bb34fc page + drift gate; f3e64bbc store/tests; d24f386d flash maps;
+  8c66ab1e residue (gate 39 comment, SPLIT_CONTROL_MEMORY). git diff --check 1d6bf555 HEAD rc 0.
+- Plant grading before commit (working tree = the committed store): grade1 rc 0, 10 mutants + 2 width controls caught,
+  no unnamed check. Log $VALIDATION_STORAGE/823-a753d/grade1.log.
+
+## Gate runs on 8c66ab1e (from 16:04)
+- Sweep: native-shards.py label 823-a753d-sweep, units milan-823-a753d-sweep-shard0..3 on 96-99, 100-103, 16-19
+  (shard 2 = capture_coherence, 4 CPUs), 20-23 (only 16-23 and 96-103 were free: busy 112 of 128). Out
+  $VALIDATION_STORAGE/823-a753d/sweep; clones $LANES/823-a753d-sweep-shard*. MemAvailable 37.9 GB at launch.
+- Drivers: units milan-823-a753d-gates-a (112-115, lists tools/r4-a.txt: firmware jobs) and -b (116-119, r4-b.txt:
+  docs + small rtl-fast incl. split-cdc); root $VALIDATION_STORAGE/823-a753d/gates/final; logs drive-a/b.log.
+- Pending, no CPUs free at 16:06 (busy 128): driver C (r4-c.txt: elaborate + rtl yosys), extras
+  (ctrl_nvm self-test, twin + twin-plants), rtl-fast aggregate after the others.
+- venv: symlink to round 3's $VALIDATION_STORAGE/823-a753c/gates/venv; home copied from round 3's gates/home.
+- 16:06 SDK: the copied home failed `SDK provenance mismatch` (the SDK is relocated to its install path), first
+  drivers stopped (kept in gates/final-aborted-sdk), HOME pointed at round 3's $VALIDATION_STORAGE/823-a753c/gates/home
+  (its verified SDK), drivers relaunched 16:06:37; step ci_step_9 then rc 0 ("SDK cache hit: verified").
+- Extras on clean clones: drift_gate rc 0 (0 findings; self-test PASS), diff_check (git diff --check 1d6bf555 HEAD)
+  rc 0. Logs $VALIDATION_STORAGE/823-a753d/gates/run/logs/extra.*.
+- Waiter unit milan-823-a753d-waiter (tools/waiter.sh, log waiter.log) books a range per pending job:
+  gates-c on 104-111 (16:17), ctrlnvm (test_ctrl_nvm.py --require-rv32 --self-test --jobs 8) on 24-31 (16:23),
+  then twin (make -j8 twin && twin-plants).
+- firmware-unit done, failed 0 (coverage ratchet PASS, 35 files).
+- Drafts: PR-BODY.md (STATUS/TWIN placeholders), REVIEW-READY.md (VALIDATION/ACCEPTANCE/OPEN placeholders).
+- Receipts: placeholders.tsv at $VALIDATION_STORAGE/823-a753d; assemble with gates/tools/collect.py + make_index.py.
+- 17:1x extra ctrl_nvm_selftest rc 0: "OK across 5 shape(s), 506 tests, and all 130 planted defects reddened"
+  (127 mutants + name, mapin and mapout controls); tree clean after.
+- Known nit (not fixed, head not moved for it): test_ctrl_nvm.py over_width_control's docstring says the 65,536-entry
+  output build is refused "by the slot's size alone"; with the assert removed the compiler reports the slot assert AND
+  -Werror=type-limits at nvm_klj2.c:206 (probe tools/mapout_probe.py, log probes/mapout_assert_removed.log). The
+  control's verdict (not in the width assert's words) is unaffected. Fold into any later fix commit.
+
+## First run on 8c66ab1e: one real failure, so the head moved (17:10)
+- elaborate-gates-1 gate_19 (LiteX aggregate) rc 1: test_ctrl_memory FAIL "SPLIT_CONTROL_MEMORY.md section 3 lists
+  the 17 rules of ctrl_memory.RULES in order": the RS3 page fix ("its KLJ3 container") disagreed with the rule text in
+  sw/litex/ctrl_memory.py RULES["stage size"], which still said KLJ2. The page table is read against that text.
+- Everything else that finished on 8c66ab1e was rc 0: firmware-unit (coverage PASS), firmware-boundary,
+  firmware-verilator, docs wire/no-git/gates-0 (NVM record-space gate incl. drift gate, writer gate)/gates-1/gates-2,
+  elaborate-gates-0, elaborate, rtl full-ci-gate, rtl yosys-tool; extras ctrl_nvm self-test (506 tests, 130 plants),
+  twin (0 findings) + twin-plants, drift gate, diff check. The sweep was stopped at ~1 h (no FAIL so far).
+  All of it is kept in $VALIDATION_STORAGE/823-a753d/first-run-8c66ab1e (superseded evidence).
+- Fix commit 30ca4b216e6f7dd386e1d0a0015b0b23b4e08c14: ctrl_memory.py rule text KLJ3; test_ctrl_nvm.py docstring
+  states both refusals the output-width control meets (the known nit above). test_ctrl_memory.py (LiteX venv) rc 0
+  on the working tree before the commit (log $VALIDATION_STORAGE/823-a753d/test_ctrl_memory_fix.log).
+- All units of 8c66ab1e stopped 17:12; the freed CPUs were taken by other lanes at once (busy 128).
+
+## Final runs on 30ca4b21 (from 17:15)
+- Drivers A (112-115) and B (116-119) relaunched; root gates/final (fresh), logs drive-a/b.log.
+- Waiter milan-823-a753d-waiter (tools/waiter2.py, waiter.log): books the sweep (4 shards on two free 8-CPU ranges,
+  4 CPUs each), then driver C, ctrlnvm, twin, each as a range frees.
+- Extras done: drift_gate rc 0 (0 findings, self-test PASS), diff_check rc 0; trees clean after.
+- 17:2x-17:51 no range freed for two waits of the old waiter (another lane's dispatcher takes each range at once);
+  waiter3.py polls every 5 s and books each free range with a holder unit (sleep under taskset) until two are held.
+  17:51 sweep (native-shards.py label 823-a753d-sweep, out $VALIDATION_STORAGE/823-a753d/sweep) on 40-43, 44-47,
+  104-107 (shard 2, capture_coherence), 108-111; holders stopped after the four units ran. Driver C on 96-103 (17:51).
+  ctrlnvm and twin wait for the next ranges.
+- Final-head results so far (30ca4b21):
+  - drivers A (28 steps), B (89), C (34) and the rtl-fast aggregate's local step: all rc 0. verify_wf.py: 152 steps
+    ran, 198 not run with a reason, 0 bad. LiteX simulations 8/8 PASS (test_ctrl_memory included).
+  - extras: ctrl_nvm self-test rc 0 (506 tests, 130 planted defects); twin rc 0 (0 findings, 40 plant refusals);
+    drift gate rc 0; diff check rc 0; trees clean after.
+  - sweep: shard 3 16/16 PASS (21,575 checks); shard 2's capture_coherence PASS within its 2400 s on 4 CPUs.
+
+## Final (19:25-19:4x)
+- Sweep on 30ca4b21: 4 shards exit 0; 65/65 suites PASS, 0 timeouts, 2,192,899 checks; every preflight PASS
+  (suite cancellation included; no #833 symptom).
+- Builder bank unions (scripts/ci_builder_legs.py union over the legs' receipts): docs and elaborate, 107 gates
+  exactly once each, rc 0 (gates/final/union).
+- Receipts assembled: receipts/ (assemble.sh with $VALIDATION_STORAGE/823-a753d/placeholders.tsv; host prefixes replaced;
+  files over 200 KB in LARGE.tsv, extra.twin.log among them, with extra/twin-excerpt.txt); SUMMARY.md; INDEX.md
+  regenerated from the files present (558 files). No host path or account name in receipts (grep).
+- PR-BODY.md final (first line [A753d], "Relates to #823", no host paths, no tool names, no footer).
+- REVIEW-READY.md = the posted text. Remote dev-soft-core still 1d6bf555 at posting; remote branch still f3e902f2.
+- No push, PR creation/edit, merge, rebase, force or amend. Lane tree clean at 30ca4b21.
+- Units of this round: none left running (checked after posting).
