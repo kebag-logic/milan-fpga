@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """nvm_bench.py - build and run the saved-state store's GoogleTest suite for one shape.
 
-One `Bench` per shipped shape: the builder's shape and identity, the Python
-encoder's frames for that shape (scripts/nvm_klj2.py, the reference) and the
-shape's system clock as LiteX's generated/soc.h carries it. nvm_fixture.py
-writes the suite's oracle from it. `build_suite` compiles the store against
-the generated constants header (the SAME derivation sw/litex/milan_soc.py
-publishes for the shipping writer) into a GoogleTest binary, and `run_suite`
-runs it over a fixture.
+One `Bench` per shipped shape: the builder's shape, its split output and its
+identity, the Python encoder's frames for that shape (scripts/nvm_klj3.py,
+the reference: KLJ3 and layout 3, the split placement's format of #823) and
+the shape's system clock as LiteX's generated/soc.h carries it.
+nvm_fixture.py writes the suite's oracle from it. `build_suite` compiles the
+store against the generated constants header (the SAME derivation
+sw/litex/milan_soc.py publishes for the split firmware, from the builder's
+nvm_split.json) into a GoogleTest binary, and `run_suite` runs it over a
+fixture.
 """
 
 from __future__ import annotations
@@ -33,12 +35,11 @@ sys.path.insert(0, str(HARNESS))
 
 import fw_gtest                                                         # noqa: E402
 
-from nvm_contract import REC_HDR, Donor, Ident, Shape                  # noqa: E402
-from nvm_klj2 import (erased_record, frame_record, klj2_assemble,      # noqa: E402
-                      klj2_decode, payload_bytes)
-from nvm_shape import (binding_base, build, firmware_constants,        # noqa: E402
-                       inventory, layout_version)
-from check_nvm_record_space import expected_payloads                   # noqa: E402
+from nvm_contract import Ident, Shape                                  # noqa: E402
+from nvm_klj2 import payload_bytes                                     # noqa: E402
+from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, expected3,     # noqa: E402
+                      frame_record3, inventory3, klj3_assemble, klj3_decode, split_constants)
+from nvm_shape import WRITER_TIMING_MS, build                          # noqa: E402
 from flash_map import literal                                          # noqa: E402
 
 #: The store as it ships and its two flash ports: the firmware, measured.
@@ -62,6 +63,8 @@ class Binary:
     defines: tuple[str, ...] = ()
     vector: bool = False
     address_sanitizer: bool = False
+    #: built at the layout 3 NAME capacity and graded over its own fixture
+    capacity: bool = False
 
 
 RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
@@ -73,16 +76,24 @@ VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
 #: The shipping 1x1 shape only: two doctored builds (a map the codec's byte
 #: table cannot hold, which only the -Woverflow it then raises is let pass;
 #: no name record) and the LiteSPI port alone on its mocked command master.
-UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_MAPIN_ENTRIES_0", 0x100),),
+#: The layout 3 NAME capacity, read from its declaration (nvm_layout3.h).
+NAME_CAPACITY = LAYOUT.block("NAME").cap
+UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM3_MAPIN_ENTRIES_0", 0x100),),
                 cflags=("-Wno-overflow",), defines=("-DNVM_DOCTORED_MAPIN",)),
-         Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_N_NAME", 0),),
+         Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM3_N_NAME", 0),),
                 defines=("-DNVM_DOCTORED_NONAME",)),
+         Binary("capacity", (*RIG, "test_nvm_capacity.cpp"), edit=(("MILAN_NVM3_N_NAME", NAME_CAPACITY),),
+                capacity=True),
          Binary("litespi", ("mock_litespi_csr.cpp", "test_nvm_litespi.cpp"), store=("plat/nvm_flash_litespi.c",),
                 models=("host/nvm_fmodel.c",)),
          Binary("prefix", ("test_nvm_prefix.cpp",), store=("nvm_klj2.c",), models=(), address_sanitizer=True))
-#: The journal, read out of the SoC source the way every other consumer reads it.
-JOURNAL = literal("FLASHBOOT_RESERVED")["journal"]
+#: The store's journal and today's (the all-fabric placement's KLJ2, which
+#: the store reads and never writes), read out of the SoC source the way every
+#: other consumer reads them.
+JOURNAL = literal("FLASHBOOT_RESERVED")["journal_klj3"]
+LEGACY = literal("FLASHBOOT_RESERVED")["journal"]
 SLOT = JOURNAL["size"] // 2
+LEGACY_SLOT = LEGACY["size"] // 2
 #: The identity the recorded vectors are made with
 #: (scripts/check_nvm_record_space.py render_record_table).
 VECTOR_IDENT = Ident(seq=7, entity_id=0x0011223344556677, model_id=0x8899AABBCCDDEEFF)
@@ -102,7 +113,6 @@ class Bench:
 
     cfg: Path
     shape: Shape
-    donor: Donor
     ident: Ident
     frames: dict[int, bytes]
     expect: dict
@@ -117,32 +127,37 @@ class Bench:
     def assemble(self, frames: dict[int, bytes], seq: int, ident: Ident | None = None) -> bytes:
         """The Python encoder's container for `frames` at sequence `seq`."""
         who = ident or self.ident
-        return klj2_assemble(frames, self.donor, Ident(seq=seq, entity_id=who.entity_id,
-                                                       model_id=who.model_id))[0]
+        return klj3_assemble(frames, Ident(seq=seq, entity_id=who.entity_id, model_id=who.model_id))[0]
 
     def offsets(self) -> dict[int, int]:
         """record_id -> offset of its frame inside the record area."""
-        return klj2_assemble(self.frames, self.donor, self.ident)[1]
+        return klj3_assemble(self.frames, self.ident)[1]
 
     def decode(self, blob: bytes) -> tuple[int, dict]:
-        """What `klj2_decode` says about `blob` for this shape."""
-        return klj2_decode(blob, self.donor, self.ident, self.expect)
+        """What `klj3_decode` says about `blob` for this shape."""
+        return klj3_decode(blob, self.ident, self.expect)
 
     def erased_frames(self) -> dict[int, bytes]:
         """Every record of the shape erased."""
-        return {rid: erased_record(len(fr) - REC_HDR) for rid, fr in self.frames.items()}
+        return {rid: erased_record3(len(fr) - REC_HDR3) for rid, fr in self.frames.items()}
 
 
-def shape_header(shape: Shape, donor: Donor, ident: Ident) -> str:
-    """nvm_shape_gen.h for the host: what generated/soc.h carries on the target,
-    from the same derivation, plus the identity and the journal."""
-    values = dict(firmware_constants(shape, donor))
-    values.update(MILAN_ENTITY_ID_LO=ident.entity_id & 0xFFFF_FFFF,
-                  MILAN_ENTITY_ID_HI=ident.entity_id >> 32,
-                  MILAN_MODEL_ID_LO=ident.model_id & 0xFFFF_FFFF,
-                  MILAN_MODEL_ID_HI=ident.model_id >> 32,
-                  MILAN_FLASH_JOURNAL_OFFSET=JOURNAL["offset"],
-                  MILAN_FLASH_JOURNAL_SIZE=JOURNAL["size"])
+def shape_header(inputs: ShapeInputs, ident: Ident | None = None) -> str:
+    """nvm_shape_gen.h for the host: what generated/soc.h carries on the split
+    target, from the same derivation (the builder's nvm_split.json through
+    scripts/nvm_klj3.py), plus the writer's waits, the identity and both
+    journals."""
+    who = ident or inputs.ident
+    values = dict(WRITER_TIMING_MS)
+    values.update(split_constants(inputs.space, inputs.shape))
+    values.update(MILAN_ENTITY_ID_LO=who.entity_id & 0xFFFF_FFFF,
+                  MILAN_ENTITY_ID_HI=who.entity_id >> 32,
+                  MILAN_MODEL_ID_LO=who.model_id & 0xFFFF_FFFF,
+                  MILAN_MODEL_ID_HI=who.model_id >> 32,
+                  MILAN_FLASH_JOURNAL_OFFSET=LEGACY["offset"],
+                  MILAN_FLASH_JOURNAL_SIZE=LEGACY["size"],
+                  MILAN_FLASH_JOURNAL_KLJ3_OFFSET=JOURNAL["offset"],
+                  MILAN_FLASH_JOURNAL_KLJ3_SIZE=JOURNAL["size"])
     lines = ["/* generated by sw/firmware/ctrl_nvm/test/nvm_bench.py */",
              "#ifndef NVM_SHAPE_GEN_H", "#define NVM_SHAPE_GEN_H"]
     lines += [f"#define {name} 0x{value:x}u" for name, value in values.items()]
@@ -188,7 +203,7 @@ def build_suite(inputs: ShapeInputs, work: Path, b: fw_gtest.Build, binary: Bina
     headers."""
     b = replace(b, address_sanitizer=binary.address_sanitizer)
     gen = work / "gen"
-    header = shape_header(inputs.shape, inputs.donor, VECTOR_IDENT if binary.vector else inputs.ident)
+    header = shape_header(inputs, VECTOR_IDENT if binary.vector else None)
     write_headers(gen, doctor(header, binary.edit), inputs.clock_hz)
     flags = (*(CFLAGS if tree == TREE else tuple(x for x in CFLAGS if x != "-Werror")), *binary.cflags)
     inc = includes(tree, gen)
@@ -221,7 +236,8 @@ class ShapeInputs:
 
     cfg: Path
     shape: Shape
-    donor: Donor
+    #: the builder's split output for the config (nvm_split.json)
+    space: dict
     ident: Ident
     clock_hz: int
 
@@ -245,18 +261,20 @@ def shape_inputs(cfg: Path, work: Path) -> ShapeInputs:
     """Run the builder for `cfg` and read its shape, identity and clock back."""
     names, dc, spi, spo = build(cfg, work / "builder")
     overlay = json.loads((work / "builder" / cfg.stem / "aem_overlay.json").read_text())
+    space = json.loads((work / "builder" / cfg.stem / "nvm_split.json").read_text())
     ident = Ident(seq=0, entity_id=int(overlay["adp"]["entity_id"], 16),
                   model_id=int(overlay["entity"]["entity_model_id"], 16))
     return ShapeInputs(cfg=cfg, shape=Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo),
-                       donor=Donor(base=binding_base(), layout=layout_version()), ident=ident,
-                       clock_hz=sys_clock(cfg, work / "builder"))
+                       space=space, ident=ident, clock_hz=sys_clock(cfg, work / "builder"))
 
 
-def make_bench(inputs: ShapeInputs, ident: Ident | None = None) -> Bench:
+def make_bench(inputs: ShapeInputs, ident: Ident | None = None, names: int | None = None) -> Bench:
     """The reference side of one shape (under `ident`, the shape's own identity
-    unless given): its golden records framed by nvm_klj2.py."""
+    unless given, and with `names` writable names when given): its golden
+    records framed by nvm_klj3.py."""
     who = ident or inputs.ident
-    frames = {r: frame_record(r, payload_bytes(g, i, r, p), inputs.donor.layout)
-              for g, i, r, p, _b in inventory(inputs.shape, inputs.donor.base) if r is not None}
-    return Bench(cfg=inputs.cfg, shape=inputs.shape, donor=inputs.donor, ident=who, frames=frames,
-                 expect=expected_payloads(inputs.shape), clock_hz=inputs.clock_hz)
+    shape = inputs.shape if names is None else replace(inputs.shape, names=names)
+    frames = {r: frame_record3(r, payload_bytes(g, i, r, p))
+              for g, i, r, p, _b in inventory3(shape) if r is not None}
+    return Bench(cfg=inputs.cfg, shape=shape, ident=who, frames=frames, expect=expected3(shape),
+                 clock_hz=inputs.clock_hz)

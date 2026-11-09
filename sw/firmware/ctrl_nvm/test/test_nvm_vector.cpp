@@ -7,10 +7,13 @@
 // that vector's identity (scripts/check_nvm_record_space.py
 // render_record_table), so its own binary.
 //
-// The store, given the vector's records, commits the container the backend
-// suite grades the RTL against: its length, CRC-32 and every record's offset
-// (the table, which the fixture carries), byte for byte as nvm_klj2.py
-// assembles it, and boots it back to the same values.
+// The store, given the vector's records, commits them byte for byte as
+// nvm_klj3.py assembles them, and boots them back to the same values. The
+// recorded vector is the all-fabric RTL's KLJ2 container, and this store
+// writes the split placement's KLJ3 (#823), so the record set is the
+// vector's: the same records, each under its layout 3 id, with the same
+// payload lengths and count (the fixture's table), at the reference's
+// offsets and CRC-32.
 
 #include <gtest/gtest.h>
 
@@ -48,11 +51,11 @@ std::vector<std::vector<long long>> walk(const Bytes& blob) {
         return rows;
     }
     const std::uint32_t nrec = nvm_rd32le(blob.data() + 12);
-    std::size_t pos = NVM_KLJ2_HDR;
+    std::size_t pos = NVM_KLJ_HDR;
     for (std::uint32_t k = 0; k < nrec && pos + NVM_REC_HDR <= blob.size(); ++k) {
-        const long long plen_be = (static_cast<long long>(blob[pos + 4]) << 8) | blob[pos + 5];
-        rows[0].push_back(blob[pos + 3]);
-        rows[1].push_back(static_cast<long long>(pos - NVM_KLJ2_HDR));
+        const long long plen_be = (static_cast<long long>(blob[pos + 6]) << 8) | blob[pos + 7];
+        rows[0].push_back((static_cast<long long>(blob[pos + 4]) << 8) | blob[pos + 5]);
+        rows[1].push_back(static_cast<long long>(pos - NVM_KLJ_HDR));
         rows[2].push_back(NVM_REC_HDR + plen_be);
         rows[3].push_back(plen_be);
         pos += NVM_REC_HDR + static_cast<std::size_t>(plen_be);
@@ -67,7 +70,7 @@ TEST_P(NvmBoth, vector_round_trip) {
     const Bytes& slot = f.blobs["v7.bin"];
     const Bytes got(slot.begin(), slot.begin() + static_cast<std::ptrdiff_t>(std::min(want.size(), slot.size())));
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 7 && r.at("auth") == 1) << "vector commit: " << r.text();
-    EXPECT_TRUE(got == want) << "the vector container differs from nvm_klj2.py's";
+    EXPECT_TRUE(got == want) << "the vector container differs from nvm_klj3.py's";
     const std::vector<long long>& rows_rid = fx().list("vector_rows_rid");
     EXPECT_TRUE(static_cast<long long>(got.size()) == fx().num("vector_imglen") &&
                 fx().num("vector_nrec") == static_cast<long long>(rows_rid.size()) && got.size() >= 4u &&

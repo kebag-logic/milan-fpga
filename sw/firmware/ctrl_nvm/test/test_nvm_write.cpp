@@ -149,6 +149,31 @@ TEST_P(NvmBoth, debounce) {
         << r.text();
 }
 
+// #823 decision 6: the open bits carry their count. Two changes to one record
+// and one to another open two records; the capture moves both into flight,
+// and the verified commit closes them, each count following its bits.
+TEST_P(NvmBoth, open_count) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const unsigned a = rids().front();
+    const unsigned b = rids().back();
+    const std::vector<std::string> marks = {"--slot-b", "g.bin", "--boot", "--set", set_word(a, value(a, 1)),
+                                            "--set", set_word(a, value(a, 2)), "--set", set_word(b, value(b, 3))};
+    Result r = go(port(), f, marks);
+    EXPECT_TRUE(r.at("n_dirty") == 2 && r.at("n_inflight") == 0 && r.at("dirty") == 1 && r.at("pending") == 0)
+        << "two records changed, one twice: " << r.text();
+    std::vector<std::string> words = marks;
+    words.insert(words.end(), {"--until-phase", num(NVM_P_SEAL)});
+    r = go(port(), f, words);
+    EXPECT_TRUE(r.at("n_dirty") == 0 && r.at("n_inflight") == 2 && r.at("dirty") == 0 && r.at("pending") == 1)
+        << "both captured: " << r.text();
+    words = marks;
+    words.insert(words.end(), {"--until-idle"});
+    r = go(port(), f, words);
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("n_dirty") == 0 && r.at("n_inflight") == 0 && r.at("dirty") == 0 &&
+                r.at("pending") == 0)
+        << "committed: " << r.text();
+}
+
 // DR2b: a change that leaves every persisted value as the verified slot holds
 // it erases nothing.
 TEST_P(NvmBoth, unchanged_no_erase) {
@@ -680,11 +705,12 @@ TEST_P(NvmBoth, powercut) {
     }
 }
 
-// The LiteSPI port refuses to program or erase outside the journal.
+// The LiteSPI port refuses to program or erase outside the journal, today's
+// KLJ2 journal above it included.
 TEST_F(NvmLitespi, port_guard) {
     Files f;
     const Result r = go(port(), f, {"--port-guard"});
-    EXPECT_EQ(r.guard, 0) << "the port took " << r.guard << " of 4 writes outside the journal";
+    EXPECT_EQ(r.guard, 0) << "the port took " << r.guard << " of 6 writes outside the journal";
 }
 
 }  // namespace

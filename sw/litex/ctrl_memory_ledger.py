@@ -19,7 +19,7 @@ from typing import NamedTuple
 
 import ctrl_memory
 
-STAGE_1X1, STAGE_8X8 = 3344, 13264
+STAGE_1X1, STAGE_8X8 = 3454, 13594
 FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.

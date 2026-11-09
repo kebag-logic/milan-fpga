@@ -23,6 +23,9 @@ struct fm_state {
 	uint32_t lo;
 	uint32_t hi;
 	uint32_t prot;
+	uint32_t prot_len;
+	uint32_t slot_a;            /* the two slots a read-alias swaps */
+	uint32_t slot_span;
 	uint32_t noise;
 	enum nvm_fault fault;
 	unsigned int fault_count;
@@ -62,9 +65,26 @@ void nvm_fmodel_window(uint32_t lo, uint32_t hi)
 	fm.hi = hi;
 }
 
-void nvm_fmodel_protect(uint32_t lo)
+void nvm_fmodel_protect(uint32_t lo, uint32_t len)
 {
 	fm.prot = lo;
+	fm.prot_len = len;
+}
+
+void nvm_fmodel_slots(uint32_t a, uint32_t span)
+{
+	fm.slot_a = a;
+	fm.slot_span = span;
+}
+
+/* The address a read-alias answers from: the same place in the other slot. */
+static uint32_t fm_other_slot(uint32_t addr)
+{
+	if (addr >= fm.slot_a && addr - fm.slot_a < fm.slot_span)
+		return addr + fm.slot_span;
+	if (addr >= fm.slot_a + fm.slot_span && addr - fm.slot_a - fm.slot_span < fm.slot_span)
+		return addr - fm.slot_span;
+	return addr;
 }
 
 void nvm_fmodel_times(uint64_t erase_us, uint64_t program_us)
@@ -162,7 +182,7 @@ static int fm_admit(uint32_t lo, uint32_t len)
 		fm.n.outside++;
 		return 0;
 	}
-	if (fm.prot && lo < fm.prot + NVM_FMODEL_BLOCK && lo + len > fm.prot) {
+	if (fm.prot && lo < fm.prot + fm.prot_len && lo + len > fm.prot) {
 		fm.n.protected_hit++;
 		return 0;
 	}
@@ -194,8 +214,8 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 		return -1;
 	if (addr <= fm.fault_at && fm.fault_at - addr < len && fm_take(NVM_F_READ_FAIL_AT))
 		return -1;
-	if ((addr ^ NVM_FMODEL_BLOCK) <= NVM_FMODEL_BYTES - len && fm_take(NVM_F_READ_ALIAS))
-		addr ^= NVM_FMODEL_BLOCK;
+	if (fm_other_slot(addr) <= NVM_FMODEL_BYTES - len && fm_take(NVM_F_READ_ALIAS))
+		addr = fm_other_slot(addr);
 	memcpy(dst, nvm_fmodel_mem + addr, len);
 	if (len && fm_take(NVM_F_READ_FLIP))
 		dst[len / 2u] ^= 0x10u;

@@ -211,12 +211,12 @@ def phases(obs: Observed, cpu_hz: int) -> dict[str, dict]:
     return out
 
 
-def expected_applies(applied: dict, expect: dict, base: int) -> list[str]:
+def expected_applies(applied: dict, expect: dict) -> list[str]:
     """The owners' apply entries a boot of this container makes, in order: the bindings, then the D3
-    records in ascending id with the settle step before the first name, or last when there is none."""
+    records in ascending layout 3 id with the settle step before the first name, or last when there is none."""
     sys.path.insert(0, str(ROOT / 'scripts'))
-    from nvm_klj2 import rid_of_key
-    keys = sorted(applied, key=lambda k: rid_of_key(k, base))
+    from nvm_klj3 import rid_of_key3
+    keys = sorted(applied, key=rid_of_key3)
     out = [GROUP_CALL[k[0]] for k in keys if k[0] == 'BINDING']
     settled = False
     for key in keys:

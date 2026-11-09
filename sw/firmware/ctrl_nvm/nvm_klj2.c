@@ -1,60 +1,71 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_klj2.c - the KLJ2 container and F07.8 record codec (#665 lane F1).
+ * nvm_klj2.c - the container and F07.8 record codec (#665 lane F1), in the
+ * split placement's format: KLJ3 and layout 3 (#823 decisions 1 and 2).
  *
  * Ported from the saved-state writer in
  * sw/firmware/milan_baremetal/milan_baremetal.c (nvm_validate, nvm_frame,
  * nvm_rec_after, nvm_write_header, nvm_seal), with one change of substance:
  * a framed record whose payload_length runs past the record area is refused
- * VD_LEN, as scripts/nvm_klj2.py klj2_decode refuses it, where the shipping
- * writer reports VD_REC. Everything else answers rule for rule as both do.
+ * VD_LEN, as scripts/nvm_klj3.py klj3_decode refuses it, where the shipping
+ * writer reports VD_REC. The framing is layout 3 (nvm_layout3.h): a ten-byte
+ * header with a 16-bit record_id. The container is KLJ3; a KLJ2 header is
+ * the previous format, refused VD_VER and never read further. Everything
+ * else answers rule for rule as the shipping writer and the reference do.
+ * The compile-time refusals of a shape over its blocks are in nvm_shape.h.
  */
 #include "nvm_klj2.h"
 
-/* Every group stays inside its section 4.2 id block, and the blocks keep the
- * ascending order the walk below relies on. */
-_Static_assert(MILAN_NVM_N_AUDIO_UNIT >= 1u && MILAN_NVM_N_AUDIO_UNIT <= 8u, "RATE block");
-_Static_assert(MILAN_NVM_N_CLK_DOM >= 1u && MILAN_NVM_N_CLK_DOM <= 8u, "CLKSRC and MCR blocks");
-_Static_assert(MILAN_NVM_BIND_BASE >= NVM_ID_MCR + 8u &&
-	       MILAN_NVM_BIND_BASE + MILAN_NVM_N_STREAM_IN <= NVM_ID_FMTI, "BINDING block");
-_Static_assert(MILAN_NVM_N_STREAM_IN <= 16u && MILAN_NVM_N_STREAM_OUT <= 16u, "stream blocks");
-_Static_assert(MILAN_NVM_N_SPORT_IN <= 16u && MILAN_NVM_N_SPORT_OUT <= 16u, "map blocks");
-
 struct nvm_block {
-	uint8_t base;
-	uint8_t count;
+	uint16_t base;
+	uint16_t count;
 	uint16_t plen;    /* 0 for the two map groups: per port */
 };
 
-static const uint8_t nvm_mapin_entries[16] = {
-	MILAN_NVM_MAPIN_ENTRIES_0, MILAN_NVM_MAPIN_ENTRIES_1, MILAN_NVM_MAPIN_ENTRIES_2,
-	MILAN_NVM_MAPIN_ENTRIES_3, MILAN_NVM_MAPIN_ENTRIES_4, MILAN_NVM_MAPIN_ENTRIES_5,
-	MILAN_NVM_MAPIN_ENTRIES_6, MILAN_NVM_MAPIN_ENTRIES_7, MILAN_NVM_MAPIN_ENTRIES_8,
-	MILAN_NVM_MAPIN_ENTRIES_9, MILAN_NVM_MAPIN_ENTRIES_10, MILAN_NVM_MAPIN_ENTRIES_11,
-	MILAN_NVM_MAPIN_ENTRIES_12, MILAN_NVM_MAPIN_ENTRIES_13, MILAN_NVM_MAPIN_ENTRIES_14,
-	MILAN_NVM_MAPIN_ENTRIES_15,
+/* An input port's entries are its clusters, at most one per channel of its
+ * stream, so a byte holds them; an output port reserves every stream-channel
+ * key (#501), 264 at the bound shape, so its table is 16 bits wide. The walk
+ * reads these tables and the sizes read the constants, so a count a table
+ * cannot hold makes the two disagree and turns persistence off (DR3b). */
+static const uint8_t nvm_mapin_entries[NVM_MAP_PORTS] = {
+	MILAN_NVM3_MAPIN_ENTRIES_0, MILAN_NVM3_MAPIN_ENTRIES_1, MILAN_NVM3_MAPIN_ENTRIES_2,
+	MILAN_NVM3_MAPIN_ENTRIES_3, MILAN_NVM3_MAPIN_ENTRIES_4, MILAN_NVM3_MAPIN_ENTRIES_5,
+	MILAN_NVM3_MAPIN_ENTRIES_6, MILAN_NVM3_MAPIN_ENTRIES_7, MILAN_NVM3_MAPIN_ENTRIES_8,
+	MILAN_NVM3_MAPIN_ENTRIES_9, MILAN_NVM3_MAPIN_ENTRIES_10, MILAN_NVM3_MAPIN_ENTRIES_11,
+	MILAN_NVM3_MAPIN_ENTRIES_12, MILAN_NVM3_MAPIN_ENTRIES_13, MILAN_NVM3_MAPIN_ENTRIES_14,
+	MILAN_NVM3_MAPIN_ENTRIES_15, MILAN_NVM3_MAPIN_ENTRIES_16, MILAN_NVM3_MAPIN_ENTRIES_17,
+	MILAN_NVM3_MAPIN_ENTRIES_18, MILAN_NVM3_MAPIN_ENTRIES_19, MILAN_NVM3_MAPIN_ENTRIES_20,
+	MILAN_NVM3_MAPIN_ENTRIES_21, MILAN_NVM3_MAPIN_ENTRIES_22, MILAN_NVM3_MAPIN_ENTRIES_23,
+	MILAN_NVM3_MAPIN_ENTRIES_24, MILAN_NVM3_MAPIN_ENTRIES_25, MILAN_NVM3_MAPIN_ENTRIES_26,
+	MILAN_NVM3_MAPIN_ENTRIES_27, MILAN_NVM3_MAPIN_ENTRIES_28, MILAN_NVM3_MAPIN_ENTRIES_29,
+	MILAN_NVM3_MAPIN_ENTRIES_30, MILAN_NVM3_MAPIN_ENTRIES_31,
 };
-static const uint8_t nvm_mapout_entries[16] = {
-	MILAN_NVM_MAPOUT_ENTRIES_0, MILAN_NVM_MAPOUT_ENTRIES_1, MILAN_NVM_MAPOUT_ENTRIES_2,
-	MILAN_NVM_MAPOUT_ENTRIES_3, MILAN_NVM_MAPOUT_ENTRIES_4, MILAN_NVM_MAPOUT_ENTRIES_5,
-	MILAN_NVM_MAPOUT_ENTRIES_6, MILAN_NVM_MAPOUT_ENTRIES_7, MILAN_NVM_MAPOUT_ENTRIES_8,
-	MILAN_NVM_MAPOUT_ENTRIES_9, MILAN_NVM_MAPOUT_ENTRIES_10, MILAN_NVM_MAPOUT_ENTRIES_11,
-	MILAN_NVM_MAPOUT_ENTRIES_12, MILAN_NVM_MAPOUT_ENTRIES_13, MILAN_NVM_MAPOUT_ENTRIES_14,
-	MILAN_NVM_MAPOUT_ENTRIES_15,
+static const uint16_t nvm_mapout_entries[NVM_MAP_PORTS] = {
+	MILAN_NVM3_MAPOUT_ENTRIES_0, MILAN_NVM3_MAPOUT_ENTRIES_1, MILAN_NVM3_MAPOUT_ENTRIES_2,
+	MILAN_NVM3_MAPOUT_ENTRIES_3, MILAN_NVM3_MAPOUT_ENTRIES_4, MILAN_NVM3_MAPOUT_ENTRIES_5,
+	MILAN_NVM3_MAPOUT_ENTRIES_6, MILAN_NVM3_MAPOUT_ENTRIES_7, MILAN_NVM3_MAPOUT_ENTRIES_8,
+	MILAN_NVM3_MAPOUT_ENTRIES_9, MILAN_NVM3_MAPOUT_ENTRIES_10, MILAN_NVM3_MAPOUT_ENTRIES_11,
+	MILAN_NVM3_MAPOUT_ENTRIES_12, MILAN_NVM3_MAPOUT_ENTRIES_13, MILAN_NVM3_MAPOUT_ENTRIES_14,
+	MILAN_NVM3_MAPOUT_ENTRIES_15, MILAN_NVM3_MAPOUT_ENTRIES_16, MILAN_NVM3_MAPOUT_ENTRIES_17,
+	MILAN_NVM3_MAPOUT_ENTRIES_18, MILAN_NVM3_MAPOUT_ENTRIES_19, MILAN_NVM3_MAPOUT_ENTRIES_20,
+	MILAN_NVM3_MAPOUT_ENTRIES_21, MILAN_NVM3_MAPOUT_ENTRIES_22, MILAN_NVM3_MAPOUT_ENTRIES_23,
+	MILAN_NVM3_MAPOUT_ENTRIES_24, MILAN_NVM3_MAPOUT_ENTRIES_25, MILAN_NVM3_MAPOUT_ENTRIES_26,
+	MILAN_NVM3_MAPOUT_ENTRIES_27, MILAN_NVM3_MAPOUT_ENTRIES_28, MILAN_NVM3_MAPOUT_ENTRIES_29,
+	MILAN_NVM3_MAPOUT_ENTRIES_30, MILAN_NVM3_MAPOUT_ENTRIES_31,
 };
 static const struct nvm_block nvm_blocks[NVM_G_COUNT] = {
 	{NVM_ID_CFG, 1u, NVM_PL_CFG},
 	{NVM_ID_SUID, 1u, NVM_PL_SUID},
-	{NVM_ID_RATE, MILAN_NVM_N_AUDIO_UNIT, NVM_PL_RATE},
-	{NVM_ID_CLKS, MILAN_NVM_N_CLK_DOM, NVM_PL_CLKS},
-	{NVM_ID_MCR, MILAN_NVM_N_CLK_DOM, NVM_PL_MCR},
-	{MILAN_NVM_BIND_BASE, MILAN_NVM_N_STREAM_IN, NVM_PL_BIND},
-	{NVM_ID_FMTI, MILAN_NVM_N_STREAM_IN, NVM_PL_FMT},
-	{NVM_ID_FMTO, MILAN_NVM_N_STREAM_OUT, NVM_PL_FMT},
-	{NVM_ID_PTOF, MILAN_NVM_N_STREAM_OUT, NVM_PL_PTOF},
-	{NVM_ID_MAPI, MILAN_NVM_N_SPORT_IN, 0u},
-	{NVM_ID_MAPO, MILAN_NVM_N_SPORT_OUT, 0u},
-	{NVM_ID_NAME, MILAN_NVM_N_NAME, NVM_NAME_BYTES},
+	{NVM_ID_RATE, MILAN_NVM3_N_AUDIO_UNIT, NVM_PL_RATE},
+	{NVM_ID_CLKS, MILAN_NVM3_N_CLK_DOM, NVM_PL_CLKS},
+	{NVM_ID_MCR, MILAN_NVM3_N_CLK_DOM, NVM_PL_MCR},
+	{NVM_ID_BIND, MILAN_NVM3_N_STREAM_IN, NVM_PL_BIND},
+	{NVM_ID_FMTI, MILAN_NVM3_N_STREAM_IN, NVM_PL_FMT},
+	{NVM_ID_FMTO, MILAN_NVM3_N_STREAM_OUT, NVM_PL_FMT},
+	{NVM_ID_PTOF, MILAN_NVM3_N_STREAM_OUT, NVM_PL_PTOF},
+	{NVM_ID_MAPI, MILAN_NVM3_N_SPORT_IN, 0u},
+	{NVM_ID_MAPO, MILAN_NVM3_N_SPORT_OUT, 0u},
+	{NVM_ID_NAME, MILAN_NVM3_N_NAME, NVM_NAME_BYTES},
 };
 
 /* CRC-32/ISO-HDLC (reflected 0xedb88320) and CCITT-FALSE (0x1021), one
@@ -121,9 +132,9 @@ int nvm_all_erased(const uint8_t *p, uint32_t len)
 static unsigned int nvm_block_plen(unsigned int g, unsigned int index)
 {
 	if (g == NVM_G_MAPI)
-		return NVM_MAP_ENTRY * nvm_mapin_entries[index & 15u];
+		return NVM_MAP_ENTRY * nvm_mapin_entries[index % NVM_MAP_PORTS];
 	if (g == NVM_G_MAPO)
-		return NVM_MAP_ENTRY * nvm_mapout_entries[index & 15u];
+		return NVM_MAP_ENTRY * nvm_mapout_entries[index % NVM_MAP_PORTS];
 	return nvm_blocks[g].plen;
 }
 
@@ -138,11 +149,11 @@ static struct nvm_rec nvm_rec_at(unsigned int g, unsigned int index, unsigned in
 	}
 	if (g >= NVM_G_COUNT)
 		return r;
-	r.off = (uint16_t)off;
+	r.off = off;
 	r.plen = (uint16_t)nvm_block_plen(g, index);
-	r.id = (uint8_t)(nvm_blocks[g].base + index);
+	r.id = (uint16_t)(nvm_blocks[g].base + index);
 	r.group = (uint8_t)g;
-	r.index = (uint8_t)index;
+	r.index = (uint16_t)index;
 	r.ok = 1u;
 	return r;
 }
@@ -209,20 +220,22 @@ void nvm_rec_frame(uint8_t *rec, struct nvm_rec r)
 
 	rec[0] = (uint8_t)(NVM_REC_MAGIC >> 8);
 	rec[1] = (uint8_t)NVM_REC_MAGIC;
-	rec[2] = (uint8_t)MILAN_NVM_REC_LAYOUT;
-	rec[3] = r.id;
-	rec[4] = (uint8_t)(r.plen >> 8);
-	rec[5] = (uint8_t)r.plen;
-	crc = nvm_crc16_update(0xffffu, rec, 6u);
+	rec[2] = (uint8_t)NVM3_LAYOUT;
+	rec[3] = 0u;
+	rec[4] = (uint8_t)(r.id >> 8);
+	rec[5] = (uint8_t)r.id;
+	rec[6] = (uint8_t)(r.plen >> 8);
+	rec[7] = (uint8_t)r.plen;
+	crc = nvm_crc16_update(0xffffu, rec, NVM_REC_HDR - 2u);
 	crc = nvm_crc16_update(crc, rec + NVM_REC_HDR, r.plen);
-	rec[6] = (uint8_t)(crc >> 8);
-	rec[7] = (uint8_t)crc;
+	rec[8] = (uint8_t)(crc >> 8);
+	rec[9] = (uint8_t)crc;
 }
 
 void nvm_klj2_header(uint8_t *img, uint32_t seq)
 {
-	nvm_wr32le(img + 0, NVM_KLJ2_MAGIC);
-	nvm_wr32le(img + 4, NVM_KLJ2_FMT_VER);
+	nvm_wr32le(img + 0, NVM_KLJ3_MAGIC);
+	nvm_wr32le(img + 4, NVM_KLJ3_FMT_VER);
 	nvm_wr32le(img + 8, seq);
 	nvm_wr32le(img + 12, NVM_N_REC);
 	nvm_wr32le(img + 16, NVM_IMG_LEN);
@@ -230,14 +243,14 @@ void nvm_klj2_header(uint8_t *img, uint32_t seq)
 	nvm_wr32le(img + 24, MILAN_ENTITY_ID_HI);
 	nvm_wr32le(img + 28, MILAN_MODEL_ID_LO);
 	nvm_wr32le(img + 32, MILAN_MODEL_ID_HI);
-	nvm_wr32le(img + 36, MILAN_NVM_REC_LAYOUT);
+	nvm_wr32le(img + 36, NVM3_LAYOUT);
 }
 
 void nvm_klj2_seal(uint8_t *img)
 {
-	uint32_t crc = nvm_crc32_update(0xffffffffu, img, NVM_IMG_LEN - NVM_KLJ2_TRAILER);
+	uint32_t crc = nvm_crc32_update(0xffffffffu, img, NVM_IMG_LEN - NVM_KLJ_TRAILER);
 
-	nvm_wr32le(img + NVM_IMG_LEN - NVM_KLJ2_TRAILER, ~crc);
+	nvm_wr32le(img + NVM_IMG_LEN - NVM_KLJ_TRAILER, ~crc);
 }
 
 void nvm_klj2_blank(uint8_t *img)
@@ -246,8 +259,8 @@ void nvm_klj2_blank(uint8_t *img)
 
 	for (i = 0; i < NVM_IMG_LEN; ++i)
 		img[i] = NVM_ERASED;
-	for (i = 0; i < NVM_PAD_LEN; ++i)
-		img[NVM_KLJ2_HDR + NVM_AREA_RAW + i] = 0u;
+	for (i = NVM_KLJ_HDR + NVM_AREA_RAW; i < NVM_KLJ_HDR + NVM_AREA_LEN; ++i)
+		img[i] = 0u;
 	nvm_klj2_header(img, 0u);
 	nvm_klj2_seal(img);
 }
@@ -264,14 +277,18 @@ enum nvm_verdict nvm_klj2_check_head(const uint8_t *hdr, uint32_t *img_len)
 
 	/* blankness is the header's: an erase clears the whole slot and a
 	 * program writes the header page first */
-	if (nvm_all_erased(hdr, NVM_KLJ2_HDR))
+	if (nvm_all_erased(hdr, NVM_KLJ_HDR))
 		return NVM_VD_BLANK;
-	if (nvm_rd32le(hdr) != NVM_KLJ2_MAGIC)
+	/* the previous format: refused for its version, never reinterpreted
+	 * (#823 decision 2) */
+	if (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)
+		return NVM_VD_VER;
+	if (nvm_rd32le(hdr) != NVM_KLJ3_MAGIC)
 		return NVM_VD_MAGIC;
-	if ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ2_FMT_VER >> 16))
+	if ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ3_FMT_VER >> 16))
 		return NVM_VD_VER;
 	len = nvm_rd32le(hdr + 16);
-	if (len < NVM_KLJ2_MIN || len > NVM_KLJ2_MAX)
+	if (len < NVM_KLJ_MIN || len > NVM_KLJ3_MAX)
 		return NVM_VD_LEN;
 	*img_len = len;
 	return NVM_VD_OK;
@@ -284,6 +301,7 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
 {
 	const uint8_t *p = img + pos;
 	struct nvm_rec r;
+	unsigned int id;
 	uint32_t plen;
 	uint16_t crc;
 
@@ -303,9 +321,9 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
 		*out = r;
 		return NVM_VD_OK;
 	}
-	if ((((uint32_t)p[0] << 8) | p[1]) != NVM_REC_MAGIC || p[2] != MILAN_NVM_REC_LAYOUT)
+	if ((((uint32_t)p[0] << 8) | p[1]) != NVM_REC_MAGIC || p[2] != NVM3_LAYOUT || p[3] != 0u)
 		return NVM_VD_REC;
-	plen = ((uint32_t)p[4] << 8) | p[5];
+	plen = ((uint32_t)p[6] << 8) | p[7];
 	if (pos + NVM_REC_HDR + plen > end)
 		return NVM_VD_LEN;
 	/* A payload past the loaded bytes cannot be a record of this shape: a
@@ -314,13 +332,14 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
 	 * either way, and it is refused without reading it. */
 	if (pos + NVM_REC_HDR + plen > loaded)
 		return NVM_VD_REC;
-	crc = nvm_crc16_update(0xffffu, p, 6u);
+	crc = nvm_crc16_update(0xffffu, p, NVM_REC_HDR - 2u);
 	crc = nvm_crc16_update(crc, p + NVM_REC_HDR, plen);
-	if (crc != ((((uint32_t)p[6]) << 8) | p[7]))
+	if (crc != ((((uint32_t)p[8]) << 8) | p[9]))
 		return NVM_VD_REC;
-	if ((int)p[3] <= last)
+	id = ((unsigned int)p[4] << 8) | p[5];
+	if ((int)id <= last)
 		return NVM_VD_REC;
-	r = nvm_rec_by_id(p[3]);
+	r = nvm_rec_by_id(id);
 	if (!r.ok || r.plen != plen)
 		return NVM_VD_REC;
 	*out = r;
@@ -329,9 +348,9 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
 
 enum nvm_verdict nvm_klj2_check_body(const uint8_t *img, uint32_t img_len, uint32_t loaded)
 {
-	uint32_t end = img_len - NVM_KLJ2_TRAILER;
+	uint32_t end = img_len - NVM_KLJ_TRAILER;
 	uint32_t nrec = nvm_rd32le(img + 12);
-	uint32_t pos = NVM_KLJ2_HDR;
+	uint32_t pos = NVM_KLJ_HDR;
 	uint32_t seen = 0;
 	uint32_t i;
 	int last = -1;
@@ -340,7 +359,7 @@ enum nvm_verdict nvm_klj2_check_body(const uint8_t *img, uint32_t img_len, uint3
 		return NVM_VD_ENT;
 	if (nvm_rd32le(img + 28) != MILAN_MODEL_ID_LO || nvm_rd32le(img + 32) != MILAN_MODEL_ID_HI)
 		return NVM_VD_SHAPE;
-	if (nvm_rd32le(img + 36) != MILAN_NVM_REC_LAYOUT)
+	if (nvm_rd32le(img + 36) != NVM3_LAYOUT)
 		return NVM_VD_REC;
 	for (i = 0; i < nrec; ++i) {
 		struct nvm_rec r;
@@ -359,7 +378,7 @@ enum nvm_verdict nvm_klj2_check_body(const uint8_t *img, uint32_t img_len, uint3
 		pos += NVM_REC_HDR + r.plen;
 		seen++;
 	}
-	if (pos + ((4u - ((pos - NVM_KLJ2_HDR) & 3u)) & 3u) != end)
+	if (pos + ((4u - ((pos - NVM_KLJ_HDR) & 3u)) & 3u) != end)
 		return NVM_VD_LEN;
 	if (seen != NVM_N_REC)
 		return NVM_VD_INCOMPLETE;
@@ -376,8 +395,8 @@ enum nvm_verdict nvm_klj2_check(const uint8_t *img, uint32_t room)
 		return vd;
 	if (img_len > room)
 		return NVM_VD_LEN;
-	crc = nvm_crc32_update(0xffffffffu, img, img_len - NVM_KLJ2_TRAILER);
-	if (~crc != nvm_rd32le(img + img_len - NVM_KLJ2_TRAILER))
+	crc = nvm_crc32_update(0xffffffffu, img, img_len - NVM_KLJ_TRAILER);
+	if (~crc != nvm_rd32le(img + img_len - NVM_KLJ_TRAILER))
 		return NVM_VD_CRC;
 	return nvm_klj2_check_body(img, img_len, img_len);
 }

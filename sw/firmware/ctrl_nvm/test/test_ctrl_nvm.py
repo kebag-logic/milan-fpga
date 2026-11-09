@@ -22,8 +22,14 @@ the time base under PHC steps, at the shape's clock and across the counter's
 wrap; a command master that stalls or slows every wait; and the service
 bound. test_nvm_vector.cpp is the round trip against the recorded vectors of
 tb/verilator/nvm_backend, under their identity. Every byte and every verdict
-is compared with the fixture nvm_fixture.py writes from scripts/nvm_klj2.py,
-the reference codec.
+is compared with the fixture nvm_fixture.py writes from scripts/nvm_klj3.py,
+the reference codec of the split placement's KLJ3 and layout 3 (#823).
+
+THE NAME CAPACITY (#823 scope item 4). At the shipping 1x1 shape the store is
+also built with its names raised to the layout 3 NAME block's capacity
+(test_nvm_capacity.cpp: the block's first, last and one-past id, and a commit
+at capacity), and one name past it must not compile: nvm_shape.h refuses it,
+and this gate requires the refusal and its words.
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -74,14 +80,20 @@ sys.path.insert(0, str(HERE))
 
 import nvm_mutants                                                      # noqa: E402
 import nvm_rv32                                                         # noqa: E402
-from nvm_bench import (ROOT, SUITE, TREE, UNITS, VECTOR, VECTOR_IDENT, Binary,  # noqa: E402
-                       Refusal, ShapeInputs, build_suite, make_bench, run_suite, shape_inputs)
-from nvm_fixture import table, write_fixture, write_vector_fixture     # noqa: E402
+from nvm_bench import (CFLAGS, NAME_CAPACITY, ROOT, SUITE, TREE, UNITS, VECTOR,  # noqa: E402
+                       VECTOR_IDENT, Binary, Refusal, ShapeInputs, build_suite, doctor, includes,
+                       make_bench, run_suite, shape_header, shape_inputs, write_headers)
+from nvm_fixture import (table, write_capacity_fixture, write_fixture,  # noqa: E402
+                         write_vector_fixture)
 
 import fw_gtest                                                         # noqa: E402
 import suite_tally                                                      # noqa: E402
 
 SELF_TEST_SHAPE = "endstation_ax7101_1x1_tdm8"
+#: What nvm_shape.h says when the names outgrow the layout 3 NAME block, and
+#: the assert that says it (the over-capacity control removes it).
+NAME_REFUSAL = "the names outgrow their id block"
+NAME_ASSERT = f'_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "{NAME_REFUSAL}");\n'
 
 
 @dataclass(frozen=True)
@@ -91,6 +103,7 @@ class Shape:
     inputs: ShapeInputs
     fixture: Path
     vector_fixture: Path | None
+    capacity_fixture: Path | None
 
     @property
     def stem(self) -> str:
@@ -105,7 +118,10 @@ def prepare(cfg: Path, work: Path) -> Shape:
     vector = None
     if table(cfg.stem) is not None:
         vector = write_vector_fixture(make_bench(inputs, VECTOR_IDENT), work / "vector-fixture")
-    return Shape(inputs, fixture, vector)
+    capacity = None
+    if cfg.stem == SELF_TEST_SHAPE:
+        capacity = write_capacity_fixture(make_bench(inputs, names=NAME_CAPACITY), work / "capacity-fixture")
+    return Shape(inputs, fixture, vector, capacity)
 
 
 def binaries(shape: Shape) -> tuple[Binary, ...]:
@@ -116,7 +132,26 @@ def binaries(shape: Shape) -> tuple[Binary, ...]:
 
 def fixture_of(shape: Shape, binary: Binary) -> Path:
     """The fixture a binary reads (the unit binaries ask it nothing)."""
+    if binary.capacity and shape.capacity_fixture:
+        return shape.capacity_fixture
     return shape.vector_fixture if binary.vector and shape.vector_fixture else shape.fixture
+
+
+def over_capacity(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """One name past the layout 3 NAME block must not compile: the codec built
+    against the shape header with its names at the capacity plus one is
+    refused by nvm_shape.h, in its words. '' findings when it is."""
+    gen = work / "over-capacity" / "gen"
+    header = doctor(shape_header(shape.inputs), (("MILAN_NVM3_N_NAME", NAME_CAPACITY + 1),))
+    write_headers(gen, header, shape.inputs.clock_hz)
+    try:
+        fw_gtest.compile_c(b, CFLAGS, includes(tree, gen), [tree / "nvm_klj2.c"], work / "over-capacity" / "obj")
+    except fw_gtest.BuildError as exc:
+        if NAME_REFUSAL in str(exc):
+            print(f"  over capacity: {NAME_CAPACITY + 1} names refused at compile time ({NAME_REFUSAL!r})")
+            return []
+        return [f"{NAME_CAPACITY + 1} names refused for another reason: {str(exc)[-300:]}"]
+    return [f"{NAME_CAPACITY + 1} names, one past the layout 3 NAME block, compiled"]
 
 
 def build(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> dict[str, Path]:
@@ -143,6 +178,8 @@ def run_shape(shape: Shape, work: Path, b: fw_gtest.Build, require_rv32: bool) -
         tests += suite_tally.scan(log)[0]
         if not ok:
             findings.append(f"{shape.stem}: {binary.name} failed")
+    if shape.stem == SELF_TEST_SHAPE and fw_gtest.EXECUTION.run:
+        findings += [f"{shape.stem}: {x}" for x in over_capacity(shape, work, b)]
     return findings + [f"{shape.stem}: {x}" for x in rv32_arm(shape.inputs, work, require_rv32)], tests
 
 
@@ -199,6 +236,20 @@ def plant_and_grade(m: nvm_mutants.Mutant, shape: Shape, held: dict[str, str], w
     return ""
 
 
+def over_capacity_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """The compile-time refusal's own control: with nvm_shape.h's NAME assert
+    removed, one name past the block compiles, and over_capacity says so."""
+    m = nvm_mutants.Mutant("name_assert_removed", (("nvm_shape.h", NAME_ASSERT, ""),), ())
+    tree = work / "tree"
+    nvm_mutants.plant(m, tree)
+    found = over_capacity(shape, work, b, tree)
+    shutil.rmtree(tree, ignore_errors=True)
+    if not any("compiled" in x for x in found):
+        return ["self-test: name_assert_removed was NOT caught: over_capacity found " + repr(found)]
+    print("  self-test OK: name_assert_removed        caught by over_capacity")
+    return []
+
+
 def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
     """Plant every defect; each test it names must fail, at the shipping 1x1
     shape unless the defect names another (one that shows only at a clock
@@ -221,6 +272,7 @@ def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
                                                       held[m.shape or SELF_TEST_SHAPE], work / "mutants", shared),
                             nvm_mutants.MUTANTS)
         found += [v for v in verdicts if v]
+    found += over_capacity_control(shapes[SELF_TEST_SHAPE], work / "over-capacity-control", shared)
     return found
 
 
@@ -288,7 +340,7 @@ def main() -> int:
         print(f"saved-state store gate (#665 F1): BUILT across {len(cfgs)} shape(s), nothing run (--build-only)")
         return 0
     print(f"saved-state store gate (#665 F1): OK across {len(cfgs)} shape(s), {tests} tests"
-          + (f", and all {len(nvm_mutants.MUTANTS)} planted defects reddened" if args.self_test else ""))
+          + (f", and all {len(nvm_mutants.MUTANTS) + 1} planted defects reddened" if args.self_test else ""))
     return 0
 
 

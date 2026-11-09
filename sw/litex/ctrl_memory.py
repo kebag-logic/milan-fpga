@@ -210,11 +210,11 @@ class Ledgered:
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56.
 LEDGERED: dict[str, Ledgered] = {
-    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
                                    57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 21_240)), 59.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_240)), 59.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image)"),
@@ -381,22 +381,18 @@ def rom_words(image: Image, rom: Region = ROM) -> list[int]:
     return list(struct.unpack(f"<{len(contents) // 4}I", contents))
 
 
-def stage_bytes(shape: object, donor: object) -> int:
+def stage_bytes(shape: object) -> int:
     """The F1 store's stage for `shape`: its container plus one record header.
 
-    The container is `scripts/nvm_klj2.py`'s own, over the shape's record
-    inventory, so this reads the derivation the store's host tests grade
-    against `nvm_shape.h` (NVM_STAGE_BYTES) rather than restating it.
+    The container is `scripts/nvm_klj3.py`'s own, the split placement's KLJ3
+    over the shape's layout 3 record inventory (#823), so this reads the
+    derivation the store's host tests grade against `nvm_shape.h`
+    (NVM_STAGE_BYTES) rather than restating it.
     """
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
-    from nvm_contract import REC_HDR, Ident
-    from nvm_klj2 import erased_record, klj2_assemble
-    from nvm_shape import inventory
-    frames = {rid: erased_record(plen)
-              for _, _, rid, plen, _ in inventory(shape, donor.base) if rid is not None}
-    container, _ = klj2_assemble(frames, donor, Ident(seq=0, entity_id=0, model_id=0))
-    return len(container) + REC_HDR
+    from nvm_klj3 import stage_bytes as klj3_stage
+    return klj3_stage(shape)
 
 
 def check_stage(image: Image, stage: int, shape: str) -> None:

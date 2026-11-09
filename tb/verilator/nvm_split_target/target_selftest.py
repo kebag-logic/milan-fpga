@@ -371,13 +371,10 @@ ORDER = ['acmp_restore_binding', 'acmp_restore_binding', 'aecp_value_restore', '
 
 def order_checks() -> list[Check]:
     """The apply order the container needs, and every departure from it caught."""
-    sys.path.insert(0, str(cases.ROOT / 'scripts'))
-    from nvm_klj2 import id_blocks
-    base = next(b for g, b, _ in id_blocks(0x20) if g == 'BINDING')
-    want = tg.expected_applies(RECORDS, {}, base)
+    want = tg.expected_applies(RECORDS, {})
     out = [('the bindings first, then the D3 records in ascending id, settle before the first name', want == ORDER,
             str(want)),
-           ('a container with no name settles last', tg.expected_applies({('FMT_IN', 0): b'f'}, {}, base) ==
+           ('a container with no name settles last', tg.expected_applies({('FMT_IN', 0): b'f'}, {}) ==
             ['aecp_value_restore', 'aecp_restore_settle'], '')]
     plants = {'the settle after the names': [*ORDER[:6], *ORDER[7:], ORDER[6]],
               'a binding after the D3 walk': [*ORDER[1:], ORDER[0]],
@@ -423,13 +420,13 @@ def journal_checks() -> list[Check]:
     torn newer slot refused beside it, the wrong major version refused."""
     sys.path.insert(0, str(cases.ROOT / 'scripts'))
     from nvm_contract import VD_OK, VD_VER
-    from nvm_klj2 import frame_record, rid_of_key
+    from nvm_klj3 import SLOT, frame_record3, rid_of_key3
     with tempfile.TemporaryDirectory() as tmp:
         bench, records, length = cases.shape_bench('endstation_ax7101_1x1_tdm8', Path(tmp))
     pages = -(-length // cases.PAGE)
-    rid = rid_of_key(('NAME', 0), bench.donor.base)
-    container = bench.assemble({**bench.frames, rid: frame_record(rid, cases.SAVED_NAME, bench.donor.layout)}, 1)
-    slot = 0x1_0000
+    rid = rid_of_key3(('NAME', 0))
+    container = bench.assemble({**bench.frames, rid: frame_record3(rid, cases.SAVED_NAME)}, 1)
+    slot = SLOT
     journals = cases.journals(container.ljust(2 * slot, b'\xff'), bench, slot)
     verdicts = {name: [bench.decode(j[s:s + slot][:struct.unpack_from('<I', j, s + 16)[0]])[0]
                        if j[s:s + 4] != b'\xff' * 4 else 'blank' for s in (0, slot)] for name, j in journals.items()}
@@ -648,7 +645,7 @@ MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
     ('capture: the current writer\'s 24.5 ms bound imposed on F1', tg, 'capture', _bound_reimposed,
      'a capture of twice 24.5 ms of CPU time, every step within T_svc, is no finding'),
     ('order: settle last whatever the names', tg, 'expected_applies',
-     lambda applied, expect, base: [*[c for c in ORDER if c != 'aecp_restore_settle'], 'aecp_restore_settle'],
+     lambda applied, expect: [*[c for c in ORDER if c != 'aecp_restore_settle'], 'aecp_restore_settle'],
      'the bindings first, then the D3 records in ascending id, settle before the first name'),
     ('order: only the first entry compared', tg, 'apply_order',
      lambda obs, want: ([], [] if not want else ['apply order'] if

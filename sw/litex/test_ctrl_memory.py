@@ -107,9 +107,9 @@ RAM = ctrl_memory.RAM.origin
 LARGEST_NEED = 112_208
 #: The words of the power-of-two window the SoC decodes for a 224 KiB region (adr[29:16] in the export).
 WINDOW = (1 << (ctrl_memory.BUDGET_BYTES - 1).bit_length()) // 4
-#: The shipping 1x1 shape, which stages 3,344 bytes; the 8x8 shape stages 13,264.
+#: The shipping 1x1 shape, which stages 3,454 bytes; the 8x8 shape stages 13,594 (KLJ3, #823).
 SOC_CONFIG = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
-STAGE_1X1, STAGE_8X8 = 3344, 13264
+STAGE_1X1, STAGE_8X8 = 3454, 13594
 PAIRING = "--ctrl-mailbox and --ctrl-firmware go together"
 MODULES = {"ctrl_memory": ctrl_memory, "milan_soc": milan_soc}
 

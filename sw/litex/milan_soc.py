@@ -91,6 +91,7 @@ import board_audio_routing
 # the firmware host test use, so the three cannot read the overlay apart.
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 from nvm_shape import binding_base, firmware_constants, layout_version
+from nvm_klj3 import split_constants
 from nvm_contract import Donor as NvmDonor, Shape as NvmShape
 
 # The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
@@ -171,6 +172,11 @@ FLASHBOOT_RESERVED = {
     # Keep these stable across product revisions: moving them intentionally
     # starts with empty persistence and requires an explicit migration plan.
     "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+    # The split placement's KLJ3 journal (#823 decisions 2 and 3): two slots of
+    # five erase blocks, directly below the KLJ2 journal above, which the
+    # all-fabric writer keeps and the split store reads but never writes, so a
+    # rollback to an all-fabric image still finds its saved state.
+    "journal_klj3": {"offset": 0xE4_0000, "size": 0x0A_0000},   # 640 KiB, raw A/B
     "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB raw records
 }
 
@@ -4664,9 +4670,20 @@ def main() -> None:
         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
             soc.add_constant(_name, _value)
         if args.ctrl_mailbox:
+            # #823: the split firmware's store keeps the split placement's
+            # format, KLJ3 over layout 3, in journal_klj3. Its record counts
+            # are the builder's split output for this config (nvm_split.json,
+            # refused there above the layout 3 blocks), published with every
+            # port's map entries; the store's codec bounds the same counts by
+            # the same declaration at compile time.
+            with open(_builder_out(args.entity_gen_dir, "nvm_split.json"),
+                      encoding="utf-8") as fh:
+                _nvm_split = json.load(fh)
+            for _name, _value in split_constants(_nvm_split, _nvm_shape).items():
+                soc.add_constant(_name, _value)
             # #640 M8a: the split firmware stages this shape's container.
             ctrl_memory.check_stage(soc.ctrl_image,
-                                    ctrl_memory.stage_bytes(_nvm_shape, _nvm_donor),
+                                    ctrl_memory.stage_bytes(_nvm_shape),
                                     Path(args.entity_gen_dir).name)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     if args.build:
