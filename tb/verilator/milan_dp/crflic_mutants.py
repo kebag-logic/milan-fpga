@@ -10,10 +10,11 @@ and the AAF gate require ACTIVE AND the real grant on every cycle. Before #530
 all three consumers read the processor's raw admission verdict, which rises
 at DECLARE_TALKER. So the real milan_datapath is mutated back, one consumer
 at a time, and the SAME leg is rebuilt through the Makefile's own recipe
-(`make crflic-build` with DP_SRC and CRFLIC_MDIR overridden) and run. Each
-mutant must make the leg FAIL by its OWN verdict (a `[FAIL]` line or a tally
-with failures, read by scripts/suite_tally.py), and the named check must be
-among the failures; a crash or an abort is not a catch. The positive control
+(`make crflic-build` with DP_SRC and CRFLIC_MDIR overridden, and PP_DIR for a
+processor mutant) and run. Each mutant must make the leg FAIL by its OWN
+verdict (a `[FAIL]` line or a tally with failures, read by
+scripts/suite_tally.py), and the named check must be among the failures; a
+crash or an abort is not a catch. The positive control
 is the clean leg (obj_crflic, which `make crflic-mutants` builds and runs
 first), re-run here.
 
@@ -22,6 +23,15 @@ TSpec MaxFrameSize, the integration before #774, which declared the AAF
 number for the CRF Media Clock Output. It must fail the [TSPEC] grading on
 obj_crflic (AX 1x1 TDM8) and on obj_tspec8 (AX 8x8, `make tspec8-build`
 with TSPEC8_MDIR overridden), each beside its own clean control.
+
+#851 adds one control on the processor side, for processor #214's rule that
+each MRPDU carries each attribute value at most once (the leg's [ONEVEC]
+section, IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)): the SRP encoder's value
+search never hits, so every hand-over of a pending value appends a second
+entry, as the encoder did before #214. It is planted in a COPY of the
+processor's hdl/ tree, built through the same recipe with PP_DIR overridden,
+and must fail "no DUT MRPDU carries one attribute value in two
+VectorAttributes".
 
 The other half of #530's failing arms, the protocol processor at its previous
 pin 424c688f, needs a second processor checkout and is not run here; the
@@ -43,6 +53,7 @@ Exit 0 = every mutant was caught and both clean legs still pass.
 """
 
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -51,6 +62,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+PP_HDL = HERE / "../../../protocol-processor/hdl"
 #: leg -> (its build target, the objdir variable, the clean objdir, the executable)
 LEGS = {
     "crflic": ("crflic-build", "CRFLIC_MDIR", HERE / "obj_crflic", "Vmilan_dp_crflic"),
@@ -99,14 +111,26 @@ TSPEC_MUTATIONS = [
     ("every source declares talker 0's TSpec on the 8x8", *TALKER0_TSPEC, "tspec8"),
 ]
 
+#: #851, processor #214: (name, the file under the processor's hdl/, the exact
+#: fragment, its replacement, the check it must fail), each on the 1x1 leg
+PP_MUTATIONS = [
+    ("the SRP encoder never merges a pending value, every hand-over appends (before processor #214)",
+     "srp/KL_srp_encoder.sv",
+     "  assign sr_hit_w    = sr_cont_w && (q_key_w == sr_key_r);",
+     "  assign sr_hit_w    = 1'b0;",
+     "no DUT MRPDU carries one attribute value in two VectorAttributes"),
+]
 
-def build(rtl_path: Path, mdir: Path, leg: str = "crflic") -> Path | None:
-    """Build `leg` against `rtl_path` through the suite's own recipe; the
-    executable, or None when the recipe failed or left none."""
+
+def build(rtl_path: Path, mdir: Path, leg: str = "crflic", pp_dir: Path | None = None) -> Path | None:
+    """Build `leg` against `rtl_path` (and the processor tree `pp_dir`, when
+    given) through the suite's own recipe; the executable, or None when the
+    recipe failed or left none."""
     target, mdir_var, _, exe_name = LEGS[leg]
+    pp = [f"PP_DIR={pp_dir}"] if pp_dir else []
     out = subprocess.run(
         ["make", "-s", "-C", str(HERE), target, f"DP_SRC={rtl_path}",
-         f"{mdir_var}={mdir}"],
+         f"{mdir_var}={mdir}", *pp],
         capture_output=True, text=True, check=False)
     exe = mdir / exe_name
     if out.returncode != 0 or not exe.is_file():
@@ -169,6 +193,36 @@ def run_mutant(src: str, mutation: tuple[str, ...], work: Path) -> bool:
     return False
 
 
+def run_pp_mutant(mutation: tuple[str, ...], work: Path) -> bool:
+    """Plant one mutation in a copy of the processor's hdl/ tree, build the
+    1x1 leg against it and the real datapath, and run it; True when caught."""
+    name, rel, pattern, replacement, breaks = mutation
+    src = (PP_HDL / rel).read_text()
+    if src.count(pattern) != 1:
+        print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
+              f"time(s) in {rel}, expected exactly 1. The processor moved and this "
+              f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
+        return False
+    tag = re.sub(r"[^A-Za-z0-9]+", "_", name)[:60]
+    pp_dir = work / f"pp_hdl_{tag}"
+    shutil.copytree(PP_HDL, pp_dir)
+    (pp_dir / rel).write_text(src.replace(pattern, replacement))
+    exe = build(DP_RTL, work / f"obj_{tag}", "crflic", pp_dir)
+    if exe is None:
+        print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
+              f"proves nothing about the leg")
+        return False
+    answer = verdict(*run_leg(exe), breaks)
+    if answer == "caught":
+        print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+        return True
+    if answer == "pass":
+        print(f"[FAIL] mutant SURVIVED: {name}. The leg does not prove \"{breaks}\".")
+    else:
+        print(f"[FAIL] mutant {name!r} {answer}")
+    return False
+
+
 def main() -> int:
     """Run the positive control and every mutant; 1 if any mutant survived."""
     def on_sigterm(*_: object) -> None:
@@ -194,6 +248,11 @@ def main() -> int:
                       f"every mutant result on it is meaningless")
         for mutation in MUTATIONS + TSPEC_MUTATIONS:
             if run_mutant(src, mutation, work):
+                passes += 1
+            else:
+                fails += 1
+        for mutation in PP_MUTATIONS:
+            if run_pp_mutant(mutation, work):
                 passes += 1
             else:
                 fails += 1

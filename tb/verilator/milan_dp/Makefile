@@ -292,8 +292,9 @@ endef
 # off clk_audio), so FRAMES_TX and the PDU total can be told apart. Each
 # number feeds both the -G that builds the gateware and the -D the harness
 # grades against. crflic_mutants.py builds a MUTATED datapath through the same
-# recipe (DP_SRC and CRFLIC_MDIR overridden), so its negative controls
-# elaborate exactly the gateware the positive leg does.
+# recipe (DP_SRC and CRFLIC_MDIR overridden), or a MUTATED processor copy
+# (PP_DIR too), so its negative controls elaborate exactly the gateware the
+# positive leg does.
 CRFLIC_MS_CYC  = 100
 CRFLIC_DIAG_MS = 2000
 CRFLIC_MDIR   ?= obj_crflic

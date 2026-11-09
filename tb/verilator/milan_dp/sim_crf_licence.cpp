@@ -69,6 +69,12 @@
 //          timestamp per PDU 28 + 1, MaxIntervalFrames 1. After [B] each
 //          declared MaxFrameSize is also the AVTPDU that source emits plus
 //          the table's one octet.
+//   [ONEVEC] processor #214: every MSRP and MVRP MRPDU the DUT sends over
+//          the whole run carries each attribute value in at most one
+//          VectorAttribute (IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)). An
+//          encoder that appends every hand-over of a pending value, as before
+//          #214, sends MVRP VID 2 twice in one MRPDU in this run
+//          (crflic_mutants.py's processor control).
 //
 // TSPEC_ONLY_TB builds the [TSPEC] grading alone on another shape
 // (SOURCES_TB talker sources, the last one the CRF Media Clock Output): boot,
@@ -147,6 +153,25 @@ struct MrpMessage {
     int type = 0;
     int attr_len = 0;
     std::vector<MrpVector> vectors;
+};
+
+//! [ONEVEC] processor #214: each attribute value at most once per MRPDU.
+//! IEEE 802.1Q-2022 10.7.7 keeps one Applicant per value, and a VectorAttribute
+//! carries an event for every value from FirstValue to FirstValue +
+//! NumberOfValues - 1 (10.7.5.13 c), 10.8.2.10.1), so a value inside two
+//! VectorAttributes of one MRPDU is two events for one state machine. Each
+//! value is expanded by its type's own increment: Talker Advertise, Talker
+//! Failed and Listener add 1 to the StreamID's Unique ID (35.2.2.8 a)), Domain
+//! adds 1 to SRclassID and to SRclassPriority with the VID kept (35.2.2.9), and
+//! MVRP adds 1 to the VID (11.2.3.1.7). A Listener value declared Ignore is not
+//! in the MRPDU (35.2.2.7.2 a)); a NumberOfValues 0 LeaveAll vector carries no
+//! value. The identity keeps the application and the AttributeType.
+struct OneVecSeen {
+    std::array<long, 2> mrpdus{};  // DUT MRPDUs walked: [0] MSRP, [1] MVRP
+    long values = 0;               // attribute values they carried
+    long shared_type = 0;          // MRPDUs with two value-carrying vectors of one type
+    long doubled = 0;              // MRPDUs that carry one value twice
+    long malformed = 0;            // MRPDUs the walk could not finish
 };
 
 //! A captured AVTP stream PDU.
@@ -264,6 +289,7 @@ class CrfLicenceHarness {
     int dut_la_last_mask = 0;
     long timeline_lines = 0;
     long dut_malformed = 0;
+    OneVecSeen onevec;
     uint64_t maap_off = 0;
 
     // ---- clocking ----------------------------------------------------------
@@ -295,6 +321,8 @@ class CrfLicenceHarness {
     std::vector<uint8_t> bridge_leave_all();
     static bool parse_mrpdu(const std::vector<uint8_t>& f, std::vector<MrpMessage>& out);
     void on_mrpdu(const std::vector<uint8_t>& f);
+    void check_one_vector(const std::vector<uint8_t>& f, bool msrp);
+    void grade_one_vector();
     void on_dut_leave_all(int mask);
     void on_dut_talker_event(int uid, int ev);
     void on_acmp(const std::vector<uint8_t>& f);
@@ -671,6 +699,7 @@ void CrfLicenceHarness::tx_frame_done() {
     const std::vector<uint8_t>& f = tx_cur;
     if (f.size() < 18) return;
     const uint64_t et = get_be(f, 12, 2);
+    if (et == 0x22EA || et == 0x88F5) check_one_vector(f, et == 0x22EA);
     if (et == 0x22EA) {
         on_mrpdu(f);
     } else if (et == 0x8100 && f.size() >= 30 && get_be(f, 16, 2) == 0x22F0) {
@@ -749,6 +778,102 @@ void CrfLicenceHarness::on_mrpdu(const std::vector<uint8_t>& f) {
         }
     }
     if (mask != 0) on_dut_leave_all(mask);
+}
+
+//! [ONEVEC]'s walk of one DUT MRPDU (802.1Q-2022 10.8.1.2), independent of
+//! parse_mrpdu: an MSRP Message carries an AttributeListLength (35.2.2.6), an
+//! MVRP Message does not (11.2.3.1.9, 10.8.2.4), so there the AttributeList
+//! ends at its own EndMark. Every value is expanded and keyed as OneVecSeen
+//! states.
+void CrfLicenceHarness::check_one_vector(const std::vector<uint8_t>& f, bool msrp) {
+    onevec.mrpdus[msrp ? 0 : 1]++;
+    std::map<std::pair<int, uint64_t>, std::vector<int>> uses;   // {type, value} -> its events
+    bool shared = false;
+    bool ok = f.size() >= 17 && f[14] == 0x00;                    // ProtocolVersion 0
+    size_t off = 15;
+    while (ok && off + 2 <= f.size() && !(f[off] == 0 && f[off + 1] == 0)) {
+        const int type = f[off];
+        const size_t alen = f[off + 1];
+        size_t p = off + 2;
+        size_t end = f.size();
+        if (msrp) {
+            if (off + 4 > f.size()) { ok = false; break; }
+            end = off + 4 + get_be(f, off + 2, 2);
+            p = off + 4;
+            if (end > f.size()) { ok = false; break; }
+        }
+        int carrying = 0;
+        while (p + 2 <= end && !(f[p] == 0 && f[p + 1] == 0)) {
+            const int n = static_cast<int>(get_be(f, p, 2) & 0x1FFFu);
+            p += 2;
+            const size_t n3 = static_cast<size_t>((n + 2) / 3);
+            const size_t n4 = (msrp && type == 3) ? static_cast<size_t>((n + 3) / 4) : 0;
+            const size_t need = !msrp ? 2 : (type == 4 ? 4 : 8);   // VID; Domain; a StreamID
+            if (p + alen + n3 + n4 > end || alen < need) {
+                ok = false;
+                break;
+            }
+            const size_t fv = p;                                 // FirstValue
+            const size_t ev = fv + alen;                         // ThreePackedEvents
+            const size_t fp = ev + n3;                           // FourPackedEvents
+            p = fp + n4;
+            if (n > 0) carrying++;
+            for (int k = 0; k < n; k++) {
+                const int event = (k % 3 == 0) ? f[ev + static_cast<size_t>(k / 3)] / 36
+                                : (k % 3 == 1) ? (f[ev + static_cast<size_t>(k / 3)] / 6) % 6
+                                               : f[ev + static_cast<size_t>(k / 3)] % 6;
+                if (n4 && ((f[fp + static_cast<size_t>(k / 4)] >> (6 - 2 * (k % 4))) & 3) == 0) continue;
+                const uint64_t kk = static_cast<uint64_t>(k);
+                uint64_t id;
+                if (!msrp) {
+                    id = (get_be(f, fv, 2) + kk) & 0xFFFFu;
+                } else if (type == 4) {
+                    id = (((f[fv] + kk) & 0xFFu) << 24) | (((f[fv + 1] + kk) & 0xFFu) << 16) | get_be(f, fv + 2, 2);
+                } else {
+                    id = (get_be(f, fv, 6) << 16) | ((get_be(f, fv + 6, 2) + kk) & 0xFFFFu);
+                }
+                uses[{msrp ? type : 0x100 | type, id}].push_back(event);
+                onevec.values++;
+            }
+        }
+        if (!ok) break;
+        if (carrying > 1) shared = true;
+        if (msrp) {
+            off = end;
+        } else {
+            if (p + 2 > f.size()) { ok = false; break; }
+            off = p + 2;                                          // past the AttributeList's EndMark
+        }
+    }
+    if (!ok) {
+        onevec.malformed++;
+        note(msrp ? "[ONEVEC] MSRP MRPDU the walk could not finish" : "[ONEVEC] MVRP MRPDU the walk could not finish", -1, -1);
+        return;
+    }
+    if (shared) onevec.shared_type++;
+    bool doubled = false;
+    for (const auto& u : uses) {
+        if (u.second.size() < 2) continue;
+        doubled = true;
+        if (onevec.doubled < 6) {
+            printf("  [t] %11.2f ms  [ONEVEC] %s AttributeType %d value 0x%llx in %zu VectorAttributes, events",
+                   t_ms(cyc), msrp ? "MSRP" : "MVRP", u.first.first & 0xFF,
+                   static_cast<unsigned long long>(u.first.second), u.second.size());
+            for (int e : u.second) printf(" %d", e);
+            printf("\n");
+        }
+    }
+    if (doubled) onevec.doubled++;
+}
+
+void CrfLicenceHarness::grade_one_vector() {
+    printf("[ONEVEC] processor #214: every DUT MRPDU carries each attribute value at most once\n");
+    printf("  [i]    %ld MSRP and %ld MVRP MRPDUs, %ld values; %ld MRPDUs carry two vectors of one AttributeType\n",
+           onevec.mrpdus[0], onevec.mrpdus[1], onevec.values, onevec.shared_type);
+    ck_true("the DUT sent MSRP and MVRP MRPDUs", onevec.mrpdus[0] > 0 && onevec.mrpdus[1] > 0);
+    ck("every DUT MRPDU walks to its EndMark", static_cast<uint64_t>(onevec.malformed), 0);
+    ck("no DUT MRPDU carries one attribute value in two VectorAttributes (802.1Q-2022 10.7.7, 10.7.5.13 c))",
+       static_cast<uint64_t>(onevec.doubled), 0);
 }
 
 //! The switch scopes a received LeaveAll per attribute type (Run B: 9 of 9
@@ -1329,6 +1454,7 @@ void CrfLicenceHarness::grade_invariants() {
        static_cast<uint64_t>(licence_ne_active), 0);
     ck("the AAF gate is never open without ACTIVE[AAF] AND real grant", static_cast<uint64_t>(aaf_without_active), 0);
     ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
+    grade_one_vector();
 }
 
 int CrfLicenceHarness::run() {

@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
 - **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
 - **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
@@ -53,6 +54,41 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 044cb25f
+
+- Issue #851 adopts processor `044cb25f` (PR #215, issue #214).
+- It lands with #843's FPGA-gPTP `1616fc8f`.
+- Each MRPDU now carries each attribute value once.
+- That covers MSRP Domain, Talker and Listener values.
+- It covers MVRP VIDs too.
+- 802.1Q-2022 10.7.7 keeps one Applicant per value.
+- A value in two VectorAttributes is two events.
+- Clause 10.7.5.13 c) says so.
+- So does 10.8.2.10.1.
+- Before, a second hand-over in one window repeated it.
+- The Domain repeated after a received LeaveAll and `periodic!`.
+- MVRP repeated VID 2 after boot.
+- A second message now rewrites the value's pending entry.
+- A pending New stays New under a join.
+- A later New or Lv replaces what is pending.
+- The encoder searches its table before taking a push.
+- Each pending entry costs one clock.
+- No top-level port, parameter or register changes.
+- Both processor ROM digests match the `92100657` rows.
+- The `milan_dp` crflic leg checks every MRPDU on the wire.
+- A planted encoder that never merges fails it.
+- The image is the first with all four lab fixes.
+- Its best directive, AltSpreadLogic_high, is at +0.210 ns.
+- Every corner meets the floor.
+- Placement leaves 21 of 15,850 slices free.
+- Against #843's route it grows 207 LUTs and 83 FFs.
+- On dev `1eb5289d` it grew 77 LUTs.
+- The resource gate passes all three endpoints.
+- All three records are re-recorded at the merge.
+- `check` exits 0 against them.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
+- The [pin page](docs/reference/SUBMODULES.md) gives the merge rules.
 
 ## Unreleased - processor pin 92100657
 
