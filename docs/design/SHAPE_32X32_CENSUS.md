@@ -3,7 +3,8 @@
 Status: **the simulation shape builds, links and runs in S2's CPU harness** (#859, part of #665).
 `configs/endstation_ax7101_32x32.yaml` is a simulation-only shape built without saved state, on the decisions of [section 4](#4-what-needs-a-decision).
 Its save groups are owed to #823 and its datapath to #640 ([section 5](#5-the-simulation-shape)).
-Sections 1 to 4 are the census of `dev-soft-core` `a9d69c77`, kept as measured there.
+Sections 1 to 4 are the census of `dev-soft-core` `a9d69c77`, kept as measured there; their owners and the AEM ROM row are this branch's.
+Section 5 is this branch's state, its line numbers at its head.
 
 The Mark II target is 32x32 streams (#640): 16x16 logical streams, each redundant on two networks.
 This page lists every per-shape limit such a shape crosses at `dev-soft-core` `a9d69c77`, where each limit is stated, what bounds it and the rule it follows.
@@ -14,7 +15,7 @@ This page lists every per-shape limit such a shape crosses at `dev-soft-core` `a
 - **[2. Census](#2-census)** -- Every limit the shape crosses, by area, with where it is stated and each point's figure against it.
 - **[3. Rules for the limits that state none](#3-rules-for-the-limits-that-state-none)** -- The rule each unruled limit would follow at 32x32, and why.
 - **[4. What needs a decision](#4-what-needs-a-decision)** -- The three limits no rule can lift: the record space, the contract's tables and the datapath's stream fields, and the decision taken on each.
-- **[5. The simulation shape](#5-the-simulation-shape)** -- What each limit became, the save groups owed to #823 and the datapath guards owed to #640, each ring and bucket from its rate or timer, and the findings.
+- **[5. The simulation shape](#5-the-simulation-shape)** -- What each limit became, the save groups owed to #823, the datapath guards owed to #640 and the harnesses owed to #866, each ring and bucket from its rate or timer, and the findings.
 
 ## 1. The shape
 
@@ -26,7 +27,7 @@ This page lists every per-shape limit such a shape crosses at `dev-soft-core` `a
   So the 8x8 two-interface measurement groups scale by the stream count alone.
 - **The AEM model** has 460 descriptors: 288 AUDIO_CLUSTER, 34 CLOCK_SOURCE (internal, CRF and one per AAF input), 32 STREAM_PORT of each direction and one AVB_INTERFACE.
   It has 395 writable names.
-  The two-interface model describes one AVB_INTERFACE, as the 8x8 two-interface build does. A second AVB_INTERFACE and stream redundancy are Milan v1.2 clause 8 (#394).
+  The two-interface model describes one AVB_INTERFACE, as the 8x8 two-interface build does. A second AVB_INTERFACE and stream redundancy are Milan v1.2 clause 8; the second AVB_INTERFACE is #866's (#394 is closed).
 
 Each limit was found by running the generator, the firmware link or the datapath elaboration at the shape, lifting the limit it reported in a scratch copy, and running again.
 No lift is in the tree.
@@ -67,7 +68,7 @@ With ACMP's maxima at 33 it stops at `sw/firmware/ctrl/acmp/acmp_mbx.c:14-15`, t
 | Publication source and sink entries per interface, 16 each | `sw/mailbox/mailbox.yaml:96-97`, `:340-346`; `sw/mailbox/mailbox_model.py:452-465`; `sw/firmware/ctrl/acmp/acmp_mbx.c:15` | 2 | 9 | **33** | As above. Source entries fill 0x080 to 0x100 and sink entries 0x100 to 0x200, the whole 0x200 stride |
 | One bit per source, 16 bits | `sw/mailbox/mailbox.yaml:361` (`DA_GATE.OPEN`), `:372` (`LICENCE.ACTIVE`), `:406` (`TALKER_DECL.DECLARED`) | 2 | 9 | **33** | Bit s is source s. 33 sources need more than a 32-bit register |
 | Face block source entries per interface, 16 | `sw/mailbox/mailbox.yaml:496-499`; `sw/mailbox/mailbox_model.py:499-501` | 2 | 9 | **33** | Source entries fill 0x100 to 0x200, where the sink entries start |
-| COUNTERS_CHANGED bits, 16 STREAM_INPUT and 16 STREAM_OUTPUT per interface | `sw/mailbox/mailbox.yaml:857-863`, `:1033-1034` | 2 | 9 | 33 | Not refused: a change naming a descriptor with no bit posts ALL, so every served descriptor may have moved. One record per descriptor per second (Milan v1.2 Table 5.22) |
+| COUNTERS_CHANGED bits, 16 STREAM_INPUT and 16 STREAM_OUTPUT per interface | `sw/mailbox/mailbox.yaml:857-863`, `:1033-1034` | 2 | 9 | **33** | Not refused: a change naming a descriptor with no bit posts ALL, so every served descriptor may have moved. One record per descriptor per second (Milan v1.2 Table 5.22). Owner: #866 |
 | Interfaces, 1 to 4 | `sw/mailbox/mailbox_model.py:681` | 1 | 2 | 2 | Not crossed |
 | Rings and token buckets | `sw/mailbox/mailbox.yaml:1133-1210` | | | | The same constants at every shape. The contract states no derivation from a protocol rate, a timer or a stream count; the backlog bounds take each ring as given ([assumption A1](MAILBOX_SPLIT.md#service-latency)) |
 
@@ -79,8 +80,14 @@ Indexing a stream by its ordinal on its own interface would need 17 entries on t
 | Limit | Where | 1x1/1if | 8x8/2if | 32x32/2if | What bounds it, and its rule |
 |---|---|---:|---:|---:|---|
 | The packed image | `avdecc/gen_aemi_image.py` | 7,512 B | 19,520 B | 69,488 B | It is linked into the firmware's `rom` |
-| The `aem` flash slot, 64 KiB at 0x400000 | `sw/litex/flash_map.py` | 7,512 B | 19,520 B | **69,488 B** | One erase block. Only a flashed image needs it, and a simulation-only shape is never flashed |
-| Descriptors | `avdecc/gen_aemi_image.py` | 42 | 124 | 460 | Not crossed |
+| The `aem` flash slot, 64 KiB at 0x400000 | `sw/litex/milan_soc.py:140` (`FLASHBOOT_LAYOUT`) | 7,512 B | 19,520 B | **69,488 B** | One erase block. Only a flashed image needs it, and a simulation-only shape is never flashed. Owner: #866 |
+| The AEM ROM's 16-bit store, 65,536 B less 64 B of MVU scratch | `avdecc/aem_assemble.py:309-320`, the builder's model check (`emit_aem_rom_svh`) | 4,527 B | 11,753 B | 41,465 B | Not crossed by the shape's TDM32 interface. The store addresses the ROM with 16-bit words, so a ROM past it is refused rather than wrapped. Owner: #866 |
+| Descriptors | `avdecc/gen_aemi_image.py` | 42 | 124 | 460 | No count of their own: the ROM they make is bounded by the store above |
+
+The ROM figures are `AEM_ROM_BYTES_C` of each config's `emit_aem_rom_svh`, at this branch's head; its check is unchanged since `a9d69c77`.
+The shape takes the 8x8's TDM32 interface so that the 8x8 two-interface measurement groups scale by the stream count alone ([section 1](#1-the-shape)).
+On the shipping 1x1 TDM8 interface, everything else the shape's, the builder refuses the model: "AEM ROM 87545 B + 64 B MVU scratch exceeds the 16-bit store address space (65536 B) - 972 descriptors, 800 AUDIO_CLUSTERs".
+So a 32x32 product on the TDM8 interface crosses the store as well as the flash slot (#866).
 
 ### Name store
 
@@ -184,16 +191,17 @@ Section 5 records what each became.
 | 16 streams per direction | 32 per direction for a shape without saved state: the record blocks that set 16 bound nothing there, and 32 is the Mark II target (#640) | `sw/builder/endstation_builder.py`, `MAX_STREAMS_UNSAVED` |
 | SRP attribute rows, 32 | 65 rows built and marked planned against #640: the row index is the datapath's | `_marks_srp` |
 | Writable names, 128 | not bounded: a shape without saved state saves no name | `_adp_name_entries` |
-| ACMP sinks and sources, 16 | 33 and 33 through `ACMP_MAX_SINKS` and `ACMP_MAX_SOURCES`, set from the generated `CTRL_SRP_SINKS` and `CTRL_SRP_SOURCES` where they pass `acmp.h`'s defaults; no tsn-c-stack change | `sw/firmware/ctrl/test/ctrl_srp_image.py`, `acmp_sizing` |
+| ACMP sinks and sources, 16 | 33 and 33 through `ACMP_MAX_SINKS` and `ACMP_MAX_SOURCES`, set from the generated `CTRL_SRP_SINKS` and `CTRL_SRP_SOURCES` where they pass `acmp.h`'s defaults. At the pinned stack its owed-release mask holds 32 sinks, so sinks 0 and 32 share a bit ([findings](#findings); kebag-logic/tsn-c-stack#31) | `sw/firmware/ctrl/test/ctrl_srp_image.py`, `acmp_sizing` |
 | F1 record set, names, container | none linked: the shape is built without saved state (`CTRL_SAVED_STATE_NONE`); the face publishes a restore that is done and a store that does not answer | `sw/firmware/ctrl/app/ctrl_app_aecp.c`, `ctrl_aecp_image.c` |
 | The SRP pool | 144,832 B, its formula at the shape (`srp_mbx.h`), the linked `image_arena` | [memory map](SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map) |
 | Per-interface tables and source bits, 16 | 17 entries and 17-bit fields: the layout sized from the shape, each interface's streams by ordinal | [the shape layout](MAILBOX_SPLIT.md), `gen_mailbox.py --variant-shape` |
 | `rom` and `sram`, 224 KiB | the simulation-only map: 256 KiB and 512 KiB; the image plans 114.0 RAMB36, 237,568 B over the budget owed to #640 by region and by its five largest objects | [memory map](SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map) |
-| The AEM image and its 64 KiB flash slot | the 69,488 B image is linked into `rom`; the slot binds only a flashed image, and this shape is never flashed | `milan_soc.py --simulation-only` |
+| The AEM image and its 64 KiB flash slot | the 69,488 B image is linked into `rom`; the slot binds only a flashed image, and this shape is never flashed. A flashed 32x32 image is #866's | `milan_soc.py --simulation-only` |
 | Resource estimate, LUT 111.1 % | the image build refuses to route the shape: `--build` and `--load` with `--simulation-only` | `test_soc_options.py` |
-| Harness points | `ctrl_service_budget` and `nvm_split_target` take `--point 32x32`; the hook harness and `fw_service_budget` do not (below) | `run.py` |
+| Per-interface rings, the contract's | the ACMP transmit ring sized from its rule: 1,024 words at `0x7000` ([rings and buckets](#rings-and-buckets)) | `gen_mailbox.py`, `acmp_tx_words` |
+| Harness points | `ctrl_service_budget` and `nvm_split_target` take `--point 32x32`; the hook harness, the F5 stream counters and `fw_service_budget` do not ([below](#owed-to-823-640-and-866)) | `run.py` |
 
-### Owed to #823 and #640
+### Owed to #823, #640 and #866
 
 **#823, the record space at the shape.** Every save group of S2's harness, the saved-state store's cases on the split CPU (`tb/verilator/nvm_split_target`): `commit`, `valid`, `absent`, `torn`, `version`, `guard` and the four planted controls `reorder-settle`, `reorder-bindings`, `guard-removed` and `slow-step`.
 At 32x32 the CPU harness reports each by name as owed to #823 and grades none, and `nvm_split_target --point 32x32` lists them and exits 1 without building.
@@ -207,10 +215,15 @@ At 32x32 the CPU harness reports each by name as owed to #823 and grades none, a
 | `hdl/ieee1722/aaf/KL_render_queue.sv:324-325`, the render crossbar's stream field | 8 streams | 32 |
 | `hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:131-132`, the context index | 16 contexts | 33 |
 | `hdl/ieee1722/avtp/KL_media_clock_restart.sv:196-197`, the talker index | 16 talkers | 33 |
-| `hdl/milan/milan_datapath.sv:5228-5232`, the channel-map writer's cursors | 127 map entries | 256 output keys |
+| `hdl/milan/milan_datapath.sv:5354-5358`, the channel-map writer's cursors | 127 map entries | 256 output keys |
 
 Behind them: `KL_nvm_backend.sv:288-290` and `:294-295`, and the SRP row index `milan_csr.sv:614`.
 The publication census elaborates no simulation-only shape (`sw/mailbox/census_elab.py`), and neither does `fw_service_budget`, whose SoC is the all-fabric one with the datapath.
+
+**The hook harness and the F5 stream counters.**
+The hook harness (`tb/verilator/ctrl_service_hooks`, `hooks_build.py:37`) links the split platform's image (`ctrl_plat_image.py`), which plans to the 56-RAMB36 budget or to its one ledgered point, `platform-8x8-two-interfaces`: no simulation-only map takes it, and the shape's image plans 114.0 RAMB36 (#640).
+Its counter push grades COUNTERS_CHANGED, whose 16 bits a direction the shape's 33 STREAM_INPUT and 33 STREAM_OUTPUT descriptors cross (#866).
+The F5 stream counters (`tb/verilator/milan_dp/stream_counter_f5.py`, `--shape` 1 or 8) grade the same counter notices at the shipped shapes; at 32x32 a stream descriptor past the 16th has no COUNTERS_CHANGED bit and posts ALL (`sw/mailbox/mailbox.yaml:857-863`), so its point is #866's COUNTERS_CHANGED item.
 
 ### Rings and buckets
 
@@ -222,24 +235,29 @@ The bucket is the fabric's limiter, one per channel across both interfaces; it d
 | Channel | Frame, record | Receive ring, records | Bucket: burst, then one each | Arrivals the shape adds, at 32x32/2if | Verdict |
 |---|---|---:|---|---|---|
 | adp | 82 B (`adp.h`, IEEE 1722.1-2021 Figure 6-1), 23 words | 256 words, 11 | 8, 10 ms (100/s) | each bound talker's ENTITY_AVAILABLE every 5,000 ms (Milan v1.2 Table 5.50): up to 33 talkers, 6.6/s | holds the rate and its burst; 33 refreshes at one instant pass 8, and a dropped one repeats within its 20 s valid time (IEEE 1722.1-2021 6.2.2.5), as 9 do at 8x8 |
-| acmp | 70 B (`acmp.h`), 20 words | 256 words, 12 | 16, 5 ms (200/s) | a PROBE_TX_RESPONSE a sink at most every TMR_NO_RESP, 200 ms (Milan v1.2 Table 5.26): 33 sinks, 165/s | holds the rate; **the ring holds 12 of its bucket's 16 at every shape** (finding) |
+| acmp | 70 B (`acmp.h`), 20 words | 256 words, 12 | 16, 5 ms (200/s) | a PROBE_TX_RESPONSE a sink at most every TMR_NO_RESP, 200 ms (Milan v1.2 Table 5.26): 33 sinks, 165/s | holds the rate; **the ring holds 12 of its bucket's 16 at every shape** (#865) |
 | aecp | up to 1,514 B, 381 words | 512 words, 1 | 16, 5 ms | none: controllers' commands and the 16 registrations an interface (Milan v1.2 5.4.5.3) are the same at every shape | as at every shape: the ring holds one frame of the largest size (assumption A1) |
-| maap | 60 B (`maap.h`), 17 words | 128 words, 7 | 8, 20 ms | none: one range an interface (IEEE 1722-2016 B.3.4, Table B.8) | **the ring holds 7 of its bucket's 8 at every shape** (finding) |
+| maap | 60 B (`maap.h`), 17 words | 128 words, 7 | 8, 20 ms | none: one range an interface (IEEE 1722-2016 B.3.4, Table B.8) | **the ring holds 7 of its bucket's 8 at every shape** (#865) |
 | srp | up to 1,514 B, 381 words | 1,024 words, 2 | 32, 2 ms | the bridge's MSRP and MVRP PDUs a JoinTime a port (IEEE 802.1Q-2018 10.7.4.1, Table 10-7; Milan v1.2 Table 4.3), larger with the shape's attributes: up to 17 Talker and 17 Listener attributes a port | holds the rate; PDU sizes at the shape are not measured |
 
 The transmit side, the firmware's largest burst on a channel against its transmit ring:
 
 | Channel | Transmit ring, records | The shape's largest burst | Verdict |
 |---|---:|---|---|
-| acmp | 256 words, 12, and tsn-c-stack's 8 owed frames (`ACMP_OWED_MAX`) | a PROBE_TX_COMMAND from every bound sink whose delay expires in one pass (Milan v1.2 5.5.2.3): 33 | **short at 32x32** (finding): 20 of 33 leave and the rest are lost to a TMR_NO_RESP retry; at 8x8, 9 of 20. The rule gives 660 words, a 1,024-word ring, or 21 owed frames |
+| acmp | the contract's 256 words, 12; at 32x32 the shape's layout sizes it from this rule: 1,024 words, 51, at `0x7000`. Beside it, tsn-c-stack's 8 owed frames (`ACMP_OWED_MAX`) | a PROBE_TX_COMMAND from every bound sink whose delay expires in one pass (Milan v1.2 5.5.2.3): 33 | **holds at 32x32**: 33 records of 20 words are 660, and the smallest power of two that holds them is 1,024. With the contract's ring, 20 of 33 would leave and the rest would be lost to a TMR_NO_RESP retry; at 8x8, 9 of 20 |
 | adp, maap | 128 words | one advertisement or probe an interface | holds |
-| aecp, srp | 512 words | THE RETRY's notices and the participants' MRPDUs; S2b's (#810) | not derived here |
+| aecp, srp | 512 words | AECP's change-notice retries and the participants' MRPDUs; S2b's (#810) | not derived here |
 
-No ring or bucket of the shape's layout differs from the contract's: the shortfalls above are recorded, and sizing them is a decision for the issue each is filed under.
+The shape's layout sizes one ring from its rule: ACMP's transmit ring (`gen_mailbox.acmp_tx_words` and `with_tx_ring`, applied by `shape_variant`).
+Of the two forms the rule could take, the ring is the one the contract's geometry allows: a ring is a power of two of words aligned to its size, and the lowest 4 KiB span so aligned that no ring or block of the layout holds is at `0x7000`.
+The owed-frame count is not a form this pin allows: `ACMP_OWED_MAX` is a fixed definition of tsn-c-stack (`third_party/tsn-c-stack/include/acmp.h:164`), with no build-time override.
+`gen_mailbox.py --selftest` requires the shape's ring to hold the rule's 33 records and refuses the layout with the contract's ring by its words; `shape_findings` refuses such a layout for every build of the shape.
+Every other ring and bucket of the layout is the contract's, and the tracked outputs are unchanged (`gen_mailbox.py --check`).
+The receive shortfalls at every shape, ACMP's and MAAP's, are #865's.
 
 ### Findings
 
-- **tsn-c-stack's ACMP owed-release mask holds 32 sinks.** `third_party/tsn-c-stack/include/acmp.h:400` keeps `uint32_t release`, and `third_party/tsn-c-stack/src/acmp.c:816` and `:871` shift `1u << k` by sink, so at 33 sinks sink 32's release (the CRF sink's) aliases sink 0's on RV32, and that sink's change notice is not held behind its owed response (#653). `acmp.h` takes `ACMP_MAX_SINKS` as a build define, but the mask does not follow it. A donor patch is drafted for the stack; the lane builds the pinned stack.
-- **AECP's face places a stream where the model's one AVB_INTERFACE says, interface 0.** ACMP, MAAP and SRP place stream n on interface n mod 2. The shape's layout holds each interface's own streams, so in that layout the face places a stream on the interface the split puts it on (`aecp_face.c`, `MBX_STREAM_HOME`). The contract's own layout is unchanged; a second AVB_INTERFACE is #394's.
-- **SRP's participant on each interface declares every source of the entity**, and in the shape's layout each interface publishes only its own sources' LICENCE and TALKER_DECL bits.
-- **The two rings that hold less than their bucket's burst at every shape**, ACMP's and MAAP's receive rings, and ACMP's transmit side at 32x32, above.
+- **At the pinned stack, ACMP's owed-release mask is one 32-bit word, so sinks 0 and 32 share a bit (owner: kebag-logic/tsn-c-stack#31).** The pin `70936b77` keeps `uint32_t release` (`third_party/tsn-c-stack/include/acmp.h:400`); `bind_response` and the unbind response shift `1u << k` by sink (`third_party/tsn-c-stack/src/acmp.c:816`, `:871`), and the change-owed and release loops read `(release >> k) & 1u` (`:310`, `:1225`). The 32x32 image builds ACMP at 33 sinks (`acmp_sizing`), so these shifts reach 32, which C11 leaves undefined (6.5.7p3). In the RV32 image the shifts are `sll` and `srl`, which use the count's low five bits, so sink 32 (the CRF sink) and sink 0 share one release bit: an owed response for either holds the change notices of both, and its acceptance releases both. Each sink therefore holds the other's notices, against Milan v1.2 5.5's rule that a change waits only behind its own owed response. The donor change on tsn-c-stack#31 sizes the mask from `ACMP_MAX_SINKS`; this branch keeps the pin, so the image the harness measures carries the alias, and no harness script binds a sink past 1.
+- **AECP's face places a stream where the model's one AVB_INTERFACE says, interface 0.** ACMP, MAAP and SRP place stream n on interface n mod 2. The shape's layout holds each interface's own streams, so in that layout the face places a stream on the interface the split puts it on (`aecp_face.c`, `MBX_STREAM_HOME`). The contract's own layout is unchanged; a second AVB_INTERFACE is #866's.
+- **SRP's participant on each interface declares every source of the entity**, and in the shape's layout each interface publishes only its own sources' LICENCE and TALKER_DECL bits (#866).
+- **The two rings that hold less than their bucket's burst at every shape**, ACMP's and MAAP's receive rings (#865). ACMP's transmit ring at 32x32 is sized from its rule in the shape's layout, above.

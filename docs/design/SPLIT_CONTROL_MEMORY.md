@@ -396,11 +396,11 @@ Each region is the smallest power of two that holds the shape's linked image, at
 `plan` refuses, under the `simulation identity` rule, an image that does not carry the map's symbols at their sizes, and plans the shape's image past the budget with every byte over it ledgered by region and by its five largest objects.
 `test_ctrl_memory.py` runs [`ctrl_memory_simulation.py`](../../sw/litex/ctrl_memory_simulation.py)'s arm: it plans a 32x32 image on the map, refuses it the shipped map and refuses an image with the 8x8 shape's pool the simulation map; a map planted without its symbols must turn the arm red.
 
-The 32x32 size fixture at `4ebd2a3b`, without saved state (`tb/verilator/ctrl_service_budget/build.py` on a clean clone):
+The 32x32 size fixture at `41f963d5`, without saved state, its ACMP transmit ring sized for the shape (`tb/verilator/ctrl_service_budget/build.py` on a clean clone; `ctrl_app.elf` SHA-256 `2e47b49efd9262d3dc1628c355ee646e24a2b758ae550c12ee8bb07c6e2facae`):
 
 | | `rom` | `sram` | Total |
 |---|---:|---:|---:|
-| Need | 155,188 B | 310,544 B | 465,732 B |
+| Need | 155,196 B | 310,544 B | 465,740 B |
 | Banks | 128 + 16 + 8 KiB, 38 RAMB36 | 256 + 32 + 16 KiB, 76 RAMB36 | 114.0 RAMB36 |
 | Over the 56-RAMB36 budget, owed to #640 | | | 237,568 B (58.0 RAMB36) |
 
