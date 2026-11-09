@@ -4400,9 +4400,11 @@ def _validate_output_clock_sources(talkers: Sequence[Any], clocking: dict[str, A
             "among its clock sources (Milan v1.2 5.3.3.6)")
 
 
-def _load_streams(cfg, path, clocking, cap=MAX_STREAMS_SAVED):
+def _load_streams(cfg, path, clocking):
     """The declared listener and talker streams, and the two shape
     rules that constrain the set as a whole."""
+    # the bound per direction follows saved_state (#859)
+    cap = MAX_STREAMS_UNSAVED if _load_simulation(cfg)[1] == "none" else MAX_STREAMS_SAVED
     st = _req(cfg, "streams", path)
     _validate_output_clock_sources(st.get("talkers", []), clocking)
     # the AUDIO_UNIT's current rate is the one a stream's default Base format
@@ -4522,9 +4524,7 @@ def load_config(path: str) -> dict[str, Any]:
     policy = interface["cluster_policy"]
     phys, pools = interface["physical_channels"], interface["cluster_pools"]
     simulation_only, saved_state = _load_simulation(cfg)
-    listeners, talkers = _load_streams(
-        cfg, path, clocking,
-        MAX_STREAMS_UNSAVED if saved_state == "none" else MAX_STREAMS_SAVED)
+    listeners, talkers = _load_streams(cfg, path, clocking)
     soc = _load_soc(cfg, cons)
     control = _load_control(cfg)
 
