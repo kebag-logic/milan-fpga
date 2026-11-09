@@ -22,7 +22,7 @@ carrying the arm's plant, and must fail [DR] on the arm's named check:
   counts-runts           a runt the full FIFO turns away counted; RXFILT=0
                          leg, since the filter drops every runt in the other
 
-Mutant logs stay in the private directory. Exit 0 = the clean control passed
+Mutant logs stay in the private directory. Exit 0 = both clean controls passed
 and every arm was caught by its named check; 1 = otherwise.
 """
 
@@ -108,7 +108,7 @@ def run_leg(directory: Path, label: str, rxfilt: str, sources: list[Path] | None
 
 
 def main() -> int:
-    """The clean control, then every arm; 0 when each arm was caught."""
+    """The two clean controls, then every arm; 0 when each arm was caught."""
     originals = {path: path.read_text() for path in (SHADOW, DATAPATH)}
     for name, source, old, _new, _check, _leg in ARMS:
         if originals[source].count(old) != 1:
