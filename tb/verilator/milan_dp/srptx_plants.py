@@ -47,6 +47,8 @@ PLANTS = {
                           "after the last LeaveAll (reset), outside 9782 to 15218 ms"),
     "bench-overrun": ("wire", "a modeled millisecond of 1,200 us of RTL time",
                       "[BENCH] a modeled millisecond took 1200.000 us of RTL time"),
+    "timer-layout": ("wire", "the bench's report of a Join timer arm outside its participant's state",
+                     "[BENCH] a Join timer arm outside its participant's state"),
     # [TX], item 4
     "dropped-under-backpressure": ("hold", "the first MRPDU the hold kept, dropped at the MAC",
                                    "never left the MAC"),
@@ -147,6 +149,8 @@ def plant(name: str, doc: dict) -> None:
         msrp[1]["us"] += shift * 1000.0
     elif name == "bench-overrun":
         doc["intra_ms_max_us"] = 1200.0
+    elif name == "timer-layout":
+        doc["layout_error"] = "a Join timer arm outside its participant's state: lwSRP's port layout changed"
     elif name == "rate":
         at = doc["mac"].index(first)
         doc["mac"][at + 1:at + 1] = [dict(first, ms=first["ms"] + k, us=first["us"] + 1000.0 * k) for k in (1, 2)]

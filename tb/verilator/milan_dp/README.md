@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-two plants and nine code mutants
+- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-three plants and ten code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1626,6 +1626,7 @@ and no finding of its unplanted capture may hold them.
 | `rate` | wire | `four transmit opportunities in` |
 | `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9782 to 15218 ms` |
 | `bench-overrun` | wire | `[BENCH] a modeled millisecond took 1200.000 us of RTL time` |
+| `timer-layout` | wire | `[BENCH] a Join timer arm outside its participant's state` |
 | `dropped-under-backpressure` | hold | `never left the MAC` |
 | `reordered` | hold | `out of the order accepted` |
 | `backpressure-unseen` | hold | `never saw the SRP TX ring full` |
@@ -1657,6 +1658,7 @@ a catch.
 | a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + the MRP service bound (218 ms` |
 | a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9782 to 15218 ms` |
 | a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
+| a field before lwSRP's Join timer | lwSRP's port state | wire, 3 s | `[BENCH] a Join timer arm outside its participant's state` |
 | the split's ACTIVE term held open | `milan_datapath.sv` | licence | `[LIC] at ms 1 the policer reads active 0x3, admitted 0x0` |
 
 ```sh
