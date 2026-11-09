@@ -1,0 +1,20 @@
+clean control (RXFILT=1): [DR] PASS
+clean control (RXFILT=0): [DR] PASS
+count-removed (RXFILT=1): KILLED by its named check, 7 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+count-from-tready (RXFILT=1): KILLED by its named check, 7 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+counts-refused (RXFILT=1): KILLED by its named check, 3 failing checks
+  named check: DR ...and are not counted: the kept frames lost equal the count
+misses-second-beat (RXFILT=1): KILLED by its named check, 3 failing checks
+  named check: DR the burst's lost frames equal the drop count
+wraps (RXFILT=1): KILLED by its named check, 2 failing checks
+  named check: DR the count saturates at 255
+diag-tied-off (RXFILT=1): KILLED by its named check, 7 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+misses-oversize (RXFILT=1): KILLED by its named check, 1 failing checks
+  named check: DR the frame longer than the FIFO is counted
+counts-runts (RXFILT=0): KILLED by its named check, 2 failing checks
+  named check: DR ...and runts are not counted: the kept frames lost equal the count
+== pp_shadow drops mutants: arms: 8   survived: 0 ==
+PASS: [DR] catches every arm (8 of 8); both clean controls pass

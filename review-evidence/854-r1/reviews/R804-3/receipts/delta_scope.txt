@@ -1,0 +1,17 @@
+# git diff --stat de71984e..a853461d
+ docs/design/AREA_BUDGET.md                   | 11 +++++++----
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md | 13 +++++++++----
+ tb/verilator/pp_shadow/drops_mutant.py       |  4 ++--
+ 3 files changed, 18 insertions(+), 10 deletions(-)
+# name-status
+M	docs/design/AREA_BUDGET.md
+M	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+M	tb/verilator/pp_shadow/drops_mutant.py
+# files under hdl/ syn/ third_party/ or gitlinks changed in the delta (expect none):
+# drops_mutant.py delta lines (docstrings only):
+-Mutant logs stay in the private directory. Exit 0 = the clean control passed
++Mutant logs stay in the private directory. Exit 0 = both clean controls passed
+-    """The clean control, then every arm; 0 when each arm was caught."""
++    """The two clean controls, then every arm; 0 when each arm was caught."""
+# label scan of added source lines (lane/bench/round/reviewer/comment-ID):
+none
