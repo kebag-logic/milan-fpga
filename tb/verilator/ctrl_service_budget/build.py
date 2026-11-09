@@ -207,7 +207,6 @@ VARIANTS = {
          '    answering = image_aecp.core.now >= answer_from;\n'
          '    return answering;\n'
          '}\n'
-         'static bool answers(void) { return answering; }\n'
          'static bool every_notice(void *ctx)\n'
          '{\n'
          '    (void)ctx;\n'
@@ -222,8 +221,8 @@ VARIANTS = {
         ('    aecp_face_init(&image_face,&image_platform);\n',
          '    aecp_face_init(&image_face,&image_platform);\n'
          '    image_face.ports.stream=l_stream;\n'
-         '    image_face.ports.avb=(__typeof__(image_face.ports.avb))(void (*)(void))answers;\n'
-         '    image_face.ports.counters=(__typeof__(image_face.ports.counters))(void (*)(void))answers;\n'),
+         '    image_face.ports.avb=(__typeof__(image_face.ports.avb))(void (*)(void))a_path;\n'
+         '    image_face.ports.counters=(__typeof__(image_face.ports.counters))(void (*)(void))a_path;\n'),
         ('    ctrl_loop_run(&image_app.loop);',
          '    (void)ctrl_loop_add_poll(&image_app.loop, every_notice, NULL);\n'
          '    ctrl_loop_run(&image_app.loop);'),
