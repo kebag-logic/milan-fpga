@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_vlan.sv	2026-11-09 21:19:06.611979863 +0100
++++ b/hdl/srp/KL_srp_vlan.sv	2026-11-09 21:19:06.625866032 +0100
+@@ -471,7 +471,7 @@
+ 
+   // -------------------------------------------------------------- outputs
+   assign user_ready_o    = (st_r == V_IDLE) && !walk_start_w;
+-  assign vlan_ev_valid_o = (st_r == W_PUSH) && !link_rise_w;
++  assign vlan_ev_valid_o = (st_r == W_PUSH);
+   assign vlan_ev_event_o = ev_code_r;
+   assign vlan_ev_vid_o   = ev_vid_r;
+   assign vid_active_o    = active_r;

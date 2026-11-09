@@ -1,0 +1,17 @@
+control: rc=0 PASS
+KL_srp_top.g_vids_fit:error: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_top.g_vids_fit N_VIDS_P=13: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/srp/KL_srp_top.sv:273:5: N_VIDS_P=13 exceeds ENC_DEPTH_P=12: the MVRP round woul
+    FAIL: GUARD yosys KL_srp_top.g_vids_fit N_VIDS_P=13: not refused as a $fatal of this guard: all.v:21069: ERROR: N_VIDS_P=%0d exceeds ENC_DEPTH_P=%0d: the MVRP round would wait on its own walk.
+KL_srp_top.g_vids_fit:warning: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_top.g_vids_fit N_VIDS_P=13: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/srp/KL_srp_top.sv:273:5: N_VIDS_P=13 exceeds ENC_DEPTH_P=12: the MVRP round would
+    FAIL: GUARD yosys KL_srp_top.g_vids_fit N_VIDS_P=13: elaborated; the guard did not stop it
+KL_srp_top.g_vids_fit:initial: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_top.g_vids_fit N_VIDS_P=13: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_srp_top.g_vids_fit N_VIDS_P=13: not refused as a $fatal of this guard: all.v:21068: ERROR: Can't resolve task name `$fatal'.
+KL_srp_top.g_vids_fit:tightened: rc=1 KILLED
+    FAIL: ELAB  verilator KL_srp_top.g_vids_fit N_VIDS_P=12: rc 1: %Warning-USERFATAL: hdl/srp/KL_srp_top.sv:273:5: N_VIDS_P=12 exceeds ENC_DEPTH_P=12: the MVRP round would wait on its own walk
+    FAIL: ELAB  yosys KL_srp_top.g_vids_fit N_VIDS_P=12: rc 1: no output
+KL_srp_top.g_vids_fit:loosened: rc=1 KILLED
+    FAIL: GUARD verilator KL_srp_top.g_vids_fit N_VIDS_P=13: elaborated; the guard did not stop it
+    FAIL: GUARD yosys KL_srp_top.g_vids_fit N_VIDS_P=13: elaborated; the guard did not stop it
+elab guard mutants: 5 of 5 killed

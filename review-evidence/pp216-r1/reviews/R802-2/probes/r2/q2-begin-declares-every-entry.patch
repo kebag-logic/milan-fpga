@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_vlan.sv	2026-11-09 21:19:06.588637604 +0100
++++ b/hdl/srp/KL_srp_vlan.sv	2026-11-09 21:19:06.602313377 +0100
+@@ -287,7 +287,7 @@
+       if (periodic_tick_i && alloc_r[i])
+         app_ev_w[i] = srp_app_next(app_ev_w[i], SRP_AE_PER_C, reg_r[i], p2p_i);
+       if (link_rise_w)                                    // Begin! (VO), then New! (VN)
+-        app_ev_w[i] = active_r[i] ? SRP_AP_VN_C : SRP_AP_VO_C;
++        app_ev_w[i] = alloc_r[i] ? SRP_AP_VN_C : SRP_AP_VO_C;
+     end
+     // a new entry's Applicant starts in VO (Begin!)
+     one_st_w = (apply_new_w && !alloc_r[one_ix_w]) ? SRP_AP_VO_C : app_ev_w[one_ix_w];

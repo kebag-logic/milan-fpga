@@ -1,0 +1,35 @@
+control srp_encoder : rc=0 PASS
+control srp_top applicant: rc=0 PASS
+control srp_top join: rc=0 PASS
+join-sent-at-handover: rc=2 failures=2 KILLED tags=R1,R3
+join-sent-at-handover: rc=2 failures=2 KILLED tags=W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent
+domain-one-new: rc=2 failures=1 KILLED tags=AP1
+domain-one-new: rc=2 failures=4 KILLED tags=D1 LINK_UP declares with New!,D1 four tx!,DA6 a peer LeaveAll riding its JoinIn leaves the Domain in VP (note 4),DR11 LINK_DOWN and LINK_UP clear the registration
+vlan-one-new: rc=2 failures=1 KILLED tags=AP2
+vlan-one-new: rc=2 failures=10 KILLED tags=V1 first user,V1 four tx!,V5 JoinMt VID 2 and New VID 5 (3,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR10 note 8,VR11 a VID allocated again starts with its Registrar MT,VR12 VID 2 declared,VR14 VID 2 declared,VR18 VID 2 declared
+vlan-joinin-registrar-mt: rc=2 failures=5 KILLED tags=AP2,AP3,AP8
+vlan-joinin-registrar-mt: rc=2 failures=19 KILLED tags=B1-vlan,V1 four tx!,V11 a withdrawn VID's txLA! sends nothing (LO), the next tx! its Mt, then nothing,V3 periodic JoinMt VID 2, its Registrar MT (802.1Q-2018 10.7.6.3; 1,V5 JoinMt VID 2 and New VID 5 (1,V5 the own LeaveAll's tx! (txLA!),VR0 VID 2 declared,VR11 a VID allocated again starts with its Registrar MT,VR12 VID 2 declared,VR13 the own LeaveAll's tx! finds VID 2 in VP,VR14 LINK_DOWN (Flush!) takes VID 2's Registrar from IN to MT and leaves its Applicant,VR14 VID 2 declared,VR15 LINK_UP (Begin!) takes VID 2's Registrar from IN to MT and restarts its Applicant (VN),VR18 VID 2 declared,VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join,VR6 a received LeaveAll takes the Registrar to LV,VR8 the own LeaveAll's tx! ages the Registrar to LV
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=4 KILLED tags=AP5,AP6
+mvrp-leaveall-needs-content: rc=2 failures=6 KILLED tags=L7 the LeaveAll-only MVRPDU,L7 the LeaveAll-only MVRPDU is captured,L7 the deferred LeaveAll-only MVRPDU,L7 the deferred LeaveAll-only MVRPDU follows
+vlan-registrar-never-in: rc=2 failures=2 KILLED tags=AP3,AP8
+vlan-registrar-never-in: rc=2 failures=9 KILLED tags=VR1 a received JoinIn of the VID,VR10 note 8,VR12 a peer LeaveAll riding its JoinIn leaves VID 2 in VP (note 4),VR14 LINK_DOWN (Flush!) takes VID 2's Registrar from IN to MT and leaves its Applicant,VR15 LINK_UP (Begin!) takes VID 2's Registrar from IN to MT and restarts its Applicant (VN),VR18 a LINK_UP on the clock the walk evaluates VID 2 comes first,VR18 a LINK_UP while the walk holds VID 2's JoinIn withdraws it,VR5 a received JoinMt registers and owes the re-join,VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-rlv-ignored: rc=2 failures=1 KILLED tags=AP3
+vlan-rlv-ignored: rc=2 failures=4 KILLED tags=VR13 the own LeaveAll's tx! finds VID 2 in VP,VR2 a received Lv,VR3 a received JoinIn of another VID changes neither its Registrar nor its message,VR4 a received In or Mt registers nothing; the Mt owes the re-join
+vlan-rx-loses-to-leaveall: rc=2 failures=1 KILLED tags=VR7 a registering value in the LeaveAll's clock keeps IN
+vlan-link-keeps-registrar: rc=2 failures=2 KILLED tags=AP8
+vlan-link-keeps-registrar: rc=2 failures=3 KILLED tags=VR14 LINK_DOWN (Flush!) takes VID 2's Registrar from IN to MT and leaves its Applicant,VR15 LINK_UP (Begin!) takes VID 2's Registrar from IN to MT and restarts its Applicant (VN),VR16 a received JoinIn on the clock of LINK_DOWN or LINK_UP leaves the Registrar MT, and LINK_UP leaves VN
+vlan-link-no-begin: rc=2 failures=1 KILLED tags=AP8
+vlan-link-no-begin: rc=2 failures=5 KILLED tags=VR15 LINK_UP (Begin!) takes VID 2's Registrar from IN to MT and restarts its Applicant (VN),VR16 a received JoinIn on the clock of LINK_DOWN or LINK_UP leaves the Registrar MT, and LINK_UP leaves VN,VR17 a VID whose Lv is owed and that has no user is VO at LINK_UP (Begin!),VR18 a LINK_UP on the clock the walk evaluates VID 2 comes first,VR18 a LINK_UP while the walk holds VID 2's JoinIn withdraws it
+top-vlan-link-unwired: rc=2 failures=2 KILLED tags=AP8
+vlan-link-rx-wins: rc=2 failures=1 KILLED tags=VR16 a received JoinIn on the clock of LINK_DOWN or LINK_UP leaves the Registrar MT, and LINK_UP leaves VN
+vlan-link-keeps-leaving: rc=2 failures=1 KILLED tags=VR17 a VID whose Lv is owed and that has no user is VO at LINK_UP (Begin!)
+vlan-link-push-kept: rc=2 failures=2 KILLED tags=VR18 a LINK_UP on the clock the walk evaluates VID 2 comes first,VR18 a LINK_UP while the walk holds VID 2's JoinIn withdraws it
+vlan-link-after-tx: rc=2 failures=1 KILLED tags=VR18 a LINK_UP on the clock the walk evaluates VID 2 comes first
+vp-rjoinin-ignores-note4: rc=2 failures=2 KILLED tags=DA6 a peer LeaveAll riding its JoinIn leaves the Domain in VP (note 4),VR12 a peer LeaveAll riding its JoinIn leaves VID 2 in VP (note 4)
+vp-rjoinin-ignores-note4: rc=2 failures=2 KILLED tags=DA6 a peer LeaveAll riding its JoinIn leaves the Domain in VP (note 4),VR12 a peer LeaveAll riding its JoinIn leaves VID 2 in VP (note 4)
+vp-txla-stays-vp: rc=2 failures=2 KILLED tags=DA7 the own LeaveAll's tx! finds the Domain in VP,VR13 the own LeaveAll's tx! finds VID 2 in VP
+vp-txla-stays-vp: rc=2 failures=2 KILLED tags=DA7 the own LeaveAll's tx! finds the Domain in VP,VR13 the own LeaveAll's tx! finds VID 2 in VP
+vp-txla-sends-sj: rc=2 failures=2 KILLED tags=DA7 the own LeaveAll's tx! finds the Domain in VP,VR13 the own LeaveAll's tx! finds VID 2 in VP
+vp-txla-sends-sj: rc=2 failures=2 KILLED tags=DA7 the own LeaveAll's tx! finds the Domain in VP,VR13 the own LeaveAll's tx! finds VID 2 in VP
+34 checks: 34 PASS, 0 FAIL
