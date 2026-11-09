@@ -1,0 +1,4 @@
+2:Commit: e70ae2cb2dd0746060612493cb6724522b8701bc
+4:Validation: every run step of .github/workflows/docs.yml on fresh clones of the head, both builder legs included: 65 rc 0, 31 hosted-only not run with a reason, verifier rc 0, every job's tree status empty. docs_inventory.py --check OK; check_doc_style.py rc 0; analyze() on all 11 pages the merge 
+5:Acceptance criteria: met for this sync round (merge, conflict kept both sides, figures checked, generators fresh, nothing else changed, gates rc 0).
+6:Open risks/questions: the merge head must be pushed by whoever holds push rights; PR #835 is not a draft, so the push starts the hosted exact-head gates. The PR body also takes R765-6-R1 / R766-6-RESIDUE-1: the reference bullet now names the merge base.

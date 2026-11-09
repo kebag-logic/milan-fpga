@@ -1,0 +1,44 @@
+== branch-added lines naming LUT/slice/record/WNS/BRAM/tile figures
++Mark II needs fewer than 20,000 `xc7a100t` LUTs at 32x32.
++That is fewer than 20,000 LUTs at 32x32.
++The all-fabric build is unchanged and remains the shipping image.
++This page designs the fabric's contract with the control-plane firmware.
++Milestone 13 retains the hard-core port.
++The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
++This page explains them.
++The bare-metal core runs ADP, ACMP, MAAP, SRP and AECP.
++SRP runs through lwSRP.
++Then firmware owns the protocol and servo.
++- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. Its sources also include fabric timer expiries, tagged by arm. The centisecond tick is the fourth source.
++- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.75k.
++- **[Mark II decisions](#mark-ii-decisions)** -- Owner and manager rulings, 2026-10-31 and 2026-11-02.
++- **Start estimate:** about 31.0k LUTs once the processor leaves.
++=30,974 about 31.0k LUTs, CPU counted once (derived)
++The basis already holds the SoC CPU, 3,249 LUTs.
++| Figure | LUT | Kind | Source |
++After lever 4 both chains reach 27,224 LUTs.
++| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~29.0k |
++| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY. The BIOS ROM and SRAM, 18 RAMB36 measured, already left at the switch-over (M8a-1, [Mark I ledger](#firmware-and-block-ram-ledger)) | Lever 1, ~1.0k LUTs |
++Until stage 3, `ctrl_memory`'s banks hold both regions.
++Stage 1 drops DDR3 and fills `rom` from flash ([D18](#mark-ii-decisions)).
++It copies it into Block RAM, then starts it ([D18](#mark-ii-decisions)).
++The image gets its own flash slot ([D21](#mark-ii-decisions)).
++[D19](#mark-ii-decisions) removes every LiteX block, beyond DDR3 and the BIOS.
++LUT figures are the basis's placed rows.
++The LiteX top is one flat row, 5,119 LUTs.
++| Block today | Placed row, LUT | Stage | Fate |
++| CPU wrapper `VexiiRiscvLitex_*`: the VexiiRiscv core and its LiteX-side bridges | `VexiiRiscvLitex_*` 3,249, of which `vexiis_0_logic_core` 1,150 | 3 | Replaced: the VexiiRiscv core stays, generated without LiteX, in the first-party top ([D15](#mark-ii-decisions)) |
++| Clock and reset generation `_CRG`: system PLL, audio PLL and MMCM, clock buffers, reset synchronizers | LiteX top | 3 | Replaced by the first-party top's clocking and reset ([D15](#mark-ii-decisions)) |
++| `_CRG`'s 200 MHz `idelay` clock and the `IDELAYCTRL`, built while DDR3 or Ethernet is; that clock is also the audio MMCM's `PSCLK` and the media-clock servo's `ps_clk_i` | LiteX top | 3 | Replaced by the first-party top's clocking ([D15](#mark-ii-decisions)), which keeps today's 200 MHz `PSCLK` for the audio MMCM and the servo. Stage 1 removes neither: Ethernet still builds both. All 32 `IDELAYE2` in the basis are DDR3's, and GMII uses none, so the top builds an `IDELAYCTRL` only if the stage 2 MAC uses an `IDELAYE2` |
++| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
++| SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
++| Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII` with its clocking and PHY reset, the TX FIFO `tx_sf`, the crossings `mac_tx_cdc` and `mac_rx_cdc`, and their CSRs) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs. The PHY reset pin gets a first-party driver that keeps both its uses: the power-on pulse, and `KL_reboot_ctrl`'s hold before a reload ([reboot](REBOOT_RESET.md#1-the-decision)), crossed with the approved CDC primitives |
++| SoC bus and CSR interconnect: Wishbone interconnect, AXI-Lite and Wishbone adapters, `csr_bridge`, `csr_bankarray`, `csr_interconnect`; the CPU's peripheral bridge and its crossing | `peripheral_toAxiLite4_logic_bridge` 227 and `ioBus_to_peripheral_bus_cc` 166; the rest in the LiteX top | 3 | Replaced by the first-party top's fixed AXI4-Lite interconnect ([D15](#mark-ii-decisions)) |
++| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed at the switch-over: the split build runs no BIOS and builds no integrated ROM ([split memory](SPLIT_CONTROL_MEMORY.md)). `ctrl_memory`'s `rom` banks hold the region and the reset entry until stage 3, then first-party Block RAM (the `ctrl_memory` row). From stage 1 the boot loader fills `rom` from the flash copy ([D18](#mark-ii-decisions)) |
++| Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the last bank | Not in the basis; 35.0 tiles mapped at 1x1 ([fit](SPLIT_CONTROL_MEMORY.md#5-fit)) | 3 | Replaced by first-party Block RAM in the top: main memory on chip (D4), which the boot loader fills ([D18](#mark-ii-decisions)). From stage 1, `rom` is filled from the flash copy, not the configuration image |
++Each leaves with the block that owns it.
++[D20](#mark-ii-decisions) replaces the UART with a first-party one.
++Receive is polled, since no interrupt controller remains.
++The firmware drains the whole receive buffer once per pass.
++| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
++| [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Cur
