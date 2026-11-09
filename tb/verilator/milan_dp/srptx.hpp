@@ -23,8 +23,8 @@
 // TIME. A modeled millisecond is one KL_mbx tick (twin_split.cpp). Inside it
 // the bench clocks the RTL, so a time is the tick's millisecond plus the RTL
 // time since the tick: 10 ns a mailbox cycle, 20 ns a datapath cycle. The
-// firmware's own instructions take no simulated time; the CPU's cost is S2's
-// harness's figure (tb/verilator/ctrl_service_budget).
+// firmware's own instructions take no simulated time; the CPU's cost is the
+// CPU budget harness's figure (tb/verilator/ctrl_service_budget).
 //
 // Three scenarios, each a list of stimulus frames:
 //   wire     the twin's stimulus, run to kWireMs, the production composition;
@@ -40,7 +40,8 @@
 // THE LICENCE SCENARIO'S FIXTURE. At this base every split source declares
 // Talker Failed: the platform configures its sources unallocated, and the
 // SRP adapter entry that re-declares a source once MAAP allocates is deferred
-// until S2b (#665 ruling issuecomment-6505997821, item 3). No talker can hold
+// until the adapter's transmit rework lands (#665; sw/firmware/ctrl/plat
+// README, Not yet done). No talker can hold
 // a licence, so nothing can stop. The licence scenario alone wraps
 // srp_mbx_init and hands the adapter source 0 allocated at MAAP's pinned
 // range, the address MAAP takes in this simulation, as that entry would. The

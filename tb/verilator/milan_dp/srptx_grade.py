@@ -8,7 +8,7 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
   [WIRE]  every MSRP and MVRP frame the MAC sent is a well-formed MRPDU (IEEE 802.1Q-2018 10.8.1, 10.8.2):
           ProtocolVersion, AttributeType and AttributeLength, AttributeListLength (MSRP, 35.2.2.x), each
           vector, each AttributeList EndMark and the PDU EndMark, at most 1,500 octets and the frame at most
-          1,500 bytes (#665 ruling issuecomment-6087462816); one Message per AttributeType (lwSRP PR #18;
+          1,500 bytes (#665, the decoded SRP comparison's rule); one Message per AttributeType (lwSRP PR #18;
           10.8.1.2); no attribute value twice in one MRPDU; a LeaveAll on every AttributeType of its
           application (10.7.9: one LeaveAll state machine a participant; 10.8.2.6: a LeaveAllEvent applies
           to its Message's AttributeType); the group address and EtherType of its application (MSRP
@@ -17,7 +17,7 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
           802.1AC-2016 11.1).
   [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, Table 10-7, Milan
           v1.2 Table 4.3's values), each bound widened by the MRP service bound, 18 ms: the owner's approved
-          T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling) (#665 issuecomment-6495692075):
+          T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling) (#665, approved 2026-10-29):
           no four in 1.5 x JoinTime; after a New, or a declaration's first message, the attribute's next
           message within JoinTime; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of
           the last, or of a received one (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime)
@@ -56,7 +56,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[2] / "sw/firmware/ctrl/test"))
 import srp_wire_compare as swc  # noqa: E402
 
-#: the approved project service budget (#665 issuecomment-6495692075, owner 2026-10-29), which grades each path
+#: the project service budget the owner approved on 2026-10-29 (#665), which grades each path
 #: against min(T_svc, its family's ceiling): for SRP/MRP 10 % of the shortest JoinTime Milan v1.2 Table 4.3 allows,
 #: 180 ms (IEEE 802.1Q-2018 10.7.11), so 18 ms
 T_SVC_MS = 20
