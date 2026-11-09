@@ -1,0 +1,115 @@
+JOB changes
+    48 python3 scripts/ci_scope.py --selftest
+    88 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job changes --output "$RUNNER_TEMP/job-evidence.json"
+JOB verilator-lint
+    125 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+    137 python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d
+    159 ./configure --prefix=/opt/verilator
+    160 make -j"$CI_TOOL_BUILD_JOBS"
+    169 python3 scripts/lint_rtl.py --check --self-test --jobs "$CI_CAMPAIGN_JOBS"
+    172 python3 scripts/pp_srcs.py --check --selftest
+    182 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job verilator-lint --output "$RUNNER_TEMP/job-evidence.json"
+JOB bdd-conformance
+    225 git submodule update --init protocol-processor gptp-processor
+    228 python3 -m pip install --quiet behave
+    232 behave --no-capture -f plain
+    242 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job bdd-conformance --output "$RUNNER_TEMP/job-evidence.json
+JOB yosys-tool
+    291 python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093
+    312 make -C /tmp/yosys-src config-gcc
+    315 make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+    329 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job yosys-tool --output "$RUNNER_TEMP/job-evidence.json"
+JOB yosys-elaboration
+    368 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+    411 syn/yosys/run.sh --mode elaborate --no-structural \
+    423 python3 syn/ooc/dp_srcs.py --selftest
+    424 python3 syn/ooc/ooc_tcl_selftest.py
+    425 python3 syn/ooc/pp_baseline.py --selftest
+    426 python3 syn/ooc/pp_baseline_mutants.py
+    427 python3 syn/ooc/pp_baseline_reports_selftest.py
+    428 python3 syn/ooc/pp_resource_gate.py --selftest
+    429 python3 syn/ooc/pp_resource_gate_mutants.py
+    430 python3 syn/ooc/pp_resource_gate.py check-baseline
+    431 python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+    432 python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+    435 python3 syn/yosys/ooc_selftest.py
+    438 python3 syn/yosys/guard_selftest.py
+    441 python3 syn/yosys/cache_selftest.py
+    451 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job yosys-elaboration --output "$RUNNER_TEMP/job-evidence.js
+JOB publication-census
+    529 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+    541 python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093
+    562 make -C /tmp/yosys-src config-gcc
+    565 make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+    605 python3 -m pip install --quiet pyyaml
+    606 python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
+    616 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job publication-census --output "$RUNNER_TEMP/job-evidence.j
+JOB firmware-unit
+    663 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    669 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --d
+    682 python3 -m pip install --quiet pyyaml
+    688 python3 sw/firmware/gtest/tally_selftest.py
+    700 python3 scripts/ci_rv32_sdk_selftest.py
+    701 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    706 python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+    707 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 0/4
+    710 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$CI_CAMPAIGN_JOBS"
+    715 python3 sw/firmware/gtest/fw_coverage.py --selftest
+    716 python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$CI_CAMPAIGN_JOBS"
+    726 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-unit --output "$RUNNER_TEMP/job-evidence.json"
+JOB firmware-control-mutants
+    773 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    779 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --d
+    792 python3 -m pip install --quiet pyyaml
+    807 python3 scripts/ci_rv32_sdk_selftest.py
+    808 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    811 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS"
+    822 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-control-mutants --output "$RUNNER_TEMP/job-evid
+JOB firmware-aecp-mutants
+    870 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    876 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --d
+    889 python3 -m pip install --quiet pyyaml
+    904 python3 scripts/ci_rv32_sdk_selftest.py
+    905 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    908 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS"
+    919 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-aecp-mutants --output "$RUNNER_TEMP/job-evidenc
+JOB firmware-srp-mutants
+    966 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    972 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --d
+    985 python3 -m pip install --quiet pyyaml
+    1000 python3 scripts/ci_rv32_sdk_selftest.py
+    1001 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    1004 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS"
+    1015 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-srp-mutants --output "$RUNNER_TEMP/job-evidence
+JOB firmware-boundary
+    1062 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    1068 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --d
+    1081 python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+    1095 python3 scripts/ci_rv32_sdk_selftest.py
+    1096 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    1099 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+    1109 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-boundary --output "$RUNNER_TEMP/job-evidence.js
+JOB firmware-verilator
+    1156 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+    1162 python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9 --d
+    1175 python3 -m pip install --quiet pyyaml
+    1189 python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d
+    1211 ./configure --prefix=/opt/verilator
+    1212 make -j"$CI_TOOL_BUILD_JOBS"
+    1232 python3 scripts/ci_rv32_sdk_selftest.py
+    1233 python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+    1236 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+    1246 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job firmware-verilator --output "$RUNNER_TEMP/job-evidence.j
+JOB rtl-fast
+    1345 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job rtl-fast --output "$RUNNER_TEMP/job-evidence.json"
+JOB ci-manifest
+    1412 python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+    1423 python3 scripts/ci_runtime_evidence.py collect --run "$GITHUB_RUN_ID" --artifacts "$RUNNER_TEMP/manifest-inputs" --output "$RUNNER_TEMP/ci-manifest.js
+JOB ci-fail-fast
+    1474 python3 scripts/ci_fail_fast.py watch
+    1480 python3 scripts/ci_fail_fast.py cancel
+    1490 python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
+JOB ci-cancel-tail
+    1536 python3 scripts/ci_fail_fast.py tail
+JOB push
+JOB pull_request

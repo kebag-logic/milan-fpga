@@ -1,0 +1,84 @@
+### base/findings.txt -> head/findings.txt
+--- 
++++ 
+@@ -1,15 +1,16 @@
+-1463:[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2;
+-1464:[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO n
+-1465:[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 01
+-1466:[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2;
+-1467:[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+-1468:[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2
+-1469:[OWED] stream-output-0-notices: the fabric sends GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the PROBE_TX and as it withdraws, the split none (Milan v1.2 5.4.5.2, Table 5.22: th
+-1470:[OWED] split-talker-failed: the fabric sends Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws, the split Talker Failed for both sources' streams from boot, never withdrawn (IEEE 802.1Q-2018 3
+-1471:[OWED] entity-available-index: the fabric sends the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1, the split the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's (IEEE
+-1472:[OWED] fabric-mvrp-leave-all: the all-fabric half sends MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv) (IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring
+-1473:[OWED] fabric-domain-one-new: the all-fabric half sends MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends
+-1474:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200
+-1475:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 11200 is not an Applicant's message: from VP, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinIn at ms 10201
+-1476:[DIFF] owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x14 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout (the row: MVRP VID 
+-1477:twin: 3 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 99, 'MVRP': 16}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 49, 'MAAP': 8, 'MSRP': 91, 'MVRP': 92}}
++33:[TAIL] ADP: the split's last 1 frame(s), the fabric's next not yet due
++34:[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; a
++35:[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO not
++36:[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102
++37:[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; a
++38:[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
++39:[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-202
++40:[OWED] stream-output-0-notices: the fabric sends GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the PROBE_TX and as it withdraws, the split none (Milan v1.2 5.4.5.2, Table 5.22: the 
++41:[OWED] split-talker-failed: the fabric sends Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws, the split Talker Failed for both sources' streams from boot, never withdrawn (IEEE 802.1Q-2018 35.
++42:[OWED] fabric-mvrp-leave-all: the all-fabric half sends MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv) (IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring o
++43:[OWED] fabric-domain-one-new: the all-fabric half sends MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends N
++44:[DIFF] owed row entity-available-index: the difference has gone, both halves send [READ_DESCRIPTOR to the first controller status 0 00040000000000000000020000fffe000001001bc5c1935893e10000c58800024801000248010000000000000001000
++45:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200
++46:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 11200 is not an Applicant's message: from VP, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinIn at ms 10201
++47:[DIFF] owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x14 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout (the row: MVRP VID 00
++48:twin: 4 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 99, 'MVRP': 16}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 49, 'MAAP': 8, 'MSRP': 91, 'MVRP': 92}}
+### head-43149fb/findings.txt -> head/findings.txt
+--- 
++++ 
+@@ -1,15 +1,16 @@
+-1463:[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2;
+-1464:[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO n
+-1465:[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 01
+-1466:[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2;
+-1467:[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+-1468:[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2
+-1469:[OWED] stream-output-0-notices: the fabric sends GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the PROBE_TX and as it withdraws, the split none (Milan v1.2 5.4.5.2, Table 5.22: th
+-1470:[OWED] split-talker-failed: the fabric sends Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws, the split Talker Failed for both sources' streams from boot, never withdrawn (IEEE 802.1Q-2018 3
+-1471:[OWED] fabric-mvrp-leave-all: the all-fabric half sends MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv) (IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring
+-1472:[OWED] fabric-domain-one-new: the all-fabric half sends MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends
+-1473:[DIFF] owed row entity-available-index: the difference has gone, both halves send [READ_DESCRIPTOR to the first controller status 0 00040000000000000000020000fffe000001001bc5c1935893e10000c588000248010002480100000000000000010
+-1474:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200
+-1475:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 11200 is not an Applicant's message: from VP, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinIn at ms 10201
+-1476:[DIFF] owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x14 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout (the row: MVRP VID 
+-1477:twin: 4 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 99, 'MVRP': 16}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 49, 'MAAP': 8, 'MSRP': 91, 'MVRP': 92}}
++33:[TAIL] ADP: the split's last 1 frame(s), the fabric's next not yet due
++34:[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; a
++35:[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO not
++36:[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102
++37:[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; a
++38:[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
++39:[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-202
++40:[OWED] stream-output-0-notices: the fabric sends GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the PROBE_TX and as it withdraws, the split none (Milan v1.2 5.4.5.2, Table 5.22: the 
++41:[OWED] split-talker-failed: the fabric sends Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws, the split Talker Failed for both sources' streams from boot, never withdrawn (IEEE 802.1Q-2018 35.
++42:[OWED] fabric-mvrp-leave-all: the all-fabric half sends MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv) (IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring o
++43:[OWED] fabric-domain-one-new: the all-fabric half sends MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its Registrar MT throughout (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends N
++44:[DIFF] owed row entity-available-index: the difference has gone, both halves send [READ_DESCRIPTOR to the first controller status 0 00040000000000000000020000fffe000001001bc5c1935893e10000c58800024801000248010000000000000001000
++45:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN, Table 10-3's tx! sends New (IEEE 802.1Q-2018 10.7.7), after New at ms 5200
++46:[MRP] all-fabric MVRP VID 0002: JoinIn at ms 11200 is not an Applicant's message: from VP, Table 10-3's tx! sends JoinMt (IEEE 802.1Q-2018 10.7.7), after JoinIn at ms 10201
++47:[DIFF] owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x14 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, its Registrar MT throughout (the row: MVRP VID 00
++48:twin: 4 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 99, 'MVRP': 16}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 49, 'MAAP': 8, 'MSRP': 91, 'MVRP': 92}}
+base report keys: ['findings', 'notes', 'measured', 'counts']
+head report keys: ['findings', 'notes', 'measured', 'counts']
+head-43149fb report keys: ['findings', 'notes', 'measured', 'counts']
+### report.json comparison
+base findings 3 | counts True | measured==base True
+head findings 4 | counts True | measured==base True
+head-43149fb findings 4 | counts True | measured==base True
+in head only:
+   "[DIFF] owed row entity-available-index: the difference has gone, both halves send [READ_DESCRIPTOR to the first controller status 0 00040000000000000000020000fffe000001001bc5c1935893e10000c5880002480100024801000000000000000100000000000000004d696c616e2046504741203178312054444d3800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000322e39362e3000000000000
+in base only:
+head == head-43149fb: True
+notes base-only:
+   "[OWED] entity-available-index: the fabric sends the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1, the split the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTIT
+notes head-only:
