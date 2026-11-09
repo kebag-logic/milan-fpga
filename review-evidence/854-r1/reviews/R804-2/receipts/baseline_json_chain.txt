@@ -1,0 +1,13 @@
+receipt baseline-dev == git dev: True
+receipt final == head: True
+recorded -> final differs only at: ['/endpoints/ooc-1x1/measured', '/endpoints/ooc-8x8/measured', '/endpoints/route-1x1/measured']
+dev -> recorded: 52 paths; non-record paths: []
+route-1x1 keys ['ceiling', 'floor', 'measured', 'record', 'tolerance']
+  figures {'LUT': 53534, 'FF': 54850, 'SLICE': 15820, 'WNS_ns': 0.166, 'WHS_ns': 0.032} wrapper {'LUT': 25219, 'FF': 20038}
+  measured names #854: True True
+ooc-1x1 keys ['measured', 'record', 'tolerance']
+  figures {'LUT': 25209, 'FF': 21020, 'WNS_ns': 3.327, 'WHS_ns': 0.159} wrapper {'LUT': 25209, 'FF': 21020}
+  measured names #854: True True
+ooc-8x8 keys ['measured', 'record', 'tolerance']
+  figures {'LUT': 37058, 'FF': 32126, 'WNS_ns': 1.139, 'WHS_ns': 0.159} wrapper {'LUT': 37058, 'FF': 32126}
+  measured names #854: True True

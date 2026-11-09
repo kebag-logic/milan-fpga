@@ -1,0 +1,15 @@
+# FF differences, head ExtraPostPlacementOpt minus head AltSpreadLogic_high (depth <= 4)
+  alinx_ax7101: FF +3  eppo (53534, 54850)  aslh (53513, 54847)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159: FF +3  eppo (3246, 4737)  aslh (3240, 4734)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge: FF +3  eppo (175, 193)  aslh (174, 190)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner: FF +3  eppo (143, 146)  aslh (145, 143)
+# wrapper: total, own-cell row, children sum (LUT, FF)
+  eppo: total (25219, 20038)  own-cell row (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25218, 19706)  total-minus-children (1, 332)
+  aslh: total (25180, 20038)  own-cell row (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25180, 19706)  total-minus-children (0, 332)
+  eto: total (25171, 20038)  own-cell row (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25171, 19706)  total-minus-children (0, 332)
+  ooc-1x1: total (25209, 21020)  own-cell row (18, 340)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25214, 20680)  total-minus-children (-5, 340)
+  ooc-8x8: total (37058, 32126)  own-cell row (17, 341)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (37064, 31785)  total-minus-children (-6, 341)
+2132702f30f7dde86b619c689e458e6fcf02eeb3e7abe8d1fd4701665652aad6  review-evidence/854-r1/author-r2/receipts/area/runs/eppo/baseline_hierarchy.rpt
+9e37a3220b63cc9606103a11a6df5e2233eebc7f0c2d3ab6ff37bc63a0a6f53b  review-evidence/854-r1/author-r2/receipts/area/runs/aslh/baseline_hierarchy.rpt
+9326d6850761ff614d4e51906eefdaddacef4dc23beb0085888f085ac657fdbf  review-evidence/854-r1/author-r2/receipts/area/runs/ooc-1x1/baseline_hierarchy.rpt
+061097e8df324c1407c96d27639c8762b271bbe7de6527bd9791d50c66d81368  review-evidence/854-r1/author-r2/receipts/area/runs/ooc-8x8/baseline_hierarchy.rpt

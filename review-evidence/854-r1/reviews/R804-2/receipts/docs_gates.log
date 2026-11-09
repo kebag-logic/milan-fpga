@@ -1,0 +1,23 @@
+# python3 scripts/docs_inventory.py --check
+documentation inventory: OK (547 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+# python3 scripts/check_doc_style.py
+documentation style: OK (24 current documents)
+rc=0
+# python3 scripts/check_em_dash.py --base ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+# python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 214 md files + 1450 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+# python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+# python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+# python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 14 exhaustive port groups)
+rc=0
+# git diff --check ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36 de71984e4fc1b568065dffec483ea3ff51518604
+rc=0
