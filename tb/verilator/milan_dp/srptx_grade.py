@@ -16,7 +16,8 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
   [SA]    every MRPDU's source address is the port's MAC from the first frame after reset (#839; IEEE
           802.1AC-2016 11.1).
   [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, Table 10-7, Milan
-          v1.2 Table 4.3's values), each bound widened by T_svc = 20 ms (#665 issuecomment-6495692075):
+          v1.2 Table 4.3's values), each bound widened by the MRP service bound, 18 ms: the owner's approved
+          T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling) (#665 issuecomment-6495692075):
           no four in 1.5 x JoinTime; after a New, or a declaration's first message, the attribute's next
           message within JoinTime; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of
           the last, or of a received one (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime)
@@ -55,8 +56,12 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[2] / "sw/firmware/ctrl/test"))
 import srp_wire_compare as swc  # noqa: E402
 
-#: the approved project service budget (#665 issuecomment-6495692075, owner 2026-10-29)
+#: the approved project service budget (#665 issuecomment-6495692075, owner 2026-10-29), which grades each path
+#: against min(T_svc, its family's ceiling): for SRP/MRP 10 % of the shortest JoinTime Milan v1.2 Table 4.3 allows,
+#: 180 ms (IEEE 802.1Q-2018 10.7.11), so 18 ms
 T_SVC_MS = 20
+MRP_CEILING_MS = 18
+SVC_MS = min(T_SVC_MS, MRP_CEILING_MS)
 #: IEEE 802.1Q-2018 Table 10-7 as Milan v1.2 Table 4.3 sets it, and the adapter configures it (srp_mbx.c)
 JOIN_MS = 200
 LEAVE_MS = 5000
@@ -64,9 +69,11 @@ LEAVE_ALL_MS = 10000
 PERIODIC_MS = 1000
 #: lwSRP's timer resolution, one centisecond (docs/reference/FR_NFR.md 3.4.1)
 RESOLUTION_MS = 10
-RATE_WINDOW_MS = 3 * JOIN_MS // 2 - T_SVC_MS
-JOIN_FOLLOW_MS = JOIN_MS + T_SVC_MS
-LEAVE_ALL_BOUNDS_MS = (LEAVE_ALL_MS - JOIN_MS - T_SVC_MS, 3 * LEAVE_ALL_MS // 2 + JOIN_MS + T_SVC_MS)
+RATE_WINDOW_MS = 3 * JOIN_MS // 2 - SVC_MS
+JOIN_FOLLOW_MS = JOIN_MS + SVC_MS
+LEAVE_ALL_BOUNDS_MS = (LEAVE_ALL_MS - JOIN_MS - SVC_MS, 3 * LEAVE_ALL_MS // 2 + JOIN_MS + SVC_MS)
+#: a modeled millisecond's RTL time, which the time base assumes is under one millisecond (srptx.hpp)
+MS_US = 1000.0
 MRPDU_MAX = 1500
 FRAME_MAX = 1500
 APPLICATIONS = {
@@ -305,7 +312,7 @@ def grade_source(cap: Capture) -> tuple[list[str], dict]:
 
 def grade_time(cap: Capture) -> list[str]:
     """Each participant's transmit opportunities at egress against 10.7.4 and Table 10-7, each bound widened
-    by T_svc; a frame queued behind a hold is not graded."""
+    by the MRP service bound; a frame queued behind a hold is not graded."""
     found = []
     low, high = LEAVE_ALL_BOUNDS_MS
     for proto in APPLICATIONS:
@@ -313,7 +320,8 @@ def grade_time(cap: Capture) -> list[str]:
         for a, b in zip(frames, frames[3:]):
             if (b.us - a.us) / 1000 < RATE_WINDOW_MS and not cap.held(a.ms, b.ms):
                 found.append(f"[TIME] {proto}: four transmit opportunities in {(b.us - a.us) / 1000:.3f} ms from ms "
-                             f"{a.ms}, inside 1.5 x JoinTime less T_svc ({RATE_WINDOW_MS} ms; IEEE 802.1Q-2018 "
+                             f"{a.ms}, inside 1.5 x JoinTime less the MRP service bound ({RATE_WINDOW_MS} ms; "
+                             "IEEE 802.1Q-2018 "
                              "10.7.4.1)")
         received = cap.received(proto)
         # after a New, or a declaration's first message, the next message of the attribute (Table 10-3:
@@ -334,7 +342,8 @@ def grade_time(cap: Capture) -> list[str]:
                 if until - f.us / 1000 > JOIN_FOLLOW_MS:
                     nxt = f"at ms {later.ms}" if later else "never"
                     found.append(f"[TIME] {label(proto, kind, value)}: its {event} at ms {f.ms} followed {nxt}, past "
-                                 f"JoinTime + T_svc ({JOIN_FOLLOW_MS} ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)")
+                                 f"JoinTime + the MRP service bound ({JOIN_FOLLOW_MS} ms; IEEE 802.1Q-2018 "
+                                 "10.7.4.1, Table 10-3)")
         # LeaveAll: from the last one sent or received (Table 10-5 restarts the timer at either), or reset
         refs = [(0.0, "reset")] + [(r * 1000.0, "received") for r, la in received if la]
         sent = [f for f in frames if f.leave_all_types()]
@@ -348,7 +357,8 @@ def grade_time(cap: Capture) -> list[str]:
             elif gap > high or (f is not None and gap < low):
                 what = f"its LeaveAll at ms {f.ms}" if f else f"the run's end at ms {cap.doc['run_ms']}"
                 found.append(f"[TIME] {proto}: {what} {gap:.3f} ms after the last LeaveAll ({why}), outside "
-                             f"{low} to {high} ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and T_svc)")
+                             f"{low} to {high} ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the "
+                             "MRP service bound)")
             if f:
                 refs.append((f.us, "sent"))
     return found
@@ -509,11 +519,11 @@ def grade_licence(cap: Capture) -> tuple[list[str], dict]:
                      f"at ms {withdraw}" + FIXTURE)
     else:
         stop = cleared[0] / 1000 if cleared else off["ms"]
-        if stop > deadline + T_SVC_MS or stop < deadline - RESOLUTION_MS:
+        if stop > deadline + SVC_MS or stop < deadline - RESOLUTION_MS:
             found.append(f"[608] the talker stopped at ms {stop:.3f}, not at the LeaveTime deadline the peer's "
-                         f"LeaveAll at ms {leave_all} started ({deadline} ms, T_svc {T_SVC_MS} ms; the withdrawal at "
-                         f"ms {withdraw} in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, Milan v1.2 4.2.7.2.2)"
-                         + FIXTURE)
+                         f"LeaveAll at ms {leave_all} started ({deadline} ms, the MRP service bound {SVC_MS} ms; "
+                         f"the withdrawal at ms {withdraw} in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, "
+                         "Milan v1.2 4.2.7.2.2)" + FIXTURE)
         late = [s for s in cap.doc["stream"] if s[0] > off["ms"]]
         if late:
             found.append(f"[608] {sum(s[2] for s in late)} stream frame(s) after the stream gate closed at ms "
@@ -557,6 +567,9 @@ def grade(cap: Capture) -> tuple[list[str], dict]:
                       "intra_ms_max_us": cap.doc["intra_ms_max_us"]}
     if cap.doc["layout_error"]:
         found.append(f"[BENCH] {cap.doc['layout_error']}")
+    if cap.doc["intra_ms_max_us"] >= MS_US:
+        found.append(f"[BENCH] a modeled millisecond took {cap.doc['intra_ms_max_us']:.3f} us of RTL time, past the "
+                     "1 ms the time base assumes")
     found += grade_wire(cap)
     f, m = grade_source(cap)
     found += f

@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty plants and nine code mutants
+- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-two plants and nine code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1526,7 +1526,8 @@ firmware owes nothing, and a frame sent right after another leaves about
 10 modeled milliseconds later. The firmware's own instructions take no
 simulated time. The CPU's cost is S2's harness's figure
 ([`ctrl_service_budget`](../ctrl_service_budget/README.md)). The capture
-records the longest millisecond's RTL time, and every one is under 1 ms.
+records the longest millisecond's RTL time, and the grade refuses a capture
+where it reaches 1 ms (`[BENCH]`).
 
 | Scenario | Stimulus | Graded for |
 |---|---|---|
@@ -1550,10 +1551,11 @@ case is held in the split build only under the fixture.
 |---|---|---|
 | `[WIRE]` | every MSRP and MVRP frame is a well-formed MRPDU: ProtocolVersion, AttributeType and AttributeLength, the MSRP AttributeListLength with its AttributeList EndMark where it ends, each vector, each AttributeList EndMark and the PDU EndMark, nothing after it but zeros; at most 1,500 octets, and the frame at most 1,500 bytes; one Message per AttributeType; no attribute value twice in one MRPDU; a LeaveAll on every AttributeType of its application (MSRP 1 to 4, MVRP 1); the group address of its application. `srp_wire_compare.py`'s decoder also reads every MSRP frame | IEEE 802.1Q-2018 10.8.1, 10.8.2, 10.7.9, 10.8.2.6, 35.2.2.1/.2, 11.2.3.1.3; lwSRP PR #18; [issuecomment-6087462816](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6087462816) |
 | `[SA]` | every MRPDU's source address is the port's MAC, from the first frame after reset | #839; IEEE 802.1AC-2016 11.1 |
-| `[TIME]` | per participant, at egress, each bound widened by T_svc = 20 ms: no four transmit opportunities in 1.5 x JoinTime (280 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (220 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,780 to 15,220 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; [issuecomment-6495692075](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075) |
+| `[TIME]` | per participant, at egress, each bound widened by the MRP service bound, 18 ms: the approved T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling of 10 % of the shortest JoinTime, 180 ms). No four transmit opportunities in 1.5 x JoinTime (282 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (218 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,782 to 15,218 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; [issuecomment-6495692075](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075) |
 | `[TX]` | every MRPDU the adapter accepted left the MAC, byte for byte, in the order accepted, and nothing else did; while the MAC was held, the adapter refused an MRPDU with the ring too full for its record, and the MRPDU it refused was the next one it sent | #867 item 4; the adapter's retention ([SRP README](../../../sw/firmware/ctrl/srp/README.md#protocol-commitments)) |
-| `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within T_svc, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
+| `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within the MRP service bound, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
 | `[LIC]` | at every millisecond, the policer's ACTIVE, admitted and stream gate equal the `LICENCE` the firmware last wrote; the AAF talker's gate opens only under source 0's licence; the CRF source's term reads the top gate bit; no stream frame leaves while no source holds a licence | #867 item 6; Milan v1.2 5.3.7.3 |
+| `[BENCH]` | the bench's own assumptions: each modeled millisecond under 1 ms of RTL time, and lwSRP's port timers where the bench finds them | `srptx.hpp` |
 
 `[TX]` aligns the two sequences by position: equal, a swapped pair, one
 accepted and lost, or one sent and never accepted. Periodic MRPDUs repeat byte
@@ -1597,6 +1599,8 @@ LeaveAll's 50 and 70 ms are the transmit opportunity's wait. A LeaveAll timer
 that expires while the Join timer runs waits for it (IEEE 802.1Q-2018
 10.7.4.1), within JoinTime. The MVRP frame of an opportunity leaves about
 11 us after the MSRP frame of the same millisecond, behind `ctl_tx_mux`'s gap.
+The largest egress after a Join or periodic tick, 26.31 us, is far inside the
+18 ms bound.
 
 Found, not held here: the split's AAF frames carry stream_id 0. No firmware
 writes the publication block's `SRC_SID`, so the datapath's framer reads 0
@@ -1617,9 +1621,11 @@ and no finding of its unplanted capture may hold them.
 | `leave-all-wrong-type` | wire | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
 | `oversized` | wire | `past 1500 octets and the 1500-byte frame` |
 | `zero-source` | wire | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
-| `join-late` | wire | `followed at ms 230, past JoinTime + T_svc (220 ms` |
+| `join-late` | wire | `followed at ms 230, past JoinTime + the MRP service bound (218 ms` |
+| `join-late-in-t-svc` (219 ms: inside JoinTime + T_svc, past the MRP bound) | wire | `followed at ms 220, past JoinTime + the MRP service bound (218 ms` |
 | `rate` | wire | `four transmit opportunities in` |
-| `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9780 to 15220 ms` |
+| `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9782 to 15218 ms` |
+| `bench-overrun` | wire | `[BENCH] a modeled millisecond took 1200.000 us of RTL time` |
 | `dropped-under-backpressure` | hold | `never left the MAC` |
 | `reordered` | hold | `out of the order accepted` |
 | `backpressure-unseen` | hold | `never saw the SRP TX ring full` |
@@ -1648,8 +1654,8 @@ a catch.
 | a LeaveAll on the last AttributeType alone | lwSRP `mrp_transmit` | wire, 16 s | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
 | a refused MRPDU reported sent | the adapter's `send_pdu` | hold | `never left the MAC` |
 | the first MRPDU's source address unset | the adapter's `send_pdu` | wire, 3 s | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
-| a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + T_svc (220 ms` |
-| a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9780 to 15220 ms` |
+| a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + the MRP service bound (218 ms` |
+| a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9782 to 15218 ms` |
 | a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
 | the split's ACTIVE term held open | `milan_datapath.sv` | licence | `[LIC] at ms 1 the policer reads active 0x3, admitted 0x0` |
 

@@ -38,11 +38,15 @@ PLANTS = {
                     "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
     # [TIME], item 3
     "join-late": ("wire", "the second MSRP frame 30 ms later, the Domain's second New",
-                  "followed at ms 230, past JoinTime + T_svc (220 ms"),
+                  "followed at ms 230, past JoinTime + the MRP service bound (218 ms"),
+    "join-late-in-t-svc": ("wire", "the second MSRP frame 20 ms later: inside JoinTime + T_svc, past the MRP bound",
+                           "followed at ms 220, past JoinTime + the MRP service bound (218 ms"),
     "rate": ("wire", "the first MSRP frame sent again 1 and 2 ms after itself",
              "four transmit opportunities in"),
     "leave-all-missing": ("wire", "the first MSRP LeaveAll frame sent without its LeaveAll",
-                          "after the last LeaveAll (reset), outside 9780 to 15220 ms"),
+                          "after the last LeaveAll (reset), outside 9782 to 15218 ms"),
+    "bench-overrun": ("wire", "a modeled millisecond of 1,200 us of RTL time",
+                      "[BENCH] a modeled millisecond took 1200.000 us of RTL time"),
     # [TX], item 4
     "dropped-under-backpressure": ("hold", "the first MRPDU the hold kept, dropped at the MAC",
                                    "never left the MAC"),
@@ -137,9 +141,12 @@ def plant(name: str, doc: dict) -> None:
         target["hex"] = encode(header, [m for m in msgs if m[1]])
     elif name == "zero-source":
         first["hex"] = first["hex"][:12] + "0" * 12 + first["hex"][24:]
-    elif name == "join-late":
-        msrp[1]["ms"] += 30
-        msrp[1]["us"] += 30000.0
+    elif name in ("join-late", "join-late-in-t-svc"):
+        shift = 30 if name == "join-late" else 20
+        msrp[1]["ms"] += shift
+        msrp[1]["us"] += shift * 1000.0
+    elif name == "bench-overrun":
+        doc["intra_ms_max_us"] = 1200.0
     elif name == "rate":
         at = doc["mac"].index(first)
         doc["mac"][at + 1:at + 1] = [dict(first, ms=first["ms"] + k, us=first["us"] + 1000.0 * k) for k in (1, 2)]
