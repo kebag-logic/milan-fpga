@@ -1,0 +1,11 @@
+# 7aa6ef0c: each removed line's origin (git blame at its parent c81640ad) and whether 1d6bf555 holds the same line
+27bb4baf41 branch-only | 4403) def _load_streams(cfg, path, clocking, cap=MAX_STREAMS_SAVED):
+27bb4baf41 branch-only | 4525)     listeners, talkers = _load_streams(
+27bb4baf41 branch-only | 4526)         cfg, path, clocking,
+27bb4baf41 branch-only | 4527)         MAX_STREAMS_UNSAVED if saved_state == "none" else MAX_STREAMS_SAVED)
+# load_config length at head:
+_load_streams 40 lines
+load_config 100 lines
+# load_config at base 1d6bf555:
+_load_streams 38 lines
+load_config 97 lines

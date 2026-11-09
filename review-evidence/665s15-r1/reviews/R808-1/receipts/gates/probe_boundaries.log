@@ -1,0 +1,6 @@
+[ok] 33 streams a direction, no saved state: refused: streams.listeners: 33 streams (max 32 per direction)
+[ok] 17 streams with saved state on a simulation shape: refused: streams.listeners: 17 streams (max 16 per direction)
+[ok] simulation_only as a string: refused: simulation_only: 'yes' is not true or false
+[ok] saved_state none without simulation_only: refused: saved_state: none is a simulation shape's option (#859): a shape the image build may route or flash keeps its saved state; declare simulation_only: true, or rem
+[ok] srp.rtl_table on the simulation shape: refused: endstation_probe_rtl_table is a simulation-only shape (#859): it takes no srp.rtl_table (the tracked CSR reset words), which belong to a shape the image build routes
+boundary probe: 0 failure(s)

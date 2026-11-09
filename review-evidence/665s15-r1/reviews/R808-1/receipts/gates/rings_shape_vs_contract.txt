@@ -1,0 +1,9 @@
+shape streams: 33 sources, 33 sinks; per interface [17, 16]/[17, 16]; tables 17/17/17
+channel fields: ['name', 'ident', 'rx_base', 'rx_words', 'tx_base', 'tx_words', 'max_frame_bytes', 'tuples', 'burst', 'refill_ms', 'cite', 'terms']
+adp {'rx_words': 256, 'tx_words': 128, 'burst': 8, 'refill_ms': 10} same (bases may move)
+acmp {'rx_words': 256, 'tx_words': 256, 'burst': 16, 'refill_ms': 5} same (bases may move)
+aecp {'rx_words': 512, 'tx_words': 512, 'burst': 16, 'refill_ms': 5} same (bases may move)
+maap {'rx_words': 128, 'tx_words': 128, 'burst': 8, 'refill_ms': 20} same (bases may move)
+srp {'rx_words': 1024, 'tx_words': 512, 'burst': 32, 'refill_ms': 2} same (bases may move)
+rings/buckets identical apart from bases: True
+acmp record words 20; tx ring holds 12 records; 33 probes need 660 words

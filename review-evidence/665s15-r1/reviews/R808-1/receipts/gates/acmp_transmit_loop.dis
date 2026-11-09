@@ -1,0 +1,18 @@
+000049b0 <transmit+0xfc>:
+    49b0:	addi	a5,a5,1
+    49b4:	sw	a5,1344(s1)
+    49b8:	lw	a5,1384(s1)
+    49bc:	addi	s0,s0,288
+    49c0:	addi	a5,a5,1
+    49c4:	sw	a5,1384(s1)
+    49c8:	bne	a3,a4,49d4 <transmit+0x120>
+    49cc:	li	s6,1
+    49d0:	j	4918 <transmit+0x64>
+    49d4:	lbu	a2,0(s0)
+    49d8:	srl	a5,s2,a4
+    49dc:	andi	a5,a5,1
+    49e0:	add	a5,a5,a2
+    49e4:	sb	a5,0(s0)
+    49e8:	addi	a4,a4,1
+    49ec:	addi	s0,s0,256
+    49f0:	j	49c8 <transmit+0x114>
