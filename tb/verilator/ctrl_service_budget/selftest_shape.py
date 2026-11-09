@@ -59,6 +59,11 @@ def layout_checks() -> list[Check]:
     out.append(('a point\'s bounded waits stretch with its streams over the 8x8 shape\'s: 1 at 1x1 and 8x8, 4 at '
                 '32x32, and only a wait\'s within bound moves', scales == {'1x1': 1, '8x8': 1, '32x32': 4}
                 and stretched and kept.steps == steps, f'{scales}, script scaled {stretched}'))
+    settles = {name: next(s for g in scenario.backlog_groups(pt) if g.name == 'backlog-owed'
+                          for s, after in zip(g.steps, g.steps[1:]) if after == 'gap 1')
+               for name, pt in (('8x8', scenario.Point('8x8', '', 2, 0, 0, 9, 9)), ('32x32', point))}
+    out.append(('the owed row\'s settle before its composed window stretches likewise: 50 ms at 8x8, 200 ms at 32x32',
+                settles == {'8x8': 'wait cycles 5000000', '32x32': 'wait cycles 20000000'}, f'{settles}'))
     return out
 
 

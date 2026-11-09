@@ -53,7 +53,7 @@ import frames as f
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
 from mailbox_model import load  # noqa: E402
-from shape_point import binding_word, mailbox_layout, pub_word, scaled  # noqa: E402
+from shape_point import binding_word, mailbox_layout, pub_word, scaled, wait_scale  # noqa: E402
 
 CONTRACT = load()
 CH = {ch.name: n for n, ch in enumerate(CONTRACT.channels)}
@@ -805,7 +805,10 @@ def owed_group(p: Point) -> Group:
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+    # The settle lets the pass that queued them end before the window, whose event ring the defined
+    # load fills from empty; it is longer at a larger shape (#859: 65 ms at 32x32/2if, never idle).
+    settle = 50 * MS * wait_scale(p.sources, p.sinks)
+    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {settle}', 'gap 1', 'mark composed')
     gm_run(g, p)
     composed_load(g, p, own='acmp')
     for n in range(OWED_AHEAD):
