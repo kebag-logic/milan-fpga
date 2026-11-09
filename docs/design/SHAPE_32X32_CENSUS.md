@@ -219,7 +219,7 @@ The rule stated here: each bucket admits at least the channel's arrival rate at 
 A record is two header words and the frame's bytes in words.
 The bucket is the fabric's limiter, one per channel across both interfaces; it drops what arrives past it.
 
-| Channel | Frame, record | RX ring, records | Bucket: burst, then one each | Arrivals the shape adds, at 32x32/2if | Verdict |
+| Channel | Frame, record | Receive ring, records | Bucket: burst, then one each | Arrivals the shape adds, at 32x32/2if | Verdict |
 |---|---|---:|---|---|---|
 | adp | 82 B (`adp.h`, IEEE 1722.1-2021 Figure 6-1), 23 words | 256 words, 11 | 8, 10 ms (100/s) | each bound talker's ENTITY_AVAILABLE every 5,000 ms (Milan v1.2 Table 5.50): up to 33 talkers, 6.6/s | holds the rate and its burst; 33 refreshes at one instant pass 8, and a dropped one repeats within its 20 s valid time (IEEE 1722.1-2021 6.2.2.5), as 9 do at 8x8 |
 | acmp | 70 B (`acmp.h`), 20 words | 256 words, 12 | 16, 5 ms (200/s) | a PROBE_TX_RESPONSE a sink at most every TMR_NO_RESP, 200 ms (Milan v1.2 Table 5.26): 33 sinks, 165/s | holds the rate; **the ring holds 12 of its bucket's 16 at every shape** (finding) |
@@ -227,9 +227,9 @@ The bucket is the fabric's limiter, one per channel across both interfaces; it d
 | maap | 60 B (`maap.h`), 17 words | 128 words, 7 | 8, 20 ms | none: one range an interface (IEEE 1722-2016 B.3.4, Table B.8) | **the ring holds 7 of its bucket's 8 at every shape** (finding) |
 | srp | up to 1,514 B, 381 words | 1,024 words, 2 | 32, 2 ms | the bridge's MSRP and MVRP PDUs a JoinTime a port (IEEE 802.1Q-2018 10.7.4.1, Table 10-7; Milan v1.2 Table 4.3), larger with the shape's attributes: up to 17 Talker and 17 Listener attributes a port | holds the rate; PDU sizes at the shape are not measured |
 
-The transmit side, the firmware's largest burst on a channel against its TX ring:
+The transmit side, the firmware's largest burst on a channel against its transmit ring:
 
-| Channel | TX ring, records | The shape's largest burst | Verdict |
+| Channel | Transmit ring, records | The shape's largest burst | Verdict |
 |---|---:|---|---|
 | acmp | 256 words, 12, and tsn-c-stack's 8 owed frames (`ACMP_OWED_MAX`) | a PROBE_TX_COMMAND from every bound sink whose delay expires in one pass (Milan v1.2 5.5.2.3): 33 | **short at 32x32** (finding): 20 of 33 leave and the rest are lost to a TMR_NO_RESP retry; at 8x8, 9 of 20. The rule gives 660 words, a 1,024-word ring, or 21 owed frames |
 | adp, maap | 128 words | one advertisement or probe an interface | holds |
@@ -239,7 +239,7 @@ No ring or bucket of the shape's layout differs from the contract's: the shortfa
 
 ### Findings
 
-- **tsn-c-stack's ACMP owed-release mask holds 32 sinks.** `third_party/tsn-c-stack/src/acmp.c` keeps `uint32_t release` and shifts `1u << k` by sink, so at 33 sinks sink 32's release (the CRF sink's) aliases sink 0's on RV32, and that sink's change notice is not held behind its owed response (#653). `acmp.h` takes `ACMP_MAX_SINKS` as a build define, but the mask does not follow it. A donor patch is drafted for the stack; the lane builds the pinned stack.
+- **tsn-c-stack's ACMP owed-release mask holds 32 sinks.** `third_party/tsn-c-stack/include/acmp.h:400` keeps `uint32_t release`, and `third_party/tsn-c-stack/src/acmp.c:816` and `:871` shift `1u << k` by sink, so at 33 sinks sink 32's release (the CRF sink's) aliases sink 0's on RV32, and that sink's change notice is not held behind its owed response (#653). `acmp.h` takes `ACMP_MAX_SINKS` as a build define, but the mask does not follow it. A donor patch is drafted for the stack; the lane builds the pinned stack.
 - **AECP's face places a stream where the model's one AVB_INTERFACE says, interface 0.** ACMP, MAAP and SRP place stream n on interface n mod 2. The shape's layout holds each interface's own streams, so in that layout the face places a stream on the interface the split puts it on (`aecp_face.c`, `MBX_STREAM_HOME`). The contract's own layout is unchanged; a second AVB_INTERFACE is #394's.
 - **SRP's participant on each interface declares every source of the entity**, and in the shape's layout each interface publishes only its own sources' LICENCE and TALKER_DECL bits.
 - **The two rings that hold less than their bucket's burst at every shape**, ACMP's and MAAP's receive rings, and ACMP's transmit side at 32x32, above.
