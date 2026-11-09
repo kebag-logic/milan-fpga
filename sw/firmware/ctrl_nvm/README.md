@@ -42,7 +42,7 @@ is an integration obligation, not a target-time result established here.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, the capture's time by the owner's decision, what the split CPU measures, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Fifty-seven checks per shape at its own clock, 35 of them on both ports, the NAME capacity, the power-cut sweep and the planted defects.
+- **[The host suite](#the-host-suite)** -- Sixty checks per shape at its own clock, 38 of them on both ports, the NAME capacity, the power-cut sweep and the planted defects.
 - **[What this does not prove](#what-this-does-not-prove)** -- The board, the host suite's maps, a shipping image, the owners on the host, and a read fault that repeats itself exactly.
 
 ## Layout
@@ -301,10 +301,12 @@ Five statements, each with what it rests on. MODEL time is what the host
 models charge: each byte on the 1x 12.5 MHz link costs 0.64 us, each CSR
 access to the command master costs 40 ns, and CPU work costs none of it.
 
-- **Bytes, asserted.** No step touches more than `max(256, 2 x P + 6)` bytes,
+- **Bytes, asserted.** No step touches more than `max(256, 2 x P + 8)` bytes,
   where P is the shape's largest payload: one 256-byte stretch, or one
-  latched record's copy and its crc16. That is 278 bytes at 1x1 and 1,158 at
-  8x8. `service_bound` asserts the figure exactly per shape. It counts
+  latched record's copy and its crc16. The crc16 covers the layout 3 header's
+  first 8 bytes and the payload. That is 280 bytes at 1x1 and 1,160 at 8x8.
+  `service_bound` asserts the figure exactly per shape, from the reference's
+  header size. It counts
   payload and CRC bytes only. It leaves out the owner's own `latch()` work,
   the walk to the next dirty record (at most one pass over the shape's
   records), and the CPU cost of a byte, which differs between a copy, a
@@ -434,8 +436,8 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj3.py`, the reference codec. Per shape, 57 checks in 92
-tests: 35 on both ports, eleven on the model port alone (its read and refusal
+`scripts/nvm_klj3.py`, the reference codec. Per shape, 60 checks in 98
+tests: 38 on both ports, eleven on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
 there), four that ask the codec directly and two on GoogleMock's flash
@@ -443,10 +445,13 @@ port. The recorded vector's round trip runs on both ports at the two shapes
 that have one. At the shipping 1x1 shape four more binaries run: two
 builds against a doctored shape header, one with its names at the layout 3
 NAME block's capacity ([`test/test_nvm_capacity.cpp`](test/test_nvm_capacity.cpp):
-the block's first and last id, a commit over two erase blocks, and a record
-one past the block refused), and the LiteSPI port alone on GoogleMock's
-command master and `timer0`. One name past the capacity must not compile:
-the gate builds the codec so and requires `nvm_shape.h`'s refusal.
+the block's first and last id, a commit over two erase blocks, a commit over
+an older container in every block it spans with each erase's address checked,
+and a record one past the block refused), and the LiteSPI port alone on
+GoogleMock's command master and `timer0`. One name past the capacity must not
+compile: the gate builds the codec so and requires `nvm_shape.h`'s refusal.
+Nor must a map entry count past its table (256 on an input port, 65,536 on an
+output port), each refused in its words.
 
 - **Boot** ([`test/test_nvm_boot.cpp`](test/test_nvm_boot.cpp)):
   - blank, golden and erased-record slots;
@@ -458,6 +463,10 @@ the gate builds the codec so and requires `nvm_shape.h`'s refusal.
   - a KLJ2 journal (#823 decision 2): in today's journal, either slot, with
     the boot blank, `VD_VER` recorded and that journal unwritten by the
     commit after it; in the store's own slot; and its header unreadable;
+  - that reason's limits: a KLJ3 container in today's journal is not
+    recorded; a refused own slot keeps its own verdict; and today's two
+    slots are read at the addresses the flash map gives, which the fixture
+    reads from the SoC source;
   - read faults: a flipped bit on one re-stage and on every one; a flipped
     sequence bit on every boot read of either slot, across the wrap; an
     aliased re-stage, once and every time; failed reads at the bound and
@@ -544,7 +553,7 @@ the gate builds the codec so and requires `nvm_shape.h`'s refusal.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (122 defects, and one control of the compile-time NAME refusal). They are graded at the 1x1 shape, except a defect that only
+by at least one (127 defects, and three controls of the compile-time refusals: the NAME block and the two map widths). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

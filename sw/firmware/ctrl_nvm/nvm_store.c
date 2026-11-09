@@ -572,7 +572,9 @@ static void nvm_latch(struct nvm_rec r)
 	if (same)
 		return;
 	nvm_rec_frame(rec, r);
-	nvm.step_bytes += 6u + r.plen;
+	/* the crc16 runs over the header before its own two bytes, then the
+	 * payload (nvm_rec_frame) */
+	nvm.step_bytes += (NVM_REC_HDR - 2u) + r.plen;
 	nvm.stage_changed = 1;
 	nvm.stage_durable = 0;
 }
@@ -679,7 +681,8 @@ static int nvm_target_slot(void)
 }
 
 /* One erase block of the target slot: the container spans NVM_ERASE_BLOCKS
- * of them from the slot's first, and the blank check reads them all. */
+ * of them from the slot's first, and the blank check reads the container's
+ * span of them. */
 static void nvm_erase_start(void)
 {
 	const struct nvm_flash *f = nvm.flash;

@@ -675,7 +675,9 @@ TEST_P(NvmBoth, service_bound) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--times", "3000:1000", "--set-pattern", "1",
                                  "--until-idle"});
-    const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + 6);
+    // one latched record: its copy, and its crc16 over the reference's header
+    // less the crc16's own two bytes, then the payload
+    const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + fx().num("rec_hdr") - 2);
     EXPECT_TRUE(r.at("ok") == 1 && r.at("step_max") == want && want == r.at("step_bound"))
         << "step bytes " << r.at("step_max") << ", want " << want << " (bound " << r.at("step_bound") << ")";
     EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)

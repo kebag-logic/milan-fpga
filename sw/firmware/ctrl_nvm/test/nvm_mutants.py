@@ -188,6 +188,17 @@ MUTANTS = (
     _m("legacy_reason_dropped", STORE,
        "\t\tif (nvm.st.last_verdict == NVM_VD_BLANK && nvm.st.legacy)\n\t\t\tnvm.st.last_verdict = NVM_VD_VER;\n",
        "", "klj2_journal_refused"),
+    # only a KLJ2 header is the previous format, and its reason replaces a
+    # blank verdict only
+    _m("legacy_any_nonblank_header", STORE, "\t\t    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)",
+       "\t\t    !nvm_all_erased(nvm_chunk, NVM_KLJ_HDR))", "legacy_other_format_not_recorded"),
+    _m("ver_overrides_own_refusal", STORE, "\t\tif (nvm.st.last_verdict == NVM_VD_BLANK && nvm.st.legacy)\n",
+       "\t\tif (nvm.st.legacy)\n", "own_refusal_kept_over_legacy"),
+    # today's slot B read at the end of today's journal: the user slot
+    _m("legacy_b_wrong_place", "nvm_shape.h",
+       "#define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)",
+       "#define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE)",
+       "klj2_journal_at_its_flash_map_address"),
     _m("legacy_read_fault_recorded", STORE,
        "\t\tif (f->read(f->ctx, NVM_LEGACY_A + i * slot, nvm_chunk, NVM_KLJ_HDR) == 0 &&\n"
        "\t\t    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)",
@@ -386,6 +397,10 @@ MUTANTS = (
     # every block the container spans is erased, not only the first
     _m("first_block_only", STORE, "\t\t\tnvm.st.phase = (++nvm.block < NVM_ERASE_BLOCKS) ? NVM_P_ERASE",
        "\t\t\tnvm.st.phase = (++nvm.block < 1u) ? NVM_P_ERASE", "capacity_round_trip"),
+    # the right count of erases, each of the slot's first block
+    _m("erase_first_block_every_time", STORE,
+       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target) + nvm.block * NVM_ERASE_BLOCK)) {",
+       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target))) {", "capacity_commit_over_stale"),
     _m("blankcheck_first_stretch_only", STORE,
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
@@ -440,6 +455,9 @@ MUTANTS = (
              "\t\t\tnvm_open_set(&nvm.inflight, r.id);\n\t\t\tnvm_latch(r);\n\t\t}\n"
              "\t\tr = nvm_rec_next(r);\n\t}\n\tnvm.cursor = r;\n}"),),
            ("service_bound",)),
+    # a latched record's crc16 counted over the layout 2 header's six bytes
+    _m("step_bytes_layout2", STORE, "\tnvm.step_bytes += (NVM_REC_HDR - 2u) + r.plen;",
+       "\tnvm.step_bytes += 6u + r.plen;", "service_bound"),
     # ---- #823 decision 6: the open bits carry their count ----
     _m("open_count_doubled", STORE, "\tif (nvm_bit(v, id))\n\t\treturn;\n\tv->bit[id >> 5] |= 1u << (id & 31u);",
        "\tv->bit[id >> 5] |= 1u << (id & 31u);", "open_count"),

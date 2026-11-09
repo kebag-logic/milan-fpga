@@ -45,7 +45,8 @@ from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, frame_record3,  # noqa: 
                       inventory3, rid_of_key3)
 from nvm_shape import binding_base, inventory, layout_version          # noqa: E402
 
-from nvm_bench import SLOT, Bench                                       # noqa: E402
+from nvm_bench import JOURNAL, LEGACY, LEGACY_SLOT, SLOT, Bench        # noqa: E402
+from flash_map import literal                                           # noqa: E402
 
 REC_HDR = REC_HDR3
 
@@ -383,12 +384,20 @@ def facts(w: Writer, b: Bench) -> None:
     w.list("d3_ids", sorted(set(rids) - set(binding_ids(b))))
     w.num("img_len", len(b.assemble(b.frames, 0)))
     w.num("max_plen", max(len(fr) for fr in b.frames.values()) - REC_HDR)
+    w.num("rec_hdr", REC_HDR)
     w.num("clock_hz", b.clock_hz)
     w.num("n_names", len(names))
     w.list("name_ids", names[:1] + names[-1:])
     w.num("name_block_first", LAYOUT.block("NAME").base)
     w.num("name_block_last", LAYOUT.block("NAME").last)
     w.num("id_space", LAYOUT.id_space)
+    # the flash map as the SoC source holds it (FLASHBOOT_RESERVED), not as the
+    # store's macros derive it: today's two slots and the store's own
+    w.num("legacy_a", LEGACY["offset"])
+    w.num("legacy_b", LEGACY["offset"] + LEGACY_SLOT)
+    w.num("journal_a", JOURNAL["offset"])
+    w.num("journal_b", JOURNAL["offset"] + SLOT)
+    w.num("erase_block", literal("FLASH_ERASE_BLOCK"))
 
 
 def write_fixture(b: Bench, out: Path) -> Path:
@@ -430,6 +439,7 @@ def write_capacity_fixture(b: Bench, out: Path) -> Path:
     facts(w, b)
     golden = image(b, "golden@1")
     w.blob("golden@1", golden)
+    w.blob("golden@3", image(b, "golden@3"))
     w.payloads("golden", rid_payloads(b, golden))
     last = max(b.frames)
     past = dict(b.frames)

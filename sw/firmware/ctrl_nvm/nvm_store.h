@@ -58,8 +58,9 @@ enum nvm_phase {
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
 /* The most bytes any service step touches: one 256-byte stretch, or one
- * latched record's copy and its crc16 over the header and the payload. */
-#define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
+ * latched record's copy and its crc16 over the header, less the crc16's own
+ * two bytes, and the payload. */
+#define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + (NVM_REC_HDR - 2u))
 /* DR2c: firmware transaction attempts per unchanged captured work set, and
  * the separation after a failed one (SAVED_STATE_MATERIALIZATION.md
  * sections 6.3 and 15.1). */

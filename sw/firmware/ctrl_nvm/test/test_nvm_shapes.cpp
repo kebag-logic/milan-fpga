@@ -7,9 +7,10 @@
 // Built twice, one binary per edit, and each binary runs its own test:
 //
 //   NVM_DOCTORED_MAPIN   an input map of 256 entries, which the codec's byte
-//                        table cannot hold: the record walk disagrees with
-//                        the compile-time sizes, and the store disables
-//                        persistence (DR3b);
+//                        table cannot hold, built without nvm_shape.h's
+//                        compile-time refusal of it (#823): the record walk
+//                        disagrees with the compile-time sizes, and the store
+//                        disables persistence (DR3b);
 //   NVM_DOCTORED_NONAME  a shape with no name record: the D3 walk reaches its
 //                        end without passing a name, and the settle step runs
 //                        there, once, after the last map.

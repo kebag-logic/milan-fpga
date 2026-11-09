@@ -29,7 +29,8 @@ THE NAME CAPACITY (#823 scope item 4). At the shipping 1x1 shape the store is
 also built with its names raised to the layout 3 NAME block's capacity
 (test_nvm_capacity.cpp: the block's first, last and one-past id, and a commit
 at capacity), and one name past it must not compile: nvm_shape.h refuses it,
-and this gate requires the refusal and its words.
+and this gate requires the refusal and its words. So must a map entry count
+the codec's table cannot hold: 256 for an input port, 65,536 for an output.
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -94,6 +95,16 @@ SELF_TEST_SHAPE = "endstation_ax7101_1x1_tdm8"
 #: the assert that says it (the over-capacity control removes it).
 NAME_REFUSAL = "the names outgrow their id block"
 NAME_ASSERT = f'_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "{NAME_REFUSAL}");\n'
+#: The map tables' width refusals (#823): (the doctored constant, the count
+#: one past its table, the words, and the assert the control removes).
+MAPIN_REFUSAL = "an input map's entries outgrow the codec's byte table"
+MAPOUT_REFUSAL = "an output map's entries outgrow the codec's 16-bit table"
+WIDTHS = (
+    ("MILAN_NVM3_MAPIN_ENTRIES_0", 256, MAPIN_REFUSAL,
+     f'_Static_assert(NVM_SUM32(NVM_MAPI_WIDE) == 0u, "{MAPIN_REFUSAL}");\n'),
+    ("MILAN_NVM3_MAPOUT_ENTRIES_0", 65536, MAPOUT_REFUSAL,
+     f'_Static_assert(NVM_SUM32(NVM_MAPO_WIDE) == 0u, "{MAPOUT_REFUSAL}");\n'),
+)
 
 
 @dataclass(frozen=True)
@@ -154,6 +165,29 @@ def over_capacity(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE
     return [f"{NAME_CAPACITY + 1} names, one past the layout 3 NAME block, compiled"]
 
 
+def over_width(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """A map entry count one past its table's width must not compile: the
+    codec built against the shape header with one port's count there is
+    refused by nvm_shape.h, in its words. Only the overflow a too-wide table
+    initialiser raises is let pass, so the refusal is the assert's. ''
+    findings when both are."""
+    found = []
+    for name, count, words, _assert in WIDTHS:
+        gen = work / "over-width" / name / "gen"
+        write_headers(gen, doctor(shape_header(shape.inputs), ((name, count),)), shape.inputs.clock_hz)
+        try:
+            fw_gtest.compile_c(b, (*CFLAGS, "-Wno-overflow"), includes(tree, gen), [tree / "nvm_klj2.c"],
+                               work / "over-width" / name / "obj")
+        except fw_gtest.BuildError as exc:
+            if words in str(exc):
+                print(f"  over width: {name} = {count} refused at compile time ({words!r})")
+                continue
+            found.append(f"{name} = {count} refused for another reason: {str(exc)[-300:]}")
+            continue
+        found.append(f"{name} = {count}, past its table's width, compiled")
+    return found
+
+
 def build(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> dict[str, Path]:
     """Every binary of a shape from `tree`, by name."""
     return {binary.name: build_suite(shape.inputs, work / binary.name, b, binary, tree) for binary in binaries(shape)}
@@ -180,6 +214,7 @@ def run_shape(shape: Shape, work: Path, b: fw_gtest.Build, require_rv32: bool) -
             findings.append(f"{shape.stem}: {binary.name} failed")
     if shape.stem == SELF_TEST_SHAPE and fw_gtest.EXECUTION.run:
         findings += [f"{shape.stem}: {x}" for x in over_capacity(shape, work, b)]
+        findings += [f"{shape.stem}: {x}" for x in over_width(shape, work, b)]
     return findings + [f"{shape.stem}: {x}" for x in rv32_arm(shape.inputs, work, require_rv32)], tests
 
 
@@ -250,6 +285,26 @@ def over_capacity_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[s
     return []
 
 
+def over_width_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """The width refusals' own controls: with one of nvm_shape.h's two width
+    asserts removed, over_width no longer finds that refusal in its words (an
+    input count past its byte table compiles; an output count past 16 bits is
+    still refused, by the slot's size alone)."""
+    found = []
+    for name, _count, words, line in WIDTHS:
+        label = ("mapin" if "MAPIN" in name else "mapout") + "_width_assert_removed"
+        m = nvm_mutants.Mutant(label, (("nvm_shape.h", line, ""),), ())
+        tree = work / label / "tree"
+        nvm_mutants.plant(m, tree)
+        got = over_width(shape, work / label, b, tree)
+        shutil.rmtree(tree, ignore_errors=True)
+        if not any(x.startswith(name) for x in got):
+            found.append(f"self-test: {label} was NOT caught: over_width found {got!r}")
+            continue
+        print(f"  self-test OK: {label:<26} caught by over_width; first: {got[0][:110]}")
+    return found
+
+
 def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
     """Plant every defect; each test it names must fail, at the shipping 1x1
     shape unless the defect names another (one that shows only at a clock
@@ -273,6 +328,7 @@ def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
                             nvm_mutants.MUTANTS)
         found += [v for v in verdicts if v]
     found += over_capacity_control(shapes[SELF_TEST_SHAPE], work / "over-capacity-control", shared)
+    found += over_width_control(shapes[SELF_TEST_SHAPE], work / "over-width-control", shared)
     return found
 
 
@@ -340,7 +396,8 @@ def main() -> int:
         print(f"saved-state store gate (#665 F1): BUILT across {len(cfgs)} shape(s), nothing run (--build-only)")
         return 0
     print(f"saved-state store gate (#665 F1): OK across {len(cfgs)} shape(s), {tests} tests"
-          + (f", and all {len(nvm_mutants.MUTANTS) + 1} planted defects reddened" if args.self_test else ""))
+          + (f", and all {len(nvm_mutants.MUTANTS) + 1 + len(WIDTHS)} planted defects reddened"
+             if args.self_test else ""))
     return 0
 
 

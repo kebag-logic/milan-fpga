@@ -74,12 +74,14 @@ SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_
 #: The shapes tb/verilator/nvm_backend records a vector of, under its identity.
 VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
 #: The shipping 1x1 shape only: two doctored builds (a map the codec's byte
-#: table cannot hold, which only the -Woverflow it then raises is let pass;
-#: no name record) and the LiteSPI port alone on its mocked command master.
+#: table cannot hold, built without nvm_shape.h's refusal of it, so the
+#: run-time check behind that refusal is reached, and with only the -Woverflow
+#: it then raises let pass; no name record) and the LiteSPI port alone on its
+#: mocked command master.
 #: The layout 3 NAME capacity, read from its declaration (nvm_layout3.h).
 NAME_CAPACITY = LAYOUT.block("NAME").cap
 UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM3_MAPIN_ENTRIES_0", 0x100),),
-                cflags=("-Wno-overflow",), defines=("-DNVM_DOCTORED_MAPIN",)),
+                cflags=("-Wno-overflow", "-DNVM_DOCTORED_MAPIN"), defines=("-DNVM_DOCTORED_MAPIN",)),
          Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM3_N_NAME", 0),),
                 defines=("-DNVM_DOCTORED_NONAME",)),
          Binary("capacity", (*RIG, "test_nvm_capacity.cpp"), edit=(("MILAN_NVM3_N_NAME", NAME_CAPACITY),),

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_klj2.c - the container and F07.8 record codec (#665 lane F1), in the
+ * nvm_klj2.c - the container and F07.8 record codec (#665, the F1 store), in the
  * split placement's format: KLJ3 and layout 3 (#823 decisions 1 and 2).
  *
  * Ported from the saved-state writer in

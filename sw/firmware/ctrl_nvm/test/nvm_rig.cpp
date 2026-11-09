@@ -464,6 +464,21 @@ void change_arg(const std::string& arg) {
     nvm_store_changed(static_cast<unsigned>(group), static_cast<unsigned>(index));
 }
 
+// ADDR:NAME, a file loaded at an address the script names rather than one
+// of the store's own macros: a test then reads the flash map from the fixture.
+void load_at(Files& files, const std::string& arg) {
+    char* end = nullptr;
+    const unsigned long addr = number(arg.c_str(), &end);
+    if (end == nullptr || *end != ':' || addr >= NVM_FMODEL_BYTES) {
+        fail(("--load-at wants ADDR:NAME inside the flash, not " + arg).c_str(), 0, 0);
+        return;
+    }
+    const auto it = files.blobs.find(end + 1);
+    const std::uint32_t room = NVM_FMODEL_BYTES - static_cast<std::uint32_t>(addr);
+    const std::uint32_t n = it == files.blobs.end() ? 0u : static_cast<std::uint32_t>(it->second.size());
+    load(files, end + 1, static_cast<std::uint32_t>(addr), n < room ? n : room);
+}
+
 // A change that leaves the value as it was (DR2b).
 void touch_arg(const std::string& arg) {
     const nvm_rec r = nvm_rec_by_id(static_cast<unsigned>(number(arg.c_str(), nullptr)));
@@ -518,6 +533,8 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         load(files, v, NVM_LEGACY_A, NVM_LEGACY_B - NVM_LEGACY_A);
     } else if (a == "--legacy-b") {
         load(files, v, NVM_LEGACY_B, NVM_LEGACY_B - NVM_LEGACY_A);
+    } else if (a == "--load-at") {
+        load_at(files, v);
     } else if (a == "--dump-legacy") {
         dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
     } else if (a == "--times") {
@@ -600,6 +617,7 @@ void summarise() {
     };
     for (unsigned i = 0; i < fc->erases && i < 16u; ++i) {
         rig->run.erases.push_back(fc->erase_start_us[i]);
+        rig->run.erase_at.push_back(fc->erase_addr[i]);
     }
 }
 

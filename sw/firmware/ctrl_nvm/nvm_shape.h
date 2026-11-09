@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
  * nvm_shape.h - the saved-state record set of one entity shape, sized at
- * build time (#665 lane F1), in the split placement's format (#823).
+ * build time (#665, the F1 store), in the split placement's format (#823).
  *
  * THE FORMAT is the split placement's: the KLJ3 container in the 640 KiB
  * journal_klj3, its records framed by F07.8 layout 3 over the record space of
@@ -168,6 +168,18 @@ _Static_assert(MILAN_NVM3_N_STREAM_OUT <= NVM3_CAP_FMTO && MILAN_NVM3_N_STREAM_O
 _Static_assert(MILAN_NVM3_N_SPORT_IN <= NVM3_CAP_MAPI && MILAN_NVM3_N_SPORT_OUT <= NVM3_CAP_MAPO &&
 	       NVM3_CAP_MAPI <= NVM_MAP_PORTS && NVM3_CAP_MAPO <= NVM_MAP_PORTS, "map blocks");
 _Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "the names outgrow their id block");
+/* Each port's map entry count fits the codec's table for it (nvm_klj2.c): a
+ * byte per input port, 16 bits per output port. A wider count would be
+ * truncated in the table, and the record walk would disagree with the sizes.
+ * The one build without the input port's refusal is the doctored build of
+ * test/test_nvm_shapes.cpp, which shows that the run-time check behind it
+ * turns persistence off (DR3b). */
+#define NVM_MAPI_WIDE(k) ((MILAN_NVM3_MAPIN_ENTRIES_##k > 255u) ? 1u : 0u)
+#define NVM_MAPO_WIDE(k) ((MILAN_NVM3_MAPOUT_ENTRIES_##k > 65535u) ? 1u : 0u)
+#ifndef NVM_DOCTORED_MAPIN
+_Static_assert(NVM_SUM32(NVM_MAPI_WIDE) == 0u, "an input map's entries outgrow the codec's byte table");
+#endif
+_Static_assert(NVM_SUM32(NVM_MAPO_WIDE) == 0u, "an output map's entries outgrow the codec's 16-bit table");
 _Static_assert(NVM_ID_SPACE <= 65536u, "the record space outgrows record_id[15:0]");
 _Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows the record space");
 _Static_assert(NVM_IMG_LEN <= NVM_SLOT_BYTES, "the container outgrows one slot");

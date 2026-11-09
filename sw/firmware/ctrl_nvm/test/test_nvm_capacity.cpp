@@ -12,6 +12,9 @@
 //                        name its last, and no record lies one past it;
 //   capacity_round_trip  every record committed, byte for byte as the
 //                        reference, across two erase blocks, and booted back;
+//   capacity_commit_over_stale  a commit into a slot holding an older
+//                        container in every block it spans: each erase at its
+//                        block's address, and the reference's bytes;
 //   one_past_refused     a record one past the block is refused VD_REC.
 //
 // One past the capacity does not build: nvm_shape.h refuses it at compile
@@ -65,6 +68,29 @@ TEST_P(NvmBoth, capacity_round_trip) {
     EXPECT_TRUE(r.at("terminal") == NVM_T_COMPLETE && r.at("applied") == static_cast<long long>(rids().size()))
         << "the boot at capacity: " << r.text();
     expect_state(f, "st", fx().payloads("golden"));
+}
+
+// The whole-image commit over a slot that is not blank: commits into A, B,
+// then A again, each changing the records, so the third lands on the first's
+// container in every block the container spans. Every erase is of its
+// target slot's next block, the addresses read from the flash map by the
+// fixture, and the third container is the reference's, byte for byte.
+TEST_P(NvmBoth, capacity_commit_over_stale) {
+    Files f;
+    const Result r = go(port(), f, {"--blank", "--boot", "--set-pattern", "0", "--commit", "--set-pattern", "1",
+                                    "--commit", "--set-pattern", "0", "--commit", "--dump-slot-a", "a.bin"});
+    const long long blocks = static_cast<long long>(NVM_ERASE_BLOCKS);
+    ASSERT_TRUE(r.at("ok") == 3 && r.at("failed") == 0 && r.at("seq") == 3 && r.at("auth") == 0 && blocks > 1 &&
+                r.at("erases") == 3 * blocks && r.erase_at.size() == static_cast<std::size_t>(3 * blocks))
+        << "three commits at capacity: " << r.text();
+    for (long long n = 0; n < 3 * blocks; ++n) {
+        const long long slot = fx().num((n / blocks) % 2 == 0 ? "journal_a" : "journal_b");
+        const long long want = slot + (n % blocks) * fx().num("erase_block");
+        EXPECT_EQ(static_cast<long long>(r.erase_at[static_cast<std::size_t>(n)]), want)
+            << "erase " << n << " of commit " << n / blocks + 1;
+    }
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@3")))
+        << "the third container, over the first, differs from nvm_klj3.py's";
 }
 
 TEST(NvmCapacity, one_past_refused) {

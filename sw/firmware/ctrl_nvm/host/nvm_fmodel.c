@@ -276,8 +276,10 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 	if (!fm_admit(base, NVM_FMODEL_BLOCK) || fm_take(NVM_F_ERASE_REFUSE))
 		return -1;
 	fm.now_ns += 5u * FM_SPI_BYTE_NS;
-	if (fm.n.erases < 16u)
+	if (fm.n.erases < 16u) {
 		fm.n.erase_start_us[fm.n.erases] = fm.now_ns / 1000u;
+		fm.n.erase_addr[fm.n.erases] = base;
+	}
 	fm.n.erases++;
 	fm.last_program = 0;
 	if (fm_is_cut()) {

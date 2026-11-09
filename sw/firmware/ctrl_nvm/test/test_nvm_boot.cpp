@@ -166,6 +166,50 @@ TEST_P(NvmBoth, klj2_journal_refused) {
     EXPECT_EQ(fx().num("klj2_verdict"), NVM_VD_VER) << "klj3_decode on the KLJ2 container";
 }
 
+// #823 decision 2, the reason's negative side: only a KLJ2 header in today's
+// journal is the previous format. A container of another format there (the
+// split's own KLJ3) is not recorded, and the blank boot's verdict stays
+// VD_BLANK.
+TEST_P(NvmBoth, legacy_other_format_not_recorded) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"g.bin", "golden@5"}});
+        const Result r = go(port(), f, {"--blank", slot == 0 ? "--legacy-a" : "--legacy-b", "g.bin", "--boot"});
+        EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("legacy") == 0 && r.at("last") == NVM_VD_BLANK &&
+                    r.at("sm_applies") == 0)
+            << "a KLJ3 container in today's slot " << slot << ": " << r.text();
+    }
+}
+
+// The reason replaces a blank verdict only: a slot of this store's that was
+// refused keeps its own verdict as the boot's, with a KLJ2 journal beside it
+// still recorded.
+TEST_P(NvmBoth, own_refusal_kept_over_legacy) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"x.bin", "golden@5/foreign"}, {"k.bin", "klj2@5"}});
+        const Result r = go(port(), f, {"--blank", slot == 0 ? "--slot-a" : "--slot-b", "x.bin", "--legacy-a", "k.bin",
+                                        "--boot"});
+        EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at(slot == 0 ? "vd_a" : "vd_b") == NVM_VD_SHAPE &&
+                    r.at("last") == NVM_VD_SHAPE && r.at("legacy") == 1)
+            << "slot " << slot << " refused, KLJ2 in today's journal: " << r.text();
+    }
+}
+
+// Today's two slots where the flash map puts them: the halves of
+// FLASHBOOT_RESERVED["journal"], read by the fixture from the SoC source and
+// not from the store's macros, so a store reading the wrong place for either
+// slot misses the KLJ2 container placed there.
+TEST_P(NvmBoth, klj2_journal_at_its_flash_map_address) {
+    for (const int slot : {0, 1}) {
+        Files f = fx().files({{"k.bin", "klj2@5"}});
+        const long long at = fx().num(slot == 0 ? "legacy_a" : "legacy_b");
+        const std::string load = "0x" + hex(static_cast<unsigned long long>(at)) + ":k.bin";
+        const Result r = go(port(), f, {"--blank", "--load-at", load, "--boot"});
+        EXPECT_TRUE(r.at("legacy") == (1 << slot) && r.at("last") == NVM_VD_VER)
+            << "KLJ2 at 0x" << hex(static_cast<unsigned long long>(at)) << ", today's slot " << slot
+            << " in the flash map: " << r.text();
+    }
+}
+
 // A KLJ2 container in this store's own slot is the previous format too:
 // VD_VER, never reinterpreted, and the boot is BLANK naming it.
 TEST_P(NvmBoth, klj2_in_slot_refused) {

@@ -55,6 +55,7 @@ struct Result {
     std::map<std::string, long long> powercut;   //!< effects, cases, old, new, bad
     long long guard = -1;                        //!< writes outside the journal the port took
     std::vector<std::uint64_t> erases;           //!< model time of the first sixteen erases
+    std::vector<std::uint32_t> erase_at;         //!< the block each of them erased
     std::vector<std::uint64_t> fail_at;          //!< failed attempts and verified commits
     std::vector<std::uint64_t> ok_at;
     std::vector<std::uint64_t> marks;            //!< each --mark

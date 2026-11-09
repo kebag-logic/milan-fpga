@@ -1,8 +1,7 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_layout3.h - the record space of saved-state layout 3: the split
- * placement's (#823 decision 1, scoped to the split by #823 issue comment
- * 6730985093).
+ * nvm_layout3.h - the record space of saved-state layout 3, the split
+ * placement's (#823 decision 1).
  *
  * THE ONE DECLARATION. Each NVM3_CAP_* line is a block's capacity: the count
  * of its group in the bound shape, 32x32 streams with two interfaces and the

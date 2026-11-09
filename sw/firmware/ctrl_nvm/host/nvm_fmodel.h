@@ -72,6 +72,7 @@ struct nvm_fmodel_count {
 	unsigned int protected_hit; /* into the protected slot: refused */
 	unsigned int descending;    /* a page program below the one before it */
 	uint64_t erase_start_us[16];/* the first sixteen erase starts */
+	uint32_t erase_addr[16];    /* the block each of them erased */
 };
 
 extern uint8_t nvm_fmodel_mem[NVM_FMODEL_BYTES];
