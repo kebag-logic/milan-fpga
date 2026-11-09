@@ -1,0 +1,30 @@
+diff -r $CLONE/third_party/tsn-c-stack/src/acmp.c $SCRATCH/stack-wide/src/acmp.c
+292c292
+< static enum sent transmit(struct acmp *a, unsigned interface, const uint8_t *frame, uint32_t release,
+---
+> static enum sent transmit(struct acmp *a, unsigned interface, const uint8_t *frame, uint64_t release,
+310c310
+< 		a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((release >> k) & 1u));
+---
+> 		a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + (unsigned)((release >> k) & 1u));
+316c316
+< static void respond(struct acmp *a, unsigned interface, const struct pdu *r, uint32_t release)
+---
+> static void respond(struct acmp *a, unsigned interface, const struct pdu *r, uint64_t release)
+816c816
+< 	respond(a, interface, &r, 1u << k);
+---
+> 	respond(a, interface, &r, UINT64_C(1) << k);
+871c871
+< 	respond(a, interface, &r, 1u << k);
+---
+> 	respond(a, interface, &r, UINT64_C(1) << k);
+1225c1225
+< 				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));
+---
+> 				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - (unsigned)((o->release >> k) & 1u));
+diff -r $CLONE/third_party/tsn-c-stack/include/acmp.h $SCRATCH/stack-wide/include/acmp.h
+400c400
+< 	uint32_t release;
+---
+> 	uint64_t release;
