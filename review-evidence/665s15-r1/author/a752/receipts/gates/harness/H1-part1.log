@@ -1,0 +1,31 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 part 1/3
+groups: adp-advertise,backlog,backlog-owed,adp-discover,adp-gm,aecp-fanout,fixture
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/adp-advertise.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/backlog.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/backlog-owed.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/adp-gm.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/adp-discover.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/aecp-fanout.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part1/fixture.txt -
+BUDGET backlog.acmp_command.if0: 37.156 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if0: 30.361 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 41.198 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if0: 80.156 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 30.346 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 24.061 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if0: 87.327 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 94.558 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 362.497 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 362.496 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 362.495 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 362.494 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if0: 27.709 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 37.345 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if0: 107.529 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 27.694 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 15.342 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if0: 83.984 ms over T_svc 10 ms
+BUDGET fixture.entity_departing.if0: 15.183 ms over T_svc 10 ms
+7 groups graded, 0 refusals, 19 T_svc misses (19 of 62 probe instances, 10 of 33 paths)
+elapsed=1016s
+rc=0

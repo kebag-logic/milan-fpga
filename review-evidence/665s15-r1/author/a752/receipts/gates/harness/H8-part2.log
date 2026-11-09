@@ -1,0 +1,33 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 part 2/4
+groups: maap,backlog,backlog-adp-refill,adp-link,aecp
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part2/maap.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part2/backlog.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part2/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part2/aecp.txt -
+COMMAND <scratch>/builds/H8/native/Vsim <scratch>/builds/H8/results-part2/adp-link.txt -
+BUDGET backlog.event.if0: 24.681 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 63.301 ms over T_svc 10 ms
+BUDGET backlog.service.adp.first.if0: 14.779 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if1: 51.393 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.first.if0: 14.736 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 70.144 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.first.if0: 14.772 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if1: 130.861 ms over T_svc 10 ms
+BUDGET backlog.service.maap.first.if0: 14.761 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 51.378 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 41.276 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if1: 144.267 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 53.264 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 11.851 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 63.793 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 11.860 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 103.749 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 11.896 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.last.if1: 314.544 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 11.886 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 57.556 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: never released, at least 593.250 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.last.if1: never released, at least 593.229 ms over T_svc 10 ms
+5 groups graded, 0 refusals, 23 T_svc misses (23 of 80 probe instances, 14 of 69 paths)
+elapsed=674s
+rc=0

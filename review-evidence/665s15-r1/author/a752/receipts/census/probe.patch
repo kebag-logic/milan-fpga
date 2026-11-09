@@ -1,0 +1,61 @@
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index d348a05976..42ff333db1 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -329,7 +329,7 @@ SRP_WIRE_OVERHEAD_B = 20          #: step 3: preamble 8 + IPG 12
+ #: out of the RTL: the fold silently deletes step 2's clamp, so every stream
+ #: short enough to be padded on the wire reserves less than it occupies.
+ SRP_FRAME_OVERHEAD_B = 42
+-SRP_CTX_IDX_BITS = 5              #: KL_lwsrp_top ctx_idx_i width -> 32 rows
++SRP_CTX_IDX_BITS = 7              #: KL_lwsrp_top ctx_idx_i width -> 32 rows
+                                   #: (widened 2026-08-05 with the dedicated
+                                   #: listener-0 row, VERSION 0x0023)
+ #: MSRP TSpec MaxFrameSize of the CRF Media Clock Stream = the PADDED MSDU of
+@@ -1461,7 +1461,7 @@ def _crf_format(value: Any, ctx: str) -> str:
+ def _streams(lst, ctx, direction, rate_hz=48000):
+     if not isinstance(lst, list) or not lst:
+         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
+-    if len(lst) > 16:
++    if len(lst) > 32:
+         raise ConfigError(f"{ctx}: {len(lst)} streams (max 16 per direction)")
+     out = []
+     for k, s in enumerate(lst):
+@@ -2737,7 +2737,7 @@ def _adp_name_entries(overlay):
+     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
+     # refuses it above the NAME block only at elaboration (#652).
+     capacity, where = nvm_name_capacity()
+-    if aem_name_entries > capacity:
++    if False and aem_name_entries > capacity:
+         raise ConfigError(
+             f"this AEM model has {aem_name_entries} writable names and the "
+             f"saved-state backend holds {capacity} NAME records "
+diff --git a/sw/firmware/ctrl_nvm/nvm_shape.h b/sw/firmware/ctrl_nvm/nvm_shape.h
+index 55123f9890..6594dad407 100644
+--- a/sw/firmware/ctrl_nvm/nvm_shape.h
++++ b/sw/firmware/ctrl_nvm/nvm_shape.h
+@@ -129,8 +129,8 @@
+ #define NVM_MODEL_ID \
+ 	(((uint64_t)MILAN_MODEL_ID_HI << 32) | (uint64_t)MILAN_MODEL_ID_LO)
+ 
+-_Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows record_id[7:0]");
+-_Static_assert(MILAN_NVM_N_NAME <= 128u, "the names outgrow their id block");
++//_Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows record_id[7:0]");
++//_Static_assert(MILAN_NVM_N_NAME <= 128u, "the names outgrow their id block");
+ _Static_assert(NVM_IMG_LEN <= NVM_SLOT_BYTES, "the container outgrows one slot");
+ _Static_assert(NVM_IMG_LEN <= NVM_KLJ2_MAX, "the container outgrows IMG_LEN");
+ _Static_assert(NVM_SLOT_BYTES == 65536u, "a slot is one 64 KiB erase block");
+diff --git a/sw/mailbox/mailbox.yaml b/sw/mailbox/mailbox.yaml
+index c08817b76f..1509ec2ebd 100644
+--- a/sw/mailbox/mailbox.yaml
++++ b/sw/mailbox/mailbox.yaml
+@@ -93,8 +93,8 @@ timers: 16             # fabric timer slots
+ bound_talkers: 16      # bound-talker entries per interface: one per listener stream (STREAM_INPUT), 16 as
+                        # the firmware's ACMP_MAX_SINKS and the saved-state binding block hold
+ publication:
+-  sources: 16          # talker streams (STREAM_OUTPUT) per interface, the firmware's ACMP_MAX_SOURCES
+-  sinks: 16            # listener streams (STREAM_INPUT) per interface, ACMP_MAX_SINKS as bound_talkers
++  sources: 17          # talker streams (STREAM_OUTPUT) per interface, the firmware's ACMP_MAX_SOURCES
++  sinks: 17            # listener streams (STREAM_INPUT) per interface, ACMP_MAX_SINKS as bound_talkers
+ tick_ms: 10           # the TICK event period: one centisecond, lwSRP's timer unit
+ index_bits: 16         # ring head and tail counters, in words, modulo 2^16
+ 

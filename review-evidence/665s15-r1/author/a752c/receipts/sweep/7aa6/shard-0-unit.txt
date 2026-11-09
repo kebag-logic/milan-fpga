@@ -1,0 +1,4 @@
+Started [systemd-run] /usr/bin/taskset -c 64-71 /usr/bin/python3 $HOME/milan-fpga-management/2026-09-21/run-recorded-gates.py $SCRATCH/sweep3/shard-0/spec.json.
+START 1 env PATH=$DATA/tools/pinned-verilator-5.050:$DATA/tools/sv2v-v0.0.12:$DATA/scratch/a662/make43/bin:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR=$DATA/tools/pinned-verilator-5.050/verilator TSN_GEN_ROOT=$HOME/milan-fpga-management/tools/tsn-gen-deca300c TMPDIR=$SCRATCH/tmp-665s15-a752c-sw3 MAKEFLAGS=-j4 --no-print-directory bash scripts/run_all_suites.sh $SCRATCH/sweep3/shard-0/logs --wait --shard 0/4
+END 1 0 4164.948
+milan-665s15-a752c-sw3-shard0.service: Consumed 2h 40min 3.495s CPU time over 1h 9min 25.035s wall clock time, 6G memory peak.

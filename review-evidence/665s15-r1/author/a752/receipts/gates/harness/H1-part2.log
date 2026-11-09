@@ -1,0 +1,18 @@
+HEAD 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 DIRTY 0 part 2/3
+groups: acmp-noresp,srp,backlog-adp,acmp-disc,control,aecp
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/acmp-noresp.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/srp.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/backlog-adp.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/acmp-disc.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/control.txt -
+COMMAND <scratch>/builds/H1/native/Vsim <scratch>/builds/H1/results-part2/aecp.txt -
+BUDGET backlog.adp_available.if0: 41.767 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 49.392 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 84.916 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if0: 252.923 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 49.428 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 541.803 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if0: never released, at least 541.783 ms over T_svc 10 ms
+6 groups graded, 0 refusals, 7 T_svc misses (7 of 50 probe instances, 7 of 50 paths)
+elapsed=1071s
+rc=0

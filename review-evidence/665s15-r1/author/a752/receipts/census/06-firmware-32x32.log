@@ -1,0 +1,11 @@
+REFUSED: <scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl/acmp/acmp_mbx.c:14:1: error: static assertion failed: "every sink needs a bound-talker entry"
+   14 | _Static_assert(ACMP_MAX_SINKS <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+      | ^~~~~~~~~~~~~~
+<scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl/acmp/acmp_mbx.c:15:1: error: static assertion failed: "every sink needs a publication entry"
+   15 | _Static_assert(ACMP_MAX_SINKS <= MBX_N_PUB_SINKS, "every sink needs a publication entry");
+      | ^~~~~~~~~~~~~~
+
+wrote <scratch>/probe-out/fw/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/probe-out/fw/image/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/probe-out/fw/image/contract/mbx_contract.h (2 interfaces)
+rc=2

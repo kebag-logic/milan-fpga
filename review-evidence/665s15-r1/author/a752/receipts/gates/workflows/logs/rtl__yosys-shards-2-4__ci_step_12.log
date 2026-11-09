@@ -1,0 +1,39 @@
+# head 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 workflow rtl.yml job yosys-shards-2-4 step ci_step_12: Run this weighted portability shard
+# clone <scratch>/gates-out/wf/rtl__yosys-shards-2-4/wt
+# venv <scratch>/gates/venv/bin
+== Yosys open-synthesis check (synth, via sv2v; shard 2/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] cdc_handshake          cells=143
+  [PASS] KL_gptp_txticket       cells=259
+  [PASS] KL_gptp_gmii_launch    cells=759
+  [PASS] KL_gptp_shadow         cells=201407
+  [PASS] KL_pcm_route           cells=12
+  [PASS] KL_aaf_capture_i2s     cells=1174
+  [PASS] KL_tdm_capture         cells=1178
+  [PASS] KL_aes3_rx             cells=2696
+  [PASS] KL_aes3_tx             cells=1478
+  [PASS] KL_aaf_packetizer      cells=18468
+  [PASS] KL_crf_rx              cells=30776
+  [PASS] KL_media_grid_align    cells=1195
+  [PASS] KL_mtt_round           cells=1215
+  [PASS] KL_link_guard          cells=460
+  [PASS] KL_maap                cells=2493
+  [PASS] KL_i2s_playback        cells=81509
+  [PASS] KL_render_queue        cells=655590
+  [PASS] KL_tdm_render_master   cells=4213
+  [PASS] KL_chan_map_render     cells=11155
+  [PASS] KL_aaf_rx_depacketizer cells=60880
+  [PASS] timestamp_counter      cells=1597
+  [PASS] KL_ptp_clock_validity  cells=206
+  [PASS] event_counter          cells=95
+  [PASS] queues_wrap            cells=10315
+  [PASS] datapath_wrap          cells=185015
+  [PASS] ptp_ts_top             cells=5179
+  [PASS] KL_mbx                 cells=423360
+  [PASS] KL_mbx_wb              cells=5
+  [PASS] axis_fifo              cells=133594
+  [PASS] axis_arb_mux           cells=177
+--------------------------------------------------------------
+tops: 30   pass: 30   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

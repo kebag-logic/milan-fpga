@@ -1,0 +1,279 @@
+# kept: the head, the verdict lines and the tail of rtl-fast__bdd-conformance__ci_step_5.log
+# whole file: 235597 bytes, sha256 4ae2c3dee3c7fa435ead503f9de2b27acf38e27ab12d7ce6e73894ed81cdacdd
+# head 6857012df33f51aa6e3cb6eafff26c4f82f0ea77 workflow rtl-fast.yml job bdd-conformance step ci_step_5: Run the specification-facing suite
+# clone <scratch>/gates-out/wf/rtl-fast__bdd-conformance/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+USING RUNNER: behave.runner:Runner
+Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
+  Background: 
+
+  Scenario: reading ENTITY[0] answers SUCCESS with the whole response shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 4 with u clear ... passed in 0.000s
+    And the AECP response target_entity_id is our own ... passed in 0.000s
+    And the AECP response echoes the sequence_id and the controller_entity_id ... passed in 0.000s
+    And the AECP response is unicast back to the requester from our own MAC ... passed in 0.000s
+    And the AECP response configuration_index is 0 and the reserved halfword is zero ... passed in 0.000s
+    And the AECP response descriptor is 312 octets opening with type 0 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 340 octets ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.1 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 312 octets opening with type 0 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 340 octets ... passed in 0.000s
+[... verdict lines ...]
+  Scenario: before software loads the image, every read is refused and none is silent
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.1 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.2 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.1 every other descriptor type takes the same refusal
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.2 every other descriptor type takes the same refusal
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.3 every other descriptor type takes the same refusal
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.4 every other descriptor type takes the same refusal
+    Then every identity verdict is PASS ... passed in 0.000s
+    Then the identity check reports FAIL on "uncrossed" ... passed in 0.000s
+    Then the identity check reports FAIL on "no-duplicate-neighbour" ... passed in 0.000s
+    Then the identity check reports FAIL on "no-silent-channel" ... passed in 0.000s
+    Then the identity check reports FAIL on "channel-count" ... passed in 0.000s
+    And de-interleaving by a declared count of 8 is refused ... passed in 0.000s
+    And the production THD+N analyser refuses an incoherent rate where numpy exists ... passed in 0.000s
+    And the production THD+N analyser refuses a capture shorter than 8 periods where numpy exists ... passed in 0.000s
+    Then the THD+N gate verdict is PASS because the worst channel is inside -120 ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because one bad channel fails the set ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because a clipped capture is not a measurement ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because nothing analysed is not a pass ... passed in 0.000s
+    And a block offset that is not quadlet aligned is refused ... passed in 0.000s
+  Scenario: a truncated counters payload is refused rather than half-decoded
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    Then the tv-tnv verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.1 the two real escapes and their controls
+    Then the growth verdict is PASS ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.2 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.3 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.4 the two real escapes and their controls
+    Then the growth verdict is PASS ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.7 the two real escapes and their controls
+    And the reading refusal cites the 1 second ceiling ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+  Scenario: an anomaly delta exceeding the packet delta is caught
+    Then the interval-ceiling verdict is FAIL ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.1 the silicon shape - a bound sink at class A, mask 0xFFF
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.2 the silicon shape - a bound sink at class A, mask 0xFFF
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.3 the silicon shape - a bound sink at class A, mask 0xFFF
+    Then the semantics verdict is PASS and the reading is per-event ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.1 the two directions of getting the law wrong
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.2 the two directions of getting the law wrong
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.3 the two directions of getting the law wrong
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @3.1 nothing measured is nothing concluded
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is impossible ... passed in 0.000s
+  Scenario: interval-rate FRAMES_RX on a flowing stream is a FAIL
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+  Scenario: a cluster_offset past the port is refused, which a missing pin is not
+    Then the topology is configuration and a typo is refused ... passed in 0.001s
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.1 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.2 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.3 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.4 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.5 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.6 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.7 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.8 
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.9 
+  Scenario: every soft reset is an AECP REBOOT, graded on its exchange and the gPTP relock
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen -- @1.1 
+    Then the REBOOT oracle grades it PASS ... passed in 0.000s
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen -- @1.2 
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen -- @1.3 
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen -- @1.4 
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen -- @1.5 
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset -- @1.1 
+    Then the gPTP relock oracle grades it PASS ... passed in 0.000s
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset -- @1.2 
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset -- @1.3 
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset -- @1.4 
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset -- @1.5 
+    And every release repeat refuses an unsupported operation instead of skipping it ... passed in 0.000s
+    When release repeat soak.continuous has its soak.no-counter-errors assertion dropped ... passed in 0.001s
+    When release repeat soak.continuous has its soak.tu-within-holdover assertion downgraded ... passed in 0.001s
+    When release repeat audio.integrity has its audio.planted-arms-found assertion downgraded ... passed in 0.001s
+    When release repeat power.journal_commit has its power.single-boot assertion downgraded ... passed in 0.001s
+    When release repeat power.soft_reset has its power.gptp-relock assertion downgraded ... passed in 0.001s
+    Then the soak counter oracle grades it PASS ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it PASS ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    When the planted audio drop is graded on its synthetic capture ... passed in 0.034s
+    When a clean counter capture is graded with the release's required duration ... passed in 0.024s
+  Scenario: a slip and a one-word corruption in one window are both graded
+  Scenario Outline: a slip of whole blocks after a one-word corruption is graded as both events -- @1.1 
+  Scenario Outline: a slip of whole blocks after a one-word corruption is graded as both events -- @1.2 
+  Scenario Outline: a slip of whole blocks after a one-word corruption is graded as both events -- @1.3 
+    Then the state oracle grades the commit cut PASS ... passed in 0.000s
+    Then the state oracle grades the commit cut PASS ... passed in 0.000s
+    Then the state oracle grades the commit cut FAIL ... passed in 0.000s
+    Then a chained discontinuity clearing at 0.62 seconds is PASS ... passed in 0.000s
+    And a chained discontinuity clearing at 0.8 seconds is FAIL ... passed in 0.000s
+    Then a lone discontinuity at -0.0005 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.002 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.1 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at -0.001 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.001001 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0.4 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0.401 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+  Scenario: areas can be selected, and an unknown area is refused
+  Scenario: the verdict record shape is stable and the exit codes are graded
+    Then milan_datapath refuses a wire width its capture front-end cannot feed ... passed in 0.000s
+    And milan_datapath refuses a TDM master clock that is not an exact multiple ... passed in 0.000s
+  Scenario: a talker declaring 8 channels and emitting 2 is caught
+    Then the analyser reports FAIL on "declared-vs-wire" ... passed in 0.000s
+    Then every declared-vs-wire verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "seq-continuity" ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+    Then the analyser reports PASS on "pts-step" ... passed in 0.000s
+  Scenario: a presentation time that steps four times too far is caught
+    Then the analyser reports FAIL on "pts-step" ... passed in 0.000s
+    Then the analyser reports PASS on "class-a-transit" ... passed in 0.000s
+    Then the analyser reports FAIL on "class-a-transit" ... passed in 0.000s
+    Then the analyser reports FAIL on "c-tag-vid" ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.c-tag-present" ... passed in 0.000s
+    Then every VLAN verdict is PASS ... passed in 0.000s
+    Then every zero-fill verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "zero-fill-present" ... passed in 0.000s
+    Then the analyser reports FAIL on "fed-non-silent" ... passed in 0.000s
+    Then every CRF format verdict is PASS ... passed in 0.000s
+    And the analyser reports PASS on "crf.pdu-rate" ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.milan-format" ... passed in 0.000s
+    Then every ADP verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "available-index-advances" ... passed in 0.000s
+  Scenario: a frame that lies about its control_data_length is caught
+[... tail ...]
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built ADPDU that claims control_data_length 200 ... passed in 0.000s
+    When the analyser checks control length honesty ... passed in 0.000s
+    Then the analyser reports FAIL on "length-honest" ... passed in 0.000s
+    And the liar's declared control_data_length is 200 ... passed in 0.000s
+
+  Scenario: an empty capture is a FAIL, never a clean pass
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks the capture shape ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a written pcap of 3 tap records with a 28 octet header and an FCS ... passed in 0.001s
+    When the analyser reads it with the tap offset ... passed in 0.000s
+    Then the analyser reports PASS on "stream-frames-present" ... passed in 0.000s
+    When the analyser reads it without the tap offset ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: an empty capture leaves NO check silent and NO check passing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks an empty capture end to end ... passed in 0.000s
+    Then no check verdict is PASS ... passed in 0.000s
+    And every check family is represented ... passed in 0.000s
+    And every SKIP names what was absent ... passed in 0.000s
+    And the capture-shape verdict is FAIL ... passed in 0.000s
+
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the attribute is a Talker Advertise ... passed in 0.000s
+    And the declared destination address is 91e0f000fe07 ... passed in 0.000s
+    And the declared vlan identifier is 2 ... passed in 0.000s
+    And the declared MaxFrameSize is 1024 ... passed in 0.000s
+    And the attribute is declaring ... passed in 0.000s
+
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the listener declaration is "Ready" ... passed in 0.000s
+
+  Scenario: a talker Stream Output that never declares is found from the wire
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the entity declares 5 talker stream ids from 0200000000020000 ... passed in 0.000s
+    And only stream 0200000000020000 and 0200000000020001 advertise ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "talker-advertise-declared" ... passed in 0.000s
+    And the missing declarations are named ... passed in 0.000s
+
+  Scenario: frames on the wire with no Listener Ready are unreserved
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+508 scenarios passed, 0 failed, 0 skipped
+2330 steps passed, 0 failed, 0 skipped
+Took 0min 2.808s

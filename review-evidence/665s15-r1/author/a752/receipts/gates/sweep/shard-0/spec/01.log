@@ -1,0 +1,24 @@
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+TIMEOUT  milan_dp   (4800s wall clock - result UNKNOWN, not a failure)
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 14   failed: 0   timed out: 1
+checks: 360733   in-suite failures: 0
+TIMED OUT (result unknown, NOT a failure): milan_dp
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <scratch>/sweep/shard-0/logs

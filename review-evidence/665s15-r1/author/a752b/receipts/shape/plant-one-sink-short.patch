@@ -1,0 +1,22 @@
+diff --git a/sw/mailbox/gen_mailbox.py b/sw/mailbox/gen_mailbox.py
+index d72e787cf4..d49d6f5616 100644
+--- a/sw/mailbox/gen_mailbox.py
++++ b/sw/mailbox/gen_mailbox.py
+@@ -232,7 +232,7 @@ def shape_variant(contract: Contract, config: Path, interfaces: int) -> tuple[Co
+     """The contract laid out for a config's per-interface stream counts, and those totals."""
+     sources, sinks = shape_streams(config)
+     return (with_shape(contract, interfaces, max(per_interface(sources, interfaces)),
+-                       max(per_interface(sinks, interfaces))), sources, sinks)
++                       max(per_interface(sinks, interfaces)) - 1), sources, sinks)
+ 
+ 
+ def write_shape_variant(contract: Contract, config: Path, interfaces: int, out: Path) -> list[str]:
+@@ -244,7 +244,7 @@ def write_shape_variant(contract: Contract, config: Path, interfaces: int, out:
+     for path in VARIANT_OUTPUTS:
+         (out / Path(path).name).write_text(texts[path], encoding="utf-8")
+         print(f"wrote {out / Path(path).name} ({config.stem}, {interfaces} interfaces)")
+-    return crosscheck(variant, texts) + shape_findings(variant, sources, sinks)
++    return crosscheck(variant, texts)
+ 
+ 
+ def _plant(texts: dict[str, str], path: str, old: str, new: str) -> dict[str, str]:

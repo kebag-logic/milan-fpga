@@ -1,0 +1,19 @@
+test_simulation_shape_option:
+  [gate 39] the 32x32 simulation shape builds without saved state; saved_state: none is refused on a shape that may be routed and the simulation shape writes no routed output, each by its words
+  [gate 39] 2/2 planted defects turned it red: the option accepted on any shape: saved_state: none on a shape that may be routed: accepted; the simulation shape writing routed outputs: --write-rtl of the simulation shape: accepted
+test_shipped_shape_outputs_unchanged:
+wrote $SCRATCH/tmp-lane-5e6c/gate40-kpodszol/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-kpodszol/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-kpodszol/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-q0aqdbum/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-q0aqdbum/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-q0aqdbum/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-j8lzq50z/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-j8lzq50z/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp-lane-5e6c/gate40-j8lzq50z/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+  [gate 40] the 1x1 and 8x8 shapes' 33 generated outputs (ax7101_1x1_tdm8 15, ax7101_8x8 18) are byte-identical to shape_outputs_golden.json
+  [gate 40] 1/1 planted defect turned it red: the simulation mark on every shape (ax7101_1x1_tdm8 builder:build_plan: changed)
+
+SUBSET: 2 of 107 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+# wall=6.22 s maxrss=102660 kB

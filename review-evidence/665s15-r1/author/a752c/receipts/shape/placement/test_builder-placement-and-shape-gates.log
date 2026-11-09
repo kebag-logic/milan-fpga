@@ -1,0 +1,23 @@
+# head 7aa6ef0c0312818fc8da36d39bbc468f54ac265b: python3 -B sw/builder/test_builder.py --gates test_all_configs_build,test_control_placement_key,test_bad_configs_rejected,test_datapath_params_match_the_instance,test_simulation_shape_option,test_shipped_shape_outputs_unchanged
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_control_placement_key:
+  [gate 23n] 5 configs all-fabric, each split variant differing in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_datapath_params_match_the_instance:
+  [gate 23m] 6 real milan_soc.py elaborations in 13 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+test_simulation_shape_option:
+  [gate 39] the 32x32 simulation shape builds without saved state; saved_state: none is refused on a shape that may be routed and the simulation shape writes no routed output, each by its words
+  [gate 39] 2/2 planted defects turned it red: the option accepted on any shape: saved_state: none on a shape that may be routed: accepted; the simulation shape writing routed outputs: --write-rtl of the simulation shape: accepted
+test_shipped_shape_outputs_unchanged:
+  [gate 41] the 1x1 and 8x8 shapes' 33 generated outputs (ax7101_1x1_tdm8 15, ax7101_8x8 18) are byte-identical to shape_outputs_golden.json
+  [gate 41] 1/1 planted defect turned it red: the simulation mark on every shape (ax7101_1x1_tdm8 builder:build_plan: changed)
+
+SUBSET: 6 of 108 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+# rc=0

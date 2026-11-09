@@ -1,0 +1,5 @@
+REFUSED: <scratch>/c-plant/sw/firmware/ctrl/acmp/acmp_mbx.c:15:1: error: static assertion failed: "every sink needs a bound-talker entry"
+   15 | _Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+      | ^~~~~~~~~~~~~~
+<scratch>/c-plant/sw/firmware/ctrl/acmp/acmp_mbx.c:16:1: error: static assertion failed: "every sink needs a publication entry"
+   16 | _Static_assert(MBX_STREAM_ENTRIES(ACMP_MAX_SINKS) <= MBX_N_PUB_SINKS, "every sink needs a publication entry");

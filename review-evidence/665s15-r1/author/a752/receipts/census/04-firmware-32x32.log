@@ -1,0 +1,14 @@
+REFUSED: In file included from <scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl_nvm/nvm_klj2.h:19,
+                 from <scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl_nvm/nvm_store.h:18,
+                 from <scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl/test/ctrl_aecp_image.c:9:
+<scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl_nvm/nvm_shape.h:132:1: error: static assertion failed: "the record set outgrows record_id[7:0]"
+  132 | _Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows record_id[7:0]");
+      | ^~~~~~~~~~~~~~
+<scratch>/probe-a9d69c774dee18b90eead74c9f2dda24cf8fdeb8/sw/firmware/ctrl_nvm/nvm_shape.h:133:1: error: static assertion failed: "the names outgrow their id block"
+  133 | _Static_assert(MILAN_NVM_N_NAME <= 128u, "the names outgrow their id block");
+      | ^~~~~~~~~~~~~~
+
+wrote <scratch>/probe-out/fw/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/probe-out/fw/image/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/probe-out/fw/image/contract/mbx_contract.h (2 interfaces)
+rc=2

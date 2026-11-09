@@ -1,0 +1,11 @@
+# The size fixture (ctrl_srp_image.py --with-aecp --layout split) linked from clean clones of dev-soft-core 1d6bf5556a (base) and of the head 7aa6ef0c03 (head), by SHA-256 of ctrl_app.elf; both clones clean after
+1x1/1if base 2f22e6abcd0fdb9a02ff60f20dce666c11565fc03a9154f4b9f02b380abec741 head 2f22e6abcd0fdb9a02ff60f20dce666c11565fc03a9154f4b9f02b380abec741 IDENTICAL
+8x8/1if base dfe426b62586caa99ca1f91019d6980eb77ae13eb7c2fb3a08144a13ef130613 head dfe426b62586caa99ca1f91019d6980eb77ae13eb7c2fb3a08144a13ef130613 IDENTICAL
+8x8/2if base d4356a2b907f40496c7ccc67c163f1803388652357a07347d10053835f3e787e head d4356a2b907f40496c7ccc67c163f1803388652357a07347d10053835f3e787e IDENTICAL
+32x32/2if head 5b0c3ce2185ffad4820e55644b2b0cb2ec5e060fd4a2ecb01443e11ba71d2332 (no base: the base refuses the shape)
+# The same four images linked from a clean clone of c81640ad6f have the same SHA-256 (the merge and the relabel, before conflict 2's fix)
+endstation_ax7101_1x1_tdm8 if1: c81640ad == 7aa6ef0c
+endstation_ax7101_8x8 if1: c81640ad == 7aa6ef0c
+endstation_ax7101_8x8 if2: c81640ad == 7aa6ef0c
+endstation_ax7101_32x32 if2: c81640ad == 7aa6ef0c
+# Round 2's images (5e6c3f62, on a9d69c77) differ: 1d6bf555 changes sw/firmware/ctrl/app/ctrl_app_aecp.c (available_index) and sw/firmware/ctrl/plat/ctrl_plat.c
