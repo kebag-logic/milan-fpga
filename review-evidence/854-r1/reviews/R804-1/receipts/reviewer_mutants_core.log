@@ -1,0 +1,56 @@
+control: exit 0 (ran)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +69, 158 FIFO overflows
+    DR flood: 392 frames lost in all
+    RESULT: PASS
+counts-runts: SURVIVED (exit 0)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +69, 158 FIFO overflows
+    DR flood: 392 frames lost in all
+    RESULT: PASS
+head1-only: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 6
+    [FAIL] DR the burst's lost frames equal the drop count got=0x00000006 exp=0x0000001F
+    DR refused burst: 69 kept lost, count +44, 158 FIFO overflows
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x0000002C exp=0x00000045
+    DR flood: 392 frames lost in all
+    [FAIL] DR the count saturates at 255              got=0x00000032 exp=0x000000FF
+    [FAIL] DR ...and holds there                      got=0x00000032 exp=0x000000FF
+    RESULT: FAIL
+counts-refused-at-head1: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +158, 158 FIFO overflows
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x0000009E exp=0x00000045
+    DR flood: 392 frames lost in all
+    RESULT: FAIL
+saturates-at-254: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +69, 158 FIFO overflows
+    DR flood: 392 frames lost in all
+    [FAIL] DR the count saturates at 255              got=0x000000FE exp=0x000000FF
+    [FAIL] DR ...and holds there                      got=0x000000FE exp=0x000000FF
+    RESULT: FAIL
+counts-two: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 62
+    [FAIL] DR the burst's lost frames equal the drop count got=0x0000003E exp=0x0000001F
+    DR refused burst: 69 kept lost, count +138, 158 FIFO overflows
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x0000008A exp=0x00000045
+    DR flood: 392 frames lost in all
+    RESULT: FAIL
+current-state-not-registered: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 0
+    [FAIL] DR a burst past the FIFO loses frames and counts them 108 offered, 77 handed out, 31 lost, count 0
+    [FAIL] DR the burst's lost frames equal the drop count got=0x00000000 exp=0x0000001F
+    DR refused burst: 69 kept lost, count +0, 158 FIFO overflows
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x00000000 exp=0x00000045
+    DR flood: 392 frames lost in all
+    [FAIL] DR the count saturates at 255              got=0x00000000 exp=0x000000FF
+    [FAIL] DR ...and holds there                      got=0x00000000 exp=0x000000FF
+    RESULT: FAIL
+counts-kept-frames-not-losses: KILLED (exit 1)
+    DR burst: 108 offered, 77 handed out, 31 lost, count 108
+    [FAIL] DR the burst's lost frames equal the drop count got=0x0000006C exp=0x0000001F
+    DR refused burst: 69 kept lost, count +147, 158 FIFO overflows
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x00000093 exp=0x00000045
+    DR flood: 392 frames lost in all
+    RESULT: FAIL

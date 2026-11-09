@@ -1,0 +1,11 @@
+[DR] a control frame lost to a full FIFO is counted (#854)
+  DR burst: 108 offered, 77 handed out, 31 lost, count 0
+  [FAIL] DR a burst past the FIFO loses frames and counts them 108 offered, 77 handed out, 31 lost, count 0
+  [FAIL] DR the burst's lost frames equal the drop count got=0x00000000 exp=0x0000001F
+  DR refused burst: 69 kept lost, count +0, 158 FIFO overflows
+  [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x00000000 exp=0x00000045
+  DR flood: 392 frames lost in all
+  [FAIL] DR the count saturates at 255              got=0x00000000 exp=0x000000FF
+  [FAIL] DR ...and holds there                      got=0x00000000 exp=0x000000FF
+pp_shadow: 11 checks, 5 failures
+RESULT: FAIL
