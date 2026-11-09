@@ -1,0 +1,7 @@
+  self-test OK: legacy_any_nonblank_header caught by legacy_other_format_not_recorded; first: [FAIL] Ports/NvmBoth.legacy_other_format_not_recorded/model: a KLJ3 container in today's slot 0: {'abandon
+  self-test OK: ver_overrides_own_refusal  caught by own_refusal_kept_over_legacy; first: [FAIL] Ports/NvmBoth.own_refusal_kept_over_legacy/model: slot 0 refused, KLJ2 in today's journal: {'abandoned'
+  self-test OK: legacy_b_wrong_place       caught by klj2_journal_at_its_flash_map_address; first: [FAIL] Ports/NvmBoth.klj2_journal_at_its_flash_map_address/model: KLJ2 at 0xef0000, today's slot 1 in
+  self-test OK: erase_first_block_every_time caught by capacity_commit_over_stale; first: [FAIL] Ports/NvmBoth.capacity_commit_over_stale/model: three commits at capacity: {'abandoned': 1, 'abandoned_
+  self-test OK: step_bytes_layout2         caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: step bytes 278, want 280 (bound 280)
+  self-test OK: mapin_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPIN_ENTRIES_0 = 256, past its table's width, compiled
+  self-test OK: mapout_width_assert_removed caught by over_width; first: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused for another reason: rror: comparison is always false due to limite

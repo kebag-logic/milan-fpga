@@ -1,0 +1,51 @@
++++ b/scripts/check_nvm_klj3.py
++scripts/nvm_klj3.py is the oracle the F1 store (sw/firmware/ctrl_nvm) is
++++ b/scripts/nvm_format_32x32_tables.py
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "#define NVM_REC_HDR    NVM3_REC_HDR",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "#define NVM_KLJ3_MAX       NVM_SLOT_BYTES",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.c", "if (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)",
++    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_klj2.h", "uint16_t id;", "16-bit id", "done"),
++    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "rec[4] == (uint8_t)(r.id >> 8)",
++    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "#define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)",
++    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "v->count++;", "the open records' count",
++    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "nvm_legacy_check();",
++    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "(++nvm.block < NVM_ERASE_BLOCKS)",
++    Anchor("F1 port", "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
++    Anchor("F1 link", "sw/litex/ctrl_memory.py", "def stage_bytes(shape: object)",
++    Anchor("F1 link", "sw/litex/milan_soc.py", "split_constants(_nvm_split, _nvm_shape)",
++    Anchor("F1 link", "sw/litex/milan_soc.py", '"journal_klj3": {"offset": 0xE4_0000',
++    """Section 3: the ppmem window and the F1 stage."""
++        ("F1 stage today", "f1_stage_now"),
++        ("F1 stage, proposal", "f1_stage_new"),
++     "F1 `name_block_ends`; builder gate 39 pins it; the reference gate holds every id in its block",
++     "F1 at {t32_names} names: `name_block_ends`; `capacity_round_trip` over two erase blocks; "
++     "F1 `one_past_refused` and the parity table, `VD_REC`; {name_cap_over} names do not compile",
++    ("Old journal on boot", "F1 `klj2_journal_refused`, `klj2_in_slot_refused`, `klj2_journal_unreadable`: "
++    ("Payload cap", "the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`)",
++++ b/scripts/nvm_klj3.py
++The reference the F1 store (sw/firmware/ctrl_nvm) is graded against, byte
++    """The MILAN_NVM3_* constants the F1 store is built against: each count
++    """The F1 store's stage for `shape`: its container and one record header
++++ b/scripts/nvm_layout3.py
++F1 store's codec compiles. This module is how every Python reader takes it
++++ b/sw/builder/endstation_builder.py
++#: declaration is the F1 store's header, which the store's codec compiles;
++    model, naming the count, the capacity and the declaration line. The F1
++                f"{b.where}): the F1 store would refuse this shape at compile "
++++ b/sw/builder/test_builder.py
++    from its one declaration (the F1 store's nvm_layout3.h). The bound
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
++    "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
++    "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
++                                          "F1 store (#823); it compiles nothing",
++++ b/sw/firmware/ctrl_nvm/nvm_klj2.c
++ * nvm_klj2.c - the container and F07.8 record codec (#665, the F1 store), in the
++++ b/sw/firmware/ctrl_nvm/nvm_klj2.h
++ * (#665, the F1 store), for the shape nvm_shape.h describes.
++++ b/sw/firmware/ctrl_nvm/nvm_layout3.h
++ *   - the F1 store's codec (nvm_shape.h, nvm_klj2.c), which refuses at
++++ b/sw/firmware/ctrl_nvm/nvm_shape.h
++ * build time (#665, the F1 store), in the split placement's format (#823).
