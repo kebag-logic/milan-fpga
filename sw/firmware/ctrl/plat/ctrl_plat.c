@@ -190,6 +190,13 @@ static bool maap_owner(struct ctrl_plat *p)
 	return true;
 }
 
+// MAAP's preferred first range (ctrl_app.h). The image never defines it, so
+// MAAP draws its range (IEEE 1722-2016 B.3.6.1); only a simulation pins it, as
+// #665's two-placement comparison requires of both placements
+#ifndef CTRL_PLAT_MAAP_PREFERRED
+#define CTRL_PLAT_MAAP_PREFERRED 0u
+#endif
+
 // Step 5: the application, AECP and its face, bound into one loop
 static bool compose(struct ctrl_plat *p)
 {
@@ -208,7 +215,8 @@ static bool compose(struct ctrl_plat *p)
 	p->acmp_env = (struct acmp_env){p, locked, source, stream, notice, notice};
 	p->config = (struct ctrl_app_config){.entity = &entity, .arena = arena, .arena_bytes = sizeof arena,
 		.classes = srp_pool_classes, .n_classes = SRP_POOL_N_CLASSES, .acmp = &p->acmp,
-		.acmp_env = &p->acmp_env, .maap_allocation = allocation, .maap_ctx = p};
+		.acmp_env = &p->acmp_env, .maap_allocation = allocation, .maap_ctx = p,
+		.maap_preferred = CTRL_PLAT_MAAP_PREFERRED};
 	p->aecp_config.entity_id = entity.entity_id;
 	p->aecp_config.interfaces = MBX_N_IF;
 	p->aecp_config.model = &model;

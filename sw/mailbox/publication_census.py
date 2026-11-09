@@ -113,6 +113,15 @@ firmware-written, a window, an event, a frame path, or gone with a G output's
 cone ending only at its three terminals, the map writer's exclusion and the
 REBOOT request's. Its findings join this census's.
 
+THE SPLIT PLACEMENT. census_split.py is the census's second population
+(#665). ``--check`` elaborates every shape again
+with ``CTRL_SPLIT_P = 1`` and classifies each ``i_ctl_*`` and ``o_ctl_*`` port
+of that datapath under one class. It then requires every publication field
+and every contract 2.3 field and event to be consumed there as the wrapper's
+port was. Each wrapper port's net is checked against this shape's all-fabric
+netlist. Its findings join this census's, and it needs no exclusion: the
+split builds no map writer, and its REBOOT request is a constant 0.
+
 ``--selftest`` (census_selftest.py) elaborates a planted copy of the datapath,
 the wrapper or an included file for each defect of ``census_plants.PLANTS``,
 at a shape that builds the plant's branch, and requires each to be refused by
@@ -135,13 +144,14 @@ import time
 from collections import defaultdict, deque
 from concurrent.futures import ProcessPoolExecutor
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import census_ports  # noqa: E402
+import census_split  # noqa: E402
 import mailbox_model  # noqa: E402
 from census_elab import (REPO, RECIPE, WORK, Cell, CensusError, Netlist, Shape, elaborate,  # noqa: E402
                          recipe, shapes, toolchain)
@@ -300,6 +310,8 @@ class Survey:
     size: str
     shape: str = RECIPE.name
     ports: census_ports.PortSurvey | None = None
+    split: census_split.SplitSurvey | None = None
+    face: census_split.AfFace | None = None
 
 
 @dataclass
@@ -517,12 +529,25 @@ def multiple(fl: Flow, skip: set[str]) -> list[str]:
 _SURVEYED: list[tuple[Netlist, frozenset[str], str, Flow, Survey]] = []
 
 
+@dataclass(frozen=True)
+class SplitPlan:
+    """The second population's run (census_split.py): its table (census_split.SPLIT_PORTS when None), a
+    function of the split netlist planting a defect into it after its elaboration (a self-test arm), and
+    the shape's split netlist when the caller elaborated it; without it survey() keeps only the all-fabric
+    netlist's face, for split_surveyed()."""
+
+    ports: dict | None = None
+    plant: Callable[[Netlist], Netlist] | None = None
+    net: Netlist | None = None
+
+
 def survey(src: Sources, shape: Shape = RECIPE, net: Netlist | None = None, ports: dict | None = None,
-           excluded: tuple[str, ...] | None = None) -> Survey:
+           excluded: tuple[str, ...] | None = None, split: SplitPlan | None = None) -> Survey:
     """The population, its reads and their cones, and every port of the wrapper
     against the port table ports (census_ports.PORTS when None), from the
     datapath as elaborated in shape, or from net when that elaboration is
-    already done."""
+    already done. With split, the shape's split netlist (split.net) has its
+    control face censused against this one."""
     net = net or elaborate(overlay(src), shape)
     # census_ports.py's rules shape only the port census, which is judged again below
     off = frozenset(census_rules.OFF - census_ports.RULES)
@@ -541,16 +566,36 @@ def survey(src: Sources, shape: Shape = RECIPE, net: Netlist | None = None, port
         _SURVEYED[:] = [hit]
     fl, base = hit[3], hit[4]
     port_survey = census_ports.survey_ports(fl, sys.modules[__name__], ports, excluded, shape.name)
-    return Survey(base.population, base.reads, base.unread, list(base.problems), base.size, shape.name, port_survey)
+    out = Survey(base.population, base.reads, base.unread, list(base.problems), base.size, shape.name, port_survey)
+    if split is not None:
+        out.face = census_split.af_face(fl, sys.modules[__name__], base.reads)
+        if split.net is not None:
+            snet = split.plant(split.net) if split.plant else split.net
+            out.split = census_split.survey_split(flow(snet), sys.modules[__name__], out.face, shape.name,
+                                                  split.ports)
+    return out
 
 
-def surveyed(job: tuple[Sources, Shape, dict | None, tuple[str, ...] | None]) -> Survey:
+def surveyed(job: tuple[Sources, Shape, dict | None, tuple[str, ...] | None, SplitPlan | None]) -> Survey:
     """survey() of one shape in a worker process, a refusal naming the shape."""
-    src, shape, ports, excluded = job
+    src, shape, ports, excluded, split = job
     try:
-        return survey(src, shape, None, ports, excluded)
+        return survey(src, shape, None, ports, excluded, split)
     except CensusError as exc:
         raise CensusError(f"in the shape {shape.name}: {exc}") from exc
+    finally:
+        _SURVEYED[:] = []               # a worker holds one netlist at a time: the split one comes next
+
+
+def split_surveyed(job: tuple[Sources, Shape, census_split.AfFace | None, SplitPlan]) -> census_split.SplitSurvey:
+    """The split census of one shape in a worker process, from the face its all-fabric survey kept."""
+    src, shape, face, split = job
+    try:
+        snet = elaborate(overlay(src), census_split.split_shape(shape))
+        snet = split.plant(snet) if split.plant else snet
+        return census_split.survey_split(flow(snet), sys.modules[__name__], face, shape.name, split.ports)
+    except CensusError as exc:
+        raise CensusError(f"in the shape {shape.name} at {census_split.SPLIT_PARAM} = 1: {exc}") from exc
 
 
 def overlay(src: Sources) -> dict[Path, str]:
@@ -571,7 +616,7 @@ def fields(contract: mailbox_model.Contract) -> set[str]:
 
 def judge(sv: Survey, table: dict[tuple[str, str], Row], known: set[str]) -> list[str]:
     """Every way one shape's survey and the census disagree."""
-    out = list(sv.problems) + (sv.ports.findings if sv.ports else [])
+    out = list(sv.problems) + (sv.ports.findings if sv.ports else []) + (sv.split.findings if sv.split else [])
     for r in sv.reads:
         row = table.get((r.wire, r.consumer))
         where = f"{r.wire} -> {r.consumer}"
@@ -634,7 +679,8 @@ class Plan:
     None), jobs elaborating at once, and nets, when given, holding each shape's netlist
     by name, elaborated only when missing. ports and excluded replace the port census's
     table and exclusion; plant, a function of a netlist, plants a defect into each
-    netlist after its elaboration (the self-test's netlist arms)."""
+    netlist after its elaboration (the self-test's netlist arms). split, when given,
+    censuses each shape's split elaboration too (census_split.py)."""
 
     at: tuple[Shape, ...] | None = None
     jobs: int = 1
@@ -642,20 +688,26 @@ class Plan:
     ports: dict | None = None
     excluded: tuple[str, ...] | None = None
     plant: Callable[[Netlist], Netlist] | None = None
+    split: SplitPlan | None = None
 
 
 def census(src: Sources, table: dict[tuple[str, str], Row], known: set[str],
            plan: Plan | None = None) -> tuple[list[str], list[Survey]]:
     """Every finding over the shapes plan names, and each shape's survey."""
     plan = Plan() if plan is None else plan
-    jobs, nets, ports, excluded, plant = plan.jobs, plan.nets, plan.ports, plan.excluded, plan.plant
+    jobs, nets, ports, excluded, plant, split = plan.jobs, plan.nets, plan.ports, plan.excluded, plan.plant, plan.split
     at = shapes() if plan.at is None else plan.at
     if nets is None and jobs > 1 and len(at) > 1:
         # the most streams first: the largest netlist is the longest elaboration
         order = sorted(at, key=lambda s: -dict(s.params).get("N_STREAMS", 1))
         WORK.roms()                    # once, here: the workers share this process's scratch directory
         with ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context("fork")) as pool:
-            done = dict(zip((s.name for s in order), pool.map(surveyed, [(src, s, ports, excluded) for s in order])))
+            done = dict(zip((s.name for s in order),
+                            pool.map(surveyed, [(src, s, ports, excluded, split) for s in order])))
+            if split is not None:
+                for s, ss in zip(order, pool.map(split_surveyed, [(src, s, done[s.name].face, split)
+                                                                  for s in order])):
+                    done[s.name].split = ss
         svs = [done[s.name] for s in at]
     else:
         svs = []
@@ -665,7 +717,16 @@ def census(src: Sources, table: dict[tuple[str, str], Row], known: set[str],
                 net = elaborate(overlay(src), shape)
                 if nets is not None:
                     nets[shape.name] = net
-            svs.append(survey(src, shape, plant(net) if plant else net, ports, excluded))
+            run = split
+            if split is not None:
+                at_split = census_split.split_shape(shape)
+                snet = nets.get(at_split.name) if nets is not None else None
+                if snet is None:
+                    snet = elaborate(overlay(src), at_split)
+                    if nets is not None:
+                        nets[at_split.name] = snet
+                run = replace(split, net=snet)
+            svs.append(survey(src, shape, plant(net) if plant else net, ports, excluded, run))
     return verdict(svs, table, known), svs
 
 
@@ -710,6 +771,10 @@ def report(svs: list[Survey], out: list[str], listing: bool, checking: bool) -> 
                   + "; G cones end at " + ", ".join(f"{k} {e.get(k, 0)}"
                                                     for k in ("csr", "memory", "shim", "reboot", "wire"))
                   + f", stopped at {e.get('removed', 0)} net(s) removed with the wrapper")
+        if sv.split and sv.split.counts:
+            c = sv.split.counts
+            print(f"  split ctl ports: {c['ports']}: " + ", ".join(f"{k} {c[k]}" for k in census_split.CLASSES)
+                  + f"; {c['consumed']} live bit(s) consumed, {c['unread']} port(s) read in neither placement")
     if checking:
         for f in out:
             print(f"[FAIL] {f}")
@@ -740,7 +805,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"publication census: elaborating {DATAPATH.relative_to(REPO)} with {toolchain()}")
         src = load(args.datapath, args.wrapper)
         if args.check or args.list:
-            out, svs = census(src, CENSUS, known, Plan(jobs=args.jobs))
+            out, svs = census(src, CENSUS, known, Plan(jobs=args.jobs, split=SplitPlan()))
             report(svs, out, args.list, args.check)
             print(f"publication census: {len(svs)} shape(s) elaborated and classified in "
                   f"{time.monotonic() - began:.0f} s at --jobs {args.jobs}")

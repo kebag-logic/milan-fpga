@@ -420,9 +420,9 @@ The ledger shows disjoint removal references and all cost allowances.
 The measured mailbox skeleton costs 3,102 LUTs and six BRAM tiles.
 F0-F4 code is present at the assigned dev revision.
 Presence does not establish integrated, bench-qualified operation.
-The [SoC wiring](../../sw/litex/milan_soc.py) holds the mailbox datapath idle.
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) still instantiates `KL_pp_shadow` unconditionally.
-Consequently, enabling `--ctrl-mailbox` alone saves no processor logic.
+The [SoC wiring](../../sw/litex/milan_soc.py) builds the split datapath when `--ctrl-mailbox` is given.
+At `CTRL_SPLIT_P = 1`, [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) builds neither `KL_pp_shadow` nor `KL_maap`, and `KL_mbx_cdc` joins it to the mailbox (#665).
+The default build is still all-fabric and keeps `KL_pp_shadow` until the flip.
 
 **What leaves after qualification:** the selected protocol engines, their
 private tables, notification and descriptor serving, and fabric NVM serialization.

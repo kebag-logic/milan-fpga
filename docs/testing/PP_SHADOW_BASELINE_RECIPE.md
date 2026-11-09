@@ -189,9 +189,14 @@ Its route and standalone recipes remain unchanged.
 | Selection | Required retained control engines | Required absence |
 |---|---|---|
 | `all-fabric` | Wrapper, ADP, both ACMP engines, SRP, AECP, notifications, parent MAAP and gPTP | Mailbox and processor MAAP |
-| `f0-f4` | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
+| `f0-f4` (ruled dead, #665) | Fabric AECP, notifications, mailbox and gPTP | ADP, both ACMP engines, SRP and both MAAP implementations |
 | `full-split` | Mailbox and gPTP | Wrapper and all five fabric protocol engines, including notifications |
 
+The `f0-f4` selection is ruled dead (#665).
+The split moves every control protocol to the firmware at once.
+No image is built with only F0-F4 moved, and no record measures one.
+Do not select or extend it.
+It is removed at the flip together with the all-fabric placement.
 The partial selection permits AECP inside or outside one wrapper.
 Standalone 1x1/8x8 references always use their all-fabric exports.
 Never derive those references from a partial or complete split.
@@ -206,6 +211,7 @@ See the [intermediate ledger](../design/MARK_II_AREA_PLAN.md#m0s-step-1-intermed
 After that prerequisite passes, export into a fresh external directory.
 Retain the build's selected-placement arguments with its measurement.
 Use the same part, clocks, directives, seed and worker settings.
+The `f0-f4` recipe below is kept only until the flip removes it; it is not run.
 For an already integrated F0-F4 export:
 
 ```sh
@@ -304,7 +310,7 @@ Run the generated integrated scripts exactly as above.
 The switch reads one additional constraint before synthesis:
 
 ```tcl
-set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]
+set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/g_af_pp.pp_shadow]
 ```
 
 The wrapper boundary stays preserved during synthesis optimization.
@@ -325,7 +331,7 @@ vivado -mode batch -source "$PROBES/boundary.tcl" -nojournal \
   -log "$WORK/boundary.log" -tclargs "$CHECKPOINT" "$WORK/boundary.tsv"
 vivado -mode batch -source "$PROBES/loads.tcl" -nojournal \
   -log "$WORK/loads.log" -tclargs "$CHECKPOINT" \
-  milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn "$WORK/loads.tsv"
+  milan_datapath/g_af_pp.pp_shadow/u_pp/u_aecp/u_dyn "$WORK/loads.tsv"
 ```
 
 Set `CHECKPOINT` to each synthesis checkpoint, then the 1x1 route.
@@ -354,7 +360,7 @@ python3 syn/ooc/pp_baseline_rank.py "$REPORT" --root "$ROOT" > "$RANKING"
 ```
 
 Use `KL_pp_shadow` for the standalone report root.
-Use `alinx_ax7101/milan_datapath/pp_shadow` for integrated reports.
+Use `alinx_ax7101/milan_datapath/g_af_pp.pp_shadow` for integrated reports.
 The threshold is zero: every reported direct child appears.
 The wrapper and processor each include their own logic.
 Reconciliation rows retain the report's cross-child LUT-sharing adjustment.

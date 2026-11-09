@@ -120,7 +120,7 @@ SCOPE_NAME = re.compile(r"[A-Za-z0-9_.:/\[\]-]{1,128}")
 #: The one object whose keys are scope names: a baseline record's scopes, None standing for any endpoint.
 SCOPES = ("endpoints", None, "record", "scopes")
 SCRIPTS = {"route": "baseline_integrated.tcl", "ooc": "baseline_ooc.tcl"}
-ROOTS = {"route": "alinx_ax7101/milan_datapath/pp_shadow", "ooc": "KL_pp_shadow"}
+ROOTS = {"route": "alinx_ax7101/milan_datapath/g_af_pp.pp_shadow", "ooc": "KL_pp_shadow"}
 FLOW = re.compile(r"^(create_project|set_param|synth_design|opt_design|place_design"
                   r"|phys_opt_design|route_design|kl_timing_grade_configure)\b.*$", re.M)
 READS = re.compile(r"^(?:read_verilog(?: -v)?|read_xdc|source) \{?([^{}\s]+)\}?[ \t]*$", re.M)

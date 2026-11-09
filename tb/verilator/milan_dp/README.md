@@ -106,6 +106,8 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-four planted defects and its make -j8 gate from a clean tree
+- **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1108,6 +1110,374 @@ under a 2-channel format record that refuses its saved set, against a
 reference boot over the format record alone. At 8x8 the three stages held
 the faces about 13,700 clocks, past the processor's 4,096-clock gather
 watchdog; that stays open with the other 8x8 obligations (D3 18.4).
+
+## The split placement's control path (`obj_split`, #665)
+
+`make split` builds `tb_split_top.sv` and runs `sim_split.cpp`. The top
+composes the split SoC's control path on two clocks:
+
+- `KL_mbx` at 100 MHz, its host port the bench's only way in;
+- `KL_mbx_cdc` and two byte FIFOs, sixteen bytes deep;
+- `milan_datapath` at 50 MHz with `CTRL_SPLIT_P = 1`, at the shipping AX7101 shape;
+- a second `KL_ctrl_split`, `u_tap`, from the datapath's own source, on the datapath clock and driven by the bench alone.
+
+The receive filter is pruned (`RXFILT_P = 0`), the straight wire it is when
+promiscuous. The gPTP plane is off, as in the broad legs: no face here reads it.
+
+Each check writes the contract's registers (`mbx_contract.h`) and reads the
+contract's registers or a datapath net its consumers read:
+
+| Section | What it holds |
+|---|---|
+| `[PUB]` | each publication field reaches its class-D consumer, the Talker declaration as ADVERTISE (the encoding GET_STREAM_INFO tells from FAILED); a sink's stream_id only once `SID_VALID` is set; `STARTED` moves alone |
+| `[FACE]` | a setting reaches the datapath only at its commit; the commit is acknowledged within `MBX_FACE_ACK_CYCLES` |
+| `[WIN]` | `CTR`, `AMAP` and `GSI` close `DONE` under their own tag; one request answered twice gives one non-empty word |
+| `[RX]` | an ADP frame reaches the adp ring whole; an AAF frame never reaches the mailbox; the datapath's drop count (`pp_rx_drops_w`, `PP_DIAG[15:8]`) reads 0, and a burst at the MAC past its tap's FIFO is counted there, each frame handed out or counted lost |
+| `[TX]` | a frame committed to the adp ring leaves the MAC byte for byte |
+| `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
+| `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO filled to its last word counts each control frame it loses once and no refused frame or one-beat runt, and the count saturates at 255 |
+
+`make split` runs the binary only once it has linked. The rule builds it
+(`build-split`), then runs it in a make of its own (`exec-split`). Both were
+once plain prerequisites, so a parallel make started the run beside the link.
+The run then failed on the missing binary, or ran an old one
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 3).
+
+[`split_parallel.py`](split_parallel.py) is the rule's gate. It clones the
+committed HEAD into a scratch directory, with each submodule the leg reads at
+its gitlink. Then it runs `make -j8 split` there, and passes on make's exit 0
+and the leg's `failures: 0`. Its `--selftest` first plants the old rule in
+another clean tree, where `make -j8 split` must fail on the missing binary.
+The planted run has no prerequisite and the build takes minutes, so the run
+starts long before the link.
+
+```sh
+python3 tb/verilator/milan_dp/split_parallel.py --selftest
+```
+
+`make split-mutants` runs `split_mutants.py`. It plants twenty-four defects
+into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
+`KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
+check it names, after a clean control passes. Eleven of them hold the Talker
+declaration's encoding, the tap's tuples and its drop count, and the
+datapath's own count wired to `PP_DIAG[15:8]`.
+
+`make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
+the primitives as blackboxes. Every flop's inputs, every output and every
+primitive's source inputs and resets must read only their own clock's domain,
+and every clock pin must read one of the two clock inputs. The one allowance
+is the settings capture: the flop `fw_r` may take the data bits of the bus
+`KL_mbx` holds, and only through a multiplexer that `u_fw_req`'s destination
+pulse selects. Twelve plants must each be refused by their own words: a raw
+publication, LINK level, settings read and window answer; the held bus taken
+every cycle, on the commit level, on the request pulse, while the pulse is
+low, and by another flop; a reset from the other domain on each side; and a
+primitive clocked by a level. That `KL_mbx` holds the bus until the
+acknowledgement is its own behaviour, held by the `[FACE]` checks. It needs
+the pinned sv2v and Yosys, so it is not a default case.
+`rtl-fast`'s `split-cdc` job runs it, in a job of its own.
+
+Not held here: the `EDIT` window, the counter-change and face events, the GM
+event, and the firmware itself. The two-placement simulation below runs the
+firmware.
+
+`tb_split_top` brings the datapath's CSR window (its AXI4-Lite port) out for
+that simulation; the split leg leaves it idle.
+
+## The two-placement simulation (`obj_twin_*`, #665)
+
+`make twin` runs one stimulus ([`twin.hpp`](twin.hpp)) on two halves at the
+shipping AX7101 shape and compares what each MAC sent
+([`twin_compare.py`](twin_compare.py)). The contract is the plan's section S6
+as [issuecomment-6716584453](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6716584453),
+[issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106),
+[issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738)
+and [issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965)
+amend it.
+
+- **The all-fabric half** ([`twin_fabric.cpp`](twin_fabric.cpp)) is
+  `milan_datapath` at `CTRL_SPLIT_P = 0`, provisioned as `milan_baremetal.c`'s
+  `milan_init()` does. It makes `configure_fabric()`'s fifteen writes through
+  `ctrl_plat_csr.c`, which the platform trace proves equal to
+  `milan_baremetal.c`'s. It serves the build's AEM image from main memory and
+  runs `nvm_boot()`'s restore walk on blank media to its terminal. Then it
+  makes `entity_advertise()`'s two enables.
+- **The split half** ([`twin_split.cpp`](twin_split.cpp)) is `tb_split_top`
+  with the split image's own platform, `ctrl_plat.c`'s boot and composition.
+  [`twin_fw.py`](twin_fw.py) builds that firmware for the host, as the
+  firmware's boot test builds it. `mbx_hal.h` is `KL_mbx`'s host port, as in
+  `tb/verilator/mbx`'s co-simulation. The CSR window is the datapath's
+  AXI4-Lite port, and the flash is the store's blank host model. The boot
+  reaches its ready state.
+- **Two settings are simulation-only.** The processor's and `KL_maap`'s
+  millisecond is `TWIN_MS_CYC` (1000) datapath cycles: `PP_TIM_DIV_US_P = 1`,
+  `PP_TIM_DIV_MS_P` and `MAAP_CLK_HZ_P`. MAAP's first range is pinned in both
+  halves at offset 0x0100 of the pool. The fabric takes it on its `MAAP_CTRL`
+  write (`seed_valid`, `seed_offset`), the firmware as
+  `CTRL_PLAT_MAAP_PREFERRED`. No product default changes.
+- **Both datapaths elaborate alike** apart from the placement: the receive
+  filter pruned and the gPTP plane off, as `tb_split_top` has them. Neither
+  takes the broad legs' `-G` compressions.
+
+The split half's millisecond is one `KL_mbx` tick. The bench services the
+loop until it owes nothing, so the firmware is never late against its own
+clock. The two clocks are never compared.
+
+### The stimulus
+
+Both halves run 75 s of modeled time. One controller enumerates and drives
+the entity over AECP and ACMP: READ_DESCRIPTOR, GET_STREAM_FORMAT,
+GET_COUNTERS, a bind, probe and unbind, and START and STOP of STREAM_INPUT 0.
+A peer probes the MAAP range both halves hold.
+
+A second controller, with its own MAC and entity ID, registers for unsolicited
+notifications, so the first controller's commands are notified to it (IEEE
+1722.1-2021 7.5.2). Both controllers answer the entity's CONTROLLER_AVAILABLE
+as a live controller does (Milan v1.2 5.4.5.3), so each stays registered to
+the end of the run.
+
+The first controller also reaches every row of the F5 difference ledger
+([issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106),
+item 6):
+
+- a root READ_DESCRIPTOR at configuration 1, and a SET_STREAM_INFO with no
+  sub-command;
+- a SET_STREAM_FORMAT to the default, a START after the STOP, and a
+  LOCK_ENTITY with its UNLOCK;
+- the five Milan vendor-unique commands (Milan v1.2 5.4.3, 5.4.4);
+- one HDCP_APM PDU with its fixed header, and a reserved message type;
+- a second LOCK_ENTITY that it leaves to expire after 60 s (Milan v1.2
+  5.4.2.2).
+
+At 7500 ms it reads ENTITY again. Each half has then sent two ENTITY_AVAILABLE,
+with available_index 0 and 1, so the descriptor's available_index shows which
+one it reports (IEEE 1722.1-2021 Table 7-2;
+[issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+item 6).
+
+### The comparison
+
+| Protocol | How the halves are compared |
+|---|---|
+| ADP, ACMP, MAAP | each protocol's frames in order, raw bytes equal |
+| AECP responses | in order, raw bytes equal, apart from the F5 ledger and the owed rows |
+| AECP notices | in order within each (command_type, descriptor_type, descriptor_index), `sequence_id` out of the byte compare |
+| AECP commands the entity sends | in order per controller, `sequence_id` out of the byte compare |
+| MSRP | the declaration state at each half's LeaveAll boundaries: which attributes are declared, with their values, in order, a run of equal states counted as one |
+| MVRP | not compared; graded in each half |
+
+Frames are compared as the wire carries them: one shorter than 60 bytes is
+padded with zeros to 60, as the SoC's MAC pads it (`LiteEthMACCore`
+`with_padding`, `milan_soc.py`). An ADP or MAAP frame one half sent after the
+other's last is not a difference while the other's next was not yet due.
+
+[`twin_decode.py`](twin_decode.py) reads the captures, and
+[`twin_grades.py`](twin_grades.py) grades each half on its own:
+
+- ADP's first `ENTITY_AVAILABLE` within 2000 ms (Milan v1.2 5.6.3.5.2), its
+  advertise gaps within 9000 ms (Table 5.50) and its `valid_time` (IEEE
+  1722.1-2021 6.2.2.6), an `ENTITY_DISCOVER` answered within 4000 ms;
+- MAAP's probe gaps in 500 to 600 ms and its announce gaps in 30000 to
+  32000 ms (IEEE 1722-2016 Table B.8);
+- each AEM, vendor-unique and HDCP_APM command answered within 240 ms (IEEE
+  1722.1-2021 9.3.2.6);
+- the notices' `sequence_id` per registered controller: one higher each time,
+  no gap and no repeat (Milan v1.2 5.4.5.1);
+- the `sequence_id` of the commands the entity sends (CONTROLLER_AVAILABLE):
+  per destination controller, higher each time, gaps allowed, and each
+  controller's response carrying its command's. IEEE 1722.1-2021 9.2.2.9 says
+  only that it "is incremented on each command sent", so the counter may be
+  the entity's or the controller's;
+- each MRP participant's transmit opportunities (IEEE 802.1Q-2018 10.7.4, with
+  Milan v1.2 Table 4.3's values): at most three in 300 ms, each LeaveAll 9.5
+  to 15.74 s after the last, and a declaration repeated within 1.74 s;
+- each MSRP and MVRP attribute's events, a trace a Table 10-3 Applicant can
+  make ([The MRP Applicant grade](#the-mrp-applicant-grade));
+- MVRP's VID 2 declared before the first stream frame (Milan v1.2 4.3.2) and
+  while a sink is settled (4.4.1), beside the Table 10-3 grade of its events.
+
+### The MRP Applicant grade
+
+The halves send each MSRP attribute a different number of times. The counts
+follow the transmit opportunities and the LeaveAll timer's random draw (IEEE
+802.1Q-2018 10.7.4.3). So [`twin_mrp.py`](twin_mrp.py) grades each half's
+attributes on their own, MSRP's and MVRP's alike
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 2). Each attribute's events must be a trace the Applicant of Table 10-3
+can make, with all its notes.
+
+- **The Registrar is the application's.** MSRP's is Table 10-4 with the cell
+  Milan v1.2 4.2.7.2.2 changes for the MSRP application: IN / rLv! goes to MT
+  at once. MVRP's is Table 10-4 as printed: IN / rLv! goes to LV.
+- **`operPointToPointMAC` is TRUE in both halves**, the port's for both its
+  participants. The fabric ties the processor's `p2p_i` to 1. The split's
+  firmware configures both participants with it.
+
+The grade reads, for each attribute:
+
+- **Each frame the half sent of the application.** A frame that carries a
+  LeaveAll is a txLA! for every attribute of the participant. Its sLA also
+  gives rise to rLA! against every one of them (10.7.6.6, 10.7.9), before or
+  after the txLA!. An attribute such a frame leaves out sent nothing there,
+  which only a state whose txLA! action is none or bracketed allows; the
+  `leave-all-omission` plant holds it. Any other frame is a tx! for each
+  attribute it carries.
+- **Each frame of the stimulus of the application, as received.** None
+  reaches either half here, so the Registrar stays MT and
+  `operPointToPointMAC` changes no transition. The grade still applies both,
+  as the tables state them.
+- **The events no frame shows.** periodic! and leavetimer! may happen between
+  any two frames.
+- **The application's requests.** The grade allows New!, Join! and Lv! only
+  where the attribute's next message shows one: a New! before a New, a Join!
+  before a declaration's first Join, a Lv! before a Lv. A declaration
+  withdrawn and made again with no Lv between them would be the application
+  changing its mind unseen, and nothing in the stimulus causes that.
+
+For MSRP, the comparison then compares only the declaration state at the
+LeaveAll boundaries: which attributes each half declares there, and their
+values. MVRP is not compared. A trace no Applicant can make is a defect, not a
+difference
+([issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+item 3).
+
+### The ledger and the owed differences
+
+Each F5 ledger row asserts its exact fabric and split values. A row that does
+not hold is a finding. The rows are the
+[AECP owner's](../../../sw/firmware/ctrl/aecp/README.md#verification-and-limits)
+Observed difference rows and its non-AEM contract.
+
+| Row | Fabric | Split |
+|---|---|---|
+| `root-configuration-index` (row 1) | `BAD_ARGUMENTS`, configuration_index 1 echoed | `SUCCESS`, the ENTITY descriptor at configuration_index 0 |
+| `set-stream-info-current-fields` (row 2) | `NOT_SUPPORTED`, the command's fields echoed | `NOT_SUPPORTED`, STREAM_INPUT 0's current fields |
+| `system-unique-id` (row 3) | SET and GET refused `NOT_IMPLEMENTED`, echoed | both `SUCCESS`, with the system_unique_id |
+| `default-format-override-notice` (row 4) | no SET_STREAM_FORMAT notice | one, to the second controller |
+| `reserved-message-type` (non-AEM) | message_type 11, status 1 | nothing |
+| `hdcp-apm-data` (non-AEM) | `NOT_IMPLEMENTED`, the HDCP data echoed | `NOT_IMPLEMENTED`, no HDCP data |
+
+The AECP owner's rows 5 and 6 are not rows here. At the processor pin
+`a9e84b66` the fabric sends the GET_STREAM_INFO notice for STREAM_INPUT 0's
+changed started state, and release notices with flags 1 (UNLOCK), as the split
+does. The ledger records only real differences, so the notice comparison holds
+both equal
+([issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+item 1).
+
+The owed-difference list (`OWED` in `twin_compare.py`) is not the ledger. Each
+row names the difference, its cause and the step that owes the fix, and
+asserts its exact fabric and split values. A row whose difference has gone is
+a finding too: the lane that fixes it deletes the row.
+
+| Row | Fabric | Split | Owed to |
+|---|---|---|---|
+| `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
+| `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b |
+| `entity-available-index` | ENTITY's available_index 0, the AEM image's constant | 1, its last ENTITY_AVAILABLE's | #858 |
+
+The first two have one cause: the split's sources stay unallocated until an
+SRP adapter entry takes MAAP's range
+([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
+The third is the fabric's: its AECP engine serves the image's ENTITY
+descriptor and never reads ADP's available_index (IEEE 1722.1-2021 Table 7-2,
+6.2.2.15).
+
+`OWED_GRADES` holds an owed defect that one half's grade finds. Its row asserts
+that half's exact behaviour and takes those grade findings out while it holds.
+It too is a finding once the defect has gone.
+
+| Row | Half | What it asserts | Owed to |
+|---|---|---|---|
+| `fabric-mvrp-leave-all` | all-fabric | its MVRP's one LeaveAll at 10201 ms, then VID 2's Lv at 20000 ms and no MVRPDU after it (IEEE 802.1Q-2018 10.7.9, Milan v1.2 Table 4.3) | #857 |
+| `fabric-domain-one-new` | all-fabric | its MSRP Domain's New x1 from 200 ms, then JoinMt x79 from 1000 ms, with no MSRPDU received (IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again) | #860 |
+| `fabric-vid2-join-in` | all-fabric | its MVRP VID 2's New x1 from 5200 ms, JoinIn x15 from 6200 ms and Lv x1 from 20000 ms, with no MVRPDU received, so its Registrar MT throughout (Table 10-3; 10.7.6.3: sJ sends JoinIn only with the Registrar IN) | #860 |
+
+Each `fabric-*` row covers only its own half's grade findings: the LeaveAll
+gap for #857, and each attribute's Table 10-3 findings for #860.
+
+The split's MVRP passes the Table 10-3 grade with no row. The Milan v1.2 4.3.2
+and 4.4.1 checks stay beside the grade
+([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+item 2).
+
+### The plants
+
+`make twin-plants` runs twenty plants. Each must be refused by its words
+twice. Against the unplanted capture of the half it plants, every finding must
+be about the planted protocol. That control also counts each grade finding the
+plant adds to the planted half, or takes from it. Between the placements, the
+words must be in a finding the unplanted comparison does not make.
+
+The first three plant the split half as it runs (`twin_split.cpp --plant`).
+The rest plant a copy of one half's capture
+([`twin_plants.py`](twin_plants.py), through `twin_compare.py --make-plant`).
+The last six plant the fabric's. Four of them land where the fix of an owed
+defect would. The other two keep #860's defect but change the trace its row
+asserts.
+
+| Plant | What it changes | Refused by, between the placements |
+|---|---|---|
+| `byte-flip` | one byte of the second ADPDU | `ADP frame 1 differs at byte 34` |
+| `srp-plus-k` | the first Talker vector's FirstValue one higher | `MSRP Talker Failed stream_id 0200000000010001` |
+| `missing-notification` | the first notice after the STOP_STREAMING response dropped | `the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller` |
+| `uncovered-field` | a difference in a field no row covers: one byte of the first STREAM_INPUT 0 GET_STREAM_INFO notice | `AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65` |
+| `vanished-owed` | an owed difference gone: the fabric's STREAM_OUTPUT 0 notices in the split | `owed row stream-output-0-notices: the difference has gone` |
+| `command-byte` | one byte other than `sequence_id` of the first CONTROLLER_AVAILABLE to the first controller | `AECP command 0 differs at byte 33` |
+| `command-sequence` | the second CONTROLLER_AVAILABLE to the second controller given the first's `sequence_id` | `the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0` |
+| `response-sequence` | the first controller's answer to CONTROLLER_AVAILABLE one `sequence_id` higher | `the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1` |
+| `table-10-3` | the split's second Domain New sent as JoinMt, as the fabric sends it | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 200 is not an Applicant's message: from AN, Table 10-3's tx! sends New` |
+| `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+| `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value 06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]` |
+| `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
+| `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 212 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
+| `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31012 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
+| `vanished-mvrp-leave-all` | #857 fixed: the fabric's MVRP sends a LeaveAll every 12 s | `owed row fabric-mvrp-leave-all: the defect has gone` |
+| `vanished-available-index` | #858 fixed: the fabric's later ENTITY read carries available_index 1 | `owed row entity-available-index: the difference has gone` |
+| `vanished-domain-new` | #860 fixed for the Domain: the fabric's first JoinMt sent as a second New | `owed row fabric-domain-one-new: the defect has gone` |
+| `domain-trace-moved` | #860 kept, its trace changed: the fabric's first Domain JoinMt sent as JoinIn | `owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value 06030002: New x1 from ms 200, JoinIn x1 from ms 1000` |
+| `vanished-vid2-join-in` | #860 fixed for VID 2: the fabric's first JoinIn sent as a second New, each later JoinIn as JoinMt | `owed row fabric-vid2-join-in: the defect has gone` |
+| `vid2-registrar-in` | #860 kept, its Registrar changed: a peer's VID 2 JoinIn applied to the fabric at 6000 ms | `owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 MVRPDU(s)` |
+
+### What it finds at this head
+
+ADP, ACMP and MAAP are equal, byte for byte, in order. The AECP responses,
+notices and the entity's own commands are equal apart from the ledger and the
+owed rows. The notices' `sequence_id` runs without a gap or a repeat in both
+halves. CONTROLLER_AVAILABLE's rises per controller in both: the fabric counts
+per controller (0 and 1 to the second, 0 to the first), the split per entity
+(0 and 2 to the second, 1 to the first). Both halves meet every timing bound.
+No stream frame is sent and no sink settles in this stimulus, so the 4.3.2
+and 4.4.1 checks hold without being tested. At every LeaveAll boundary both
+halves declare the Domain. The Talker attributes are the
+`split-talker-failed` owed row's.
+
+`make twin` exits 0: everything else is a ledger or an owed row. The split's
+Domain is New twice, then JoinMt (VN, AN, then AA by note 8, then QA). Its
+VID 2 is JoinMt from 12 ms: the firmware declares it with Join!, not New!,
+which takes VO to VP, then AA, then QA. Both pass the Table 10-3 grade.
+
+The fabric's Domain and VID 2 fail it, and the two #860 rows hold them:
+
+- **The Domain** is New at 200 ms, then JoinMt from 1000 ms. After one New an
+  Applicant is in AN, and Table 10-3's tx! sends New again from AN. The
+  processor documents its Domain participant that way: one New at startup and
+  at LINK_UP, then the re-joins
+  (`protocol-processor/hdl/srp/KL_srp_domain.sv`, and section 6.1 of its SRP
+  engine architecture).
+- **VID 2** is New at 5200 ms, then JoinIn from 6200 ms. From AN, Table
+  10-3's tx! sends New again, not a Join. No MVRPDU reaches the fabric, so its
+  Registrar is MT, and 10.7.6.3's sJ sends JoinMt, not JoinIn. The grade finds
+  JoinIn at 6200 ms, and the second VID 2 JoinIn inside the LeaveAll frame at
+  10201 ms.
+  The processor's MVRP participant re-joins with JoinIn only
+  (`protocol-processor/hdl/srp/KL_srp_vlan.sv`).
+
+```sh
+make -C tb/verilator/milan_dp twin
+make -C tb/verilator/milan_dp twin-plants
+```
 
 ## GM step re-base leg (#387)
 

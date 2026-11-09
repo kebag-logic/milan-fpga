@@ -1,7 +1,7 @@
 # Split placement control memory
 
 Status: **M8a-1 implemented** behind `--ctrl-mailbox` (#640 lane M8a, plan L11a).
-The split image's boot, service checks and route are M8a-2, after F-INT PR 2 (#665).
+The split image's boot, service checks and route are M8a-2, after the placement switch (#665).
 The all-fabric shipping default is unchanged and keeps its BIOS.
 
 In the split placement the control firmware owns the CPU's reset entry and runs from block RAM.
@@ -172,7 +172,7 @@ DDR3 stays instantiated under `--ctrl-mailbox` at this base.
 `KL_pp_shadow` is still instantiated, and its three processor memory masters reach the window in `main_ram`.
 With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
 Those masters are therefore refused safely, as before DDR3 training.
-F-INT PR 2 removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
+The placement switch (#665) removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
 
 ## 5. Fit
 

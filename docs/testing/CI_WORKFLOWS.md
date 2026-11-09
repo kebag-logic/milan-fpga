@@ -50,6 +50,8 @@ pull-request update and on every push to `dev`. It produces one stable
   with no flag to soften it;
 - the mailbox publication census, `publication-census` (#665), when RTL or
   its tooling changes (below);
+- the split placement's crossing structure, `split-cdc` (#665), when RTL or
+  its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   and three mutation jobs (#665, #716), for relevant changes.
   They run the GoogleTest suites of
@@ -140,7 +142,7 @@ It also runs the tally checks and complete coverage ratchet.
 `firmware-srp-mutants` runs both SRP campaigns and pin controls.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
-The aggregate also requires the separate `publication-census` job.
+The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
 It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
@@ -170,7 +172,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs (`yosys-tool` included), `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -415,13 +417,35 @@ milan_datapath` prints, in every shape the builder builds (the recipe's, and
 each `configs/*.yaml` with its generated header and the parameters
 `endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
 other than the versions `rtl-fast.yml` pins, and follows every class-D value
-the datapath reads through each netlist. Its self-test elaborates one planted
+the datapath reads through each netlist. It elaborates each shape again with
+`CTRL_SPLIT_P = 1` and requires the split datapath's control face consumed
+(`sw/mailbox/census_split.py`). Its self-test elaborates one planted
 copy per defect, then removes each of the census's rules in turn, with
 `CI_CENSUS_JOBS` workers: as many as the job's memory holds, never more than
 its CPUs (see the resource bounds under
 [Parallel replay slots](#parallel-replay-slots)). The aggregate `rtl-fast` requires the job. The mailbox suite's
 `make census` runs it locally; the suite's default `make` does not, because
 the Verilator worker that owns that suite has no Yosys.
+
+The split placement's crossing structure runs in a job of its own,
+`split-cdc` (`make -C tb/verilator/milan_dp split-cdc`, #665). It runs
+`split_cdc_check.py --selftest`.
+
+- It reads `KL_mbx_cdc`'s netlist, as the pinned sv2v and Yosys make it.
+- It refuses any reading across `sys` and `milan_cd` that skips
+  `cdc_handshake` or `cdc_pulse`.
+- Its twelve plants must each be refused by their own words. Four are raw
+  crossings: a publication, the LINK level, the settings read and a window
+  answer. Five take the held bus wrongly: on every cycle, on the commit
+  level, on the request pulse, while the pulse is low, and by another flop.
+  Two are resets from the other domain, one on each side. The last is a
+  primitive clocked by a level.
+
+It installs Yosys and sv2v as `publication-census` does, under the same cache
+key. It is a separate job so that no existing job grows near its timeout. It
+fetches the RTL submodules because the suite's Makefile derives the
+processor's source list when it is read. The aggregate `rtl-fast` requires
+it.
 
 ## Exhaustive validation
 

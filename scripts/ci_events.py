@@ -622,7 +622,7 @@ INHERITED_STEP_ENV = {
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
                              "FIRMWARE_SRP_MUTANTS_RESULT",
-                             "PUBLICATION_CENSUS_RESULT",
+                             "PUBLICATION_CENSUS_RESULT", "SPLIT_CDC_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA"),
@@ -1341,6 +1341,9 @@ FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
 #: shape the builder builds, on its own runner (comment 6100024293).
 CENSUS_JOB = "publication-census"
+#: #665: the fast job that proves every KL_mbx_cdc crossing goes through an
+#: approved primitive, on its own runner so it lengthens no existing job.
+SPLIT_CDC_JOB = "split-cdc"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
@@ -2486,6 +2489,34 @@ RTL_STEP_LISTS = {
              'set -euo pipefail',
              'python3 -m pip install --quiet pyyaml',
              'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"',
+         )},
+    ),
+    # #665: the split crossing's structure, with the census's Yosys cache
+    # and sv2v release; the fetch is the Makefile's, which derives the
+    # processor's source list when it is read.
+    (RTL_FAST, SPLIT_CDC_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF,
+         "run": RTL_YOSYS_BUILD_SCRIPT},
+        {"name": "Install the pinned Yosys and prove the version",
+         "run": (
+             'set -euo pipefail',
+             'sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/',
+             'test -x /opt/yosys/bin/yosys-abc',
+             'echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"',
+             'yosys -V',
+             'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
+         )},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
+        {"name": "Prove every split crossing goes through an approved primitive",
+         "run": (
+             'make -C tb/verilator/milan_dp split-cdc',
          )},
     ),
     (RTL_FAST, FIRMWARE_UNIT_JOB): (

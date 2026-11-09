@@ -500,7 +500,7 @@ uint32_t MclkHarness::axi_read(uint16_t a) {
 // =============================================================================
 
 void MclkHarness::select(uint16_t ix) {
-    dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0] = ix;
+    dut->rootp->milan_datapath__DOT__g_af_pp__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0] = ix;
 }
 
 void MclkHarness::bind_listener(unsigned ix, uint8_t uid) {

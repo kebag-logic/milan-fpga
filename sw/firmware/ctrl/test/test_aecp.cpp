@@ -482,30 +482,50 @@ struct App : Nvm {
 };
 }
 
-TEST_F(App, EntityReadSeesTheRealAdpAdvertisementCount)
+// IEEE 1722.1-2021 Table 7-2: the ENTITY descriptor's available_index is the
+// one the most recently sent ENTITY_AVAILABLE carried, the ADPDU a controller
+// compares it with (#665), not ADP's 6.2.2.15
+// variable, which is already the next one's. 0 before the first; a link that
+// goes down keeps it (Milan v1.2 5.6.3.5.6), and the disable's ENTITY_DEPARTING
+// resets it to 0 (6.2.2.15).
+TEST_F(App, EntityReadSeesTheLastAdvertisedIndex)
 {
     for(unsigned interface=0;interface<MBX_N_IF;++interface){
         unsigned cursor=fabric.tx_sent,count=0;
+        uint64_t last=0;
         auto collect=[&]{
             while(cursor<fabric.tx_sent){auto p=mbx_model_tx_frame(&fabric,cursor++);
                 ASSERT_NE(p,nullptr)<<"inspect advertisements before the capture ring retires them";
-                if(p->interface==interface&&p->bytes[14]==0xfa&&(p->bytes[15]&15)==0)++count;
+                if(p->interface==interface&&p->bytes[14]==0xfa&&(p->bytes[15]&15)==0){
+                    ++count;last=get(p->bytes+50,4);}
             }
         };
+        auto read=[&]{
+            auto request=command(4,Bytes(8),CTLR,0);uint64_t value=~0ull;
+            EXPECT_TRUE(mbx_model_rx(&fabric,request.data(),request.size(),interface));service();
+            while(cursor<fabric.tx_sent){auto p=mbx_model_tx_frame(&fabric,cursor++);
+                if(p==nullptr)continue;
+                if(p->interface==interface&&p->bytes[14]==0xfa&&(p->bytes[15]&15)==0)last=get(p->bytes+50,4);
+                if(p->bytes[14]==0xfb){EXPECT_EQ(p->interface,interface);value=get(p->bytes+78,4);}
+            }
+            return value;
+        };
+        EXPECT_EQ(read(),0u)<<"ENTITY reads 0 before the first ENTITY_AVAILABLE";
         mbx_model_set_link(&fabric,interface,true);service(1);collect();
         for(unsigned tick=0;tick<40&&count<3+interface;++tick){
             mbx_model_advance_ms(&fabric,1000);
             for(unsigned pass=0;pass<20;++pass){service(1);collect();}
         }
         ASSERT_GE(count,3u+interface)<<"N real advertisements precede the read";
-        unsigned before=fabric.tx_sent;auto request=command(4,Bytes(8),CTLR,0);
-        ASSERT_TRUE(mbx_model_rx(&fabric,request.data(),request.size(),interface));service();
-        bool seen=false;
-        for(unsigned n=before;n<fabric.tx_sent;++n){auto p=mbx_model_tx_frame(&fabric,n);
-            if(p->bytes[14]==0xfb){seen=true;EXPECT_EQ(p->interface,interface);
-                EXPECT_EQ(get(p->bytes+78,4),count)<<"ENTITY sees N advertisements from the ADP owner";}
-        }
-        EXPECT_TRUE(seen);mbx_model_set_link(&fabric,interface,false);service();
+        ASSERT_EQ(last,count-1u)<<"the Nth ENTITY_AVAILABLE carries N-1 (IEEE 1722.1-2021 6.2.2.15)";
+        EXPECT_EQ(read(),last)<<"ENTITY reads the last ENTITY_AVAILABLE's available_index";
+        const uint64_t advertised=last;
+        mbx_model_set_link(&fabric,interface,false);service();
+        EXPECT_EQ(read(),advertised)<<"a link down keeps the last ENTITY_AVAILABLE's available_index";
+        mbx_model_set_link(&fabric,interface,true);service();
+        adp_mbx_set_enable(&application.adp,false);service();
+        EXPECT_EQ(read(),0u)<<"ENTITY reads 0 after its ENTITY_DEPARTING";
+        adp_mbx_set_enable(&application.adp,true);mbx_model_set_link(&fabric,interface,false);service();
     }
 }
 

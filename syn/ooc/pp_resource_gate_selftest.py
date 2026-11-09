@@ -76,7 +76,7 @@ def write_reports(folder: Path, kind: str) -> None:
     (folder / "baseline_utilization.rpt").write_text(
         report_header(design, "Physopt postRoute" if kind == "route" else "Synthesized") + rows + REPEATED)
     (folder / "baseline_timing.rpt").write_text(report_header(design, "Synthesized") + sets.summary("0.500", "0.100"))
-    prefix = ["alinx_ax7101", "milan_datapath", "pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
+    prefix = ["alinx_ax7101", "milan_datapath", "g_af_pp.pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
     lines = hierarchy_fixture(kind, prefix)
     (folder / "baseline_hierarchy.rpt").write_text("\n".join(lines) + "\n")
     cells = "/".join(prefix[1:] + ["u_pp", "u_srp"])

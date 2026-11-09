@@ -242,6 +242,12 @@ OUTSIDE = {
     "tb/verilator/nvm_split_target/target_cases.py": "the saved-state cases' arms and planted defects on the split "
                                                      "CPU (#665), which the CPU budget harness's build.py builds; it "
                                                      "compiles nothing",
+    # the two-placement simulation (#665, make -C tb/verilator/milan_dp twin): its comparison and the decoder it
+    # reads both halves' captures with
+    "tb/verilator/milan_dp/twin_compare.py": "compares the two-placement simulation's captures (#665), through "
+                                             "twin_decode.py; it compiles nothing",
+    "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
+                                            "srp_wire_compare.py; it compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
@@ -266,6 +272,9 @@ SUITES = {
                                                            "run.py --variant): ctrl_srp_image.py's compiles, the size "
                                                            "fixture read from build.py's edited copy outside the "
                                                            "checkout",
+    "tb/verilator/milan_dp/twin_fw.py": "the two-placement simulation's split firmware (#665, make -C "
+                                        "tb/verilator/milan_dp twin): the platform composition plat_arms.arm_platboot "
+                                        "lists, and lwSRP, compiled for the host with CTRL_PLAT_MAAP_PREFERRED defined",
 }
 
 
