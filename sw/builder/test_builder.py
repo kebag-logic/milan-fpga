@@ -29250,6 +29250,208 @@ def test_name_count_fits_the_nvm_name_block() -> None:
           f"check red: {'; '.join(caught)}")
 
 
+# ================================================================== gate 39 ===
+#: The split placement's record space, layout 3 (#823 decision 1, scoped to
+#: the split by #823 issue comment 6730985093): the NAME block's first and last id and
+#: the id space, docs/design/SAVED_STATE_FORMAT_32X32.md section 2. Pinned
+#: here, not read, so a moved declaration reddens this gate rather than moving
+#: it with the builder.
+_SPLIT_NAME_FIRST, _SPLIT_NAME_LAST, _SPLIT_ID_SPACE = 222, 1128, 1129
+#: The NAME capacity's declaration line, as a control rewrites it.
+_SPLIT_NAME_DECL = "#define NVM3_CAP_NAME 907u"
+#: The bound shape: the shipping 1x1 TDM8 config with 32 listener and talker
+#: rows, the #859 census's two other limits lifted in memory (16 rows per
+#: direction, a 5-bit SRP row index). The record space is sized for it.
+_SPLIT_BOUND_ROWS = 32
+
+
+@contextlib.contextmanager
+def _census_limits_lifted() -> Iterator[None]:
+    """The builder with the 16-row stream cap and the 5-bit SRP row index
+    lifted (#859): rows are parsed by the builder's own parser 16 at a time.
+    Neither is the record space's limit; both are restored on exit."""
+    original, bits = eb._streams, eb.SRP_CTX_IDX_BITS
+
+    def chunked(lst: list, ctx: str, direction: str, rate_hz: int = 48000) -> list:
+        """The builder's own row parser, fed at most 16 rows at a time."""
+        rows = []
+        for k in range(0, len(lst), 16):
+            rows += original(lst[k:k + 16], ctx, direction, rate_hz)
+        return rows
+
+    eb._streams, eb.SRP_CTX_IDX_BITS = chunked, 8
+    try:
+        yield
+    finally:
+        eb._streams, eb.SRP_CTX_IDX_BITS = original, bits
+
+
+def _split_bound_overlay() -> tuple[Path, dict]:
+    """The bound shape's config (the caller unlinks it) and its overlay."""
+    def widen(cfg: dict) -> None:
+        """Copy the one stream line per direction to the bound shape's rows."""
+        streams = cfg["streams"]
+        first_in, first_out = streams["listeners"][0], streams["talkers"][0]
+        streams["listeners"] = [dict(first_in, name=f"Stream In {k}") for k in range(_SPLIT_BOUND_ROWS)]
+        streams["talkers"] = [dict(first_out, name=f"Stream Out {k}") for k in range(_SPLIT_BOUND_ROWS)]
+        for waiver in cfg.get("model_lint_waivers") or []:
+            if waiver.get("type") == "STREAM_PORT_INPUT":
+                waiver["last"] = _SPLIT_BOUND_ROWS - 1
+
+    path = _variant(CONFIGS["ax7101_1x1_tdm8"], widen)
+    with _census_limits_lifted():
+        overlay = eb.emit_aem_overlay(eb.load_config(path))
+    return path, overlay
+
+
+def _one_more_name(overlay: dict) -> dict:
+    """The overlay with one more named descriptor: a clock source."""
+    counts = dict(overlay["descriptor_counts"], CLOCK_SOURCE=overlay["descriptor_counts"]["CLOCK_SOURCE"] + 1)
+    return dict(overlay, descriptor_counts=counts)
+
+
+def _check_split_pinned(space) -> None:
+    """The declaration reads as section 2 states it."""
+    name = space.block("NAME")
+    assert (name.base, name.last, space.id_space) == (_SPLIT_NAME_FIRST, _SPLIT_NAME_LAST, _SPLIT_ID_SPACE), (
+        f"gate 39: the NAME block is ids {name.base} to {name.last} of {space.id_space}, not "
+        f"{_SPLIT_NAME_FIRST} to {_SPLIT_NAME_LAST} of {_SPLIT_ID_SPACE}")
+
+
+def _check_split_accepts(overlay: dict, emit: Callable[[dict], dict] = eb.emit_nvm_split) -> None:
+    """The bound shape fills the NAME block exactly and is accepted, its
+    split output naming every block at the declaration's first id."""
+    names = nvm_shape.expected_names(overlay["descriptor_counts"])
+    try:
+        split = emit(overlay)
+    except eb.ConfigError as exc:
+        raise AssertionError(f"gate 39: the bound shape's {names} names refused: {exc}") from exc
+    space = eb.nvm_split_capacity()
+    blocks = {b["group"]: b for b in split["blocks"]}
+    assert blocks["NAME"]["count"] == names == blocks["NAME"]["capacity"], (
+        f"gate 39: the bound shape has {names} names; its split output counts {blocks['NAME']['count']} of "
+        f"{blocks['NAME']['capacity']}")
+    assert all(blocks[b.group]["first_id"] == b.base and blocks[b.group]["capacity"] == b.cap
+               for b in space.blocks), "gate 39: the split output's blocks are not the declaration's"
+
+
+def _check_split_refuses(overlay: dict, emit: Callable[[dict], dict] = eb.emit_nvm_split) -> None:
+    """One name over the block is refused, naming the count, the capacity
+    and the declaration line."""
+    over = _one_more_name(overlay)
+    names = nvm_shape.expected_names(over["descriptor_counts"])
+    where = eb.nvm_split_capacity().block("NAME").where
+    try:
+        emit(over)
+    except eb.ConfigError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError(f"gate 39: {names} names accepted by the split placement's layout 3")
+    for figure in (f"{names} NAME records", f"holds {names - 1}", where):
+        assert figure in message, f"gate 39: the {names}-name refusal does not name {figure!r}: {message}"
+
+
+def _check_all_fabric_refuses(overlay: dict, entries: Callable[[dict], int] = eb._adp_name_entries) -> None:
+    """The all-fabric placement keeps today's bounds: the bound shape is
+    refused for its names (N_NAME_MAX_C) and, unlifted, for its rows."""
+    try:
+        entries(overlay)
+    except eb.ConfigError as exc:
+        assert "N_NAME_MAX_C" in str(exc), f"gate 39: the all-fabric refusal names another bound: {exc}"
+    else:
+        raise AssertionError("gate 39: the all-fabric shape header accepts the bound shape's names")
+    try:
+        eb._streams([{"name": "probe", "channels": 8}] * _SPLIT_BOUND_ROWS, "probe", "listener")
+    except eb.ConfigError as exc:
+        assert "max 16 per direction" in str(exc), f"gate 39: the row refusal moved: {exc}"
+    else:
+        raise AssertionError(f"gate 39: the builder accepts {_SPLIT_BOUND_ROWS} stream rows unlifted")
+
+
+def _check_split_output_written() -> None:
+    """The shipping 1x1 build writes the split output, and it is the
+    overlay's record space under the declaration."""
+    with tempfile.TemporaryDirectory(prefix="gate39.") as tmp:
+        result = eb.build(str(CONFIGS["ax7101_1x1_tdm8"]), tmp)
+        written = json.loads(Path(result["paths"]["nvm_split"]).read_text())
+    assert written == eb.emit_nvm_split(result["overlay"]), "gate 39: nvm_split.json is not the overlay's"
+    assert written["declaration"] == str(eb.NVM_LAYOUT3_H.relative_to(eb.ROOT)), written["declaration"]
+
+
+@contextlib.contextmanager
+def _planted_layout3(old: str, new: str) -> Iterator[Path]:
+    """eb.NVM_LAYOUT3_H pointed at a copy of the declaration with `old`, which
+    must occur once, replaced by `new`; the real path restored on exit."""
+    real = eb.NVM_LAYOUT3_H
+    text = real.read_text(encoding="utf-8")
+    assert text.count(old) == 1, f"gate 39: control anchor {old!r} is not unique"
+    with tempfile.TemporaryDirectory(prefix="gate39-h.") as tmp:
+        planted = Path(tmp) / real.name
+        planted.write_text(text.replace(old, new), encoding="utf-8")
+        eb.NVM_LAYOUT3_H = planted
+        try:
+            yield planted
+        finally:
+            eb.NVM_LAYOUT3_H = real
+
+
+def _split_controls(overlay: dict) -> list[str]:
+    """Each check turned red by a planted defect: the capacity moved either
+    way, a block before NAME grown, the refusal's words, the all-fabric bound
+    pointed at the split's, and the reader's own refusals."""
+    caught = []
+    for planted, check, reason in (
+            ("#define NVM3_CAP_NAME 906u", lambda: _check_split_accepts(overlay), "names refused"),
+            ("#define NVM3_CAP_NAME 908u", lambda: _check_split_refuses(overlay), "names accepted")):
+        with _planted_layout3(_SPLIT_NAME_DECL, planted):
+            caught.append(_expect_red(planted, check, reason, "gate 39"))
+    with _planted_layout3("#define NVM3_CAP_MAPO 32u", "#define NVM3_CAP_MAPO 33u"):
+        caught.append(_expect_red("a block before NAME grown", lambda: _check_split_pinned(eb.nvm_split_capacity()),
+                                  "the NAME block is ids 223", "gate 39"))
+    caught.append(_expect_red("refusal naming no figure", lambda: _check_split_refuses(
+        overlay, lambda _o: (_ for _ in ()).throw(eb.ConfigError("too many names"))), "does not name", "gate 39"))
+    caught.append(_expect_red("refusal removed", lambda: _check_split_refuses(
+        overlay, lambda o: {"blocks": []}), "names accepted", "gate 39"))
+    caught.append(_expect_red("the all-fabric bound read from the split's", lambda: _check_all_fabric_refuses(
+        overlay, lambda o: eb.aem_name_count(o)), "accepts the bound shape", "gate 39"))
+    for label, new, reason in (
+            ("declaration commented out", f"// {_SPLIT_NAME_DECL}", "0 live"),
+            ("declaration in hex", "#define NVM3_CAP_NAME 0x38bu", "not a decimal"),
+            ("declaration repeated", f"{_SPLIT_NAME_DECL}\n{_SPLIT_NAME_DECL}", "2 live")):
+        with _planted_layout3(_SPLIT_NAME_DECL, new):
+            caught.append(_expect_red(label, eb.nvm_split_capacity, reason, "gate 39"))
+    with _planted_layout3("#define NVM3_ID_NAME (NVM3_ID_MAPO + NVM3_CAP_MAPO)", "#define NVM3_ID_NAME 222u"):
+        caught.append(_expect_red("NAME base off the chain", eb.nvm_split_capacity, "must follow one another",
+                                  "gate 39"))
+    return caught
+
+
+def test_split_record_space_bounds_the_split_output() -> None:
+    """Gate 39 (#823): the split placement's record space is layout 3, read
+    from its one declaration (the F1 store's nvm_layout3.h). The bound
+    shape (32x32 TDM8, its 907 names at the NAME block's last id) is accepted
+    by the builder's split output and one more name is refused, naming both
+    figures; the all-fabric placement keeps refusing that shape at today's
+    bounds; the shipping build writes the split output; and each check has a
+    planted control that turns it red."""
+    space = eb.nvm_split_capacity()
+    _check_split_pinned(space)
+    path, overlay = _split_bound_overlay()
+    try:
+        _check_split_accepts(overlay)
+        _check_split_refuses(overlay)
+        _check_all_fabric_refuses(overlay)
+        _check_split_output_written()
+        caught = _split_controls(overlay)
+    finally:
+        path.unlink()
+    print(f"  [gate 39] layout 3 read from {space.header}: NAME ids {_SPLIT_NAME_FIRST} to {_SPLIT_NAME_LAST} of "
+          f"{_SPLIT_ID_SPACE}; the 32x32 TDM8 shape's {space.block('NAME').cap} names accepted by the split "
+          f"output, {space.block('NAME').cap + 1} refused; the all-fabric header refuses the same shape "
+          "(N_NAME_MAX_C) and its 32 rows; the 1x1 build writes nvm_split.json")
+    print(f"  [gate 39] {len(caught)}/{len(caught)} planted defects turned their check red: {'; '.join(caught)}")
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
@@ -29375,7 +29577,8 @@ if __name__ == "__main__":
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
-               test_name_count_fits_the_nvm_name_block)):
+               test_name_count_fits_the_nvm_name_block,
+               test_split_record_space_bounds_the_split_output)):
         print(f"{fn.__name__}:")
         before = len(SKIPPED)
         fn()
