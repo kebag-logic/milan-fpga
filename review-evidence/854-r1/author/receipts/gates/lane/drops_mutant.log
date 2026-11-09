@@ -1,0 +1,17 @@
+# head e87f2179f8d84b3eb89dea0148bb63d64319bc38 gate drops_mutant: make -C tb/verilator/pp_shadow drops-mutant
+python3 drops_mutant.py
+clean control: [DR] PASS
+count-removed: KILLED by its named check, 5 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+count-from-tready: KILLED by its named check, 5 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+counts-refused: KILLED by its named check, 1 failing checks
+  named check: DR ...and are not counted: the kept frames lost equal the count
+misses-second-beat: KILLED by its named check, 2 failing checks
+  named check: DR the burst's lost frames equal the drop count
+wraps: KILLED by its named check, 2 failing checks
+  named check: DR the count saturates at 255
+diag-tied-off: KILLED by its named check, 5 failing checks
+  named check: DR a burst past the FIFO loses frames and counts them
+== pp_shadow drops mutants: arms: 6   survived: 0 ==
+PASS: [DR] catches every arm (6 of 6); clean control passes

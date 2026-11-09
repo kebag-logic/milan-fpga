@@ -1,0 +1,48 @@
+owner-report: pid 361207 (python3) state Z wchan 0 parent 361133 (first parent 361133) age 0.16 s start 30966293, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 25}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True, 'trap_finished': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.00 s, 22 census passes, slowest 0.04 s: pid 365471 (bash) state T wchan do_signal_stop parent 361133 (first parent 361133) age 1.05 s start 30967183, not sent SIGKILL; pid 365475 (python3) state S wchan hrtimer_nanosleep parent 365471 (first parent 365471) age 1.04 s start 30967184, sent SIGKILL 0.78 s ago
+owner-vanishing: {'verdict_reached': True}
+owner-late-cancel: {'verdict_without_trap_window': True}
+owner-stated-seconds: {'grace': 2, 'verdict': 14, 'parent_kill': 4, 'vanishing': 24, 'resumes': [0, 1, 3, 5.5, 13.999999046325684], 'window': 10, 'after_resume': 20, 'vanishing_after_resume': 30, 'matrix': [0, 9.5367431640625e-07, 1.9999990463256836, 2, 2.0000009536743164, 13.999999046325684], 'alone_or_with_trap_command': True, 'next_to_last': 1.9999980926513672, 'lone': [1, 10], 'live_new_descendant': True}
+owner-reused-identity: {'signalled': False, 'through_handle': ['SIGTERM', 'SIGKILL', 'SIGCONT']}
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 371016, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/normal-orphan input [523]", "identities": {"371009": ["30968727", "S"], "371016": ["30968730", "S"]}, "pid": 371009}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 372633, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-selection-SIGINT input [523]", "identities": {"372613": ["30969031", "S"], "372633": ["30969033", "S"]}, "pid": 372613}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 373745, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-selection-SIGTERM input [523]", "identities": {"373719": ["30969261", "S"], "373745": ["30969265", "S"]}, "pid": 373719}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 374838, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-preflight-SIGINT input [523]", "identities": {"374828": ["30969506", "S"], "374838": ["30969509", "S"]}, "pid": 374828}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 375432, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-preflight-SIGTERM input [523]", "identities": {"375416": ["30969747", "S"], "375432": ["30969749", "S"]}, "pid": 375416}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 375880, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-command-SIGINT input [523]", "identities": {"375876": ["30970008", "S"], "375880": ["30970012", "S"]}, "pid": 375876}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 377001, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-command-SIGTERM input [523]", "identities": {"376988": ["30970263", "S"], "377001": ["30970266", "S"]}, "pid": 376988}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 378385, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-transition-SIGINT input [523]", "identities": {"378361": ["30970523", "S"], "378385": ["30970526", "S"]}, "pid": 378361}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 379409, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/cancel-transition-SIGTERM input [523]", "identities": {"379403": ["30970783", "S"], "379409": ["30970786", "S"]}, "pid": 379403}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 381092, "cwd": "$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/unsafe-command-SIGTERM input [523]", "identities": {"381079": ["30971100", "S"], "381092": ["30971103", "S"]}, "pid": 381079}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/scratch/854-a756/sclone/scripts/test_suite_cancellation.py", line 1000, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/scratch/854-a756/sclone/scripts/test_suite_cancellation.py", line 973, in main
+    hard_stop(parent, how)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/scratch/854-a756/sclone/scripts/test_suite_cancellation.py", line 325, in hard_stop
+    status, at_death = probe.finish()
+                       ~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/scratch/854-a756/sclone/scripts/process_test_support.py", line 232, in finish
+    status = self.process.wait(timeout=FINISH_SECONDS)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/scratch/854-a756/tmp-sweep/suite-cancellation-u614344n/hard-HUP input [523]/logs']' timed out after 60 seconds
+ABORTING: sweep cancellation controls failed.
