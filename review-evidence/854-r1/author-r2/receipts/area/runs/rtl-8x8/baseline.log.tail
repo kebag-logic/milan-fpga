@@ -1,0 +1,40 @@
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:34 ; elapsed = 00:00:40 . Memory (MB): peak = 3774.695 ; gain = 1773.977 ; free physical = 12476 ; free virtual = 69813
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:34 ; elapsed = 00:00:40 . Memory (MB): peak = 3774.695 ; gain = 1773.977 ; free physical = 12481 ; free virtual = 69818
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 3774.703 ; gain = 0.000 ; free physical = 14657 ; free virtual = 71976
+INFO: [Netlist 29-17] Analyzing 109 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]
+INFO: [Timing 38-2] Deriving generated clocks [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc:570]
+Finished Parsing XDC File [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [<scratch>/w8/ax8x8-rtl/alinx_ax7101.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/alinx_ax7101_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/alinx_ax7101_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.09 . Memory (MB): peak = 4390.113 ; gain = 0.000 ; free physical = 14753 ; free virtual = 71628
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 42 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+
+RTL Elaboration Complete:  : Time (s): cpu = 00:01:09 ; elapsed = 00:01:05 . Memory (MB): peak = 4390.148 ; gain = 2389.430 ; free physical = 16471 ; free virtual = 73417
+349 Infos, 500 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:12 ; elapsed = 00:01:09 . Memory (MB): peak = 4390.148 ; gain = 2389.430 ; free physical = 16410 ; free virtual = 73349
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 3071.891; main = 3071.891; forked = 250.823
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4807.129; main = 4390.117; forked = 1032.430
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Nov  9 13:26:39 2026...

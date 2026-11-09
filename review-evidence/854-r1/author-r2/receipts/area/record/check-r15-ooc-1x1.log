@@ -1,0 +1,12 @@
+# python3 syn/ooc/pp_resource_gate.py check <scratch>/w/ax7101-ooc --endpoint ooc-1x1 --baseline <scratch>/record/baseline-dev-ac0a01e3.json
+endpoint ooc-1x1: <scratch>/w/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              25199       25209        10  ok
+FF               21010       21020        10  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +10, FF +10
+  ctl_fifo: LUT +3, FF +1
+RESULT: PASS

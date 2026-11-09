@@ -1,0 +1,11 @@
+endpoint ooc-8x8: <scratch>/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              37048       37058        10  ok
+FF               32116       32126        10  ok
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +10, FF +10
+  ctl_fifo: LUT +4, FF +1
+RESULT: PASS
