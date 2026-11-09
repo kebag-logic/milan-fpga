@@ -1,0 +1,46 @@
+input eppo: sha256 2132702f30f7dde86b619c689e458e6fcf02eeb3e7abe8d1fd4701665652aad6 bytes 46606
+input aslh: sha256 9e37a3220b63cc9606103a11a6df5e2233eebc7f0c2d3ab6ff37bc63a0a6f53b bytes 46606
+input eto: sha256 395dac3e40ccf464f97f6ef2076b12060895327f1f792f16c0564dc5e3a05eb1 bytes 46606
+input ooc-1x1: sha256 9326d6850761ff614d4e51906eefdaddacef4dc23beb0085888f085ac657fdbf bytes 10261
+input ooc-8x8: sha256 061097e8df324c1407c96d27639c8762b271bbe7de6527bd9791d50c66d81368 bytes 10261
+input record15.json: sha256 d3d2d37ef81ea0eb6a41b28dbb6d2feb0678ed2e682402490e8780ab5c5eaaf0 bytes 29668
+input record16.json: sha256 6718a35cc41758f4de344f5b86c00f6c5e087980cd0d2eaed4367740f85b42ec bytes 30501
+
+# route totals (LUT, FF) and milan_datapath FF, record 16, by directive
+  eppo: top (53534, 54850)  milan_datapath FF 43435  wrapper FF 20038
+  aslh: top (53513, 54847)  milan_datapath FF 43435  wrapper FF 20038
+  eto: top (53512, 54847)  milan_datapath FF 43435  wrapper FF 20038
+
+# rows whose FF differ, record 16 EPPO minus record 16 ASLH, depth <= 4
+  alinx_ax7101: FF +3  eppo (LUT 53534, FF 54850)  aslh (LUT 53513, FF 54847)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159: FF +3  eppo (LUT 3246, FF 4737)  aslh (LUT 3240, FF 4734)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge: FF +3  eppo (LUT 175, FF 193)  aslh (LUT 174, FF 190)
+  alinx_ax7101/VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner: FF +3  eppo (LUT 143, FF 146)  aslh (LUT 145, FF 143)
+  rows present in one report only: 0
+
+# wrapper KL_pp_shadow: total, own-cell row, children, total minus children (LUT, FF)
+  eppo: total (25219, 20038)  own-cell (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25218, 19706)  total-minus-children (1, 332)
+  aslh: total (25180, 20038)  own-cell (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25180, 19706)  total-minus-children (0, 332)
+  eto: total (25171, 20038)  own-cell (18, 332)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25171, 19706)  total-minus-children (0, 332)
+  ooc-1x1: total (25209, 21020)  own-cell (18, 340)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (25214, 20680)  total-minus-children (-5, 340)
+  ooc-8x8: total (37058, 32126)  own-cell (17, 341)  children ['ctl_fifo', 'u_nvm', 'u_pp'] sum (37064, 31785)  total-minus-children (-6, 341)
+
+# gate records' scopes, record 16 minus record 15 (LUT, FF)
+  route-1x1: figures LUT 53428 -> 53534, FF 54837 -> 54850
+    wrapper: LUT 25184 -> 25219 (+35), FF 20028 -> 20038 (+10)
+    u_pp: LUT 24464 -> 24491 (+27), FF 19196 -> 19196 (+0)
+    ctl_fifo: LUT 73 -> 74 (+1), FF 33 -> 34 (+1)
+    u_nvm: LUT 654 -> 653 (-1), FF 476 -> 476 (+0)
+    change in the wrapper's remainder (wrapper less its three children): LUT +8, FF +9
+  ooc-1x1: figures LUT 25199 -> 25209, FF 21010 -> 21020
+    wrapper: LUT 25199 -> 25209 (+10), FF 21010 -> 21020 (+10)
+    u_pp: LUT 24521 -> 24521 (+0), FF 20170 -> 20170 (+0)
+    ctl_fifo: LUT 75 -> 78 (+3), FF 33 -> 34 (+1)
+    u_nvm: LUT 615 -> 615 (+0), FF 476 -> 476 (+0)
+    change in the wrapper's remainder (wrapper less its three children): LUT +7, FF +9
+  ooc-8x8: figures LUT 37048 -> 37058, FF 32116 -> 32126
+    wrapper: LUT 37048 -> 37058 (+10), FF 32116 -> 32126 (+10)
+    u_pp: LUT 35793 -> 35793 (+0), FF 30717 -> 30717 (+0)
+    ctl_fifo: LUT 75 -> 79 (+4), FF 33 -> 34 (+1)
+    u_nvm: LUT 1192 -> 1192 (+0), FF 1034 -> 1034 (+0)
+    change in the wrapper's remainder (wrapper less its three children): LUT +6, FF +9
