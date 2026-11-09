@@ -125,6 +125,14 @@ The first commit is held to `AECP_QUEUED_FIRST_MS` from its port's answer, 20 ms
 [`poll_grade.py`](poll_grade.py) holds the polls by source (#665, the round 22 ruling, item 1): a pass's polls, from its first firmware poll's entry (ADP's) to its last one's return (SRP's delivery), less the heavy items inside them, are its base, which every ordinary pass is charged, and each heavy item is its own function, which does its work only once its source has posted it: SRP's withdrawal and rebuild of an interface after a link change, its walk of a stale registrar, lwSRP's reclaim, a retained record's retry and an owed MRPDU, ACMP's owed frame and AECP's send (an ACMP or AECP call that committed no frame is the base's).
 Each is held to its stated cost at its point, `poll_grade.STATED_US`, the most measured over every group plus 5 % (a retained record's retry and an owed MRPDU, which no group stages, at the cost of the measured work that holds them): a pass's base or an item over its cost prints `STATED` and fails the run whatever findings it records.
 The testbench traces a pass's first and last firmware poll and every item ([`poll_items.py`](poll_items.py)); a test fixture's own poll comes after the firmware's and is not the polls'.
+[`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
+Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
+A pass's own cost is no source and is reported beside the load. A point over its ceiling, 0.70 at 8x8/2if and 32x32/2if, fails the gate, and so does a term the load counts with no source in the term list:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+```
+
 
 [`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
 A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
@@ -1329,6 +1337,8 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Each must print its `STATED` line in `backlog`, a pass's polls base over its stated cost for the first and a rebuild item over its stated cost for the second, with no refusal: `CONTROL polls-rebuild-in-the-base caught` and `CONTROL polls-rebuild-twice caught`; no such line, or a refusal, is `ESCAPED`.
+
+The load gate has five planted defects, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, a timer slot counted once a pass rather than at its expiry rate, and a term with no source in the term list. Each must be refused; one that is not prints `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

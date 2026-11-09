@@ -55,6 +55,7 @@ import selftest_mutants  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
 from selftest_polls import polls_checks  # noqa: E402
+from load_grade import ceiling_checks  # noqa: E402
 from selftest_round import round_checks  # noqa: E402
 from selftest_share import (clock_checks, held_load_checks, save_checks, save_time_checks,  # noqa: E402
                             share_checks, stated_checks, step_checks)
@@ -926,7 +927,7 @@ def checks() -> list[Check]:
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ),
-            *polls_checks(synthetic, SYS_HZ, CPU_HZ),
+            *polls_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
             *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
             *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ),

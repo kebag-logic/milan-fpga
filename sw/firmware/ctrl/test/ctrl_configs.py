@@ -224,6 +224,9 @@ OUTSIDE = {
                                                        "from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
                                                        "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
+                                                      "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
+                                                      "and the TSN stack's headers; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest_round.py": "the round gate's self-test; it reads a round's stated costs "
                                                           "from aecp.h and aecp_mbx.h and compiles nothing",
     "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
