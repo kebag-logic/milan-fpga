@@ -1,0 +1,18 @@
+diff --git a/tb/verilator/pp_shadow/sim_main.cpp b/tb/verilator/pp_shadow/sim_main.cpp
+index 8b578ed450..0da857aa57 100644
+--- a/tb/verilator/pp_shadow/sim_main.cpp
++++ b/tb/verilator/pp_shadow/sim_main.cpp
+@@ -2047,6 +2047,13 @@ class PpShadowHarness {
+         printf("[DR] a control frame lost to a full FIFO is counted (#854)\n");
+         run_idle(kDrainCycles);
+         ck("DR the drop count reads 0 while nothing was lost", drop_count(), 0);
++        {   // REVIEWER PROBE: one control frame longer than the FIFO, then a normal one
++            std::vector<std::vector<uint8_t>> big{drop_adp(4200, 0x55), drop_adp(64, 0x56)};
++            TapTally o = inject_burst(big, kDrainCycles);
++            printf("PROBE oversize: offered 2, handed %zu, overflows %u, count %u\n",
++                   o.handed.size(), o.overflows, drop_count());
++            return;
++        }
+ 
+         // 100 back-to-back 64-byte ADP frames, then eight of 16 bytes that the
+         // tap keeps at their second beat: 6,528 bytes at a 4,096-byte FIFO

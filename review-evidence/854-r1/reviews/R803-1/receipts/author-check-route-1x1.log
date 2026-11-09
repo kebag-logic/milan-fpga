@@ -1,0 +1,31 @@
+endpoint route-1x1: <work>/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              53428       53534       106  ok
+FF               54837       54850        13  ok
+SLICE            15829       15820        -9  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 15          15         0  ok
+WNS_ns            0.21       0.166    -0.044  ok
+WHS_ns           0.036       0.032    -0.004  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.166  WHS_ns     0.05
+  Slow_85C  WNS_ns    0.166  WHS_ns     0.05
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.032
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.032
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +35, FF +10
+  u_pp: LUT +27, FF +0
+  u_pp/u_listener: LUT +19, FF +0
+  u_pp/u_aecp/u_d3: LUT -11, FF +0
+  u_pp/u_aecp/u_dyn: LUT +3, FF +0
+  u_pp/u_nvm_shadow: LUT -3, FF +0
+  u_pp/u_srp/u_listener: LUT -3, FF +0
+  u_pp/u_srp/u_vlan: LUT +3, FF +0
+  u_pp/u_talker: LUT +3, FF +0
+  ctl_fifo: LUT +1, FF +1
+  u_pp/u_aecp: LUT +2, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +2, FF +0
+RESULT: PASS

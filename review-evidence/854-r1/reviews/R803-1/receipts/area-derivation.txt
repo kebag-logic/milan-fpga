@@ -1,0 +1,61 @@
+Area attribution derivation (reviewer-computed, R803-1)
+Source A: public receipt review-evidence/854-r1/author/receipts/area/check-route-1x1.log @ d4c77810d94c640612b7642342417387ac08d69c (sha256 0c21656c9179680a896bdfd4171fc133a966af9b5e1dbd393b4197f65a71d64f)
+endpoint route-1x1: <work>/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              53428       53534       106  ok
+FF               54837       54850        13  ok
+SLICE            15829       15820        -9  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 15          15         0  ok
+WNS_ns            0.21       0.166    -0.044  ok
+WHS_ns           0.036       0.032    -0.004  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.166  WHS_ns     0.05
+  Slow_85C  WNS_ns    0.166  WHS_ns     0.05
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.032
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.032
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +35, FF +10
+  u_pp: LUT +27, FF +0
+  u_pp/u_listener: LUT +19, FF +0
+  u_pp/u_aecp/u_d3: LUT -11, FF +0
+  u_pp/u_aecp/u_dyn: LUT +3, FF +0
+  u_pp/u_nvm_shadow: LUT -3, FF +0
+  u_pp/u_srp/u_listener: LUT -3, FF +0
+  u_pp/u_srp/u_vlan: LUT +3, FF +0
+  u_pp/u_talker: LUT +3, FF +0
+  ctl_fifo: LUT +1, FF +1
+  u_pp/u_aecp: LUT +2, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +2, FF +0
+RESULT: PASS
+
+Source B: public receipt route/baseline_hierarchy.rpt (head route), sha256 f9c9841cc0c59d5fc0d1e5a8945c09403c66bb6567d6be090f7ad917ac2855cf, rows:
+|                              Instance                              |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|     pp_shadow                                                      |                                     KL_pp_shadow |      25219 |      22599 |    2620 |    0 | 20038 |     16 |      3 |          8 |
+|       (pp_shadow)                                                  |                                     KL_pp_shadow |         18 |         18 |       0 |    0 |   332 |      0 |      0 |          0 |
+|       ctl_fifo                                                     |                        axis_fifo__parameterized2 |         74 |         74 |       0 |    0 |    34 |      1 |      1 |          0 |
+|       u_nvm                                                        |                                   KL_nvm_backend |        653 |        653 |       0 |    0 |   476 |      0 |      0 |          4 |
+|       u_pp                                                         |                           protocol_processor_top |      24491 |      21871 |    2620 |    0 | 19196 |     15 |      2 |          4 |
+
+Source C: syn/ooc/pp_resource_baseline.json route-1x1 record scopes at e87f2179 (record 15, AltSpreadLogic_high):
+  wrapper {'LUT': 25184, 'FF': 20028, 'RAMB36': 16, 'RAMB18': 3, 'DSP': 8, 'CARRY4': 1587}
+  ctl_fifo {'LUT': 73, 'FF': 33, 'RAMB36': 1, 'RAMB18': 1, 'DSP': 0, 'CARRY4': 3}
+  u_nvm {'LUT': 654, 'FF': 476, 'RAMB36': 0, 'RAMB18': 0, 'DSP': 4, 'CARRY4': 45}
+  u_pp {'LUT': 24464, 'FF': 19196, 'RAMB36': 15, 'RAMB18': 2, 'DSP': 4, 'CARRY4': 1533}
+
+Source D: docs/findings/234_PP_SHADOW_AREA_BASELINE.md:80-83 (record 15 per-directive rows):
+|---|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.210 / +0.036 ns | 53,428 | 54,837 | 15,829 | 21 |
+| ExtraPostPlacementOpt | +0.112 / +0.036 ns | 53,383 | 54,837 | 15,848 | 2 |
+| ExtraTimingOpt | +0.018 / +0.036 ns | 53,402 | 54,838 | 15,829 | 21 |
+
+Derivation:
+ 'wrapper' scope = KL_pp_shadow instance TOTAL (syn/ooc/pp_resource_gate.py:286-300, key == root -> 'wrapper'); head 25219 LUT / 20038 FF vs record 25184 / 20028 = +35 LUT / +10 FF
+ of which u_pp (protocol_processor_top, RTL unchanged by the diff): 24491 - 24464 = +27 LUT, +0 FF
+ ctl_fifo: 74 - 73 = +1 LUT, 34 - 33 = +1 FF; u_nvm: 653 - 654 = -1 LUT, +0 FF
+ => tap's own logic: about +8 LUT and +9 FF (8-bit counter + last_kept_r = 9 FF, exact)
+ same-directive whole image (ExtraPostPlacementOpt, record-15 row vs head): LUT 53534-53383 = +151, FF 54850-54837 = +13, SLICE 15820-15848 = -28, WNS +0.166-(+0.112) = +0.054 ns
+ cross-directive (as reported, vs selected AltSpreadLogic_high): +106 LUT, +13 FF, -9 SLICE, -0.044 ns

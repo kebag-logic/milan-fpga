@@ -1,0 +1,21 @@
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 95 programs
+refused-at-head1: exit 1 KILLED by its named check
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +158, 158 FIFO overflows
+    DR flood: 392 frames lost in all
+    [FAIL] DR ...and are not counted: the kept frames lost equal the count got=0x0000009E exp=0x00000045
+saturates-at-254: exit 1 KILLED by its named check
+    DR burst: 108 offered, 77 handed out, 31 lost, count 31
+    DR refused burst: 69 kept lost, count +69, 158 FIFO overflows
+    DR flood: 392 frames lost in all
+    [FAIL] DR the count saturates at 255              got=0x000000FE exp=0x000000FF
+    [FAIL] DR ...and holds there                      got=0x000000FE exp=0x000000FF
+fifo-2048: exit 1 KILLED by its named check
+    DR burst: 108 offered, 45 handed out, 63 lost, count 63
+    DR refused burst: 101 kept lost, count +101, 190 FIFO overflows
+    DR flood: 488 frames lost in all
+    [FAIL] DR ...and the FIFO holds 4,096 bytes of it before it loses one 108 offered, 45 handed out, 63 lost, count 63
+RESULT: PASS (every extra arm caught)
