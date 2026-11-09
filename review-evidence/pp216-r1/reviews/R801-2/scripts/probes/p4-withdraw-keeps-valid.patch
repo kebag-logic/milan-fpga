@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 89cf618..71f33e4 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -471,7 +471,7 @@ module KL_srp_vlan
+ 
+   // -------------------------------------------------------------- outputs
+   assign user_ready_o    = (st_r == V_IDLE) && !walk_start_w;
+-  assign vlan_ev_valid_o = (st_r == W_PUSH) && !link_rise_w;
++  assign vlan_ev_valid_o = (st_r == W_PUSH);
+   assign vlan_ev_event_o = ev_code_r;
+   assign vlan_ev_vid_o   = ev_vid_r;
+   assign vid_active_o    = active_r;

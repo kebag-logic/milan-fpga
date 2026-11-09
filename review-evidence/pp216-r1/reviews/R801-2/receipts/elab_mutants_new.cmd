@@ -1,0 +1,1 @@
+python3 -B tb/elab_guards/mutants.py --verilator verilator --output <packet>/scratch/elab-mut-out --jobs 2 --only KL_srp_top.g_vids_fit:error\,KL_srp_top.g_vids_fit:warning\,KL_srp_top.g_vids_fit:initial\,KL_srp_top.g_vids_fit:tightened\,KL_srp_top.g_vids_fit:loosened (cwd scratch/clones/gates2)

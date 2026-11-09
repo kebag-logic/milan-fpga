@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_vlan.sv b/hdl/srp/KL_srp_vlan.sv
+index 89cf618..5ceeb33 100644
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -276,7 +276,7 @@ module KL_srp_vlan
+         reg_nx_w[i] = 1'b1;                               // rNew / rJoinIn / rJoinMt
+       if (rx_hit_w[i] && (rx_ev_i == SRP_EV_LV))
+         reg_nx_w[i] = 1'b0;                               // rLv!: IN -> LV
+-      if (link_ev_w)
++      if (link_ev_w && !link_rise_w)
+         reg_nx_w[i] = 1'b0;                               // Flush! / Begin!: MT
+     end
+     rx_nx_w = srp_app_rx_next(app_r[rx_ix_w], rx_ev_i, p2p_i);
