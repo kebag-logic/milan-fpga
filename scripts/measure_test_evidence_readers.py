@@ -250,4 +250,9 @@ DUT_READER_DISPOSITIONS = {
         "structural CDC check; it elaborates KL_mbx_cdc and its window, judges each sink's clock "
         "domain from the netlist, and plants raw crossings into isolated copies, each refused by its "
         "own words; no expected value is read from the text",
+    "tb/verilator/milan_dp/srptx_mutants.py":
+        "mutation campaign (#867); it plants one defect of the split build's SRP transmit path from its "
+        "own table into an isolated copy of lwSRP, the SRP adapter or the datapath, and requires "
+        "srptx_grade.py to report the arm's words in a completed run after a clean control; no "
+        "expected value is read from the text",
 }
