@@ -107,10 +107,13 @@ The preceding record's own ExtraPostPlacementOpt route, in its section, is the s
 | WNS / WHS, worst corner | +0.112 / +0.036 ns | +0.166 / +0.032 ns | +0.054 / -0.004 ns |
 
 At one directive WNS rose, so the 0.044 ns fall against the record is the change of selected directive, not this change.
-The LUT figure moves with placement at either directive; the flip-flop figure, +13 at both, is the change's.
+Both figures move with placement.
+The change carries +10 FFs: the 8-bit count, `last_kept_r` and the FIFO's overflow register, as measured out of context and at the wrapper, which holds 20,038 FFs at all three directives.
+The other +3 at ExtraPostPlacementOpt is placement replication in the SoC, in the DMA write bridge's `aligner` (146 FFs against 143 at AltSpreadLogic_high, from the same synthesis checkpoint), outside `milan_datapath`, which holds 43,435 FFs at all three directives.
+The AltSpreadLogic_high comparison shows it: at the preceding record's selected directive the route moved by +10 FFs, from 54,837 to 54,847.
 
 **The tap's own share.** The gate's `wrapper` row is the `KL_pp_shadow` instance total, its children included: `u_pp`, the processor, `ctl_fifo`, the tap's FIFO, and `u_nvm`.
-Its own logic is the wrapper less those children:
+The tap's own share is the change in the wrapper's remainder, the instance total less those children:
 
 | Scope | `route-1x1` LUT / FF | `ooc-1x1` LUT / FF | `ooc-8x8` LUT / FF |
 |---|---:|---:|---:|
@@ -118,9 +121,11 @@ Its own logic is the wrapper less those children:
 | `u_pp` | +27 / 0 | 0 / 0 | 0 / 0 |
 | `ctl_fifo` | +1 / +1 | +3 / +1 | +4 / +1 |
 | `u_nvm` | -1 / 0 | 0 / 0 | 0 / 0 |
-| the tap's own logic | +8 / +9 | +7 / +9 | +6 / +9 |
+| the wrapper's remainder, the tap's share | +8 / +9 | +7 / +9 | +6 / +9 |
 
-Out of context the processor does not move, so the standalone rows are the change alone: +9 FFs in the tap, the 8-bit count and `last_kept_r`, and +1 FF in `ctl_fifo`, its overflow register, with 6 to 7 LUTs in the tap and 3 or 4 in the FIFO.
+The flip-flop share is an exact count: the hierarchy's FF totals are additive at this boundary, and the remainder equals the wrapper's own-cell row, 332 FFs on every route, 340 at 1x1 and 341 at 8x8.
+The LUT share is the change in the remainder, not a count of the tap's cells, because the hierarchy's LUT totals are not additive at this boundary: the own-cell row is 18 LUTs, 17 at 8x8, yet the total less its children is +1, 0 and 0 LUTs on the three routes and -5 and -6 standalone.
+Out of context the processor does not move, so the standalone rows are the change alone: +9 FFs in the tap, the 8-bit count and `last_kept_r`, and +1 FF in `ctl_fifo`, its overflow register, with a change of +6 or +7 LUTs in the tap's remainder and +3 or +4 in the FIFO.
 On the route `u_pp` moved by +27 LUTs with no RTL change: that is placement and optimization across two directives, which the [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) counts against the change all the same.
 The gate's other listed route rows, which it does not judge, are all inside `u_pp`: `u_listener` +19, `u_aecp/u_d3` -11, and seven rows of 3 LUTs or fewer.
 In the routed hierarchy, `milan_datapath` moved by +133 LUTs to 44,964, of which the wrapper moved by +35 to 25,219.

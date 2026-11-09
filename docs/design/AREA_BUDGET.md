@@ -253,10 +253,12 @@ All three directives route without error and meet the build floor at every corne
 | AltSpreadLogic_high | +0.147 / +0.036 ns | 53,513 | 54,847 | 15,846 | 4 |
 | ExtraTimingOpt | +0.127 / +0.036 ns | 53,512 | 54,847 | 15,846 | 4 |
 
-At one directive, against the fifteenth record's own ExtraPostPlacementOpt route, the change moved by +151 LUTs, +13 FFs and -28 slices, WNS +0.054 ns and WHS -0.004 ns; the WNS fall against the record is the change of selected directive, not this change.
+At one directive, against the fifteenth record's own ExtraPostPlacementOpt route, the route moved by +151 LUTs, +13 FFs and -28 slices, WNS +0.054 ns and WHS -0.004 ns; the WNS fall against the record is the change of selected directive, not this change.
+Of those FFs the change carries +10, the 8-bit count, the register of the last beat's classification and the FIFO's overflow register, as measured out of context and at the wrapper; the other +3 is placement replication in the SoC's DMA write bridge, as the AltSpreadLogic_high route's +10 FFs against the fifteenth record shows.
 Both standalone endpoints moved by +10 LUTs and +10 FFs (tolerances +250 and +250 at 1x1, +316 and +339 at 8x8); RAMB36, RAMB18 and DSP are unchanged, and the processor `u_pp` does not move.
-Out of context the tap's own logic, the wrapper less its children, is +7 LUTs and +9 FFs at 1x1 and +6 LUTs and +9 FFs at 8x8: the 8-bit count and the register of the last beat's classification; `ctl_fifo` adds +3 or +4 LUTs and +1 FF, its overflow register.
-On the route the gate's wrapper row is the instance total, children included: +35 LUTs and +10 FFs, of which `u_pp` moved +27 LUTs with no RTL change, `ctl_fifo` +1 and +1, `u_nvm` -1 LUT, and the tap's own logic +8 LUTs and +9 FFs.
+Out of context the tap's share, the change in the wrapper's remainder (the instance total less its children), is +7 LUTs and +9 FFs at 1x1 and +6 LUTs and +9 FFs at 8x8: the 8-bit count and the register of the last beat's classification; `ctl_fifo` adds +3 or +4 LUTs and +1 FF, its overflow register.
+On the route the gate's wrapper row is the instance total, children included: +35 LUTs and +10 FFs, of which `u_pp` moved +27 LUTs with no RTL change, `ctl_fifo` +1 and +1, `u_nvm` -1 LUT, and the remainder +8 LUTs and +9 FFs.
+The FF share is an exact count, because the hierarchy's FF totals are additive at this boundary; the LUT share is the change in the remainder, not a count of the tap's cells, because its LUT totals are not.
 The routed critical setup path has 37 logic levels on the processor's 20 ns clock, inside the wrapper and outside the tap.
 It runs from the AECP microcode CPU's `u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_pp/u_aecp/u_d3/deb_cnt_r_reg[13]`; its data delay is 19.393 ns, of which 12.899 ns is routing.
 The preceding [#851](https://github.com/kebag-logic/milan-fpga/issues/851) image, at `e44a4d20`, used 53,428 LUTs and 15,829 slices, 21 free, at +0.210 / +0.036 ns; the #851 paragraph above gives its critical path.
@@ -692,7 +694,8 @@ The gate passed all three endpoints; all three are re-recorded so that the recor
 The record still names AltSpreadLogic_high, and every policy value stays unchanged.
 The [sixteenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) records [#854](https://github.com/kebag-logic/milan-fpga/issues/854)'s control-frame drop count at lane commit `7a19f62b` on dev `ac0a01e3`, the live dev tip, with processor `044cb25f` and FPGA-gPTP `1616fc8f`.
 From the fifteenth's commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves, so its differences are this change's and the selected directive's.
-Against the fifteenth, its route moved by +106 LUTs, +13 FFs and -9 slices, with RAM and DSP unchanged, WNS -0.044 ns and WHS -0.004 ns; at one directive, ExtraPostPlacementOpt, the change moved by +151 LUTs, +13 FFs and -28 slices and WNS rose by 0.054 ns.
+Against the fifteenth, its route moved by +106 LUTs, +13 FFs and -9 slices, with RAM and DSP unchanged, WNS -0.044 ns and WHS -0.004 ns; at one directive, ExtraPostPlacementOpt, the route moved by +151 LUTs, +13 FFs and -28 slices and WNS rose by 0.054 ns.
+Of those FFs the change carries +10, as measured out of context and at the wrapper; the other +3 is placement replication in the SoC, and at AltSpreadLogic_high the route moved by +10 FFs.
 The standalone records moved by +10 LUTs and +10 FFs at both 1x1 and 8x8.
 The gate passed all three endpoints; all three are re-recorded because the change moves the shipping image.
 The record now names ExtraPostPlacementOpt, the directive the gate selected; every policy value stays unchanged.
