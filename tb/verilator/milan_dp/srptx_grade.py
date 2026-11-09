@@ -23,7 +23,7 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
           the last, or of a received one (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime)
           added, and none missing at the run's end.
   [TX]    every MRPDU the adapter accepted from lwSRP left the MAC, byte for byte, in the order accepted,
-          and nothing else did; with the MAC held, the adapter saw the SRP TX ring full, and the MRPDU it
+          and nothing else did; with the MAC held, the adapter saw the SRP transmit ring full, and the MRPDU it
           refused was the next one it sent.
   [608]   the licence scenario: a peer's withdrawal after its LeaveAll stops the talker at the LeaveTime
           deadline that LeaveAll started, not one the withdrawal restarted (#608; Table 10-4: LV/rLv! is no
@@ -473,8 +473,8 @@ def grade_tx(cap: Capture) -> tuple[list[str], dict]:
                          f"{r['proto']} MRPDU the adapter sent")
     for a, b in cap.doc["holds"]:
         if not any(a <= r["ms"] < b for r in refused):
-            found.append(f"[TX] the MAC refused every beat from ms {a} to {b}, and the adapter never saw the SRP TX "
-                         "ring full")
+            found.append(f"[TX] the MAC refused every beat from ms {a} to {b}, and the adapter never saw the SRP "
+                         "transmit ring full")
     measured = {"accepted": len(accepted), "sent": len(sent),
                 "refusals": [{"proto": r["proto"], "from_ms": r["ms"], "to_ms": r["last_ms"], "retries": r["retries"],
                               "ring_used_min": r["ring_used"], "record_words": r["record"]} for r in refused]}

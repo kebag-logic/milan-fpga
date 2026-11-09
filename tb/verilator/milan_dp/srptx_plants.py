@@ -53,7 +53,7 @@ PLANTS = {
     "dropped-under-backpressure": ("hold", "the first MRPDU the hold kept, dropped at the MAC",
                                    "never left the MAC"),
     "reordered": ("hold", "the first two MRPDUs the hold kept, swapped", "out of the order accepted"),
-    "backpressure-unseen": ("hold", "the adapter's refusals gone", "never saw the SRP TX ring full"),
+    "backpressure-unseen": ("hold", "the adapter's refusals gone", "never saw the SRP transmit ring full"),
     "refused-with-room": ("hold", "the refusal with 100 words in use", "the ring had room"),
     "retention-lost": ("hold", "the refused MSRP MRPDU one byte off what was sent next",
                        "was not the next MSRP MRPDU the adapter sent"),

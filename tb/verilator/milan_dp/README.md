@@ -1490,7 +1490,7 @@ make -C tb/verilator/milan_dp twin-plants
 `make srptx` runs the split half's binary with `--srptx`
 ([`srptx.hpp`](srptx.hpp)) on three scenarios, and
 [`srptx_grade.py`](srptx_grade.py) grades each. The path is the split SoC's:
-lwSRP's MRPDU, the SRP adapter's record in the SRP channel's TX ring,
+lwSRP's MRPDU, the SRP adapter's record in the SRP channel's transmit ring,
 `KL_mbx_tx`, the byte crossing, the datapath's `ctl_tx_mux`, then the MAC.
 MSRP is on 0x22EA and MVRP on 0x88F5.
 
@@ -1532,7 +1532,7 @@ where it reaches 1 ms (`[BENCH]`).
 | Scenario | Stimulus | Graded for |
 |---|---|---|
 | `wire` | the twin's stimulus, run to 600 s, the production composition | `[WIRE]`, `[SA]`, `[TIME]`, `[TX]` |
-| `hold` | the same to 40 s, a peer's MSRP and MVRP LeaveAll every 200 ms from 20 s to 30 s, and the MAC refusing every beat from 22 s to 25 s, which fills the SRP TX ring (each rLA! makes the Applicant send again, IEEE 802.1Q-2018 10.7.6.6) | `[WIRE]`, `[SA]`, `[TX]`, and `[TIME]` outside the frames the hold queued |
+| `hold` | the same to 40 s, a peer's MSRP and MVRP LeaveAll every 200 ms from 20 s to 30 s, and the MAC refusing every beat from 22 s to 25 s, which fills the SRP transmit ring (each rLA! makes the Applicant send again, IEEE 802.1Q-2018 10.7.6.6) | `[WIRE]`, `[SA]`, `[TX]`, and `[TIME]` outside the frames the hold queued |
 | `licence` | a peer's Listener Ready for source 0 at 3 s, its LeaveAll with no re-declaration at 16 s, and its withdrawal (Lv) at 18 s, while the Registrar is in LV; the peer answers each of the split's MSRP LeaveAlls with its JoinIn until its own LeaveAll | every section, with `[608]` and `[LIC]` |
 
 **The licence scenario's fixture.** At this base every split source declares
@@ -1629,7 +1629,7 @@ and no finding of its unplanted capture may hold them.
 | `timer-layout` | wire | `[BENCH] a Join timer arm outside its participant's state` |
 | `dropped-under-backpressure` | hold | `never left the MAC` |
 | `reordered` | hold | `out of the order accepted` |
-| `backpressure-unseen` | hold | `never saw the SRP TX ring full` |
+| `backpressure-unseen` | hold | `never saw the SRP transmit ring full` |
 | `refused-with-room` | hold | `the ring had room` |
 | `retention-lost` | hold | `was not the next MSRP MRPDU the adapter sent` |
 | `late-stop` | licence | `[608] the talker stopped at ms 23000.012, not at the LeaveTime deadline` |

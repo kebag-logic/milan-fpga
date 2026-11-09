@@ -6,7 +6,7 @@
 // this records.
 //
 // The path is the one the split SoC composes: lwSRP's MRPDU, the SRP adapter's
-// record in the SRP channel's TX ring, KL_mbx_tx, the byte crossing, the
+// record in the SRP channel's transmit ring, KL_mbx_tx, the byte crossing, the
 // datapath's ctl_tx_mux, then the MAC. The bench sees four places on it:
 //   - lwSRP's output: every MRPDU lwSRP handed the adapter in one transmit
 //     opportunity, and the adapter's answer (0 sent, otherwise refused). The
@@ -30,7 +30,7 @@
 //   wire     the twin's stimulus, run to kWireMs, the production composition;
 //   hold     the same, with a peer's LeaveAlls every 200 ms from 20 s, and the
 //            MAC refusing every beat from kHoldFrom to kHoldTo, which fills
-//            the SRP TX ring (IEEE 802.1Q-2018 10.7.6.6: each rLA! makes the
+//            the SRP transmit ring (IEEE 802.1Q-2018 10.7.6.6: each rLA! makes the
 //            Applicant send again);
 //   licence  a peer Listener Ready for source 0, then the #608 case: the
 //            peer's LeaveAll, no re-declaration, and its withdrawal while the
@@ -161,7 +161,7 @@ struct Lib {
     unsigned opportunity;
     twin::Frame pdu;
     int rc;
-    std::uint32_t ring_used;    // words in the SRP TX ring when the adapter refused, else 0
+    std::uint32_t ring_used;    // words in the SRP transmit ring when the adapter refused, else 0
     std::uint32_t record;       // the words the refused record needed
     std::uint32_t retries = 0;  // the same refusal again, at each poll until last_ms
     std::uint32_t last_ms = 0;

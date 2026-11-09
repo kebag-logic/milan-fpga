@@ -379,7 +379,7 @@ validation. No register-map change is made here.
 
 The split build's transmit path to the wire is held in the RTL
 ([`make srptx`](../../../../tb/verilator/milan_dp/README.md#the-split-builds-srp-transmit-path-obj_srptx-867), #867).
-That covers this adapter's MRPDUs through the SRP TX ring, `KL_mbx_tx` and
+That covers this adapter's MRPDUs through the SRP transmit ring, `KL_mbx_tx` and
 `ctl_tx_mux`: their 10.8 form, the port's source address from reset, the Join
 and LeaveAll spacing at egress within the MRP service bound (18 ms), and a full ring that loses
 nothing and keeps the order. It also covers the #608 stop and the `LICENCE`

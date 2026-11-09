@@ -989,7 +989,7 @@ twin-plants: build-twin
 	done
 
 # #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
-# (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP TX ring, KL_mbx_tx,
+# (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP transmit ring, KL_mbx_tx,
 # the crossing, ctl_tx_mux and the MAC. Three scenarios, each graded by
 # srptx_grade.py, exit 1 on any finding: wire (the twin's stimulus to 600 s),
 # hold (the MAC refusing every beat until the SRP ring is full) and licence (the
