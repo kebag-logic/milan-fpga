@@ -1,0 +1,20 @@
+## SPLIT_CONTROL_MEMORY.md at 30ca4b21, lines 139-144
+
+The same three controls, on the firmware linked at `c20ed894`, were also run once through the SoC build:
+
+- an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
+- a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
+- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,454 against 13,594 bytes.
+
+## the same line at f3e902f2 (round 3 head)
+144:- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
+
+## c20ed894
+c20ed894a3b577407588e30ff365480a7e7be26a 2026-10-10 22:11:57 +0200
+c20ed894 is an ancestor of the base a9d69c77 (pre-#823, KLJ2 stage)
+
+## section 5 at head
+173:The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers.
+
+## commit that changed line 144
+8c66ab1e33 Drop the comment ID from gate 39's comment, and say KLJ3 where the memory plan means the split's stage and its refusal (#823)

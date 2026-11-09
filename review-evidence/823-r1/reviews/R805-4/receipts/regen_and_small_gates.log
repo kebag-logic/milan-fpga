@@ -1,0 +1,19 @@
+wrote $REVIEWS/823-r805-4-packet/scratch/diag/flash_layout.svg and $REVIEWS/823-r805-4-packet/scratch/diag/flash_layout.drawio (5 slots, 0 map problem(s))
+SVG_IDENTICAL
+DRAWIO_IDENTICAL
+  0x0000000    4096 KiB  bitstream  image
+  0x0400000      64 KiB  aem        image
+  0x0E40000     640 KiB  journal_klj3 reserved
+  0x0EE0000     128 KiB  journal    reserved
+  0x0F00000    1024 KiB  user       reserved
+5 slot(s) of 0x1000000, erase block 0x10000, 0 problem(s)
+flash_map rc=0
+MAPS_OUT    190 ..   221  (32 ids, sw/firmware/ctrl_nvm/nvm_layout3.h:45)
+NAME        222 ..  1128  (907 ids, sw/firmware/ctrl_nvm/nvm_layout3.h:46)
+id space 1129, layout 3, record header 10 bytes
+layout3 rc=0
+  self-test OK: a block's last id outside it: caught by capacity (capacity: endstation_arty_4x4 verdict 7, 0 of 940 records)
+  self-test OK: the last name left out of the inventory: caught by ledger (ledger: endstation_arty_4x4 inventory {'CFG_IDX': 1, 'SUID': 1, 'RATE': 1, 'CLKSRC': 1, 'M)
+  self-test OK: the split output's NAME count off by one: caught by split (split: endstation_arty_4x4: the builder's split output counts [('NAME', 56)]; the shape ha)
+split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+klj3 rc=0

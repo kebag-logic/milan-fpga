@@ -1,0 +1,31 @@
+## QSPI_FLASHBOOT.md at 30ca4b21, lines 58-66
+The `journal_klj3`, `journal` and `user` ranges are RESERVED: no manifest
+writes them and a reflash must not erase them. `journal_klj3`, the 640 KiB
+directly below `journal`, holds the split placement's saved state: only its
+store writes there (#823). The saved-state journal that used `journal` and
+`user` was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
+writes or reads them today. Persistence is a genuine loss, not a relocation:
+the protocol processor's NVM face is answered by a blank-flash responder, so a
+restore walk always completes with zero records and nothing survives a power
+cycle.
+
+## FASTCONNECT section 5 at 30ca4b21
+543:| `0xE4_0000` | 640 KiB | **`journal_klj3`** -- 2 x 320 KiB slots of five erase blocks, slot A and slot B, raw: the split placement's KLJ3 | the split placement's store only (`sw/firmware/ctrl_nvm`) |
+544:| `0xEE_0000` | 128 KiB | **`journal`** -- 2 x 64 KiB erase blocks, slot A and slot B, raw: the all-fabric placement's KLJ2 | the all-fabric persistence writer only |
+555:`journal_klj3` is the same design at the split placement's size (#823).
+558:It reads the two headers of `journal` and never writes it, so a rollback to an all-fabric image finds that journal intact.
+
+## milan_soc.py slot comment
+164:#            store (sw/firmware/ctrl_nvm), which reads journal's two headers
+
+## the store's legacy read
+408:static void nvm_legacy_check(void)
+415:		if (f->read(f->ctx, NVM_LEGACY_A + i * slot, nvm_chunk, NVM_KLJ_HDR) == 0 &&
+465:	nvm_legacy_check();
+
+## the shipping writer
+ * The fabric keeps the persisted record image in main memory (design page
+ * docs/design/SAVED_STATE_FASTCONNECT.md section 8) and this firmware owns
+ * the media (section 3): at boot it validates the two journal slots through
+ * the memory-mapped flash, stages the newer accepted KLJ2 container in the
+ * reserved window, hands the backend the control tuple of section 8.2 and
