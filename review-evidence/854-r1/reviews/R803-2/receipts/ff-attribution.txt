@@ -1,0 +1,18 @@
+# FF attribution at the route, from the author's published hierarchy reports (area/runs/<dir>/baseline_hierarchy.rpt) and records
+record 15 (AltSpreadLogic_high, selected) FF 54837; record 15 ExtraPostPlacementOpt row FF 54837 (docs/findings/234_PP_SHADOW_AREA_BASELINE.md:204)
+eppo total FF=54850 milan_datapath FF=43435
+aslh total FF=54847 milan_datapath FF=43435
+eto total FF=54847 milan_datapath FF=43435
+eppo vs aslh rows whose FF differ:
+< Date : Mon Nov 9 14:32:36 2026|
+> Date : Mon Nov 9 14:30:29 2026|
+< alinx_ax7101 | 54850 
+> alinx_ax7101 | 54847 
+< VexiiRiscvLitex_f5f08b170311db53220574624f819159 | 4737 
+> VexiiRiscvLitex_f5f08b170311db53220574624f819159 | 4734 
+< dma_bridge_write_bridge | 193 
+< aligner | 146 
+> dma_bridge_write_bridge | 190 
+> aligner | 143 
+derivation: the RTL change adds 10 FF (8-bit count, last_kept_r, ctl_fifo overflow_reg): ooc +10 at both shapes; route wrapper +10 at the selected directive.
+at AltSpreadLogic_high vs record 15 AltSpreadLogic_high: 54847-54837 = +10; at ExtraPostPlacementOpt: 54850-54837 = +13, the extra 3 in the SoC (Vexii DMA write-bridge aligner), not in milan_datapath, which is 43435 at all three directives.
