@@ -307,14 +307,6 @@ PARENT_LAYOUT_RE = re.compile(
     r"localparam\s+logic\s*\[7:0\]\s+AMR_LAYOUT_C\s*=\s*8'h([0-9A-Fa-f]{2})\s*;")
 
 
-def without_saved_state(cfg: Path) -> bool:
-    """Whether the end-station builder builds the config without saved state
-    (saved_state: none, a simulation shape's option, #859)."""
-    sys.path.insert(0, str(ROOT / "sw/builder"))
-    import endstation_builder as eb
-    return eb.load_config(str(cfg))["saved_state"] == "none"
-
-
 def parent_layout_findings(donor: Donor) -> list[str]:
     """Check 15: the parent's map writer frames records 0x60/0x70 with
     exactly the layout_version the donor's port and binding manager check,
@@ -967,7 +959,9 @@ def main() -> int:
         _emit_record_table(args.emit_record_table, args.out, donor)
         return 0
 
-    cfgs = args.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    cfgs = eb.saved_state_configs(args.config or sorted((ROOT / "configs").glob("endstation_*.yaml")))
     if not args.quiet:
         print(f"BINDING base read from the donor: "
               f"REC_ID_BASE_P = 0x{donor.base:02X}, "
@@ -982,11 +976,6 @@ def main() -> int:
     floors, census = [], {}
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         for cfg in cfgs:
-            if without_saved_state(cfg):
-                print(f"{cfg.stem}: built without saved state (#859), so it has no "
-                      f"record space to check; #823 owns the record space at "
-                      f"this shape")
-                continue
             f, floor, census[cfg.stem] = check_one(cfg, Path(tmp), donor,
                                                    not args.quiet)
             findings += f
@@ -1003,7 +992,7 @@ def main() -> int:
                   f"allocation-table figure at "
                   f"{', '.join(f'{c} ({s})' for c, s in ALLOCATION_COLUMNS.items())}"
                   f" is the derived one")
-    return _report(findings, [cfg for cfg in cfgs if cfg.stem in census], args.quiet)
+    return _report(findings, cfgs, args.quiet)
 
 
 if __name__ == "__main__":

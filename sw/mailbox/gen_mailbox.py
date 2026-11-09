@@ -50,7 +50,8 @@ Usage:
     python3 sw/mailbox/gen_mailbox.py --check --crosscheck
     python3 sw/mailbox/gen_mailbox.py --selftest
     python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out obj_if2/gen
-    python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 --variant-shape configs/endstation_ax7101_32x32.yaml --out obj_32/gen
+    python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 \
+        --variant-shape configs/endstation_ax7101_32x32.yaml --out obj_32/gen
 
 Exit 0 = clean; 1 = drift, a mismatch, or a self-test arm that did not bite;
 2 = the contract itself is refused.

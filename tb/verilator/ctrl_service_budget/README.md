@@ -54,10 +54,11 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 32x32 \
 
 It is built without saved state while #823 owns its record space, so its image links no store and no flash port, `build.py` makes no flash map, and the test SoC places the flash and `timer0` at the RV32 stand-ins' placeholders (`split_soc.stand_in_addresses`).
 Its image links into its simulation-only memory map, `32x32-two-interfaces` ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map), section 8), so the CPU netlist is generated for that map's regions.
-Its mailbox is the contract laid out from the shape's streams on each interface (`gen_mailbox.py --variant-shape`, [the shape layout](../../../docs/design/MAILBOX_SPLIT.md)), and the probes' publication addresses follow that layout (`scenario.Point.layout`).
+Its mailbox is the contract laid out from the shape's streams on each interface (`gen_mailbox.py --variant-shape`, [the shape layout](../../../docs/design/MAILBOX_SPLIT.md)), and the probes' publication addresses follow that layout (`scenario.Point.layout`, [`shape_point.py`](shape_point.py)).
 Every group runs there; the saved-state store's groups, which `nvm_split_target` runs, are each reported by name as owed to #823 (`OWED` lines, `results.json`'s `owed`, the table's last line) and none is graded.
-Every bounded wait of its scripts is four times as long (`scenario.wait_scale`: the point's streams over the 8x8 shape's 18, rounded up; 1 at `1x1` and `8x8`, whose scripts are unchanged).
+Every bounded wait of its scripts is four times as long (`shape_point.wait_scale`: the point's streams over the 8x8 shape's 18, rounded up; 1 at `1x1` and `8x8`, whose scripts are unchanged).
 A wait bounds how long a step waits for its event and grades nothing; with the 8x8 waits a GET_TX_STATE answered 54.5 ms after its command at `32x32`, after the next probe's frame had gone in, and the probe was refused unmeasured.
+[`selftest_shape.py`](selftest_shape.py) holds the self-test's checks of this point: its owed save groups, its layout's addresses and its scaled waits.
 
 **The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).

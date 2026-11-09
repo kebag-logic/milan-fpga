@@ -393,7 +393,7 @@ The shipped map in [section 1](#1-memory-map) is unchanged, and no product build
 
 Each region is the smallest power of two that holds the shape's linked image, at the split placement's origins, so the CPU decodes it as one window and `add_ctrl_memory`'s origin check holds.
 `plan` refuses, under the `budget` rule, an image that does not carry the map's symbols at their sizes, and plans the shape's image past the budget with every byte over it ledgered by region and by its five largest objects.
-`test_ctrl_memory.py` plans a 32x32 image on the map, refuses it the shipped map and refuses an image with the 8x8 shape's pool the simulation map; a map planted without its symbols must turn the arm red.
+`test_ctrl_memory.py` runs [`ctrl_memory_simulation.py`](../../sw/litex/ctrl_memory_simulation.py)'s arm: it plans a 32x32 image on the map, refuses it the shipped map and refuses an image with the 8x8 shape's pool the simulation map; a map planted without its symbols must turn the arm red.
 
 The 32x32 size fixture at `4ebd2a3b`, without saved state (`tb/verilator/ctrl_service_budget/build.py` on a clean clone):
 

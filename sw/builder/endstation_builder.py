@@ -208,11 +208,25 @@ MAX_STREAMS_SAVED = 16
 MAX_STREAMS_UNSAVED = 32
 
 
-def config_simulation(path):
+def config_simulation(path: str | Path) -> tuple[bool, str]:
     """A config's (simulation_only, saved_state) as load_config reads them,
     from the document alone: for the checks that take every config, so each
     can state which shapes it holds (#859)."""
     return _load_simulation(_load_document(str(path)))
+
+
+def saved_state_configs(paths: Sequence[str | Path]) -> list[Path]:
+    """The configs built with saved state, in order. Each built without it
+    (a simulation shape, #859) is named and left out: it has no record space
+    to check while #823 owns the record space at that shape."""
+    kept = []
+    for path in map(Path, paths):
+        if config_simulation(path)[1] == "none":
+            print(f"{path.stem}: built without saved state (#859), so no record "
+                  f"space to check; #823 owns the record space at this shape")
+        else:
+            kept.append(path)
+    return kept
 
 
 def _load_simulation(cfg):

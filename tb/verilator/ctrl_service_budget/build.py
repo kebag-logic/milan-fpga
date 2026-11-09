@@ -201,19 +201,6 @@ def keeps_saved_state(shape: str) -> bool:
     return shape_config(shape)['saved_state'] != 'none'
 
 
-def simulation_map(shape: str, n_if: int) -> str | None:
-    """The ctrl_memory.SIMULATION map a simulation-only shape's image links into, else None."""
-    if not shape_config(shape)['simulation_only']:
-        return None
-    sys.path.insert(0, str(ROOT / 'sw/litex'))
-    import ctrl_memory
-    names = [name for name, point in ctrl_memory.SIMULATION.items() if (point.shape, point.interfaces) == (shape, n_if)]
-    if len(names) != 1:
-        raise RuntimeError(f'{shape} is simulation-only and ctrl_memory.py states {len(names)} simulation maps for '
-                           f'it at {n_if} interfaces, not one')
-    return names[0]
-
-
 def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', variant: str | Variant = 'none',
              flash_map: Path | None = None) -> Path:
     """The runtime archives, then the linked split image (a planted copy for a control,
@@ -737,11 +724,8 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses(flash)['flash'])
     table = symbols(elf)
-    # a shape without saved state has no flash map; a simulation-only one its simulation memory map
-    simulation = simulation_map(shape, n_if)
-    extra = {**({} if saved else {'flash_map': None}), **({} if simulation is None else {'simulation': simulation})}
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
-        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1, **extra)
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
     spec['flash_map'] = str(flash) if flash is not None else None
     if not saved:

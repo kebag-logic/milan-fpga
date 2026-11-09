@@ -44,7 +44,6 @@ MAILBOX_SPLIT.md; every address comes from the mailbox contract.
 """
 from __future__ import annotations
 
-import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,6 +53,7 @@ import frames as f
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
 from mailbox_model import load  # noqa: E402
+from shape_point import binding_word, mailbox_layout, pub_word, scaled  # noqa: E402
 
 CONTRACT = load()
 CH = {ch.name: n for n, ch in enumerate(CONTRACT.channels)}
@@ -72,22 +72,6 @@ def word(byte_offset: int) -> int:
 def ch_word(ch: int, name: str) -> int:
     """The word address of a channel register."""
     return word(CONTRACT.ch_base + ch * CONTRACT.ch_stride + CH_REG[name])
-
-
-def pub_word(interface: int, name: str, layout: object = None) -> int:
-    """The word address of an interface's publication register (contract 2.2), in the contract's
-    layout or the point's (Point.layout)."""
-    c = layout or CONTRACT
-    return word(c.pub_base + interface * c.pub_stride + PUB_REG[name])
-
-
-def binding_word(interface: int, sink: int, layout: object = None) -> int:
-    """The word address of a sink's BINDING publication register, in the contract's layout or the
-    point's: a shape's layout holds sink k at its ordinal on its interface (#859)."""
-    c = layout or CONTRACT
-    entry = sink // c.interfaces if c.entry_ordinal else sink
-    return word(c.pub_base + interface * c.pub_stride + c.pub_sink_base + entry * c.pub_sink_stride
-                + SINK_REG['BINDING'])
 
 
 TMR_CMD_WORD = word(REG['TMR_CMD'])
@@ -147,8 +131,6 @@ class Group:
     load: dict[str, int] = field(default_factory=dict)
     #: Each loaded channel's admission for the records it was offered (admission()).
     admission: dict[str, dict] = field(default_factory=dict)
-    #: Its point's Point.wait_scale (all_groups sets it).
-    wait_scale: int = 1
 
     def offer(self, channel: str, step: str, frame: bytes) -> None:
         """One record of the composed load: a frame (or a reply) step the channel must commit."""
@@ -185,11 +167,8 @@ class Group:
         self.steps.append(f'mark {barrier}')
 
     def script(self) -> str:
-        """The stimulus script sim_main.cpp runs, every bounded wait's `within` its point's wait_scale times."""
-        steps = self.steps if self.wait_scale == 1 else [
-            re.sub(r'\bwithin (\d+)\b', lambda m: f'within {int(m[1]) * self.wait_scale}', step)
-            if step.startswith('wait ') else step for step in self.steps]
-        return '\n'.join([*steps, 'end']) + '\n'
+        """The stimulus script sim_main.cpp runs."""
+        return '\n'.join([*self.steps, 'end']) + '\n'
 
 
 def tagged(step: str, tag: str) -> str:
@@ -211,25 +190,8 @@ class Point:
     mac: int
     sources: int
     sinks: int
-    #: The mailbox layout the point's build carries when it is not the contract's own: a shape's
-    #: streams past the contract's tables take the layout sized from them (#859).
-    layout: object = None
-    #: How many times longer every bounded wait of the point's scripts is (Group.script): 1 at the
-    #: shapes the waits were sized at, more at a larger one (wait_scale()).
-    wait_scale: int = 1
-
-
-#: The streams (sources and sinks) of the largest shape the scripts' bounded waits were sized at, the
-#: 8x8 shape's 9 and 9: a wait bounds how long a step waits for its event, never a grade, and at a
-#: larger shape a response can come later than the wait (#859: a GET_TX_STATE answered 54.5 ms after
-#: its command at 32x32/2if, past its 20 ms wait and 20 ms settle, so the next probe's frame went in first).
-WAIT_SIZED_STREAMS = 18
-
-
-def wait_scale(sources: int, sinks: int) -> int:
-    """How many times longer a point's bounded waits are: its streams over WAIT_SIZED_STREAMS, rounded
-    up, and never less than 1, so the 1x1 and 8x8 scripts are unchanged."""
-    return max(1, -(-(sources + sinks) // WAIT_SIZED_STREAMS))
+    #: The mailbox layout its build carries (shape_point.mailbox_layout, #859).
+    layout: object = CONTRACT
 
 
 def point(label: str, build: dict) -> Point:
@@ -237,14 +199,8 @@ def point(label: str, build: dict) -> Point:
     import re
     header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
     values = {k: int(v, 16) for k, v in re.findall(r'\.(\w+) = (0x[0-9A-Fa-f]+)', header)}
-    layout = None
-    if build.get('mailbox_layout') == 'shape':
-        import gen_mailbox
-        layout = gen_mailbox.shape_variant(CONTRACT, ROOT / 'configs' / (build['shape'] + '.yaml'),
-                                           build['interfaces'])[0]
-    sources, sinks = values['talker_stream_sources'], values['listener_stream_sinks']
     return Point(label, build['shape'], build['interfaces'], values['entity_id'], values['mac'],
-                 sources, sinks, layout, wait_scale(sources, sinks))
+                 values['talker_stream_sources'], values['listener_stream_sinks'], mailbox_layout(build))
 
 
 CTL1 = 0x0A0B0C0D0E0F0001          # a controller entity
@@ -1028,13 +984,10 @@ def fixture_groups(p: Point) -> list[Group]:
 
 
 def all_groups(p: Point, build: dict) -> list[Group]:
-    """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
+    """Every group of a point's build, longest first, its bounded waits scaled to the point (#859); the
+    shutdown-entry variant has only its own."""
     if build.get('variant') == 'shutdown-entry':
-        every = shutdown_groups(p)
-    else:
-        groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-                  *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
-        every = sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
-    for g in every:
-        g.wait_scale = p.wait_scale
-    return every
+        return scaled(shutdown_groups(p), p)
+    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
+    return scaled(sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else []), p)

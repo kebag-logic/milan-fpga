@@ -478,21 +478,33 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
 
 
+def simulation_map(shape: str, n_if: int) -> str:
+    """The ctrl_memory.SIMULATION map a simulation-only shape's image links into (#859), refused unless
+    ctrl_memory.py states exactly one for it at n_if interfaces."""
+    names = [name for name, point in milan_soc.ctrl_memory.SIMULATION.items()
+             if (point.shape, point.interfaces) == (shape, n_if)]
+    if len(names) != 1:
+        raise RuntimeError(f'{shape} is simulation-only and ctrl_memory.py states {len(names)} simulation maps for '
+                           f'it at {n_if} interfaces, not one')
+    return names[0]
+
+
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          fetch_l1: str = 'split', flash_map: Path | None = FLASH_MAP, simulation: str | None = None) -> dict:
+          fetch_l1: str = 'split') -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
     cpu_regions 'cover' gives the CPU generator each region at its
     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
     which reproduces the generator's rom decode defect (a control).
     fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
-    flash_map is the flash port's map under build_dir; None for a shape
-    built without saved state, whose flash and timer0 the test SoC places at
-    the RV32 stand-ins' placeholders (#859). simulation names the
-    ctrl_memory.SIMULATION map a simulation-only shape's image links into.
+    A shape built without saved state (#859) has no flash map: the test SoC
+    places its flash and timer0 at the RV32 stand-ins' placeholders. A
+    simulation-only shape's image links into its simulation_map.
     """
-    addresses = fixture_addresses(build_dir / flash_map) if flash_map is not None else stand_in_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
+    flash_map = FLASH_MAP if cfg['saved_state'] != 'none' else None
+    simulation = simulation_map(shape, n_if) if cfg['simulation_only'] else None
+    addresses = fixture_addresses(build_dir / flash_map) if flash_map is not None else stand_in_addresses()
     clocks, params = cfg['constraints'], cfg['soc']
     contract = mailbox_contract(shape, n_if)
     deviations = ack_deviations(contract)

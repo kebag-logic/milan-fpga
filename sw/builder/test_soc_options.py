@@ -275,24 +275,11 @@ SIMULATION_REFUSAL = "built for simulation only (#859)"
 SIMULATION_CHECK = "    if args.simulation_only and (args.build or args.load):\n"
 
 
-def _simulation_argv(mutation=None):
-    """The 32x32 config's milan_soc.py argv as the end-station builder emits it, optionally
-    from a planted copy of the builder (a (old, new) substitution)."""
+def _simulation_argv() -> list[str]:
+    """The 32x32 config's milan_soc.py argv as the end-station builder emits it."""
     sys.path.insert(0, str(ROOT / "sw/builder"))
     import endstation_builder as eb
-    if mutation is None:
-        return eb.emit_soc_argv(eb.load_config(str(SIMULATION_CONFIG)))
-    import types
-    source = Path(eb.__file__).read_text()
-    assert source.count(mutation[0]) == 1, mutation[0]
-    module = types.ModuleType("planted_builder")
-    module.__file__ = eb.__file__
-    sys.modules[module.__name__] = module
-    try:
-        exec(compile(source.replace(*mutation), eb.__file__, "exec"), module.__dict__)
-    finally:
-        del sys.modules[module.__name__]
-    return module.emit_soc_argv(module.load_config(str(SIMULATION_CONFIG)))
+    return eb.emit_soc_argv(eb.load_config(str(SIMULATION_CONFIG)))
 
 
 def _simulation_cases(directory, argv=None, mutations=()):
@@ -308,11 +295,12 @@ def _simulation_cases(directory, argv=None, mutations=()):
 
 def test_simulation_only() -> None:
     """The image build refuses to route or load the simulation-only 32x32 shape (#859), and both
-    halves of that refusal are killed: the builder dropping the mark and milan_soc.py the check."""
+    halves of that refusal are killed: the builder's argv without its mark, and milan_soc.py
+    without the check."""
     with tempfile.TemporaryDirectory(prefix="soc-simulation-only-") as tmp:
         directory = Path(tmp)
         count = _simulation_cases(directory)
-        unmarked = _simulation_argv(('        argv += ["--simulation-only"]', '        pass'))
+        unmarked = [flag for flag in _simulation_argv() if flag != "--simulation-only"]
         _killed(lambda: _simulation_cases(directory, argv=unmarked), "the builder drops --simulation-only")
         _killed(lambda: _simulation_cases(directory, mutations=[(SIMULATION_CHECK, "    if False:\n")]),
                 "milan_soc.py routes a simulation-only shape")

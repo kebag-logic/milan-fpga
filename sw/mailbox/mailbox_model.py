@@ -711,6 +711,7 @@ def _placed(contract: Contract, block: str, base: int, size: int) -> int:
     """The block's base where it is, if it is clear of every other span, else the lowest base above the
     register space, aligned to its size, that is."""
     def clear(at: int) -> bool:
+        """No other span of the window overlaps the block placed at `at`."""
         return all(not (start < at + size and at < end) for start, end in _window_spans(contract, block))
     if clear(base) and base + size <= contract.window_bytes:
         return base
