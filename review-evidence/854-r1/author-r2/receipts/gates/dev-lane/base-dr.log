@@ -1,0 +1,30 @@
+=== milan_datapath + the protocol processor AS the control plane ===
+[DR] a control frame lost to a full FIFO is counted (#854)
+  [PASS] DR the drop count reads 0 while nothing was lost got=0x00000000 exp=0x00000000
+  DR burst: 108 offered, 77 handed out, 31 lost, count 31
+  [PASS] DR a burst past the FIFO loses frames and counts them 108 offered, 77 handed out, 31 lost, count 31
+  [PASS] DR the burst's lost frames equal the drop count got=0x0000001F exp=0x0000001F
+  [PASS] DR ...each frame handed out whole and in order against the offered sequence
+  [PASS] DR ...and the FIFO holds 4,096 bytes of it before it loses one 108 offered, 77 handed out, 31 lost, count 31
+  DR refused burst: 69 kept lost, count +69, 158 FIFO overflows
+  [PASS] DR the refused frames met the full FIFO    69 kept lost, count +69, 158 FIFO overflows
+  [PASS] DR ...and are not counted: the kept frames lost equal the count got=0x00000045 exp=0x00000045
+  [PASS] DR ...the kept frames handed out whole and in order against the offered kept sequence
+  DR runt burst (filtered): 100 runts offered, 108 kept lost, count +108, 108 FIFO overflows
+  [PASS] DR the runt burst loses kept frames        100 runts offered, 108 kept lost, count +108, 108 FIFO overflows
+  [PASS] DR the filter drops every runt ahead of the tap: one overflow per kept frame lost got=0x0000006C exp=0x0000006C
+  [PASS] DR ...and runts are not counted: the kept frames lost equal the count got=0x0000006C exp=0x0000006C
+  [PASS] DR ...the kept frames of the runt burst handed out whole and in order against the offered kept sequence
+  DR 4,096-byte frame: 1 of 1 handed out, 0 FIFO overflows, count +0
+  [PASS] DR a frame as long as the FIFO is kept and handed out whole 1 of 1 handed out, 0 FIFO overflows, count +0
+  [PASS] DR ...and is not counted                   got=0x00000000 exp=0x00000000
+  DR 4,097-byte frame, then 64 bytes: 2 offered, 1 handed out, 1 FIFO overflows, count +1
+  [PASS] DR a frame longer than the FIFO is lost and the frame behind it handed out 2 offered, 1 handed out, 1 FIFO overflows, count +1
+  [PASS] DR the frame longer than the FIFO is counted got=0x00000001 exp=0x00000001
+  DR flood: 501 frames lost in all
+  [PASS] DR the bursts lose more than 255 frames in all 501 frames lost in all
+  [PASS] DR the count saturates at 255              got=0x000000FF exp=0x000000FF
+  [PASS] DR ...and holds there                      got=0x000000FF exp=0x000000FF
+----------------------------------------------------------------
+pp_shadow: 19 checks, 0 failures
+RESULT: PASS

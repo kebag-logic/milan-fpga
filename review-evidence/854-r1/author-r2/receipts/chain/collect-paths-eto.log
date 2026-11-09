@@ -1,0 +1,24 @@
+# Worst paths, report_timing of the routed checkpoint
+
+Checkpoint: `alinx_ax7101_route.dcp`, sha256 `de5988288f57772940e841ee512de139b41bf6c3624219e7711ac929f5943afd`, 43613295 bytes (not copied).
+
+| Corner | Kind | Slack ns | Summary ns | Equal | Logic levels | Data path delay | Source | Destination | Group |
+|---|---|---:|---:|---|---|---|---|---|---|
+| Slow_0C | setup | 0.127 | 0.127 | yes | 18  (LUT2=1 LUT3=6 LUT4=4 LUT5=1 LUT6=6) | 9.803ns  (logic 2.323ns (23.697%)  route 7.480ns (76.303%)) | `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]/C` | `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D` | milansoc_crg_clkout0 |
+| Slow_0C | hold | 0.102 | 0.102 | yes | 0 | 0.424ns  (logic 0.304ns (71.652%)  route 0.120ns (28.348%)) | `milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_deadline_ms_o_reg[0]/C` | `milan_datapath/pp_shadow/u_pp/g_armq[4].mem_r_reg_0_3_0_5/RAMA/I` | milansoc_crg_clkout1 |
+| Slow_85C | setup | 0.127 | 0.127 | yes | 18  (LUT2=1 LUT3=6 LUT4=4 LUT5=1 LUT6=6) | 9.803ns  (logic 2.323ns (23.697%)  route 7.480ns (76.303%)) | `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]/C` | `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D` | milansoc_crg_clkout0 |
+| Slow_85C | hold | 0.102 | 0.102 | yes | 0 | 0.424ns  (logic 0.304ns (71.652%)  route 0.120ns (28.348%)) | `milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_deadline_ms_o_reg[0]/C` | `milan_datapath/pp_shadow/u_pp/g_armq[4].mem_r_reg_0_3_0_5/RAMA/I` | milansoc_crg_clkout1 |
+| Fast_0C | setup | 1.525 | 1.525 | yes | 0 | 0.408ns  (logic 0.175ns (42.843%)  route 0.233ns (57.157%)) | `FDPE_22/C` | `FDPE_23/D` | milansoc_crg_clkout1 |
+| Fast_0C | hold | 0.036 | 0.036 | yes | 0 | 0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%)) | `milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[52]/C` | `milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_132_137/RAMA/I` | milansoc_crg_clkout1 |
+| Fast_85C | setup | 1.525 | 1.525 | yes | 0 | 0.408ns  (logic 0.175ns (42.843%)  route 0.233ns (57.157%)) | `FDPE_22/C` | `FDPE_23/D` | milansoc_crg_clkout1 |
+| Fast_85C | hold | 0.036 | 0.036 | yes | 0 | 0.196ns  (logic 0.141ns (71.838%)  route 0.055ns (28.162%)) | `milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/frame_cid_r_reg[52]/C` | `milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/evq_pd_ctx_r_reg_0_3_132_137/RAMA/I` | milansoc_crg_clkout1 |
+
+Signoff summaries (the route's own, not copied):
+
+- `alinx_ax7101_signoff_Slow_0C_timing.rpt`: sha256 `b24531eb8729273e7a401394f11c17abd52fec8e4117e81f0a4f5285309fcfcc`, 1368678 bytes
+- `alinx_ax7101_signoff_Slow_85C_timing.rpt`: sha256 `99beefc8fdb4529213c36e94ed4be22cb3647ec3568a299ad124014782800803`, 1368679 bytes
+- `alinx_ax7101_signoff_Fast_0C_timing.rpt`: sha256 `1b3833260a894118a28b96aa4790a5d17f088844fb2593f60529b0be54a58ce1`, 1313006 bytes
+- `alinx_ax7101_signoff_Fast_85C_timing.rpt`: sha256 `5d8a1564804467b6644f12c9317836928831384231d82f07d4c6736988cfeef4`, 1313007 bytes
+
+Result: PASS: every excerpt's slack equals its corner's WNS (setup) or WHS (hold).
+
