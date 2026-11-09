@@ -184,7 +184,7 @@ DYNAMIC_EXEC_INVENTORY = {
         "reads a C `#define` bit expression out of the firmware source. Guarded "
         "by `re.fullmatch(r'[0-9A-Fa-fxX()~|&^<>+\\-\\s]*')` and a second pass "
         "refusing any residual identifier, with `__builtins__` emptied. Gates 39 "
-        "and 40 (#859) also execute a copy of endstation_builder.py's own text "
+        "and 41 (#859) also execute a copy of endstation_builder.py's own text "
         "with one edit from their plant tables, into a fresh module; guarded by "
         "the edit matching exactly once.",
     "sw/builder/endstation_builder.py":

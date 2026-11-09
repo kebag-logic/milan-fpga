@@ -365,7 +365,7 @@ OUT = HERE / "out"
 #: a reviewer reads.
 CLUSTER_NAMES_GOLDEN = HERE / "cluster_names_golden.json"
 CLUSTER_NAMES_GOLDEN_CONFIGS = ("ax7101_8x8", "ax7101_1x1_tdm8")
-#: gate 40's pin of the 1x1 and 8x8 shapes' generated outputs (#859): every
+#: gate 41's pin of the 1x1 and 8x8 shapes' generated outputs (#859): every
 #: file the builder writes for them, the AEM image, the firmware's entity
 #: headers and the 8x8 two-interface mailbox variant, by SHA-256. Written by
 #: `python3 sw/builder/test_builder.py --write-shape-golden`; a deliberate
@@ -29443,13 +29443,13 @@ def test_simulation_shape_option() -> None:
 
 
 def shape_output_digests(builder: dict | None = None) -> dict[str, dict[str, str]]:
-    """gate 40's inventory: each pinned shape's generated outputs by SHA-256 (SHAPE_OUTPUTS_GOLDEN)."""
+    """gate 41's inventory: each pinned shape's generated outputs by SHA-256 (SHAPE_OUTPUTS_GOLDEN)."""
     import hashlib
     builder = builder or vars(eb)
     sys.path.insert(0, str(ROOT / "sw/mailbox"))
     import gen_mailbox
     out: dict[str, dict[str, str]] = {}
-    with tempfile.TemporaryDirectory(prefix="gate40-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="gate41-") as tmp:
         root = Path(tmp)
         for name in SHAPE_OUTPUTS_GOLDEN_CONFIGS:
             config = CONFIGS[name]
@@ -29478,7 +29478,7 @@ def shape_output_digests(builder: dict | None = None) -> dict[str, dict[str, str
 def write_shape_outputs_golden() -> None:
     """Regenerate shape_outputs_golden.json from the current generators."""
     golden = {"_generated_by": "python3 sw/builder/test_builder.py --write-shape-golden",
-              "_what": "gate 40: the 1x1 and 8x8 shapes' generated outputs by SHA-256 (#859); regenerate "
+              "_what": "gate 41: the 1x1 and 8x8 shapes' generated outputs by SHA-256 (#859); regenerate "
                        "only for a deliberate change to those shapes", **shape_output_digests()}
     SHAPE_OUTPUTS_GOLDEN.write_text(json.dumps(golden, indent=1) + "\n")
     print(f"wrote {SHAPE_OUTPUTS_GOLDEN}")
@@ -29496,7 +29496,7 @@ def _shape_output_drift(found: dict[str, dict[str, str]]) -> list[str]:
 
 
 def test_shipped_shape_outputs_unchanged() -> None:
-    """gate 40 - the 1x1 and 8x8 shapes' generated outputs stay byte-identical (#859).
+    """gate 41 - the 1x1 and 8x8 shapes' generated outputs stay byte-identical (#859).
 
     Every output the end-station builder writes for each of them, the
     firmware's three entity headers and the 8x8 two-interface mailbox variant
@@ -29506,16 +29506,16 @@ def test_shipped_shape_outputs_unchanged() -> None:
     which must change the 8x8's soc_params.json and turn the gate red.
     """
     drift = _shape_output_drift(shape_output_digests())
-    assert not drift, f"gate 40: the pinned shapes' outputs moved: {drift}"
+    assert not drift, f"gate 41: the pinned shapes' outputs moved: {drift}"
     planted = _shape_output_drift(shape_output_digests(_planted_builder(
         '    if cfg.get("simulation_only"):\n        argv += ["--simulation-only"]',
         '    argv += ["--simulation-only"]')))
     assert any("ax7101_8x8 builder:soc_params: changed" in d for d in planted), \
-        f"gate 40: the planted mark leak was not caught: {planted}"
+        f"gate 41: the planted mark leak was not caught: {planted}"
     counts = {k: len(v) for k, v in shape_output_digests().items()}
-    print(f"  [gate 40] the 1x1 and 8x8 shapes' {sum(counts.values())} generated outputs "
+    print(f"  [gate 41] the 1x1 and 8x8 shapes' {sum(counts.values())} generated outputs "
           f"({', '.join(f'{k} {v}' for k, v in counts.items())}) are byte-identical to {SHAPE_OUTPUTS_GOLDEN.name}")
-    print(f"  [gate 40] 1/1 planted defect turned it red: the simulation mark on every shape ({planted[0]})")
+    print(f"  [gate 41] 1/1 planted defect turned it red: the simulation mark on every shape ({planted[0]})")
 
 
 def test_name_count_fits_the_nvm_name_block() -> None:
