@@ -1,0 +1,10 @@
+edited hdl/aecp/ucode/gen_ucode.py
+tail-one-lane-late tb/pp_top avail-index: rc=2 tallies=['AI: 16 checks, 8 failures', '[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 16 checks, 8 failures'] fail_lines=8
+    FAIL: AI1: READ_DESCRIPTOR(ENTITY) before any ADPDU carries available_index 0, the image's other octets byte-exact (got 346 B, available_index 0)
+    FAIL: AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 0, the image's other octets byte-exact (got 346 B, available_index 0)
+    FAIL: AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 1, the image's other octets byte-exact (got 346 B, available_index 1)
+    FAIL: AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 2, the image's other octets byte-exact (got 346 B, available_index 2)
+    FAIL: AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 3, the image's other octets byte-exact (got 346 B, available_index 3)
+    FAIL: AI3: READ_DESCRIPTOR(ENTITY) after ENTITY_DEPARTING carries available_index 0, the image's other octets byte-exact (got 346 B, available_index 0)
+    FAIL: AI4: READ_DESCRIPTOR(ENTITY) after the first ENTITY_AVAILABLE re-enabled carries available_index 0, the image's other octets byte-exact (got 346 B, available_index 0)
+    FAIL: AI4: READ_DESCRIPTOR(ENTITY) after the second ENTITY_AVAILABLE re-enabled carries available_index 1, the image's other octets byte-exact (got 346 B, available_index 1)

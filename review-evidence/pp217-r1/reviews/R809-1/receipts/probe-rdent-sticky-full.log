@@ -1,0 +1,14 @@
+edited hdl/aecp/KL_aecp_engine.sv
+rdent-sticky-full tb/pp_top default-all-sections: rc=1 tallies=['AQ: 4 checks, 0 failures', 'TS: 9 checks, 0 failures', '[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10525 checks, 32 failures'] fail_lines=32
+    FAIL: K1: GET_COUNTERS response is not byte-exact
+    FAIL: K2: STREAM_INPUT 0 counters_valid 0x00000003 misses Milan Table 5.16
+    FAIL: K3: STREAM_INPUT 1 response is not byte-exact
+    FAIL: K3: mask 0x00000003, want the store's 0x00000f3f — the processor must carry the mask it is given, not one of its own
+    FAIL: K3: STREAM_INPUT 1 misses Milan Table 5.16
+    FAIL: K4b: STREAM_OUTPUT 0 carries its byte-exact block
+    FAIL: K4b: STREAM_OUTPUT 0 mask 0x00000003, want 0x0000001f
+    FAIL: K4b: output 0 keeps START and FRAMES_TX at quadlets 0 and 4
+    FAIL: K4b: STREAM_OUTPUT 1 carries its byte-exact block
+    FAIL: K4b: STREAM_OUTPUT 1 mask 0x00000003, want 0x0000001f
+    FAIL: K4b: output 1 keeps START and FRAMES_TX at quadlets 0 and 4
+    FAIL: K4c: AVB_INTERFACE 0 carries the store's 0x23 block byte-exact
