@@ -1,0 +1,5 @@
+Comment-rule scan of added lines in hdl/ and tb/ (git diff ac0a01e3..e87f2179f8d84b3eb89dea0148bb63d64319bc38)
+pattern: \b[ABR][0-9]{1,4}\b|\blane\b|round|reviewer|issuecomment|\bB[0-9]+\b
+grep rc=1 (1 = no match)
+git diff --check ac0a01e3 HEAD:
+rc=0
