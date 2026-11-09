@@ -903,8 +903,9 @@ TWIN_GFLAGS = -GRXFILT_P=0 -GGPTP_PLANE_EN_P=0
 .PHONY: twin-fw build-twin-af exec-twin-af build-twin-sp exec-twin-sp build-twin twin twin-plants
 TWIN_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_AX1_F))ULL $$(cat $(TWIN_FW)/cflags)
 
+TWIN_FW_ARGS ?=
 twin-fw: stack-pin
-	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+	python3 -B twin_fw.py --config $(TWIN_CFG) --out $(TWIN_FW) --maap-preferred $(TWIN_MAAP_PREFERRED) $(TWIN_FW_ARGS)
 
 $(TWIN_AF_MDIR)/aemi.bin: $(TWIN_CFG)
 	python3 ../../../sw/builder/endstation_builder.py $(TWIN_CFG) -o $(TWIN_AF_MDIR)/aem-build
@@ -920,9 +921,15 @@ exec-twin-af:
 	@mkdir -p $(TWIN_OUT)
 	./$(TWIN_AF_MDIR)/Vmilan_dp_twin_af $(TWIN_AF_MDIR)/aemi.bin $(TWIN_OUT)/fabric.json
 
+# #867: the split half's binary also runs the SRP transmit path (srptx.hpp,
+# --srptx). The linker wraps lwSRP's boundary calls and the adapter's init, so
+# the bench sees lwSRP's own output, its timers and its participants without an
+# edit to the adapter; each wrapper passes straight through outside --srptx.
+SRPTX_WRAPS = -Wl,--wrap=mrp_transmit,--wrap=mrp_rx,--wrap=mrp_port_configure,--wrap=shlan_timer_arm,--wrap=shlan_timer_tick,--wrap=srp_mbx_init
 build-twin-sp: twin-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
-	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" -LDFLAGS "$(abspath $(TWIN_FW))/libtwinfw.a" \
+	  --Mdir $(TWIN_SP_MDIR) -CFLAGS "$(TWIN_FW_CFLAGS) -Wall -Wextra" \
+	  -LDFLAGS "$(SRPTX_WRAPS) $(abspath $(TWIN_FW))/libtwinfw.a" \
 	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin_sp
 
 exec-twin-sp:
