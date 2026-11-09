@@ -801,14 +801,18 @@ def owed_group(p: Point) -> Group:
     g = Group('backlog-owed', sim_ms=4000)
     ready(g, p)
     announced(g)
-    tx_room = CONTRACT.channels[acmp].tx_words // (len(CONTRACT.tx_header) + (len(get(0)) + 3) // 4)
+    tx_room = p.layout.channels[acmp].tx_words // (len(CONTRACT.tx_header) + (len(get(0)) + 3) // 4)
+    chunk, refill = admission('acmp', get(0))['at_once'], CONTRACT.channels[acmp].refill_ms
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
+        if n and n % chunk == 0:     # a ring past one admitted burst (#859): the bucket refills between them
+            g.add(f'wait tx {acmp} {chunk} within {300 * MS}', f'wait cycles {chunk * refill * MS}')
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
     # The settle lets the pass that queued them end before the window, whose event ring the defined
     # load fills from empty; it is longer at a larger shape (#859: 65 ms at 32x32/2if).
     settle = 50 * MS * wait_scale(p.sources, p.sinks)
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {settle}', 'gap 1', 'mark composed')
+    g.add(f'wait tx {acmp} {tx_room - (tx_room - 1) // chunk * chunk} within {300 * MS}', f'wait cycles {settle}',
+          'gap 1', 'mark composed')
     gm_run(g, p)
     composed_load(g, p, own='acmp')
     for n in range(OWED_AHEAD):

@@ -261,10 +261,12 @@ def recorded(groups: list, out: Path) -> tuple[list, list[Path], list[str]]:
 def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list, list, list]:
     """Every group's grade, the refusals and the T_svc misses; each grade is written beside its log."""
     import grade
+    from shape_point import mailbox_layout
+    rings = grade.tx_rings(mailbox_layout(spec))
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'])
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], rings)
         except grade.Refusal as error:
             refusals.append(str(error))
             continue

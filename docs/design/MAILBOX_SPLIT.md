@@ -120,9 +120,16 @@ free span of the window. At the 32x32 shape on two interfaces the primary
 carries 17 streams of each direction, both CRF streams among them; the
 bound-talker block leaves the register space for `0x3400`, the publication
 stride doubles to `0x400` and its sink entries start at `0x110`, and the face
-block's sink entries start at `0x210`. Nothing else moves, and the tracked
-outputs are never this layout (`--check`). The self-test generates it and
-refuses one a sink entry short of the primary's 17. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
+block's sink entries start at `0x210`. Its ACMP transmit ring is sized from
+the census rule (`gen_mailbox.acmp_tx_words`, [the census](SHAPE_32X32_CENSUS.md#rings-and-buckets)):
+a PROBE_TX_COMMAND of every sink in one pass (Milan v1.2 5.5.2.3), 33
+records of 20 words at 32x32, in 1,024 words, which move to `0x7000`, the
+lowest span aligned to that size that is free (`with_tx_ring`). Nothing else
+moves, and the tracked outputs are never this layout (`--check`). The
+self-test generates it, refuses one a sink entry short of the primary's 17
+and one with the contract's ACMP transmit ring, and compiles the ACMP
+adapter (`acmp_mbx.c`) against the layout and against the one a sink entry
+short, whose static assertions must refuse it. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
 `KL_mbx_evt`) and the two bus adapters are written by hand against the
 package, so a contract change reaches them through the constants.
 

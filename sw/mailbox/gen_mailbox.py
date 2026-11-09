@@ -60,10 +60,13 @@ Exit 0 = clean; 1 = drift, a mismatch, or a self-test arm that did not bite;
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import subprocess
 import sys
 import tempfile
 from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -71,6 +74,7 @@ sys.path.insert(0, str(HERE))
 
 from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
 from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces, with_shape  # noqa: E402
+from mailbox_model import REGISTER_SPACE_BYTES, _check_contract, _window_spans  # noqa: E402
 from mailbox_skeleton import emit_sv_top  # noqa: E402
 
 REPO = HERE.parent.parent
@@ -214,6 +218,47 @@ def per_interface(streams: int, interfaces: int) -> list[int]:
     return [len(range(i, streams, interfaces)) for i in range(interfaces)]
 
 
+#: An ACMP frame as tsn-c-stack transmits it (acmp.h ACMP_FRAME_BYTES): the untagged Ethernet header and
+#: the 56-byte ACMPDU (Milan v1.2 5.5.2.2).
+ACMP_FRAME_BYTES = 14 + 56
+
+
+def acmp_tx_records(contract: Contract) -> int:
+    """The ACMP frames the layout's ACMP transmit ring holds, one record each (two header words, then the frame)."""
+    acmp = next(ch for ch in contract.channels if ch.name == "acmp")
+    return acmp.tx_words // (len(contract.tx_header) + (ACMP_FRAME_BYTES + 3) // 4)
+
+
+def acmp_tx_words(contract: Contract, sinks: int) -> int:
+    """The ACMP transmit ring the census rule sizes for an entity's sinks (#859; SHAPE_32X32_CENSUS.md section 3):
+    a record for the PROBE_TX_COMMAND of every bound sink whose delay expires in one pass (Milan v1.2 5.5.2.3),
+    in the smallest power of two of words that holds them, and never shorter than the layout's ring."""
+    acmp = next(ch for ch in contract.channels if ch.name == "acmp")
+    need = sinks * (len(contract.tx_header) + (ACMP_FRAME_BYTES + 3) // 4)
+    return max(acmp.tx_words, 1 << max(0, need - 1).bit_length())
+
+
+def with_tx_ring(contract: Contract, channel: str, words: int) -> Contract:
+    """The layout with a channel's transmit ring `words` long: where it is if it still fits there, else at the
+    lowest base of the window aligned to its size and clear of every other span. Refused as load() refuses."""
+    ring = next(ch for ch in contract.channels if ch.name == channel)
+    size = 4 * words
+    others = [s for s in _window_spans(contract) if s != (ring.tx_base, ring.tx_base + 4 * ring.tx_words)]
+    def clear(at: int) -> bool:
+        """The ring placed at `at` is aligned, inside the window and overlaps nothing else."""
+        return at % size == 0 and at + size <= contract.window_bytes and all(not (a < at + size and at < b)
+                                                                              for a, b in others)
+    first = -(-REGISTER_SPACE_BYTES // size) * size
+    base = ring.tx_base if clear(ring.tx_base) else next(
+        (at for at in range(first, contract.window_bytes, size) if clear(at)), None)
+    if base is None:
+        raise ContractError(f"no {size:#x} bytes of the window are free for the {channel} transmit ring")
+    v = replace(contract, channels=tuple(replace(ch, tx_base=base, tx_words=words) if ch is ring else ch
+                                         for ch in contract.channels))
+    _check_contract(v)
+    return v
+
+
 def shape_findings(variant: Contract, sources: int, sinks: int) -> list[str]:
     """Each table of a shape's layout holds every stream its interface carries, by its ordinal."""
     found = []
@@ -226,14 +271,18 @@ def shape_findings(variant: Contract, sources: int, sinks: int) -> list[str]:
                 found.append(f"interface {i} carries {needs} streams but has {holds} {entries}")
     if not variant.entry_ordinal:
         found.append("the layout does not index each interface's streams by their ordinal")
+    if acmp_tx_records(variant) < sinks:
+        found.append(f"the acmp transmit ring holds {acmp_tx_records(variant)} of the {sinks} PROBE_TX_COMMANDs "
+                     "one pass sends (Milan v1.2 5.5.2.3)")
     return found
 
 
 def shape_variant(contract: Contract, config: Path, interfaces: int) -> tuple[Contract, int, int]:
-    """The contract laid out for a config's per-interface stream counts, and those totals."""
+    """The contract laid out for a config's per-interface stream counts, its ACMP transmit ring sized for
+    every sink (acmp_tx_words), and those totals."""
     sources, sinks = shape_streams(config)
-    return (with_shape(contract, interfaces, max(per_interface(sources, interfaces)),
-                       max(per_interface(sinks, interfaces))), sources, sinks)
+    v = with_shape(contract, interfaces, max(per_interface(sources, interfaces)), max(per_interface(sinks, interfaces)))
+    return with_tx_ring(v, "acmp", acmp_tx_words(v, sinks)), sources, sinks
 
 
 def write_shape_variant(contract: Contract, config: Path, interfaces: int, out: Path) -> list[str]:
@@ -246,6 +295,22 @@ def write_shape_variant(contract: Contract, config: Path, interfaces: int, out: 
         (out / Path(path).name).write_text(texts[path], encoding="utf-8")
         print(f"wrote {out / Path(path).name} ({config.stem}, {interfaces} interfaces)")
     return crosscheck(variant, texts) + shape_findings(variant, sources, sinks)
+
+
+def firmware_refusal(variant: Contract, sources: int, sinks: int, tmp: Path) -> str:
+    """What the ACMP adapter's compile against a layout says, empty when it compiles: acmp_mbx.c's static
+    assertions refuse a layout whose tables do not hold every sink (#859). ACMP is built at the shape's
+    sources and sinks, as the shape's image builds it (ctrl_srp_image.py, acmp_sizing)."""
+    ctrl = REPO / "sw/firmware/ctrl"
+    header = tmp / f"mbx_contract_{variant.bound_talkers}.h"
+    header.write_text(generate(variant)["sw/firmware/ctrl/mbx/mbx_contract.h"], encoding="utf-8")
+    dirs = sorted(d for d in ctrl.iterdir() if d.is_dir() and any(d.glob("*.h")))
+    r = subprocess.run([os.environ.get("CC", "gcc"), "-std=c11", "-fsyntax-only", f"-DACMP_MAX_SINKS={sinks}u",
+                        f"-DACMP_MAX_SOURCES={sources}u", "-include", str(header), *(f"-I{d}" for d in dirs),
+                        f"-I{REPO / 'third_party/tsn-c-stack/include'}", str(ctrl / "acmp/acmp_mbx.c")],
+                       capture_output=True, text=True)
+    errors = [line.split("error: ")[-1] for line in r.stderr.splitlines() if "error: " in line]
+    return "" if r.returncode == 0 else "; ".join(errors) or f"rc {r.returncode}: {r.stderr.strip()[:200]}"
 
 
 def _plant(texts: dict[str, str], path: str, old: str, new: str) -> dict[str, str]:
@@ -505,6 +570,27 @@ def selftest() -> int:
         found = shape_findings(short, sources, sinks)
         bit = any("interface 0 carries 17 streams but has 16 bound-talker entries" in f for f in found)
         print(f"[{'ok' if bit else 'FAIL'}] a layout one sink entry short: "
+              f"{found[0] if found else 'NOTHING FOUND'}")
+        failures += not bit
+        # The firmware refuses that layout too: the ACMP adapter compiles against the shape's layout, and its
+        # static assertions refuse the layout one sink entry short by their words.
+        said = firmware_refusal(variant, sources, sinks, Path(tmp))
+        print(f"[{'ok' if not said else 'FAIL'}] the ACMP adapter against the 32x32 layout: {said or 'compiles'}")
+        failures += bool(said)
+        said = firmware_refusal(short, sources, sinks, Path(tmp))
+        bit = "every sink needs a bound-talker entry" in said and "every sink needs a publication entry" in said
+        print(f"[{'ok' if bit else 'FAIL'}] the ACMP adapter against the layout one sink entry short: "
+              f"{said or 'COMPILED'}")
+        failures += not bit
+        # Its ACMP transmit ring holds the PROBE_TX_COMMAND of every sink in one pass (Milan v1.2 5.5.2.3); the
+        # layout with the contract's ring is refused by name.
+        held = acmp_tx_records(variant)
+        print(f"[{'ok' if held >= sinks else 'FAIL'}] the 32x32 layout's acmp transmit ring: {held} records of "
+              f"the {sinks} one pass sends")
+        failures += held < sinks
+        found = shape_findings(with_shape(contract, 2, variant.pub_sources, variant.pub_sinks), sources, sinks)
+        bit = any("the acmp transmit ring holds 12 of the 33 PROBE_TX_COMMANDs" in f for f in found)
+        print(f"[{'ok' if bit else 'FAIL'}] the layout with the contract's acmp transmit ring: "
               f"{found[0] if found else 'NOTHING FOUND'}")
         failures += not bit
     print(f"selftest: {failures} arm(s) failed")
