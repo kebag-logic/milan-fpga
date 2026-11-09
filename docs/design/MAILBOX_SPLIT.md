@@ -1849,8 +1849,13 @@ report_timing_summary -delay_type max
   [`milan_dp` README](../../tb/verilator/milan_dp/README.md).
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter
-  the SRP channel's transmit ring as header plus MRPDU. Target integration
-  of the stream owners remains separate from the host composition.
+  the SRP channel's transmit ring as header plus MRPDU. `make srptx` holds
+  them from that ring to the MAC in the split build (#867,
+  [the `milan_dp` README](../../tb/verilator/milan_dp/README.md#the-split-builds-srp-transmit-path-obj_srptx-867)).
+  The #608 stop and the licence at the policer hold there only under a
+  fixture that allocates source 0, until the SRP adapter re-declares a
+  source MAAP has allocated. Target integration of the stream owners remains
+  separate from the host composition.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
   simulation. ACMP's backlog bounds fit T_svc only at 0.88 us per access or

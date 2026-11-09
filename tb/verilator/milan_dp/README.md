@@ -106,8 +106,9 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
-- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-four planted defects and its make -j8 gate from a clean tree
+- **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
+- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty plants and nine code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1135,6 +1136,7 @@ contract's registers or a datapath net its consumers read:
 | `[RX]` | an ADP frame reaches the adp ring whole; an AAF frame never reaches the mailbox; the datapath's drop count (`pp_rx_drops_w`, `PP_DIAG[15:8]`) reads 0, and a burst at the MAC past its tap's FIFO is counted there, each frame handed out or counted lost |
 | `[TX]` | a frame committed to the adp ring leaves the MAC byte for byte |
 | `[LINK]` | the effective link sets `LINK.UP`, its loss clears it, and its return sets it again |
+| `[POL]` | for every talker of the shape, LICENCE bit s alone reaches ACTIVE, admitted and the stream gate every talker's emission reads as bit s alone; the CRF source's licence term reads the gate's top bit; a cleared LICENCE closes them all. The split's generate drives the two nets the processor drives in the all-fabric build, and the gate and every consumer after it are one RTL in both placements (#867) |
 | `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO filled to its last word counts each control frame it loses once and no refused frame or one-beat runt, and the count saturates at 255 |
 
 `make split` runs the binary only once it has linked. The rule builds it
@@ -1156,12 +1158,14 @@ starts long before the link.
 python3 tb/verilator/milan_dp/split_parallel.py --selftest
 ```
 
-`make split-mutants` runs `split_mutants.py`. It plants twenty-four defects
+`make split-mutants` runs `split_mutants.py`. It plants twenty-six defects
 into copies of the datapath's split branch, `KL_mbx_cdc`, its window and
 `KL_ctrl_split`. Each is built through the leg's recipe and must fail on the
 check it names, after a clean control passes. Eleven of them hold the Talker
 declaration's encoding, the tap's tuples and its drop count, and the
-datapath's own count wired to `PP_DIAG[15:8]`.
+datapath's own count wired to `PP_DIAG[15:8]`. Two hold the licence's path to
+the stream gate: the licence on the next source's ACTIVE term, and the CRF
+source's licence term on source 0's gate (#867).
 
 `make split-cdc` runs `split_cdc_check.py`. It elaborates `KL_mbx_cdc` with
 the primitives as blackboxes. Every flop's inputs, every output and every
@@ -1209,7 +1213,9 @@ amend it.
   firmware's boot test builds it. `mbx_hal.h` is `KL_mbx`'s host port, as in
   `tb/verilator/mbx`'s co-simulation. The CSR window is the datapath's
   AXI4-Lite port, and the flash is the store's blank host model. The boot
-  reaches its ready state.
+  reaches its ready state. The same binary runs the SRP transmit path with
+  `--srptx` ([below](#the-split-builds-srp-transmit-path-obj_srptx-867)); the
+  wrappers that run links pass straight through here.
 - **Two settings are simulation-only.** The processor's and `KL_maap`'s
   millisecond is `TWIN_MS_CYC` (1000) datapath cycles: `PP_TIM_DIV_US_P = 1`,
   `PP_TIM_DIV_MS_P` and `MAAP_CLK_HZ_P`. MAAP's first range is pinned in both
@@ -1477,6 +1483,180 @@ The fabric's Domain and VID 2 fail it, and the two #860 rows hold them:
 ```sh
 make -C tb/verilator/milan_dp twin
 make -C tb/verilator/milan_dp twin-plants
+```
+
+## The split build's SRP transmit path (`obj_srptx`, #867)
+
+`make srptx` runs the split half's binary with `--srptx`
+([`srptx.hpp`](srptx.hpp)) on three scenarios, and
+[`srptx_grade.py`](srptx_grade.py) grades each. The path is the split SoC's:
+lwSRP's MRPDU, the SRP adapter's record in the SRP channel's TX ring,
+`KL_mbx_tx`, the byte crossing, the datapath's `ctl_tx_mux`, then the MAC.
+MSRP is on 0x22EA and MVRP on 0x88F5.
+
+The bench sees the path in four places:
+
+- **lwSRP's output.** Every MRPDU lwSRP hands the adapter in a transmit
+  opportunity, and the adapter's answer: 0 for sent, or a refusal. The binary
+  links with `--wrap` for `mrp_transmit`, `mrp_rx` and `mrp_port_configure`,
+  so this is the library's own call at its own boundary. The adapter is not
+  edited.
+- **lwSRP's timers.** Every arm of a participant's LeaveAll, periodic, Join
+  and Leave timer, and each expiry, read from the public `cs` field around
+  the real `shlan_timer_tick` (`--wrap` for `shlan_timer_arm` and
+  `shlan_timer_tick`).
+- **The mailbox.** The SRP channel's `TX_HEAD` and `TX_TAIL` as the firmware
+  writes and reads them, and every `LICENCE` write.
+- **The MAC.** Every frame, with the time its first beat left. The policer is
+  sampled at the end of each millisecond: the stream gate, the AAF talker's
+  gate and the CRF source's licence term.
+
+Each wrapper passes straight through outside `--srptx`. With the wrappers
+linked, the twin's split capture is the same, byte for byte.
+
+**Time.** A modeled millisecond is one `KL_mbx` tick. A time is the tick's
+millisecond plus the RTL time since the tick: 10 ns a mailbox cycle, 20 ns a
+datapath cycle. After a millisecond's service, the RTL runs until neither the
+MAC nor the receive side has moved a beat for 2,048 datapath cycles. That is
+past `ctl_tx_mux`'s 512-cycle gap and the path's latency. The loop is then
+serviced again and drained again. So a committed frame leaves at its RTL time
+inside its millisecond, and a received frame is taken, answered and sent
+inside it. Without this drain, the twin's half stops clocking once the
+firmware owes nothing, and a frame sent right after another leaves about
+10 modeled milliseconds later. The firmware's own instructions take no
+simulated time. The CPU's cost is S2's harness's figure
+([`ctrl_service_budget`](../ctrl_service_budget/README.md)). The capture
+records the longest millisecond's RTL time, and every one is under 1 ms.
+
+| Scenario | Stimulus | Graded for |
+|---|---|---|
+| `wire` | the twin's stimulus, run to 600 s, the production composition | `[WIRE]`, `[SA]`, `[TIME]`, `[TX]` |
+| `hold` | the same to 40 s, a peer's MSRP and MVRP LeaveAll every 200 ms from 20 s to 30 s, and the MAC refusing every beat from 22 s to 25 s, which fills the SRP TX ring (each rLA! makes the Applicant send again, IEEE 802.1Q-2018 10.7.6.6) | `[WIRE]`, `[SA]`, `[TX]`, and `[TIME]` outside the frames the hold queued |
+| `licence` | a peer's Listener Ready for source 0 at 3 s, its LeaveAll with no re-declaration at 16 s, and its withdrawal (Lv) at 18 s, while the Registrar is in LV; the peer answers each of the split's MSRP LeaveAlls with its JoinIn until its own LeaveAll | every section, with `[608]` and `[LIC]` |
+
+**The licence scenario's fixture.** At this base every split source declares
+Talker Failed. The platform configures its sources unallocated, and the
+adapter entry that re-declares a source once MAAP allocates is deferred until
+S2b ([plat README, Not yet done](../../../sw/firmware/ctrl/plat/README.md#not-yet-done);
+[issuecomment-6505997821](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821),
+item 3). No split talker can hold a licence, so nothing can stop. The licence
+scenario alone wraps `srp_mbx_init`, and hands the adapter source 0 allocated
+at MAAP's pinned range, the address MAAP takes in this simulation, as that
+entry would. The fixture is the scenario's input, not the platform's, and
+every finding of that scenario names it. Until that entry lands, the #608
+case is held in the split build only under the fixture.
+
+| Section | What it holds | Authority |
+|---|---|---|
+| `[WIRE]` | every MSRP and MVRP frame is a well-formed MRPDU: ProtocolVersion, AttributeType and AttributeLength, the MSRP AttributeListLength with its AttributeList EndMark where it ends, each vector, each AttributeList EndMark and the PDU EndMark, nothing after it but zeros; at most 1,500 octets, and the frame at most 1,500 bytes; one Message per AttributeType; no attribute value twice in one MRPDU; a LeaveAll on every AttributeType of its application (MSRP 1 to 4, MVRP 1); the group address of its application. `srp_wire_compare.py`'s decoder also reads every MSRP frame | IEEE 802.1Q-2018 10.8.1, 10.8.2, 10.7.9, 10.8.2.6, 35.2.2.1/.2, 11.2.3.1.3; lwSRP PR #18; [issuecomment-6087462816](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6087462816) |
+| `[SA]` | every MRPDU's source address is the port's MAC, from the first frame after reset | #839; IEEE 802.1AC-2016 11.1 |
+| `[TIME]` | per participant, at egress, each bound widened by T_svc = 20 ms: no four transmit opportunities in 1.5 x JoinTime (280 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (220 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,780 to 15,220 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; [issuecomment-6495692075](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075) |
+| `[TX]` | every MRPDU the adapter accepted left the MAC, byte for byte, in the order accepted, and nothing else did; while the MAC was held, the adapter refused an MRPDU with the ring too full for its record, and the MRPDU it refused was the next one it sent | #867 item 4; the adapter's retention ([SRP README](../../../sw/firmware/ctrl/srp/README.md#protocol-commitments)) |
+| `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within T_svc, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
+| `[LIC]` | at every millisecond, the policer's ACTIVE, admitted and stream gate equal the `LICENCE` the firmware last wrote; the AAF talker's gate opens only under source 0's licence; the CRF source's term reads the top gate bit; no stream frame leaves while no source holds a licence | #867 item 6; Milan v1.2 5.3.7.3 |
+
+`[TX]` aligns the two sequences by position: equal, a swapped pair, one
+accepted and lost, or one sent and never accepted. Periodic MRPDUs repeat byte
+for byte, so it never searches ahead. A frame matches an accepted MRPDU only
+if it left in the millisecond of its acceptance or the next, or behind a hold.
+Identical MRPDUs queued behind one hold cannot be told apart, so a loss among
+them is named at the first position no frame can fill.
+
+The split leg's `[POL]` section (`make split`) holds the same licence path
+per bit, for every talker of the shape.
+
+### What it finds at this head
+
+Every scenario grades with no finding.
+
+| Scenario | MRPDUs | Measured |
+|---|---|---|
+| `wire` | 1,449, each accepted and sent | the first MRPDU at 1 ms after reset; one frame per transmit opportunity (727 MSRP, 722 MVRP) |
+| `hold` | 169, each accepted and sent | the ring held 507 of its 512 words when the adapter refused a 30-word MSRP record at 24,600 ms; it kept that MRPDU, retried it 160,001 times, and sent it first when the MAC resumed at 25,000 ms; the queue left about 11 us apart |
+| `licence` | 69, each accepted and sent | the licence from 3,001 ms; the peer's LeaveAll armed the Listener's Leave timer at 16,001 ms, and the withdrawal re-armed nothing; it expired at 21,000 ms, and `LICENCE` was cleared 12 us later; the stream gate closed that millisecond; 102 stream frames, the last at 20,946 ms |
+
+The egress interval error per MRP timer in the `wire` scenario, in us. The
+interval error is each egress interval less the interval its timer was armed
+with: for JoinTime, 200 ms after the frame that armed it; for periodic, 1 s
+after a periodic frame; for LeaveAll, the draw armed at the earlier LeaveAll's
+expiry. "After the tick" is each frame's egress after the tick its timer
+expired at.
+
+| Participant | Timer | N | Interval error min / mean / max | After the tick min / mean / max |
+|---|---|---:|---|---|
+| MSRP | JoinTime | 104 | -1,011.34 / -9.94 / 0.01 | 1.94 / 1.95 / 1.97 |
+| MSRP | periodic | 525 | -11.80 / 0.00 / 11.80 | 1.94 / 1.97 / 13.75 |
+| MSRP | LeaveAll | 39 | -50,000.00 / 0.00 / 50,000.00 | 2.40 / 5,229.68 / 50,002.41 |
+| MVRP | JoinTime | 104 | -1,011.34 / -9.61 / 15.48 | 1.52 / 2.05 / 17.03 |
+| MVRP | periodic | 522 | -12.99 / 0.00 / 12.99 | 1.52 / 13.99 / 26.31 |
+| MVRP | LeaveAll | 40 | -70,000.00 / 0.00 / 70,000.01 | 1.54 / 1,592.46 / 70,001.55 |
+
+The JoinTime error's -1.01 ms is the centisecond grid. A Join timer armed by a
+frame 1 ms after a tick expires on its twentieth tick, 199 ms later. The
+LeaveAll's 50 and 70 ms are the transmit opportunity's wait. A LeaveAll timer
+that expires while the Join timer runs waits for it (IEEE 802.1Q-2018
+10.7.4.1), within JoinTime. The MVRP frame of an opportunity leaves about
+11 us after the MSRP frame of the same millisecond, behind `ctl_tx_mux`'s gap.
+
+Found, not held here: the split's AAF frames carry stream_id 0. No firmware
+writes the publication block's `SRC_SID`, so the datapath's framer reads 0
+once a talker streams. That cannot happen in the production composition until
+the allocation entry above lands.
+
+### The plants and the mutants
+
+`make srptx-plants` plants each check's defect into a copy of a capture
+([`srptx_plants.py`](srptx_plants.py)). Each must be refused by its words,
+and no finding of its unplanted capture may hold them.
+
+| Plant | Scenario | Refused by |
+|---|---|---|
+| `malformed-endmark` | wire | `MSRP AttributeList EndMark missing where its AttributeListLength ends` |
+| `doubled-declaration` | wire | `MSRP Domain value 06030002 declared 2 times in one MRPDU` |
+| `doubled-message` | wire | `2 Messages of AttributeType 4, not one per AttributeType` |
+| `leave-all-wrong-type` | wire | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
+| `oversized` | wire | `past 1500 octets and the 1500-byte frame` |
+| `zero-source` | wire | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
+| `join-late` | wire | `followed at ms 230, past JoinTime + T_svc (220 ms` |
+| `rate` | wire | `four transmit opportunities in` |
+| `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9780 to 15220 ms` |
+| `dropped-under-backpressure` | hold | `never left the MAC` |
+| `reordered` | hold | `out of the order accepted` |
+| `backpressure-unseen` | hold | `never saw the SRP TX ring full` |
+| `refused-with-room` | hold | `the ring had room` |
+| `retention-lost` | hold | `was not the next MSRP MRPDU the adapter sent` |
+| `late-stop` | licence | `[608] the talker stopped at ms 23000.012, not at the LeaveTime deadline` |
+| `never-stopped` | licence | `[608] the talker never stopped` |
+| `stream-after-stop` | licence | `stream frame(s) after the stream gate closed` |
+| `gate-not-licence` | licence | `the policer reads active 0x1, admitted 0x1, gate 0x0, and the firmware's LICENCE is 0x1` |
+| `aaf-without-licence` | licence | `AAF talker's gate is open without` |
+| `stream-without-licence` | licence | `while no source holds its licence` |
+
+`make srptx-mutants` plants the defect in the code itself
+([`srptx_mutants.py`](srptx_mutants.py)). Each arm plants one line in a copy
+of lwSRP, the adapter or the datapath, and builds the split half through its
+own recipe: `twin_fw.py --replace` for a firmware unit, `DP_SRC` for the
+datapath. It then runs the arm's scenario, and the grade must report the arm's
+words. A clean control first builds the tracked sources the same way, and
+each scenario an arm runs must grade with no finding. A build failure is never
+a catch.
+
+| Arm | Planted in | Scenario | Refused by |
+|---|---|---|---|
+| an AttributeList EndMark of 0x0001 | lwSRP `tx_close` | wire, 3 s | `MSRP AttributeList EndMark missing where its AttributeListLength ends` |
+| each declaration encoded twice | lwSRP `tx_message` | wire, 3 s | `declared 2 times in one MRPDU` |
+| a LeaveAll on the last AttributeType alone | lwSRP `mrp_transmit` | wire, 16 s | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
+| a refused MRPDU reported sent | the adapter's `send_pdu` | hold | `never left the MAC` |
+| the first MRPDU's source address unset | the adapter's `send_pdu` | wire, 3 s | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
+| a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + T_svc (220 ms` |
+| a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9780 to 15220 ms` |
+| a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
+| the split's ACTIVE term held open | `milan_datapath.sv` | licence | `[LIC] at ms 1 the policer reads active 0x3, admitted 0x0` |
+
+```sh
+make -C tb/verilator/milan_dp srptx
+make -C tb/verilator/milan_dp srptx-plants
+make -C tb/verilator/milan_dp srptx-mutants
 ```
 
 ## GM step re-base leg (#387)
