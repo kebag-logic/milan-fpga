@@ -1,0 +1,55 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+== broad scan of added lines 6584b7bf..HEAD (all files incl. md): issuecomment|ruling|lane-like S<n>|reviewer/author IDs|bench lanes B<n>
+docs/design/MAILBOX_SPLIT.md:850: answers GET_STREAM_INFO (the ruling). The value is the one the most recently
+docs/design/MAILBOX_SPLIT.md:852: 1722.1-2021 Table 7-2; #665 issuecomment-6717765106, item 1). ADP's own
+docs/design/MAILBOX_SPLIT.md:1183: carries no REBOOT request: ruling 6715535566 item 3 holds `reboot_req_i` at 0
+docs/design/MAILBOX_SPLIT.md:1184: until S11 gives REBOOT its carrier. The split census proves the hold:
+docs/design/MAILBOX_SPLIT.md:1415: census's second population (ruling 6715535566 item 2). `--check` elaborates
+docs/design/MAILBOX_SPLIT.md:1461: firmware-written state (#665 issuecomment-6716584453, item 2): dropping one is
+docs/design/MAILBOX_SPLIT.md:1462: a contract change, which waits for the flip (S13). The plan's "every contract
+docs/design/MAILBOX_SPLIT.md:1470: | `F_ENTITY.IDENTIFY` | `i_ctl_identify` | The IDENTIFY indication drives no datapath logic in either placement; it is graded at the bench (S12). |
+docs/design/MAILBOX_SPLIT.md:1538:   protocol by protocol (#665 issuecomment-6716584453, issuecomment-6717765106,
+docs/design/MAILBOX_SPLIT.md:1539:   issuecomment-6722002738, issuecomment-6724570965). Two controllers drive it,
+docs/design/MAILBOX_SPLIT.md:1553:   issuecomment-6722002738, item 1). The AECP owner's page is S11's.
+docs/design/MAILBOX_SPLIT.md:1558: issuecomment-6724570965, item 3). `rtl-fast`'s `split-cdc` job runs
+docs/design/MAILBOX_SPLIT.md:1559: `make split-cdc` (ruling 6715535566 item 6), and its `publication-census` job
+docs/design/MAILBOX_SPLIT.md:1872:   face as firmware-written state until the flip (issuecomment-6716584453,
+docs/design/MAILBOX_SPLIT.md:1875:   firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
+sw/mailbox/census_split.py:212: #: The contract 2.3 fields no datapath port carries, each with its ruling.
+tb/verilator/milan_dp/Makefile:941: # the plants, each refused by its own words (twin_compare.py PLANT_WORDS):
+tb/verilator/milan_dp/README.md:1144: ([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+tb/verilator/milan_dp/README.md:1192: ([`twin_compare.py`](twin_compare.py)). The contract is the plan's section S6
+tb/verilator/milan_dp/README.md:1193: as [issuecomment-6716584453](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6716584453),
+tb/verilator/milan_dp/README.md:1194: [issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106),
+tb/verilator/milan_dp/README.md:1195: [issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738)
+tb/verilator/milan_dp/README.md:1196: and [issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965)
+tb/verilator/milan_dp/README.md:1241: ([issuecomment-6717765106](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6717765106),
+tb/verilator/milan_dp/README.md:1256: [issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+tb/verilator/milan_dp/README.md:1306: ([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+tb/verilator/milan_dp/README.md:1342: ([issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+tb/verilator/milan_dp/README.md:1366: ([issuecomment-6722002738](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6722002738),
+tb/verilator/milan_dp/README.md:1376: | `stream-output-0-notices` | GET_STREAM_INFO notices of STREAM_OUTPUT 0 as its talker declares and withdraws | none | the SRP adapter round after S2b |
+tb/verilator/milan_dp/README.md:1377: | `split-talker-failed` | Talker Advertise for source 0 from the PROBE_TX until it withdraws | Talker Failed for both sources from boot | the SRP adapter round after S2b 
+tb/verilator/milan_dp/README.md:1402: ([issuecomment-6724570965](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6724570965),
+tb/verilator/milan_dp/README.md:1409: be about the planted protocol. That control also counts each grade finding the
+tb/verilator/milan_dp/README.md:1410: plant adds to the planted half, or takes from it. Between the placements, the
+tb/verilator/milan_dp/split_cdc_check.py:256: #: (name, the source, its tracked text, the planted text, the words its findings must hold, each)
+tb/verilator/milan_dp/twin_compare.py:36:       (0 with --report-only, which only writes the plants' baseline)
+tb/verilator/milan_dp/twin_compare.py:39:       when the comparison refuses it with the plant's words (PLANT_WORDS), in a finding the unplanted
+tb/verilator/milan_dp/twin_compare.py:42:       the control: a capture against its planted copy, every finding about the planted protocol (the
+tb/verilator/milan_dp/twin_compare.py:43:       comparison's, and each grade finding the plant adds to the planted half or takes from it)
+tb/verilator/milan_dp/twin_compare.py:45:       write a capture plant (CAPTURE_PLANTS): the planted half's capture with its planted difference
+tb/verilator/milan_dp/twin_compare.py:105:     "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
+tb/verilator/milan_dp/twin_compare.py:107:     "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
+tb/verilator/milan_dp/twin_compare.py:111:     "vanished-vid2-join-in": "the planted half no longer makes: [MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200",
+tb/verilator/milan_dp/twin_compare.py:633:     grade finding the plant gives the planted half or takes from it."""
+tb/verilator/milan_dp/twin_compare.py:665:         findings += [f"[GRADE] the planted half no longer makes: {f}" for f in gf if f not in gs]
+tb/verilator/milan_dp/twin_compare.py:671:     """0 when the plant is refused by its words, in a finding the baseline does not make (or, for --self, with
+tb/verilator/milan_dp/twin_compare.py:672:     every finding about the planted protocol)."""
+tb/verilator/milan_dp/twin_compare.py:695:                         help="write the report and exit 0: the plants' baseline, whose verdict is make twin's")
+tb/verilator/milan_dp/twin_plants.py:7: twin_compare.py must refuse by the plant's words (twin_compare.PLANT_WORDS), against the unplanted capture
+tb/verilator/milan_dp/twin_plants.py:11: Each plant names the grade or row it is the plant of:
+tb/verilator/milan_dp/twin_plants.py:63:     """The capture, marked with the plant it carries."""
+tb/verilator/milan_dp/twin_plants.py:372: #: the plants of the split half's capture (--make-plant writes the planted split capture)
+tb/verilator/milan_dp/twin_plants.py:381: #: the plants of the all-fabric half's capture (--make-plant writes the planted fabric capture)
+tb/verilator/milan_dp/twin_split.cpp:439:         std::fprintf(stderr, "FAIL the plant %s found nothing to plant\n", planted.c_str());

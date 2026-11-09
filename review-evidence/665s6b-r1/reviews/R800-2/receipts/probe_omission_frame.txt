@@ -1,0 +1,18 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: PYTHONPATH=<clean-clone>/sw/firmware/ctrl/test python3 -B scripts/probe_omission_frame.py <clean-clone>/tb/verilator/milan_dp <clean-clone>/tb/verilator/milan_dp/obj_twin/split.json <clean-clone>/tb/verilator/milan_dp/obj_twin/split-leave-all-omission.json; rc=0
+raw log: 1177 bytes, sha256 4c6aaff7827b0a4f99002705a1258c1e44a42c4687201aa7c39ab4154421da94 (kept unpublished; lines below filtered by /./)
+---
+[ok] one frame differs (index [129])
+[ok] the changed frame is at ms 27910
+  before: 201 octets, LeaveAll types [1, 2, 3, 4], events [(2, '0200000000010000000000000000000200d900017000000000000002000000000102', 'JoinMt'), (2, '02000000000100010000000000000002001d00017000000000000002000000000102', 'JoinMt'), (4, '06030002', 'JoinMt')]
+  after:  194 octets, LeaveAll types [1, 2, 3, 4], events [(2, '0200000000010000000000000000000200d900017000000000000002000000000102', 'JoinMt'), (2, '02000000000100010000000000000002001d00017000000000000002000000000102', 'JoinMt')]
+[ok] the unplanted frame carries one Domain event [(4, '06030002')]
+[ok] the planted frame carries no Domain event
+[ok] both frames carry the Domain type's LeaveAll
+[ok] every other attribute event is unchanged
+[ok] the planted frame is 7 octets shorter
+[ok] the Domain Message at octet 180 holds the vector 0001060300026c
+  Domain Message at octet 180: list 2000000000000001060300026c0000 -> 2000000000000000 (AttributeListLength 15 -> 8)
+[ok] the planted frame equals the unplanted one with exactly that vector removed and the length fixed
+[ok] no other split MSRP frame of ms 27910 carries the Domain
+PASS

@@ -1,0 +1,12 @@
+head a88772f1cf0c3c3b269294bd4ceaf436646ca5a1
+command: python3 -I scripts/probe_grade_mutants.py <clean-clone>/tb/verilator/milan_dp <clean-clone>/tb/verilator/milan_dp/obj_twin <clean-clone>/sw/firmware/ctrl/test <packet>/scratch/mut; rc=0
+raw log: 1068 bytes, sha256 0012f261754fd7904dd10382a62c05123f432f2d26a51c2b46404cba66c2241f (kept unpublished; lines below filtered by /./)
+---
+head: twin rc 0 [twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'M]; plants escaping: none; ok
+txla-qa-bracketed: twin rc 0; caught by earlier plants: none; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+txla-aa-sends-nothing: twin rc 0; caught by earlier plants: none; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+txla-every-cell-optional: twin rc 0; caught by earlier plants: ['srp-plus-k(self rc 1, between rc 0)']; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+omitted-attribute-unread: twin rc 0; caught by earlier plants: ['srp-plus-k(self rc 1, between rc 0)']; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+omitted-read-as-tx: twin rc 0; caught by earlier plants: none; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+nothing-always-allowed: twin rc 0; caught by earlier plants: ['srp-plus-k(self rc 1, between rc 0)']; by leave-all-omission: yes leave-all-omission(self rc 1, between rc 1)
+PASS
