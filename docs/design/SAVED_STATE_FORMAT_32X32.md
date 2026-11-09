@@ -169,7 +169,7 @@ Three things this arithmetic shows:
 - A compact name encoding cannot lower the worst case.
   Every writable name may hold all 64 octets (IEEE 1722.1-2021 SET_NAME), and Milan 5.3.13 persists each one.
 - A compact map encoding could: one owner per output key bounds all ports together to one port's keys (`hdl/milan/milan_datapath.sv:5211`).
-  It would reverse #501's per-port capacity, so this page leaves it as an alternative (decision D3).
+  It would reverse #501's per-port capacity, so this page leaves it as an alternative (decision 3).
 
 The slot holds a base image and an append log (section 4).
 Its size is the smallest erase-block count holding twice the bound's base:
@@ -266,16 +266,16 @@ The bound is graded at the AX7101's part; the Arty's S25FL128S has no maxima in 
 <!-- nvm-format: end save -->
 
 **The windows.** The bound runs from the change, so the first-dirty windows count.
-D3 DR2a rules them at <!-- fig:prod_window_now_ms -->500<!-- /fig --> ms in each producer and <!-- fig:fw_window_now_ms -->1,000<!-- /fig --> ms in firmware.
+DR2a, in the [materialization register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register), rules them at <!-- fig:prod_window_now_ms -->500<!-- /fig --> ms in each producer and <!-- fig:fw_window_now_ms -->1,000<!-- /fig --> ms in firmware.
 Together they already exceed the bound, before any flash work.
-This page proposes <!-- fig:w_prod_ms -->100<!-- /fig --> ms and <!-- fig:w_fw_ms -->150<!-- /fig --> ms (decision D4).
+This page proposes <!-- fig:w_prod_ms -->100<!-- /fig --> ms and <!-- fig:w_fw_ms -->150<!-- /fig --> ms (decision 4).
 
 **The segment cap.** A segment holds at most <!-- fig:p_cap -->28<!-- /fig --> pages, so it ends inside one firmware window.
 A change then never waits for an earlier segment, only for the page in flight.
 
 **The erase.** Without erase suspend a save can land behind a whole tSE: <!-- fig:no_suspend_ms -->3,399.37<!-- /fig --> ms.
 With it, the bound holds if the suspend latency stays under <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms.
-The tree cites no suspend figure, so round 2 sources it from the datasheet (decision D5).
+The tree cites no suspend figure, so round 2 sources it from the datasheet (decision 5).
 
 <!-- nvm-format: begin limits -->
 | Case | Value | Basis |
@@ -430,7 +430,7 @@ Its 16 bound talkers follow the BINDING block today, and the census puts its tab
   Wider id compares, a 10-byte header and one more map index bit add about <!-- fig:width_lut -->40<!-- /fig --> LUT and <!-- fig:width_ff -->24<!-- /fig --> FF.
 - **At 32x32 the ownership vector is the risk.**
   Flop-held, it is <!-- fig:t32_open_ff -->1,108<!-- /fig --> FF and about <!-- fig:t32_open_lut -->3,612<!-- /fig --> LUT at the bound.
-  Held in distributed RAM with a count of open records, it is about <!-- fig:ram_open_lut -->100<!-- /fig --> LUT (decision D6).
+  Held in distributed RAM with a count of open records, it is about <!-- fig:ram_open_lut -->100<!-- /fig --> LUT (decision 6).
 - **The map tables stay in LUTRAM.** Thirty-two ports fit the same 32-deep cells as eight.
 - The last measurement in the tree is <!-- fig:meas_8x8_lut -->993<!-- /fig --> LUT and <!-- fig:meas_8x8_ff -->313<!-- /fig --> FF at 8x8, LUT-only (FASTCONNECT section 8.3).
 
@@ -477,19 +477,19 @@ Round 2 also runs the full sweep, rtl-fast, the builder bank and the LiteX simul
 
 ## 9. Decisions requested
 
-- **D1. The record space.** Recommended: the derived allocation of section 2, 11 bits in a 16-bit field.
+- **1. The record space.** Recommended: the derived allocation of section 2, 11 bits in a 16-bit field.
   Alternative: a packed allocation per shape.
-- **D2. Compatibility.** Recommended: refuse KLJ2 with `VD_VER`, boot blank, record the reason.
+- **2. Compatibility.** Recommended: refuse KLJ2 with `VD_VER`, boot blank, record the reason.
   Alternative: import a KLJ2 journal once at boot.
-- **D3. The slot.** Recommended: a derived slot of <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's.
+- **3. The slot.** Recommended: a derived slot of <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's.
   Alternative: a compact output-map encoding, reversing #501's per-port capacity.
-- **D4. The windows.** Recommended: <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows, superseding DR2a.
+- **4. The windows.** Recommended: <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows, superseding DR2a.
   Alternative: keep DR2a and measure the bound from the window's close, not the change.
-- **D5. The erase.** Recommended: background erase with erase suspend, its latency sourced in round 2.
+- **5. The erase.** Recommended: background erase with erase suspend, its latency sourced in round 2.
   Alternative: no suspend, and a save behind an erase allowed <!-- fig:no_suspend_ms -->3,399.37<!-- /fig --> ms.
-- **D6. Ownership at 32x32.** Recommended: open bits in distributed RAM with a count.
+- **6. Ownership at 32x32.** Recommended: open bits in distributed RAM with a count.
   Alternative: flop-held bits, as today.
-- **D7. The commit deadline.** Recommended: <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append.
+- **7. The commit deadline.** Recommended: <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append.
   Alternative: keep <!-- fig:commit_now_ms -->8,000<!-- /fig --> ms, which no longer detects a stalled append inside the bound.
 
 ## 10. Reproduce
