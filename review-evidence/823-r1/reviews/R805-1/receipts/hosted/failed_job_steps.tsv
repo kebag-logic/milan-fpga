@@ -1,0 +1,5 @@
+docs-check	failure	Require every gate exactly once
+elaborate	failure	Require every gate exactly once
+Union milan_dp	failure	Require successful owners and every case exactly once
+verilator-suites	failure	Require every shard to have validated this run's SHA; Prove exhaustive ownership and tally every log; Require every Verilator worker to pass; Require every case union to succeed
+yosys-portability	failure	Require every shard to have validated this run's SHA; Reconcile the live inventory and structural gates; Require every Yosys worker to pass

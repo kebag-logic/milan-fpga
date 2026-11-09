@@ -1,0 +1,4 @@
+  self-test OK: probeA_accounting_only     caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=280 > step_bound=278
+PROBE probeA_accounting_only: service_bound FAILED (caught)
+  self-test OK: probeB_accounting_and_bound caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: step bytes 280, want 278 (bound 280)
+PROBE probeB_accounting_and_bound: service_bound FAILED (caught)

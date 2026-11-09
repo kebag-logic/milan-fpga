@@ -1,0 +1,47 @@
+flash_layout.gen.py regenerated at head f3e902f2 (into scratch) vs committed docs/diagrams:
+  head svg: DIFFERS
+  head drawio: DIFFERS
+regenerated at base a9d69c77 (git archive) vs committed:
+  base svg: identical
+  base drawio: identical
+generator log at head:
+wrote $REVIEWS/823-r805-1-packet/scratch/flashdiag/flash_layout.svg and $REVIEWS/823-r805-1-packet/scratch/flashdiag/flash_layout.drawio (5 slots, 0 map problem(s))
+svg line diff (committed < > regenerated at head):
+23,27c23,33
+< <rect x="120" y="438.5" width="300" height="608.2" fill="#ECEFF1" stroke="#90A4AE" stroke-width="1.4" stroke-dasharray="6,4"/>
+< <text x="270.0" y="747.6" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">(free)</text>
+< <path d="M420,742.6 L442,742.6 L442,742.6 L446,742.6" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+< <text x="460" y="739.6" font-size="13.5" font-weight="bold" fill="#263238">(free)</text>
+< <text x="460" y="756.6" font-size="12" font-family="monospace" fill="#546E7A">0x0410000 .. 0x0EDFFFF   10.81 MiB</text>
+---
+> <rect x="120" y="438.5" width="300" height="573.0" fill="#ECEFF1" stroke="#90A4AE" stroke-width="1.4" stroke-dasharray="6,4"/>
+> <text x="270.0" y="730.0" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">(free)</text>
+> <path d="M420,725.0 L442,725.0 L442,725.0 L446,725.0" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+> <text x="460" y="722.0" font-size="13.5" font-weight="bold" fill="#263238">(free)</text>
+> <text x="460" y="739.0" font-size="12" font-family="monospace" fill="#546E7A">0x0410000 .. 0x0E3FFFF   10.19 MiB</text>
+> <rect x="120" y="1011.6" width="300" height="35.2" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
+> <text x="270.0" y="1034.1" font-size="15" font-weight="bold" fill="#212121" text-anchor="middle">journal_klj3</text>
+> <path d="M420,1029.1 L442,1029.1 L442,1029.1 L446,1029.1" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+> <text x="460" y="1026.1" font-size="13.5" font-weight="bold" fill="#263238">journal_klj3</text>
+> <text x="460" y="1043.1" font-size="12" font-family="monospace" fill="#546E7A">0x0E40000 .. 0x0EDFFFF   640 KiB</text>
+> <text x="890" y="1026.1" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+29,32c35,38
+< <path d="M420,1050.2 L442,1050.2 L442,1050.2 L446,1050.2" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+< <text x="460" y="1047.2" font-size="13.5" font-weight="bold" fill="#263238">journal</text>
+< <text x="460" y="1064.2" font-size="12" font-family="monospace" fill="#546E7A">0x0EE0000 .. 0x0EFFFFF   128 KiB</text>
+< <text x="890" y="1047.2" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+---
+> <path d="M420,1050.2 L442,1050.2 L442,1081.1 L446,1081.1" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+> <text x="460" y="1078.1" font-size="13.5" font-weight="bold" fill="#263238">journal</text>
+> <text x="460" y="1095.1" font-size="12" font-family="monospace" fill="#546E7A">0x0EE0000 .. 0x0EFFFFF   128 KiB</text>
+> <text x="890" y="1078.1" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+35,38c41,44
+< <path d="M420,1081.9 L442,1081.9 L442,1102.2 L446,1102.2" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+< <text x="460" y="1099.2" font-size="13.5" font-weight="bold" fill="#263238">user</text>
+< <text x="460" y="1116.2" font-size="12" font-family="monospace" fill="#546E7A">0x0F00000 .. 0x0FFFFFF   1 MiB</text>
+< <text x="890" y="1099.2" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>
+---
+> <path d="M420,1081.9 L442,1081.9 L442,1133.1 L446,1133.1" fill="none" stroke="#B0BEC5" stroke-width="1.2"/>
+> <text x="460" y="1130.1" font-size="13.5" font-weight="bold" fill="#263238">user</text>
+> <text x="460" y="1147.1" font-size="12" font-family="monospace" fill="#546E7A">0x0F00000 .. 0x0FFFFFF   1 MiB</text>
+> <text x="890" y="1130.1" font-size="12" fill="#37474F">WRITABLE - a reflash must NEVER erase this</text>

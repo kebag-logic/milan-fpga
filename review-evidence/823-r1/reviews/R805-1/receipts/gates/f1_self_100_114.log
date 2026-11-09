@@ -1,0 +1,16 @@
+slice 100:114 of 122 defects: 14
+  self-test OK: ticks_per_us_truncated     caught by port_clock, time_base at 83333000 Hz; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase 997502 us after the change
+  self-test OK: litespi_status_ignored     caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant while_busy=14
+  self-test OK: capture_in_one_step        caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=6040 > step_bound=278
+  self-test OK: open_count_doubled         caught by open_count; first: [FAIL] Ports/NvmBoth.open_count/model: two records changed, one twice: {'abandoned': 0, 'abandoned_vd': 0, 'ap
+  self-test OK: phc_time                   caught by time_base; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase -1 us after the change
+  self-test OK: spin_wait                  caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant max_call_us=2999900 > 250
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: model: invariant protected=3
+  self-test OK: open_count_kept            caught by open_count; first: [FAIL] Ports/NvmBoth.open_count/model: both captured: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'atte
+  self-test OK: litespi_no_guard           caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=5
+  self-test OK: litespi_guard_admits_klj2  caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=2
+  self-test OK: no_blank_slot_takes_b      caught by first_commit_no_blank_slot; first: [FAIL] Ports/NvmBoth.first_commit_no_blank_slot/model: first commit with both slots refused: {'abandoned': 0, 
+  self-test OK: litespi_no_wren            caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant ls_no_wel=14
+  self-test OK: descending_pages           caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/model: model: invariant descending=13
+  self-test OK: clock_not_accumulated      caught by time_base; first: [FAIL] NvmLitespi.time_base: a window across the counter's wrap: erase 502406 us after the change
+slice 100:114: 14 of 14 caught; 0 finding(s)

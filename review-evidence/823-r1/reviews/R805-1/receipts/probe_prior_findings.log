@@ -1,0 +1,9 @@
+PROBE control_klj2_not_recognised: 8 failing test line(s) -> CAUGHT
+    [FAIL] NvmCodec.codec_parity: parity: the shipping writer's KLJ2 container: codec 1, klj2_decode 2
+    [FAIL] NvmCodec.codec_parity: parity: a KLJ2 magic over KLJ3 bytes: codec 1, klj2_decode 2
+    [FAIL] Ports/NvmBoth.verdict_parity/model: parity: the shipping writer's KLJ2 container: store 1, klj3_decode 2
+    [FAIL] Ports/NvmBoth.verdict_parity/model: parity: a KLJ2 magic over KLJ3 bytes: store 1, klj3_decode 2
+PROBE erase_first_block_every_time: 0 failing test line(s) -> SURVIVES the suite
+PROBE legacy_any_nonblank_header: 0 failing test line(s) -> SURVIVES the suite
+PROBE ver_overrides_own_refusal: 0 failing test line(s) -> SURVIVES the suite
+PROBE legacy_b_wrong_place: 0 failing test line(s) -> SURVIVES the suite

@@ -1,0 +1,16 @@
+slice 44:58 of 122 defects: 14
+  self-test OK: refusal_aborts             caught by refused_keeps_default; first: [FAIL] Ports/NvmBoth.refused_keeps_default/model: refusals: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 3, 
+  self-test OK: fallback_restage_unchecked caught by fallback_restage; first: [FAIL] NvmModel.fallback_restage: both re-stages flipped: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: blank_unconfirmed          caught by authority_unknown; first: [FAIL] NvmModel.authority_unknown: slot A at 0x1, read-alias:1:0: the slot was not read again and applied: {'a
+  self-test OK: refusal_unconfirmed        caught by authority_unknown, read_disagreement, reads_differ_in_verdict, reads_agree_in_digest_not_length; first: [FAIL] NvmModel.authority_unknown: slot A at 0x1, read-flip-at:1:0:0xe40100: the slot was not read again and a
+  self-test OK: no_rollback                caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: settle_after_names         caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=39
+  self-test OK: agreement_by_digest        caught by reads_agree_in_digest_not_length; first: [FAIL] NvmFlashMock.reads_agree_in_digest_not_length: two refusals alike in verdict and digest over different 
+  self-test OK: refusal_by_verdict         caught by read_disagreement; first: [FAIL] NvmModel.read_disagreement: slot A at 0x1, read-vary-at:2:0:0xe40000: the slot was not read again and a
+  self-test OK: restage_not_retried        caught by read_flip_at_stage, read_alias_at_stage, read_fail_boot; first: [FAIL] NvmModel.read_flip_at_stage: one flipped re-stage: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: settle_fault_ignored       caught by settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.settle_fault_rolls_back/model: settle fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: disagreement_not_counted   caught by reads_differ_in_verdict, reads_agree_in_digest_not_length; first: [FAIL] NvmFlashMock.reads_differ_in_verdict: two refusals of different verdicts are one media fault, and the c
+  self-test OK: fault_as_refusal           caught by apply_fault_rolls_back, binding_walk; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: rollback_failure_ignored   caught by rollback_fault_closes; first: [FAIL] Ports/NvmBoth.rollback_fault_closes/model: rollback fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: release_on_closed          caught by rollback_fault_closes; first: [FAIL] Ports/NvmBoth.rollback_fault_closes/model: rollback fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+slice 44:58: 14 of 14 caught; 0 finding(s)

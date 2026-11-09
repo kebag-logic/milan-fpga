@@ -1,0 +1,16 @@
+slice 58:72 of 122 defects: 14
+  self-test OK: quiet_period               caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a second change extended the first-dirty window
+  self-test OK: bindings_skipped_unproven  caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: capture_leaves_window_armed caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0x104): erase 1
+  self-test OK: no_debounce                caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: an erase inside the debounce window: 1
+  self-test OK: no_settle_without_names    caught by settle_after_the_last_record; first: [FAIL] NvmModel.settle_after_the_last_record: the settle step runs once, after the last record: {'abandoned': 
+  self-test OK: shape_mismatch_released_unproven caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: and over an unproven model nothing is released: {'abandon
+  self-test OK: shape_not_checked          caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: a walk that disagrees with the sizes disables persistence
+  self-test OK: binding_fault_keeps_preloads caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 53, 'at
+  self-test OK: d3_rollback_takes_bindings caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: binding_fault_aborts_d3    caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 1, 'att
+  self-test OK: apply_erased               caught by erased_records; first: [FAIL] Ports/NvmBoth.erased_records/model: erased-record counts: {'abandoned': 0, 'abandoned_vd': 0, 'applied'
+  self-test OK: bindings_in_d3_walk        caught by binding_walk, golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=2
+  self-test OK: model_ready_ignored        caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: release_before_apply       caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=54
+slice 58:72: 14 of 14 caught; 0 finding(s)
