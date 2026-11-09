@@ -38,6 +38,9 @@
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
 #   make twin-plants - its twenty plants, each refused by its own words
+#   make srptx  - #867: the split build's SRP transmit path at the wire, three
+#                 scenarios graded by srptx_grade.py; srptx-plants and
+#                 srptx-mutants plant each check's defect
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -985,6 +988,30 @@ twin-plants: build-twin
 	    --baseline $(TWIN_OUT)/report.json; \
 	done
 
+# #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
+# (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP TX ring, KL_mbx_tx,
+# the crossing, ctl_tx_mux and the MAC. Three scenarios, each graded by
+# srptx_grade.py, exit 1 on any finding: wire (the twin's stimulus to 600 s),
+# hold (the MAC refusing every beat until the SRP ring is full) and licence (the
+# #608 case, under the fixture srptx.hpp names). srptx-plants plants each check's
+# defect into a copy of a capture; srptx-mutants plants it in the code.
+SRPTX_OUT ?= obj_srptx
+SRPTX_SCENARIOS = wire hold licence
+.PHONY: srptx srptx-plants srptx-mutants $(addprefix exec-srptx-,$(SRPTX_SCENARIOS))
+srptx: build-twin-sp
+	$(MAKE) --no-print-directory $(addprefix exec-srptx-,$(SRPTX_SCENARIOS))
+
+$(addprefix exec-srptx-,$(SRPTX_SCENARIOS)): exec-srptx-%:
+	@mkdir -p $(SRPTX_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --srptx $* $(SRPTX_OUT)/$*.json
+	python3 -B srptx_grade.py $(SRPTX_OUT)/$*.json --report $(SRPTX_OUT)/$*-report.json
+
+srptx-plants: srptx
+	python3 -B srptx_plants.py $(SRPTX_OUT)
+
+srptx-mutants:
+	python3 -B srptx_mutants.py
+
 exec-aclk:
 	./obj_aclk/Vmilan_dp_aclk
 
@@ -1115,4 +1142,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT)
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
