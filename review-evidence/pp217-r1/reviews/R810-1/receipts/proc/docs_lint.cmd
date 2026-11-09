@@ -1,0 +1,1 @@
+cd $CLONE && bash -c set -o pipefail; make check; a=$?; bash scripts/lint_hdl.sh; b=$?; python3 scripts/gen_matrix.py --check; c=$?; git diff --check 044cb25f HEAD; d=$?; echo "make_check=$a lint_hdl=$b gen_matrix=$c diff_check=$d"; [ $((a+b+c+d)) -eq 0 ]

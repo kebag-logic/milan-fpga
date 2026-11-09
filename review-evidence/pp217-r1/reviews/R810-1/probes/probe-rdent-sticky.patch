@@ -1,0 +1,9 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2911,7 +2911,6 @@
+               strm_r     <= strm_w;
+               rboot_r    <= rboot_w;
+-              rdent_r    <= 1'b0;
+               setc_r     <= setc_w;
+               gdi_r      <= gdi_w;
+               setval_r   <= 64'd0;

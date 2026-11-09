@@ -1,0 +1,40 @@
+
+3.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_adp_engine...
+Found and reported 0 problems.
+
+4. Printing statistics.
+
+=== KL_adp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     2405 wires
+    12209 wire bits
+      216 public wires
+     5337 public wire bits
+       62 ports
+     1533 port bits
+     4646 cells
+        1   BUFG
+       89   CARRY4
+        1   DSP48E1
+      541   FDRE
+        4   FDSE
+     1341   IBUF
+      440   INV
+       20   LUT1
+      503   LUT2
+       86   LUT3
+      146   LUT4
+      116   LUT5
+      748   LUT6
+      302   MUXF7
+      110   MUXF8
+      192   OBUF
+        6   RAM32M
+
+Warnings: 8 unique messages, 8 total
+End of script. Logfile hash: 483a2130ec, time: 39.72s, user: 37.52s, system: 1.18s, MEM: 483.30 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 74% 19x read_verilog (29 sec), 3% 1x share (1 sec), ...

@@ -1,0 +1,1 @@
+cd $PACKET/scratch/ppt/tb/pp_top && bash -c make avail-index VERILATOR=verilator; a=$?; make interfaces VERILATOR=verilator; b=$?; echo "avail-index rc=$a interfaces rc=$b"; [ $a -eq 0 ] && [ $b -eq 0 ]

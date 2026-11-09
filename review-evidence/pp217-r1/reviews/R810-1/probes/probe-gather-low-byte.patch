@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2478,7 +2478,7 @@
+                                                          >> desc_ix_r)}
+                                               : 64'd0)
+                    : gsi_any_w            ? (gsi_missing_w ? 64'd0 : gsi_data_i)
+-                   : rdent_r              ? {32'd0, adp_avail_index_i}
++                   : rdent_r              ? {56'd0, adp_avail_index_i[7:0]}
+                                           : {32'd0, ctr_data_i};
+     end
+   end
