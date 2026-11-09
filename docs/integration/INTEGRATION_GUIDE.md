@@ -86,6 +86,28 @@ Processor pin `92100657` (processor #212) changes the SRP listener.
 - A value registered meanwhile applies at that settle.
 - The [pin page](../reference/SUBMODULES.md) gives the cases.
 
+Processor pin `044cb25f` (processor #214) changes the SRP encoder.
+
+- Each MRPDU carries each attribute value at most once.
+- That covers MSRP Domain, Talker and Listener values.
+- It covers MVRP VIDs too.
+- 802.1Q-2022 10.7.7 keeps one Applicant per value.
+- A value in two VectorAttributes is two events.
+- Clause 10.7.5.13 c) says so.
+- A second message rewrites the value's pending entry.
+- A join leaves a pending New as New.
+- A New or Lv replaces what is pending.
+- The encoder searches its table before taking a push.
+- That costs one clock per pending entry.
+- Producers already hold a push until it is taken.
+- At the shipping shape one case can slip an MRPDU.
+- It is a Domain re-join handed over on a `tx!` clock.
+- With three Domain entries pending, it rides the next MRPDU.
+- That is one joinTime later, 200 ms by default.
+- Milan v1.2 Table 4.3 gives that default.
+- The top's ports, parameters and registers are unchanged.
+- The [pin page](../reference/SUBMODULES.md) gives the merge rules.
+
 ## Wire every group
 
 <!-- solution-interface-groups:start -->
