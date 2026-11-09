@@ -1,0 +1,20 @@
+38:- **Measured basis:** 52,008 LUTs, 87.5 tiles, 13 DSP.
+73:The shipping image measures 52,008 LUTs, 82.03 percent.
+90:| Slice LUTs | 52,008 (82.03 %): 48,172 logic, 3,836 memory |
+111:| `alinx_ax7101` (whole image) | 52,008 | 54,104 | 74 | 27 | 13 | - |
+146:52,008  placed 1x1 image (measured)
+152:- 3,249 SoC CPU, already in the 52,008 (measured row)
+ac0a01e3: 1
+0a75aa77: 1
+docs/design/MARK_II_AREA_PLAN.md:1099:[#843](https://github.com/kebag-logic/milan-fpga/issues/843) then re-recorded it at FPGA-gPTP `1616fc8f`, under the same decision, to 53,221 LUTs, 15,834 slices a
+docs/design/MARK_II_AREA_PLAN.md:1100:[#851](https://github.com/kebag-logic/milan-fpga/issues/851) has since re-recorded it at processor `044cb25f` on that pin, the first image with all four lab fixes
+docs/design/AREA_BUDGET.md:151:| Slice LUT | 63,400 | 53,428 | 84.27 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); t
+docs/design/AREA_BUDGET.md:199:It refused 53,221 LUTs (+692, tolerance +500) and 15 DSPs (+2, tolerance 0).
+docs/design/AREA_BUDGET.md:208:| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+docs/design/AREA_BUDGET.md:221:Its 53,428 LUTs (+207, tolerance +500), 54,837 FFs (+83, tolerance +600), 15,829 slices (-5, tolerance +80), block RAM, 15 DSPs (0), WNS and WHS passed; 21 slices are le
+docs/design/AREA_BUDGET.md:227:| AltSpreadLogic_high, selected | +0.210 / +0.036 ns | 53,428 | 54,837 | 15,829 | 21 |
+docs/design/AREA_BUDGET.md:237:The preceding [#843](https://github.com/kebag-logic/milan-fpga/issues/843) image, at `a6d7cdf3`, used 53,221 LUTs and 15,834 slices, 16 free, at +0.242 / +0.012 ns, unde
+docs/design/AREA_BUDGET.md:518:At base `7c1b52be` the comparison record was #645's 50,267-LUT route; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT route replaced it, [#708]
+40:- **Start estimate:** about 31.0k LUTs once the processor leaves.
+153:=30,974 about 31.0k LUTs, CPU counted once (derived)
+431:| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~31.0k | Routed image; suites; bench; NFR
