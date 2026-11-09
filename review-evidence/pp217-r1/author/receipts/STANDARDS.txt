@@ -1,0 +1,15 @@
+Clauses read for this change (standards PDFs, text extracted locally):
+- IEEE 1722.1-2021 6.2.2.15 available_index field: incremented after transmitting an ENTITY_AVAILABLE, reset
+  to zero when transmitting an ENTITY_DEPARTING or after a power cycle.
+- IEEE 1722.1-2021 6.2.3.1.2 entityInfo and 6.2.4.3 Figure 6-2 (Advertise Entity State Machine): INITIALIZE
+  sets entityInfo.available_index = 0; WAITING increments it after ADVERTISE's sendAvailable().
+- IEEE 1722.1-2021 7.2.1 Table 7-2 (ENTITY descriptor): available_index at offset 36, 4 octets, "the same as the
+  available_index field in ATDECC Discovery Protocol. See 6.2.2.15."
+- IEEE 1722.1-2021 6.2.2.8 (entity_model_id): available_index is among the ENTITY fields excluded from the
+  structure of the model, so it is not a static image field.
+- IEEE 1722.1-2021 7.4.5.2 Figure 7-31 (READ_DESCRIPTOR response): configuration_index, reserved, descriptor.
+- IEEE 1722.1-2021 7.6.5.1 (ENTITY octet string): available_index is zeroed before hashing (a dynamic field).
+- Milan v1.2 5.4.2.4 READ_DESCRIPTOR: as specified in 1722.1 7.4.5.
+- Milan v1.2 5.6.2 (ADPDU formation) and 5.6.3, 5.6.3.5.1 to 5.6.3.5.11 (one Advertise state machine per AVB
+  Interface; SHUTDOWN sends ENTITY_DEPARTING; TMR_DELAY sends ENTITY_AVAILABLE).
+- Milan v1.2 4.2.7.2.2 and Table 4.3 (MRP timers): not touched; no SRP or MRP source changed.

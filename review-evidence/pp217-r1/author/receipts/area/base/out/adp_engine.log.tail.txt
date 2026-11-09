@@ -1,0 +1,60 @@
+        1   BUFG
+        1   DSP48E1
+     1341   IBUF
+      435   INV
+       25   LUT1
+      361   LUT2
+       78   LUT3
+      151   LUT4
+      144   LUT5
+      711   LUT6
+      160   OBUF
+     1004 submodules
+       89   CARRY4
+      509   FDRE
+        4   FDSE
+      291   MUXF7
+      105   MUXF8
+        6   RAM32M
+
+   Estimated number of LCs:       1150
+
+3.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_adp_engine...
+Found and reported 0 problems.
+
+4. Printing statistics.
+
+=== KL_adp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     2360 wires
+    12062 wire bits
+      213 public wires
+     5241 public wire bits
+       61 ports
+     1501 port bits
+     4412 cells
+        1   BUFG
+       89   CARRY4
+        1   DSP48E1
+      509   FDRE
+        4   FDSE
+     1341   IBUF
+      435   INV
+       25   LUT1
+      361   LUT2
+       78   LUT3
+      151   LUT4
+      144   LUT5
+      711   LUT6
+      291   MUXF7
+      105   MUXF8
+      160   OBUF
+        6   RAM32M
+
+Warnings: 8 unique messages, 8 total
+End of script. Logfile hash: 7a84e302b9, time: 26.58s, user: 24.69s, system: 1.03s, MEM: 477.32 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 71% 19x read_verilog (18 sec), 3% 1x abc (0 sec), ...

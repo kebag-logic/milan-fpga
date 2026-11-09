@@ -1,0 +1,29 @@
+repository: Mister-M-alt/protocol-processor-control-plane-avb-milan (origin)
+branch: 217-available-index
+base: 044cb25f4ed2187bd238490650e73d5d189855d1 (processor main, Merge PR #215)
+head: 794f8442c3d9da158c99d358d825c7b277516bba
+commits (base..head):
+  794f844 Re-anchor the rdc-base-no-overlay and store-link-detector-resets-up arms on the E_RDESCENT and harness-reset lines issue #217 moved
+  43149fb Record the ENTITY descriptor's available_index from ADP, section AI, IF4 and the five arms in 04 5, 06 6.1, REQ-ADP-011 and the suite READMEs (issue #217)
+  9bd6b43 Grade the last available_index in ADP P2, P3, P7, IF4 and IF9 and per interface in pp_top IF4, take the served index in the ENTITY reads, and plant five arms (issue #217)
+  db131cb Serve the last ENTITY_AVAILABLE's available_index in READ_DESCRIPTOR(ENTITY) from ADP, per the command's interface (issue #217)
+  07f7b04 Read ENTITY's available_index after each ENTITY_AVAILABLE and after ENTITY_DEPARTING in pp_top section AI (issue #217)
+files changed: 27 files changed, 578 insertions(+), 55 deletions(-)
+hdl/srp touched: 0 files
+worktree clean: 0 entries (the lane, and the gate clone at the head after every gate)
+protocol_processor_top: port list and parameters unchanged (its four hunks are internal, after the port list's end)
+
+scratch parent: milan-fpga dev ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36 + 4 local commits on pp217-consumer-gate, never pushed:
+  d2267f2608 Record the ROM content digests at protocol-processor 794f844, scratch consumer gate
+  ebf807fcc5 Pin protocol-processor at 794f844 (processor issue #217), scratch consumer gate
+  a5313026c5 Record the ROM content digests at protocol-processor 43149fb, scratch consumer gate
+  4f5527255b Pin protocol-processor at 43149fb (processor issue #217), scratch consumer gate
+  protocol-processor gitlink: 794f8442c3d9da158c99d358d825c7b277516bba; 0 uncommitted entries after every gate
+
+twin copy (milan-fpga #665 lane S6b, branch 665-s6b-cosim at a88772f1, read only; copies in scratch):
+  head run: protocol-processor 794f8442c3d9da158c99d358d825c7b277516bba (twin/head)
+  earlier head run: protocol-processor 43149fbf15842ec18b6546e6c560448db92fec97 (twin/head-43149fb)
+  base control: protocol-processor 044cb25f4ed2187bd238490650e73d5d189855d1 (twin/base)
+  the lane itself: a88772f1cf0c3c3b269294bd4ceaf436646ca5a1, 0 uncommitted entries
+
+tools: Verilator 5.050, Yosys 0.66, sv2v v0.0.12, GoogleTest 1.14.0, CPython 3.12.3 venvs (CI constraints)

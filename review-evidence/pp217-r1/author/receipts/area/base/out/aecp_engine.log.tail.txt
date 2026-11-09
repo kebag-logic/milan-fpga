@@ -1,0 +1,60 @@
+     2293   INV
+       32   LUT1
+     2102   LUT2
+     1456   LUT3
+      771   LUT4
+     2283   LUT5
+     3375   LUT6
+     2461   OBUF
+        6   RAMB36E1
+     7817 submodules
+      492   CARRY4
+     4642   FDRE
+       20   FDSE
+     1840   MUXF7
+      758   MUXF8
+       65   RAM32M
+
+   Estimated number of LCs:       7885
+
+3.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_aecp_engine...
+Found and reported 0 problems.
+
+4. Printing statistics.
+
+=== KL_aecp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+    12656 wires
+    49369 wire bits
+      868 public wires
+    17402 public wire bits
+      184 ports
+     3751 port bits
+    23893 cells
+        5   $scopeinfo
+        1   BUFG
+      492   CARRY4
+        1   DSP48E1
+     4642   FDRE
+       20   FDSE
+     1290   IBUF
+     2293   INV
+       32   LUT1
+     2102   LUT2
+     1456   LUT3
+      771   LUT4
+     2283   LUT5
+     3375   LUT6
+     1840   MUXF7
+      758   MUXF8
+     2461   OBUF
+       65   RAM32M
+        6   RAMB36E1
+
+Warnings: 26 unique messages, 26 total
+End of script. Logfile hash: cdef85fc09, time: 49.51s, user: 46.61s, system: 1.53s, MEM: 527.69 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 36% 19x read_verilog (19 sec), 12% 8x techmap (6 sec), ...

@@ -1,0 +1,1 @@
+bash -c set -o pipefail; ./syn/yosys/run.sh > $SCRATCH/runs/final/yosys_run.log 2>&1; a=$?; echo $a > $SCRATCH/runs/final/yosys_run.rc; python3 -B tb/elab_guards/guards.py --frontend yosys --jobs 4 > $SCRATCH/runs/final/elab_guards_yosys.log 2>&1; b=$?; echo $b > $SCRATCH/runs/final/elab_guards_yosys.rc; exit $((a|b))

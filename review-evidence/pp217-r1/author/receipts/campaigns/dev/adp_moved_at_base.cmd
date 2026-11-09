@@ -1,0 +1,1 @@
+env TMPDIR=$SCRATCH/tmp python3 mutants.py --output $SCRATCH/runs/camp/adp-base-out --jobs 6 --only cfg-valid-no-reset,gate-enable-dropped,gate-enable-dropped-top,walk-departing-keeps-index,if-top-count-collapsed,if-top-ingress-collapsed,if-top-ingress-live

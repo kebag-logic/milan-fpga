@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# the pinned Verilator (CI's v5.050) with its C++ build parallelism capped (-j 0 -> -j N), N the smaller of
+# $VL_BUILD_J (default 2) and the number in build-j beside this script when present, so concurrent campaign
+# arms stay inside the unit's memory; nothing else in the command changes
+here=$(cd "$(dirname "$0")" && pwd)
+cap=${VL_BUILD_J:-2}
+if [ -f "$here/build-j" ]; then f=$(cat "$here/build-j"); [ "$f" -lt "$cap" ] && cap=$f; fi
+args=()
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=$cap; fi
+  args+=("$a")
+  prev=$a
+done
+exec $VALIDATION_TOOLS/verilator-v5.050/bin/verilator "${args[@]}"

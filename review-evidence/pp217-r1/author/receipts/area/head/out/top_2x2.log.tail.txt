@@ -1,0 +1,60 @@
+     3636   LUT4
+     4602   LUT5
+    14217   LUT6
+     2532   OBUF
+        1   RAMB18E1
+       16   RAMB36E1
+    24385 submodules
+     2157   CARRY4
+    20809   FDRE
+       44   FDSE
+      344   MUXF7
+       62   MUXF8
+      648   RAM32M
+      321   RAM64M
+
+   Estimated number of LCs:      30338
+
+4.53. Executing CHECK pass (checking for obvious problems).
+Checking module protocol_processor_top...
+Found and reported 0 problems.
+
+5. Printing statistics.
+
+=== protocol_processor_top ===
+
+        +----------Local Count, excluding submodules.
+        | 
+    46971 wires
+   243900 wire bits
+     4827 public wires
+   113289 public wire bits
+      215 ports
+     3848 port bits
+    83906 cells
+       49   $scopeinfo
+        1   BUFG
+     2157   CARRY4
+        4   DSP48E1
+    20809   FDRE
+       44   FDSE
+     1316   IBUF
+    13648   INV
+       98   LUT1
+    12376   LUT2
+     7025   LUT3
+     3636   LUT4
+     4602   LUT5
+    14217   LUT6
+      344   MUXF7
+       62   MUXF8
+     2532   OBUF
+      648   RAM32M
+      321   RAM64M
+        1   RAMB18E1
+       16   RAMB36E1
+
+Warnings: 77 unique messages, 85 total
+End of script. Logfile hash: 40fd1e4d50, time: 718.36s, user: 693.77s, system: 9.67s, MEM: 1836.91 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 42% 1x memory_libmap (318 sec), 11% 1x share (88 sec), ...
