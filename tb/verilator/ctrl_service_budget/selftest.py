@@ -944,6 +944,12 @@ def shape_checks() -> list[Check]:
     out.append(('a shape layout\'s BINDING word is its sink\'s ordinal entry on its interface, the contract\'s '
                 'entry k for sink k', ordinal and tracked and layout.entry_ordinal and not c.entry_ordinal,
                 f'ordinal {ordinal}, contract {tracked}'))
+    scales = {name: scenario.wait_scale(n, n) for name, n in (('1x1', 2), ('8x8', 9), ('32x32', 33))}
+    g = scenario.Group('scaled', steps=['frame 0 00', 'wait tx 1 2 within 2000000', 'wait cycles 100000'], wait_scale=4)
+    scaled = g.script() == 'frame 0 00\nwait tx 1 2 within 8000000\nwait cycles 100000\nend\n'
+    out.append(('a point\'s bounded waits stretch with its streams over the 8x8 shape\'s: 1 at 1x1 and 8x8, 4 at '
+                '32x32, and only a wait\'s within bound moves', scales == {'1x1': 1, '8x8': 1, '32x32': 4} and scaled,
+                f'{scales}, script scaled {scaled}'))
     return out
 
 
