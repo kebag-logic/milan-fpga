@@ -1,0 +1,41 @@
+# last 40 lines of test_soc_timing_cuts.log (254697 bytes, sha256 26ecd786a1f5e075f9810d65543922c8ed46d616140e353d6c30952ab951a178); full log by digest in LARGE.tsv
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── converter_0 (Converter) [Gen]
+│    └── upconverter_0 (UpConverter) [Gen]
+├── wishbone_bridge (LiteDRAMWishbone2Native)
+│    └── fsm (FSM)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    └── csrbank_0 (CSRBank) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstorage_1 (CSRStorage) [Gen]
+│         ├── csrstorage_2 (CSRStorage) [Gen]
+│         ├── csrstorage_3 (CSRStorage) [Gen]
+│         ├── csrstorage_4 (CSRStorage) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstorage_5 (CSRStorage) [Gen]
+│         ├── csrstorage_6 (CSRStorage) [Gen]
+│         ├── csrstorage_7 (CSRStorage) [Gen]
+│         ├── csrstorage_8 (CSRStorage) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstorage_9 (CSRStorage) [Gen]
+│         ├── csrstorage_10 (CSRStorage) [Gen]
+│         ├── csrstorage_11 (CSRStorage) [Gen]
+│         ├── csrstorage_12 (CSRStorage) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstorage_13 (CSRStorage) [Gen]
+│         ├── csrstorage_14 (CSRStorage) [Gen]
+│         ├── csrstorage_15 (CSRStorage) [Gen]
+│         ├── csrstorage_16 (CSRStorage) [Gen]
+│         └── csrstatus_3 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+  [ok  ] Z5 the stage with its ZQCS timer starting at reset fails Z4: stopped at its first difference after 6 commands, ZQCS at []
+test_soc_timing_cuts: 0 failure(s)
+RESULT: PASS

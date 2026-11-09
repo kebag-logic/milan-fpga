@@ -1,0 +1,36 @@
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+TIMEOUT  milan_dp_gm_steps   (1800s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  milan_dp_mclk   (3600s wall clock - result UNKNOWN, not a failure)
+PASS     milan_dp_render
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 17   passed: 15   failed: 0   timed out: 2
+checks: 1525927   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  milan_dp_mclk: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+TIMED OUT (result unknown, NOT a failure): milan_dp_gm_steps milan_dp_mclk
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <scratch>/sweep-final/shard-1/logs

@@ -1,0 +1,6 @@
+# head f3e902f2a96bb27eac6ed7780c70905af34f389e extra gate rr3: env HOME=<home> PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<shared-scratch>/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR=<tools>/pinned-verilator-5.050/verilator TSN_GEN_ROOT=<management>/tools/tsn-gen-deca300c MAKEFLAGS=-j4 --no-print-directory bash <out>/receipts/gates/tools/rerun_suites.sh <scratch>/rerun2/rr3 capture_coherence aaf_clock_meter maap reboot_ctrl
+capture_coherence rc=0 wall=2270s timeout=2400s
+aaf_clock_meter rc=0 wall=794s timeout=1800s
+maap rc=0 wall=1088s timeout=1800s
+reboot_ctrl rc=0 wall=263s timeout=300s
+checks: 22741   in-suite failures: 0
