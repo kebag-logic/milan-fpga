@@ -29368,11 +29368,11 @@ def test_name_count_fits_the_nvm_name_block() -> None:
 
 
 # ================================================================== gate 39 ===
-#: The split placement's record space, layout 3 (#823 decision 1, scoped to
-#: the split by #823 issue comment 6730985093): the NAME block's first and last id and
-#: the id space, docs/design/SAVED_STATE_FORMAT_32X32.md section 2. Pinned
-#: here, not read, so a moved declaration reddens this gate rather than moving
-#: it with the builder.
+#: The split placement's record space, layout 3 (#823 decision 1, the split
+#: placement's): the NAME block's first and last id and the id space,
+#: docs/design/SAVED_STATE_FORMAT_32X32.md section 2. Pinned here, not read,
+#: so a moved declaration reddens this gate rather than moving it with the
+#: builder.
 _SPLIT_NAME_FIRST, _SPLIT_NAME_LAST, _SPLIT_ID_SPACE = 222, 1128, 1129
 #: The NAME capacity's declaration line, as a control rewrites it.
 _SPLIT_NAME_DECL = "#define NVM3_CAP_NAME 907u"

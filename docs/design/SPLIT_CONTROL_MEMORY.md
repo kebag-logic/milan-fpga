@@ -83,7 +83,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
 | `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
-| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
+| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ3 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
@@ -141,7 +141,7 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 
 - an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
-- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
+- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,454 against 13,594 bytes.
 
 ## 4. Boot console and diagnostics
 
