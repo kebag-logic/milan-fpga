@@ -1,0 +1,35 @@
+# head e87f2179f8d84b3eb89dea0148bb63d64319bc38 job docs-gates-0 step gate_18: Imported gPTP documentation gate
+# clone $VALIDATION_STORAGE/scratch/854-a756/docsyml-e87f2179-2/docs-gates-0/wt
+gPTP documentation: OK (8 current pages, donor checkout verified)
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: PASS (14 current pages, 18 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (127 arms)
+python3 scripts/check_source_evidence.py
+EXACT hdl/top/KL_gptp_engine.sv#L66 (Single clock domain): module KL_gptp_engine
+EXACT hdl/top/KL_gptp_engine.sv#L211 (Four instantiated blocks): KL_gptp_rx_parser u_parser (
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L439 (Deferred receive event): if (fin_r) begin
+EXACT hdl/top/KL_gptp_engine.sv#L559 (Four-entry event queue): logic [39:0] evq_r [0:3];
+EXACT hdl/top/KL_gptp_engine.sv#L586 (Parser arbitration priority): always_comb begin : push_arb
+EXACT hdl/top/KL_gptp_engine.sv#L407 (Priority timestamp return): logic        txts_pend_r;
+EXACT hdl/top/KL_gptp_engine.sv#L413 (Accepted-beat result face): assign txts_ready_o  = !txts_pend_r && rst_n;
+EXACT hdl/top/KL_gptp_engine.sv#L293 (Reset-backed pairing validity): logic t1v_valid_r, pdwait_valid_r;
+EXACT hdl/top/KL_gptp_engine.sv#L108 (Transmit admission credit): input  wire         tx_credit_i,
+EXACT hdl/top/KL_gptp_engine.sv#L449 (Eight timer slots): KL_gptp_timer #(
+EXACT hdl/top/KL_gptp_engine.sv#L20 (Seven state regions): //                  0  message bank      RO  (parser-written, PING-PONG
+EXACT hdl/wire/KL_gptp_tx_slot.sv#L129 (Stable stalled transmission): assign tx_valid_o = ser_run_r && !ser_drop_w;
+EXACT hdl/top/KL_gptp_engine.sv#L142 (Committed publication): output logic        pub_commit_o,
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L105 (Microcode ROM depth): // ------------------------------------------------------------------ ROM
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L113 (Sixteen registers): // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+EXACT hdl/top/KL_gptp_engine.sv#L125 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L1273 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L1278 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L1098 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L521 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
+python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)

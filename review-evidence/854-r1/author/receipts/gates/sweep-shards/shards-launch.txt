@@ -1,0 +1,6 @@
+launched 2026-11-09 10:59:38 CET: native-shards.py 854-a756 shards-spec.json shards 4 104-111 96-103 88-91 80-87
+cpu ranges: four successive pick8 results (book_shards.py 4): 104-111 96-103 88-95 80-87; shard 2 holds capture_coherence and runs on 88-91 (4 CPUs)
+shard 0 suites: adp_tx avtp_parser cbs cls csr gptp_txts i2spb milan_dp nvm_cosim pair_fill pp_shadow ptp_sync ptp_ts rx_filter tcam_csr 
+shard 1 suites: aaf_latency_tap_bank aes3 classifier eth_tx_reset gptp_shadow gptp_tables link_guard mac_rmon mbx milan_dp_gm_steps milan_dp_mclk milan_dp_render mmcm_servo_autorepair render_queue shaper_core tcam tkdiag 
+shard 2 suites: aaf aaf_clock_meter aaf_latency_taps avtp_rxmon capture_coherence chmap_render clkvalid controller_rate datapath fw_service_budget gptp_plane lat_history_ring maap media_grid_align nvm_backend ptp queues 
+shard 3 suites: aaf_audio_loop avtp_stream cdc chmap_capture crf_rx crf_tx follow_ring ifg media_nco media_phase mmcm_servo pcmlpf reboot_ctrl tdm tdm_render tsn_fuzz 
