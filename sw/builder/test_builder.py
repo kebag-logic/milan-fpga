@@ -302,6 +302,7 @@ import collections
 import contextlib
 import copy
 import gzip
+import hashlib
 import io
 import json
 import os
@@ -23658,6 +23659,102 @@ def test_control_placement_key() -> None:
           f"naming the fabric firmware refused")
 
 
+#  gate 23o (#665 S9) - THE SPLIT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
+#
+#  `endstation_builder.py <cfg> --placement split` builds a shipped config at
+#  the split placement without editing it. Its loaded config must equal what
+#  the same file stating `control: {placement: split}` loads to (the loader is
+#  the oracle, not the recipe's own copy), every shape artifact it writes must
+#  be byte for byte the all-fabric build's, its soc_params.json must carry
+#  that loaded config's argv, and no tracked file may change: the shape
+#  include and the sweep fragment stay the all-fabric build's until the flip.
+
+#: The shape artifacts a placement must not touch, by build() path label.
+RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
+                          "platform_shape", "aem_rom_svh", "gptp_ucode")
+
+
+def _tracked_generated():
+    """{path: sha256} of every tracked file a builder run can write."""
+    names = subprocess.run(["git", "ls-files", eb.GEN_CONFIG_DIR, eb.CSR_DEFAULTS_REL, eb.ADP_SHAPE_REL],
+                           cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    return {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in names}
+
+
+def _recipe_findings(builder, name, path, tmp):
+    """Every way the split recipe of one config departs from gate 23o's contract."""
+    out, before = [], _tracked_generated()
+    doc = yaml.safe_load(path.read_text())
+    stated = Path(tmp) / "stated" / path.name
+    stated.parent.mkdir(parents=True, exist_ok=True)
+    stated.write_text(yaml.safe_dump(dict(doc, control={"placement": "split"})))
+    want = eb.load_config(str(stated))
+    got = builder.with_placement(eb.load_config(str(path)), "split")
+    drop = lambda c: {k: v for k, v in c.items() if k != "source"}  # noqa: E731
+    if drop(got) != drop(want):
+        keys = sorted(k for k in set(got) | set(want) if k != "source" and got.get(k) != want.get(k))
+        out.append(f"{name}: the recipe's config differs from the file stating the key in {keys}")
+    fabric = eb.build(str(path), str(Path(tmp) / "fabric"))
+    split = builder.build(str(path), str(Path(tmp) / "split"), placement="split")
+    for label in RECIPE_SHAPE_ARTIFACTS:
+        a, b = fabric["paths"].get(label), split["paths"].get(label)
+        if (a is None) != (b is None) or (a and Path(a).read_bytes() != Path(b).read_bytes()):
+            out.append(f"{name}: the recipe's {label} is not the all-fabric build's")
+    argv = json.loads(Path(split["paths"]["soc_params"]).read_text())["argv"]
+    if argv != eb.emit_soc_argv(want):
+        out.append(f"{name}: the recipe's soc_params.json argv is not the stated config's")
+    if _tracked_generated() != before:
+        out.append(f"{name}: the recipe changed a tracked file")
+    return out
+
+
+def test_placement_recipe() -> None:
+    """gate 23o - the split recipe: each config's own shape at control.placement: split, no tracked file written."""
+    bad = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, path in CONFIGS.items():
+            bad += _recipe_findings(eb, name, path, Path(tmp) / name)
+        assert not bad, "gate 23o:\n  " + "\n  ".join(bad)
+        path = CONFIGS["ax7101_1x1_tdm8"]
+        for kwargs in ({"write_rtl": True}, {"write_fragment": True}):
+            try:
+                eb.build(str(path), str(Path(tmp) / "own"), placement="split", **kwargs)
+            except eb.ConfigError as exc:
+                assert "the split recipe writes no tracked file" in str(exc), f"gate 23o: {kwargs} refused: {exc}"
+            else:
+                raise AssertionError(f"gate 23o: the split recipe took tracked ownership with {kwargs}")
+        try:
+            eb.with_placement(eb.load_config(str(path)), "both")
+        except eb.ConfigError as exc:
+            assert "placement recipe 'both' is not one of all-fabric, split" in str(exc), exc
+        else:
+            raise AssertionError("gate 23o: the recipe accepted the placement 'both'")
+        # negative controls: a recipe that also changes another key, and one that leaves the key unset
+        plants = {"the recipe also changes the UART baud rate": lambda cfg, p, real=eb.with_placement: {
+                      **real(cfg, p), "constraints": dict(cfg["constraints"], uart_baudrate=9600)},
+                  "the recipe leaves the placement all-fabric": lambda cfg, p: cfg}
+        for why, recipe in plants.items():
+            planted = types.SimpleNamespace(with_placement=recipe,
+                                            build=lambda *a, recipe=recipe, **k: _planted_build(recipe, *a, **k))
+            found = _recipe_findings(planted, "ax7101_1x1_tdm8", path, Path(tmp) / why.replace(" ", "-"))
+            assert any("differs from the file stating the key" in f for f in found), (
+                f"gate 23o accepted a recipe in which {why}: {found}")
+    print(f"  [gate 23o] {len(CONFIGS)} configs: the split recipe loads to the config stating "
+          f"control.placement: split, writes the all-fabric build's {len(RECIPE_SHAPE_ARTIFACTS)} shape "
+          f"artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, "
+          f"--write-fragment and an unknown placement refused by name; 2 planted recipes refused")
+
+
+def _planted_build(recipe, config_path, outdir=None, **kwargs):
+    """build() with the derivation's recipe replaced by a planted one: gate 23o's negative controls."""
+    real = eb.with_placement
+    eb.with_placement = recipe
+    try:
+        return eb.build(config_path, outdir, **kwargs)
+    finally:
+        eb.with_placement = real
+
+
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
 #
 #  Every shape gate this repo has compares a recipe's argv against the config
@@ -29419,7 +29516,7 @@ if __name__ == "__main__":
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
-               test_control_placement_key,
+               test_control_placement_key, test_placement_recipe,
                test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,

@@ -37,6 +37,7 @@ Usage:
   python3 sw/builder/endstation_builder.py <cfg.yaml> -o <outdir>
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-fragment
   python3 sw/builder/endstation_builder.py <cfg.yaml> --write-rtl
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --placement split
 
 The product software contract is cacheless RV32 bare metal with the fabric
 plane as the sole gPTP owner. Configurations outside that contract are refused
@@ -4446,6 +4447,18 @@ def ctrl_firmware_path(cfg: dict[str, Any]) -> str:
     return f"sw/builder/out/{cfg['name']}/{CTRL_FIRMWARE_ELF}"
 
 
+def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
+    """The placement recipe (#665 S9): a loaded config at `placement`, every other key unchanged.
+
+    A split image is built from a shipped config file as it stands: the
+    recipe sets control.placement and nothing else, so the result is what
+    the same file stating `control: {placement: split}` loads to (gate 23o).
+    The shape, the identity and the argv's other flags are the config's."""
+    if placement not in CONTROL_PLACEMENTS:
+        raise ConfigError(f"placement recipe '{placement}' is not one of {', '.join(CONTROL_PLACEMENTS)}")
+    return {**cfg, "control": {"placement": placement}}
+
+
 def load_config(path: str) -> dict[str, Any]:
     """Load + validate + normalize a YAML end-station config. Returns the
     normalized config dict; raises ConfigError on any violation."""
@@ -5899,11 +5912,14 @@ class BuildArtifacts:
     sweep: str
 
 
-def _derive_artifacts(config_path):
-    """The whole derivation pipeline for one config. Writes NOTHING: every
-    artifact below is in memory, so a config that cannot be built fails
-    before any file has been touched."""
+def _derive_artifacts(config_path, placement=None):
+    """The whole derivation pipeline for one config, at the placement
+    recipe's `placement` when one is given (with_placement). Writes NOTHING:
+    every artifact below is in memory, so a config that cannot be built
+    fails before any file has been touched."""
     cfg = load_config(config_path)
+    if placement is not None:
+        cfg = with_placement(cfg, placement)
     argv = emit_soc_argv(cfg)
     overlay = emit_aem_overlay(cfg)
     lwsrp = emit_lwsrp_table(cfg)
@@ -6065,10 +6081,21 @@ def _write_shape_copies(art, d, write_rtl, write_fragment):
 
 def build(config_path: str, outdir: str | None = None,
           write_rtl: bool = False,
-          write_fragment: bool | None = None) -> dict[str, Any]:
-    """Run the full pipeline for one config. Returns dict with the emitted
-    paths + in-memory artifacts (for tests)."""
-    art = _derive_artifacts(config_path)
+          write_fragment: bool | None = None,
+          placement: str | None = None) -> dict[str, Any]:
+    """Run the full pipeline for one config, at the placement recipe's
+    `placement` when one is given. Returns dict with the emitted paths +
+    in-memory artifacts (for tests).
+
+    The split recipe writes its artifacts beside the config's own, under
+    OUTDIR/<config-stem>/, where its argv's --ctrl-firmware already points,
+    and takes no tracked ownership: the shape include and the sweep fragment
+    stay the all-fabric build's until the flip (#665 S13), so a sweep or a
+    named recipe never builds the split by accident (gate 23o)."""
+    if placement == "split" and (write_rtl or write_fragment):
+        raise ConfigError("the split recipe writes no tracked file: --write-rtl and --write-fragment "
+                          "stay with the config's all-fabric build until the flip (#665 S13)")
+    art = _derive_artifacts(config_path, placement)
     cfg = art.cfg
     d, out = _write_artifact_dir(art, outdir)
     p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
@@ -6143,10 +6170,15 @@ def main() -> None:
                          "milan_csr.sv and milan_datapath.sv `include that "
                          "file, so without it a build inherits whatever shape "
                          "was last committed")
+    ap.add_argument("--placement", choices=CONTROL_PLACEMENTS, default=None,
+                    help="the placement recipe (#665): build this config at "
+                         "control.placement PLACEMENT, its shape unchanged; "
+                         "split writes no tracked file")
     args = ap.parse_args()
     try:
         r = build(args.config, args.outdir, write_rtl=args.write_rtl,
-                  write_fragment=(True if args.write_fragment else None))
+                  write_fragment=(True if args.write_fragment else None),
+                  placement=args.placement)
     except ConfigError as e:
         sys.exit(f"CONFIG ERROR: {e}")
     n_planned = sum(1 for m in r["marks"] if m[1].startswith("planned"))
