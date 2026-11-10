@@ -1,0 +1,262 @@
+[
+ {
+  "mutant": "M1-no-memory-check",
+  "old": "if memory > SLOT_MEMORY_GIB:",
+  "new": "if False:",
+  "rc": 1,
+  "fails": [
+   "FAIL memory over-subscription is refused: 8 jobs of 8 GiB plus the 4 GiB service share need 68 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 8 jobs of 5 GiB plus the 4 GiB service share need 44 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G",
+   "FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator"
+  ],
+  "last": "selftest: 5 FAILURE(S)"
+ },
+ {
+  "mutant": "M2-no-service-share",
+  "old": "memory = self.jobs * self.memory_gib + SLOT_SERVICE_MEMORY_GIB",
+  "new": "memory = self.jobs * self.memory_gib",
+  "rc": 1,
+  "fails": [
+   "FAIL memory over-subscription is refused: 8 jobs of 8 GiB plus the 4 GiB service share need 68 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 8 jobs of 5 GiB plus the 4 GiB service share need 44 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G",
+   "FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G"
+  ],
+  "last": "selftest: 4 FAILURE(S)"
+ },
+ {
+  "mutant": "M3-no-cpu-check",
+  "old": "if cpus > REPLAY_CPU_LIMIT:",
+  "new": "if False:",
+  "rc": 1,
+  "fails": [
+   "FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (4 GiB each) fits",
+   "FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 64 one replay may book, though their memory (6 GiB each) fits",
+   "FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits",
+   "FAIL 8 jobs at the default 16 CPUs are refused for CPU before any collaborator"
+  ],
+  "last": "selftest: 4 FAILURE(S)"
+ },
+ {
+  "mutant": "M4-cpu-limit-128",
+  "old": "REPLAY_CPU_LIMIT = 64",
+  "new": "REPLAY_CPU_LIMIT = 128",
+  "rc": 1,
+  "fails": [
+   "FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 128 one replay may book, though their memory (4 GiB each) fits",
+   "FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 128 one replay may book, though their memory (6 GiB each) fits",
+   "FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 128 one replay may book, though their memory (1 GiB each) fits",
+   "FAIL 8 jobs at the default 16 CPUs are refused for CPU before any collaborator"
+  ],
+  "last": "selftest: 4 FAILURE(S)"
+ },
+ {
+  "mutant": "M5-concurrent-jobs-4",
+  "old": "str(min(geometry.jobs, len(BOOKED_CPU_RANGES.get())))",
+  "new": "str(min(4, len(BOOKED_CPU_RANGES.get())))",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap",
+   "FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M6-fallback-12",
+  "old": "\"MILAN_CI_FALLBACK_CPUS=\" + str(geometry.fallback_cpus)",
+  "new": "\"MILAN_CI_FALLBACK_CPUS=\" + str(12)",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap",
+   "FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M7-memory-8g",
+  "old": "{boundary.token} \"\n        f\"--memory={geometry.container_memory} --memory-swap={geometry.container_memory}\"",
+  "new": "{boundary.token} \"\n        \"--memory=8g --memory-swap=8g\"",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap",
+   "FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M8-select-4-ranges",
+  "old": "return ranges[:jobs]",
+  "new": "return ranges[:4]",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs on 6-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected",
+   "FAIL 8 jobs on 8-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M9-widths-ignore-geometry",
+  "old": "widths = JOB_GEOMETRY.get().range_widths",
+  "new": "widths = (16, 12, 8, 6)",
+  "rc": 1,
+  "fails": [
+   "FAIL invalid or missing CPU ranges '0-7'",
+   "FAIL the default geometry still refuses 6- and 8-CPU ranges by their width",
+   "FAIL 8 jobs on 6-CPU ranges refuse any other width: 0-15, 0-11, 0-7",
+   "FAIL 8 jobs on 8-CPU ranges refuse any other width: 0-15, 0-11, 0-5",
+   "FAIL --cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused"
+  ],
+  "last": "selftest: 5 FAILURE(S)"
+ },
+ {
+  "mutant": "M10-ranges-before-geometry",
+  "old": "JOB_GEOMETRY.set(job_geometry_arguments(args.jobs, args.job_cpus, args.job_memory))\n        BOOKED_CPU_RANGES.set(parse_cpu_ranges(args.cpu_ranges))",
+  "new": "BOOKED_CPU_RANGES.set(parse_cpu_ranges(args.cpu_ranges))\n        JOB_GEOMETRY.set(job_geometry_arguments(args.jobs, args.job_cpus, args.job_memory))",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator",
+   "FAIL a ninth job is refused before any collaborator",
+   "FAIL --cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused",
+   "FAIL --jobs 8 --job-cpus 6 --job-memory 4 on 8 ranges of 6 reaches its first collaborator with that geometry, which does not outlive the run",
+   "FAIL --jobs 8 --job-cpus 8 --job-memory 4 on 8 ranges of 8 reaches its first collaborator with that geometry, which does not outlive the run"
+  ],
+  "last": "selftest: 5 FAILURE(S)"
+ },
+ {
+  "mutant": "M11-max-jobs-16",
+  "old": "MAX_CONCURRENT_JOBS = 8",
+  "new": "MAX_CONCURRENT_JOBS = 16",
+  "rc": 1,
+  "fails": [
+   "FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)",
+   "FAIL a ninth job is refused before any collaborator"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M12-default-width-8",
+  "old": "cpus: int = 16",
+  "new": "cpus: int = 8",
+  "rc": 1,
+  "fails": [
+   "FAIL the normal validation path prints the resolved base and enters its Docker boundary",
+   "FAIL the normal validation path leases the selected workflow's act job volumes",
+   "FAIL dry-run prints the job bound and the bounded container options as one quoted argv word",
+   "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+   "FAIL a ubuntu-24.04 replay holds its job containers to the 8g memory and swap bound"
+  ],
+  "last": "Refusal: CPU range 0-15 has unsupported width 16; need 8"
+ },
+ {
+  "mutant": "M13-default-memory-4",
+  "old": "memory_gib: int = MAX_CONTAINER_MEMORY_GIB",
+  "new": "memory_gib: int = 4",
+  "rc": 1,
+  "fails": [
+   "FAIL the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it",
+   "FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M14-no-job-count-bound",
+  "old": "if not 1 <= concurrency <= jobs:",
+  "new": "if not 1 <= concurrency:",
+  "rc": 1,
+  "fails": [
+   "FAIL 8 jobs on 6-CPU ranges: a ninth concurrent job is refused",
+   "FAIL 8 jobs on 8-CPU ranges: a ninth concurrent job is refused"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M15-no-range-count-check",
+  "old": "if len(ranges) < concurrency:",
+  "new": "if False:",
+  "rc": 1,
+  "fails": [
+   "FAIL too few booked ranges for concurrent jobs",
+   "FAIL 8 jobs on 6-CPU ranges: seven booked ranges for 8 concurrent jobs are refused",
+   "FAIL 8 jobs on 8-CPU ranges: seven booked ranges for 8 concurrent jobs are refused"
+  ],
+  "last": "selftest: 3 FAILURE(S)"
+ },
+ {
+  "mutant": "M16-no-alignment-check",
+  "old": "if first % width:",
+  "new": "if False:",
+  "rc": 1,
+  "fails": [
+   "FAIL invalid or missing CPU ranges '1-16'",
+   "FAIL 8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason",
+   "FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason"
+  ],
+  "last": "selftest: 3 FAILURE(S)"
+ },
+ {
+  "mutant": "M17-memory-minimum-2",
+  "old": "if not 1 <= self.memory_gib <= MAX_CONTAINER_MEMORY_GIB:",
+  "new": "if not 2 <= self.memory_gib <= MAX_CONTAINER_MEMORY_GIB:",
+  "rc": 1,
+  "fails": [
+   "FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits",
+   "FAIL a geometry exactly at both bounds is accepted: 8 x 6 and 8 x 8 at 4 GiB, and 4 x 16 at 8 GiB, fill the slot's 36G with its service share; 8 x 8 and 4 x 16 hold 64 CPUs"
+  ],
+  "last": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "M18-memory-bound-inclusive",
+  "old": "if memory > SLOT_MEMORY_GIB:",
+  "new": "if memory >= SLOT_MEMORY_GIB:",
+  "rc": 1,
+  "fails": [],
+  "last": "Refusal: memory over-subscribed: 4 jobs of 8 GiB plus the slot's 4 GiB service share need 36 GiB, over its MemoryMax=36G; 4 jobs fit at most 8 GiB each"
+ },
+ {
+  "mutant": "M19-guard-lets-jobs-through",
+  "old": "or args.jobs is not None",
+  "new": "",
+  "rc": 1,
+  "fails": [
+   "FAIL --selftest with --jobs is a usage error"
+  ],
+  "last": "selftest: 1 FAILURE(S)"
+ },
+ {
+  "mutant": "M20-guard-lets-job-cpus-through",
+  "old": "or args.job_cpus is not None",
+  "new": "",
+  "rc": 1,
+  "fails": [
+   "FAIL --selftest with --job-cpus is a usage error"
+  ],
+  "last": "selftest: 1 FAILURE(S)"
+ },
+ {
+  "mutant": "M21-guard-lets-job-memory-through",
+  "old": "or args.job_memory is not None",
+  "new": "",
+  "rc": 1,
+  "fails": [
+   "FAIL --selftest with --job-memory is a usage error"
+  ],
+  "last": "selftest: 1 FAILURE(S)"
+ },
+ {
+  "mutant": "M22-concurrency-fixed-4",
+  "old": "return min(JOB_GEOMETRY.get().jobs, count)",
+  "new": "return min(4, count)",
+  "rc": 1,
+  "fails": [
+   "FAIL all selected workflows share the 1-job limit in every order",
+   "FAIL a single small workflow does not invent 1 jobs",
+   "FAIL all selected workflows share the 2-job limit in every order",
+   "FAIL all selected workflows share the 3-job limit in every order",
+   "FAIL an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows share that 8-job limit in every order",
+   "FAIL under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and rtl-full more than the default 4"
+  ],
+  "last": "selftest: 6 FAILURE(S)"
+ }
+]
