@@ -1,0 +1,685 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "ptp",
+  "heading": "0x500  -  PTP hardware clock  (REQ-PTP-01..04, 06)",
+  "registers": [
+    {
+      "acronym": "PTP_CTRL",
+      "offset": "0x500",
+      "svg": "docs/diagrams/regmap/ptp/PTP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "PTP_ENABLE",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_INCR",
+      "offset": "0x504",
+      "svg": "docs/diagrams/regmap/ptp/PTP_INCR.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_ADJ",
+      "offset": "0x508",
+      "svg": "docs/diagrams/regmap/ptp/PTP_ADJ.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_TOD_WR_LO",
+      "offset": "0x510",
+      "svg": "docs/diagrams/regmap/ptp/PTP_TOD_WR_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_TOD_WR_HI",
+      "offset": "0x514",
+      "svg": "docs/diagrams/regmap/ptp/PTP_TOD_WR_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_OFFSET_LO",
+      "offset": "0x518",
+      "svg": "docs/diagrams/regmap/ptp/PTP_OFFSET_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_OFFSET_HI",
+      "offset": "0x51C",
+      "svg": "docs/diagrams/regmap/ptp/PTP_OFFSET_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_CMD",
+      "offset": "0x520",
+      "svg": "docs/diagrams/regmap/ptp/PTP_CMD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "PTP_CMD_LOAD",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "PTP_CMD_ADJUST",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "PTP_CMD_SNAPSHOT",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_TOD_RD_LO",
+      "offset": "0x530",
+      "svg": "docs/diagrams/regmap/ptp/PTP_TOD_RD_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_TOD_RD_HI",
+      "offset": "0x534",
+      "svg": "docs/diagrams/regmap/ptp/PTP_TOD_RD_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_INGRESS_LAT",
+      "offset": "0x540",
+      "svg": "docs/diagrams/regmap/ptp/PTP_INGRESS_LAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_EGRESS_LAT",
+      "offset": "0x544",
+      "svg": "docs/diagrams/regmap/ptp/PTP_EGRESS_LAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_CTRL",
+      "offset": "0x548",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "PPS_ARM",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "PPS_P",
+            "attr": "R-0"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_TGT_LO",
+      "offset": "0x54C",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_TGT_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_TGT_HI",
+      "offset": "0x550",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_TGT_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_RD_LO",
+      "offset": "0x554",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_RD_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_RD_HI",
+      "offset": "0x558",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_RD_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PTP_PPS_WIDTH",
+      "offset": "0x55C",
+      "svg": "docs/diagrams/regmap/ptp/PTP_PPS_WIDTH.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

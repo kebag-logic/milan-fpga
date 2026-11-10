@@ -1,0 +1,201 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "cls",
+  "heading": "0x300  -  802.1Q classifier  (REQ-CLS-01..04)",
+  "registers": [
+    {
+      "acronym": "CLS_CTRL",
+      "offset": "0x300",
+      "svg": "docs/diagrams/regmap/cls/CLS_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "USE_PCP",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "DMAC_CHECK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "CTRL_CLASS",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLS_DEFAULT_PCP",
+      "offset": "0x304",
+      "svg": "docs/diagrams/regmap/cls/CLS_DEFAULT_PCP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLS_DPCP",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_DPCP",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_DPCP",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_DPCP",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLS_PCP_TC_MAP",
+      "offset": "0x308",
+      "svg": "docs/diagrams/regmap/cls/CLS_PCP_TC_MAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLS_MAP",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_MAP",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_MAP",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_MAP",
+            "attr": "R/W-FAC688h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLS_PRIO_REGEN",
+      "offset": "0x30C",
+      "svg": "docs/diagrams/regmap/cls/CLS_PRIO_REGEN.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLS_REGEN",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_REGEN",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_REGEN",
+            "attr": "R/W-FAC688h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_REGEN",
+            "attr": "R/W-FAC688h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLS_TC_QUEUE_MAP",
+      "offset": "0x310",
+      "svg": "docs/diagrams/regmap/cls/CLS_TC_QUEUE_MAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLS_TCQ",
+            "attr": "R/W-4898C0h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_TCQ",
+            "attr": "R/W-4898C0h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_TCQ",
+            "attr": "R/W-4898C0h"
+          },
+          {
+            "bits": 8,
+            "name": "CLS_TCQ",
+            "attr": "R/W-4898C0h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}
