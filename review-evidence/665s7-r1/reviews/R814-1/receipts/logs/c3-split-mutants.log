@@ -1,0 +1,33 @@
+# 2026-11-10T09:45:11+01:00 c3-split-mutants in $REVIEWS/665s7-r814-1-packet/scratch/c3: make split-mutants
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+python3 split_mutants.py
+ok   control: the tracked sources pass the split leg
+ok   a class-D consumer on a G tie-off: caught by [PUB] DA_GATE.OPEN reaches the talker's declaration predicate
+ok   the licence on its ACTIVE term alone: caught by [PUB] ...and its admitted term
+ok   the licence on the next source's ACTIVE term: caught by [POL] LICENCE bit s alone reaches ACTIVE as bit s alone
+ok   the CRF source's licence term on source 0's gate: caught by [POL] the CRF source's licence term reads the gate's top bit
+ok   a stream_id taken without SID_VALID: caught by [PUB] a stream_id without SID_VALID never reaches the listener
+ok   a publication that never crosses again: caught by [PUB] the stream_id reaches the listener once SID_VALID is set, within 60 mailbox cycles
+ok   a setting taken before its commit: caught by [FACE] a setting not committed does not reach the datapath
+ok   a commit never acknowledged: caught by [FACE] the commit is acknowledged within MBX_FACE_ACK_CYCLES
+ok   a setting on the wrong datapath port: caught by [FACE] F_CLOCK.SOURCE_INDEX reaches the media clock's selector
+ok   an answer under another tag: caught by [WIN] CTR closes DONE, not TIMEOUT
+ok   an answer taken while the datapath waits: caught by [WIN] ...and that word is not the empty one
+ok   a tap that hands out the media subtypes: caught by [RX] ...and the tap hands out no frame
+ok   a serializer that drops a frame's last byte: caught by [RX] its record's length is the frame's
+ok   a packer that reverses the lanes: caught by [TX] ...byte for byte
+ok   the LINK level held low: caught by [LINK] the datapath's effective link reaches LINK.UP
+ok   the Talker declaration published as FAILED: caught by [PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE
+ok   a tap that refuses MSRP: caught by [TAP] MSRP at 01-80-C2-00-00-0E is handed out whole, and counted
+ok   a tap that refuses MVRP: caught by [TAP] MVRP at 01-80-C2-00-00-21 is handed out whole, and counted
+ok   a tap that refuses MAAP: caught by [TAP] MAAP (0x22F0, subtype 0xFE) is handed out whole, and counted
+ok   a tap that takes MSRP at any address: caught by [TAP] MSRP's EtherType at MVRP's group address is refused
+ok   a drop count read from the FIFO's tready: caught by [TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost
+ok   a drop count that counts refused frames: caught by [TAP] ...and not the refused frames a full FIFO turns away
+ok   a drop count that misses a frame kept at its second beat: caught by [TAP] every frame of the burst is handed out or counted lost
+ok   a drop count that wraps: caught by [TAP] the count saturates at 255
+ok   a drop count that counts runts: caught by [TAP] ...nor the one-beat runts a full FIFO turns away
+ok   the datapath's drop count tied off: caught by [RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count
+split mutants: 26 of 26 caught by the check each names
+# 2026-11-10T09:56:26+01:00 rc=0

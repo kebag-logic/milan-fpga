@@ -1,0 +1,53 @@
+control wire: 0 finding(s)
+control hold: 0 finding(s)
+control licence: 0 finding(s)
+
+== 1. ablation of each plant
+malformed-endmark            owner=WIRE     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+doubled-declaration          owner=WIRE     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+doubled-message              owner=WIRE     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+leave-all-wrong-type         owner=WIRE     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+oversized                    owner=WIRE     other-sections-with-new-findings={'TX': 1, 'TIME': 201} escapes-without-owner=NO
+zero-source                  owner=SA       other-sections-with-new-findings={} escapes-without-owner=yes
+join-late                    owner=TIME     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+join-late-in-t-svc           owner=TIME     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+rate                         owner=TIME     other-sections-with-new-findings={'TX': 1450} escapes-without-owner=NO
+leave-all-missing            owner=TIME     other-sections-with-new-findings={'TX': 1} escapes-without-owner=NO
+bench-overrun                owner=NONE     other-sections-with-new-findings={'BENCH': 1} escapes-without-owner=NO
+timer-layout                 owner=BENCH    other-sections-with-new-findings={} escapes-without-owner=yes
+dropped-under-backpressure   owner=TX       other-sections-with-new-findings={'TIME': 23} escapes-without-owner=NO
+reordered                    owner=TX       other-sections-with-new-findings={} escapes-without-owner=yes
+backpressure-unseen          owner=TX       other-sections-with-new-findings={} escapes-without-owner=yes
+refused-with-room            owner=TX       other-sections-with-new-findings={} escapes-without-owner=yes
+retention-lost               owner=TX       other-sections-with-new-findings={} escapes-without-owner=yes
+late-stop                    owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+never-stopped                owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+stream-after-stop            owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+gate-not-licence             owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+aaf-without-licence          owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+stream-without-licence       owner=608/LIC  other-sections-with-new-findings={} escapes-without-owner=yes
+
+== 2. extra malformations against [WIRE]
+first MSRP frame 110 bytes (MRPDU 96), first MVRP frame 26 bytes (MRPDU 12)
+refused  MSRP ProtocolVersion 1: [WIRE] MSRP frame at ms 1: MSRP ProtocolVersion or a truncated MRPDU
+refused  MVRP ProtocolVersion 1: [WIRE] MVRP frame at ms 1: MVRP ProtocolVersion or a truncated MRPDU
+refused  MSRP PDU EndMark removed: [WIRE] MSRP frame at ms 1: MSRP AttributeListLength past the MRPDU
+refused  MVRP PDU EndMark removed: [WIRE] MVRP frame at ms 1: MVRP missing PDU EndMark
+refused  MVRP AttributeList EndMark removed: [WIRE] MVRP frame at ms 1: MVRP missing PDU EndMark
+refused  MSRP first AttributeLength +1: [WIRE] MSRP frame at ms 1: MSRP AttributeType 2's AttributeLength 35
+refused  MVRP AttributeLength 3: [WIRE] MVRP frame at ms 1: MVRP AttributeType 1's AttributeLength 3
+refused  MSRP first AttributeListLength +2: [WIRE] MSRP frame at ms 1: MSRP AttributeList EndMark missing where its AttributeListLength ends
+refused  MSRP first AttributeListLength -2: [WIRE] MSRP frame at ms 1: MSRP AttributeList EndMark missing where its AttributeListLength ends
+refused  MSRP unknown AttributeType 5: [WIRE] MSRP frame at ms 1: MSRP unknown AttributeType 5
+refused  MSRP LeaveAllEvent 2: [WIRE] MSRP frame at ms 1: MSRP reserved LeaveAllEvent
+refused  MVRP LeaveAllEvent 2: [WIRE] MVRP frame at ms 1: MVRP reserved LeaveAllEvent
+refused  MVRP ThreePacked 216: [WIRE] MVRP frame at ms 1: MVRP reserved ThreePackedEvents
+refused  MSRP trailing nonzero byte: [WIRE] MSRP frame at ms 1: MSRP nonzero bytes after the PDU EndMark
+refused  MVRP trailing nonzero byte: [WIRE] MVRP frame at ms 1: MVRP nonzero bytes after the PDU EndMark
+refused  MSRP to the MVRP group: [WIRE] MSRP frame at ms 1: sent to 0180c2000021, not the MSRP group address 0180c200000e
+refused  MVRP to the MSRP group: [WIRE] MVRP frame at ms 1: sent to 0180c200000e, not the MVRP group address 0180c2000021
+refused  MSRP truncated after the first Message header: [WIRE] MSRP frame at ms 1: MSRP AttributeListLength past the MRPDU
+refused  MSRP LeaveAll frame, type 2's LeaveAll vector dropped: [WIRE] MSRP frame at ms 1: a LeaveAll on AttributeTypes [1, 3, 4], not on every MSRP AttributeType [1, 2, 3, 4] (IEEE 802.1Q-2018 10.7.9, 10.8.2.6)
+refused  MSRP LeaveAll frame, NumberOfValues 0 LeaveAll vector only on 3 of 4 types: [WIRE] MSRP frame at ms 1: a LeaveAll on AttributeTypes [2, 3, 4], not on every MSRP AttributeType [1, 2, 3, 4] (IEEE 802.1Q-2018 10.7.9, 10.8.2.6)
+extra malformations: 20 of 20 refused
+rc=0

@@ -1,0 +1,113 @@
+# 2026-11-10T09:51:30+01:00 code_probe in $REVIEWS/665s7-r814-1-packet/scratch/c1
+PROBE join-10cs [join-10cs] (wire 40000 ms); expectation: JoinTime 100 ms, outside Table 10-7 / Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 0
+  sections refusing: NONE
+  RESULT join-10cs: ESCAPED (no finding)
+PROBE join-15cs [join-15cs] (wire 40000 ms); expectation: JoinTime 150 ms, outside Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 0
+  sections refusing: NONE
+  RESULT join-15cs: ESCAPED (no finding)
+PROBE join-17cs [join-17cs] (wire 40000 ms); expectation: JoinTime 170 ms, outside Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 0
+  sections refusing: NONE
+  RESULT join-17cs: ESCAPED (no finding)
+PROBE join-30cs [join-30cs] (wire 40000 ms); expectation: JoinTime 300 ms: expect [TIME] past JoinTime + the MRP service bound
+  binary rc 0; srptx wire: 164 control frames, 98 MRPDUs from lwSRP, 98 sent by the adapter, 0 host timeouts, 40000 ms; findings: 7
+  sections refusing: {'TIME': 7}
+    TIME: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 300, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+    TIME: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 300 followed at ms 600, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+  RESULT join-30cs: REFUSED
+PROBE leaveall-5s [leaveall-5s] (wire 40000 ms); expectation: LeaveAll drawn at 5 s: expect [TIME] outside 9782 to 15218 ms
+  binary rc 0; srptx wire: 179 control frames, 113 MRPDUs from lwSRP, 113 sent by the adapter, 0 host timeouts, 40000 ms; findings: 16
+  sections refusing: {'TIME': 16}
+    TIME: [TIME] MSRP: its LeaveAll at ms 5000 5000.002 ms after the last LeaveAll (reset), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+    TIME: [TIME] MSRP: its LeaveAll at ms 10000 5000.000 ms after the last LeaveAll (sent), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+  RESULT leaveall-5s: REFUSED
+PROBE no-join-wait [no-join-wait] (wire 20000 ms); expectation: transmit opportunities not paced by the Join timer: expect [TIME] four in
+  binary rc 0; srptx wire: 111 control frames, 51 MRPDUs from lwSRP, 51 sent by the adapter, 0 host timeouts, 20000 ms; findings: 0
+  sections refusing: NONE
+  RESULT no-join-wait: ESCAPED (no finding)
+PROBE no-pdu-endmark [no-pdu-endmark] (wire 3000 ms); expectation: no MRPDU EndMark: expect [WIRE] missing PDU EndMark
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 11
+  sections refusing: {'WIRE': 11}
+    WIRE: [WIRE] MSRP frame at ms 1: MSRP AttributeListLength past the MRPDU
+    WIRE: [WIRE] MVRP frame at ms 1: MVRP missing PDU EndMark
+  RESULT no-pdu-endmark: REFUSED
+PROBE msrp-group-on-all [msrp-group-on-all] (wire 3000 ms); expectation: MVRP sent to the MSRP group: expect [WIRE] not the MVRP group address
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 5
+  sections refusing: {'WIRE': 5}
+    WIRE: [WIRE] MVRP frame at ms 1: sent to 0180c200000e, not the MVRP group address 0180c2000021
+    WIRE: [WIRE] MVRP frame at ms 200: sent to 0180c200000e, not the MVRP group address 0180c2000021
+  RESULT msrp-group-on-all: REFUSED
+PROBE lv-fast-leave [lv-fast-leave] (licence); expectation: rLv! in LV goes straight to MT: expect [608] the talker stopped at ms ~18000
+  binary rc 0; srptx licence: 78 control frames, 69 MRPDUs from lwSRP, 69 sent by the adapter, 0 host timeouts, 26000 ms; findings: 1
+  sections refusing: {'608/LIC': 1}
+    608/LIC: [608] the talker stopped at ms 18001.042, not at the LeaveTime deadline the peer's LeaveAll at ms 16000 started (21000 ms, the MRP service bound 18 ms; the withdrawal at ms 18000 in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, Milan v1.2 4.2.7.2.2) (the licence scenario's fixture: source 0 allo
+  RESULT lv-fast-leave: REFUSED
+PROBE an AttributeList EndMark of 0x0001 [author:0] (wire 3000 ms); expectation: author arm, refused by 'MSRP AttributeList EndMark missing where its AttributeListLength ends'
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 11
+  sections refusing: {'WIRE': 11}
+    WIRE: [WIRE] MSRP frame at ms 1: MSRP AttributeList EndMark missing where its AttributeListLength ends
+    WIRE: [WIRE] MVRP frame at ms 1: MVRP truncated vector
+  owner section(s) ['WIRE']; other sections refusing {}; escapes without its owner: yes
+  RESULT an AttributeList EndMark of 0x0001: REFUSED
+PROBE each declaration encoded twice [author:1] (wire 3000 ms); expectation: author arm, refused by 'declared 2 times in one MRPDU'
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 17
+  sections refusing: {'WIRE': 17}
+    WIRE: [WIRE] MSRP frame at ms 1: MSRP Talker Failed stream_id 0200000000010001 declared 3 times in one MRPDU
+    WIRE: [WIRE] MSRP frame at ms 1: MSRP Domain value 06030002 declared 2 times in one MRPDU
+  owner section(s) ['WIRE']; other sections refusing {}; escapes without its owner: yes
+  RESULT each declaration encoded twice: REFUSED
+PROBE a LeaveAll on the last AttributeType alone [author:2] (wire 16000 ms); expectation: author arm, refused by 'a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]'
+  binary rc 0; srptx wire: 103 control frames, 43 MRPDUs from lwSRP, 43 sent by the adapter, 0 host timeouts, 16000 ms; findings: 1
+  sections refusing: {'WIRE': 1}
+    WIRE: [WIRE] MSRP frame at ms 14560: a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4] (IEEE 802.1Q-2018 10.7.9, 10.8.2.6)
+  owner section(s) ['WIRE']; other sections refusing {}; escapes without its owner: yes
+  RESULT a LeaveAll on the last AttributeType alone: REFUSED
+PROBE a refused MRPDU reported sent [author:3] (hold); expectation: author arm, refused by 'never left the MAC'
+  binary rc 0; srptx hold: 233 control frames, 173 MRPDUs from lwSRP, 167 sent by the adapter, 0 host timeouts, 40000 ms; findings: 75
+  sections refusing: {'TX': 75}
+    TX: [TX] the MSRP MRPDU the adapter accepted at ms 25000 never left the MAC, and the MSRP frame at ms 25600 in its place is no MRPDU the adapter accepted
+    TX: [TX] the MVRP MRPDU the adapter accepted at ms 25000 never left the MAC, and the MVRP frame at ms 25600 in its place is no MRPDU the adapter accepted
+  owner section(s) ['TX']; other sections refusing {}; escapes without its owner: yes
+  RESULT a refused MRPDU reported sent: REFUSED
+PROBE the first MRPDU's source address unset [author:4] (wire 3000 ms); expectation: author arm, refused by "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 1
+  sections refusing: {'SA': 1}
+    SA: [SA] MSRP frame at ms 1 from 000000000000, not the port's MAC 020000000001 (#839; IEEE 802.1AC-2016 11.1)
+  owner section(s) ['SA']; other sections refusing {}; escapes without its owner: yes
+  RESULT the first MRPDU's source address unset: REFUSED
+PROBE a Join timer of 23 centiseconds [author:5] (wire 3000 ms); expectation: author arm, refused by 'past JoinTime + the MRP service bound (218 ms'
+  binary rc 0; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 7
+  sections refusing: {'TIME': 7}
+    TIME: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 230, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+    TIME: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 230 followed at ms 460, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+  owner section(s) ['TIME']; other sections refusing {}; escapes without its owner: yes
+  RESULT a Join timer of 23 centiseconds: REFUSED
+PROBE a LeaveAll drawn past 1.5 x LeaveAllTime [author:6] (wire 40000 ms); expectation: author arm, refused by 'outside 9782 to 15218 ms'
+  binary rc 0; srptx wire: 161 control frames, 95 MRPDUs from lwSRP, 95 sent by the adapter, 0 host timeouts, 40000 ms; findings: 4
+  sections refusing: {'TIME': 4}
+    TIME: [TIME] MSRP: its LeaveAll at ms 15300 15300.002 ms after the last LeaveAll (reset), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+    TIME: [TIME] MSRP: its LeaveAll at ms 30600 15300.000 ms after the last LeaveAll (sent), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+  owner section(s) ['TIME']; other sections refusing {}; escapes without its owner: yes
+  RESULT a LeaveAll drawn past 1.5 x LeaveAllTime: REFUSED
+PROBE a withdrawal in LV that restarts LeaveTime (#608) [author:7] (licence); expectation: author arm, refused by '[608] the talker stopped at ms'
+  binary rc 0; srptx licence: 78 control frames, 69 MRPDUs from lwSRP, 69 sent by the adapter, 0 host timeouts, 26000 ms; findings: 1
+  sections refusing: {'608/LIC': 1}
+    608/LIC: [608] the talker stopped at ms 23000.012, not at the LeaveTime deadline the peer's LeaveAll at ms 16000 started (21000 ms, the MRP service bound 18 ms; the withdrawal at ms 18000 in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, Milan v1.2 4.2.7.2.2) (the licence scenario's fixture: source 0 allo
+  owner section(s) ['608/LIC']; other sections refusing {}; escapes without its owner: yes
+  RESULT a withdrawal in LV that restarts LeaveTime (#608): REFUSED
+PROBE a field before lwSRP's Join timer [author:8] (wire 3000 ms); expectation: author arm, refused by "[BENCH] a Join timer arm outside its participant's state"
+  binary rc 1; srptx wire: 17 control frames, 11 MRPDUs from lwSRP, 11 sent by the adapter, 0 host timeouts, 3000 ms; findings: 1
+  sections refusing: {'BENCH': 1}
+    BENCH: [BENCH] a Join timer arm outside its participant's state: lwSRP's port layout changed
+  owner section(s) ['BENCH']; other sections refusing {}; escapes without its owner: yes
+  RESULT a field before lwSRP's Join timer: REFUSED
+PROBE the split's ACTIVE term held open [author:9] (licence); expectation: author arm, refused by '[LIC] at ms 1 the policer reads active 0x3, admitted 0x0'
+  binary rc 0; srptx licence: 78 control frames, 69 MRPDUs from lwSRP, 69 sent by the adapter, 0 host timeouts, 26000 ms; findings: 4
+  sections refusing: {'608/LIC': 4}
+    608/LIC: [LIC] at ms 1 the policer reads active 0x3, admitted 0x0, gate 0x0, and the firmware's LICENCE is 0x0 (the licence scenario's fixture: source 0 allocated at SRP creation)
+    608/LIC: [LIC] at ms 3001 the policer reads active 0x3, admitted 0x1, gate 0x1, and the firmware's LICENCE is 0x1 (the licence scenario's fixture: source 0 allocated at SRP creation)
+  owner section(s) ['608/LIC']; other sections refusing {}; escapes without its owner: yes
+  RESULT the split's ACTIVE term held open: REFUSED
+# 2026-11-10T09:54:47+01:00 rc=0

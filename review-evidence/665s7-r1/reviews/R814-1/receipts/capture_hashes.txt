@@ -1,0 +1,20 @@
+# the author's published capture hashes (archive fe59e758) and this review's, same head
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+the srptx captures (each over 200 KB or kept with its report), as make srptx wrote them in the gate clone
+---
+wire.json 1447081 bytes sha256 57b039a4ca36175021daa389c5c47fb56d87bd041764865b81b344189c2a1888
+hold.json 220767 bytes sha256 cf698acf572ef2dd71d2feee530b34a1888ff5f75f322c9eac408fd441ac63ab
+licence.json 70490 bytes sha256 ac298ee90df92824b6a8328884aa2fdb6afb69420b213b4c24e472c864bc0dc9
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+the twin's split-half capture before and after the --wrap link: the base's binary (1d6bf555, twin_split.cpp unmodified) and the binary with srptx.hpp and SRPTX_WRAPS, both run as Vmilan_dp_twin_sp <capture.json>
+---
+base binary: split0.json 54965 bytes sha256 ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308
+with wraps:  split1.json 54965 bytes sha256 ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308
+gate clone: obj_twin/split.json 54965 bytes sha256 ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308
+# this review
+0f9b077d14d9fcdf445511da0827721e1cb837fae2b78704b0c6b837ac8633be  obj_srptx/wire.json
+1b60dc97795ddf734bc5da8dba37115e46d013ae8bec883dca2e4bbb4f95e43a  obj_srptx/hold.json
+3915e2b16de11dbd17f3579d4d837b20a6b093f264ed7acd812cf94911ba1590  obj_srptx/licence.json
+ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308  obj_twin_head/split.json
+ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308  c4/tb/verilator/milan_dp/obj_twin/split.json
+# graded reports: each of wire/hold/licence-report.json equals the author's published report field by field (0 differences)
