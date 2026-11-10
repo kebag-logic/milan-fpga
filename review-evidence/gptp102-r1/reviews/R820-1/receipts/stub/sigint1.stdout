@@ -1,0 +1,5 @@
+[PASS] the unmutated engine still passes the harness
+FAIL slew: policy decision starts at +101 ns got 0 exp 1
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+FAIL slew: first in-band pair cannot clear got 0 exp 1
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"

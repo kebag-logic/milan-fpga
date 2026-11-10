@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1126, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1066, in main
+    for caught, lines in results:
+                         ^^^^^^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1002, in in_list_order
+    yield future.result()
+          ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 449, in result
+    self._condition.wait(timeout)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/threading.py", line 369, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+KeyboardInterrupt

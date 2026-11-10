@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1126, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1066, in main
+    for caught, lines in results:
+                         ^^^^^^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 996, in in_list_order
+    yield task()
+          ~~~~^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1047, in task
+    return run_mutant(work, clean_exe, mutation, lines.append), lines
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 964, in run_mutant
+    rc, output = run_harness(exe, rundir)
+                 ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/gptp102-r820-1-packet/scratch/tree/tb/verilator/engine/stub_none.py", line 1116, in run_harness
+    raise OSError(f"planted harness crash in {tag}")
+OSError: planted harness crash in slew_idle_asCapable_loss_arms_qualification

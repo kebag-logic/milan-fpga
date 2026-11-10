@@ -1,0 +1,25 @@
+INFO --jobs 1: exit 0, 64240 bytes, sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32, 160 verdicts, 6 s
+INFO --jobs 4: exit 0, 63755 bytes, sha256 7b1aa9c046b072552320ea9d7c5763d5b8dd9a4651136cd3a0607af1e95784f6, 159 verdicts, 2 s
+PASS the exit statuses agree (0 and 0)
+FAIL the verdict lists agree byte for byte
+FAIL stdout agrees byte for byte
+PASS stderr agrees byte for byte
+PASS --jobs 1 prints 160 verdict lines (got 160)
+PASS --jobs 1 tallies 160 checks (got 160)
+FAIL --jobs 4 prints 160 verdict lines (got 159)
+FAIL --jobs 4 tallies 160 checks (got 159)
+--- --jobs 1
++++ --jobs 4
+@@ -581,9 +581,5 @@
+ FAIL #88 short loop, stepsRemoved 5: flags untouched got 0 exp 1
+ FAIL #88 short loop, stepsRemoved 5: raw vector never published got 0 exp 1
+ [PASS] mutant caught: (c) the PathTrace loop refusal removed - breaks "#88 short loop, stepsRemoved 5: still master | #88 short loop, stepsRemoved 5: gm still us | #88 short loop, stepsRemoved 5: parent still us | #88 short loop, stepsRemoved 5: flags untouched | #88 short loop, stepsRemoved 5: raw vector never published"
+-FAIL #88 issue shape: the degraded grandmaster yields got 0 exp 1
+-FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0 exp 1
+-FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0 exp 1
+-[PASS] mutant caught: a parent update must beat the best - breaks "#88 issue shape: the degraded grandmaster yields | #88 two entries, stepsRemoved 5: the degraded grandmaster yields | #88 three entries, stepsRemoved 0: the degraded grandmaster yields"
+ 
+-160 checks: 160 PASS, 0 FAIL
++159 checks: 159 PASS, 0 FAIL
+8 checks: 4 PASS, 4 FAIL
+leftover-in-TMPDIR: 0

@@ -1,0 +1,33 @@
+1. jobs comparison test vs planted faults (rc 0 = test PASSES, 1 = test FAILS)
+  none      rc 0  8 checks: 8 PASS, 0 FAIL  leftover 0  failed: []
+  order     rc 1  8 checks: 6 PASS, 2 FAIL  leftover 0  failed: ['the verdict lists agree byte for byte', 'stdout agrees byte for byte']
+  print     rc 1  8 checks: 6 PASS, 2 FAIL  leftover 0  failed: ['the verdict lists agree byte for byte', 'stdout agrees byte for byte']
+  droplast  rc 1  8 checks: 4 PASS, 4 FAIL  leftover 0  failed: ['the verdict lists agree byte for byte', 'stdout agrees byte for byte', '--jobs 4 prints 160 verdict lines (got 159)', '--jobs 4 tallies 160 checks (got 159)']
+  abort     rc 1  8 checks: 4 PASS, 4 FAIL  leftover 0  failed: ['--jobs 1 prints 160 verdict lines (got 1)', '--jobs 1 tallies 160 checks (got None)', '--jobs 4 prints 160 verdict lines (got 1)', '--jobs 4 tallies 160 checks (got None)']
+  short     rc 1  8 checks: 4 PASS, 4 FAIL  leftover 0  failed: ['--jobs 1 prints 160 verdict lines (got 159)', '--jobs 1 tallies 160 checks (got 159)', '--jobs 4 prints 160 verdict lines (got 159)', '--jobs 4 tallies 160 checks (got 159)']
+  shared    rc 0  8 checks: 8 PASS, 0 FAIL  leftover 0  failed: []
+2. direct runs, full list, fake toolchain
+  head-j1     rc 0 64240 bytes sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32 tally '160 checks: 160 PASS, 0 FAIL'
+  head-j4     rc 0 64240 bytes sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32 tally '160 checks: 160 PASS, 0 FAIL'
+  head-j8     rc 0 64240 bytes sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32 tally '160 checks: 160 PASS, 0 FAIL'
+  head-j16    rc 0 64240 bytes sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32 tally '160 checks: 160 PASS, 0 FAIL'
+  base-serial rc 0 64240 bytes sha256 8c7ac12418c71c03c94f80a5e2a6ac09e84884ad034ccaef7f39dffe12369d32 tally '160 checks: 160 PASS, 0 FAIL'
+  --jobs  1: run dirs 160 unique 160; build dirs 71 unique 71; per-mutant dirs 159, max runs per dir 1; threads 1
+  --jobs  4: run dirs 160 unique 160; build dirs 71 unique 71; per-mutant dirs 159, max runs per dir 1; threads 5
+  --jobs  8: run dirs 160 unique 160; build dirs 71 unique 71; per-mutant dirs 159, max runs per dir 1; threads 9
+  --jobs 16: run dirs 160 unique 160; build dirs 71 unique 71; per-mutant dirs 159, max runs per dir 1; threads 17
+3. a task raising OSError at mutant index 5
+  --jobs 1: rc 1, last stderr line 'OSError: planted harness crash in slew_idle_asCapable_loss_arms_qualification', leftover-in-TMPDIR: 0
+  --jobs 4: rc 1, last stderr line 'OSError: planted harness crash in slew_idle_asCapable_loss_arms_qualification', leftover-in-TMPDIR: 0
+  stdout identical across --jobs 1 and 4: True (11 lines)
+4. SIGINT 5 s into a run (fake harness runs up to 2 s each)
+  --jobs 1: rc 130; exit-after-SIGINT-s: .045908329; leftover-in-TMPDIR: 0
+  --jobs 4: rc 130; exit-after-SIGINT-s: 1.708116460; leftover-in-TMPDIR: 0
+5. --jobs argument and default
+  --jobs 0: rc 2: mutants.py: error: argument --jobs: --jobs must be at least 1, not 0
+  --jobs -1: rc 2: mutants.py: error: argument --jobs: --jobs must be at least 1, not -1
+  --jobs 2.5: rc 2: mutants.py: error: argument --jobs: invalid jobs_arg value: '2.5'
+  --jobs x: rc 2: mutants.py: error: argument --jobs: invalid jobs_arg value: 'x'
+  affinity 112: usable CPUs 1, default_jobs 1
+  affinity 112-114: usable CPUs 3, default_jobs 3
+  affinity 112-127: usable CPUs 16, default_jobs 8

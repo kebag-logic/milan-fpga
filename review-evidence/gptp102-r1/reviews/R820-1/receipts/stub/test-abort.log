@@ -1,0 +1,12 @@
+INFO --jobs 1: exit 1, 53 bytes, sha256 0332d5e9b84b144e7b5efa57b40256f6720d8cd4f70bde18f53204ce409bcccd, 1 verdicts, 0 s
+INFO --jobs 4: exit 1, 53 bytes, sha256 0332d5e9b84b144e7b5efa57b40256f6720d8cd4f70bde18f53204ce409bcccd, 1 verdicts, 0 s
+PASS the exit statuses agree (1 and 1)
+PASS the verdict lists agree byte for byte
+PASS stdout agrees byte for byte
+PASS stderr agrees byte for byte
+FAIL --jobs 1 prints 160 verdict lines (got 1)
+FAIL --jobs 1 tallies 160 checks (got None)
+FAIL --jobs 4 prints 160 verdict lines (got 1)
+FAIL --jobs 4 tallies 160 checks (got None)
+8 checks: 4 PASS, 4 FAIL
+leftover-in-TMPDIR: 0
