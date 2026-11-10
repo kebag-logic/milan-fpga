@@ -1,0 +1,58 @@
+--- sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp	2026-11-10 11:37:06.824529914 +0100
++++ sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp	2026-11-10 11:44:38.101665809 +0100
+@@ -17,6 +17,7 @@
+ #include <gtest/gtest.h>
+ 
+ #include <algorithm>
++#include <cstdio>
+ #include <string>
+ #include <vector>
+ 
+@@ -474,5 +475,47 @@
+         << "a slow append: " << r.text();
+ }
+ 
++
++// ---- reviewer probes (disposable) ----
++static void dump_fails(const Result& r, const char* tag) {
++    std::string all;
++    for (const auto& x : r.fails) { all += x; all += "\n"; }
++    std::printf("PROBE %s: %s\nPROBE-FAILS %s:\n%s", tag, r.text().c_str(), tag, all.c_str());
++}
++TEST_F(NvmModel, probe_copy_misread) {
++    Files f = fx().files({{"s.bin", "golden@5"}});
++    const std::string at = num(fx().num("journal_b") + fx().num("log_start") + 8);
++    const Result r = go(port(), f,
++                     {"--slot-b", "s.bin", "--boot", "--protect-auth", "--times", "20:20000", "--until-bg",
++                      num(NVM_B_READY), "--commit-try", "--until-programs", "3", "--fault", "read-flip-at:1:1:" + at,
++                      "--set", set_word(last_id(), value(last_id(), 3)), "--until-quiet", "--dump-slot-a", "a.bin",
++                      "--dump-slot-b", "b.bin"});
++    dump_fails(r, "copy_misread run");
++    Files g = fx().files({});
++    g.blobs["a.bin"] = f.blobs["a.bin"];
++    g.blobs["b.bin"] = f.blobs["b.bin"];
++    const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    dump_fails(q, "copy_misread boot");
++    expect_state(g, "st", fx().payloads("golden@5+one3@6"), "PROBE the reported save after a misread copy: ");
++}
++TEST_P(NvmBoth, probe_powercut_first_base) {
++    Files f;
++    const Result r = go(port(), f, {"--blank", "--powercut-compaction"});
++    dump_fails(r, "first_base sweep");
++    const auto pc = [&r](const char* key) { return r.powercut.count(key) != 0u ? r.powercut.at(key) : -1; };
++    std::printf("PROBE first_base: effects %lld cases %lld old %lld new %lld reported %lld bad %lld\n", pc("effects"),
++                pc("cases"), pc("old"), pc("new"), pc("reported"), pc("bad"));
++    EXPECT_TRUE(pc("cases") > 0 && pc("bad") == 0) << "PROBE first base sweep bad " << pc("bad");
++}
++TEST_P(NvmBoth, probe_powercut_torn_old) {
++    Files f = fx().files({{"o.bin", "torn_pad"}});
++    const Result r = go(port(), f, {"--slot-b", "o.bin", "--powercut-compaction"});
++    dump_fails(r, "torn_old sweep");
++    const auto pc = [&r](const char* key) { return r.powercut.count(key) != 0u ? r.powercut.at(key) : -1; };
++    std::printf("PROBE torn_old: effects %lld cases %lld old %lld new %lld reported %lld bad %lld\n", pc("effects"),
++                pc("cases"), pc("old"), pc("new"), pc("reported"), pc("bad"));
++    EXPECT_TRUE(pc("cases") > 0 && pc("bad") == 0) << "PROBE torn old sweep bad " << pc("bad");
++}
++
+ }  // namespace
+ }  // namespace nvm_test

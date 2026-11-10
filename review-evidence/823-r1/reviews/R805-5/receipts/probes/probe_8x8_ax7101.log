@@ -1,0 +1,166 @@
+Note: Google Test filter = *probe*
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmModel
+[ RUN      ] NvmModel.probe_copy_misread
+PROBE-FAILS copy_misread run:
+PROBE-FAILS copy_misread boot:
+[       OK ] NvmModel.probe_copy_misread (427 ms)
+[----------] 1 test from NvmModel (427 ms total)
+
+[----------] 4 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.probe_powercut_first_base/model
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE-FAILS first_base sweep:
+POWERCUT-COMPACTION-BAD effect=55 frac=0
+POWERCUT-COMPACTION-BAD effect=55 frac=1
+POWERCUT-COMPACTION-BAD effect=55 frac=128
+POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE first_base: effects 55 cases 220 old 216 new 0 reported 0 bad 4
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:508: Failure
+Value of: pc("cases") > 0 && pc("bad") == 0
+  Actual: false
+Expected: true
+PROBE first base sweep bad 4
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/model: PROBE first base sweep bad 4
+[  FAILED  ] Ports/NvmBoth.probe_powercut_first_base/model, where GetParam() = 4-byte object <00-00 00-00> (5884 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_first_base/litespi
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE-FAILS first_base sweep:
+POWERCUT-COMPACTION-BAD effect=55 frac=0
+POWERCUT-COMPACTION-BAD effect=55 frac=1
+POWERCUT-COMPACTION-BAD effect=55 frac=128
+POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE first_base: effects 55 cases 220 old 216 new 0 reported 0 bad 4
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:508: Failure
+Value of: pc("cases") > 0 && pc("bad") == 0
+  Actual: false
+Expected: true
+PROBE first base sweep bad 4
+
+  [FAIL] Ports/NvmBoth.probe_powercut_first_base/litespi: PROBE first base sweep bad 4
+[  FAILED  ] Ports/NvmBoth.probe_powercut_first_base/litespi, where GetParam() = 4-byte object <01-00 00-00> (6790 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_torn_old/model
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/model: model: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE-FAILS torn_old sweep:
+POWERCUT-COMPACTION-BAD effect=55 frac=0
+POWERCUT-COMPACTION-BAD effect=55 frac=1
+POWERCUT-COMPACTION-BAD effect=55 frac=128
+POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE torn_old: effects 56 cases 224 old 216 new 4 reported 4 bad 4
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:517: Failure
+Value of: pc("cases") > 0 && pc("bad") == 0
+  Actual: false
+Expected: true
+PROBE torn old sweep bad 4
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/model: PROBE torn old sweep bad 4
+[  FAILED  ] Ports/NvmBoth.probe_powercut_torn_old/model, where GetParam() = 4-byte object <00-00 00-00> (7092 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_torn_old/litespi
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=0
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=1
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=128
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+--litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/litespi: --litespi: runner POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE-FAILS torn_old sweep:
+POWERCUT-COMPACTION-BAD effect=55 frac=0
+POWERCUT-COMPACTION-BAD effect=55 frac=1
+POWERCUT-COMPACTION-BAD effect=55 frac=128
+POWERCUT-COMPACTION-BAD effect=55 frac=255
+PROBE torn_old: effects 56 cases 224 old 216 new 4 reported 4 bad 4
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:517: Failure
+Value of: pc("cases") > 0 && pc("bad") == 0
+  Actual: false
+Expected: true
+PROBE torn old sweep bad 4
+
+  [FAIL] Ports/NvmBoth.probe_powercut_torn_old/litespi: PROBE torn old sweep bad 4
+[  FAILED  ] Ports/NvmBoth.probe_powercut_torn_old/litespi, where GetParam() = 4-byte object <01-00 00-00> (9995 ms)
+[----------] 4 tests from Ports/NvmBoth (29763 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 5 tests from 2 test suites ran. (30191 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.probe_powercut_first_base/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.probe_powercut_first_base/litespi, where GetParam() = 4-byte object <01-00 00-00>
+[  FAILED  ] Ports/NvmBoth.probe_powercut_torn_old/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.probe_powercut_torn_old/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 4 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 5   failures: 4 ==
+RESULT: FAIL

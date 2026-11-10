@@ -1,0 +1,36 @@
+docs/design/SAVED_STATE_FORMAT_32X32.md: 0 finding(s)
+rc=0
+clean tree: 0 finding(s)
+plant inline: caught (FINDING: inline figure)
+plant block: caught (FINDING: block space drifted)
+plant unknown: caught (FINDING: inline figure no_such_figure is not a figure)
+plant missing: caught (FINDING: block save is missing)
+plant anchor: caught (no longer carries)
+plant anchor-unique: caught (an anchor's token must be on one line)
+plant line-number: caught (by line number)
+plant line-number `sw/litex/milan_soc.py:179-181`: caught (by line number)
+plant line-number sw/firmware/ctrl_nvm/nvm_store.c:408,465: caught (by line number)
+plant line-number `sw/litex/milan_soc.py` line 179: caught (by line number)
+plant line-number milan_soc.py#L179: caught (by line number)
+plant store-constant: caught (defines NVM_SEG_PAGES)
+plant citation: caught (the page no longer cites)
+control moved-lines: 0 finding(s)
+plant index: caught (FINDING: the docs index does not link)
+plant declaration: caught (FINDING: the layout 3 declaration)
+plant rule: caught (is not one line in N)
+plant definition: caught (FINDING: block save drifted)
+self-test: PASS
+rc=0
+split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128
+rc=0
+  self-test OK: a frame's crc16 skipping the record_id: caught by round trip (round trip: endstation_arty_4x4 verdict 7, 0 of 88 records)
+  self-test OK: KLJ2 refused as a foreign magic: caught by refusals (refusals: endstation_arty_4x4: the all-fabric writer's KLJ2 container: verdict 1, want 2)
+  self-test OK: the reserved header byte ignored: caught by refusals (refusals: endstation_arty_4x4: the reserved header byte set: verdict 0, want 7)
+  self-test OK: a block's last id outside it: caught by capacity (capacity: endstation_arty_4x4 verdict 7, 0 of 940 records)
+  self-test OK: the last name left out of the inventory: caught by ledger (ledger: endstation_arty_4x4 inventory {'CFG_IDX': 1, 'SUID': 1, 'RATE': 1, 'CLKSRC': 1, 'M)
+  self-test OK: the split output's NAME count off by one: caught by split (split: endstation_arty_4x4: the builder's split output counts [('NAME', 56)]; the shape ha)
+  self-test OK: a delta accepted without its CRC-32: caught by journal (journal: endstation_arty_4x4 a delta only its CRC-32 refuses: sequence 7, end 5632, torn F)
+  self-test OK: a stale delta accepted: caught by journal (journal: endstation_arty_4x4 a stale delta: sequence 6, end 5632, torn False)
+  self-test OK: the deltas replayed in reverse: caught by journal (journal: endstation_arty_4x4 two deltas: verdict 0, sequence 7, end 5632, torn False)
+split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 9 planted defects caught
+rc=0

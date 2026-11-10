@@ -1,0 +1,46 @@
+Note: Google Test filter = *probe*
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmModel
+[ RUN      ] NvmModel.probe_copy_misread
+PROBE-FAILS copy_misread run:
+PROBE-FAILS copy_misread boot:
+$REVIEWS/823-r805-5-packet/scratch/probe/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:265: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+PROBE the reported save after a misread copy: state of records [0xfa] (1 in all) differs from the slot
+
+  [FAIL] NvmModel.probe_copy_misread: PROBE the reported save after a misread copy: state of records [0xfa] (1 in all) differs from the slot
+[  FAILED  ] NvmModel.probe_copy_misread (270 ms)
+[----------] 1 test from NvmModel (270 ms total)
+
+[----------] 4 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.probe_powercut_first_base/model
+PROBE-FAILS first_base sweep:
+PROBE first_base: effects 12 cases 48 old 48 new 0 reported 0 bad 0
+[       OK ] Ports/NvmBoth.probe_powercut_first_base/model (1741 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_first_base/litespi
+PROBE-FAILS first_base sweep:
+PROBE first_base: effects 12 cases 48 old 48 new 0 reported 0 bad 0
+[       OK ] Ports/NvmBoth.probe_powercut_first_base/litespi (1210 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_torn_old/model
+PROBE-FAILS torn_old sweep:
+PROBE torn_old: effects 13 cases 52 old 48 new 4 reported 4 bad 0
+[       OK ] Ports/NvmBoth.probe_powercut_torn_old/model (1638 ms)
+[ RUN      ] Ports/NvmBoth.probe_powercut_torn_old/litespi
+PROBE-FAILS torn_old sweep:
+PROBE torn_old: effects 13 cases 52 old 48 new 4 reported 4 bad 0
+[       OK ] Ports/NvmBoth.probe_powercut_torn_old/litespi (1161 ms)
+[----------] 4 tests from Ports/NvmBoth (5752 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 5 tests from 2 test suites ran. (6022 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NvmModel.probe_copy_misread
+
+ 1 FAILED TEST
+== ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 5   failures: 1 ==
+RESULT: FAIL
