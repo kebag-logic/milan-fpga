@@ -1846,6 +1846,7 @@ TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
     EXPECT_EQ(get(u,26,8),CTLR+1)<<"the requester is not notified";
     EXPECT_EQ(Bytes(u.begin()+38,u.end()),target(0,0))<<"the notification echoes Figure 7-68's fields";
     EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the response has left";
+    const uint32_t response=completions[0];
     aecp_tx_complete(&a,completions[0],ms);aecp_poll(&a);
     EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the notification has left";
     aecp_tx_complete(&a,completions[1],ms);
@@ -1856,6 +1857,13 @@ TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
     ms=120000;drain();
     EXPECT_TRUE(sent.empty())<<"no probe or notification is started after a REBOOT's SUCCESS";
     EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
+    aecp_tx_complete(&a,response,ms);
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"an older completion does not hold the reset back";
+    const uint32_t reentries=a.reentries;
+    EXPECT_CALL(mock,Now).WillOnce([this]{
+        EXPECT_FALSE(aecp_reboot_due(&a))<<"a port's call cannot read the release";return ms;});
+    aecp_poll(&a);
+    EXPECT_EQ(a.reentries,reentries+1u)<<"a port's call cannot read the release";
 }
 
 TEST_F(Core, DescriptorAndObservationBoundaryFailures)

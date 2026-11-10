@@ -189,8 +189,9 @@ def boot_mutants(mutant: type) -> tuple:
 #: The REBOOT's sequence in ctrl_plat.c (#871): its gate, ADP's SHUTDOWN, the drained ring and the port's write.
 DUE = "\t\tif (!aecp_reboot_due(&p->aecp.core)) {\n"
 SHUTDOWN = "\t\tadp_mbx_set_enable(&p->app.adp, false);\n"
-DRAINED = "\t\tif (!adp_drained()) {\n"
-FIRE = "\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n"
+DRAINED = "\tif (!adp_drained()) {\n"
+OWED = "\t\tif (p->app.adp.ifs[i].adp.departing_owed != 0u) {\n"
+FIRE = "\tctrl_plat_io_write32(p->env->reboot, 1u);\n"
 
 
 def reboot_mutants(mutant: type) -> tuple:
@@ -211,7 +212,11 @@ def reboot_mutants(mutant: type) -> tuple:
         m("plat-reboot-without-departing", PLAT, SHUTDOWN, "",
           "platboot1", "Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets",
           "B11 every interface sends ENTITY_DEPARTING"),
-        m("plat-reboot-before-departing-left", PLAT, DRAINED, "\t\tif (!adp_drained() && false) {\n",
+        m("plat-reboot-departing-owed-ignored", PLAT, OWED,
+          "\t\tif (p->app.adp.ifs[i].adp.departing_owed != 0u && false) {\n",
+          "platboot1", "Boot.B18ADepartingTheRingRefusedHoldsTheReset",
+          "B18 ENTITY_DEPARTING leaves before the reset"),
+        m("plat-reboot-before-departing-left", PLAT, DRAINED, "\tif (!adp_drained() && false) {\n",
           "platboot1", "Boot.B12TheResetWaitsForTheResponseToLeave",
           "B12 no reset while the mailbox holds ENTITY_DEPARTING"),
         m("plat-reboot-without-a-port", PLAT, "p->aecp_config.reboot = p->env->reboot != 0u;",

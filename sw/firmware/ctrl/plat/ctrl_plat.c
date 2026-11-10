@@ -176,6 +176,7 @@ static bool adp_drained(void)
 
 // Once the REBOOT's frames are out, ADP's SHUTDOWN; once its ENTITY_DEPARTINGs
 // are out too, the reset port (IEEE 1722.1-2021 7.4.43; Milan v1.2 5.6.3.3).
+// The loop, and so this poll, runs only until the port fires (ctrl_plat_step).
 static bool reboot_step(struct ctrl_plat *p)
 {
 	if (p->reboot == 0u) {
@@ -186,18 +187,16 @@ static bool reboot_step(struct ctrl_plat *p)
 		p->reboot = 1u;
 		return true;
 	}
-	if (p->reboot == 1u) {
-		for (unsigned i = 0; i < MBX_N_IF; ++i) {
-			if (p->app.adp.ifs[i].adp.departing_owed != 0u) {
-				return true;
-			}
-		}
-		if (!adp_drained()) {
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		if (p->app.adp.ifs[i].adp.departing_owed != 0u) {
 			return true;
 		}
-		ctrl_plat_io_write32(p->env->reboot, 1u);
-		p->reboot = 2u;
 	}
+	if (!adp_drained()) {
+		return true;
+	}
+	ctrl_plat_io_write32(p->env->reboot, 1u);
+	p->reboot = 2u;
 	return false;
 }
 

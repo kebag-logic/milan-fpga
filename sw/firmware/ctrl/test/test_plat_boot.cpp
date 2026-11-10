@@ -55,6 +55,8 @@
 //       section 4)
 //   B17 once the reset port has fired, nothing is taken: a bind is neither
 //       answered nor applied, and no journal write starts during the PHY hold
+//   B18 an ENTITY_DEPARTING that ADP's ring had no room for at ADP's poll
+//       holds the reset, though the ring has drained since, until it leaves
 
 #include <gtest/gtest.h>
 
@@ -153,8 +155,15 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 
 // mbx_hal.h on the model, every access in the shared order; another
 // contract's bitstream answers ID without this contract's magic
+// While nonzero, that many reads of ADP's TX_TAIL find its ring full (B18)
+unsigned adp_full = 0;
+
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
     std::uint32_t value = mbx_model_read(&fabric, offset);
+    if (adp_full != 0u && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        --adp_full;
+        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - MBX_CH_ADP_TX_WORDS);
+    }
     if (other_contract && offset == MBX_REG_ID) value = 0u;
     mailbox.push_back({bus().log.size(), false, offset, value});
     return value;
@@ -215,6 +224,7 @@ struct Boot : ::testing::Test {
         media.clear();
         frames.clear();
         hold_adp = false;
+        adp_full = 0;
         other_contract = false;
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
@@ -759,6 +769,28 @@ TEST_F(Boot, B17NothingIsTakenOnceTheResetPortFired) {
         << "B17 a bind after the reset port fired is not answered";
     EXPECT_EQ(nvm_fmodel_count()->erases, erases) << "B17 no journal write starts during the PHY hold";
     EXPECT_EQ(nvm_store_status()->commits_ok, commits) << "B17 no journal write starts during the PHY hold";
+}
+
+TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
+    // ADP's ring is full for its SHUTDOWN's sends and its next poll's, then drained
+    adp_full = 2u * MBX_N_IF;
+    bool owed = false;
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) {
+        pass_ms();
+        for (unsigned i = 0; i < MBX_N_IF; ++i) owed = owed || ctrl_plat.app.adp.ifs[i].adp.departing_owed != 0u;
+    }
+    EXPECT_TRUE(owed) << "B18 ENTITY_DEPARTING was owed while ADP's ring had no room";
+    const auto gone = departing(from);
+    const auto writes = reboot_writes();
+    ASSERT_EQ(writes.size(), 1u) << "B18 the reset port is written once ENTITY_DEPARTING has left";
+    ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B18 ENTITY_DEPARTING leaves before the reset";
+    for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B18 ENTITY_DEPARTING leaves before the reset";
 }
 
 }  // namespace
