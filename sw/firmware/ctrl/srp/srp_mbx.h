@@ -69,6 +69,9 @@ struct srp_interface {
     // the reset's own pass; receive waits until then (#665, srp_bounds.h).
     uint8_t reopen_polls;
     bool reopening;
+    // An Applicant or Registrar of its participants changed since its retained
+    // receive's last refusal (moved), which a retry waits for (#665).
+    bool moved;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
@@ -82,10 +85,6 @@ struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
     struct srp_mbx_config config;
-    // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
-    // Ethernet header before it, so a frame is never copied (#665).
-    uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
-    struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint16_t owed_len;
     unsigned owed_if;
     uint16_t owed_ethertype;
@@ -105,6 +104,16 @@ struct srp_mbx {
     uint32_t walks;        // registrar walks snapshot made (#665)
     uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
     uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
+    // The retained receive's retry (#665): the blocks the pools had returned at its last refusal (ctrl_pool_returned),
+    // and whether a retry was made since the last centisecond (tick).
+    uint32_t pending_freed;
+    bool retry_spent;
+    // The two frame buffers last, so every other field sits within a load's
+    // reach of the adapter's address (#665: the retry's code fits the ledger).
+    // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
+    // Ethernet header before it, so a frame is never copied (#665).
+    struct mbx_frame pending_rx; // len is zero unless receive must retry
+    uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
 };
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.

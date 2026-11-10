@@ -23,6 +23,9 @@ protected:
         shlan_port_bind_pool(nullptr);
     }
     srp_sink& sink(unsigned k) { return srp_adapter.ifs[acfg.sink_interface[k]].sinks[k]; }
+    // The pool recovers a centisecond on: setting the fault injector again while a receive waits is a change its
+    // retry is made on, refused, and a retry is made at most once a centisecond (srp_mbx.c, #665).
+    void recover() { mbx_model_advance_ms(&model,10u); calloc_before_failure=-1; }
     void response(unsigned k, unsigned variant = 0) {
         auto p = answer(k);
         p.stream_id += variant; p.dest_mac += variant; p.vlan += variant;
@@ -127,7 +130,7 @@ TEST_F(SrpBinding, RefusedReceiveRetriesAfterRecoveryOrExpiry) {
         if (expire) {
             mbx_model_advance_ms(&model,1000u);
         } else {
-            calloc_before_failure=-1;
+            recover();
         }
         settle();
         EXPECT_EQ(srp_adapter.pending_rx.len,0u);
@@ -167,7 +170,7 @@ TEST_F(SrpBinding, UnbindCancelsPendingAndWithdrawsAcceptedBinding) {
             refuse_receive();
         }
         for (unsigned k=0;k<2u;++k) unbind(k);
-        calloc_before_failure=-1; settle();
+        recover(); settle();
         for (unsigned k=0;k<2u;++k) {
             EXPECT_FALSE(sink(k).bound) << "unbind supersedes pending bind";
             EXPECT_FALSE(app.srp_requests[k].pending);
@@ -186,7 +189,7 @@ TEST_F(SrpBinding, ReplacementSupersedesPendingIdentity) {
         ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[k])); settle();
         response(k,k+3u);
     }
-    calloc_before_failure=-1; settle();
+    recover(); settle();
     for (unsigned k=0;k<2u;++k) expect_stream(k,k+3u);
 }
 

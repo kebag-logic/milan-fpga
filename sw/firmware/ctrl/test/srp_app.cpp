@@ -195,7 +195,8 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
         loop.rx[MBX_CH_SRP].fn(&adapter,&rx);
         ASSERT_NE(adapter.pending_rx.len,0u);
         retry_extra+=poll()-idle;
-        calloc_before_failure=-1; settle();
+        // the pool recovers a centisecond on: the previous interface's recovery took this centisecond's retry
+        calloc_before_failure=-1; loop.ticks[0](); settle();
     }
     const uint64_t fixed=idle+reset_extra+retry_extra;
     EXPECT_EQ(fixed,MBX_N_IF*3u) << "fixed poll branch envelope";

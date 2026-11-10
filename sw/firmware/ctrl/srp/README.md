@@ -158,14 +158,26 @@ which the registrar it destroys supplied, so delivery reads no Listener the new
 participants have not registered.
 Its interface, arrival timestamp and payload remain unchanged.
 Later SRP records and binding changes wait behind it.
-Each poll retries after pending events, ticks and owed output.
-Earlier applied attributes remain applied; replay includes every later attribute.
-Each poll attempts reception once.
-The fabric centisecond event supplies another service opportunity.
-Storage recovery completes the payload on the next eligible poll.
+A poll retries after pending events, ticks and owed output, and only once what
+the refusal depends on changed since it (#665): a block the pool returned
+(`ctrl_pool_returned`) or an Applicant or Registrar change of the interface's
+participants that lwSRP reports (`moved`).
+lwSRP refuses a receive only where an allocation fails, and which allocations a
+replay asks for follows from the receive filter's answers and the attributes'
+existence, values and states. While a receive waits no binding changes and no
+declaration or Domain is made, so the filter's inputs hold; an attribute is freed
+only by a block returned and created only by one taken, and its value changes only
+by a receive or a declaration. A retry with neither changed would meet the same
+refusal, so none is made. Even then a retry is made at most once a centisecond
+(a TICK dispatched since the last retry), so the retries come at the TICK's rate,
+not the passes'. Earlier applied attributes remain applied; replay includes every
+later attribute.
+Storage recovery completes the payload on the first eligible poll after the pool
+frees, or after the next centisecond when a retry was already made in this one.
 A continuing allocation refusal expires after 1000 ms from the original arrival.
 This local recovery policy allows one periodic interval.
-It is checked at each eligible receive attempt.
+It is checked at each eligible receive attempt, and at each eligible poll with
+nothing changed, as the refusal a retry would meet would check it.
 A record already delayed in the RX ring gets no fresh retry window.
 A failed participant recreation checks the same deadline.
 A successful retry takes precedence over expiration; pending events and owed

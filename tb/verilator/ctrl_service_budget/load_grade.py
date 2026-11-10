@@ -14,14 +14,13 @@ and one without a source fails.
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
                  and not per stream, so the same at every shape; the burst is a window's first records, not a rate.
-  srp            SRP's records, one a refill as rec.<channel>'s, or its retries of a record its participant refused
-                 for storage (srp_mbx.c, the poll: one attempt a poll while one waits, for at most SRP_RX_RETRY_MS
-                 after its arrival, and no other SRP record taken meanwhile, srp_mbx.c's ready). The retry's own rule
-                 bounds it by the passes, not by a rate: the product's image defines no CTRL_MBX_WFI, so its loop
-                 never sleeps (mbx_plat_mmio.c), and one that sleeps wakes at once on SRP's receive level while its
-                 records wait, so while one waits every pass retries it. SRP's channel brings the larger of its
-                 records and its retries, never both: its records' rate, or the retries' share of a pass that
-                 carries one, the retained record's cost over that pass's own cost and its.
+  srp            SRP's records, one a refill as rec.<channel>'s, and its retries of a record its participant refused
+                 for storage (srp_mbx.c, the poll, #665 issuecomment-6751196896, item 1): a retry only once a pool
+                 returned a block or lwSRP reported an Applicant or Registrar change of the interface since the
+                 refusal, and at most one a centisecond, a TICK dispatched since the last (mailbox.yaml tick_ms); no
+                 other SRP record is taken while one waits (srp_mbx.c's ready), for at most SRP_RX_RETRY_MS. The
+                 retries come at the TICK's rate whatever the records', so SRP's channel brings both. The rule's
+                 lines are read from the tree (RETRY_RULE): a retry it does not bound has no source.
   item.reclaim   lwSRP's reclaim of an interface's freed attributes (mrp_reclaim, entered after an SRP record or a
                  build left one to free): two participants a record or a build.
   item.aecp      AECP's owed response, a completed command's notification or a probe: one an AECP record, and one a
@@ -108,6 +107,23 @@ GM_INTERVALS_MS = (1000, 1000, 3000)
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'aecp', 'walk')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
 HEADER_COSTS = ('CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_STEP_PASS_US')
+#: The retained receive's retry rule (#665 issuecomment-6751196896, item 1), each part as the tree states it, read with
+#: its white space folded: the poll retries only once a pool returned a block or an Applicant or Registrar of the
+#: interface moved since the refusal, and spends the centisecond's retry; the centisecond's consumer gives it back; a
+#: refusal records what it saw; each change is marked and each return counted; and the poll is the only retry.
+RETRY_RULE = {
+    'a retry only once the refusal\'s inputs changed, one a centisecond':
+        ('sw/firmware/ctrl/srp/srp_mbx.c', 'if (!i->moved && ctrl_pool_returned == m->pending_freed) { '
+         'expire_receive(m); } else if (!m->retry_spent) { m->retry_spent = true; '
+         'if (apply_receive(m,&m->pending_rx)) {'),
+    'a centisecond\'s retry': ('sw/firmware/ctrl/srp/srp_mbx.c', 'shlan_timer_tick(); m->retry_spent = false;'),
+    'what a refusal saw': ('sw/firmware/ctrl/srp/srp_mbx.c', '++m->refused; // What the refusal saw, after every '
+                           'change of its own (poll). i->moved = false; m->pending_freed = ctrl_pool_returned; '
+                           'return false;'),
+    'each Applicant or Registrar change marked': ('sw/firmware/ctrl/srp/srp_mbx.c',
+                                                  'i->reclaim = true; i->moved = true;'),
+    'each returned block counted': ('sw/firmware/ctrl/port/ctrl_pool.c', 'bin->free_count++; ctrl_pool_returned++;'),
+}
 
 
 def macros(root: Path, n_if: int) -> dict[str, int]:
@@ -135,6 +151,17 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
 def probe_retry_ms(root: Path) -> int:
     """A registration's probe retry (aecp.c: its deadline now + this, Milan v1.2 5.4.5.3)."""
     return int(re.search(r'\.deadline = now\(a\) \+ (\d+)u;', (root / 'sw/firmware/ctrl/aecp/aecp.c').read_text())[1])
+
+
+def retry_unbounded(root: Path, texts: dict[str, str] | None = None) -> list[str]:
+    """Each part of the retry rule the tree does not state, and a second retry site: a retry it does not bound."""
+    def folded(path: str) -> str:
+        """The file's text (or its planted copy), its white space folded."""
+        return ' '.join(((texts or {}).get(path) or (root / path).read_text()).split())
+    out = [name for name, (path, line) in RETRY_RULE.items() if line not in folded(path)]
+    if folded('sw/firmware/ctrl/srp/srp_mbx.c').count('apply_receive(m,&m->pending_rx)') != 1:
+        out.append('the poll the only retry')
+    return out
 
 
 def contract(root: Path) -> dict:
@@ -169,9 +196,8 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     both, one = n_if * c['build'], 2 * n_if * c['build_one']
     builds, n_builds = (both, n_if) if both >= one else (one, 2 * n_if)
     out = {f'rec.{ch}': c[f'record.{ch}'] / refill[ch] for ch in ('aecp', 'acmp', 'adp', 'maap')}
-    # SRP's channel: its records, or a retained record's retries, never both (the retry's own rule)
-    retry_share = 1000 * c['item.retained'] / (c['events_none'] + c['base'] + c['item.retained'])
-    out['srp'] = max(c['record.srp'] / refill['srp'], retry_share)
+    # SRP's channel: its records, and a retained record's retries at the TICK's rate (the retry's own rule)
+    out['srp'] = c['record.srp'] / refill['srp'] + c['item.retained'] / k['tick_ms']
     out['item.reclaim'] = c['item.reclaim'] * 2 * (1 / refill['srp'] + n_builds / join_ms)
     probe = probe_retry_ms(root)
     out['item.aecp'] = c['item.aecp'] * (1 / refill['aecp'] + n_if * s['registrations'] / probe)
@@ -210,9 +236,11 @@ def pass_own_us(root: Path, point: str, table: dict | None = None) -> float:
     return c['events_none'] + c['base']
 
 
-def findings(root: Path, table: dict | None = None, ceiling: dict | None = None) -> list[str]:
-    """Each point over its ceiling, and each point whose table lacks a cost the load needs."""
-    out = []
+def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
+             texts: dict[str, str] | None = None) -> list[str]:
+    """Each point over its ceiling, each point whose table lacks a cost the load needs, and a term without its
+    source: one the term list does not name, or SRP's retries where the tree states no rule that bounds them."""
+    out = [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     for point, top in (ceiling or CEILING).items():
         try:
             total = sum(load(root, point, table).values())
@@ -256,12 +284,22 @@ def controls(root: Path) -> list[str]:
     dropped['8x8/2if'].pop('event.ACMP')
     if not any("no stated cost 'event.ACMP'" in f for f in findings(root, dropped, fit)):
         escaped.append('a stated cost missing')
-    # the retry's own rule: a retained record is retried every pass while it waits, so SRP's channel brings at least
-    # the retries' share of a pass that carries one, whatever its records bring (once a record is not the rule)
-    c8 = stated(root, '8x8/2if', base)
-    share = c8['item.retained'] / (c8['events_none'] + c8['base'] + c8['item.retained'])
-    if not load(root, '8x8/2if', base)['srp'] >= share - 1e-9:
+    # the retry's own rule: a retained record is retried once a centisecond at most, whatever its records, so SRP's
+    # channel brings its records and those retries both (one of them alone is not the rule)
+    c8, k = stated(root, '8x8/2if', base), contract(root)
+    rule = c8['record.srp'] / k['refill']['srp'] + c8['item.retained'] / k['tick_ms']
+    if not load(root, '8x8/2if', base)['srp'] >= rule / 1000 - 1e-9:
         escaped.append('the retained retry counted once a record')
+    # the retry's source: a tree whose poll retries with nothing changed, or every pass a change allows, states no rule
+    # that bounds the retries, so the term srp has none (#665 issuecomment-6751196896, item 1)
+    srp = (root / 'sw/firmware/ctrl/srp/srp_mbx.c').read_text()
+    for name, old, new in (('a retry with nothing changed',
+                            'if (!i->moved && ctrl_pool_returned == m->pending_freed) {', 'if (false) {'),
+                           ('a retry every pass', '                m->retry_spent = true;\n', '')):
+        planted = {'sw/firmware/ctrl/srp/srp_mbx.c': srp.replace(old, new)}
+        refused = any('the term srp has no source' in f for f in findings(root, base, fit, planted))
+        if srp.count(old) != 1 or not refused:
+            escaped.append(name)
     # a timer slot counted once an ordinary pass rather than at its expiry rate: ACMP's slot brings each sink's
     # TMR_NO_RESP once ACMP_TMR_NO_RESP_MS, so doubling the sinks adds at least that many more expiries
     one = load(root, '8x8/2if', base)['timers']
@@ -284,7 +322,7 @@ def controls(root: Path) -> list[str]:
 #: those terms, so a term that does not read its source is refused (each arrival bound's plant).
 PERIODS = {'refill.aecp': ('rec.aecp', 'item.aecp'), 'refill.acmp': ('rec.acmp', 'item.acmp'),
            'refill.adp': ('rec.adp', 'item.acmp', 'timers'), 'refill.maap': ('rec.maap',),
-           'refill.srp': ('srp', 'item.reclaim'), 'tick_ms': ('ticks', 'item.walk', 'steps'),
+           'refill.srp': ('srp', 'item.reclaim'), 'tick_ms': ('ticks', 'item.walk', 'steps', 'srp'),
            'holdoff_ms': ('timers',), 'SRP_JOIN_CS': ('builds', 'item.mrpdu', 'item.reclaim', 'item.walk'),
            'CTRL_LOOP_STEP_AGE': ('steps',), 'ACMP_TMR_NO_RESP_MS': ('item.acmp', 'timers'),
            'MAAP_PROBE_BASE_MS': ('timers',), 'ADP_ADVERTISE_MS': ('timers',), 'probe': ('item.aecp', 'timers')}
@@ -332,7 +370,8 @@ def period_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order.
 CONTROLS = ('a cost over the ceiling', 'a stated cost missing', 'the retained retry counted once a record',
-            'a timer slot counted per pass', 'a term without a source')
+            'a retry with nothing changed', 'a retry every pass', 'a timer slot counted per pass',
+            'a term without a source')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:

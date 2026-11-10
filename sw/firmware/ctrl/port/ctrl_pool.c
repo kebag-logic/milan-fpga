@@ -14,6 +14,8 @@
 
 #include <string.h>
 
+uint32_t ctrl_pool_returned;
+
 static size_t round_up(size_t value, size_t to)
 {
 	return (value + to - 1u) / to * to;
@@ -185,6 +187,7 @@ void ctrl_pool_free(struct ctrl_pool *pool, void *ptr)
 		memcpy(ptr, &bin->free_head, sizeof bin->free_head);
 		bin->free_head = ptr;
 		bin->free_count++;
+		ctrl_pool_returned++;
 		return;
 	}
 	pool->bad_frees++;

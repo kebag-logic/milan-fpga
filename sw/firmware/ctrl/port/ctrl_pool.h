@@ -65,6 +65,11 @@ struct ctrl_pool {
 	uint32_t bad_frees;     // frees of a pointer this pool did not hand out, or freed twice
 };
 
+// Blocks returned to any pool, counting up. Only a return frees a block, and an allocation every fitting class
+// refused can succeed only once one is, so equal counts bracket no change that could turn a refusal (SRP's retained
+// receive, srp_mbx.c; #665).
+extern uint32_t ctrl_pool_returned;
+
 // The arena bytes a set of classes needs, alignment and flags included.
 size_t ctrl_pool_arena_bytes(const struct ctrl_pool_class *classes, unsigned n_classes);
 

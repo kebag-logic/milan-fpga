@@ -64,6 +64,7 @@ static void tick(void)
         return;
     }
     shlan_timer_tick();
+    m->retry_spent = false;
     // lwSRP arms a participant's join timer as it sends and reports no expiry: join_left keeps the same count, so
     // the centisecond that ends it is the one an MRPDU waiting on it became owed in, as a LeaveAll Active state owes
     // its LeaveAll once no join timer holds it, IEEE 802.1Q 10.7.4.1 and Table 10-5 (THE TRANSMIT in ctrl_loop.h).
@@ -292,6 +293,7 @@ static void moved(struct srp_interface *i, unsigned slot, const struct mrp_trans
 {
     struct srp_mbx *m = i->owner;
     i->reclaim = true;
+    i->moved = true;
     i->stale = i->stale || t->reg_from != t->reg_to;
     if (t->appl_from != t->appl_to && m->join_left[2u * i->index + slot] == 0u) {
         m->tx_due |= (uint8_t)(1u << i->index);
@@ -574,6 +576,9 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
     }
     if (result == -SHLAN_ERROR_NO_MEMORY) {
         ++m->refused;
+        // What the refusal saw, after every change of its own (poll).
+        i->moved = false;
+        m->pending_freed = ctrl_pool_returned;
         return false;
     }
     if (result != 0) {
@@ -989,13 +994,27 @@ static bool poll(void *ctx)
                 continue;
             }
         }
-        // Retry only after lifecycle reconciliation and older output/events.
-        // One attempt per poll; the fabric tick also wakes an idle loop.
+        // Retry only after lifecycle reconciliation and older output/events, and only once what the refusal depends on
+        // changed since it: a block a pool returned (ctrl_pool_returned) or an Applicant or Registrar change of the
+        // interface's participants (moved). lwSRP refuses a receive only where an allocation fails (mrp_mad.c:
+        // get_or_create_attr and map_reserve under rx_on_attr), and which allocations a replay asks for follows from the
+        // filter's answers (interested_msrp, interested_mvrp) and the attributes' existence, values and states. While a
+        // receive waits the filter's inputs hold, since no binding changes (srp_mbx_bind) and no declaration or Domain
+        // is made (transmit); an attribute is freed only by a block returned and created only by one taken, which leaves
+        // no more room; its value changes only by a receive or a declaration, and no other SRP record is taken meanwhile
+        // (rx_ready). So a retry with neither changed meets the same refusal: it is not made, and the deadline is checked
+        // as that refusal would check it. Even then at most one retry a centisecond (tick), so the retries come at THE
+        // TICK's rate, not the passes' (#665).
         if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m) && !m->loop->events_left) {
-            if (apply_receive(m,&m->pending_rx)) {
-                m->pending_rx.len = 0;
-            } else {
+            if (!i->moved && ctrl_pool_returned == m->pending_freed) {
                 expire_receive(m);
+            } else if (!m->retry_spent) {
+                m->retry_spent = true;
+                if (apply_receive(m,&m->pending_rx)) {
+                    m->pending_rx.len = 0;
+                } else {
+                    expire_receive(m);
+                }
             }
         }
         snapshot(i);
