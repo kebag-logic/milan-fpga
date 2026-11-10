@@ -1,0 +1,40 @@
+PASS jobs 1: results in list order
+PASS jobs 1: peak concurrency 1 == 1
+PASS jobs 1: tasks start in list order
+PASS jobs 2: results in list order
+PASS jobs 2: peak concurrency 2 == 2
+PASS jobs 2: tasks start in list order
+PASS jobs 4: results in list order
+PASS jobs 4: peak concurrency 4 == 4
+PASS jobs 4: tasks start in list order
+PASS jobs 8: results in list order
+PASS jobs 8: peak concurrency 8 == 8
+PASS jobs 8: tasks start in list order
+PASS jobs 32: results in list order
+PASS jobs 32: peak concurrency 14 <= 32
+PASS slow first task still yields first
+PASS jobs 1: exception after results 0..2 ([0, 1, 2])
+PASS jobs 1: no task still running after the exception
+PASS jobs 4: exception after results 0..2 ([0, 1, 2])
+PASS jobs 4: no task still running after the exception
+PASS close() leaves no task running
+PASS close() cancels tasks not yet started (5 started)
+PASS default_jobs under CPUs 96 = 1 (want 1)
+PASS default_jobs under CPUs 96-98 = 3 (want 3)
+PASS default_jobs under CPUs 96-111 = 8 (want 8)
+PASS --jobs 0: rc 2, 0.2 s, 'mutants.py: error: argument --jobs: --jobs must be at least 1, not 0'
+PASS --jobs -1: rc 2, 0.1 s, 'mutants.py: error: argument --jobs: --jobs must be at least 1, not -1'
+PASS --jobs abc: rc 2, 0.3 s, "mutants.py: error: argument --jobs: invalid jobs_arg value: 'abc'"
+PASS --jobs 1.5: rc 2, 0.1 s, "mutants.py: error: argument --jobs: invalid jobs_arg value: '1.5'"
+PASS --help names --jobs
+usage: mutants.py [-h] [--jobs JOBS]
+
+Mutation arm for the engine suite: prove its checks are load-bearing.
+
+options:
+  -h, --help   show this help message and exit
+  --jobs JOBS  mutants run at once (default: the CPUs this process may use, at
+               most 8); 1 runs them one after another
+
+29 checks: 29 PASS, 0 FAIL
+rc=0

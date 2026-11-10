@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/base/tb/verilator/engine/mutants_subset.py", line 1018, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/base/tb/verilator/engine/mutants_subset.py", line 977, in main
+    answer = verdict(*run_harness(clean_exe, clean_run))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/base/tb/verilator/engine/mutants_subset.py", line 850, in run_harness
+    runs = [subprocess.run([str(exe), *arg], cwd=str(d),
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           capture_output=True, text=True)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2153, in _communicate
+    ready = selector.select(timeout)
+  File "/usr/lib/python3.14/selectors.py", line 398, in select
+    fd_event_list = self._selector.poll(timeout)
+KeyboardInterrupt

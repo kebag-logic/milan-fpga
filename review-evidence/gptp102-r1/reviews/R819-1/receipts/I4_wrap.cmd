@@ -1,0 +1,1 @@
+cwd=$REVIEWS/gptp102-r819-1-packet/scratch/base/tb/verilator/engine cpus=108 cmd=bash $REVIEWS/gptp102-r819-1-packet/scripts/probe_interrupt.sh $REVIEWS/gptp102-r819-1-packet I4_interrupt_base_serial 108 $REVIEWS/gptp102-r819-1-packet/scratch/base/tb/verilator/engine 120 240 python3 -B mutants_subset.py

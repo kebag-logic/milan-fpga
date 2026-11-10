@@ -1,0 +1,56 @@
+=== rc=0 :: make contract
+python3 tb/check_phc_contract.py
+PHC interface contract: PASS
+=== rc=0 :: make docs
+EXACT hdl/top/KL_gptp_engine.sv#L125 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L1273 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L1278 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L1098 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L521 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
+python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)
+=== rc=0 :: make diagrams-check
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+=== rc=0 :: make lint
+- Verilator: Walltime 0.436 s (elab=0.052, cvt=0.294, bld=0.000); cpu 0.157 s on 1 threads; allocated 24.348 MB
+make -C bench/arty lint
+make[1]: Entering directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.188 MB sources in 13 modules, into 0.448 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.470 s (elab=0.063, cvt=0.285, bld=0.000); cpu 0.200 s on 1 threads; allocated 26.305 MB
+make[1]: Leaving directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/bench/arty'
+=== rc=0 :: python3 scripts/check_docs.py --selftest
+docs selftest: PASS (127 arms)
+=== rc=0 :: python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)
+=== rc=0 :: python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+=== rc=0 :: python3 syn/ooc/check_ooc_clock.py --selftest
+ooc clock order selftest: PASS (30 arms)
+=== rc=0 :: make -n -C tb/verilator/engine
+echo "-- again, with the Sync counter seeded above 16 bits --"
+cd syncseedrun && ../obj_dir/Vengine_sim
+mkdir -p p1run
+python3 ../../../hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 --p1 255 --clock-accuracy 0xFE -o p1run/gptp_ucode.hex >/dev/null
+echo "-- the self publication again, not grandmaster-capable (priority1 255), clockAccuracy 0xFE --"
+cd p1run && ../obj_dir/Vengine_sim +not-gm-capable
+python3 mutants.py
+make: Leaving directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/tb/verilator/engine'
+=== rc=0 :: make -n -C tb/verilator/engine mutants-jobs-test
+make: Entering directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/tb/verilator/engine'
+python3 ../../mutation_jobs_test.py mutants.py
+make: Leaving directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/tb/verilator/engine'
+=== rc=0 :: make -n tb
+python3 mutants.py
+make[1]: Leaving directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/tb/tsngen'
+make -C bench/arty test
+make[1]: Entering directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/bench/arty'
+verilator --cc --exe --build -j 0 --top-module bench_mii_tx -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC bench_mii_tx.sv bench_mii_tx_tag_test.cpp \
+  -o Vbench_mii_tx_tag_test
+./obj_dir/Vbench_mii_tx_tag_test
+make[1]: Leaving directory '$REVIEWS/gptp102-r819-1-packet/scratch/gates/bench/arty'

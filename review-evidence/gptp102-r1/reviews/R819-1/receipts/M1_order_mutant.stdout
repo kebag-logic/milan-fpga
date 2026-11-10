@@ -1,0 +1,36 @@
+INFO --jobs 1: exit 1, 2540 bytes, sha256 9175803cd40afdda5da4ef8c862f71270564d78a9d6480ab599f32a0693c7f82, 10 verdicts, 0 s
+INFO --jobs 4: exit 1, 560 bytes, sha256 b9d869b595e98684ef84d7d5421fb686028cf5536cd695f760a08353556988c7, 3 verdicts, 733 s
+PASS the exit statuses agree (1 and 1)
+FAIL the verdict lists agree byte for byte
+FAIL stdout agrees byte for byte
+FAIL stderr agrees byte for byte
+PASS --jobs 1 prints 10 verdict lines (got 10)
+PASS --jobs 1 tallies 10 checks (got 10)
+FAIL --jobs 4 prints 10 verdict lines (got 3)
+FAIL --jobs 4 tallies 10 checks (got None)
+--- --jobs 1
++++ --jobs 4
+@@ -1,21 +1,3 @@
+-[PASS] the unmutated engine still passes the harness
+-FAIL #100 logAnnounceInterval 1: still slave 5998 ms after the Announce got 0000000000000000 exp 0000000000000001
+-FAIL #100 logAnnounceInterval -1: master within 1502 ms of the Announce got 0000000000000000 exp 0000000000000001
+-[PASS] mutant caught: the watch ignores the received interval - breaks "#100 logAnnounceInterval 1: still slave 5998 ms after the Announce | #100 logAnnounceInterval -1: master within 1502 ms of the Announce"
+-[FAIL] mutation 'probe pattern missing': its pattern appears 0 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+-[FAIL] mutant SURVIVED: probe survivor. The harness does not prove "probe survives".
++[FAIL] the unmutated engine does NOT pass ((False, ["[FAIL] mutation 'probe pattern missing': its pattern appears 0 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm."])) - every mutant result below is meaningless
+ [FAIL] mutation 'probe build failure' did not build; a mutant that cannot build proves nothing about the harness
+ [FAIL] mutation 'probe generator refuses': the generator refused its image, so this mutant proves nothing about the harness
+-[FAIL] mutant 'lost t1 fabricates a time and a companion probe' missed its named check(s): #100 a check nobody prints
+-FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+-[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+-[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+-FAIL #100 TLV: the first mastership's Follow_Up carries indicator 1 got 0000000000000000 exp 0000000000000001
+-FAIL #100 TLV settled: gmTimeBaseIndicator increments got 0000000000000000 exp 0000000000000001
+-FAIL #100 TLV settled: lastGmPhaseChange is the last offset got 0000000000000000 exp 0000000000000001
+-FAIL #100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate got 0000000000000000 exp 0000000000000001
+-FAIL #100 TLV slewing: gmTimeBaseIndicator increments got 0000000000000000 exp 0000000000000001
+-FAIL #100 TLV slewing: lastGmPhaseChange is the last offset got 0000000000000000 exp 0000000000000001
+-[PASS] mutant caught: the Follow_Up TLV is sent zero - breaks "#100 TLV: the first mastership's Follow_Up carries indicator 1 | #100 TLV settled: gmTimeBaseIndicator increments | #100 TLV settled: lastGmPhaseChange is the last offset | #100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate | #100 TLV slewing: gmTimeBaseIndicator increments | #100 TLV slewing: lastGmPhaseChange is the last offset"
+-
+-10 checks: 5 PASS, 5 FAIL
+8 checks: 3 PASS, 5 FAIL

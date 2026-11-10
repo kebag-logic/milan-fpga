@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/head/tb/verilator/engine/mutants_subset.py", line 1099, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/head/tb/verilator/engine/mutants_subset.py", line 1056, in main
+    answer = next(results)
+  File "$REVIEWS/gptp102-r819-1-packet/scratch/head/tb/verilator/engine/mutants_subset.py", line 1002, in in_list_order
+    yield future.result()
+          ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 449, in result
+    self._condition.wait(timeout)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/threading.py", line 369, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+KeyboardInterrupt

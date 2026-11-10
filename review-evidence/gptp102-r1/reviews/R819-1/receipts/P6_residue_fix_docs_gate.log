@@ -1,0 +1,36 @@
+60c60
+< The engine arm runs up to eight mutants at once.
+---
+> By default the engine arm runs up to eight mutants at once.
+check_docs rc=1
+docs check: FAIL (1 findings)
+  docs/TEST_DEVELOPER.md:60: 12 words: By default the engine arm runs up to eight mutants at once.
+--- attempt 2
+60c60
+< The engine arm runs up to eight mutants at once.
+---
+> By default the engine arm runs up to eight at once.
+check_docs rc=1
+docs check: FAIL (1 findings)
+  docs/TEST_DEVELOPER.md:60: 11 words: By default the engine arm runs up to eight at once.
+docs selftest: PASS (127 arms)
+--- attempt 3
+60c60
+< The engine arm runs up to eight mutants at once.
+---
+> By default, up to eight engine mutants run at once.
+check_docs rc=0
+docs check: PASS (14 current pages, 18 historical pages)
+docs selftest: PASS (127 arms)
+--- attempt 4: the other public review's proposed text for lines 60 and 62
+60c60
+< The engine arm runs up to eight mutants at once.
+---
+> By default the engine arm runs as many mutants at once as it may use CPUs, at most eight.
+62c62
+< Its `--jobs` option sets that number.
+---
+> Its `--jobs` option sets any other number.
+check_docs rc=1
+docs check: FAIL (1 findings)
+  docs/TEST_DEVELOPER.md:60: 19 words: By default the engine arm runs as many mutants at once as it may use CPUs, at most eight.

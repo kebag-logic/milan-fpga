@@ -1,0 +1,21 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #100 logAnnounceInterval 1: still slave 5998 ms after the Announce got 0000000000000000 exp 0000000000000001
+FAIL #100 logAnnounceInterval -1: master within 1502 ms of the Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the watch ignores the received interval - breaks "#100 logAnnounceInterval 1: still slave 5998 ms after the Announce | #100 logAnnounceInterval -1: master within 1502 ms of the Announce"
+[FAIL] mutation 'probe pattern missing': its pattern appears 0 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutant SURVIVED: probe survivor. The harness does not prove "probe survives".
+[FAIL] mutation 'probe build failure' did not build; a mutant that cannot build proves nothing about the harness
+[FAIL] mutation 'probe generator refuses': the generator refused its image, so this mutant proves nothing about the harness
+[FAIL] mutant 'lost t1 fabricates a time and a companion probe' missed its named check(s): #100 a check nobody prints
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+FAIL #100 TLV: the first mastership's Follow_Up carries indicator 1 got 0000000000000000 exp 0000000000000001
+FAIL #100 TLV settled: gmTimeBaseIndicator increments got 0000000000000000 exp 0000000000000001
+FAIL #100 TLV settled: lastGmPhaseChange is the last offset got 0000000000000000 exp 0000000000000001
+FAIL #100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate got 0000000000000000 exp 0000000000000001
+FAIL #100 TLV slewing: gmTimeBaseIndicator increments got 0000000000000000 exp 0000000000000001
+FAIL #100 TLV slewing: lastGmPhaseChange is the last offset got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the Follow_Up TLV is sent zero - breaks "#100 TLV: the first mastership's Follow_Up carries indicator 1 | #100 TLV settled: gmTimeBaseIndicator increments | #100 TLV settled: lastGmPhaseChange is the last offset | #100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate | #100 TLV slewing: gmTimeBaseIndicator increments | #100 TLV slewing: lastGmPhaseChange is the last offset"
+
+10 checks: 5 PASS, 5 FAIL

@@ -1,0 +1,10 @@
+OK  fake good: rc 0 (want 0); failed checks: []
+OK  fake order: rc 1 (want 1); failed checks: ['FAIL the verdict lists agree byte for byte', 'FAIL stdout agrees byte for byte']
+OK  fake abort_alike: rc 1 (want 1); failed checks: ['FAIL --jobs 1 prints 4 verdict lines (got 1)', 'FAIL --jobs 1 tallies 4 checks (got None)', 'FAIL --jobs 4 prints 4 verdict lines (got 1)', 'FAIL --jobs 4 tallies 4 checks (got None)']
+OK  fake stderr_diff: rc 1 (want 1); failed checks: ['FAIL stderr agrees byte for byte']
+OK  fake rc_diff: rc 1 (want 1); failed checks: ['FAIL the exit statuses agree (0 and 1)']
+OK  fake tally_wrong: rc 1 (want 1); failed checks: ['FAIL --jobs 1 tallies 4 checks (got 3)', 'FAIL --jobs 4 tallies 4 checks (got 3)']
+OK  fake extra_verdict: rc 1 (want 1); failed checks: ['FAIL --jobs 1 prints 4 verdict lines (got 5)', 'FAIL --jobs 4 prints 4 verdict lines (got 5)']
+OK  fake named_line_diff: rc 1 (want 1); failed checks: ['FAIL stdout agrees byte for byte']
+8 fakes: 8 as expected, 0 not
+rc=0

@@ -1,0 +1,1 @@
+cwd=$REVIEWS/gptp102-r819-1-packet/scratch/mrun_drop cpus=108-111 cmd=python3 -B $REVIEWS/gptp102-r819-1-packet/scripts/probe_mutant_eq.py $REVIEWS/gptp102-r819-1-packet/scratch/head $REVIEWS/gptp102-r819-1-packet/scratch/head/tb/verilator/engine/mutants_m_drop.py $REVIEWS/gptp102-r819-1-packet/receipts/B_out 1
