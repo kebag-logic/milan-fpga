@@ -1,0 +1,1305 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 0126196..590af7b 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -421,7 +421,7 @@ verification).
+ | REQ-ADP-008 | Milan §5.6.3.5.2/.3 | Random delay 0–2 s at startup-link-up; 0–4 s otherwise | shall | A; traced | [GAP-07](#gap-07) | T-ADP-DELAY-START / T-ADP-DELAY | 08 §2 | TIM |
+ | REQ-ADP-009 | Milan §5.6.3.5.7 | GM change ⇒ re-advertise (via DELAY) | shall | A; traced | [GAP-16](#gap-16) | GPTP adapter event | 04 §6.1 | DIR |
+ | REQ-ADP-010 | Milan §5.6.3.5.6/.8/.11 | ENTITY_DEPARTING only on SHUTDOWN; never on link-down | shall | A; traced | [GAP-16](#gap-16) | F04.2 | 04 §6.1 | DIR |
+-| REQ-ADP-011 | IEEE §6.2.2.15 | available_index: 0 at init; ++ after each ENTITY_AVAILABLE tx; 0 on DEPARTING/power-up | shall | A; traced | [GAP-16](#gap-16) | available_index mgr | 04 §5 | DIR |
++| REQ-ADP-011 | IEEE §6.2.2.15, Table 7-2 | available_index: 0 at init; ++ after each ENTITY_AVAILABLE tx; 0 on DEPARTING/power-up; the ENTITY descriptor's is the last ENTITY_AVAILABLE's | shall | A; traced | [GAP-16](#gap-16) | available_index mgr; the last sent index into READ_DESCRIPTOR(ENTITY) (issue #217) | 04 §5, 06 §6.1 | DIR |
+ | REQ-ADP-012 | Milan §5.6.4 | Talker-discovery SM per bound Stream Input (not a general entity table) | shall | I; traced | [GAP-16](#gap-16) | F04.3 | 04 §6.2 | MTXW |
+ | REQ-ADP-013 | Milan §5.6.4.5.1/.2 | Ignore ENTITY_AVAILABLE whose gptp_grandmaster_id or domain ≠ local port state; available_index ≤ last ⇒ talker-restart handling | shall | A; traced | [GAP-16](#gap-16) | F04.3 guards | 04 §6.2 | DIR |
+ | REQ-ADP-014 | Milan §5.6.4.5.1 | TMR_NO_ADP from received valid_time; expiry ⇒ EVT_TK_DEPARTED | shall | A; traced | [GAP-07](#gap-07) | T-ADP-NOADP | 04 §6.2, 08 §2 | TIM |
+diff --git a/docs/architecture/04_adp_engine.md b/docs/architecture/04_adp_engine.md
+index f643953..5e726e2 100644
+--- a/docs/architecture/04_adp_engine.md
++++ b/docs/architecture/04_adp_engine.md
+@@ -132,7 +132,16 @@ power-up, **increment after** each transmitted ENTITY_AVAILABLE, reset to 0 on
+ ENTITY_DEPARTING — IEEE §6.2.2.15 and its Figure 6-2, which Milan §5.6.2 adopts
+ unchanged; the ENTITY_DEPARTING carries the value the index held, IEEE §6.2.5.2.2
+ taking every field it does not name from `entityInfo`, and the reset follows it),
+-one timer handle. Per sink: discovery SM state
++the `available_index` the last ENTITY_AVAILABLE carried (32 b, volatile: 0 at
++power-up and from each ENTITY_DEPARTING, the wire field of each ENTITY_AVAILABLE
++on the cycle it is handed to TX; issue #217), one timer handle. The ENTITY
++descriptor's `available_index` is this last value, not the image's constant:
++IEEE 1722.1-2021 Table 7-2 makes it "the same as the available_index field in
++ATDECC Discovery Protocol", so READ_DESCRIPTOR(ENTITY) reads 0 after the first
++ENTITY_AVAILABLE, N-1 after N and 0 after an ENTITY_DEPARTING. The engine
++publishes it per interface (`last_avail_index_o`); the top serves the one of the
++interface the AECP command came in on, interface 0 at one interface
++([06 §6.1](06_aecp_engine.md)). Per sink: discovery SM state
+ (1 b), saved `interface_index` + last `available_index` of the bound talker, one
+ `T-ADP-NOADP` handle — stored in the sink record ([F07.6](07_memory_maps.md#fig-07-sinkrec)).
+ 
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index ae86484..a9367d9 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -315,6 +315,20 @@ builds the field from the dynamic-state row the SET (or the D3 restore) wrote:
+ | STREAM_INPUT / STREAM_OUTPUT, configuration 0 | `E_RDESCSI` / `E_RDESCSO`, then `E_RDESCSF` | `current_format` @74 | `SEL_FMTIN` / `SEL_FMTOUT` (GET_STREAM_FORMAT reads the Milan-info face, which serves the published row once it is valid: the settings fold) |
+ | CONTROL whose `control_type` is IDENTIFY, configuration 0 (issue #185) | `E_RDESCCT`, then `E_RDESCID` | `value_details` `current[0]` @108 | `SEL_IDENT` (GET_CONTROL) |
+ 
++**ADP's value** (issue #217). ENTITY's `available_index` @36 is not a setting and
++has no row: IEEE 1722.1-2021 Table 7-2 makes it "the same as the available_index
++field in ATDECC Discovery Protocol", which 6.2.2.15 increments after each
++ENTITY_AVAILABLE and resets when ENTITY_DEPARTING is sent. `E_RDESCENT` gathers it
++(`GATHER_EXT`, selector 0xE0, routed by the engine's `rdent_r` the way the started
++bit's 0xD0 is routed by START/STOP) from `adp_avail_index_i`: the index the last
++ENTITY_AVAILABLE carried on the interface the command came in on
++(`KL_adp_engine` `last_avail_index_o`, selected by the top's `aecp_cmd_if_r`; interface
++0 at one interface). So the descriptor reads 0 before and after the first
++ENTITY_AVAILABLE, N-1 after N, and 0 after an ENTITY_DEPARTING, always, whatever
++row is written; every other octet is the image's. `tb/pp_top` section AI grades it
++whole after each of four advertisements, after ENTITY_DEPARTING and after the
++re-enable, and section IF (IF4) on each of two interfaces.
++
+ For the first four types, a row no SET or restore has written leaves the descriptor
+ to `E_RDESC`, whole: the image is the current value then, the GETs' own rule. A STREAM's GET reads the
+ integrator's face even then, and the face need not agree with the image before a SET;
+@@ -585,9 +599,10 @@ grade both on the wire (issue #178).
+ `GET_CONFIGURATION` (§7.4.8) and `READ_DESCRIPTOR(ENTITY)` overlay that dynamic
+ value. This preserves §7.4.8.2 equivalence on multi-configuration images as well
+ as on the shipping one-configuration image. The descriptor image remains
+-read-only: `E_RDESCENT` copies the first 310 ENTITY bytes unchanged and appends
+-the dynamic `current_configuration` word. Before the first successful SET, the
+-word comes from the image. The W18 regression grades both a successful non-zero
++read-only: `E_RDESCENT` copies ENTITY bytes 0..35, builds ADP's `available_index`
++at 36 (above), copies 40..309 unchanged and appends the dynamic
++`current_configuration` word. Before the first successful SET, the word comes from
++the image. The W18 regression grades both a successful non-zero
+ SET and a rejected SET, including the GET and READ_DESCRIPTOR views.
+ 
+ ### 6.5 Audio-map operations (Milan §5.4.2.26–.28)
+diff --git a/hdl/adp/KL_adp_engine.sv b/hdl/adp/KL_adp_engine.sv
+index 021d1b1..0d6fd28 100644
+--- a/hdl/adp/KL_adp_engine.sv
++++ b/hdl/adp/KL_adp_engine.sv
+@@ -175,6 +175,11 @@ module KL_adp_engine
+     //! txreq_valid_o (the top's REBOOT sequence waits on it after
+     //! SHUTDOWN, issue #203)
+     output logic                       tx_busy_o,
++    //! per interface, the available_index the last ENTITY_AVAILABLE handed to
++    //! txreq_valid_o carried: 0 from reset and from each ENTITY_DEPARTING
++    //! (IEEE 1722.1-2021 6.2.2.15). The ENTITY descriptor serves it
++    //! (Table 7-2, issue #217); interface 0 in the low word
++    output logic [N_IF_P*32-1:0]       last_avail_index_o,
+ 
+     // ---- ACMP binding view (07 §4 sink records; plain face) ---------------
+     input  wire  [N_SINK_P-1:0]        bound_i,            //! sink is bound (discovery SM armed)
+@@ -960,6 +965,27 @@ module KL_adp_engine
+   assign bld_done_dep_w   = (bld_st_r == B_REQ) && bld_dep_r;
+   assign bld_done_if_w    = bld_if_r;
+ 
++  //! The value the ENTITY descriptor reports (IEEE 1722.1-2021 Table 7-2:
++  //! "the same as the available_index field in ATDECC Discovery Protocol";
++  //! issue #217): what the last ENTITY_AVAILABLE put on the wire, so 0 after
++  //! the first and N-1 after N. aidx_r is the NEXT frame's value and cannot
++  //! stand in for it: it reads 1 after the first frame and 0 after a
++  //! DEPARTING. Taken from the builder's own sample (bld_aidx_r, the wire
++  //! field) on the cycle the frame is handed to TX, and cleared with the
++  //! index on the cycle a DEPARTING is (6.2.2.15: reset to zero when
++  //! transmitting an ENTITY_DEPARTING). Nothing on the wire reads it.
++  logic [31:0] last_aidx_r [N_IF_P];
++
++  always_ff @(posedge clk_i) begin : last_avail_index
++    if (!rst_n) begin
++      for (int unsigned i = 0; i < N_IF_P; i++) last_aidx_r[i] <= 32'd0;
++    end else if (bld_done_avail_w) begin
++      last_aidx_r[bld_done_if_w] <= bld_aidx_r;
++    end else if (bld_done_dep_w) begin
++      last_aidx_r[bld_done_if_w] <= 32'd0;
++    end
++  end
++
+   // ==================================================== timer-port muxing
+   // Single arm/cancel port toward KL_pp_timer_service. Priority: the
+   // discovery iteration (must never stall) > unbind NOADP cancels >
+@@ -1091,6 +1117,11 @@ module KL_adp_engine
+     end
+   end
+ 
++  always_comb begin : last_avail_flatten
++    for (int unsigned i = 0; i < N_IF_P; i++)
++      last_avail_index_o[32*i +: 32] = last_aidx_r[i];
++  end
++
+   // -------------------------------------------------------- observability
+   always_comb begin : dbg_flatten
+     for (int unsigned i = 0; i < N_IF_P; i++) begin
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 0e811a1..2e92286 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -578,6 +578,14 @@ module KL_aecp_engine
+     input  wire [N_STREAM_IN_P-1:0]  strm_bound_i,
+     input  wire [N_STREAM_IN_P-1:0]  strm_started_i,
+ 
++    //! ---- the ENTITY descriptor's available_index (issue #217) ----------
++    //! IEEE 1722.1-2021 Table 7-2: "the same as the available_index field in
++    //! ATDECC Discovery Protocol" (6.2.2.15), so not the image's constant: the
++    //! value the last ENTITY_AVAILABLE carried on the running command's
++    //! interface (KL_adp_engine last_avail_index_o, selected at the top).
++    //! E_RDESCENT gathers it into descriptor octet 36.
++    input  wire  [31:0] adp_avail_index_i,
++
+     //! ---- started/stopped request out (Milan §5.4.2.19 / §5.4.2.20) -----
+     //! One held request per START/STOP_STREAMING, aimed at the ACMP binding
+     //! record that owns the bit. Completion means the record has committed
+@@ -1073,6 +1081,9 @@ module KL_aecp_engine
+   logic        stop_r;                   // ... a STOP_STREAMING
+   logic        strm_r;                   // ... either of the two
+   logic        rboot_r;                  // ... a REBOOT
++  //! ... a READ_DESCRIPTOR(ENTITY) re-dispatched to E_RDESCENT: its one
++  //! gather is ADP's available_index (issue #217)
++  logic        rdent_r;
+   //! issue #203: a REBOOT's SUCCESS response reached its TX grant; set until
+   //! reset, it keeps every later command in its queue (A_IDLE, txn_ready_o)
+   logic        rbt_hold_r;
+@@ -2248,8 +2259,11 @@ module KL_aecp_engine
+   assign gsi_any_w = gstri_r | gavb_r | gasp_r | gsfmt_r | ssfmt_r | ssinfo_r;
+   assign rgy_any_w = regun_r | lockc_r | eavl_r;
+   assign strm_state_w = (strt_r || stop_r) && (gx_sel_w[7:4] == 4'hD);
++  //! READ_DESCRIPTOR(ENTITY)'s one gather is ADP's available_index (issue
++  //! #217), the engine's own input like strm_state_w's bits: E_RDESCENT is
++  //! the only program run with rdent_r set, so the flag alone routes it
+   assign gx_alt_w  = amap_r | amap_edit_r | sname_r | rgy_any_w | gsi_any_w
+-                     | strm_state_w;
++                     | strm_state_w | rdent_r;
+ 
+   assign ctr_req_o        = gx_req_w && !gx_alt_w;
+   assign ctr_desc_type_o  = cfg_ix_r;
+@@ -2464,6 +2478,7 @@ module KL_aecp_engine
+                                                          >> desc_ix_r)}
+                                               : 64'd0)
+                    : gsi_any_w            ? (gsi_missing_w ? 64'd0 : gsi_data_i)
++                   : rdent_r              ? {32'd0, adp_avail_index_i}
+                                           : {32'd0, ctr_data_i};
+     end
+   end
+@@ -2801,6 +2816,7 @@ module KL_aecp_engine
+       stop_r       <= 1'b0;
+       strm_r       <= 1'b0;
+       rboot_r      <= 1'b0;
++      rdent_r      <= 1'b0;
+       rbt_hold_r   <= 1'b0;
+       setc_r       <= 1'b0;
+       gdi_r        <= 1'b0;
+@@ -2895,6 +2911,7 @@ module KL_aecp_engine
+               stop_r     <= stop_w;
+               strm_r     <= strm_w;
+               rboot_r    <= rboot_w;
++              rdent_r    <= 1'b0;
+               setc_r     <= setc_w;
+               gdi_r      <= gdi_w;
+               setval_r   <= 64'd0;
+@@ -2995,6 +3012,7 @@ module KL_aecp_engine
+             stop_r     <= (uns_kind_i == PP_UNS_STRM_C) && uns_arg0_i[0];
+             strm_r     <= (uns_kind_i == PP_UNS_STRM_C);
+             rboot_r    <= 1'b0;
++            rdent_r    <= 1'b0;
+             setc_r     <= 1'b0;
+             gdi_r      <= 1'b0;
+             g_shape_fault_r <= 1'b0;
+@@ -3336,8 +3354,9 @@ module KL_aecp_engine
+                 && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
+                 && (cmd_r.cdl >= 11'd20)
+                 && (desc_ty_r == DT_ENTITY_C)) begin
+-              upc_r  <= UPC_RDESCENT_C;
+-              echo_r <= 1'b0;
++              upc_r   <= UPC_RDESCENT_C;
++              echo_r  <= 1'b0;
++              rdent_r <= 1'b1;
+             end
+             //! READ_DESCRIPTOR(CONTROL) carries the IDENTIFY value (issue
+             //! #185): E_RDESCCT puts what GET_CONTROL reads in value_details'
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index 8e97aad..320979f 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -379,6 +379,14 @@ DT_STREAM_PORT_OUTPUT = 0x000F
+ #                                     reachable into a register)
+ ENT_CURCFG_LANE = 304     # ENTITY: gen_aem_store.py d_entity, total 312 B
+ ENT_DESC_LEN = 312        # IEEE 1722.1-2021 §7.2.1 ENTITY descriptor size
++ENT_AIDX_OFF = 36         # IEEE 1722.1-2021 Table 7-2 available_index, 4 B
++ENT_AIDX_TAIL = 40        # its lane ends: association_id opens lane 40..47
++#! READ_DESCRIPTOR(ENTITY)'s available_index (issue #217): ADP's, the index the
++#! last ENTITY_AVAILABLE carried (Table 7-2: "the same as the available_index
++#! field in ATDECC Discovery Protocol", 6.2.2.15), as {32'd0, index}. The
++#! engine routes the gather by command (its rdent_r), so the selector names
++#! the face for the reader alone, as 0xD names the started bit's.
++GX_ADP_AIDX = dict(cnd=0xE, imm=0)   # -> sel 0xE0
+ AU_RATE_OFF = 136         # AUDIO_UNIT: `assert len(b) == 144` after the count
+ CD_SRCIDX_LANE = 64       # CLOCK_DOMAIN: wb["CLOCK_SRC_IDX"] = base + 70
+ CD_SRCCNT_LANE = 72       # CLOCK_DOMAIN: clock_sources_offset @72, count @74
+@@ -773,11 +781,20 @@ place(E_RDSTUB, [
+ #
+ # The overlay is deliberately an assembly operation, not a write into the
+ # descriptor image: the image remains read-only, other descriptor reads remain
+-# byte-exact, and a failed SET cannot leak its rejected argument. COPY_BUF
+-# accepts the 310-byte residual exactly; its final partial lane writes bytes
+-# beyond resp_len, which are never emitted. A noncanonical ENTITY length falls
+-# back to E_RDESC so this overlay cannot truncate an image it does not
+-# understand.
++# byte-exact, and a failed SET cannot leak its rejected argument. A
++# noncanonical ENTITY length falls back to E_RDESC so this overlay cannot
++# truncate an image it does not understand.
++#
++# The same assembly carries available_index (issue #217): IEEE 1722.1-2021
++# Table 7-2 makes it "the same as the available_index field in ATDECC
++# Discovery Protocol", which 6.2.2.15 increments after each ENTITY_AVAILABLE
++# and resets when ENTITY_DEPARTING is sent, so the image's 0 is right only
++# until the second advertisement. The engine gathers the value the last
++# ENTITY_AVAILABLE carried (GX_ADP_AIDX). COPY_BUF lays bytes 0..35, its
++# partial final lane overwritten by the 4-byte index at 36; COPY_BUF TAIL
++# copies 40..309 from the next lane boundary, 270 bytes of the 310 in r8,
++# its final partial lane overwritten by current_configuration and the rest
++# beyond resp_len, never emitted.
+ place(E_RDESCENT, [
+     u('MOVE', rd=12, ra=0, imm=0),               # reserved @26
+     u('READ_ST', rd=9, imm=RGN_NCFG),            # configurations_count
+@@ -797,15 +814,20 @@ place(E_RDESCENT, [
+     u('BRANCH', imm=E_RDESCENT + 17),
+     u('READ_ST', rd=1, imm=RGN_DATA + ENT_CURCFG_LANE),
+     u('NOP', imm=1),                             # image-read writeback seam
++    u('GATHER_EXT', rd=2, **GX_ADP_AIDX),        # E_RDESCENT + 17: ADP's index
++    u('MOVE', rd=7, ra=0, imm=ENT_AIDX_OFF),     # prefix length 36
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+     u('BUILD_FLD', ra=14, fmt=FMT_W),            # configuration_index @24
+     u('BUILD_FLD', ra=12, fmt=FMT_W),            # reserved @26
+-    u('COPY_BUF', ra=8, imm=RGN_DATA),           # ENTITY bytes 0..309
++    u('COPY_BUF', ra=7, imm=RGN_DATA),           # ENTITY bytes 0..35
++    u('BUILD_FLD', ra=2, fmt=FMT_D),             # available_index 36..39
++    u('COPY_BUF', ra=8, cnd=TAIL, imm=RGN_DATA + ENT_AIDX_TAIL),  # 40..309
+     u('BUILD_FLD', ra=1, fmt=FMT_W),             # current_configuration
+     u('SEND_RESP'),
+     u('END'),
+ ])
++assert rom[E_RDESCENT + 17] == u('GATHER_EXT', rd=2, **GX_ADP_AIDX)
+ 
+ # --- BAD_ARGUMENTS with the command echoed (IEEE §7.4.39.2) ------------------
+ # IDENTIFY_NOTIFICATION as a COMMAND, and a truncated READ_DESCRIPTOR. The
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 1489be6..775f474 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1088,6 +1088,12 @@ module protocol_processor_top
+   //! wants to publish. Full width: see the port comment. The port carries
+   //! interface 0's whatever P-N-AVB-INTERFACES is (see the banner).
+   assign adp_next_avail_index_o = adp_dbg_aidx_nc_w[31:0];
++  //! The available_index each interface's last ENTITY_AVAILABLE carried, 0
++  //! from reset and from an ENTITY_DEPARTING (IEEE 1722.1-2021 6.2.2.15),
++  //! interface 0 in the low word; and the one the ENTITY descriptor serves
++  //! (Table 7-2, issue #217), selected below for the command being run.
++  logic [N_AVB_IF_P*32-1:0] adp_last_aidx_w;
++  logic [31:0]              aecp_adp_aidx_w;
+ 
+   logic        prng_req_w;
+   logic [2:0]  prng_kind_w;
+@@ -2109,6 +2115,7 @@ module protocol_processor_top
+       .txreq_slot_o          (adp_txreq_slot_w),
+       .txreq_if_o            (adp_txreq_if_nc_w),
+       .tx_busy_o             (adp_tx_busy_w),
++      .last_avail_index_o    (adp_last_aidx_w),
+       .bound_i               (bound_r),
+       .bound_talker_eid_i    (bound_eid_r),
+       .evt_valid_o           (adp_evt_valid_w),
+@@ -4043,6 +4050,7 @@ module protocol_processor_top
+       .gsi_wait_i         (aecp_gsi_wait_w),
+       .strm_bound_i       (bound_hold_r),
+       .strm_started_i     (aecp_strm_started_o),
++      .adp_avail_index_i  (aecp_adp_aidx_w),
+       .strm_streaming_i   (aecp_streaming_w),
+       .lock_held_i        (ntfy_lock_held_w),
+       .lock_ctlr_i        (ntfy_lock_ctlr_w),
+@@ -4137,6 +4145,20 @@ module protocol_processor_top
+     end
+   end
+ 
++  //! READ_DESCRIPTOR(ENTITY)'s available_index (issue #217): the index the
++  //! last ENTITY_AVAILABLE carried on the interface the command came in on,
++  //! the same latch as the registry port, so a controller reads the value of
++  //! the advertisements it receives (Milan v1.2 5.6.3 runs one advertise
++  //! machine per interface). One interface, or an index past the last, reads
++  //! interface 0's.
++  if (N_AVB_IF_P > 1) begin : gen_aecp_aidx_cmd_if
++    assign aecp_adp_aidx_w = (32'(aecp_cmd_if_r) < N_AVB_IF_P)
++                             ? adp_last_aidx_w[32*aecp_cmd_if_r +: 32]
++                             : adp_last_aidx_w[31:0];
++  end else begin : gen_aecp_aidx_one_if
++    assign aecp_adp_aidx_w = adp_last_aidx_w[31:0];
++  end
++
+   // =========================================================================
+   // AECP notifications: the registered-controller list + ENTITY lock (06)
+   // =========================================================================
+diff --git a/tb/adp_engine/README.md b/tb/adp_engine/README.md
+index 06edab1..5c3ab3c 100644
+--- a/tb/adp_engine/README.md
++++ b/tb/adp_engine/README.md
+@@ -27,7 +27,11 @@ per send, DISCOVER (eid 0 / own / foreign / ignored-in-DELAY), GM_CHANGE
+ re-advertise + gm sampled at build, LINK_DOWN with
+ **no** departing then kind-2 re-entry, disable ⇒ ENTITY_DEPARTING; the 04 §5
+ available_index doc rule (0 at power-up, ++ after each AVAILABLE, departing
+-carries the pre-reset value then resets to 0); statistical draw separation
++carries the pre-reset value then resets to 0); the available_index the last
++ENTITY_AVAILABLE carried, which the ENTITY descriptor serves (`last_avail_index_o`,
++issue #217; IEEE 1722.1-2021 Table 7-2): 0 after the first frame in P2, each
++frame's own in P3, 0 after the DEPARTING and the restart advert's 0 in P7;
++statistical draw separation
+ (40 kind-1 ≤ 2000, 40 kind-2 ≤ 4000, kind-2 max > 2000, maxima differ); the
+ F04.3 per-sink discovery SM — gm/domain guard both ways, multi-sink fan-out
+ once each, restart pair (DEPARTED then DISCOVERED) on stale index,
+@@ -255,7 +259,8 @@ advertise machine per AVB interface:
+   byte-exact with interface_index 1, interface 1's grandmaster and domain and
+   available_index 0, on a TX request naming interface 1.
+ - **IF4** over 20 s each interface's frames count their own available_index
+-  (6.2.2.15, 04 section 5), and the engine's per-interface index agrees.
++  (6.2.2.15, 04 section 5), the engine's per-interface index agrees, and each
++  interface's last available_index is its own last frame's (issue #217).
+ - **IF5** (twice, interface 1 then 0) with both machines WAITING, an
+   ENTITY_DISCOVER received on one interface restarts that interface's machine
+   alone (Milan Table 5.51), and it advertises inside T-ADP-DELAY.
+@@ -269,7 +274,7 @@ advertise machine per AVB interface:
+   on interface 1.
+ - **IF9** disabling the entity sends one ENTITY_DEPARTING per interface, each
+   byte-exact with its own interface_index and pre-reset available_index, and
+-  both indices return to 0.
++  both indices, the next and the last sent, return to 0.
+ 
+ ## Mutation campaign (`make mutants`)
+ 
+@@ -314,6 +319,14 @@ are KILLED. Every earlier arm kept
+ its failing checks: an arm that fails the first build stops `make` before the second,
+ so its record changed only in the first build's tally line, now
+ `[build default] N checks, F failures`.
++Re-run 2026-11-09 with Verilator 5.050 at the head of issue #217's lane, which grades
++the last ENTITY_AVAILABLE's available_index in P2, P3, P7, IF4 and IF9, adds pp_top's
++section AI (`avail-index` target) and IF4, and five arms: all six controls PASS and all
++62 arms are KILLED. Five earlier arms fail one or two of the new checks as well
++(`gate-enable-dropped` 30 to 31, `walk-departing-keeps-index` 6 to 7,
++`if-top-count-collapsed` 3 to 4, `if-top-ingress-collapsed` 3 to 5, `if-top-ingress-live`
++2 to 4), each measured against the same arm at the lane's base `044cb25f`; every other
++arm kept its count.
+ 
+ | Arm | Suite, target | What is broken | Failing checks |
+ |---|---|---|---|
+@@ -328,7 +341,7 @@ so its record changed only in the first build's tally line, now
+ | `cfg-valid-ucpu-bus` | pp_top `adp-config` | the valid flag decodes the µCPU's side of the state-bus selection, so the D3 writer's restore write of the configuration row is not seen (the branch's decode kept as it was before the merge of PR #132) | 3: AD5 (the first advert after the restore carries the image default 1 while GET reads the restored 0), and the flag split from the store's in AD5 and AD6 |
+ | `cfg-valid-hard-reset` | pp_top `adp-config` | the valid flag resets on the hard reset only, not with the store (so the D3 roll-back does not clear it) | 2: AD6 (after the roll-back the advert carries the overlay's reset 0 while GET reads the image default 1), and the flag split from the store's |
+ | `cfg-valid-no-reset` | pp_top `adp-config` | the valid flag has no reset, so it survives a reset that clears the row (review R406-1 F-1) | 5: AD7 (after a SUCCESS SET_CONFIGURATION(0) and a reset with nothing to restore, the advert carries the overlay's reset 0 while GET reads the image default 1, and the flag split from the store's), AD6, AD8 and AD9 likewise after the roll-back, the corrupt record and the torn read, and the flag split in AD5 until the restore writes the row (9 since lane P1's AD8 and AD9) |
+-| `gate-enable-dropped` | adp_engine | `entity_enable_i` removed from the DOWN-exit condition (issue #41's mutant) | 30: all four P12 checks (2 draw requests, 5 timer operations, 2 frames, 32,800 clocks out of DOWN), 21 later checks the premature adverts displace (P1 to P5), and the walk's LINK_UP and GM_CHANGE x NOT STARTED cells |
++| `gate-enable-dropped` | adp_engine | `entity_enable_i` removed from the DOWN-exit condition (issue #41's mutant) | 31: all four P12 checks (2 draw requests, 5 timer operations, 2 frames, 32,800 clocks out of DOWN), 22 later checks the premature adverts displace (P1 to P5, P2's last available_index since issue #217), and the walk's LINK_UP and GM_CHANGE x NOT STARTED cells |
+ | `gate-enable-dropped-top` | pp_top `adp-config` | the same patch, at the processor | 3: AD0 (an ADPDU on the wire and 84 of 84 samples out of DOWN), AD1b (the index runs one ahead). At the head of lane P1 it fails 7: those 3 and AD5 to AD8, whose first advert after the reboot never comes in its 2,600 ms wait (the early adverts left during the restore, which the 59 records of the name stage lengthen, and were flushed with it). In the full default pp_top run (7,924 checks after the merge of PR #132) it fails these 3 and D3R14, which also sees an ADPDU before its restore terminal, 4 in all: S0's 20 ms window and S3's queue check stay green, because the premature draw outlasts S0 to S3 and the early advert then passes S3 as the first one |
+ | `walk-down-answers-discover` | adp_engine | DOWN answers RCV_ADP_DISCOVER (issue #85's named mutation) | 16: both DISCOVER rows x DOWN and x NOT STARTED, each drawing, arming and cancelling where the cell is inert |
+ | `walk-delay-ignores-link-down` | adp_engine | DELAY ignores LINK_DOWN (issue #85's named mutation) | 4: LINK_DOWN x both DELAY phases stay in DELAY; the armed one keeps its timer |
+@@ -337,7 +350,7 @@ so its record changed only in the first build's tally line, now
+ | `walk-delay-answers-discover` | adp_engine | DELAY answers RCV_ADP_DISCOVER | 9: both DISCOVER rows x both DELAY phases, and P4c |
+ | `walk-delay-shutdown-silent` | adp_engine | SHUTDOWN sends ENTITY_DEPARTING from WAITING only | 4: SHUTDOWN x both DELAY phases send nothing and keep the index |
+ | `walk-stale-draw-arms` | adp_engine | a delay draw delivered after the SM left DRAW still arms | 4: LINK_DOWN and SHUTDOWN x DELAY (draw in flight) end in DELAY with an arm |
+-| `walk-departing-keeps-index` | adp_engine | available_index not reset after ENTITY_DEPARTING | 6: SHUTDOWN x WAITING and both DELAY phases, P7 twice, P11e |
++| `walk-departing-keeps-index` | adp_engine | available_index not reset after ENTITY_DEPARTING | 7: SHUTDOWN x WAITING and both DELAY phases, P7 three times (the restart advert's last and next index since issue #217), P11e |
+ | `walk-foreign-discover-answered` | adp_engine | an ENTITY_DISCOVER for another entity_id is answered | 8: foreign DISCOVER x WAITING, P4d twice, P5 twice |
+ | `walk-link-down-keeps-timer` | adp_engine | LINK_DOWN from WAITING/DELAY leaves the timer running | 3: LINK_DOWN x WAITING and x DELAY (timer armed), P6 |
+ | `disc-fresh-checks-gm` | adp_engine | a fresh index is refused on a GM mismatch (a test §5.6.4.5.2 does not make) | 5: GM mismatch, index > last x DISCOVERED (state, event, timer, and both sides of the index it did not note) |
+@@ -362,10 +375,10 @@ so its record changed only in the first build's tally line, now
+ | `if-egress-collapsed` | adp_engine `interfaces` | every TX request names interface 0 (`txreq_if_o = '0`) | 5: IF3 (no frame on interface 1), IF4, IF5, IF6, IF9 |
+ | `if-pdu-index-collapsed` | adp_engine `interfaces` | the ADPDU's interface_index field (wire bytes 68 and 69) is always 0 | 2: IF3, IF9 |
+ | `if-gm-sample-collapsed` | adp_engine `interfaces` | the builder samples interface 0's grandmaster for every interface | 2: IF3, IF9 |
+-| `if-top-count-collapsed` | pp_top `interfaces` | the top binds ADP's `N_IF_P` to the literal 1 again | 3: IF1 (one ADPDU), IF2 twice |
++| `if-top-count-collapsed` | pp_top `interfaces` | the top binds ADP's `N_IF_P` to the literal 1 again | 4: IF1 (one ADPDU), IF2 twice, IF4's premise (no interface-1 advertisement, issue #217) |
+ | `if-top-count-collapsed-lint` | pp_top `if-guards` | the same patch | 1: `if guard 2` (the count-2 lint warns) |
+-| `if-top-ingress-collapsed` | pp_top `interfaces` | the normalizer's `rx_if_index_i` tied to `2'd0` again | 3: IF2 (interface 1), IF3, IF3b |
+-| `if-top-ingress-live` | pp_top `interfaces` | the header latch takes `rx_if_index_i` live at the beat instead of from the frame's last byte | 2: IF2 twice (the port names the other interface by then) |
++| `if-top-ingress-collapsed` | pp_top `interfaces` | the normalizer's `rx_if_index_i` tied to `2'd0` again | 5: IF2 (interface 1), IF3, IF3b, IF4's premise and IF4 (interface 1's ENTITY_DISCOVER restarts interface 0, issue #217) |
++| `if-top-ingress-live` | pp_top `interfaces` | the header latch takes `rx_if_index_i` live at the beat instead of from the frame's last byte | 4: IF2 twice (the port names the other interface by then), IF4's premise and IF4 (issue #217) |
+ | `if-top-range-unguarded` | pp_top `if-guards` | the top's range guard admits 3 | 1: `if guard 3` |
+ | `if-link-collapsed` | adp_engine `interfaces` | every interface's startup reads interface 0's link | 2: IF1 (interface 1 leaves DOWN on interface 0's link), IF6 |
+ | `if-gm-slice-reversed` | adp_engine `interfaces` | each interface reads the other's grandmaster | 5: IF2, IF3, IF6, IF8, IF9 |
+@@ -374,6 +387,11 @@ so its record changed only in the first build's tally line, now
+ | `if-ingress-forced-one` | adp_engine `interfaces` | the ingress interface forced to 1 | 2: IF5 (interface 0), IF8 |
+ | `if-top-range-floor-off-by-one` | pp_top `if-guards` | the top's range guard refuses 1 | 1: `if guard 1` |
+ | `if-top-range-floor-dropped` | pp_top `if-guards` | the top's range guard admits 0 | 1: `if guard 0` (no refusal names `N_AVB_IF_P`) |
++| `last-index-is-next` | adp_engine | `last_avail_index_o` serves the next frame's index (`aidx_r`) instead of the last frame's (issue #217) | 5: P2, P3.1 to P3.3, and P7's restart check (1 for 0) |
++| `last-index-is-next-top` | pp_top `avail-index` | the same patch, at the processor | 6: AI2 four times (the descriptor reads 1 to 4 for 0 to 3) and AI4 twice |
++| `last-index-kept-after-departing` | adp_engine | the last index not cleared by an ENTITY_DEPARTING (IEEE 1722.1-2021 6.2.2.15) | 1: P7's last available_index after the DEPARTING |
++| `last-index-kept-after-departing-top` | pp_top `avail-index` | the same patch, at the processor | 1: AI3, the descriptor reads 3 after the ENTITY_DEPARTING |
++| `if-top-aidx-interface-0` | pp_top `interfaces` | the top serves interface 0's last index to a READ_DESCRIPTOR(ENTITY) from either interface | 1: IF4 (interface 1's read carries interface 0's index) |
+ 
+ Known limits (honestly): the first build runs the shipping shape (1
+ interface, 8 sinks) and the second two interfaces with section IF alone, so the
+diff --git a/tb/adp_engine/mutants.py b/tb/adp_engine/mutants.py
+index 5531b3f..2954e61 100644
+--- a/tb/adp_engine/mutants.py
++++ b/tb/adp_engine/mutants.py
+@@ -128,6 +128,20 @@ MUTANTS = [
+      "if guard 1"),
+     ("if-top-range-floor-dropped", "if-top-range-floor-dropped", "pp_top", "if-guards",
+      "if guard 0"),
++    # issue #217: the available_index the ENTITY descriptor serves (IEEE 1722.1-2021
++    # Table 7-2, 6.2.2.15), the last ENTITY_AVAILABLE's: the next frame's index served
++    # instead, the index kept across an ENTITY_DEPARTING, and the top serving interface
++    # 0's to a command that came in on interface 1
++    ("last-index-is-next", "last-index-is-next", "adp_engine", "run",
++     "P2 last ENTITY_AVAILABLE's available_index"),
++    ("last-index-is-next-top", "last-index-is-next", "pp_top", "avail-index",
++     "AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 0"),
++    ("last-index-kept-after-departing", "last-index-kept-after-departing", "adp_engine", "run",
++     "P7 last ENTITY_AVAILABLE's available_index 0 after DEPARTING"),
++    ("last-index-kept-after-departing-top", "last-index-kept-after-departing", "pp_top",
++     "avail-index", "AI3: READ_DESCRIPTOR(ENTITY) after ENTITY_DEPARTING"),
++    ("if-top-aidx-interface-0", "if-top-aidx-interface-0", "pp_top", "interfaces",
++     "IF4: READ_DESCRIPTOR(ENTITY) on each interface"),
+ ]
+ 
+ SUITES = ("common", "adp_engine", "pp_top")
+diff --git a/tb/adp_engine/mutations/if-top-aidx-interface-0.patch b/tb/adp_engine/mutations/if-top-aidx-interface-0.patch
+new file mode 100644
+index 0000000..3df73c6
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-aidx-interface-0.patch
+@@ -0,0 +1,13 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -4152,9 +4152,7 @@
++   //! machine per interface). One interface, or an index past the last, reads
++   //! interface 0's.
++   if (N_AVB_IF_P > 1) begin : gen_aecp_aidx_cmd_if
++-    assign aecp_adp_aidx_w = (32'(aecp_cmd_if_r) < N_AVB_IF_P)
++-                             ? adp_last_aidx_w[32*aecp_cmd_if_r +: 32]
++-                             : adp_last_aidx_w[31:0];
+++    assign aecp_adp_aidx_w = adp_last_aidx_w[31:0];
++   end else begin : gen_aecp_aidx_one_if
++     assign aecp_adp_aidx_w = adp_last_aidx_w[31:0];
++   end
+diff --git a/tb/adp_engine/mutations/last-index-is-next.patch b/tb/adp_engine/mutations/last-index-is-next.patch
+new file mode 100644
+index 0000000..4a9bbd1
+--- /dev/null
++++ b/tb/adp_engine/mutations/last-index-is-next.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -1119,7 +1119,7 @@
++ 
++   always_comb begin : last_avail_flatten
++     for (int unsigned i = 0; i < N_IF_P; i++)
++-      last_avail_index_o[32*i +: 32] = last_aidx_r[i];
+++      last_avail_index_o[32*i +: 32] = aidx_r[i];
++   end
++ 
++   // -------------------------------------------------------- observability
+diff --git a/tb/adp_engine/mutations/last-index-kept-after-departing.patch b/tb/adp_engine/mutations/last-index-kept-after-departing.patch
+new file mode 100644
+index 0000000..40bace2
+--- /dev/null
++++ b/tb/adp_engine/mutations/last-index-kept-after-departing.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -981,8 +981,6 @@
++       for (int unsigned i = 0; i < N_IF_P; i++) last_aidx_r[i] <= 32'd0;
++     end else if (bld_done_avail_w) begin
++       last_aidx_r[bld_done_if_w] <= bld_aidx_r;
++-    end else if (bld_done_dep_w) begin
++-      last_aidx_r[bld_done_if_w] <= 32'd0;
++     end
++   end
++ 
+diff --git a/tb/adp_engine/sim_if2.cpp b/tb/adp_engine/sim_if2.cpp
+index b321ff4..bd4b2d9 100644
+--- a/tb/adp_engine/sim_if2.cpp
++++ b/tb/adp_engine/sim_if2.cpp
+@@ -170,6 +170,8 @@ struct IfHarness {
+   }
+   unsigned state(unsigned ifx) const { return (d->dbg_adv_state_o >> (2 * ifx)) & 3u; }
+   uint32_t aidx(unsigned ifx) const { return uint32_t(d->dbg_avail_index_o >> (32 * ifx)); }
++  //! the available_index interface `ifx`'s last ENTITY_AVAILABLE carried (issue #217)
++  uint32_t last(unsigned ifx) const { return uint32_t(d->last_avail_index_o >> (32 * ifx)); }
+   void publish_gm() {
+     for (unsigned i = 0; i < N_IF; ++i) {
+       d->gm_id_i[2 * i] = uint32_t(gm[i]);
+@@ -368,11 +370,13 @@ void IfHarness::indices_are_per_interface() {
+     n[i] = f.size();
+     for (size_t k = 0; k < f.size(); ++k) ok = ok && getbe32(f[k].b, 50) == uint32_t(k);
+     ok = ok && aidx(i) == uint32_t(f.size());
++    ok = ok && !f.empty() && last(i) == getbe32(f.back().b, 50);
+   }
+   CHECK(ok && n[0] >= 3 && n[1] >= 3,
+         "IF4: each interface's frames carry its own available_index, 0 then +1 per frame of "
+-        "that interface (%zu and %zu frames; next indices %u and %u)", n[0], n[1], aidx(0),
+-        aidx(1));
++        "that interface, and each interface's last available_index is its own last frame's "
++        "(%zu and %zu frames; next indices %u and %u, last %u and %u)", n[0], n[1], aidx(0),
++        aidx(1), last(0), last(1));
+ }
+ 
+ // IF5: with both machines WAITING, ENTITY_DISCOVER (entity_id 0) arriving on
+@@ -488,10 +492,11 @@ void IfHarness::shutdown_departs_per_interface() {
+   const std::vector<Frame> f1 = frames_of(1, from);
+   const bool ok0 = f0.size() == 1 && f0[0].b == model_frame(true, GM_A2, DOM_A, a0, 0);
+   const bool ok1 = f1.size() == 1 && f1[0].b == model_frame(true, GM_B, DOM_B, a1, 1);
+-  CHECK(ok0 && ok1 && aidx(0) == 0 && aidx(1) == 0,
++  CHECK(ok0 && ok1 && aidx(0) == 0 && aidx(1) == 0 && last(0) == 0 && last(1) == 0,
+         "IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact "
+         "with its own interface_index and pre-reset available_index (%u and %u), and both "
+-        "indices return to 0 (%zu and %zu frames)", a0, a1, f0.size(), f1.size());
++        "indices, next and last, return to 0 (%zu and %zu frames)", a0, a1, f0.size(),
++        f1.size());
+ }
+ 
+ }  // namespace
+diff --git a/tb/adp_engine/sim_main.cpp b/tb/adp_engine/sim_main.cpp
+index 10c03f0..7f9ec54 100644
+--- a/tb/adp_engine/sim_main.cpp
++++ b/tb/adp_engine/sim_main.cpp
+@@ -757,6 +757,11 @@ void Harness::check_first_entity_available_is_byte_exact() {
+   CHECK(!txreq_bad_slot, "P2 TX request carries the committed slot");
+   REQ_TAG("REQ-ADP-011", "DIR", "P2 available_index incremented AFTER tx");
+   CHECK(d->dbg_avail_index_o == 1, "P2 available_index incremented AFTER tx");
++  REQ_TAG("REQ-ADP-011", "DIR", "P2 last ENTITY_AVAILABLE's available_index");
++  CHECK(d->last_avail_index_o == 0,
++        "P2 last ENTITY_AVAILABLE's available_index is the frame's 0, not the next 1 "
++        "(IEEE 1722.1-2021 Table 7-2, issue #217), got %u",
++        static_cast<unsigned>(d->last_avail_index_o));
+   CHECK((d->dbg_adv_state_o & 3) == 3, "P2 SM in WAITING");
+   int a = last_arm_of(arms, arm0, SLOT_ADV, false);
+   REQ_TAG("REQ-ADP-001", "TIM", "P2 T-ADP-ADV armed at 5 s");
+@@ -787,6 +792,9 @@ void Harness::check_advertise_cadence_restarts_per_send() {
+     CHECK(got == uint32_t(k), "P3.%d available_index sequence: got %u want %d",
+           k, got, k);
+     idle(3);
++    CHECK(d->last_avail_index_o == got,
++          "P3.%d last ENTITY_AVAILABLE's available_index is the frame's %u, got %u", k,
++          got, static_cast<unsigned>(d->last_avail_index_o));
+     int aa = last_arm_of(arms, an, SLOT_ADV, false);
+     CHECK(aa >= 0 && arms[aa].deadline == now + 5000,
+           "P3.%d ADV re-armed after send", k);
+@@ -908,6 +916,11 @@ void Harness::check_disable_departs_then_restarts() {
+   idle(3);
+   REQ_TAG("REQ-ADP-011", "DIR", "P7 index reset to 0 after DEPARTING");
+   CHECK(d->dbg_avail_index_o == 0, "P7 index reset to 0 after DEPARTING");
++  REQ_TAG("REQ-ADP-011", "DIR", "P7 last ENTITY_AVAILABLE's available_index 0 after DEPARTING");
++  CHECK(idx_before_dep > 1 && d->last_avail_index_o == 0,
++        "P7 last ENTITY_AVAILABLE's available_index 0 after DEPARTING (6.2.2.15), not the "
++        "%u the last advert carried, got %u", idx_before_dep - 1,
++        static_cast<unsigned>(d->last_avail_index_o));
+   CHECK((d->dbg_adv_state_o & 3) == 0, "P7 SM DOWN after shutdown");
+   // restart: enable with link up again -> kind 1 + index 0
+   dn = draws.size(); fn = frames.size();
+@@ -924,6 +937,10 @@ void Harness::check_disable_departs_then_restarts() {
+     CHECK(same, "P7 restart advert byte-exact with index 0");
+   }
+   idle(3);
++  CHECK(d->last_avail_index_o == 0 && d->dbg_avail_index_o == 1,
++        "P7 after the restart advert the last available_index is its 0 and the next 1, got "
++        "%u and %u", static_cast<unsigned>(d->last_avail_index_o),
++        static_cast<unsigned>(d->dbg_avail_index_o));
+ }
+ 
+ // ---- P8: statistical draw separation (real KL_pp_prng) --------------
+diff --git a/tb/adp_engine/tb_adp_top.sv b/tb/adp_engine/tb_adp_top.sv
+index c05ee85..fc6100f 100644
+--- a/tb/adp_engine/tb_adp_top.sv
++++ b/tb/adp_engine/tb_adp_top.sv
+@@ -87,6 +87,7 @@ module tb_adp_top
+ 
+     output logic [N_IF_P*2-1:0]    dbg_adv_state_o,
+     output logic [N_IF_P*32-1:0]   dbg_avail_index_o,
++    output logic [N_IF_P*32-1:0]   last_avail_index_o,
+     output logic [N_SINK_P-1:0]    dbg_tk_discovered_o,
+ 
+     // ---- KL_pp_prng draw-port taps (observability) ------------------------
+@@ -163,6 +164,7 @@ module tb_adp_top
+       .txreq_slot_o          (txreq_slot_o),
+       .txreq_if_o            (txreq_if_o),
+       .tx_busy_o             (),
++      .last_avail_index_o    (last_avail_index_o),
+       .bound_i               (bound_i),
+       .bound_talker_eid_i    (bound_talker_eid_i),
+       .evt_valid_o           (evt_valid_o),
+diff --git a/tb/aecp_cmds/aecp_cmds_wrap.sv b/tb/aecp_cmds/aecp_cmds_wrap.sv
+index be12ea3..620df88 100644
+--- a/tb/aecp_cmds/aecp_cmds_wrap.sv
++++ b/tb/aecp_cmds/aecp_cmds_wrap.sv
+@@ -251,6 +251,7 @@ module aecp_cmds_wrap
+       .txreq_uns_ready_i  (1'b1),
+       .strm_bound_i       (strm_bound_i),
+       .strm_started_i     ('0),
++      .adp_avail_index_i  (32'd0),
+       .strm_set_valid_o   (),
+       .strm_set_index_o   (),
+       .strm_set_val_o     (),
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index ce628b5..b441cf7 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -22,15 +22,15 @@
+       "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+       "hdl/aecp/KL_aecp_nvm_writer.sv": "eac4257846e683df02ee5bafaaa31bd769af9103d85df9235d983e0eb3618c08",
+       "hdl/aecp/KL_aecp_resp_buf.sv": "a5fb5ee1e4342d37d8ab8492bb513a8b37783de7874088fddcfcab1b7397a093",
+-      "hdl/aecp/KL_aecp_engine.sv": "bda37001a017b0462c2546cd9902b2d68564343e0d8fd0022447eaa3565f26af",
+-      "tb/aecp_cmds/aecp_cmds_wrap.sv": "cd7da7586d9ef66d2ae7a73c29797b0a79c184d8fd2dc23f793fc87e23f18980",
++      "hdl/aecp/KL_aecp_engine.sv": "2647bb22d68e65dd15bf22c75a010d48977bd32939f01b8cf60fa54e89612f7c",
++      "tb/aecp_cmds/aecp_cmds_wrap.sv": "4269f0c4215beffcdce8f9a2bb0a0013f90883fc903a506fe3fc00179fb531c6",
+       "tb/aecp_cmds/sim_main.cpp": "8fa8960a3ebd8dc5958f3cb3ac846b5a1909a56505c9e84c5066d7b19ca0f135",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+       "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
+       "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
+       "hdl/aecp/desc/model_rules.py": "b5ccdc449c63ec4e24ec6390ceffdfaf1c9ed61a0cf3e0d123f045008b12abd9",
+       "tb/common/verilator_harness.hpp": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9",
+-      "ucode.hex (generated)": "49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176"
++      "ucode.hex (generated)": "264fbb03c52d5377862e264a376f68cbfe0c87794ac1b89cd683c22b6e76f29a"
+     }
+   },
+   "decode": {
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+index ba428a4..896408f 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -116,6 +116,11 @@ aecp-dispatch: gsi-build
+ reboot: gsi-build
+ 	./obj_dir/Vpp_top_sim --reboot-only
+ 
++# section AI alone (issue #217): the ENTITY descriptor's available_index
++# after each ENTITY_AVAILABLE and after ENTITY_DEPARTING
++avail-index: gsi-build
++	./obj_dir/Vpp_top_sim --avail-index-only
++
+ # section AX alone in the line build (aecp_dispatch_mutants.py's line arms); its
+ # tally goes where the full run's builds put theirs
+ line-build: ltn_rom.hex ucode.hex
+@@ -252,7 +257,7 @@ ucode.hex: $(HDL)/aecp/ucode/gen_ucode.py $(HDL)/aecp/ucode/aecp_commands.json
+ clean:
+ 	rm -rf obj_dir obj_vid obj_idn obj_line obj_tim obj_tdf obj_if2 ltn_rom.hex ucode.hex
+ 
+-.PHONY: name-writes run gsi-build gsi-internal maap-internal tspec adp-config aecp-dispatch reboot \
++.PHONY: name-writes run gsi-build gsi-internal maap-internal tspec adp-config aecp-dispatch reboot avail-index \
+         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+         deadline d3 volatile cuts hazards counters budget budget-build \
+         timer-defaults timer-defaults-build withdraw interfaces interfaces-build \
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 2f067ee..b903c3a 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -1396,7 +1396,9 @@ run at the lane head, and the nine RDC arms (issue #185), added 2026-10-18 and c
+ in their own run at the issue #186 head, and the six IDENTIFY-type arms (issue #185
+ round 2), added 2026-10-19 and counted, with the nine re-measured, in their own run at
+ the round-2 head, and the ten GET_AVB_INFO arms (issue #200), re-measured
+-2026-10-24 in their own run at the lane head. `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO
++2026-10-24 in their own run at the lane head, and the two AI arms (issue #217), added
++2026-11-09 and counted in their own run at the lane head. `avail-index` runs section AI
++alone (`--avail-index-only`). `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO
+ dispatch cases (V1, V1b, V3 to V5) on a booted model,
+ then section AX on its own processor (`--aecp-dispatch-only`); `reboot` runs
+ section RBT alone (`--reboot-only`, issue #203); `aecp-line`
+@@ -1492,6 +1494,8 @@ failed at the lane head.
+ | `scfg-nsd-stores` | E_SCFGNSD writing the dynamic store (r0) before it refuses | `SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact` | 5 |
+ | `scfg-nsd-notifies` | E_SCFGNSD enqueueing a notification before its answer | `SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no unsolicited frame reached the registered holder` | 3 |
+ | `scfg-refusal-short-body` | E_SCFGEMT, the body every SET_CONFIGURATION refusal shares, without its reserved word @24 (cdl 14) | `SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: ...at the response form's cdl 16` | 4 |
++| `ai-entity-image-copy` | E_RDESCENT copies the ENTITY image whole again, so `available_index` is the image's constant 0 (issue #217, the reproduction; `avail-index` target) | `AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 1` | 4: AI2 at 1, 2 and 3, and AI4 at 1 |
++| `ai-gather-constant` | the engine's READ_DESCRIPTOR(ENTITY) gather answers 0 instead of ADP's index (`avail-index` target) | `AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 1` | 4: the same four |
+ | `rdc-base-no-overlay` | the engine's issue #185 re-dispatch removed, so CONTROL reads are the image's, the issue reproduction | `RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact` | 8 |
+ | `rdc-unset-image` | E_RDESCCT given an image arm: an IDENTIFY row no SET_CONTROL wrote serves the image whole, the other overlays' rule, not GET_CONTROL's | `RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact` | 2 |
+ | `rdc-voffset-guard-nop` | E_RDESCCT's `values_offset` guard (its BRANCH to E_RDESC) replaced with NOP | `RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
+@@ -2744,6 +2748,41 @@ the MAC takes, with the clock of its last byte.
+   free at its release, and the next frame, the one held at its last byte, is
+   the listener's CONNECT_TX_COMMAND. The request waits for it the same way.
+ 
++## Section AI: the ENTITY descriptor's available_index (issue #217)
++
++IEEE 1722.1-2021 Table 7-2 makes ENTITY's `available_index` (descriptor octet 36)
++"the same as the available_index field in ATDECC Discovery Protocol", which 6.2.2.15
++increments after each ENTITY_AVAILABLE and resets to 0 when ENTITY_DEPARTING is sent.
++So READ_DESCRIPTOR(ENTITY) carries the value of the last ENTITY_AVAILABLE sent: 0 after
++the first, N-1 after N, and 0 again after ENTITY_DEPARTING. `make avail-index`
++(`--avail-index-only`) runs the section alone; the default build runs it after section
++RBT, on a fresh processor of its own (the AD pattern), so the advertisements it counts
++are its own. Every response is graded whole against the image's ENTITY descriptor with
++the expected index at octet 36, so every other octet is held to the image's.
++
++- **AI1** before any ADPDU, with the link up and the entity not enabled: the image,
++  available_index 0.
++- **AI2** after each of four ENTITY_AVAILABLE, each byte-exact `own_avail(0..3)` inside
++  T-ADP-DELAY-START and then the 5 s cadence: the descriptor carries that frame's
++  available_index, 0, 1, 2 and 3.
++- **AI3** `entity_enable_i` low: one ENTITY_DEPARTING carrying 4, then the descriptor's
++  available_index is 0.
++- **AI4** enabled again: the first ENTITY_AVAILABLE carries 0 and so does the descriptor;
++  after the second, 1.
++
++At the base (`044cb25f`) AI2 failed three times and AI4 once: the descriptor read the
++image's constant 0 after every advertisement. The other sections that compare
++READ_DESCRIPTOR(ENTITY) with the image (A1, A10, N5b, M7, B4, B4b, B7, B11, K7, U7 and
++G8) take the same value at octet 36 from the bench's own oracle, `H::adp_last_aidx`: the
++available_index of the last ENTITY_AVAILABLE the bench took off the wire, 0 after a
++captured ENTITY_DEPARTING and after a reset (`H::served_entity`).
++
++The arms that serve the image's constant are `ai-entity-image-copy` (`E_RDESCENT` copies
++the image whole again) and `ai-gather-constant` (the engine's gather answers 0), in the
++dispatch campaign above; those that serve the wrong ADP value (`last-index-is-next-top`,
++`last-index-kept-after-departing-top`, and section IF's `if-top-aidx-interface-0`) are
++arms of `tb/adp_engine`'s campaign, whose README carries their record.
++
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+ `notify_phases.hpp` holds nine sections, each on a fresh processor of its own
+@@ -3447,6 +3486,12 @@ wrong one.
+   interface 1 and a frame on interface 0 after it: the lock reaches both entries,
+   at 2 and 4, before the DEREGISTER runs, and the unlock then reaches C once, at
+   interface 0's 5. The entry removed was interface 1's, whose sequence_id was 3.
++- **IF4** (issue #217) READ_DESCRIPTOR(ENTITY) carries the available_index of the last
++  ENTITY_AVAILABLE sent on the interface the command came in on. ENTITY_DISCOVER on
++  interface 1 alone, each time both machines are WAITING, runs interface 1's index ahead
++  of interface 0's (the premise check); then one read on each interface, each graded
++  whole against the image's ENTITY descriptor with that interface's index at octet 36,
++  and no ADPDU may leave between the two reads.
+ 
+ `make if-guards` (run by `make`, like `line-guards`) lints the real top with
+ `scripts/lint_hdl.sh`'s flags at `N_AVB_IF_P` 1 and 2, which must lint clean with no
+diff --git a/tb/pp_top/aecp_dispatch_mutants.py b/tb/pp_top/aecp_dispatch_mutants.py
+index a20fa5c..2afac74 100644
+--- a/tb/pp_top/aecp_dispatch_mutants.py
++++ b/tb/pp_top/aecp_dispatch_mutants.py
+@@ -309,6 +309,13 @@ MUTANTS = [
+     ("scfg-refusal-short-body", "scfg-refusal-short-body", "aecp-dispatch",
+      "SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: "
+      "...at the response form's cdl 16"),
++    # issue #217: READ_DESCRIPTOR(ENTITY)'s available_index (IEEE 1722.1-2021 Table 7-2)
++    # served as the image's constant, by E_RDESCENT copying the image whole and by the
++    # engine's gather answering 0
++    ("ai-entity-image-copy", "ai-entity-image-copy", "avail-index",
++     "AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 1"),
++    ("ai-gather-constant", "ai-gather-constant", "avail-index",
++     "AI2: READ_DESCRIPTOR(ENTITY) after that ENTITY_AVAILABLE carries available_index 1"),
+ ]
+ 
+ #: the scratch tree: the RTL and the two bench directories the targets build
+@@ -318,7 +325,7 @@ GENERATED = ("obj_dir", "obj_vid", "obj_line", "ucode.hex", "ltn_rom.hex")
+ #: what each target prints once it has run to its end
+ COMPLETE = {"aecp-dispatch": "[build default,", "aecp-line": "[build line,",
+             "line-guards": "line guards: ", "d3": "[build default,",
+-            "reboot": "[build default,"}
++            "reboot": "[build default,", "avail-index": "[build default,"}
+ 
+ 
+ def run(tree: Path, target: str, verilator: str, log: Path) -> tuple[int, str]:
+diff --git a/tb/pp_top/aecp_dispatch_mutations/ai-entity-image-copy.patch b/tb/pp_top/aecp_dispatch_mutations/ai-entity-image-copy.patch
+new file mode 100644
+index 0000000..13ba8cc
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/ai-entity-image-copy.patch
+@@ -0,0 +1,13 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -820,9 +820,7 @@
++     u('BUILD_HDR', ra=15, rb=13),
++     u('BUILD_FLD', ra=14, fmt=FMT_W),            # configuration_index @24
++     u('BUILD_FLD', ra=12, fmt=FMT_W),            # reserved @26
++-    u('COPY_BUF', ra=7, imm=RGN_DATA),           # ENTITY bytes 0..35
++-    u('BUILD_FLD', ra=2, fmt=FMT_D),             # available_index 36..39
++-    u('COPY_BUF', ra=8, cnd=TAIL, imm=RGN_DATA + ENT_AIDX_TAIL),  # 40..309
+++    u('COPY_BUF', ra=8, imm=RGN_DATA),           # ENTITY bytes 0..309, the image whole
++     u('BUILD_FLD', ra=1, fmt=FMT_W),             # current_configuration
++     u('SEND_RESP'),
++     u('END'),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/ai-gather-constant.patch b/tb/pp_top/aecp_dispatch_mutations/ai-gather-constant.patch
+new file mode 100644
+index 0000000..56ecfb4
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/ai-gather-constant.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -2478,7 +2478,7 @@
++                                                          >> desc_ix_r)}
++                                               : 64'd0)
++                    : gsi_any_w            ? (gsi_missing_w ? 64'd0 : gsi_data_i)
++-                   : rdent_r              ? {32'd0, adp_avail_index_i}
+++                   : rdent_r              ? {32'd0, 32'd0}
++                                           : {32'd0, ctr_data_i};
++     end
++   end
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch
+index 9b48b9b..73e3454 100644
+--- a/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch
+@@ -1,11 +1,9 @@
+ --- a/hdl/aecp/KL_aecp_engine.sv
+ +++ b/hdl/aecp/KL_aecp_engine.sv
+-@@ -3298,18 +3298,6 @@
+-                 && (cmd_r.cdl >= 11'd20)
+-                 && (desc_ty_r == DT_ENTITY_C)) begin
+-               upc_r  <= UPC_RDESCENT_C;
+--              echo_r <= 1'b0;
+--            end
++@@ -3358,18 +3358,6 @@
++               echo_r  <= 1'b0;
++               rdent_r <= 1'b1;
++             end
+ -            //! READ_DESCRIPTOR(CONTROL) carries the IDENTIFY value (issue
+ -            //! #185): E_RDESCCT puts what GET_CONTROL reads in value_details'
+ -            //! current[0], in configuration 0, where GET/SET_CONTROL locate
+@@ -16,6 +14,8 @@
+ -                && (cfg_ix_r == 16'd0)
+ -                && (desc_ty_r == DT_CONTROL_C)) begin
+ -              upc_r  <= UPC_RDESCCT_C;
+-               echo_r <= 1'b0;
+-             end
++-              echo_r <= 1'b0;
++-            end
+              //! ...and the current values a SET changes (issue #82): the
++             //! AUDIO_UNIT's sampling rate, the CLOCK_DOMAIN's clock source
++             //! and a STREAM's current_format, from the dynamic-state row each
+diff --git a/tb/pp_top/avail_index_phases.hpp b/tb/pp_top/avail_index_phases.hpp
+new file mode 100644
+index 0000000..cfd2317
+--- /dev/null
++++ b/tb/pp_top/avail_index_phases.hpp
+@@ -0,0 +1,140 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// pp_top suite, section AI (issue #217): the ENTITY descriptor's
++// available_index is ADP's. IEEE 1722.1-2021 Table 7-2: "the same as the
++// available_index field in ATDECC Discovery Protocol", and 6.2.2.15: it is
++// incremented after transmitting an ENTITY_AVAILABLE and reset to zero when
++// transmitting an ENTITY_DEPARTING. So READ_DESCRIPTOR(ENTITY) carries the
++// value of the last ENTITY_AVAILABLE sent: 0 after the first, N-1 after N,
++// and 0 again after ENTITY_DEPARTING. Included by sim_main.cpp after section
++// RBT; a fresh processor of its own (the AD pattern), so the count of
++// advertisements is this section's alone.
++//   AI1  before any ADPDU: the descriptor is the image, available_index 0
++//   AI2  after each of four ENTITY_AVAILABLE, byte-exact own_avail(0..3) and
++//        so on ADP's own cadence: the response is the image with that
++//        frame's available_index at descriptor octet 36, every other byte
++//        the image's (a whole-frame compare)
++//   AI3  entity_enable_i low: one ENTITY_DEPARTING carrying 4, then the
++//        descriptor's available_index is 0 again
++//   AI4  enabled again: the first ENTITY_AVAILABLE carries 0 and so does the
++//        descriptor; after the second, 1
++// Every expectation is built here from the clause byte offsets, never read
++// back from the DUT: the response's descriptor opens at AECPDU octet 28
++// (7.4.5.2, after configuration_index and reserved), wire byte 42.
++
++struct AvailIndexPhase {
++  H& h;                                        // the tally
++  const milan::tb::Model<Vpp_top_wrap> model;
++  H io;
++  uint16_t sequence = 0x7D00;
++
++  explicit AvailIndexPhase(H& tally) : h(tally), io(model.get()) {}
++
++  //! the ADPDU's available_index, wire bytes 50..53 (F04.5, 6.2.1.2)
++  static uint32_t adp_index(const std::vector<uint8_t>& f) {
++    return f.size() >= 54 ? ((uint32_t(f[50]) << 24) | (uint32_t(f[51]) << 16)
++                             | (uint32_t(f[52]) << 8) | uint32_t(f[53]))
++                          : 0xFFFFFFFFu;
++  }
++  static bool available(const std::vector<uint8_t>& f) {
++    return f.size() > 15 && f[14] == 0xFA && (f[15] & 0x0F) == 0;
++  }
++  static bool departing(const std::vector<uint8_t>& f) {
++    return f.size() > 15 && f[14] == 0xFA && (f[15] & 0x0F) == 1;
++  }
++  //! the descriptor's available_index in a READ_DESCRIPTOR(ENTITY) response:
++  //! descriptor octet 36 at wire byte 42 + 36
++  static uint32_t descriptor_index(const std::vector<uint8_t>& r) {
++    return r.size() >= 82 ? ((uint32_t(r[78]) << 24) | (uint32_t(r[79]) << 16)
++                             | (uint32_t(r[80]) << 8) | uint32_t(r[81]))
++                          : 0xFFFFFFFFu;
++  }
++  //! the whole expected response: the image's ENTITY descriptor with
++  //! available_index `aidx`, every other octet as the image holds it
++  static std::vector<uint8_t> want(uint16_t sq, uint32_t aidx) {
++    std::vector<uint8_t> pl(4, 0);
++    putbe(&pl[0], CFGIX, 2);
++    std::vector<uint8_t> ent = entity_descriptor();
++    putbe(&ent[36], aidx, 4);
++    pl.insert(pl.end(), ent.begin(), ent.end());
++    return aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID, sq,
++                      AEM_READ_DESCRIPTOR, pl);
++  }
++  //! READ_DESCRIPTOR(ENTITY 0) and its answer, graded whole against `aidx`
++  void read_entity(uint32_t aidx, const char* tag, const char* when) {
++    std::vector<uint8_t> pl(8, 0);
++    putbe(&pl[0], CFGIX, 2);
++    putbe(&pl[4], 0x0000, 2);                  // ENTITY
++    const uint16_t sq = sequence++;
++    io.q_aecp.clear();
++    io.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, sq,
++                       AEM_READ_DESCRIPTOR, pl));
++    const auto r = io.wait_any(io.q_aecp, 600);
++    const auto w = want(sq, aidx);
++    REQ_TAG("REQ-ADP-011", "DIR", "READ_DESCRIPTOR(ENTITY) %s carries available_index");
++    CHECK(r == w,
++          "%s: READ_DESCRIPTOR(ENTITY) %s carries available_index %u, the image's "
++          "other octets byte-exact (got %zu B, available_index %u)", tag, when, aidx,
++          r.size(), descriptor_index(r));
++    if (r != w && !r.empty()) { dump("got ", r); dump("want", w); }
++  }
++
++  //! a fresh processor: reset and both restore walks over a blank device,
++  //! then the link up with the entity not yet enabled
++  void boot() {
++    Suite image(io);
++    image.load_descriptor_image();
++    io.reset();
++    io.d->restore_go_i = 1;
++    io.idle(5);
++    io.d->restore_go_i = 0;
++    long budget = 400000;
++    while (!io.d->restore_done_o && budget-- > 0) io.step();
++    CHECK(io.d->restore_done_o && !io.d->restore_fail_o,
++          "AI boot: both restore walks end over the blank device");
++    io.flush_all();
++    io.q_aecp.clear();
++    io.d->link_up_i = 1;
++    io.idle(50);
++  }
++
++  //! the next own ENTITY_AVAILABLE inside `ms`, which must be own_avail(k)
++  std::vector<uint8_t> next_available(uint32_t k, int ms, const char* tag) {
++    const auto a = io.wait_frame(io.q_adp, ms, available);
++    CHECK(a == own_avail(k),
++          "%s: ENTITY_AVAILABLE %u byte-exact, available_index %u (got %zu B, %u)",
++          tag, k + 1, k, a.size(), adp_index(a));
++    return a;
++  }
++
++  void run() {
++    boot();
++    read_entity(0, "AI1", "before any ADPDU");
++    io.d->entity_enable_i = 1;
++    for (uint32_t k = 0; k < 4; ++k) {
++      //! T-ADP-DELAY-START (0..2 s) for the first, then the 5 s cadence
++      //! (Milan v1.2 5.6.3.5.2, 5.6.3.5.9)
++      next_available(k, k == 0 ? 2600 : 9800, "AI2");
++      read_entity(k, "AI2", "after that ENTITY_AVAILABLE");
++    }
++    //! SHUTDOWN (Milan v1.2 5.6.3.5.8): the DEPARTING carries the index the
++    //! next ENTITY_AVAILABLE would have, 4, and 6.2.2.15 resets it to 0
++    io.d->entity_enable_i = 0;
++    const auto dep = io.wait_frame(io.q_adp, 400, departing);
++    CHECK(departing(dep) && adp_index(dep) == 4,
++          "AI3: one ENTITY_DEPARTING carrying available_index 4 (got %zu B, %u)",
++          dep.size(), adp_index(dep));
++    read_entity(0, "AI3", "after ENTITY_DEPARTING");
++    io.d->entity_enable_i = 1;
++    next_available(0, 4200, "AI4");
++    read_entity(0, "AI4", "after the first ENTITY_AVAILABLE re-enabled");
++    next_available(1, 9800, "AI4");
++    read_entity(1, "AI4", "after the second ENTITY_AVAILABLE re-enabled");
++  }
++};
++
++[[maybe_unused]] static void run_avail_index(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  AvailIndexPhase{h}.run();
++  printf("AI: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++}
+diff --git a/tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch b/tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch
+index 636d037..54e1ce2 100644
+--- a/tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch
++++ b/tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch
+@@ -1,8 +1,8 @@
+ --- a/tb/pp_top/sim_main.cpp
+ +++ b/tb/pp_top/sim_main.cpp
+-@@ -1917,6 +1917,7 @@
+-     d->entity_enable_i = 0; d->link_up_i = 0; d->gm_change_i = 0;
++@@ -2168,6 +2168,7 @@
+      d->gm_id_i = GM0; d->gptp_domain_i = DOM0;
++     for (uint32_t& a : adp_last_aidx) a = 0;
+      itf = ItfCounters{};
+ +    itf.link_q = true;
+      itf.gm_q = GM0;
+diff --git a/tb/pp_top/interface_phases.hpp b/tb/pp_top/interface_phases.hpp
+index 8056112..9612264 100644
+--- a/tb/pp_top/interface_phases.hpp
++++ b/tb/pp_top/interface_phases.hpp
+@@ -16,6 +16,10 @@
+ //        its own sequence_id (5.4.5.1); IF3b: a DEREGISTER on interface 1, held
+ //        the same way, removes interface 1's entry, the one whose sequence_id
+ //        is the lower.
++//   IF4  READ_DESCRIPTOR(ENTITY) carries the available_index of the last
++//        ENTITY_AVAILABLE sent on the interface the command came in on (IEEE
++//        1722.1-2021 Table 7-2, 6.2.2.15; issue #217): with interface 1's
++//        index run ahead of interface 0's, each read is that interface's.
+ // Every expectation is built here from the clause byte offsets, never read
+ // back from the DUT.
+ 
+@@ -160,9 +164,26 @@ struct InterfacePhase : NotifyBench {
+     }
+     return h;
+   }
++  //! the available_index of the last ENTITY_AVAILABLE logged on `ifx`, 0 if none
++  uint32_t last_index_on(unsigned ifx) const {
++    for (size_t i = adp.size(); i-- > 0;) {
++      const std::vector<uint8_t>& f = adp[i].f;
++      if (if_of(f) == ifx && f.size() >= 54 && (f[15] & 0x0F) == 0)
++        return (uint32_t(f[50]) << 24) | (uint32_t(f[51]) << 16) | (uint32_t(f[52]) << 8) | f[53];
++    }
++    return 0;
++  }
++  //! every ADPDU the bench has seen since the last drain, into the log
++  void drain_adp() {
++    while (!io.q_adp.empty()) {
++      adp.push_back({io.q_adp.front(), uint32_t(io.d->dbg_now_ms_o)});
++      io.q_adp.pop_front();
++    }
++  }
+   void both_interfaces_advertise();
+   void discover_reaches_its_interface();
+   void registry_port_from_the_command();
++  void entity_index_per_interface();
+ };
+ 
+ // IF1: booted, enabled with the link up: each interface's machine draws its
+@@ -253,6 +274,54 @@ void InterfacePhase::registry_port_from_the_command() {
+         u2.size());
+ }
+ 
++// IF4: ENTITY_DISCOVER on interface 1 alone, each time both machines are
++// WAITING, until interface 1's last available_index is ahead of interface 0's
++// (each interface counts its own, Milan v1.2 5.6.3). Then READ_DESCRIPTOR
++// (ENTITY) on interface 0 and on interface 1: each response is the image's
++// ENTITY descriptor, byte-exact, with available_index at descriptor octet 36
++// that interface's last ENTITY_AVAILABLE's. A top that served interface 0's
++// for both, or the image's constant, fails the interface-1 read.
++void InterfacePhase::entity_index_per_interface() {
++  const std::vector<uint8_t> disc = adp_frame(2, CTLR_MAC, 0, 0, 0, 0, 0, 0,
++                                              0, 0, 0, 0, 0, 0, 0);
++  for (int round = 0; round < 4 && last_index_on(1) <= last_index_on(0); ++round) {
++    for (long t = 0; t < 10000 && !(adv_state(0) == ST_WAIT && adv_state(1) == ST_WAIT); ++t)
++      step_ms(1);
++    const size_t from = adp.size();
++    feed_on(1, disc);
++    for (long t = 0; t < 4200 && first_on(1, from) == nullptr; ++t) step_ms(1);
++  }
++  const uint32_t want0 = last_index_on(0);
++  const uint32_t want1 = last_index_on(1);
++  std::vector<uint8_t> rd(8, 0);
++  putbe(&rd[0], CFGIX, 2);
++  putbe(&rd[4], 0x0000, 2);                    // ENTITY
++  const size_t log0 = adp.size();
++  std::array<std::vector<uint8_t>, 2> got;
++  std::array<std::vector<uint8_t>, 2> exp;
++  for (unsigned ifx = 0; ifx < 2; ++ifx) {
++    got[ifx] = ask_on(ifx, CTLR_MAC, CTLR_EID, AEM_READ_DESCRIPTOR, rd);
++    std::vector<uint8_t> pl(4, 0);
++    putbe(&pl[0], CFGIX, 2);
++    std::vector<uint8_t> ent = entity_descriptor();
++    putbe(&ent[36], ifx == 0 ? want0 : want1, 4);
++    pl.insert(pl.end(), ent.begin(), ent.end());
++    exp[ifx] = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
++                          uint16_t(seq - 1), AEM_READ_DESCRIPTOR, pl);
++  }
++  drain_adp();
++  CHECK(want1 > want0 && adp.size() == log0,
++        "IF4 premise: interface 1's last available_index %u is ahead of interface 0's %u, "
++        "and no ADPDU left while the two reads ran (%zu)", want1, want0, adp.size() - log0);
++  REQ_TAG("REQ-ADP-011", "DIR", "IF4: READ_DESCRIPTOR(ENTITY) on each interface");
++  CHECK(got[0] == exp[0] && got[1] == exp[1],
++        "IF4: READ_DESCRIPTOR(ENTITY) on each interface carries that interface's last "
++        "ENTITY_AVAILABLE's available_index, %u on interface 0 and %u on interface 1, the "
++        "image's other octets byte-exact (got %u and %u)", want0, want1,
++        got[0].size() >= 82 ? rd32(&got[0][78]) : 0xFFFFFFFFu,
++        got[1].size() >= 82 ? rd32(&got[1][78]) : 0xFFFFFFFFu);
++}
++
+ [[maybe_unused]] static void run_interfaces(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+@@ -260,5 +329,6 @@ void InterfacePhase::registry_port_from_the_command() {
+   p.both_interfaces_advertise();
+   p.discover_reaches_its_interface();
+   p.registry_port_from_the_command();
++  p.entity_index_per_interface();
+   printf("IF: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 3ca96fe..1140fff 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -847,6 +847,19 @@ struct H {
+   std::deque<std::vector<uint8_t>> q_mvrp;
+   int tx_frames = 0;
+   int adp_avail_seen = 0;    // AVAILABLE frames captured (aidx oracle)
++  //! the available_index of the last own ENTITY_AVAILABLE captured on each
++  //! interface (wire bytes 50..53, by interface_index 68..69), 0 from a reset
++  //! and from a captured ENTITY_DEPARTING (IEEE 1722.1-2021 6.2.2.15). The
++  //! ENTITY descriptor serves it (Table 7-2, issue #217), so an expectation
++  //! built from the image takes it at descriptor octet 36: served_entity.
++  uint32_t adp_last_aidx[4] = {};
++  //! a READ_DESCRIPTOR(ENTITY) response payload (configuration_index,
++  //! reserved, then the descriptor, 7.4.5.2) as it is served now: the image's
++  //! octets with interface 0's last available_index at descriptor octet 36
++  std::vector<uint8_t> served_entity(std::vector<uint8_t> pl) const {
++    if (pl.size() >= 4 + 40) putbe(&pl[4 + 36], adp_last_aidx[0], 4);
++    return pl;
++  }
+   uint32_t la_msrp_ms = 0;   // last MSRP LeaveAllEvent seen (ms)
+   // NVM device model: an erased flash (every byte 0xFF) that keeps what is
+   // written to it, so a later reset reads back what an earlier section
+@@ -1728,6 +1741,8 @@ struct H {
+         uint16_t et = cur.size() > 13 ? ((cur[12] << 8) | cur[13]) : 0;
+         if (et == 0x22F0 && cur.size() > 14 && cur[14] == 0xFA) {
+           if ((cur[15] & 0x0F) == 0) adp_avail_seen++;
++          if (cur.size() >= 70 && (cur[15] & 0x0F) <= 1)
++            adp_last_aidx[cur[69] & 3] = ((cur[15] & 0x0F) == 0) ? rd32(&cur[50]) : 0;
+           q_adp.push_back(cur);
+         } else if (et == 0x22F0 && cur.size() > 14 && cur[14] == 0xFC) {
+           q_acmp.push_back(cur);
+@@ -2151,6 +2166,7 @@ struct H {
+     d->dbg_name_lane_i = 0;
+     d->entity_enable_i = 0; d->link_up_i = 0; d->gm_change_i = 0;
+     d->gm_id_i = GM0; d->gptp_domain_i = DOM0;
++    for (uint32_t& a : adp_last_aidx) a = 0;
+     itf = ItfCounters{};
+     itf.gm_q = GM0;
+     mclk_locked = false;
+@@ -2451,7 +2467,7 @@ struct ReadDescriptorPhase {
+     pl.resize(4, 0);
+     putbe(&pl[0], CFGIX, 2);
+     pl.insert(pl.end(), image_entity.begin(), image_entity.end());
+-    auto want = expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, 0x1111, pl);
++    auto want = expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, 0x1111, h.served_entity(pl));
+     CHECK(!got.empty(), "A1: no READ_DESCRIPTOR response came back");
+     CHECK(got.size() == want.size(), "A1: response is %zu B, want %zu",
+           got.size(), want.size());
+@@ -2682,7 +2698,7 @@ struct ReadDescriptorPhase {
+       std::vector<uint8_t> pl(4, 0);
+       putbe(&pl[0], CFGIX, 2);
+       pl.insert(pl.end(), image_entity.begin(), image_entity.end());
+-      auto want = expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, sq, pl);
++      auto want = expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, sq, h.served_entity(pl));
+       CHECK(got == want, "A10: repeat %u is not byte-exact", k);
+     }
+   }
+@@ -2910,7 +2926,7 @@ struct NamePhase {
+     putbe(&rd_body[0], CFGIX, 2);
+     rd_body.insert(rd_body.end(), image_entity.begin(), image_entity.end());
+     CHECK(got == expect(CTLR_MAC, CTLR_EID, AECP_SUCCESS,
+-                        AEM_READ_DESCRIPTOR, seq, rd_body),
++                        AEM_READ_DESCRIPTOR, seq, h.served_entity(rd_body)),
+           "N5b: READ_DESCRIPTOR does not expose the new ENTITY group_name");
+     ++seq;
+   }
+@@ -3260,7 +3276,7 @@ struct MilanInfoPhase {
+     putbe(&rpl[0], CFGIX, 2);
+     rpl.insert(rpl.end(), image_entity.begin(), image_entity.end());
+     auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                           0xC007, AEM_READ_DESCRIPTOR, rpl);
++                           0xC007, AEM_READ_DESCRIPTOR, h.served_entity(rpl));
+     CHECK(got == want,
+           "M7: READ_DESCRIPTOR regressed after an MVU exchange");
+   }
+@@ -3663,7 +3679,8 @@ struct ResponseBufferPhase {
+     //! the CLOCK_DOMAIN response payload B1 counts the lane writes of and B10
+     //! re-measures after the fault run
+     size_t pld  = 4 + image_clkdom.size();
+-    //! the ENTITY response payload B4, B4b, B7 and B11 all expect
++    //! the ENTITY response payload B4, B4b, B7 and B11 all expect, with the
++    //! available_index served at each read (H::served_entity)
+     std::vector<uint8_t> epl(4, 0);
+     putbe(&epl[0], CFGIX, 2);
+     epl.insert(epl.end(), image_entity.begin(), image_entity.end());
+@@ -3743,7 +3760,7 @@ struct ResponseBufferPhase {
+     auto got = cmd(AEM_READ_DESCRIPTOR, rdesc_pl(CFGIX, 0x0000, 0), 0xC002);
+     vluint64_t cost = h.aecp_rx_t - t0;
+     CHECK(got == aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                            0xC002, AEM_READ_DESCRIPTOR, epl),
++                            0xC002, AEM_READ_DESCRIPTOR, h.served_entity(epl)),
+           "B4: the 312-byte descriptor response is not byte-exact");
+     printf("  [B4] command byte 0 -> response byte 0: %llu clocks "
+            "(%.3f %% of the 10,000,000-clock AECP budget)\n",
+@@ -3772,7 +3789,7 @@ struct ResponseBufferPhase {
+     uint64_t lanes143 = h.rm_writes - rw1;
+     h.rmem_rlat = 23; h.rmem_wlat = 17;
+     CHECK(got == aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                            0xC002, AEM_READ_DESCRIPTOR, epl),
++                            0xC002, AEM_READ_DESCRIPTOR, h.served_entity(epl)),
+           "B4b: the response is not byte-exact at 1424 ns memory latency");
+     printf("  [B4b] at 143 clocks (~1424 ns) per access: %llu clocks for a "
+            "%zu-byte payload over %llu lane writes (%.3f %% of budget)\n",
+@@ -3840,7 +3857,7 @@ struct ResponseBufferPhase {
+     h.rmem.assign(RESP_BYTES, 0xC3);
+     auto got = cmd(AEM_READ_DESCRIPTOR, rdesc_pl(CFGIX, 0x0000, 0), 0xC005);
+     CHECK(got == aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                            0xC005, AEM_READ_DESCRIPTOR, epl),
++                            0xC005, AEM_READ_DESCRIPTOR, h.served_entity(epl)),
+           "B7: the next response after a memory fault is not byte-exact");
+     CHECK(d->dbg_resp_fault_o == 0,
+           "B7: the fault code stuck across responses");
+@@ -3894,7 +3911,7 @@ struct ResponseBufferPhase {
+     auto got = cmd(AEM_READ_DESCRIPTOR, rdesc_pl(CFGIX, 0x0000, 0), 0xC020);
+     h.rmem_rlat = 23; h.rmem_wlat = 17;
+     CHECK(got == aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+-                            0xC020, AEM_READ_DESCRIPTOR, epl),
++                            0xC020, AEM_READ_DESCRIPTOR, h.served_entity(epl)),
+           "B11: a slower memory changed the bytes on the wire");
+   }
+ };
+@@ -4157,7 +4174,7 @@ struct CountersPhase {
+     std::vector<uint8_t> epl(4, 0);
+     putbe(&epl[0], CFGIX, 2);
+     epl.insert(epl.end(), image_entity.begin(), image_entity.end());
+-    CHECK(got == expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, 0xD007, epl),
++    CHECK(got == expect(AECP_SUCCESS, AEM_READ_DESCRIPTOR, 0xD007, h.served_entity(epl)),
+           "K7: READ_DESCRIPTOR regressed after a counters-face timeout");
+   }
+ 
+@@ -5084,7 +5101,7 @@ struct UnsolicitedPhase {
+     putbe(&epl[0], CFGIX, 2);
+     epl.insert(epl.end(), image_entity.begin(), image_entity.end());
+     auto want_rd = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID,
+-                              CTLR_EID, 0x7009, AEM_READ_DESCRIPTOR, epl);
++                              CTLR_EID, 0x7009, AEM_READ_DESCRIPTOR, h.served_entity(epl));
+     CHECK(!got.empty() && got == want_rd,
+           "U7: READ_DESCRIPTOR byte-exact with registrations live");
+   }
+@@ -5694,7 +5711,7 @@ struct StreamInfoPhase {
+     putbe(&epl[0], CFGIX, 2);
+     epl.insert(epl.end(), image_entity.begin(), image_entity.end());
+     auto want2 = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID,
+-                            CTLR_EID, 0x740C, AEM_READ_DESCRIPTOR, epl);
++                            CTLR_EID, 0x740C, AEM_READ_DESCRIPTOR, h.served_entity(epl));
+     CHECK(!got2.empty() && got2 == want2,
+           "G8: READ_DESCRIPTOR byte-exact after the stream-info paths");
+   }
+@@ -13385,6 +13402,9 @@ struct RebootPhase {
+   printf("RBT: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
++// ==== AI. the ENTITY descriptor's available_index (issue #217) ============
++#include "avail_index_phases.hpp"
++
+ // ==== AX. AECP dispatch and response (issues #53, #50, #82) ==============
+ // A fresh processor of its own (the AD pattern), so the main run's clock is
+ // untouched and every value these arms read back is one they set.
+@@ -16284,6 +16304,7 @@ int main(int argc, char** argv) {
+   const bool withdraw_only = argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0;
+   const bool ts_only = argc == 2 && std::strcmp(argv[1], "--tspec-only") == 0;
+   const bool rb_only = argc == 2 && std::strcmp(argv[1], "--reboot-only") == 0;
++  const bool ai_only = argc == 2 && std::strcmp(argv[1], "--avail-index-only") == 0;
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+     return 0;
+@@ -16291,7 +16312,7 @@ int main(int argc, char** argv) {
+   const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+                            || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+                            || ident_only || notify_only || ctr_only || spacing_only || aq_only
+-                           || dn_only || withdraw_only || ts_only || rb_only;
++                           || dn_only || withdraw_only || ts_only || rb_only || ai_only;
+   if (maap_only) run_maap_internal(h);
+   if (!one_section || aq_only) Suite(h).run();
+   if (aecp_only) run_aecp_dispatch_focus(h);
+@@ -16304,6 +16325,7 @@ int main(int argc, char** argv) {
+   if (!one_section || acmp_only) run_acmp(h);
+   if (!one_section || adp_only) run_adp_config(h);
+   if (!one_section || rb_only) run_reboot(h);
++  if (!one_section || ai_only) run_avail_index(h);
+   if (!one_section || aecp_only) run_aecp_response(h);
+   if (!one_section || dl_only) run_deadlines(h);
+   if (!one_section || hz_only) run_hazards(h);

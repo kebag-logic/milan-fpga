@@ -1,0 +1,12 @@
+== PR219 side: diff(45f03e04,14492f87) vs diff(044cb25f,fd2d8d2)
+IDENTICAL
+== PR218 side: diff(fd2d8d2,14492f87) vs diff(044cb25f,45f03e04)
+IDENTICAL
+== commits on the PR side of the merge (first parent ^1) since base
+fd2d8d2e3facaf5dd6c97a9cf760657e50e0e72f Value-initialize adp_last_aidx so the parent idiom gate reads one declarator
+794f8442c3d9da158c99d358d825c7b277516bba Re-anchor the rdc-base-no-overlay and store-link-detector-resets-up arms on the E_RDESCENT and harness-reset lines issue #217 moved
+43149fbf15842ec18b6546e6c560448db92fec97 Record the ENTITY descriptor's available_index from ADP, section AI, IF4 and the five arms in 04 5, 06 6.1, REQ-ADP-011 and the suite READMEs (issue #217)
+9bd6b43107ff0c2b7fa326a1d290b8d7abe6a6fd Grade the last available_index in ADP P2, P3, P7, IF4 and IF9 and per interface in pp_top IF4, take the served index in the ENTITY reads, and plant five arms (issue #217)
+db131cb2bb24dae34c21aea7aafb5ca8d8b026b4 Serve the last ENTITY_AVAILABLE's available_index in READ_DESCRIPTOR(ENTITY) from ADP, per the command's interface (issue #217)
+07f7b040a525c5ad4a364c34d2d4bdb27ebfe108 Read ENTITY's available_index after each ENTITY_AVAILABLE and after ENTITY_DEPARTING in pp_top section AI (issue #217)
+rc=0

@@ -1,0 +1,34 @@
+tree: checkout of 14492f87db567b4c4102d8c171b8b3b054f3098a tree ca0937b08dff8ec148cd74021d0b99815bcfeea8 (scratch parent submodule)
+$ python3 -B scripts/gen_matrix.py --check
+matrix: OK (94 rows, 0 untested)
+rc=0
+$ python3 -B scripts/check-links.py
+links: 1335 checked, OK
+rc=0
+$ python3 -B scripts/check-matrix.py
+matrix: 115 REQ rows, 19 GAP findings, OK
+rc=0
+$ python3 -B scripts/check-req-tags.py
+req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 270 tags in 21 files, OK
+rc=0
+$ python3 -B scripts/check-ids.py
+ids: 828 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+rc=0
+$ python3 -B scripts/check-figures.py
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+rc=0
+$ python3 -B scripts/check_aecp_commands.py
+aecp commands: 32 commands, 88 entries walked and observed, F06.14 42 rows, OK
+rc=0
+$ python3 -B scripts/check-integrator-params.py
+parameters: top 29, guide 29, diagram 29, OK
+rc=0
+$ python3 -B scripts/check_upc_map.py
+UPC MAP GATE: PASS (65 engine constants, 95 entry points, all agree)
+rc=0
+$ python3 -B scripts/check_m9_opcodes.py
+M9 OPCODE GATE: PASS (31 engine opcodes, all swept by M9)
+rc=0
+$ git diff --check 45f03e04 HEAD
+rc=0
+worktree dirty lines after: 0

@@ -1,0 +1,11 @@
+(empty above = R-1 / S-1 / S-2 artifacts byte-identical 794f8442..14492f87)
+#! last ENTITY_AVAILABLE carried (Table 7-2: "the same as the available_index
+#! field in ATDECC Discovery Protocol", 6.2.2.15), as {32'd0, index}. The
+#! engine routes the gather by command (its rdent_r), so the selector names
+#! the face for the reader alone, as 0xD names the started bit's.
+GX_ADP_AIDX = dict(cnd=0xE, imm=0)   # -> sel 0xE0
+ENTITY_AVAILABLE and resets when ENTITY_DEPARTING is sent. `E_RDESCENT` gathers it
+(`GATHER_EXT`, selector 0xE0, routed by the engine's `rdent_r` the way the started
+bit's 0xD0 is routed by START/STOP) from `adp_avail_index_i`: the index the last
+ENTITY_AVAILABLE carried on the interface the command came in on
+suites (tb/*/Makefile): 36

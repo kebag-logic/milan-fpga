@@ -1,0 +1,9 @@
+control probe: line 855 back to the 794f8442 form, in the submodule worktree only
+  uint32_t adp_last_aidx[4] = {};
+  uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+FAIL: multi-declarator declaration 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+rc=1
+protocol-processor/tb/pp_top/sim_main.cpp              multi-declarator declaration=1
+restored: dirty lines=0
+  uint32_t adp_last_aidx[4] = {};
+rc after restore=0

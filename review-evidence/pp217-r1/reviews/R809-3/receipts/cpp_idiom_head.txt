@@ -1,0 +1,21 @@
+parent HEAD 48875106e22d7620767c607b5d8159615e36d8e3 = dev 123f57a922bf07476cd69f91867f3b6f07080804 + one local gitlink commit (never pushed)
+48875106e22d7620767c607b5d8159615e36d8e3 123f57a922bf07476cd69f91867f3b6f07080804 scratch: pin protocol-processor 14492f87 (local, never pushed)
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 14492f87db567b4c4102d8c171b8b3b054f3098a	protocol-processor
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (heads/main)
+ 14492f87db567b4c4102d8c171b8b3b054f3098a protocol-processor (v2.0-911-g14492f8)
+submodule worktrees dirty lines: pp=0 gptp=0
+Python 3.14.9
+$ python3 scripts/check_cpp_idiom.py
+cpp idiom: 353 first-party translation units, 165 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
