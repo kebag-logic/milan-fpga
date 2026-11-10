@@ -1,0 +1,68 @@
+ok   head default geometry equals explicit 4 x 16 x 8
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 1 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 12 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 16 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 32 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 64 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 128 host CPUs
+ok   parse_cpu_ranges identical base vs head (default) over 3031 inputs at 512 host CPUs
+ok   job_cpu_ranges identical base vs head (default) over booked sets x concurrency 0-10 x slots
+     shipping concurrency base {'docs': ('ok', 4), 'elaborate': ('ok', 4), 'rtl-fast': ('ok', 4), 'rtl-full': ('ok', 4)} ('ok', 4)
+     shipping concurrency head {'docs': ('ok', 4), 'elaborate': ('ok', 4), 'rtl-fast': ('ok', 4), 'rtl-full': ('ok', 4)} ('ok', 4)
+ok   replay_container_concurrency identical on every shipping workflow and all together
+ok   act command identical base vs head default vs head explicit 4x16x8, ranges 0-15
+ok   act command identical base vs head default vs head explicit 4x16x8, ranges 0-15,16-31
+ok   act command identical base vs head default vs head explicit 4x16x8, ranges 0-15,16-31,32-47,48-63
+ok   act command identical base vs head default vs head explicit 4x16x8, ranges 0-11,12-23,24-35,36-47
+ok   act command identical base vs head default vs head explicit 4x16x8, ranges 0-15,16-31,32-47,48-63,64-79,80-95
+     head default rtl-full act words: ['--concurrent-jobs', '4', '--env', 'MILAN_CI_CPU_RANGES=0-15,16-31,32-47,48-63', '--env', 'MILAN_CI_FALLBACK_CPUS=12', '--container-options']
+ok   main --pr 1 --cpu-ranges 0-15,16-31,32-47,48-63: base == head == head explicit default (status 2, reached ['validate_bootstrap_options'], last line 'act-ci: REFUSED: stopped at validate_bootstrap_options')
+ok   main --pr 1 --cpu-ranges 0-11,12-23: base == head == head explicit default (status 2, reached ['validate_bootstrap_options'], last line 'act-ci: REFUSED: stopped at validate_bootstrap_options')
+ok   main --pr 1 --cpu-ranges 0-7,8-15: base == head == head explicit default (status 2, reached [], last line 'act-ci: REFUSED: CPU range 0-7 has unsupported width 8; need 16 or 12')
+ok   main --pr 1 --cpu-ranges 0-5: base == head == head explicit default (status 2, reached [], last line 'act-ci: REFUSED: CPU range 0-5 has unsupported width 6; need 16 or 12')
+ok   main --pr 1 --cpu-ranges 0-15,8-23: base == head == head explicit default (status 2, reached [], last line 'act-ci: REFUSED: CPU range is not aligned to its width: 8-23')
+ok   main --pr 1 --cpu-ranges 3-18: base == head == head explicit default (status 2, reached [], last line 'act-ci: REFUSED: CPU range is not aligned to its width: 3-18')
+ok   main --pr 1 --cpu-ranges 512-527: base == head == head explicit default (status 2, reached [], last line "act-ci: REFUSED: CPU range 512-527 exceeds this host's 512 CPUs")
+ok   main --pr 1 --cpu-ranges <empty>: base == head == head explicit default (status 2, reached [], last line 'act-ci: REFUSED: missing --cpu-ranges: manager-booked ranges are required')
+ok   main --pr 0 --cpu-ranges 0-15: base == head == head explicit default (status 2, reached [], last line 'probe_default_equivalence.py: error: --pr requires a positive pull-request number')
+ok   main --pr 1 --dry-run --cpu-ranges 0-15: base == head == head explicit default (status 2, reached ['validate_bootstrap_options'], last line 'act-ci: REFUSED: stopped at validate_bootstrap_options')
+ok   main --interrupt-selftest --cpu-ranges 0-15: base == head == head explicit default (status 2, reached ['resolve_act_binary'], last line 'act-ci: REFUSED: stopped at resolve_act_binary')
+ok   main --boundary-selftest --cpu-ranges 0-15: base == head == head explicit default (status 2, reached ['resolve_act_binary'], last line 'act-ci: REFUSED: stopped at resolve_act_binary')
+ok   main --selftest --pr 1 --cpu-ranges <empty>: base == head == head explicit default (status 2, reached [], last line 'probe_default_equivalence.py: error: --selftest cannot be combined with PR-run arguments')
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 6 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 12 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 16 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 48 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 64 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 128 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x16x8, widths (16, 12), 512 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 6 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 12 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 16 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 48 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 64 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 128 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x8x8, widths (8,), 512 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 6 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 12 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 16 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 48 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 64 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 128 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x8x4, widths (8,), 512 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 6 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 12 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 16 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 48 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 64 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 128 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 4x6x8, widths (6,), 512 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 6 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 12 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 16 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 48 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 64 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 128 host CPUs
+ok   head parse_cpu_ranges matches the aligned/distinct/within-host oracle at geometry 8x6x4, widths (6,), 512 host CPUs
+ok   JobGeometry accepts exactly the shapes with 1<=jobs<=8, width 16/8/6, 1<=mem<=8, jobs*mem+4<=36 and jobs*width<=64 (exhaustive grid)
+PROBE: PASS

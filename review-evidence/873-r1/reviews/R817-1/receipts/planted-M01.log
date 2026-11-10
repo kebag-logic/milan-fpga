@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mutants/copies/M01/act_ci.py", line 4804, in <module>
+    DEFAULT_JOB_GEOMETRY = JobGeometry()
+  File "<string>", line 6, in __init__
+  File "<packet>/scratch/mutants/copies/M01/act_ci.py", line 4776, in __post_init__
+    raise Refusal(
+    ...<3 lines>...
+        f"{(SLOT_MEMORY_GIB - SLOT_SERVICE_MEMORY_GIB) // self.jobs} GiB each")
+Refusal: memory over-subscribed: 4 jobs of 8 GiB plus the slot's 4 GiB service share need 36 GiB, over its MemoryMax=36G; 4 jobs fit at most 8 GiB each

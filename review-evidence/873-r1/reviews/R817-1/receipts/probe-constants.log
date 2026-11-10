@@ -1,0 +1,4 @@
+only base: {'CONCURRENT_JOB_LIMIT': 4, 'CONTAINER_CPU_LIMIT': 16, 'CONTAINER_MEMORY': '8g', 'FALLBACK_CPU_LIMIT': 12, 'SLOT_JOB_RANGES': 4}
+only head: {'DEFAULT_JOB_GEOMETRY': JobGeometry(jobs=4, cpus=16, memory_gib=8), 'JOB_CPU_WIDTHS': {16: (16, 12), 8: (8,), 6: (6,)}, 'JOB_GEOMETRY': <ContextVar name='job_geometry' default=JobGeometry(jobs=4, cpus=16, memory_gib=8) at 0x7fe465fc9620>, 'MAX_CONCURRENT_JOBS': 8, 'MAX_CONTAINER_MEMORY_GIB': 8, 'REPLAY_CPU_LIMIT': 64, 'SLOT_MEMORY_GIB': 36, 'SLOT_SERVICE_MEMORY_GIB': 4}
+shared constants compared: 73
+PROBE: PASS

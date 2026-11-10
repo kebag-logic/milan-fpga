@@ -1,0 +1,42 @@
+M01 KILLED rc=1 fail_lines=0 traceback=True -- memory bound off by one (>= instead of >)
+M02 KILLED rc=1 fail_lines=0 traceback=True -- CPU bound off by one (>= instead of >)
+M03 KILLED rc=1 fail_lines=2 traceback=False -- memory bound compared against slot cap plus service share
+    FAIL memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G
+M04 KILLED rc=1 fail_lines=1 traceback=False -- width 8 also accepts 16-CPU ranges
+    FAIL 8 jobs on 8-CPU ranges refuse any other width: 0-15, 0-11, 0-5
+M05 KILLED rc=1 fail_lines=1 traceback=False -- fallback width is the widest accepted width, not the narrowest
+    FAIL fallback has one named setting
+M06 KILLED rc=1 fail_lines=4 traceback=False -- container memory in upper-case size syntax
+    FAIL the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+    FAIL job containers are held to 8G of memory and the same swap ceiling, one limit each, in Docker size syntax
+M07 SURVIVED rc=0 fail_lines=0 traceback=False -- --concurrent-jobs is the booked range count, not min(jobs, ranges)
+M08 KILLED rc=1 fail_lines=2 traceback=False -- job_cpu_ranges selects only `concurrency` ranges
+    FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+    FAIL the shared CPU-range monitor receives both independent jobs' disjoint ranges
+M09 KILLED rc=1 fail_lines=0 traceback=True -- per-job memory cap may reach 16 GiB
+M10 KILLED rc=1 fail_lines=1 traceback=False -- geometry type check admits bool/int subclasses
+    FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+M11 KILLED rc=1 fail_lines=6 traceback=False -- workflow concurrency ignores the chosen geometry
+    FAIL all selected workflows share the 1-job limit in every order
+    FAIL a single small workflow does not invent 1 jobs
+    FAIL all selected workflows share the 2-job limit in every order
+    FAIL all selected workflows share the 3-job limit in every order
+    FAIL an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows share that 8-job limit in every order
+    FAIL under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and rtl-full more than the default 4
+M12 KILLED rc=1 fail_lines=0 traceback=True -- job_cpu_ranges bounds concurrency by the default job count
+M13 KILLED rc=1 fail_lines=1 traceback=False -- --selftest no longer refuses --job-memory
+    FAIL --selftest with --job-memory is a usage error
+M14 KILLED rc=1 fail_lines=3 traceback=False -- CPU bound counts the fallback width, not the job width
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (4 GiB each) fits
+    FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 64 one replay may book, though their memory (6 GiB each) fits
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits
+M15 KILLED rc=1 fail_lines=0 traceback=True -- the command line's --job-memory is ignored
+M16 KILLED rc=1 fail_lines=1 traceback=False -- range alignment checked against 16 only
+    FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+M17 SURVIVED rc=0 fail_lines=0 traceback=False -- OOM refusal names the default cap, not the run's
+M18 KILLED rc=1 fail_lines=1 traceback=False -- job count lower bound dropped (0 jobs accepted)
+    FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+planted: 18 killed: 16 survived: 2
