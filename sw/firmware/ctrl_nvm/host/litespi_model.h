@@ -56,6 +56,8 @@ struct litespi_model_count {
 	unsigned int pp;
 	unsigned int se;
 	unsigned int rdsr;
+	unsigned int pes;           /* erase suspends */
+	unsigned int per;           /* erase resumes */
 	unsigned int no_wel;        /* a PP or SE without a write enable before it */
 	unsigned int short_cmd;     /* a PP or SE whose address was incomplete */
 	unsigned int refused;       /* a PP or SE the flash model refused */

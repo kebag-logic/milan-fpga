@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """check_nvm_klj3.py - the gate of the split placement's saved-state reference (#823).
 
-scripts/nvm_klj3.py is the oracle the F1 store (sw/firmware/ctrl_nvm) is
-graded against byte for byte, so a defect in it would let the store and the
-reference agree on wrong bytes. This gate holds the reference to the rules
+scripts/nvm_klj3.py is the oracle the split placement's saved-state store
+(sw/firmware/ctrl_nvm) is graded against byte for byte, so a defect in it
+would let the store and the reference agree on wrong bytes. This gate holds the reference to the rules
 themselves, never to the store:
 
   space      the layout 3 declaration (nvm_layout3.h) reads as one block per
@@ -23,7 +23,11 @@ themselves, never to the store:
              space VD_REC, a record with its crc16 broken VD_REC;
   capacity   the shape with its names at the NAME block's capacity places its
              last name at the block's last id and round trips; one name more
-             has no id.
+             has no id;
+  journal    a slot's log (#823 decision 3): two deltas behind a base give
+             the later value and the last sequence, the log ending on the page
+             after them; a delta only its CRC-32 refuses, a stale one and one
+             past the segment cap each leave the log torn before it.
 
 --self-test plants one defect per rule into the reference (a seam the
 reference exposes, replaced for one run) and requires the rule's check to
@@ -210,9 +214,52 @@ def check_capacity(b: Built) -> list[str]:
     return found
 
 
+def check_journal(b: Built) -> list[str]:
+    """Two deltas replayed in order; a torn, a stale and an oversized delta each stop the walk."""
+    fr = frames(b.shape)
+    expect = k3.expected3(b.shape)
+    first, last = min(fr), max(fr)
+
+    def frame(rid: int, seed: int) -> bytes:
+        """Record rid with a payload no golden frame carries."""
+        return k3.frame_record3(rid, bytes((rid * 7 + j * 3 + seed) & 0xFF for j in range(len(fr[rid]) - 10)))
+
+    def ident(seq: int) -> Ident:
+        """The gate's identity at sequence seq."""
+        return Ident(seq=seq, entity_id=IDENT.entity_id, model_id=IDENT.model_id)
+
+    base = k3.klj3_assemble(fr, ident(5))[0]
+    one = k3.klj3_delta({last: frame(last, 1)}, ident(6))
+    two = k3.klj3_delta({first: frame(first, 2), last: frame(last, 3)}, ident(7))
+
+    def decode(deltas: list[bytes]) -> tuple:
+        """The reference's walk of base and deltas as a slot."""
+        slot = k3.klj3_slot(base, deltas)
+        return k3.klj3_slot_decode(slot + bytes([0xFF]) * (k3.SLOT - len(slot)), IDENT, expect)
+
+    found = []
+    start = k3.log_start(len(base))
+    vd, seq, applied, end, torn = decode([one, two])
+    got = {k3.rid_of_key3(k): v for k, v in applied.items()}
+    if (vd, seq, end, torn) != (VD_OK, 7, start + 2 * k3.PAGE, False) or \
+            (got.get(first), got.get(last)) != (frame(first, 2)[10:], frame(last, 3)[10:]):
+        found.append(f"journal: {b.shape.cfg.stem} two deltas: verdict {vd}, sequence {seq}, end {end}, torn {torn}")
+    pad = k3.HDR + 2 * 10 + len(fr[first]) - 10 + len(fr[last]) - 10
+    at = pad if pad < len(two) - 4 else len(two) - 1
+    bad_pad = two[:at] + bytes([two[at] ^ 0x80]) + two[at + 1:]
+    stale = k3.klj3_delta({last: frame(last, 3)}, ident(6))
+    big = two[:16] + struct.pack("<I", k3.SEG_MAX + 4) + two[20:]
+    for label, seg in (("a delta only its CRC-32 refuses", bad_pad), ("a stale delta", stale),
+                       ("a delta past the segment cap", big)):
+        vd, seq, applied, end, torn = decode([one, seg])
+        if (vd, seq, end, torn) != (VD_OK, 6, start + k3.PAGE, True):
+            found.append(f"journal: {b.shape.cfg.stem} {label}: sequence {seq}, end {end}, torn {torn}")
+    return found
+
+
 RULES: dict[str, Callable[[Built], list[str]]] = {
     "ledger": check_ledger, "split": check_split, "round trip": check_round_trip,
-    "refusals": check_refusals, "capacity": check_capacity,
+    "refusals": check_refusals, "capacity": check_capacity, "journal": check_journal,
 }
 
 
@@ -269,7 +316,32 @@ def _split_counts_unchecked(space):
     return {b["group"]: int(b["count"]) + (1 if b["group"] == "NAME" else 0) for b in space["blocks"]}
 
 
-REAL = {name: getattr(k3, name) for name in ("klj3_decode", "key_of_id3", "inventory3")}
+def _delta_crc_unchecked(seg, prev, ident, expect):
+    """A delta taken without its CRC-32: its trailer resealed first."""
+    length = struct.unpack_from("<I", seg, 16)[0]
+    if 44 <= length <= len(seg):
+        seg = reseal(bytes(seg[:length])) + seg[length:]
+    return REAL["_delta_records"](seg, prev, ident, expect)
+
+
+def _delta_stale_accepted(seg, prev, ident, expect):
+    """A delta's sequence never compared with the one before it."""
+    return REAL["_delta_records"](seg, struct.unpack_from("<I", seg, 8)[0] - 1, ident, expect)
+
+
+def _slot_first_wins(slot, ident, expect):
+    """Each record's first value kept, not its last: the deltas replayed in reverse."""
+    vd, seq, applied, end, torn = REAL["klj3_slot_decode"](slot, ident, expect)
+    if vd != VD_OK:
+        return vd, seq, applied, end, torn
+    first = REAL["_delta_records"](slot[k3.log_start(struct.unpack_from("<I", slot, 16)[0]):], 0, ident, expect)
+    if first:
+        applied.update(first[1])
+    return vd, seq, applied, end, torn
+
+
+REAL = {name: getattr(k3, name) for name in ("klj3_decode", "key_of_id3", "inventory3", "_delta_records",
+                                               "klj3_slot_decode")}
 PLANTS = (
     ("a frame's crc16 skipping the record_id", "frame_record3", _frame_crc_short, "round trip"),
     ("KLJ2 refused as a foreign magic", "klj3_decode", _decode_klj2_as_magic, "refusals"),
@@ -277,6 +349,9 @@ PLANTS = (
     ("a block's last id outside it", "key_of_id3", _key_exclusive_end, "capacity"),
     ("the last name left out of the inventory", "inventory3", _inventory_last_name_dropped, "ledger"),
     ("the split output's NAME count off by one", "split_counts", _split_counts_unchecked, "split"),
+    ("a delta accepted without its CRC-32", "_delta_records", _delta_crc_unchecked, "journal"),
+    ("a stale delta accepted", "_delta_records", _delta_stale_accepted, "journal"),
+    ("the deltas replayed in reverse", "klj3_slot_decode", _slot_first_wins, "journal"),
 )
 
 

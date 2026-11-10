@@ -2755,9 +2755,9 @@ def _adp_name_entries(overlay):
 
 
 #: The split placement's record space, layout 3 (#823 decision 1). Its one
-#: declaration is the F1 store's header, which the store's codec compiles;
-#: the builder reads every block's capacity from it through
-#: scripts/nvm_layout3.py and restates none. The all-fabric checks above keep
+#: declaration is the split placement's saved-state store's header, which the
+#: store's codec compiles; the builder reads every block's capacity from it
+#: through scripts/nvm_layout3.py and restates none. The all-fabric checks above keep
 #: reading KL_nvm_backend.sv: the two placements refuse at their own bounds.
 NVM_LAYOUT3_H = ROOT / "sw" / "firmware" / "ctrl_nvm" / "nvm_layout3.h"
 _LAYOUT3_SPEC = importlib.util.spec_from_file_location(

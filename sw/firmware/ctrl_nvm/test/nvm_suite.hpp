@@ -53,6 +53,11 @@ constexpr long long kCallBoundUs = kLsCallUs + 3 + kPageAccessUs + kPageLinkUs;
 //! A call with no stall armed: one page program's link time and accesses.
 constexpr long long kNominalCallUs = 250;
 constexpr long long kMs = 1000;
+//! #823 decision 4: the store's first-dirty window; decision 7: an append's deadline.
+constexpr long long kWindowMs = 150;
+constexpr long long kAppendTimeoutMs = 500;
+//! DR2c: the backoff after a failed attempt.
+constexpr long long kBackoffMs = 1000;
 
 //! The shape's facts and reference images, from nvm_fixture.py.
 class Fixture {
@@ -103,13 +108,17 @@ Bytes value(unsigned rid, unsigned seed);
 Bytes padded(const Bytes& image);
 //! Whether `got`, a dumped slot, holds `image` followed by erased bytes.
 bool slot_holds(const Bytes& got, const Bytes& image);
-//! The pages one commit programs.
+//! The pages one whole image programs.
 long long pages();
 
 //! lo <= value <= hi, and a value at all.
 bool in(long long value, long long lo, long long hi);
-//! The k-th erase's start, in us after the run's last mark (-1 when there is none).
-long long after_mark(const Result& r, std::size_t k);
+//! The first page program at or after the run's last mark, in us after it (-1 when there is none).
+long long after_mark(const Result& r);
+//! The first of `at` at or after `from`, in us after it (-1 when there is none).
+long long first_after(const std::vector<std::uint64_t>& at, std::uint64_t from);
+//! Whether `got`, a dumped slot, starts with `image` (whatever follows it).
+bool prefix_holds(const Bytes& got, const Bytes& image);
 
 const char* port_name(Port port);
 

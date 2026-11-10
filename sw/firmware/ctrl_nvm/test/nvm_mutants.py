@@ -6,9 +6,10 @@ Each mutant is one defect planted into a COPY of sw/firmware/ctrl_nvm (every
 seam must match its file exactly once, so a line that moves breaks the
 self-test rather than compiling unchanged), and names the checks that must
 fail on it. A check is a GoogleTest test of that name (test_nvm_boot.cpp,
-test_nvm_write.cpp, test_nvm_vector.cpp, test_nvm_more.cpp,
-test_nvm_codec.cpp, test_nvm_flashmock.cpp, test_nvm_litespi.cpp and the two
-doctored shapes' test_nvm_shapes.cpp), on either port it runs on. A named
+test_nvm_write.cpp, test_nvm_journal.cpp, test_nvm_vector.cpp,
+test_nvm_more.cpp, test_nvm_codec.cpp, test_nvm_flashmock.cpp,
+test_nvm_litespi.cpp, the two doctored shapes' test_nvm_shapes.cpp and the
+bound shape's test_nvm_bound.cpp), on either port it runs on. A named
 check whose test stays green is a finding: the test cannot fail for the
 defect it claims to detect. Every check of the suite is named by at least one
 mutant, which `unnamed_checks` proves before any is planted.
@@ -96,8 +97,9 @@ TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 """ + TO_US + "\n}"
 CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
               "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
-RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
-               "\t       nvm_klj2_seq(nvm_stage) == seq;")
+RESTAGE_SEQ = ("\tif (nvm_klj2_check(nvm_stage, NVM_IMG_LEN) != NVM_VD_OK ||\n"
+               "\t    nvm_klj2_seq(nvm_stage) != nvm.base_seq[slot])\n\t\treturn 0;")
+RESTAGE_CRC = "\tif (nvm_klj2_check(nvm_stage, NVM_IMG_LEN) != NVM_VD_OK)\n\t\treturn 0;"
 FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);\n"
 STANDS = "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))"
 SAME_BYTES = ("seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&\n"
@@ -168,7 +170,8 @@ MUTANTS = (
     # ---- a container longer than the stage ----
     _m("long_crc_unchecked", STORE, "\tif (~crc != nvm_rd32le(trailer))\n\t\treturn NVM_VD_CRC;\n", "",
        "long_container_reads"),
-    _m("unread_not_counted", STORE, "\t\t\tnvm.st.read_faults++;\n\t\t\tcontinue;", "\t\t\tcontinue;",
+    _m("unread_not_counted", STORE, "\t\t\tnvm.st.read_faults++;\n\t\t\tcontinue;       /* the port",
+       "\t\t\tcontinue;       /* the port",
        "long_container_reads"),
     _m("no_version_check", CODEC,
        "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ3_FMT_VER >> 16))\n\t\treturn NVM_VD_VER;\n", "",
@@ -219,8 +222,8 @@ MUTANTS = (
     _m("no_blank_verdict", CODEC, "\tif (nvm_all_erased(hdr, NVM_KLJ_HDR))\n\t\treturn NVM_VD_BLANK;\n",
        "", "blank_boot"),
     _m("pad_not_zero", CODEC, "\t\timg[i] = 0u;", "\t\timg[i] = NVM_ERASED;", "blank_boot"),
-    _m("header_n_rec", CODEC, "\tnvm_wr32le(img + 12, NVM_N_REC);",
-       "\tnvm_wr32le(img + 12, NVM_N_REC + 1u);", "blank_boot", "first_commit_bytes"),
+    _m("header_n_rec", CODEC, "\tnvm_klj2_seg_header(img, seq, NVM_N_REC, NVM_IMG_LEN);",
+       "\tnvm_klj2_seg_header(img, seq, NVM_N_REC + 1u, NVM_IMG_LEN);", "blank_boot", "first_commit_bytes"),
     _m("frame_crc_init", CODEC, "\tcrc = nvm_crc16_update(0xffffu, rec, NVM_REC_HDR - 2u);",
        "\tcrc = nvm_crc16_update(0x0000u, rec, NVM_REC_HDR - 2u);", "vector_round_trip", "change_commit_bytes"),
     _m("no_blank_stage", STORE, "\tif (chosen == NVM_NONE)\n\t\tnvm_klj2_blank(nvm_stage);\n", "",
@@ -229,10 +232,8 @@ MUTANTS = (
        "\t\tnvm.st.last_verdict = (nvm.st.verdict_a != NVM_VD_BLANK) ?\n"
        "\t\t\t\t      nvm.st.verdict_a : nvm.st.verdict_b;",
        "\t\tnvm.st.last_verdict = NVM_VD_BLANK;", "both_torn_blank"),
-    _m("stage_not_rechecked", STORE, RESTAGE_SEQ, "\t(void)seq;\n\treturn 1;", "read_flip_at_stage"),
-    _m("stage_seq_unchecked", STORE, RESTAGE_SEQ,
-       "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;",
-       "read_alias_at_stage"),
+    _m("stage_not_rechecked", STORE, RESTAGE_SEQ, "", "read_flip_at_stage"),
+    _m("stage_seq_unchecked", STORE, RESTAGE_SEQ, RESTAGE_CRC, "read_alias_at_stage"),
     # the sequence taken from a read after the CRC passed, unchecked, and
     # never compared again
     Mutant("select_on_unchecked_reread",
@@ -240,8 +241,7 @@ MUTANTS = (
              "\t\tif (vd == NVM_VD_OK &&\n"
              "\t\t    !nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ_HDR))\n"
              "\t\t\t*seq = nvm_klj2_seq(nvm_stage);"),
-            (STORE, RESTAGE_SEQ,
-             "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;")),
+            (STORE, RESTAGE_SEQ, RESTAGE_CRC)),
            ("read_flip_boot",)),
     _m("slot_read_fail_ignored", STORE,
        "\t\tif (nvm_take(rd, addr, nvm_stage, img_len))\n\t\t\treturn NVM_UNREAD;\n",
@@ -336,7 +336,7 @@ MUTANTS = (
        "", "binding_walk"),
     # ---- DR2a ----
     _m("quiet_period", STORE, "\tif (!taken && !nvm.dirty_armed) {", "\tif (!taken) {", "debounce"),
-    _m("no_debounce", STORE, "\t      nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS);",
+    _m("no_debounce", STORE, "\t      nvm.now_us - nvm.dirty_since_us >= NVM_US(NVM_WINDOW_MS);",
        "\t      1;", "debounce"),
     # a change the running capture takes still arms the window
     _m("capture_leaves_window_armed", STORE, "\tif (!taken && !nvm.dirty_armed) {",
@@ -354,16 +354,18 @@ MUTANTS = (
        "\tif (nvm.st.phase == NVM_P_OFF)\n\t\treturn;", "change_unknown_record"),
     # an owner with nothing to save has its stale payload framed
     _m("nothing_to_save_framed", STORE,
-       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))\n\t\treturn;",
-       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen) && 0)\n\t\treturn;", "nothing_to_save"),
+       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))\n\t\treturn 0;",
+       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen) && 0)\n\t\treturn 0;", "nothing_to_save"),
     # ---- DR2b ----
-    _m("dr2b_ignores_durability", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {",
-       "\t} else if (!nvm.force) {", "failed_commit_not_skipped"),
-    _m("no_dr2b", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {", "\t} else if (0) {",
+    # DR2b judged on the capture alone: a work set a failed attempt left in
+    # flight, unchanged since, is skipped
+    _m("dr2b_ignores_durability", STORE, "\tif (!nvm_any(&nvm.inflight)) {\n\t\tif (nvm.force)",
+       "\tif (!nvm.stage_changed) {\n\t\tif (nvm.force)", "failed_commit_not_skipped"),
+    _m("no_dr2b", STORE, "\tif (!nvm_any(&nvm.inflight)) {\n\t\tif (nvm.force)", "\tif (0) {\n\t\tif (nvm.force)",
        "unchanged_no_erase"),
     # the console's commit skipped like any other over a verified container
-    _m("console_force_ignored", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {",
-       "\t} else if (nvm.stage_durable) {", "console_commit_unchanged"),
+    _m("console_force_ignored", STORE, "\t\tif (nvm.force)\n\t\t\tnvm.force_cmp = 1;",
+       "\t\tif (nvm.force && 0)\n\t\t\tnvm.force_cmp = 1;", "console_commit_unchanged", "compaction_bytes"),
     # ---- DR2c ----
     _m("no_backoff", STORE, "\tnvm.retry_at_us = nvm.now_us + NVM_US(NVM_TXN_BACKOFF_MS);",
        "\tnvm.retry_at_us = nvm.now_us;", "media_failures"),
@@ -383,51 +385,31 @@ MUTANTS = (
        "\tif (nvm.retry_armed && nvm_now() < nvm.retry_at_us)\n\t\treturn 0;\n", "",
        "dr2c_console"),
     _m("success_forgives_exhaustion", STORE,
-       "\tnvm.st.attempts = 0;\n\tnvm.st.last_verdict = NVM_VD_OK;",
-       "\tnvm.st.attempts = 0;\n\tnvm.st.abandoned = 0;\n\tnvm.st.last_verdict = NVM_VD_OK;",
+       "\tnvm.st.commits_ok++;\n\tnvm.st.last_verdict = NVM_VD_OK;",
+       "\tnvm.st.commits_ok++;\n\tnvm.st.abandoned = 0;\n\tnvm.st.last_verdict = NVM_VD_OK;",
        "recovers_after_failure", "dr2c_unchanged_set"),
     _m("stale_kept", STORE, "\tif (!nvm_any(&nvm.dirty))\n\t\tnvm.st.stale = 0;\n", "",
        "recovers_after_failure"),
     # a DR2b suppression leaves the claim stale with nothing outside a slot
-    _m("dr2b_keeps_stale", STORE, "\t\tnvm.st.commits_skipped++;\n\t\tnvm_heal();",
-       "\t\tnvm.st.commits_skipped++;", "recovers_after_failure"),
-    # ---- the write sequence ----
-    _m("no_blankcheck", STORE, " ? NVM_P_ERASE : NVM_P_BLANKCHECK;",
-       " ? NVM_P_ERASE : NVM_P_PROGRAM;", "media_failures"),
-    # every block the container spans is erased, not only the first
-    _m("first_block_only", STORE, "\t\t\tnvm.st.phase = (++nvm.block < NVM_ERASE_BLOCKS) ? NVM_P_ERASE",
-       "\t\t\tnvm.st.phase = (++nvm.block < 1u) ? NVM_P_ERASE", "capacity_round_trip"),
-    # the right count of erases, each of the slot's first block
-    _m("erase_first_block_every_time", STORE,
-       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target) + nvm.block * NVM_ERASE_BLOCK)) {",
-       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target))) {", "capacity_commit_over_stale"),
-    _m("blankcheck_first_stretch_only", STORE,
-       "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
-       "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
-       "blankcheck_tail"),
-    _m("blankcheck_read_fail_ignored", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {",
-       "\tif (!n)\n" + FAILED_READ_PASSES + "\telse if (!nvm_all_erased(nvm_chunk, n)) {",
-       "media_verdicts"),
-    _m("no_verify", STORE, "\t\tif (nvm_chunk[i] != nvm_stage[nvm.pos + i]) {", "\t\tif (0) {",
+    _m("dr2b_keeps_stale", STORE, "\t\tnvm_heal();\n\t\tnvm_to_idle();\n\t\treturn;\n\t}\n\tif (!nvm_can_append()) {",
+       "\t\tnvm_to_idle();\n\t\treturn;\n\t}\n\tif (!nvm_can_append()) {", "recovers_after_failure"),
+    # ---- the write sequence: a page of a segment ----
+    _m("no_verify", STORE, "\t\tif (nvm_chunk[i] != nvm_page[i]) {", "\t\tif (0) {",
        "media_failures", "failed_commit_not_skipped"),
-    _m("verify_skips_last_stretch", STORE,
-       "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
-       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_STEP_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
+    _m("verify_skips_last_page", STORE, "\tfor (i = 0; i < s->page; ++i) {\n\t\tif (nvm_chunk[i] != nvm_page[i]) {",
+       "\tfor (i = 0; i < s->page && s->pos + s->page < s->len; ++i) {\n\t\tif (nvm_chunk[i] != nvm_page[i]) {",
        "verify_tail"),
     _m("verify_read_fail_ignored", STORE,
-       "\tif (!n) {\n\t\tnvm_fail(NVM_VD_VERIFY);\n\t\treturn;\n\t}\n\tfor (i = 0; i < n; ++i) {",
-       "\tif (!n)\n" + FAILED_READ_PASSES + "\telse\n\tfor (i = 0; i < n; ++i) {",
-       "media_verdicts"),
+       "\tif (f->read(f->ctx, nvm_page_addr(s), nvm_chunk, s->page)) {\n\t\tnvm_fail(NVM_VD_VERIFY);\n"
+       "\t\treturn;\n\t}",
+       "\tif (f->read(f->ctx, nvm_page_addr(s), nvm_chunk, s->page))\n\t\tfor (i = 0; i < s->page; ++i)\n"
+       "\t\t\tnvm_chunk[i] = nvm_page[i];", "media_verdicts"),
     _m("program_refusal_ignored", STORE,
-       "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n)) {\n"
-       "\t\tnvm_fail(NVM_VD_PROGRAM);\n\t\treturn;\n\t}",
-       "\t(void)f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n);",
-       "media_verdicts"),
+       "\tif (f->program(f->ctx, nvm_page_addr(s), nvm_page, s->page)) {\n\t\tnvm_fail(NVM_VD_PROGRAM);\n"
+       "\t\treturn;\n\t}", "\t(void)f->program(f->ctx, nvm_page_addr(s), nvm_page, s->page);", "media_verdicts"),
     _m("no_timeout", STORE,
        "\tif (busy < 0 || nvm.now_us - nvm.op_start_us > timeout_us)\n\t\tnvm_fail(vd);",
-       "\tif (busy < 0)\n\t\tnvm_fail(vd);", "media_failures"),
-    _m("same_sequence", STORE, "\tnvm.next_seq = nvm.st.seq + 1u;", "\tnvm.next_seq = nvm.st.seq;",
-       "change_commit_bytes"),
+       "\tif (busy < 0)\n\t\tnvm_fail(vd);", "time_base"),
     _m("refused_slot_overwritten", STORE,
        "\treturn nvm.st.verdict_a != NVM_VD_BLANK && nvm.st.verdict_b == NVM_VD_BLANK;",
        "\treturn 0;", "refused_slot_kept"),
@@ -435,25 +417,21 @@ MUTANTS = (
     _m("no_blank_slot_takes_b", STORE,
        "\treturn nvm.st.verdict_a != NVM_VD_BLANK && nvm.st.verdict_b == NVM_VD_BLANK;",
        "\treturn nvm.st.verdict_a != NVM_VD_BLANK;", "first_commit_no_blank_slot"),
-    Mutant("erase_authoritative",
-           ((STORE, "\t\treturn !nvm.st.auth;", "\t\treturn nvm.st.auth;"),
-            (STORE, "\tif (nvm.target == nvm.st.auth ||\n\t    f->erase", "\tif (f->erase")),
-           ("change_commit_bytes", "powercut")),
-    Mutant("descending_pages",
-           ((STORE, "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - nvm.pos);\n\n"
-                    "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_stage + nvm.pos, n)) {",
-             "\tuint32_t at = ((NVM_IMG_LEN - 1u) / NVM_FLASH_PAGE) * NVM_FLASH_PAGE - nvm.pos;\n"
-             "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - at);\n\n"
-             "\tif (f->program(f->ctx, nvm_slot_addr(nvm.target) + at, nvm_stage + at, n)) {"),
-            (STORE, "\t\t\tnvm.pos += nvm.len;", "\t\t\tnvm.pos += NVM_FLASH_PAGE;")),
-           ("first_commit_bytes",)),
+    # the authoritative slot prepared, erased and compacted into
+    _m("erase_authoritative", STORE, "\t\treturn !nvm.st.auth;", "\t\treturn nvm.st.auth;",
+       "change_commit_bytes", "powercut"),
+    # a base's pages programmed from its last down
+    _m("descending_pages", STORE, "\treturn nvm_slot_addr(s->slot) + s->at + s->pos;",
+       "\treturn nvm_slot_addr(s->slot) + s->at +\n"
+       "\t       (s->kind == NVM_K_BASE ? (NVM_PAGES(s->len) - 1u) * NVM_FLASH_PAGE - s->pos : s->pos);",
+       "first_commit_bytes"),
     Mutant("capture_in_one_step",
            ((STORE, "\tnvm.cursor = nvm_rec_next(r);\n\tnvm_open_take(&nvm.dirty, r.id);\n"
-                    "\tnvm_open_set(&nvm.inflight, r.id);\n\tnvm_latch(r);\n}",
+                    "\tif (!nvm_latch(r))\n\t\treturn;\n\tnvm_open_set(&nvm.inflight, r.id);",
              "\twhile (r.ok) {\n\t\tif (nvm_bit(&nvm.dirty, r.id)) {\n"
              "\t\t\tnvm_open_take(&nvm.dirty, r.id);\n"
-             "\t\t\tnvm_open_set(&nvm.inflight, r.id);\n\t\t\tnvm_latch(r);\n\t\t}\n"
-             "\t\tr = nvm_rec_next(r);\n\t}\n\tnvm.cursor = r;\n}"),),
+             "\t\t\tif (nvm_latch(r))\n\t\t\t\tnvm_open_set(&nvm.inflight, r.id);\n\t\t}\n"
+             "\t\tr = nvm_rec_next(r);\n\t}\n\tnvm.cursor = r;\n\tif (0)\n\t\tnvm_open_set(&nvm.inflight, r.id);"),),
            ("service_bound",)),
     # a latched record's crc16 counted over the layout 2 header's six bytes
     _m("step_bytes_layout2", STORE, "\tnvm.step_bytes += (NVM_REC_HDR - 2u) + r.plen;",
@@ -466,6 +444,197 @@ MUTANTS = (
     _m("spin_wait", STORE, "\tint busy = f->busy(f->ctx);\n\n\tif (busy == 0)\n\t\treturn 1;",
        "\tint busy = f->busy(f->ctx);\n\n\twhile (busy == 1 && nvm_now() - nvm.op_start_us <= timeout_us)\n"
        "\t\tbusy = f->busy(f->ctx);\n\tif (busy == 0)\n\t\treturn 1;", "service_bound"),
+    # ---- the journal (#823 decision 3): the boot's replay of a slot's log ----
+    # the log never replayed: the slot is its base alone
+    _m("replay_skipped", STORE,
+       "\tif (nvm_log_read(slot, nvm.base_seq[slot], 1, nvm.end_of[slot], &rd, &lg) != NVM_VD_OK)\n"
+       "\t\treturn 0;\n\tnvm.st.deltas = lg.n;\n\treturn lg.seq == seq;",
+       "\t(void)rd;\n\t(void)lg;\n\treturn 1;", "append_order", "change_commit_bytes"),
+    # T7: the deltas applied out of order, the first one again last
+    _m("deltas_applied_out_of_order", STORE,
+       "\tif (vd == NVM_UNREAD)\n\t\treturn vd;\n\tlg->end = off;",
+       "\tif (vd == NVM_UNREAD)\n\t\treturn vd;\n\tif (apply && lg->n > 1u) {\n\t\tuint32_t s0 = 0u;\n"
+       "\t\tuint32_t l0 = 0u;\n\n\t\t(void)nvm_seg_read(slot, NVM_LOG_START, 1, rd, &s0, &l0);\n\t}\n\tlg->end = off;",
+       "append_order"),
+    # T8: a segment accepted without its CRC-32
+    _m("delta_crc_unchecked", STORE, "\tif (~crc != nvm_rd32le(nvm_chunk + pad))\n\t\treturn NVM_VD_CRC;\n", "",
+       "torn_delta"),
+    _m("stale_delta_accepted", STORE, "\tif ((int32_t)(got - *seq) <= 0)\n\t\treturn NVM_VD_STALE;\n", "",
+       "stale_delta"),
+    # a replay past the end the log was judged to have reads a torn segment
+    # into the stage
+    _m("replay_past_judged_end", STORE,
+       "\twhile (off + NVM_KLJ_HDR <= NVM_SLOT_BYTES && off < limit) {",
+       "\twhile (off + NVM_KLJ_HDR <= NVM_SLOT_BYTES && limit) {", "torn_delta"),
+    # one walk of the log stands, a misread one included
+    _m("log_walk_unconfirmed", STORE, "\t\tif (nvm_agrees(seen, n)) {\n\t\t\t*lg = got[n];",
+       "\t\tif (1) {\n\t\t\t*lg = got[n];", "replay_reads"),
+    _m("log_read_fault_not_counted", STORE,
+       "\t\t\tnvm.st.read_faults++;\n\t\t\tcontinue;\n\t\t}\n\t\tif (nvm_agrees(seen, n)) {",
+       "\t\t\tcontinue;\n\t\t}\n\t\tif (nvm_agrees(seen, n)) {", "replay_read_faults"),
+    # a walk that cannot be judged leaves the base standing alone
+    _m("unjudged_log_kept", STORE, "\tif (!nvm_log_check(slot, &lg))\n\t\treturn nvm_unread(slot);",
+       "\tif (!nvm_log_check(slot, &lg))\n\t\treturn vd;", "replay_reads"),
+    # a replay whose sequence is not the one the slot was chosen by applied
+    _m("replay_seq_unchecked", STORE, "\tnvm.st.deltas = lg.n;\n\treturn lg.seq == seq;",
+       "\tnvm.st.deltas = lg.n;\n\t(void)seq;\n\treturn 1;", "replay_reads"),
+    # each rule of a delta's records and words, broken alone
+    _m("delta_count_unbounded", STORE, "\t\tif (pos + NVM_REC_HDR > end)\n\t\t\treturn NVM_VD_LEN;\n"
+       "\t\tif (nvm_take(rd, addr + pos, hdr, NVM_REC_HDR))", "\t\tif (nvm_take(rd, addr + pos, hdr, NVM_REC_HDR))",
+       "delta_refusals"),
+    _m("delta_magic_unchecked", STORE,
+       "\t\tif ((((uint32_t)hdr[0] << 8) | hdr[1]) != NVM_REC_MAGIC || hdr[2] != NVM3_LAYOUT",
+       "\t\tif (hdr[2] != NVM3_LAYOUT", "delta_refusals"),
+    _m("delta_layout_unchecked", STORE, " != NVM_REC_MAGIC || hdr[2] != NVM3_LAYOUT || hdr[3] != 0u ||",
+       " != NVM_REC_MAGIC || hdr[3] != 0u ||", "delta_refusals"),
+    _m("delta_reserved_unchecked", STORE, " || hdr[2] != NVM3_LAYOUT || hdr[3] != 0u ||\n",
+       " || hdr[2] != NVM3_LAYOUT ||\n", "delta_refusals"),
+    _m("delta_order_unchecked", STORE, "\t\t    (int)id <= last || !r.ok || r.plen != plen)",
+       "\t\t    !r.ok || r.plen != plen)", "delta_refusals"),
+    _m("delta_shape_unchecked", STORE, "\t\t    (int)id <= last || !r.ok || r.plen != plen)",
+       "\t\t    (int)id <= last || (r.ok && r.plen < plen))", "delta_refusals"),
+    _m("delta_overrun_unchecked", STORE,
+       "\t\tif (pos + NVM_REC_HDR + plen > end)\n\t\t\treturn NVM_VD_LEN;\n\t\tif (apply)", "\t\tif (apply)",
+       "delta_refusals"),
+    _m("delta_pad_unchecked", STORE, "\tif (pos + pad != end)\n\t\treturn NVM_VD_LEN;\n", "", "delta_refusals"),
+    _m("delta_cap_unchecked", CODEC, "\tif (img_len > NVM_SEG_MAX || img_len > room)",
+       "\tif (img_len > room)", "delta_refusals"),
+    _m("delta_room_unchecked", CODEC, "\tif (img_len > NVM_SEG_MAX || img_len > room)",
+       "\tif (img_len > NVM_SEG_MAX)", "delta_refusals"),
+    _m("delta_owner_unchecked", CODEC,
+       "\tif (nvm_rd32le(hdr + 20) != MILAN_ENTITY_ID_LO || nvm_rd32le(hdr + 24) != MILAN_ENTITY_ID_HI)\n"
+       "\t\treturn NVM_VD_ENT;\n\tif (nvm_rd32le(hdr + 28)", "\tif (nvm_rd32le(hdr + 28)", "delta_refusals"),
+    _m("delta_model_unchecked", CODEC,
+       "\tif (nvm_rd32le(hdr + 28) != MILAN_MODEL_ID_LO || nvm_rd32le(hdr + 32) != MILAN_MODEL_ID_HI)\n"
+       "\t\treturn NVM_VD_SHAPE;\n\tif (nvm_rd32le(hdr + 36) != NVM3_LAYOUT)\n\t\treturn NVM_VD_REC;\n\t*len",
+       "\tif (nvm_rd32le(hdr + 36) != NVM3_LAYOUT)\n\t\treturn NVM_VD_REC;\n\t*len", "delta_refusals"),
+    _m("delta_layout_word_unchecked", CODEC,
+       "\tif (nvm_rd32le(hdr + 36) != NVM3_LAYOUT)\n\t\treturn NVM_VD_REC;\n\t*len", "\t*len", "delta_refusals"),
+    # ---- the journal: the append ----
+    # a delta at the same sequence as the slot's last segment
+    _m("same_sequence", STORE, "\ts->seq = nvm.st.seq + 1u;", "\ts->seq = nvm.st.seq;", "change_commit_bytes"),
+    # nothing appends past a torn segment
+    _m("torn_appends", STORE, "\treturn nvm.st.auth != NVM_NONE && !nvm.st.torn && !nvm.full;",
+       "\treturn nvm.st.auth != NVM_NONE && !nvm.full;", "torn_delta", "media_failures"),
+    # a delta failed before any page of it was programmed is torn as well
+    _m("torn_without_program", STORE, "\t} else if (nvm.app.programmed) {\n\t\tnvm.st.torn = 1;",
+       "\t} else {\n\t\tnvm.st.torn = 1;", "suspend_slow", "suspend_master_stall"),
+    # A1: one segment holds the whole burst, past its cap
+    Mutant("seg_cap_ignored",
+           ((STORE, "\tuint32_t cap = nvm_min(NVM_SEG_MAX, NVM_SLOT_BYTES - nvm.st.log_end);",
+             "\tuint32_t cap = nvm_min(NVM_SEG_MAX * 4u, NVM_SLOT_BYTES - nvm.st.log_end);"),),
+           ("burst_deltas",), "endstation_ax7101_8x8"),
+    # T12: a full log drops the save it cannot take
+    _m("full_drops_save", STORE, "\tif (!s->n_rec) {\n\t\tnvm.full = 1;",
+       "\tif (!s->n_rec) {\n\t\tnvm_open_clear(&nvm.inflight);\n\t\tnvm.full = 1;", "reserve_exhausted"),
+    # decision 7: no deadline on an append, or a 300 ms one (T13)
+    _m("append_deadline_ignored", STORE,
+       "\tif (!nvm.in_append || nvm.now_us - nvm.due_us <= NVM_US(NVM_APPEND_TIMEOUT_MS))", "\tif (1)",
+       "append_deadline"),
+    _m("deadline_300ms", "nvm_store.h", "#define NVM_APPEND_TIMEOUT_MS 500u", "#define NVM_APPEND_TIMEOUT_MS 300u",
+       "append_deadline", "commit_deadline"),
+    # T11: the 1,000 ms firmware window DR2a ruled before decision 4
+    _m("window_1000ms", "nvm_store.h", "#define NVM_WINDOW_MS 150u", "#define NVM_WINDOW_MS 1000u", "debounce",
+       "save_bound"),
+    # ---- the journal: compaction ----
+    # a record a base's page cuts read from the stage at the next page
+    _m("carry_dropped", STORE, "(at < nvm.front) ? nvm_carry[at - nvm.carry_at] : nvm_stage[at];",
+       "(at < nvm.front) ? nvm_stage[at] : nvm_stage[at];", "compaction_carry"),
+    # T9: the authority moved before the base closes, or before the old log
+    # is copied behind it
+    _m("move_before_base_closes", STORE, "\t\tif (s->pos < s->len) {\n\t\t\tnvm_to_idle();",
+       "\t\tif (s->pos < NVM_FLASH_PAGE) {\n\t\t\tnvm_to_idle();", "torn_compaction", "compaction_bytes"),
+    _m("move_before_copy", STORE, "\tif (nvm.st.auth != NVM_NONE && nvm.copy_from + s->pos < nvm.st.log_end) {",
+       "\tif (0) {", "compaction_yields", "torn_compaction"),
+    # the base sequenced above the old slot: the copied deltas are stale behind it
+    _m("base_seq_above_old", STORE, "\ts->seq = nvm.st.seq + (nvm.st.auth == NVM_NONE ? 1u : 0u);",
+       "\ts->seq = nvm.st.seq + 1u;", "compaction_yields", "compaction_bytes"),
+    # a value only the base carries cleared over an old slot: a tie at boot
+    # may take the old slot without it
+    _m("inflight_cleared_at_move", STORE, "\tnvm.force_cmp = 0;\n\tif (old == NVM_NONE) {",
+       "\tnvm.force_cmp = 0;\n\tif (1) {", "reserve_exhausted"),
+    _m("behind_ignored", STORE, "\tif (nvm.st.compacting && NVM_KLJ_HDR + r.off < nvm.front)\n"
+       "\t\tnvm_open_set(&nvm.behind, r.id);\n", "", "first_base_behind"),
+    # rule 8: the reserve never asks for a compaction
+    _m("reserve_ignored", STORE, "\treturn NVM_SLOT_BYTES - nvm.st.log_end < NVM_RESERVE;", "\treturn 0;",
+       "compaction_reserve"),
+    # rule 5: a compaction that never yields to a save
+    _m("compaction_never_yields", STORE, "\t\tif (s->pos < s->len) {\n\t\t\tnvm_to_idle();\n\t\t\treturn;",
+       "\t\tif (s->pos < s->len) {\n\t\t\tnvm.st.phase = NVM_P_ASSEMBLE;\n\t\t\treturn;", "compaction_yields"),
+    _m("copy_read_fail_ignored", STORE,
+       "\t\tif (f->read(f->ctx, nvm_slot_addr(nvm.st.auth) + nvm.copy_from + s->pos, nvm_page,\n"
+       "\t\t\t    NVM_FLASH_PAGE)) {",
+       "\t\tif (f->read(f->ctx, nvm_slot_addr(nvm.st.auth) + nvm.copy_from + s->pos, nvm_page,\n"
+       "\t\t\t    NVM_FLASH_PAGE) && 0) {", "compaction_copy_read"),
+    _m("failed_compaction_not_prepared", STORE, "\t\tnvm.st.compacting = 0;\n\t\tnvm_prep(nvm.cmp.slot);",
+       "\t\tnvm.st.compacting = 0;\n\t\tnvm.st.bg = NVM_B_READY;", "compaction_failure_reprepares"),
+    # a work set a compaction left in flight forgiven its attempts: the
+    # store loops compacting
+    _m("move_forgives_attempts", STORE, "\tif (nvm.cur == &nvm.app || !nvm_any(&nvm.inflight)) {",
+       "\tif (1) {", "media_failures"),
+    # ---- the journal: the background preparation and the erase suspend ----
+    # the other slot taken as blank unread
+    _m("prep_skips_check", STORE, "\tnvm.prep_erased = 0;\n\tnvm.st.bg = NVM_B_CHECK;\n}",
+       "\tnvm.prep_erased = 0;\n\tnvm.st.bg = NVM_B_READY;\n}", "capacity_commit_over_stale"),
+    _m("prep_first_block_only", STORE, "\tif (nvm.prep_pos == NVM_SLOT_BYTES) {",
+       "\tif (nvm.prep_pos == NVM_ERASE_BLOCK) {", "blankcheck_tail"),
+    _m("check_skips_pages", STORE, "\tnvm.prep_pos += NVM_STEP_BYTES;\n\tif (nvm.prep_pos % NVM_ERASE_BLOCK == 0u)",
+       "\tnvm.prep_pos += 2u * NVM_STEP_BYTES;\n\tif (nvm.prep_pos % NVM_ERASE_BLOCK == 0u)", "blankcheck_tail"),
+    _m("check_read_fail_ignored", STORE,
+       "\tif (f->read(f->ctx, nvm_slot_addr(nvm.prep_slot) + nvm.prep_pos, nvm_chunk, NVM_STEP_BYTES)) {\n"
+       "\t\tnvm_prep_fail(NVM_VD_ERASE);\n\t\treturn;\n\t}",
+       "\t(void)f->read(f->ctx, nvm_slot_addr(nvm.prep_slot) + nvm.prep_pos, nvm_chunk, NVM_STEP_BYTES);",
+       "media_verdicts"),
+    # an erase that leaves the block written taken for erased
+    _m("erased_twice_accepted", STORE, "\tif (nvm.prep_erased || f->erase(", "\tif (f->erase(", "prep_failures"),
+    # the right count of erases, each of the slot's first block
+    _m("erase_first_block_every_time", STORE, "\tnvm.prep_pos &= ~(NVM_ERASE_BLOCK - 1u);", "\tnvm.prep_pos = 0;",
+       "capacity_commit_over_stale"),
+    _m("prep_unbounded", STORE, "\tnvm.st.bg = (++nvm.prep_tries >= NVM_TXN_ATTEMPTS) ? NVM_B_FAILED : NVM_B_CHECK;",
+       "\tnvm.st.bg = NVM_B_CHECK;", "prep_failures"),
+    _m("prep_no_backoff", STORE, "\tnvm.prep_at_us = nvm.now_us + NVM_US(NVM_TXN_BACKOFF_MS);",
+       "\tnvm.prep_at_us = nvm.now_us;", "prep_failures"),
+    _m("erase_timeout_ignored", STORE,
+       "\tif (busy < 0 || nvm.erase_run_us + (nvm.now_us - nvm.erase_from_us) > NVM_US(MILAN_NVM_ERASE_TIMEOUT_MS))",
+       "\tif (busy < 0)", "time_base"),
+    # the erase's deadline counts the time a save held it suspended
+    Mutant("erase_deadline_counts_suspend",
+           ((STORE, "\tnvm.erase_run_us += nvm.op_start_us - nvm.erase_from_us;\n", ""),
+            (STORE, "\tnvm.suspended = 0;\n\tnvm.erase_from_us = nvm.now_us;\n", "\tnvm.suspended = 0;\n")),
+           ("erase_time_excludes_suspend",)),
+    # reads after a failed erase while the device is still busy
+    _m("prep_reads_busy", STORE, "\tif (nvm.erasing) {\n\t\tif (f->busy(f->ctx) != 0)\n\t\t\treturn;\n"
+       "\t\tnvm.erasing = 0;\n\t}\n\tif (f->read(", "\tif (f->read(", "prep_failures"),
+    # a program left running by a failed one is not waited for
+    _m("owed_not_waited", STORE, "\tif (nvm.suspended || nvm.owed) {", "\tif (nvm.suspended) {", "media_failures"),
+    # a delta that fails while it holds the erase suspended leaves it so
+    _m("failed_save_keeps_suspend", STORE, "\tif (nvm.suspended || nvm.owed) {", "\tif (nvm.owed) {",
+       "erase_resumed_after_failure"),
+    # decision 5: the save waits for the erase instead of suspending it
+    _m("save_waits_for_erase", STORE,
+       "\tif (nvm.erasing && !nvm.suspended) {\n\t\tnvm.st.phase = NVM_P_SUSPEND;\n\t\treturn;\n\t}",
+       "\tif (nvm.erasing && !nvm.suspended) {\n\t\tif (f->busy(f->ctx) == 0)\n\t\t\tnvm.erasing = 0;\n"
+       "\t\treturn;\n\t}", "erase_suspended"),
+    _m("no_resume", STORE, "\t(void)nvm.flash->resume(nvm.flash->ctx);", "", "erase_suspended"),
+    # A3: the slow suspend not counted, and the suspend not timed
+    _m("slow_suspend_not_counted", STORE, "\tif (took > NVM_SUSPEND_ROOM_US)\n\t\tnvm.st.suspend_slow++;\n", "",
+       "suspend_slow"),
+    _m("suspend_untimed", STORE, "\tif (took > nvm.st.suspend_us_max)\n\t\tnvm.st.suspend_us_max = took;\n", "",
+       "erase_suspended", "suspend_slow"),
+    # a suspend not seen to take effect taken as never issued: one that
+    # takes effect later is never resumed
+    _m("late_suspend_kept", STORE, "\tif (nvm.st.phase == NVM_P_SUSPEND_WAIT)\n\t\tnvm.suspended = 1;\n", "",
+       "suspend_slow"),
+    # the erase found ended suspended all the same
+    _m("ended_erase_suspended", STORE, "\tif (busy == 0) {\n\t\tnvm.erasing = 0;\n\t\tnvm.st.phase = NVM_P_PROGRAM;",
+       "\tif (busy == 0 && 0) {\n\t\tnvm.erasing = 0;\n\t\tnvm.st.phase = NVM_P_PROGRAM;",
+       "erase_ended_before_suspend"),
+    _m("suspend_fault_ignored", STORE, "\tif (busy < 0 || f->suspend(f->ctx)) {\n\t\tnvm_fail(NVM_VD_ERASE);",
+       "\tif (busy < 0 && f->suspend(f->ctx)) {\n\t\tnvm_fail(NVM_VD_ERASE);", "suspend_master_stall"),
+    # the LiteSPI port's suspend sends nothing, or the wrong code
+    _m("litespi_no_suspend", LITESPI, "\treturn ls_one(LS_CMD_PES);", "\treturn 0;", "erase_suspended"),
+    _m("litespi_pes_wrong_code", LITESPI, "#define LS_CMD_PES  0x75u", "#define LS_CMD_PES  0xb0u",
+       "erase_suspended"),
     # ---- the LiteSPI port ----
     _m("litespi_no_wren", LITESPI,
        "\tif (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))",

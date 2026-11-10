@@ -242,10 +242,10 @@ TEST_F(NvmModel, klj2_journal_unreadable) {
 TEST_F(NvmModel, read_flip_at_stage) {
     Files f = fx().files({{"a.bin", "golden@3"}, {"b.bin", "changed41@4"}});
     const std::vector<std::string> slots = {"--slot-a", "a.bin", "--slot-b", "b.bin"};
-    // two reads judge each slot (the header, then the container); the fifth
-    // read re-stages slot B
+    // four reads judge each slot (the header, the container, then its empty
+    // log walked twice); the ninth read re-stages slot B
     std::vector<std::string> words = slots;
-    words.insert(words.end(), {"--boot-fault", "read-flip:1:4", "--boot", "--dump-state", "st"});
+    words.insert(words.end(), {"--boot-fault", "read-flip:1:8", "--boot", "--dump-state", "st"});
     Result r = go(port(), f, words);
     EXPECT_TRUE(r.at("auth") == 1 && r.at("seq") == 4 && r.at("cause") == 0 && r.at("unread") == 0 &&
                 r.at("read_faults") == 1 && r.at("phase") == NVM_P_IDLE && r.at("terminal") == NVM_T_COMPLETE)
@@ -253,7 +253,7 @@ TEST_F(NvmModel, read_flip_at_stage) {
     expect_state(f, "st", fx().payloads("changed41"));
     words = slots;
     words.insert(words.end(),
-                 {"--boot-fault", "read-flip:" + std::to_string(kReadTries) + ":4", "--boot", "--dump-state", "st"});
+                 {"--boot-fault", "read-flip:" + std::to_string(kReadTries) + ":8", "--boot", "--dump-state", "st"});
     r = go(port(), f, words);
     EXPECT_TRUE(r.at("cause") == NVM_C_STAGE && r.at("auth") == 0 && r.at("seq") == 3 && r.at("vd_b") == NVM_VD_LEN &&
                 r.at("unread") == 2 && r.at("phase") == NVM_P_HELD && r.at("terminal") == NVM_T_COMPLETE)
@@ -321,17 +321,18 @@ TEST_F(NvmModel, read_alias_at_stage) {
     static const char* const kPayloads[2] = {"golden", "changed37"};
     static constexpr SeqPair kSeqs{6, 5};
     Files f = fx().files({{"a.bin", "golden@6"}, {"b.bin", "changed37@5"}});
-    // reads 0-3 judge the two slots; read 4 re-stages slot A
+    // reads 0-7 judge the two slots (each its header, container and empty
+    // log twice); read 8 re-stages slot A
     Result r = go(port(), f,
                {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot-fault",
-                "read-alias:" + std::to_string(kReadTries) + ":4", "--boot", "--dump-stage", "stage.bin",
+                "read-alias:" + std::to_string(kReadTries) + ":8", "--boot", "--dump-stage", "stage.bin",
                 "--dump-state", "st"});
     consistent(f, r, kPayloads, kSeqs, "every re-stage aliased");
     EXPECT_TRUE(r.at("auth") == 1 && r.at("cause") == NVM_C_STAGE && r.at("vd_a") == NVM_VD_LEN &&
                 r.at("unread") == 1 && r.at("phase") == NVM_P_HELD)
         << "every re-stage aliased: " << r.text();
     r = go(port(), f,
-           {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot-fault", "read-alias:1:4", "--boot", "--dump-stage",
+           {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot-fault", "read-alias:1:8", "--boot", "--dump-stage",
             "stage.bin", "--dump-state", "st"});
     consistent(f, r, kPayloads, kSeqs, "one aliased re-stage");
     EXPECT_TRUE(r.at("auth") == 0 && r.at("unread") == 0 && r.at("phase") == NVM_P_IDLE)
@@ -353,14 +354,15 @@ TEST_F(NvmModel, read_fail_boot) {
         long long cause;
         long long faults;
     };
-    // reads 0 and 1 judge slot A, 2 and 3 slot B (its header, then its
-    // container); the container's middle covers SLOT_B + 0x100, the header not
+    // reads 0 to 3 judge slot A, 4 to 7 slot B (its header, its container,
+    // then its empty log twice); the container's middle covers SLOT_B +
+    // 0x100, the header not; read 8 re-stages slot B
     const std::string body = "0x" + hex(NVM_SLOT_B + 0x100u);
     const std::string tries = std::to_string(kReadTries);
-    const Case cases[] = {{"read-fail:2:2", 1, 0, 2},
+    const Case cases[] = {{"read-fail:2:4", 1, 0, 2},
                           {"read-fail-at:" + tries + ":0:" + body, 0, 0, kReadTries},
-                          {"read-fail:" + tries + ":4", 0, NVM_C_STAGE, kReadTries},
-                          {"read-fail:1:4", 1, 0, 1}};
+                          {"read-fail:" + tries + ":8", 0, NVM_C_STAGE, kReadTries},
+                          {"read-fail:1:8", 1, 0, 1}};
     for (const Case& c : cases) {
         Files f = fx().files({{"a.bin", "golden@5"}, {"b.bin", "changed37@6"}});
         const Result r = go(port(), f,
@@ -385,7 +387,7 @@ TEST_F(NvmModel, fallback_restage) {
     Files f = fx().files({{"a.bin", "golden@5"}, {"b.bin", "changed37@6"}});
     const Result r = go(port(), f,
                      {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot-fault",
-                      "read-flip:" + std::to_string(2 * kReadTries) + ":4", "--boot", "--dump-state", "st", "--set",
+                      "read-flip:" + std::to_string(2 * kReadTries) + ":8", "--boot", "--dump-state", "st", "--set",
                       set_word(last, Bytes(plen(last), 0u)), "--run-ms", "3000", "--commit-try"});
     EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("cause") == NVM_C_STAGE && r.at("sm_applies") == 0 &&
                 r.at("vd_a") == NVM_VD_LEN && r.at("vd_b") == NVM_VD_LEN && r.at("unread") == 3 &&

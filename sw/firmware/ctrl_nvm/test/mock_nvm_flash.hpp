@@ -4,7 +4,7 @@
 // mock_nvm_flash.hpp - the store's flash port (nvm_flash.h) as a GoogleMock
 // object (#665 lane FT).
 //
-// struct nvm_flash is the store's whole media port: five calls and a context
+// struct nvm_flash is the store's whole media port: seven calls and a context
 // pointer. port() returns one whose calls forward to this mock, so a test
 // hands the store a medium that answers each read with bytes the test
 // chooses, read by read, which no model of a device produces on demand.
@@ -28,6 +28,8 @@ class MockNvmFlash {
     MOCK_METHOD(int, program, (std::uint32_t addr, const std::uint8_t* src, std::uint32_t len));
     MOCK_METHOD(int, erase, (std::uint32_t addr));
     MOCK_METHOD(int, busy, ());
+    MOCK_METHOD(int, suspend, ());
+    MOCK_METHOD(int, resume, ());
     MOCK_METHOD(std::uint64_t, now_us, ());
 
     //! The port the store is handed: every call reaches this mock.
@@ -43,9 +45,11 @@ class MockNvmFlash {
     }
     static int erase_(void* ctx, std::uint32_t addr) { return self(ctx)->erase(addr); }
     static int busy_(void* ctx) { return self(ctx)->busy(); }
+    static int suspend_(void* ctx) { return self(ctx)->suspend(); }
+    static int resume_(void* ctx) { return self(ctx)->resume(); }
     static std::uint64_t now_us_(void* ctx) { return self(ctx)->now_us(); }
 
-    const nvm_flash port_{read_, program_, erase_, busy_, now_us_, this};
+    const nvm_flash port_{read_, program_, erase_, busy_, suspend_, resume_, now_us_, this};
 };
 
 #endif  // MOCK_NVM_FLASH_HPP

@@ -25,6 +25,13 @@ frames (the vector bench's frames). SEQ is the sequence in hex. ~AT flips bit
 7 of byte AT and leaves the trailer as it was (a torn slot); /majorK rewrites
 the format word's major version and /foreign the entity model id, both
 resealed. parity/N is the N-th refusal of the verdict-parity table.
+
+A slot with a log (#823 decision 3) is a container recipe followed by its
+deltas, each `+DSET@SEQ[~AT]`: DSET is changedXX (the first record of every
+group, as changedXX gives it), oneN (the last record), firstN (the first
+record) or allN (every record, test seed N), each delta assembled by
+scripts/nvm_klj3.py klj3_delta and placed by klj3_slot; ~AT flips bit 7 of
+the delta's byte AT, so it does not close.
 """
 
 from __future__ import annotations
@@ -41,8 +48,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from nvm_contract import KLJ2_HDR, VD_LEN, VD_OK, Donor, Ident          # noqa: E402
 from nvm_klj2 import crc16_ccitt, frame_record, key_of_id, klj2_assemble, payload_bytes  # noqa: E402
-from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, frame_record3,  # noqa: E402
-                      inventory3, rid_of_key3)
+from nvm_klj3 import (LAYOUT, REC_HDR3, SEG_MAX, erased_record3, frame_record3,  # noqa: E402
+                      inventory3, klj3_delta, klj3_slot, klj3_slot_decode, log_start, reserve, rid_of_key3)
 from nvm_shape import binding_base, inventory, layout_version          # noqa: E402
 
 from nvm_bench import JOURNAL, LEGACY, LEGACY_SLOT, SLOT, Bench        # noqa: E402
@@ -58,9 +65,15 @@ NEWER_WINS = ((9, 10), (10, 9), (0xFFFF_FFFF, 0), (0, 0xFFFF_FFFF), (7, 7), (0xF
 FLIP_PAIRS = ((5, 6), (6, 5), (0xFFFF_FFFF, 0), (0, 0xFFFF_FFFF))
 #: The seeds of the test's one-record changes whose committed slot is compared.
 ONE_SEEDS = (3, 6, 22, 25, 26, 27)
+#: The slots test_nvm_journal.cpp loads or compares with (#823 decision 3).
+JOURNAL_IMAGES = ["golden@5+one3@6", "golden@5+one3@6+one6@7", "golden@5+one3@5", "one3@6", "golden@5+first9@6",
+                  "golden@5+one3@6+first9@7"]
+#: The restored states test_nvm_journal.cpp compares with.
+JOURNAL_PAYLOADS = ("golden@5+one3@6", "golden@5+one3@6+one6@7", "golden@5+one3@6+first9@7")
 #: Every payload set a test compares a restored state with.
 PAYLOAD_SETS = ("golden", "half", "changed2b", "changed41", "changed37", "changed5c", "changed60", "changed61")
 
+_DELTA = re.compile(r"^(?P<set>changed|one|first|all)(?P<seed>[0-9a-f]+)@(?P<seq>[0-9a-f]+)(?:~(?P<at>\d+))?$")
 _RECIPE = re.compile(r"^(?P<set>golden|frames|erased_one|erased|half|changed|one)(?P<seed>[0-9a-f]+)?"
                      r"@(?P<seq>[0-9a-f]+)(?:~(?P<at>\d+)|/major(?P<major>\d+)|/(?P<foreign>foreign))?$")
 
@@ -117,8 +130,35 @@ def frameset(b: Bench, name: str, seed: int | None) -> dict[int, bytes]:
     raise ValueError(f"no record set {name!r}")
 
 
+def delta(b: Bench, recipe: str) -> bytes:
+    """The delta segment a `+DSET@SEQ[~AT]` names, from the reference encoder."""
+    m = _DELTA.match(recipe)
+    if m is None:
+        raise ValueError(f"not a delta recipe: {recipe!r}")
+    name, seed = m.group("set"), m.group("seed")
+    if name == "changed":
+        frames = {rid: frame_record3(rid, p) for rid, p in changed_frames(b, int(seed, 16))[1].items()
+                  if frame_record3(rid, p) != b.frames[rid]}
+    else:
+        pick = {"one": [max(b.frames)], "first": [min(b.frames)], "all": sorted(b.frames)}[name]
+        frames = {rid: frame_record3(rid, value(b, rid, int(seed))) for rid in pick}
+    blob = klj3_delta(frames, Ident(seq=int(m.group("seq"), 16), entity_id=b.ident.entity_id,
+                                    model_id=b.ident.model_id))
+    if len(blob) > SEG_MAX:
+        raise ValueError(f"{recipe}: {len(blob)} bytes is more than one segment")
+    if m.group("at"):
+        at = int(m.group("at"))
+        blob = blob[:at] + bytes([blob[at] ^ 0x80]) + blob[at + 1:]
+    return blob
+
+
 def image(b: Bench, recipe: str) -> bytes:
-    """The container a recipe names, from the reference encoder."""
+    """The container, or the slot with its log, a recipe names, from the reference encoder."""
+    if recipe == "tail_written":
+        return bytes([0xFF]) * (SLOT - 1) + b"\x00"
+    if "+" in recipe:
+        base, *deltas = recipe.split("+")
+        return klj3_slot(image(b, base), [delta(b, d) for d in deltas])
     if recipe.startswith("parity/"):
         return parity(b)[int(recipe.split("/", 1)[1])][1]
     m = _RECIPE.match(recipe)
@@ -135,6 +175,88 @@ def image(b: Bench, recipe: str) -> bytes:
     if m.group("foreign"):
         return reseal(blob[:28] + struct.pack("<I", 0xDEAD_0002) + blob[32:])
     return blob
+
+
+def img_len(b: Bench) -> int:
+    """The shape's container length, as the reference assembles it."""
+    return len(b.assemble(b.frames, 0))
+
+
+def filled_log(b: Bench, deltas: int) -> bytes:
+    """golden@5 and `deltas` one-page deltas behind it, each the last record
+    with the next value, at sequences 6 on."""
+    last = max(b.frames)
+    segs = [klj3_delta({last: frame_record3(last, value(b, last, k % 251))},
+                       Ident(seq=6 + k, entity_id=b.ident.entity_id, model_id=b.ident.model_id))
+            for k in range(deltas)]
+    return klj3_slot(image(b, "golden@5"), segs)
+
+
+def delta_cases(b: Bench) -> list[tuple[str, bytes, int]]:
+    """Deltas that do not close, each behind golden@5 and each refused by one
+    rule of the walk (klj3_slot_decode: torn, the base and the deltas before
+    it standing), resealed so its CRC-32 closes and only that rule refuses
+    it: (label, slot, closing deltas before it)."""
+    ident = Ident(seq=6, entity_id=b.ident.entity_id, model_id=b.ident.model_id)
+    first, last = min(b.frames), max(b.frames)
+    fr = frame_record3(last, value(b, last, 3))
+    pay = fr[REC_HDR:]
+    fr_first = frame_record3(first, value(b, first, 9))
+    seg = klj3_delta({last: fr}, ident)
+
+    def reframed(hdr: bytes, payload: bytes) -> bytes:
+        """A frame whose header's first eight bytes are `hdr`, its crc16 closing."""
+        return hdr + struct.pack(">H", crc16_ccitt(hdr + payload)) + payload
+
+    def body(frames: list[bytes], nrec: int | None = None, extra: int = 0, ln: int | None = None) -> bytes:
+        """A segment of these frames, in this order, its words overridden as asked, resealed."""
+        area = b"".join(frames)
+        area += bytes((-len(area)) % 4) + bytes(extra)
+        length = KLJ2_HDR + len(area) + 4 if ln is None else ln
+        hdr = struct.pack("<10I", 0x334A4C4B, 0x0003_0000, 6, len(frames) if nrec is None else nrec, length,
+                          ident.entity_id & 0xFFFF_FFFF, ident.entity_id >> 32, ident.model_id & 0xFFFF_FFFF,
+                          ident.model_id >> 32, LAYOUT.layout)
+        return reseal((hdr + area)[:length - 4] + bytes(4))
+
+    golden = image(b, "golden@5")
+    log_pages = (SLOT - log_start(img_len(b))) // 256
+    near_end = filled_log(b, log_pages - 1)
+    tail = struct.pack("<10I", 0x334A4C4B, 0x0003_0000, 6 + log_pages - 1, 1, 512,
+                       ident.entity_id & 0xFFFF_FFFF, ident.entity_id >> 32, ident.model_id & 0xFFFF_FFFF,
+                       ident.model_id >> 32, LAYOUT.layout)
+    cases = [
+        ("N_REC one too many", body([fr], nrec=2)),
+        ("IMG_LEN short of its last record", body([fr], ln=KLJ2_HDR + len(fr))),
+        ("the pad short of the trailer", body([fr], extra=4)),
+        ("a record's magic", body([b"\x17\x23" + fr[2:]])),
+        ("a record's layout_version", body([reframed(fr[:2] + bytes([LAYOUT.layout + 1]) + fr[3:8], pay)])),
+        ("a record's reserved byte set", body([reframed(fr[:3] + b"\x01" + fr[4:8], pay)])),
+        ("two records in descending id", body([fr, fr_first])),
+        ("a record id past the shape's last", body([reframed(fr[:4] + struct.pack(">H", last + 1) + fr[6:8], pay)])),
+        ("a record's length not the shape's", body([reframed(fr[:6] + struct.pack(">H", len(pay) - 1), pay[:-1])])),
+        ("IMG_LEN past the segment cap", seg[:16] + struct.pack("<I", SEG_MAX + 4) + seg[20:]),
+        ("the entity_id's low word foreign", patched(seg, 20, struct.pack("<I", 0xDEAD_0001))),
+        ("the entity_id's high word foreign", patched(seg, 24, struct.pack("<I", 0xDEAD_0003))),
+        ("the entity_model_id's low word foreign", patched(seg, 28, struct.pack("<I", 0xDEAD_0002))),
+        ("the entity_model_id's high word foreign", patched(seg, 32, struct.pack("<I", 0xDEAD_0004))),
+        ("the record layout word off", patched(seg, 36, struct.pack("<I", LAYOUT.layout + 1))),
+        ("a KLJ2 magic", patched(seg, 0, b"KLJ2")),
+    ]
+    out = [(label, klj3_slot(golden, [blob]), 0) for label, blob in cases]
+    out.append(("IMG_LEN past the slot's room", near_end + tail, log_pages - 1))
+    return out
+
+
+def pattern_deltas(b: Bench) -> int:
+    """The deltas a change to every record takes: its frames in ascending id,
+    as many as fit one segment each time (the store's packing)."""
+    n, area = 1, 0
+    for rid in sorted(b.frames):
+        span = len(b.frames[rid])
+        if KLJ2_HDR + 4 + ((area + span + 3) & ~3) > SEG_MAX:
+            n, area = n + 1, 0
+        area += span
+    return n
 
 
 def klj2_container(b: Bench, seq: int) -> bytes:
@@ -298,10 +420,20 @@ def rid_payloads(b: Bench, blob: bytes) -> dict[int, bytes]:
     return {rid_of_key3(k): v for k, v in applied.items()} if vd == VD_OK else {}
 
 
+def slot_payloads(b: Bench, recipe: str) -> dict[int, bytes]:
+    """record id -> payload of every record klj3_slot_decode leaves for a slot recipe."""
+    blob = image(b, recipe)
+    vd, _seq, applied, _end, _torn = klj3_slot_decode(blob + bytes([0xFF]) * (SLOT - len(blob)), b.ident, b.expect)
+    return {rid_of_key3(k): v for k, v in applied.items()} if vd == VD_OK else {}
+
+
 def payload_set(b: Bench, name: str) -> dict[int, bytes]:
-    """A payload set a restored state is compared with, decoded from its image."""
+    """A payload set a restored state is compared with, decoded from its image
+    (a slot recipe, with a `+`, decoded as it is)."""
     if name.endswith("_firsts"):
         return changed_frames(b, int(name[len("changed"):-len("_firsts")], 16))[1]
+    if "+" in name:
+        return slot_payloads(b, name)
     return rid_payloads(b, image(b, f"{name}@5"))
 
 
@@ -314,6 +446,11 @@ def main_images() -> list[str]:
     names += [f"golden@{a:x}" for a, _ in FLIP_PAIRS] + [f"changed37@{b:x}" for _, b in FLIP_PAIRS]
     names += [f"one{seed}@6" for seed in ONE_SEEDS]
     names += [f"changed6{x}@{seq:x}" for x in (0, 1) for seq in AUTH_SEQS]
+    # the append path (#823 decision 3): a delta behind a base, and the
+    # retry's base at the old sequence with the change appended behind it
+    names += ["golden@5+changed5c@6", "golden@5+changed33@6", "changed5c@5+changed5c@6", "tail_written"]
+    names += [f"one{seed}@5+one{seed}@6" for seed in ONE_SEEDS]
+    names += JOURNAL_IMAGES
     return sorted(set(names))
 
 
@@ -380,6 +517,7 @@ def facts(w: Writer, b: Bench) -> None:
     names = sorted(rid for g, _i, rid, _p, _b in _rows(b) if g == "NAME")
     w.list("rids", rids)
     w.list("plens", [len(b.frames[r]) - REC_HDR for r in rids])
+    w.list("offs", [b.offsets()[r] for r in rids])
     w.list("binding_ids", binding_ids(b))
     w.list("d3_ids", sorted(set(rids) - set(binding_ids(b))))
     w.num("img_len", len(b.assemble(b.frames, 0)))
@@ -398,6 +536,13 @@ def facts(w: Writer, b: Bench) -> None:
     w.num("journal_a", JOURNAL["offset"])
     w.num("journal_b", JOURNAL["offset"] + SLOT)
     w.num("erase_block", literal("FLASH_ERASE_BLOCK"))
+    # the journal's geometry as the reference derives it (#823 decision 3)
+    img_len = len(b.assemble(b.frames, 0))
+    w.num("slot_bytes", SLOT)
+    w.num("log_start", log_start(img_len))
+    w.num("reserve", reserve(img_len))
+    w.num("seg_max", SEG_MAX)
+    w.num("pattern_deltas", pattern_deltas(b))
 
 
 def write_fixture(b: Bench, out: Path) -> Path:
@@ -423,6 +568,25 @@ def write_fixture(b: Bench, out: Path) -> Path:
     w.num("long_crc_verdict", verdict(b, codec[7][1]))
     for name in PAYLOAD_SETS + ("changed5c_firsts",):
         w.payloads(name, payload_set(b, name))
+    # the journal (#823 decision 3): a delta whose pad byte is flipped, so
+    # only its CRC-32 refuses it; a log past half its room (below the
+    # reserve); a log with no room left; and the deltas the pattern of every
+    # record takes, packed as the store packs them
+    pad_at = KLJ2_HDR + len(b.frames[max(b.frames)])
+    w.blob("torn_pad", image(b, f"golden@5+one3@6+one6@7~{pad_at}"))
+    w.num("torn_pad_at", pad_at)
+    log_pages = (SLOT - log_start(img_len(b))) // 256
+    for name, deltas in (("below_reserve", log_pages - reserve(img_len(b)) // 256 + 1),
+                         ("log_full", (SLOT - log_start(img_len(b))) // 256)):
+        w.blob(name, filled_log(b, deltas))
+        w.num(f"{name}_deltas", deltas)
+    cases = delta_cases(b)
+    for n, (label, blob, deltas) in enumerate(cases):
+        w.blob(f"delta_case/{n}", blob)
+        w.text(f"delta_case_label/{n}", label)
+    w.list("delta_case_deltas", [deltas for _l, _b, deltas in cases])
+    for name in JOURNAL_PAYLOADS:
+        w.payloads(name, payload_set(b, name))
     # today's journal: the shipping writer's KLJ2 container, refused VD_VER
     # wherever the store meets it (#823 decision 2)
     w.blob("klj2@5", klj2_container(b, 5))
@@ -439,6 +603,7 @@ def write_capacity_fixture(b: Bench, out: Path) -> Path:
     facts(w, b)
     golden = image(b, "golden@1")
     w.blob("golden@1", golden)
+    w.blob("golden@0", image(b, "golden@0"))
     w.blob("golden@3", image(b, "golden@3"))
     w.payloads("golden", rid_payloads(b, golden))
     last = max(b.frames)
@@ -446,6 +611,28 @@ def write_capacity_fixture(b: Bench, out: Path) -> Path:
     past[last + 1] = frame_record3(last + 1, bytes(64))
     w.blob("one_past@1", b.assemble(past, 1))
     w.num("one_past_verdict", verdict(b, b.assemble(past, 1)))
+    w.close()
+    return out
+
+
+def write_bound_fixture(b: Bench, out: Path) -> Path:
+    """The fixture of test_nvm_bound.cpp: the bound shape's facts, its golden
+    base, an older one for the other slot, and the names of A1's burst, the
+    first names that fill one delta segment (docs/design/SAVED_STATE_FORMAT_32X32.md
+    section 4)."""
+    w = Writer(out)
+    facts(w, b)
+    w.blob("golden@5", image(b, "golden@5"))
+    w.blob("golden@3", image(b, "golden@3"))
+    names = sorted(rid for g, _i, rid, _p, _b in _rows(b) if g == "NAME")
+    burst, area = [], 0
+    for rid in names:
+        span = len(b.frames[rid])
+        if KLJ2_HDR + 4 + ((area + span + 3) & ~3) > SEG_MAX:
+            break
+        burst.append(rid)
+        area += span
+    w.list("burst_ids", burst)
     w.close()
     return out
 
@@ -464,6 +651,7 @@ def write_vector_fixture(vb: Bench, out: Path) -> Path:
     w = Writer(out)
     facts(w, vb)
     w.blob("erased@6", image(vb, "erased@6"))
+    w.blob("erased@5", image(vb, "erased@5"))
     want = image(vb, "frames@7")
     w.blob("frames@7", want)
     w.payloads("frames", rid_payloads(vb, want))

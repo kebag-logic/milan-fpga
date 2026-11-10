@@ -5,11 +5,16 @@
 // hand-rolled suite (test/nvm_test.c), word for word, run in the test's own
 // process.
 //
-// --powercut is the one loop that runs here rather than in a test: for every
-// media effect of one commit (the erase and each page program) and four
+// --powercut is one of two loops that run here rather than in a test: for
+// every media effect of one save (a delta's pages, or a base's on blank
+// media, and any erase the background preparation makes first) and four
 // points inside it, the power fails, the board boots again and the restored
 // values must be the old set or the new set exactly; then a change must
-// commit and boot back, so the store recovers from every cut.
+// commit and boot back, so the store recovers from every cut. The other,
+// --powercut-compaction, cuts every effect of a compaction a save lands in
+// the middle of (#823 decision 3, test plan T9): the board boots the old set
+// or the new one, the new one whenever the save had been reported, and
+// recovers.
 
 #include "nvm_rig.hpp"
 
@@ -31,6 +36,7 @@ constexpr unsigned kTimes = 16u;                   // failure and commit times k
 
 struct Knobs {
     std::string boot_fault;  // a flash-model fault armed at power on
+    bool protect = false;    // the authoritative slot's closed bytes kept, and the slot unerased
     bool not_ready = false;
     bool apply_fault = false;
     unsigned apply_fault_id = 0;
@@ -50,10 +56,12 @@ struct Rig {
     unsigned commit_tries = 0;
     unsigned commit_refused = 0;
     unsigned bad = 0;
+    unsigned programs_seen = 0;
     Result run;
     Bytes snapshot;
-    Bytes new_image;  // the reference commit's container
+    Bytes new_image;  // the reference save's slot, to its log's end
     std::uint32_t new_slot = 0;
+    unsigned ref_effects = 0;
     std::vector<State> states;  // the power-cut enumeration's state snapshots 0, 1 and 2
 };
 
@@ -70,6 +78,18 @@ void note(std::vector<std::uint64_t>& times) {
     if (times.size() < kTimes) {
         times.push_back(nvm_fmodel_now_us());
     }
+}
+
+// The authoritative slot as the store publishes it after each step: its
+// closed bytes are never programmed and it is never erased (#823 decision 3).
+void refresh_protect() {
+    if (!rig->knobs.protect) {
+        return;
+    }
+    const nvm_status* s = nvm_store_status();
+    const std::uint32_t slot = s->auth != 0 ? NVM_SLOT_B : NVM_SLOT_A;
+    nvm_fmodel_protect(s->auth < 0 ? 0u : slot, s->auth < 0 ? 0u : s->log_end);
+    nvm_fmodel_keep(s->auth < 0 ? 0u : slot, s->auth < 0 ? 0u : NVM_SLOT_BYTES);
 }
 
 // ---- power, boot and the event loop -----------------------------------------
@@ -112,13 +132,24 @@ void service() {
     const unsigned polls = nvm_fmodel_count()->busy_polls;
     const unsigned failed = nvm_store_status()->commits_failed;
     const unsigned ok = nvm_store_status()->commits_ok;
+    const unsigned prep_failed = nvm_store_status()->prep_failed;
     nvm_store_service();
+    if (nvm_store_status()->prep_failed != prep_failed) {
+        note(rig->run.prep_fail_at);
+    }
     if (nvm_store_status()->commits_failed != failed) {
         note(rig->run.fail_at);
     }
     if (nvm_store_status()->commits_ok != ok) {
         note(rig->run.ok_at);
     }
+    if (nvm_fmodel_count()->programs != rig->programs_seen) {
+        rig->programs_seen = nvm_fmodel_count()->programs;
+        if (rig->run.prog_at.size() < 4096u) {
+            rig->run.prog_at.push_back(nvm_fmodel_now_us());
+        }
+    }
+    refresh_protect();
     if (nvm_fmodel_now_us() - before > rig->max_call_us) {
         rig->max_call_us = nvm_fmodel_now_us() - before;
     }
@@ -142,6 +173,43 @@ bool settled() {
     const nvm_status* s = nvm_store_status();
     return s->phase == NVM_P_OFF || s->phase == NVM_P_HELD ||
            (s->phase == NVM_P_IDLE && !s->dirty && (!s->pending || s->exhausted));
+}
+
+// Settled, and the background work done too: no compaction under way and the
+// other slot prepared or given up.
+bool quiet() {
+    const nvm_status* s = nvm_store_status();
+    return settled() && !s->compacting && !s->cmp_due && s->bg != NVM_B_CHECK && s->bg != NVM_B_ERASE_WAIT;
+}
+
+void until_quiet() {
+    const std::uint64_t until = nvm_fmodel_now_us() + kIdleLimitUs;
+    do {
+        service();
+    } while (!quiet() && nvm_fmodel_now_us() < until && !nvm_fmodel_dead());
+}
+
+// Serve until n commits have been verified.
+void until_ok(unsigned n) {
+    const std::uint64_t until = nvm_fmodel_now_us() + kIdleLimitUs;
+    while (nvm_store_status()->commits_ok < n && nvm_fmodel_now_us() < until && !nvm_fmodel_dead()) {
+        service();
+    }
+    if (nvm_store_status()->commits_ok < n) {
+        fail("ok_not_reached", n, nvm_store_status()->commits_ok);
+    }
+}
+
+// Serve until the background preparation reaches state b.
+void until_bg(unsigned b) {
+    const std::uint64_t until = nvm_fmodel_now_us() + kIdleLimitUs;
+    while (static_cast<unsigned>(nvm_store_status()->bg) != b && nvm_fmodel_now_us() < until &&
+           !nvm_fmodel_dead()) {
+        service();
+    }
+    if (static_cast<unsigned>(nvm_store_status()->bg) != b) {
+        fail("bg_not_reached", b, static_cast<unsigned>(nvm_store_status()->bg));
+    }
 }
 
 void until_idle() {
@@ -204,12 +272,12 @@ State capture_state() {
 void restore_snapshot() { std::memcpy(nvm_fmodel_mem + NVM_SLOT_A, rig->snapshot.data(), kJournal); }
 
 void protect_auth() {
-    const int auth = nvm_store_status()->auth;
-    nvm_fmodel_protect(auth < 0 ? 0u : (auth != 0 ? NVM_SLOT_B : NVM_SLOT_A), NVM_SLOT_BYTES);
+    rig->knobs.protect = true;
+    refresh_protect();
 }
 
-// The reference commit: the old state (0), the new one (1), and how many
-// media effects one commit has.
+// The reference save: the old state (0), the new one (1), and how many media
+// effects one save has.
 unsigned reference() {
     restore_snapshot();
     boot();
@@ -222,7 +290,8 @@ unsigned reference() {
         fail("powercut_reference_commit", nvm_store_status()->commits_ok, 1);
     }
     rig->new_slot = nvm_store_status()->auth != 0 ? NVM_SLOT_B : NVM_SLOT_A;
-    rig->new_image.assign(nvm_fmodel_mem + rig->new_slot, nvm_fmodel_mem + rig->new_slot + NVM_IMG_LEN);
+    rig->new_image.assign(nvm_fmodel_mem + rig->new_slot,
+                          nvm_fmodel_mem + rig->new_slot + nvm_store_status()->log_end);
     boot();
     rig->states[1] = capture_state();
     if (rig->states[1] == rig->states[0]) {
@@ -232,10 +301,12 @@ unsigned reference() {
 }
 
 // After a cut: the board boots the old set, or the new set when the new
-// container reached the media whole (strictly the new set once every effect
-// landed), never a mix; then the next change commits.
+// segment reached the media whole (strictly the new set once every effect
+// landed), never a mix; then the next change commits, a torn log by a
+// compaction first.
 bool after_cut(bool whole, unsigned* old, unsigned* new_set) {
-    const bool complete = std::memcmp(nvm_fmodel_mem + rig->new_slot, rig->new_image.data(), NVM_IMG_LEN) == 0;
+    const bool complete =
+        std::memcmp(nvm_fmodel_mem + rig->new_slot, rig->new_image.data(), rig->new_image.size()) == 0;
     boot();
     const State now = capture_state();
     if (now == rig->states[1] && complete) {
@@ -247,7 +318,7 @@ bool after_cut(bool whole, unsigned* old, unsigned* new_set) {
     }
     set_pattern(0x77u, false);
     until_idle();
-    if (nvm_store_status()->commits_ok != 1u || nvm_store_status()->stale) {
+    if (nvm_store_status()->commits_ok < 1u || nvm_store_status()->stale || nvm_store_status()->pending) {
         return false;
     }
     rig->states[2] = capture_state();
@@ -255,7 +326,7 @@ bool after_cut(bool whole, unsigned* old, unsigned* new_set) {
     return capture_state() == rig->states[2] && nvm_store_status()->terminal == NVM_T_COMPLETE;
 }
 
-// One cut: the commit of state 1 with the power failing in effect k.
+// One cut: the save of state 1 with the power failing in effect k.
 bool one_cut(unsigned k, unsigned frac, unsigned* old, unsigned* new_set) {
     restore_snapshot();
     boot();
@@ -267,14 +338,18 @@ bool one_cut(unsigned k, unsigned frac, unsigned* old, unsigned* new_set) {
     if (k != 0u) {
         until_idle();
     } else {
-        // every effect landed; the power fails during the read-back
-        while (nvm_store_status()->phase != NVM_P_VERIFY && !settled()) {
+        // every effect landed; the power fails during the last read-back
+        while (!(nvm_fmodel_count()->effects == rig->ref_effects && nvm_store_status()->phase == NVM_P_VERIFY) &&
+               !settled()) {
             service();
         }
     }
-    if (nvm_fmodel_count()->protected_hit || nvm_fmodel_count()->outside) {
+    rig->knobs.protect = false;
+    if (nvm_fmodel_count()->protected_hit || nvm_fmodel_count()->outside || nvm_fmodel_count()->kept_hit) {
         return false;
     }
+    nvm_fmodel_protect(0u, 0u);
+    nvm_fmodel_keep(0u, 0u);
     return after_cut(k == 0u, old, new_set);
 }
 
@@ -286,6 +361,7 @@ void powercut() {
     unsigned bad = 0;
     rig->snapshot.assign(nvm_fmodel_mem + NVM_SLOT_A, nvm_fmodel_mem + NVM_SLOT_A + kJournal);
     const unsigned effects = reference();
+    rig->ref_effects = effects;
     for (unsigned k = 0; k <= effects; ++k) {
         for (unsigned f = 0; f < 4u && (k != 0u || f == 0u); ++f) {
             cases++;
@@ -298,6 +374,100 @@ void powercut() {
         }
     }
     rig->run.powercut = {{"effects", effects}, {"cases", cases}, {"old", old}, {"new", new_set}, {"bad", bad}};
+    restore_snapshot();
+}
+
+// ---- the power cut inside a compaction (T9) ----------------------------------
+
+// The compaction run: a console commit with nothing changed rewrites the
+// image into the other slot, its pages slowed so that a save of the first and
+// the last record, made once three pages are programmed, lands while the
+// base is written (the first record behind its front, the last ahead of it).
+// Whether that save had been reported when the power failed.
+bool compaction_run() {
+    std::uint8_t first[NVM_PAYLOAD_MAX];
+    std::uint8_t last[NVM_PAYLOAD_MAX];
+    nvm_rec rl = nvm_rec_first();
+    const nvm_rec rf = rl;
+    for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
+        rl = r;
+    }
+    for (unsigned j = 0; j < NVM_PAYLOAD_MAX; ++j) {
+        first[j] = static_cast<std::uint8_t>(0x55u + j);
+        last[j] = static_cast<std::uint8_t>(0xa5u + 3u * j);
+    }
+    nvm_fmodel_times(20000u, 20000u);
+    until_bg(NVM_B_READY);
+    if (nvm_store_commit_now() == 0) {
+        fail("compaction_not_started", 0, 0);
+    }
+    const unsigned at = nvm_fmodel_count()->programs + 3u;
+    while (nvm_fmodel_count()->programs < at && !nvm_fmodel_dead()) {
+        service();
+    }
+    set(rf.id, first, rf.plen);
+    set(rl.id, last, rl.plen);
+    until_quiet();
+    return nvm_store_status()->appends != 0u;
+}
+
+void powercut_compaction() {
+    static constexpr unsigned kFracs[4] = {0u, 1u, 128u, 255u};
+    unsigned cases = 0;
+    unsigned old = 0;
+    unsigned new_set = 0;
+    unsigned bad = 0;
+    unsigned reported = 0;
+    rig->snapshot.assign(nvm_fmodel_mem + NVM_SLOT_A, nvm_fmodel_mem + NVM_SLOT_A + kJournal);
+    restore_snapshot();
+    boot();
+    rig->states.assign(3, State{});
+    rig->states[0] = capture_state();
+    const unsigned before = nvm_fmodel_count()->effects;
+    compaction_run();
+    const unsigned effects = nvm_fmodel_count()->effects - before;
+    if (nvm_store_status()->compactions != 1u || nvm_store_status()->appends == 0u) {
+        fail("compaction_reference", nvm_store_status()->compactions, nvm_store_status()->appends);
+    }
+    boot();
+    rig->states[1] = capture_state();
+    for (unsigned k = 1; k <= effects; ++k) {
+        for (unsigned f = 0; f < 4u; ++f) {
+            cases++;
+            restore_snapshot();
+            boot();
+            protect_auth();
+            nvm_fmodel_cut(nvm_fmodel_count()->effects + k, kFracs[f]);
+            const bool told = compaction_run();
+            rig->knobs.protect = false;
+            const bool clean = !nvm_fmodel_count()->protected_hit && !nvm_fmodel_count()->kept_hit &&
+                               !nvm_fmodel_count()->outside;
+            nvm_fmodel_protect(0u, 0u);
+            nvm_fmodel_keep(0u, 0u);
+            boot();
+            const State now = capture_state();
+            bool ok = clean && (now == rig->states[1] || (now == rig->states[0] && !told));
+            reported += told ? 1u : 0u;
+            new_set += now == rig->states[1] ? 1u : 0u;
+            old += now == rig->states[0] ? 1u : 0u;
+            if (ok) {
+                set_pattern(0x77u, false);
+                until_quiet();
+                rig->states[2] = capture_state();
+                boot();
+                ok = !nvm_store_status()->pending && capture_state() == rig->states[2] &&
+                     nvm_store_status()->terminal == NVM_T_COMPLETE;
+            }
+            if (!ok) {
+                char line[96];
+                std::snprintf(line, sizeof line, "POWERCUT-COMPACTION-BAD effect=%u frac=%u", k, kFracs[f]);
+                rig->run.fails.emplace_back(line);
+                bad++;
+            }
+        }
+    }
+    rig->run.powercut = {{"effects", effects}, {"cases", cases},       {"old", old},
+                         {"new", new_set},     {"reported", reported}, {"bad", bad}};
     restore_snapshot();
 }
 
@@ -398,8 +568,9 @@ void fields(const std::string& arg, unsigned long* v) {
 // read-fail-at, read-flip-at and read-vary-at.
 void fault_arg(const std::string& arg) {
     static const std::vector<std::string> kNames = {
-        "none",      "erase-hang",   "erase-stuck", "program-hang", "program-drop",   "program-flip", "read-fail",
-        "read-flip", "read-flip-at", "read-alias",  "program-refuse", "erase-refuse", "read-fail-at", "read-vary-at",
+        "none",      "erase-hang",   "erase-stuck", "program-hang",   "program-drop", "program-flip",
+        "read-fail", "read-flip",    "read-flip-at", "read-alias",    "program-refuse", "erase-refuse",
+        "read-fail-at", "read-vary-at", "suspend-slow", "suspend-ignored",
     };
     unsigned long v[3];
     const int i = name_of(arg, kNames);
@@ -439,12 +610,13 @@ void times_arg(const std::string& arg) {
     nvm_fmodel_times(static_cast<std::uint64_t>(erase_ms) * 1000u, program_us);
 }
 
-// A console commit: start one now and run until it settles.
+// A console commit: start one now and run until it settles, the compaction
+// it asks for included.
 void commit() {
     if (nvm_store_commit_now() == 0) {
         fail("commit_not_started", static_cast<unsigned>(nvm_store_status()->phase), 0);
     }
-    until_idle();
+    until_quiet();
 }
 
 // A console commit that may be refused: count the try and its answer.
@@ -509,6 +681,10 @@ bool word(const std::string& a) {
         nvm_fmodel_blank();
     } else if (a == "--until-idle") {
         until_idle();
+    } else if (a == "--until-quiet") {
+        until_quiet();
+    } else if (a == "--powercut-compaction") {
+        powercut_compaction();
     } else if (a == "--commit") {
         commit();
     } else if (a == "--protect-auth") {
@@ -546,6 +722,18 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         rig->knobs.apply_fault_id = static_cast<unsigned>(number(v.c_str(), nullptr));
     } else if (a == "--until-phase") {
         until_phase(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--until-bg") {
+        until_bg(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--until-ok") {
+        until_ok(static_cast<unsigned>(number(v.c_str(), nullptr)));
+    } else if (a == "--until-programs") {
+        const unsigned n = static_cast<unsigned>(number(v.c_str(), nullptr));
+        const std::uint64_t until = nvm_fmodel_now_us() + kIdleLimitUs;
+        while (nvm_fmodel_count()->programs < n && nvm_fmodel_now_us() < until && !nvm_fmodel_dead()) {
+            service();
+        }
+    } else if (a == "--suspend-us") {
+        nvm_fmodel_suspend_us(std::strtoull(v.c_str(), nullptr, 0));
     } else if (a == "--phc-step") {
         litespi_model_phc_step(static_cast<std::int64_t>(std::strtoll(v.c_str(), nullptr, 0)));
     } else if (a == "--ls-stall") {
@@ -598,6 +786,15 @@ void summarise() {
         {"skipped", s->commits_skipped}, {"attempts", s->attempts}, {"exhausted", s->exhausted},
         {"stale", s->stale}, {"dirty", s->dirty}, {"pending", s->pending}, {"phase", s->phase},
         {"n_dirty", s->n_dirty}, {"n_inflight", s->n_inflight}, {"legacy", s->legacy},
+        {"log_end", s->log_end}, {"deltas", s->deltas}, {"torn", s->torn}, {"compacting", s->compacting},
+        {"cmp_due", s->cmp_due},
+        {"appends", s->appends}, {"compactions", s->compactions}, {"bg", s->bg}, {"prep_failed", s->prep_failed},
+        {"prep_vd", s->prep_vd}, {"suspends", s->suspends}, {"suspend_us_max", s->suspend_us_max},
+        {"suspend_slow", s->suspend_slow}, {"kept", fc->kept_hit}, {"read_busy", fc->read_busy},
+        {"suspended_hit", fc->suspended_hit}, {"fm_suspends", fc->suspends}, {"fm_resumes", fc->resumes},
+        {"ls_pes", lc->pes}, {"ls_per", lc->per}, {"log_start", NVM_LOG_START}, {"reserve", NVM_RESERVE},
+        {"slot_bytes", NVM_SLOT_BYTES}, {"seg_max", NVM_SEG_MAX}, {"window_ms", NVM_WINDOW_MS},
+        {"append_timeout_ms", NVM_APPEND_TIMEOUT_MS}, {"suspended", nvm_fmodel_suspended()},
         {"step_max", s->step_bytes_max}, {"step_bound", NVM_STEP_BOUND}, {"steps", s->steps},
         {"bind_terminal", s->bind_terminal}, {"bind_cause", s->bind_cause}, {"withheld", s->withheld},
         {"abandoned", s->abandoned}, {"abandoned_vd", s->abandoned_vd}, {"unread", s->unread},

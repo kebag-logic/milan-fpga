@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_klj2.c - the container and F07.8 record codec (#665, the F1 store), in the
- * split placement's format: KLJ3 and layout 3 (#823 decisions 1 and 2).
+ * nvm_klj2.c - the container and F07.8 record codec (#665, the split
+ * placement's saved-state store), in the split placement's format: KLJ3 and
+ * layout 3 (#823 decisions 1 and 2).
  *
  * Ported from the saved-state writer in
  * sw/firmware/milan_baremetal/milan_baremetal.c (nvm_validate, nvm_frame,
@@ -232,18 +233,23 @@ void nvm_rec_frame(uint8_t *rec, struct nvm_rec r)
 	rec[9] = (uint8_t)crc;
 }
 
-void nvm_klj2_header(uint8_t *img, uint32_t seq)
+void nvm_klj2_seg_header(uint8_t *img, uint32_t seq, uint32_t n_rec, uint32_t len)
 {
 	nvm_wr32le(img + 0, NVM_KLJ3_MAGIC);
 	nvm_wr32le(img + 4, NVM_KLJ3_FMT_VER);
 	nvm_wr32le(img + 8, seq);
-	nvm_wr32le(img + 12, NVM_N_REC);
-	nvm_wr32le(img + 16, NVM_IMG_LEN);
+	nvm_wr32le(img + 12, n_rec);
+	nvm_wr32le(img + 16, len);
 	nvm_wr32le(img + 20, MILAN_ENTITY_ID_LO);
 	nvm_wr32le(img + 24, MILAN_ENTITY_ID_HI);
 	nvm_wr32le(img + 28, MILAN_MODEL_ID_LO);
 	nvm_wr32le(img + 32, MILAN_MODEL_ID_HI);
 	nvm_wr32le(img + 36, NVM3_LAYOUT);
+}
+
+void nvm_klj2_header(uint8_t *img, uint32_t seq)
+{
+	nvm_klj2_seg_header(img, seq, NVM_N_REC, NVM_IMG_LEN);
 }
 
 void nvm_klj2_seal(uint8_t *img)
@@ -399,4 +405,23 @@ enum nvm_verdict nvm_klj2_check(const uint8_t *img, uint32_t room)
 	if (~crc != nvm_rd32le(img + img_len - NVM_KLJ_TRAILER))
 		return NVM_VD_CRC;
 	return nvm_klj2_check_body(img, img_len, img_len);
+}
+
+enum nvm_verdict nvm_klj2_check_seg(const uint8_t *hdr, uint32_t room, uint32_t *len)
+{
+	uint32_t img_len = 0;
+	enum nvm_verdict vd = nvm_klj2_check_head(hdr, &img_len);
+
+	if (vd != NVM_VD_OK)
+		return vd;
+	if (img_len > NVM_SEG_MAX || img_len > room)
+		return NVM_VD_LEN;
+	if (nvm_rd32le(hdr + 20) != MILAN_ENTITY_ID_LO || nvm_rd32le(hdr + 24) != MILAN_ENTITY_ID_HI)
+		return NVM_VD_ENT;
+	if (nvm_rd32le(hdr + 28) != MILAN_MODEL_ID_LO || nvm_rd32le(hdr + 32) != MILAN_MODEL_ID_HI)
+		return NVM_VD_SHAPE;
+	if (nvm_rd32le(hdr + 36) != NVM3_LAYOUT)
+		return NVM_VD_REC;
+	*len = img_len;
+	return NVM_VD_OK;
 }

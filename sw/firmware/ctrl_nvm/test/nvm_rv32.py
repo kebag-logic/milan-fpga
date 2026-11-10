@@ -28,8 +28,8 @@ PORTABLE = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
 LIBC_OK = frozenset({"memcpy", "memset", "memmove", "memcmp"})
 #: The store's static buffers and state, and the port's counters: its clock
 #: and its per-call deadline.
-BUFFERS = ("nvm_stage", "nvm_payload", "nvm_chunk", "nvm", "ls_ticks", "ls_tick_last",
-           "ls_call_start", "ls_waited")
+BUFFERS = ("nvm_stage", "nvm_payload", "nvm_chunk", "nvm_page", "nvm_carry", "nvm",
+           "ls_ticks", "ls_tick_last", "ls_call_start", "ls_waited")
 CLOCK = ("ls_ticks", "ls_tick_last", "ls_call_start", "ls_waited")
 
 

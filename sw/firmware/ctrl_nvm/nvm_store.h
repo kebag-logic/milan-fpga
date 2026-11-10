@@ -3,7 +3,9 @@
  * nvm_store.h - the bare-metal saved-state store (#665 lane F1): the boot
  * restore and the write-back of docs/design/SAVED_STATE_FASTCONNECT.md
  * sections 6 and 7, under the D3 restore transaction of
- * docs/design/SAVED_STATE_MATERIALIZATION.md section 8.
+ * docs/design/SAVED_STATE_MATERIALIZATION.md section 8, with the split
+ * placement's append-only journal (#823 decisions 3, 4, 5 and 7,
+ * docs/design/SAVED_STATE_FORMAT_32X32.md section 4).
  *
  * One store per image, held in static storage sized by nvm_shape.h; there is
  * no heap and no OS service. The event loop calls nvm_store_service() on
@@ -39,28 +41,57 @@ enum nvm_cause {
 	NVM_C_STAGE = 5      /* the chosen slot did not read back as accepted */
 };
 
-/* The write path's phase; each service call advances at most one. */
+/* The write path's phase; each service call advances at most one. A page
+ * of a segment (a delta, a compaction's base or its copy of the old log)
+ * goes ASSEMBLE, CARRY (a base only), SEAL, PROGRAM, PROGRAM_WAIT and
+ * VERIFY; a delta's first program may wait for the background erase's
+ * suspend first. */
 enum nvm_phase {
 	NVM_P_OFF = 0,       /* no writer: before boot, or retired */
 	NVM_P_IDLE = 1,
 	NVM_P_CAPTURE = 2,   /* latch the dirty records, one per step */
-	NVM_P_SEAL = 3,      /* header and CRC-32, NVM_STEP_BYTES per step */
-	NVM_P_ERASE = 4,     /* start the erase of the slot that is not authoritative */
-	NVM_P_ERASE_WAIT = 5,
-	NVM_P_BLANKCHECK = 6,
-	NVM_P_PROGRAM = 7,   /* start one page program */
-	NVM_P_PROGRAM_WAIT = 8,
-	NVM_P_VERIFY = 9,    /* read back and compare */
-	NVM_P_HELD = 10      /* a slot's authority is unknown: changes are marked,
+	NVM_P_ASSEMBLE = 3,  /* fill the page from the stage, or from the old log */
+	NVM_P_CARRY = 4,     /* a base: keep whole the record that runs past the page */
+	NVM_P_SEAL = 5,      /* the page's CRC-32, and the trailer on the last page */
+	NVM_P_SUSPEND = 6,   /* suspend the background erase before a program */
+	NVM_P_SUSPEND_WAIT = 7,
+	NVM_P_PROGRAM = 8,   /* start one page program */
+	NVM_P_PROGRAM_WAIT = 9,
+	NVM_P_VERIFY = 10,   /* read the page back and compare */
+	NVM_P_HELD = 11      /* a slot's authority is unknown: changes are marked,
 			      * nothing is written until reset */
+};
+
+/* The background preparation of the slot that is not authoritative: each of
+ * its pages read blank, a block found written erased (and its erase
+ * suspended for a save), so a compaction finds it blank (#823 decisions 3
+ * and 5). */
+enum nvm_bg {
+	NVM_B_NONE = 0,
+	NVM_B_CHECK = 1,      /* read the next page; a written one erases its block */
+	NVM_B_ERASE_WAIT = 2,
+	NVM_B_READY = 3,      /* every page read blank */
+	NVM_B_FAILED = 4      /* NVM_TXN_ATTEMPTS preparations failed: until reset */
 };
 
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
 /* The most bytes any service step touches: one 256-byte stretch, or one
  * latched record's copy and its crc16 over the header, less the crc16's own
- * two bytes, and the payload. */
+ * two bytes, and the payload. A compaction's carry of one whole record is
+ * less than the second. */
 #define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + (NVM_REC_HDR - 2u))
+/* #823 decision 4: the firmware first-dirty window, superseding DR2a's
+ * 1,000 ms for this store (SAVED_STATE_FORMAT_32X32.md section 4). */
+#define NVM_WINDOW_MS 150u
+/* #823 decision 7: T-NVM-COMMIT-TIMEOUT for an append, from the save falling
+ * due to its last page read back. A compaction and the background erase
+ * carry no durability claim and no such deadline. */
+#define NVM_APPEND_TIMEOUT_MS 500u
+/* #823 decision 5, assumption A3: the room the 0.5 s bound leaves the erase
+ * suspend's latency, graded at its typical 15 us (N25Q128 section 9.1.20 and
+ * Table 17, no maximum given). A suspend that took longer is counted slow. */
+#define NVM_SUSPEND_ROOM_US 95290u
 /* DR2c: firmware transaction attempts per unchanged captured work set, and
  * the separation after a failed one (SAVED_STATE_MATERIALIZATION.md
  * sections 6.3 and 15.1). */
@@ -118,14 +149,35 @@ struct nvm_status {
 	 * holds a container, the boot's last_verdict is then VD_VER, not
 	 * VD_BLANK. */
 	unsigned int legacy;
+	/* The journal (#823 decision 3): the authoritative slot's next segment
+	 * offset and its closing deltas; torn when a segment past them does not
+	 * close, so the next write is a compaction; a compaction in progress. */
+	uint32_t log_end;
+	unsigned int deltas;
+	int torn;
+	int compacting;
+	int cmp_due;                    /* a compaction is owed and can run once the other slot is ready */
+	unsigned int appends;           /* deltas verified */
+	unsigned int compactions;       /* compactions whose slot took the authority */
+	/* The other slot's preparation, its failed attempts and the last one's
+	 * verdict. */
+	enum nvm_bg bg;
+	unsigned int prep_failed;
+	enum nvm_verdict prep_vd;
+	/* The erase suspends (#823 decision 5): how many, the longest, and how
+	 * many took longer than NVM_SUSPEND_ROOM_US. */
+	unsigned int suspends;
+	uint32_t suspend_us_max;
+	unsigned int suspend_slow;
 	enum nvm_phase phase;
 	uint32_t step_bytes_max;        /* the most bytes one service step touched */
 	uint32_t steps;
 };
 
-/* Boot: judge both slots, stage the newer accepted one, run its binding
- * walk, prove the model and run the D3 walk through `state`, release AECP
- * unless CLOSED, and arm the writer, or hold it when a slot is UNREAD. */
+/* Boot: judge both slots (each base, then its log), stage the newer
+ * accepted one with its log replayed, run its binding walk, prove the model
+ * and run the D3 walk through `state`, release AECP unless CLOSED, and arm
+ * the writer, or hold it when a slot is UNREAD. */
 void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state);
 /* One bounded step of the write path. */
 void nvm_store_service(void);
@@ -138,8 +190,8 @@ void nvm_store_changed(unsigned int group, unsigned int index);
  * written. */
 int nvm_store_commit_now(void);
 const struct nvm_status *nvm_store_status(void);
-/* The stage, NVM_IMG_LEN bytes: the last verified container, or the one a
- * commit in flight is writing. */
+/* The stage, NVM_IMG_LEN bytes: every record's latest latched value at its
+ * offset, under the header and trailer of the base last read or written. */
 const uint8_t *nvm_store_stage(void);
 
 #endif /* NVM_STORE_H */

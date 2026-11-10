@@ -3,7 +3,8 @@
  * litespi_model.c - the LiteSPI command master over the flash model (#665
  * lane F1). A chip-select window collects the bytes the firmware clocks out;
  * raising chip select executes the command against the flash model, as the
- * N25Q128 executes WREN, PP and SE on the deselect edge. RDSR answers from
+ * N25Q128 executes WREN, PP, SE, PES and PER on the deselect edge (PES and
+ * PER need no write enable). RDSR answers from
  * the model's busy state on every byte after the command. Every CSR access
  * costs model time, so a firmware that polls is seen to spend it.
  */
@@ -18,6 +19,8 @@
 #define LM_CMD_RDSR 0x05u
 #define LM_CMD_SE   0xd8u
 #define LM_CMD_PP   0x02u
+#define LM_CMD_PES  0x75u
+#define LM_CMD_PER  0x7au
 #define LM_CSR_WORDS 0x400u
 #define LM_TOD_RD_LO (0x530u / 4u)
 #define LM_TOD_RD_HI (0x534u / 4u)
@@ -164,6 +167,14 @@ static void lm_execute(void)
 		return;
 	case LM_CMD_RDSR:
 		lm.n.rdsr++;
+		return;
+	case LM_CMD_PES:
+		lm.n.pes++;
+		nvm_fmodel_suspend(0);
+		return;
+	case LM_CMD_PER:
+		lm.n.per++;
+		nvm_fmodel_resume(0);
 		return;
 	case LM_CMD_SE:
 	case LM_CMD_PP:

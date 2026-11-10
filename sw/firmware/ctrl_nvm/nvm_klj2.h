@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
  * nvm_klj2.h - the container and F07.8 record codec of the saved-state store
- * (#665, the F1 store), for the shape nvm_shape.h describes.
+ * (#665, the split placement's saved-state store), for the shape nvm_shape.h
+ * describes.
  *
  * The format is the split placement's (#823): the KLJ3 container, its records
  * in F07.8 layout 3 over the record space of nvm_layout3.h. The file keeps
@@ -97,6 +98,8 @@ int nvm_all_erased(const uint8_t *p, uint32_t len);
 
 /* The ten KLJ3 header words of section 6.1 for sequence seq. */
 void nvm_klj2_header(uint8_t *img, uint32_t seq);
+/* The same words for a delta segment of n_rec records and len bytes. */
+void nvm_klj2_seg_header(uint8_t *img, uint32_t seq, uint32_t n_rec, uint32_t len);
 /* The trailer: CRC-32 over every preceding byte of the container. */
 void nvm_klj2_seal(uint8_t *img);
 /* Blank media behind a valid container: every record erased, the pad zero,
@@ -115,5 +118,9 @@ enum nvm_verdict nvm_klj2_check_body(const uint8_t *img, uint32_t img_len,
 				     uint32_t loaded);
 /* The whole order over a container held in RAM, `room` bytes of it. */
 enum nvm_verdict nvm_klj2_check(const uint8_t *img, uint32_t room);
+/* A delta segment's 40 header bytes (#823 decision 3): rules 1 to 3, a
+ * length of at most NVM_SEG_MAX and `room`, then rules 6, 7 and the layout.
+ * Sets *len on NVM_VD_OK. */
+enum nvm_verdict nvm_klj2_check_seg(const uint8_t *hdr, uint32_t room, uint32_t *len);
 
 #endif /* NVM_KLJ2_H */

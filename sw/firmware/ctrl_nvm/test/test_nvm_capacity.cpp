@@ -58,9 +58,8 @@ TEST(NvmCapacity, name_block_ends) {
 TEST_P(NvmBoth, capacity_round_trip) {
     Files f;
     Result r = go(port(), f, {"--blank", "--boot", "--set-pattern", "0", "--commit", "--dump-slot-a", "a.bin"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 &&
-                r.at("erases") == static_cast<long long>(NVM_ERASE_BLOCKS) && NVM_ERASE_BLOCKS > 1u &&
-                r.at("programs") == pages())
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("compactions") == 1 &&
+                r.at("erases") == 0 && NVM_ERASE_BLOCKS > 1u && r.at("programs") == pages())
         << "the commit at capacity: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@1")))
         << "the container at capacity differs from nvm_klj3.py's";
@@ -70,27 +69,29 @@ TEST_P(NvmBoth, capacity_round_trip) {
     expect_state(f, "st", fx().payloads("golden"));
 }
 
-// The whole-image commit over a slot that is not blank: commits into A, B,
-// then A again, each changing the records, so the third lands on the first's
-// container in every block the container spans. Every erase is of its
-// target slot's next block, the addresses read from the flash map by the
-// fixture, and the third container is the reference's, byte for byte.
+// The background preparation over a slot that is not blank, at capacity: a
+// stale container in slot B spans two erase blocks, and each is erased in
+// turn, then a compaction lands on it; then slot A, the old one, is erased
+// the same way. Every erase is of the block its check found written, the
+// addresses read from the flash map by the fixture, and the base the
+// compaction writes over the stale one is the reference's, byte for byte.
 TEST_P(NvmBoth, capacity_commit_over_stale) {
-    Files f;
-    const Result r = go(port(), f, {"--blank", "--boot", "--set-pattern", "0", "--commit", "--set-pattern", "1",
-                                    "--commit", "--set-pattern", "0", "--commit", "--dump-slot-a", "a.bin"});
+    Files f = fx().files({{"a.bin", "golden@1"}, {"b.bin", "golden@0"}});
+    const Result r = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--protect-auth", "--commit",
+                                    "--dump-slot-a", "a1.bin", "--dump-slot-b", "b1.bin"});
     const long long blocks = static_cast<long long>(NVM_ERASE_BLOCKS);
-    ASSERT_TRUE(r.at("ok") == 3 && r.at("failed") == 0 && r.at("seq") == 3 && r.at("auth") == 0 && blocks > 1 &&
-                r.at("erases") == 3 * blocks && r.erase_at.size() == static_cast<std::size_t>(3 * blocks))
-        << "three commits at capacity: " << r.text();
-    for (long long n = 0; n < 3 * blocks; ++n) {
-        const long long slot = fx().num((n / blocks) % 2 == 0 ? "journal_a" : "journal_b");
+    ASSERT_TRUE(r.at("compactions") == 1 && r.at("failed") == 0 && r.at("seq") == 1 && r.at("auth") == 1 &&
+                blocks > 1 && r.at("erases") == 2 * blocks && r.erase_at.size() == static_cast<std::size_t>(2 * blocks))
+        << "a compaction over a stale slot at capacity: " << r.text();
+    for (long long n = 0; n < 2 * blocks; ++n) {
+        const long long slot = fx().num(n < blocks ? "journal_b" : "journal_a");
         const long long want = slot + (n % blocks) * fx().num("erase_block");
         EXPECT_EQ(static_cast<long long>(r.erase_at[static_cast<std::size_t>(n)]), want)
-            << "erase " << n << " of commit " << n / blocks + 1;
+            << "erase " << n << (n < blocks ? " of slot B's preparation" : " of slot A's");
     }
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@3")))
-        << "the third container, over the first, differs from nvm_klj3.py's";
+    EXPECT_TRUE(slot_holds(f.blobs["b1.bin"], fx().blob("golden@1")))
+        << "the base over the stale container differs from nvm_klj3.py's";
+    EXPECT_TRUE(f.blobs["a1.bin"] == padded(Bytes{})) << "the old slot is not erased";
 }
 
 TEST(NvmCapacity, one_past_refused) {

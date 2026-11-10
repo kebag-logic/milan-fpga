@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """nvm_klj3.py - the split placement's saved-state container (KLJ3) and record codec (F07.8 layout 3), #823.
 
-The reference the F1 store (sw/firmware/ctrl_nvm) is graded against, byte
+The reference the split placement's saved-state store (sw/firmware/ctrl_nvm)
+is graded against, byte
 for byte and verdict for verdict. It is the KLJ2 reference (scripts/nvm_klj2.py)
 with the three changes of #823 decisions 1 and 2, and nothing else:
 
@@ -19,6 +20,13 @@ with the three changes of #823 decisions 1 and 2, and nothing else:
     slot, one half of the 640 KiB journal_klj3 of sw/litex/milan_soc.py. A
     KLJ2 container is the previous format: refused VD_VER, never
     reinterpreted (decision 2).
+
+And the journal of decision 3 (docs/design/SAVED_STATE_FORMAT_32X32.md
+section 4): a slot is a base container, then a log of delta segments, each on
+the page after the one before. A delta is a KLJ3 container of only the
+records it carries, every one framed, at most SEG_PAGES pages, its sequence
+above the one before it. The slot's records are the base's with every
+closing delta's applied in turn, up to the first that does not close.
 
 The all-fabric placement keeps KLJ2 and layout 2; nothing here changes it.
 """
@@ -58,6 +66,11 @@ SLOT = JOURNAL["size"] // 2
 KLJ3_MAX = SLOT
 #: The channel-map ports the codec's tables hold, per direction.
 MAP_PORTS = LAYOUT.block("MAPS_IN").cap
+#: The journal's page, and a delta segment's cap in pages (decision 3; the
+#: store's NVM_SEG_PAGES): a segment ends inside one firmware window.
+PAGE = 256
+SEG_PAGES = 28
+SEG_MAX = SEG_PAGES * PAGE
 
 #: group -> the shape count it holds one record per, as the builder's split
 #: output (emit_nvm_split) counts it; NAME is the builder's name count.
@@ -234,7 +247,7 @@ def split_counts(space: dict) -> dict[str, int]:
 
 
 def split_constants(space: dict, shape: Shape) -> dict[str, int]:
-    """The MILAN_NVM3_* constants the F1 store is built against: each count
+    """The MILAN_NVM3_* constants the split placement's store is built against: each count
     from the builder's split output, every port's map entries from the shape
     (the #501 rule for an output port), and the two held equal."""
     counts = split_counts(space)
@@ -268,6 +281,95 @@ def image_bytes(shape: Shape) -> int:
 
 
 def stage_bytes(shape: Shape) -> int:
-    """The F1 store's stage for `shape`: its container and one record header
+    """The split placement's store's stage for `shape`: its container and one record header
     of look-ahead (sw/firmware/ctrl_nvm/nvm_shape.h NVM_STAGE_BYTES)."""
     return image_bytes(shape) + REC_HDR3
+
+
+def log_start(base_len: int) -> int:
+    """Where a slot's log starts: the page after its base."""
+    return -(-base_len // PAGE) * PAGE
+
+
+def reserve(base_len: int) -> int:
+    """The log a compaction starts below: half of it, in whole pages."""
+    return (SLOT - log_start(base_len)) // PAGE // 2 * PAGE
+
+
+def klj3_delta(frames: dict[int, bytes], ident: Ident) -> bytes:
+    """A delta segment: `frames`, every one framed, in ascending record_id
+    under a KLJ3 header of their own count and length, sealed by its CRC-32."""
+    return klj3_assemble(frames, ident)[0]
+
+
+def klj3_slot(base: bytes, deltas: list[bytes]) -> bytes:
+    """A slot's bytes to its log's end: the base, then each delta on the page
+    after the one before, erased between them."""
+    out = bytearray(base)
+    for seg in deltas:
+        out += bytes([ERASED]) * ((-len(out)) % PAGE)
+        out += seg
+    out += bytes([ERASED]) * ((-len(out)) % PAGE)
+    return bytes(out)
+
+
+def _delta_records(seg: bytes, prev: int, ident: Ident, expect: dict[Key, int]) -> tuple[int, dict[Key, bytes]] | None:
+    """A delta segment's (sequence, records) when it closes, else None."""
+    magic, ver, seq, nrec, length, elo, ehi, mlo, mhi, rlay = struct.unpack_from("<10I", seg, 0)
+    if magic != KLJ3_MAGIC or (ver >> 16) != (KLJ3_FMT_VER >> 16):
+        return None
+    if not HDR + TRAILER <= length <= min(SEG_MAX, len(seg)):
+        return None
+    if (elo | (ehi << 32)) != ident.entity_id or (mlo | (mhi << 32)) != ident.model_id or rlay != LAYOUT.layout:
+        return None
+    if not 0 < ((seq - prev) & 0xFFFFFFFF) < 0x8000_0000:
+        return None
+    blob = seg[:length]
+    if (zlib.crc32(blob[:-4]) & 0xFFFFFFFF) != struct.unpack_from("<I", blob, length - 4)[0]:
+        return None
+    recs, pos, end, last = {}, HDR, length - TRAILER, -1
+    for _ in range(nrec):
+        if pos + REC_HDR3 > end:
+            return None
+        rmagic, rver, rres, rid, plen = struct.unpack_from(">HBBHH", blob, pos)
+        key = key_of_id3(rid)
+        if rmagic != REC_MAGIC or rver != LAYOUT.layout or rres != 0 or rid <= last:
+            return None
+        if key is None or expect.get(key) != plen or pos + REC_HDR3 + plen > end:
+            return None
+        pay = blob[pos + REC_HDR3:pos + REC_HDR3 + plen]
+        if crc16_ccitt(blob[pos:pos + REC_HDR3 - 2] + pay) != struct.unpack_from(">H", blob, pos + REC_HDR3 - 2)[0]:
+            return None
+        recs[key] = pay
+        last = rid
+        pos += REC_HDR3 + plen
+    if pos + ((-(pos - HDR)) % ALIGN) != end:
+        return None
+    return seq, recs
+
+
+def klj3_slot_decode(slot: bytes, ident: Ident, expect: dict[Key, int]) -> tuple[int, int, dict[Key, bytes], int, bool]:
+    """One slot of SLOT bytes: (verdict, sequence, records, log end, torn).
+    The base is klj3_decode's, ZERO records unless it passes; then each delta
+    that closes is applied in turn, and the walk stops at the first that does
+    not. An erased header ends the log; any other segment that does not
+    close leaves it torn."""
+    if all(b == ERASED for b in slot[:HDR]):
+        return VD_BLANK, 0, {}, 0, False
+    img_len = struct.unpack_from("<I", slot, 16)[0]
+    vd, applied = klj3_decode(slot[:img_len] if HDR + TRAILER <= img_len <= len(slot) else slot, ident, expect)
+    if vd != VD_OK:
+        return vd, 0, {}, 0, False
+    seq = struct.unpack_from("<I", slot, 8)[0]
+    off, torn = log_start(img_len), False
+    while off + HDR <= len(slot):
+        if all(b == ERASED for b in slot[off:off + HDR]):
+            break
+        got = _delta_records(slot[off:], seq, ident, expect)
+        if got is None:
+            torn = True
+            break
+        seq, recs = got
+        applied.update(recs)
+        off += log_start(struct.unpack_from("<I", slot, off + 16)[0])
+    return VD_OK, seq, applied, off, torn

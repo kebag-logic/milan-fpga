@@ -120,14 +120,17 @@ TEST(NvmFlashMock, reads_differ_in_verdict) {
     MockNvmFlash flash;
     Medium m;
     // a refusal VD_MAGIC, then one VD_VER (the next major), then the slot
-    // clean: header and container, then the re-stage of the slot chosen
-    m.slot_a = {with_word(golden, 0, 0x314A4C4Bu), with_word(golden, 4, 4u << 16), golden, golden, golden};
+    // clean: header and container, its empty log walked twice (each read
+    // past the image, so erased), then the re-stage of the slot chosen; an
+    // empty log has nothing to replay
+    m.slot_a = {with_word(golden, 0, 0x314A4C4Bu), with_word(golden, 4, 4u << 16), golden, golden, golden, golden,
+                golden};
     m.serve(flash);
     nvm_smodel_reset();
     nvm_store_boot(flash.port(), &nvm_smodel_port);
     const nvm_status* s = nvm_store_status();
     EXPECT_TRUE(s->verdict_a == NVM_VD_OK && s->auth == 0 && s->read_faults == 1u && s->unread == 0u &&
-                s->terminal == NVM_T_COMPLETE && m.reads_a == 5u)
+                s->terminal == NVM_T_COMPLETE && m.reads_a == 7u)
         << "two refusals of different verdicts are one media fault, and the clean read after them is applied: "
         << "verdict " << s->verdict_a << ", auth " << s->auth << ", faults " << s->read_faults << ", reads "
         << m.reads_a;

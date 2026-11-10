@@ -12,6 +12,11 @@
 #define FM_PAGE        256u
 /* The cells at the edge of a torn operation that are left half way. */
 #define FM_EDGE_BYTES  16u
+/* N25Q128 Table 17: an erase suspended sooner than this after it started or
+ * resumed made no progress ("erase to suspend", typical); the suspend latency
+ * is 15 us typical, with no maximum given. */
+#define FM_ERASE_TO_SUSPEND_NS 40000u
+#define FM_SUSPEND_NS          15000u
 
 uint8_t nvm_fmodel_mem[NVM_FMODEL_BYTES];
 
@@ -24,6 +29,16 @@ struct fm_state {
 	uint32_t hi;
 	uint32_t prot;
 	uint32_t prot_len;
+	uint32_t keep;
+	uint32_t keep_len;
+	/* the erase in progress or suspended: its block, the time it has left
+	 * when suspended (or when it last started), and when it last started */
+	int erasing;
+	int suspended;
+	uint32_t erase_block;
+	uint64_t erase_left_ns;
+	uint64_t resumed_ns;
+	uint64_t suspend_ns;
 	uint32_t slot_a;            /* the two slots a read-alias swaps */
 	uint32_t slot_span;
 	uint32_t noise;
@@ -32,7 +47,7 @@ struct fm_state {
 	unsigned int fault_skip;
 	unsigned int varied;        /* reads read-vary-at has changed */
 	uint32_t fault_at;
-	uint32_t last_program;
+	uint32_t last_program[2];   /* each slot's last page program since its last erase */
 	unsigned int cut_k;
 	unsigned int cut_frac;
 	int busy_forever;
@@ -50,6 +65,7 @@ void nvm_fmodel_power_on(void)
 	fm.program_ns = 1000000u;
 	fm.hi = NVM_FMODEL_BYTES;
 	fm.fault_at = 5u;
+	fm.suspend_ns = FM_SUSPEND_NS;
 	/* a fixed seed: every torn edge is the same on every run */
 	fm.noise = 0x9e3779b9u;
 }
@@ -71,10 +87,29 @@ void nvm_fmodel_protect(uint32_t lo, uint32_t len)
 	fm.prot_len = len;
 }
 
+void nvm_fmodel_keep(uint32_t lo, uint32_t len)
+{
+	fm.keep = lo;
+	fm.keep_len = len;
+}
+
+void nvm_fmodel_suspend_us(uint64_t us)
+{
+	fm.suspend_ns = us * 1000u;
+}
+
 void nvm_fmodel_slots(uint32_t a, uint32_t span)
 {
 	fm.slot_a = a;
 	fm.slot_span = span;
+}
+
+/* Which of the two slots an address is in (the first for any other): pages
+ * ascend within a slot, and a compaction into one slot interleaves with
+ * deltas into the other. */
+static unsigned int fm_slot_of(uint32_t addr)
+{
+	return addr >= fm.slot_a + fm.slot_span && addr - fm.slot_a - fm.slot_span < fm.slot_span;
 }
 
 /* The address a read-alias answers from: the same place in the other slot. */
@@ -173,6 +208,18 @@ static int fm_busy_now(void)
 	return fm.busy_forever || fm.now_ns < fm.busy_until_ns;
 }
 
+/* An erase that ran its time out, unsuspended, is over. */
+static void fm_settle(void)
+{
+	if (fm.erasing && !fm.suspended && !fm_busy_now())
+		fm.erasing = 0;
+}
+
+int nvm_fmodel_suspended(void)
+{
+	return fm.suspended;
+}
+
 /* The checks every media-changing call passes before it lands. */
 static int fm_admit(uint32_t lo, uint32_t len)
 {
@@ -188,6 +235,10 @@ static int fm_admit(uint32_t lo, uint32_t len)
 	}
 	if (fm_busy_now()) {
 		fm.n.while_busy++;
+		return 0;
+	}
+	if (fm.suspended && lo < fm.erase_block + NVM_FMODEL_BLOCK && lo + len > fm.erase_block) {
+		fm.n.suspended_hit++;
 		return 0;
 	}
 	return 1;
@@ -209,6 +260,8 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 	if (fm.dead || addr >= NVM_FMODEL_BYTES || len > NVM_FMODEL_BYTES - addr)
 		return -1;
 	fm.n.reads++;
+	if (fm_busy_now())
+		fm.n.read_busy++;
 	fm.now_ns += (uint64_t)(4u + len) * FM_SPI_BYTE_NS;
 	if (fm_take(NVM_F_READ_FAIL))
 		return -1;
@@ -244,9 +297,9 @@ int nvm_fmodel_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t le
 	if (!fm_admit(addr, len) || fm_take(NVM_F_PROGRAM_REFUSE))
 		return -1;
 	fm.now_ns += (uint64_t)(5u + len) * FM_SPI_BYTE_NS;
-	if (fm.n.programs && addr < fm.last_program)
+	if (fm.n.programs && addr < fm.last_program[fm_slot_of(addr)])
 		fm.n.descending++;
-	fm.last_program = addr;
+	fm.last_program[fm_slot_of(addr)] = addr;
 	fm.n.programs++;
 	if (fm_is_cut()) {
 		uint32_t n = (len * fm.cut_frac) / 256u;
@@ -273,6 +326,14 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 	uint32_t base = addr & ~(NVM_FMODEL_BLOCK - 1u);
 
 	(void)ctx;
+	if (fm.keep && base < fm.keep + fm.keep_len && base + NVM_FMODEL_BLOCK > fm.keep) {
+		fm.n.kept_hit++;
+		return -1;
+	}
+	if (fm.suspended) {
+		fm.n.while_busy++;
+		return -1;
+	}
 	if (!fm_admit(base, NVM_FMODEL_BLOCK) || fm_take(NVM_F_ERASE_REFUSE))
 		return -1;
 	fm.now_ns += 5u * FM_SPI_BYTE_NS;
@@ -281,7 +342,7 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 		fm.n.erase_addr[fm.n.erases] = base;
 	}
 	fm.n.erases++;
-	fm.last_program = 0;
+	fm.last_program[fm_slot_of(base)] = 0;
 	if (fm_is_cut()) {
 		uint32_t n = (NVM_FMODEL_BLOCK / 256u) * fm.cut_frac;
 		uint32_t i;
@@ -299,6 +360,53 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 	if (fm_take(NVM_F_ERASE_STUCK))
 		nvm_fmodel_mem[base + fm.fault_at % NVM_FMODEL_BLOCK] = 0x00u;
 	fm.busy_until_ns = fm.now_ns + fm.erase_ns;
+	fm.erasing = 1;
+	fm.erase_block = base;
+	fm.erase_left_ns = fm.erase_ns;
+	fm.resumed_ns = fm.now_ns;
+	return 0;
+}
+
+/* PES: one command byte. An erase suspended sooner than "erase to suspend"
+ * after it last started keeps all the time it had then. */
+int nvm_fmodel_suspend(void *ctx)
+{
+	uint64_t latency = fm.suspend_ns;
+
+	(void)ctx;
+	if (fm.dead)
+		return -1;
+	fm.n.suspends++;
+	fm.now_ns += FM_SPI_BYTE_NS;
+	fm_settle();
+	if (!fm.erasing || fm.suspended || fm.busy_forever || fm_take(NVM_F_SUSPEND_IGNORED))
+		return 0;
+	if (fm_take(NVM_F_SUSPEND_SLOW))
+		latency += (uint64_t)fm.fault_at * 1000u;
+	if (fm.now_ns - fm.resumed_ns >= FM_ERASE_TO_SUSPEND_NS)
+		fm.erase_left_ns = fm.busy_until_ns - fm.now_ns;
+	fm.suspended = 1;
+	fm.busy_until_ns = fm.now_ns + latency;
+	return 0;
+}
+
+/* PER: one command byte; refused, counted, while a program runs. */
+int nvm_fmodel_resume(void *ctx)
+{
+	(void)ctx;
+	if (fm.dead)
+		return -1;
+	fm.n.resumes++;
+	fm.now_ns += FM_SPI_BYTE_NS;
+	if (!fm.suspended)
+		return 0;
+	if (fm_busy_now()) {
+		fm.n.while_busy++;
+		return 0;
+	}
+	fm.suspended = 0;
+	fm.resumed_ns = fm.now_ns;
+	fm.busy_until_ns = fm.now_ns + fm.erase_left_ns;
 	return 0;
 }
 
@@ -309,6 +417,7 @@ int nvm_fmodel_busy(void *ctx)
 		return -1;
 	fm.n.busy_polls++;
 	fm.now_ns += 4u * FM_SPI_BYTE_NS;
+	fm_settle();
 	return fm_busy_now();
 }
 
@@ -320,5 +429,5 @@ uint64_t nvm_fmodel_now(void *ctx)
 
 const struct nvm_flash nvm_fmodel_port = {
 	nvm_fmodel_read, nvm_fmodel_program, nvm_fmodel_erase, nvm_fmodel_busy,
-	nvm_fmodel_now, 0,
+	nvm_fmodel_suspend, nvm_fmodel_resume, nvm_fmodel_now, 0,
 };

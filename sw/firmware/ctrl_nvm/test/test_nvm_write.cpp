@@ -2,17 +2,23 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // test_nvm_write.cpp - the write path of the saved-state store (#665 lanes F1
-// and FT; GoogleTest): the commit and its atomicity rules
-// (docs/design/SAVED_STATE_FASTCONNECT.md section 7;
-// SAVED_STATE_MATERIALIZATION.md section 15.1 DR2a, DR2b, DR2c and DR5), the
+// and FT; GoogleTest): the append and its atomicity rules
+// (docs/design/SAVED_STATE_FORMAT_32X32.md section 4, #823 decisions 3 to 7;
+// docs/design/SAVED_STATE_FASTCONNECT.md section 7;
+// SAVED_STATE_MATERIALIZATION.md section 15.1 DR2b, DR2c and DR5), the
 // writer held while a slot's authority is unknown, the time base, the
 // command-master waits, the power cut at every write step and the service
-// bound. The round trip against the recorded vectors is test_nvm_vector.cpp.
+// bound. The journal's own rules (replay, compaction, the erase suspend, the
+// save bound) are test_nvm_journal.cpp; the round trip against the recorded
+// vectors is test_nvm_vector.cpp.
 //
-// One test per check of the hand-rolled suite this replaces
-// (nvm_checks_write.py until #665 FT), under the check's own name. Where that
-// suite decoded a slot to find one changed value, the test compares the whole
-// slot with the container nvm_klj2.py assembles for the same records.
+// One test per check of the hand-rolled suite this replaced
+// (nvm_checks_write.py until #665 FT), under the check's own name. Every slot
+// is compared whole with the bytes scripts/nvm_klj3.py assembles for the same
+// records: a base container, then its deltas. A save appends a delta to the
+// authoritative slot; a failed one leaves its segment torn, and the retry is a
+// compaction into the other slot, the base at the old sequence and the save's
+// records after it as a delta.
 
 #include <gtest/gtest.h>
 
@@ -64,25 +70,32 @@ bool all_at_least(const std::vector<long long>& v, long long floor) {
 }
 
 // A console commit on a blank board writes slot A with the all-erased
-// container at sequence 1, byte for byte as nvm_klj2.py writes it, in one
-// erase and one program per page.
+// container at sequence 1, byte for byte as nvm_klj3.py writes it, one
+// program per page and no erase: the background check found the slot blank.
 TEST_P(NvmBoth, first_commit_bytes) {
     Files f;
     const Result r = go(port(), f, {"--blank", "--boot", "--commit", "--dump-slot-a", "a.bin"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("erases") == 1 &&
-                r.at("programs") == pages())
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("erases") == 0 &&
+                r.at("programs") == pages() && r.at("compactions") == 1 && r.at("appends") == 0 &&
+                r.at("log_end") == fx().num("log_start"))
         << "first commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj2.py's";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj3.py's";
     if (port() == Port::Litespi) {
-        EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages() && r.at("ls_wren") == r.at("ls_se") + r.at("ls_pp"))
+        EXPECT_TRUE(r.at("ls_se") == 0 && r.at("ls_pp") == pages() && r.at("ls_wren") == r.at("ls_pp"))
             << "LiteSPI command sequence: " << r.text();
     }
 }
 
-// A change to the first record of every group commits into the slot that is
-// not authoritative, at the next sequence, byte for byte as nvm_klj2.py writes
-// the same records; the authoritative slot is untouched; and a boot from the
-// result applies exactly the changed values (the round trip).
+//! The pages of the deltas a slot recipe's log holds.
+long long log_pages(const std::string& recipe) {
+    return (static_cast<long long>(fx().blob(recipe).size()) - fx().num("log_start")) / 256;
+}
+
+// A change to the first record of every group is appended to the
+// authoritative slot as one delta at the next sequence, byte for byte as
+// nvm_klj3.py writes it behind the base, which is untouched; nothing is
+// erased; and a boot from the result applies exactly the changed values (the
+// round trip).
 TEST_P(NvmBoth, change_commit_bytes) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     std::vector<std::string> words = {"--slot-b", "g.bin", "--boot", "--protect-auth"};
@@ -91,33 +104,37 @@ TEST_P(NvmBoth, change_commit_bytes) {
     }
     words.insert(words.end(), {"--until-idle", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
     Result r = go(port(), f, words);
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 6 && r.at("auth") == 0 && r.at("stale") == 0 && r.at("dirty") == 0 &&
-                r.at("pending") == 0)
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 6 && r.at("auth") == 1 && r.at("stale") == 0 && r.at("dirty") == 0 &&
+                r.at("pending") == 0 && r.at("appends") == 1 && r.at("erases") == 0 &&
+                r.at("programs") == log_pages("golden@5+changed5c@6") &&
+                r.at("log_end") == fx().num("log_start") + 256 * log_pages("golden@5+changed5c@6"))
         << "change commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("changed5c@6")))
-        << "the committed container differs from nvm_klj2.py's for the same records";
-    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "the authoritative slot changed";
+    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5+changed5c@6")))
+        << "the authoritative slot differs from nvm_klj3.py's base and delta for the same records";
+    EXPECT_TRUE(f.blobs["a.bin"] == padded(Bytes{})) << "the other slot was written";
     if (port() == Port::Litespi) {
-        EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages()) << "LiteSPI command sequence: " << r.text();
+        EXPECT_TRUE(r.at("ls_se") == 0 && r.at("ls_pp") == log_pages("golden@5+changed5c@6"))
+            << "LiteSPI command sequence: " << r.text();
     }
     r = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
-    EXPECT_TRUE(r.at("auth") == 0 && r.at("seq") == 6) << "boot after the commit: " << r.text();
+    EXPECT_TRUE(r.at("auth") == 1 && r.at("seq") == 6 && r.at("deltas") == 1) << "boot after the commit: " << r.text();
     expect_state(f, "st", fx().payloads("changed5c"));
 }
 
-// DR2a: a change commits after the 1,000 ms first-dirty window and not before,
-// and a second change inside the window does not extend it.
+// #823 decision 4: a change is appended after the 150 ms first-dirty window
+// and not before, and a second change inside the window does not extend it.
 void debounce_window(Port port) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const auto [rid, new1] = one_change(1);
     const Bytes new2 = one_change(2).second;
     const std::vector<std::string> one = {"--slot-b", "g.bin", "--boot", "--set", set_word(rid, new1)};
-    Result r = go(port, f, concat(one, {"--run-ms", "990"}));
-    EXPECT_EQ(r.at("erases"), 0) << "an erase inside the debounce window: " << r.at("erases");
-    r = go(port, f, concat(one, {"--run-ms", "990", "--run-ms", "60"}));
-    EXPECT_EQ(r.at("erases"), 1) << "no erase 1,050 ms after the change: " << r.at("erases");
-    r = go(port, f, concat(one, {"--run-ms", "500", "--set", set_word(rid, new2), "--run-ms", "560"}));
-    EXPECT_EQ(r.at("erases"), 1) << "a second change extended the first-dirty window";
+    Result r = go(port, f, concat(one, {"--run-ms", num(kWindowMs - 10)}));
+    EXPECT_EQ(r.at("programs"), 0) << "a program inside the first-dirty window: " << r.at("programs");
+    r = go(port, f, concat(one, {"--run-ms", num(kWindowMs - 10), "--run-ms", "30"}));
+    EXPECT_EQ(r.at("programs"), 1) << "no delta 20 ms after the window: " << r.at("programs");
+    r = go(port, f, concat(one, {"--run-ms", num(kWindowMs / 2), "--set", set_word(rid, new2), "--run-ms",
+                                 num(kWindowMs / 2 + 20)}));
+    EXPECT_EQ(r.at("programs"), 1) << "a second change extended the first-dirty window";
 }
 
 // A change the running capture takes leaves no window behind it, so the next
@@ -136,16 +153,17 @@ TEST_P(NvmBoth, debounce) {
                          {"--slot-b", "g.bin", "--boot", "--set-pattern", "1", "--until-phase", num(NVM_P_CAPTURE),
                           "--set", set_word(taken, value(taken, 1)), "--until-idle", "--run-ms", "5000", "--mark",
                           "--set", set_word(taken, value(taken, 2)), "--until-idle"});
-        EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
+        EXPECT_TRUE(r.at("ok") >= 2 && in(after_mark(r), kWindowMs * kMs, (kWindowMs + 50) * kMs))
             << "a change after a commit that took one mid-capture (record 0x" << std::hex << taken << std::dec
-            << "): erase " << after_mark(r, 1) << " us after it, want 1,000 to 1,050 ms: " << r.text();
+            << "): its program " << after_mark(r) << " us after it, want 150 to 200 ms: " << r.text();
     }
     // the capture is over: a change now waits for a window of its own
     const Result r = go(port(), f,
                      {"--slot-b", "g.bin", "--boot", "--set", set_word(rid, one_change(1).second), "--until-phase",
-                      num(NVM_P_SEAL), "--mark", "--set", set_word(first, value(first, 9)), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
-        << "a change after the capture: erase " << after_mark(r, 1) << " us after it, want 1,000 to 1,050 ms: "
+                      num(NVM_P_SEAL), "--until-phase", num(NVM_P_IDLE), "--mark", "--set",
+                      set_word(first, value(first, 9)), "--until-idle"});
+    EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r), kWindowMs * kMs, (kWindowMs + 50) * kMs))
+        << "a change after the capture: its program " << after_mark(r) << " us after it, want 150 to 200 ms: "
         << r.text();
 }
 
@@ -175,69 +193,92 @@ TEST_P(NvmBoth, open_count) {
 }
 
 // DR2b: a change that leaves every persisted value as the verified slot holds
-// it erases nothing.
+// it writes nothing.
 TEST_P(NvmBoth, unchanged_no_erase) {
     const unsigned rid = rids().back();
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f,
                      {"--slot-b", "g.bin", "--boot", "--set", set_word(rid, fx().payloads("golden").at(rid)),
                       "--until-idle"});
-    EXPECT_TRUE(r.at("erases") == 0 && r.at("skipped") == 1 && r.at("ok") == 0 && r.at("dirty") == 0 &&
-                r.at("pending") == 0)
+    EXPECT_TRUE(r.at("erases") == 0 && r.at("programs") == 0 && r.at("skipped") == 1 && r.at("ok") == 0 &&
+                r.at("dirty") == 0 && r.at("pending") == 0)
         << "unchanged value: " << r.text();
 }
 
-// DR2b only suppresses what a VERIFIED slot holds: after a failed attempt,
-// the retry writes the value again although the stage already carries it.
+// DR2b only suppresses what a VERIFIED slot holds: after a failed delta, the
+// retry, a compaction, writes the value again although the stage already
+// carries it, and appends it behind the new base.
 TEST_P(NvmBoth, failed_commit_not_skipped) {
     const auto [rid, new3] = one_change(3);
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f,
                      {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set", set_word(rid, new3),
-                      "--until-idle", "--dump-slot-a", "a.bin"});
-    EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 1 && r.at("last") == NVM_VD_OK && r.at("skipped") == 0)
+                      "--until-quiet", "--dump-slot-a", "a.bin"});
+    EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 2 && r.at("compactions") == 1 && r.at("appends") == 1 &&
+                r.at("last") == NVM_VD_OK && r.at("skipped") == 0 && r.at("auth") == 0 && r.at("seq") == 6)
         << "retry after a failed attempt: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one3@6"))) << "the retried change is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one3@5+one3@6"))) << "the retried change is not in the slot";
 }
 
-// DR2c: an erase, program or read-back that fails names its verdict, keeps
-// the change in flight, marks the claim stale, retries at most three times
-// 1,000 ms apart and then stops, recording the abandoned set; the
-// authoritative slot is untouched.
+// DR2c: a delta whose program or read-back fails names its verdict, keeps
+// the change in flight, marks the claim stale and leaves the segment torn;
+// the retries, compactions into the other slot, fail too, at most three
+// attempts in all, each at least 1,000 ms after the one before, and then the
+// set is abandoned and recorded. The authoritative slot's base is untouched. A
+// program that never ends leaves the device busy: nothing is read until it
+// answers, so the compaction never starts and the one attempt stands.
 TEST_P(NvmBoth, media_failures) {
     struct Failure {
         const char* mode;
         long long verdict;
         bool hang;
     };
-    static constexpr Failure kFailures[] = {{"erase-hang", NVM_VD_ERASE, true},
-                                            {"erase-stuck", NVM_VD_ERASE, false},
-                                            {"program-hang", NVM_VD_PROGRAM, true},
+    static constexpr Failure kFailures[] = {{"program-hang", NVM_VD_PROGRAM, true},
                                             {"program-drop", NVM_VD_VERIFY, false},
                                             {"program-flip", NVM_VD_VERIFY, false}};
     const auto [rid, new4] = one_change(4);
     for (const Failure& fail : kFailures) {
-        // a hung device stays busy: the attempts after the first are refused
-        // at their erase, which the device and the command master both count
         Files f = fx().files({{"g.bin", "golden@5"}});
-        const std::vector<std::string> allow =
-            fail.hang ? std::vector<std::string>{"while_busy", "ls_refused"} : std::vector<std::string>{};
         const Result r = go(port(), f,
                          {"--slot-b", "g.bin", "--boot", "--protect-auth", "--fault", std::string(fail.mode) + ":99999",
-                          "--set", set_word(rid, new4), "--run-ms", "20000", "--dump-slot-b", "b.bin"},
-                         allow);
-        EXPECT_TRUE(r.at("failed") == 3 && r.at("exhausted") == 1 && r.at("first") == fail.verdict &&
-                    r.at("last") == (fail.hang ? static_cast<long long>(NVM_VD_ERASE) : fail.verdict) && r.at("stale") == 1 &&
-                    r.at("dirty") == 0 && r.at("pending") == 1 && r.at("ok") == 0 && r.at("abandoned") == 1 &&
-                    r.at("abandoned_vd") == fail.verdict)
+                          "--set", set_word(rid, new4), "--run-ms", "20000", "--dump-slot-b", "b.bin"});
+        const long long attempts = fail.hang ? 1 : 3;
+        EXPECT_TRUE(r.at("failed") == attempts && r.at("exhausted") == (fail.hang ? 0 : 1) &&
+                    r.at("first") == fail.verdict && r.at("last") == fail.verdict && r.at("stale") == 1 &&
+                    r.at("dirty") == 0 && r.at("pending") == 1 && r.at("ok") == 0 && r.at("torn") == 1 &&
+                    r.at("abandoned") == (fail.hang ? 0 : 1) && r.at("abandoned_vd") == (fail.hang ? 0 : fail.verdict))
             << fail.mode << ": " << r.text();
-        EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5")))
-            << fail.mode << ": the authoritative slot changed";
-        if (!fail.hang) {
-            EXPECT_TRUE(r.erases.size() == 3u && all_at_least(gaps(r.erases), 1000000))
-                << fail.mode << ": attempts at " << r.erases.size() << " erases, want three at least 1,000 ms apart";
-        }
+        EXPECT_TRUE(prefix_holds(f.blobs["b.bin"], fx().blob("golden@5")))
+            << fail.mode << ": the authoritative slot's base changed";
+        EXPECT_TRUE(r.fail_at.size() == static_cast<std::size_t>(attempts) && all_at_least(gaps(r.fail_at), 1000000))
+            << fail.mode << ": " << r.fail_at.size() << " attempts, want " << attempts << " at least 1,000 ms apart";
     }
+}
+
+// The background preparation of the other slot (#823 decisions 3 and 5): a
+// written block is erased and read again. An erase that leaves a byte written
+// fails the preparation VD_ERASE, which starts again 1,000 ms later, three
+// times in all, then gives up until reset; the saves append regardless. An
+// erase that never ends holds the device: a save cannot suspend it, so it
+// fails VD_ERASE at its deadline, without tearing the log, and nothing is
+// written while the device stays busy.
+TEST_P(NvmBoth, prep_failures) {
+    const auto [rid, new4] = one_change(4);
+    Files f = fx().files({{"g.bin", "golden@5"}, {"o.bin", "golden@3"}});
+    Result r = go(port(), f,
+               {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--protect-auth", "--fault", "erase-stuck:99999",
+                "--set", set_word(rid, new4), "--run-ms", "10000"});
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("appends") == 1 && r.at("failed") == 0 && r.at("prep_failed") == 3 &&
+                r.at("prep_vd") == NVM_VD_ERASE && r.at("bg") == NVM_B_FAILED && r.at("erases") == 3 &&
+                r.prep_fail_at.size() == 3u && all_at_least(gaps(r.prep_fail_at), 1000000))
+        << "erase-stuck: " << r.text();
+    r = go(port(), f,
+           {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--protect-auth", "--fault", "erase-hang:1", "--set",
+            set_word(rid, new4), "--run-ms", "10000"},
+           {"while_busy", "ls_refused"});
+    EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("first") == NVM_VD_ERASE && r.at("torn") == 0 &&
+                r.at("pending") == 1 && r.at("programs") == 0)
+        << "erase-hang: " << r.text();
 }
 
 // A third attempt that succeeds clears the stale claim; after exhaustion, a
@@ -248,29 +289,30 @@ TEST_P(NvmBoth, media_failures) {
 TEST_P(NvmBoth, recovers_after_failure) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const auto [rid, new5] = one_change(5);
-    Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--fault", "erase-stuck:2", "--set", set_word(rid, new5),
-                           "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 2 && r.at("stale") == 0 && r.at("last") == NVM_VD_OK &&
-                r.at("first") == NVM_VD_OK && r.at("attempts") == 0 && r.erases.size() == 3u &&
-                all_at_least(gaps(r.erases), 1000000))
+    Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:2", "--set", set_word(rid, new5),
+                           "--until-quiet"});
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 2 && r.at("stale") == 0 && r.at("last") == NVM_VD_OK &&
+                r.at("first") == NVM_VD_OK && r.at("attempts") == 0 && r.at("compactions") == 1 &&
+                r.fail_at.size() == 2u && all_at_least(gaps(r.fail_at), 1000000) && !r.ok_at.empty() &&
+                r.ok_at[0] >= r.fail_at[1] + 1000000)
         << "third attempt: " << r.text();
-    // the first attempt fails; the same value is set again while the retry
-    // writes, so the retry's commit leaves it dirty and DR2b suppresses it
+    // the delta fails; the retry's compaction and its delta write the value,
+    // and the same value is set again while that delta is written, so it is
+    // left dirty and DR2b writes nothing for it, and the claim heals
     r = go(port(), f,
-           {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set", set_word(rid, new5), "--until-phase",
-            num(NVM_P_ERASE_WAIT), "--until-phase", num(NVM_P_IDLE), "--until-phase", num(NVM_P_ERASE_WAIT), "--set",
-            set_word(rid, new5), "--until-idle"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 1 && r.at("skipped") == 1 && r.at("stale") == 0 &&
+           {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set", set_word(rid, new5), "--until-programs",
+            num(pages() + 2), "--set", set_word(rid, new5), "--until-quiet"});
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 1 && r.at("skipped") == 1 && r.at("stale") == 0 &&
                 r.at("dirty") == 0 && r.at("pending") == 0)
         << "a repeated value after recovery: " << r.text();
     r = go(port(), f,
            {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:99999", "--set", set_word(rid, new5), "--run-ms",
-            "15000", "--fault", "none:0", "--set", set_word(rid, one_change(6).second), "--until-idle",
+            "15000", "--fault", "none:0", "--set", set_word(rid, one_change(6).second), "--until-quiet",
             "--dump-slot-a", "a.bin"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 3 && r.at("exhausted") == 0 && r.at("stale") == 0 &&
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 3 && r.at("exhausted") == 0 && r.at("stale") == 0 &&
                 r.at("abandoned") == 1 && r.at("abandoned_vd") == NVM_VD_VERIFY)
         << "new work set after exhaustion: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one6@6"))) << "the new work set is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one6@5+one6@6"))) << "the new work set is not in the slot";
 }
 
 // DR2c: an unchanged captured work set gets three attempts in all. A change
@@ -287,17 +329,17 @@ TEST_P(NvmBoth, dr2c_unchanged_set) {
     }
     words.insert(words.end(), {"--fault", "none:0", "--touch", num(rid), "--run-ms", "3000"});
     Result r = go(port(), f, words);
-    EXPECT_TRUE(r.at("failed") == 3 && r.at("erases") == 3 && r.at("ok") == 0 && r.at("exhausted") == 1 &&
-                r.at("withheld") == 13 && r.at("abandoned") == 1)
+    EXPECT_TRUE(r.at("failed") == 3 && r.at("ok") == 0 && r.at("exhausted") == 1 && r.at("withheld") == 13 &&
+                r.at("abandoned") == 1)
         << "unchanged set held: " << r.text();
     r = go(port(), f,
            {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:99999", "--set", set_word(rid, new21), "--run-ms",
-            "5000", "--fault", "none:0", "--set", set_word(rid, value(rid, 22)), "--until-idle", "--dump-slot-a",
+            "5000", "--fault", "none:0", "--set", set_word(rid, value(rid, 22)), "--until-quiet", "--dump-slot-a",
             "a.bin"});
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("failed") == 3 && r.at("erases") == 4 && r.at("stale") == 0 &&
-                r.at("abandoned") == 1 && r.at("abandoned_vd") == NVM_VD_VERIFY)
+    EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 3 && r.at("stale") == 0 && r.at("abandoned") == 1 &&
+                r.at("abandoned_vd") == NVM_VD_VERIFY)
         << "a changed set after exhaustion: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one22@6"))) << "the changed set is not in the slot";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one22@5+one22@6"))) << "the changed set is not in the slot";
 }
 
 // DR2c binds the console too: a commit asked for inside a failed attempt's
@@ -310,11 +352,9 @@ TEST_P(NvmBoth, dr2c_console) {
     Result r = go(port(), f,
                {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set", set_word(rid, new23),
                 "--until-phase", num(NVM_P_PROGRAM_WAIT), "--run-ms", "200", "--commit-try", "--run-ms", "300",
-                "--commit-try", "--until-idle"});
-    const long long gap = r.erases.size() > 1u && !r.fail_at.empty()
-                              ? static_cast<long long>(r.erases[1]) - static_cast<long long>(r.fail_at[0])
-                              : -1;
-    EXPECT_TRUE(r.at("commit_tries") == 2 && r.at("commit_refused") == 2 && r.at("failed") == 1 && r.at("ok") == 1 &&
+                "--commit-try", "--until-quiet"});
+    const long long gap = r.fail_at.empty() ? -1 : first_after(r.prog_at, r.fail_at[0]);
+    EXPECT_TRUE(r.at("commit_tries") == 2 && r.at("commit_refused") == 2 && r.at("failed") == 1 && r.at("ok") == 2 &&
                 in(gap, 1000 * kMs, 1050 * kMs))
         << "console inside the backoff: retry " << gap << " us after the failure: " << r.text();
     std::vector<std::string> words = {"--slot-b",           "g.bin", "--boot", "--protect-auth", "--fault",
@@ -323,84 +363,116 @@ TEST_P(NvmBoth, dr2c_console) {
         words.insert(words.end(), {"--commit-try", "--run-ms", "1500"});
     }
     words.insert(words.end(), {"--fault", "none:0", "--commit-try", "--run-ms", "1500", "--set",
-                               set_word(rid, value(rid, 24)), "--commit-try", "--until-idle"});
+                               set_word(rid, value(rid, 24)), "--commit-try", "--until-quiet"});
     r = go(port(), f, words);
     EXPECT_TRUE(r.at("commit_tries") == 7 && r.at("commit_refused") == 0 && r.at("withheld") == 6 &&
-                r.at("failed") == 3 && r.at("ok") == 1 && r.at("erases") == 4 && r.at("abandoned") == 1)
+                r.at("failed") == 3 && r.at("ok") == 2 && r.at("abandoned") == 1)
         << "console after exhaustion: " << r.text();
 }
 
 // With `fault` armed after boot, the first attempt fails with `verdict` and
-// nothing commits before the backoff ends; run on, the retry commits the
-// change into the other slot and the authority was never touched.
-void fails_then_recovers(Port port, const std::string& fault, long long verdict, unsigned seed) {
+// nothing commits before the backoff ends; run on, the retry compacts into the
+// other slot, the change appended behind its base, and the authoritative slot
+// was never touched.
+void fails_then_recovers(Port port, const std::string& fault, long long verdict, unsigned seed,
+                         const std::vector<std::string>& set = {}) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const auto [rid, change] = one_change(seed);
-    const std::vector<std::string> head = {"--slot-b", "g.bin", "--boot", "--protect-auth",
-                                           "--fault",  fault,   "--set",  set_word(rid, change)};
-    Result r = go(port, f, concat(head, {"--run-ms", "1500"}));
+    std::vector<std::string> head = {"--slot-b", "g.bin", "--boot", "--protect-auth", "--fault", fault};
+    head.insert(head.end(), set.begin(), set.end());
+    if (set.empty()) {
+        head.insert(head.end(), {"--set", set_word(rid, change)});
+    }
+    Result r = go(port, f, concat(head, {"--run-ms", "1000"}));
     EXPECT_TRUE(r.at("failed") == 1 && r.at("first") == verdict && r.at("ok") == 0)
         << fault << ": want the first failure " << verdict << ": " << r.text();
-    r = go(port, f, concat(head, {"--until-idle", "--dump-slot-a", "a.bin"}));
-    EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 1 && r.at("auth") == 0 && r.at("seq") == 6)
+    r = go(port, f, concat(head, {"--until-quiet", "--dump-slot-a", "a.bin"}));
+    EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 2 && r.at("auth") == 0 && r.at("seq") == 6)
         << fault << ": no recovery: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("one" + num(seed) + "@6")))
-        << fault << ": the retried change is not in the slot";
+    const std::string want = set.empty() ? "one" + num(seed) + "@5+one" + num(seed) + "@6" : "changed5c@5+changed5c@6";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob(want))) << fault << ": the retried change is not in the slot";
 }
 
-// The read-back covers the whole container to the trailer: a dropped LAST
-// page fails the attempt VD_VERIFY, the authority stays, and the retry
-// commits.
+//! The words that set the first record of every group as changed5c does.
+std::vector<std::string> firsts() {
+    std::vector<std::string> out;
+    for (const auto& [rid, payload] : fx().payloads("changed5c_firsts")) {
+        out.insert(out.end(), {"--set", set_word(rid, payload)});
+    }
+    return out;
+}
+
+// The read-back covers the whole delta to its trailer: a dropped LAST page
+// fails the attempt VD_VERIFY, the authority stays, and the retry commits.
 TEST_P(NvmBoth, verify_tail) {
-    fails_then_recovers(port(), "program-drop:1:" + num(pages() - 1), NVM_VD_VERIFY, 25);
+    fails_then_recovers(port(), "program-drop:1:" + num(log_pages("golden@5+changed5c@6") - 1), NVM_VD_VERIFY, 25,
+                        firsts());
 }
 
-// The blank check covers the whole container span to its last byte: an erase
-// that leaves the last byte programmed fails VD_ERASE before any page is
-// programmed, and the retry commits.
+// The background check covers the other slot to its last byte: a written
+// last byte erases the last block, and an erase that leaves that byte written
+// fails the preparation VD_ERASE, before any page is programmed there; the
+// next preparation erases it again and finds the slot blank.
 TEST_P(NvmBoth, blankcheck_tail) {
-    fails_then_recovers(port(), "erase-stuck:1:0:" + num(fx().num("img_len") - 1), NVM_VD_ERASE, 26);
+    Files f = fx().files({{"g.bin", "golden@5"}, {"t.bin", "tail_written"}});
+    const Result r = go(port(), f,
+                     {"--slot-a", "t.bin", "--slot-b", "g.bin", "--boot", "--fault",
+                      "erase-stuck:1:0:" + num(fx().num("erase_block") - 1), "--until-quiet"});
+    const long long last_block = fx().num("journal_a") + fx().num("slot_bytes") - fx().num("erase_block");
+    EXPECT_TRUE(r.at("prep_failed") == 1 && r.at("prep_vd") == NVM_VD_ERASE && r.at("bg") == NVM_B_READY &&
+                r.at("erases") == 2 && r.erase_at.size() == 2u && r.erase_at[0] == last_block &&
+                r.erase_at[1] == last_block && r.at("programs") == 0)
+        << "the slot's last byte: " << r.text();
 }
 
-// Each failure is named by the step that met it, not a later one: a read that
-// fails in the blank check is VD_ERASE and in the read-back VD_VERIFY, never
-// passed over; a program or erase the port refuses is VD_PROGRAM or VD_ERASE.
-// Each attempt is retried and the retry commits.
+// Each failure is named by the step that met it, not a later one: a read
+// that fails in the background check is the preparation's VD_ERASE and in a
+// delta's read-back VD_VERIFY, never passed over; a program or erase the port
+// refuses is VD_PROGRAM or the preparation's VD_ERASE. Each save is retried
+// and commits; each preparation starts again and completes.
 TEST_F(NvmModel, media_verdicts) {
-    const long long n = pages();
-    const std::pair<std::string, long long> faults[] = {{"read-fail:1:" + num(n / 2), NVM_VD_ERASE},
-                                                         {"read-fail:1:" + num(n + n / 2), NVM_VD_VERIFY},
-                                                         {"program-refuse:1:2", NVM_VD_PROGRAM},
-                                                         {"erase-refuse:1", NVM_VD_ERASE}};
-    for (const auto& [fault, verdict] : faults) {
-        fails_then_recovers(port(), fault, verdict, 27);
+    const long long a = fx().num("journal_a");
+    const long long b = fx().num("journal_b");
+    fails_then_recovers(port(), "read-fail-at:1:0:" + num(b + fx().num("log_start") + 8), NVM_VD_VERIFY, 27);
+    fails_then_recovers(port(), "program-refuse:1", NVM_VD_PROGRAM, 27);
+    const std::pair<std::string, bool> prep[] = {{"read-fail-at:1:0:" + num(a + 300), false},
+                                                 {"erase-refuse:1", true}};
+    for (const auto& [fault, written] : prep) {
+        Files f = fx().files({{"g.bin", "golden@5"}, {"o.bin", "golden@3"}});
+        std::vector<std::string> words = {"--slot-b", "g.bin"};
+        if (written) {
+            words.insert(words.end(), {"--slot-a", "o.bin"});
+        }
+        const Result r = go(port(), f, concat(words, {"--boot", "--fault", fault, "--until-quiet"}));
+        EXPECT_TRUE(r.at("prep_failed") == 1 && r.at("prep_vd") == NVM_VD_ERASE && r.at("bg") == NVM_B_READY &&
+                    r.at("failed") == 0)
+            << fault << ": " << r.text();
     }
 }
 
-// One PHC step of `step` ms inside the debounce window, the backoff, an erase
-// and a program: no elapsed time moves.
+// One PHC step of `step` ms inside the first-dirty window, the backoff, an
+// erase and a program: no elapsed time moves.
 void time_base_step(const std::string& step) {
     const std::vector<std::string> hang = {"while_busy", "ls_refused"};
     const auto [rid, new28] = one_change(28);
-    Files f = fx().files({{"g.bin", "golden@5"}});
+    Files f = fx().files({{"g.bin", "golden@5"}, {"o.bin", "golden@3"}});
     const std::vector<std::string> change = {"--slot-b", "g.bin", "--boot", "--set", set_word(rid, new28)};
     Result r = go(Port::Litespi, f,
-               {"--slot-b", "g.bin", "--boot", "--mark", "--set", set_word(rid, new28), "--run-ms", "500",
+               {"--slot-b", "g.bin", "--boot", "--mark", "--set", set_word(rid, new28), "--run-ms", "100",
                 "--phc-step", step, "--run-ms", "1000"});
-    EXPECT_TRUE(in(after_mark(r, 0), 1000 * kMs, 1050 * kMs))
-        << "PHC " << step << " ms in the window: erase " << after_mark(r, 0) << " us after the change";
+    EXPECT_TRUE(in(after_mark(r), kWindowMs * kMs, (kWindowMs + 50) * kMs))
+        << "PHC " << step << " ms in the window: program " << after_mark(r) << " us after the change";
     r = go(Port::Litespi, f,
-           concat(change, {"--fault", "program-drop:1", "--run-ms", "1200", "--phc-step", step, "--run-ms", "2000"}));
-    const long long gap = r.erases.size() > 1u && !r.fail_at.empty()
-                              ? static_cast<long long>(r.erases[1]) - static_cast<long long>(r.fail_at[0])
-                              : -1;
+           concat(change, {"--fault", "program-drop:1", "--run-ms", "400", "--phc-step", step, "--run-ms", "2000"}));
+    const long long gap = r.fail_at.empty() ? -1 : first_after(r.prog_at, r.fail_at[0]);
     EXPECT_TRUE(in(gap, 1000 * kMs, 1050 * kMs))
         << "PHC " << step << " ms in the backoff: retry " << gap << " us after the failure";
     r = go(Port::Litespi, f,
-           concat(change, {"--fault", "erase-hang:1", "--run-ms", "1500", "--phc-step", step, "--run-ms", "5000"}),
+           {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--fault", "erase-hang:1", "--run-ms", "1500",
+            "--phc-step", step, "--run-ms", "5000"},
            hang);
-    const long long erase_took = !r.fail_at.empty() && !r.erases.empty()
-                                     ? static_cast<long long>(r.fail_at[0]) - static_cast<long long>(r.erases[0])
+    const long long erase_took = !r.prep_fail_at.empty() && !r.erases.empty()
+                                     ? static_cast<long long>(r.prep_fail_at[0]) - static_cast<long long>(r.erases[0])
                                      : -1;
     EXPECT_TRUE(in(erase_took, 3500 * kMs, 3510 * kMs))
         << "PHC " << step << " ms in an erase: timed out " << erase_took << " us after it, want 3,500 ms";
@@ -416,7 +488,7 @@ void time_base_step(const std::string& step) {
 }
 
 // The windows and deadlines run on the port's local counter, never the PHC:
-// a gPTP step of 60 s either way in the debounce window, the backoff, an
+// a gPTP step of 60 s either way in the first-dirty window, the backoff, an
 // erase and a program changes no elapsed time, and the counter's wrap at the
 // shape's own clock (2^32 clocks: 42.9 s at 100 MHz, 51.5 s at 83.333 MHz)
 // inside the window does not either. Every time is graded on the model's own
@@ -428,13 +500,13 @@ TEST_F(NvmLitespi, time_base) {
     const long long wrap_us = static_cast<long long>((1ull << 32) * 1000000ull / CONFIG_CLOCK_FREQUENCY);
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f,
-                     {"--slot-b", "g.bin", "--boot", "--run-ms", num(wrap_us / kMs - 500), "--mark", "--set",
+                     {"--slot-b", "g.bin", "--boot", "--run-ms", num(wrap_us / kMs - kWindowMs / 2), "--mark", "--set",
                       set_word(rids().back(), one_change(28).second), "--run-ms", "1500"});
     EXPECT_TRUE(!r.marks.empty() && static_cast<long long>(r.marks[0]) < wrap_us &&
-                wrap_us < static_cast<long long>(r.marks[0]) + 1000 * kMs)
+                wrap_us < static_cast<long long>(r.marks[0]) + kWindowMs * kMs)
         << "the window does not hold the counter's wrap at " << wrap_us << " us";
-    EXPECT_TRUE(in(after_mark(r, 0), 1000 * kMs, 1050 * kMs))
-        << "a window across the counter's wrap: erase " << after_mark(r, 0) << " us after the change";
+    EXPECT_TRUE(in(after_mark(r), kWindowMs * kMs, (kWindowMs + 50) * kMs))
+        << "a window across the counter's wrap: program " << after_mark(r) << " us after the change";
 }
 
 // The port keeps time at the shape's own system clock, a whole number of MHz
@@ -463,12 +535,13 @@ TEST_F(NvmLitespi, port_clock) {
 // master that stops answering in one wait (TX, RX, or a receive side that
 // never drains) fails the call within LS_POLL_MAX reads, chip select
 // released, so the step returns, the attempt fails under the step's verdict,
-// the authority is untouched and the retry commits; a master that never
-// answers exhausts the set while the loop keeps running. The case that slows
-// every wait is port_deadline's.
+// the authority is untouched and the retry commits; in the background
+// preparation's erase, its start or its wait, the preparation fails VD_ERASE
+// and starts again; a master that never answers exhausts the set while the
+// loop keeps running. The case that slows every wait is port_deadline's.
 TEST_F(NvmLitespi, port_stall) {
     const std::vector<std::string> cut = {"ls_short", "while_busy", "ls_refused"};
-    Files f = fx().files({{"g.bin", "golden@5"}});
+    Files f = fx().files({{"g.bin", "golden@5"}, {"o.bin", "golden@3"}});
     const std::vector<std::string> head = {"--slot-b", "g.bin", "--boot", "--protect-auth", "--set",
                                            set_word(rids().back(), one_change(29).second)};
     for (const char* stall : {"tx:2:0:4000", "rx:2:0:4000", "drain:2:0:4000"}) {
@@ -477,33 +550,40 @@ TEST_F(NvmLitespi, port_stall) {
         EXPECT_TRUE(r.at("failed") == 0 && r.at("ok") == 1 && r.at("ls_stalled") == 2 && r.at("ls_max_withheld") == 4000)
             << "slow master " << stall << ": " << r.text();
     }
-    const std::tuple<int, std::string, long long> stopped[] = {{NVM_P_PROGRAM, "tx:1:10:0", NVM_VD_PROGRAM},
-                                                                {NVM_P_PROGRAM, "rx:1:200:0", NVM_VD_PROGRAM},
-                                                                {NVM_P_PROGRAM, "drain:1:0:0", NVM_VD_PROGRAM},
-                                                                {NVM_P_ERASE, "tx:1:3:0", NVM_VD_ERASE},
-                                                                {NVM_P_ERASE_WAIT, "rx:1:0:0", NVM_VD_ERASE}};
-    for (const auto& [phase, stall, verdict] : stopped) {
+    for (const char* stall : {"tx:1:10:0", "rx:1:100:0", "drain:1:0:0"}) {
         Result r = go(port(), f,
-                   concat(head, {"--until-phase", num(phase), "--ls-stall", stall, "--run-ms", "100", "--dump-slot-b",
-                                 "b.bin"}),
+                   concat(head, {"--until-phase", num(NVM_P_PROGRAM), "--ls-stall", stall, "--run-ms", "100",
+                                 "--dump-slot-b", "b.bin"}),
                    cut);
         // the port gives up after LS_POLL_MAX reads; a drain reads once more
-        const long long withheld = kPollMax + (stall.rfind("drain", 0) == 0 ? 1 : 0);
-        EXPECT_TRUE(r.at("failed") == 1 && r.at("first") == verdict && r.at("ls_stalled") == 1 &&
+        const long long withheld = kPollMax + (std::string(stall).rfind("drain", 0) == 0 ? 1 : 0);
+        EXPECT_TRUE(r.at("failed") == 1 && r.at("first") == NVM_VD_PROGRAM && r.at("ls_stalled") == 1 &&
                     r.at("ls_max_withheld") == withheld)
             << "stalled master " << stall << ": " << r.text();
-        EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << stall << ": the authoritative slot changed";
-        r = go(port(), f, concat(head, {"--until-phase", num(phase), "--ls-stall", stall, "--until-idle"}), cut);
-        EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 1) << stall << ": no recovery: " << r.text();
+        EXPECT_TRUE(prefix_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << stall << ": the authoritative base changed";
+        r = go(port(), f, concat(head, {"--until-phase", num(NVM_P_PROGRAM), "--ls-stall", stall, "--until-quiet"}),
+               cut);
+        EXPECT_TRUE(r.at("failed") == 1 && r.at("ok") == 2) << stall << ": no recovery: " << r.text();
+    }
+    const std::pair<std::string, std::vector<std::string>> prep[] = {
+        {"tx:1:0:0", {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--ls-stall", "tx:1:0:0"}},
+        {"tx:1:1:0", {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--ls-stall", "tx:1:1:0"}},
+        {"rx:1:0:0", {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--until-bg", num(NVM_B_ERASE_WAIT),
+                      "--ls-stall", "rx:1:0:0"}}};
+    for (const auto& [stall, words] : prep) {
+        const Result r = go(port(), f, concat(words, {"--until-quiet"}), cut);
+        EXPECT_TRUE(r.at("prep_failed") == 1 && r.at("prep_vd") == NVM_VD_ERASE && r.at("ls_stalled") == 1 &&
+                    r.at("bg") == NVM_B_READY)
+            << "stalled master in the preparation's erase, " << stall << ": " << r.text();
     }
     const Result r = go(port(), f,
-                     concat(head, {"--until-phase", num(NVM_P_ERASE), "--ls-stall", "tx:99999:0:0", "--run-ms", "10000",
-                                   "--dump-slot-b", "b.bin"}),
+                     concat(head, {"--until-phase", num(NVM_P_PROGRAM), "--ls-stall", "tx:99999:0:0", "--run-ms",
+                                   "10000", "--dump-slot-b", "b.bin"}),
                      cut);
-    EXPECT_TRUE(r.at("failed") == 3 && r.at("exhausted") == 1 && r.at("first") == NVM_VD_ERASE &&
+    EXPECT_TRUE(r.at("failed") == 3 && r.at("exhausted") == 1 && r.at("first") == NVM_VD_PROGRAM &&
                 r.at("calls") >= 90000 && r.at("max_call_us") <= kCallBoundUs)
         << "dead master: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "dead master: the authoritative slot changed";
+    EXPECT_TRUE(prefix_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "dead master: the authoritative base changed";
 }
 
 // No call is still waiting on the master past the port's deadline, LS_CALL_US
@@ -532,13 +612,13 @@ TEST_F(NvmLitespi, port_deadline) {
         << "twelve slowed waits: " << r.text();
     r = go(port(), f,
            concat(head, {"--ls-stall", "tx:999999:0:4000", "--run-ms", "10000", "--dump-slot-b", "b.bin", "--ls-stall",
-                         "none:0", "--set", set_word(rid, value(rid, 31)), "--until-idle"}),
+                         "none:0", "--set", set_word(rid, value(rid, 31)), "--until-quiet"}),
            {"ls_short"});
     EXPECT_TRUE(r.at("failed") == 3 && r.at("abandoned_vd") == NVM_VD_PROGRAM && r.at("abandoned") == 1 &&
-                r.at("ok") == 1 && r.at("ls_max_withheld") == 4000 && kLsCallUs <= r.at("max_call_us") &&
+                r.at("ok") == 2 && r.at("ls_max_withheld") == 4000 && kLsCallUs <= r.at("max_call_us") &&
                 r.at("max_call_us") <= kCallBoundUs && r.at("calls") >= 50000)
         << "every wait slowed: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "every wait slowed: the authority changed";
+    EXPECT_TRUE(prefix_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "every wait slowed: the authority changed";
 }
 
 //! Sequences the generation restart meets differently: a tie with 1, an
@@ -575,7 +655,7 @@ Result authority_case(int x, unsigned long long seq, const std::string& fault, b
             << what << ": the writer is not held: " << s.text();
     } else {
         EXPECT_TRUE(s.at("unread") == 0 && s.at("terminal") == NVM_T_COMPLETE && s.at("ok") == 1 &&
-                    s.at("auth") == 1 - x && static_cast<unsigned long long>(s.at("seq")) == ((seq + 1u) & 0xFFFFFFFFu))
+                    s.at("auth") == x && static_cast<unsigned long long>(s.at("seq")) == ((seq + 1u) & 0xFFFFFFFFu))
             << what << ": the slot was not read again and applied: " << s.text();
     }
     expect_state(f, "st0", held ? Payloads{} : saved, what + ": at boot: ");
@@ -652,50 +732,60 @@ TEST_F(NvmModel, read_disagreement) {
     }
 }
 
-// DR5: with no slot accepted, a blank slot takes the first commit before a
-// refused one, so a refused image is not erased merely for being refused.
+// DR5: with no slot accepted, a blank slot takes the first base before a
+// refused one, so a refused image is not erased merely for being refused; it
+// is erased in the background once a base elsewhere holds the authority
+// (#823 decision 3, rule 6).
 TEST_P(NvmBoth, refused_slot_kept) {
     const auto [rid, new7] = one_change(7);
     Files f = fx().files({{"f.bin", "golden@5/foreign"}});
-    const Result r = go(port(), f,
-                     {"--slot-a", "f.bin", "--boot", "--set", set_word(rid, new7), "--until-idle", "--dump-slot-a",
-                      "a.bin", "--dump-slot-b", "b.bin"});
-    EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("vd_a") == NVM_VD_SHAPE && r.at("auth") == 1 && r.at("ok") == 1)
+    Result r = go(port(), f,
+               {"--slot-a", "f.bin", "--boot", "--set", set_word(rid, new7), "--until-ok", "1", "--dump-slot-a",
+                "a.bin", "--dump-slot-b", "b.bin"});
+    EXPECT_TRUE(r.at("terminal") == NVM_T_BLANK && r.at("vd_a") == NVM_VD_SHAPE && r.at("auth") == 1 && r.at("ok") == 1 &&
+                r.at("erases") == 0)
         << "refused slot A: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@5/foreign"))) << "the refused image was erased";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("erased_one7@1")))
-        << "slot B is not the container nvm_klj2.py assembles for the change";
+        << "slot B is not the container nvm_klj3.py assembles for the change";
+    r = go(port(), f, {"--slot-a", "f.bin", "--boot", "--set", set_word(rid, new7), "--until-quiet", "--dump-slot-a",
+                       "a.bin"});
+    EXPECT_TRUE(r.at("auth") == 1 && r.at("erases") == 1 && f.blobs["a.bin"] == padded(Bytes{}))
+        << "the refused image is not erased once slot B holds the authority: " << r.text();
 }
 
 // Every service step is bounded and returns: no step touches more than one
 // latched record or one 256-byte stretch, no call holds the loop past
 // NOMINAL_CALL_US of model time, and the loop keeps running through a 3 s
-// erase (one status poll per call).
+// background erase (one status poll per call), which every delta suspends.
 TEST_P(NvmBoth, service_bound) {
-    Files f = fx().files({{"g.bin", "golden@5"}});
-    const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--times", "3000:1000", "--set-pattern", "1",
-                                 "--until-idle"});
+    Files f = fx().files({{"g.bin", "golden@5"}, {"o.bin", "golden@3"}});
+    const Result r = go(port(), f, {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--times", "3000:1000",
+                                 "--set-pattern", "1", "--until-quiet"});
     // one latched record: its copy, and its crc16 over the reference's header
     // less the crc16's own two bytes, then the payload
     const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + fx().num("rec_hdr") - 2);
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("step_max") == want && want == r.at("step_bound"))
+    EXPECT_TRUE(r.at("ok") >= 1 && r.at("step_max") == want && want == r.at("step_bound"))
         << "step bytes " << r.at("step_max") << ", want " << want << " (bound " << r.at("step_bound") << ")";
-    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
+    EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / (100 + r.at("max_call_us")) &&
+                r.at("max_polls_call") <= 3 &&
+                r.at("suspends") >= 1 && r.at("bg") == NVM_B_READY)
         << "the loop did not keep running: " << r.text();
 }
 
-// A power cut inside every media effect of a commit (the erase and every page
-// program, at 0, 1/256, 1/2 and 255/256 of it) and during the read-back: the
-// board boots the old values or the new ones exactly, never a mix, never
-// touching the authoritative slot, and the next change commits. Three
-// starting points: blank media, one slot, two slots.
+// A power cut inside every media effect of a save (a base's pages on blank
+// media, a delta's pages behind one slot, and behind two the background
+// erase of the older one first, at 0, 1/256, 1/2 and 255/256 of each) and
+// during the last read-back: the board boots the old values or the new ones
+// exactly, never a mix, never touching the authoritative slot's closed
+// bytes, and the next change commits, a torn log by a compaction first.
 TEST_P(NvmBoth, powercut) {
-    const long long effects = 1 + pages();
-    const std::pair<const char*, std::vector<std::string>> starts[] = {
-        {"blank media", {"--blank"}},
-        {"one slot", {"--slot-a", "o.bin"}},
-        {"two slots", {"--slot-a", "o.bin", "--slot-b", "n.bin"}}};
-    for (const auto& [label, loads] : starts) {
+    const long long delta = log_pages("golden@5+changed33@6");
+    const std::tuple<const char*, std::vector<std::string>, long long> starts[] = {
+        {"blank media", {"--blank"}, pages()},
+        {"one slot", {"--slot-a", "o.bin"}, delta},
+        {"two slots", {"--slot-a", "o.bin", "--slot-b", "n.bin"}, 1 + delta}};
+    for (const auto& [label, loads, effects] : starts) {
         Files f = fx().files({{"o.bin", "golden@5"}, {"n.bin", "changed21@6"}});
         const Result r = go(port(), f, concat(loads, {"--powercut"}));
         const auto pc = [&r](const char* key) { return r.powercut.count(key) != 0u ? r.powercut.at(key) : -1; };

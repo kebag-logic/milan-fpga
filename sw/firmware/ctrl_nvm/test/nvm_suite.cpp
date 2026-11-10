@@ -74,8 +74,9 @@ class CallMaxReport final : public ::testing::Environment {
 ::testing::Environment* const call_max_report = ::testing::AddGlobalTestEnvironment(new CallMaxReport);
 
 std::vector<std::string> contract(const Result& r, const std::vector<std::string>& allow) {
-    static const char* const kZero[] = {"outside",   "protected", "pagewrap", "while_busy", "descending", "sm_order",
-                                        "bad",       "ls_no_wel", "ls_short", "ls_refused", "ls_unknown", "ls_hung"};
+    static const char* const kZero[] = {"outside",   "protected", "pagewrap",  "while_busy", "descending",
+                                        "sm_order",  "bad",       "ls_no_wel", "ls_short",   "ls_refused",
+                                        "ls_unknown", "ls_hung",  "kept",      "read_busy",  "suspended_hit"};
     std::vector<std::string> found;
     for (const char* key : kZero) {
         const bool allowed = std::find(allow.begin(), allow.end(), key) != allow.end();
@@ -313,11 +314,29 @@ long long pages() { return (fx().num("img_len") + 255) / 256; }
 
 bool in(long long value, long long lo, long long hi) { return value >= 0 && lo <= value && value <= hi; }
 
-long long after_mark(const Result& r, std::size_t k) {
-    if (r.erases.size() <= k || r.marks.empty()) {
+long long after_mark(const Result& r) {
+    if (r.marks.empty()) {
         return -1;
     }
-    return static_cast<long long>(r.erases[k]) - static_cast<long long>(r.marks.back());
+    for (const std::uint64_t at : r.prog_at) {
+        if (at >= r.marks.back()) {
+            return static_cast<long long>(at) - static_cast<long long>(r.marks.back());
+        }
+    }
+    return -1;
+}
+
+long long first_after(const std::vector<std::uint64_t>& at, std::uint64_t from) {
+    for (const std::uint64_t t : at) {
+        if (t >= from) {
+            return static_cast<long long>(t) - static_cast<long long>(from);
+        }
+    }
+    return -1;
+}
+
+bool prefix_holds(const Bytes& got, const Bytes& image) {
+    return !image.empty() && got.size() >= image.size() && std::equal(image.begin(), image.end(), got.begin());
 }
 
 const char* port_name(Port port) { return port == Port::Litespi ? "--litespi" : "model"; }

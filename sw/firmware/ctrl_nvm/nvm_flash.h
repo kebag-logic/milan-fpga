@@ -3,16 +3,25 @@
  * nvm_flash.h - the flash port of the saved-state store (#665 lane F1).
  *
  * THIS IS THE WHOLE MEDIA PORT. The store reaches the journal slots only
- * through these five calls, so it runs unchanged over either implementation:
+ * through these seven calls, so it runs unchanged over either implementation:
  *
  *   plat/nvm_flash_litespi.c  the on-chip SPI flash: reads through the
- *                             memory-mapped QSPI window, program and erase
- *                             through the LiteSPI command master (WREN, PP,
- *                             SE, RDSR), the access code of
+ *                             memory-mapped QSPI window, program, erase and
+ *                             the erase suspend through the LiteSPI command
+ *                             master (WREN, PP, SE, RDSR, PES, PER), the
+ *                             access code of
  *                             sw/firmware/milan_baremetal/milan_baremetal.c;
  *   host/nvm_fmodel.c         the host flash model, with injectable torn
  *                             program and erase (a power cut at any step),
- *                             erase and program failures and bit flips.
+ *                             erase and program failures, bit flips and a
+ *                             slow or refused erase suspend.
+ *
+ * THE ERASE SUSPEND (#823 decision 5). A save programs a page of the
+ * authoritative slot while the other slot's block is being erased: the save
+ * suspends the erase, programs and reads back, and resumes it. The part has
+ * erase suspend (N25Q128 section 9.1.20 and Table 17), and while an erase is
+ * suspended it programs and reads any block but the one being erased
+ * (Table 18).
  *
  * It is deliberately a port of its own and not part of the packet-mailbox
  * HAL of lane F0 (sw/firmware/ctrl/mbx/mbx_hal.h): the two are reconciled
@@ -49,8 +58,15 @@ struct nvm_flash {
 	/* Start an erase of the 64 KiB erase block holding addr. 0 when started. */
 	int (*erase)(void *ctx, uint32_t addr);
 	/* 1 while a program or erase is in progress, 0 once it ended, negative
-	 * when the device cannot be asked. */
+	 * when the device cannot be asked. With an erase suspended, 0 once the
+	 * suspend took effect, then the state of any program issued since. */
 	int (*busy)(void *ctx);
+	/* Suspend the erase in progress (PES); 0 when issued. busy() reports 0
+	 * once the device is suspended. */
+	int (*suspend)(void *ctx);
+	/* Resume the suspended erase (PER); 0 when issued. busy() then reports
+	 * the erase again. */
+	int (*resume)(void *ctx);
 	/* Elapsed time in microseconds from a LOCAL counter that only counts
 	 * up: never the PHC, which a gPTP step moves either way, so no clock
 	 * correction lengthens or shortens a window, a backoff or a deadline.

@@ -12,8 +12,9 @@
  * capacities before it, so a record's id is the same constant at every shape.
  *
  * Two readers take the capacities from here, and nothing restates them:
- *   - the F1 store's codec (nvm_shape.h, nvm_klj2.c), which refuses at
- *     compile time a shape whose count outgrows its block;
+ *   - the split placement's saved-state store's codec (nvm_shape.h,
+ *     nvm_klj2.c), which refuses at compile time a shape whose count
+ *     outgrows its block;
  *   - the builder's split output (sw/builder/endstation_builder.py,
  *     emit_nvm_split), through scripts/nvm_layout3.py, which reads each
  *     NVM3_CAP_* line and refuses a header with none or two of one.

@@ -1,9 +1,9 @@
 # Saved-state format for shapes up to 32x32
 
-Status: **ruled; the record space and framing implemented for the split placement** (#823).
+Status: **ruled and implemented for the split placement** (#823).
 Decisions 1 to 7 were ruled as recommended ([round 2](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730773797)).
 The [round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730985093) scopes them to the split placement.
-The append-only save path (decisions 3, 4, 5 and 7) is not built yet: it follows this format.
+The record space and framing are built (decisions 1, 2 and 6), and so is the append-only save path (decisions 3, 4, 5 and 7, [round 5 ruling](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6754858510)).
 
 **The format is the split placement's.**
 The 32x32 shape is split-only, and the processor goes away in Mark II.
@@ -204,10 +204,11 @@ The new journal sits directly below today's, as `journal_klj3` in `FLASHBOOT_RES
 That is the flash map's one source, so every build reserves it.
 Today's <!-- fig:old_journal_kib -->128<!-- /fig --> KiB journal is never written by the split store, so an all-fabric image still finds its own after a rollback.
 
-**The journal is placed; the append path fills its log.**
-The F1 store's two slots are the journal's halves.
-Its whole-image commit is unchanged: it erases the blocks its container spans, from the slot's first, then programs and verifies.
-At the shipped shapes that is one block, as today.
+**The journal is placed, and the store writes its log.**
+The split store's two slots are the journal's halves.
+Each holds a base container at its start and a log of delta segments after it (section 4).
+A save appends a delta and never erases.
+A compaction writes a base into the other slot, which the store prepares in the background: every page read blank, and a written block erased and read again.
 
 ### The ppmem window and the F1 stage
 
@@ -228,33 +229,46 @@ The <!-- fig:window_kib -->1,024<!-- /fig --> KiB window would then leave <!-- f
 Today the window holds the image plus 135,168 B; the proposal, plus 397,312 B, of 1,048,576 B.
 <!-- nvm-format: end window -->
 
-The split's F1 store has no DDR3, so its stage is block RAM (#640 D4).
-Until the append path it holds the whole container, now KLJ3: its ten-byte headers add two bytes a record.
+The split's store has no DDR3, so its stage is block RAM (#640 D4).
+The stage stays the whole container, now KLJ3: its ten-byte headers add two bytes a record.
 In KLJ2 that was <!-- fig:p32_f1_stage_now -->99,088<!-- /fig --> B at the census shape.
-The append needs only one page and one record, <!-- fig:t32_f1_stage_new -->2,378<!-- /fig --> B at 32x32.
-Compaction streams record by record from the owners, so it needs no more.
+The boot replays the log into it, and a compaction programs it as the next base.
+The append path adds the proposal row's one page and one record beside it, <!-- fig:t32_f1_stage_new -->2,378<!-- /fig --> B at 32x32.
+The record is a compaction's carry: one that runs past a page, kept whole for the next.
+A stage of only those bytes would need compaction to stream from the owners; that is not built.
 
 ## 4. The save path and its 0.5 s bound
 
 **The journal.** A slot is a log of segments, each starting on a page.
 
 - Segment 0 is the **base**: every record of the shape, as one KLJ container.
-- Every later segment is a **delta**: only changed records, with the next sequence number.
+- Every later segment is a **delta**: only changed records, each framed, with a sequence above the one before.
 - Each segment carries the container header, KLJ3 in the split, and closes with its own CRC-32 trailer.
   The trailer is the commit mark, as it is today.
+  A delta is at most <!-- fig:p_cap -->28<!-- /fig --> pages (`NVM_SEG_PAGES`).
 - A record's latest closing segment holds its value.
 - The live window keeps today's layout, every record at its derived offset.
   Only the flash copy becomes a log; firmware replays it into the window at boot.
+
+The reference is `scripts/nvm_klj3.py` (`klj3_delta`, `klj3_slot`, `klj3_slot_decode`), and the store is `sw/firmware/ctrl_nvm/nvm_store.c`.
 
 **The rules.** They carry FASTCONNECT's A/B guarantee over to appends:
 
 1. A save appends one delta to the authoritative slot. It never erases.
 2. A boot walks the base, then each delta whose CRC closes, in sequence order. It stops at the first that does not.
+   A walk stands on two that read the same bytes, as a refusal does (#665 decision 2).
 3. After a boot that found a torn delta, the next write is a compaction. Nothing appends past a torn segment.
-4. **Compaction** writes a fresh base into the other slot. Authority moves only when that base verifies with a higher sequence.
-5. Compaction yields to a save between pages. A record changed after its copy is appended to the new slot.
+   A delta that fails leaves its segment torn too.
+4. **Compaction** writes a fresh base into the other slot, at the authoritative slot's sequence.
+   Once it verifies, the deltas the old slot took since the compaction began are copied page for page behind it.
+   Authority moves only then, and both slots hold every value a save reported.
+   A value only the new base carries stays in flight for the next delta, whose higher sequence ends the tie.
+5. Compaction yields to a save between pages, and the save appends to the old slot.
+   A record a page cuts is kept whole for the next page, so the base holds each record's value at one instant.
+   With no old slot, a record changed after its copy is appended to the new slot once it holds the authority.
 6. The old slot is erased in the background after the move, one erase block at a time.
 7. A save that arrives during an erase **suspends** it, programs, then resumes it.
+   A suspend not seen to take effect by the save's deadline is resumed once the device answers.
 8. A save never waits for compaction while the active slot keeps its reserve.
 
 A power cut at any page of an append leaves the last closing delta authoritative.
@@ -272,24 +286,25 @@ The bound is graded at the AX7101's part; the Arty's S25FL128S has no maxima in 
 | Term | Value | Source |
 |---|---|---|
 | Producer first-dirty window | 100 ms | today 500 ms |
-| Firmware first-dirty window | 150 ms | today 1,000 ms |
+| Firmware first-dirty window | 150 ms | the split store's `NVM_WINDOW_MS`; the all-fabric 1,000 ms |
 | One page programmed | 5.168 ms | tPP 5 ms, and 263 B on the 1x link |
 | One page read back | 0.166 ms | 260 B on the 1x link |
 | One page, both | 5.335 ms |  |
-| Segment cap | 28 pages | a segment ends before the next window |
+| Segment cap | 28 pages | a segment ends before the next window; `NVM_SEG_PAGES` |
 | Records per segment | 7,124 B | less the 44-byte frame |
 | Ahead of it: one compaction page | 5.335 ms | compaction yields per page |
 | The segment itself | 149.37 ms |  |
 | **Worst case, all-fabric** | **404.71 ms** + suspend | both windows |
 | **Worst case, split** | **304.71 ms** + suspend | firmware window only |
-| Room left for the suspend latency | 95.29 ms | not in the tree |
+| Room left for the suspend latency | 95.29 ms | the store's `NVM_SUSPEND_ROOM_US` |
 | Without erase suspend | 3,399.37 ms | tSE 3,000 ms ahead |
 <!-- nvm-format: end save -->
 
 **The windows.** The bound runs from the change, so the first-dirty windows count.
 DR2a, in the [materialization register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register), rules them at <!-- fig:prod_window_now_ms -->500<!-- /fig --> ms in each producer and <!-- fig:fw_window_now_ms -->1,000<!-- /fig --> ms in firmware.
 Together they already exceed the bound, before any flash work.
-This page proposes <!-- fig:w_prod_ms -->100<!-- /fig --> ms and <!-- fig:w_fw_ms -->150<!-- /fig --> ms (decision 4).
+Decision 4 rules <!-- fig:w_prod_ms -->100<!-- /fig --> ms and <!-- fig:w_fw_ms -->150<!-- /fig --> ms.
+The split store's window is the second, `NVM_WINDOW_MS`; the all-fabric placement keeps DR2a's.
 
 **The segment cap.** A segment holds at most <!-- fig:p_cap -->28<!-- /fig --> pages, so it ends inside one firmware window.
 A change then never waits for an earlier segment, only for the page in flight.
@@ -323,7 +338,13 @@ The bound holds under three stated assumptions:
   Its suspend latency is <!-- fig:susp_typ_us -->15<!-- /fig --> us **typical, with no maximum given**: the bound's one typical term, as ruled (#823).
   The split's worst save is then <!-- fig:split_typ_ms -->304.72<!-- /fig --> ms.
   The room is <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms, so a suspend <!-- fig:susp_margin -->6,352<!-- /fig --> times its typical value would still fit.
-  The append path's writer times every suspend and reports a slow one.
+  The store times every suspend: `suspend_us_max` is the longest, and `suspend_slow` counts each one longer than the room (`NVM_SUSPEND_ROOM_US`).
+
+**The host suite runs the worst case.** The store is built at the bound shape, the flash model at tSE <!-- fig:t_se_s -->3<!-- /fig --> s and tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms with the typical suspend, and every service call is a 100 us event loop.
+A1's burst, the first names that fill one delta, is changed at once.
+`save_bound` holds the change-to-read-back time within the bound in both cases: meeting the background erase, and meeting a compaction.
+`commit_deadline` holds the deadline at twice the worst append.
+Both are in `sw/firmware/ctrl_nvm/test/test_nvm_bound.cpp`.
 
 No design meets the bound for an arbitrary burst.
 At tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms the flash programs one page per <!-- fig:t_pp_ms -->5<!-- /fig --> ms, so a whole 32x32 rewrite takes seconds.
@@ -342,11 +363,12 @@ Today's whole-image commit is <!-- fig:t32_commit_now_ms -->5,788.31<!-- /fig --
 
 - **`T-NVM-COMMIT-TIMEOUT`** applies to an append, the only transaction on the save path.
   It must cover twice the worst append, <!-- fig:commit_min_ms -->309.41<!-- /fig --> ms.
-  This page proposes <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms, the bound itself, against today's <!-- fig:commit_now_ms -->8,000<!-- /fig --> ms.
+  Decision 7 rules <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms, the bound itself, against today's <!-- fig:commit_now_ms -->8,000<!-- /fig --> ms.
+  The split store's is `NVM_APPEND_TIMEOUT_MS`, from the save falling due to its last page read back: an append past it fails `VD_PROGRAM`, or `VD_ERASE` when it waited on a suspend.
 - Today's <!-- fig:commit_now_ms -->8,000<!-- /fig --> ms would not cover two whole commits at 32x32 either: twice <!-- fig:t32_commit_now_ms -->5,788.31<!-- /fig --> ms is over it.
 - Compaction and the background erase carry no durability claim, so no commit deadline applies to them.
   `T-NVM-WRITER-ALIVE` still supervises them: the heartbeat is serviced from the same poll loop.
-- The same bound and deadline apply to the F1 store (#665).
+- The same bound and deadline apply to the split placement's store (#665).
 
 A boot reads both slots at most three times each, FASTCONNECT section 7's rule: <!-- fig:boot_all_ms -->1,258.29<!-- /fig --> ms.
 A boot that finds a torn delta also owes one compaction before its next append.
@@ -415,9 +437,16 @@ The all-fabric rows are unchanged: that placement keeps KLJ2.
 | F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `#define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)` | open bits, 36 words | decision 6 |
 | F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `v->count++;` | the open records' count | decision 6 |
 | F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_legacy_check();` | today's journal read, never written | decision 2 |
-| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `(++nvm.block < NVM_ERASE_BLOCKS)` | every block the container spans | the whole-image commit |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `s->seq = nvm.st.seq + 1u;` | a delta at the next sequence | decision 3: the append |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_klj2_header(nvm_stage, s->seq);` | a compaction's base, at the old slot's sequence | decision 3: compaction |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.c` | `static enum nvm_verdict nvm_log_read(` | the log walked and replayed at boot | decision 3: replay |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.h` | `#define NVM_WINDOW_MS 150u` | 150 ms first-dirty window | decision 4 |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.h` | `#define NVM_SUSPEND_ROOM_US 95290u` | the suspend's room, 95.29 ms | decision 5: the erase suspended, timed |
+| F1 store | `sw/firmware/ctrl_nvm/nvm_store.h` | `#define NVM_APPEND_TIMEOUT_MS 500u` | 500 ms for an append | decision 7 |
+| F1 codec | `sw/firmware/ctrl_nvm/nvm_shape.h` | `#define NVM_SEG_PAGES      28u` | 28-page delta segments | decision 3 |
 | F1 port | `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `return addr >= NVM_JOURNAL_OFFSET &&` | writes only journal_klj3 | done |
-| F1 link | `sw/litex/ctrl_memory.py` | `def stage_bytes(shape: object)` | stage = KLJ3 container | whole container until the append path |
+| F1 port | `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `#define LS_CMD_PES  0x75u` | erase suspend and resume, PES and PER | decision 5 |
+| F1 link | `sw/litex/ctrl_memory.py` | `def stage_bytes(shape: object)` | stage = KLJ3 container | kept whole: the log is replayed into it |
 | F1 link | `sw/litex/milan_soc.py` | `split_constants(_nvm_split, _nvm_shape)` | the split SoC's constants | from the builder's split output |
 | F1 link | `sw/litex/milan_soc.py` | `"journal_klj3": {"offset": 0xE4_0000` | 640 KiB journal | below today's |
 | Builder | `sw/builder/endstation_builder.py` | `def emit_nvm_split(` | nvm_split.json | refused over a layout 3 block |
@@ -461,9 +490,10 @@ Its 16 bound talkers follow the BINDING block today, and the census puts its tab
 
 **Every number in this section is an estimate, for the all-fabric placement's backend.**
 That placement keeps KLJ2, so none of it is built; the section stays as the ruling's record.
-In the split, decision 6's open bits are the F1 store's: two word arrays of 36 words at layout 3, each with a count of its bits set.
+In the split, decision 6's open bits are the split store's: word arrays of 36 words at layout 3, each with a count of its bits set.
 The store asks the count, not the words, whether any record is open.
-Area applies to the split once the append path lands, under #818's gate.
+The split's area, now that the append path is built, is #818's gate: a Vivado route, not run in round 5.
+The store's memory, the split's block RAM, is measured instead ([split control memory](SPLIT_CONTROL_MEMORY.md#5-fit)).
 
 - **At 1x1 and 8x8 the change is small.**
   The ownership vector keeps one bit per record: <!-- fig:p1_open_ff -->54<!-- /fig --> and <!-- fig:p8_open_ff -->164<!-- /fig -->, as today.
@@ -501,15 +531,15 @@ Each plant is a mutant of the implementation that its test must catch.
 | T4 | Every other block | each block's first id read from the declaration; the reference gate's ledger at every shape | the last name left out of the reference's inventory | done, split |
 | T5 | Capacity | builder gate 39: the 32x32 TDM8 overlay's 907 names accepted, one more refused; the all-fabric header still refuses it | capacity 906 and 908; the all-fabric bound read from the split's | done, split |
 | T6 | Old journal on boot | F1 `klj2_journal_refused`, `klj2_in_slot_refused`, `klj2_journal_unreadable`: blank, `VD_VER` recorded, today's journal unwritten; `legacy_other_format_not_recorded`, `own_refusal_kept_over_legacy`; `klj2_journal_at_its_flash_map_address`, today's slots from the flash map | `klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`, `legacy_any_nonblank_header`, `ver_overrides_own_refusal`, `legacy_b_wrong_place` | done, split |
-| T7 | Append order | a delta over the base: the last value wins | segments applied in reverse | with the append path |
-| T8 | Torn append | a cut at every page restores the last closing segment | a segment accepted without its CRC | with the append path |
-| T9 | Torn compaction | a cut at every page boots the old slot, losing nothing | authority moved before the new trailer verifies | with the append path |
-| T10 | Erase in progress | a save during the background erase suspends it | the save waits for the erase | with the append path |
-| T11 | Save bound | model time, change to verified, at most 500 ms at 32x32 TDM8 | a 1,000 ms firmware window | with the append path |
-| T12 | Reserve exhausted | the save waits, is published pending and is not lost | the save dropped | with the append path |
-| T13 | Commit deadline | at least twice the worst append at every shape | a 300 ms deadline | with the append path |
+| T7 | Append order | F1 `append_order`: two deltas over the base, the last value wins; `change_commit_bytes`, a delta behind the base byte for byte | `deltas_applied_out_of_order`; `replay_skipped` | done, split |
+| T8 | Torn append | F1 `torn_delta`, a delta only its CRC-32 refuses; `stale_delta`; `delta_refusals`, each rule of a delta alone; `powercut`, a cut at every page of a delta | `delta_crc_unchecked`, `replay_past_judged_end`, `stale_delta_accepted`; one per rule of `delta_refusals` | done, split |
+| T9 | Torn compaction | F1 `torn_compaction`: a cut at every effect of a compaction a save lands in boots the old set or the new, the new whenever the save was reported; `compaction_yields`, `compaction_carry`, `first_base_behind` | `move_before_base_closes`, `move_before_copy`, `base_seq_above_old`, `carry_dropped`, `behind_ignored` | done, split |
+| T10 | Erase in progress | F1 `erase_suspended`: a save during the background erase suspends it, is read back within its window and a page, and resumes it; `erase_time_excludes_suspend`, `erase_resumed_after_failure`, `suspend_slow` | the save waits for the erase (`save_waits_for_erase`); `no_resume`, `erase_deadline_counts_suspend`, `slow_suspend_not_counted` | done, split |
+| T11 | Save bound | F1 `save_bound` at 32x32 TDM8: model time, change to read back, at most 500 ms, during the erase and during a compaction | a 1,000 ms firmware window (`window_1000ms`) | done, split |
+| T12 | Reserve exhausted | F1 `reserve_exhausted`: a full log publishes the save pending, and a compaction carries it; `compaction_reserve` | the save dropped (`full_drops_save`); `reserve_ignored` | done, split |
+| T13 | Commit deadline | F1 `commit_deadline` at 32x32 TDM8: 500 ms covers twice the worst append; `append_deadline`, a slower append fails `VD_PROGRAM` | a 300 ms deadline (`deadline_300ms`); `append_deadline_ignored` | done, split |
 | T14 | Payload cap | the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`) | none: the 1,024 B `MAX_PAYLOAD_P` is the processor's | all-fabric unchanged |
-| T15 | Fit | the container within one slot, asserted at compile time; base and log | a two-block slot | with the append path |
+| T15 | Fit | the container within one slot and a log at least as large, and the largest record within a segment, asserted at compile time (`over_fit`, at 32x32 TDM8) | a two-block slot; each assert removed | done, split |
 | T16 | VERSION | the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, majors 2 and 4) | `no_version_check` | done, split; the gateware VERSION not moved, as ruled (#823) |
 | T17 | Map entry widths | a count past the codec's table does not compile: 256 entries on an input port, 65,536 on an output port | either width assert removed | done, split |
 <!-- nvm-format: end tests -->
@@ -523,11 +553,11 @@ The seven decisions were ruled as recommended, and the round 3 ruling scopes the
 
 - **1. The record space:** the derived allocation of section 2, 11 bits in a 16-bit field. Implemented.
 - **2. Compatibility:** refuse KLJ2 with `VD_VER`, boot blank, record the reason. Implemented.
-- **3. The slot:** <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's. The journal is placed; its log comes with the append path.
-- **4. The windows:** <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows. With the append path, for the split's firmware window.
-- **5. The erase:** background erase with suspend, graded at the typical latency (A3). With the append path.
+- **3. The slot:** <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's, a base and its log in each slot. Implemented.
+- **4. The windows:** <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows. Implemented for the split store's firmware window.
+- **5. The erase:** background erase with suspend, graded at the typical latency (A3), every suspend timed. Implemented.
 - **6. Ownership:** open bits with a count. Implemented in the split's store.
-- **7. The commit deadline:** <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append. With the append path.
+- **7. The commit deadline:** <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append. Implemented.
 
 **The gateware VERSION: not moved, as ruled (#823)** (section 5).
 VERSION 3 lands with the default flip.

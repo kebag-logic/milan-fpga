@@ -56,14 +56,16 @@ Always flash the AEM from the same build as the bitstream: its entity/model iden
 length, CRC and destination are compiled into that firmware.
 
 The `journal_klj3`, `journal` and `user` ranges are RESERVED: no manifest
-writes them and a reflash must not erase them. `journal_klj3`, the 640 KiB
-directly below `journal`, holds the split placement's saved state: only its
-store writes there (#823). The saved-state journal that used `journal` and
-`user` was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
-writes or reads them today. Persistence is a genuine loss, not a relocation:
-the protocol processor's NVM face is answered by a blank-flash responder, so a
-restore walk always completes with zero records and nothing survives a power
-cycle.
+writes them and a reflash must not erase them. Who reads and writes each is
+[FASTCONNECT section 5](../design/SAVED_STATE_FASTCONNECT.md#5-where-it-lives-in-the-16-mb-qspi)'s
+table:
+
+- `journal_klj3`, the 640 KiB directly below `journal`, holds the split
+  placement's saved state: only the split's store reads and writes it (#823).
+- `journal` holds the all-fabric placement's KLJ2 saved state: the
+  all-fabric persistence writer writes it. The split's store reads its two
+  headers and never writes it, so a rollback to an all-fabric image finds it.
+- `user` is unclaimed.
 
 The build writes `<build>/flashboot_layout.json` (the single source of truth);
 `deploy.sh flash-pair` reads it, so the gateware's compiled-in offsets, gPTP

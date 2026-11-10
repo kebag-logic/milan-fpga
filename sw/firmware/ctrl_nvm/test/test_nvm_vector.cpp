@@ -63,13 +63,20 @@ std::vector<std::vector<long long>> walk(const Bytes& blob) {
     return rows;
 }
 
+// The pattern's records are appended behind an erased base, as many deltas as
+// they take, ending at sequence 7; a console commit then compacts them into
+// slot B: that base is the recorded vector's container, byte for byte.
 TEST_P(NvmBoth, vector_round_trip) {
-    Files f = fx().files({{"v6.bin", "erased@6"}});
-    Result r = go(port(), f, {"--slot-a", "v6.bin", "--boot", "--set-pattern", "0", "--commit", "--dump-slot-b", "v7.bin"});
+    const long long deltas = fx().num("pattern_deltas");
+    Files f = fx().files({{"v6.bin", "erased@" + std::to_string(7 - deltas)}});
+    Result r = go(port(), f, {"--slot-a", "v6.bin", "--boot", "--set-pattern", "0", "--until-idle", "--commit",
+                              "--dump-slot-b", "v7.bin"});
     const Bytes& want = fx().blob("frames@7");
     const Bytes& slot = f.blobs["v7.bin"];
     const Bytes got(slot.begin(), slot.begin() + static_cast<std::ptrdiff_t>(std::min(want.size(), slot.size())));
-    EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 7 && r.at("auth") == 1) << "vector commit: " << r.text();
+    EXPECT_TRUE(r.at("ok") == deltas + 1 && r.at("appends") == deltas && r.at("compactions") == 1 &&
+                r.at("seq") == 7 && r.at("auth") == 1)
+        << "vector commit: " << r.text();
     EXPECT_TRUE(got == want) << "the vector container differs from nvm_klj3.py's";
     const std::vector<long long>& rows_rid = fx().list("vector_rows_rid");
     EXPECT_TRUE(static_cast<long long>(got.size()) == fx().num("vector_imglen") &&

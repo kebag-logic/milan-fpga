@@ -152,7 +152,13 @@ struct Boot : ::testing::Test {
         nvm_fmodel_power_on();
         nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_B + NVM_SLOT_BYTES);
         nvm_fmodel_times(1000, 100);
-        flash = {flash_read, flash_program, flash_erase, nvm_fmodel_port.busy, nvm_fmodel_port.now_us,
+        flash = {flash_read,
+                 flash_program,
+                 flash_erase,
+                 nvm_fmodel_port.busy,
+                 nvm_fmodel_port.suspend,
+                 nvm_fmodel_port.resume,
+                 nvm_fmodel_port.now_us,
                  nvm_fmodel_port.ctx};
         env.flash = &flash;
         env.csr = kCsr;

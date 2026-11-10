@@ -58,6 +58,8 @@ struct Result {
     std::vector<std::uint32_t> erase_at;         //!< the block each of them erased
     std::vector<std::uint64_t> fail_at;          //!< failed attempts and verified commits
     std::vector<std::uint64_t> ok_at;
+    std::vector<std::uint64_t> prog_at;          //!< model time of each page program, the first 4,096
+    std::vector<std::uint64_t> prep_fail_at;     //!< failed preparations of the other slot
     std::vector<std::uint64_t> marks;            //!< each --mark
     std::vector<std::pair<std::uint64_t, std::uint64_t>> clocks;  //!< each --clock: port, model
     std::vector<std::string> fails;              //!< the rig's own refusals of a script

@@ -6,7 +6,7 @@
  * The access code is the shipping writer's
  * (sw/firmware/milan_baremetal/milan_baremetal.c: nvm_spi_open, nvm_spi_xfer,
  * nvm_spi_close, nvm_flash_status, nvm_flash_write_enable,
- * nvm_flash_command), ported behind the five calls of nvm_flash.h:
+ * nvm_flash_command), ported behind the calls of nvm_flash.h:
  * sw/litex/milan_soc.py instantiates add_spi_flash(mode="1x",
  * with_master=True), so the CPU reads the device through the memory-mapped
  * window and drives write enable, page program, sector erase and status
@@ -25,6 +25,11 @@
  *     check runs every LS_LATE_EVERY status reads that find the master not
  *     ready, counted over the whole call;
  *   - program and erase are refused outside the store's reserved journal;
+ *   - the erase suspend and resume are one command byte each, PES (0x75) and
+ *     PER (0x7a), with no write enable (N25Q128 section 9.1.20; the
+ *     S25FL128S's ERSP and ERRS are the same two codes), so the store can
+ *     program the authoritative slot while the other slot's block is being
+ *     erased (#823 decision 5);
  *   - time is timer0, not the PHC.
  *
  * TIME. The shipping writer reads the fabric PHC, which a gPTP step moves
@@ -52,6 +57,8 @@
 #define LS_CMD_RDSR 0x05u
 #define LS_CMD_SE   0xd8u
 #define LS_CMD_PP   0x02u
+#define LS_CMD_PES  0x75u
+#define LS_CMD_PER  0x7au
 #define LS_SR_WIP   0x01u
 #define LS_PAGE     256u
 #define LS_BLOCK    0x10000u
@@ -246,6 +253,25 @@ static int ls_busy(void *ctx)
 	return (status & LS_SR_WIP) ? 1 : 0;
 }
 
+/* One command byte in its own chip-select window. */
+static int ls_one(uint8_t op)
+{
+	ls_call_begin();
+	return ls_window(&op, 1u, 0, 0u);
+}
+
+static int ls_suspend(void *ctx)
+{
+	(void)ctx;
+	return ls_one(LS_CMD_PES);
+}
+
+static int ls_resume(void *ctx)
+{
+	(void)ctx;
+	return ls_one(LS_CMD_PER);
+}
+
 static uint64_t ls_now_us(void *ctx)
 {
 	uint32_t v;
@@ -271,5 +297,5 @@ void nvm_flash_litespi_power_on(void)
 }
 
 const struct nvm_flash nvm_flash_litespi = {
-	ls_read, ls_program, ls_erase, ls_busy, ls_now_us, 0,
+	ls_read, ls_program, ls_erase, ls_busy, ls_suspend, ls_resume, ls_now_us, 0,
 };

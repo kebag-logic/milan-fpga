@@ -12,8 +12,13 @@ tree's definitions. This gate fails when any of them drifts:
   4. every cited token is on exactly one line of its file, so a line that
      moves keeps its citation true;
   5. the page cites every one of its prose anchors (tables.CITED) by token
-     and file, and no line by its number;
-  6. the documentation index links the page.
+     and file, and no line by its number, in any form: `path:N`, a range
+     `path:N-M` or a list `path:N,M`, quoted or not, "`path` line N", or a
+     `#LN` link;
+  6. the documentation index links the page;
+  7. the split store's save-path constants are the page's figures: the
+     firmware window, the append deadline, the segment cap and the suspend's
+     room (nvm_store.h, nvm_shape.h; #823 decisions 3, 4, 5 and 7).
 
 A generated block sits between `<!-- nvm-format: begin NAME -->` and
 `<!-- nvm-format: end NAME -->`; an inline figure is
@@ -47,8 +52,29 @@ INDEX = ROOT / "docs/README.md"
 INDEX_LINK = "(design/SAVED_STATE_FORMAT_32X32.md)"
 BLOCK_RE = re.compile(r"<!-- nvm-format: begin (\w+) -->\n(.*?)<!-- nvm-format: end \1 -->", re.S)
 INLINE_RE = re.compile(r"<!-- fig:(\w+) -->(.*?)<!-- /fig -->")
-#: a file cited by line number, `path/file.ext:123`, which the next edit above the line makes false
-LINE_CITE_RE = re.compile(r"`([\w./-]+\.[A-Za-z]\w*):(\d+)`")
+#: a file cited by line number, which the next edit above the line makes false: `path/file.ext:123`,
+#: a range `:12-34` or a list `:12,34`, quoted or not, "`path/file.ext` line 123", or a `#L123` link
+LINE_CITE_RE = re.compile(r"`?([\w./-]+\.[A-Za-z]\w*)(?::(\d+(?:[-,]\d+)*)|#L(\d+))`?"
+                          r"|`([\w./-]+\.[A-Za-z]\w*)` line (\d+)")
+#: the store's constants the page's figures fix: (file, macro, inline figure, scale to the macro's unit)
+STORE_CONSTANTS = (("sw/firmware/ctrl_nvm/nvm_store.h", "NVM_WINDOW_MS", "w_fw_ms", 1),
+                   ("sw/firmware/ctrl_nvm/nvm_store.h", "NVM_APPEND_TIMEOUT_MS", "commit_timeout_ms", 1),
+                   ("sw/firmware/ctrl_nvm/nvm_store.h", "NVM_SUSPEND_ROOM_US", "susp_allow_ms", 1000),
+                   ("sw/firmware/ctrl_nvm/nvm_shape.h", "NVM_SEG_PAGES", "p_cap", 1))
+
+
+def store_constants() -> dict[str, int]:
+    """The store's save-path macros, as the tree defines them."""
+    out = {}
+    for rel, macro, _fig, _scale in STORE_CONSTANTS:
+        m = re.search(rf"^#define {macro}\s+(\d+)u\b", (ROOT / rel).read_text(), re.M)
+        out[macro] = int(m.group(1)) if m else -1
+    return out
+
+
+def cite_of(m: re.Match) -> str:
+    """A line citation as the page wrote it."""
+    return m.group(0)
 
 
 def rendered(r: dict) -> tuple[dict[str, str], dict[str, str]]:
@@ -58,7 +84,8 @@ def rendered(r: dict) -> tuple[dict[str, str], dict[str, str]]:
 
 
 def findings(page: str, index: str, r: dict, anchors: tuple,
-             read: Callable[[tables.Anchor], str] = tables.tree_text) -> list[str]:
+             read: Callable[[tables.Anchor], str] = tables.tree_text,
+             consts: dict[str, int] | None = None) -> list[str]:
     """Every disagreement between the page, the tree (as `read` gives each cited file) and the figures."""
     try:
         want_blocks, want_figs = rendered(r)
@@ -80,8 +107,13 @@ def findings(page: str, index: str, r: dict, anchors: tuple,
         elif value != want_figs[key]:
             bad.append(f"FINDING: inline figure {key} reads {value}, recomputed {want_figs[key]}")
     bad += [f"FINDING: anchor {a}" for a in tables.anchor_findings(anchors, read)]
-    bad += [f"FINDING: the page cites `{m.group(1)}:{m.group(2)}` by line number; cite a token "
-            f"the gate checks instead" for m in LINE_CITE_RE.finditer(page)]
+    bad += [f"FINDING: the page cites {cite_of(m)} by line number; cite a token the gate checks instead"
+            for m in LINE_CITE_RE.finditer(page)]
+    have_consts = store_constants() if consts is None else consts
+    for rel, macro, fig, scale in STORE_CONSTANTS:
+        want = round(float(want_figs[fig].replace(",", "")) * scale)
+        if have_consts[macro] != want:
+            bad.append(f"FINDING: {rel} defines {macro} {have_consts[macro]}, the page's {fig} makes it {want}")
     bad += [f"FINDING: the page no longer cites {tables.cited(a)}"
             for a in tables.CITED if tables.cited(a) not in page]
     if [tuple(b) for b in r["declared"]] != [tuple(b) for b in r["space"]["blocks"]]:
@@ -175,6 +207,11 @@ def self_test() -> int:
     expect("anchor-unique", findings(page, index, r, common), "an anchor's token must be on one line")
     expect("line-number", findings(page + "\nSee `sw/litex/milan_soc.py:179`.\n", index, r, anchors),
            "by line number")
+    for form in ("`sw/litex/milan_soc.py:179-181`", "sw/firmware/ctrl_nvm/nvm_store.c:408,465",
+                 "`sw/litex/milan_soc.py` line 179", "milan_soc.py#L179"):
+        expect(f"line-number {form}", findings(page + f"\nSee {form}.\n", index, r, anchors), "by line number")
+    moved = {**store_constants(), "NVM_SEG_PAGES": store_constants()["NVM_SEG_PAGES"] - 1}
+    expect("store-constant", findings(page, index, r, anchors, consts=moved), "defines NVM_SEG_PAGES")
     first = tables.cited(tables.CITED[0])
     expect("citation", findings(page.replace(first, "it"), index, r, anchors), "the page no longer cites")
     # the control: every cited file with 300 lines more above its first, as a merge may leave it

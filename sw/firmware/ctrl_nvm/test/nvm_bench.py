@@ -65,12 +65,14 @@ class Binary:
     address_sanitizer: bool = False
     #: built at the layout 3 NAME capacity and graded over its own fixture
     capacity: bool = False
+    #: built at the bound shape of #823 (32x32/2if TDM8) and graded over its fixture
+    bound: bool = False
 
 
 RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
 #: Every shape: the boot and write paths, the codec and the extra store paths.
-SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_nvm_codec.cpp", "test_nvm_more.cpp",
-                         "test_nvm_flashmock.cpp"))
+SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_nvm_journal.cpp",
+                         "test_nvm_codec.cpp", "test_nvm_more.cpp", "test_nvm_flashmock.cpp"))
 #: The shapes tb/verilator/nvm_backend records a vector of, under its identity.
 VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
 #: The shipping 1x1 shape only: two doctored builds (a map the codec's byte
@@ -86,6 +88,7 @@ UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM3_MAPIN
                 defines=("-DNVM_DOCTORED_NONAME",)),
          Binary("capacity", (*RIG, "test_nvm_capacity.cpp"), edit=(("MILAN_NVM3_N_NAME", NAME_CAPACITY),),
                 capacity=True),
+         Binary("bound", (*RIG, "test_nvm_bound.cpp"), bound=True),
          Binary("litespi", ("mock_litespi_csr.cpp", "test_nvm_litespi.cpp"), store=("plat/nvm_flash_litespi.c",),
                 models=("host/nvm_fmodel.c",)),
          Binary("prefix", ("test_nvm_prefix.cpp",), store=("nvm_klj2.c",), models=(), address_sanitizer=True))
@@ -151,6 +154,9 @@ def shape_header(inputs: ShapeInputs, ident: Ident | None = None) -> str:
     journals."""
     who = ident or inputs.ident
     values = dict(WRITER_TIMING_MS)
+    # the host test's header, never a target's: the doctored input-width
+    # build is allowed only under it (nvm_shape.h)
+    values["NVM_HOST_SHAPE"] = 1
     values.update(split_constants(inputs.space, inputs.shape))
     values.update(MILAN_ENTITY_ID_LO=who.entity_id & 0xFFFF_FFFF,
                   MILAN_ENTITY_ID_HI=who.entity_id >> 32,
@@ -257,6 +263,26 @@ def sys_clock(cfg: Path, built: Path) -> int:
     if hz != soc:
         raise Refusal(f"{cfg.stem}: sys_clk_hz is {hz} Hz but milan_soc.py is given {soc} Hz")
     return hz
+
+
+def bound_inputs(work: Path) -> ShapeInputs:
+    """The bound shape of #823, 32x32/2if TDM8 (32 listener and 32 talker
+    rows of the 1x1 TDM8 config), built as scripts/nvm_format_32x32.py builds
+    it: the builder with its three 32x32 limits lifted in memory, each read
+    first. Its name count is the builder's, as the page's; the descriptor
+    packer refuses this shape's image (another #859 limit)."""
+    import nvm_format_32x32 as fmt                                      # noqa: E402 (lazy: the lift is the page's)
+    work.mkdir(parents=True, exist_ok=True)
+    cfg = fmt.scaled_config("tdm8", 32, work)
+    fmt.run_builder(cfg, work, True)
+    overlay = json.loads((work / cfg.stem / "aem_overlay.json").read_text())
+    dc, ports = overlay["descriptor_counts"], overlay["stream_ports"]
+    ident = Ident(seq=0, entity_id=int(overlay["adp"]["entity_id"], 16),
+                  model_id=int(overlay["entity"]["entity_model_id"], 16))
+    return ShapeInputs(cfg=cfg, shape=Shape(cfg=cfg, names=fmt.builder_names(dc), dc=dc, spi=ports["input"],
+                                            spo=ports["output"]),
+                       space=json.loads((work / cfg.stem / "nvm_split.json").read_text()), ident=ident,
+                       clock_hz=sys_clock(cfg, work))
 
 
 def shape_inputs(cfg: Path, work: Path) -> ShapeInputs:

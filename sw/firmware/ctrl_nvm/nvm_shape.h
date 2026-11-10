@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
  * nvm_shape.h - the saved-state record set of one entity shape, sized at
- * build time (#665, the F1 store), in the split placement's format (#823).
+ * build time (#665, the split placement's saved-state store), in the split
+ * placement's format (#823).
  *
  * THE FORMAT is the split placement's: the KLJ3 container in the 640 KiB
  * journal_klj3, its records framed by F07.8 layout 3 over the record space of
@@ -134,8 +135,10 @@
  * the header after the last record of the shape (nvm_klj2.c). */
 #define NVM_STAGE_BYTES (NVM_IMG_LEN + NVM_REC_HDR)
 
-/* The media: journal_klj3, two slots of whole erase blocks (section 5). A
- * commit erases the blocks its container spans, from the slot's first. */
+/* The media: journal_klj3, two slots of whole erase blocks (section 5). Each
+ * slot holds a base container at its start, then a log of delta segments, the
+ * first on the page after the base (#823 decision 3,
+ * docs/design/SAVED_STATE_FORMAT_32X32.md section 4). */
 #define NVM_JOURNAL_OFFSET MILAN_FLASH_JOURNAL_KLJ3_OFFSET
 #define NVM_JOURNAL_SIZE   MILAN_FLASH_JOURNAL_KLJ3_SIZE
 #define NVM_SLOT_BYTES     (NVM_JOURNAL_SIZE / 2u)
@@ -146,6 +149,15 @@
 #define NVM_ERASE_BLOCKS   ((NVM_IMG_LEN + NVM_ERASE_BLOCK - 1u) / NVM_ERASE_BLOCK)
 /* KLJ3 rule 3: a container is never longer than its slot. */
 #define NVM_KLJ3_MAX       NVM_SLOT_BYTES
+/* The log: it starts on the page after the base, and a compaction starts
+ * once less than half of it is left, the reserve (section 4, rule 8). */
+#define NVM_PAGES(n)       (((n) + NVM_FLASH_PAGE - 1u) / NVM_FLASH_PAGE)
+#define NVM_LOG_START      (NVM_PAGES(NVM_IMG_LEN) * NVM_FLASH_PAGE)
+#define NVM_RESERVE        (((NVM_SLOT_BYTES - NVM_LOG_START) / NVM_FLASH_PAGE / 2u) * NVM_FLASH_PAGE)
+/* A delta segment is at most NVM_SEG_PAGES pages, so one ends inside one
+ * firmware first-dirty window (section 4, "The segment cap"). */
+#define NVM_SEG_PAGES      28u
+#define NVM_SEG_MAX        (NVM_SEG_PAGES * NVM_FLASH_PAGE)
 /* Today's journal, the all-fabric placement's KLJ2: read, never written. */
 #define NVM_LEGACY_A       MILAN_FLASH_JOURNAL_OFFSET
 #define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)
@@ -173,7 +185,12 @@ _Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "the names outgrow their id b
  * truncated in the table, and the record walk would disagree with the sizes.
  * The one build without the input port's refusal is the doctored build of
  * test/test_nvm_shapes.cpp, which shows that the run-time check behind it
- * turns persistence off (DR3b). */
+ * turns persistence off (DR3b). That seam is the host test's alone: its shape
+ * header, which test/nvm_bench.py writes, defines NVM_HOST_SHAPE, and no
+ * target's does. */
+#if defined(NVM_DOCTORED_MAPIN) && !defined(NVM_HOST_SHAPE)
+#error "NVM_DOCTORED_MAPIN is the host test's doctored build alone"
+#endif
 #define NVM_MAPI_WIDE(k) ((MILAN_NVM3_MAPIN_ENTRIES_##k > 255u) ? 1u : 0u)
 #define NVM_MAPO_WIDE(k) ((MILAN_NVM3_MAPOUT_ENTRIES_##k > 65535u) ? 1u : 0u)
 #ifndef NVM_DOCTORED_MAPIN
@@ -183,6 +200,10 @@ _Static_assert(NVM_SUM32(NVM_MAPO_WIDE) == 0u, "an output map's entries outgrow 
 _Static_assert(NVM_ID_SPACE <= 65536u, "the record space outgrows record_id[15:0]");
 _Static_assert(NVM_N_REC <= NVM_ID_SPACE, "the record set outgrows the record space");
 _Static_assert(NVM_IMG_LEN <= NVM_SLOT_BYTES, "the container outgrows one slot");
+_Static_assert(NVM_LOG_START + NVM_IMG_LEN <= NVM_SLOT_BYTES,
+	       "a slot holds a base and an append log at least as large");
+_Static_assert(NVM_KLJ_MIN + ((NVM_SZ(NVM_PAYLOAD_MAX) + 3u) & ~3u) <= NVM_SEG_MAX,
+	       "the largest record outgrows a delta segment");
 _Static_assert(NVM_SLOT_BYTES % NVM_ERASE_BLOCK == 0u, "a slot is whole erase blocks");
 _Static_assert((NVM_SLOT_A % NVM_ERASE_BLOCK) == 0u, "slot A is not block aligned");
 _Static_assert(NVM_SLOT_B + NVM_SLOT_BYTES <= NVM_LEGACY_A || NVM_SLOT_A >= NVM_LEGACY_A + MILAN_FLASH_JOURNAL_SIZE,

@@ -4,8 +4,9 @@
 """nvm_layout3.py - read the split placement's record space, layout 3 (#823).
 
 The space is declared once, in sw/firmware/ctrl_nvm/nvm_layout3.h, which the
-F1 store's codec compiles. This module is how every Python reader takes it
-from there instead of restating it: the builder's split output
+split placement's saved-state store's codec compiles. This module is how
+every Python reader takes it from there instead of restating it: the
+builder's split output
 (sw/builder/endstation_builder.py, emit_nvm_split), the reference codec
 (scripts/nvm_klj3.py) and the format page's figures
 (scripts/nvm_format_32x32.py).

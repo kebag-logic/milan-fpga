@@ -85,12 +85,26 @@ LAYERS = (
            "decision 6"),
     Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "nvm_legacy_check();",
            "today's journal read, never written", "decision 2"),
-    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "(++nvm.block < NVM_ERASE_BLOCKS)",
-           "every block the container spans", "the whole-image commit"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "s->seq = nvm.st.seq + 1u;",
+           "a delta at the next sequence", "decision 3: the append"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "nvm_klj2_header(nvm_stage, s->seq);",
+           "a compaction's base, at the old slot's sequence", "decision 3: compaction"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.c", "static enum nvm_verdict nvm_log_read(",
+           "the log walked and replayed at boot", "decision 3: replay"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.h", "#define NVM_WINDOW_MS 150u",
+           "150 ms first-dirty window", "decision 4"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.h", "#define NVM_SUSPEND_ROOM_US 95290u",
+           "the suspend's room, 95.29 ms", "decision 5: the erase suspended, timed"),
+    Anchor("F1 store", "sw/firmware/ctrl_nvm/nvm_store.h", "#define NVM_APPEND_TIMEOUT_MS 500u",
+           "500 ms for an append", "decision 7"),
+    Anchor("F1 codec", "sw/firmware/ctrl_nvm/nvm_shape.h", "#define NVM_SEG_PAGES      28u",
+           "28-page delta segments", "decision 3"),
     Anchor("F1 port", "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c",
            "return addr >= NVM_JOURNAL_OFFSET &&", "writes only journal_klj3", "done"),
+    Anchor("F1 port", "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c", "#define LS_CMD_PES  0x75u",
+           "erase suspend and resume, PES and PER", "decision 5"),
     Anchor("F1 link", "sw/litex/ctrl_memory.py", "def stage_bytes(shape: object)",
-           "stage = KLJ3 container", "whole container until the append path"),
+           "stage = KLJ3 container", "kept whole: the log is replayed into it"),
     Anchor("F1 link", "sw/litex/milan_soc.py", "split_constants(_nvm_split, _nvm_shape)",
            "the split SoC's constants", "from the builder's split output"),
     Anchor("F1 link", "sw/litex/milan_soc.py", '"journal_klj3": {"offset": 0xE4_0000',
@@ -443,17 +457,18 @@ def block_save(r: dict, fmap: dict) -> str:
     s = r["save"]
     rows = [
         ("Producer first-dirty window", f"{fmap['w_prod_ms']} ms", f"today {fmap['prod_window_now_ms']} ms"),
-        ("Firmware first-dirty window", f"{fmap['w_fw_ms']} ms", f"today {fmap['fw_window_now_ms']} ms"),
+        ("Firmware first-dirty window", f"{fmap['w_fw_ms']} ms",
+         f"the split store's `NVM_WINDOW_MS`; the all-fabric {fmap['fw_window_now_ms']} ms"),
         ("One page programmed", f"{fmap['t_prog_ms']} ms", "tPP 5 ms, and 263 B on the 1x link"),
         ("One page read back", f"{fmap['t_read_ms']} ms", "260 B on the 1x link"),
         ("One page, both", f"{fmap['t_page_ms']} ms", ""),
-        ("Segment cap", f"{fmap['p_cap']} pages", "a segment ends before the next window"),
+        ("Segment cap", f"{fmap['p_cap']} pages", "a segment ends before the next window; `NVM_SEG_PAGES`"),
         ("Records per segment", f"{fmap['cap_bytes']} B", "less the 44-byte frame"),
         ("Ahead of it: one compaction page", f"{fmap['t_page_ms']} ms", "compaction yields per page"),
         ("The segment itself", f"{fmap['t_seg_ms']} ms", ""),
         ("**Worst case, all-fabric**", f"**{fmap['fabric_ms']} ms** + suspend", "both windows"),
         ("**Worst case, split**", f"**{fmap['split_ms']} ms** + suspend", "firmware window only"),
-        ("Room left for the suspend latency", f"{fmap['susp_allow_ms']} ms", "not in the tree"),
+        ("Room left for the suspend latency", f"{fmap['susp_allow_ms']} ms", "the store's `NVM_SUSPEND_ROOM_US`"),
         ("Without erase suspend", f"{fmap['no_suspend_ms']} ms", "tSE 3,000 ms ahead"),
     ]
     del s
@@ -510,9 +525,8 @@ def block_limits(fmap: dict) -> str:
     return table(["Case", "Value", "Basis"], [[a, str(b), c] for a, b, c in rows], right=3)
 
 
-#: The state column: done in the split's store, or with the append path
-#: (decisions 3, 4, 5 and 7), which follows this format.
-DONE, APPEND = "done, split", "with the append path"
+#: The state column: done in the split's store.
+DONE = "done, split"
 
 TESTS = (
     ("NAME first id {name_first}",
@@ -535,21 +549,32 @@ TESTS = (
      "`own_refusal_kept_over_legacy`; `klj2_journal_at_its_flash_map_address`, today's slots from the flash map",
      "`klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`, "
      "`legacy_any_nonblank_header`, `ver_overrides_own_refusal`, `legacy_b_wrong_place`", DONE),
-    ("Append order", "a delta over the base: the last value wins", "segments applied in reverse", APPEND),
-    ("Torn append", "a cut at every page restores the last closing segment",
-     "a segment accepted without its CRC", APPEND),
-    ("Torn compaction", "a cut at every page boots the old slot, losing nothing",
-     "authority moved before the new trailer verifies", APPEND),
-    ("Erase in progress", "a save during the background erase suspends it",
-     "the save waits for the erase", APPEND),
-    ("Save bound", "model time, change to verified, at most {bound_ms} ms at 32x32 TDM8",
-     "a {fw_window_now_ms} ms firmware window", APPEND),
-    ("Reserve exhausted", "the save waits, is published pending and is not lost", "the save dropped", APPEND),
-    ("Commit deadline", "at least twice the worst append at every shape", "a 300 ms deadline", APPEND),
+    ("Append order", "F1 `append_order`: two deltas over the base, the last value wins; `change_commit_bytes`, "
+     "a delta behind the base byte for byte", "`deltas_applied_out_of_order`; `replay_skipped`", DONE),
+    ("Torn append", "F1 `torn_delta`, a delta only its CRC-32 refuses; `stale_delta`; `delta_refusals`, each rule "
+     "of a delta alone; `powercut`, a cut at every page of a delta", "`delta_crc_unchecked`, "
+     "`replay_past_judged_end`, `stale_delta_accepted`; one per rule of `delta_refusals`", DONE),
+    ("Torn compaction", "F1 `torn_compaction`: a cut at every effect of a compaction a save lands in boots the old "
+     "set or the new, the new whenever the save was reported; `compaction_yields`, `compaction_carry`, "
+     "`first_base_behind`", "`move_before_base_closes`, `move_before_copy`, `base_seq_above_old`, "
+     "`carry_dropped`, `behind_ignored`", DONE),
+    ("Erase in progress", "F1 `erase_suspended`: a save during the background erase suspends it, is read back "
+     "within its window and a page, and resumes it; `erase_time_excludes_suspend`, "
+     "`erase_resumed_after_failure`, `suspend_slow`", "the save waits for the erase (`save_waits_for_erase`); "
+     "`no_resume`, `erase_deadline_counts_suspend`, `slow_suspend_not_counted`", DONE),
+    ("Save bound", "F1 `save_bound` at 32x32 TDM8: model time, change to read back, at most {bound_ms} ms, "
+     "during the erase and during a compaction", "a {fw_window_now_ms} ms firmware window (`window_1000ms`)",
+     DONE),
+    ("Reserve exhausted", "F1 `reserve_exhausted`: a full log publishes the save pending, and a compaction "
+     "carries it; `compaction_reserve`", "the save dropped (`full_drops_save`); `reserve_ignored`", DONE),
+    ("Commit deadline", "F1 `commit_deadline` at 32x32 TDM8: {commit_timeout_ms} ms covers twice the worst "
+     "append; `append_deadline`, a slower append fails `VD_PROGRAM`", "a 300 ms deadline (`deadline_300ms`); "
+     "`append_deadline_ignored`", DONE),
     ("Payload cap", "the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`)",
      "none: the 1,024 B `MAX_PAYLOAD_P` is the processor's", "all-fabric unchanged"),
-    ("Fit", "the container within one slot, asserted at compile time; base and log", "a two-block slot",
-     APPEND),
+    ("Fit", "the container within one slot and a log at least as large, and the largest record within a "
+     "segment, asserted at compile time (`over_fit`, at 32x32 TDM8)", "a two-block slot; each assert removed",
+     DONE),
     ("VERSION", "the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, "
      "majors 2 and 4)", "`no_version_check`", "done, split; the gateware VERSION not moved, as ruled (#823)"),
     ("Map entry widths", "a count past the codec's table does not compile: 256 entries on an input port, "

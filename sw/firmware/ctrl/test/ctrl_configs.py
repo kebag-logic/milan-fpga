@@ -181,8 +181,8 @@ OUTSIDE = {
     "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
                            "suite compares; it compiles nothing",
     "scripts/check_nvm_klj3.py": "grades the KLJ3 reference codec against its rules (#823); it compiles nothing",
-    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the file:line anchors it cites in the "
-                                          "F1 store (#823); it compiles nothing",
+    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the token anchors it cites in the "
+                                          "split placement's store (#823); it compiles nothing",
     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
                                                    "SoC's csr.csv (#665); its self-test compiles a probe of the "
                                                    "headers it writes with the host compiler, no firmware or stack "

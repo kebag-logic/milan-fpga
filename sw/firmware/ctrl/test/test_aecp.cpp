@@ -193,7 +193,8 @@ struct Nvm : Core {
     void save() {
         while(aecp_nvm_poll(&owner)){}
         ASSERT_TRUE(nvm_store_commit_now());
-        for(unsigned n=0;n<10000&&nvm_store_status()->phase!=NVM_P_IDLE;++n){
+        // the first save on blank media is a compaction, once the other slot reads blank (#823)
+        for(unsigned n=0;n<200000&&nvm_store_status()->commits_ok==0;++n){
             nvm_store_service();nvm_fmodel_advance_us(100);
         }
         ASSERT_EQ(nvm_store_status()->phase,NVM_P_IDLE);ASSERT_EQ(nvm_store_status()->commits_ok,1u);

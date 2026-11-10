@@ -12,12 +12,15 @@ own system clock (its config's sys_clk_hz: 83,333,000 Hz at the three Arty
 shapes, 100 MHz at the two AX7101 ones), and its GoogleTest suite runs it
 over the host flash model directly and over the on-chip LiteSPI port on a
 model of the command master (sw/firmware/gtest/README.md). The tests
-(test_nvm_boot.cpp, test_nvm_write.cpp) grade the boot path with valid,
-absent, torn, corrupted and wrong-version slots, read faults at every boot
-read, and the binding and D3 restore walks; the write path's commit, its A/B
-atomicity and DR2a/DR2b/DR2c/DR5 rules, the console included; the writer held
-while a read fault leaves the authority unknown, and reads that refuse a slot
-alike on different bytes; a power cut inside every media effect of a commit;
+(test_nvm_boot.cpp, test_nvm_write.cpp, test_nvm_journal.cpp) grade the boot
+path with valid, absent, torn, corrupted and wrong-version slots, read faults
+at every boot read, and the binding and D3 restore walks; the append-only
+journal of #823 (the log's replay, a torn delta, compaction, the background
+erase and its suspend, the reserve, the append's deadline); the write path's
+DR2b/DR2c/DR5 rules, the console included; the writer held while a read
+fault leaves the authority unknown, and reads that refuse a slot alike on
+different bytes; a power cut inside every media effect of a save and of a
+compaction;
 the time base under PHC steps, at the shape's clock and across the counter's
 wrap; a command master that stalls or slows every wait; and the service
 bound. test_nvm_vector.cpp is the round trip against the recorded vectors of
@@ -30,7 +33,14 @@ also built with its names raised to the layout 3 NAME block's capacity
 (test_nvm_capacity.cpp: the block's first, last and one-past id, and a commit
 at capacity), and one name past it must not compile: nvm_shape.h refuses it,
 and this gate requires the refusal and its words. So must a map entry count
-the codec's table cannot hold: 256 for an input port, 65,536 for an output.
+the codec's table cannot hold: 256 for an input port, 65,536 for an output;
+255 for an input port must compile. So must the doctored input-width build
+outside the host test, and a journal that does not fit (#823 test plan T15).
+
+THE BOUND SHAPE (#823 test plan T11 and T13). With the 1x1 shape the store is
+also built at 32x32/2if TDM8, as scripts/nvm_format_32x32.py builds it with
+the builder's three 32x32 limits lifted in memory (test_nvm_bound.cpp): the
+save bound at the datasheet maxima, and the commit deadline.
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -82,9 +92,9 @@ sys.path.insert(0, str(HERE))
 import nvm_mutants                                                      # noqa: E402
 import nvm_rv32                                                         # noqa: E402
 from nvm_bench import (CFLAGS, NAME_CAPACITY, ROOT, SUITE, TREE, UNITS, VECTOR,  # noqa: E402
-                       VECTOR_IDENT, Binary, Refusal, ShapeInputs, build_suite, doctor, includes,
+                       VECTOR_IDENT, Binary, Refusal, ShapeInputs, bound_inputs, build_suite, doctor, includes,
                        make_bench, run_suite, shape_header, shape_inputs, write_headers)
-from nvm_fixture import (table, write_capacity_fixture, write_fixture,  # noqa: E402
+from nvm_fixture import (table, write_bound_fixture, write_capacity_fixture, write_fixture,  # noqa: E402
                          write_vector_fixture)
 
 import fw_gtest                                                         # noqa: E402
@@ -99,6 +109,25 @@ NAME_ASSERT = f'_Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "{NAME_REFUSA
 #: one past its table, the words, and the assert the control removes).
 MAPIN_REFUSAL = "an input map's entries outgrow the codec's byte table"
 MAPOUT_REFUSAL = "an output map's entries outgrow the codec's 16-bit table"
+#: The input table's own limit, which must compile (the accept side of WIDTHS).
+AT_WIDTH = ("MILAN_NVM3_MAPIN_ENTRIES_0", 255)
+#: The doctored input-width build refused outside the host test (nvm_shape.h).
+DOCTORED_REFUSAL = "NVM_DOCTORED_MAPIN is the host test's doctored build alone"
+DOCTORED_ERROR = f'#if defined(NVM_DOCTORED_MAPIN) && !defined(NVM_HOST_SHAPE)\n#error "{DOCTORED_REFUSAL}"\n#endif\n'
+#: The journal's fit at the bound shape (#823 decision 3, test plan T15): a
+#: slot of two erase blocks, one of three, and at the shipping shape one
+#: output map larger than a delta segment, each refused in nvm_shape.h's
+#: words, at its assert (the control removes it).
+FITS = (
+    ("bound", "MILAN_FLASH_JOURNAL_KLJ3_SIZE", 4 * 0x10000, "the container outgrows one slot",
+     '_Static_assert(NVM_IMG_LEN <= NVM_SLOT_BYTES, "the container outgrows one slot");\n'),
+    ("bound", "MILAN_FLASH_JOURNAL_KLJ3_SIZE", 6 * 0x10000, "a slot holds a base and an append log at least as large",
+     '_Static_assert(NVM_LOG_START + NVM_IMG_LEN <= NVM_SLOT_BYTES,\n'
+     '\t       "a slot holds a base and an append log at least as large");\n'),
+    ("shape", "MILAN_NVM3_MAPOUT_ENTRIES_0", 900, "the largest record outgrows a delta segment",
+     '_Static_assert(NVM_KLJ_MIN + ((NVM_SZ(NVM_PAYLOAD_MAX) + 3u) & ~3u) <= NVM_SEG_MAX,\n'
+     '\t       "the largest record outgrows a delta segment");\n'),
+)
 WIDTHS = (
     ("MILAN_NVM3_MAPIN_ENTRIES_0", 256, MAPIN_REFUSAL,
      f'_Static_assert(NVM_SUM32(NVM_MAPI_WIDE) == 0u, "{MAPIN_REFUSAL}");\n'),
@@ -115,6 +144,9 @@ class Shape:
     fixture: Path
     vector_fixture: Path | None
     capacity_fixture: Path | None
+    #: the bound shape's inputs and fixture, prepared with the shipping 1x1
+    bound: ShapeInputs | None = None
+    bound_fixture: Path | None = None
 
     @property
     def stem(self) -> str:
@@ -129,10 +161,12 @@ def prepare(cfg: Path, work: Path) -> Shape:
     vector = None
     if table(cfg.stem) is not None:
         vector = write_vector_fixture(make_bench(inputs, VECTOR_IDENT), work / "vector-fixture")
-    capacity = None
+    capacity = bound = bound_fixture = None
     if cfg.stem == SELF_TEST_SHAPE:
         capacity = write_capacity_fixture(make_bench(inputs, names=NAME_CAPACITY), work / "capacity-fixture")
-    return Shape(inputs, fixture, vector, capacity)
+        bound = bound_inputs(work / "bound")
+        bound_fixture = write_bound_fixture(make_bench(bound), work / "bound-fixture")
+    return Shape(inputs, fixture, vector, capacity, bound, bound_fixture)
 
 
 def binaries(shape: Shape) -> tuple[Binary, ...]:
@@ -145,6 +179,8 @@ def fixture_of(shape: Shape, binary: Binary) -> Path:
     """The fixture a binary reads (the unit binaries ask it nothing)."""
     if binary.capacity and shape.capacity_fixture:
         return shape.capacity_fixture
+    if binary.bound and shape.bound_fixture:
+        return shape.bound_fixture
     return shape.vector_fixture if binary.vector and shape.vector_fixture else shape.fixture
 
 
@@ -185,18 +221,68 @@ def over_width(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -
             found.append(f"{name} = {count} refused for another reason: {str(exc)[-300:]}")
             continue
         found.append(f"{name} = {count}, past its table's width, compiled")
+    name, count = AT_WIDTH
+    gen = work / "at-width" / "gen"
+    write_headers(gen, doctor(shape_header(shape.inputs), ((name, count),)), shape.inputs.clock_hz)
+    try:
+        fw_gtest.compile_c(b, CFLAGS, includes(tree, gen), [tree / "nvm_klj2.c"], work / "at-width" / "obj")
+        print(f"  at width: {name} = {count}, its table's limit, compiles")
+    except fw_gtest.BuildError as exc:
+        found.append(f"{name} = {count}, its table's limit, does not compile: {str(exc)[-300:]}")
+    return found
+
+
+def doctored_outside(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """NVM_DOCTORED_MAPIN under a shape header that is not the host test's
+    (no NVM_HOST_SHAPE, as on a target) must not compile, in nvm_shape.h's
+    words. '' findings when it does not."""
+    gen = work / "doctored-outside" / "gen"
+    header = "\n".join(ln for ln in shape_header(shape.inputs).splitlines() if "NVM_HOST_SHAPE" not in ln) + "\n"
+    write_headers(gen, header, shape.inputs.clock_hz)
+    try:
+        fw_gtest.compile_c(b, (*CFLAGS, "-DNVM_DOCTORED_MAPIN"), includes(tree, gen), [tree / "nvm_klj2.c"],
+                           work / "doctored-outside" / "obj")
+    except fw_gtest.BuildError as exc:
+        if DOCTORED_REFUSAL in str(exc):
+            print(f"  doctored outside the host test: refused at compile time ({DOCTORED_REFUSAL!r})")
+            return []
+        return [f"NVM_DOCTORED_MAPIN outside the host test refused for another reason: {str(exc)[-300:]}"]
+    return ["NVM_DOCTORED_MAPIN outside the host test compiled"]
+
+
+def over_fit(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """Each journal that does not fit (FITS) must not compile, in its
+    assert's words. '' findings when none does."""
+    found = []
+    for n, (where, name, value, words, _assert) in enumerate(FITS):
+        inputs = shape.bound if where == "bound" else shape.inputs
+        where = "the bound shape" if where == "bound" else shape.stem
+        gen = work / "over-fit" / str(n) / "gen"
+        write_headers(gen, doctor(shape_header(inputs), ((name, value),)), inputs.clock_hz)
+        try:
+            fw_gtest.compile_c(b, CFLAGS, includes(tree, gen), [tree / "nvm_klj2.c"],
+                               work / "over-fit" / str(n) / "obj")
+        except fw_gtest.BuildError as exc:
+            if words in str(exc):
+                print(f"  over fit: {name} = {value} at {where} refused at compile time ({words!r})")
+                continue
+            found.append(f"{name} = {value} at {where} refused for another reason: {str(exc)[-300:]}")
+            continue
+        found.append(f"{name} = {value} at {where}, a journal that does not fit, compiled")
     return found
 
 
 def build(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> dict[str, Path]:
-    """Every binary of a shape from `tree`, by name."""
-    return {binary.name: build_suite(shape.inputs, work / binary.name, b, binary, tree) for binary in binaries(shape)}
+    """Every binary of a shape from `tree`, by name; the bound binary at the bound shape."""
+    return {binary.name: build_suite(shape.bound if binary.bound else shape.inputs, work / binary.name, b, binary,
+                                     tree)
+            for binary in binaries(shape)}
 
 
 def evidence(log: str) -> list[str]:
     """The lines of a run worth printing: the tally, the figures and every failure (in a build-only run, that the
     binary was not run)."""
-    keep = ("==", "RESULT", "  longest", "  [FAIL]", "  verdict")
+    keep = ("==", "RESULT", "  longest", "  [FAIL]", "  verdict", "  save bound", "  append")
     return [ln for ln in log.splitlines() if ln.startswith(keep) or ln.endswith(fw_gtest.NOT_RUN)]
 
 
@@ -215,6 +301,8 @@ def run_shape(shape: Shape, work: Path, b: fw_gtest.Build, require_rv32: bool) -
     if shape.stem == SELF_TEST_SHAPE and fw_gtest.EXECUTION.run:
         findings += [f"{shape.stem}: {x}" for x in over_capacity(shape, work, b)]
         findings += [f"{shape.stem}: {x}" for x in over_width(shape, work, b)]
+        findings += [f"{shape.stem}: {x}" for x in doctored_outside(shape, work, b)]
+        findings += [f"{shape.stem}: {x}" for x in over_fit(shape, work, b)]
     return findings + [f"{shape.stem}: {x}" for x in rv32_arm(shape.inputs, work, require_rv32)], tests
 
 
@@ -231,7 +319,8 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
         print(f"  rv32 at {inputs.clock_hz} Hz: text={sizes['text']} data={sizes['data']} "
               f"bss={sizes['bss']} "
               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
-              f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
+              f"chunk={sizes.get('nvm_chunk')} page={sizes.get('nvm_page')} carry={sizes.get('nvm_carry')} "
+              f"store={sizes.get('nvm')} "
               f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
         print(f"  largest static frame: {sizes.get('stack_frame')} bytes (not a call-chain bound)")
     return found
@@ -261,7 +350,8 @@ def plant_and_grade(m: nvm_mutants.Mutant, shape: Shape, held: dict[str, str], w
         kills = [k for k in m.kills if held.get(k) == binary.name]
         if kills:
             logs += run_suite(exes[binary.name], fixture_of(shape, binary), kills)[1]
-    shutil.rmtree(tree, ignore_errors=True)
+    # the planted tree and its builds, about 100 MB a defect, are not kept
+    shutil.rmtree(work / m.name, ignore_errors=True)
     alive = nvm_mutants.survivors(m, logs)
     if alive:
         return f"self-test: {m.name} at {shape.stem} was NOT caught by {', '.join(alive)}"
@@ -303,6 +393,48 @@ def over_width_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]
             found.append(f"self-test: {label} was NOT caught: over_width found {got!r}")
             continue
         print(f"  self-test OK: {label:<26} caught by over_width; first: {got[0][:110]}")
+    # the input table's limit refused one entry early
+    m = nvm_mutants.Mutant("mapin_width_off_by_one", (("nvm_shape.h", "(MILAN_NVM3_MAPIN_ENTRIES_##k > 255u)",
+                                                       "(MILAN_NVM3_MAPIN_ENTRIES_##k >= 255u)"),), ())
+    tree = work / m.name / "tree"
+    nvm_mutants.plant(m, tree)
+    got = over_width(shape, work / m.name, b, tree)
+    shutil.rmtree(tree, ignore_errors=True)
+    if any("its table's limit, does not compile" in x for x in got):
+        print(f"  self-test OK: {m.name:<26} caught by over_width")
+    else:
+        found.append(f"self-test: {m.name} was NOT caught: over_width found {got!r}")
+    return found
+
+
+def doctored_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """The refusal's own control: with nvm_shape.h's #error removed, the
+    doctored build compiles outside the host test, and doctored_outside says so."""
+    m = nvm_mutants.Mutant("doctored_error_removed", (("nvm_shape.h", DOCTORED_ERROR, ""),), ())
+    tree = work / "tree"
+    nvm_mutants.plant(m, tree)
+    found = doctored_outside(shape, work, b, tree)
+    shutil.rmtree(tree, ignore_errors=True)
+    if not any("compiled" in x for x in found):
+        return ["self-test: doctored_error_removed was NOT caught: doctored_outside found " + repr(found)]
+    print("  self-test OK: doctored_error_removed     caught by doctored_outside")
+    return []
+
+
+def fit_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """Each fit assert's own control: removed, its journal is no longer
+    refused in its words."""
+    found = []
+    for n, (_where, name, value, words, line) in enumerate(FITS):
+        m = nvm_mutants.Mutant(f"fit_assert_removed_{n}", (("nvm_shape.h", line, ""),), ())
+        tree = work / m.name / "tree"
+        nvm_mutants.plant(m, tree)
+        got = over_fit(shape, work / m.name, b, tree)
+        shutil.rmtree(tree, ignore_errors=True)
+        if not any(x.startswith(f"{name} = {value}") for x in got):
+            found.append(f"self-test: {m.name} was NOT caught: over_fit found {got!r}")
+            continue
+        print(f"  self-test OK: {m.name:<26} caught by over_fit; first: {got[0][:110]}")
     return found
 
 
@@ -330,6 +462,8 @@ def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
         found += [v for v in verdicts if v]
     found += over_capacity_control(shapes[SELF_TEST_SHAPE], work / "over-capacity-control", shared)
     found += over_width_control(shapes[SELF_TEST_SHAPE], work / "over-width-control", shared)
+    found += doctored_control(shapes[SELF_TEST_SHAPE], work / "doctored-control", shared)
+    found += fit_control(shapes[SELF_TEST_SHAPE], work / "fit-control", shared)
     return found
 
 
@@ -397,7 +531,7 @@ def main() -> int:
         print(f"saved-state store gate (#665 F1): BUILT across {len(cfgs)} shape(s), nothing run (--build-only)")
         return 0
     print(f"saved-state store gate (#665 F1): OK across {len(cfgs)} shape(s), {tests} tests"
-          + (f", and all {len(nvm_mutants.MUTANTS) + 1 + len(WIDTHS)} planted defects reddened"
+          + (f", and all {len(nvm_mutants.MUTANTS) + 1 + len(WIDTHS) + 1 + 1 + len(FITS)} planted defects reddened"
              if args.self_test else ""))
     return 0
 

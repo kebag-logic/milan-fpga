@@ -141,7 +141,9 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 
 - an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
-- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,454 against 13,594 bytes.
+- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
+
+Those are that run's KLJ2 stage sizes; section 5 gives the split's KLJ3 ones.
 
 ## 4. Boot console and diagnostics
 
@@ -222,8 +224,25 @@ These figures are planned, not mapped.
 | 8x8, two interfaces (largest) | 119,824 / 113,008 | 120,536 / 113,584 | +712 / +576 | 57.5 to 57.5 |
 
 The `sram` delta is the stage's two bytes a record and the store's open bits, 36 words per array.
-Every point stays within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
+Every point stayed within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
 The target platform's image was not linked again; its `ctrl_plat` is unchanged.
+
+**The split's append-only save path (#823).** The size fixture was linked again at `30ca4b21` and with the append path, one runtime for both:
+
+| Point | `30ca4b21` `rom` / `sram`, B | Append path `rom` / `sram`, B | Delta, B | RAMB36 |
+|---|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 105,168 / 46,624 | 110,448 / 47,440 | +5,280 / +816 | 37.5 to 39.0 |
+| 1x1, two interfaces | 106,752 / 58,016 | 112,032 / 58,816 | +5,280 / +800 | 41.0 to 42.0 |
+| 8x8, one interface | 118,880 / 87,424 | 124,168 / 88,672 | +5,288 / +1,248 | 51.0 to 52.5 |
+| 8x8, two interfaces (largest) | 120,544 / 113,584 | 125,824 / 114,832 | +5,280 / +1,248 | 57.5 to 59.5, **refused** |
+
+The `rom` is the journal's code: the delta, the compaction, the background erase and its suspend, and the log's replay at boot.
+The `sram` is the page being written, a compaction's carried record (the shape's largest), the open bits of the records behind a compaction's front, and the journal's state.
+Every other point stays within 56 RAMB36.
+The ledgered point plans 59.5 RAMB36 against its ledgered 57.5, so `plan --ledgered-point 8x8-two-interfaces` refuses it.
+The ledger is the owner's (rulings 6412739248 and 6425357821), and this change does not move it: the decision is put on #823.
+The target platform's image was not linked again: `ctrl_plat_image.py` takes the store from its own tree.
+At `b8628704` its ledgered point had 1,928 B of `rom` left before its next bank, less than the 5,280 B the fixture gained.
 
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
 Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
