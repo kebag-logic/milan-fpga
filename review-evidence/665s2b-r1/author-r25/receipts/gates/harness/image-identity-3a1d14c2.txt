@@ -1,0 +1,15 @@
+# The firmware images the harness gate legs ran (built at ca403b0c, each leg's build) against the same images built
+# at the final head 3a1d14c2 on a clean clone (img-wt-3a1d14c2, 0 changed paths), by the commands in img-cmd-<leg>.txt.
+# Columns: leg, which, ELF SHA-256, loadable image (objcopy -O binary) SHA-256 and bytes.
+GA1 head c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97 107032
+GA1 leg c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97 107032
+GA8 head 99870bfd14e864567ccbb9fea254c187731fa2a3d67bd910782b182de1a650e7 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519 122248
+GA8 leg 99870bfd14e864567ccbb9fea254c187731fa2a3d67bd910782b182de1a650e7 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519 122248
+GN1 head 14091ab7b36674d19415bb3ba8094203e532857368821c8a2e2806f7baf27055 1bcb7e19f8730fc29f264cc9549b3e2a38b52521bbe774e207c1c27b891eaadc 107340
+GN1 leg 14091ab7b36674d19415bb3ba8094203e532857368821c8a2e2806f7baf27055 1bcb7e19f8730fc29f264cc9549b3e2a38b52521bbe774e207c1c27b891eaadc 107340
+GN8 head 2222898742ce548bcbfa1c89fbc8f87efb2c9e09a781c9634a99f8a9af597cf7 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c 122556
+GN8 leg 2222898742ce548bcbfa1c89fbc8f87efb2c9e09a781c9634a99f8a9af597cf7 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c 122556
+# git diff --stat ca403b0c 3a1d14c2 -- sw hdl configs third_party:
+ sw/firmware/ctrl/test/srp_mutants.py   |  4 ++--
+ sw/firmware/ctrl/test/srp_rx_retry.cpp | 13 ++++++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)

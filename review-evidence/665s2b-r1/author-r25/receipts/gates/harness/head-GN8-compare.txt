@@ -1,0 +1,13 @@
+# GN8: the head's build (builds-head/GN8) against the build that ran the groups (builds/GN8)
+image/ctrl_app.elf identical: old 2222898742ce548bcbfa1c89fbc8f87efb2c9e09a781c9634a99f8a9af597cf7 head 2222898742ce548bcbfa1c89fbc8f87efb2c9e09a781c9634a99f8a9af597cf7
+split-soc/mapped/image/ctrl_app.elf identical: old fa83f6a4ede0628718ca0c25d6136658a34510eb75c5af6314ad01365efc8ad1 head fa83f6a4ede0628718ca0c25d6136658a34510eb75c5af6314ad01365efc8ad1
+split-soc/stand-ins/image/ctrl_app.elf identical: old b544bee8b32f3f4faabc8017f24003bdfec0e0f882a54436e2ed2d9a5fdc54f6 head b544bee8b32f3f4faabc8017f24003bdfec0e0f882a54436e2ed2d9a5fdc54f6
+native/Vsim DIFFERENT: old d69bf42f1850cfc2c900dfc24bcb724ac51be8c09444f07e6a1efc2c0481eab1 head d75dcd8de15bd5d9fb6ae1212a9a3d4adff68ac2c26035f89902d042ed52a849
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29
+group notice-burst-6 log identical: recorded b13f27a01b638d136ad90a9f1db398ff8aa40fd9b81bdc7aa3d21b523c17596d head b13f27a01b638d136ad90a9f1db398ff8aa40fd9b81bdc7aa3d21b523c17596d, 5767619 bytes
+group notice-burst-6 script identical

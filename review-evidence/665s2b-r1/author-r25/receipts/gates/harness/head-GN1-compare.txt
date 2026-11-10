@@ -1,0 +1,13 @@
+# GN1: the head's build (builds-head/GN1) against the build that ran the groups (builds/GN1)
+image/ctrl_app.elf identical: old 14091ab7b36674d19415bb3ba8094203e532857368821c8a2e2806f7baf27055 head 14091ab7b36674d19415bb3ba8094203e532857368821c8a2e2806f7baf27055
+split-soc/mapped/image/ctrl_app.elf identical: old c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f head c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f
+split-soc/stand-ins/image/ctrl_app.elf identical: old 769f3aa39f4497df0ad1d7bfecc3b59dac2cde61964893b582d815204afe4ad6 head 769f3aa39f4497df0ad1d7bfecc3b59dac2cde61964893b582d815204afe4ad6
+native/Vsim DIFFERENT: old 7eaea2900479f4da40c923cbc17b3da504a3b6a664166151c66519b581c4430c head 3a46fb77ee9a27c8c4cc0f79bf4820609b302d9f9923a12e4531902929282a8a
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29
+group notice-burst-6 log identical: recorded 3b178385c23b47c9c8c0444b4521d1736c59cb17b239409918c899e79deed33f head 3b178385c23b47c9c8c0444b4521d1736c59cb17b239409918c899e79deed33f, 8228366 bytes
+group notice-burst-6 script identical

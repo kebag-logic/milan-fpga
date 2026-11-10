@@ -1,0 +1,34 @@
+13:02:31 reserved 64-71
+13:02:37 reserved 56-63
+13:02:44 reserved 48-55
+15:09:21 the sweep launcher stopped: its three hold units (64-71, 56-63, 48-55) were stopped at 14:03:26 from outside this lane
+15:10:33 shard 0 clone prepared at 29854e43c916a8c85a854ac66fce71e170dea3c2
+15:10:35 shard 1 clone prepared at 29854e43c916a8c85a854ac66fce71e170dea3c2
+15:10:38 shard 2 clone prepared at 29854e43c916a8c85a854ac66fce71e170dea3c2
+15:10:42 shard 3 clone prepared at 29854e43c916a8c85a854ac66fce71e170dea3c2
+15:26:03 sweep launcher stopped before launch (the head will move)
+16:02:16 shard 0 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+16:02:17 shard 1 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+16:02:18 shard 2 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+16:02:20 shard 3 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+16:09:24 launching on 80-87 48-55 56-59 64-71 (MemAvailable 53518 MB)
+Running as unit: milan-665s2b-a683ze-sweep-shard0.service; invocation ID: 84fb24ab3254436f9440c04053cbf49c
+Running as unit: milan-665s2b-a683ze-sweep-shard1.service; invocation ID: fd82b4d43f6040f1b24a582498461ca1
+Running as unit: milan-665s2b-a683ze-sweep-shard2.service; invocation ID: 54dd76d75ad843dc9eab15da43046c52
+Running as unit: milan-665s2b-a683ze-sweep-shard3.service; invocation ID: b11cbe56255b4f2bb5a7e1b5062c7728
+{"label": "665s2b-a683ze-sweep", "head": "3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5", "shards": 4, "out": "<scratch>/sweep", "units": ["milan-665s2b-a683ze-sweep-shard0", "milan-665s2b-a683ze-sweep-shard1", "milan-665s2b-a683ze-sweep-shard2", "milan-665s2b-a683ze-sweep-shard3"]}
+16:09:29 native-shards rc=0
+18:05 the host reset at 17:00 killed the sweep launched 16:09 (output kept in sweep-killed-1700); relaunching
+18:06:17 shard 0 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+18:06:17 shard 1 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+18:06:18 shard 2 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+18:06:18 shard 3 clone prepared at 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5
+18:06:18 launching on 8-15 40-47 16-19 24-31 (MemAvailable 62317 MB)
+Running as unit: milan-665s2b-a683ze-sweep-shard0.service; invocation ID: 10b17ebe9d03439186b223ccbab63071
+Running as unit: milan-665s2b-a683ze-sweep-shard1.service; invocation ID: 8779c37d9fd34465be6f87d1fa105ffc
+Running as unit: milan-665s2b-a683ze-sweep-shard2.service; invocation ID: fdcd3218800c41f38f0486918a851fcc
+Running as unit: milan-665s2b-a683ze-sweep-shard3.service; invocation ID: 5b770d9db05e4b8e90460f0fa1de0005
+{"label": "665s2b-a683ze-sweep", "head": "3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5", "shards": 4, "out": "<scratch>/sweep", "units": ["milan-665s2b-a683ze-sweep-shard0", "milan-665s2b-a683ze-sweep-shard1", "milan-665s2b-a683ze-sweep-shard2", "milan-665s2b-a683ze-sweep-shard3"]}
+18:06:20 native-shards rc=0
+19:53:07 shard 2: capture_coherence TIMEOUT at its 2400 s wall clock (result unknown, not a failure), the other 16 suites PASS; re-run alone as the runner runs it, on 4 CPUs, its budget raised to 4800 s
+20:41:41 capture_coherence re-run started as its own unit on 32-35 (MemAvailable 50 GB)

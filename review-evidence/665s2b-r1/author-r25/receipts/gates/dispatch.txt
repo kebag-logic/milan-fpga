@@ -1,0 +1,42 @@
+10:21:14 GA8p0 on 0-7
+10:22:09 GN8 GN1 locally in the session unit (host booked out)
+10:45:18 GA8p1 on 72-79
+10:50:40 GA8p2 on 16-23
+11:06:11 lane-gates W-docs locally in the session unit (host booked out)
+11:18:15 GA8p3 on 64-71
+11:26:24 the head moved to 29854e43c916a8c85a854ac66fce71e170dea3c2 (a source comment's round label): lane-gates, W-docs, the sweep launcher and the regrade waiters restarted on it; the queued gate lines rewritten to it
+13:02:05 GA1p0 on 40-47
+13:02:25 GA1p1 on 72-79
+13:03:46 GA1p2 on 0-7
+13:25:58 W-fw-unit locally in the session unit
+13:55:16 W-fw-control locally in the session unit
+14:23:42 W-fw-aecp locally in the session unit
+14:32:28 W-fw-srp locally in the session unit
+14:51:14 W-fw-boundary locally in the session unit
+15:20:54 W-fw-verilator locally in the session unit
+15:26:03 stopped W-fw-boundary, W-fw-verilator (local) and the sweep launcher at 29854e43: two SRP plants escaped in firmware-srp-mutants; a test fix will move the head
+16:01:57 the head moved to 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5 (two SRP plants re-caught by their tests): every workflow job and the lane gates re-queued on it; lane-gates, W-docs, W-fw-unit, W-fw-control locally in the session unit, the rest by booked ranges
+18:11:08 the host reset at 17:00 (memory fault) stopped the final gate pass at 3a1d14c2: lane gates after ctrl_hot_check, docs after docs-gates-0, firmware-unit and firmware-control-mutants mid-run, the sweep; resumed, the passed steps at this head kept, the interrupted jobs re-run whole on fresh clones
+18:11:10 lane-gates locally in the session unit (MemAvailable 39 GB)
+18:11:42 W-fw-srp locally in the session unit (MemAvailable 41 GB)
+19:09:58 W-fw-srp local done rc=0
+19:09:59 W-fw-unit locally in the session unit (MemAvailable 54 GB)
+19:30:58 the docs and elaborate jobs moved to a second queue (queue-final-B.txt, one job at a time in the session unit), the host being fully booked
+19:30:59 W-docs-rest locally in the session unit (MemAvailable 41 GB)
+19:59:08 W-fw-unit local done rc=0
+19:59:09 W-fw-control locally in the session unit (MemAvailable 48 GB)
+20:38:53 W-docs-rest local done rc=0
+20:38:53 W-elab-0 locally in the session unit (MemAvailable 56 GB)
+20:41:24 W-elab-1 on 48-55 (MemAvailable 53 GB)
+20:41:46 W-fw-aecp on 24-31 (MemAvailable 52 GB)
+20:43:17 W-rtl-fast on 80-87 (MemAvailable 45 GB)
+20:45:49 W-fw-boundary on 16-23 (MemAvailable 49 GB)
+20:53:24 W-fw-control local done rc=0
+20:53:24 W-fw-verilator locally in the session unit (MemAvailable 54 GB)
+20:54:55 W-rtl-a on 24-31 (MemAvailable 54 GB)
+21:05:54 W-elab-0 local done rc=0
+21:05:54 queue queue-final-B.txt empty
+21:06:32 W-rtl-b on 16-23 (MemAvailable 45 GB)
+21:19:32 W-fw-verilator local done rc=0
+21:29:02 lane-gates local done rc=0
+21:29:02 queue queue-final-3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5.txt empty

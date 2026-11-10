@@ -1,0 +1,51 @@
+# the working tree at 29854e43 plus the two test fixes (srp_rx_retry.cpp, srp_mutants.py), before their commit: python3 -B srp_rx_retry_campaign.py <lane> <scratch>/rxretry
+== 2 interface(s): 37 defects
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+[ok] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+[ok] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+[ok] receive-retention-short: SrpRetry.NothingChangedStillExpiresAtTheDeadline / not a millisecond before
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded
+[ok] transmit-declares-beside-a-retained-receive: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / a refused adoption takes no room a retained receive waits for
+[ok] retry-without-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] no-retry-after-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] retry-every-pass: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / at most one retry a centisecond
+[ok] retry-tick-never-set: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a refused record is taken on the first pass after the pool frees
+[ok] pool-return-uncounted: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] attribute-change-uncounted: SrpRetry.AnAttributeChangeAloneAllowsTheRetry / every Applicant or Registrar change lwSRP reports is marked
+[ok] refusal-moves-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] refusal-returns-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] unchanged-deadline-unchecked: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+== 1 interface(s): 10 defects
+[ok] receive-retention-short: SrpRetry.NothingChangedStillExpiresAtTheDeadline / not a millisecond before
+[ok] retry-without-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] no-retry-after-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] retry-every-pass: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / at most one retry a centisecond
+[ok] retry-tick-never-set: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a refused record is taken on the first pass after the pool frees
+[ok] pool-return-uncounted: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] attribute-change-uncounted: SrpRetry.AnAttributeChangeAloneAllowsTheRetry / every Applicant or Registrar change lwSRP reports is marked
+[ok] refusal-moves-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] refusal-returns-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] unchanged-deadline-unchecked: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+rc=0

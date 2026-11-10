@@ -1,0 +1,15 @@
+# GA1: the head's build (builds-head/GA1) against the build that ran the groups (builds/GA1)
+image/ctrl_app.elf identical: old c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f head c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f
+split-soc/mapped/image/ctrl_app.elf identical: old c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f head c070a1642cb7c50e8d1d0e965f8db9f46d729b3067cda4b6b1df0bef98ef151f
+split-soc/stand-ins/image/ctrl_app.elf identical: old 769f3aa39f4497df0ad1d7bfecc3b59dac2cde61964893b582d815204afe4ad6 head 769f3aa39f4497df0ad1d7bfecc3b59dac2cde61964893b582d815204afe4ad6
+native/Vsim DIFFERENT: old 853d4f317644df5941676dc2183ffd01079bd37310ccc66d6008b24673e95b0d head feca2f2da2297ef7aae861188e68cfcacb0a42444bd914c5937443c37c951d1b
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29
+group fixture log identical: recorded 1e26db0ca9d97eae5d04d82738bf71ee6253982a9267b3cfe3a6aca4b648331d head 1e26db0ca9d97eae5d04d82738bf71ee6253982a9267b3cfe3a6aca4b648331d, 1506891 bytes
+group fixture script identical
+group acmp-cmd log identical: recorded 9068ae7bbd4d36b6eba4ea98494911cf3ecf33644a4490f803e78de69652c9e0 head 9068ae7bbd4d36b6eba4ea98494911cf3ecf33644a4490f803e78de69652c9e0, 1891543 bytes
+group acmp-cmd script identical

@@ -1,0 +1,10 @@
+# Each harness gate leg's image (built at ca403b0c42678ef2ce6fbcbfcda06a8b47e5a3ed) against the same image step rerun from a clean clone of the final head 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5 (that build's own ctrl_srp_image.py command, or fixture_variant.py over build.variant_fixture's sources for the answering-every-port arm, with the build's flash map and runtime; objcopy -O binary, SHA-256). The head differs from ca403b0c in no file the image reads: the regrades at 29854e43c916a8c85a854ac66fce71e170dea3c2 used tb/verilator/ctrl_service_budget as the head has it.
+GA8 gate:  122248 bytes, sha256 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519
+GA8 head:  122248 bytes, sha256 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519
+GN8 gate:  122556 bytes, sha256 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c
+GN8 head:  122556 bytes, sha256 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c
+GA1 gate:  107032 bytes, sha256 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97
+GA1 head:  107032 bytes, sha256 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97
+GN1 gate:  107340 bytes, sha256 1bcb7e19f8730fc29f264cc9549b3e2a38b52521bbe774e207c1c27b891eaadc
+GN1 head:  107340 bytes, sha256 1bcb7e19f8730fc29f264cc9549b3e2a38b52521bbe774e207c1c27b891eaadc
+git diff --stat 29854e43c916 3a1d14c21b6b -- tb/verilator/ctrl_service_budget: 0 lines (no change)

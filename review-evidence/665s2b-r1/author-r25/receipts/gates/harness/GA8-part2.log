@@ -1,0 +1,16 @@
+HEAD ca403b0c42678ef2ce6fbcbfcda06a8b47e5a3ed DIRTY 0 part 2/4
+groups: save-starved,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@blank-aged1-1,backlog-adp@blank-aged1-5,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-5,backlog-adp@program-1,backlog-adp@program-5,backlog-adp@program-aged1-1,backlog-adp@program-aged1-5,backlog-adp@program-aged2-1,backlog-adp@program-aged2-5,backlog-adp@verify-1,backlog-adp@verify-5,backlog-adp@verify-aged1-1,backlog-adp@verify-aged1-5,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-5,maap,srp,backlog-owed,adp-link,aecp
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 64.093 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.417 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.416 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.415 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.414 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 62.115 ms over its budget 20 ms
+STEPS 9730 passes carry the store's step; the longest 104,785 CPU cycles (1.048 ms), backlog-adp@program-1; the longest step 79,187 (0.792 ms), backlog-adp@program-1
+AGED 12 windows opened with the step's age at its limit or one short of it, 5 aged steps among their records; the least margin 6.638 ms, backlog-adp@verify-aged2-1.service.aecp.last.if1 at 13.362 ms
+SAVE save-starved: durable 12088.519 ms after its change (stated worst case 12,110 ms, 370 steps, longest gap between flash steps 35.113 ms) within
+24 groups graded, 0 refusals, 6 budget misses (6 of 289 probe instances, 3 of 84 paths), 0 of 74865 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=6055s
+rc=0
