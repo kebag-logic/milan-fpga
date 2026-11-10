@@ -141,7 +141,10 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 
 - an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
-- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,454 against 13,594 bytes.
+- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
+
+That run printed KLJ2 stage sizes, as `c20ed894` linked them.
+Section 5 gives both formats' stage sizes.
 
 ## 4. Boot console and diagnostics
 
