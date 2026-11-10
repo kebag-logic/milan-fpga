@@ -1,0 +1,3 @@
+$PACKET/scratch/refusal/one-word/src/acmp.c:35:16: error: static assertion failed due to requirement 'sizeof ((struct acmp_owed *)0)->release * 8U >= 33U': the owed release mask holds a bit for every sink
+   35 | _Static_assert(sizeof ((struct acmp_owed *)0)->release * 8u >= ACMP_MAX_SINKS,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

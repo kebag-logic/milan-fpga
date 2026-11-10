@@ -1,0 +1,42 @@
+head-as-committed                            gcc      N=1    rc=0 
+head-as-committed                            gcc      N=16   rc=0 
+head-as-committed                            gcc      N=31   rc=0 
+head-as-committed                            gcc      N=32   rc=0 
+head-as-committed                            gcc      N=33   rc=0 
+head-as-committed                            gcc      N=64   rc=0 
+head-as-committed                            gcc      N=65   rc=0 
+head-as-committed                            gcc      N=254  rc=0 
+head-as-committed                            gcc      N=255  rc=0 
+head-as-committed                            clang-18 N=1    rc=0 
+head-as-committed                            clang-18 N=16   rc=0 
+head-as-committed                            clang-18 N=31   rc=0 
+head-as-committed                            clang-18 N=32   rc=0 
+head-as-committed                            clang-18 N=33   rc=0 
+head-as-committed                            clang-18 N=64   rc=0 
+head-as-committed                            clang-18 N=65   rc=0 
+head-as-committed                            clang-18 N=254  rc=0 
+head-as-committed                            clang-18 N=255  rc=0 
+plant one-word                               gcc      N=16   rc=0 
+plant one-word                               gcc      N=32   rc=0 
+plant one-word                               gcc      N=33   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant one-word                               gcc      N=64   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant floor-words                            gcc      N=16   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant floor-words                            gcc      N=32   rc=0 
+plant floor-words                            gcc      N=33   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant floor-words                            gcc      N=64   rc=0 
+plant u16-words                              gcc      N=16   rc=0 
+plant u16-words                              gcc      N=32   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant u16-words                              gcc      N=33   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant u16-words                              gcc      N=64   rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+plant one-word                               clang-18 N=16   rc=0 
+plant one-word                               clang-18 N=32   rc=0 
+plant one-word                               clang-18 N=33   rc=1 
+plant one-word                               clang-18 N=64   rc=1 
+plant floor-words                            clang-18 N=16   rc=1 
+plant floor-words                            clang-18 N=32   rc=0 
+plant floor-words                            clang-18 N=33   rc=1 
+plant floor-words                            clang-18 N=64   rc=0 
+plant u16-words                              clang-18 N=16   rc=0 
+plant u16-words                              clang-18 N=32   rc=1 
+plant u16-words                              clang-18 N=33   rc=1 
+plant u16-words                              clang-18 N=64   rc=1 

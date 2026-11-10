@@ -1,0 +1,33 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from EverySink
+[ RUN      ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink
+$PACKET/scripts/every_sink_probe.cpp:33: Failure
+Expected equality of these values:
+  a.sinks[j].change_owed
+    Which is: '\0'
+  j == k ? 1u : 0u
+    Which is: 1
+bind of sink 0: change_owed of sink 0
+
+[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (0 ms)
+[ RUN      ] EverySink.ReusedSlotsCarryNoStaleBits
+$PACKET/scripts/every_sink_probe.cpp:54: Failure
+Expected equality of these values:
+  a.sinks[j].change_owed
+    Which is: '\xFF' (255)
+  0u
+    Which is: 0
+drained: sink 29
+
+[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)
+[----------] 2 tests from EverySink (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink
+[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits
+
+ 2 FAILED TESTS

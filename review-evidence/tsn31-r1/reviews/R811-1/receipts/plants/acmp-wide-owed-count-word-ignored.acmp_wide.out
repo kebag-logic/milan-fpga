@@ -1,0 +1,43 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+$PACKET/scratch/clean/tests/test_acmp_wide.cpp:70: Failure
+Value of: acmp_change_pending(&a, kLast) && a.sinks[kLast].change_owed == 1u
+  Actual: false
+Expected: true
+W1 sink 32's change waits behind its owed response (#653)
+
+$PACKET/scratch/clean/tests/test_acmp_wide.cpp:79: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+W1 sink 32's response left: one change is reported
+
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[ RUN      ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+$PACKET/scratch/clean/tests/test_acmp_wide.cpp:95: Failure
+Value of: acmp_change_pending(&a, 0) && !acmp_change_pending(&a, kLast)
+  Actual: false
+Expected: true
+W2 sink 0's owed response holds sink 0 and not sink 32
+
+$PACKET/scratch/clean/tests/test_acmp_wide.cpp:100: Failure
+Value of: !acmp_change_pending(&a, 0) && a.sinks[0].change_owed == 0u && a.sinks[kLast].change_owed == 0u
+  Actual: false
+Expected: true
+W2 its acceptance releases sink 0 and leaves sink 32's count at zero
+
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+[----------] 2 tests from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+
+ 2 FAILED TESTS
