@@ -5,11 +5,13 @@
 
 Each plant changes a copy of one scenario's capture as the defect it names would have changed it, and
 srptx_grade.py --plant must find WORDS[name] in a finding of the planted copy. The unplanted captures have
-no finding (make srptx). srptx_mutants.py plants the defects in the code itself.
+no finding (make srptx). Each WITHIN control moves a transmit opportunity to 1 ms inside a bound #867 item 3
+allows, beside the plant 1 ms past it, and its copy must grade with no finding. srptx_mutants.py plants the
+defects in the code itself.
 
   srptx_grade.py CAPTURE --make-plant NAME --out PLANTED
   srptx_grade.py PLANTED --plant NAME
-  srptx_plants.py DIR      every plant against DIR/{wire,hold,licence}.json (make srptx-plants)
+  srptx_plants.py DIR      every plant and control against DIR/{wire,hold,licence}.json (make srptx-plants)
 """
 from __future__ import annotations
 
@@ -19,6 +21,13 @@ import sys
 from pathlib import Path
 
 import srptx_grade as g
+
+#: #867 item 3's approved service allowance, T_svc 20 ms, held here apart from the grade's SVC_MS: each plant on
+#: a bound sits 1 ms past what item 3 allows and its control 1 ms inside, so a grade bound off item 3's is refused
+ITEM3_SVC_MS = 20
+FOLLOW_MS = g.JOIN_MS + ITEM3_SVC_MS
+LEAVE_ALL_BOUNDS_MS = (g.LEAVE_ALL_MS - g.JOIN_MS - ITEM3_SVC_MS,
+                       3 * g.LEAVE_ALL_MS // 2 + g.JOIN_MS + ITEM3_SVC_MS)
 
 #: name -> (the scenario it plants, what it changes, the words it must be refused by)
 PLANTS = {
@@ -38,13 +47,15 @@ PLANTS = {
                     "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
     # [TIME], item 3
     "join-late": ("wire", "the second MSRP frame 30 ms later, the Domain's second New",
-                  "followed at ms 230, past JoinTime + the MRP service bound (218 ms"),
-    "join-late-in-t-svc": ("wire", "the second MSRP frame 20 ms later: inside JoinTime + T_svc, past the MRP bound",
-                           "followed at ms 220, past JoinTime + the MRP service bound (218 ms"),
+                  f"followed at ms 230, past JoinTime + T_svc ({FOLLOW_MS} ms"),
+    "join-late-past-t-svc": ("wire", f"the second MSRP frame and the adapter's record of it {FOLLOW_MS + 1} ms after "
+                             "the first: 1 ms past JoinTime + T_svc",
+                             f"followed at ms 222, past JoinTime + T_svc ({FOLLOW_MS} ms"),
     "rate": ("wire", "the first MSRP frame sent again 1 and 2 ms after itself",
              "four transmit opportunities in"),
     "leave-all-missing": ("wire", "the first MSRP LeaveAll frame sent without its LeaveAll",
-                          "after the last LeaveAll (reset), outside 9782 to 15218 ms"),
+                          f"after the last LeaveAll (reset), outside {LEAVE_ALL_BOUNDS_MS[0]} to "
+                          f"{LEAVE_ALL_BOUNDS_MS[1]} ms"),
     "bench-overrun": ("wire", "a modeled millisecond of 1,200 us of RTL time",
                       "[BENCH] a modeled millisecond took 1200.000 us of RTL time"),
     "timer-layout": ("wire", "the bench's report of a Join timer arm outside its participant's state",
@@ -70,6 +81,17 @@ PLANTS = {
     "stream-without-licence": ("licence", "a stream frame at ms 100", "while no source holds its licence"),
 }
 WORDS = {name: words for name, (_, _, words) in PLANTS.items()}
+#: name -> (the scenario it plants, what it changes): 1 ms inside the bound its plant passes, graded clean
+WITHIN = {
+    "join-late-within-t-svc": ("wire", f"the second MSRP frame and its record {FOLLOW_MS - 1} ms after the first"),
+}
+#: each timing plant and control: (the MSRP frame its move is measured from: the first, or the first after the
+#: first LeaveAll frame; how many frames after it move; the ms the first of them then leaves after it; whether
+#: the Join timer that sent each moves with it, as a timer of another length, or its egress alone, as a late one)
+TIMING = {
+    "join-late-past-t-svc": ("first", 1, FOLLOW_MS + 1, False),
+    "join-late-within-t-svc": ("first", 1, FOLLOW_MS - 1, False),
+}
 
 
 def frames(doc: dict, proto: str) -> list[dict]:
@@ -103,6 +125,38 @@ def raw(messages: list[g.Message]) -> list[tuple[int, list[bytes]]]:
     return [(m.kind, [v.raw for v in m.vectors]) for m in messages]
 
 
+def leave_all(entry: dict) -> bool:
+    """Whether a MAC frame's MRPDU carries a LeaveAll."""
+    return any(v.leave_all for m in parse(entry)[1] for v in m.vectors)
+
+
+def move(doc: dict, entries: list[dict], shift: float, timer: bool) -> None:
+    """Move MAC frames by shift us with the adapter's record of each (the grade pairs them by position), and with
+    timer the Join timer's expiry and re-arm that sent each, as transmit opportunities that came then."""
+    mrpdus = [m for m in doc["mac"] if m["hex"][24:28] in ("22ea", "88f5")]
+    records = [r for r in doc["lib"] if r["rc"] == 0]
+    moved = list(entries)
+    for entry in entries:
+        moved.append(records[next(k for k, m in enumerate(mrpdus) if m is entry)])
+        if timer:
+            joins = [t for t in doc["timers"] if t["proto"] == "MSRP" and t["kind"] == "join"]
+            expiry = max((t for t in joins if t["event"] == "expire" and t["us"] <= entry["us"]), key=lambda t: t["us"])
+            moved += [t for t in joins if expiry["us"] <= t["us"] <= entry["us"]]
+    for item in moved:
+        was = item["ms"]
+        item["us"] += shift
+        item["ms"] = int(item["us"] // 1000)
+        if "last_ms" in item:
+            item["last_ms"] += item["ms"] - was
+
+
+def plant_timing(name: str, msrp: list[dict], doc: dict) -> None:
+    """A TIMING plant or control: frames after an MSRP frame moved so the first leaves the ms named after it."""
+    start, count, ms, timer = TIMING[name]
+    k = 0 if start == "first" else next(j for j, m in enumerate(msrp) if leave_all(m)) + 1
+    move(doc, msrp[k + 1:k + 1 + count], msrp[k]["us"] + ms * 1000.0 - msrp[k + 1]["us"], timer)
+
+
 def first_queued(doc: dict) -> int:
     """The index in doc["mac"] of the first MRPDU that left at or after the hold's end."""
     end = doc["holds"][0][1]
@@ -111,13 +165,15 @@ def first_queued(doc: dict) -> int:
 
 def plant(name: str, doc: dict) -> None:
     """Change the capture as the defect named would have, in place."""
-    scenario = PLANTS[name][0]
+    scenario = (PLANTS.get(name) or WITHIN.get(name) or ("",))[0]
     if doc["scenario"] != scenario:
         raise SystemExit(f"srptx_plants: {name} plants the {scenario} capture, not the {doc['scenario']} one")
     msrp = frames(doc, "MSRP")
     first = msrp[0]
     header, messages = parse(first)
-    if name == "malformed-endmark":
+    if name in TIMING:
+        plant_timing(name, msrp, doc)
+    elif name == "malformed-endmark":
         data = bytearray(bytes.fromhex(first["hex"]))
         end = 14 + 5 + int.from_bytes(data[17:19], "big")
         data[end - 1] = 1
@@ -143,10 +199,9 @@ def plant(name: str, doc: dict) -> None:
         target["hex"] = encode(header, [m for m in msgs if m[1]])
     elif name == "zero-source":
         first["hex"] = first["hex"][:12] + "0" * 12 + first["hex"][24:]
-    elif name in ("join-late", "join-late-in-t-svc"):
-        shift = 30 if name == "join-late" else 20
-        msrp[1]["ms"] += shift
-        msrp[1]["us"] += shift * 1000.0
+    elif name == "join-late":
+        msrp[1]["ms"] += 30
+        msrp[1]["us"] += 30 * 1000.0
     elif name == "bench-overrun":
         doc["intra_ms_max_us"] = 1200.0
     elif name == "timer-layout":
@@ -195,9 +250,18 @@ def plant(name: str, doc: dict) -> None:
         raise SystemExit(f"srptx_plants: no plant named {name}")
 
 
+def planted_findings(out: Path, docs: dict, name: str, scenario: str) -> list[str]:
+    """The grade's findings on a copy of scenario's capture with name planted, written beside it."""
+    doc = copy.deepcopy(docs[scenario])
+    plant(name, doc)
+    planted = out / f"{scenario}-{name}.json"
+    planted.write_text(json.dumps(doc) + "\n")
+    return g.grade(g.load(planted))[0]
+
+
 def main() -> int:
     """Every plant against the unplanted captures in one directory: each must be refused by its words, which no
-    finding of its unplanted capture holds."""
+    finding of its unplanted capture holds; and every control must grade clean."""
     if len(sys.argv) != 2:
         print("usage: srptx_plants.py DIR", file=sys.stderr)
         return 2
@@ -206,19 +270,23 @@ def main() -> int:
     clean = {name: g.grade(g.load(out / f"{name}.json"))[0] for name in docs}
     escaped = 0
     for name, (scenario, what, words) in PLANTS.items():
-        doc = copy.deepcopy(docs[scenario])
-        plant(name, doc)
-        planted = out / f"{scenario}-{name}.json"
-        planted.write_text(json.dumps(doc) + "\n")
-        found = g.grade(g.load(planted))[0]
-        caught = [f for f in found if words in f]
+        caught = [f for f in planted_findings(out, docs, name, scenario) if words in f]
         if caught and not any(words in f for f in clean[scenario]):
             print(f"ok   {name} ({what}): {caught[0]}")
         else:
             print(f"FAIL {name} ({what}): escaped; wanted {words!r}")
             escaped += 1
-    print(f"srptx plants: {len(PLANTS) - escaped} of {len(PLANTS)} refused")
-    return 1 if escaped else 0
+    refused = 0
+    for name, (scenario, what) in WITHIN.items():
+        found = planted_findings(out, docs, name, scenario)
+        if found:
+            print(f"FAIL {name} ({what}): inside the bound and refused: {found[0]}")
+            refused += 1
+        else:
+            print(f"ok   {name} ({what}): no finding")
+    print(f"srptx plants: {len(PLANTS) - escaped} of {len(PLANTS)} refused; {len(WITHIN) - refused} of {len(WITHIN)} "
+          "controls inside their bound clean")
+    return 1 if escaped or refused else 0
 
 
 if __name__ == "__main__":

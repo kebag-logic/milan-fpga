@@ -21,6 +21,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import srptx_grade as g
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
@@ -48,11 +50,11 @@ ARMS = (
      "wire", 3000, "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
     ("a Join timer of 23 centiseconds", MRP,
      "    shlan_timer_arm(&ps->join_timer, ps->join_cs);", "    shlan_timer_arm(&ps->join_timer, ps->join_cs + 3u);",
-     "wire", 3000, "past JoinTime + the MRP service bound (218 ms"),
+     "wire", 3000, f"past JoinTime + T_svc ({g.JOIN_FOLLOW_MS} ms"),
     ("a LeaveAll drawn past 1.5 x LeaveAllTime", MRP,
      "    return ps->leaveall_cs + 1u + ps->random % (ps->leaveall_cs / 2u - 1u);",
      "    return ps->leaveall_cs * 3u / 2u + 30u;",
-     "wire", 40000, "outside 9782 to 15218 ms"),
+     "wire", 40000, f"outside {g.LEAVE_ALL_BOUNDS_MS[0]} to {g.LEAVE_ALL_BOUNDS_MS[1]} ms"),
     ("a withdrawal in LV that restarts LeaveTime (#608)", MRP,
      "        _RX,                                /* LV: -x-                  */",
      "        _RE(REG_IND_NONE, REG_TIMER_START, MRP_REG_STATE_LV),",
