@@ -1377,6 +1377,10 @@ def add_milan_datapath(host: Module, platform: object,
         # (CtrlMailbox); none exists in an all-fabric build
         host.ctl = {name: Signal(width, name=name) for name, width, _out in CTRL_SPLIT_PORTS}
         ports.update({f"{'o' if out else 'i'}_{name}": host.ctl[name] for name, _w, out in CTRL_SPLIT_PORTS})
+        # the firmware's AECP REBOOT request, already in `milan_cd`: the reset
+        # port's CSR crossed by add_ctrl_reboot's MultiReg (#871)
+        host.reboot_req = Signal(name="ctrl_reboot_req_dp")
+        ports["i_i_reboot_req"] = host.reboot_req
         for f in _CTRL_SPLIT_DATAPATH_SOURCES:
             platform.add_source(str(base / f))
     host.specials += Instance("milan_datapath", **dp_params, **ports)
@@ -3164,9 +3168,35 @@ class CtrlMailbox(LiteXModule):
             **mbx, **dps)
 
 
+class CtrlReboot(LiteXModule):
+    """The split placement's AECP REBOOT reset port (#871): one bit the firmware sets once its
+    REBOOT's frames have left (sw/firmware/ctrl/plat/ctrl_plat.h).
+
+    It is the request the processor's reboot_req_o makes in the all-fabric
+    placement: a level, held until the configuration reload resets it.
+    KL_reboot_ctrl takes it at reboot_req_i and runs #787's reset unchanged:
+    the drain, the egress wait, the PHY hold and IPROG
+    (docs/design/REBOOT_RESET.md). Any cycle it reads 1 starts that reset,
+    so a later write of 0 cancels nothing. No mailbox register carries it, so
+    the contract is unchanged (docs/design/MAILBOX_SPLIT.md).
+    """
+
+    def __init__(self) -> None:
+        self.req = CSRStorage(1, name="req", description="write 1: reset the end station as an AECP REBOOT "
+                                                        "(IEEE 1722.1-2021 7.4.43); held until the reload")
+
+
+def add_ctrl_reboot(soc: SoCCore) -> Signal:
+    """Add the REBOOT reset port's CSR bank, pinned below the mailbox's (a new bank must not move
+    an old one); return its level, in `sys`."""
+    soc.csr.add("ctrl_reboot", n=soc.csr.n_locs - 3)
+    soc.ctrl_reboot = CtrlReboot()
+    return soc.ctrl_reboot.req.storage
+
+
 def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: object = None) -> None:
-    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt, and with
-    a split datapath `dp` the crossing to its ctl ports."""
+    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt, the REBOOT
+    reset port, and with a split datapath `dp` the crossing to its ctl ports and its REBOOT request."""
     for f in _CTRL_MAILBOX_SOURCES + (_CTRL_SPLIT_MAILBOX_SOURCES if dp is not None else []):
         platform.add_source(str(REPO_ROOT / f))
     # A NEW CSR BANK MUST NOT MOVE AN OLD ONE (the ppmem note above): pinned
@@ -3180,6 +3210,10 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: obje
         soc.irq.add("ctrl_mbx", use_loc_if_exists=True)
     else:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
+    # the REBOOT request into the datapath's clock, as the PHY hold crosses out of it (#871, #787)
+    reboot = add_ctrl_reboot(soc)
+    if dp is not None:
+        soc.specials += MultiReg(reboot, dp.reboot_req, odomain=dp.milan_cd)
 
 
 # ---- #640 M8a: the split placement's control-firmware memory -------------------------------------

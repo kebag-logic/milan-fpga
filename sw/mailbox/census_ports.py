@@ -56,16 +56,17 @@ shape, and each must be a net of the map writer (``amr_``). ACCEPTANCE ITEM
 OF THE PLACEMENT SWITCH: its split elaboration drops this exclusion, and
 the census passes without it.
 
-THE REBOOT EXCLUSION, ALSO OWED TO THE PLACEMENT SWITCH (#665, #787).
+THE REBOOT EXCLUSION (#665, #787, #871).
 The processor's AECP REBOOT request (reboot_req_o, #787) drives
 KL_reboot_ctrl, which stays in the datapath and runs the drain, the egress
 wait, the PHY hold and the configuration reload. In the split the
-firmware's AECP owner takes REBOOT, and the split has no carrier for its
-request yet (#665). A G cone therefore ends at the one cell input
-``REBOOT_TERMINAL`` names, reboot_req_i of the cell reboot_ctrl, and at no
-other input of that cell; a second consumer of the same net is still the
-wire. ACCEPTANCE ITEM OF THE PLACEMENT SWITCH: it gives REBOOT its carrier,
-drops this exclusion, and the census passes without it.
+firmware's AECP owner takes REBOOT, and its request reaches reboot_req_i
+from the platform's reset port, a CSR of the split SoC, not through the
+mailbox (#871; census_split.G_CARRIED holds that net to it). So
+reboot_req_o stays G. In the all-fabric datapath its cone ends at the one
+cell input ``REBOOT_TERMINAL`` names, reboot_req_i of the cell
+reboot_ctrl, and at no other input of that cell; a second consumer of the
+same net is still the wire.
 
 THE RULES are census_rules.py's ``port-*`` and ``g-*`` entries, each
 enforced only where ``live()`` names it, each with a plant in
