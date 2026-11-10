@@ -3,7 +3,8 @@
 Status: **ruled; the record space and framing implemented for the split placement** (#823).
 Decisions 1 to 7 were ruled as recommended ([round 2](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730773797)).
 The [round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6730985093) scopes them to the split placement.
-The append-only save path (decisions 3, 4, 5 and 7) is not built yet: it follows this format.
+Section 4, the append-only save path (decisions 3, 4, 5 and 7), is designed here and built under #876.
+Until then the split store saves by the whole-image commit (section 3).
 
 **The format is the split placement's.**
 The 32x32 shape is split-only, and the processor goes away in Mark II.
@@ -26,7 +27,7 @@ Every figure on this page is recomputed from the tree:
 - **[1. The shapes and the two name models](#1-the-shapes-and-the-two-name-models)** -- The four sizing points as the builder builds them, and why #823's name count and the census's differ.
 - **[2. The record space](#2-the-record-space)** -- The derived allocation: every block, its first and last id and its count rule, the id width, and the packed alternative.
 - **[3. The image, the slot and the window](#3-the-image-the-slot-and-the-window)** -- The byte arithmetic at each point, the derived slot and journal, the ppmem window and the F1 stage.
-- **[4. The save path and its 0.5 s bound](#4-the-save-path-and-its-05-s-bound)** -- The append-only journal and its rules, the worst case from datasheet maxima, the assumptions it needs and the deadlines.
+- **[4. The save path and its 0.5 s bound](#4-the-save-path-and-its-05-s-bound)** -- The append-only journal, designed here and built under #876: its rules, the worst case from datasheet maxima, the assumptions it needs and the deadlines.
 - **[5. Compatibility and the VERSION chain](#5-compatibility-and-the-version-chain)** -- Refusing today's journal with a recorded reason, the import alternative, and the container, layout and VERSION steps.
 - **[6. Every layer that carries record_id](#6-every-layer-that-carries-record_id)** -- Every layer by file and the line's own text, what it holds today and its change, each checked by the gate.
 - **[7. Area and timing risk, ESTIMATE](#7-area-and-timing-risk-estimate)** -- The fabric backend's change at each point, labelled as an estimate for round 2 to measure.
@@ -204,7 +205,7 @@ The new journal sits directly below today's, as `journal_klj3` in `FLASHBOOT_RES
 That is the flash map's one source, so every build reserves it.
 Today's <!-- fig:old_journal_kib -->128<!-- /fig --> KiB journal is never written by the split store, so an all-fabric image still finds its own after a rollback.
 
-**The journal is placed; the append path fills its log.**
+**The journal is placed; the append path fills its log, under #876.**
 The F1 store's two slots are the journal's halves.
 Its whole-image commit is unchanged: it erases the blocks its container spans, from the slot's first, then programs and verifies.
 At the shipped shapes that is one block, as today.
@@ -235,6 +236,10 @@ The append needs only one page and one record, <!-- fig:t32_f1_stage_new -->2,37
 Compaction streams record by record from the owners, so it needs no more.
 
 ## 4. The save path and its 0.5 s bound
+
+**This section is designed here and built under #876.**
+Its rules, its worst case and its deadlines are the ruled design.
+The split store at this format still saves by the whole-image commit.
 
 **The journal.** A slot is a log of segments, each starting on a page.
 
@@ -322,8 +327,9 @@ The bound holds under three stated assumptions:
   The part has erase suspend (N25Q128 datasheet, section 9.1.20 and Table 17).
   Its suspend latency is <!-- fig:susp_typ_us -->15<!-- /fig --> us **typical, with no maximum given**: the bound's one typical term, as ruled (#823).
   The split's worst save is then <!-- fig:split_typ_ms -->304.72<!-- /fig --> ms.
-  The room is <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms, so a suspend <!-- fig:susp_margin -->6,352<!-- /fig --> times its typical value would still fit.
-  The append path's writer times every suspend and reports a slow one.
+  The room, taken from the all-fabric worst case (<!-- fig:fabric_ms -->404.71<!-- /fig --> ms) and so conservative for the split, is <!-- fig:susp_allow_ms -->95.29<!-- /fig --> ms.
+  So a suspend <!-- fig:susp_margin -->6,352<!-- /fig --> times its typical value would still fit.
+  The writer that #876 builds times every suspend and reports a slow one.
 
 No design meets the bound for an arbitrary burst.
 At tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms the flash programs one page per <!-- fig:t_pp_ms -->5<!-- /fig --> ms, so a whole 32x32 rewrite takes seconds.
@@ -463,7 +469,9 @@ Its 16 bound talkers follow the BINDING block today, and the census puts its tab
 That placement keeps KLJ2, so none of it is built; the section stays as the ruling's record.
 In the split, decision 6's open bits are the F1 store's: two word arrays of 36 words at layout 3, each with a count of its bits set.
 The store asks the count, not the words, whether any record is open.
-Area applies to the split once the append path lands, under #818's gate.
+Area under #818's gate is waived for this format, which changes no HDL, gitlink or generated SoC RTL ([round 6 ruling](https://github.com/kebag-logic/milan-fpga/pull/863#issuecomment-6767385787)).
+Its area evidence is [the split memory plan](SPLIT_CONTROL_MEMORY.md#5-fit), 57.5 RAMB36 at the ledgered point.
+The append path's memory is #876's.
 
 - **At 1x1 and 8x8 the change is small.**
   The ownership vector keeps one bit per record: <!-- fig:p1_open_ff -->54<!-- /fig --> and <!-- fig:p8_open_ff -->164<!-- /fig -->, as today.
@@ -501,15 +509,15 @@ Each plant is a mutant of the implementation that its test must catch.
 | T4 | Every other block | each block's first id read from the declaration; the reference gate's ledger at every shape | the last name left out of the reference's inventory | done, split |
 | T5 | Capacity | builder gate 39: the 32x32 TDM8 overlay's 907 names accepted, one more refused; the all-fabric header still refuses it | capacity 906 and 908; the all-fabric bound read from the split's | done, split |
 | T6 | Old journal on boot | F1 `klj2_journal_refused`, `klj2_in_slot_refused`, `klj2_journal_unreadable`: blank, `VD_VER` recorded, today's journal unwritten; `legacy_other_format_not_recorded`, `own_refusal_kept_over_legacy`; `klj2_journal_at_its_flash_map_address`, today's slots from the flash map | `klj2_not_recognised`, `klj2_reinterpreted`, `legacy_not_read`, `legacy_reason_dropped`, `legacy_any_nonblank_header`, `ver_overrides_own_refusal`, `legacy_b_wrong_place` | done, split |
-| T7 | Append order | a delta over the base: the last value wins | segments applied in reverse | with the append path |
-| T8 | Torn append | a cut at every page restores the last closing segment | a segment accepted without its CRC | with the append path |
-| T9 | Torn compaction | a cut at every page boots the old slot, losing nothing | authority moved before the new trailer verifies | with the append path |
-| T10 | Erase in progress | a save during the background erase suspends it | the save waits for the erase | with the append path |
-| T11 | Save bound | model time, change to verified, at most 500 ms at 32x32 TDM8 | a 1,000 ms firmware window | with the append path |
-| T12 | Reserve exhausted | the save waits, is published pending and is not lost | the save dropped | with the append path |
-| T13 | Commit deadline | at least twice the worst append at every shape | a 300 ms deadline | with the append path |
+| T7 | Append order | a delta over the base: the last value wins | segments applied in reverse | built under #876 |
+| T8 | Torn append | a cut at every page restores the last closing segment | a segment accepted without its CRC | built under #876 |
+| T9 | Torn compaction | a cut at every page boots the old slot, losing nothing | authority moved before the new trailer verifies | built under #876 |
+| T10 | Erase in progress | a save during the background erase suspends it | the save waits for the erase | built under #876 |
+| T11 | Save bound | model time, change to verified, at most 500 ms at 32x32 TDM8 | a 1,000 ms firmware window | built under #876 |
+| T12 | Reserve exhausted | the save waits, is published pending and is not lost | the save dropped | built under #876 |
+| T13 | Commit deadline | at least twice the worst append at every shape | a 300 ms deadline | built under #876 |
 | T14 | Payload cap | the F1 store sizes its payload buffer from the shape (`NVM_PAYLOAD_MAX`) | none: the 1,024 B `MAX_PAYLOAD_P` is the processor's | all-fabric unchanged |
-| T15 | Fit | the container within one slot, asserted at compile time; base and log | a two-block slot | with the append path |
+| T15 | Fit | the container within one slot, asserted at compile time; base and log | a two-block slot | built under #876 |
 | T16 | VERSION | the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, majors 2 and 4) | `no_version_check` | done, split; the gateware VERSION not moved, as ruled (#823) |
 | T17 | Map entry widths | a count past the codec's table does not compile: 256 entries on an input port, 65,536 on an output port | either width assert removed | done, split |
 <!-- nvm-format: end tests -->
@@ -523,11 +531,11 @@ The seven decisions were ruled as recommended, and the round 3 ruling scopes the
 
 - **1. The record space:** the derived allocation of section 2, 11 bits in a 16-bit field. Implemented.
 - **2. Compatibility:** refuse KLJ2 with `VD_VER`, boot blank, record the reason. Implemented.
-- **3. The slot:** <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's. The journal is placed; its log comes with the append path.
-- **4. The windows:** <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows. With the append path, for the split's firmware window.
-- **5. The erase:** background erase with suspend, graded at the typical latency (A3). With the append path.
+- **3. The slot:** <!-- fig:sectors -->5<!-- /fig --> erase blocks, a <!-- fig:journal_kib -->640<!-- /fig --> KiB journal below today's. The journal is placed; its log is built under #876.
+- **4. The windows:** <!-- fig:w_prod_ms -->100<!-- /fig --> ms producer and <!-- fig:w_fw_ms -->150<!-- /fig --> ms firmware first-dirty windows. Built under #876, for the split's firmware window.
+- **5. The erase:** background erase with suspend, graded at the typical latency (A3). Built under #876.
 - **6. Ownership:** open bits with a count. Implemented in the split's store.
-- **7. The commit deadline:** <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append. With the append path.
+- **7. The commit deadline:** <!-- fig:commit_timeout_ms -->500<!-- /fig --> ms for an append. Built under #876.
 
 **The gateware VERSION: not moved, as ruled (#823)** (section 5).
 VERSION 3 lands with the default flip.

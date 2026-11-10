@@ -510,9 +510,9 @@ def block_limits(fmap: dict) -> str:
     return table(["Case", "Value", "Basis"], [[a, str(b), c] for a, b, c in rows], right=3)
 
 
-#: The state column: done in the split's store, or with the append path
-#: (decisions 3, 4, 5 and 7), which follows this format.
-DONE, APPEND = "done, split", "with the append path"
+#: The state column: done in the split's store, or built under #876, the
+#: append-only save path (decisions 3, 4, 5 and 7) that section 4 designs.
+DONE, APPEND = "done, split", "built under #876"
 
 TESTS = (
     ("NAME first id {name_first}",
