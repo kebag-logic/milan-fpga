@@ -1,0 +1,4 @@
+Started [systemd-run] /usr/bin/taskset -c 120-123 /usr/bin/python3 $MGMT/2026-09-21/run-recorded-gates.py $SCRATCH/sweep5/shard-2/spec.json.
+START 1 env PATH=$TOOLS/pinned-verilator-5.050:$TOOLS/sv2v-v0.0.12:$TOOLS2/a662/make43/bin:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR=$TOOLS/pinned-verilator-5.050/verilator TSN_GEN_ROOT=$MGMT/tools/tsn-gen-deca300c TMPDIR=$SCRATCH/tmp-665s15-a752d-sw5 MAKEFLAGS=-j4 --no-print-directory bash scripts/run_all_suites.sh $SCRATCH/sweep5/shard-2/logs --wait --shard 2/4
+END 1 0 5659.566
+milan-665s15-a752d-sw5-shard2.service: Consumed 3h 56min 12.376s CPU time over 1h 34min 19.639s wall clock time, 5.8G memory peak.

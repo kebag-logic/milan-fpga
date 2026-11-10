@@ -1,0 +1,17 @@
+# head 936e0a566867aa648fb48e772a26fec99e3619c9 workflow docs.yml job docs-gates-1 step gate_25_0: End-station builder gates, leg 0 of 2
+# clone $SCRATCH/gates-out/wf4b/docs__docs-gates-1/wt
+# venv $SCRATCH3/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+
+[notice] A new release of pip is available: 26.2.1 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$SCRATCH/gates-out/wf4b/docs__docs-gates-1/wt/sw/builder/test_builder.py", line 29696, in <module>
+    fn()
+    ~~^^
+  File "$SCRATCH/gates-out/wf4b/docs__docs-gates-1/wt/sw/builder/test_builder.py", line 5133, in test_baremetal_profile_contract
+    assert census_used["compiler"] == census_compilers[0], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted

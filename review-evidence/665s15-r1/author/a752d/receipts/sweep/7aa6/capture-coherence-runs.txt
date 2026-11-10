@@ -1,0 +1,7 @@
+# capture_coherence in sweep shard 2/4 at 7aa6ef0c: the first run (killed by its 2400 s wall clock) and the re-run; each log's birth and last write, its mutant verdicts and its last lines
+## first: 2026-11-09 12:19:41.638138129 +0100 -> 2026-11-09 12:59:46.290197376 +0100, 30 'mutant caught' lines
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+make: *** [Makefile:143: mutants] Error 143
+## rerun: 2026-11-09 14:02:18.789289834 +0100 -> 2026-11-09 14:40:54.205346883 +0100, 32 'mutant caught' lines
+
+42 checks: 42 PASS, 0 FAIL

@@ -1,0 +1,82 @@
+000048b4 <transmit>:
+    48b4:	addi	sp,sp,-32
+    48b8:	sw	s0,24(sp)
+    48bc:	sw	s2,16(sp)
+    48c0:	sw	s3,12(sp)
+    48c4:	sw	s4,8(sp)
+    48c8:	sw	s5,4(sp)
+    48cc:	sw	s6,0(sp)
+    48d0:	mv	s0,a0
+    48d4:	sw	ra,28(sp)
+    48d8:	sw	s1,20(sp)
+    48dc:	mv	s4,a1
+    48e0:	mv	s3,a2
+    48e4:	mv	s2,a3
+    48e8:	mv	s5,a4
+    48ec:	jal	40dc <publish>
+    48f0:	lui	a5,0x2
+    48f4:	add	a5,s0,a5
+    48f8:	lw	s6,1344(a5) # 2540 <adp_poll+0x68>
+    48fc:	beqz	s6,4944 <transmit+0x90>
+    4900:	lui	a4,0x2
+    4904:	add	s1,s0,a4
+    4908:	lw	a5,1344(s1)
+    490c:	li	a3,7
+    4910:	li	s6,2
+    4914:	bgeu	a3,a5,495c <transmit+0xa8>
+    4918:	lw	ra,28(sp)
+    491c:	lw	s0,24(sp)
+    4920:	lw	s1,20(sp)
+    4924:	lw	s2,16(sp)
+    4928:	lw	s3,12(sp)
+    492c:	lw	s4,8(sp)
+    4930:	lw	s5,4(sp)
+    4934:	mv	a0,s6
+    4938:	lw	s6,0(sp)
+    493c:	addi	sp,sp,32
+    4940:	ret
+    4944:	mv	a2,s3
+    4948:	mv	a1,s4
+    494c:	mv	a0,s0
+    4950:	jal	47c8 <p_send>
+    4954:	beqz	a0,4900 <transmit+0x4c>
+    4958:	j	4918 <transmit+0x64>
+    495c:	lw	a3,1340(s1)
+    4960:	li	a2,70
+    4964:	mv	a1,s3
+    4968:	add	a5,a5,a3
+    496c:	andi	a5,a5,7
+    4970:	slli	a0,a5,0x2
+    4974:	add	a0,a0,a5
+    4978:	slli	a0,a0,0x4
+    497c:	add	a5,s0,a0
+    4980:	add	a5,a4,a5
+    4984:	sb	s4,700(a5)
+    4988:	sb	s5,701(a5)
+    498c:	sw	s2,704(a5)
+    4990:	lui	a5,0x2
+    4994:	addi	a5,a5,708 # 22c4 <adp_gm_change+0x38>
+    4998:	add	a0,a0,a5
+    499c:	add	a0,s0,a0
+    49a0:	jal	12e78 <memcpy>
+    49a4:	lw	a5,1344(s1)
+    49a8:	lw	a3,56(s0)
+    49ac:	li	a4,0
+    49b0:	addi	a5,a5,1
+    49b4:	sw	a5,1344(s1)
+    49b8:	lw	a5,1384(s1)
+    49bc:	addi	s0,s0,288
+    49c0:	addi	a5,a5,1
+    49c4:	sw	a5,1384(s1)
+    49c8:	bne	a3,a4,49d4 <transmit+0x120>
+    49cc:	li	s6,1
+    49d0:	j	4918 <transmit+0x64>
+    49d4:	lbu	a2,0(s0)
+    49d8:	srl	a5,s2,a4
+    49dc:	andi	a5,a5,1
+    49e0:	add	a5,a5,a2
+    49e4:	sb	a5,0(s0)
+    49e8:	addi	a4,a4,1 # 2001 <advertise+0x5d>
+    49ec:	addi	s0,s0,256
+    49f0:	j	49c8 <transmit+0x114>
+

@@ -1,0 +1,108 @@
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/acmp-notk.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/adp-advertise.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/maap.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/acmp-noresp.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/srp.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/backlog.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/backlog-adp.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/backlog-adp-refill.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/backlog-owed.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/acmp-disc.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/adp-link.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/adp-gm.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/adp-discover.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/control.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/aecp-fanout.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/acmp-cmd.txt -
+COMMAND $SCRATCH/runs/r4/M32-build/native/Vsim $SCRATCH/runs/r4/M32-results/aecp.txt -
+REFUSED acmp-notk: the simulation did not complete: ['FAIL: reply: no frame the channel sent matches 15:00']
+REFUSED TX record header at 120 of channel 1 was never written
+REFUSED acmp-cmd: the simulation did not complete: ['FAIL: reply: no frame the channel sent matches 15:00']
+BUDGET acmp.tmr_no_resp1.if0: 23.797 ms over T_svc 10 ms
+BUDGET acmp.tmr_no_resp1.if1: 33.006 ms over T_svc 10 ms
+BUDGET srp.startup.if0: 32.314 ms over T_svc 10 ms
+BUDGET srp.startup.if1: 42.432 ms over T_svc 10 ms
+BUDGET srp.listener_ready.if0: 16.335 ms over T_svc 10 ms
+BUDGET srp.malformed.if0: 12.155 ms over T_svc 10 ms
+BUDGET srp.listener_ready.if1: 10.161 ms over T_svc 10 ms
+BUDGET backlog.event.if0: 41.864 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 174.034 ms over T_svc 10 ms
+BUDGET backlog.service.adp.first.if0: 41.352 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if1: 150.178 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.first.if0: 41.310 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 186.465 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.first.if0: 41.346 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if1: 285.927 ms over T_svc 10 ms
+BUDGET backlog.service.maap.first.if0: 41.335 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 150.163 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 265.742 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if1: 405.596 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 86.207 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.first.if0: 27.262 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 109.730 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.first.if0: 27.271 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 184.310 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.first.if0: 27.307 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if1: 488.605 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.first.if0: 27.297 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 109.767 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 2086.243 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if1: never released, at least 2086.223 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 122.550 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 27.262 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 144.809 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 27.271 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 184.765 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 27.307 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.last.if1: 489.054 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 27.297 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 106.137 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: never released, at least 2162.535 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.last.if1: never released, at least 2162.515 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 72.491 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: 88.916 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: 92.934 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: 107.141 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: 111.158 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 21.300 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 87.241 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 21.258 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 123.650 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 21.293 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 249.054 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 21.283 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 87.226 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 138.692 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 421.288 ms over T_svc 10 ms
+BUDGET adp.link_down.if0: 17.677 ms over T_svc 10 ms
+BUDGET adp.link_down.if1: 35.699 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 17.594 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_clock_source.if0: 10.913 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_on.if0: 10.196 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_off.if0: 42.779 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_sampling_rate.if0: 13.957 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if0: 10.169 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if0: 14.871 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 17.043 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_clock_source.if1: 10.923 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_on.if1: 10.189 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_off.if1: 14.363 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if1: 14.862 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if1: 14.353 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t1.i0.c0.if0: 42.501 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t26.i0.c0.if0: 38.236 ms over T_svc 10 ms
+BUDGET aecp.set_name.if0: 10.415 ms over T_svc 10 ms
+BUDGET aecp.unlock_entity.if0: 28.090 ms over T_svc 10 ms
+BUDGET aecp.mvu_get_milan_info.if1: 36.718 ms over T_svc 10 ms
+BUDGET aecp.set_name.if1: 10.446 ms over T_svc 10 ms
+OWED commit: a save group, owed to #823; this point is built without saved state
+OWED valid: a save group, owed to #823; this point is built without saved state
+OWED absent: a save group, owed to #823; this point is built without saved state
+OWED torn: a save group, owed to #823; this point is built without saved state
+OWED version: a save group, owed to #823; this point is built without saved state
+OWED guard: a save group, owed to #823; this point is built without saved state
+OWED reorder-settle: a save group, owed to #823; this point is built without saved state
+OWED reorder-bindings: a save group, owed to #823; this point is built without saved state
+OWED guard-removed: a save group, owed to #823; this point is built without saved state
+OWED slow-step: a save group, owed to #823; this point is built without saved state
+14 groups graded, 3 refusals, 77 T_svc misses (77 of 158 probe instances, 43 of 105 paths), 10 save groups owed to #823

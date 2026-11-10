@@ -1,0 +1,27 @@
+COMMAND $SCRATCH/runs/wt/H32-build/native/Vsim $SCRATCH/runs/wt/owed32-results/backlog-owed.txt -
+BUDGET backlog.owed.if0: 72.491 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: 88.916 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: 92.934 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: 107.141 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: 111.158 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 21.300 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 87.241 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 21.258 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 123.650 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 21.293 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 249.054 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 21.283 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 87.226 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 138.692 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 421.288 ms over T_svc 10 ms
+OWED commit: a save group, owed to #823; this point is built without saved state
+OWED valid: a save group, owed to #823; this point is built without saved state
+OWED absent: a save group, owed to #823; this point is built without saved state
+OWED torn: a save group, owed to #823; this point is built without saved state
+OWED version: a save group, owed to #823; this point is built without saved state
+OWED guard: a save group, owed to #823; this point is built without saved state
+OWED reorder-settle: a save group, owed to #823; this point is built without saved state
+OWED reorder-bindings: a save group, owed to #823; this point is built without saved state
+OWED guard-removed: a save group, owed to #823; this point is built without saved state
+OWED slow-step: a save group, owed to #823; this point is built without saved state
+1 groups graded, 0 refusals, 15 T_svc misses (15 of 15 probe instances, 12 of 12 paths), 10 save groups owed to #823
