@@ -672,7 +672,7 @@ a record larger than a delta segment.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one. There are 182 defects and eight controls of the
+by at least one. There are 183 defects and eight controls of the
 compile-time refusals: the NAME block, the two map widths, the input table's
 limit one entry early, the doctored macro outside the host test, and the
 three fit asserts. They are graded at the 1x1 shape, with three exceptions.

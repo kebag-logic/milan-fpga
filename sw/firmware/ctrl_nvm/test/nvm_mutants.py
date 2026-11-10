@@ -486,6 +486,8 @@ MUTANTS = (
     _m("delta_magic_unchecked", STORE,
        "\t\tif ((((uint32_t)hdr[0] << 8) | hdr[1]) != NVM_REC_MAGIC || hdr[2] != NVM3_LAYOUT",
        "\t\tif (hdr[2] != NVM3_LAYOUT", "delta_refusals"),
+    _m("delta_crc16_unchecked", STORE,
+       "\t\tif (c16 != ((((uint32_t)hdr[8]) << 8) | hdr[9]))\n\t\t\treturn NVM_VD_REC;\n", "", "delta_refusals"),
     _m("delta_layout_unchecked", STORE, " != NVM_REC_MAGIC || hdr[2] != NVM3_LAYOUT || hdr[3] != 0u ||",
        " != NVM_REC_MAGIC || hdr[3] != 0u ||", "delta_refusals"),
     _m("delta_reserved_unchecked", STORE, " || hdr[2] != NVM3_LAYOUT || hdr[3] != 0u ||\n",

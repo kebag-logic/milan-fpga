@@ -241,6 +241,7 @@ def delta_cases(b: Bench) -> list[tuple[str, bytes, int]]:
         ("IMG_LEN short of its last record", body([fr], ln=KLJ2_HDR + len(fr))),
         ("the pad short of the trailer", body([fr], extra=4, early=True)),
         ("a record's magic", body([reframed(b"\x17\x23" + fr[2:8], pay)])),
+        ("a record's crc16", body([fr[:8] + bytes([fr[8] ^ 0x01]) + fr[9:]])),
         ("a record's layout_version", body([reframed(fr[:2] + bytes([LAYOUT.layout + 1]) + fr[3:8], pay)])),
         ("a record's reserved byte set", body([reframed(fr[:3] + b"\x01" + fr[4:8], pay)])),
         ("two records in descending id", body([fr, fr_first])),
