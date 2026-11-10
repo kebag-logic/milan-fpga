@@ -332,10 +332,14 @@ Its report (`$OUT/size.json`) holds the plan and the five largest `.bss` objects
 Map the regions out of context with the LiteX interpreter and Vivado:
 
 ```sh
-python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf"
+python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf" --ledgered s8i2=platform-8x8-two-interfaces
 cd "$MAP"
 vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
 ```
+
+The mapper refuses an image past 56 RAMB36, as the SoC build does.
+`--ledgered TAG=POINT` plans the image named by its tag at that ledgered point's tiles, so the ledger can map the target platform's largest point (#665 S9).
+It is refused on any other image, and on a tag that names no image.
 
 Build a split SoC by adding `--ctrl-mailbox --ctrl-firmware "$OUT/ctrl_app.elf"` to a shipping export.
 
