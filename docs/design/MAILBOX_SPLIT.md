@@ -1583,20 +1583,24 @@ image is identified another way (#665, decision D2):
 [`check_image_identity.py`](../../sw/litex/check_image_identity.py) is the
 identity gate. It reads one image's outputs and refuses, by kind, a manifest,
 ident, firmware hash, bitstream or placement that disagrees with what the image
-holds. It also refuses an all-fabric image that carries any mailbox. A split
-build runs it on the image it has just written and fails on any finding:
+holds. It also refuses an all-fabric image that carries any mailbox, and a
+split image that carries DDR3, which decision D4 removes from the split
+([control memory](SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
+A split build runs it on the image it has just written and fails on any
+finding:
 
 ```sh
 python3 sw/litex/check_image_identity.py "$IMAGE"
 ```
 
 Builder gate 23p exports the shipping 1x1 config split and all-fabric through
-`milan_soc.main()`. Both images pass. Eleven planted images each fail by their
-kind:
+`milan_soc.main()`. Both images pass, and `--ctrl-mailbox --with-dram` is
+refused. Twelve planted images each fail by their kind:
 
 - from the SoC: a split ident that names no placement, a manifest that
   records another VERSION or another mailbox minor, a split datapath without
-  `CTRL_SPLIT_P`, and an all-fabric image with the mailbox;
+  `CTRL_SPLIT_P`, a split image with DDR3 left in, and an all-fabric image
+  with the mailbox;
 - from the image's files: the firmware relinked after the build, a manifest
   forged to the relinked firmware, the manifest removed, a bitstream the
   manifest does not bind, another bitstream than the bound one, and a renamed

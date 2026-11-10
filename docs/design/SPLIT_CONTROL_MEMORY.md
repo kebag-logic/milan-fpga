@@ -14,7 +14,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
 - **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the two ledgered images' named overrides, and the three planted controls.
-- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
+- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and why it builds no DDR3 and no processor memory bridge.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points for the size fixture and the target platform, the platform's added bytes by part, mapped out of context, and the ledger rows, with the largest point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
@@ -28,7 +28,8 @@ No BIOS ROM or BIOS SRAM is built there.
 
 Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
 `add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
-Every other region is unchanged: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+The other regions are `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`, as in the all-fabric image.
+The split image has no `main_ram`: it builds no DDR3 and no integrated main RAM (decision D4, [section 4](#4-boot-console-and-diagnostics)).
 
 Each region spans the whole 224 KiB budget.
 The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
@@ -152,19 +153,21 @@ The split image loses:
 - the shipping firmware's UART commands, because `libmilan_baremetal` is not linked.
 
 It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
-It also keeps the `ppmem` observer and every Milan CSR.
+It also keeps every Milan CSR.
 Any console in the split image is the control firmware's.
 The [target platform](../../sw/firmware/ctrl/plat/README.md#the-console) brings one, under decision D6 (#665): `milan_status` and `milan_gettime` in `milan_baremetal.c`'s lines, and one boot banner.
 It also writes the CSR initialisation `milan_baremetal.c` writes for the same shape ([the CSR window](../../sw/firmware/ctrl/plat/README.md#the-csr-window)).
 
-The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
-Only the `rom` and `sram` region sizes differ.
+The split builds no DDR3 (#665 S9, decision D4).
+The placement switch removed `KL_pp_shadow` from the split datapath, so no processor memory master remains.
+`--ctrl-mailbox` therefore builds neither DDR3 nor integrated main RAM, nor the three processor memory bridges and their `ppmem` observer.
+The bridges' window still binds the datapath's `PP_DESC_BASE_P` and `PP_RESP_BASE_P`, which the split datapath does not read, and places the build's descriptor image.
+`--full` builds the MAC and the flash there, and `--ctrl-mailbox --with-dram` is refused.
+The all-fabric build is unchanged: its 21 export files are byte for byte the base's, apart from the run's timestamps, the checkout and output paths, and LiteX's comment-only hierarchy tree.
 
-DDR3 stays instantiated under `--ctrl-mailbox` at this base.
-`KL_pp_shadow` is still instantiated, and its three processor memory masters reach the window in `main_ram`.
-With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
-Those masters are therefore refused safely, as before DDR3 training.
-The placement switch (#665) removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
+The CSR map loses the `ddrphy`, `sdram` and `ppmem` banks, so the banks LiteX allocates after `ddrphy` move down.
+The flash map the platform image links against is generated from the split export's `csr.csv` ([section 6](#6-reproduce)), so it follows them.
+The identity gate refuses a split image that carries a `main_ram` region, a `ddrphy` or `sdram` bank or `ddram` pads ([the split image's identity](MAILBOX_SPLIT.md#the-split-images-identity)).
 
 ## 5. Fit
 
@@ -357,7 +360,7 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
 | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
 | Data cache | none | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost is mostly byte-loop stores to `sram`, which the firmware removes first. |
 
-Every executable region is cacheable: `rom`, `sram`, the flash window and, while DDR3 is built, `main_ram`.
+Every executable region is cacheable: `rom`, `sram` and the flash window. The split builds no `main_ram`.
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.

@@ -23624,6 +23624,10 @@ IDENTITY_SOC_PLANTS = (
      "(contract.major, contract.minor)", "(contract.major, contract.minor + 1)", True),
     ("the split datapath built without CTRL_SPLIT_P", "placement", "add_milan_datapath",
      'dp_params["p_CTRL_SPLIT_P"] = 1', 'dp_params["p_CTRL_SPLIT_P"] = 0', True),
+    ("a split image with DDR3 left in", "ddr3", "MilanSoC",
+     '            if with_dram:\n                raise ValueError("--ctrl-mailbox builds no DDR3',
+     '            with_dram = True\n            if False:\n                raise ValueError("--ctrl-mailbox builds no DDR3',
+     True),
     ("an all-fabric image with the mailbox", "placement", "MilanSoC",
      "        if ctrl_mailbox:\n            add_ctrl_mailbox(self, platform, sys_clk_freq, "
      'dp=getattr(self, "milan", None))', "        add_ctrl_mailbox(self, platform, sys_clk_freq)", False),
@@ -23631,7 +23635,7 @@ IDENTITY_SOC_PLANTS = (
 
 
 def _image_export(python, argv, out, mutation=None):
-    """One milan_soc.main() export into out, through test_ctrl_memory.py's child: (rc, its error)."""
+    """One milan_soc.main() export into out, through test_ctrl_memory.py's child: (rc, its error and output)."""
     spec, result = out.with_suffix(".spec.json"), out.with_suffix(".result.json")
     spec.write_text(json.dumps({"argv": [*argv, "--output-dir", str(out), "--no-compile-software"],
                                 "result": str(result), "mutation": mutation}))
@@ -23639,7 +23643,7 @@ def _image_export(python, argv, out, mutation=None):
         subprocess.run([python, str(SOC_DIR / "test_ctrl_memory.py"), "--soc-child", str(spec)], cwd=SOC_DIR,
                        env=dict(os.environ, PYTHONHASHSEED="0"), stdout=log, stderr=subprocess.STDOUT, check=False)
     row = json.loads(result.read_text()) if result.exists() else {"rc": None, "error": "no result"}
-    return row["rc"], row.get("error") or row.get("refusal") or ""
+    return row["rc"], (row.get("error") or row.get("refusal") or "") + "\n" + out.with_suffix(".log").read_text()
 
 
 def _gate_cli(python, image, *extra):
@@ -23717,6 +23721,9 @@ def test_image_identity_gate() -> None:
                 bad.append(f"the good {placement} image: build rc {rc} {error}; gate {status}: {said.strip()}")
         if (good["all-fabric"] / check_image_identity.MANIFEST).exists():
             bad.append("the all-fabric build wrote a split image manifest")
+        rc, said = _image_export(python, [*split_argv, "--with-dram"], tmp / "with-dram")
+        if rc != 2 or "--ctrl-mailbox builds no DDR3" not in said:
+            bad.append(f"--ctrl-mailbox --with-dram was not refused by D4's words (rc {rc})")
         assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
         plants = []
         for label, kind, name, old, new, split in IDENTITY_SOC_PLANTS:

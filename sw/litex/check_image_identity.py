@@ -30,6 +30,8 @@ The gate reads only what the build wrote there, then refuses, by kind:
              or that carries no mailbox; an all-fabric image that carries any
              mailbox (a ctrl_mbx region or CSR bank, or a KL_mbx instance)
              or a split datapath
+  ddr3       a split image that carries DDR3 (a main_ram region, a ddrphy or
+             sdram CSR bank, or ddram pads): decision D4 builds none
 
     python3 sw/litex/check_image_identity.py IMAGE [--firmware ELF] [--bitstream BIT]
 
@@ -59,7 +61,7 @@ SCHEMA = 1
 #: The ident's last word in a split image; every other word is the all-fabric ident before the split.
 SPLIT_WORD = "split"
 #: Each kind of finding, in the order the module docstring gives them.
-KINDS = ("manifest", "ident", "firmware", "bitstream", "placement")
+KINDS = ("manifest", "ident", "firmware", "bitstream", "placement", "ddr3")
 MBX_VERSION = re.compile(r"localparam\s+int\s+unsigned\s+MBX_VERSION_(MAJOR|MINOR)_C\s*=\s*32'd(\d+)\s*;")
 
 
@@ -152,6 +154,9 @@ def facts(image: Path) -> dict:
         "mailbox_version": mailbox_version(pkg[0]) if len(pkg) == 1 else None,
         "version": (major << 16) | minor,
         "ctrl_split": _split_param(verilog),
+        "ddr3": sorted({*({"main_ram"} & regions), *({"ddrphy", "sdram"} & banks),
+                        *(["ddram pads"] if re.search(r"^\s*(?:input|output|inout)\s.*\bddram_", verilog, re.M)
+                          else [])}),
         "rom_words": [int(w, 16) for p in inits for w in _read(p).split()],
         "bitstreams": sorted(image.glob("gateware/*.bit")),
     }
@@ -240,6 +245,8 @@ def findings(image: Path, firmware: Path | None = None, bitstream: Path | None =
     if not split and (got["mailbox"] or got["ctrl_split"]):
         found.append(("placement", f"an all-fabric image carries a mailbox {got['mailbox'] or 'none'} or a "
                                    f"split datapath (CTRL_SPLIT_P = {got['ctrl_split']})"))
+    if split and got["ddr3"]:
+        found.append(("ddr3", f"a split image carries DDR3: {', '.join(got['ddr3'])} (decision D4 builds none)"))
     return found
 
 
@@ -260,7 +267,7 @@ def main() -> int:
         print(f"FINDING {kind}: {words}")
     if not found:
         print(f"image identity: a {placement} image whose manifest, ident, firmware, bitstream and placement "
-              f"agree")
+              f"agree{', with no DDR3' if placement == 'split' else ''}")
     return 1 if found else 0
 
 
