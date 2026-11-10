@@ -15,7 +15,7 @@
 // the slots, stage and state a script asked to keep.
 //
 // The rig takes no verdict. Every one is taken by the tests against the
-// fixture scripts/nvm_klj2.py wrote for the shape (nvm_fixture.hpp), never
+// fixture scripts/nvm_klj3.py wrote for the shape (nvm_fixture.hpp), never
 // against the store's own idea of the bytes.
 
 #ifndef NVM_RIG_HPP

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_klj2.c - the container and F07.8 record codec (#665, the F1 store), in the
- * split placement's format: KLJ3 and layout 3 (#823 decisions 1 and 2).
+ * nvm_klj2.c - the container and F07.8 record codec (#665, the split
+ * placement's saved-state store), in that placement's format: KLJ3 and
+ * layout 3 (#823 decisions 1 and 2).
  *
  * Ported from the saved-state writer in
  * sw/firmware/milan_baremetal/milan_baremetal.c (nvm_validate, nvm_frame,

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
  * nvm_klj2.h - the container and F07.8 record codec of the saved-state store
- * (#665, the F1 store), for the shape nvm_shape.h describes.
+ * (#665, the split placement's saved-state store), for the shape nvm_shape.h
+ * describes.
  *
  * The format is the split placement's (#823): the KLJ3 container, its records
  * in F07.8 layout 3 over the record space of nvm_layout3.h. The file keeps

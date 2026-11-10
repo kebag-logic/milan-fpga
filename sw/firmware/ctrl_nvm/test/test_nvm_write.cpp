@@ -12,7 +12,7 @@
 // One test per check of the hand-rolled suite this replaces
 // (nvm_checks_write.py until #665 FT), under the check's own name. Where that
 // suite decoded a slot to find one changed value, the test compares the whole
-// slot with the container nvm_klj2.py assembles for the same records.
+// slot with the container nvm_klj3.py assembles for the same records.
 
 #include <gtest/gtest.h>
 
@@ -64,7 +64,7 @@ bool all_at_least(const std::vector<long long>& v, long long floor) {
 }
 
 // A console commit on a blank board writes slot A with the all-erased
-// container at sequence 1, byte for byte as nvm_klj2.py writes it, in one
+// container at sequence 1, byte for byte as nvm_klj3.py writes it, in one
 // erase and one program per page.
 TEST_P(NvmBoth, first_commit_bytes) {
     Files f;
@@ -72,7 +72,7 @@ TEST_P(NvmBoth, first_commit_bytes) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("erases") == 1 &&
                 r.at("programs") == pages())
         << "first commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj2.py's";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj3.py's";
     if (port() == Port::Litespi) {
         EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages() && r.at("ls_wren") == r.at("ls_se") + r.at("ls_pp"))
             << "LiteSPI command sequence: " << r.text();
@@ -80,7 +80,7 @@ TEST_P(NvmBoth, first_commit_bytes) {
 }
 
 // A change to the first record of every group commits into the slot that is
-// not authoritative, at the next sequence, byte for byte as nvm_klj2.py writes
+// not authoritative, at the next sequence, byte for byte as nvm_klj3.py writes
 // the same records; the authoritative slot is untouched; and a boot from the
 // result applies exactly the changed values (the round trip).
 TEST_P(NvmBoth, change_commit_bytes) {
@@ -95,7 +95,7 @@ TEST_P(NvmBoth, change_commit_bytes) {
                 r.at("pending") == 0)
         << "change commit: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("changed5c@6")))
-        << "the committed container differs from nvm_klj2.py's for the same records";
+        << "the committed container differs from nvm_klj3.py's for the same records";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "the authoritative slot changed";
     if (port() == Port::Litespi) {
         EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages()) << "LiteSPI command sequence: " << r.text();
@@ -664,7 +664,7 @@ TEST_P(NvmBoth, refused_slot_kept) {
         << "refused slot A: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@5/foreign"))) << "the refused image was erased";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("erased_one7@1")))
-        << "slot B is not the container nvm_klj2.py assembles for the change";
+        << "slot B is not the container nvm_klj3.py assembles for the change";
 }
 
 // Every service step is bounded and returns: no step touches more than one

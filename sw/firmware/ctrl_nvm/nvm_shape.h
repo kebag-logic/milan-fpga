@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
  * nvm_shape.h - the saved-state record set of one entity shape, sized at
- * build time (#665, the F1 store), in the split placement's format (#823).
+ * build time (#665, the split placement's saved-state store), in that
+ * placement's format (#823).
  *
  * THE FORMAT is the split placement's: the KLJ3 container in the 640 KiB
  * journal_klj3, its records framed by F07.8 layout 3 over the record space of
