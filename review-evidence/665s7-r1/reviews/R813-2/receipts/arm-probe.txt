@@ -1,0 +1,16 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -I scripts/arm_probe.py tb/verilator/milan_dp <scratch>/arms (MAKEFLAGS=-j14)
+---
+== a Join timer of 10 centiseconds (shlan_timer_arm(&ps->join_timer, ps->join_cs - 10u);): binary rc 0; first MSRP egress ms [1.013, 100.002, 200.002, 1000.002, 2000.002]
+   subprocess grade findings 3; in-process full 3; with the arm's words 3
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 200, 100.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+   with the Join-interval check off: 0 finding(s) []
+== a Join timer of 15 centiseconds (shlan_timer_arm(&ps->join_timer, ps->join_cs - 5u);): binary rc 0; first MSRP egress ms [1.013, 150.002, 300.002, 1000.002, 2000.002]
+   subprocess grade findings 3; in-process full 3; with the arm's words 3
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 300, 150.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+   with the Join-interval check off: 0 finding(s) []
+rc=0

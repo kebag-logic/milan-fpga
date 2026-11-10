@@ -1,0 +1,36 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -I <prior external review packet>/probes/code_probe.py <this clone> <scratch> 3 join-10cs join-15cs join-17cs join-30cs leaveall-5s no-join-wait (unchanged; sha256 0e5d16ae03f1881427af18eb1528f602e788de3f98ff4f549e7898faf50e736c, as listed in that packet's MANIFEST.sha256)
+---
+PROBE join-10cs [join-10cs] (wire 40000 ms); expectation: JoinTime 100 ms, outside Table 10-7 / Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 15
+  sections refusing: {'TIME': 15}
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 200, 100.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+  RESULT join-10cs: REFUSED
+PROBE join-15cs [join-15cs] (wire 40000 ms); expectation: JoinTime 150 ms, outside Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 16
+  sections refusing: {'TIME': 16}
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 300, 150.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+  RESULT join-15cs: REFUSED
+PROBE join-17cs [join-17cs] (wire 40000 ms); expectation: JoinTime 170 ms, outside Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 0
+  sections refusing: NONE
+  RESULT join-17cs: ESCAPED (no finding)
+PROBE join-30cs [join-30cs] (wire 40000 ms); expectation: JoinTime 300 ms: expect [TIME] past JoinTime + the MRP service bound
+  binary rc 0; srptx wire: 164 control frames, 98 MRPDUs from lwSRP, 98 sent by the adapter, 0 host timeouts, 40000 ms; findings: 22
+  sections refusing: {'TIME': 22}
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 300, 298.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 600, 300.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+  RESULT join-30cs: REFUSED
+PROBE leaveall-5s [leaveall-5s] (wire 40000 ms); expectation: LeaveAll drawn at 5 s: expect [TIME] outside 9782 to 15218 ms
+  binary rc 0; srptx wire: 179 control frames, 113 MRPDUs from lwSRP, 113 sent by the adapter, 0 host timeouts, 40000 ms; findings: 16
+  sections refusing: {'TIME': 16}
+    TIME: [TIME] MSRP: its LeaveAll at ms 5000 5000.002 ms after the last LeaveAll (reset), outside 9780 to 15220 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and T_svc)
+    TIME: [TIME] MSRP: its LeaveAll at ms 10000 5000.000 ms after the last LeaveAll (sent), outside 9780 to 15220 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and T_svc)
+  RESULT leaveall-5s: REFUSED
+PROBE no-join-wait [no-join-wait] (wire 20000 ms); expectation: transmit opportunities not paced by the Join timer: expect [TIME] four in
+  binary rc 0; srptx wire: 111 control frames, 51 MRPDUs from lwSRP, 51 sent by the adapter, 0 host timeouts, 20000 ms; findings: 0
+  sections refusing: NONE
+  RESULT no-join-wait: ESCAPED (no finding)
+rc=0

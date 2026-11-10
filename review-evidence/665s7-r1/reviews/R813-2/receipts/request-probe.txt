@@ -1,0 +1,12 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -I scripts/request_probe.py tb/verilator/milan_dp <scratch>/req 280 240 (MAKEFLAGS=-j16)
+---
+== peer MSRP LeaveAll at ms 16280: binary rc 0; applied at ms 16280
+   MSRP egress 15900..16700 ms as (egress ms, grade's cause, that expiry's ms): [(16000.013, 'periodic', 16000.001), (16281.044, 'join', 16200.001), (16480.002, 'join', 16480.001)]
+   1 finding(s)
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 16281, 281.030 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+== peer MSRP LeaveAll at ms 16240: binary rc 0; applied at ms 16240
+   MSRP egress 15900..16700 ms as (egress ms, grade's cause, that expiry's ms): [(16000.013, 'periodic', 16000.001), (16241.044, 'join', 16200.001), (16440.002, 'join', 16440.001)]
+   0 finding(s)
+srptx.hpp restored, sha256 1c220c4f28c2133061f688e5c5edefb0c66e5e8240e4d25fa02be036b97223b2
+rc=0

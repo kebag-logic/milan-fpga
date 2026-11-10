@@ -1,0 +1,22 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741 tree b61ef3ca8b8c07a89ba7fb32071eadf3550b31e3
+command: git status --porcelain (tracked + untracked, ignored excluded); git diff --quiet; git diff --cached --quiet; tracked-blob rehash vs HEAD; git ls-files -s vs git ls-tree -r HEAD; submodule gitlinks
+---
+status-porcelain lines: 0
+worktree-vs-index rc=0
+index-vs-HEAD rc=0
+index-entries-equal-HEAD-tree rc=0
+tracked blobs rehashed, mismatches: 0
+gitlink efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+gitlink 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor
+gitlink a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+gitlink 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+gitlink 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+gitlink 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+submodule -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+submodule  135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (135afd0433)
+submodule  a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b66d4)
+submodule  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e812)
+submodule  70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (70936b77dc)
+submodule  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+1c220c4f28c2133061f688e5c5edefb0c66e5e8240e4d25fa02be036b97223b2  tb/verilator/milan_dp/srptx.hpp
+b01bda58dc7d57aaed02a935028fd1a1dcf463741562264c83f62c313f86b6a9  third_party/lwSRP/src/core/mrp_mad.c

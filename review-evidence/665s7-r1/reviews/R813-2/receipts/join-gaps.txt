@@ -1,0 +1,47 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -I scripts/join_gaps.py tb/verilator/milan_dp obj_srptx/{wire,hold,licence}.json
+---
+grade bounds: JOIN_BOUNDS_MS (160, 260), SVC_MS 20, JOIN_RANGE_MS (180, 240)
+wire     MSRP: frames 727, Join-timer intervals N 104, min 198.989, max 200.000, outside 0
+    not a graded Join interval: ms 1000, gap 600.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 14560, gap 560.000 ms, cause leaveall, held False
+    not a graded Join interval: ms 27910, gap 910.000 ms, cause leaveall, held False
+    not a graded Join interval: ms 62860, gap 860.000 ms, cause leaveall, held False
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 569, ('leaveall', False): 36}
+wire     MVRP: frames 722, Join-timer intervals N 104, min 198.989, max 200.015, outside 0
+    not a graded Join interval: ms 1000, gap 800.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 10400, gap 399.987 ms, cause leaveall, held False
+    not a graded Join interval: ms 34440, gap 439.987 ms, cause leaveall, held False
+    not a graded Join interval: ms 44720, gap 719.987 ms, cause leaveall, held False
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 565, ('leaveall', False): 39}
+hold     MSRP: frames 72, Join-timer intervals N 34, min 198.989, max 200.000, outside 0
+    not a graded Join interval: ms 1000, gap 600.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 14560, gap 560.000 ms, cause leaveall, held False
+    not a graded Join interval: ms 25000, gap 3200.300 ms, cause periodic, held True
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 29, ('leaveall', False): 1, ('periodic', True): 1}
+hold     MVRP: frames 71, Join-timer intervals N 32, min 198.989, max 200.000, outside 0
+    not a graded Join interval: ms 1000, gap 800.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 10400, gap 399.987 ms, cause leaveall, held False
+    not a graded Join interval: ms 25000, gap 3200.300 ms, cause periodic, held True
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 29, ('leaveall', False): 1, ('periodic', True): 1}
+licence  MSRP: frames 35, Join-timer intervals N 8, min 198.989, max 200.000, outside 0
+    not a graded Join interval: ms 1000, gap 600.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 14560, gap 559.989 ms, cause leaveall, held False
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 25, ('leaveall', False): 1}
+licence  MVRP: frames 34, Join-timer intervals N 5, min 198.989, max 200.000, outside 0
+    not a graded Join interval: ms 1000, gap 800.000 ms, cause periodic, held False
+    not a graded Join interval: ms 2000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 3000, gap 1000.000 ms, cause periodic, held False
+    not a graded Join interval: ms 10400, gap 399.976 ms, cause leaveall, held False
+    ungraded gaps outside the bound by (cause, held): {('periodic', False): 25, ('leaveall', False): 1}
+rc=0

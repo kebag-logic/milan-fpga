@@ -1,0 +1,12 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: docs_check.py; check_em_dash.py --base 1d6bf555; check_doc_style.py (spot-check of the docs gates that read the changed READMEs)
+---
+docs_check: 0 finding(s) across 217 md files + 1518 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_check rc=0
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+em_dash rc=2
+documentation style: OK (23 current documents)
+doc_style rc=0
+command: (pinned Markdown renderer venv) check_em_dash.py --base 1d6bf555
+check_em_dash: 0 finding(s) over 235 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1d6bf555..HEAD]
+em_dash rc=0

@@ -1,0 +1,37 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -I scripts/plant_ablate.py tb/verilator/milan_dp obj_srptx <scratch>
+---
+== as committed: SVC_MS 20, JOIN_BOUNDS_MS (160, 260)
+   plant join-late: refused; 4 finding(s)
+   plant join-late-past-t-svc: refused; 3 finding(s)
+   plant join-early-past-t-svc: refused; 1 finding(s)
+   plant join-interval-late: refused; 1 finding(s)
+   control join-late-within-t-svc: clean
+   control join-early-within-t-svc: clean
+   control join-interval-late-within: clean
+   join-late-within-t-svc first MSRP egress (ms): [1.013, 220.013, 400.002, 1000.002] gaps: [219.0, 179.989, 600.0]
+== Join-interval check off: SVC_MS 20, JOIN_BOUNDS_MS (-inf, inf)
+   plant join-late: refused; 4 finding(s)
+   plant join-late-past-t-svc: refused; 3 finding(s)
+   plant join-early-past-t-svc: ESCAPED; 0 finding(s)
+   plant join-interval-late: ESCAPED; 0 finding(s)
+   control join-late-within-t-svc: clean
+   control join-early-within-t-svc: clean
+   control join-interval-late-within: clean
+== grade SVC_MS re-derived at 19: SVC_MS 19, JOIN_BOUNDS_MS (161, 259)
+   plant join-late: ESCAPED; 4 finding(s); first: [TX] the MSRP MRPDU the adapter accepted at ms 200 never left the MAC, and the MSRP frame at ms 230 in its place is no MRPDU the adapter accepted
+   plant join-late-past-t-svc: ESCAPED; 3 finding(s); first: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 222, past JoinTime + T_svc (219 ms; IEEE 802.1Q-2018 10.7.4.1, Ta
+   plant join-early-past-t-svc: ESCAPED; 1 finding(s); first: [TIME] MSRP: a Join timer's transmit opportunity at ms 160, 159.000 ms after the one before, outside JoinTime's range widened by T_svc (161 to 259 ms;
+   plant join-interval-late: ESCAPED; 1 finding(s); first: [TIME] MSRP: a Join timer's transmit opportunity at ms 15021, 261.000 ms after the one before, outside JoinTime's range widened by T_svc (161 to 259 m
+   control join-late-within-t-svc: clean
+   control join-early-within-t-svc: clean
+   control join-interval-late-within: clean
+== grade SVC_MS re-derived at 21: SVC_MS 21, JOIN_BOUNDS_MS (159, 261)
+   plant join-late: ESCAPED; 4 finding(s); first: [TX] the MSRP MRPDU the adapter accepted at ms 200 never left the MAC, and the MSRP frame at ms 230 in its place is no MRPDU the adapter accepted
+   plant join-late-past-t-svc: ESCAPED; 0 finding(s)
+   plant join-early-past-t-svc: ESCAPED; 0 finding(s)
+   plant join-interval-late: ESCAPED; 0 finding(s)
+   control join-late-within-t-svc: clean
+   control join-early-within-t-svc: clean
+   control join-interval-late-within: clean
+rc=0
