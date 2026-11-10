@@ -7972,7 +7972,10 @@ def selftest_job_geometry_arguments(tally: SelftestTally) -> None:
     check = tally.check
     clean = {"PATH": SAFE_PATH}
     for flag, value in (("--jobs", "8"), ("--job-cpus", "6"), ("--job-memory", "4")):
-        status, _stderr, reached = main_with_recorded_collaborators(["--selftest", flag, value], clean)
+        # A main that let the option through would start the self-test again; the stub ends that run with
+        # RC_OK, so a missing usage error fails this arm rather than recursing.
+        with mock.patch.object(sys.modules[__name__], "selftest_configured", lambda _root: RC_OK):
+            status, _stderr, reached = main_with_recorded_collaborators(["--selftest", flag, value], clean)
         check(f"--selftest with {flag} is a usage error", status == 2 and reached == [])
     cases = (
         ("8 jobs at the default 8 GiB are refused for memory before any collaborator",
