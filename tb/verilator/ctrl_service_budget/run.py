@@ -142,14 +142,17 @@ def share_misses(results: list[dict]) -> list[str]:
 def stated_misses(results: list[dict]) -> list[str]:
     """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost THE RETRY's
     search counts from (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy items
-    dearer than its stated cost (poll_grade.held)."""
+    dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held)."""
+    import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
              for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
             [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
              f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +
-            [f"{g['group']}: " + ("a pass's polls base of " if o['kind'] == 'base' else f"a {o['kind']} item of ")
+            [f"{g['group']}: " + ("a pass's polls base of " if o['kind'] == 'base' else
+                                  "an SRP record's apply of " if o['kind'] == poll_grade.RECORD else
+                                  f"a {o['kind']} item of ")
              + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
              for g in results for o in g['passes'].get('polls', {}).get('over', [])])
 

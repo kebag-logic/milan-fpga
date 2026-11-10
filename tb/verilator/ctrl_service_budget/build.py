@@ -629,17 +629,19 @@ STEP_SYMBOL = 'nvm_store_service'
 STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 #: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
 #: the commit of its return address: the saved-state store's boot and its service step, THE
-#: RETRY's round (#665, round_grade.py), and a pass's first and last firmware poll and the polls'
-#: heavy items (poll_grade.py).
-SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS)
+#: RETRY's round (#665, round_grade.py), a pass's first and last firmware poll and the polls'
+#: heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
+SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS,
+                *poll_items.PART_SPANS)
 #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
 #: static function) pair: the state port's owners as the boot walks apply and the write path
-#: latches, the flash port's calls, and a round's attempts and the notices it builds (#665).
+#: latches, the flash port's calls, a round's attempts and the notices it builds (#665), and the
+#: cuts of a pass into its parts (poll_items.PART_CALLS).
 CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_restore', 'aecp_map_restore',
                 'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
                 'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
                 ('nvm_flash_litespi', 'ls_program'), ('nvm_flash_litespi', 'ls_erase'),
-                ('nvm_flash_litespi', 'ls_busy'), 'aecp_command', ('aecp', 'finish'))
+                ('nvm_flash_litespi', 'ls_busy'), 'aecp_command', ('aecp', 'finish'), *poll_items.PART_CALLS)
 
 
 def traced(table: dict[str, int], elf: Path, names: tuple, modules: tuple[list[str], list]) -> list[tuple]:

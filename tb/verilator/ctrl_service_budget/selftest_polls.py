@@ -93,6 +93,17 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     far = held(limit('base'), outside=(('rebuild', limit('rebuild') + 1),))
     out.append(('an item outside the polls is neither subtracted from the base nor held as a polls item',
                 far['over'] == [] and far['heaviest']['rebuild'] == 0, str(far)))
+    record, dearer = (held(limit('base'), outside=(('retained', limit('retained') + d),)) for d in (0, 1))
+    out.append(("an SRP record's own apply, outside the polls, is held to its retry's stated cost: at it fits, a "
+                'cycle over does not, and neither is a polls item',
+                record['over'] == [] and record['heaviest'][poll_grade.RECORD] == limit('retained') and
+                record['heaviest']['retained'] == 0 and
+                [(o['kind'], o['cycles']) for o in dearer['over']] == [(poll_grade.RECORD, limit('retained') + 1)],
+                str((record, dearer))))
+    named_record = run.stated_misses([dict(group='r', passes=dict(polls=dearer))])
+    out.append(("an SRP record's apply over its stated cost is named, with the cost it passed",
+                named_record == [f"r: an SRP record's apply of {limit('retained') + 1:,} CPU cycles, over its stated "
+                                 f"{limit('retained'):,}"], str(named_record)))
     nested = held(limit('base'), (('retained', limit('retained'), False), ('walk', limit('retained') // 2, True)))
     out.append(('an item inside another is counted once, as the outer one',
                 nested['over'] == [] and nested['heaviest']['walk'] == 0, str(nested)))

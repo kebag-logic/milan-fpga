@@ -721,6 +721,9 @@ MUTANTS: dict[str, Patches] = {
     'polls: no item is held to its cost': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] == 'base']))(f(log, n)))],
+    "polls: no SRP record's apply is held to its retry's cost": lambda: [patch.object(
+        poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
+            o for o in r['over'] if o['kind'] != poll_grade.RECORD]))(f(log, n)))],
     'polls: the items are not taken from the base': lambda: [patch.object(
         poll_grade, 'instances', lambda log, traced, commits, start, end: [])],
     'polls: an ACMP or AECP call that sent nothing is an item': lambda: [patch.dict(

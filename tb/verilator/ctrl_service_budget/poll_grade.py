@@ -28,7 +28,9 @@ them all). That section less the items inside it is the pass's base, which every
 
 An item nested in another (a walk inside a retained record's apply) is that one's, counted once. Calls outside the polls
 (a record's own apply, a build's MRPDU, a round's notices, the LINK event's withdrawal) are their own source's, not the
-polls'.
+polls'. A record's own apply, SRP's (apply_receive outside the polls, the record's handler's: RECORD), is the work its
+retained retry repeats, so it is held to the same stated cost (#665 issuecomment-6779973927, item 3): an SRP record
+dearer than its retry's stated cost fails the gate as the retry would.
 
 Each cost is the most measured over every group at its point plus 5 %, rounded up to 5 us (100 CPU cycles a
 microsecond on the split CPU), or where no group stages an item the cost of the measured work that holds it (STATED_US):
@@ -55,6 +57,10 @@ STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, re
                     aecp=225),
              2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=395, mrpdu=1215, acmp=185,
                     aecp=340)}
+
+
+#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
+RECORD = 'record'
 
 
 def stated_us(interfaces: int) -> dict[str, int]:
@@ -129,6 +135,7 @@ def held(log: grade.Log, interfaces: int) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, and
     every one over its cost."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
+    limits[RECORD] = limits['retained']
     traced, commits = spans(log), committed(log)
     heaviest = dict.fromkeys(limits, 0)
     over = []
@@ -140,4 +147,13 @@ def held(log: grade.Log, interfaces: int) -> dict:
             heaviest[kind] = max(heaviest[kind], cycles)
             if cycles > limits[kind]:
                 over.append(dict(kind=kind, start_sys=start_sys, cycles=cycles))
+    # each SRP record's own apply: an apply_receive call in no pass's polls
+    polls = [(start, end) for start, end, _ in every]
+    for s, cycles, s_sys in traced.get(ITEMS['retained'][0], []):
+        k = bisect_left(polls, (s + 1, -1)) - 1
+        if k >= 0 and polls[k][0] <= s < polls[k][1]:
+            continue
+        heaviest[RECORD] = max(heaviest[RECORD], cycles)
+        if cycles > limits[RECORD]:
+            over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles))
     return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over)
