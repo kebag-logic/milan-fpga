@@ -1,0 +1,81 @@
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
+index 95b77e9451..c0ac186591 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
+@@ -474,5 +474,76 @@ TEST_P(NvmBoth, append_deadline) {
+         << "a slow append: " << r.text();
+ }
+ 
++// ---- reviewer probes (disposable, never published as source) ----
++// 0 old (neither of the work set's two records changed), 2 new (both), 1 mix.
++int probe_class(const Files& f, const std::string& dump, unsigned a, unsigned z, const Bytes& va, const Bytes& vz) {
++    const State& st = f.states.at(dump);
++    const bool na = st.at(a).payload == va;
++    const bool nz = st.at(z).payload == vz;
++    return (na != nz) ? 1 : (na ? 2 : 0);
++}
++
++// P1: a work set {first, last} changed while the authoritative log is torn
++// (no delta can go; the compaction carries it) lands mid-compaction: the
++// first behind the base's front, the last ahead. Media image after the move,
++// before the next delta, booted.
++TEST_P(NvmBoth, probe_straddle_torn) {
++    const unsigned a = first_id();
++    const unsigned z = last_id();
++    const Bytes va = value(a, 9);
++    const Bytes vz = value(z, 9);
++    Files f = fx().files({{"s.bin", "torn_pad"}});
++    Result r = go(port(), f,
++                  {"--slot-b", "s.bin", "--boot", "--protect-auth", "--times", "20:20000", "--until-bg",
++                   num(NVM_B_READY), "--until-programs", "1", "--set", set_word(a, va), "--set", set_word(z, vz),
++                   "--until-programs", num(pages()), "--until-phase", num(NVM_P_IDLE), "--dump-slot-a", "a.bin",
++                   "--dump-slot-b", "b.bin"});
++    std::printf("PROBE P1 %s pages=%lld after-move: %s\n", port_name(port()), pages(), r.text().c_str());
++    Files g = fx().files({});
++    g.blobs["a.bin"] = f.blobs["a.bin"];
++    g.blobs["b.bin"] = f.blobs["b.bin"];
++    const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int c = probe_class(g, "st", a, z, va, vz);
++    std::printf("PROBE P1 %s boot-after-cut: auth=%lld seq=%lld class=%d (0 old, 1 MIX, 2 new)\n", port_name(port()),
++                q.at("auth"), q.at("seq"), c);
++    EXPECT_NE(c, 1) << "P1 class=" << c << " boot auth=" << q.at("auth") << " seq=" << q.at("seq") << " deltas=" << q.at("deltas") << " vd_a=" << q.at("vd_a") << " vd_b=" << q.at("vd_b") << " | after-move: compactions=" << r.at("compactions") << " auth=" << r.at("auth") << " appends=" << r.at("appends") << " n_inflight=" << r.at("n_inflight") << " phase=" << r.at("phase");
++    Files h = fx().files({{"s.bin", "torn_pad"}});
++    const Result u = go(port(), h,
++                        {"--slot-b", "s.bin", "--boot", "--protect-auth", "--times", "20:20000", "--until-bg",
++                         num(NVM_B_READY), "--until-programs", "1", "--set", set_word(a, va), "--set",
++                         set_word(z, vz), "--until-quiet", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
++    Files k = fx().files({});
++    k.blobs["a.bin"] = h.blobs["a.bin"];
++    k.blobs["b.bin"] = h.blobs["b.bin"];
++    go(port(), k, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int cu = probe_class(k, "st", a, z, va, vz);
++    EXPECT_NE(cu, 2) << "P1-uncut (control: expected to FAIL, i.e. class 2 = new) class=" << cu << " compactions=" << u.at("compactions") << " appends=" << u.at("appends");
++}
++
++// P2: blank media, no fault: a first change starts the first base; a work set
++// {first, last} lands while it is written. Media image after the move, booted.
++TEST_P(NvmBoth, probe_straddle_first_base) {
++    const unsigned a = first_id();
++    const unsigned z = last_id();
++    const unsigned x = rids()[rids().size() / 2];
++    const Bytes va = value(a, 9);
++    const Bytes vz = value(z, 9);
++    Files f;
++    Result r = go(port(), f,
++                  {"--blank", "--boot", "--times", "20:20000", "--until-bg", num(NVM_B_READY), "--set",
++                   set_word(x, value(x, 5)), "--until-programs", "1", "--set", set_word(a, va), "--set",
++                   set_word(z, vz), "--until-programs", num(pages()), "--until-phase", num(NVM_P_IDLE),
++                   "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
++    std::printf("PROBE P2 %s after-move: %s\n", port_name(port()), r.text().c_str());
++    Files g;
++    g.blobs["a.bin"] = f.blobs["a.bin"];
++    g.blobs["b.bin"] = f.blobs["b.bin"];
++    const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int c = probe_class(g, "st", a, z, va, vz);
++    std::printf("PROBE P2 %s boot-after-cut: auth=%lld seq=%lld class=%d (0 old, 1 MIX, 2 new)\n", port_name(port()),
++                q.at("auth"), q.at("seq"), c);
++    EXPECT_NE(c, 1) << "P2 class=" << c << " boot auth=" << q.at("auth") << " seq=" << q.at("seq") << " deltas=" << q.at("deltas") << " | after-move: compactions=" << r.at("compactions") << " auth=" << r.at("auth") << " appends=" << r.at("appends") << " n_inflight=" << r.at("n_inflight") << " phase=" << r.at("phase");
++}
++
+ }  // namespace
+ }  // namespace nvm_test

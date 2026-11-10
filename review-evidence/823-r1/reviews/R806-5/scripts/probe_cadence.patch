@@ -1,0 +1,124 @@
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_rig.cpp b/sw/firmware/ctrl_nvm/test/nvm_rig.cpp
+index f6ee16db65..83f4d90143 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_rig.cpp
++++ b/sw/firmware/ctrl_nvm/test/nvm_rig.cpp
+@@ -25,11 +25,14 @@
+ 
+ #include "nvm_c.hpp"
+ 
++#ifndef PROBE_LOOP_US
++#define PROBE_LOOP_US 10000u
++#endif
+ namespace nvm_test {
+ 
+ namespace {
+ 
+-constexpr std::uint64_t kLoopUs = 100u;           // the event loop's own time per iteration
++constexpr std::uint64_t kLoopUs = PROBE_LOOP_US;           // the event loop's own time per iteration
+ constexpr std::uint64_t kIdleLimitUs = 60000000u;  // the longest a run waits to go idle
+ constexpr std::uint32_t kJournal = 2u * NVM_SLOT_BYTES;
+ constexpr unsigned kTimes = 16u;                   // failure and commit times kept per run
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
+index 95b77e9451..511c4058e1 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp
+@@ -474,5 +474,99 @@ TEST_P(NvmBoth, append_deadline) {
+         << "a slow append: " << r.text();
+ }
+ 
++// ---- reviewer probes (disposable, never published as source) ----
++// 0 old (neither of the work set's two records changed), 2 new (both), 1 mix.
++int probe_class(const Files& f, const std::string& dump, unsigned a, unsigned z, const Bytes& va, const Bytes& vz) {
++    const State& st = f.states.at(dump);
++    const bool na = st.at(a).payload == va;
++    const bool nz = st.at(z).payload == vz;
++    return (na != nz) ? 1 : (na ? 2 : 0);
++}
++
++// P1: a work set {first, last} changed while the authoritative log is torn
++// (no delta can go; the compaction carries it) lands mid-compaction: the
++// first behind the base's front, the last ahead. Media image after the move,
++// before the next delta, booted.
++TEST_P(NvmBoth, probe_straddle_torn) {
++    const unsigned a = first_id();
++    const unsigned z = last_id();
++    const Bytes va = value(a, 9);
++    const Bytes vz = value(z, 9);
++    Files f = fx().files({{"s.bin", "torn_pad"}});
++    Result r = go(port(), f,
++                  {"--slot-b", "s.bin", "--boot", "--protect-auth", "--times", "20:20000", "--until-bg",
++                   num(NVM_B_READY), "--until-programs", "1", "--set", set_word(a, va), "--set", set_word(z, vz),
++                   "--until-programs", num(pages()), "--until-phase", num(NVM_P_IDLE), "--dump-slot-a", "a.bin",
++                   "--dump-slot-b", "b.bin"});
++    std::printf("PROBE P1 %s pages=%lld after-move: %s\n", port_name(port()), pages(), r.text().c_str());
++    Files g = fx().files({});
++    g.blobs["a.bin"] = f.blobs["a.bin"];
++    g.blobs["b.bin"] = f.blobs["b.bin"];
++    const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int c = probe_class(g, "st", a, z, va, vz);
++    std::printf("PROBE P1 %s boot-after-cut: auth=%lld seq=%lld class=%d (0 old, 1 MIX, 2 new)\n", port_name(port()),
++                q.at("auth"), q.at("seq"), c);
++    EXPECT_NE(c, 1) << "P1 class=" << c << " boot auth=" << q.at("auth") << " seq=" << q.at("seq") << " deltas=" << q.at("deltas") << " vd_a=" << q.at("vd_a") << " vd_b=" << q.at("vd_b") << " | after-move: compactions=" << r.at("compactions") << " auth=" << r.at("auth") << " appends=" << r.at("appends") << " n_inflight=" << r.at("n_inflight") << " phase=" << r.at("phase");
++    Files h = fx().files({{"s.bin", "torn_pad"}});
++    const Result u = go(port(), h,
++                        {"--slot-b", "s.bin", "--boot", "--protect-auth", "--times", "20:20000", "--until-bg",
++                         num(NVM_B_READY), "--until-programs", "1", "--set", set_word(a, va), "--set",
++                         set_word(z, vz), "--until-quiet", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
++    Files k = fx().files({});
++    k.blobs["a.bin"] = h.blobs["a.bin"];
++    k.blobs["b.bin"] = h.blobs["b.bin"];
++    go(port(), k, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int cu = probe_class(k, "st", a, z, va, vz);
++    EXPECT_NE(cu, 2) << "P1-uncut (control: expected to FAIL, i.e. class 2 = new) class=" << cu << " compactions=" << u.at("compactions") << " appends=" << u.at("appends");
++}
++
++// P2: blank media, no fault: a first change starts the first base; a work set
++// {first, last} lands while it is written. Media image after the move, booted.
++TEST_P(NvmBoth, probe_straddle_first_base) {
++    const unsigned a = first_id();
++    const unsigned z = last_id();
++    const unsigned x = rids()[rids().size() / 2];
++    const Bytes va = value(a, 9);
++    const Bytes vz = value(z, 9);
++    Files f;
++    Result r = go(port(), f,
++                  {"--blank", "--boot", "--times", "20:20000", "--until-bg", num(NVM_B_READY), "--set",
++                   set_word(x, value(x, 5)), "--until-programs", "1", "--set", set_word(a, va), "--set",
++                   set_word(z, vz), "--until-programs", num(pages()), "--until-phase", num(NVM_P_IDLE),
++                   "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"});
++    std::printf("PROBE P2 %s after-move: %s\n", port_name(port()), r.text().c_str());
++    Files g;
++    g.blobs["a.bin"] = f.blobs["a.bin"];
++    g.blobs["b.bin"] = f.blobs["b.bin"];
++    const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
++    const int c = probe_class(g, "st", a, z, va, vz);
++    std::printf("PROBE P2 %s boot-after-cut: auth=%lld seq=%lld class=%d (0 old, 1 MIX, 2 new)\n", port_name(port()),
++                q.at("auth"), q.at("seq"), c);
++    EXPECT_NE(c, 1) << "P2 class=" << c << " boot auth=" << q.at("auth") << " seq=" << q.at("seq") << " deltas=" << q.at("deltas") << " | after-move: compactions=" << r.at("compactions") << " auth=" << r.at("auth") << " appends=" << r.at("appends") << " n_inflight=" << r.at("n_inflight") << " phase=" << r.at("phase");
++}
++
++// P3 (cadence): one change, the rig's loop at PROBE_LOOP_US per service call.
++TEST_P(NvmBoth, probe_cadence_one) {
++    Files f = fx().files({{"g.bin", "golden@5"}});
++    const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--mark", "--set",
++                                    set_word(last_id(), value(last_id(), 3)), "--until-quiet"});
++    const long long took = r.ok_at.empty() || r.marks.empty() ? -1 : static_cast<long long>(r.ok_at[0] - r.marks[0]);
++    EXPECT_TRUE(false) << "P3 one change: took_us=" << took << " ok=" << r.at("ok") << " failed=" << r.at("failed")
++                       << " appends=" << r.at("appends") << " abandoned=" << r.at("abandoned") << " pending=" << r.at("pending");
++}
++
++// P4 (cadence): every record changed at once.
++TEST_P(NvmBoth, probe_cadence_burst) {
++    Files f = fx().files({{"g.bin", "golden@5"}});
++    const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--mark", "--set-pattern", "4", "--until-quiet"},
++                        {"failed", "abandoned"});
++    const long long took = r.ok_at.empty() || r.marks.empty() ? -1 : static_cast<long long>(r.ok_at[0] - r.marks[0]);
++    EXPECT_TRUE(false) << "P4 burst of " << rids().size() << " records: first_ok_us=" << took << " ok=" << r.at("ok")
++                       << " failed=" << r.at("failed") << " first=" << r.at("first") << " appends=" << r.at("appends")
++                       << " compactions=" << r.at("compactions") << " exhausted=" << r.at("exhausted")
++                       << " abandoned=" << r.at("abandoned") << " pending=" << r.at("pending")
++                       << " n_inflight=" << r.at("n_inflight") << " stale=" << r.at("stale");
++}
++
+ }  // namespace
+ }  // namespace nvm_test
