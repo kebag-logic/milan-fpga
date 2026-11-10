@@ -94,7 +94,12 @@ edge, each AXI input is moved in turn with the clock held (every VALID and
 READY flipped, addresses, data and strobes scrambled) and every AXI output
 must stay where it was (AMBA AXI, IHI0022H, A3.1.1 and A3.2.1).
 
-On every build every clock also carries two receive-side checks (#870):
+On every build every clock also carries two receive-side checks (#870).
+They are wired into `tb_mbx_top` only under `BENCH_P=1`, which the
+Makefile's recipe sets; the default, 0, is the SoC's wiring, which the
+mailbox's out-of-context area recipe synthesizes
+([Measured area](../../../docs/design/MAILBOX_SPLIT.md#measured-area)). A build
+without it fails H0, since it then sees no ring word written:
 
 - **The host port outside a request.** Between the adapter and `KL_mbx`,
   the address, direction, data and strobes carry the bench's noise in every
