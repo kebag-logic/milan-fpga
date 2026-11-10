@@ -665,12 +665,132 @@ jobs:
       - name: Hold the TSN stack boundary over the Verilator builders' compiles
         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
 
+  # #665 S8 (#868 item 5): the split placement's wire timing in simulation.
+  # tb/verilator/ctrl_wire_timing/run.py --ci builds the CPU half (the shipping
+  # VexiiRiscv running the platform image: LiteX, its VexiiRiscv Scala
+  # generation and the RV32 SDK, set up as the elaboration job sets them up and
+  # under its cache keys) and the split top (Verilator), then runs the 1x1 short
+  # paths without load and with the composed load at once: sixteen ACMP and
+  # AECP draws, one MAAP acquisition's three probe intervals and its first
+  # ANNOUNCE's egress, and ADP's startup advertisement, each run graded and then
+  # graded again with its two plants (an egress delay past the 11 ms reserve and
+  # a grader with a shifted clock). A job of its own, within the owner's
+  # 30-minute budget (#789), so it lengthens no existing job.
+  wire-timing:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # The elaboration job's private interpreter, LiteX pins, Scala caches,
+      # sbt, VexiiRiscv source and patch series, under the same keys.
+      - name: Put a job-private Python environment on PATH
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/litex-venv"
+          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+      - name: Cache the pinned pip downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{ hashFiles('.github/workflows/*.yml') }}
+      - name: Install LiteX at the pinned revisions
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+      - name: Cache the Scala toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2
+            ~/.cache/milan-sbt
+          key: elaborate-sbt-1.10.7-32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml') }}
+      - name: Cache the generated CPU metadata
+        uses: actions/cache@v4
+        with:
+          path: ~/vexii-netlist-args
+          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh', 'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml') }}
+      - name: Install sbt
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/milan-sbt"
+          archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+          if [ ! -f "$archive" ]; then
+            curl -fsSL --retry 3 -o "$archive" \
+              https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          fi
+          echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+          sudo tar xzf "$archive" -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+      - name: Apply the toolchain patch series
+        run: sw/litex/patches/apply.sh
+
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$CI_TOOL_BUILD_JOBS"
+          sudo make install
+
+      - name: Put Verilator on PATH and prove the version
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Time the split placement at the wire, without and with the composed load
+        run: WIRE_JOBS="$CI_BUILD_JOBS" python3 tb/verilator/ctrl_wire_timing/run.py --ci --build-dir "$RUNNER_TEMP/wire-timing"
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, split-cdc, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, split-cdc, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator, wire-timing]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -688,6 +808,7 @@ jobs:
           FIRMWARE_SRP_MUTANTS_RESULT: ${{ needs.firmware-srp-mutants.result }}
           FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
           FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
+          WIRE_TIMING_RESULT: ${{ needs.wire-timing.result }}
         run: |
           set -euo pipefail
           bad=0
@@ -703,7 +824,8 @@ jobs:
             "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
             "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT" \
             "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
-            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
+            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT" \
+            "wire-timing:$WIRE_TIMING_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"
             printf '%-24s %s\n' "$name" "$result"

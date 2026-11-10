@@ -596,6 +596,13 @@ ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the v
 #: pinned Verilator on PATH by the physical job's script, whose pipefail keeps the version assertion's verdict.
 ENV_FILE_WRITERS[(RTL_FAST, "firmware-verilator", "Put Verilator on PATH and prove the version")] = \
     ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
+#: #868: the wire-timing job's three writers are the elaboration job's interpreter and sbt scripts and the
+#: physical job's Verilator script, exactly.
+for wire_timing_writer in ("Put a job-private Python environment on PATH", "Install sbt"):
+    ENV_FILE_WRITERS[(RTL_FAST, "wire-timing", wire_timing_writer)] = \
+        ENV_FILE_WRITERS[(ELABORATE, "elaborate", wire_timing_writer)]
+ENV_FILE_WRITERS[(RTL_FAST, "wire-timing", "Put Verilator on PATH and prove the version")] = \
+    ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
 #: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
@@ -623,7 +630,7 @@ INHERITED_STEP_ENV = {
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
                              "FIRMWARE_SRP_MUTANTS_RESULT",
                              "PUBLICATION_CENSUS_RESULT", "SPLIT_CDC_RESULT",
-                             "VERILATOR_LINT_RESULT",
+                             "VERILATOR_LINT_RESULT", "WIRE_TIMING_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA"),
     (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
@@ -2631,6 +2638,28 @@ for firmware_index, firmware_job in enumerate(FIRMWARE_JOBS):
         firmware_steps = [*FIRMWARE_BASE_STEPS[:3], *FIRMWARE_BASE_STEPS[4:6],
                           {"name": FIRMWARE_PHASE_STEPS[firmware_index], "run": (firmware_command,)}]
     RTL_STEP_LISTS[(RTL_FAST, firmware_job)] = tuple(firmware_steps)
+
+#: #665 S8 (#868 item 5): the fast job that times the split placement at the wire in simulation. Its interpreter,
+#: LiteX pins, Scala caches, sbt, VexiiRiscv source and patch series are the elaboration job's steps under the same
+#: keys, without that job's scope guard (the `changes` gate decides here); its fetch, Verilator and RV32 SDK are
+#: firmware-verilator's.
+WIRE_TIMING_JOB = "wire-timing"
+WIRE_TIMING_LITEX_STEPS = (
+    "Put a job-private Python environment on PATH", "Cache the pinned pip downloads",
+    "Install LiteX at the pinned revisions", "Cache the Scala toolchain", "Cache the generated CPU metadata",
+    "Install sbt", "Place the VexiiRiscv source at the revision LiteX pins", "Apply the toolchain patch series")
+ELABORATION_STEPS = {step.get("name"): step for step in CARRIER_STEP_LISTS[(ELABORATE, "elaborate")]}
+RTL_STEP_LISTS[(RTL_FAST, WIRE_TIMING_JOB)] = (
+    {"uses": "actions/checkout@v4"},
+    RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_VERILATOR_JOB)][1],
+    {"uses": "actions/setup-python@v5", "with": {"python-version": "3.12"}},
+    *({key: value for key, value in ELABORATION_STEPS[name].items() if key != "if"}
+      for name in WIRE_TIMING_LITEX_STEPS),
+    *RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_VERILATOR_JOB)][3:8],
+    {"name": "Time the split placement at the wire, without and with the composed load",
+     "run": ('WIRE_JOBS="$CI_BUILD_JOBS" python3 tb/verilator/ctrl_wire_timing/run.py --ci '
+             '--build-dir "$RUNNER_TEMP/wire-timing"',)},
+)
 
 #: The other four jobs of the two RTL files, recorded in the same shape so
 #: that whether a job is pinned is a COMPARISON and never a claim: the gate

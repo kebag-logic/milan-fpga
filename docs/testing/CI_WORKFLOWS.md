@@ -52,6 +52,8 @@ pull-request update and on every push to `dev`. It produces one stable
   its tooling changes (below);
 - the split placement's crossing structure, `split-cdc` (#665), when RTL or
   its tooling changes (below);
+- the split placement's wire timing in simulation, `wire-timing` (#665 S8,
+  #868), when RTL or its tooling changes (below);
 - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
   and three mutation jobs (#665, #716), for relevant changes.
   They run the GoogleTest suites of
@@ -142,7 +144,7 @@ It also runs the tally checks and complete coverage ratchet.
 `firmware-srp-mutants` runs both SRP campaigns and pin controls.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
-The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
+The aggregate also requires the separate `publication-census`, `split-cdc` and `wire-timing` jobs.
 It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
@@ -172,7 +174,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs (`yosys-tool` included), `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census`, `split-cdc`, `wire-timing`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -446,6 +448,29 @@ key. It is a separate job so that no existing job grows near its timeout. It
 fetches the RTL submodules because the suite's Makefile derives the
 processor's source list when it is read. The aggregate `rtl-fast` requires
 it.
+
+The split placement's wire timing runs in a job of its own, `wire-timing`
+(#665 S8, #868 item 5). Its one gate step is
+`python3 tb/verilator/ctrl_wire_timing/run.py --ci`, documented in the
+[harness's page](../../tb/verilator/ctrl_wire_timing/README.md):
+
+- the grader's self-test, its controls on synthetic logs;
+- the build at the shipping 1x1 shape: the CPU half (the shipping VexiiRiscv
+  running the platform image) and the split top;
+- two runs at once, without load and with the composed load, each sixteen
+  ACMP and AECP draws to the first MAAP ANNOUNCE;
+- each run graded, then graded again with its two plants: an egress delay
+  past the 11 ms reserve, and a grader with a shifted clock.
+
+The CPU half needs LiteX, its VexiiRiscv Scala generation and the RV32 SDK.
+The job sets them up by the elaboration job's own steps, under the same cache
+keys, without that job's scope guard: the `changes` gate decides here. It
+takes Verilator and the SDK by `firmware-verilator`'s steps. It is a separate
+job, within the owner's 30-minute budget (#789), so no existing job grows
+near its timeout. The aggregate `rtl-fast` requires it. The longer intervals,
+the IEEE 1722-2016 B.3.4.1 announce interval and the Milan v1.2 Table 5.50
+advertise period, run in the harness's local campaign, not here: one announce
+interval needs about 34 s of simulated time.
 
 ## Exhaustive validation
 
