@@ -1,0 +1,19 @@
+# per-path classification of head tree: path | head==dev | head==a853 | dev changed | pr changed
+pr-only CHANGELOG.md
+pr-only docs/design/AREA_BUDGET.md
+HAND docs/design/CSR_REGISTER_NOTES.md
+pr-only docs/design/MARK_II_AREA_PLAN.md
+pr-only docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+pr-only docs/findings/README.md
+HAND docs/reference/REGISTER_MAP.md
+pr-only docs/testing/TESTING.md
+pr-only hdl/common/csr/milan_csr.sv
+pr-only hdl/milan/KL_pp_shadow.sv
+HAND scripts/register_descriptions.json
+pr-only syn/ooc/pp_resource_baseline.json
+pr-only tb/verilator/pp_shadow/Makefile
+pr-only tb/verilator/pp_shadow/README.md
+pr-only tb/verilator/pp_shadow/drops_mutant.py
+pr-only tb/verilator/pp_shadow/drops_probes.vlt
+pr-only tb/verilator/pp_shadow/sim_main.cpp
+counts {'same-all': 1452, 'dev-only': 264, 'pr-only': 14, 'HAND': 3}

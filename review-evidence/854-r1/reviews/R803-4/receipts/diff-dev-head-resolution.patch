@@ -1,0 +1,39 @@
+diff --git a/docs/design/CSR_REGISTER_NOTES.md b/docs/design/CSR_REGISTER_NOTES.md
+index 1333189863..5a3b18aa75 100644
+--- a/docs/design/CSR_REGISTER_NOTES.md
++++ b/docs/design/CSR_REGISTER_NOTES.md
+@@ -1240,7 +1240,7 @@ The table is on the [register reference](../reference/REGISTER_MAP.md).
+ 
+ **The side port is POSTED, and one access is outstanding at a time.** The processor's side port is a fabric walk behind a request/ack, and an AXI read must never wait on it -- the bus would stall for as long as the processor takes to answer. So: write `PP_SPADDR` to arm a read, poll `PP_STAT[0]` (`sp_busy`), then read `PP_SPDATA`. A write to `PP_SPDATA` posts a side-port **write** to the address already in `PP_SPADDR`. A request offered while busy is **refused, not queued**, so software can never read one address's answer believing it asked for another.
+ 
+-**Why an RX drop counter exists here at all.** `protocol_processor_top` eats a 1 byte/clk stream, which at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte serialiser fed from the raw tap cannot keep up with line rate, and would corrupt frames by lagging rather than by dropping them. So the tap classifies first -- EtherType `0x22F0` on any destination address, plus the two MRP pairs (`01:80:C2:00:00:0E` + `0x22EA` MSRP, `01:80:C2:00:00:21` + `0x88F5` MVRP) -- and only control frames enter the frame FIFO ahead of the serialiser. Control traffic is orders of magnitude below the serialiser's rate, so `[15:8]` should be flat; a moving drop count is a real signal, not background.
++**Why an RX drop counter exists here at all.** `protocol_processor_top` eats a 1 byte/clk stream, which at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte serialiser fed from the raw tap cannot keep up with line rate, and would corrupt frames by lagging rather than by dropping them. So the tap classifies first -- EtherType `0x22F0` on any destination address, plus the two MRP pairs (`01:80:C2:00:00:0E` + `0x22EA` MSRP, `01:80:C2:00:00:21` + `0x88F5` MVRP) -- and only control frames enter the frame FIFO ahead of the serialiser. Control traffic is orders of magnitude below the serialiser's rate, so `[15:8]` should be flat; a moving drop count is a real signal, not background. The FIFO drops a frame it has no room for, or one longer than the FIFO (4,096 bytes), while holding `tready` high, so the count is taken from the FIFO's own overflow indication, one per control frame lost, and saturates at 255 (#854).
+ 
+ **When this window says the entity model is broken, it cannot say why.** The descriptor-store and response-buffer faults reached through the side-port snapshot (`img_valid = 0`, fault 8 `FAULT_TIMEOUT`, fault 1 `FAULT_WTMO`) are the processor's view of *its* two main-memory bridges, and the processor cannot see the bus those bridges ride: a bridge that never issued a read and a bridge whose read was never answered produce the identical fault here. That distinction cost a board week in August 2026. It is now one read away, in the LiteX CSR space rather than this window because both bridges are SoC-side masters (`milan_soc.py`) with no port into `milan_csr` -- see [Protocol-processor memory bridges](#protocol-processor-memory-bridges-litex-csr-bank-0xf000f800) at the end of this page.
+ 
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index eac1bb7400..3bfcb7d688 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -4413,7 +4413,7 @@ RTL name: `A_PP_DIAG`.
+ | Bit | Field | Type | Reset | Description |
+ |---|---|---|---|---|
+ | 31:16 | `PP_TX_FRAMES` | R | X | Control frames transmitted. |
+-| 15:8 | `PP_RX_DROPS` | R | X | Control frames lost to a full ingress FIFO. |
++| 15:8 | `PP_RX_DROPS` | R | X | Control frames lost to a full ingress FIFO, or longer than the FIFO; saturates at 255. |
+ | 7:0 | `PP_RX_FRAMES` | R | X | Control frames received. Bits [7:0] of the RTL value. |
+ 
+ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_diag-offset-0x930).
+diff --git a/scripts/register_descriptions.json b/scripts/register_descriptions.json
+index 86734b0170..3ec9dfe40d 100644
+--- a/scripts/register_descriptions.json
++++ b/scripts/register_descriptions.json
+@@ -3916,7 +3916,7 @@
+       "purpose": "Control frames sent, received and dropped.",
+       "fields": {
+         "PP_TX_FRAMES": "Control frames transmitted.",
+-        "PP_RX_DROPS": "Control frames lost to a full ingress FIFO.",
++        "PP_RX_DROPS": "Control frames lost to a full ingress FIFO, or longer than the FIFO; saturates at 255.",
+         "PP_RX_FRAMES": "Control frames received."
+       },
+       "notes": [],
