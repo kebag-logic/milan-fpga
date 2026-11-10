@@ -1,0 +1,397 @@
+# head 29854e43c916a8c85a854ac66fce71e170dea3c2 workflow rtl-fast.yml job firmware-srp-mutants step ci_step_9: Run both SRP mutation campaigns and pin controls
+# clone <scratch>/gates-out/wf/rtl-fast__firmware-srp-mutants/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1289 live invocations in exactly one shard; shard sizes [67, 673, 213, 336]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] f3b-listener-wrong-interface: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+[ok] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] preamble-ifg-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] ninety-percent-ceiling: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] readyfailed-callback-stop: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+[ok] old-prefix-accepted: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+[ok] event-reentry-unguarded: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+[ok] backlogged-old-prefix-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+[ok] downlink-receive-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+[ok] delayed-in-listener: InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0]
+[ok] delayed-in-talker: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+[ok] rebind-loses-shared-applicant: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+[ok] consecutive-rebind-loses-applicant: ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left
+[ok] joining-binding-loses-applicant: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+[ok] applicant-inherited-across-streams: ReboundStreamCannotInheritAnotherStreamsReady / ready
+[ok] final-unbind-withdraws-domain-vid: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+[ok] last-ineligible-vid-leaks: LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left
+[ok] reset-keeps-owed-domain: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+[ok] reset-keeps-sink-vlan: SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+[ok] milan-rapid-leave-leaks-to-mvrp: MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered()
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+[ok] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+[ok] composition-attach-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks
+[ok] composition-srp-irq-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+[ok] composition-srp-tick-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+[ESCAPED] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+Note: Google Test filter = SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+<scratch>/gates-out/wf/rtl-fast__firmware-srp-mutants/wt/sw/firmware/ctrl/test/srp_rx_retry.cpp:329: Failure
+Expected equality of these values:
+  adapter.ifs[0].domain.vid
+    Which is: 2
+  7u
+    Which is: 7
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit:     Which is: 7
+<scratch>/gates-out/wf/rtl-fast__firmware-srp-mutants/wt/sw/firmware/ctrl/test/srp_rx_retry.cpp:330: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.RetainedReceiveWaitsForOwedTransmit:     Which is: 1
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (14 ms)
+[----------] 1 test from SrpRetry (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (15 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+[ok] composition-refusal-ignored: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+[ok] recovery-latency-retry-removed: SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0]
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+[ESCAPED] receive-retention-short: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+Note: Google Test filter = SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (10 ms)
+[----------] 1 test from SrpRetry (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (11 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP receive recovery: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-poll-transmit: PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-poll-frames-uncapped: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record's accesses
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] snapshot-walks-once: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] unchanged-record-walks: ARecordThatChangesNoRegistrationCostsNoWalk / a record that changes nothing walks no registrar
+[ok] own-listener-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the own Listener Ready declaration rewrote the registered Listener
+[ok] own-talker-declaration-not-copied: OwnDeclarationsThatRewriteARegisteredValueAreCopied / the adopted Domain's Talker declaration rewrote the registered Talker
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+[ok] pub-licence-after-the-report: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+[ok] pub-licence-skipped: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+[ok] pub-licence-wrong-bit: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported
+[ok] pub-licence-after-the-revocations: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB a link loss clears LICENCE before the revocation is reported
+[ok] pub-licence-kept-at-destroy: PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB destroy clears LICENCE before any revocation is reported
+[ok] pub-domain-adoption-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+[ok] pub-domain-priority-for-vid: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+[ok] pub-domain-default-skipped: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+[ok] pub-domain-default-marked-adopted: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB the default Domain {priority 3, VID 2}, not adopted, from startup
+[ok] pub-slope-skipped: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+[ok] pub-slope-halved: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB IDLE_SLOPE is the admitted bandwidth from startup
+[ok] pub-domain-adoption-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+[ok] pub-domain-default-after-the-declarations: PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again
+[ok] pub-slope-after-the-declarations: PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+[ok] pub-term-poll-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll's publication term funds a reset, an adoption and two changes per source
+[ok] pub-term-reset-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / a reset publishes LICENCE and TALKER_DECL, once each
+[ok] pub-term-reopen-understated: PollPublicationTermIsMeasuredThroughRealCallbacks / the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each
+[ok] pub-declared-skipped: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+[ok] pub-declared-in-the-licence: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+[ok] pub-declared-wrong-bit: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup
+[ok] pub-declared-after-the-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+[ok] pub-declared-kept-at-reset: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+[ok] pub-declared-withdrawn-after-the-new-declarations: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare
+[ok] pub-declared-kept-at-destroy: PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB destroy withdraws every declaration from the datapath
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] reset-builds-in-its-own-pass: LinkChangeBuildsTheNewParticipantsOnTheNextPass / the pass that takes the link change withdraws
+[ok] reset-builds-a-pass-late: LinkChangeBuildsTheNewParticipantsOnTheNextPass / the next pass's poll builds the new participants
+[ok] reset-receive-does-not-wait: LinkChangeBuildsTheNewParticipantsOnTheNextPass / receive waits until the new participants are built
+[ok] reset-receive-waits-on: LinkChangeBuildsTheNewParticipantsOnTheNextPass / the record that waited is taken on the pass after
+[ok] reset-build-not-owed: LinkChangeBuildsTheNewParticipantsOnTheNextPass / a poll that withdraws owes the build
+[ok] joint-reset-builds-both: JointLinkChangeBuildsOneInterfaceAPass / a pass builds one interface at most
+[ok] build-turn-ignored: JointLinkChangeBuildsOneInterfaceAPass / the interface whose turn it is is built first
+[ok] build-turn-not-moved: JointLinkChangeBuildsOneInterfaceAPass / the interface whose turn it is is built first
+[ok] build-waits-beside-a-withdrawal: JointLinkChangeBuildsOneInterfaceAPass / an interface due beside one still withdrawing is built at once
+[ok] build-turn-read-after-its-visit: JointLinkChangeBuildsInterfaceOneBesideAWithdrawal / interface 1, due beside interface 0 still withdrawing with the turn, is built at once
+[ok] reset-keeps-listener-present: InterfaceResetClearsListenerPresent / the interface reset clears listener_present
+[ok] reset-each-edge-builds: LinkEdgesOfOnePassBuildOnce / a pass of link edges builds once
+[ok] rebuild-holds-no-record: ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt / a reset owes its interface's rebuild
+[ok] rebuild-holds-for-good: ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt / and the rebuild ends the hold
+[ok] transmit-built-by-the-poll: AnOwedMrpduTakesAPassOfItsOwn / and no poll builds it
+[ok] transmit-due-unreported: AnOwedMrpduTakesAPassOfItsOwn / an owed MRPDU is reported owed
+[ok] transmit-join-end-owes-nothing: AnOwedMrpduTakesAPassOfItsOwn / the centisecond that ends a join timer owes its interface's MRPDUs
+[ok] transmit-leaveall-owes-nothing: TheJoinCountFollowsWhatABuildSent / a LeaveAll timer's end owes its LeaveAll
+[ok] transmit-every-centisecond-owes: AnOwedMrpduTakesAPassOfItsOwn / no centisecond before a join timer's end owes one
+[ok] transmit-unbinding-holds-nothing: AnOwedMrpduTakesAPassOfItsOwn / an unbinding that withdraws a declaration owes the MRPDU that sends it
+[ok] transmit-binding-holds-a-build: AnOwedMrpduTakesAPassOfItsOwn / a binding owes no MRPDU itself
+[ok] transmit-walk-holds-nothing: AnOwedMrpduTakesAPassOfItsOwn / the walk that finds its declaration owes the MRPDU that declares it
+[ok] transmit-first-link-up-owes-nothing: StartupDeclaresTalkersDomainAndVlan / adapter.transmitted
+[ok] transmit-reentry-unguarded: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+[ok] transmit-second-interface-starved: AnOwedMrpduTakesAPassOfItsOwn / the next such pass the next interface's
+[ok] transmit-not-bound: AnOwedMrpduTakesAPassOfItsOwn / the pass goes to the build
+[ok] transmit-attaches-over-a-bound-client: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / a loop whose THE TRANSMIT client is bound is refused
+[ok] transmit-kept-by-destroy: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / destroy detaches THE TRANSMIT's client
+[ok] transmit-count-unset: TheJoinCountFollowsWhatABuildSent / a sent MRPDU restarts its participant's count at the JoinTime
+[ok] transmit-count-from-any-build: TheJoinCountFollowsWhatABuildSent / a build that sends nothing leaves the count
+[ok] transmit-count-not-kept: TheJoinCountFollowsWhatABuildSent / each centisecond takes one off it
+[ok] transmit-moved-by-either-timer: AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle / not while its own runs, the other's idle or not
+[ok] transmit-moved-owes-nothing: AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle / an Applicant moved with its own join timer idle owes a pass
+[ok] transmit-first-vlan-send-declares-nothing: AFirstVlanSendDeclaresWhatItLicensesInItsPass / the pass that sent it declares what it licensed
+[ok] transmit-hold-beside-a-join-timer: AJoinTimeOwesAnInterfaceAPass / an interface's passes given whole, a JoinTime
+[ok] transmit-aged-beside-an-owed-frame: AnOwedFrameComesBeforeTheBuild / no pass goes to the build while a frame is owed
+[ok] transmit-due-cleared-with-a-frame-owed: AnOwedFrameComesBeforeTheBuild / the interface stays due
+[ok] transmit-declares-beside-a-retained-receive: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / a refused adoption takes no room a retained receive waits for
+[ok] transmit-refusal-tried-no-more: DomainExhaustionPreservesOldDeclarationUntilRetry / a refused declaration is tried again when the join count ends
+[ok] retry-without-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] no-retry-after-a-change: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] retry-every-pass: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / at most one retry a centisecond
+[ok] retry-tick-never-set: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a refused record is taken on the first pass after the pool frees
+[ok] pool-return-uncounted: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / the retry a change allows
+[ok] attribute-change-uncounted: SrpRetry.AnAttributeChangeAloneAllowsTheRetry / every Applicant or Registrar change lwSRP reports is marked
+[ok] refusal-moves-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] refusal-returns-unrecorded: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a retry with neither the pool nor an attribute changed
+[ok] unchanged-deadline-unchecked: SrpRetry.NothingChangedStillExpiresAtTheDeadline / the deadline holds with nothing changed
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-poll-transmit: PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-poll-frames-uncapped: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record's accesses
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: FAIL

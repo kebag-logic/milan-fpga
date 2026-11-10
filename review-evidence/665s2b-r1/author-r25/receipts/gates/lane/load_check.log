@@ -1,0 +1,8 @@
+# head 3a1d14c21b6b484270a387bae1a7eedc7c0bc2d5 gate load_check: python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+| Point | Load at the pin | Load with tsn-c-stack#32 (graded, owed to the pin move) | Ceiling | Compute for 0.70 | A pass's own cost, us | Terms by share (graded) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.466 | 0.453 | 0.70 | 1.00x | 180 | srp 0.150, rec.acmp 0.053, item.aecp 0.049, ticks 0.047, rec.aecp 0.041, steps 0.033, item.reclaim 0.025, timers 0.017, item.acmp 0.011, rec.adp 0.009, builds 0.005, rec.maap 0.004, item.mrpdu 0.004, item.walk 0.002, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.844 | 0.747 | 0.70 | 1.07x | 275 | srp 0.243, item.aecp 0.076, rec.acmp 0.061, timers 0.056, rec.aecp 0.052, ticks 0.051, item.mrpdu 0.049, item.reclaim 0.042, steps 0.034, builds 0.024, item.acmp 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+| 32x32/2if | 2.150 | 1.659 | reported, pending the owner | 2.37x | 590 | srp 0.519, item.mrpdu 0.299, builds 0.150, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.036, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000 |
+OVER 8x8/2if: the load 0.747 is over its ceiling 0.70
+RESULT: FAIL

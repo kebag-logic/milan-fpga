@@ -1,0 +1,14 @@
+# 8x8/2if images' rom against the 57.5-tile ledger (granule edge 122,880 B), each linked by build.firmware with round 24's flash map
+round 24 head a30c9986, answering-every-port: 122,868 (from round 24's ledger note)
+item 1, first design (pool change count + adapter move count, generation compared at three sites): 123,004 REFUSED
+  refusal recorded once, in apply_receive: 122,988 REFUSED
+  the retry as a noinline helper: 123,068 REFUSED (not kept)
+  a per-interface moved flag in tail padding, a returned-blocks count: 122,972 REFUSED
+  plus a shared loop-table unlink helper: 123,036 REFUSED (not kept)
+final (dbd57a7a): struct srp_mbx's two frame buffers last:
+  none: 122248
+  answering-every-port: 122556
+  answering-later: 122400
+  answering-ports: 122416
+srp_mbx.o text: round 24 11,916 B; final 11568 B
+with tsn-c-stack#32 at the pin (TD): acmp.o text 12,748 -> 13,300 B; answering-every-port 123,012 REFUSED (132 B over)

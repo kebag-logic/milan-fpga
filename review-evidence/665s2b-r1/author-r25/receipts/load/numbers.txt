@@ -1,0 +1,21 @@
+# head 29854e43c916a8c85a854ac66fce71e170dea3c2: python3 -I round25_numbers.py <lane>
+1x1/1if: pin 0.466 donor 0.453 compute 1.00x own 180 (pin own 180)
+   graded terms: srp 0.150, rec.acmp 0.053, item.aecp 0.049, ticks 0.047, rec.aecp 0.041, steps 0.033, item.reclaim 0.025, timers 0.017, item.acmp 0.011, rec.adp 0.009, builds 0.005, rec.maap 0.004, item.mrpdu 0.004, item.walk 0.002, notices 0.002, gm 0.000
+   pin terms:    srp 0.150, rec.acmp 0.056, item.aecp 0.049, ticks 0.047, rec.aecp 0.041, steps 0.033, item.reclaim 0.025, item.acmp 0.020, timers 0.018, rec.adp 0.011, rec.maap 0.004, builds 0.004, item.mrpdu 0.004, item.walk 0.002, notices 0.002, gm 0.000
+   costs moved by the donor (pin -> donor): build 900 -> 910, event.ACMP 185 -> 165, event.MAAP 165 -> 170, item.acmp 65 -> 35, record.acmp 280 -> 265, record.adp 105 -> 95
+8x8/2if: pin 0.844 donor 0.747 compute 1.07x own 275 (pin own 310)
+   graded terms: srp 0.243, item.aecp 0.076, rec.acmp 0.061, timers 0.056, rec.aecp 0.052, ticks 0.051, item.mrpdu 0.049, item.reclaim 0.042, steps 0.034, builds 0.024, item.acmp 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.006, gm 0.001
+   pin terms:    srp 0.243, rec.acmp 0.088, item.aecp 0.076, item.acmp 0.070, timers 0.067, rec.aecp 0.052, item.mrpdu 0.049, ticks 0.048, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.006, gm 0.001
+   over 0.70 by 0.047; the top three, each alone:
+     srp 0.243 (records 0.203, retries 0.041) -> 0.196: an SRP record (and its retry) 405 -> 326 us (-20%), or SRP refill 2 -> 2.61 ms
+     item.aecp 0.076 (records 0.068, probes 0.008) -> 0.029: a record's owed frame 340 -> 103 us (-70%), or AECP refill 5 -> 16.5 ms
+     rec.acmp 0.061 -> 0.014: a acmp record 305 -> 68 us (-78%), or acmp refill 5 -> 22.4 ms
+   costs moved by the donor (pin -> donor): base 280 -> 245, event.ACMP 350 -> 205, event.TICK 40 -> 75, item.acmp 185 -> 40, item.reclaim 35 -> 40, record.acmp 440 -> 305, record.adp 240 -> 125
+32x32/2if: pin 2.150 donor 1.659 compute 2.37x own 590 (pin own 610)
+   graded terms: srp 0.519, item.mrpdu 0.299, builds 0.150, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.036, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000
+   pin terms:    srp 0.519, item.acmp 0.306, item.mrpdu 0.299, rec.acmp 0.196, timers 0.170, builds 0.150, item.reclaim 0.104, ticks 0.101, item.aecp 0.078, rec.adp 0.073, rec.aecp 0.043, notices 0.036, steps 0.034, item.walk 0.030, rec.maap 0.010, gm 0.000
+   over 0.70 by 0.959; the top three, each alone:
+     srp 0.519 (records 0.432, retries 0.086) -> -0.440: an SRP record (and its retry) 865 -> -733 us (-185%), or SRP refill 2 -> inf ms
+     item.mrpdu 0.299 -> -0.659 (-320% of the term)
+     builds 0.150 -> -0.809 (-640% of the term)
+   costs moved by the donor (pin -> donor): base 590 -> 570, event.ACMP 845 -> 330, item.acmp 665 -> 105, item.reclaim 100 -> 105, item.walk 135 -> 140, record.acmp 980 -> 425, record.adp 735 -> 270

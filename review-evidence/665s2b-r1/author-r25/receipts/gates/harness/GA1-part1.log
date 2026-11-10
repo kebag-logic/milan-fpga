@@ -1,0 +1,17 @@
+HEAD ca403b0c42678ef2ce6fbcbfcda06a8b47e5a3ed DIRTY 0 part 1/3
+groups: save-second,backlog-adp@blank-2,backlog-adp@blank-5,backlog-adp@blank-aged1-0,backlog-adp@blank-aged1-3,backlog-adp@blank-aged1-6,backlog-adp@blank-aged2-1,backlog-adp@blank-aged2-4,backlog-adp@blank-aged2-7,backlog-adp@program-2,backlog-adp@program-5,backlog-adp@program-aged1-0,backlog-adp@program-aged1-3,backlog-adp@program-aged1-6,backlog-adp@program-aged2-1,backlog-adp@program-aged2-4,backlog-adp@program-aged2-7,backlog-adp@verify-2,backlog-adp@verify-5,backlog-adp@verify-aged1-0,backlog-adp@verify-aged1-3,backlog-adp@verify-aged1-6,backlog-adp@verify-aged2-1,backlog-adp@verify-aged2-4,backlog-adp@verify-aged2-7,save-starved,srp,backlog-owed,adp-discover,adp-gm,aecp-fanout
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+BUDGET backlog.owed.if0: 62.509 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.209 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.208 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.207 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.207 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.679 ms over its budget 20 ms
+STEPS 9590 passes carry the store's step; the longest 91,824 CPU cycles (0.918 ms), backlog-adp@program-2; the longest step 78,933 (0.789 ms), backlog-adp@program-aged2-7
+AGED 18 windows opened with the step's age at its limit or one short of it, 5 aged steps among their records; the least margin 10.483 ms, backlog-adp@verify-aged2-7.service.aecp.last.if0 at 9.517 ms
+SAVE save-second: durable 6029.877 ms after its change (stated worst case 6,070 ms, 102 steps, longest gap between flash steps 30.853 ms) within
+SAVE save-starved: durable 4048.078 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 31.155 ms) within
+31 groups graded, 0 refusals, 6 budget misses (6 of 304 probe instances, 3 of 35 paths), 0 of 126518 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=6272s
+rc=0

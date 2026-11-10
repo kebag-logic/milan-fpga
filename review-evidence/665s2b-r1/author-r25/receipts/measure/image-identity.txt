@@ -1,0 +1,8 @@
+# Each measured leg's image (a scratch clone whose only change is build.py's trace symbols) against the clean gate leg's image of the same arm at ca403b0c42678ef2ce6fbcbfcda06a8b47e5a3ed (objcopy -O binary, SHA-256)
+CN8 (measured, answering-every-port 8x8/2if): rom 122556 bytes; image (objcopy -O binary) 122556 bytes, sha256 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c
+GN8 (gate, answering-every-port 8x8/2if): 122556 bytes, sha256 79406ead825d20965d2a18a183f7a756bccce2eeac83b1e85c42024152ead74c
+GA8 (gate, arm A 8x8/2if): 122248 bytes, sha256 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519
+GA1 (gate, arm A 1x1/1if): 107032 bytes, sha256 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97
+GN1 (gate, answering-every-port 1x1/1if): 107340 bytes, sha256 1bcb7e19f8730fc29f264cc9549b3e2a38b52521bbe774e207c1c27b891eaadc
+C8 (measured, arm A 8x8/2if): rom 122248 bytes; image (objcopy -O binary) 122248 bytes, sha256 d36ba63a1bb6da9110f83590f472ca61ced7b30381a8d74d9d719f8160b1a519
+C1 (measured, arm A 1x1/1if): rom 107032 bytes; image (objcopy -O binary) 107032 bytes, sha256 69dfa87ed5988ce70d47f8b0c2ec86fcf3cdd0cc702cf4c2472fef08c38dce97
