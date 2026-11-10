@@ -105,10 +105,14 @@ A run ends 250 ms after both its last draw and its last required ANNOUNCE, the l
 **The load** (the round 2 ruling's item 3) is the CPU budget harness's composed load (`scenario.composed_load`): every receive channel's admitted burst at once, but the measured path's own, alternating the interfaces as that harness does.
 It is offered right before each bind (ACMP's path) and each AEM command (AECP's), and 200 us before every deadline the firmware arms on interface 0's MAAP and ADP timer slots, so the burst is in the loop when the timer expires.
 A burst carries about 60 records: 8 ADP, 16 AECP, 7 MAAP, 32 SRP and 12 ACMP, less the measured channel's; `KL_mbx_rx`'s token buckets admit what they admit.
-Two parts differ from that harness's load, each stated:
+Three parts differ from that harness's load, each stated:
 
 - its ADP records are ENTITY_DISCOVERs for another entity: a global one restarts this entity's advertise cycle at every burst (Milan v1.2 5.6.3.5.4), so no advertise period would ever complete under load; the frame, its channel and its parse up to the target check are the same;
-- its MAAP records echo interface 0's last ANNOUNCE as a conflicting PROBE, as that harness's do, so before the first ANNOUNCE they are skipped (the `LOAD` line counts them): a conflicting PROBE while probing restarts the acquisition (B.3.6.5) whose intervals are measured.
+- its MAAP records echo interface 0's last ANNOUNCE as a conflicting PROBE, as that harness's do, so before the first ANNOUNCE they are skipped (the `LOAD` line counts them): a conflicting PROBE while probing restarts the acquisition (B.3.6.5) whose intervals are measured;
+- a deadline's burst leaves out the ACMP and AECP records, the channels whose received records the draws measure; the draws' own bursts are whole.
+  That harness never loads a measured path's own channel, and a deadline's burst can land with a draw's command.
+  The first campaign, at `79997664d5`, measured it twice: an ADP deadline's 12 GET_RX_STATEs filled ACMP's ring (room 12) microseconds before a BIND_RX, and before a PROBE_TX_RESPONSE, and `KL_mbx` dropped each.
+  `run.py` refuses a stimulus whose deadline load reaches either channel.
 
 The grandmaster changes of that harness's other rows are not part of the composed load; interface 0's would need the gPTP plane `tb_split_top` builds off.
 
@@ -203,7 +207,8 @@ At about 4 ms of simulated time a second on an unloaded core, a unit takes about
 
 ## Controls and self-test
 
-`--self-test` grades synthetic logs of two draws, MAAP's acquisition and ADP's startup advertisement, and a 37 s log with a second ANNOUNCE and ADP's periodic advertising.
+`--self-test` first checks the stimulus: a loaded script's deadline loads reach no draw's channel (`clean-loaded-script`), and one planted with a GET_RX_STATE in ADP's deadline load is refused (`deadline-load-on-a-draw-channel`, words `the deadline load adp reaches the acmp channel`).
+It then grades synthetic logs of two draws, MAAP's acquisition and ADP's startup advertisement, and a 37 s log with a second ANNOUNCE and ADP's periodic advertising.
 Each clean log must pass, and each control must be refused or found by its own words:
 
 The clean logs are `clean`, `clean-announce-interval` and `clean-two-interfaces`, with no finding.

@@ -374,9 +374,30 @@ def plants(text: str, sys_hz: int, draws: int, interfaces: int, announces: int) 
     return escaped
 
 
+def planted_deadline_load(text: str) -> str:
+    """A loaded script whose ADP deadline load also carries one of ACMP's GET_RX_STATEs, a draw channel's record."""
+    get = s.budget.acmp_cmd(POINT, 'GET_RX_STATE', 0, 0x7200).hex()
+    lines = [f'{line} 0/{get}' if line.startswith('defload adp ') else line for line in text.splitlines()]
+    return '\n'.join(lines) + '\n'
+
+
+#: The stimulus's own control: no deadline load may reach a draw's channel (wire_scenario.deadline_loads_clear),
+#: which run.py enforces on every script it writes.
+SCRIPT_CONTROLS = (
+    ('clean-loaded-script', lambda: s.script(POINT, 2, 3, True), ''),
+    ('deadline-load-on-a-draw-channel', lambda: planted_deadline_load(s.script(POINT, 2, 3, True)),
+     'the deadline load adp reaches the acmp channel'),
+)
+
+
 def main() -> int:
     """Every control; exit 1 when a clean log fails or any control escapes."""
     failed = 0
+    for name, script, wanted in SCRIPT_CONTROLS:
+        words = s.deadline_loads_clear(script())
+        ok = not words if not wanted else any(wanted in w for w in words)
+        print(f'control {name}: {("PASS" if not wanted else "caught: " + words[0]) if ok else "FAIL " + repr(words)}')
+        failed += not ok
     for name, log, interfaces, announces, censored in CLEAN:
         result, words = g.grade('\n'.join(log()) + '\n', SYS_HZ, 2, interfaces, announces)
         if result['censored'] != censored:
@@ -388,7 +409,8 @@ def main() -> int:
         caught = any(wanted in w for w in words)
         print(f'control {name}: {"caught" if caught else "ESCAPED"}: {words[0] if words else "no finding"}')
         failed += not caught
-    print(f'ctrl_wire_timing self-test: {len(CLEAN) + len(CONTROLS)} controls, {failed} failed')
+    total = len(SCRIPT_CONTROLS) + len(CLEAN) + len(CONTROLS)
+    print(f'ctrl_wire_timing self-test: {total} controls, {failed} failed')
     return 1 if failed else 0
 
 

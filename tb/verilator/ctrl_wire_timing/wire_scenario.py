@@ -20,7 +20,7 @@ THE LOAD (#868, the round 2 ruling): the CPU budget harness's composed load
 the measured path's own, alternating the interfaces as it does. It is offered
 right before each bind (ACMP's path) and each AEM command (AECP's), and a
 lead before every deadline the firmware arms on interface 0's MAAP and ADP
-timer slots (onarm), so the burst is in the loop when the timer expires. Two
+timer slots (onarm), so the burst is in the loop when the timer expires. Three
 parts differ from that harness's, each stated:
   - its ADP records are ENTITY_DISCOVERs for another entity: a global one
     restarts this entity's advertise cycle at every burst (Milan v1.2
@@ -29,7 +29,13 @@ parts differ from that harness's, each stated:
   - its MAAP records echo interface 0's last ANNOUNCE as a conflicting PROBE,
     as that harness's do, so before the first ANNOUNCE they are skipped (the
     LOAD line counts them): a conflicting PROBE while probing restarts the
-    acquisition (B.3.6.5) whose intervals are measured.
+    acquisition (B.3.6.5) whose intervals are measured;
+  - a deadline's burst leaves out the ACMP and AECP records, the channels
+    whose received records the draws measure (DRAW_CHANNELS). That harness
+    never loads a measured path's own channel, and a deadline's burst can land
+    with a draw's command: the 1x1 campaign at 79997664d5 measured it, an ADP
+    deadline's 12 GET_RX_STATEs filling ACMP's ring (room 12) 6 us before a
+    BIND_RX, which KL_mbx then dropped. The draws' own bursts are whole.
 The grandmaster changes of that harness's other rows are not part of the
 composed load; interface 0's would need the gPTP plane tb_split_top builds off.
 
@@ -146,10 +152,19 @@ def aecp_command(p: budget.Point, k: int, seq: int) -> tuple[str, bytes]:
 
 #: The other entity the load's ENTITY_DISCOVERs name (see the module's docstring).
 OTHER_ENTITY = budget.TALKER_A
+#: The channels whose received records the draws measure: a deadline's burst leaves them out (see the docstring).
+DRAW_CHANNELS = ('acmp', 'aecp')
 
 
-def load_items(p: budget.Point, own: str) -> list[str]:
-    """The composed load but `own`'s channel, as defload items (see the module's docstring)."""
+def channel_of(frame: bytes) -> str:
+    """A frame's mailbox channel: the AVTP control subtype, or MSRP and MVRP as srp."""
+    if frame[12:14] == b'\x22\xf0':
+        return {0xFA: 'adp', 0xFB: 'aecp', 0xFC: 'acmp', 0xFE: 'maap'}.get(frame[14], 'avtp')
+    return 'srp' if frame[12:14] in (b'\x22\xea', b'\x88\xf5') else 'other'
+
+
+def load_items(p: budget.Point, own: str, leave_out: tuple[str, ...] = ()) -> list[str]:
+    """The composed load but `own`'s channel and `leave_out`'s, as defload items (see the module's docstring)."""
     g = budget.Group(f'load-{own}')
     budget.composed_load(g, p, own)
     discover = f.adp(f.ADP_DISCOVER, 0, budget.CTL_MAC, f.Adp(valid_time=0))
@@ -159,6 +174,8 @@ def load_items(p: budget.Point, own: str) -> list[str]:
         w = step.split()
         if w[0] == 'frame':
             frame = bytes.fromhex(w[2])
+            if channel_of(frame) in leave_out:
+                continue
             items.append(f'{w[1]}/{(elsewhere if frame == discover else frame).hex()}')
         elif w[0] == 'reply':   # reply <if> <maap channel> 15:<type> on=<if> <off>=<hex>...: an echo of that frame
             selectors = ['12:22', '13:f0', f'14:{0xFE:02x}', w[3]]
@@ -171,10 +188,30 @@ def load_items(p: budget.Point, own: str) -> list[str]:
 
 def load_lines(p: budget.Point) -> list[str]:
     """The loads' definitions and the deadline triggers on interface 0's MAAP and ADP slots."""
-    lines = [f'defload {own} {" ".join(load_items(p, own))}' for own in ('acmp', 'aecp', 'maap', 'adp')]
+    lines = [f'defload {own} {" ".join(load_items(p, own, () if own in DRAW_CHANNELS else DRAW_CHANNELS))}'
+             for own in ('acmp', 'aecp', 'maap', 'adp')]
     lines += [f'onarm {MAAP_FIRST_SLOT_IFS * p.interfaces} {LOAD_LEAD_CYCLES} maap',
               f'onarm {ADP_SLOT} {LOAD_LEAD_CYCLES} adp']
     return lines
+
+
+def deadline_load_channels(text: str) -> dict[str, set[str]]:
+    """Each deadline-triggered load of a script (its onarm lines) with the channels its frames reach."""
+    triggered = {line.split()[3] for line in text.splitlines() if line.startswith('onarm ')}
+    out = {}
+    for line in text.splitlines():
+        w = line.split()
+        if w and w[0] == 'defload' and w[1] in triggered:
+            out[w[1]] = {channel_of(bytes.fromhex(item.split('/')[1])) if item.split('/')[1] != 'echo' else 'maap'
+                         for item in w[2:]}
+    return out
+
+
+def deadline_loads_clear(text: str) -> list[str]:
+    """Each deadline-triggered load of a script that reaches a draw's channel (see the module's docstring)."""
+    return [f'the deadline load {name} reaches the {", ".join(sorted(reach & set(DRAW_CHANNELS)))} channel, '
+            "whose received records the draws measure"
+            for name, reach in sorted(deadline_load_channels(text).items()) if reach & set(DRAW_CHANNELS)]
 
 
 def announce_match() -> str:

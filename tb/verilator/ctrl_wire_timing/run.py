@@ -70,9 +70,12 @@ def start_model(build_dir: Path, spec: dict, out: Path, run: dict) -> subprocess
     import wire_scenario
     out.mkdir(parents=True, exist_ok=True)
     point = wire_scenario.identity(spec)
+    text = wire_scenario.script(point, run['draws'], run['seed'], run['load'] == 'composed', run['announces'])
+    clash = wire_scenario.deadline_loads_clear(text)
+    if clash:
+        raise ValueError(f'the stimulus is refused: {clash[0]}')
     (out / 'run.json').write_text(json.dumps(run, indent=1) + '\n')
-    (out / 'wire.txt').write_text(wire_scenario.script(point, run['draws'], run['seed'], run['load'] == 'composed',
-                                                       run['announces']))
+    (out / 'wire.txt').write_text(text)
     sink = (out / 'wire.log').open('w')
     return subprocess.Popen([str(build_dir / 'native/Vsim'), str(out / 'wire.txt'), str(out / 'uart.txt'),
                              str(wire_scenario.limit_ms(run['draws'], run['announces']))],
