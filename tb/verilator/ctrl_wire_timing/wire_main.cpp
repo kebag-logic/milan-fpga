@@ -28,7 +28,16 @@
 //    FCS and inter-frame gap) between frames, and a frame shorter than 60
 //    bytes counted as 60, the MAC's padding;
 //  - the flash device, the CPU budget harness's native model, blank;
-//  - the UART, read and never written.
+//  - the UART, read and never written;
+//  - every interface past the first (#868), which the split top gives to the
+//    bench with no datapath behind it: its link level, and its frames at
+//    KL_mbx's own byte boundary, one byte a bus cycle, as the CPU budget
+//    harness offers them; what KL_mbx sends on it is taken at once.
+//
+// Load (#868): a named set of frames (defload), offered at once (load) or a
+// stated lead before every deadline a timer slot is armed with (onarm), so the
+// frames meet the loop when that timer expires. Frames wait in one queue per
+// interface in the order of the cycle they may be offered from.
 //
 // Output lines, which wire_grade.py grades:
 //   MS <cycle> <now_ms>                    each millisecond pulse
@@ -37,9 +46,15 @@
 //                                          were taken
 //   TXW <first> <last> <bytes> <hex>       a frame the datapath sent: the cycles
 //                                          its first and last beat were taken
+//   RXB|TXB <first> <last> <if> <bytes> <tag|-> <hex>  the same at KL_mbx's
+//                                          boundary, on an interface past the first
+//   MTX <cycle> <if> <channel>             a frame's last byte leaving KL_mbx, on
+//                                          any interface
 //   TXC <cycle> <channel> <value>          a TX_HEAD write: a mailbox commit
 //   TMR <cycle> <value> <deadline>         a TMR_CMD write, the deadline the
 //                                          last TMR_DEADLINE write gave
+//   LOAD <cycle> <name> <offered> <skipped>  a load's frames queued; an echo with
+//                                          no frame to copy is skipped
 //   CSRW|CSRR <cycle> <offset> <value> <cycles>  a CSR window access
 //   RXSTALL <cycle>                        a received beat the datapath refused
 //   UART <cycle> <hex byte>; READY <cycle>; MARK <cycle> <label>
@@ -54,12 +69,14 @@
 #include "wire_config.hpp"
 #include "flash.hpp"
 #include "verilator_harness.hpp"
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -98,6 +115,32 @@ struct Frame {
     std::vector<std::uint8_t> bytes;
     std::uint64_t not_before = 0;
 };
+
+//! One load item: a frame for an interface, or an echo, a copy of the newest frame that interface sent whose
+//! bytes match every selector, patched (the CPU budget harness's reply), and skipped while there is none.
+struct LoadItem {
+    unsigned interface = 0;
+    std::vector<std::uint8_t> bytes;
+    bool echo = false;
+    std::vector<std::pair<std::size_t, std::uint8_t>> select;
+    std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> patch;
+};
+
+struct Trigger { unsigned slot; std::uint64_t lead; std::string load; };
+
+//! A queue of frames in the order of the cycle each may be offered from; the front frame, once started, stays.
+void enqueue(std::deque<Frame>& queue, Frame f, bool front_started) {
+    auto at = queue.begin();
+    if (front_started && at != queue.end()) ++at;
+    while (at != queue.end() && at->not_before <= f.not_before) ++at;
+    queue.insert(at, std::move(f));
+}
+
+bool matches(const std::vector<std::uint8_t>& sent, const std::vector<std::pair<std::size_t, std::uint8_t>>& terms) {
+    for (const auto& [at, byte] : terms)
+        if (at >= sent.size() || sent[at] != byte) return false;
+    return true;
+}
 
 struct Step { std::string op; std::vector<std::string> args; };
 
@@ -146,6 +189,7 @@ public:
             tx_fired();
             fired_ = false;
         }
+        bench_fired();
         script();
     }
 
@@ -153,6 +197,12 @@ public:
     void latch(const Vsim& cpu, const Vtb_split_top& top, bool dp_rising) {
         if (in_reset_) return;
         flash_latch(cpu);
+        if (top.p_mbx_tx_end) std::printf("MTX %llu %u %u\n", ull(sys_), unsigned(top.p_mbx_tx_if), unsigned(top.p_mbx_tx_ch));
+        b_rx_fire_ = b_rx_offered_ && top.bench_rx_ready;
+        b_tx_fire_ = top.bench_tx_valid;   // bench_tx_ready is held high
+        b_tx_data_ = top.bench_tx_data;
+        b_tx_last_ = top.bench_tx_last;
+        b_tx_if_ = top.bench_tx_if;
         if (!dp_rising) return;
         fired_ = true;
         rx_fire_ = rx_offered_ && top.rx_tready;
@@ -183,7 +233,10 @@ public:
         cpu.flash_tx_ready = !flash_pending_ && cpu.flash_cs;
         cpu.flash_rx_valid = flash_pending_ && sys_ >= flash_at_;
         cpu.flash_rx_data = flash_response_;
-        top.link_up = link_;
+        top.link_up = link_ & 1u;
+        top.bench_link_up = link_;
+        top.bench_tx_ready = 1;
+        bench_drive(top);
         top.s_axi_awaddr = axi_addr_;
         top.s_axi_araddr = axi_addr_;
         top.s_axi_wdata = axi_wdata_;
@@ -205,6 +258,7 @@ public:
         if (ms_count_ == ms_div - 1) {
             ms_count_ = 0;
             ++now_ms_;
+            ms_cycle_ = sys_;
             std::printf("MS %llu %u\n", ull(sys_), now_ms_);
             if (host_log_ && now_ms_ % 10 == 0)
                 std::printf("PROGRESS %u host=%llu flash_words=%u csr=%u\n", now_ms_, ull(host_accesses_), flash_words_,
@@ -214,13 +268,18 @@ public:
         }
     }
 
-    void release() { in_reset_ = false; }
+    void release() {
+        in_reset_ = false;
+        ms_cycle_ = sys_;   // NOW_MS is 0 from here; its first pulse is ms_div cycles on
+    }
 
     void report() const {
         std::printf("SUMMARY sys=%llu now_ms=%u rx_frames=%u tx_frames=%u rx_stalls=%u csr_reads=%u csr_writes=%u "
-                    "host_accesses=%llu flash_selects=%u flash_words=%u uart_bytes=%zu\n",
+                    "host_accesses=%llu flash_selects=%u flash_words=%u uart_bytes=%zu bench_rx=%u bench_tx=%u "
+                    "loads=%u\n",
                     ull(sys_), now_ms_, rx_frames_, tx_frames_, rx_stalls_, csr_reads_, csr_writes_,
-                    ull(host_accesses_), flash_ops_, flash_words_, transcript_.size());
+                    ull(host_accesses_), flash_ops_, flash_words_, transcript_.size(), b_rx_frames_, b_tx_frames_,
+                    loads_);
     }
 
 private:
@@ -242,7 +301,15 @@ private:
         for (unsigned ch = 0; ch < n_channels; ++ch)
             if (host_word_ == tx_head_word[ch]) std::printf("TXC %llu %u %u\n", ull(sys_), ch, host_wdata_);
         if (host_word_ == tmr_deadline_word) deadline_ = host_wdata_;
-        if (host_word_ == tmr_cmd_word) std::printf("TMR %llu %08x %u\n", ull(sys_), host_wdata_, deadline_);
+        if (host_word_ != tmr_cmd_word) return;
+        std::printf("TMR %llu %08x %u\n", ull(sys_), host_wdata_, deadline_);
+        if ((host_wdata_ >> 30) != 1u) return;   // TMR_CMD.OP: 1 an arm
+        for (const Trigger& trig : triggers_) {
+            if ((host_wdata_ & 0xFFu) != trig.slot) continue;
+            // the cycle NOW_MS reaches the deadline, less the lead; at once when that has passed
+            const std::uint64_t due = deadline_ > now_ms_ ? ms_cycle_ + std::uint64_t(deadline_ - now_ms_) * ms_div : sys_;
+            offer(trig.load, due > sys_ + trig.lead ? due - trig.lead : sys_);
+        }
     }
 
     // the CSR window: one Wishbone access, one AXI4-Lite access on the datapath clock
@@ -348,15 +415,129 @@ private:
     }
 
     void replies(const std::vector<std::uint8_t>& sent) {
+        history(0, sent);
+        sent_all_.push_back(sent);
+        if (sent_wait_ && matches(sent, sent_match_)) ++sent_count_;
         for (const Reply& r : replies_) {
-            bool hit = true;
-            for (const auto& [at, byte] : r.match) hit = hit && at < sent.size() && sent[at] == byte;
-            if (!hit) continue;
+            if (!matches(sent, r.match)) continue;
             Frame f{r.tag, sent, sys_ + r.turnaround};
             for (const auto& [at, bytes] : r.patch)
                 for (std::size_t i = 0; i < bytes.size(); ++i) f.bytes.at(at + i) = bytes[i];
-            rx_.push_back(f);
+            enqueue(rx_, f, rx_offset_ > 0);
         }
+    }
+
+    // ---- the interfaces past the first, at KL_mbx's byte boundary: the byte the last bus edge took
+    void bench_fired() {
+        if (b_rx_fire_) {
+            const Frame& f = b_rx_[b_if_].front();
+            if (b_rx_offset_ == 0) b_rx_first_ = sys_ - 1;
+            if (++b_rx_offset_ == f.bytes.size()) {
+                ++b_rx_frames_;
+                std::printf("RXB %llu %llu %u %zu %s %s\n", ull(b_rx_first_), ull(sys_ - 1), b_if_, f.bytes.size(),
+                            f.tag.c_str(), hexed(f.bytes).c_str());
+                b_rx_[b_if_].pop_front();
+                b_rx_offset_ = 0;
+            }
+            b_rx_fire_ = false;
+        }
+        if (!b_tx_fire_) return;
+        if (b_tx_bytes_.empty()) b_tx_first_ = sys_ - 1;
+        b_tx_bytes_.push_back(b_tx_data_);
+        b_tx_fire_ = false;
+        if (!b_tx_last_) return;
+        ++b_tx_frames_;
+        std::printf("TXB %llu %llu %u %zu - %s\n", ull(b_tx_first_), ull(sys_ - 1), unsigned(b_tx_if_),
+                    b_tx_bytes_.size(), hexed(b_tx_bytes_).c_str());
+        history(b_tx_if_, b_tx_bytes_);
+        b_tx_bytes_.clear();
+    }
+
+    void bench_drive(Vtb_split_top& top) {
+        if (b_rx_offset_ == 0) {   // between frames: the interface whose next frame may go first
+            b_if_ = 0;
+            std::uint64_t best = ~0ULL;
+            for (unsigned i = 1; i < n_if; ++i)
+                if (!b_rx_[i].empty() && b_rx_[i].front().not_before <= sys_ && b_rx_[i].front().not_before < best) {
+                    best = b_rx_[i].front().not_before;
+                    b_if_ = i;
+                }
+        }
+        b_rx_offered_ = b_if_ != 0;
+        top.bench_rx_valid = b_rx_offered_;
+        top.bench_rx_if = b_if_;
+        if (!b_rx_offered_) { top.bench_rx_last = 0; return; }
+        const Frame& f = b_rx_[b_if_].front();
+        top.bench_rx_data = f.bytes[b_rx_offset_];
+        top.bench_rx_last = b_rx_offset_ + 1 == f.bytes.size();
+    }
+
+    //! The newest frames each interface sent, for the echoes.
+    void history(unsigned interface, const std::vector<std::uint8_t>& sent) {
+        auto& h = sent_.at(interface);
+        h.push_back(sent);
+        if (h.size() > 64) h.pop_front();
+    }
+
+    void queue(unsigned interface, Frame f) {
+        if (interface >= n_if) throw std::runtime_error("a frame for interface " + std::to_string(interface) +
+                                                        " of " + std::to_string(n_if));
+        if (interface == 0) enqueue(rx_, std::move(f), rx_offset_ > 0);
+        else enqueue(b_rx_[interface], std::move(f), b_if_ == interface && b_rx_offset_ > 0);
+    }
+
+    //! A named load's frames, queued to be offered from cycle `from`; an echo copies what was sent by now.
+    void offer(const std::string& name, std::uint64_t from) {
+        const auto found = loads_def_.find(name);
+        if (found == loads_def_.end()) throw std::runtime_error("no load named " + name);
+        unsigned offered = 0, skipped = 0;
+        for (const LoadItem& item : found->second) {
+            Frame f{"load-" + name, item.bytes, from};
+            if (item.echo) {
+                const auto& h = sent_.at(item.interface);
+                auto it = h.rbegin();
+                while (it != h.rend() && !matches(*it, item.select)) ++it;
+                if (it == h.rend()) { ++skipped; continue; }
+                f.bytes = *it;
+                for (const auto& [at, bytes] : item.patch)
+                    for (std::size_t i = 0; i < bytes.size(); ++i) f.bytes.at(at + i) = bytes[i];
+            }
+            queue(item.interface, std::move(f));
+            ++offered;
+        }
+        ++loads_;
+        std::printf("LOAD %llu %s %u %u\n", ull(from), name.c_str(), offered, skipped);
+    }
+
+    //! defload <name> <item>...: <if>/<hex> a frame; <if>/echo/<at>:<byte>[,<at>:<byte>...]/<at>=<hex>... an echo.
+    void define_load(const Step& s) {
+        std::vector<LoadItem> items;
+        for (std::size_t a = 1; a < s.args.size(); ++a) {
+            std::vector<std::string> parts;
+            std::istringstream fields(s.args[a]);
+            for (std::string p; std::getline(fields, p, '/');) parts.push_back(p);
+            if (parts.size() < 2) throw std::runtime_error("bad load item: " + s.args[a]);
+            LoadItem item;
+            item.interface = unsigned(std::stoul(parts[0]));
+            if (parts[1] != "echo") {
+                item.bytes = unhex(parts[1]);
+            } else {
+                if (parts.size() < 3) throw std::runtime_error("an echo needs its selector: " + s.args[a]);
+                item.echo = true;
+                std::istringstream selectors(parts[2]);
+                for (std::string sel; std::getline(selectors, sel, ',');) {
+                    const auto colon = sel.find(':');
+                    item.select.emplace_back(std::stoul(sel.substr(0, colon)),
+                                             std::uint8_t(std::stoul(sel.substr(colon + 1), nullptr, 16)));
+                }
+                for (std::size_t i = 3; i < parts.size(); ++i) {
+                    const auto equal = parts[i].find('=');
+                    item.patch.emplace_back(std::stoul(parts[i].substr(0, equal)), unhex(parts[i].substr(equal + 1)));
+                }
+            }
+            items.push_back(std::move(item));
+        }
+        loads_def_[s.args.at(0)] = std::move(items);
     }
 
     // ---- the stimulus script
@@ -381,13 +562,35 @@ private:
                     waiting_ = false;
                 } else if (s.args.at(0) == "now") {      // until NOW_MS reaches the value
                     if (now_ms_ < std::stoul(s.args.at(1))) return;
+                } else if (s.args.at(0) == "sent") {     // sent <count> <off>:<byte>...: frames at the MAC so far
+                    if (!sent_wait_) {
+                        sent_wait_ = true;
+                        sent_match_.clear();
+                        for (std::size_t i = 2; i < s.args.size(); ++i) {
+                            const auto colon = s.args[i].find(':');
+                            sent_match_.emplace_back(std::stoul(s.args[i].substr(0, colon)),
+                                                     std::uint8_t(std::stoul(s.args[i].substr(colon + 1), nullptr, 16)));
+                        }
+                        sent_count_ = 0;
+                        for (const auto& old : sent_all_) sent_count_ += matches(old, sent_match_);
+                    }
+                    if (sent_count_ < std::stoul(s.args.at(1))) return;
+                    sent_wait_ = false;
                 } else {
                     throw std::runtime_error("unknown wait: " + s.args.at(0));
                 }
-            } else if (s.op == "link") {
-                link_ = s.args.at(0) == "1";
-            } else if (s.op == "frame") {
-                rx_.push_back(Frame{s.args.at(0), unhex(s.args.at(1)), sys_});
+            } else if (s.op == "link") {             // link <if> <0|1>
+                const unsigned i = unsigned(std::stoul(s.args.at(0)));
+                if (i >= n_if) throw std::runtime_error("no interface " + s.args.at(0));
+                link_ = s.args.at(1) == "1" ? (link_ | (1u << i)) : (link_ & ~(1u << i));
+            } else if (s.op == "frame") {            // frame <if> <tag> <hex>
+                queue(unsigned(std::stoul(s.args.at(0))), Frame{s.args.at(1), unhex(s.args.at(2)), sys_});
+            } else if (s.op == "defload") {
+                define_load(s);
+            } else if (s.op == "load") {
+                offer(s.args.at(0), sys_);
+            } else if (s.op == "onarm") {            // onarm <slot> <lead cycles> <load>
+                triggers_.push_back(Trigger{unsigned(std::stoul(s.args.at(0))), std::stoull(s.args.at(1)), s.args.at(2)});
             } else if (s.op == "reply") {
                 Reply r;
                 r.tag = s.args.at(0);
@@ -424,6 +627,30 @@ private:
     std::vector<Step> steps_;
     std::vector<Reply> replies_;
     std::deque<Frame> rx_;
+    std::array<std::deque<Frame>, n_if> b_rx_;
+    std::array<std::deque<std::vector<std::uint8_t>>, n_if> sent_;
+    std::vector<std::vector<std::uint8_t>> sent_all_;
+    std::vector<std::pair<std::size_t, std::uint8_t>> sent_match_;
+    std::map<std::string, std::vector<LoadItem>> loads_def_;
+    std::vector<Trigger> triggers_;
+    std::vector<std::uint8_t> b_tx_bytes_;
+    std::uint64_t ms_cycle_ = 0;
+    std::uint64_t b_rx_first_ = 0;
+    std::uint64_t b_tx_first_ = 0;
+    std::size_t b_rx_offset_ = 0;
+    std::size_t sent_count_ = 0;
+    unsigned b_if_ = 0;
+    unsigned b_rx_frames_ = 0;
+    unsigned b_tx_frames_ = 0;
+    unsigned loads_ = 0;
+    unsigned link_ = 0;
+    bool sent_wait_ = false;
+    bool b_rx_offered_ = false;
+    bool b_rx_fire_ = false;
+    bool b_tx_fire_ = false;
+    bool b_tx_last_ = false;
+    std::uint8_t b_tx_data_ = 0;
+    std::uint8_t b_tx_if_ = 0;
     std::vector<std::uint8_t> tx_bytes_;
     std::string transcript_;
     std::uint64_t sys_ = 0;
@@ -461,7 +688,6 @@ private:
     bool in_reset_ = true;
     bool waiting_ = false;
     bool done_ = false;
-    bool link_ = false;
     bool host_we_ = false;
     bool csr_ack_ = false;
     bool csr_busy_ = false;
@@ -505,6 +731,9 @@ void initialize(Vsim& cpu, Vtb_split_top& top) {
     top.link_up = 0;
     top.tap_tvalid = 0;
     top.tap_ready = 1;
+    top.bench_link_up = 0;
+    top.bench_rx_valid = 0;
+    top.bench_tx_ready = 1;
     cpu.eval();
     top.eval();
 }

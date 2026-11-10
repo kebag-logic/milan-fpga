@@ -23,13 +23,30 @@
 //                side driven by the bench and its byte side read by it: every
 //                tuple class the tap accepts or refuses, and the frames a full
 //                FIFO loses, which the datapath's MAC boundary cannot stall.
+//
+//                The interfaces (#868). KL_mbx is built at its package's
+//                interface count: one by default, two with the contract
+//                generator's variant (gen_mailbox.py --variant-interfaces).
+//                Interface 0 is the datapath's, through KL_mbx_cdc. Every
+//                other interface has no datapath behind it: the bench drives
+//                it as the CPU budget harness drives KL_mbx
+//                (tb/verilator/ctrl_service_budget/split_soc.py): its link
+//                level, its frames at the mailbox's own byte boundary, between
+//                interface 0's frames and a whole frame at a time, its commit
+//                acknowledged at the contract's bound (MBX_FACE_ACK_CYCLES_C
+//                cycles after fw_send_o rises, as that harness's slowest_ack),
+//                and its windows, grandmaster and face events idle. With one
+//                interface the bench's ports are unused and the composition is
+//                the one above. N_STREAMS_P is the datapath's streams, the
+//                shape's (one at the shipping 1x1, eight at 8x8).
 //---------------------------------------------------------------------------//
 `default_nettype none
 
 module tb_split_top
   import KL_mbx_pkg::*;
 #(
-  parameter int SPLIT_P = 1     //! the datapath's CTRL_SPLIT_P
+  parameter int SPLIT_P = 1,    //! the datapath's CTRL_SPLIT_P
+  parameter int N_STREAMS_P = 1 //! the datapath's N_STREAMS, the shape's (#868)
 ) (
   input  wire                     sys_clk,
   input  wire                     sys_rst_n,
@@ -112,72 +129,92 @@ module tb_split_top
   input  wire                     tap_ready,
   output wire  [15:0]             tap_frames,
   output wire  [7:0]              tap_drops,
-  output wire                     tap_full
+  output wire                     tap_full,
+  //! ---- the interfaces past the first (#868), the bench's: no datapath behind them, unused with one
+  input  wire  [MBX_N_IF_C-1:0]   bench_link_up,   //! bit k: interface k's link level (bit 0 unused)
+  input  wire                     bench_rx_valid,  //! a frame byte for KL_mbx, offered by the bench
+  output wire                     bench_rx_ready,
+  input  wire  [7:0]              bench_rx_data,
+  input  wire                     bench_rx_last,
+  input  wire  [MBX_IF_W_C-1:0]   bench_rx_if,     //! the frame's interface, never 0, held for the frame
+  output wire                     bench_tx_valid,  //! a frame byte KL_mbx sends on an interface past the first
+  input  wire                     bench_tx_ready,
+  output wire  [7:0]              bench_tx_data,
+  output wire                     bench_tx_last,
+  output wire  [MBX_IF_W_C-1:0]   bench_tx_if,
+  //! ---- KL_mbx's egress, observed: the cycle a frame's last byte leaves the mailbox, on any interface
+  output wire                     p_mbx_tx_end,
+  output wire  [MBX_IF_W_C-1:0]   p_mbx_tx_if,
+  output wire  [MBX_CH_W_C-1:0]   p_mbx_tx_ch
 );
 
   localparam int unsigned S = MBX_N_PUB_SOURCES_C;
   localparam int unsigned K = MBX_N_PUB_SINKS_C;
+  localparam int unsigned N = MBX_N_IF_C;   //! KL_mbx's interfaces; interface 0 is the datapath's
 
-  // ---- the mailbox side ------------------------------------------------------
-  logic [S-1:0] pub_da_gate, pub_licence, pub_talker_decl;
-  logic [S*64-1:0] pub_src_sid;
-  logic [31:0] pub_idle_slope_bps;
-  logic [11:0] pub_dom_vid;
-  logic [2:0]  pub_dom_prio;
-  logic        pub_dom_adopted;
-  logic [K-1:0] pub_bound, pub_sid_valid, pub_started;
-  logic [K*64-1:0] pub_sid;
-  logic fw_send, fw_ack_p, fw_ctrl_ready;
-  logic [15:0] fw_cur_config, fw_clk_src;
-  logic [7:0]  fw_identify;
-  logic fw_lock_held, fw_dyn_dirty;
-  logic fw_r_busy, fw_r_done, fw_r_fail, fw_r_blank, fw_r_closed, fw_r_rb;
-  logic [2:0] fw_rs_cause;
-  logic [1:0] fw_restore_cause;
-  logic fw_n_backed, fw_n_alarm, fw_n_dirty, fw_n_stale, fw_n_pend, fw_n_img_valid;
-  logic [3:0] fw_nvm_verdict;
-  logic [S*32-1:0] fw_pt_offset_ns;
-  logic [S-1:0] fw_pt_offset_v, fw_fmt_out_v;
-  logic [S*64-1:0] fw_fmt_out;
-  logic [K*64-1:0] fw_fmt_in;
-  logic [K-1:0] fw_fmt_in_v;
-  logic ctr_req, amap_req, edit_req, gsi_req;
-  logic [MBX_CTR_STATUS_TAG_WIDTH_C-1:0]  ctr_tag;
-  logic [MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag;
-  logic [MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag;
-  logic [MBX_GSI_STATUS_TAG_WIDTH_C-1:0]  gsi_tag;
-  logic [15:0] ctr_type, ctr_index, amap_type, amap_index, amap_map_index, edit_type, edit_index, edit_count;
-  logic [15:0] gsi_type, gsi_index;
-  logic [5:0]  ctr_word;
-  logic [1:0]  amap_sel, gsi_kind;
-  logic [7:0]  amap_rec, edit_rec, gsi_ord;
-  logic [2:0]  edit_phase;
-  logic        edit_remove;
-  logic [3:0]  gsi_sel;
-  logic [63:0] edit_record, edit_value, gsi_prop;
-  logic ctr_ans_p, amap_ans_p, edit_ans_p, gsi_ans_p;
-  logic [MBX_CTR_STATUS_TAG_WIDTH_C-1:0]  ctr_ans_tag;
-  logic [MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_ans_tag;
-  logic [MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_ans_tag;
-  logic [MBX_GSI_STATUS_TAG_WIDTH_C-1:0]  gsi_ans_tag;
-  logic [31:0] ctr_ans_data;
-  logic [63:0] amap_ans_data, edit_ans_data, gsi_ans_data;
-  logic ctr_chg_p, avb_chg_p, asp_chg_p, amap_wr_p;
-  logic [15:0] ctr_chg_type, ctr_chg_index;
-  logic m_link_up, m_gm_change_p;
-  logic [63:0] m_gm_id;
-  logic [7:0]  m_gptp_domain;
+  // ---- the mailbox side: every interface's nets, interface k at [k] (KL_mbx's layout) --
+  wire [N-1:0][S-1:0] pub_da_gate, pub_licence, pub_talker_decl;
+  wire [N-1:0][S*64-1:0] pub_src_sid;
+  wire [N-1:0][31:0] pub_idle_slope_bps;
+  wire [N-1:0][11:0] pub_dom_vid;
+  wire [N-1:0][2:0]  pub_dom_prio;
+  wire [N-1:0]       pub_dom_adopted;
+  wire [N-1:0][K-1:0] pub_bound, pub_sid_valid, pub_started;
+  wire [N-1:0][K*64-1:0] pub_sid;
+  wire [N-1:0] fw_send, fw_ack_p, fw_ctrl_ready;
+  wire [N-1:0][15:0] fw_cur_config, fw_clk_src;
+  wire [N-1:0][7:0]  fw_identify;
+  wire [N-1:0] fw_lock_held, fw_dyn_dirty;
+  wire [N-1:0] fw_r_busy, fw_r_done, fw_r_fail, fw_r_blank, fw_r_closed, fw_r_rb;
+  wire [N-1:0][2:0] fw_rs_cause;
+  wire [N-1:0][1:0] fw_restore_cause;
+  wire [N-1:0] fw_n_backed, fw_n_alarm, fw_n_dirty, fw_n_stale, fw_n_pend, fw_n_img_valid;
+  wire [N-1:0][3:0] fw_nvm_verdict;
+  wire [N-1:0][S*32-1:0] fw_pt_offset_ns;
+  wire [N-1:0][S-1:0] fw_pt_offset_v, fw_fmt_out_v;
+  wire [N-1:0][S*64-1:0] fw_fmt_out;
+  wire [N-1:0][K*64-1:0] fw_fmt_in;
+  wire [N-1:0][K-1:0] fw_fmt_in_v;
+  wire [N-1:0] ctr_req, amap_req, edit_req, gsi_req;
+  wire [N-1:0][MBX_CTR_STATUS_TAG_WIDTH_C-1:0]  ctr_tag;
+  wire [N-1:0][MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag;
+  wire [N-1:0][MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag;
+  wire [N-1:0][MBX_GSI_STATUS_TAG_WIDTH_C-1:0]  gsi_tag;
+  wire [N-1:0][15:0] ctr_type, ctr_index, amap_type, amap_index, amap_map_index, edit_type, edit_index, edit_count;
+  wire [N-1:0][15:0] gsi_type, gsi_index;
+  wire [N-1:0][5:0]  ctr_word;
+  wire [N-1:0][1:0]  amap_sel, gsi_kind;
+  wire [N-1:0][7:0]  amap_rec, edit_rec, gsi_ord;
+  wire [N-1:0][2:0]  edit_phase;
+  wire [N-1:0]       edit_remove;
+  wire [N-1:0][3:0]  gsi_sel;
+  wire [N-1:0][63:0] edit_record, edit_value, gsi_prop;
+  wire [N-1:0] ctr_ans_p, amap_ans_p, edit_ans_p, gsi_ans_p;
+  wire [N-1:0][MBX_CTR_STATUS_TAG_WIDTH_C-1:0]  ctr_ans_tag;
+  wire [N-1:0][MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_ans_tag;
+  wire [N-1:0][MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_ans_tag;
+  wire [N-1:0][MBX_GSI_STATUS_TAG_WIDTH_C-1:0]  gsi_ans_tag;
+  wire [N-1:0][31:0] ctr_ans_data;
+  wire [N-1:0][63:0] amap_ans_data, edit_ans_data, gsi_ans_data;
+  wire [N-1:0] ctr_chg_p, avb_chg_p, asp_chg_p, amap_wr_p;
+  wire [N-1:0][15:0] ctr_chg_type, ctr_chg_index;
+  wire [N-1:0] m_link_up, m_gm_change_p;
+  wire [N-1:0][63:0] m_gm_id;
+  wire [N-1:0][7:0]  m_gptp_domain;
+  // KL_mbx's two byte streams, and interface 0's ends of the two crossings
   logic        m_rx_valid, m_rx_ready, m_rx_last, m_tx_valid, m_tx_ready, m_tx_last;
   logic [7:0]  m_rx_data, m_tx_data;
-  logic        m_tx_if;
+  logic [MBX_IF_W_C-1:0] m_rx_if, m_tx_if;
   logic [MBX_CH_W_C-1:0] m_tx_ch;
+  logic        x_rx_valid, x_rx_ready, x_rx_last, x_tx_valid, x_tx_ready;
+  logic [7:0]  x_rx_data;
 
   KL_mbx u_mbx (
     .clk_i(sys_clk), .rst_n(sys_rst_n),
     .host_req_i, .host_we_i, .host_addr_i, .host_wdata_i, .host_be_i, .host_ack_o, .host_rdata_o,
     .irq_o(), .ms_tick_p_i,
     .link_up_i(m_link_up), .gm_change_p_i(m_gm_change_p), .gm_id_i(m_gm_id), .gptp_domain_i(m_gptp_domain),
-    .rx_valid_i(m_rx_valid), .rx_ready_o(m_rx_ready), .rx_data_i(m_rx_data), .rx_last_i(m_rx_last), .rx_if_i('0),
+    .rx_valid_i(m_rx_valid), .rx_ready_o(m_rx_ready), .rx_data_i(m_rx_data), .rx_last_i(m_rx_last), .rx_if_i(m_rx_if),
     .tx_valid_o(m_tx_valid), .tx_ready_i(m_tx_ready), .tx_data_o(m_tx_data), .tx_last_o(m_tx_last),
     .tx_if_o(m_tx_if), .tx_ch_o(m_tx_ch),
     .pub_da_gate_o(pub_da_gate), .pub_licence_o(pub_licence), .pub_idle_slope_bps_o(pub_idle_slope_bps),
@@ -245,35 +282,35 @@ module tb_split_top
 
   KL_mbx_cdc u_cdc (
     .sys_clk_i(sys_clk), .sys_rst_n, .dp_clk_i(dp_clk), .dp_rst_n,
-    .m_pub_da_gate_i(pub_da_gate), .m_pub_licence_i(pub_licence), .m_pub_talker_decl_i(pub_talker_decl),
-    .m_pub_src_sid_i(pub_src_sid), .m_pub_idle_slope_bps_i(pub_idle_slope_bps), .m_pub_dom_vid_i(pub_dom_vid),
-    .m_pub_dom_prio_i(pub_dom_prio), .m_pub_dom_adopted_i(pub_dom_adopted), .m_pub_bound_i(pub_bound),
-    .m_pub_sid_valid_i(pub_sid_valid), .m_pub_started_i(pub_started), .m_pub_sid_i(pub_sid),
-    .m_fw_send_i(fw_send), .m_fw_ack_p_o(fw_ack_p), .m_fw_cur_config_i(fw_cur_config),
-    .m_fw_identify_i(fw_identify), .m_fw_clk_src_index_i(fw_clk_src), .m_fw_lock_held_i(fw_lock_held),
-    .m_fw_dyn_dirty_i(fw_dyn_dirty), .m_fw_pt_offset_ns_i(fw_pt_offset_ns), .m_fw_pt_offset_v_i(fw_pt_offset_v),
-    .m_fw_fmt_out_i(fw_fmt_out), .m_fw_fmt_out_v_i(fw_fmt_out_v), .m_fw_fmt_in_i(fw_fmt_in),
-    .m_fw_fmt_in_v_i(fw_fmt_in_v),
-    .m_fw_restore_i({fw_r_rb, fw_r_closed, fw_r_blank, fw_r_fail, fw_r_done, fw_r_busy}),
-    .m_fw_rs_cause_i(fw_rs_cause), .m_fw_restore_cause_i(fw_restore_cause),
-    .m_fw_nvm_i({fw_n_img_valid, fw_n_pend, fw_n_stale, fw_n_dirty, fw_n_alarm, fw_n_backed}),
-    .m_fw_nvm_verdict_i(fw_nvm_verdict),
-    .m_ctr_req_i(ctr_req), .m_ctr_tag_i(ctr_tag), .m_ctr_type_i(ctr_type), .m_ctr_index_i(ctr_index),
-    .m_ctr_word_i(ctr_word), .m_ctr_ans_p_o(ctr_ans_p), .m_ctr_ans_tag_o(ctr_ans_tag), .m_ctr_ans_data_o(ctr_ans_data),
-    .m_amap_req_i(amap_req), .m_amap_tag_i(amap_tag), .m_amap_type_i(amap_type), .m_amap_index_i(amap_index),
-    .m_amap_map_index_i(amap_map_index), .m_amap_sel_i(amap_sel), .m_amap_rec_i(amap_rec),
-    .m_amap_ans_p_o(amap_ans_p), .m_amap_ans_tag_o(amap_ans_tag), .m_amap_ans_data_o(amap_ans_data),
-    .m_edit_req_i(edit_req), .m_edit_tag_i(edit_tag), .m_edit_type_i(edit_type), .m_edit_index_i(edit_index),
-    .m_edit_phase_i(edit_phase), .m_edit_remove_i(edit_remove), .m_edit_rec_i(edit_rec),
-    .m_edit_count_i(edit_count), .m_edit_record_i(edit_record), .m_edit_value_i(edit_value),
-    .m_edit_ans_p_o(edit_ans_p), .m_edit_ans_tag_o(edit_ans_tag), .m_edit_ans_data_o(edit_ans_data),
-    .m_gsi_req_i(gsi_req), .m_gsi_tag_i(gsi_tag), .m_gsi_type_i(gsi_type), .m_gsi_index_i(gsi_index),
-    .m_gsi_kind_i(gsi_kind), .m_gsi_sel_i(gsi_sel), .m_gsi_ord_i(gsi_ord), .m_gsi_prop_i(gsi_prop),
-    .m_gsi_ans_p_o(gsi_ans_p), .m_gsi_ans_tag_o(gsi_ans_tag), .m_gsi_ans_data_o(gsi_ans_data),
-    .m_ctr_chg_p_o(ctr_chg_p), .m_ctr_chg_type_o(ctr_chg_type), .m_ctr_chg_index_o(ctr_chg_index),
-    .m_avb_chg_p_o(avb_chg_p), .m_asp_chg_p_o(asp_chg_p), .m_amap_wr_p_o(amap_wr_p),
-    .m_link_up_o(m_link_up), .m_gm_change_p_o(m_gm_change_p), .m_gm_id_o(m_gm_id),
-    .m_gptp_domain_o(m_gptp_domain),
+    .m_pub_da_gate_i(pub_da_gate[0]), .m_pub_licence_i(pub_licence[0]), .m_pub_talker_decl_i(pub_talker_decl[0]),
+    .m_pub_src_sid_i(pub_src_sid[0]), .m_pub_idle_slope_bps_i(pub_idle_slope_bps[0]), .m_pub_dom_vid_i(pub_dom_vid[0]),
+    .m_pub_dom_prio_i(pub_dom_prio[0]), .m_pub_dom_adopted_i(pub_dom_adopted[0]), .m_pub_bound_i(pub_bound[0]),
+    .m_pub_sid_valid_i(pub_sid_valid[0]), .m_pub_started_i(pub_started[0]), .m_pub_sid_i(pub_sid[0]),
+    .m_fw_send_i(fw_send[0]), .m_fw_ack_p_o(fw_ack_p[0]), .m_fw_cur_config_i(fw_cur_config[0]),
+    .m_fw_identify_i(fw_identify[0]), .m_fw_clk_src_index_i(fw_clk_src[0]), .m_fw_lock_held_i(fw_lock_held[0]),
+    .m_fw_dyn_dirty_i(fw_dyn_dirty[0]), .m_fw_pt_offset_ns_i(fw_pt_offset_ns[0]), .m_fw_pt_offset_v_i(fw_pt_offset_v[0]),
+    .m_fw_fmt_out_i(fw_fmt_out[0]), .m_fw_fmt_out_v_i(fw_fmt_out_v[0]), .m_fw_fmt_in_i(fw_fmt_in[0]),
+    .m_fw_fmt_in_v_i(fw_fmt_in_v[0]),
+    .m_fw_restore_i({fw_r_rb[0], fw_r_closed[0], fw_r_blank[0], fw_r_fail[0], fw_r_done[0], fw_r_busy[0]}),
+    .m_fw_rs_cause_i(fw_rs_cause[0]), .m_fw_restore_cause_i(fw_restore_cause[0]),
+    .m_fw_nvm_i({fw_n_img_valid[0], fw_n_pend[0], fw_n_stale[0], fw_n_dirty[0], fw_n_alarm[0], fw_n_backed[0]}),
+    .m_fw_nvm_verdict_i(fw_nvm_verdict[0]),
+    .m_ctr_req_i(ctr_req[0]), .m_ctr_tag_i(ctr_tag[0]), .m_ctr_type_i(ctr_type[0]), .m_ctr_index_i(ctr_index[0]),
+    .m_ctr_word_i(ctr_word[0]), .m_ctr_ans_p_o(ctr_ans_p[0]), .m_ctr_ans_tag_o(ctr_ans_tag[0]), .m_ctr_ans_data_o(ctr_ans_data[0]),
+    .m_amap_req_i(amap_req[0]), .m_amap_tag_i(amap_tag[0]), .m_amap_type_i(amap_type[0]), .m_amap_index_i(amap_index[0]),
+    .m_amap_map_index_i(amap_map_index[0]), .m_amap_sel_i(amap_sel[0]), .m_amap_rec_i(amap_rec[0]),
+    .m_amap_ans_p_o(amap_ans_p[0]), .m_amap_ans_tag_o(amap_ans_tag[0]), .m_amap_ans_data_o(amap_ans_data[0]),
+    .m_edit_req_i(edit_req[0]), .m_edit_tag_i(edit_tag[0]), .m_edit_type_i(edit_type[0]), .m_edit_index_i(edit_index[0]),
+    .m_edit_phase_i(edit_phase[0]), .m_edit_remove_i(edit_remove[0]), .m_edit_rec_i(edit_rec[0]),
+    .m_edit_count_i(edit_count[0]), .m_edit_record_i(edit_record[0]), .m_edit_value_i(edit_value[0]),
+    .m_edit_ans_p_o(edit_ans_p[0]), .m_edit_ans_tag_o(edit_ans_tag[0]), .m_edit_ans_data_o(edit_ans_data[0]),
+    .m_gsi_req_i(gsi_req[0]), .m_gsi_tag_i(gsi_tag[0]), .m_gsi_type_i(gsi_type[0]), .m_gsi_index_i(gsi_index[0]),
+    .m_gsi_kind_i(gsi_kind[0]), .m_gsi_sel_i(gsi_sel[0]), .m_gsi_ord_i(gsi_ord[0]), .m_gsi_prop_i(gsi_prop[0]),
+    .m_gsi_ans_p_o(gsi_ans_p[0]), .m_gsi_ans_tag_o(gsi_ans_tag[0]), .m_gsi_ans_data_o(gsi_ans_data[0]),
+    .m_ctr_chg_p_o(ctr_chg_p[0]), .m_ctr_chg_type_o(ctr_chg_type[0]), .m_ctr_chg_index_o(ctr_chg_index[0]),
+    .m_avb_chg_p_o(avb_chg_p[0]), .m_asp_chg_p_o(asp_chg_p[0]), .m_amap_wr_p_o(amap_wr_p[0]),
+    .m_link_up_o(m_link_up[0]), .m_gm_change_p_o(m_gm_change_p[0]), .m_gm_id_o(m_gm_id[0]),
+    .m_gptp_domain_o(m_gptp_domain[0]),
     .d_pub_da_gate_o(d_da_gate), .d_pub_licence_o(d_licence), .d_pub_talker_decl_o(d_talker_decl),
     .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_bps_o(d_idle_slope_bps), .d_pub_dom_vid_o(d_dom_vid),
     .d_pub_dom_prio_o(d_dom_prio), .d_pub_dom_adopted_o(d_dom_adopted), .d_pub_bound_o(d_bound),
@@ -303,15 +340,15 @@ module tb_split_top
   axis_async_fifo #(.DEPTH(16), .DATA_WIDTH(8), .KEEP_ENABLE(0), .LAST_ENABLE(1), .USER_ENABLE(0)) u_rx_x (
     .s_clk(dp_clk), .s_rst(~dp_rst_n), .s_axis_tdata(d_rx_data), .s_axis_tkeep(1'b1), .s_axis_tvalid(d_rx_valid),
     .s_axis_tready(d_rx_ready), .s_axis_tlast(d_rx_last), .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
-    .m_clk(sys_clk), .m_rst(~sys_rst_n), .m_axis_tdata(m_rx_data), .m_axis_tkeep(), .m_axis_tvalid(m_rx_valid),
-    .m_axis_tready(m_rx_ready), .m_axis_tlast(m_rx_last), .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
+    .m_clk(sys_clk), .m_rst(~sys_rst_n), .m_axis_tdata(x_rx_data), .m_axis_tkeep(), .m_axis_tvalid(x_rx_valid),
+    .m_axis_tready(x_rx_ready), .m_axis_tlast(x_rx_last), .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
     .s_pause_req(1'b0), .s_pause_ack(), .m_pause_req(1'b0), .m_pause_ack(),
     .s_status_depth(), .s_status_depth_commit(), .s_status_overflow(), .s_status_bad_frame(),
     .s_status_good_frame(), .m_status_depth(), .m_status_depth_commit(), .m_status_overflow(),
     .m_status_bad_frame(), .m_status_good_frame());
   axis_async_fifo #(.DEPTH(16), .DATA_WIDTH(8), .KEEP_ENABLE(0), .LAST_ENABLE(1), .USER_ENABLE(0)) u_tx_x (
-    .s_clk(sys_clk), .s_rst(~sys_rst_n), .s_axis_tdata(m_tx_data), .s_axis_tkeep(1'b1), .s_axis_tvalid(m_tx_valid),
-    .s_axis_tready(m_tx_ready), .s_axis_tlast(m_tx_last), .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
+    .s_clk(sys_clk), .s_rst(~sys_rst_n), .s_axis_tdata(m_tx_data), .s_axis_tkeep(1'b1), .s_axis_tvalid(x_tx_valid),
+    .s_axis_tready(x_tx_ready), .s_axis_tlast(m_tx_last), .s_axis_tid('0), .s_axis_tdest('0), .s_axis_tuser('0),
     .m_clk(dp_clk), .m_rst(~dp_rst_n), .m_axis_tdata(d_tx_data), .m_axis_tkeep(), .m_axis_tvalid(d_tx_valid),
     .m_axis_tready(d_tx_ready), .m_axis_tlast(d_tx_last), .m_axis_tid(), .m_axis_tdest(), .m_axis_tuser(),
     .s_pause_req(1'b0), .s_pause_ack(), .m_pause_req(1'b0), .m_pause_ack(),
@@ -319,8 +356,87 @@ module tb_split_top
     .s_status_good_frame(), .m_status_depth(), .m_status_depth_commit(), .m_status_overflow(),
     .m_status_bad_frame(), .m_status_good_frame());
 
+  // ---- KL_mbx's two streams: interface 0's crossings, and the bench's interfaces ------
+  if (N == 1) begin : g_one_if
+    assign m_rx_valid = x_rx_valid;
+    assign m_rx_data  = x_rx_data;
+    assign m_rx_last  = x_rx_last;
+    assign m_rx_if    = '0;
+    assign x_rx_ready = m_rx_ready;
+    assign x_tx_valid = m_tx_valid;
+    assign m_tx_ready = x_tx_ready;
+    assign bench_rx_ready = 1'b0;
+    assign bench_tx_valid = 1'b0;
+  end else begin : g_bench_streams
+    // Receive: a whole frame at a time, interface 0's first when both offer at a frame's start; a frame in
+    // progress keeps the stream until its last byte, so KL_mbx sees rx_if_i held for the frame.
+    logic hold_r, bench_r;
+    wire  bench_w = hold_r ? bench_r : !x_rx_valid && bench_rx_valid;
+    assign m_rx_valid     = bench_w ? bench_rx_valid : x_rx_valid;
+    assign m_rx_data      = bench_w ? bench_rx_data : x_rx_data;
+    assign m_rx_last      = bench_w ? bench_rx_last : x_rx_last;
+    assign m_rx_if        = bench_w ? bench_rx_if : '0;
+    assign x_rx_ready     = !bench_w && m_rx_ready;
+    assign bench_rx_ready = bench_w && m_rx_ready;
+    always_ff @(posedge sys_clk) begin : rx_frame
+      if (!sys_rst_n) begin
+        hold_r  <= 1'b0;
+        bench_r <= 1'b0;
+      end else if (m_rx_valid && m_rx_ready) begin
+        hold_r  <= !m_rx_last;
+        bench_r <= bench_w;
+      end
+    end : rx_frame
+    // Transmit: by KL_mbx's tx_if_o, held for the frame; interface 0's to its crossing, the others' to the bench.
+    wire to_bench_w = m_tx_if != '0;
+    assign x_tx_valid     = m_tx_valid && !to_bench_w;
+    assign bench_tx_valid = m_tx_valid && to_bench_w;
+    assign m_tx_ready     = to_bench_w ? bench_tx_ready : x_tx_ready;
+  end
+  assign bench_tx_data = m_tx_data;
+  assign bench_tx_last = m_tx_last;
+  assign bench_tx_if   = m_tx_if;
+  assign p_mbx_tx_end  = m_tx_valid && m_tx_ready && m_tx_last;
+  assign p_mbx_tx_if   = m_tx_if;
+  assign p_mbx_tx_ch   = m_tx_ch;
+
+  // ---- the interfaces past the first: what the bench and the contract's bound give them ---
+  for (genvar k = 1; k < N; k++) begin : g_bench_if
+    assign m_link_up[k]     = bench_link_up[k];
+    assign m_gm_change_p[k] = 1'b0;
+    assign m_gm_id[k]       = '0;
+    assign m_gptp_domain[k] = '0;
+    // the commit acknowledged at the contract's bound: one pulse MBX_FACE_ACK_CYCLES_C cycles after
+    // fw_send_o rises (ctrl_service_budget/split_soc.py, slowest_ack)
+    logic [$clog2(MBX_FACE_ACK_CYCLES_C + 1)-1:0] waited_r;
+    always_ff @(posedge sys_clk) begin : commit_wait
+      if (!sys_rst_n || !fw_send[k]) waited_r <= '0;
+      else if (waited_r != MBX_FACE_ACK_CYCLES_C) waited_r <= waited_r + 1'b1;
+    end : commit_wait
+    assign fw_ack_p[k] = fw_send[k] && waited_r == MBX_FACE_ACK_CYCLES_C;
+    // the windows and the face events idle, as CtrlMailbox holds them with no datapath
+    assign ctr_ans_p[k]  = 1'b0;
+    assign ctr_ans_tag[k] = '0;
+    assign ctr_ans_data[k] = '0;
+    assign amap_ans_p[k] = 1'b0;
+    assign amap_ans_tag[k] = '0;
+    assign amap_ans_data[k] = '0;
+    assign edit_ans_p[k] = 1'b0;
+    assign edit_ans_tag[k] = '0;
+    assign edit_ans_data[k] = '0;
+    assign gsi_ans_p[k]  = 1'b0;
+    assign gsi_ans_tag[k] = '0;
+    assign gsi_ans_data[k] = '0;
+    assign ctr_chg_p[k]  = 1'b0;
+    assign ctr_chg_type[k] = '0;
+    assign ctr_chg_index[k] = '0;
+    assign avb_chg_p[k]  = 1'b0;
+    assign asp_chg_p[k]  = 1'b0;
+    assign amap_wr_p[k]  = 1'b0;
+  end
+
   // ---- the split datapath ----------------------------------------------------------
-  milan_datapath #(.CTRL_SPLIT_P(SPLIT_P), .RXFILT_P(0), .GPTP_PLANE_EN_P(1'b0)) u_dp (
+  milan_datapath #(.CTRL_SPLIT_P(SPLIT_P), .N_STREAMS(N_STREAMS_P), .RXFILT_P(0), .GPTP_PLANE_EN_P(1'b0)) u_dp (
     .axis_clk(dp_clk), .axis_resetn(dp_rst_n), .gtx_clk(dp_clk), .gtx_resetn(dp_rst_n),
     .clk_audio_i(dp_clk), .clk_tdm_i(dp_clk), .i_ps_clk(dp_clk), .i_mmcm_locked(1'b1),
     .s_axis_mac_rx_tdata(rx_tdata), .s_axis_mac_rx_tkeep(rx_tkeep), .s_axis_mac_rx_tvalid(rx_tvalid),
@@ -401,7 +517,7 @@ module tb_split_top
 
   // the counts are the shape's: read so a width change is visible here
   logic unused_ok;
-  assign unused_ok = &{1'b0, NSRC[0], NSNK[0], fw_ctrl_ready, m_tx_if, m_tx_ch};
+  assign unused_ok = &{1'b0, NSRC[0], NSNK[0], fw_ctrl_ready, bench_link_up[0]};
 
 endmodule
 

@@ -844,20 +844,40 @@ build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV
 # CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
 # does; sim_split.cpp reaches the datapath only through the contract's
 # registers. Its own top, so the datapath's -G flags are not handed to it.
+#
+# #868: the same top at another shape and interface count, for the wire-timing
+# harness (tb/verilator/ctrl_wire_timing). SPLIT_SHAPE names a generated config
+# directory, SPLIT_STREAMS the datapath's streams at that shape, and SPLIT_IF
+# KL_mbx's interfaces: past one, its package, top and header are the contract
+# generator's variant (gen_mailbox.py --variant-interfaces), written into
+# SPLIT_MDIR, and tb_split_top gives every interface past the first to the
+# bench. The defaults are the shipping shape with one interface, the split
+# leg's and the twin's own build, its command line unchanged.
 SPLIT_MDIR ?= obj_split
+SPLIT_SHAPE ?= endstation_ax7101_1x1_tdm8
+SPLIT_STREAMS ?= 1
+SPLIT_IF ?= 1
 MBX_DIR = $(RTL_DIR)/milan/mailbox
+SPLIT_VARIANT = $(SPLIT_MDIR)/mbx-if$(SPLIT_IF)
+SPLIT_MBX = $(if $(filter 1,$(SPLIT_IF)),$(MBX_DIR),$(SPLIT_VARIANT))
 CDC_SRC ?= $(MBX_DIR)/KL_mbx_cdc.sv
 CDCW_SRC ?= $(MBX_DIR)/KL_mbx_cdc_window.sv
-SPLIT_SRCS = $(MBX_DIR)/KL_mbx_pkg.sv $(MBX_DIR)/KL_mbx_ring.sv $(MBX_DIR)/KL_mbx_rx.sv \
-       $(MBX_DIR)/KL_mbx_tx.sv $(MBX_DIR)/KL_mbx_evt.sv $(MBX_DIR)/KL_mbx.sv \
+SPLIT_SRCS = $(SPLIT_MBX)/KL_mbx_pkg.sv $(MBX_DIR)/KL_mbx_ring.sv $(MBX_DIR)/KL_mbx_rx.sv \
+       $(MBX_DIR)/KL_mbx_tx.sv $(MBX_DIR)/KL_mbx_evt.sv $(SPLIT_MBX)/KL_mbx.sv \
        $(CDCW_SRC) $(CDC_SRC) $(AXIS_DIR)/axis_async_fifo.v tb_split_top.sv
 define SPLIT_BUILD
-$(VERILATOR) $(SHAPE_AX1x1) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
-  --Mdir $(SPLIT_MDIR) -CFLAGS "-I$(CURDIR)/../../../sw/firmware/ctrl/mbx -I$(CURDIR)/../mbx -Wall -Wextra" \
+$(VERILATOR) +incdir+$(CFG_DIR)/$(SPLIT_SHAPE) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+  $(if $(filter-out 1,$(SPLIT_STREAMS)),-GN_STREAMS_P=$(SPLIT_STREAMS) )--Mdir $(SPLIT_MDIR) \
+  -CFLAGS "$(if $(filter-out 1,$(SPLIT_IF)),-I$(abspath $(SPLIT_VARIANT)) )-I$(CURDIR)/../../../sw/firmware/ctrl/mbx -I$(CURDIR)/../mbx -Wall -Wextra" \
   $(SRCS) $(SPLIT_SRCS) sim_split.cpp -o Vmilan_dp_split
 endef
 
-build-split: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+# the variant's package, top and header, generated together (never into the tree)
+$(SPLIT_VARIANT)/KL_mbx_pkg.sv: ../../../sw/mailbox/mailbox.yaml ../../../sw/mailbox/gen_mailbox.py
+	python3 -B ../../../sw/mailbox/gen_mailbox.py --variant-interfaces $(SPLIT_IF) --out $(SPLIT_VARIANT)
+
+build-split: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) \
+  $(if $(filter-out 1,$(SPLIT_IF)),$(SPLIT_VARIANT)/KL_mbx_pkg.sv)
 	$(SPLIT_BUILD)
 
 exec-split:

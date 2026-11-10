@@ -24,6 +24,11 @@ testbench hands every access to the split placement's own top
 CTRL_SPLIT_P = 1 datapath through KL_mbx_cdc. So the mailbox, its crossing
 and the datapath are the split top's, built by milan_dp's split recipe, and
 the CPU reaches them only through KL_mbx_wb's host port and the CSR window.
+
+At two interfaces (#868) the mailbox RTL is the contract generator's variant
+(split_soc.mailbox_sources), the one milan_dp's split recipe builds the split
+top's KL_mbx from, so KL_mbx_wb and KL_mbx agree on the window; wire_build.py
+refuses the build when the two variants' files differ.
 """
 from __future__ import annotations
 
@@ -77,11 +82,9 @@ class HostPortMailbox(LiteXModule):
             o_host_be_o=pads.be, i_host_ack_i=pads.ack, i_host_rdata_i=pads.rdata)
 
 
-def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
-    """Export the CPU half's Verilog and csr.csv; return the native build's inputs."""
-    if n_if != 1:
-        raise RuntimeError(f'the split top connects one interface (tb_split_top.sv, CtrlMailbox._split); '
-                           f'{n_if} asked')
+def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path, ledger: str | None = None) -> dict:
+    """Export the CPU half's Verilog and csr.csv; return the native build's inputs. `ledger` names the point's
+    ledgered memory plan (wire_build.LEDGERED), or None."""
     addresses = split_soc.fixture_addresses(flash_map)
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
     clocks, params = cfg['constraints'], cfg['soc']
@@ -96,7 +99,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
     sys_hz = clocks['sys_clk_hz']
     cpu_hz = sys_hz   # the product's split CPU clock (see the module's docstring)
-    with cpu.applied(), patch.object(split_soc, 'StimulusMailbox', HostPortMailbox):
+    with cpu.applied(), patch.object(split_soc, 'StimulusMailbox', HostPortMailbox), split_soc.ledgered_plan(ledger):
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
@@ -104,7 +107,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
             extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
         milan_soc.add_ctrl_memory(soc, elf)
-        for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
+        mailbox = split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant')
+        for path in mailbox:
             platform.add_source(str(path))
         split_soc.add_devices(soc, platform, addresses, contract, n_if)
         soc.milan_csr = boot_soc.CsrWindow(platform.request('milan_csr'))
@@ -126,7 +130,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         'netlist': VexiiRiscv.netlist_name, 'memory_regions': cpu.soc_regions,
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
         'fetch_l1_geometry': list(geometry) if geometry else None,
-        'ctrl_plan': soc.ctrl_plan.summary(),
+        'ctrl_plan': soc.ctrl_plan.summary(), 'ledger': ledger,
+        'mailbox_sources': [str(path) for path in mailbox],
     }
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec
@@ -134,4 +139,4 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
 
 if __name__ == '__main__':
     print(json.dumps(build(Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]), int(sys.argv[4]),
-                           Path(sys.argv[5]))))
+                           Path(sys.argv[5]), None if sys.argv[6] == '-' else sys.argv[6])))

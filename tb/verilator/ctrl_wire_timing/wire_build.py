@@ -6,13 +6,17 @@ In order:
   1. the shape's flash port map, from the split SoC's export (the CPU budget
      harness's build.flash_map);
   2. the bare-metal runtime archives and the platform image, linked twice as
-     the split boot simulation links it (its run.runtime and run.image): first
-     against the fixture map, then against the CPU half's own csr.csv, and the
-     two exports' rows must be equal;
+     the split boot simulation links it (its run.runtime, and run.image's
+     command): first against the fixture map, then against the CPU half's own
+     csr.csv, and the two exports' rows must be equal; at 8x8 with two
+     interfaces the image is the ledgered point (LEDGERED), planned to its
+     ledgered tiles in the link and in the CPU half's memory;
   3. the CPU half's export (wire_soc.py), each in a child process, since the
      CPU generator patches its class;
   4. the split top, by milan_dp's own split recipe (make build-split, its
-     SPLIT_MDIR in this build directory), whose model archive is linked here;
+     SPLIT_MDIR in this build directory, its SPLIT_SHAPE, SPLIT_STREAMS and
+     SPLIT_IF the point's), whose model archive is linked here; at two
+     interfaces its mailbox variant must equal the CPU half's, file by file;
   5. the native model: the CPU half's export with wire_main.cpp, linked with
      the split top's archive.
 Every input the model is built from, or reads when it runs, is recorded in
@@ -33,9 +37,15 @@ BUDGET = ROOT / 'tb/verilator/ctrl_service_budget'
 BOOT = ROOT / 'tb/verilator/ctrl_split_boot'
 MILAN_DP = ROOT / 'tb/verilator/milan_dp'
 SIBLING = ROOT / 'tb/verilator/fw_service_budget'
-#: The points: the shipping shape with one interface. The split top and the product's split connect one interface
-#: (tb_split_top.sv, milan_soc.CtrlMailbox._split), and the split recipe builds the shipping shape (SPLIT_BUILD).
-POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1)}
+#: The points, the CPU budget harness's (its run.py POINTS): the shipping shape with one interface, and 8x8 with
+#: two, whose interface 1 the split top gives to the bench (tb_split_top.sv). Each shape's datapath streams are the
+#: builder's (endstation_builder.datapath_params, N_STREAMS).
+POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
+#: The one point whose platform image the planner's ledger lets plan past the 56-RAMB36 budget, by its name
+#: (ctrl_memory.LEDGERED; docs/design/SPLIT_CONTROL_MEMORY.md section 5, ledgered at 59.0 by the owner's ruling of
+#: 2026-10-29 on #665): the link (ctrl_plat_image.py --ledgered-point) and the CPU half's memory plan
+#: (split_soc.ledgered_plan) both name it. Every other point names none.
+LEDGERED = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
 JOBS = int(os.environ.get('WIRE_JOBS', '16'))
 #: The split top's model, as milan_dp's split recipe names it (--top-module tb_split_top).
 SPLIT_ARCHIVE = 'Vtb_split_top__ALL.a'
@@ -55,24 +65,57 @@ sys.path.insert(0, str(BUDGET))
 import build as budget_build  # noqa: E402  the CPU budget harness's build, read only
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
 from mailbox_model import load as load_contract  # noqa: E402
+sys.path.insert(0, str(ROOT / 'sw/builder'))
+import endstation_builder as eb  # noqa: E402  the builder's datapath parameters, read only
+
+
+def image(out: Path, name: str, point: tuple[str, int], maps: object, archives: tuple[Path, Path]) -> Path:
+    """The platform image of one point against one map: the split boot simulation's link (run.image's command),
+    naming the point's ledger where it has one."""
+    shape, n_if = point
+    ledger = LEDGERED.get(point)
+    boot.run([sys.executable, '-B', str(boot.FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
+              str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(maps.csr_csv),
+              '--flash-map', str(maps.flash_map), '--output', str(out / name), '--libc', str(archives[0]),
+              '--compiler-runtime', str(archives[1]), *(['--ledgered-point', ledger] if ledger else [])],
+             out / f'{name}.log', cwd=ROOT)
+    return out / name / 'ctrl_app.elf'
 
 
 def export(out: Path, name: str, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
     """The CPU half's export for one image, in a child process; its spec."""
     boot.run([sys.executable, '-B', str(HERE / 'wire_soc.py'), str(out / name), shape, str(elf), str(n_if),
-              str(flash_map)], out / f'{name}.log', cwd=ROOT)
+              str(flash_map), LEDGERED.get((shape, n_if), '-')], out / f'{name}.log', cwd=ROOT)
     return json.loads((out / name / 'soc.json').read_text())
 
 
-def split_top(out: Path) -> Path:
-    """The split top's model, by milan_dp's split recipe, its Mdir in the build directory."""
+def streams(shape: str) -> int:
+    """The shape's datapath streams, as the builder binds them on milan_datapath (N_STREAMS)."""
+    return eb.datapath_params(eb.load_config(str(ROOT / 'configs' / (shape + '.yaml'))))['N_STREAMS']
+
+
+def split_top(out: Path, shape: str, n_if: int) -> Path:
+    """The split top's model, by milan_dp's split recipe at the point's shape, streams and interfaces, its Mdir
+    in the build directory."""
     mdir = out / 'split'
-    boot.run(['make', '-C', str(MILAN_DP), f'-j{JOBS}', 'build-split', f'SPLIT_MDIR={mdir}'],
-             out / 'split.log')
+    boot.run(['make', '-C', str(MILAN_DP), f'-j{JOBS}', 'build-split', f'SPLIT_MDIR={mdir}', f'SPLIT_SHAPE={shape}',
+              f'SPLIT_STREAMS={streams(shape)}', f'SPLIT_IF={n_if}'], out / 'split.log')
     archive = mdir / SPLIT_ARCHIVE
     if not archive.is_file():
         raise RuntimeError(f'the split recipe left no {SPLIT_ARCHIVE} in {mdir}')
     return mdir
+
+
+def same_mailbox(spec: dict, mdir: Path, n_if: int) -> None:
+    """At two interfaces, the split top's mailbox variant (the recipe's SPLIT_VARIANT) is the CPU half's, file by
+    file, so KL_mbx_wb and KL_mbx are built from one contract variant."""
+    if n_if == 1:
+        return
+    for source in map(Path, spec['mailbox_sources']):
+        if source.name in ('KL_mbx_pkg.sv', 'KL_mbx.sv'):
+            other = mdir / f'mbx-if{n_if}' / source.name
+            if not other.is_file() or digest(other) != digest(source):
+                raise RuntimeError(f"the split top's {source.name} is not the CPU half's variant ({other})")
 
 
 def contract_words() -> dict:
@@ -96,6 +139,7 @@ def config_header(out: Path, spec: dict, words: dict) -> Path:
         f'constexpr std::uint64_t sys_hz = {spec["sys_hz"]}ULL;',
         f'constexpr std::uint32_t ms_div = {spec["sys_hz"] // 1000}u;',
         f'constexpr std::uint32_t csr_size = {spec["csr_size"]}u;',
+        f'constexpr unsigned n_if = {spec["interfaces"]}u;',
         f'constexpr unsigned n_channels = {len(words["channels"])}u;',
         f'constexpr std::uint32_t tx_head_word[n_channels] = {{{", ".join(f"{w}u" for w in words["tx_head"])}}};',
         f'constexpr std::uint32_t tmr_cmd_word = {words["tmr_cmd"]}u;',
@@ -141,16 +185,17 @@ def build(out: Path, point: str) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     flash_map = budget_build.flash_map(out / 'split-soc/flash-map', shape)
     archives = boot.runtime(out)
-    first = boot.image(out, 'image-provisional', (shape, n_if), boot.ImageMaps(boot.PROVISIONAL, flash_map), archives)
+    first = image(out, 'image-provisional', (shape, n_if), boot.ImageMaps(boot.PROVISIONAL, flash_map), archives)
     export(out, 'soc-provisional', shape, first, n_if, flash_map)
     csr_csv = out / 'soc-provisional/csr.csv'
-    elf = boot.image(out, 'image', (shape, n_if), boot.ImageMaps(csr_csv, flash_map), archives)
+    elf = image(out, 'image', (shape, n_if), boot.ImageMaps(csr_csv, flash_map), archives)
     spec = export(out, 'soc', shape, elf, n_if, flash_map)
     if boot.rows(out / 'soc/csr.csv') != boot.rows(csr_csv):
         raise RuntimeError("the CPU half's csr.csv depends on the image; the map cannot be generated from it")
     spec.update(elf=str(elf), point=point)
     config_header(out, spec, contract_words())
-    mdir = split_top(out)
+    mdir = split_top(out, shape, n_if)
+    same_mailbox(spec, mdir, n_if)
     executable = verilate(out, spec, mdir)
     spec['inputs'] = inputs(out, spec)
     spec['executable_sha256'] = digest(executable)
