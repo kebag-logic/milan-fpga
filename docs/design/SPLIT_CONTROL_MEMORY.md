@@ -23,7 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, held to 0.70.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, every row and pass with the CPU on `sys` at 100 MHz, a save in each flash phase and both links at once, with the store's step held to the pass's share, a save's worst case under any input, with one build a pass either way, the queued notices at stated costs, the polls by source: a base every pass is charged and the heavy items, each at its stated cost, and the long-window load of every source at its arrival bound, graded with tsn-c-stack #32 and held to 0.70 at 1x1/1if and 8x8/2if.
 - **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; each per-item cost measured on the 32x32/2if simulation shape, with the line's error against it; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
 ## 1. Memory map
@@ -2062,7 +2062,7 @@ By the response-time method, with the base and each item at its stated cost and 
 
 ### The long-window load
 
-A row's bound counts every source's arrivals in its window. At or above a load of 1.0, the work the sources bring in a long window is more than the CPU does in it, so no order of the work and no window length bounds a row. [`load_grade.py`](../../tb/verilator/ctrl_service_budget/load_grade.py) computes that load at 1x1/1if, 8x8/2if and 32x32/2if and holds 8x8/2if and 32x32/2if to 0.70 (#665, the [round 24 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6734415848), item 2), which leaves room for the rows:
+A row's bound counts every source's arrivals in its window. At or above a load of 1.0, the work the sources bring in a long window is more than the CPU does in it, so no order of the work and no window length bounds a row. [`load_grade.py`](../../tb/verilator/ctrl_service_budget/load_grade.py) computes that load at 1x1/1if, 8x8/2if and 32x32/2if and holds 1x1/1if and 8x8/2if to 0.70 (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 4), which leaves room for the rows. 32x32/2if is reported, not held, pending the owner's choice between more compute and contract rates per shape, with the compute its graded load would need for 0.70: every stated cost is CPU time at the split CPU's clock, so that is its load over 0.70. The round 24 ruling held 8x8/2if and 32x32/2if (item 2).
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
@@ -2111,11 +2111,11 @@ ACMP's owed frame and the polls' base are `poll_grade.py`'s stated costs in the 
 
 At this head (`load_grade.py --check`; the stated costs and their sources are the gate's two columns, with `poll_grade.STATED_US`'s and `ctrl_loop.h`'s where a column states none):
 
-| Point | Load at the pin | Load with tsn-c-stack #32 (graded, owed to the pin move) | Ceiling | Its three largest graded terms | A pass's own cost, us |
-|---|---:|---:|---:|---|---:|
-| 1x1/1if | 0.466 | 0.453 | reported | `srp` 0.150, `rec.acmp` 0.053, `item.aecp` 0.049 | 180 |
-| 8x8/2if | 0.844 | **0.747** | 0.70 | `srp` 0.243, `item.aecp` 0.076, `rec.acmp` 0.061 | 275 |
-| 32x32/2if | 2.150 | **1.659** | 0.70 | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
+| Point | Load at the pin | Load with tsn-c-stack #32 (graded, owed to the pin move) | Ceiling | Compute for 0.70 | Its three largest graded terms | A pass's own cost, us |
+|---|---:|---:|---:|---:|---|---:|
+| 1x1/1if | 0.466 | 0.453 | 0.70 | 1.00x | `srp` 0.150, `rec.acmp` 0.053, `item.aecp` 0.049 | 180 |
+| 8x8/2if | 0.844 | **0.747** | 0.70 | 1.07x | `srp` 0.243, `item.aecp` 0.076, `rec.acmp` 0.061 | 275 |
+| 32x32/2if | 2.150 | 1.659 | reported, pending the owner | 2.37x | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
 
 With SRP's retry bounded by its source, AECP's owed frame charged by what each source sends and the ACMP core's walk over the sinks that changed (round 24's loads were 0.905, 1.181 and 2.209), **8x8/2if is still 0.047 over its ceiling**. Each of its three largest terms alone would need:
 
@@ -2123,7 +2123,7 @@ With SRP's retry bounded by its source, AECP's owed frame charged by what each s
 - `item.aecp`, 0.076: a record's owed frame, a command's notice to 32 recipients, from 340 to 103 us (-70 %), or AECP's refill from 5 to 16.5 ms;
 - `rec.acmp`, 0.061: an ACMP record from 305 to 68 us (-78 %), or ACMP's refill from 5 to 22.4 ms.
 
-#32 takes ACMP's records, its owed frame and its timer slot's expiries from 0.186 to 0.093 at 8x8/2if, and from 0.637 to 0.186 at 32x32/2if. **32x32/2if stays 0.959 over**: there SRP's channel (0.519, an SRP record 865 us) and THE TRANSMIT's builds (a build of both of an interface's MRPDUs 10,810 us) with their owed MRPDUs, stated at a build of one's cost (7,485 us), together 0.449, lead it, and #32 moves neither.
+#32 takes ACMP's records, its owed frame and its timer slot's expiries from 0.186 to 0.093 at 8x8/2if, and from 0.637 to 0.186 at 32x32/2if. **32x32/2if is 0.959 over**, reported: there SRP's channel (0.519, an SRP record 865 us) and THE TRANSMIT's builds (a build of both of an interface's MRPDUs 10,810 us) with their owed MRPDUs, stated at a build of one's cost (7,485 us), together 0.449, lead it, and #32 moves neither.
 
 ### What is left
 
@@ -2138,7 +2138,7 @@ With SRP's retry bounded by its source, AECP's owed frame charged by what each s
 - **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
 - **The margins at this head:** 0.235 ms on the 8x8 last SRP record (arm A), and 9,580 cycles on the share (a pass that takes a record, 1.904 ms at 8x8/2if); every pass class sits at least 6,490 cycles, the data layout's measured swing, under the share at both points, at the head's layout and at the struct-ends layout ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
-- **The long-window load is over its 0.70 ceiling** at 8x8/2if, 0.747 with tsn-c-stack #32, the load the pin move owes (0.844 at the pin), and at 32x32/2if, 1.659 (2.150), and 0.453 at 1x1/1if (0.466 at the pin) ([above](#the-long-window-load)). SRP's retained retry is bounded by its source, at most once a centisecond and only once the pool or an attribute changed, and AECP's owed frame is charged by what each source sends.
+- **The long-window load is over its 0.70 ceiling at 8x8/2if**, 0.747 with tsn-c-stack #32, the load the pin move owes (0.844 at the pin), and within it at 1x1/1if, 0.453 (0.466). 32x32/2if is reported, pending the owner: 1.659 with #32 (2.150), 2.37x the compute for 0.70 ([above](#the-long-window-load)). SRP's retained retry is bounded by its source, at most once a centisecond and only once the pool or an attribute changed, and AECP's owed frame is charged by what each source sends.
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
 ## 14. The 32x32 estimate

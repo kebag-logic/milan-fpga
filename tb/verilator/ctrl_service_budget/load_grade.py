@@ -7,8 +7,10 @@ The load is the work the sources bring per millisecond of a window long enough t
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
-At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows (#665
-issuecomment-6734415848, item 2: 0.70 at 8x8/2if and 32x32/2if). No term is kept as a margin: each has its source,
+At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 at 1x1/1if and 8x8/2if
+(#665 issuecomment-6751196896, item 4). 32x32/2if is reported, not held, pending the owner's choice between more
+compute and contract rates per shape; the table gives the compute its graded load would need for 0.70, its load over
+0.70, since every stated cost is CPU time at the split CPU's clock. No term is kept as a margin: each has its source,
 and one without a source fails.
 
 Two columns of stated costs (#665 issuecomment-6751196896, item 3): STATED_US at this tree's TSN stack pin, and
@@ -79,8 +81,13 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The ceiling a point's load is held to (#665 issuecomment-6734415848, item 2); 1x1/1if is reported, not held.
-CEILING = {'8x8/2if': 0.70, '32x32/2if': 0.70}
+#: The ceiling a point's load is held to (#665 issuecomment-6751196896, item 4); 32x32/2if is reported, not held,
+#: pending the owner's choice (more compute, or contract rates per shape).
+CEILING = {'1x1/1if': 0.70, '8x8/2if': 0.70}
+#: What the table says in a point's ceiling column where CEILING holds none.
+PENDING = 'reported, pending the owner'
+#: The load the compute factor is reported against: the ceiling the held points are held to.
+TARGET = 0.70
 #: Each point's counts: interfaces, sinks an interface (counted all on each), registrations an interface
 #: (aecp.h, AECP_REGISTRATIONS) and the descriptors with counters (each stream's, each AVB interface's and each clock
 #: domain's; aecp.h, AECP_NOTICES_MOST's terms).
@@ -323,21 +330,28 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     return out
 
 
+def ceiling(point: str) -> str:
+    """A point's ceiling as the table prints it, or PENDING where CEILING holds none."""
+    return f'{CEILING[point]:.2f}' if point in CEILING else PENDING
+
+
 def report(root: Path, table: dict | None = None) -> list[str]:
-    """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, its pass's own cost
-    and every graded term by share."""
+    """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, the compute the
+    graded load would need for TARGET (its load over TARGET, at least 1), its pass's own cost and every graded term by
+    share."""
     lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (graded, owed to the pin move) | Ceiling | '
-             'A pass\'s own cost, us | Terms by share (graded) |',
-             '|---|---:|---:|---:|---:|---|']
+             f'Compute for {TARGET:.2f} | A pass\'s own cost, us | Terms by share (graded) |',
+             '|---|---:|---:|---:|---:|---:|---|']
     for point in POINTS:
         try:
             pin, terms = load(root, point, STATED_US), load(root, point, table)
         except KeyError as missing:
-            lines.append(f'| {point} | none | none | {CEILING.get(point, "reported")} | | no stated cost {missing} |')
+            lines.append(f'| {point} | none | none | {ceiling(point)} | | | no stated cost {missing} |')
             continue
         ranked = sorted(terms.items(), key=lambda t: -t[1])
-        lines.append(f"| {point} | {sum(pin.values()):.3f} | {sum(terms.values()):.3f} | "
-                     f"{CEILING.get(point, 'reported')} | {pass_own_us(root, point, table):.0f} | "
+        total = sum(terms.values())
+        lines.append(f"| {point} | {sum(pin.values()):.3f} | {total:.3f} | {ceiling(point)} | "
+                     f"{max(1.0, total / TARGET):.2f}x | {pass_own_us(root, point, table):.0f} | "
                      + ', '.join(f'{t} {v:.3f}' for t, v in ranked) + ' |')
     return lines
 
@@ -352,6 +366,14 @@ def controls(root: Path) -> list[str]:
     raised['8x8/2if']['record.acmp'] = 100_000
     if not any('8x8/2if: the load' in f for f in findings(root, raised, {'8x8/2if': 0.70})):
         escaped.append('a cost over the ceiling')
+    # each point the ruling holds (#665 issuecomment-6751196896, item 4), held by the gate's own ceiling: a cost raised
+    # at 1x1/1if and at 8x8/2if until the load passes 0.70 must fail the gate as it stands
+    for point in ('1x1/1if', '8x8/2if'):
+        over = {p: dict(v) for p, v in base.items()}
+        over[point]['record.acmp'] = 100_000
+        if CEILING.get(point) != 0.70 or not any(f'{point}: the load' in f for f in findings(root, over)):
+            escaped.append('a held point not held')
+            break
     # a cost the load needs, missing from a point's table
     dropped = {p: dict(v) for p, v in base.items()}
     dropped['8x8/2if'].pop('event.ACMP')
@@ -463,7 +485,8 @@ def period_controls(root: Path) -> list[str]:
 
 
 #: The planted defects controls() plants, in its order.
-CONTROLS = ('a cost over the ceiling', 'a stated cost missing', 'the retained retry counted once a record',
+CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a stated cost missing',
+            'the retained retry counted once a record',
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing')
