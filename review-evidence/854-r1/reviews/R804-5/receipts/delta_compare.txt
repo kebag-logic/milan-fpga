@@ -1,0 +1,65 @@
+dev first-parent chain from 45c0b56c:
+  45c0b56c1f4a8a52878815fdcb1359d18e2c5b1c Merge PR #835: Mark II charter follow-up: lever 4 accounting, LiteX block fates, stage 1 boot (#640)
+  123f57a922bf07476cd69f91867f3b6f07080804 Merge PR #825: Generate the register reference from the RTL in TI-TRM layout with register diagrams (#797)
+  ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36 Merge PR #852: Adopt the processor pin that sends one vector per value (#851)
+merge-base(b5d17214, 45c0b56c) = 123f57a922bf07476cd69f91867f3b6f07080804 (expected 123f57a922bf07476cd69f91867f3b6f07080804)
+literal ac0a01e3..45c0b56c spans 271 files (#825 + #835); #825's step was absorbed by b5d17214, so the #835 step is 123f57a9..45c0b56c
+== (a) files changed b5d17214..9405010f vs 123f57a9..45c0b56c
+  docs/design/AREA_BUDGET.md	docs/design/AREA_BUDGET.md
+  docs/design/MAILBOX_SPLIT.md	docs/design/MAILBOX_SPLIT.md
+  docs/design/MARK_II_AREA_PLAN.md	docs/design/MARK_II_AREA_PLAN.md
+  docs/findings/README.md	docs/findings/README.md
+  file sets: EQUAL
+== (b) per file: does head == dev blob (i.e. the PR-side file equalled the merge base)?
+  docs/design/AREA_BUDGET.md: both sides edited (3-way)
+  docs/design/MAILBOX_SPLIT.md: head==dev
+  docs/design/MARK_II_AREA_PLAN.md: both sides edited (3-way)
+  docs/findings/README.md: both sides edited (3-way)
+== (c) independent replay: git merge-tree --write-tree b5d17214 45c0b56c
+  024a6e8bde07e945dc86e1eb95d870631fe8f3e2
+  docs/findings/README.md
+  
+  Auto-merging docs/design/AREA_BUDGET.md
+  Auto-merging docs/design/MARK_II_AREA_PLAN.md
+  Auto-merging docs/findings/README.md
+  CONFLICT (content): Merge conflict in docs/findings/README.md
+  replay tree vs head, files differing:
+    docs/findings/README.md
+== (d) head vs live dev: name-status (must be #854's own files plus b5d17214's two generator sources)
+  M	CHANGELOG.md
+  M	docs/design/AREA_BUDGET.md
+  M	docs/design/CSR_REGISTER_NOTES.md
+  M	docs/design/MARK_II_AREA_PLAN.md
+  M	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+  M	docs/findings/README.md
+  M	docs/reference/REGISTER_MAP.md
+  M	docs/testing/TESTING.md
+  M	hdl/common/csr/milan_csr.sv
+  M	hdl/milan/KL_pp_shadow.sv
+  M	scripts/register_descriptions.json
+  M	syn/ooc/pp_resource_baseline.json
+  M	tb/verilator/pp_shadow/Makefile
+  M	tb/verilator/pp_shadow/README.md
+  A	tb/verilator/pp_shadow/drops_mutant.py
+  A	tb/verilator/pp_shadow/drops_probes.vlt
+  M	tb/verilator/pp_shadow/sim_main.cpp
+  of those, head blob == a853461d blob:
+    same  CHANGELOG.md
+    moved docs/design/AREA_BUDGET.md
+    moved docs/design/CSR_REGISTER_NOTES.md
+    moved docs/design/MARK_II_AREA_PLAN.md
+    same  docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+    moved docs/findings/README.md
+    moved docs/reference/REGISTER_MAP.md
+    same  docs/testing/TESTING.md
+    same  hdl/common/csr/milan_csr.sv
+    same  hdl/milan/KL_pp_shadow.sv
+    moved scripts/register_descriptions.json
+    same  syn/ooc/pp_resource_baseline.json
+    same  tb/verilator/pp_shadow/Makefile
+    same  tb/verilator/pp_shadow/README.md
+    same  tb/verilator/pp_shadow/drops_mutant.py
+    same  tb/verilator/pp_shadow/drops_probes.vlt
+    same  tb/verilator/pp_shadow/sim_main.cpp
+== hdl/ tb/ syn/ scripts/ third_party/ or gitlink paths in b5d17214..9405010f: 0
+RESULT: PASS
