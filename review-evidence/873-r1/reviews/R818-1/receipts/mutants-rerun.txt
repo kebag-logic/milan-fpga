@@ -1,0 +1,11 @@
+M12 KILLED rc=1 fails=6 last='selftest: 6 FAILURE(S)' :: --jobs ignored by the command-line geometry
+    FAIL the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+    FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator
+    FAIL 8 jobs at the default 16 CPUs are refused for CPU before any collaborator
+    FAIL a ninth job is refused before any collaborator
+    FAIL --jobs 8 --job-cpus 6 --job-memory 4 on 8 ranges of 6 reaches its first collaborator with that geometry, which does not outlive the run
+    FAIL --jobs 8 --job-cpus 8 --job-memory 4 on 8 ranges of 8 reaches its first collaborator with that geometry, which does not outlive the run
+M15 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: swap cap left at the default 8g while memory follows the geometry
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+M22 KILLED rc=1 fails=0 last="Refusal: memory over-subscribed: 8 jobs of 8 GiB plus the slot's 4 GiB service share need 68 GiB, over its MemoryMax=36G" :: geometry refusal not caught in main (escapes as a traceback, after nothing ran)

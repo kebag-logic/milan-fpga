@@ -1,0 +1,130 @@
+{
+ "4x12 fallback": [
+  "REFUSED",
+  "CPU range 0-11 has unsupported width 12; need 8"
+ ],
+ "4x16": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "7 aligned": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 7 --env MILAN_CI_CPU_RANGES=0-7,8-15,16-23,24-31,32-39,40-47,48-55 --env MILAN_CI_FALLBACK_CPUS=8 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=4g --memory-swap=4g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 8,
+   "selected": [
+    "REFUSED",
+    "insufficient CPU ranges: 8 jobs need distinct ranges"
+   ]
+  }
+ ],
+ "8 aligned": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 8 --env MILAN_CI_CPU_RANGES=0-7,8-15,16-23,24-31,32-39,40-47,48-55,56-63 --env MILAN_CI_FALLBACK_CPUS=8 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=4g --memory-swap=4g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 8,
+   "selected": [
+    "ok",
+    [
+     "0-7",
+     "8-15",
+     "16-23",
+     "24-31",
+     "32-39",
+     "40-47",
+     "48-55",
+     "56-63"
+    ]
+   ]
+  }
+ ],
+ "8x16 booked": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "mixed 16+12": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "one range": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges ''": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ],
+ "ranges '-1-14'": [
+  "REFUSED",
+  "invalid CPU range: -1-14"
+ ],
+ "ranges '0-15,'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-15,0-15'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-15,12-23'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-31'": [
+  "REFUSED",
+  "CPU range 0-31 has unsupported width 32; need 8"
+ ],
+ "ranges '0-5'": [
+  "REFUSED",
+  "CPU range 0-5 has unsupported width 6; need 8"
+ ],
+ "ranges '0-7'": [
+  "ok",
+  [
+   "0-7"
+  ]
+ ],
+ "ranges '0-7,8-15'": [
+  "ok",
+  [
+   "0-7",
+   "8-15"
+  ]
+ ],
+ "ranges '0-7,8-15,0-7'": [
+  "REFUSED",
+  "CPU ranges overlap: 0 and 2 share CPU 0"
+ ],
+ "ranges '00-15'": [
+  "REFUSED",
+  "invalid CPU range: 00-15"
+ ],
+ "ranges '1-16'": [
+  "REFUSED",
+  "CPU range 1-16 has unsupported width 16; need 8"
+ ],
+ "ranges '12-17'": [
+  "REFUSED",
+  "CPU range 12-17 has unsupported width 6; need 8"
+ ],
+ "ranges '128-135'": [
+  "REFUSED",
+  "CPU range 128-135 exceeds this host's 128 CPUs"
+ ],
+ "ranges '128-143'": [
+  "REFUSED",
+  "CPU range 128-143 has unsupported width 16; need 8"
+ ],
+ "ranges '4-11'": [
+  "REFUSED",
+  "CPU range is not aligned to its width: 4-11"
+ ],
+ "ranges '4-15'": [
+  "REFUSED",
+  "CPU range 4-15 has unsupported width 12; need 8"
+ ],
+ "ranges None": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ]
+}

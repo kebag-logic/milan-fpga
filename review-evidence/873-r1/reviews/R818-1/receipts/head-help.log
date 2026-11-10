@@ -1,0 +1,76 @@
+usage: act_ci.py [-h] [--pr PR] [--repo REPO] [--worktree WORKTREE]
+                 [--workflow {all,docs,elaborate,rtl-fast,rtl-full}]
+                 [--cpu-ranges CPU_RANGES] [--jobs JOBS] [--job-cpus JOB_CPUS]
+                 [--job-memory JOB_MEMORY] [--act-bin ACT_BIN]
+                 [--evidence-directory EVIDENCE_DIRECTORY]
+                 [--trusted-install-sha256 TRUSTED_INSTALL_SHA256] [--sudo]
+                 [--slot SLOT] [--slot-root SLOT_ROOT] [--dry-run]
+                 [--selftest] [--interrupt-selftest] [--boundary-selftest]
+
+Run this repository's GitHub workflows locally at one exact PR head. The
+runner is host-side security code. Invoke the copy from a clean trusted
+``dev`` worktree, never the copy in the pull request being tested. It refuses
+unless that trusted worktree is the validation base: the live remote ``dev``
+tip resolved once at invocation. GitHub's recorded PR base oid is frozen when
+the PR is opened, so it never refuses a run: it is printed, it selects which
+note is printed, and it is the base SHA in the generated event, because that
+payload feeds scope classification and hosted receives the recorded value.
+Candidate files are fetched without credentials into a fresh per-run
+repository and are only executed by ``act`` inside unprivileged containers
+with no Docker socket, ambient configuration, host secrets, or persistent
+writable cache. Typical use, from the candidate worktree:: python3 -I
+/path/to/trusted-dev/scripts/act_ci.py --pr 268 python3 -I /path/to/trusted-
+dev/scripts/act_ci.py --pr 268 --workflow rtl-full python3 -I
+/path/to/trusted-dev/scripts/act_ci.py --pr 268 --dry-run Use ``--sudo`` only
+on hosts whose Docker socket is unavailable to the current user. ``--slot N``
+(1-63, with ``--sudo``) replays against a Docker daemon this invocation starts
+and stops in its own network namespace, so replays in different slots run side
+by side; slot 0, the default, is the default local daemon exactly as before.
+The environment never selects a daemon: an invoking environment carrying
+DOCKER_HOST, DOCKER_CONTEXT or DOCKER_CONFIG is refused:: python3 -I
+/path/to/trusted-dev/scripts/act_ci.py --pr 268 --sudo --slot 1 Exit 0 means
+every selected workflow passed; exit 1 means a workflow failed; exit 2 is a
+setup, trust-boundary, cleanup, or exact-head refusal. A handled terminal
+signal returns ``128 + signum`` only after cleanup; SIGINT therefore returns
+130 and names itself in the final diagnostic.
+
+options:
+  -h, --help            show this help message and exit
+  --pr PR               open pull-request number
+  --repo REPO           OWNER/REPO (default: trusted gh repository)
+  --worktree WORKTREE   candidate worktree to cross-check (default: current
+                        directory)
+  --workflow {all,docs,elaborate,rtl-fast,rtl-full}
+                        workflow alias; repeatable (default: all)
+  --cpu-ranges CPU_RANGES
+                        manager-booked aligned CPU ranges, comma-separated
+  --jobs JOBS           job containers run at once, 1-8 (default 4)
+  --job-cpus JOB_CPUS   each job's booked CPU range width: 16 (ranges of 16 or
+                        12), 8 (ranges of 8), 6 (ranges of 6) (default 16)
+  --job-memory JOB_MEMORY
+                        each job container's memory and swap cap in GiB, 1-8
+                        (default 8); jobs times it plus 4 must fit 36
+  --act-bin ACT_BIN     trusted act executable
+  --evidence-directory EVIDENCE_DIRECTORY
+                        new durable directory outside the candidate tree
+                        (default: private temporary directory)
+  --trusted-install-sha256 TRUSTED_INSTALL_SHA256
+                        SHA-256 of an independently audited immutable runner
+                        install; bootstrap only, never point this at the
+                        candidate worktree
+  --sudo                run Docker and act through non-interactive sudo
+  --slot SLOT           replay slot 0-63: 0 (the default) is the default local
+                        Docker daemon; any other starts this invocation's own
+                        daemon in its own network namespace (requires --sudo)
+  --slot-root SLOT_ROOT
+                        root-owned directory, with root-owned ancestors and no
+                        symlink, holding each isolated slot's persistent data-
+                        root (default /var/lib/milan-act-ci)
+  --dry-run             materialize and print exact act commands without
+                        running them
+  --selftest            run offline negative and construction tests
+  --interrupt-selftest  SIGINT a frozen live act job and verify cleanup
+                        (requires Docker)
+  --boundary-selftest   plant operator secrets, prove the boundaried probe job
+                        and git see none, then prove the same probe sees them
+                        once the boundary is removed (requires Docker)

@@ -1,0 +1,87 @@
+{
+ "4x12 fallback": [
+  "REFUSED",
+  "CPU range 0-11 has unsupported width 12; need 8"
+ ],
+ "4x16": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "8x16 booked": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "mixed 16+12": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "one range": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges ''": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ],
+ "ranges '-1-14'": [
+  "REFUSED",
+  "invalid CPU range: -1-14"
+ ],
+ "ranges '0-15,'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-15,0-15'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-15,12-23'": [
+  "REFUSED",
+  "CPU range 0-15 has unsupported width 16; need 8"
+ ],
+ "ranges '0-31'": [
+  "REFUSED",
+  "CPU range 0-31 has unsupported width 32; need 8"
+ ],
+ "ranges '0-5'": [
+  "REFUSED",
+  "CPU range 0-5 has unsupported width 6; need 8"
+ ],
+ "ranges '0-7'": [
+  "ok",
+  [
+   "0-7"
+  ]
+ ],
+ "ranges '0-7,8-15'": [
+  "ok",
+  [
+   "0-7",
+   "8-15"
+  ]
+ ],
+ "ranges '00-15'": [
+  "REFUSED",
+  "invalid CPU range: 00-15"
+ ],
+ "ranges '1-16'": [
+  "REFUSED",
+  "CPU range 1-16 has unsupported width 16; need 8"
+ ],
+ "ranges '12-17'": [
+  "REFUSED",
+  "CPU range 12-17 has unsupported width 6; need 8"
+ ],
+ "ranges '128-143'": [
+  "REFUSED",
+  "CPU range 128-143 has unsupported width 16; need 8"
+ ],
+ "ranges '4-15'": [
+  "REFUSED",
+  "CPU range 4-15 has unsupported width 12; need 8"
+ ],
+ "ranges None": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ]
+}
