@@ -1,0 +1,118 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: make --no-print-directory -C tb/verilator/milan_dp srptx (its report, wire)
+full log: 1964 bytes, sha256 a6394cc4251472cae82f91957ec6f0ed81270670ab180cf5b2d49a7e97f01641
+---
+{
+ "findings": [],
+ "measured": {
+  "scenario": "wire",
+  "run_ms": 600000,
+  "fixture": false,
+  "intra_ms_max_us": 149.56,
+  "first_mrpdu_ms": 1,
+  "mrpdus": 1449,
+  "tx": {
+   "accepted": 1449,
+   "sent": 1449,
+   "refusals": []
+  },
+  "timers": {
+   "MSRP": {
+    "interval_error": {
+     "join": {
+      "n": 116,
+      "min_us": -1011.34,
+      "mean_us": -8.865,
+      "max_us": 0.46
+     },
+     "periodic": {
+      "n": 524,
+      "min_us": -11.8,
+      "mean_us": -0.0,
+      "max_us": 11.8
+     },
+     "leaveall": {
+      "n": 39,
+      "min_us": -50000.0,
+      "mean_us": -0.0,
+      "max_us": 50000.0
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 105,
+      "min_us": 1.94,
+      "mean_us": 1.95,
+      "max_us": 1.97
+     },
+     "periodic": {
+      "n": 573,
+      "min_us": 1.94,
+      "mean_us": 1.97,
+      "max_us": 13.75
+     },
+     "leaveall": {
+      "n": 44,
+      "min_us": 2.4,
+      "mean_us": 5229.683,
+      "max_us": 50002.41
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 727,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   },
+   "MVRP": {
+    "interval_error": {
+     "join": {
+      "n": 111,
+      "min_us": -1011.34,
+      "mean_us": -9.352,
+      "max_us": 15.48
+     },
+     "periodic": {
+      "n": 520,
+      "min_us": -12.99,
+      "mean_us": -0.0,
+      "max_us": 12.99
+     },
+     "leaveall": {
+      "n": 40,
+      "min_us": -70000.0,
+      "mean_us": -0.0,
+      "max_us": 70000.01
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 106,
+      "min_us": 1.52,
+      "mean_us": 2.288,
+      "max_us": 17.03
+     },
+     "periodic": {
+      "n": 568,
+      "min_us": 1.52,
+      "mean_us": 13.986,
+      "max_us": 26.31
+     },
+     "leaveall": {
+      "n": 44,
+      "min_us": 1.54,
+      "mean_us": 1592.458,
+      "max_us": 70001.55
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 722,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,141 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: make --no-print-directory -C tb/verilator/milan_dp srptx (its report, licence-16280)
+full log: 2312 bytes, sha256 7ca0367702df5dbb5392ed2167cd9bf87d25de1bdb06d283d4c88f32394a4b09
+---
+{
+ "findings": [],
+ "measured": {
+  "scenario": "licence",
+  "run_ms": 26000,
+  "fixture": true,
+  "intra_ms_max_us": 94.13,
+  "first_mrpdu_ms": 1,
+  "mrpdus": 69,
+  "tx": {
+   "accepted": 69,
+   "sent": 69,
+   "refusals": []
+  },
+  "timers": {
+   "MSRP": {
+    "interval_error": {
+     "join": {
+      "n": 7,
+      "min_us": -1041.81,
+      "mean_us": -295.037,
+      "max_us": 0.01
+     },
+     "periodic": {
+      "n": 21,
+      "min_us": -11.35,
+      "mean_us": 0.0,
+      "max_us": 11.33
+     },
+     "leaveall": {
+      "n": 0
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 7,
+      "min_us": 1.56,
+      "mean_us": 1.889,
+      "max_us": 2.03
+     },
+     "periodic": {
+      "n": 25,
+      "min_us": 1.92,
+      "mean_us": 10.092,
+      "max_us": 13.27
+     },
+     "leaveall": {
+      "n": 1,
+      "min_us": 2.34,
+      "mean_us": 2.34,
+      "max_us": 2.34
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 35,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   },
+   "MVRP": {
+    "interval_error": {
+     "join": {
+      "n": 6,
+      "min_us": -1011.34,
+      "mean_us": -164.522,
+      "max_us": 24.24
+     },
+     "periodic": {
+      "n": 22,
+      "min_us": -12.9,
+      "mean_us": 0.0,
+      "max_us": 12.9
+     },
+     "leaveall": {
+      "n": 1,
+      "min_us": -0.01,
+      "mean_us": -0.01,
+      "max_us": -0.01
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 6,
+      "min_us": 1.52,
+      "mean_us": 7.717,
+      "max_us": 25.77
+     },
+     "periodic": {
+      "n": 25,
+      "min_us": 12.87,
+      "mean_us": 22.076,
+      "max_us": 25.77
+     },
+     "leaveall": {
+      "n": 2,
+      "min_us": 1.54,
+      "mean_us": 1.545,
+      "max_us": 1.55
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 34,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   }
+  },
+  "licence": {
+   "licence_from_ms": 3001,
+   "peer_leave_all_ms": 16280,
+   "withdrawal_ms": 18000,
+   "deadline_ms": 21280,
+   "gate_closed_ms": 21280,
+   "licence_cleared_us": 21280000.95,
+   "leave_timer_after_leave_all": [
+    [
+     16281,
+     "arm",
+     500
+    ],
+    [
+     21280,
+     "expire",
+     0
+    ]
+   ],
+   "stream_frames": 104,
+   "first_stream_ms": 3201,
+   "last_stream_ms": 21230,
+   "stream_ids": [
+    "0000000000000000"
+   ]
+  }
+ }
+}

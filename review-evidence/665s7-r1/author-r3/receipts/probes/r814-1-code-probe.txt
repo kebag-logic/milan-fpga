@@ -1,0 +1,17 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: python3 -I code_probe.py <gate clone> <scratch>/cprobe 2 join-10cs join-15cs (R814-1's script, sha256 0e5d16ae03f1881427af18eb1528f602e788de3f98ff4f549e7898faf50e736c, unchanged)
+full log: 1617 bytes, sha256 3c807129603823cf6d7be437401b5137982b5b93e69c0b41eb9a6438888134fa
+---
+PROBE join-10cs [join-10cs] (wire 40000 ms); expectation: JoinTime 100 ms, outside Table 10-7 / Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 15
+  sections refusing: {'TIME': 15}
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 200, 100.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+  RESULT join-10cs: REFUSED
+PROBE join-15cs [join-15cs] (wire 40000 ms); expectation: JoinTime 150 ms, outside Milan Table 4.3 (180-240 ms): a spacing check must refuse
+  binary rc 0; srptx wire: 168 control frames, 102 MRPDUs from lwSRP, 102 sent by the adapter, 0 host timeouts, 40000 ms; findings: 16
+  sections refusing: {'TIME': 16}
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    TIME: [TIME] MSRP: a Join timer's transmit opportunity at ms 300, 150.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+  RESULT join-15cs: REFUSED
+rc=0

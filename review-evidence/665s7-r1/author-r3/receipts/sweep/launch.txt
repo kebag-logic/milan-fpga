@@ -1,0 +1,10 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: how the four shards were launched, and on which CPUs
+full log: 1005 bytes, sha256 000843400a9088380b998d294b6431d883f747c62d75ae2d46c57651206d41bc
+---
+native-shards.py a757c launched all four at 18:07 on 0-7, 8-15, 24-27, 16-23; release holds booked 0-31 that minute, so they were stopped within 2 minutes (no result kept). With no four 8-CPU ranges free at once after that, tools/sweep_launch.py launched each shard through tools/sweep-shard.py, which does for one shard what native-shards.py does for each (its own --shared clone of the lane at the head, submodules from the lane's, the spec's suite command with --shard k/4, through run-recorded-gates.py, unit milan-a757c-shard<k>, MemoryMax 10G, MAKEFLAGS -j4), the moment cpu_ranges.py pick returned a free range:
+19:08:13 shard 2 on 80-83 (picked 80-87): rc 0 {"shard": 2, 
+19:11:24 shard 0 on 88-95 (picked 88-95): rc 0 {"shard": 0, 
+19:13:11 shard 1 on 32-39 (picked 32-39): rc 0 {"shard": 1, 
+19:25:29 shard 3 on 8-15 (picked 8-15): rc 0 {"shard": 3, "h
+shard 2, which holds capture_coherence, on 4 CPUs. Each shard's cores were its own (checked against every unit's affinity after each launch).

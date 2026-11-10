@@ -1,0 +1,32 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: python3 -B ablate.py <gate clone>/tb/verilator/milan_dp <the grade at 2131eff4> <gate clone>/tb/verilator/milan_dp/obj_srptx
+full log: 3458 bytes, sha256 705fc1afd4b3cfbdd4e2ffaa9fbad62a57675f099fdf80bd7468ccb9574cdb05
+---
+== 1. the off-grid controls, the grade at 2131eff4 against this head's
+licence-16280: at 2131eff4 1 finding(s): [TIME] MSRP: a Join timer's transmit opportunity at ms 16281, 281.030 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3); this head 0
+licence-16240: at 2131eff4 0 finding(s); this head 0
+== 2. this head's grade, one change taken back
+requested-late: with the change REFUSED (1 finding(s)); no-requested ESCAPED (0 finding(s))
+requested-within: with the change 0 finding(s) (a control: clean wanted); no-requested 0 finding(s) (a control: clean wanted)
+join-early-past-t-svc: with the change REFUSED (1 finding(s)); no-join ESCAPED (0 finding(s))
+join-interval-late: with the change REFUSED (1 finding(s)); no-join ESCAPED (0 finding(s))
+join-early-within-t-svc: with the change 0 finding(s) (a control: clean wanted); no-join 0 finding(s) (a control: clean wanted)
+join-interval-late-within: with the change 0 finding(s) (a control: clean wanted); no-join 0 finding(s) (a control: clean wanted)
+wire, Join attribution by window: 0 finding(s)
+hold, Join attribution by window: 0 finding(s)
+licence, Join attribution by window: 0 finding(s)
+licence-16280, Join attribution by window: 1 finding(s)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 16281, 281.030 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+licence-16240, Join attribution by window: 0 finding(s)
+wire, Join attribution by window-la: 6 finding(s)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 128280, 280.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 544260, 260.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    [TIME] MVRP: a Join timer's transmit opportunity at ms 136270, 269.987 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    [TIME] MVRP: a Join timer's transmit opportunity at ms 165280, 279.987 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    [TIME] MVRP: a Join timer's transmit opportunity at ms 254270, 269.987 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+    [TIME] MVRP: a Join timer's transmit opportunity at ms 501280, 279.987 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+hold, Join attribution by window-la: 0 finding(s)
+licence, Join attribution by window-la: 0 finding(s)
+licence-16280, Join attribution by window-la: 1 finding(s)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 16281, 281.030 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+licence-16240, Join attribution by window-la: 0 finding(s)

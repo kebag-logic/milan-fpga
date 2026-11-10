@@ -1,0 +1,26 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: run_all_suites.sh <out>/shard-2/logs --wait --shard 2/4 (native-shards.py, its own clone and unit, MemoryMax 10G, MAKEFLAGS -j4 --no-print-directory)
+full log: 599 bytes, sha256 6b43d970d87f7e20bbf9832072ec787d24082b666ce9addb43d88d162296cedf
+---
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     capture_coherence
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+PASS     maap
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 284228   in-suite failures: 0
+logs: <scratch>/sweep/shard-2/logs

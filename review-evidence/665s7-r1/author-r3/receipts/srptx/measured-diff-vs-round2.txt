@@ -1,0 +1,47 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: python3 -I measured_diff.py <round 2 report receipt> <this head's report>, per scenario
+full log: 2403 bytes, sha256 ed3dcdb321669111f4f686dd534af1676a3e0aa0d3489c324284375a2a277976
+---
+== wire (round 2 receipt against this head's report)
+13 measured leaves differ; findings old 0 new 0
+  /timers/MSRP/egress_after_tick/join/n: 104 -> 105
+  /timers/MSRP/egress_after_tick/periodic/n: 574 -> 573
+  /timers/MSRP/interval_error/join/max_us: 0.01 -> 0.46
+  /timers/MSRP/interval_error/join/mean_us: -9.937 -> -8.865
+  /timers/MSRP/interval_error/join/n: 104 -> 116
+  /timers/MSRP/interval_error/periodic/n: 525 -> 524
+  /timers/MVRP/egress_after_tick/join/mean_us: 2.053 -> 2.288
+  /timers/MVRP/egress_after_tick/join/n: 104 -> 106
+  /timers/MVRP/egress_after_tick/periodic/mean_us: 13.988 -> 13.986
+  /timers/MVRP/egress_after_tick/periodic/n: 570 -> 568
+  /timers/MVRP/interval_error/join/mean_us: -9.608 -> -9.352
+  /timers/MVRP/interval_error/join/n: 104 -> 111
+  /timers/MVRP/interval_error/periodic/n: 522 -> 520
+== hold (round 2 receipt against this head's report)
+15 measured leaves differ; findings old 0 new 0
+  /timers/MSRP/egress_after_tick/join/n: 34 -> 40
+  /timers/MSRP/egress_after_tick/periodic/mean_us: 10.291 -> 11.962
+  /timers/MSRP/egress_after_tick/periodic/n: 36 -> 30
+  /timers/MSRP/interval_error/join/mean_us: -38.589 -> -32.8
+  /timers/MSRP/interval_error/join/n: 34 -> 40
+  /timers/MVRP/egress_after_tick/join/max_us: 14.51 -> 14.52
+  /timers/MVRP/egress_after_tick/join/mean_us: 13.69 -> 13.836
+  /timers/MVRP/egress_after_tick/join/n: 32 -> 39
+  /timers/MVRP/egress_after_tick/periodic/max_us: 314.7 -> 14.53
+  /timers/MVRP/egress_after_tick/periodic/mean_us: 22.276 -> 14.068
+  /timers/MVRP/egress_after_tick/periodic/n: 37 -> 29
+  /timers/MVRP/interval_error/join/max_us: 0.01 -> 12.98
+  /timers/MVRP/interval_error/join/mean_us: -40.987 -> -33.297
+  /timers/MVRP/interval_error/join/n: 32 -> 39
+  /timers/MVRP/interval_error/periodic/n: 27 -> 26
+== licence (round 2 receipt against this head's report)
+9 measured leaves differ; findings old 0 new 0
+  /timers/MVRP/egress_after_tick/join/max_us: 14.42 -> 25.77
+  /timers/MVRP/egress_after_tick/join/mean_us: 4.106 -> 7.717
+  /timers/MVRP/egress_after_tick/join/n: 5 -> 6
+  /timers/MVRP/egress_after_tick/periodic/mean_us: 22.218 -> 22.076
+  /timers/MVRP/egress_after_tick/periodic/n: 26 -> 25
+  /timers/MVRP/interval_error/join/max_us: 0.01 -> 24.24
+  /timers/MVRP/interval_error/join/mean_us: -202.276 -> -164.523
+  /timers/MVRP/interval_error/join/n: 5 -> 6
+  /timers/MVRP/interval_error/periodic/n: 23 -> 22

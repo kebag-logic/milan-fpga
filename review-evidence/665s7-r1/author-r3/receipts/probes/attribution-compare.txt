@@ -1,0 +1,51 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+command: python3 -B attrib_compare.py <the grade at 2131eff4> <gate clone> obj_srptx/{wire,hold,licence,licence-16280,licence-16240}.json
+full log: 6514 bytes, sha256 fb0a83a2fab1b259c57834b7af73f17f8c57cc2e40031f415d303235b332d6c9
+---
+== wire.json
+  MSRP ms 407000.002: old periodic (407000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP (old, new) counts: {('join', 'join'): 104, ('leaveall', 'leaveall'): 44, ('periodic', 'join'): 1, ('periodic', 'not join'): 573, (None, 'leaveall'): 4, (None, 'not join'): 1}
+  MSRP frames with idle_us: 610; egress - idle max 1.0127399999946356; top 5 [(88000.01375, 1.0127399999946356), (270950.00241, 1.0014000000357628), (281860.00241, 1.0014000000357628), (309350.00241, 1.0014000000357628), (320540.00241, 1.0014000000357628)]
+  MVRP ms 11000.015: old periodic (11000.000769999999), new join, after_join True, idle None, gap 200.01298000000045
+  MVRP ms 217000.014: old periodic (217000.00077), new join, after_join True, idle None, gap 200.0129699999988
+  MVRP (old, new) counts: {('join', 'join'): 104, ('leaveall', 'leaveall'): 44, ('periodic', 'join'): 2, ('periodic', 'not join'): 568, (None, 'leaveall'): 3, (None, 'not join'): 1}
+  MVRP frames with idle_us: 610; egress - idle max 1.0252999999970198; top 5 [(88000.02631, 1.0252999999970198), (532000.01703, 1.0160199999809265), (93000.01469, 1.0136799999922514), (21000.01451, 1.0135), (22000.01451, 1.0135)]
+== hold.json
+  MSRP ms 21000.002: old periodic (21000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP ms 26000.002: old periodic (26000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP ms 27000.002: old periodic (27000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP ms 28000.002: old periodic (28000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP ms 29000.002: old periodic (29000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP ms 30000.002: old periodic (30000.00077), new join, after_join True, idle None, gap 200.0
+  MSRP (old, new) counts: {('join', 'join'): 34, ('leaveall', 'leaveall'): 1, ('periodic', 'join'): 6, ('periodic', 'not join'): 30, (None, 'not join'): 1}
+  MSRP frames with idle_us: 30; egress - idle max 1.001379999998957; top 5 [(14560.00243, 1.001379999998957), (34000.001950000005, 1.0009400000050663), (35000.001950000005, 1.0009400000050663), (36000.001950000005, 1.0009400000050663), (37000.001950000005, 1.0009400000050663)]
+  MVRP ms 11000.015: old periodic (11000.000769999999), new join, after_join True, idle None, gap 200.01298000000045
+  MVRP ms 21000.015: old periodic (21000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP ms 25000.315: old periodic (25000.00077), new join, after_join True, idle None, gap 3200.300199999999
+  MVRP ms 26000.015: old periodic (26000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP ms 27000.015: old periodic (27000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP ms 28000.015: old periodic (28000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP ms 29000.015: old periodic (29000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP ms 30000.015: old periodic (30000.00077), new join, after_join True, idle None, gap 200.0
+  MVRP (old, new) counts: {('join', 'join'): 32, ('leaveall', 'leaveall'): 1, ('periodic', 'join'): 8, ('periodic', 'not join'): 29, (None, 'not join'): 1}
+  MVRP frames with idle_us: 30; egress - idle max 1.0135; top 5 [(31000.01451, 1.0135), (32000.01451, 1.0135), (33000.01451, 1.0135), (34000.01451, 1.0135), (35000.01451, 1.0135)]
+== licence.json
+  MSRP (old, new) counts: {('join', 'join'): 8, ('leaveall', 'leaveall'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MSRP frames with idle_us: 26; egress - idle max 1.0122799999974668; top 5 [(21000.01329, 1.0122799999974668), (5000.0132699999995, 1.0122599999997766), (6000.0132699999995, 1.0122599999997766), (9000.01327, 1.0122599999997766), (10000.01327, 1.0122599999997766)]
+  MVRP ms 11000.026: old periodic (11000.000769999999), new join, after_join True, idle None, gap 200.02424000000022
+  MVRP (old, new) counts: {('join', 'join'): 5, ('leaveall', 'leaveall'): 2, ('periodic', 'join'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MVRP frames with idle_us: 27; egress - idle max 1.0247799999974667; top 5 [(21000.02579, 1.0247799999974667), (5000.025769999999, 1.0247599999997765), (6000.025769999999, 1.0247599999997765), (9000.02577, 1.0247599999997765), (10000.02577, 1.0247599999997765)]
+== licence-16280.json
+  MSRP ms 16281.044: old join (16200.000769999999), new not join, after_join False, idle 16281.00083, gap 281.03047000000066
+  MSRP (old, new) counts: {('join', 'join'): 7, ('join', 'not join'): 1, ('leaveall', 'leaveall'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MSRP frames with idle_us: 27; egress - idle max 1.0122599999997766; top 5 [(5000.0132699999995, 1.0122599999997766), (6000.0132699999995, 1.0122599999997766), (9000.01327, 1.0122599999997766), (10000.01327, 1.0122599999997766), (11000.01327, 1.0122599999997766)]
+  MVRP ms 11000.026: old periodic (11000.000769999999), new join, after_join True, idle None, gap 200.02424000000022
+  MVRP (old, new) counts: {('join', 'join'): 5, ('leaveall', 'leaveall'): 2, ('periodic', 'join'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MVRP frames with idle_us: 27; egress - idle max 1.0247599999997765; top 5 [(5000.025769999999, 1.0247599999997765), (6000.025769999999, 1.0247599999997765), (9000.02577, 1.0247599999997765), (10000.02577, 1.0247599999997765), (12000.02577, 1.0247599999997765)]
+== licence-16240.json
+  MSRP ms 16241.044: old join (16200.000769999999), new not join, after_join False, idle 16241.00083, gap 241.03047000000066
+  MSRP (old, new) counts: {('join', 'join'): 7, ('join', 'not join'): 1, ('leaveall', 'leaveall'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MSRP frames with idle_us: 27; egress - idle max 1.0122599999997766; top 5 [(5000.0132699999995, 1.0122599999997766), (6000.0132699999995, 1.0122599999997766), (9000.01327, 1.0122599999997766), (10000.01327, 1.0122599999997766), (11000.01327, 1.0122599999997766)]
+  MVRP ms 11000.026: old periodic (11000.000769999999), new join, after_join True, idle None, gap 200.02424000000022
+  MVRP (old, new) counts: {('join', 'join'): 5, ('leaveall', 'leaveall'): 2, ('periodic', 'join'): 1, ('periodic', 'not join'): 25, (None, 'not join'): 1}
+  MVRP frames with idle_us: 27; egress - idle max 1.0247599999997765; top 5 [(5000.025769999999, 1.0247599999997765), (6000.025769999999, 1.0247599999997765), (9000.02577, 1.0247599999997765), (10000.02577, 1.0247599999997765), (12000.02577, 1.0247599999997765)]
