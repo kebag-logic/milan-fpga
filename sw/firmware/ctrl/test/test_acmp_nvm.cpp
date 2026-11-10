@@ -119,7 +119,9 @@ TEST_F(AcmpStore, N1ABindSurvivesAPowerCycleAndFastConnects) {
     ASSERT_EQ(persists, 1u) << "N1 the bind marks its record (5.5.2.4)";
     unsigned ok = nvm_store_status()->commits_ok;
     serve();
-    ASSERT_EQ(nvm_store_status()->commits_ok, ok + 1u) << "N1 the store commits it";
+    // not fatal: a bind the store has nothing to write for is still judged by
+    // what the next boot restores
+    EXPECT_EQ(nvm_store_status()->commits_ok, ok + 1u) << "N1 the store commits it";
     boot(MILAN_NVM3_N_STREAM_IN);
     EXPECT_EQ(nvm_store_status()->terminal, NVM_T_COMPLETE) << "N1 the next boot restores the container";
     const acmp_sink& s = a.sinks[0];

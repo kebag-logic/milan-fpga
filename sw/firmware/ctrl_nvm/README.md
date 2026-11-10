@@ -672,14 +672,19 @@ a record larger than a delta segment.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one. There are 184 defects and eight controls of the
+by at least one. There are 182 defects and eight controls of the
 compile-time refusals: the NAME block, the two map widths, the input table's
 limit one entry early, the doctored macro outside the host test, and the
-three fit asserts. They are graded at the 1x1 shape, with two exceptions.
+three fit asserts. They are graded at the 1x1 shape, with three exceptions.
 `ticks_per_us_truncated` shows only at a clock that is not a whole number of
-MHz, so it is graded at `endstation_arty_current`. `seg_cap_ignored` needs a
-record set larger than one delta segment, so it is graded at
-`endstation_ax7101_8x8`.
+MHz, so it is graded at `endstation_arty_current`. `seg_cap_ignored` and
+`delta_cap_unchecked` need a record set larger than one delta segment, so
+they are graded at `endstation_ax7101_8x8`.
+
+Two guards of a delta's walk have no planted defect: a record header past
+the segment's end, and a payload past it. Each keeps the walk's reads inside
+the segment. The record rules and the pad rule refuse every delta either
+guard would, so no verdict can tell a store without them.
 
 The host gate also runs exact-sized erased prefixes under AddressSanitizer.
 `test_nvm_prefix.cpp` checks 40, 47 and 48 loaded bytes.

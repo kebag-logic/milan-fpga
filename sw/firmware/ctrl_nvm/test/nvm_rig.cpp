@@ -402,8 +402,12 @@ bool compaction_run() {
         fail("compaction_not_started", 0, 0);
     }
     const unsigned at = nvm_fmodel_count()->programs + 3u;
-    while (nvm_fmodel_count()->programs < at && !nvm_fmodel_dead()) {
+    const std::uint64_t until = nvm_fmodel_now_us() + kIdleLimitUs;
+    while (nvm_fmodel_count()->programs < at && nvm_fmodel_now_us() < until && !nvm_fmodel_dead()) {
         service();
+    }
+    if (nvm_fmodel_count()->programs < at && !nvm_fmodel_dead()) {
+        fail("compaction_pages", nvm_fmodel_count()->programs, at);
     }
     set(rf.id, first, rf.plen);
     set(rl.id, last, rl.plen);
@@ -426,12 +430,19 @@ void powercut_compaction() {
     const unsigned before = nvm_fmodel_count()->effects;
     compaction_run();
     const unsigned effects = nvm_fmodel_count()->effects - before;
-    if (nvm_store_status()->compactions != 1u || nvm_store_status()->appends == 0u) {
+    bool sound = nvm_store_status()->compactions == 1u && nvm_store_status()->appends != 0u;
+    if (!sound) {
         fail("compaction_reference", nvm_store_status()->compactions, nvm_store_status()->appends);
     }
     boot();
     rig->states[1] = capture_state();
-    for (unsigned k = 1; k <= effects; ++k) {
+    // the uncut run must leave a slot that boots with the save in it; a sweep
+    // over a store that loses it uncut would only time out
+    if (nvm_store_status()->terminal != NVM_T_COMPLETE || rig->states[1] == rig->states[0]) {
+        fail("compaction_reference_boot", nvm_store_status()->terminal, NVM_T_COMPLETE);
+        sound = false;
+    }
+    for (unsigned k = 1; sound && k <= effects; ++k) {
         for (unsigned f = 0; f < 4u; ++f) {
             cases++;
             restore_snapshot();

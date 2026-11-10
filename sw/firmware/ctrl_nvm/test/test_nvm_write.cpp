@@ -253,6 +253,21 @@ TEST_P(NvmBoth, media_failures) {
         EXPECT_TRUE(r.fail_at.size() == static_cast<std::size_t>(attempts) && all_at_least(gaps(r.fail_at), 1000000))
             << fail.mode << ": " << r.fail_at.size() << " attempts, want " << attempts << " at least 1,000 ms apart";
     }
+    // Every compaction moves the authority and the delta after it fails: a
+    // compaction that leaves the work set to the next delta has not saved
+    // it, so the set keeps its attempts across the moves and the third
+    // failure abandons it (DR2c).
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    std::vector<std::string> words = {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set",
+                                      set_word(rid, new4)};
+    for (int k = 1; k <= 2; ++k) {
+        words.insert(words.end(), {"--until-ok", num(k), "--fault", "program-drop:1"});
+    }
+    words.insert(words.end(), {"--run-ms", "5000"});
+    const Result r = go(port(), f, words);
+    EXPECT_TRUE(r.at("failed") == 3 && r.at("ok") == 2 && r.at("compactions") == 2 && r.at("appends") == 0 &&
+                r.at("exhausted") == 1 && r.at("abandoned") == 1 && r.at("pending") == 1)
+        << "a delta failing after every move: " << r.text();
 }
 
 // The background preparation of the other slot (#823 decisions 3 and 5): a
@@ -279,6 +294,14 @@ TEST_P(NvmBoth, prep_failures) {
     EXPECT_TRUE(r.at("ok") == 0 && r.at("failed") == 1 && r.at("first") == NVM_VD_ERASE && r.at("torn") == 0 &&
                 r.at("pending") == 1 && r.at("programs") == 0)
         << "erase-hang: " << r.text();
+    // An erase that outlasts its deadline but then ends fails the
+    // preparation, and the next check reads nothing until the device answers:
+    // the suite's contract holds read_busy at zero.
+    r = go(port(), f, {"--slot-a", "o.bin", "--slot-b", "g.bin", "--boot", "--protect-auth", "--times", "5000:1000",
+                       "--run-ms", "8000"});
+    EXPECT_TRUE(r.at("prep_failed") == 1 && r.at("prep_vd") == NVM_VD_ERASE && r.at("erases") == 1 &&
+                r.at("bg") == NVM_B_READY && r.at("read_busy") == 0)
+        << "an erase past its deadline: " << r.text();
 }
 
 // A third attempt that succeeds clears the stale claim; after exhaustion, a
@@ -296,12 +319,14 @@ TEST_P(NvmBoth, recovers_after_failure) {
                 r.fail_at.size() == 2u && all_at_least(gaps(r.fail_at), 1000000) && !r.ok_at.empty() &&
                 r.ok_at[0] >= r.fail_at[1] + 1000000)
         << "third attempt: " << r.text();
-    // the delta fails; the retry's compaction and its delta write the value,
-    // and the same value is set again while that delta is written, so it is
-    // left dirty and DR2b writes nothing for it, and the claim heals
+    // the delta fails; the retry's compaction and its delta write the value.
+    // The same value is set again while the compaction runs and again while
+    // that delta is written, so neither verified write finds nothing dirty;
+    // DR2b writes nothing for the last, and that heals the claim
     r = go(port(), f,
            {"--slot-b", "g.bin", "--boot", "--fault", "program-drop:1", "--set", set_word(rid, new5), "--until-programs",
-            num(pages() + 2), "--set", set_word(rid, new5), "--until-quiet"});
+            "3", "--set", set_word(rid, new5), "--until-programs", num(pages() + 2), "--set", set_word(rid, new5),
+            "--until-quiet"});
     EXPECT_TRUE(r.at("ok") == 2 && r.at("failed") == 1 && r.at("skipped") == 1 && r.at("stale") == 0 &&
                 r.at("dirty") == 0 && r.at("pending") == 0)
         << "a repeated value after recovery: " << r.text();

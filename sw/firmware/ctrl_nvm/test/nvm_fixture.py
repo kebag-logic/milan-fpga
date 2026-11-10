@@ -208,15 +208,27 @@ def delta_cases(b: Bench) -> list[tuple[str, bytes, int]]:
         """A frame whose header's first eight bytes are `hdr`, its crc16 closing."""
         return hdr + struct.pack(">H", crc16_ccitt(hdr + payload)) + payload
 
-    def body(frames: list[bytes], nrec: int | None = None, extra: int = 0, ln: int | None = None) -> bytes:
-        """A segment of these frames, in this order, its words overridden as asked, resealed."""
+    def body(frames: list[bytes], nrec: int | None = None, extra: int = 0, ln: int | None = None,
+             early: bool = False) -> bytes:
+        """A segment of these frames, in this order, its words overridden as asked, resealed. With
+        `early`, the `extra` bytes after the pad open with the CRC-32 a walk ending at the pad would
+        read as its trailer, so only the pad rule refuses the segment."""
         area = b"".join(frames)
-        area += bytes((-len(area)) % 4) + bytes(extra)
-        length = KLJ2_HDR + len(area) + 4 if ln is None else ln
+        area += bytes((-len(area)) % 4)
+        length = KLJ2_HDR + len(area) + extra + 4 if ln is None else ln
         hdr = struct.pack("<10I", 0x334A4C4B, 0x0003_0000, 6, len(frames) if nrec is None else nrec, length,
                           ident.entity_id & 0xFFFF_FFFF, ident.entity_id >> 32, ident.model_id & 0xFFFF_FFFF,
                           ident.model_id >> 32, LAYOUT.layout)
+        tail = struct.pack("<I", zlib.crc32(hdr + area) & 0xFFFF_FFFF) if early else b""
+        area += (tail + bytes(extra))[:extra]
         return reseal((hdr + area)[:length - 4] + bytes(4))
+
+    # every record of the shape in one delta that closes, longer than a
+    # segment: only the cap refuses it, where the shape's records outgrow one
+    ordered = [b.frames[rid] for rid in sorted(b.frames)]
+    over = next((k for k in range(1, len(ordered) + 1)
+                 if KLJ2_HDR + 4 + ((sum(map(len, ordered[:k])) + 3) & ~3) > SEG_MAX), None)
+    cap_case = body(ordered[:over]) if over is not None else seg[:16] + struct.pack("<I", SEG_MAX + 4) + seg[20:]
 
     golden = image(b, "golden@5")
     log_pages = (SLOT - log_start(img_len(b))) // 256
@@ -227,14 +239,14 @@ def delta_cases(b: Bench) -> list[tuple[str, bytes, int]]:
     cases = [
         ("N_REC one too many", body([fr], nrec=2)),
         ("IMG_LEN short of its last record", body([fr], ln=KLJ2_HDR + len(fr))),
-        ("the pad short of the trailer", body([fr], extra=4)),
-        ("a record's magic", body([b"\x17\x23" + fr[2:]])),
+        ("the pad short of the trailer", body([fr], extra=4, early=True)),
+        ("a record's magic", body([reframed(b"\x17\x23" + fr[2:8], pay)])),
         ("a record's layout_version", body([reframed(fr[:2] + bytes([LAYOUT.layout + 1]) + fr[3:8], pay)])),
         ("a record's reserved byte set", body([reframed(fr[:3] + b"\x01" + fr[4:8], pay)])),
         ("two records in descending id", body([fr, fr_first])),
         ("a record id past the shape's last", body([reframed(fr[:4] + struct.pack(">H", last + 1) + fr[6:8], pay)])),
         ("a record's length not the shape's", body([reframed(fr[:6] + struct.pack(">H", len(pay) - 1), pay[:-1])])),
-        ("IMG_LEN past the segment cap", seg[:16] + struct.pack("<I", SEG_MAX + 4) + seg[20:]),
+        ("IMG_LEN past the segment cap", cap_case),
         ("the entity_id's low word foreign", patched(seg, 20, struct.pack("<I", 0xDEAD_0001))),
         ("the entity_id's high word foreign", patched(seg, 24, struct.pack("<I", 0xDEAD_0003))),
         ("the entity_model_id's low word foreign", patched(seg, 28, struct.pack("<I", 0xDEAD_0002))),
@@ -245,6 +257,21 @@ def delta_cases(b: Bench) -> list[tuple[str, bytes, int]]:
     out = [(label, klj3_slot(golden, [blob]), 0) for label, blob in cases]
     out.append(("IMG_LEN past the slot's room", near_end + tail, log_pages - 1))
     return out
+
+
+def delta_spill(b: Bench) -> tuple[bytes, bytes, int]:
+    """Slot A's log filled to its last page, and a delta there whose IMG_LEN
+    runs past the slot's room, its records and trailer closing in the bytes
+    slot B starts with: (slot A, slot B's first bytes, closing deltas before it)."""
+    log_pages = (SLOT - log_start(img_len(b))) // 256
+    frames: dict[int, bytes] = {}
+    for rid in sorted(b.frames):
+        frames[rid] = b.frames[rid]
+        if KLJ2_HDR + 4 + ((sum(map(len, frames.values())) + 3) & ~3) > 256:
+            break
+    seg = klj3_delta(frames, Ident(seq=6 + log_pages - 1, entity_id=b.ident.entity_id, model_id=b.ident.model_id))
+    assert len(seg) > 256, "the shape's records cannot outrun one page"
+    return filled_log(b, log_pages - 1) + seg[:256], seg[256:], log_pages - 1
 
 
 def pattern_deltas(b: Bench) -> int:
@@ -585,6 +612,10 @@ def write_fixture(b: Bench, out: Path) -> Path:
         w.blob(f"delta_case/{n}", blob)
         w.text(f"delta_case_label/{n}", label)
     w.list("delta_case_deltas", [deltas for _l, _b, deltas in cases])
+    spill_a, spill_b, spill_deltas = delta_spill(b)
+    w.blob("delta_spill/a", spill_a)
+    w.blob("delta_spill/b", spill_b)
+    w.num("delta_spill_deltas", spill_deltas)
     for name in JOURNAL_PAYLOADS:
         w.payloads(name, payload_set(b, name))
     # today's journal: the shipping writer's KLJ2 container, refused VD_VER

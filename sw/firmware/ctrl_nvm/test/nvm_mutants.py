@@ -478,10 +478,11 @@ MUTANTS = (
     # a replay whose sequence is not the one the slot was chosen by applied
     _m("replay_seq_unchecked", STORE, "\tnvm.st.deltas = lg.n;\n\treturn lg.seq == seq;",
        "\tnvm.st.deltas = lg.n;\n\t(void)seq;\n\treturn 1;", "replay_reads"),
-    # each rule of a delta's records and words, broken alone
-    _m("delta_count_unbounded", STORE, "\t\tif (pos + NVM_REC_HDR > end)\n\t\t\treturn NVM_VD_LEN;\n"
-       "\t\tif (nvm_take(rd, addr + pos, hdr, NVM_REC_HDR))", "\t\tif (nvm_take(rd, addr + pos, hdr, NVM_REC_HDR))",
-       "delta_refusals"),
+    # each rule of a delta's records and words, broken alone. Two guards are
+    # not planted: a record header past the segment's end, and a payload
+    # past it. Each keeps the walk's reads inside the segment, and the record
+    # rules and the pad rule refuse every delta either would, so no verdict
+    # can tell a store without them.
     _m("delta_magic_unchecked", STORE,
        "\t\tif ((((uint32_t)hdr[0] << 8) | hdr[1]) != NVM_REC_MAGIC || hdr[2] != NVM3_LAYOUT",
        "\t\tif (hdr[2] != NVM3_LAYOUT", "delta_refusals"),
@@ -493,12 +494,11 @@ MUTANTS = (
        "\t\t    !r.ok || r.plen != plen)", "delta_refusals"),
     _m("delta_shape_unchecked", STORE, "\t\t    (int)id <= last || !r.ok || r.plen != plen)",
        "\t\t    (int)id <= last || (r.ok && r.plen < plen))", "delta_refusals"),
-    _m("delta_overrun_unchecked", STORE,
-       "\t\tif (pos + NVM_REC_HDR + plen > end)\n\t\t\treturn NVM_VD_LEN;\n\t\tif (apply)", "\t\tif (apply)",
-       "delta_refusals"),
     _m("delta_pad_unchecked", STORE, "\tif (pos + pad != end)\n\t\treturn NVM_VD_LEN;\n", "", "delta_refusals"),
-    _m("delta_cap_unchecked", CODEC, "\tif (img_len > NVM_SEG_MAX || img_len > room)",
-       "\tif (img_len > room)", "delta_refusals"),
+    # graded where a delta that closes can outgrow a segment: the 1x1 shape's
+    # records all fit one
+    Mutant("delta_cap_unchecked", ((CODEC, "\tif (img_len > NVM_SEG_MAX || img_len > room)",
+                                    "\tif (img_len > room)"),), ("delta_refusals",), "endstation_ax7101_8x8"),
     _m("delta_room_unchecked", CODEC, "\tif (img_len > NVM_SEG_MAX || img_len > room)",
        "\tif (img_len > NVM_SEG_MAX)", "delta_refusals"),
     _m("delta_owner_unchecked", CODEC,

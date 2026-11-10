@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -100,6 +101,13 @@ TEST_P(NvmBoth, delta_refusals) {
             expect_state(f, "st", fx().payloads("golden"), label + ": ");
         }
     }
+    // IMG_LEN past the slot's room, its records and trailer closing in the
+    // bytes the other slot starts with: the delta is refused all the same
+    Files f = fx().files({{"a.bin", "delta_spill/a"}, {"b.bin", "delta_spill/b"}});
+    const Result r = go(port(), f, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot"});
+    EXPECT_TRUE(r.at("terminal") == NVM_T_COMPLETE && r.at("auth") == 0 && r.at("torn") == 1 &&
+                r.at("deltas") == fx().num("delta_spill_deltas"))
+        << "IMG_LEN past the slot's room, closing in the other slot: " << r.text();
 }
 
 // A read the port fails in a walk of the log, at a delta's header, a record's
@@ -199,6 +207,13 @@ TEST_P(NvmBoth, compaction_yields) {
     const Result q = go(port(), g, {"--slot-a", "a.bin", "--slot-b", "b.bin", "--boot", "--dump-state", "st"});
     EXPECT_TRUE(q.at("seq") == 6) << "the boot after the move: " << q.text();
     expect_state(g, "st", fx().payloads("golden@5+one3@6"), "the boot after the move: ");
+    // the new slot alone: its base at the old slot's sequence, and the copied
+    // delta above it closing behind it
+    Files h = fx().files({});
+    h.blobs["a.bin"] = a;
+    const Result n = go(port(), h, {"--slot-a", "a.bin", "--boot"});
+    EXPECT_TRUE(n.at("auth") == 0 && n.at("seq") == 6 && n.at("deltas") == 1 && n.at("torn") == 0)
+        << "the new slot alone: " << n.text();
 }
 
 // A record a base's page cuts is taken whole, as it was when the page was:
@@ -229,6 +244,10 @@ TEST_P(NvmBoth, compaction_carry) {
                    "--dump-slot-a", "a.bin"});
     EXPECT_TRUE(r.at("compactions") == 1 && r.at("appends") == 1 && r.at("auth") == 0 && r.at("failed") == 0)
         << "a save between the pages of a cut record: " << r.text();
+    const Bytes& golden = fx().blob("golden@5");
+    EXPECT_TRUE(f.blobs["a.bin"].size() >= golden.size() &&
+                std::equal(golden.begin(), golden.end(), f.blobs["a.bin"].begin()))
+        << "the base does not hold every record as it was when its page was written";
     Files g;
     g.blobs["a.bin"] = f.blobs["a.bin"];
     r = go(port(), g, {"--slot-a", "a.bin", "--boot", "--dump-state", "st"});
