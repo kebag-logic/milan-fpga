@@ -33,9 +33,10 @@ parts differ from that harness's, each stated:
   - a deadline's burst leaves out the ACMP and AECP records, the channels
     whose received records the draws measure (DRAW_CHANNELS). That harness
     never loads a measured path's own channel, and a deadline's burst can land
-    with a draw's command: the 1x1 campaign at 79997664d5 measured it, an ADP
-    deadline's 12 GET_RX_STATEs filling ACMP's ring (room 12) 6 us before a
-    BIND_RX, which KL_mbx then dropped. The draws' own bursts are whole.
+    with a draw's command: the 1x1 campaign at 79997664d5 measured it twice,
+    an ADP deadline's 12 GET_RX_STATEs filling ACMP's ring (room 12) 56 us
+    before a BIND_RX (seed 3) and 0.26 us before a PROBE_TX_RESPONSE (seed 4),
+    which KL_mbx then dropped. The draws' own bursts are whole.
 The grandmaster changes of that harness's other rows are not part of the
 composed load; interface 0's would need the gPTP plane tb_split_top builds off.
 

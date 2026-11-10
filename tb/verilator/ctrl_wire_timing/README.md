@@ -18,10 +18,10 @@ The 1x1 short paths run in CI (item 5); the announce interval and the advertise 
 
 - **[Run](#run)** -- The prerequisites, the build once and its reuse, the CI step, the campaign unit, the regrade and the self-test.
 - **[The composition](#the-composition)** -- The CPU half, the split top at each point, and what the testbench models between them.
-- **[The stimulus and the load](#the-stimulus-and-the-load)** -- Each draw, the seeds, and the composed load with its two stated differences.
+- **[The stimulus and the load](#the-stimulus-and-the-load)** -- Each draw, the seeds, and the composed load with its three stated differences.
 - **[What is graded](#what-is-graded)** -- The clock check, the commits, and each path with its clause and bound.
-- **[Results](#results)** -- Every distribution at both points, without and with the load, and the campaign's intervals.
-- **[The local campaign](#the-local-campaign)** -- Four units to the second ANNOUNCE: the command, the seeds, the wall time.
+- **[Results](#results)** -- Every distribution at both points, without and with the load.
+- **[The local campaign](#the-local-campaign)** -- Four units to the second ANNOUNCE: the command, the seeds, the wall time and every distribution, with the announce interval and the advertise periods.
 - **[Controls and self-test](#controls-and-self-test)** -- The grader's controls and the plants on every real log, each refused or found by its own words.
 - **[Limits](#limits)** -- What the simulation leaves out, and what the points share.
 
@@ -111,7 +111,8 @@ Three parts differ from that harness's load, each stated:
 - its MAAP records echo interface 0's last ANNOUNCE as a conflicting PROBE, as that harness's do, so before the first ANNOUNCE they are skipped (the `LOAD` line counts them): a conflicting PROBE while probing restarts the acquisition (B.3.6.5) whose intervals are measured;
 - a deadline's burst leaves out the ACMP and AECP records, the channels whose received records the draws measure; the draws' own bursts are whole.
   That harness never loads a measured path's own channel, and a deadline's burst can land with a draw's command.
-  The first campaign, at `79997664d5`, measured it twice: an ADP deadline's 12 GET_RX_STATEs filled ACMP's ring (room 12) microseconds before a BIND_RX, and before a PROBE_TX_RESPONSE, and `KL_mbx` dropped each.
+  The first campaign, at `79997664d5`, measured it twice: an ADP deadline's 12 GET_RX_STATEs filled ACMP's ring (room 12) 56 us before a BIND_RX (seed 3) and 0.26 us before a PROBE_TX_RESPONSE (seed 4), and `KL_mbx` dropped each.
+  A MAAP deadline's burst is therefore ADP's and SRP's records and an ADP deadline's is MAAP's and SRP's, so no ACMP or AECP record is in the loop at a MAAP or ADP deadline.
   `run.py` refuses a stimulus whose deadline load reaches either channel.
 
 The grandmaster changes of that harness's other rows are not part of the composed load; interface 0's would need the gPTP plane `tb_split_top` builds off.
@@ -148,21 +149,21 @@ An AECP IN_PROGRESS answer to a getter is a finding.
 
 ## Results
 
-At `6404b60ba1`: 16 draws a run, seed 0, each run to its first ANNOUNCE and 250 ms on, at both points without and with the composed load.
+At `107f3f95de`: 16 draws a run, seed 0, each run to its first ANNOUNCE and 250 ms on, at both points without and with the composed load.
 Each cell is N: min / mean / max, in ms unless marked us; every bound is in ms:
 
 | Path (N: min / mean / max ms) | bound ms | 1x1 none | 1x1 composed | 8x8/2if none | 8x8/2if composed |
 |---|---:|---|---|---|---|
-| `acmp.bind_rx` | 200.0 | 16: 0.378 / 0.665 / 0.968 | 16: 0.594 / 1.026 / 1.762 | 16: 0.383 / 0.900 / 1.708 | 16: 0.758 / 13.168 / 19.212 |
-| `acmp.probe_tx` | 200.0 | 16: 0.399 / 0.909 / 1.080 | 16: 0.399 / 2.944 / 5.264 | 16: 0.841 / 1.175 / 2.177 | 16: 0.841 / 2.006 / 5.124 |
-| `acmp.probe_tx.entity` | - | 16: 0.177 / 0.458 / 0.839 | 16: 0.219 / 2.493 / 4.483 | 16: 0.180 / 0.725 / 1.456 | 16: 0.240 / 1.555 / 4.283 |
-| `aecp.response` | 240.0 | 16: 0.872 / 1.611 / 2.248 | 16: 3.108 / 5.843 / 26.908 | 16: 1.518 / 2.211 / 3.178 | 16: 5.325 / 32.081 / 97.653 |
-| `maap.egress` | 11.0 | 4: 0.744 / 0.815 / 0.872 | 4: 1.207 / 1.588 / 2.061 | 4: 0.927 / 1.222 / 1.460 | 4: 0.984 / 1.501 / 2.375 |
-| `maap.probe_interval` | 600.0 | 3: 512.915 / 530.368 / 559.068 | 3: 514.289 / 531.273 / 560.385 | 3: 515.467 / 539.808 / 582.677 | 3: 516.799 / 540.400 / 582.793 |
-| `maap.interval_error` | 11.0 | 3: 0.068 / 0.091 / 0.120 | 3: 0.146 / 0.940 / 1.385 | 3: 0.279 / 0.474 / 0.677 | 3: 0.609 / 1.067 / 1.799 |
+| `acmp.bind_rx` | 200.0 | 16: 0.378 / 0.665 / 0.968 | 16: 0.625 / 1.183 / 3.403 | 16: 0.383 / 0.900 / 1.708 | 16: 0.758 / 12.212 / 17.651 |
+| `acmp.probe_tx` | 200.0 | 16: 0.399 / 0.909 / 1.080 | 16: 0.399 / 2.973 / 5.263 | 16: 0.841 / 1.175 / 2.177 | 16: 0.841 / 1.860 / 5.763 |
+| `acmp.probe_tx.entity` | - | 16: 0.177 / 0.458 / 0.839 | 16: 0.219 / 2.522 / 4.540 | 16: 0.180 / 0.725 / 1.456 | 16: 0.180 / 1.409 / 5.042 |
+| `aecp.response` | 240.0 | 16: 0.872 / 1.611 / 2.248 | 16: 2.945 / 3.569 / 4.151 | 16: 1.518 / 2.211 / 3.178 | 16: 4.035 / 9.783 / 20.567 |
+| `maap.egress` | 11.0 | 4: 0.744 / 0.815 / 0.872 | 4: 0.798 / 1.477 / 2.306 | 4: 0.927 / 1.222 / 1.460 | 4: 1.425 / 1.848 / 2.455 |
+| `maap.probe_interval` | 600.0 | 3: 512.915 / 530.368 / 559.068 | 3: 513.491 / 531.374 / 560.240 | 3: 515.467 / 539.808 / 582.677 | 3: 516.544 / 540.547 / 583.672 |
+| `maap.interval_error` | 11.0 | 3: 0.068 / 0.091 / 0.120 | 3: 0.491 / 1.041 / 1.391 | 3: 0.279 / 0.474 / 0.677 | 3: 0.425 / 1.214 / 1.672 |
 | `adp.egress` | 400.0 | 1: 0.838 / 0.838 / 0.838 | 1: 1.550 / 1.550 / 1.550 | 1: 0.911 / 0.911 / 0.911 | 1: 2.207 / 2.207 / 2.207 |
-| `egress.acmp.first` | - | 48: 0.36 / 0.37 / 0.37 us | 277: 0.36 / 0.36 / 0.37 us | 48: 0.36 / 0.36 / 0.37 us | 272: 0.36 / 0.36 / 0.37 us |
-| `egress.maap.first` | - | 5: 0.36 / 0.36 / 0.37 us | 12: 0.36 / 0.37 / 0.37 us | 5: 0.36 / 0.36 / 0.37 us | 9: 0.36 / 0.36 / 0.37 us |
+| `egress.acmp.first` | - | 48: 0.36 / 0.37 / 0.37 us | 240: 0.36 / 0.36 / 0.37 us | 48: 0.36 / 0.36 / 0.37 us | 240: 0.36 / 0.36 / 0.37 us |
+| `egress.maap.first` | - | 5: 0.36 / 0.36 / 0.37 us | 12: 0.36 / 0.37 / 0.37 us | 5: 0.36 / 0.36 / 0.37 us | 9: 0.36 / 0.37 / 0.37 us |
 
 | Run | findings | censored | simulated ms | ready ms | load offers |
 |---|---:|---|---:|---:|---|
@@ -173,20 +174,20 @@ Each cell is N: min / mean / max, in ms unless marked us; every bound is in ms:
 
 Every graded path is inside its bound at both points, without and with the load:
 
-- The slowest ACMP transaction is the loaded 8x8 bind at 19.2 ms, 180.8 ms inside Table 5.26's 200 ms; without load every one ends within 2.2 ms.
-- The slowest AEM response is the loaded 8x8's at 97.7 ms, 142.3 ms inside 240 ms; the load's own 16 READ_DESCRIPTORs on each burst are what it waits behind.
-- MAAP's egress, from each timer's millisecond to the frame's first byte at the MAC, is at most 2.4 ms, and every probe interval is within 1.8 ms of its draw: both inside the 11 ms reserve.
+- The slowest ACMP transaction is the loaded 8x8 bind at 17.7 ms, 182.3 ms inside Table 5.26's 200 ms; without load every one ends within 2.2 ms.
+- The slowest AEM response is the loaded 8x8's at 20.6 ms, 219.4 ms inside 240 ms.
+- MAAP's egress, from each timer's millisecond to the frame's first byte at the MAC, is at most 2.5 ms, and every probe interval is within 1.7 ms of its draw: both inside the 11 ms reserve.
 - A frame's first byte leaves 0.36 to 0.37 us after its commit; its last follows at line rate.
 
 The platform image boots to ready at 49.1 ms at 1x1 and 115.3 ms at 8x8.
-On four CPUs of a shared host the CI step took 565 s: the build 59 s (the CPU netlist from the local generator's cache), then both 1x1 runs at once.
-Each 8x8 run took about 1,540 s for 2,001 ms of simulated time on one shared core.
+On four CPUs of a shared host the CI step took 578 s: the build 68 s (the CPU netlist from the local generator's cache), then both 1x1 runs at once, about 510 s each.
+The loaded 8x8 run took 679 s for 2,001 ms of simulated time on one shared core.
 
 ## The local campaign
 
 The campaign grades what one CI-sized run cannot reach: the IEEE 1722-2016 B.3.4.1 announce interval (30 to 32 s), and the Milan v1.2 Table 5.50 advertise periods inside it.
 It is four units at the shipping 1x1 shape, each its own process on the same build, each with its own draw seed, each to its second ANNOUNCE.
-There is no time compression: every unit runs cycle by cycle for about 34.3 s of simulated time.
+There is no time compression: every unit runs cycle by cycle for about 34.7 s of simulated time.
 Each unit is 342 draws, enough to keep the stimulus running past the latest second ANNOUNCE the firmware can draw, then the 250 ms tail.
 
 | Unit | Seed | Load |
@@ -203,7 +204,36 @@ python3 -B tb/verilator/ctrl_wire_timing/run.py --campaign --build-dir /tmp/wire
 ```
 
 Each unit grades every path above, and adds one announce interval and the advertise periods inside it.
-At about 4 ms of simulated time a second on an unloaded core, a unit takes about 2.4 h; four run side by side.
+At `107f3f95de` the four units ran side by side, each one single-threaded process on a shared host, in 2.5 to 2.6 h each, about 3.8 ms of simulated time a second:
+
+| Path (N: min / mean / max ms) | bound ms | unit 0, seed 1, none | unit 1, seed 2, none | unit 2, seed 3, composed | unit 3, seed 4, composed |
+|---|---:|---|---|---|---|
+| `acmp.bind_rx` | 200.0 | 342: 0.356 / 0.708 / 2.560 | 342: 0.355 / 0.748 / 2.627 | 342: 0.380 / 1.285 / 5.324 | 342: 0.379 / 1.257 / 3.623 |
+| `acmp.probe_tx` | 200.0 | 342: 0.399 / 1.050 / 2.839 | 342: 0.399 / 1.165 / 4.490 | 342: 0.399 / 2.759 / 5.351 | 342: 0.399 / 2.847 / 5.318 |
+| `acmp.probe_tx.entity` | - | 342: 0.166 / 0.576 / 2.420 | 342: 0.171 / 0.641 / 3.534 | 342: 0.163 / 2.261 / 5.025 | 342: 0.164 / 2.354 / 4.965 |
+| `aecp.response` | 240.0 | 342: 0.834 / 1.731 / 4.093 | 342: 0.841 / 1.729 / 3.937 | 342: 1.813 / 3.495 / 6.431 | 342: 1.856 / 3.491 / 6.730 |
+| `maap.egress` | 11.0 | 5: 0.448 / 0.752 / 1.026 | 5: 0.438 / 0.563 / 0.681 | 5: 0.264 / 1.410 / 2.267 | 5: 0.940 / 1.542 / 2.191 |
+| `maap.probe_interval` | 600.0 | 3: 513.099 / 530.419 / 558.773 | 3: 513.138 / 530.300 / 559.006 | 3: 514.098 / 531.166 / 559.592 | 3: 513.458 / 531.088 / 560.389 |
+| `maap.interval_error` | 11.0 | 4: 0.099 / 0.305 / 0.509 | 4: 0.006 / 0.151 / 0.243 | 4: 0.003 / 0.625 / 1.098 | 4: 0.418 / 0.856 / 1.389 |
+| `maap.announce_interval` | 32000.0 | 1: 31956.491 / 31956.491 / 31956.491 | 1: 31956.784 / 31956.784 / 31956.784 | 1: 31956.997 / 31956.997 / 31956.997 | 1: 31958.159 / 31958.159 / 31958.159 |
+| `adp.egress` | 400.0 | 6: 0.443 / 0.695 / 0.815 | 6: 0.335 / 0.606 / 0.839 | 6: 0.789 / 1.081 / 1.609 | 6: 1.155 / 1.602 / 2.098 |
+| `adp.advertise_period` | 9400.0 | 5: 5362.967 / 6820.442 / 8386.951 | 5: 5363.043 / 6820.099 / 8385.684 | 5: 5363.180 / 6820.759 / 8386.078 | 5: 5364.174 / 6821.812 / 8387.581 |
+| `egress.acmp.first` | - | 1026: 0.36 / 0.36 / 0.37 us | 1026: 0.36 / 0.36 / 0.37 us | 5130: 0.36 / 0.36 / 0.37 us | 5130: 0.36 / 0.36 / 0.37 us |
+| `egress.maap.first` | - | 6: 0.36 / 0.37 / 0.37 us | 6: 0.36 / 0.36 / 0.37 us | 33: 0.36 / 0.36 / 0.37 us | 34: 0.36 / 0.37 / 0.37 us |
+
+| Run | findings | censored | simulated ms | ready ms | load offers |
+|---|---:|---|---:|---:|---|
+| unit 0, seed 1, none | 0 | none | 34703 | 49.102 | none |
+| unit 1, seed 2, none | 0 | none | 34706 | 49.102 | none |
+| unit 2, seed 3, composed | 0 | none | 34705 | 49.102 | acmp 342, adp 12, aecp 342, maap 6 |
+| unit 3, seed 4, composed | 0 | none | 34690 | 49.102 | acmp 342, adp 12, aecp 342, maap 6 |
+
+Every unit passes with no finding and nothing censored, and both plants are caught on each log:
+
+- Each announce interval is 31,956.5 to 31,958.2 ms, strictly inside B.3.4.1's 30 to 32 s, 41.8 ms or more below its ceiling.
+- Every probe and announce interval is within 1.4 ms of its draw, and MAAP's egress is at most 2.3 ms on all 20 timer-driven frames: both inside the 11 ms reserve.
+- Each advertise period is 5,363.0 to 8,387.6 ms, inside Table 5.50's 5 to 9 s, and each ENTITY_AVAILABLE leaves within 2.1 ms of its delay.
+- Over the 1,368 draws the slowest transaction is an AEM response at 6.7 ms, and the slowest ACMP one 5.4 ms.
 
 ## Controls and self-test
 

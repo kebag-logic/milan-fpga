@@ -468,7 +468,7 @@ keys, without that job's scope guard: the `changes` gate decides here. It
 takes Verilator and the SDK by `firmware-verilator`'s steps. It is a separate
 job, within the owner's 30-minute budget (#789), so no existing job grows
 near its timeout. A local replica of the step on four CPUs of a shared host
-took 565 s: the build 59 s, with the CPU netlist from the local generator's
+took 578 s: the build 68 s, with the CPU netlist from the local generator's
 cache, then both runs at once. A hosted runner adds the job's setup and, on a
 cold Scala cache, the CPU generation. The aggregate `rtl-fast` requires it.
 The longer intervals,
