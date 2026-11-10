@@ -1,0 +1,24 @@
+ok   malformed-endmark: without its check the words are absent; 2 other new finding(s): [WIRE] MSRP frame at ms 1: MSRP truncated vector
+ok   doubled-declaration: without its check the words are absent; 1 other new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 1 never left the MAC, and the MSRP frame at ms 1 in its place is no MRPDU the adapter accepted
+ok   doubled-message: without its check the words are absent; 2 other new finding(s): [WIRE] MSRP frame at ms 1: MSRP Domain value 06030002 declared 2 times in one MRPDU
+ok   leave-all-wrong-type: without its check the words are absent; 1 other new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 14560 never left the MAC, and the MSRP frame at ms 14560 in its place is no MRPDU the adapter accepted
+ok   oversized: without its check the words are absent; 203 other new finding(s): [WIRE] MSRP frame at ms 1: the clause 10.8 decoder refuses it: frame length outside 17..1500
+ok   zero-source: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   join-late: without its check the words are absent; 1 other new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 200 never left the MAC, and the MSRP frame at ms 230 in its place is no MRPDU the adapter accepted
+ok   join-late-in-t-svc: without its check the words are absent; 1 other new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 200 never left the MAC, and the MSRP frame at ms 220 in its place is no MRPDU the adapter accepted
+ok   rate: without its check the words are absent; 1450 other new finding(s): [TX] the MVRP MRPDU the adapter accepted at ms 1 never left the MAC, and the MSRP frame at ms 2 in its place is no MRPDU the adapter accepted
+ok   leave-all-missing: without its check the words are absent; 1 other new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 14560 never left the MAC, and the MSRP frame at ms 14560 in its place is no MRPDU the adapter accepted
+ok   bench-overrun: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   timer-layout: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   dropped-under-backpressure: without its check the words are absent; 23 other new finding(s): [TIME] MSRP: four transmit opportunities in 0.070 ms from ms 25000, inside 1.5 x JoinTime less the MRP service bound (282 ms; IEEE 802.1Q-2018 10.7.4.1)
+ok   reordered: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   backpressure-unseen: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   refused-with-room: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   retention-lost: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   late-stop: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   never-stopped: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   stream-after-stop: without its check the words are absent; 1 other new finding(s): [LIC] 1 stream frame(s) with stream_id 0000000000000000 at ms 21010 while no source holds its licence (the licence scenario's fixture: source 0 allocated at SRP
+ok   gate-not-licence: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   aaf-without-licence: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+ok   stream-without-licence: without its check the words are absent; 0 other new finding(s) (the plant escapes entirely)
+knockouts: 23 of 23 escape without their own check

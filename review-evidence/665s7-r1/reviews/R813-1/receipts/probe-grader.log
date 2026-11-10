@@ -1,0 +1,28 @@
+control wire: 0 finding(s)
+control hold: 0 finding(s)
+control licence: 0 finding(s)
+ok   PDU EndMark 0x0100: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP AttributeType 1's AttributeLength 0
+ok   MSRP AttributeListLength +2: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP AttributeList EndMark missing where its AttributeListLength ends
+ok   ProtocolVersion 1: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP ProtocolVersion or a truncated MRPDU
+ok   AttributeLength +1: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP AttributeType 2's AttributeLength 35
+ok   MVRP AttributeList EndMark nonzero: expect [WIRE]; 3 new finding(s): [WIRE] MVRP frame at ms 1: MVRP truncated vector
+ok   MVRP Message twice: expect [WIRE]; 3 new finding(s): [WIRE] MVRP frame at ms 1: 2 Messages of AttributeType 1, not one per AttributeType (lwSRP PR #18; IEEE 802.1Q-2018 10.8.1.2)
+ok   MVRP VID declared twice: expect [WIRE]; 2 new finding(s): [WIRE] MVRP frame at ms 1: MVRP VID 0002 declared 2 times in one MRPDU
+ok   MVRP MRPDU past 1,500 octets: expect [WIRE]; 300 new finding(s): [WIRE] MVRP frame at ms 1: an MRPDU of 1502 octets in a frame of 1516 bytes, past 1500 octets and the 1500-byte frame
+ok   MVRP frame to the MSRP group: expect [WIRE]; 1 new finding(s): [WIRE] MVRP frame at ms 2000: sent to 0180c200000e, not the MVRP group address 0180c2000021
+ok   ThreePackedEvents 216: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP reserved ThreePackedEvents
+ok   nonzero byte after the PDU EndMark: expect [WIRE]; 1 new finding(s): [WIRE] MSRP frame at ms 1: MSRP nonzero bytes after the PDU EndMark
+ok   MSRP LeaveAll on types 1-3 only: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 14560: a LeaveAll on AttributeTypes [1, 2, 3], not on every MSRP AttributeType [1, 2, 3, 4] (IEEE 802.1Q-2018 10.7.9, 10.8.2.6)
+ok   NumberOfValues past the vector: expect [WIRE]; 2 new finding(s): [WIRE] MSRP frame at ms 1: MSRP truncated vector
+ok   MVRP LeaveAll frame without its LeaveAll: expect [TIME]; 2 new finding(s): [TIME] MVRP: its LeaveAll at ms 21230 21230.002 ms after the last LeaveAll (reset), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+ok   last MVRP frame from another MAC: expect [SA]; 1 new finding(s): [SA] MVRP frame at ms 600000 from 020000000002, not the port's MAC 020000000001 (#839; IEEE 802.1AC-2016 11.1)
+ok   an MSRP frame sent twice: expect [TX]; 1 new finding(s): [TX] the MSRP frame at ms 6000 is no MRPDU the adapter accepted
+ok   an MVRP frame lost outside a hold: expect [TX]; 1 new finding(s): [TX] the MVRP MRPDU the adapter accepted at ms 101000 never left the MAC
+ok   an MSRP frame 2 ms after its acceptance: expect [TX]; 1 new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 6000 never left the MAC, and the MSRP frame at ms 6002 in its place is no MRPDU the adapter accepted
+ok   one FirstValue bit flipped on the wire: expect [TX]; 2 new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 6000 never left the MAC, and the MSRP frame at ms 6000 in its place is no MRPDU the adapter accepted
+ok   two frames three apart swapped: expect [TX]; 3 new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 6000 never left the MAC
+ok   second MSRP frame +19 ms (218.0 ms after the New's egress, at the bound): expect accepted; 1 new finding(s): [TX] the MSRP MRPDU the adapter accepted at ms 200 never left the MAC, and the MSRP frame at ms 219 in its place is no MRPDU the adapter accepted
+ok   second MSRP frame +19.2 ms (218.2 ms after the New's egress): expect [TIME]; 4 new finding(s): [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 219.2, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+ok   four MSRP opportunities in 280 ms: expect [TIME]; 1433 new finding(s): [TIME] MSRP: four transmit opportunities in 280.000 ms from ms 8000, inside 1.5 x JoinTime less the MRP service bound (282 ms; IEEE 802.1Q-2018 10.7.4.1)
+ok   a peer LeaveAll 1 s before a sent one: expect [TIME]; 1 new finding(s): [TIME] MSRP: its LeaveAll at ms 14560 1000.002 ms after the last LeaveAll (received), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+probes: 24 of 24 as expected
