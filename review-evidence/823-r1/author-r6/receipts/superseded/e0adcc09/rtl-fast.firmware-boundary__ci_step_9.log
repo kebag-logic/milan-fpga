@@ -1,0 +1,11 @@
+# head e0adcc090b0c636044fa953901009c301ba6d080 workflow rtl-fast job firmware-boundary step ci_step_9: Hold the TSN stack boundary over the firmware builders' compiles
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (20 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (1039 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (278 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (1459 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (7 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (130 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (94 s)
+REFUSED: scripts/check_nvm_format_32x32.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)

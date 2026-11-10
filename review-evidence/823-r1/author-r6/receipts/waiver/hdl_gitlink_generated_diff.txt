@@ -1,0 +1,96 @@
+# #818 waiver evidence: HDL, gitlink and generated SoC RTL against dev-soft-core 1d6bf5556ae28764361d85012b86394eb467d294
+# head 2905c8749a4573450b9999dd546bb20ae5c7fc38
+
+## git diff --name-only 1d6bf5556ae28764361d85012b86394eb467d294 2905c8749a4573450b9999dd546bb20ae5c7fc38 (every file the PR changes)
+.github/ci-templates/docs.yml
+.github/workflows/docs.yml
+docs/README.md
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_FORMAT_32X32.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+docs/diagrams/flash_layout.drawio
+docs/diagrams/flash_layout.png
+docs/diagrams/flash_layout.svg
+docs/integration/QSPI_FLASHBOOT.md
+scripts/check_nvm_format_32x32.py
+scripts/check_nvm_klj3.py
+scripts/ci_events.py
+scripts/nvm_format_32x32.py
+scripts/nvm_format_32x32_tables.py
+scripts/nvm_klj3.py
+scripts/nvm_layout3.py
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+sw/firmware/ctrl/test/aecp_arms.py
+sw/firmware/ctrl/test/ctrl_arms.py
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/ctrl_image.py
+sw/firmware/ctrl/test/ctrl_srp_image.py
+sw/firmware/ctrl/test/plat_arms.py
+sw/firmware/ctrl/test/test_acmp_nvm.cpp
+sw/firmware/ctrl/test/test_aecp.cpp
+sw/firmware/ctrl_nvm/README.md
+sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+sw/firmware/ctrl_nvm/nvm_klj2.c
+sw/firmware/ctrl_nvm/nvm_klj2.h
+sw/firmware/ctrl_nvm/nvm_layout3.h
+sw/firmware/ctrl_nvm/nvm_shape.h
+sw/firmware/ctrl_nvm/nvm_store.c
+sw/firmware/ctrl_nvm/nvm_store.h
+sw/firmware/ctrl_nvm/plat/gen_flash_port.py
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+sw/firmware/ctrl_nvm/test/nvm_bench.py
+sw/firmware/ctrl_nvm/test/nvm_fixture.py
+sw/firmware/ctrl_nvm/test/nvm_mutants.py
+sw/firmware/ctrl_nvm/test/nvm_rig.cpp
+sw/firmware/ctrl_nvm/test/nvm_rig.hpp
+sw/firmware/ctrl_nvm/test/nvm_suite.cpp
+sw/firmware/ctrl_nvm/test/nvm_suite.hpp
+sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+sw/firmware/ctrl_nvm/test/test_nvm_boot.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_capacity.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_flashmock.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_shapes.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_vector.cpp
+sw/firmware/ctrl_nvm/test/test_nvm_write.cpp
+sw/firmware/gtest/README.md
+sw/firmware/gtest/coverage.ratchet
+sw/firmware/gtest/fw_rv32_selftest.py
+sw/litex/ctrl_memory.py
+sw/litex/ctrl_memory_ledger.py
+sw/litex/ctrl_memory_probe.py
+sw/litex/milan_soc.py
+sw/litex/test_ctrl_memory.py
+tb/verilator/nvm_split_target/README.md
+tb/verilator/nvm_split_target/run.py
+tb/verilator/nvm_split_target/target_cases.py
+tb/verilator/nvm_split_target/target_grade.py
+tb/verilator/nvm_split_target/target_selftest.py
+
+## HDL among them: git diff --name-only 1d6bf5556ae28764361d85012b86394eb467d294 2905c8749a4573450b9999dd546bb20ae5c7fc38 -- '*.sv' '*.svh' '*.v' '*.vh' '*.vhd' hdl syn protocol-processor gptp-processor third_party external
+(end; lines: 0)
+
+## gitlinks: git diff --raw 1d6bf5556ae28764361d85012b86394eb467d294 2905c8749a4573450b9999dd546bb20ae5c7fc38, entries of mode 160000
+(end; entries: 0)
+
+## submodule pins at both commits (git ls-tree)
+1d6bf5556ae28764361d85012b86394eb467d294:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5  external
+  135afd043309369a87ddbc8d6550aff8ec52a157  gptp-processor
+  a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645  protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348  third_party/lwSRP
+  70936b77dc41981e192438388cd0aced69954f18  third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce  third_party/verilog-axis
+2905c8749a4573450b9999dd546bb20ae5c7fc38:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5  external
+  135afd043309369a87ddbc8d6550aff8ec52a157  gptp-processor
+  a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645  protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348  third_party/lwSRP
+  70936b77dc41981e192438388cd0aced69954f18  third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce  third_party/verilog-axis
+
+## tracked generated RTL: git diff --name-only 1d6bf5556ae28764361d85012b86394eb467d294 2905c8749a4573450b9999dd546bb20ae5c7fc38 -- configs/generated tb/verilator/gptp_txts/generated
+(end; lines: 0)

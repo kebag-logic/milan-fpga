@@ -1,0 +1,26 @@
+# head 2905c8749a4573450b9999dd546bb20ae5c7fc38 workflow elaborate job elaborate-gates-1 step gate_15_1: Elaboration gates, leg 1 of 2
+test_soc_option_refusals:
+Traceback (most recent call last):
+  File "<scratch>/gates/final3/elaborate.elaborate-gates-1/wt/sw/builder/test_builder.py", line 29702, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/gates/final3/elaborate.elaborate-gates-1/wt/sw/builder/test_builder.py", line 29075, in test_soc_option_refusals
+    subprocess.run([python, str(ROOT / "sw/builder/test_soc_options.py")],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, timeout=300)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2179, in _communicate
+    self.wait(timeout=self._remaining_time(endtime))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['<litex-env>/venv/bin/python3', '<scratch>/gates/final3/elaborate.elaborate-gates-1/wt/sw/builder/test_soc_options.py']' timed out after 300 seconds
