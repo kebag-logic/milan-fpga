@@ -164,8 +164,10 @@ ARMS = (
     Arm("axil-r-dropped-without-rready", "KL_mbx_axil.sv",
         "end else if (s_rready_i) begin\n        rvalid_r <= 1'b0;", "end else begin\n        rvalid_r <= 1'b0;", 1,
         "A5 RVALID holds for 10 clocks"),
+    # RDATA following the host port past its answer: since KL_mbx holds a register
+    # read's answer until the next request (#870), it shows as a ring word read stale
     Arm("axil-rdata-follows-port", "KL_mbx_axil.sv", "assign s_rdata_o    = rdata_r;",
-        "assign s_rdata_o    = host_rdata_i;", 1, "A5 RDATA and RRESP hold with it"),
+        "assign s_rdata_o    = host_rdata_i;", 1, "F1 record LEN"),
     Arm("axil-read-before-write", "KL_mbx_axil.sv", "assign go_rd_w = rd_ok_w && !wr_ok_w;",
         "assign go_rd_w = rd_ok_w;", 1, "A3 the read answers its own address"),
     # A beat taken on the cycle its slot drains: the slot loads only when
@@ -324,7 +326,11 @@ ARMS += (
     *_both("rx-bound-entry-write-lands-in-entry-0", "KL_mbx_rx.sv",
            "assign rb_wa_w = RW_C'(2 * int'(hk_w) + int'(hhi_w));", "assign rb_wa_w = RW_C'(int'(hhi_w));",
            "R1 each bound-talker entry keeps"),
-    *_both("top-bound-entry-decoded-as-0", "KL_mbx.sv", "bnd_entry_w = 5'(entry);", "bnd_entry_w = '0;",
+    *_both("top-bound-entry-decoded-as-0", "KL_mbx.sv", "    bnd_entry_w = 5'(entry);", "    bnd_entry_w = '0;",
+           "R1 each bound-talker entry keeps"),
+    # the read side's decode (#870) taking BOUND_EN for a BOUND_EID word
+    *_both("top-bound-read-en-decoded-as-eid", "KL_mbx.sv",
+           "    if (in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C)) rd_bnd_reg_w = 2'd2;\n", "",
            "R1 each bound-talker entry keeps"),
     *_both("top-bound-en-read-from-eid", "KL_mbx.sv",
            "reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);",
@@ -338,7 +344,7 @@ ARMS += (
     *_both("rx-bound-enable-of-interface-0", "KL_mbx_rx.sv", "en_r[int'(fif_w) * int'(NB_C) + e]", "en_r[e]",
            "Q13 a talker bound on interface i passes on interface i", 2),
     *_both("top-bound-write-ignores-interface", "KL_mbx.sv",
-           "bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));", "bnd_if_w    = '0;",
+           "    bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));", "    bnd_if_w    = '0;",
            "Q13 a talker bound on interface i passes on interface i", 2),
     *_both("rx-bound-taps-of-interface-0", "KL_mbx_rx.sv",
            "eq_w[e]   = rx_data_i == c_tap_w[int'(fif_w) * int'(NB_C) + e];", "eq_w[e]   = rx_data_i == c_tap_w[e];",
@@ -394,7 +400,7 @@ ARMS += (
     *_both("rx-bound-copy-not-owed-on-rewrite", "KL_mbx_rx.sv",
            "(heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])",
            "(!heid_w && bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])", "Q16 the new talker passes"),
-    *_both("rx-bound-copy-ignores-the-host", "KL_mbx_rx.sv", "assign cp_step_w = cp_busy_r && !bnd_req_i;",
+    *_both("rx-bound-copy-ignores-the-host", "KL_mbx_rx.sv", "assign cp_step_w = cp_busy_r && !bnd_req_i && !hrd_r;",
            "assign cp_step_w = cp_busy_r;", "Q20 the entry copied meanwhile passes its talker"),
     *_both("rx-bound-copy-not-restarted", "KL_mbx_rx.sv",
            "        if (cp_busy_r && hk_w == cp_k_r) cp_b_r <= '0;\n", "",
@@ -450,10 +456,23 @@ ARMS += (
     *_both("top-pub-hole-aliases-a-register", "KL_mbx.sv",
            ": pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;",
            ": pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : (in_if & AW2_C'(32'hF));",
+           "P4 and none of those writes moved a register or an output"),
+    # the read side's decode (#870) aliasing the same hole: a read of it answers the register
+    *_both("top-pub-read-hole-aliases-a-register", "KL_mbx.sv",
+           ": rd_pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;",
+           ": rd_pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : (in_if & AW2_C'(32'hF));",
            "P4 every hole of every interface block"),
     *_both("top-pub-interface-unchecked", "KL_mbx.sv",
-           "                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n", "",
+           "    pub_at_w   = off_w >= AW2_C'(MBX_PUB_BASE_C)\n"
+           "                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n",
+           "    pub_at_w   = off_w >= AW2_C'(MBX_PUB_BASE_C)\n",
            "P4 and none of those writes moved a register or an output", 2),
+    # the read side's decode (#870) with the same check left out: a read aliases an interface the build has
+    *_both("top-pub-read-interface-unchecked", "KL_mbx.sv",
+           "    rd_pub_at_w   = rd_off_w >= AW2_C'(MBX_PUB_BASE_C)\n"
+           "                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n",
+           "    rd_pub_at_w   = rd_off_w >= AW2_C'(MBX_PUB_BASE_C)\n",
+           "P4 every hole of every interface block, and every word of an interface the build does not have", 2),
     *_both("top-pub-partial-strobe-accepted", "KL_mbx.sv", "end else if (wr_w && pub_at_w) begin",
            "end else if (host_req_i && host_we_i && pub_at_w) begin",
            "P4 a write with a partial strobe leaves the register and the output"),
@@ -523,8 +542,16 @@ ARMS += (
            "F3 every setting and entry write, and a second commit, is refused while BUSY"),
     # an index past the build aliasing an interface it has (two interfaces)
     *_both("top-face-interface-unchecked", "KL_mbx.sv",
-           "                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n", "",
+           "    face_at_w   = off_w >= AW2_C'(MBX_FACE_BASE_C)\n"
+           "                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n",
+           "    face_at_w   = off_w >= AW2_C'(MBX_FACE_BASE_C)\n",
            "F7 and none of those writes, nor one to a status or an answer, moved a register or a port", 2),
+    # the read side's decode (#870) with the same check left out
+    *_both("top-face-read-interface-unchecked", "KL_mbx.sv",
+           "    rd_face_at_w   = rd_off_w >= AW2_C'(MBX_FACE_BASE_C)\n"
+           "                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n",
+           "    rd_face_at_w   = rd_off_w >= AW2_C'(MBX_FACE_BASE_C)\n",
+           "F7 every hole of every face block, and every word of an interface the build lacks, reads 0", 2),
     # a reset that leaves a commit waiting
     *_both("top-face-commit-kept-through-reset", "KL_mbx.sv", "    if (!rst_n) fw_busy_r <= '0;",
            "    if (1'b0) fw_busy_r <= '0;", "F10 a reset clears every face register, port, open request and commit"),
@@ -545,12 +572,43 @@ ARMS += (
            "F9 the next epoch posts the descriptor that changed meanwhile"),
 )
 
+#: ---- #870: the timing cuts of the register read and of the receive ring
+#: write, each undone or misplaced one way, through both adapters where the
+#: adapter's own timing decides what the core sees ----
+ARMS += (
+    # the read multiplexer decodes the bus again in its answer cycle: only the
+    # bench's noise outside a request (tb_mbx_top) tells it from the registered offset
+    *_both("top-read-mux-on-the-bus", "KL_mbx.sv", "assign rd_off_w = rd_off_r;", "assign rd_off_w = off_w;",
+           "R0 ID"),
+    # a register read acknowledged in a ring read's cycle, before its value
+    Arm("top-register-read-answered-early", "KL_mbx.sv", "ack_r       <= (host_req_i && !reg_rd_w) || rd_q_r;",
+        "ack_r       <= host_req_i;", 0, "R0 ID"),
+    # GM_HI's snapshot taken at the request, a cycle before GM_LO's word
+    *_both("top-gm-snapshot-at-the-request", "KL_mbx.sv",
+           "if (rd_q_r && rd_off_w == AW2_C'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
+           "if (rd_w && off_w == AW2_C'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
+           "G1 GM_LO and GM_HI read one identity"),
+    # the copier stepping in the cycle the host's registered read holds the read-back memory
+    *_both("rx-bound-copy-ignores-the-host-read", "KL_mbx_rx.sv",
+           "assign cp_step_w = cp_busy_r && !bnd_req_i && !hrd_r;", "assign cp_step_w = cp_busy_r && !bnd_req_i;",
+           "Q20 the entry copied meanwhile passes its talker"),
+    # the read-back memory read at the request, a cycle before the read multiplexer samples it
+    Arm("rx-bound-read-back-at-the-request", "KL_mbx_rx.sv",
+        "assign rb_a_w  = hrd_r ? RW_C'(2 * int'(hrk_r) + int'(hrhi_r))", "assign rb_a_w  = bnd_req_i ? rb_wa_w",
+        0, "R1 each bound-talker entry keeps BOUND_EID's every bit"),
+    # the head published at the commit, a cycle before its last header word reaches the ring
+    *_both("rx-head-published-one-cycle-early", "KL_mbx_rx.sv", "rx_head_words_o[16*c +: 16] = head_pub_r[c];",
+           "rx_head_words_o[16*c +: 16] = head_r[c];",
+           "H0 no receive ring word is written under the head the core sees"),
+)
+
 
 #: One defect per leaf and one in the skeleton, one in the filter's tuple, one
-#: in the publication block and one in the face block: the arms the suite's
-#: default target runs.
+#: in the publication block, one in the face block and one per timing cut
+#: (#870): the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
-         "rx-dst-ignored", "top-pub-sid-valid-held-high", "top-face-identify-from-cur-config")
+         "rx-dst-ignored", "top-pub-sid-valid-held-high", "top-face-identify-from-cur-config",
+         "top-read-mux-on-the-bus", "rx-head-published-one-cycle-early")
 
 
 def recipe() -> list[str]:

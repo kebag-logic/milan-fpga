@@ -65,8 +65,9 @@ it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`
 sets how many copies elaborate at once (2).
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
-its table; the default `make` runs six of them (one per leaf, one in the
-filter's tuple and one in the publication block, `--quick`).
+its table; the default `make` runs nine of them (one per leaf, one in the
+skeleton, one in the filter's tuple, one in the publication block, one in the
+face block and one per timing cut of #870, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -76,7 +77,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; six run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; nine run in the default make.
 - **[Run](#run)** -- The make targets.
 
 ## The top and the bench
@@ -241,7 +242,7 @@ controls too.
 | `axil-write-ignores-b-slot` | a write issued while its B waits | A4, one B per write |
 | `axil-b-dropped-without-bready` | BVALID lasts one clock | A4, BVALID holds |
 | `axil-r-dropped-without-rready` | RVALID lasts one clock | A5, RVALID holds |
-| `axil-rdata-follows-port` | RDATA is the mailbox's live port | A5, RDATA holds |
+| `axil-rdata-follows-port` | RDATA is the mailbox's live port | F1, a ring word read stale (the mailbox holds a register read's answer, #870, so A5's held register read no longer shows it) |
 | `axil-read-before-write` | a read and a write issued together | A3, the read's own data |
 | `axil-reset-keeps-aw` | a reset keeps a half-taken AW | A6, the AW is forgotten |
 | `axil-wready-while-issuing` | WREADY also on the cycle the W slot drains, which then drops the beat | A7, each write's data at its own address |
@@ -341,7 +342,7 @@ are in `ctrl_mutants.py`'s table:
 | `top-pub-bound-from-sid-valid` | `pub_bound_o` takes SID_VALID | P3, BOUND alone on its output |
 | `top-pub-domain-unmasked` | SR_DOMAIN keeps the bits between its fields | P1, each register's fields only |
 | `top-pub-sink-index-dropped` | every sink's BINDING lands in sink 0's | P1, each entry its own |
-| `top-pub-hole-aliases-a-register` | an interface block's holes alias its registers | P4, every hole reads 0 |
+| `top-pub-hole-aliases-a-register` | an interface block's holes alias its registers, in the write side's decode | P4, nothing moved |
 | `top-pub-interface-unchecked` (two interfaces) | an interface index past the build aliases another's block | P4, nothing moved |
 | `top-pub-partial-strobe-accepted` | a partial strobe writes the block | P4, the partial strobe refused |
 | `top-pub-licence-kept-through-reset` | LICENCE not reset | P5, a reset clears the block |
@@ -360,6 +361,25 @@ adapters. The host model's twins are `model-pub-src-sid-a-hole` and
 | `top-pub-src-base-ignored` | the interface registers decode as source entries | P1, each register's fields only |
 | `top-pub-src-sid-halves-swapped` | `pub_src_sid_o` joins SRC_SID_LO above SRC_SID_HI | P2, each source's stream_id on `pub_src_sid_o` |
 | `top-pub-src-sid-kept-through-reset` | SRC_SID_HI not reset | P5, a reset clears the block |
+
+The timing cuts of #870 add eighteen, most through both adapters. The read
+multiplexer decodes a registered copy of the read's offset, with its own copy
+of the window decodes, and the receive ring write and the published head are
+registered. Each cut is undone or misplaced one way, and each read-side
+decode carries a twin of a write-side arm:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `top-read-mux-on-the-bus` | the read multiplexer decodes the bus in its answer cycle | R0, through the noise between requests |
+| `top-register-read-answered-early` | a register read acknowledged a cycle before its value | R0, ID |
+| `top-gm-snapshot-at-the-request` | GM_HI's snapshot taken at the request, a cycle before GM_LO's word | G1, one identity |
+| `rx-bound-read-back-at-the-request` | the read-back memory read at the request, a cycle before it is sampled | R1, each entry at its own address |
+| `rx-bound-copy-ignores-the-host-read` | the copier steps in the cycle the host's registered read holds the read-back memory | Q20, the entry copied meanwhile |
+| `rx-head-published-one-cycle-early` | the head published at the commit, a cycle before its last header word is in the ring | H0, no ring word written under the head |
+| `top-bound-read-en-decoded-as-eid` | the read side decodes BOUND_EN as a BOUND_EID word | R1, BOUND_EN keeps EN only |
+| `top-pub-read-hole-aliases-a-register` | the read side's decode aliases a hole to its register | P1 and P4, every hole reads 0 |
+| `top-pub-read-interface-unchecked` (two interfaces) | the read side's decode aliases an interface index past the build | P4, every word of an absent interface reads 0 |
+| `top-face-read-interface-unchecked` (two interfaces) | the same in the face block | F7, every word of an absent interface reads 0 |
 
 ## Run
 

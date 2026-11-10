@@ -5,7 +5,9 @@
 The skeleton is the part of the fabric the contract fixes: the port list, the
 register decode (a storage register for every ``rw`` register, a pulse for
 every ``wo`` register, a read for every readable one), the read multiplexer
-and one ring instance per direction per channel. The bound-talker registers
+and one ring instance per direction per channel. The read multiplexer decodes
+a registered copy of the read's offset, never the bus (#870, a timing cut), so
+the register window answers a read one cycle later than a ring or a write. The bound-talker registers
 are the exception: the skeleton decodes them and ``KL_mbx_rx`` holds them, in
 distributed RAM beside the compare that reads them. The publication block is
 decoded and held here, and each of its fields leaves on a ``pub_*_o`` port
@@ -142,11 +144,15 @@ def _banner() -> list[str]:
         "//                Reachable only behind the SoC's default-off mailbox",
         "//                switch; the default build never elaborates it.",
         "//",
-        "//                The one decision that matters: the host port answers",
-        "//                every request exactly one cycle later, so a bus adapter",
-        "//                (KL_mbx_wb, KL_mbx_axil) holds one request in flight and",
-        "//                adds nothing to the contract. A write without all four",
-        "//                byte strobes is refused and counted in BUS_ERR.",
+        "//                The one decision that matters: the host port answers a",
+        "//                write, and a read of a receive ring or the event ring, one",
+        "//                cycle after the request, and a read of any register two:",
+        "//                the read multiplexer decodes a registered copy of the",
+        "//                offset, never the bus (#870, a timing cut; Wishbone B4",
+        "//                lets ACK come any cycle later). A bus adapter (KL_mbx_wb,",
+        "//                KL_mbx_axil) holds one request in flight until its",
+        "//                answer and adds nothing to the contract. A write without",
+        "//                all four byte strobes is refused and counted in BUS_ERR.",
         "//---------------------------------------------------------------------------//",
         "",
         "`default_nettype none",
@@ -163,12 +169,14 @@ def _ports() -> list[str]:
         "  input  wire                          clk_i,          //! the mailbox clock: host port and fabric side",
         "  input  wire                          rst_n,          //! synchronous active-low reset",
         "",
-        "  input  wire                          host_req_i,     //! a host access this cycle",
+        "  input  wire                          host_req_i,     //! a host access this cycle, none until its answer",
         "  input  wire                          host_we_i,      //! the access is a write",
-        "  input  wire  [MBX_ADDR_W_C-1:0]      host_addr_i,    //! word address inside the window",
+        "  input  wire  [MBX_ADDR_W_C-1:0]      host_addr_i,    "
+        "//! word address inside the window, read with host_req_i only",
         "  input  wire  [31:0]                  host_wdata_i,   //! write data",
         "  input  wire  [3:0]                   host_be_i,      //! byte strobes; a write without all four is refused",
-        "  output logic                         host_ack_o,     //! the access completes, one cycle after host_req_i",
+        "  output logic                         host_ack_o,     "
+        "//! the access completes: 1 cycle after host_req_i, 2 for a register read",
         "  output logic [31:0]                  host_rdata_o,   //! read data, valid with host_ack_o",
         "  output logic                         irq_o,          //! the interrupt: OR of IRQ_STATUS AND IRQ_ENABLE",
         "",
@@ -234,6 +242,16 @@ def _core() -> list[str]:
         "  assign rd_w      = host_req_i && !host_we_i;",
         "  assign refused_w = host_req_i && host_we_i && (host_be_i != 4'hF);",
         "",
+        "  // ---- the register read: decoded a cycle after its request ------------------------",
+        "  // A timing cut (#870): the read multiplexer and the bound-talker read-back",
+        "  // decode a registered copy of the read's offset, never the bus, so a read of",
+        "  // a register is answered two cycles after its request; a ring read and a",
+        "  // write keep one.",
+        "  logic             rd_q_r;     //! a register read was requested last cycle: the read multiplexer answers it",
+        f"  logic [{AW}-1:0] rd_off_r;   //! that read's byte offset, registered at its request",
+        f"  logic [{AW}-1:0] rd_off_w;   //! the offset the read multiplexer decodes: rd_off_r, never the bus",
+        "  assign rd_off_w = rd_off_r;",
+        "",
         "  // ---- what the leaves drive ------------------------------------------------------",
         "  logic [MBX_N_CH_C*16-1:0] rx_head_w;",
         "  logic [MBX_N_CH_C*16-1:0] rx_drop_w;",
@@ -261,93 +279,107 @@ def _core() -> list[str]:
         "  logic                     evt_pending_w;",
         "  logic [15:0]              filter_mismatch_w;",
         "  logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination",
-        "  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word an access names, as KL_mbx_rx stores it",
+        "  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word last cycle's read names, as stored",
         "  logic                     bnd_eid_vld_w;  //! that word was written since the reset (else it reads 0)",
-        "  logic                     bnd_en_w;       //! the BOUND_EN of the entry an access names",
+        "  logic                     bnd_en_w;       //! the BOUND_EN of the entry last cycle's read names",
         "",
     ]
 
 
-def _bound_decode(contract: Contract) -> list[str]:
+#: The read side's decodes: the same windows decoded from the registered read
+#: offset, each signal under this prefix (#870, the register read's timing cut).
+READ = ("rd_off_w", "rd_")
+
+
+def _bound_decode(contract: Contract, off: str = "off_w", pre: str = "") -> list[str]:
     """The bound-talker register an offset names: its interface, entry and
-    register by the bit fields of the offset, the strides being powers of two."""
+    register by the bit fields of the offset, the strides being powers of two.
+    The write side decodes the request's offset; the read side (``READ``) the
+    registered one, its signals under its prefix."""
     named = " || ".join(f"in_entry == {AW}'(MBX_BND_REG_{name}_C)" for name in BOUND_CODE)
+    whose = "the registered read offset" if pre else "the offset"
     out = ["  // ---- the bound-talker tables: decoded here, held by KL_mbx_rx -------------------",
            "  // The strides are powers of two, so an offset's interface and entry are",
-           "  // its bit fields; a hole between the registers names none.",
-           "  logic                  bnd_at_w;      //! the offset names a bound-talker register",
-           "  logic [MBX_IF_W_C-1:0] bnd_if_w;      //! its interface",
-           "  logic [4:0]            bnd_entry_w;   //! its entry (bound_talkers is at most 32)",
-           "  logic [1:0]            bnd_reg_w;     //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN",
-           "  always_comb begin : bound_decode",
-           f"    logic [{AW}-1:0] rel;",
-           f"    logic [{AW}-1:0] in_entry;",
-           f"    logic [{AW}-1:0] entry;",
-           f"    rel         = off_w - {AW}'(MBX_BND_BASE_C);",
-           f"    in_entry    = rel & {AW}'(MBX_BND_ENTRY_STRIDE_C - 1);",
-           f"    entry       = (rel & {AW}'(MBX_BND_STRIDE_C - 1)) >> $clog2(MBX_BND_ENTRY_STRIDE_C);",
-           "    bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));",
-           "    bnd_entry_w = 5'(entry);",
-           "    bnd_reg_w   = '0;"]
+           "  // its bit fields; a hole between the registers names none."] if not pre else [
+           "  // ---- the bound-talker register the registered read offset names ----------------"]
+    out += [f"  logic                  {pre}bnd_at_w;      //! {whose} names a bound-talker register",
+            f"  logic [MBX_IF_W_C-1:0] {pre}bnd_if_w;      //! its interface",
+            f"  logic [4:0]            {pre}bnd_entry_w;   //! its entry (bound_talkers is at most 32)",
+            f"  logic [1:0]            {pre}bnd_reg_w;     //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN",
+            f"  always_comb begin : {pre}bound_decode",
+            f"    logic [{AW}-1:0] rel;",
+            f"    logic [{AW}-1:0] in_entry;",
+            f"    logic [{AW}-1:0] entry;",
+            f"    rel         = {off} - {AW}'(MBX_BND_BASE_C);",
+            f"    in_entry    = rel & {AW}'(MBX_BND_ENTRY_STRIDE_C - 1);",
+            f"    entry       = (rel & {AW}'(MBX_BND_STRIDE_C - 1)) >> $clog2(MBX_BND_ENTRY_STRIDE_C);",
+            f"    {pre}bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));",
+            f"    {pre}bnd_entry_w = 5'(entry);",
+            f"    {pre}bnd_reg_w   = '0;"]
     for name, code in BOUND_CODE.items():
         if code:
-            out.append(f"    if (in_entry == {AW}'(MBX_BND_REG_{name}_C)) bnd_reg_w = 2'd{code};")
-    out += [f"    bnd_at_w    = off_w >= {AW}'(MBX_BND_BASE_C)",
+            out.append(f"    if (in_entry == {AW}'(MBX_BND_REG_{name}_C)) {pre}bnd_reg_w = 2'd{code};")
+    out += [f"    {pre}bnd_at_w    = {off} >= {AW}'(MBX_BND_BASE_C)",
             f"                  && (rel >> $clog2(MBX_BND_STRIDE_C)) < {AW}'(MBX_N_IF_C)",
             f"                  && entry < {AW}'(MBX_N_BOUND_C)",
             f"                  && ({named});",
-            "  end : bound_decode",
+            f"  end : {pre}bound_decode",
             ""]
     return out
 
 
-def _pub_decode(contract: Contract) -> list[str]:
+def _pub_decode(contract: Contract, off: str = "off_w", pre: str = "") -> list[str]:
     """The publication register an offset names: its interface, whether it is a
     source entry's or a sink entry's, the entry, and its offset inside the block
-    or the entry, by the bit fields of the offset, the strides being powers of two."""
-    regs = " || ".join(f"pub_reg_w == {AW}'(MBX_PUB_REG_{r.name}_C)" for r in contract.pub_registers)
-    srcs = " || ".join(f"pub_reg_w == {AW}'(MBX_PUB_SRC_REG_{r.name}_C)" for r in contract.pub_source_registers)
-    sinks = " || ".join(f"pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{r.name}_C)" for r in contract.pub_sink_registers)
-    return ["  // ---- the publication block: decoded and held here, read by the datapath -----------",
-            "  // The strides are powers of two, so an offset's interface, source entry and",
-            "  // sink entry are its bit fields; a hole between the registers names none.",
-            "  localparam int unsigned PUB_SW_C = (MBX_N_PUB_SOURCES_C > 1) ? $clog2(MBX_N_PUB_SOURCES_C) : 1;"
-            "   //! source index bits",
-            "  localparam int unsigned PUB_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;"
-            "   //! sink index bits",
-            "  logic                  pub_at_w;     //! the offset names a publication register",
-            "  logic                  pub_src_w;    //! a source entry's register",
-            "  logic                  pub_sink_w;   //! a sink entry's register; neither: an interface register",
-            "  logic [MBX_IF_W_C-1:0] pub_if_w;     //! its interface",
-            "  logic [PUB_SW_C-1:0]   pub_s_w;      //! its source entry",
-            "  logic [PUB_KW_C-1:0]   pub_k_w;      //! its sink entry",
-            f"  logic [{AW}-1:0]      pub_reg_w;    //! its offset inside the interface block or the entry",
-            "  always_comb begin : pub_decode",
+    or the entry, by the bit fields of the offset, the strides being powers of two.
+    The read side (``READ``) decodes the registered read offset under its prefix."""
+    reg = f"{pre}pub_reg_w"
+    regs = " || ".join(f"{reg} == {AW}'(MBX_PUB_REG_{r.name}_C)" for r in contract.pub_registers)
+    srcs = " || ".join(f"{reg} == {AW}'(MBX_PUB_SRC_REG_{r.name}_C)" for r in contract.pub_source_registers)
+    sinks = " || ".join(f"{reg} == {AW}'(MBX_PUB_SINK_REG_{r.name}_C)" for r in contract.pub_sink_registers)
+    whose = "the registered read offset" if pre else "the offset"
+    out = ["  // ---- the publication block: decoded and held here, read by the datapath -----------",
+           "  // The strides are powers of two, so an offset's interface, source entry and",
+           "  // sink entry are its bit fields; a hole between the registers names none.",
+           "  localparam int unsigned PUB_SW_C = (MBX_N_PUB_SOURCES_C > 1) ? $clog2(MBX_N_PUB_SOURCES_C) : 1;"
+           "   //! source index bits",
+           "  localparam int unsigned PUB_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;"
+           "   //! sink index bits"] if not pre else [
+           "  // ---- the publication register the registered read offset names -----------------"]
+    return out + [
+            f"  logic                  {pre}pub_at_w;     //! {whose} names a publication register",
+            f"  logic                  {pre}pub_src_w;    //! a source entry's register",
+            f"  logic                  {pre}pub_sink_w;   //! a sink entry's register; neither: an interface register",
+            f"  logic [MBX_IF_W_C-1:0] {pre}pub_if_w;     //! its interface",
+            f"  logic [PUB_SW_C-1:0]   {pre}pub_s_w;      //! its source entry",
+            f"  logic [PUB_KW_C-1:0]   {pre}pub_k_w;      //! its sink entry",
+            f"  logic [{AW}-1:0]      {reg};    //! its offset inside the interface block or the entry",
+            f"  always_comb begin : {pre}pub_decode",
             f"    logic [{AW}-1:0] rel;",
             f"    logic [{AW}-1:0] in_if;",
             f"    logic [{AW}-1:0] in_srcs;",
             f"    logic [{AW}-1:0] in_sinks;",
             f"    logic [{AW}-1:0] src_entry;",
             f"    logic [{AW}-1:0] entry;",
-            f"    rel        = off_w - {AW}'(MBX_PUB_BASE_C);",
+            f"    rel        = {off} - {AW}'(MBX_PUB_BASE_C);",
             f"    in_if      = rel & {AW}'(MBX_PUB_STRIDE_C - 1);",
             f"    in_srcs    = in_if - {AW}'(MBX_PUB_SRC_BASE_C);",
             f"    in_sinks   = in_if - {AW}'(MBX_PUB_SINK_BASE_C);",
             "    src_entry  = in_srcs >> $clog2(MBX_PUB_SRC_STRIDE_C);",
             "    entry      = in_sinks >> $clog2(MBX_PUB_SINK_STRIDE_C);",
-            "    pub_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_PUB_STRIDE_C));",
-            f"    pub_sink_w = in_if >= {AW}'(MBX_PUB_SINK_BASE_C);",
-            f"    pub_src_w  = !pub_sink_w && in_if >= {AW}'(MBX_PUB_SRC_BASE_C);",
-            "    pub_s_w    = PUB_SW_C'(src_entry);",
-            "    pub_k_w    = PUB_KW_C'(entry);",
-            f"    pub_reg_w  = pub_sink_w ? (in_sinks & {AW}'(MBX_PUB_SINK_STRIDE_C - 1))",
-            f"               : pub_src_w ? (in_srcs & {AW}'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;",
-            f"    pub_at_w   = off_w >= {AW}'(MBX_PUB_BASE_C)",
+            f"    {pre}pub_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_PUB_STRIDE_C));",
+            f"    {pre}pub_sink_w = in_if >= {AW}'(MBX_PUB_SINK_BASE_C);",
+            f"    {pre}pub_src_w  = !{pre}pub_sink_w && in_if >= {AW}'(MBX_PUB_SRC_BASE_C);",
+            f"    {pre}pub_s_w    = PUB_SW_C'(src_entry);",
+            f"    {pre}pub_k_w    = PUB_KW_C'(entry);",
+            f"    {reg}  = {pre}pub_sink_w ? (in_sinks & {AW}'(MBX_PUB_SINK_STRIDE_C - 1))",
+            f"               : {pre}pub_src_w ? (in_srcs & {AW}'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;",
+            f"    {pre}pub_at_w   = {off} >= {AW}'(MBX_PUB_BASE_C)",
             f"                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < {AW}'(MBX_N_IF_C)",
-            f"                 && (pub_sink_w ? (entry < {AW}'(MBX_N_PUB_SINKS_C) && ({sinks}))",
-            f"                   : pub_src_w ? (src_entry < {AW}'(MBX_N_PUB_SOURCES_C) && ({srcs}))",
+            f"                 && ({pre}pub_sink_w ? (entry < {AW}'(MBX_N_PUB_SINKS_C) && ({sinks}))",
+            f"                   : {pre}pub_src_w ? (src_entry < {AW}'(MBX_N_PUB_SOURCES_C) && ({srcs}))",
             f"                   : ({regs}));",
-            "  end : pub_decode",
+            f"  end : {pre}pub_decode",
             ""]
 
 
@@ -463,7 +495,8 @@ def _write_block(contract: Contract) -> list[str]:
     out += ["      if ((refused_w || tmr_bad_p_w || face_refused_w) && bus_err_r != 16'hFFFF) "
             "bus_err_r <= bus_err_r + 16'd1;",
             "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
-            f"        if (rd_w && off_w == {AW}'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
+            "        // taken the cycle the read multiplexer samples GM_LO, so the two halves are one identity",
+            f"        if (rd_q_r && rd_off_w == {AW}'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
             "          gm_hi_snap_r[i]  <= gm_id_i[64*i + 32 +: 32];",
             "          domain_snap_r[i] <= gptp_domain_i[8*i +: 8];",
             "        end"]
@@ -476,47 +509,53 @@ def _write_block(contract: Contract) -> list[str]:
 
 
 def _read_block(contract: Contract) -> list[str]:
-    """The register read value, from storage or from each field's source."""
-    out = ["  logic [31:0] reg_rdata_w;   //! the register a read addresses, 0 when none",
+    """The register read value, from storage or from each field's source, decoded
+    from the registered read offset (``READ``), so no path runs from the bus to
+    ``reg_rdata_r`` (#870). The bound-talker words are KL_mbx_rx's read-back of
+    the read it registered at the same request."""
+    off, pre = READ
+    out = ["  logic [31:0] reg_rdata_w;   //! the register the registered read offset names, 0 when none",
            "  always_comb begin : reg_read", "    reg_rdata_w = '0;"]
     for reg in contract.registers:
         if reg.access == "wo":
             continue
         value = f"{reg.name.lower()}_r" if reg.access == "rw" else _sources(reg, RO_SOURCES, {})
-        out.append(f"    if (off_w == {AW}'(MBX_REG_{reg.name}_C)) reg_rdata_w = {value};")
+        out.append(f"    if ({off} == {AW}'(MBX_REG_{reg.name}_C)) reg_rdata_w = {value};")
     for i in range(contract.interfaces):
         for reg in contract.if_registers:
             base = f"MBX_IF_BASE_C + {i} * MBX_IF_STRIDE_C + MBX_IF_REG_{reg.name}_C"
-            out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = {_sources(reg, IF_SOURCES, {'i': i})};")
+            out.append(f"    if ({off} == {AW}'({base})) reg_rdata_w = {_sources(reg, IF_SOURCES, {'i': i})};")
         for reg in contract.iff_registers:
             if reg.access != "rw":
                 raise ContractError(f"interface filter register {reg.name}: the skeleton stores rw registers only")
             base = f"MBX_IFF_BASE_C + {i} * MBX_IFF_STRIDE_C + MBX_IFF_REG_{reg.name}_C"
-            out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
+            out.append(f"    if ({off} == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
     for reg in contract.bnd_registers:
         if reg.access != "rw":
             raise ContractError(f"bound-talker register {reg.name}: KL_mbx_rx holds rw registers only")
-    out.append(f"    if (bnd_at_w && bnd_reg_w == 2'd{BOUND_CODE['BOUND_EN']}) reg_rdata_w = "
+    out.append(f"    if ({pre}bnd_at_w && {pre}bnd_reg_w == 2'd{BOUND_CODE['BOUND_EN']}) reg_rdata_w = "
                f"{_place('BOUND_EN', 'EN', 'bnd_en_w')};")
-    out.append(f"    if (bnd_at_w && bnd_reg_w != 2'd{BOUND_CODE['BOUND_EN']} && bnd_eid_vld_w) "
+    out.append(f"    if ({pre}bnd_at_w && {pre}bnd_reg_w != 2'd{BOUND_CODE['BOUND_EN']} && bnd_eid_vld_w) "
                "reg_rdata_w = bnd_eid_w;")
+    at, src, sink, reg_w = f"{pre}pub_at_w", f"{pre}pub_src_w", f"{pre}pub_sink_w", f"{pre}pub_reg_w"
+    pif, ps, pk = f"{pre}pub_if_w", f"{pre}pub_s_w", f"{pre}pub_k_w"
     for reg in contract.pub_registers:
-        out.append(f"    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w]);")
+        out.append(f"    if ({at} && !{src} && !{sink} && {reg_w} == {AW}'(MBX_PUB_REG_{reg.name}_C)) "
+                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}]);")
     for reg in contract.pub_source_registers:
-        out.append(f"    if (pub_at_w && pub_src_w && pub_reg_w == {AW}'(MBX_PUB_SRC_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w][pub_s_w]);")
+        out.append(f"    if ({at} && {src} && {reg_w} == {AW}'(MBX_PUB_SRC_REG_{reg.name}_C)) "
+                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}][{ps}]);")
     for reg in contract.pub_sink_registers:
-        out.append(f"    if (pub_at_w && pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w][pub_k_w]);")
-    out += face.read(contract)
+        out.append(f"    if ({at} && {sink} && {reg_w} == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)) "
+                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}][{pk}]);")
+    out += face.read(contract, pre)
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
         value = (_place(reg.name, reg.fields[0].name, f"{reg.name.lower()}_r[c]") if reg.access == "rw"
                  else _sources(reg, {k: {f: s.replace("{c}", "c") for f, s in v.items()}
                                      for k, v in CH_SOURCES.items()}, {}))
-        out.append(f"      if (off_w == {AW}'({base})) reg_rdata_w = {value};")
+        out.append(f"      if ({off} == {AW}'({base})) reg_rdata_w = {value};")
     out += ["    end", "  end : reg_read", ""]
     return out
 
@@ -566,16 +605,25 @@ def _ring_block(contract: Contract) -> list[str]:
 def _mux_block(contract: Contract) -> list[str]:
     """The registered answer: register value or ring word, and the TX read return."""
     rx_sel = [f"{ch.name}_rx_host_w" for ch in contract.channels]
-    out = ["  // ---- the answer, one cycle after the request ---------------------------------",
+    ring = " && ".join(f"!{sig}" for sig in ["evt_host_w", *rx_sel])
+    out = ["  // ---- the answer: one cycle after the request, two for a register read ------------",
+           "  // A register read's offset is registered at its request (rd_off_r) and its",
+           "  // value at the next cycle (reg_rdata_r), so its answer comes a cycle after a",
+           "  // ring read's (#870); a ring read's word is the ring's registered read port.",
            "  logic        ack_r;", "  logic [31:0] reg_rdata_r;",
            "  logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's receive ring",
            "  logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the transmit ring the merge read last cycle",
+           "  logic        reg_rd_w;   //! the request is a read the register multiplexer answers, not a ring's",
+           f"  assign reg_rd_w = rd_w && {ring};",
            "  always_ff @(posedge clk_i) begin : answer",
            "    if (!rst_n) begin",
            "      ack_r       <= 1'b0;", "      reg_rdata_r <= '0;", "      rsel_r      <= '0;",
-           "      txr_ch_r    <= '0;",
+           "      txr_ch_r    <= '0;", "      rd_q_r      <= 1'b0;", "      rd_off_r    <= '0;",
            "    end else begin",
-           "      ack_r       <= host_req_i;", "      reg_rdata_r <= reg_rdata_w;",
+           "      ack_r       <= (host_req_i && !reg_rd_w) || rd_q_r;",
+           "      rd_q_r      <= reg_rd_w;",
+           "      if (reg_rd_w) rd_off_r <= off_w;",
+           "      if (rd_q_r) reg_rdata_r <= reg_rdata_w;",
            "      txr_ch_r    <= txr_ch_w;",
            "      rsel_r      <= evt_host_w ? 4'd1"]
     for k, sig in enumerate(rx_sel):
@@ -732,10 +780,13 @@ def _leaves(contract: Contract) -> list[str]:
         "",
         "  // the window bits a 16-bit register does not carry, the upper",
         "  // filter-enable, MAAP and TICK_CTL bits a narrower build does not use,",
-        "  // and the ring index bits above the narrower rings of this contract",
+        "  // the ring index bits above the narrower rings of this contract, and the",
+        "  // read side's bound-talker interface and entry (KL_mbx_rx registers its",
+        "  // own read address at the request)",
         "  logic unused_w;",
         "  assign unused_w = ^{evt_tail_r[31:16], maap_base_hi_r[31:16], maap_count_r[31:16],",
-        "                      filter_en_r[31:MBX_N_CH_C], tick_ctl_r[31:1], rxw_addr_w, txr_addr_w};",
+        "                      filter_en_r[31:MBX_N_CH_C], tick_ctl_r[31:1], rxw_addr_w, txr_addr_w,",
+        "                      rd_bnd_if_w, rd_bnd_entry_w};",
         "",
         "endmodule : KL_mbx",
         "",
@@ -748,7 +799,8 @@ def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
     _check_wiring(contract)
     lines = (_banner() + _ports() + _pub_ports() + face.ports(contract) + _core() + _bound_decode(contract)
-             + _pub_decode(contract) + face.decode(contract) + face.block(contract) + _storage(contract)
+             + _pub_decode(contract) + face.decode(contract) + _bound_decode(contract, *READ)
+             + _pub_decode(contract, *READ) + face.decode(contract, *READ) + face.block(contract) + _storage(contract)
              + _write_block(contract) + _pub_block(contract) + _read_block(contract) + _ring_block(contract)
              + _mux_block(contract) + _leaves(contract))
     return "\n".join(lines)
