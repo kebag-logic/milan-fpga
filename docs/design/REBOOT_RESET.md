@@ -285,8 +285,8 @@ So a write in progress completes, and the drain sees it complete.
 No frame or event is taken, so nothing new becomes dirty and no write starts during the PHY hold.
 A write that cannot complete is abandoned at a command boundary, as section 4 states.
 
-**The bound.** In the CPU simulation the reset port rises 222,811 CPU cycles (4.456 ms at 50 MHz) after the REBOOT command's last byte reaches the mailbox.
-The SUCCESS leaves at 2.165 ms, its notification at 2.308 ms and ENTITY_DEPARTING at 3.798 ms.
+**The bound.** In the CPU simulation the reset port rises 222,853 CPU cycles (4.457 ms at 50 MHz) after the REBOOT command's last byte reaches the mailbox.
+The SUCCESS leaves at 2.166 ms, its notification at 2.309 ms and ENTITY_DEPARTING at 3.799 ms.
 Section 3's bound to the IPROG word follows; a write in progress at the REBOOT kept the drain 582.1 ms there.
 
 | Evidence | What it proves |

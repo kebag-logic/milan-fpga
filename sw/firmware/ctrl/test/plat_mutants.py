@@ -167,8 +167,8 @@ def boot_mutants(mutant: type) -> tuple:
         m("plat-store-service-unbound", PLAT, SERVICE, "",
           "platboot1", "Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop",
           "B10 the bind is written back by the store's service on the loop's tick"),
-        m("plat-loop-before-ready", PLAT, "\tif (ctrl_plat.stage == CTRL_PLAT_READY) {",
-          "\tif (ctrl_plat.stage >= CTRL_PLAT_MAILBOX) {",
+        m("plat-loop-before-ready", PLAT, "\tif (ctrl_plat.stage != CTRL_PLAT_READY) {",
+          "\tif (ctrl_plat.stage < CTRL_PLAT_MAILBOX) {",
           "platboot1", "Boot.B7OnlyAReadyBootServicesTheLoop", "B7 and never services the loop"),
         # the platform's ports
         m("plat-source-past-count", PLAT, "out->dest_mac_valid = a->valid && n < a->count;",

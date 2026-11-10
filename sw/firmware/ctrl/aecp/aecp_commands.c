@@ -542,11 +542,16 @@ static unsigned control(struct aecp *a, bool set, const uint8_t *in, size_t len,
 // NO_SUCH_DESCRIPTOR, and another controller's lock ENTITY_LOCKED (7.4.43.2).
 // The entity is never acquired. The routes run in the processor's order. A
 // SUCCESS notifies (7.4.43, 7.5.2; Milan v1.2 5.4.5.2), and aecp_rx accepts
-// the REBOOT at it (#871).
+// the REBOOT at it (#871). Without a reset port it is NOT_IMPLEMENTED, its
+// whole body echoed (*bytes is len), as for every command without a target.
 static unsigned reboot(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
+	if (!a->cfg.reboot) {
+		memcpy(out, in, *bytes);
+		return AECP_NOT_IMPLEMENTED;
+	}
 	*bytes = 4u;
-	memcpy(out, in, len < 4u ? len : 4u);
+	memcpy(out, in, len > 4u ? 4u : len);
 	if (len < 4u) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -668,12 +673,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_BAD_ARGUMENTS; // IEEE 7.4.39.2: unsolicited-only opcode
 	case 39: case 40: return avb(a, cmd == 40u, in, len, out, bytes);
 	case 41: return counters(a, in, len, out, bytes);
-	case 42:
-		if (a->cfg.reboot) {
-			return reboot(a, in, len, out, bytes);
-		}
-		memcpy(out, in, len);
-		return AECP_NOT_IMPLEMENTED;
+	case 42: return reboot(a, in, len, out, bytes);
 	case 43: case 44: case 45: return aecp_map_command(a, cmd, in, len, out, bytes);
 	case 75: return dynamic(a, interface, in, len, out, bytes);
 	default:

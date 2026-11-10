@@ -778,7 +778,7 @@ DEFECTS = (
 ) + (
     # REBOOT (IEEE 1722.1-2021 7.4.43; #871): the reset port, Figure 7-68's routes, the notification, the
     # acceptance at SUCCESS, the release once every frame has completed and the silence after it
-    defect('reboot-without-a-reset-port', 'aecp_commands.c', '\t\tif (a->cfg.reboot) {\n', '\t\tif (true) {\n',
+    defect('reboot-without-a-reset-port', 'aecp_commands.c', '\tif (!a->cfg.reboot) {\n', '\tif (false) {\n',
            ('Core.RebootIsNotImplementedWithoutAResetPort', 'REBOOT without a reset port is NOT_IMPLEMENTED')),
     defect('reboot-short-not-bad-arguments', 'aecp_commands.c',
            '\tif (len < 4u) {\n\t\treturn AECP_BAD_ARGUMENTS;\n\t}\n\tif (wire_be16(in) != 0u) {\n',

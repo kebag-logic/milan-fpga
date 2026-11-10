@@ -102,11 +102,11 @@ At the shipping shape, one interface, the split CPU at 50 MHz and its bus at 100
 | Grade | Result |
 |---|---|
 | REFUSE | BAD_ARGUMENTS, NOT_SUPPORTED, NOT_SUPPORTED, NO_SUCH_DESCRIPTOR, each at cdl 16; no notification, no reset, GET_CONFIGURATION answered |
-| ORDER | from the REBOOT command's last byte: SUCCESS at 2.165 ms, its notification at 2.308 ms, ENTITY_DEPARTING at 3.798 ms, the reset port at 4.456 ms; nothing answered after the SUCCESS or taken after the port |
-| BOUND | 445,623 bus cycles, 222,811 CPU cycles, from the command to the port; then 582.097 ms to the PHY hold, the drain ended durable and the egress wait quiet |
+| ORDER | from the REBOOT command's last byte: SUCCESS at 2.166 ms, its notification at 2.309 ms, ENTITY_DEPARTING at 3.799 ms, the reset port at 4.457 ms; nothing answered after the SUCCESS or taken after the port |
+| BOUND | 445,707 bus cycles, 222,853 CPU cycles, from the command to the port; then 582.094 ms to the PHY hold, the drain ended durable and the egress wait quiet |
 | JOURNAL | the write's erase 62 bus cycles before the REBOOT arrived, its 14 page programs after it; the drain durable; every item back after the reset; the cut's replay reads the saved snapshot whole |
 | RESTORE | PASS over the stream format, the presentation time offset, the channel mappings, the clock source, the entity names, the object name and the binding; the configuration (0) and the rate (48,000) read the same and are not graded |
-| ADP | 586.553 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 500.669 ms from the reset to the first ENTITY_AVAILABLE (159.056 ms to ready): 4,590.222 ms of 20,000 ms, 15,409.778 ms left for the configuration load |
+| ADP | 586.551 ms to the PHY hold, 3,500 ms of hold and 3 ms to the IPROG word, then 500.667 ms from the reset to the first ENTITY_AVAILABLE (159.056 ms to ready): 4,590.218 ms of 20,000 ms, 15,409.782 ms left for the configuration load |
 
 The four plants and the five controls are each caught by their grade.
 
