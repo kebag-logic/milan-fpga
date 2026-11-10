@@ -1,0 +1,371 @@
+[
+ {
+  "plant": "unplanted",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "pass",
+  "acmp_wide_summary": [
+   "[  PASSED  ] 5 tests."
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "acmp-wide-release-word-ignored",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  PASSED  ] 3 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (1 ms)",
+   "[  PASSED  ] 1 test.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink"
+  ]
+ },
+ {
+  "plant": "acmp-wide-owed-count-word-ignored",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)",
+   "[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (0 ms)",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ]
+ },
+ {
+  "plant": "acmp-wide-release-loop-word-ignored",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)",
+   "[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (0 ms)",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ]
+ },
+ {
+  "plant": "acmp-unbind-echoes-the-talker",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A3UnbindInEveryState (0 ms)",
+   "[  FAILED  ] AcmpOwed.DeclinedUnbindChangesNothingUntilItIsTaken (0 ms)",
+   "[  PASSED  ] 125 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "acmp_wide": "pass",
+  "acmp_wide_summary": [
+   "[  PASSED  ] 5 tests."
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "acmp-unbind-srp-after-response",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A3UnbindInEveryState (0 ms)",
+   "[  FAILED  ] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt (0 ms)",
+   "[  PASSED  ] 125 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "acmp_wide": "pass",
+  "acmp_wide_summary": [
+   "[  PASSED  ] 5 tests."
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "acmp-unbind-change-before-response",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A3UnbindInEveryState (0 ms)",
+   "[  PASSED  ] 126 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpCore.A3UnbindInEveryState"
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  PASSED  ] 4 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "acmp-change-not-held-for-its-response",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)",
+   "[  FAILED  ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)",
+   "[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 124 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)",
+   "[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (0 ms)",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ]
+ },
+ {
+  "plant": "owed-bind-answer-lost-after-decline",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpOwed.DeclinedBindIsAnsweredAfterTheHold (0 ms)",
+   "[  FAILED  ] AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe (0 ms)",
+   "[  FAILED  ] AcmpOwed.ProbesFallingDueInTheDrainWaitForTheDeferredBind (0 ms)",
+   "[  FAILED  ] AcmpOwed.DeferredBindAtTheDocumentedMarginMeetsItsTimeout (0 ms)"
+  ],
+  "acmp_wide": "pass",
+  "acmp_wide_summary": [
+   "[  PASSED  ] 5 tests."
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "owed-entry-widened",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpOwed.OwedSetIsEightFramesOfEightyBytes (0 ms)",
+   "[  PASSED  ] 126 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpOwed.OwedSetIsEightFramesOfEightyBytes"
+  ],
+  "acmp_wide": "pass",
+  "acmp_wide_summary": [
+   "[  PASSED  ] 5 tests."
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "acmp-first-owed-releases-every-change",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)",
+   "[  PASSED  ] 126 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  PASSED  ] 3 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "every_sink_33": "pass",
+  "every_sink_33_summary": [
+   "[  PASSED  ] 2 tests."
+  ]
+ },
+ {
+  "plant": "review-transmit-word-off-by-one",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  PASSED  ] 4 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (1 ms)",
+   "[  PASSED  ] 1 test.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink"
+  ]
+ },
+ {
+  "plant": "review-transmit-unbounded-shift",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "$PACKET/scratch/plants-anchor/review-transmit-unbounded-shift/src/acmp.c:312:50: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "$PACKET/scratch/plants-anchor/review-transmit-unbounded-shift/src/acmp.c:312:50: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ]
+ },
+ {
+  "plant": "review-owed-count-word-off-by-one",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 3 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (1 ms)",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ]
+ },
+ {
+  "plant": "review-release-loop-word-off-by-one",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 3 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.EachOwedResponseHoldsOnlyItsOwnSink (1 ms)",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (3 ms)",
+   "[  PASSED  ] 0 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ]
+ },
+ {
+  "plant": "review-owed-count-unbounded-shift",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "$PACKET/scratch/plants-anchor/review-owed-count-unbounded-shift/src/acmp.c:318:87: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "$PACKET/scratch/plants-anchor/review-owed-count-unbounded-shift/src/acmp.c:318:87: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ]
+ },
+ {
+  "plant": "review-release-loop-unbounded-shift",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "$PACKET/scratch/plants-anchor/review-release-loop-unbounded-shift/src/acmp.c:1270:89: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "$PACKET/scratch/plants-anchor/review-release-loop-unbounded-shift/src/acmp.c:1270:89: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+  ]
+ },
+ {
+  "plant": "review-mask-not-cleared",
+  "acmp_tests": "FAIL rc 1",
+  "acmp_tests_summary": [
+   "[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 126 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink"
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 3 tests.",
+   "[  FAILED  ] 2 tests, listed below:"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 1 test.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits"
+  ]
+ },
+ {
+  "plant": "review-mask-clears-one-word",
+  "acmp_tests": "pass",
+  "acmp_tests_summary": [
+   "[  PASSED  ] 127 tests."
+  ],
+  "acmp_wide": "FAIL rc 1",
+  "acmp_wide_summary": [
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)",
+   "[  PASSED  ] 4 tests.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ],
+  "every_sink_33": "FAIL rc 1",
+  "every_sink_33_summary": [
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits (0 ms)",
+   "[  PASSED  ] 1 test.",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] EverySink.ReusedSlotsCarryNoStaleBits"
+  ]
+ }
+]

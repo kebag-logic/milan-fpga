@@ -1,0 +1,34 @@
+== round 1 script: main vs round 1
+riscv64-elf-gcc (Arch Linux Repositories) 16.2.0
+sinks=default -Os main text=10825
+sinks=default -Os head text=10921
+sinks=default -O2 main text=16029
+sinks=default -O2 head text=16141
+sinks=default -O3 main text=19365
+sinks=default -O3 head text=20365
+sinks=33      -Os main text=10817
+sinks=33      -Os head text=10985
+sinks=33      -O2 main text=16049
+sinks=33      -O2 head text=16229
+sinks=33      -O3 main text=18117
+sinks=33      -O3 head text=18813
+== round 1 script: main vs head
+riscv64-elf-gcc (Arch Linux Repositories) 16.2.0
+sinks=default -Os main text=10825
+sinks=default -Os head text=10921
+sinks=default -O2 main text=16029
+sinks=default -O2 head text=16141
+sinks=default -O3 main text=19365
+sinks=default -O3 head text=20365
+sinks=33      -Os main text=10817
+sinks=33      -Os head text=10985
+sinks=33      -O2 main text=16049
+sinks=33      -O2 head text=16229
+sinks=33      -O3 main text=18117
+sinks=33      -O3 head text=18813
+disassembly round 1 vs head sinks=default -Os: identical; text sha256 30bd3846d8d0ed10 vs 30bd3846d8d0ed10
+disassembly round 1 vs head sinks=default -O2: identical; text sha256 f14220d804c59070 vs f14220d804c59070
+disassembly round 1 vs head sinks=default -O3: identical; text sha256 c0292c6c098355c9 vs c0292c6c098355c9
+disassembly round 1 vs head sinks=33 -Os: identical; text sha256 46b2a6b75b82368e vs 46b2a6b75b82368e
+disassembly round 1 vs head sinks=33 -O2: identical; text sha256 70373700943b3119 vs 70373700943b3119
+disassembly round 1 vs head sinks=33 -O3: identical; text sha256 d044336a9767ec94 vs d044336a9767ec94

@@ -1,0 +1,11 @@
+committed at 254 sinks: run rc 0; [  PASSED  ] 1 test. 
+committed at 255 sinks: run rc 0; [  PASSED  ] 1 test. 
+committed at 256 sinks: BUILD rc 1 error: static assertion failed: "the owed probe_of names one plus the index of every sink"
+no-probe-assert at 256 sinks: run rc 1;     Which is: 0     Which is: 256 [  FAILED  ] ProbeOfBound.LastSinksOwedProbeNamesIt (0 ms) 
+conditional selftest on committed: rc 0; capacity control: committed owed storage at 33u sinks compiles with gcc and clang capacity control: committed owed storage at 255u sinks compiles with gcc and clang capacity control: committed owed storage at 256u sinks refused, "the owed probe_of names one plus the index of every sink" with gcc and clang capacity control: one-word owed storage at 32u sinks compiles with gcc and clang capacity control: one-word owed storage at 33u sinks refused, "the owed release mask holds a bit for every sink" with gcc and clang 
+conditional selftest on no-probe-assert: rc 1; capacity control: committed owed storage at 33u sinks compiles with gcc and clang capacity control: committed owed storage at 255u sinks compiles with gcc and clang     raise RuntimeError(f'capacity control {variant} at {sinks} sinks with {cc}: rc ' RuntimeError: capacity control committed at 256u sinks with gcc: rc 0 
+conditional selftest on no-mask-assert: rc 1; capacity control: committed owed storage at 33u sinks compiles with gcc and clang capacity control: committed owed storage at 255u sinks compiles with gcc and clang capacity control: committed owed storage at 256u sinks refused, "the owed probe_of names one plus the index of every sink" with gcc and clang capacity control: one-word owed storage at 32u sinks compiles with gcc and clang     raise RuntimeError(f'capacity control {variant} at {sinks} sinks with {cc}: rc ' RuntimeError: capacity control one-word at 33u sinks with gcc: rc 0 
+gcc gcc (GCC) 16.2.1 20260810 at 255 sinks: rc 0; 
+gcc gcc (GCC) 16.2.1 20260810 at 256 sinks: rc 1; error: static assertion failed: "the owed probe_of names one plus the index of every sink" 
+clang clang version 23.1.4 at 255 sinks: rc 0; 
+clang clang version 23.1.4 at 256 sinks: rc 1; error: static assertion failed due to requirement '256U <= (255)': the owed probe_of names one plus the index of every sink 
