@@ -1,0 +1,165 @@
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event retains the recorded base oid as metadata
+  ok   the recorded payload oid is not the fetched live scope base
+  ok   scope fixture isolates ambient signing
+  ok   scope fixture isolates ambient gitdir
+  ok   scope event stale-base docs rtl.yml: hosted = replay = ['docs/note.md']
+  ok   scope event stale-base docs rtl-fast.yml: hosted = replay = ['docs/note.md']
+  ok   scope event stale-base docs elaborate.yml: hosted = replay = ['docs/note.md']
+  ok   scope event B16 shape rtl.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event B16 shape rtl-fast.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event B16 shape elaborate.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+  ok   scope event stale-base RTL rtl.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event stale-base RTL rtl-fast.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event stale-base RTL elaborate.yml: hosted = replay = ['hdl/pr.sv']
+  ok   scope event submodule pointer rtl.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event submodule pointer rtl-fast.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event submodule pointer elaborate.yml: hosted = replay = ['docs/pointer.md']
+  ok   scope event empty delta rtl.yml: hosted = replay = []
+  ok   scope event empty delta rtl-fast.yml: hosted = replay = []
+  ok   scope event empty delta elaborate.yml: hosted = replay = []
+  ok   scope event REV rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event REV+E elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+  ok   scope event identical-on-dev rtl.yml: hosted = replay = ['docs/note.md']
+  ok   scope event identical-on-dev rtl-fast.yml: hosted = replay = ['docs/note.md']
+  ok   scope event identical-on-dev elaborate.yml: hosted = replay = ['docs/note.md']
+  ok   scope event base-side rename rtl.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+  ok   scope event base-side rename rtl-fast.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+  ok   scope event base-side rename elaborate.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+  ok   classifier selftest accumulates the history result
+  ok   classifier history wiring rejects removed result
+  ok   classifier history wiring rejects discarded result
+  ok   classifier history wiring rejects zeroed result
+  ok   the normal validation path prints the resolved base and enters its Docker boundary
+  ok   the normal validation path leases the selected workflow's act job volumes
+  ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+  ok   a job on ubuntu-24.04 is accepted by the sandbox
+  ok   a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+  ok   a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04
+  ok   a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04
+  ok   an upper-case spelling of an accepted label is refused: only the exact literal is replayed
+  ok   the arm image of an accepted label is refused: only the exact literal is replayed
+  ok   a one-label list of an accepted label is refused: only the exact literal is replayed
+  ok   a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+  ok   a ubuntu-24.04 replay holds its job containers to the 8g memory and swap bound
+  ok   a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+  ok   a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command
+  ok   an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+  ok   slot 0 uses external ranges without staging
+  ok   slot 3 uses external ranges without staging
+  ok   a two-workflow run leases both, and starts the CPU-range monitor, gates, spawns, stops the monitor, cleans containers, then reconciles volumes, once for the shared scheduler in that order
+  ok   the shared CPU-range monitor receives both independent jobs' disjoint ranges
+  ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+  ok   a job volume act left after a workflow refuses the run after removal
+  ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+  ok   a boundary that does not lease the selected workflow refuses before act
+  ok   placement failure refuses after cleanup with scheduler rc 0
+  ok   placement failure refuses after cleanup with scheduler rc 3
+  ok   a slot whose events show a real host cgroup's OOM kill refuses the replay with act rc 0, by count and as invalid evidence, after recording it and the manifest
+  ok   a slot whose events show a real host cgroup's OOM kill refuses the replay with act rc 3, by count and as invalid evidence, after recording it and the manifest
+  ok   a slot with no OOM keeps the replay's PASS and records valid accounting beside the manifest
+  ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+  ok   two workflows sharing two actions produce one clone each, in sorted order
+  ok   the clones in the real sequence carry the run's own credential-free git environment
+  ok   a failing clone refuses the run naming the action, before any boundary or act launch
+  ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+  ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+  ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+  ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+  ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+  ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+  ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+  ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+  ok   the resolve defaults to the real remote lookup and a flushed note
+  ok   a validated run cannot be built on anything but a full commit SHA
+  ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+  ok   and re-checks the base ref it interpolates, for the same reason
+  ok   a well-formed ls-remote reply yields the tip
+  ok   an ls-remote reply naming no ref is refused
+  ok   an ls-remote reply naming another ref is refused
+  ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+  ok   an ls-remote reply carrying the wanted ref twice is refused
+  ok   an ls-remote reply line carrying no ref at all is refused
+  ok   all selects each workflow once in stable order
+  ok   explicit workflow selection de-duplicates
+  ok   all plus another workflow is refused
+  ok   cross-repository candidate is refused
+  ok   non-open pull request is refused
+  ok   non-dev pull request is refused
+  ok   malformed GitHub metadata is refused
+  ok   act command selects the real strict exhaustive workflow
+  ok   candidate checkout is copied from immutable materialization
+  ok   job containers receive no Docker socket or host network
+  ok   artifact and cache servers bind only to the bridge gateway
+  ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+  ok   act starts at most 4 jobs of a stage at once, stated exactly once
+  ok   only an explicitly empty GitHub token reaches candidate jobs
+  ok   every ambient act input is replaced by an explicit empty file
+  ok   artifact uploads receive a real isolated listener port
+  ok   act reads the pre-populated per-head action cache offline, exactly once
+  ok   act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+  ok   every runs-on label the sandbox accepts has a platform entry, and nothing else does
+  ok   one scheduler receives both original workflow byte streams
+  ok   changed private workflow bytes are refused
+  ok   an extra private workflow is refused
+  ok   a missing selected workflow is refused
+  ok   a selected workflow symlink is refused
+  ok   command output cannot forge a scheduler failure
+  ok   an actual setup start records admission before its first step completes
+  ok   the first failed job is retained before interrupting and reaping the execution group
+  ok   booked ranges and named fallback reach creation scheduler
+  ok   no staging affinity or privileged job
+  ok   invalid or missing CPU ranges None
+  ok   invalid or missing CPU ranges ''
+  ok   invalid or missing CPU ranges '0-7'
+  ok   invalid or missing CPU ranges '1-16'
+  ok   invalid or missing CPU ranges '0-15,12-23'
+  ok   invalid or missing CPU ranges '0-15,0-15'
+  ok   invalid or missing CPU ranges '128-143'
+  ok   invalid or missing CPU ranges '00-15'
+  ok   invalid or missing CPU ranges '0-15,'
+  ok   invalid or missing CPU ranges '-1-14'
+  ok   booked ranges accepted: 0-15,16-31,32-47,48-63
+  ok   booked ranges accepted: 0-11,12-23,24-35,36-47
+  ok   booked ranges accepted: 0-15,24-35
+  ok   fallback has one named setting
+  ok   slot number cannot relocate booked CPUs
+  ok   too few booked ranges for concurrent jobs
+  ok   no implicit host CPU allocation
+  ok   unsupported job admission width
+  ok   unsupported job admission width
+  ok   the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+  ok   the default geometry still refuses 6- and 8-CPU ranges by their width
+Traceback (most recent call last):
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 17537, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 17478, in main
+    return selftest_configured(shipping_root)
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 15699, in selftest_configured
+    return selftest(shipping_root)
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 15735, in selftest
+    docker = selftest_run_directory_stages(tally, pr)
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 15514, in selftest_run_directory_stages
+    selftest_job_geometry(tally, docker)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 7907, in selftest_job_geometry
+    parse_cpu_ranges(",".join(ranges)) == ranges and job_cpu_ranges(0, 8) == ranges)
+                                                     ~~~~~~~~~~~~~~^^^^^^
+  File "<packet>/scratch/mutants/copies/M12/act_ci.py", line 4863, in job_cpu_ranges
+    raise Refusal("unsupported concurrent job count: " + str(concurrency))
+Refusal: unsupported concurrent job count: 8

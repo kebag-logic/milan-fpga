@@ -1,0 +1,86 @@
+M1-no-memory-check KILLED rc=1 fail_lines=5 matches_published=True
+    FAIL memory over-subscription is refused: 8 jobs of 8 GiB plus the 4 GiB service share need 68 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 8 jobs of 5 GiB plus the 4 GiB service share need 44 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G
+    FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator
+M2-no-service-share KILLED rc=1 fail_lines=4 matches_published=True
+    FAIL memory over-subscription is refused: 8 jobs of 8 GiB plus the 4 GiB service share need 68 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 8 jobs of 5 GiB plus the 4 GiB service share need 44 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G
+    FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G
+M3-no-cpu-check KILLED rc=1 fail_lines=4 matches_published=True
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (4 GiB each) fits
+    FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 64 one replay may book, though their memory (6 GiB each) fits
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits
+    FAIL 8 jobs at the default 16 CPUs are refused for CPU before any collaborator
+M4-cpu-limit-128 KILLED rc=1 fail_lines=4 matches_published=True
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 128 one replay may book, though their memory (4 GiB each) fits
+    FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 128 one replay may book, though their memory (6 GiB each) fits
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 128 one replay may book, though their memory (1 GiB each) fits
+    FAIL 8 jobs at the default 16 CPUs are refused for CPU before any collaborator
+M5-concurrent-jobs-4 KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+M6-fallback-12 KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+M7-memory-8g KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+M8-select-4-ranges KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL 8 jobs on 6-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected
+    FAIL 8 jobs on 8-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected
+M9-widths-ignore-geometry KILLED rc=1 fail_lines=5 matches_published=True
+    FAIL invalid or missing CPU ranges '0-7'
+    FAIL the default geometry still refuses 6- and 8-CPU ranges by their width
+    FAIL 8 jobs on 6-CPU ranges refuse any other width: 0-15, 0-11, 0-7
+    FAIL 8 jobs on 8-CPU ranges refuse any other width: 0-15, 0-11, 0-5
+    FAIL --cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused
+M10-ranges-before-geometry KILLED rc=1 fail_lines=5 matches_published=True
+    FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator
+    FAIL a ninth job is refused before any collaborator
+    FAIL --cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused
+    FAIL --jobs 8 --job-cpus 6 --job-memory 4 on 8 ranges of 6 reaches its first collaborator with that geometry, which does not outlive the run
+    FAIL --jobs 8 --job-cpus 8 --job-memory 4 on 8 ranges of 8 reaches its first collaborator with that geometry, which does not outlive the run
+M11-max-jobs-16 KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+    FAIL a ninth job is refused before any collaborator
+M12-default-width-8 KILLED rc=1 fail_lines=5 matches_published=True uncaught='Refusal: CPU range 0-15 has unsupported width 16; need 8'
+    FAIL the normal validation path prints the resolved base and enters its Docker boundary
+    FAIL the normal validation path leases the selected workflow's act job volumes
+    FAIL dry-run prints the job bound and the bounded container options as one quoted argv word
+    FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+    FAIL a ubuntu-24.04 replay holds its job containers to the 8g memory and swap bound
+M13-default-memory-4 KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+    FAIL 8 jobs at the default 8 GiB are refused for memory before any collaborator
+M14-no-job-count-bound KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL 8 jobs on 6-CPU ranges: a ninth concurrent job is refused
+    FAIL 8 jobs on 8-CPU ranges: a ninth concurrent job is refused
+M15-no-range-count-check KILLED rc=1 fail_lines=3 matches_published=True
+    FAIL too few booked ranges for concurrent jobs
+    FAIL 8 jobs on 6-CPU ranges: seven booked ranges for 8 concurrent jobs are refused
+    FAIL 8 jobs on 8-CPU ranges: seven booked ranges for 8 concurrent jobs are refused
+M16-no-alignment-check KILLED rc=1 fail_lines=3 matches_published=True
+    FAIL invalid or missing CPU ranges '1-16'
+    FAIL 8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+    FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+M17-memory-minimum-2 KILLED rc=1 fail_lines=2 matches_published=True
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits
+    FAIL a geometry exactly at both bounds is accepted: 8 x 6 and 8 x 8 at 4 GiB, and 4 x 16 at 8 GiB, fill the slot's 36G with its service share; 8 x 8 and 4 x 16 hold 64 CPUs
+M18-memory-bound-inclusive KILLED rc=1 fail_lines=0 matches_published=True uncaught="Refusal: memory over-subscribed: 4 jobs of 8 GiB plus the slot's 4 GiB service share need 36 GiB, over its MemoryMax=36G; 4 jobs fit at most 8 GiB each"
+M19-guard-lets-jobs-through KILLED rc=1 fail_lines=1 matches_published=True
+    FAIL --selftest with --jobs is a usage error
+M20-guard-lets-job-cpus-through KILLED rc=1 fail_lines=1 matches_published=True
+    FAIL --selftest with --job-cpus is a usage error
+M21-guard-lets-job-memory-through KILLED rc=1 fail_lines=1 matches_published=True
+    FAIL --selftest with --job-memory is a usage error
+M22-concurrency-fixed-4 KILLED rc=1 fail_lines=6 matches_published=True
+    FAIL all selected workflows share the 1-job limit in every order
+    FAIL a single small workflow does not invent 1 jobs
+    FAIL all selected workflows share the 2-job limit in every order
+    FAIL all selected workflows share the 3-job limit in every order
+    FAIL an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows share that 8-job limit in every order
+    FAIL under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and rtl-full more than the default 4
+author planted: 22 killed: 22 survived: 0 anchor problems: 0 fail sets equal to published: 22
