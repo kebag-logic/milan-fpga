@@ -23626,7 +23626,8 @@ IDENTITY_SOC_PLANTS = (
      'dp_params["p_CTRL_SPLIT_P"] = 1', 'dp_params["p_CTRL_SPLIT_P"] = 0', True),
     ("a split image with DDR3 left in", "ddr3", "MilanSoC",
      '            if with_dram:\n                raise ValueError("--ctrl-mailbox builds no DDR3',
-     '            with_dram = True\n            if False:\n                raise ValueError("--ctrl-mailbox builds no DDR3',
+     '            with_dram = True\n            if False:\n'
+     '                raise ValueError("--ctrl-mailbox builds no DDR3',
      True),
     ("an all-fabric image with the mailbox", "placement", "MilanSoC",
      "        if ctrl_mailbox:\n            add_ctrl_mailbox(self, platform, sys_clk_freq, "
