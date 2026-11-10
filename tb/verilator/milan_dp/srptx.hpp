@@ -12,7 +12,10 @@
 //     opportunity, and the adapter's answer (0 sent, otherwise refused). The
 //     binary links with --wrap for mrp_transmit, mrp_rx and
 //     mrp_port_configure, so this is the library's own call at its own
-//     boundary, and the adapter is not edited;
+//     boundary, and the adapter is not edited. Each MRPDU also carries what
+//     lwSRP did at the poll that sent it: whether that was the first poll since
+//     its Join timer expired, and the last poll that sent nothing while its
+//     Join timer was stopped (poll());
 //   - lwSRP's timers: every arm of a participant's LeaveAll, periodic, Join
 //     and Leave timer, and each expiry, read from the public cs field around
 //     the real shlan_timer_tick (--wrap shlan_timer_arm, shlan_timer_tick);
@@ -49,6 +52,11 @@
 // names it in every finding of that scenario.
 //
 //   Vmilan_dp_twin_sp --srptx wire|hold|licence <capture.json> [--ms N]
+//                     [--peer-leave-all-ms N]
+//
+// --peer-leave-all-ms moves the licence scenario's peer LeaveAll from
+// kPeerLeaveAllMs, off lwSRP's 100 ms periodic grid: make srptx's off-grid
+// controls, a requested transmit opportunity after an idle Join expiry.
 
 #ifndef SRPTX_HPP
 #define SRPTX_HPP
@@ -165,6 +173,9 @@ struct Lib {
     std::uint32_t record;       // the words the refused record needed
     std::uint32_t retries = 0;  // the same refusal again, at each poll until last_ms
     std::uint32_t last_ms = 0;
+    // what lwSRP did at the transmit poll that handed it over (poll())
+    bool after_join = false;   // the participant's first poll since its Join timer expired
+    double idle_us = -1;       // its Join timer stopped: its last poll since its last transmit that sent nothing
 };
 
 struct Opportunity {
@@ -203,6 +214,9 @@ struct Policer {
 struct Participant {
     std::uint16_t ethertype = 0;
     shlan_timer* la = nullptr;
+    // since lwSRP's last transmit poll of the participant
+    bool join_expired = false;
+    double idle_us = -1;
 };
 
 struct Recorder {
@@ -210,6 +224,7 @@ struct Recorder {
     bool fixture = false;
     std::string scenario;
     std::uint32_t run_ms = 0;
+    std::uint32_t peer_leave_all_ms = kPeerLeaveAllMs;   // the licence scenario's, --peer-leave-all-ms
     std::vector<std::pair<std::uint32_t, std::uint32_t>> holds;
     std::function<std::uint32_t()> ms;
     std::function<double()> us;
@@ -340,7 +355,7 @@ inline std::vector<twin::Stimulus> scenario(const std::string& name) {
         r.fixture = true;
         s.push_back({kReadyMs, "MSRP Listener Ready New for source 0, the peer", listener(r.talker_sid, kNew)});
         s.push_back({kReadyMs + 200, "MSRP Listener Ready JoinIn for source 0, the peer", listener(r.talker_sid, kJoinIn)});
-        s.push_back({kPeerLeaveAllMs, "MSRP LeaveAll, the peer, no re-declaration", msrp_leave_all()});
+        s.push_back({r.peer_leave_all_ms, "MSRP LeaveAll, the peer, no re-declaration", msrp_leave_all()});
         s.push_back({kWithdrawMs, "MSRP Listener Ready Lv for source 0, the peer", listener(r.talker_sid, kLv)});
     }
     std::stable_sort(s.begin(), s.end(), [](const twin::Stimulus& a, const twin::Stimulus& b) { return a.ms < b.ms; });
@@ -389,9 +404,10 @@ inline bool write(const char* path, const std::vector<twin::Capture::Applied>& a
     for (std::size_t k = 0; k < r.lib.size(); ++k) {
         const Lib& l = r.lib[k];
         std::fprintf(fh, "%s\n  {\"ms\": %u, \"us\": %.4f, \"proto\": \"%s\", \"opportunity\": %u, \"rc\": %d, "
-                     "\"ring_used\": %u, \"record\": %u, \"retries\": %u, \"last_ms\": %u, \"hex\": \"%s\"}", k ? "," : "",
+                     "\"ring_used\": %u, \"record\": %u, \"retries\": %u, \"last_ms\": %u, \"after_join\": %s, "
+                     "\"idle_us\": %.4f, \"hex\": \"%s\"}", k ? "," : "",
                      l.ms, l.us, proto(l.ethertype), l.opportunity, l.rc, l.ring_used, l.record, l.retries, l.last_ms,
-                     twin::hex(l.pdu).c_str());
+                     l.after_join ? "true" : "false", l.idle_us, twin::hex(l.pdu).c_str());
     }
     std::fprintf(fh, "],\n \"opportunities\": [");
     for (std::size_t k = 0; k < r.opps.size(); ++k)
@@ -481,6 +497,33 @@ inline void timer_event(shlan_timer* t, const char* event, std::uint32_t cs) {
                               reinterpret_cast<std::uintptr_t>(t)});
 }
 
+//! The participant whose Join timer t is (the arm wrapper's layout), or none.
+inline Participant* join_owner(shlan_timer* t) {
+    for (auto& e : rec().apps)
+        if (e.second.la != nullptr && t == e.second.la + 2) return &e.second;
+    return nullptr;
+}
+
+//! What lwSRP did at one transmit poll, read at its boundary (#867). Each
+//! transmit arms the Join timer and sets join_wait, which holds every later
+//! transmit; the timer's expiry only clears join_wait (lwSRP mrp_mad.c,
+//! on_join_timer, mrp_transmit). So the first poll after a Join expiry sends
+//! the transmit that timer held, or finds nothing to send. A poll that sends
+//! nothing while the Join timer is stopped holds no request, so a later
+//! transmit answers one made since. join_stopped is read before the poll, whose
+//! transmit re-arms the timer. Each MRPDU the poll handed the adapter, from
+//! lib[first], is marked with what lwSRP did.
+inline void poll(Participant& p, int result, std::size_t first, bool join_stopped) {
+    Recorder& r = rec();
+    for (std::size_t k = first; k < r.lib.size(); ++k) {
+        r.lib[k].after_join = p.join_expired;
+        r.lib[k].idle_us = p.join_expired || !join_stopped ? -1.0 : p.idle_us;
+    }
+    p.join_expired = false;
+    if (result == 0 && join_stopped) p.idle_us = r.us();
+    if (result > 0) p.idle_us = -1.0;
+}
+
 }  // namespace srptx
 
 extern "C" int __wrap_mrp_transmit(struct mrp_app* app, uint8_t port_id, uint8_t* pdu, size_t capacity,
@@ -490,8 +533,13 @@ extern "C" int __wrap_mrp_transmit(struct mrp_app* app, uint8_t port_id, uint8_t
     const mrp_app* saved = r.ctx;
     r.ctx = app;
     srptx::Trampoline t{send, ctx, app};
+    const auto found = r.apps.find(app);
+    srptx::Participant* p = found != r.apps.end() && found->second.la != nullptr ? &found->second : nullptr;
+    const bool join_stopped = p != nullptr && (p->la + 2)->cs == 0;
+    const std::size_t first = r.lib.size();
     const int result = __real_mrp_transmit(app, port_id, pdu, capacity, &srptx::trampoline, &t);
     r.ctx = saved;
+    if (p != nullptr) srptx::poll(*p, result, first, join_stopped);
     if (t.accepted) r.opps.push_back({r.ms(), srptx::ethertype_of(app), t.sends, t.accepted});
     ++r.opportunity;
     return result;
@@ -558,7 +606,11 @@ extern "C" void __wrap_shlan_timer_tick(void) {
     for (const auto& e : r.timers)
         if (e.first->cs == 1) due.push_back(e.first);
     __real_shlan_timer_tick();
-    for (shlan_timer* t : due) srptx::timer_event(t, "expire", 0);
+    for (shlan_timer* t : due) {
+        srptx::timer_event(t, "expire", 0);
+        srptx::Participant* p = srptx::join_owner(t);
+        if (p != nullptr) p->join_expired = true;
+    }
 }
 
 //! The licence scenario's fixture (the header's note): source 0 allocated at

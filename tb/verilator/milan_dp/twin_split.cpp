@@ -33,6 +33,7 @@
 // With --srptx SCENARIO it runs the split build's SRP transmit path instead
 // (#867, srptx.hpp) and writes what srptx_grade.py grades:
 //   Vmilan_dp_twin_sp --srptx wire|hold|licence <capture.json> [--ms N]
+//                     [--peer-leave-all-ms N]   (licence only)
 
 #include <cstdint>
 #include <cstdio>
@@ -466,6 +467,11 @@ int srptx_main(const std::string& name, const char* path, std::uint32_t run_ms) 
         std::fprintf(stderr, "FAIL --srptx takes wire, hold or licence, not %s\n", name.c_str());
         return 2;
     }
+    if (name != "licence" && srptx::rec().peer_leave_all_ms != srptx::kPeerLeaveAllMs) {
+        std::fprintf(stderr, "FAIL --peer-leave-all-ms moves the licence scenario's peer LeaveAll, not %s's\n",
+                     name.c_str());
+        return 2;
+    }
     auto ctx = std::make_unique<VerilatedContext>();
     const auto dut = std::make_unique<Vtb_split_top>(ctx.get());
     SplitHalf half(dut.get());
@@ -501,9 +507,25 @@ int srptx_main(const std::string& name, const char* path, std::uint32_t run_ms) 
     return half.host_timeouts() == 0 && r.layout_error.empty() ? 0 : 1;
 }
 
+//! --srptx SCENARIO CAPTURE, then each option with its value: --ms N, --peer-leave-all-ms N.
+bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
+    if (argc < 4 || argc % 2 != 0 || std::strcmp(argv[1], "--srptx") != 0) return false;
+    for (int k = 4; k < argc; k += 2) {
+        const bool ms = std::strcmp(argv[k], "--ms") == 0;
+        if (!ms && std::strcmp(argv[k], "--peer-leave-all-ms") != 0) return false;
+        const auto value = static_cast<std::uint32_t>(std::stoul(argv[k + 1]));
+        if (ms) {
+            *run_ms = value;
+        } else {
+            srptx::rec().peer_leave_all_ms = value;
+        }
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    if ((argc == 4 || (argc == 6 && std::strcmp(argv[4], "--ms") == 0)) && std::strcmp(argv[1], "--srptx") == 0)
-        return srptx_main(argv[2], argv[3], argc == 6 ? static_cast<std::uint32_t>(std::stoul(argv[5])) : 0u);
+    std::uint32_t run_ms = 0;
+    if (srptx_args(argc, argv, &run_ms)) return srptx_main(argv[2], argv[3], run_ms);
     const std::string planted = argc == 4 && std::strcmp(argv[2], "--plant") == 0 ? argv[3] : "";
     if (argc != 2 && planted.empty()) {
         std::fprintf(stderr, "usage: %s <capture.json> [--plant NAME]\n", argv[0]);

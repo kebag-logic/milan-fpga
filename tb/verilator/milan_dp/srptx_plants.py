@@ -6,8 +6,9 @@
 Each plant changes a copy of one scenario's capture as the defect it names would have changed it, and
 srptx_grade.py --plant must find WORDS[name] in a finding of the planted copy. The unplanted captures have
 no finding (make srptx). Each WITHIN control moves a transmit opportunity to 1 ms inside a bound #867 item 3
-allows, beside the plant 1 ms past it, and its copy must grade with no finding. srptx_mutants.py plants the
-defects in the code itself.
+allows, beside the plant 1 ms past it, and its copy must grade with no finding. Each OFF_GRID capture, make
+srptx's licence scenario with the peer's LeaveAll off lwSRP's periodic grid, must grade clean and hold the case
+it controls. srptx_mutants.py plants the defects in the code itself.
 
   srptx_grade.py CAPTURE --make-plant NAME --out PLANTED
   srptx_grade.py PLANTED --plant NAME
@@ -64,6 +65,11 @@ PLANTS = {
                            "the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed",
                            f"a Join timer's transmit opportunity at ms 15021, {JOIN_BOUNDS_MS[1] + 1:.3f} "
                            + JOIN_WORDS),
+    "requested-late": ("wire", f"the adapter's last poll of lwSRP before the MSRP frame at ms 1000, which lwSRP sent "
+                       f"with its Join timer stopped, {FOLLOW_MS + 1} ms before it: lwSRP left unpolled 1 ms past "
+                       "JoinTime + T_svc",
+                       f"a requested transmit opportunity at ms 1000, {FOLLOW_MS + 1:.3f} ms after lwSRP last had "
+                       f"nothing to send, past JoinTime + T_svc ({FOLLOW_MS} ms"),
     "rate": ("wire", "the first MSRP frame sent again 1 and 2 ms after itself",
              "four transmit opportunities in"),
     "leave-all-missing": ("wire", "the first MSRP LeaveAll frame sent without its LeaveAll",
@@ -101,7 +107,14 @@ WITHIN = {
                                 "after the first"),
     "join-interval-late-within": ("wire", f"join-interval-late's move, the second frame {JOIN_BOUNDS_MS[1] - 1} ms "
                                   "after the one before"),
+    "requested-within": ("wire", f"requested-late's move, the last poll {FOLLOW_MS - 1} ms before the frame"),
 }
+#: name -> the ms its requested-opportunity plant or control puts the adapter's last poll before the frame
+REQUESTED = {"requested-late": FOLLOW_MS + 1, "requested-within": FOLLOW_MS - 1}
+#: make srptx's off-grid controls (#867): the licence scenario with the peer's MSRP LeaveAll at these ms, off
+#: lwSRP's 100 ms periodic grid. lwSRP answers it after a Join expiry that found nothing to send, at once: a
+#: requested transmit opportunity, graded clean, which a time window would take for the Join timer's
+OFF_GRID = (16280, 16240)
 #: each timing plant and control: (the MSRP frame its move is measured from: the first, or the first after the
 #: first LeaveAll frame; how many frames after it move; the ms the first of them then leaves after it; whether
 #: the Join timer that sent each moves with it, as a timer of another length, or its egress alone, as a late one)
@@ -178,6 +191,37 @@ def plant_timing(name: str, msrp: list[dict], doc: dict) -> None:
     move(doc, msrp[k + 1:k + 1 + count], msrp[k]["us"] + ms * 1000.0 - msrp[k + 1]["us"], timer)
 
 
+def plant_requested(name: str, doc: dict) -> None:
+    """A REQUESTED plant or control: the record of the first MSRP frame lwSRP sent with its Join timer stopped and
+    no Join expiry in the ms named before it, its last poll that sent nothing moved to that many ms before the
+    frame, as if the adapter left lwSRP unpolled since. lwSRP's state allows it: no transmit, no Join timer."""
+    ms = REQUESTED[name]
+    mrpdus = [m for m in doc["mac"] if m["hex"][24:28] in ("22ea", "88f5")]
+    records = [r for r in doc["lib"] if r["rc"] == 0]
+    joins = [t["us"] for t in doc["timers"] if t["proto"] == "MSRP" and t["kind"] == "join" and t["event"] == "expire"]
+    record, frame = next((r, m) for m, r in zip(mrpdus, records) if m["hex"][24:28] == "22ea" and r["idle_us"] >= 0
+                         and max((u for u in joins if u <= m["us"]), default=0.0) < m["us"] - (ms + 1) * 1000.0)
+    record["idle_us"] = frame["us"] - ms * 1000.0
+
+
+def off_grid(cap: g.Capture, ms: int) -> tuple[g.Mrpdu, float, float] | None:
+    """The off-grid control's case: the first MSRP frame after the peer's LeaveAll at ms, sent at a poll after its
+    Join timer expired with nothing to send between the frame before and that LeaveAll: a requested transmit
+    opportunity, not the Join timer's. With its interval in ms from the frame before, and that idle Join expiry's
+    ms; None if the capture does not hold it."""
+    frames = [f for f in cap.mrpdus if f.proto == "MSRP" and not f.error and not cap.queued(f)]
+    joins = [t["us"] for t in cap.doc["timers"] if t["proto"] == "MSRP" and t["kind"] == "join"
+             and t["event"] == "expire"]
+    k = next((k for k, f in enumerate(frames) if f.us >= ms * 1000.0), 0)
+    if k == 0:
+        return None
+    before, answer = frames[k - 1], frames[k]
+    idle = [u for u in joins if before.us < u < ms * 1000.0]
+    if answer.after_join or answer.leave_all_types() or answer.idle_us is None or not idle:
+        return None
+    return answer, (answer.us - before.us) / 1000, idle[-1] / 1000
+
+
 def first_queued(doc: dict) -> int:
     """The index in doc["mac"] of the first MRPDU that left at or after the hold's end."""
     end = doc["holds"][0][1]
@@ -194,6 +238,8 @@ def plant(name: str, doc: dict) -> None:
     header, messages = parse(first)
     if name in TIMING:
         plant_timing(name, msrp, doc)
+    elif name in REQUESTED:
+        plant_requested(name, doc)
     elif name == "malformed-endmark":
         data = bytearray(bytes.fromhex(first["hex"]))
         end = 14 + 5 + int.from_bytes(data[17:19], "big")
@@ -282,7 +328,8 @@ def planted_findings(out: Path, docs: dict, name: str, scenario: str) -> list[st
 
 def main() -> int:
     """Every plant against the unplanted captures in one directory: each must be refused by its words, which no
-    finding of its unplanted capture holds; and every control must grade clean."""
+    finding of its unplanted capture holds; every control must grade clean; and each off-grid control must grade
+    clean and hold its case."""
     if len(sys.argv) != 2:
         print("usage: srptx_plants.py DIR", file=sys.stderr)
         return 2
@@ -305,9 +352,23 @@ def main() -> int:
             refused += 1
         else:
             print(f"ok   {name} ({what}): no finding")
+    hollow = 0
+    for ms in OFF_GRID:
+        cap = g.load(out / f"licence-{ms}.json")
+        found, case = g.grade(cap)[0], off_grid(cap, ms)
+        if found or case is None or g.applied_ms(cap, "MSRP LeaveAll, the peer, no re-declaration") != ms:
+            print(f"FAIL licence-{ms}: the peer's LeaveAll at ms {ms}, wanted clean with a requested transmit "
+                  f"opportunity after an idle Join expiry: {found[:1] or 'none held'}")
+            hollow += 1
+        else:
+            f, gap, idle = case
+            print(f"ok   licence-{ms} (the peer's LeaveAll at ms {ms}): no finding; lwSRP's requested transmit "
+                  f"opportunity at ms {f.us / 1000:.3f}, {gap:.3f} ms after the frame before, followed its Join "
+                  f"expiry at ms {idle:.3f}, which found nothing to send")
     print(f"srptx plants: {len(PLANTS) - escaped} of {len(PLANTS)} refused; {len(WITHIN) - refused} of {len(WITHIN)} "
-          "controls inside their bound clean")
-    return 1 if escaped or refused else 0
+          f"controls inside their bound clean; {len(OFF_GRID) - hollow} of {len(OFF_GRID)} off-grid controls clean "
+          "with their requested transmit opportunity")
+    return 1 if escaped or refused or hollow else 0
 
 
 if __name__ == "__main__":

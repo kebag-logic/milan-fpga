@@ -17,9 +17,13 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
           802.1AC-2016 11.1).
   [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, 10.7.11, Table 10-7,
           Milan v1.2 Table 4.3's values), each bound widened by the approved service allowance T_svc = 20 ms
-          (#867 item 3; #665, the owner's ruling of 2026-11-06): no four in 1.5 x JoinTime; each a Join
-          timer sends within JoinTime's range (180 to 240 ms) of the one before, on each side (10.7.4.1);
-          after a New, or a declaration's first message, the attribute's next message within JoinTime; each
+          (#867 item 3; #665, the owner's ruling of 2026-11-06): no four in 1.5 x JoinTime less T_svc; each
+          transmit opportunity a Join timer sends within JoinTime's range (180 to 240 ms) of the one before,
+          widened by T_svc on each side (160 to 260 ms; 10.7.4.1, 10.7.11), a Join timer's being what lwSRP
+          sent at its first transmit poll after that timer expired (srptx.hpp, poll()); each requested one,
+          sent while its Join timer was stopped, within JoinTime of the last poll at which lwSRP had nothing
+          to send (docs/reference/FR_NFR.md 3.4.1; Milan v1.2 4.2.7.1.1); after a New, or a declaration's
+          first message, the attribute's next message within JoinTime; each
           LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of the last, or of a received one
           (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime) added, and none missing at the
           run's end.
@@ -90,7 +94,8 @@ APPLICATIONS = {
 MSRP_NAMES = {1: "Talker Advertise", 2: "Talker Failed", 3: "Listener", 4: "Domain"}
 EVENTS = ("New", "JoinIn", "In", "JoinMt", "Mt", "Lv")
 DECLARING = {"New", "JoinIn", "JoinMt"}
-#: how long after a timer's expiry its frame may leave and still be that timer's (the measurement only)
+#: how long after a periodic or LeaveAll timer's expiry its frame may leave and still be that timer's, which
+#: serves the measurement only; a Join timer's frame is the one lwSRP sent at its first poll after the expiry
 ATTRIBUTE_MS = 100
 FIXTURE = " (the licence scenario's fixture: source 0 allocated at SRP creation)"
 
@@ -128,6 +133,10 @@ class Mrpdu:
     messages: list[Message] = field(default_factory=list)
     error: str = ""
     accepted_ms: int | None = None   # when the adapter accepted it from lwSRP, matched in order
+    # what the bench saw lwSRP do at the poll that sent it, from the matched record (srptx.hpp, poll()): the
+    # first poll after its Join timer expired, and, its Join timer stopped, the last poll that sent nothing
+    after_join: bool = False
+    idle_us: float | None = None
 
     def values(self) -> list[tuple[int, str, str]]:
         """Every (AttributeType, value, event) the MRPDU carries, FirstValue + k expanded (10.8.2.8)."""
@@ -252,6 +261,8 @@ def load(path: Path) -> Capture:
     for f, a in zip(mrpdus, accepted):
         if f.frame[14:14 + len(a["hex"]) // 2].hex() == a["hex"]:
             f.accepted_ms = a["ms"]
+            f.after_join = a["after_join"]
+            f.idle_us = a["idle_us"] if a["idle_us"] >= 0 else None
     return Capture(path, doc, mrpdus)
 
 
@@ -328,12 +339,24 @@ def grade_time(cap: Capture) -> list[str]:
                 found.append(f"[TIME] {proto}: four transmit opportunities in {(b.us - a.us) / 1000:.3f} ms from ms "
                              f"{a.ms}, inside 1.5 x JoinTime less T_svc ({RATE_WINDOW_MS} ms; IEEE 802.1Q-2018 "
                              "10.7.4.1)")
-        # each a Join timer sent, after the one before it (10.7.4.1: jointimer spaces transmit opportunities)
-        for f, gap in join_intervals(cap, frames, causes(cap, proto, frames)):
+        # each transmit opportunity a Join timer sent, against the one before it (10.7.4.1: jointimer spaces
+        # transmit opportunities)
+        for f, gap in join_intervals(cap, frames):
             if not join_low <= gap / 1000 <= join_high:
                 found.append(f"[TIME] {proto}: a Join timer's transmit opportunity at ms {f.ms}, {gap / 1000:.3f} ms "
                              f"after the one before, outside JoinTime's range widened by T_svc ({join_low} to "
                              f"{join_high} ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)")
+        # each requested transmit opportunity, sent while its Join timer was stopped: lwSRP had nothing to send
+        # at its last poll before, so the request came after it, and the frame leaves within JoinTime of it
+        # (docs/reference/FR_NFR.md 3.4.1, Milan v1.2 4.2.7.1.1: a point-to-point requested transmit
+        # opportunity occurs within JoinTime)
+        for f in frames:
+            if f.idle_us is not None and not cap.held(f.idle_us / 1000, f.ms) \
+                    and (f.us - f.idle_us) / 1000 > JOIN_FOLLOW_MS:
+                found.append(f"[TIME] {proto}: a requested transmit opportunity at ms {f.ms}, "
+                             f"{(f.us - f.idle_us) / 1000:.3f} ms after lwSRP last had nothing to send, past "
+                             f"JoinTime + T_svc ({JOIN_FOLLOW_MS} ms; IEEE 802.1Q-2018 10.7.4.1; Milan v1.2 "
+                             "4.2.7.1.1: a point-to-point requested transmit opportunity occurs within JoinTime)")
         received = cap.received(proto)
         # after a New, or a declaration's first message, the next message of the attribute (Table 10-3:
         # VN, AN, AA and VP each send again at the next transmit opportunity)
@@ -383,25 +406,26 @@ def stats(values: list[float]) -> dict:
 
 
 def causes(cap: Capture, proto: str, frames: list[Mrpdu]) -> list[tuple[str, dict] | None]:
-    """Each frame's timer and its expiry: a LeaveAll frame's LeaveAll expiry, any other's latest Join or periodic
-    expiry, each within ATTRIBUTE_MS before the frame, or None."""
+    """Each frame's timer and its expiry, or None. A LeaveAll frame's is its LeaveAll expiry within ATTRIBUTE_MS
+    before it. Any other frame lwSRP sent at its first transmit poll after its Join timer expired (after_join)
+    is that timer's, the transmit join_wait held, at the latest Join expiry before it: what lwSRP did decides
+    it, not a time window. Any other frame's is its latest periodic expiry within ATTRIBUTE_MS before it."""
     expiries = [t for t in cap.doc["timers"] if t["proto"] == proto and t["event"] == "expire"
                 and t["kind"] in ("join", "periodic", "leaveall")]
     cause: list[tuple[str, dict] | None] = []
     for f in frames:
-        kinds = ("leaveall",) if f.leave_all_types() else ("join", "periodic")
-        before = [t for t in expiries if t["kind"] in kinds and t["us"] <= f.us
-                  and f.us - t["us"] < ATTRIBUTE_MS * 1000]
-        cause.append(("leaveall" if f.leave_all_types() else max(before, key=lambda t: t["us"])["kind"],
-                      max(before, key=lambda t: t["us"])) if before else None)
+        kind = "leaveall" if f.leave_all_types() else "join" if f.after_join else "periodic"
+        before = [t for t in expiries if t["kind"] == kind and t["us"] <= f.us
+                  and (kind == "join" or f.us - t["us"] < ATTRIBUTE_MS * 1000)]
+        cause.append((kind, max(before, key=lambda t: t["us"])) if before else None)
     return cause
 
 
-def join_intervals(cap: Capture, frames: list[Mrpdu], cause: list) -> list[tuple[Mrpdu, float]]:
-    """Each frame a Join timer's expiry sent, with its egress interval in us from the frame before it, where no
-    hold lies between."""
+def join_intervals(cap: Capture, frames: list[Mrpdu]) -> list[tuple[Mrpdu, float]]:
+    """Each frame lwSRP sent at its first transmit poll after its Join timer expired, a LeaveAll frame too, with
+    its egress interval in us from the frame before it, where no hold lies between."""
     return [(frames[k], frames[k].us - frames[k - 1].us) for k in range(1, len(frames))
-            if cause[k] and cause[k][0] == "join" and not cap.held(frames[k - 1].ms, frames[k].ms)]
+            if frames[k].after_join and not cap.held(frames[k - 1].ms, frames[k].ms)]
 
 
 def measure_time(cap: Capture) -> dict:
@@ -417,7 +441,7 @@ def measure_time(cap: Capture) -> dict:
         for f, c in zip(frames, cause):
             if c and not cap.held(c[1]["ms"], f.ms):
                 after[c[0]].append(f.us - c[1]["ms"] * 1000.0)
-        interval["join"] = [gap - JOIN_MS * 1000 for _, gap in join_intervals(cap, frames, cause)]
+        interval["join"] = [gap - JOIN_MS * 1000 for _, gap in join_intervals(cap, frames)]
         for k in range(1, len(frames)):
             c, p = cause[k], cause[k - 1]
             if c is None or cap.held(frames[k - 1].ms, frames[k].ms):

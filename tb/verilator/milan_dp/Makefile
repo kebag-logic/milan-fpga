@@ -39,8 +39,8 @@
 #                 protocol (twin_compare.py); exit 1 on any difference
 #   make twin-plants - its twenty plants, each refused by its own words
 #   make srptx  - #867: the split build's SRP transmit path at the wire, three
-#                 scenarios graded by srptx_grade.py; srptx-plants and
-#                 srptx-mutants plant each check's defect
+#                 scenarios and two off-grid controls graded by srptx_grade.py;
+#                 srptx-plants and srptx-mutants plant each check's defect
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -995,16 +995,28 @@ twin-plants: build-twin
 # hold (the MAC refusing every beat until the SRP ring is full) and licence (the
 # #608 case, under the fixture srptx.hpp names). srptx-plants plants each check's
 # defect into a copy of a capture; srptx-mutants plants it in the code.
+# The off-grid controls run the licence scenario with the peer's LeaveAll at each
+# ms of SRPTX_OFF_GRID, off lwSRP's 100 ms periodic grid. lwSRP answers it after a
+# Join expiry that found nothing to send: a requested transmit opportunity, not
+# the Join timer's, and each must grade clean.
 SRPTX_OUT ?= obj_srptx
 SRPTX_SCENARIOS = wire hold licence
-.PHONY: srptx srptx-plants srptx-mutants $(addprefix exec-srptx-,$(SRPTX_SCENARIOS))
+SRPTX_OFF_GRID = 16280 16240
+.PHONY: srptx srptx-plants srptx-mutants $(addprefix exec-srptx-,$(SRPTX_SCENARIOS)) \
+	$(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID))
 srptx: build-twin-sp
-	$(MAKE) --no-print-directory $(addprefix exec-srptx-,$(SRPTX_SCENARIOS))
+	$(MAKE) --no-print-directory $(addprefix exec-srptx-,$(SRPTX_SCENARIOS)) \
+	  $(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID))
 
 $(addprefix exec-srptx-,$(SRPTX_SCENARIOS)): exec-srptx-%:
 	@mkdir -p $(SRPTX_OUT)
 	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --srptx $* $(SRPTX_OUT)/$*.json
 	python3 -B srptx_grade.py $(SRPTX_OUT)/$*.json --report $(SRPTX_OUT)/$*-report.json
+
+$(addprefix exec-srptx-off-grid-,$(SRPTX_OFF_GRID)): exec-srptx-off-grid-%:
+	@mkdir -p $(SRPTX_OUT)
+	./$(TWIN_SP_MDIR)/Vmilan_dp_twin_sp --srptx licence $(SRPTX_OUT)/licence-$*.json --peer-leave-all-ms $*
+	python3 -B srptx_grade.py $(SRPTX_OUT)/licence-$*.json --report $(SRPTX_OUT)/licence-$*-report.json
 
 srptx-plants: srptx
 	python3 -B srptx_plants.py $(SRPTX_OUT)
