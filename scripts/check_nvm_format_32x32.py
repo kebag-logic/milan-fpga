@@ -63,7 +63,7 @@ LINE_CITE_RE = re.compile(rf"{_CITED_FILE}:{_LINES}"
 LINE_CITE_PLANTS = (
     ("`sw/litex/milan_soc.py:179`", "sw/litex/milan_soc.py:179"),
     ("`sw/litex/milan_soc.py:179-181`", "sw/litex/milan_soc.py:179-181"),
-    ("`sw/firmware/ctrl_nvm/nvm_store.c:408,465`", "sw/firmware/ctrl_nvm/nvm_store.c:408,465"),
+    ("`scripts/nvm_klj3.py:408,465`", "scripts/nvm_klj3.py:408,465"),
     ("sw/litex/milan_soc.py:179", "sw/litex/milan_soc.py:179"),
     ("`sw/litex/milan_soc.py` line 179", "`sw/litex/milan_soc.py` line 179"),
     ("[the map](../../sw/litex/milan_soc.py#L179)", "../../sw/litex/milan_soc.py#L179"),
