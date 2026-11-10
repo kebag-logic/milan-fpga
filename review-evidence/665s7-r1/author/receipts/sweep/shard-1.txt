@@ -1,0 +1,26 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: bash scripts/run_all_suites.sh <scratch>/sweep/shard-1/logs --wait --shard 1/4
+full log: 598 bytes, sha256 31068cddf6ba87ebef087aa4cd15266729875667800eddb00d9a77d04fb3131b
+---
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 1526104   in-suite failures: 0
+logs: <scratch>/sweep/shard-1/logs

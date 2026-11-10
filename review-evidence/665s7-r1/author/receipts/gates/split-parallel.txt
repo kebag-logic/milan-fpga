@@ -1,0 +1,10 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: python3 tb/verilator/milan_dp/split_parallel.py --selftest
+full log: 438 bytes, sha256 aff4ca8d2bfa971f68857eb130854f4ee3d272bf5f14b34bae7006a46d1f6dc9
+---
+split_parallel: selftest, the race's rule planted at 5fb6904ffe12effc4bde6bf5313faea7a3beebdc: make -j8 split rc 2, as expected (fails with "Vmilan_dp_split: No such file or directory")
+  make: ./obj_split/Vmilan_dp_split: No such file or directory
+split_parallel: make -j8 split from a clean tree at 5fb6904ffe12effc4bde6bf5313faea7a3beebdc: make -j8 split rc 0, as expected (passes)
+  checks: 82   failures: 0
+split_parallel: PASS
+rc=0

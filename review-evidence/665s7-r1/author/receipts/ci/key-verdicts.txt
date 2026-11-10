@@ -1,0 +1,86 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+the verdict lines of the replay's main steps, one block per job (the full step table: ci-replay-table.md)
+--- rtl-fast__bdd-conformance
+  ci_step_5.log: 14 features passed, 0 failed, 0 skipped
+  ci_step_5.log: 508 scenarios passed, 0 failed, 0 skipped
+  ci_step_5.log: 2330 steps passed, 0 failed, 0 skipped
+--- rtl-fast__firmware-aecp-mutants
+  ci_step_8.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_8.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_8.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-aecp-mutants/tmp/rv32-installer-test-2xoq_cjn/installed/bin/riscv32-linux-gcc", "--version"]
+  ci_step_9.log: [ok] face-owed-interface-counted-applied: Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+  ci_step_9.log: [ok] face-publish-writes-a-held-block: Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+  ci_step_9.log: test_ctrl_firmware: PASS
+--- rtl-fast__firmware-boundary
+  ci_step_8.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_8.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_8.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-boundary/tmp/rv32-installer-test-evql75ud/installed/bin/riscv32-linux-gcc", "--version"]
+  ci_step_9.log: boundary control os-symbol: compiles; refused
+  ci_step_9.log: boundary: compiler dependencies and object symbols pass
+  ci_step_9.log: ctrl_boundary: PASS
+--- rtl-fast__firmware-control-mutants
+  ci_step_8.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_8.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_8.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-control-mutants/tmp/rv32-installer-test-fdpcyr3x/installed/bin/riscv32-linux-gcc", "--version"]
+  ci_step_9.log: first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+  ci_step_9.log: mutants: 570 of 570 caught
+  ci_step_9.log: test_ctrl_firmware: PASS
+--- rtl-fast__firmware-srp-mutants
+  ci_step_8.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_8.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_8.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-srp-mutants/tmp/rv32-installer-test-5talaaap/installed/bin/riscv32-linux-gcc", "--version"]
+  ci_step_9.log: [ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+  ci_step_9.log: [ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+  ci_step_9.log: test_ctrl_firmware: PASS
+--- rtl-fast__firmware-unit
+  ci_step_10.log: == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+  ci_step_10.log: RESULT: PASS
+  ci_step_10.log: test_ctrl_firmware: PASS
+  ci_step_11.log: RESULT: PASS
+  ci_step_11.log: verdict: PASS (2 tests, 0 failures, exit 0)
+  ci_step_11.log: saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests
+  ci_step_12.log: verdict: PASS (2 tests, 0 failures, exit 0)
+  ci_step_12.log: saved-state store coverage run: PASS
+  ci_step_12.log: firmware coverage: PASS (35 files)
+  ci_step_7.log: [ok] a failure in a suite's tear-down: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+  ci_step_7.log: [ok] a failure in the global environment: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+  ci_step_7.log: [ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+  ci_step_9.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_9.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_9.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-unit/tmp/rv32-installer-test-16ymsyn9/installed/bin/riscv32-linux-gcc", "--version"]
+--- rtl-fast__firmware-verilator
+  ci_step_13.log: JSON of the wrong type cannot pass as provenance. ... ok
+  ci_step_13.log: A FIFO planted in the cache is refused before any tool runs. ... ok
+  ci_step_13.log: Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/ci/5fb6904ffe12/jobs/rtl-fast__firmware-verilator/tmp/rv32-installer-test-yju6ens8/installed/bin/riscv32-linux-gcc", "--version"]
+  ci_step_14.log: boundary control os-symbol: compiles; refused
+  ci_step_14.log: boundary: compiler dependencies and object symbols pass
+  ci_step_14.log: ctrl_boundary: PASS
+--- rtl-fast__publication-census
+  ci_step_12.log: [ok] planted an entry past the shape's own read: refused (split port i_ctl_pub_da_gate bit 1 is read, past the shape's 1 source(s))
+  ci_step_12.log: [ok] planted a ctl port no row names: refused (unmapped split port: i_ctl_probe (input) is in no class; name what it carries and stands for)
+  ci_step_12.log: selftest: 0 of 163 arm(s) failed; 163 arm(s) and their rules' removals in 857 s at --jobs 8
+--- rtl-fast__split-cdc
+  ci_step_10.log: checks: 13   failures: 0
+--- rtl-fast__verilator-lint
+  ci_step_7.log: hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  ci_step_7.log: hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  ci_step_7.log: LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+  ci_step_8.log: prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  ci_step_8.log: prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  ci_step_8.log: prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+--- rtl__union-milan_dp
+  ci_step_4.log: milan_dp: 25 cases exactly once; original tally passed
+--- rtl__union-milan_dp_mclk
+  ci_step_4.log: milan_dp_mclk: 34 cases exactly once; original tally passed
+--- rtl__union-milan_dp_render
+  ci_step_4.log: milan_dp_render: 3 cases exactly once; original tally passed
+--- rtl__verilator-suites
+  ci_step_6.log: checks: 2192913   in-suite failures: 0
+  ci_step_7.log: # head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc rtl/verilator-suites/ci_step_7: Require every Verilator worker to pass
+  ci_step_7.log: verilator-suites: every worker succeeded at 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+--- rtl__yosys-portability
+  ci_step_3.log: ok   yosys-results-1  5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+  ci_step_3.log: ok   yosys-results-2  5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+  ci_step_3.log: ok   yosys-results-3  5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+  ci_step_4.log: # head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc rtl/yosys-portability/ci_step_4: Reconcile the live inventory and structural gates
+  ci_step_5.log: # head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc rtl/yosys-portability/ci_step_5: Require every Yosys worker to pass

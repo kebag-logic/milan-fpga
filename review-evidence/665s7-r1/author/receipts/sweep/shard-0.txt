@@ -1,0 +1,24 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: bash scripts/run_all_suites.sh <scratch>/sweep/shard-0/logs --wait --shard 0/4
+full log: 495 bytes, sha256 8df6ae566a97192d98c0ff32a7b004561b26dfd9d43ab9e89ca731795ff3da5c
+---
+shard: 0/4   selected suites: 15
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+PASS     milan_dp
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 361003   in-suite failures: 0
+logs: <scratch>/sweep/shard-0/logs

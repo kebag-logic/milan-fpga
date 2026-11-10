@@ -1,0 +1,24 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: make -C tb/verilator/milan_dp -j8 srptx-mutants
+full log: 2601 bytes, sha256 e64a7456e658a4eae0b8fbfc4709975e881d79a83c9a2994a1fd216869195702
+---
+make: Entering directory '<scratch>/gates/srptx/tb/verilator/milan_dp'
+python3 -B srptx_mutants.py
+ok   control: the tracked sources grade hold clean
+ok   control: the tracked sources grade licence clean
+ok   control: the tracked sources grade wire to 3000 ms clean
+ok   control: the tracked sources grade wire to 16000 ms clean
+ok   control: the tracked sources grade wire to 40000 ms clean
+ok   an AttributeList EndMark of 0x0001: refused by [WIRE] MSRP frame at ms 1: MSRP AttributeList EndMark missing where its AttributeListLength ends
+ok   each declaration encoded twice: refused by [WIRE] MSRP frame at ms 1: MSRP Domain value 06030002 declared 2 times in one MRPDU
+ok   a LeaveAll on the last AttributeType alone: refused by [WIRE] MSRP frame at ms 14560: a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4] (IEEE 802.1Q-2018 10.7.9, 10.8.2.6)
+ok   a refused MRPDU reported sent: refused by [TX] the MSRP MRPDU the adapter accepted at ms 25000 never left the MAC, and the MSRP frame at ms 25600 in its place is no MRPDU the adapter accepted
+ok   the first MRPDU's source address unset: refused by [SA] MSRP frame at ms 1 from 000000000000, not the port's MAC 020000000001 (#839; IEEE 802.1AC-2016 11.1)
+ok   a Join timer of 23 centiseconds: refused by [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 230, past JoinTime + the MRP service bound (218 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+ok   a LeaveAll drawn past 1.5 x LeaveAllTime: refused by [TIME] MSRP: its LeaveAll at ms 15300 15300.002 ms after the last LeaveAll (reset), outside 9782 to 15218 ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the MRP service bound)
+ok   a withdrawal in LV that restarts LeaveTime (#608): refused by [608] the talker stopped at ms 23000.012, not at the LeaveTime deadline the peer's LeaveAll at ms 16000 started (21000 ms, the MRP service bound 18 ms; the withdrawal at ms 18000 in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, Milan v1.2 4.2.7.2.2) (the licence scenario's fixture: source 0 allocated at SRP creation)
+ok   a field before lwSRP's Join timer: refused by [BENCH] a Join timer arm outside its participant's state: lwSRP's port layout changed
+ok   the split's ACTIVE term held open: refused by [LIC] at ms 1 the policer reads active 0x3, admitted 0x0, gate 0x0, and the firmware's LICENCE is 0x0 (the licence scenario's fixture: source 0 allocated at SRP creation)
+srptx mutants: 10 of 10 refused
+make: Leaving directory '<scratch>/gates/srptx/tb/verilator/milan_dp'
+rc=0

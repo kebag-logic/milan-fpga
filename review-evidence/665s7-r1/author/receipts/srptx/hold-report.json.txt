@@ -1,0 +1,120 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: make -C tb/verilator/milan_dp -j8 srptx (its report, hold scenario)
+---
+{
+ "findings": [],
+ "measured": {
+  "scenario": "hold",
+  "run_ms": 40000,
+  "fixture": false,
+  "intra_ms_max_us": 356.28,
+  "first_mrpdu_ms": 1,
+  "mrpdus": 169,
+  "tx": {
+   "accepted": 169,
+   "sent": 169,
+   "refusals": [
+    {
+     "proto": "MSRP",
+     "from_ms": 24600,
+     "to_ms": 25000,
+     "retries": 160001,
+     "ring_used_min": 507,
+     "record_words": 30
+    }
+   ]
+  },
+  "timers": {
+   "MSRP": {
+    "interval_error": {
+     "join": {
+      "n": 34,
+      "min_us": -1011.34,
+      "mean_us": -38.589,
+      "max_us": 0.01
+     },
+     "periodic": {
+      "n": 26,
+      "min_us": -0.01,
+      "mean_us": 0.001,
+      "max_us": 0.02
+     },
+     "leaveall": {
+      "n": 0
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 34,
+      "min_us": 1.94,
+      "mean_us": 1.943,
+      "max_us": 1.97
+     },
+     "periodic": {
+      "n": 36,
+      "min_us": 1.94,
+      "mean_us": 10.291,
+      "max_us": 302.14
+     },
+     "leaveall": {
+      "n": 1,
+      "min_us": 2.43,
+      "mean_us": 2.43,
+      "max_us": 2.43
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 85,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   },
+   "MVRP": {
+    "interval_error": {
+     "join": {
+      "n": 32,
+      "min_us": -1011.34,
+      "mean_us": -40.987,
+      "max_us": 0.01
+     },
+     "periodic": {
+      "n": 27,
+      "min_us": -12.98,
+      "mean_us": 0.001,
+      "max_us": 12.98
+     },
+     "leaveall": {
+      "n": 0
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 32,
+      "min_us": 1.54,
+      "mean_us": 13.69,
+      "max_us": 14.51
+     },
+     "periodic": {
+      "n": 37,
+      "min_us": 1.55,
+      "mean_us": 22.276,
+      "max_us": 314.7
+     },
+     "leaveall": {
+      "n": 1,
+      "min_us": 1.56,
+      "mean_us": 1.56,
+      "max_us": 1.56
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 84,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   }
+  }
+ }
+}

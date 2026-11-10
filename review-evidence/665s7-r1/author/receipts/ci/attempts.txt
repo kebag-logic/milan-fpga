@@ -1,0 +1,34 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+every gate attempt before the passing one, with its head, its result and its cause (none is a defect of the change)
+---
+At the final head 5fb6904f:
+- rtl/verilator-shards 3/19, attempt 1: FAIL, suite gptp_tables (its 36 checks passed, then its mutants.py refused):
+  "REFUSED: Git environment redirects the checkout: GIT_CONFIG_COUNT". The replay had given git its settings
+  through GIT_CONFIG_* variables in place of a config file in the job's HOME; tb/verilator/gptp_shadow/
+  private_inputs.py refuses those as injected configuration. The replay now gives git GIT_ALLOW_PROTOCOL and
+  the GIT_AUTHOR_*/GIT_COMMITTER_* identity instead, which it accepts. Attempt 2: PASS (kept as the job's result;
+  attempt 1 kept under the replay's attempts/). No other job ran a suite that reads that guard after the change.
+- The full sweep (4 shards) at 5fb6904f: 65 of 65 suites passed in one attempt each.
+
+At bf1bba25 (the head before the README count, not the final head; the pass was stopped):
+- rtl-fast/firmware-boundary and rtl-fast/firmware-verilator: FAIL, "sw/firmware/ctrl/README.md gives the pin
+  controls as 181, where the self-test has 183": the change's two classified programs add two pin controls.
+  Fixed by 5fb6904f, the README's count; both pass at the final head.
+- rtl/verilator-shards 0-10: FAIL in the sweep's preflight, "ABORTING: sweep cancellation controls failed"
+  (subprocess.TimeoutExpired in the hard-HUP control). This is the #833 class; shards 0-3 were re-run once and
+  failed the same way, both results kept. Cause: the replay's local runner was started from this agent's session,
+  whose processes have SIGQUIT ignored and SIGCHLD blocked, and every child inherits both. tools/sigclean.py now
+  starts it with every signal at its default and none blocked, as a service starts; every shard passes its
+  cancellation controls at the final head.
+
+At 324f7778 (the first head, superseded by six commits):
+- The replay was stopped minutes after its start, before any failure, when the MRP service bound was found to be
+  min(T_svc, the MRP ceiling) = 18 ms, not T_svc's 20 (corrected by 3c134c24).
+- The full sweep nevertheless ran at 324f7778: its spec file kept that head while the later passes launched its
+  shards. 65 of 65 suites passed (15, 17, 17, 16). It is not evidence for the final head and is not cited as such.
+
+At 864665a7: the pass was stopped when docs-gates-0's bare-metal scope gate refused the phrase "TX ring" (#259)
+in the change's text, fixed by 25a413b3.
+
+At 25a413b3: only docs-gates-0 was run, as a probe, to gate_26 without a failure; before relaunching, the
+test-evidence ratchet's unexplained DUT-source reader (srptx_mutants.py) was found locally, fixed by bf1bba25.

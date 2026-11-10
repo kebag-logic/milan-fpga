@@ -1,0 +1,117 @@
+head 5fb6904ffe12effc4bde6bf5313faea7a3beebdc
+command: make -C tb/verilator/milan_dp -j8 srptx (its report, wire scenario)
+---
+{
+ "findings": [],
+ "measured": {
+  "scenario": "wire",
+  "run_ms": 600000,
+  "fixture": false,
+  "intra_ms_max_us": 149.56,
+  "first_mrpdu_ms": 1,
+  "mrpdus": 1449,
+  "tx": {
+   "accepted": 1449,
+   "sent": 1449,
+   "refusals": []
+  },
+  "timers": {
+   "MSRP": {
+    "interval_error": {
+     "join": {
+      "n": 104,
+      "min_us": -1011.34,
+      "mean_us": -9.937,
+      "max_us": 0.01
+     },
+     "periodic": {
+      "n": 525,
+      "min_us": -11.8,
+      "mean_us": -0.0,
+      "max_us": 11.8
+     },
+     "leaveall": {
+      "n": 39,
+      "min_us": -50000.0,
+      "mean_us": -0.0,
+      "max_us": 50000.0
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 104,
+      "min_us": 1.94,
+      "mean_us": 1.95,
+      "max_us": 1.97
+     },
+     "periodic": {
+      "n": 574,
+      "min_us": 1.94,
+      "mean_us": 1.97,
+      "max_us": 13.75
+     },
+     "leaveall": {
+      "n": 44,
+      "min_us": 2.4,
+      "mean_us": 5229.683,
+      "max_us": 50002.41
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 727,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   },
+   "MVRP": {
+    "interval_error": {
+     "join": {
+      "n": 104,
+      "min_us": -1011.34,
+      "mean_us": -9.608,
+      "max_us": 15.48
+     },
+     "periodic": {
+      "n": 522,
+      "min_us": -12.99,
+      "mean_us": -0.0,
+      "max_us": 12.99
+     },
+     "leaveall": {
+      "n": 40,
+      "min_us": -70000.0,
+      "mean_us": -0.0,
+      "max_us": 70000.01
+     }
+    },
+    "egress_after_tick": {
+     "join": {
+      "n": 104,
+      "min_us": 1.52,
+      "mean_us": 2.053,
+      "max_us": 17.03
+     },
+     "periodic": {
+      "n": 570,
+      "min_us": 1.52,
+      "mean_us": 13.988,
+      "max_us": 26.31
+     },
+     "leaveall": {
+      "n": 44,
+      "min_us": 1.54,
+      "mean_us": 1592.458,
+      "max_us": 70001.55
+     }
+    },
+    "frames_per_opportunity": {
+     "n": 722,
+     "min": 1,
+     "mean": 1.0,
+     "max": 1
+    }
+   }
+  }
+ }
+}
