@@ -15,12 +15,14 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
           35.2.2.1/.2, MVRP 11.2.3.1.3 and Table 10-1).
   [SA]    every MRPDU's source address is the port's MAC from the first frame after reset (#839; IEEE
           802.1AC-2016 11.1).
-  [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, Table 10-7, Milan
-          v1.2 Table 4.3's values), each bound widened by the approved service allowance T_svc = 20 ms
-          (#867 item 3; #665, the owner's ruling of 2026-11-06): no four in 1.5 x JoinTime; after a New, or
-          a declaration's first message, the attribute's next message within JoinTime; each LeaveAll within
-          LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of the last, or of a received one (rLA!, Table
-          10-5), the transmit opportunity's wait (JoinTime) added, and none missing at the run's end.
+  [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, 10.7.11, Table 10-7,
+          Milan v1.2 Table 4.3's values), each bound widened by the approved service allowance T_svc = 20 ms
+          (#867 item 3; #665, the owner's ruling of 2026-11-06): no four in 1.5 x JoinTime; each a Join
+          timer sends within JoinTime's range (180 to 240 ms) of the one before, on each side (10.7.4.1);
+          after a New, or a declaration's first message, the attribute's next message within JoinTime; each
+          LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of the last, or of a received one
+          (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime) added, and none missing at the
+          run's end.
   [TX]    every MRPDU the adapter accepted from lwSRP left the MAC, byte for byte, in the order accepted,
           and nothing else did; with the MAC held, the adapter saw the SRP transmit ring full, and the MRPDU it
           refused was the next one it sent.
@@ -65,10 +67,15 @@ JOIN_MS = 200
 LEAVE_MS = 5000
 LEAVE_ALL_MS = 10000
 PERIODIC_MS = 1000
+#: the JoinTime Milan v1.2 Table 4.3 allows, 180 to 240 ms (docs/reference/FR_NFR.md 3.4.1)
+JOIN_RANGE_MS = (180, 240)
 #: lwSRP's timer resolution, one centisecond (docs/reference/FR_NFR.md 3.4.1)
 RESOLUTION_MS = 10
 RATE_WINDOW_MS = 3 * JOIN_MS // 2 - SVC_MS
 JOIN_FOLLOW_MS = JOIN_MS + SVC_MS
+#: a Join timer's transmit opportunity after the one before it (IEEE 802.1Q-2018 10.7.4.1, 10.7.11): JoinTime's
+#: range widened by T_svc on each side, as LeaveAll's is
+JOIN_BOUNDS_MS = (JOIN_RANGE_MS[0] - SVC_MS, JOIN_RANGE_MS[1] + SVC_MS)
 LEAVE_ALL_BOUNDS_MS = (LEAVE_ALL_MS - JOIN_MS - SVC_MS, 3 * LEAVE_ALL_MS // 2 + JOIN_MS + SVC_MS)
 #: a modeled millisecond's RTL time, which the time base assumes is under one millisecond (srptx.hpp)
 MS_US = 1000.0
@@ -313,6 +320,7 @@ def grade_time(cap: Capture) -> list[str]:
     by T_svc; a frame queued behind a hold is not graded."""
     found = []
     low, high = LEAVE_ALL_BOUNDS_MS
+    join_low, join_high = JOIN_BOUNDS_MS
     for proto in APPLICATIONS:
         frames = [f for f in cap.mrpdus if f.proto == proto and not f.error and not cap.queued(f)]
         for a, b in zip(frames, frames[3:]):
@@ -320,6 +328,12 @@ def grade_time(cap: Capture) -> list[str]:
                 found.append(f"[TIME] {proto}: four transmit opportunities in {(b.us - a.us) / 1000:.3f} ms from ms "
                              f"{a.ms}, inside 1.5 x JoinTime less T_svc ({RATE_WINDOW_MS} ms; IEEE 802.1Q-2018 "
                              "10.7.4.1)")
+        # each a Join timer sent, after the one before it (10.7.4.1: jointimer spaces transmit opportunities)
+        for f, gap in join_intervals(cap, frames, causes(cap, proto, frames)):
+            if not join_low <= gap / 1000 <= join_high:
+                found.append(f"[TIME] {proto}: a Join timer's transmit opportunity at ms {f.ms}, {gap / 1000:.3f} ms "
+                             f"after the one before, outside JoinTime's range widened by T_svc ({join_low} to "
+                             f"{join_high} ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)")
         received = cap.received(proto)
         # after a New, or a declaration's first message, the next message of the attribute (Table 10-3:
         # VN, AN, AA and VP each send again at the next transmit opportunity)
@@ -368,36 +382,48 @@ def stats(values: list[float]) -> dict:
             "max_us": round(max(values), 3)}
 
 
+def causes(cap: Capture, proto: str, frames: list[Mrpdu]) -> list[tuple[str, dict] | None]:
+    """Each frame's timer and its expiry: a LeaveAll frame's LeaveAll expiry, any other's latest Join or periodic
+    expiry, each within ATTRIBUTE_MS before the frame, or None."""
+    expiries = [t for t in cap.doc["timers"] if t["proto"] == proto and t["event"] == "expire"
+                and t["kind"] in ("join", "periodic", "leaveall")]
+    cause: list[tuple[str, dict] | None] = []
+    for f in frames:
+        kinds = ("leaveall",) if f.leave_all_types() else ("join", "periodic")
+        before = [t for t in expiries if t["kind"] in kinds and t["us"] <= f.us
+                  and f.us - t["us"] < ATTRIBUTE_MS * 1000]
+        cause.append(("leaveall" if f.leave_all_types() else max(before, key=lambda t: t["us"])["kind"],
+                      max(before, key=lambda t: t["us"])) if before else None)
+    return cause
+
+
+def join_intervals(cap: Capture, frames: list[Mrpdu], cause: list) -> list[tuple[Mrpdu, float]]:
+    """Each frame a Join timer's expiry sent, with its egress interval in us from the frame before it, where no
+    hold lies between."""
+    return [(frames[k], frames[k].us - frames[k - 1].us) for k in range(1, len(frames))
+            if cause[k] and cause[k][0] == "join" and not cap.held(frames[k - 1].ms, frames[k].ms)]
+
+
 def measure_time(cap: Capture) -> dict:
     """The egress interval error per MRP timer, and each frame's egress after its timer's expiry."""
     out: dict = {}
     timers = cap.doc["timers"]
     for proto in APPLICATIONS:
         frames = [f for f in cap.mrpdus if f.proto == proto and not f.error and not cap.queued(f)]
-        expiries = [t for t in timers if t["proto"] == proto and t["event"] == "expire"
-                    and t["kind"] in ("join", "periodic", "leaveall")]
         armed = {(t["id"], round(t["us"], 3)): t["cs"] for t in timers if t["event"] == "arm"}
-        cause: list[tuple[str, dict] | None] = []
-        for f in frames:
-            kinds = ("leaveall",) if f.leave_all_types() else ("join", "periodic")
-            before = [t for t in expiries if t["kind"] in kinds and t["us"] <= f.us
-                      and f.us - t["us"] < ATTRIBUTE_MS * 1000]
-            cause.append(("leaveall" if f.leave_all_types() else max(before, key=lambda t: t["us"])["kind"],
-                          max(before, key=lambda t: t["us"])) if before else None)
+        cause = causes(cap, proto, frames)
         after: dict[str, list[float]] = {"join": [], "periodic": [], "leaveall": []}
         interval: dict[str, list[float]] = {"join": [], "periodic": [], "leaveall": []}
         for f, c in zip(frames, cause):
             if c and not cap.held(c[1]["ms"], f.ms):
                 after[c[0]].append(f.us - c[1]["ms"] * 1000.0)
+        interval["join"] = [gap - JOIN_MS * 1000 for _, gap in join_intervals(cap, frames, cause)]
         for k in range(1, len(frames)):
             c, p = cause[k], cause[k - 1]
             if c is None or cap.held(frames[k - 1].ms, frames[k].ms):
                 continue
-            gap = frames[k].us - frames[k - 1].us
-            if c[0] == "join":
-                interval["join"].append(gap - JOIN_MS * 1000)
-            elif c[0] == "periodic" and p and p[0] == "periodic":
-                interval["periodic"].append(gap - PERIODIC_MS * 1000)
+            if c[0] == "periodic" and p and p[0] == "periodic":
+                interval["periodic"].append(frames[k].us - frames[k - 1].us - PERIODIC_MS * 1000)
         la = [(f, c) for f, c in zip(frames, cause) if c and c[0] == "leaveall"]
         for (fa, ca), (fb, cb) in zip(la, la[1:]):
             draw = armed.get((ca[1]["id"], round(ca[1]["us"], 3)))

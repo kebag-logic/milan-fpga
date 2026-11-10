@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-three plants, a control and ten code mutants
+- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-five plants, three controls and twelve code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1551,7 +1551,7 @@ case is held in the split build only under the fixture.
 |---|---|---|
 | `[WIRE]` | every MSRP and MVRP frame is a well-formed MRPDU: ProtocolVersion, AttributeType and AttributeLength, the MSRP AttributeListLength with its AttributeList EndMark where it ends, each vector, each AttributeList EndMark and the PDU EndMark, nothing after it but zeros; at most 1,500 octets, and the frame at most 1,500 bytes; one Message per AttributeType; no attribute value twice in one MRPDU; a LeaveAll on every AttributeType of its application (MSRP 1 to 4, MVRP 1); the group address of its application. `srp_wire_compare.py`'s decoder also reads every MSRP frame | IEEE 802.1Q-2018 10.8.1, 10.8.2, 10.7.9, 10.8.2.6, 35.2.2.1/.2, 11.2.3.1.3; lwSRP PR #18; [issuecomment-6087462816](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6087462816) |
 | `[SA]` | every MRPDU's source address is the port's MAC, from the first frame after reset | #839; IEEE 802.1AC-2016 11.1 |
-| `[TIME]` | per participant, at egress, each bound widened by the approved service allowance, T_svc = 20 ms. No four transmit opportunities in 1.5 x JoinTime (280 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (220 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,780 to 15,220 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; #867 item 3; [issuecomment-6681686082](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), item 3 |
+| `[TIME]` | per participant, at egress, each bound widened by the approved service allowance, T_svc = 20 ms. No four transmit opportunities in 1.5 x JoinTime (280 ms); each transmit opportunity a Join timer sent within JoinTime's range, 180 to 240 ms, of the one before, on each side (160 to 260 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (220 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,780 to 15,220 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, 10.7.11, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; #867 item 3; [issuecomment-6681686082](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), item 3 |
 | `[TX]` | every MRPDU the adapter accepted left the MAC, byte for byte, in the order accepted, and nothing else did; while the MAC was held, the adapter refused an MRPDU with the ring too full for its record, and the MRPDU it refused was the next one it sent | #867 item 4; the adapter's retention ([SRP README](../../../sw/firmware/ctrl/srp/README.md#protocol-commitments)) |
 | `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within T_svc, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
 | `[LIC]` | at every millisecond, the policer's ACTIVE, admitted and stream gate equal the `LICENCE` the firmware last wrote; the AAF talker's gate opens only under source 0's licence; the CRF source's term reads the top gate bit; no stream frame leaves while no source holds a licence | #867 item 6; Milan v1.2 5.3.7.3 |
@@ -1600,7 +1600,13 @@ that expires while the Join timer runs waits for it (IEEE 802.1Q-2018
 10.7.4.1), within JoinTime. The MVRP frame of an opportunity leaves about
 11 us after the MSRP frame of the same millisecond, behind `ctl_tx_mux`'s gap.
 The largest egress after a Join or periodic tick, 26.31 us, is far inside the
-20 ms T_svc.
+20 ms T_svc. In every scenario, each transmit opportunity a Join timer sent
+left 198.989 to 200.015 ms after the one before, inside 160 to 260 ms.
+
+The Join bound is JoinTime's range, not the 200 ms the adapter configures,
+widened on each side. A frame delayed within T_svc shortens the interval after
+it: one 219 ms after the frame before leaves the next 179.99 ms later. A bound
+of 200 ms less T_svc, 180 ms, would refuse that frame, which item 3 allows.
 
 Found, not held here: the split's AAF frames carry stream_id 0. No firmware
 writes the publication block's `SRC_SID`, so the datapath's framer reads 0
@@ -1626,6 +1632,8 @@ fails them.
 | `zero-source` | wire | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
 | `join-late` | wire | `followed at ms 230, past JoinTime + T_svc (220 ms` |
 | `join-late-past-t-svc` (the second MSRP frame and its record 221 ms after the first) | wire | `followed at ms 222, past JoinTime + T_svc (220 ms` |
+| `join-early-past-t-svc` (a short Join timer: the second and third MSRP frames, their records and timers earlier, the second 159 ms after the first) | wire | `a Join timer's transmit opportunity at ms 160, 159.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
+| `join-interval-late` (a long Join timer after the first MSRP LeaveAll, the second Join frame 261 ms after the one before, where no New is followed) | wire | `a Join timer's transmit opportunity at ms 15021, 261.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
 | `rate` | wire | `four transmit opportunities in` |
 | `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9780 to 15220 ms` |
 | `bench-overrun` | wire | `[BENCH] a modeled millisecond took 1200.000 us of RTL time` |
@@ -1649,6 +1657,8 @@ millisecond item 3 sets.
 | Control | Scenario | Moves |
 |---|---|---|
 | `join-late-within-t-svc` | wire | the second MSRP frame and its record 219 ms after the first |
+| `join-early-within-t-svc` | wire | `join-early-past-t-svc`'s frames, the second 161 ms after the first |
+| `join-interval-late-within` | wire | `join-interval-late`'s frames, the second 259 ms after the one before |
 
 `make srptx-mutants` plants the defect in the code itself
 ([`srptx_mutants.py`](srptx_mutants.py)). Each arm plants one line in a copy
@@ -1667,6 +1677,8 @@ a catch.
 | a refused MRPDU reported sent | the adapter's `send_pdu` | hold | `never left the MAC` |
 | the first MRPDU's source address unset | the adapter's `send_pdu` | wire, 3 s | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
 | a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + T_svc (220 ms` |
+| a Join timer of 10 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
+| a Join timer of 15 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
 | a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9780 to 15220 ms` |
 | a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
 | a field before lwSRP's Join timer | lwSRP's port state | wire, 3 s | `[BENCH] a Join timer arm outside its participant's state` |

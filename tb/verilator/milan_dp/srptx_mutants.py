@@ -28,6 +28,10 @@ ROOT = HERE.parents[2]
 MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
 ADAPTER = ROOT / "sw/firmware/ctrl/srp/srp_mbx.c"
 DP = ROOT / "hdl/milan/milan_datapath.sv"
+JOIN_ARM = "    shlan_timer_arm(&ps->join_timer, ps->join_cs);"
+#: the grade's words for a Join timer's transmit opportunity outside JoinTime's range widened by T_svc
+JOIN_SPACING = f"ms after the one before, outside JoinTime's range widened by T_svc ({g.JOIN_BOUNDS_MS[0]} to " \
+               f"{g.JOIN_BOUNDS_MS[1]} ms"
 
 #: (name, the source, its line as tracked, the planted line, scenario, run ms or 0, the words that must refuse it)
 ARMS = (
@@ -49,8 +53,14 @@ ARMS = (
      "        wire_put_be(m->owed_frame + 6,m->transmitted ? s->interface->mac : 0u,6);",
      "wire", 3000, "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
     ("a Join timer of 23 centiseconds", MRP,
-     "    shlan_timer_arm(&ps->join_timer, ps->join_cs);", "    shlan_timer_arm(&ps->join_timer, ps->join_cs + 3u);",
+     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs + 3u);",
      "wire", 3000, f"past JoinTime + T_svc ({g.JOIN_FOLLOW_MS} ms"),
+    ("a Join timer of 10 centiseconds", MRP,
+     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs - 10u);",
+     "wire", 3000, JOIN_SPACING),
+    ("a Join timer of 15 centiseconds", MRP,
+     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs - 5u);",
+     "wire", 3000, JOIN_SPACING),
     ("a LeaveAll drawn past 1.5 x LeaveAllTime", MRP,
      "    return ps->leaveall_cs + 1u + ps->random % (ps->leaveall_cs / 2u - 1u);",
      "    return ps->leaveall_cs * 3u / 2u + 30u;",

@@ -26,8 +26,11 @@ import srptx_grade as g
 #: a bound sits 1 ms past what item 3 allows and its control 1 ms inside, so a grade bound off item 3's is refused
 ITEM3_SVC_MS = 20
 FOLLOW_MS = g.JOIN_MS + ITEM3_SVC_MS
+JOIN_BOUNDS_MS = (g.JOIN_RANGE_MS[0] - ITEM3_SVC_MS, g.JOIN_RANGE_MS[1] + ITEM3_SVC_MS)
 LEAVE_ALL_BOUNDS_MS = (g.LEAVE_ALL_MS - g.JOIN_MS - ITEM3_SVC_MS,
                        3 * g.LEAVE_ALL_MS // 2 + g.JOIN_MS + ITEM3_SVC_MS)
+JOIN_WORDS = f"ms after the one before, outside JoinTime's range widened by T_svc ({JOIN_BOUNDS_MS[0]} to " \
+             f"{JOIN_BOUNDS_MS[1]} ms"
 
 #: name -> (the scenario it plants, what it changes, the words it must be refused by)
 PLANTS = {
@@ -51,6 +54,16 @@ PLANTS = {
     "join-late-past-t-svc": ("wire", f"the second MSRP frame and the adapter's record of it {FOLLOW_MS + 1} ms after "
                              "the first: 1 ms past JoinTime + T_svc",
                              f"followed at ms 222, past JoinTime + T_svc ({FOLLOW_MS} ms"),
+    "join-early-past-t-svc": ("wire", "a short Join timer: the second and third MSRP frames, their records and the "
+                              f"Join timer that sent each, earlier, the second {JOIN_BOUNDS_MS[0] - 1} ms after the "
+                              "first: 1 ms short of JoinTime's range less T_svc",
+                              f"a Join timer's transmit opportunity at ms 160, {JOIN_BOUNDS_MS[0] - 1:.3f} "
+                              + JOIN_WORDS),
+    "join-interval-late": ("wire", "a long Join timer: the second and third Join timer frames after the first MSRP "
+                           f"LeaveAll, their records and timers, later, the second {JOIN_BOUNDS_MS[1] + 1} ms after "
+                           "the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed",
+                           f"a Join timer's transmit opportunity at ms 15021, {JOIN_BOUNDS_MS[1] + 1:.3f} "
+                           + JOIN_WORDS),
     "rate": ("wire", "the first MSRP frame sent again 1 and 2 ms after itself",
              "four transmit opportunities in"),
     "leave-all-missing": ("wire", "the first MSRP LeaveAll frame sent without its LeaveAll",
@@ -84,6 +97,10 @@ WORDS = {name: words for name, (_, _, words) in PLANTS.items()}
 #: name -> (the scenario it plants, what it changes): 1 ms inside the bound its plant passes, graded clean
 WITHIN = {
     "join-late-within-t-svc": ("wire", f"the second MSRP frame and its record {FOLLOW_MS - 1} ms after the first"),
+    "join-early-within-t-svc": ("wire", f"join-early-past-t-svc's move, the second frame {JOIN_BOUNDS_MS[0] + 1} ms "
+                                "after the first"),
+    "join-interval-late-within": ("wire", f"join-interval-late's move, the second frame {JOIN_BOUNDS_MS[1] - 1} ms "
+                                  "after the one before"),
 }
 #: each timing plant and control: (the MSRP frame its move is measured from: the first, or the first after the
 #: first LeaveAll frame; how many frames after it move; the ms the first of them then leaves after it; whether
@@ -91,6 +108,10 @@ WITHIN = {
 TIMING = {
     "join-late-past-t-svc": ("first", 1, FOLLOW_MS + 1, False),
     "join-late-within-t-svc": ("first", 1, FOLLOW_MS - 1, False),
+    "join-early-past-t-svc": ("first", 2, JOIN_BOUNDS_MS[0] - 1, True),
+    "join-early-within-t-svc": ("first", 2, JOIN_BOUNDS_MS[0] + 1, True),
+    "join-interval-late": ("leave-all", 2, JOIN_BOUNDS_MS[1] + 1, True),
+    "join-interval-late-within": ("leave-all", 2, JOIN_BOUNDS_MS[1] - 1, True),
 }
 
 
