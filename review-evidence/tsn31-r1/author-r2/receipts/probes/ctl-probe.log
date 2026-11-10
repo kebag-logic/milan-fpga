@@ -1,0 +1,19 @@
+conditional control: compiling nested unreachable region refused
+conditional control: both assembly sides compiled and found in object symbols
+capacity control: committed owed storage at 33u sinks compiles with gcc and clang
+capacity control: committed owed storage at 255u sinks compiles with gcc and clang
+Traceback (most recent call last):
+  File "$SCRATCH/ctl-probe/scripts/check_conditionals.py", line 200, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$SCRATCH/ctl-probe/scripts/check_conditionals.py", line 182, in main
+    selftest(work)
+    ~~~~~~~~^^^^^^
+  File "$SCRATCH/ctl-probe/scripts/check_conditionals.py", line 138, in selftest
+    capacity_controls(work)
+    ~~~~~~~~~~~~~~~~~^^^^^^
+  File "$SCRATCH/ctl-probe/scripts/check_conditionals.py", line 167, in capacity_controls
+    raise RuntimeError(f'capacity control {variant} at {sinks} sinks with {cc}: rc '
+                       f'{result.returncode}\n{result.stderr}')
+RuntimeError: capacity control committed at 256u sinks with gcc: rc 0
+

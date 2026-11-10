@@ -1,0 +1,12 @@
+main  debug      51860	      0	  65552	 117412	  1caa4	$SCRATCH/rv32-before-main/debug/rv32_smoke.elf
+main  release    40669	      0	  65552	 106221	  19eed	$SCRATCH/rv32-before-main/release/rv32_smoke.elf
+r1    debug      51964	      0	  65552	 117516	  1cb0c	$SCRATCH/rv32-before-r1/debug/rv32_smoke.elf
+r1    release    41645	      0	  65552	 107197	  1a2bd	$SCRATCH/rv32-before-r1/release/rv32_smoke.elf
+head  debug      51964	      0	  65552	 117516	  1cb0c	$SCRATCH/gates/rv32/debug/rv32_smoke.elf
+head  release    41645	      0	  65552	 107197	  1a2bd	$SCRATCH/gates/rv32/release/rv32_smoke.elf
+
+release .elf sha256:
+main f1fd4b902e73676c67985024f7b5e8e4650cedf605efdabd000484cbf067a7c2
+r1 a7a2b614ad2ce743bbc5f2cbcfd995bfa0076e157742dce2cd9e0da47d6401bf
+head a7a2b614ad2ce743bbc5f2cbcfd995bfa0076e157742dce2cd9e0da47d6401bf
+debug .text r1 vs head: identical

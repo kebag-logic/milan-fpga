@@ -1,0 +1,11 @@
+[
+  {
+    "name": "acmp-wide-release-word-ignored",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges": "$SCRATCH/steps/c1/mut/baseline/tests/test_acmp_wide.cpp:70\nValue of: acmp_change_pending(&a, kLast) && a.sinks[kLast].change_owed == 1u\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_bd08eb8085e49dab0c8a60214bcf034c\nW1 sink 32's change waits behind its owed response (#653)\nTSN_MESSAGE_END_20ff3f176f50bd1389db4e15d6d0ce76\n\n\n$SCRATCH/steps/c1/mut/baseline/tests/test_acmp_wide.cpp:72\nValue of: acmp_change_pending(&a, 0)\n  Actual: true\nExpected: false\n\nTSN_MESSAGE_BEGIN_bd08eb8085e49dab0c8a60214bcf034c\nW1 sink 0, which owes nothing, is not held by sink 32's response\nTSN_MESSAGE_END_20ff3f176f50bd1389db4e15d6d0ce76\n\n\n$SCRATCH/steps/c1/mut/baseline/tests/test_acmp_wide.cpp:74\nValue of: a.owed_count == 4u && a.sinks[0].change_owed == 1u && a.sinks[kLast].change_owed == 1u\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_bd08eb8085e49dab0c8a60214bcf034c\nW1 with both bound, each sink waits behind one owed response, its own\nTSN_MESSAGE_END_20ff3f176f50bd1389db4e15d6d0ce76\n\n\n$SCRATCH/steps/c1/mut/baseline/tests/test_acmp_wide.cpp:79\nExpected equality of these values:\n  fk.count(Call::CHANGED)\n    Which is: 0\n  1u\n    Which is: 1\n\nTSN_MESSAGE_BEGIN_bd08eb8085e49dab0c8a60214bcf034c\nW1 sink 32's response left: one change is reported\nTSN_MESSAGE_END_20ff3f176f50bd1389db4e15d6d0ce76\n\n"
+    },
+    "tests": 1
+  }
+]

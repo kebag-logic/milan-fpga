@@ -1,0 +1,30 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from WideGaps
+[ RUN      ] WideGaps.ReusedSlotCarriesNoStaleReleaseBit
+$HOME/milan-fpga-management/2026-09-23/tsn31-r812-1/scripts/test_wide_gaps.cpp:66: Failure
+Expected equality of these values:
+  a.sinks[32].change_owed
+    Which is: '\x1' (1)
+  0u
+    Which is: 0
+GAP1 sink 32 held by a GET_RX_STATE response in its old slot
+
+$HOME/milan-fpga-management/2026-09-23/tsn31-r812-1/scripts/test_wide_gaps.cpp:67: Failure
+Value of: acmp_change_pending(&a, 32u)
+  Actual: true
+Expected: false
+GAP1 no change of sink 32 is pending
+
+[  FAILED  ] WideGaps.ReusedSlotCarriesNoStaleReleaseBit (0 ms)
+[ RUN      ] WideGaps.SinkThirtyOneIsHeldByItsOwnResponse
+[       OK ] WideGaps.SinkThirtyOneIsHeldByItsOwnResponse (0 ms)
+[----------] 2 tests from WideGaps (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] WideGaps.ReusedSlotCarriesNoStaleReleaseBit
+
+ 1 FAILED TEST

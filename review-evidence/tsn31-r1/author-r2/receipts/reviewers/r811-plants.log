@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$HOME/milan-fpga-management/2026-09-23/tsn31-r811-1/scripts/plants.py", line 64, in <module>
+    results = list(pool.map(run, plants))
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$HOME/milan-fpga-management/2026-09-23/tsn31-r811-1/scripts/plants.py", line 40, in run
+    assert text.count(old) == 1, (name, text.count(old)); f.write_text(text.replace(old, new))
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('review-transmit-unbounded-shift', 0)

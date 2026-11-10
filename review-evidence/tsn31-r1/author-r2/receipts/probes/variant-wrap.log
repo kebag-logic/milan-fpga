@@ -1,0 +1,31 @@
+== head: 16-sink rc=0, 33-sink rc=0
+      1 [  PASSED  ] 1 test.
+      1 [  PASSED  ] 2 tests.
+== head-uncleared: 16-sink rc=1, 33-sink rc=1
+      1 A19 a change of the last sink is reported at once
+      1 A19 the probe in that slot holds no sink: the last is free, and sinks 1 to 3 each wait for their own response
+      1 [  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink
+      1 [  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+      2 [  PASSED  ] 0 tests.
+      1 W4 a change of sink 31 is reported at once
+      1 W4 the probe in that slot holds no sink: sink 31 is free, and sinks 1 to 3 each wait for their own response
+      1 W5 a change of sink 32 is reported at once
+      1 W5 the probe in that slot holds no sink: sink 32 is free, and sinks 1 to 3 each wait for their own response
+== variant: 16-sink rc=0, 33-sink rc=0
+      1 [  PASSED  ] 1 test.
+      1 [  PASSED  ] 2 tests.
+== variant-uncleared: 16-sink rc=1, 33-sink rc=1
+      1 A19 once every owed frame left, no sink is held: 255
+      1 [  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink
+      1 [  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+      1 [  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+      2 [  PASSED  ] 0 tests.
+      1 W4 once every owed frame left, no sink is held: 255
+      1 W5 once every owed frame left, no sink is held: 255

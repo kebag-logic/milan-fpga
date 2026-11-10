@@ -1,0 +1,62 @@
+Test project $SCRATCH/rev/r811-survivors/review-mask-clears-one-word/b
+    Start 1: adp_tests
+    Start 2: acmp_tests
+    Start 3: acmp_wide
+    Start 4: maap_tests
+1/9 Test #3: acmp_wide ........................***Failed    0.00 sec
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[       OK ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[ RUN      ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+[       OK ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+[ RUN      ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses
+[       OK ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink
+[       OK ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[ RUN      ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+$SCRATCH/rev/r811-survivors/review-mask-clears-one-word/tests/test_acmp_wide.cpp:189: Failure
+Value of: !acmp_change_pending(&a, kLast) && owed_changes() == 3u
+  Actual: false
+Expected: true
+W5 the probe in that slot holds no sink: sink 32 is free, and sinks 1 to 3 each wait for their own response
+
+$SCRATCH/rev/r811-survivors/review-mask-clears-one-word/tests/test_acmp_wide.cpp:192: Failure
+Value of: acmp_set_started(&a, kLast, false) && fk.count(Call::CHANGED) == 1u && changed_sink(0) == kLast
+  Actual: false
+Expected: true
+W5 a change of sink 32 is reported at once
+
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+[----------] 5 tests from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink
+
+ 1 FAILED TEST
+
+    Start 5: entity_tests
+2/9 Test #2: acmp_tests .......................   Passed    0.01 sec
+    Start 6: port_tests
+3/9 Test #5: entity_tests .....................   Passed    0.00 sec
+    Start 7: adp_release
+4/9 Test #6: port_tests .......................   Passed    0.00 sec
+    Start 8: adp_debug
+5/9 Test #7: adp_release ......................   Passed    0.00 sec
+    Start 9: maap_debug
+6/9 Test #1: adp_tests ........................   Passed    0.03 sec
+7/9 Test #4: maap_tests .......................   Passed    0.03 sec
+8/9 Test #8: adp_debug ........................   Passed    0.09 sec
+9/9 Test #9: maap_debug .......................   Passed    0.18 sec
+
+89% tests passed, 1 tests failed out of 9
+
+Total Test time (real) =   0.20 sec
+
+The following tests FAILED:
+	  3 - acmp_wide (Failed)
+Errors while running CTest

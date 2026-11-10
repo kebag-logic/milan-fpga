@@ -1,0 +1,281 @@
+[
+ {
+  "plant": "unplanted",
+  "arm": "acmp",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 127 tests from 4 test suites.",
+    "[==========] 127 tests from 4 test suites ran. (9 ms total)",
+    "[  PASSED  ] 127 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "unplanted",
+  "arm": "acmp_wide",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 5 tests from 1 test suite.",
+    "[==========] 5 tests from 1 test suite ran. (2 ms total)",
+    "[  PASSED  ] 5 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "acmp-wide-release-word-off-by-one",
+  "arm": "acmp",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 127 tests from 4 test suites.",
+    "[==========] 127 tests from 4 test suites ran. (9 ms total)",
+    "[  PASSED  ] 127 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "acmp-wide-release-word-off-by-one",
+  "arm": "acmp_wide",
+  "killers": [
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 4 tests from 1 test suite.",
+    "[==========] 4 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 4 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 1 test from 1 test suite.",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+    "[==========] 1 test from 1 test suite ran. (3 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+   ],
+   "needles": {
+    "sink 31's change waits behind its own owed response": true
+   }
+  }
+ },
+ {
+  "plant": "acmp-wide-owed-count-word-off-by-one",
+  "arm": "acmp",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 127 tests from 4 test suites.",
+    "[==========] 127 tests from 4 test suites ran. (9 ms total)",
+    "[  PASSED  ] 127 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "acmp-wide-owed-count-word-off-by-one",
+  "arm": "acmp_wide",
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 3 tests from 1 test suite.",
+    "[==========] 3 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 3 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 2 tests from 1 test suite.",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+    "[==========] 2 tests from 1 test suite ran. (1 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 2 tests, listed below:",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink"
+   ],
+   "needles": {
+    "sink 31's change waits behind its own owed response": true,
+    "sink 31's response left: one change is reported": true,
+    "once every owed frame left, no sink is held": true
+   }
+  }
+ },
+ {
+  "plant": "acmp-wide-release-loop-word-off-by-one",
+  "arm": "acmp",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 127 tests from 4 test suites.",
+    "[==========] 127 tests from 4 test suites ran. (5 ms total)",
+    "[  PASSED  ] 127 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "acmp-wide-release-loop-word-off-by-one",
+  "arm": "acmp_wide",
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 3 tests from 1 test suite.",
+    "[==========] 3 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 3 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 2 tests from 1 test suite.",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+    "[==========] 2 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 2 tests, listed below:",
+    "[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink"
+   ],
+   "needles": {
+    "sink 31's response left: one change is reported": true,
+    "once every owed frame left, no sink is held": true
+   }
+  }
+ },
+ {
+  "plant": "acmp-owed-release-not-cleared",
+  "arm": "acmp",
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 126 tests from 4 test suites.",
+    "[==========] 126 tests from 4 test suites ran. (5 ms total)",
+    "[  PASSED  ] 126 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 1 test from 1 test suite.",
+    "[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)",
+    "[==========] 1 test from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink"
+   ],
+   "needles": {
+    "the probe in that slot holds no sink: the last is free": true,
+    "a change of the last sink is reported at once": true
+   }
+  }
+ },
+ {
+  "plant": "acmp-owed-release-not-cleared",
+  "arm": "acmp_wide",
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 3 tests from 1 test suite.",
+    "[==========] 3 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 3 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 2 tests from 1 test suite.",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)",
+    "[==========] 2 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 2 tests, listed below:",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+   ],
+   "needles": {
+    "the probe in that slot holds no sink: sink 31 is free": true,
+    "the probe in that slot holds no sink: sink 32 is free": true
+   }
+  }
+ },
+ {
+  "plant": "acmp-wide-release-clears-one-word",
+  "arm": "acmp",
+  "killers": [],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 127 tests from 4 test suites.",
+    "[==========] 127 tests from 4 test suites ran. (7 ms total)",
+    "[  PASSED  ] 127 tests."
+   ],
+   "needles": {}
+  }
+ },
+ {
+  "plant": "acmp-wide-release-clears-one-word",
+  "arm": "acmp_wide",
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ],
+  "without": {
+   "rc": 0,
+   "summary": [
+    "[==========] Running 4 tests from 1 test suite.",
+    "[==========] 4 tests from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 4 tests."
+   ],
+   "needles": {}
+  },
+  "with": {
+   "rc": 1,
+   "summary": [
+    "[==========] Running 1 test from 1 test suite.",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)",
+    "[==========] 1 test from 1 test suite ran. (0 ms total)",
+    "[  PASSED  ] 0 tests.",
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+   ],
+   "needles": {
+    "the probe in that slot holds no sink: sink 32 is free": true,
+    "a change of sink 32 is reported at once": true
+   }
+  }
+ }
+]
