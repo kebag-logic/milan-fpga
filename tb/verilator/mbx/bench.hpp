@@ -7,8 +7,9 @@
 //
 // THE ONE DECISION THAT MATTERS: every host access goes through the adapter
 // the top was built with (Wishbone or AXI4-Lite), cycle by cycle, with the
-// handshake each bus defines. Nothing here pokes KL_mbx's host port, so a
-// check that passes has passed through a real adapter.
+// handshake each bus defines. Nothing here puts a request on KL_mbx's host
+// port (only the noise between requests, below), so a check that passes has
+// passed through a real adapter.
 //
 // On the AXI4-Lite build every clock is also a structural probe: before the
 // edge, each AXI input is moved in turn (every VALID and READY flipped, the
@@ -16,6 +17,14 @@
 // where it was, since IHI0022H A3.1.1 and A3.2.1 forbid a combinational
 // path from an input to an output. `comb_paths` counts the cycles where one
 // moved, over every state the checks visit.
+//
+// On every build every clock also carries two receive-side checks (#870).
+// Outside a request cycle the host port between the adapter and KL_mbx
+// carries noise (tb_mbx_top), which KL_mbx must never read. And before each
+// edge the ring write port is held against the head the core sees:
+// `writes_under_head` counts the ring words written at an edge while a read
+// of that cycle could already have taken them, i.e. under RX_HEAD and at or
+// past RX_TAIL, which is the head published before the data it covers.
 
 #ifndef MBX_BENCH_HPP
 #define MBX_BENCH_HPP
@@ -60,11 +69,13 @@ class Bench {
             dut_->rx_if_i = rx_q_.front().iface;
         }
         dut_->tx_ready_i = tx_ready_now() ? 1 : 0;
+        drive_noise();
         dut_->clk_i = 0;
         dut_->eval();
         if (host_ == 1) {
             probe_axil();
         }
+        watch_ring_write();
         const bool rx_taken = dut_->rx_valid_i && dut_->rx_ready_o;
         if (dut_->tx_valid_o && dut_->tx_ready_i) {
             take_tx_byte();
@@ -353,6 +364,9 @@ class Bench {
     unsigned bus_timeouts = 0;        //!< accesses the adapter never answered
     unsigned comb_paths = 0;          //!< AXI4-Lite cycles where an output followed an input
     std::uint64_t probed = 0;         //!< AXI4-Lite cycles the structural probe ran on
+    std::uint64_t ring_writes = 0;        //!< receive ring words written, every edge of every check
+    std::uint64_t writes_under_head = 0;  //!< of them, written under the head the core saw that cycle
+    std::uint64_t heads_moved = 0;        //!< cycles a channel's published head moved
 
     //! Clocks per modeled millisecond: enough for the 16-slot timer scan.
     static constexpr unsigned kClocksPerMs = 24;
@@ -407,6 +421,38 @@ class Bench {
     }
 
     bool tx_ready_now() const { return ((tx_pattern_ >> (cycles_ % 8)) & 1u) != 0; }
+
+    //! The host port outside a request cycle: a new pseudo-random address,
+    //! word, direction and strobes each clock (a 64-bit LCG, the same run to run).
+    void drive_noise() {
+        noise_ = noise_ * 6364136223846793005ull + 1442695040888963407ull;
+        dut_->noise_addr_i = static_cast<std::uint32_t>(noise_ >> 40) & ((1u << MBX_ADDR_W) - 1u);
+        dut_->noise_data_i = static_cast<std::uint32_t>(noise_ >> 8);
+        dut_->noise_ctl_i = static_cast<std::uint32_t>(noise_ >> 59) & 0x1Fu;
+    }
+
+    //! The word the ring takes at this edge against the head and tail of this
+    //! cycle: under the head and at or past the tail is a word the core may
+    //! already read, so writing it there means the head came first.
+    void watch_ring_write() {
+        static constexpr std::array<std::uint32_t, MBX_N_CH> kWords = MBX_CH_RX_WORDS_TBL;
+        for (unsigned c = 0; c < MBX_N_CH; ++c) {
+            const auto head = static_cast<std::uint32_t>(slice(dut_->probe_rx_head_o, 16u * c, 16u));
+            heads_moved += head != last_head_[c] ? 1u : 0u;
+            last_head_[c] = head;
+        }
+        if (dut_->probe_rxw_en_o == 0 || dut_->probe_rxw_ch_o >= MBX_N_CH) {
+            return;
+        }
+        ++ring_writes;
+        const unsigned c = dut_->probe_rxw_ch_o;
+        const std::uint32_t words = kWords[c];
+        const auto head = static_cast<std::uint32_t>(slice(dut_->probe_rx_head_o, 16u * c, 16u));
+        const auto tail = static_cast<std::uint32_t>(slice(dut_->probe_rx_tail_o, 16u * c, 16u));
+        const std::uint32_t held = (head - tail) & 0xFFFFu;   // words the core may read this cycle
+        const std::uint32_t at = (dut_->probe_rxw_addr_o - tail) & (words - 1u);
+        writes_under_head += (held <= words && at < held) ? 1u : 0u;
+    }
 
     //! Bits [lsb +: width] (width at most 64) of a port: a Verilator scalar,
     //! or a wide signal of 32-bit words, least significant first.
@@ -568,6 +614,8 @@ class Bench {
     std::uint64_t cycles_ = 0;
     std::uint64_t reads_ = 0;
     std::uint64_t writes_ = 0;
+    std::uint64_t noise_ = 0x870u;
+    std::array<std::uint32_t, MBX_N_CH> last_head_{};
 };
 
 }  // namespace mbx_tb

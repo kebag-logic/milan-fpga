@@ -6,7 +6,7 @@
 //  File        : tb_mbx_top.sv
 //  Project     : Milan FPGA Platform (packet mailbox suite, #665 lane F0)
 //
-//  Description : Pure wiring: one KL_mbx behind ONE of its two bus
+//  Description : Wiring: one KL_mbx behind ONE of its two bus
 //                adapters, chosen by HOST_P (0 the Wishbone adapter the
 //                on-chip RISC-V reaches, 1 the AXI4-Lite adapter a hard core
 //                reaches). The harness builds this top twice and runs the
@@ -18,6 +18,16 @@
 //                built is not tied into the mailbox. Its bus inputs are read
 //                into an unused sink and its outputs are driven to zero, so
 //                a check that passes through the wrong adapter cannot pass.
+//
+//                Two additions to the wiring (#870). Outside a request
+//                cycle the host port carries the bench's noise, not the
+//                adapter's held request: KL_mbx reads the port with
+//                host_req_i only, so a mailbox that decoded a later
+//                cycle's bus (its register read's timing cut undone)
+//                answers from the noise. And the receive ring write port
+//                and the heads and tails KL_mbx reads are probed, so the
+//                bench sees every cycle whether a ring word under the head
+//                the core sees is written.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -177,7 +187,16 @@ module tb_mbx_top
   input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_index_i,   //! its descriptor_index, valid with ctr_chg_p_i
   input  wire  [MBX_N_IF_C-1:0] avb_chg_p_i,   //! a served GET_AVB_INFO word changed
   input  wire  [MBX_N_IF_C-1:0] asp_chg_p_i,   //! the served AS_PATH sequence changed
-  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i   //! an edit's commit beat changed the live map
+  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i,   //! an edit's commit beat changed the live map
+  // the host port outside a request cycle, and the probes of the receive side (#870)
+  input  wire  [MBX_ADDR_W_C-1:0]    noise_addr_i,     //! the address KL_mbx sees when no request is made
+  input  wire  [31:0]                noise_data_i,     //! the write data then
+  input  wire  [4:0]                 noise_ctl_i,      //! the direction (bit 4) and strobes then
+  output logic [MBX_N_CH_C*16-1:0]   probe_rx_head_o,  //! KL_mbx's RX_HEAD per channel: the head the core sees
+  output logic [MBX_N_CH_C*16-1:0]   probe_rx_tail_o,  //! KL_mbx's RX_TAIL per channel
+  output logic                       probe_rxw_en_o,   //! a receive ring word is written at this edge
+  output logic [MBX_CH_W_C-1:0]      probe_rxw_ch_o,   //! its ring's channel
+  output logic [MBX_RING_AW_C-1:0]   probe_rxw_addr_o  //! its index inside that ring
 );
 
   logic                    host_req_w;
@@ -257,14 +276,32 @@ module tb_mbx_top
     assign unused_wb_w = ^{wb_cyc_i, wb_stb_i, wb_we_i, wb_adr_i, wb_dat_i, wb_sel_i};
   end : g_axil
 
+  // the request in its own cycle, the bench's noise in every other
+  logic                    mbx_we_w;
+  logic [MBX_ADDR_W_C-1:0] mbx_addr_w;
+  logic [31:0]             mbx_wdata_w;
+  logic [3:0]              mbx_be_w;
+  assign mbx_we_w    = host_req_w ? host_we_w : noise_ctl_i[4];
+  assign mbx_addr_w  = host_req_w ? host_addr_w : noise_addr_i;
+  assign mbx_wdata_w = host_req_w ? host_wdata_w : noise_data_i;
+  assign mbx_be_w    = host_req_w ? host_be_w : noise_ctl_i[3:0];
+
+  // the receive side as KL_mbx sees it: the ring write port its rings take,
+  // and the heads and tails its registers read
+  assign probe_rx_head_o  = u_mbx.rx_head_w;
+  assign probe_rx_tail_o  = u_mbx.rx_tail_w;
+  assign probe_rxw_en_o   = u_mbx.rxw_en_w;
+  assign probe_rxw_ch_o   = u_mbx.rxw_ch_w;
+  assign probe_rxw_addr_o = u_mbx.rxw_addr_w;
+
   KL_mbx u_mbx (
     .clk_i         (clk_i),
     .rst_n         (rst_n),
     .host_req_i    (host_req_w),
-    .host_we_i     (host_we_w),
-    .host_addr_i   (host_addr_w),
-    .host_wdata_i  (host_wdata_w),
-    .host_be_i     (host_be_w),
+    .host_we_i     (mbx_we_w),
+    .host_addr_i   (mbx_addr_w),
+    .host_wdata_i  (mbx_wdata_w),
+    .host_be_i     (mbx_be_w),
     .host_ack_o    (host_ack_w),
     .host_rdata_o  (host_rdata_w),
     .irq_o         (irq_o),

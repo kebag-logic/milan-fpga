@@ -5,7 +5,8 @@
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
-   table's timing checks, which need a stream that can stall;
+   table's timing checks, which need a stream that can stall, and last the
+   receive side's and the register read's (#870), over every clock before;
 2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
@@ -80,7 +81,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 
 ## The top and the bench
 
-[`tb_mbx_top.sv`](tb_mbx_top.sv) is wiring only: one `KL_mbx` and the one
+[`tb_mbx_top.sv`](tb_mbx_top.sv) is wiring: one `KL_mbx` and the one
 adapter `HOST_P` selects; the other adapter's outputs are driven to zero, so
 a check cannot pass through the wrong one. [`bench.hpp`](bench.hpp) drives it
 a clock at a time: every host access is a Wishbone or AXI4-Lite transaction
@@ -91,6 +92,22 @@ On the AXI4-Lite build every clock is also a structural probe: before the
 edge, each AXI input is moved in turn with the clock held (every VALID and
 READY flipped, addresses, data and strobes scrambled) and every AXI output
 must stay where it was (AMBA AXI, IHI0022H, A3.1.1 and A3.2.1).
+
+On every build every clock also carries two receive-side checks (#870):
+
+- **The host port outside a request.** Between the adapter and `KL_mbx`,
+  the address, direction, data and strobes carry the bench's noise in every
+  cycle `host_req_i` is low (a 64-bit LCG, the same run to run). `KL_mbx`
+  reads the port with `host_req_i` only. A mailbox that decoded the bus of
+  any cycle but its request's would answer from the noise. The adapters hold
+  their request, so without the noise that defect would pass.
+- **The head before its data.** The top probes the receive ring write port
+  that the rings take, and the heads and tails `KL_mbx`'s registers read.
+  Before each edge the bench counts a ring word written while the head of
+  that cycle already covers it, under `RX_HEAD` and at or past `RX_TAIL`. A
+  read in that cycle would take the stale word. That is a head published
+  before the data it covers, which no access through the host port can see
+  by a cycle.
 
 ## What the checks expect
 
@@ -127,6 +144,8 @@ filter table. Register offsets and field positions are the generated
 | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
+| G1 | on the RTL only (#870): GM_LO's word and its GM_HI snapshot are one identity whichever cycle the identity changes in, the change landing after edge 0 to 7 of the GM_LO read, which must see both identities over the sweep |
+| H0 | on the RTL only, last, over every clock of every check before it (#870): no receive ring word is written while the head the core sees that cycle covers it, and the checks did write ring words and move heads |
 | P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.4, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
 | F0 to F10 | the face block (contract 2.3, #665 comments 6409739310 and 6410169666): every register, port, request and commit 0 after reset; each setting, request and entry register keeps its own fields only, per interface and entry; each field on its own `fw_*_o` or window port, for its own interface; `F_COMMIT.GO` raises `fw_send_o` and `F_STATUS.BUSY` on its interface only, every setting write and a second commit refused and counted while `BUSY`, the settings held, and only that interface's acknowledgement taking it; each window's `GO` opening its request with the next tag, a request write and a second `GO` refused while it is open, an answer under another tag, another interface's or with none open discarded, the answer under its tag closing it as `DONE`, the wait bound closing it as `TIMEOUT` and a late answer discarded, no window moving another; a hole and an interface the build lacks reading 0; a partial strobe refused; each face event posting its record with `COUNT` and `NOW_MS`, a full ring coalescing each source, the counter change once per descriptor per holdoff epoch, an unknown descriptor as `ALL`; a reset clearing every face register, port, open request, commit and pending event |
 | T0 to T2 | the face block's timing, on the RTL only: each window's unanswered request holds for exactly its `wait_cycles` clocks, then closes as `TIMEOUT`; an answer on the bound's last cycle is taken, one a cycle later discarded; answer data and tag without the pulse close nothing, and the pulse takes the data it carries; a commit holds `fw_send_o` and its settings for as long as the acknowledgement takes, and drops `fw_send_o` on the cycle after it |

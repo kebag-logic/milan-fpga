@@ -131,6 +131,20 @@ class Suite {
         ck_.dec("no bus access went unanswered in the face timing checks", b_.bus_timeouts, 0);
     }
 
+    //! The receive side and the register read across their timing cuts (#870),
+    //! which only a cycle-by-cycle bench shows. First, over every clock of every
+    //! check run before it: no receive ring word written under the head the core
+    //! saw that cycle, so the head is never published before the data it covers.
+    //! Then GM_LO and the GM_HI snapshot it takes, sampled in one cycle whichever
+    //! cycle the identity changes in. sim_main runs it last; the model never does.
+    void run_read_timing() {
+        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+        restart();
+        check_gm_coherent();
+        ck_.dec("no bus access went unanswered in the read timing checks", b_.bus_timeouts, 0);
+    }
+
     //! One group: the first on the bench's reset, every later one on a restart.
     void run_group(unsigned g) {
         if (g == 0) {
@@ -329,6 +343,7 @@ class Suite {
     void check_timers();
     void check_tick();
     void check_gm_snapshot();
+    void check_gm_coherent();
     void check_tuple_controls();
     void check_tuple_rejections();
     void check_rejected(const std::string& what, const std::vector<std::uint8_t>& f, std::uint32_t counted);
@@ -1109,6 +1124,40 @@ void Suite<Bench, Check>::check_gm_snapshot() {
     ck_.hex("G0 GM_LO reads the live identity", lo, 0x22222222u);
     ck_.hex("G0 GM_HI reads the snapshot GM_LO took", hi, 0x11111111u);
     ck_.dec("G0 DOMAIN reads the same snapshot", dom, 3);
+}
+
+//! GM_LO's word and the GM_HI snapshot it takes are one identity whichever
+//! cycle the identity changes in: the change lands after edge k of the GM_LO
+//! read, k from 0 (before it) to 7, through either adapter. The sweep must see
+//! GM_LO take both identities, or it never crossed the sample.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_gm_coherent() {
+    constexpr std::uint64_t kOld = 0x1111111122222222ull;
+    constexpr std::uint64_t kNew = 0x3333333344444444ull;
+    unsigned torn = 0;
+    unsigned saw_old = 0;
+    unsigned saw_new = 0;
+    for (unsigned k = 0; k < 8; ++k) {
+        b_.set_gm(0, kOld, 3);
+        b_.idle(2);
+        unsigned edges = 0;
+        if (k == 0) {
+            b_.set_gm(0, kNew, 9);
+        }
+        b_.on_clock = [&] {
+            if (++edges == k) {
+                b_.set_gm(0, kNew, 9);
+            }
+        };
+        const std::uint32_t lo = rd(MBX_IF_BASE + MBX_IF_REG_GM_LO);
+        b_.on_clock = nullptr;
+        const std::uint64_t got = (static_cast<std::uint64_t>(rd(MBX_IF_BASE + MBX_IF_REG_GM_HI)) << 32) | lo;
+        torn += (got != kOld && got != kNew) ? 1u : 0u;
+        saw_old += lo == static_cast<std::uint32_t>(kOld) ? 1u : 0u;
+        saw_new += lo == static_cast<std::uint32_t>(kNew) ? 1u : 0u;
+    }
+    ck_.dec("G1 GM_LO and GM_HI read one identity, whichever cycle it changes in", torn, 0);
+    ck_.that("G1 the change fell both before and after GM_LO's sample", saw_old > 0 && saw_new > 0);
 }
 
 // ---- lane FC: the full-tuple filter -------------------------------------------
