@@ -1,0 +1,28 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -B tools/plant_probe.py . <copies of obj_srptx/{wire,hold,licence}.json>, from tb/verilator/milan_dp of the srptx gate clone after make srptx: srptx_plants.main() with the new Join-interval check off (JOIN_BOUNDS_MS unbounded), then with the grade's allowance re-derived at 18, 22 and 20 ms; for the ablation, the two new plants' findings
+---
+== ablated: JOIN_BOUNDS_MS unbounded, SVC_MS 20: rc 1
+FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms after the first: 1 ms short of JoinTime's range less T_svc): escaped; wanted "a Join timer's transmit 
+FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 261 ms after the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed): escaped
+srptx plants: 23 of 25 refused; 3 of 3 controls inside their bound clean
+   join-early-past-t-svc without the new check: 0 finding(s) []
+   join-interval-late without the new check: 0 finding(s) []
+== SVC_MS re-derived at 18 ms: rc 1
+FAIL join-late (the second MSRP frame 30 ms later, the Domain's second New): escaped; wanted 'followed at ms 230, past JoinTime + T_svc (220 ms'
+FAIL join-late-past-t-svc (the second MSRP frame and the adapter's record of it 221 ms after the first: 1 ms past JoinTime + T_svc): escaped; wanted 'followed at ms 222, past JoinTime + T_svc (220 ms'
+FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms after the first: 1 ms short of JoinTime's range less T_svc): escaped; wanted "a Join timer's transmit 
+FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 261 ms after the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed): escaped
+FAIL leave-all-missing (the first MSRP LeaveAll frame sent without its LeaveAll): escaped; wanted 'after the last LeaveAll (reset), outside 9780 to 15220 ms'
+FAIL join-late-within-t-svc (the second MSRP frame and its record 219 ms after the first): inside the bound and refused: [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 220, past JoinTime + T_svc (218 ms; IEEE 802.1Q-2018 1
+FAIL join-early-within-t-svc (join-early-past-t-svc's move, the second frame 161 ms after the first): inside the bound and refused: [TIME] MSRP: a Join timer's transmit opportunity at ms 162, 161.000 ms after the one before, outside JoinTime's range widened by
+FAIL join-interval-late-within (join-interval-late's move, the second frame 259 ms after the one before): inside the bound and refused: [TIME] MSRP: a Join timer's transmit opportunity at ms 15019, 259.000 ms after the one before, outside JoinTime's range wide
+srptx plants: 20 of 25 refused; 0 of 3 controls inside their bound clean
+== SVC_MS re-derived at 22 ms: rc 1
+FAIL join-late (the second MSRP frame 30 ms later, the Domain's second New): escaped; wanted 'followed at ms 230, past JoinTime + T_svc (220 ms'
+FAIL join-late-past-t-svc (the second MSRP frame and the adapter's record of it 221 ms after the first: 1 ms past JoinTime + T_svc): escaped; wanted 'followed at ms 222, past JoinTime + T_svc (220 ms'
+FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms after the first: 1 ms short of JoinTime's range less T_svc): escaped; wanted "a Join timer's transmit 
+FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 261 ms after the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed): escaped
+FAIL leave-all-missing (the first MSRP LeaveAll frame sent without its LeaveAll): escaped; wanted 'after the last LeaveAll (reset), outside 9780 to 15220 ms'
+srptx plants: 20 of 25 refused; 3 of 3 controls inside their bound clean
+== SVC_MS 20 (as committed): rc 0
+srptx plants: 25 of 25 refused; 3 of 3 controls inside their bound clean

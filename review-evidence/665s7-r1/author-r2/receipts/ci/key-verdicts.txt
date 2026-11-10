@@ -1,0 +1,92 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+the verdict lines of the replayed jobs' main steps (the full step table: ci-replay-table.md)
+---
+--- rtl-fast__firmware-boundary
+ctrl_boundary: 3258 compiled sources of 3506 recorded invocations (1962 the firmware's, 374 the stack's, 922 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 183 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+--- rtl-fast__firmware-verilator
+ctrl_boundary: 1019 compiled sources of 1127 recorded invocations (536 the firmware's, 106 the stack's, 377 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 183 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+--- docs__docs-check-no-git
+  docs__docs-check-no-git__ci_record.log: 
+  docs__docs-check-no-git__ci_step_1.log: 
+  docs__docs-check-no-git__ci_step_2.log: 
+  docs__docs-check-no-git__ci_step_3.log: feature_status: 0 finding(s)
+--- docs__docs-gates-0
+  docs__docs-gates-0__ci_record.log: 
+  docs__docs-gates-0__ci_step_10.log: 
+  docs__docs-gates-0__ci_step_1.log: 
+  docs__docs-gates-0__ci_step_21.log: Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+  docs__docs-gates-0__ci_step_25.log: sv2v v0.0.12
+  docs__docs-gates-0__ci_step_28.log: SDK fresh installation: verified
+  docs__docs-gates-0__ci_step_52.log: Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+  docs__docs-gates-0__ci_step_54.log: 
+  docs__docs-gates-0__ci_step_5.log: 
+  docs__docs-gates-0__ci_step_7.log: 
+  docs__docs-gates-0__gate_10.log: time-sync diagram selftest: OK (source, status, XML, raster)
+  docs__docs-gates-0__gate_11.log: solution documentation selftest: OK (47 mutation controls)
+  docs__docs-gates-0__gate_12.log: submodule documentation selftest: OK (table and diagram controls)
+  docs__docs-gates-0__gate_13.log: WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+  docs__docs-gates-0__gate_14.log: diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+  docs__docs-gates-0__gate_15.log: feature_status: 0 finding(s)
+  docs__docs-gates-0__gate_16.log: traceability matrix up to date (83 modules, 0 untested <= ratchet 0, 0 archived)
+  docs__docs-gates-0__gate_18.log: source evidence selftest: PASS (7 arms)
+  docs__docs-gates-0__gate_19.log: 18 checks: 18 PASS, 0 FAIL
+  docs__docs-gates-0__gate_1.log: Wrote: <scratch>/ci/2131eff48066/jobs/docs__docs-gates-0/temp/milan-hdl-reference/index.html
+  docs__docs-gates-0__gate_21.log: baremetal-only selftest: PASS (867 arm(s))
+  docs__docs-gates-0__gate_24.log: GATE 1b PASS; 2 NOT RUN; 0 actual firmware compiler invocations
+  docs__docs-gates-0__gate_26.log: 0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], e
+  docs__docs-gates-0__gate_27.log: PASS: capture census, clocks, both timing arms and receipt agree
+  docs__docs-gates-0__gate_28.log: saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+  docs__docs-gates-0__gate_29.log: iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+  docs__docs-gates-0__gate_30.log: 50 checks: 50 PASS, 0 FAIL
+  docs__docs-gates-0__gate_31.log: 66 checks: 66 PASS, 0 FAIL
+  docs__docs-gates-0__gate_32.log: 82 checks: 82 PASS, 0 FAIL
+  docs__docs-gates-0__gate_33.log: 106 checks: 106 PASS, 0 FAIL
+  docs__docs-gates-0__gate_34.log: 45 checks: 45 PASS, 0 FAIL
+  docs__docs-gates-0__gate_35.log: 105 checks: 105 PASS, 0 FAIL
+  docs__docs-gates-0__gate_36.log: 35 checks: 35 PASS, 0 FAIL
+  docs__docs-gates-0__gate_37.log: 55 checks: 55 PASS, 0 FAIL
+  docs__docs-gates-0__gate_38.log: 75 checks: 75 PASS, 0 FAIL
+  docs__docs-gates-0__gate_39.log: 54 checks: 54 PASS, 0 FAIL
+  docs__docs-gates-0__gate_40.log: 48 checks: 48 PASS, 0 FAIL
+  docs__docs-gates-0__gate_43.log: doc path gate: OK (1086 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+  docs__docs-gates-0__gate_44.log: archive selftest: OK (24 controls)
+  docs__docs-gates-0__gate_45.log: TOC gate: OK (156 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+  docs__docs-gates-0__gate_46.log: gen_aem_store self-test: PASS
+  docs__docs-gates-0__gate_47.log:   [self-test] OK: 1 drift(s) reported
+  docs__docs-gates-0__gate_48.log:   [selftest] OK: 1 drift(s) reported
+  docs__docs-gates-0__gate_49.log: RESULT: PASS
+  docs__docs-gates-0__gate_50.log: manifest comparison controls: PASS
+  docs__docs-gates-0__gate_7.log: docs_check: 0 finding(s) across 217 md files + 1518 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  docs__docs-gates-0__gate_8.log: check_em_dash: 0 finding(s) over 235 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1d6bf555..HEAD]
+  docs__docs-gates-0__gate_9.log: gPTP documentation selftest: OK (30 controls)
+--- docs__docs-gates-1
+  docs__docs-gates-1__ci_record.log: 
+  docs__docs-gates-1__ci_step_11.log: sv2v v0.0.12
+  docs__docs-gates-1__ci_step_13.log: SDK fresh installation: verified
+  docs__docs-gates-1__ci_step_15.log: 
+  docs__docs-gates-1__ci_step_1.log: 
+  docs__docs-gates-1__ci_step_3.log: 
+  docs__docs-gates-1__ci_step_5.log: 
+  docs__docs-gates-1__ci_step_8.log: 
+  docs__docs-gates-1__ci_step_9.log: Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+  docs__docs-gates-1__gate_25_0.log: ALL GATES PASS EXCEPT 1 NOT RUN
+--- docs__docs-gates-2
+  docs__docs-gates-2__ci_record.log: 
+  docs__docs-gates-2__ci_step_11.log: sv2v v0.0.12
+  docs__docs-gates-2__ci_step_13.log: SDK fresh installation: verified
+  docs__docs-gates-2__ci_step_17.log: 
+  docs__docs-gates-2__ci_step_1.log: 
+  docs__docs-gates-2__ci_step_3.log: 
+  docs__docs-gates-2__ci_step_5.log: 
+  docs__docs-gates-2__ci_step_8.log: 
+  docs__docs-gates-2__ci_step_9.log: Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+  docs__docs-gates-2__gate_25_1.log: ALL GATES PASS EXCEPT 16 NOT RUN
+  docs__docs-gates-2__gate_41.log: selftest: PASS (2271 contract items, 5463 arms)
+  docs__docs-gates-2__gate_42.log: selftest: PASS
+--- docs__docs-check
+  docs__docs-check__ci_record.log: 
+  docs__docs-check__ci_step_1.log: 
+  docs__docs-check__ci_step_4.log: 
+  docs__docs-check__ci_step_6.log: docs: 43 source gates exactly once; all worker jobs successful

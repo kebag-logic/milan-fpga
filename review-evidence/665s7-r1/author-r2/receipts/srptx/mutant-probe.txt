@@ -1,0 +1,18 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+command: python3 -B tools/mutant_probe.py <work>, from tb/verilator/milan_dp of the srptx gate clone, through srptx_mutants.build() and run(): lwSRP Join timers of 10, 15 and 17 cs (17 cs is R814-1's third arm, not committed), each run on wire to 3000 ms and graded in full and with the Join-interval check off
+---
+== Join timer 10cs (ps->join_cs - 10u): binary rc 0; first MSRP frames at ms [1, 100, 200, 1000]
+   full grade: 3 finding(s); with the arm's words: 3
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 200, 100.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 100, 98.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+   without the Join-interval check: 0 finding(s) []
+== Join timer 15cs (ps->join_cs - 5u): binary rc 0; first MSRP frames at ms [1, 150, 300, 1000]
+   full grade: 3 finding(s); with the arm's words: 3
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MSRP: a Join timer's transmit opportunity at ms 300, 150.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 150, 148.989 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+   without the Join-interval check: 0 finding(s) []
+== Join timer 17cs (ps->join_cs - 3u): binary rc 0; first MSRP frames at ms [1, 170, 340, 1000]
+   full grade: 0 finding(s); with the arm's words: 0
+   without the Join-interval check: 0 finding(s) []

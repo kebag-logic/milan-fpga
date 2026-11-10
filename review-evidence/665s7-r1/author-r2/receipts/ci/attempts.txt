@@ -1,0 +1,12 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741
+every replay attempt before the kept one, with its result and its cause (none is a defect of the change)
+---
+- docs/docs-check, docs/ci-manifest, docs/ci-cancel-tail, attempt 1: docs-check FAILURE (its step ci_step_6, rc 1).
+  The driver script (tools/stop_replay.sh, first version) addressed docs-gates-0/1/2 as one matrix job, so those three
+  jobs never ran, and docs-check then ran with its needs missing. Its two dependents ran after it. All three were set
+  aside with ci_replay.py again (kept under the replay's attempts/), the driver was fixed to name the three jobs, and
+  attempt 2 ran each after docs-gates-0/1/2: all success. The first driver also printed date's exit status in place
+  of the job's; every verdict here is read from each job's own result.json.
+- The boundary set's first driver ended with a shell syntax error after its last job, because the script was rewritten
+  while that bash still read it. Its three jobs (changes, firmware-boundary, firmware-verilator) had each completed;
+  their result.json files are the kept results.
