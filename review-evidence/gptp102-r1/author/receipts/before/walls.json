@@ -1,0 +1,122 @@
+[
+ {
+  "step": "target `contract`",
+  "start": 0.02,
+  "end": 0.06,
+  "wall_s": 0.04
+ },
+ {
+  "step": "target `tb`",
+  "start": 0.06,
+  "end": 19209.92,
+  "wall_s": 19209.86
+ },
+ {
+  "step": "sub-make `tb/verilator/ucpu`",
+  "start": 0.06,
+  "end": 7.0,
+  "wall_s": 6.94
+ },
+ {
+  "step": "sub-make `tb/verilator/parser`",
+  "start": 7.0,
+  "end": 228.79,
+  "wall_s": 221.79
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 7.0,
+  "end": 13.49,
+  "wall_s": 6.49
+ },
+ {
+  "step": "driver `tb/verilator/parser/mutants.py`",
+  "start": 13.49,
+  "end": 228.79,
+  "wall_s": 215.3
+ },
+ {
+  "step": "sub-make `tb/verilator/engine`",
+  "start": 228.79,
+  "end": 19124.0,
+  "wall_s": 18895.21
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 228.79,
+  "end": 548.3,
+  "wall_s": 319.51
+ },
+ {
+  "step": "driver `tb/verilator/engine/mutants.py`",
+  "start": 548.3,
+  "end": 19124.0,
+  "wall_s": 18575.7
+ },
+ {
+  "step": "sub-make `tb/verilator/gaskets`",
+  "start": 19124.0,
+  "end": 19163.51,
+  "wall_s": 39.51
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 19124.0,
+  "end": 19130.44,
+  "wall_s": 6.44
+ },
+ {
+  "step": "driver `tb/verilator/gaskets/mutants.py`",
+  "start": 19130.44,
+  "end": 19163.51,
+  "wall_s": 33.07
+ },
+ {
+  "step": "sub-make `tb/tsngen`",
+  "start": 19163.51,
+  "end": 19204.96,
+  "wall_s": 41.45
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 19163.51,
+  "end": 19172.23,
+  "wall_s": 8.72
+ },
+ {
+  "step": "driver `tb/tsngen/mutants.py`",
+  "start": 19172.23,
+  "end": 19204.96,
+  "wall_s": 32.73
+ },
+ {
+  "step": "sub-make `bench/arty`",
+  "start": 19204.96,
+  "end": 19209.92,
+  "wall_s": 4.96
+ },
+ {
+  "step": "target `lint`",
+  "start": 19209.92,
+  "end": 19210.25,
+  "wall_s": 0.33
+ },
+ {
+  "step": "sub-make `bench/arty`",
+  "start": 19210.07,
+  "end": 19210.25,
+  "wall_s": 0.18
+ },
+ {
+  "step": "target `docs`",
+  "start": 19210.25,
+  "end": 19211.54,
+  "wall_s": 1.29
+ },
+ {
+  "step": "whole `make all` (rc 0)",
+  "start": 0,
+  "end": 19211.54,
+  "wall_s": 19211.54
+ }
+]

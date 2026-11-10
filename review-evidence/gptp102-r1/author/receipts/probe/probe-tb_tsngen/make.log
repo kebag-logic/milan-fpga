@@ -1,0 +1,9 @@
+      0.00 make: Entering directory '/data-2/milan/tmp/gptp102-a762/probe/clone/tb/tsngen'
+      0.00 python3 mutants.py
+      7.88 [PASS] the unmutated engine RTL still passes the harness
+     15.47 [PASS] mutant caught: received sequenceId zeroed - breaks "a Follow_Up is paired with its Sync by the sequenceId that arrived, not by a constant"
+     23.26 [PASS] mutant caught: announce grandmasterIdentity discarded - breaks "the grandmasterIdentity an Announce carries is the identity BMCA compares, so a better master is recognised as one"
+     31.34 [PASS] mutant caught: transmit end of frame one byte early - breaks "a transmitted frame carries every byte the slot holds"
+     31.35 
+     31.35 4 checks: 4 PASS, 0 FAIL
+     31.36 make: Leaving directory '/data-2/milan/tmp/gptp102-a762/probe/clone/tb/tsngen'

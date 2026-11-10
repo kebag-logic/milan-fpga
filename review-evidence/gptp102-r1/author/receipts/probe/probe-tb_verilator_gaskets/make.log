@@ -1,0 +1,10 @@
+      0.00 make: Entering directory '/data-2/milan/tmp/gptp102-a762/probe/clone/tb/verilator/gaskets'
+      0.00 python3 mutants.py
+      5.63 [PASS] the unmutated bench RTL still passes the harness
+     11.56 [PASS] mutant caught: tx fifo level truncated - breaks "a FIFO holding exactly 64 words reports a level the gasket can see, instead of reading 0 and wedging S_IDLE"
+     17.39 [PASS] mutant caught: tx sfd toggle frozen - breaks "the egress timestamp point is marked once per frame at the SFD"
+     23.27 [PASS] mutant caught: rx sfd toggle frozen - breaks "the ingress timestamp point is marked once per frame at the SFD"
+     31.84 [PASS] mutant caught: rx end of frame never raised - breaks "a delivered frame is terminated, so the receiver can count its bytes"
+     31.84 
+     31.84 5 checks: 5 PASS, 0 FAIL
+     31.85 make: Leaving directory '/data-2/milan/tmp/gptp102-a762/probe/clone/tb/verilator/gaskets'
