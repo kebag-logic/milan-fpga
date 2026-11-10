@@ -151,6 +151,19 @@ datapath has not acknowledged leaves its interface owed and the loop awake
 until a poll publishes it whole; until then every state-changing command is
 refused.
 
+REBOOT (IEEE 1722.1-2021 7.4.43; [#871](https://github.com/kebag-logic/milan-fpga/issues/871))
+is answered only where `aecp_config.reboot` says the platform resets the
+entity; elsewhere it is NOT_IMPLEMENTED. The routes are the processor's, in
+its order. A command shorter than Figure 7-68's four bytes is BAD_ARGUMENTS,
+another type NOT_SUPPORTED (no MEMORY_OBJECT firmware image exists) and
+another ENTITY index NO_SUCH_DESCRIPTOR. Another controller's lock is
+ENTITY_LOCKED (7.4.43.2), and a change the platform has not applied
+ENTITY_MISBEHAVING. A SUCCESS is notified to every other registered
+controller (7.5.2; Milan v1.2 5.4.5.2). From it no command is taken and no
+probe or notification is started. `aecp_reboot_due` turns true once every
+frame owed has completed, the REBOOT's last; the platform then resets
+([plat](../plat/README.md#the-ports)).
+
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement
 [#637](https://github.com/kebag-logic/milan-fpga/issues/637). Saved scalars use

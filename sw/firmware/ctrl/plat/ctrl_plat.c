@@ -15,6 +15,7 @@
 #include "aecp_entity_gen.h"
 #include "aecp_image.h"
 #include "ctrl_plat_io.h"
+#include "mbx_hal.h"
 #include "nvm_store.h"
 #include "wire.h"
 
@@ -164,6 +165,50 @@ static void configure_sources(struct ctrl_plat *p)
 	p->srp_config.ctx = p;
 }
 
+// ---- the REBOOT (ctrl_plat.h) ----------------------------------------------
+
+// ADP's ring has handed every frame committed to it to the datapath
+static bool adp_drained(void)
+{
+	const uint32_t ch = MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE;
+	return (uint16_t)mbx_hal_read32(ch + MBX_CH_REG_TX_TAIL) == (uint16_t)mbx_hal_read32(ch + MBX_CH_REG_TX_HEAD);
+}
+
+// Once the REBOOT's frames are out, ADP's SHUTDOWN; once its ENTITY_DEPARTINGs
+// are out too, the reset port (IEEE 1722.1-2021 7.4.43; Milan v1.2 5.6.3.3).
+static bool reboot_step(struct ctrl_plat *p)
+{
+	if (p->reboot == 0u) {
+		if (!aecp_reboot_due(&p->aecp.core)) {
+			return false;
+		}
+		adp_mbx_set_enable(&p->app.adp, false);
+		p->reboot = 1u;
+		return true;
+	}
+	if (p->reboot == 1u) {
+		for (unsigned i = 0; i < MBX_N_IF; ++i) {
+			if (p->app.adp.ifs[i].adp.departing_owed != 0u) {
+				return true;
+			}
+		}
+		if (!adp_drained()) {
+			return true;
+		}
+		ctrl_plat_io_write32(p->env->reboot, 1u);
+		p->reboot = 2u;
+	}
+	return false;
+}
+
+// The console's poll, which also runs the REBOOT's sequence
+static bool poll(void *ctx)
+{
+	struct ctrl_plat *p = ctx;
+	bool owed = ctrl_plat_console_poll(&p->console);
+	return reboot_step(p) || owed;
+}
+
 // ---- the boot --------------------------------------------------------------
 
 static enum ctrl_plat_stage reach(struct ctrl_plat *p, enum ctrl_plat_stage stage, const char *line)
@@ -224,6 +269,7 @@ static bool compose(struct ctrl_plat *p)
 	p->aecp_config.map_count = AECP_ENTITY_MAPS;
 	p->aecp_config.events = events;
 	p->aecp_config.latency = latency;
+	p->aecp_config.reboot = p->env->reboot != 0u;
 	p->aecp_platform = (struct aecp_ports){.random = random_value, .path = path};
 	aecp_face_init(&p->face, &p->aecp_platform);
 	return ctrl_app_compose(&p->app, &p->config) &&
@@ -256,7 +302,7 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// The console's poll, before SRP's two. It is refused only by a full table,
 	// and ctrl_app_attach_srp below refuses unless two more slots are free, so
 	// a composition that leaves the console no slot stops at SRP, by name
-	(void)ctrl_loop_add_poll(&p->app.loop, ctrl_plat_console_poll, &p->console);
+	(void)ctrl_loop_add_poll(&p->app.loop, poll, p);
 	// Steps 6-7: the saved state, bindings first, before anything opens. The
 	// store's service is the loop's first centisecond consumer, bound before
 	// the open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room
@@ -280,11 +326,33 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	return reach(p, CTRL_PLAT_READY, CTRL_PLAT_READY_LINE);
 }
 
+// Once the reset port has fired, the store alone, on the loop's centisecond,
+// and its F_NVM, which the drain reads. No frame or event is taken, so nothing
+// becomes dirty and no journal write starts during the PHY hold, when the
+// reload may read the flash (docs/design/REBOOT_RESET.md section 4; #871).
+static void quiet(struct ctrl_plat *p)
+{
+	const uint32_t now = mbx_now_ms();
+	if ((uint32_t)(now - p->quiet_ms) >= 10u) {
+		p->quiet_ms = now;
+		nvm_store_service();
+	}
+	uint32_t restore = 0;
+	uint32_t nvm = 0;
+	bool dirty = false;
+	ctrl_app_aecp_store_words(nvm_store_status(), &restore, &nvm, &dirty);
+	aecp_face_status(&p->face, restore, nvm, dirty);
+	(void)aecp_face_poll(&p->face);
+	(void)ctrl_plat_console_poll(&p->console);
+}
+
 void ctrl_plat_step(void)
 {
-	if (ctrl_plat.stage == CTRL_PLAT_READY) {
-		ctrl_loop_step(&ctrl_plat.app.loop);
-	} else {
+	if (ctrl_plat.stage != CTRL_PLAT_READY) {
 		(void)ctrl_plat_console_poll(&ctrl_plat.console);
+	} else if (ctrl_plat.reboot == 2u) {
+		quiet(&ctrl_plat);
+	} else {
+		ctrl_loop_step(&ctrl_plat.app.loop);
 	}
 }

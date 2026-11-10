@@ -17,7 +17,8 @@ policy CONFIG -o ctrl_plat_policy_gen.h
 
 map CSR_CSV -o ctrl_plat_map_gen.h
     The bus addresses the image reaches, from the SoC's own csr.csv: the
-    milan_csr and ctrl_mbx regions and the UART's four registers. The address
+    milan_csr and ctrl_mbx regions, the UART's four registers and the AECP
+    REBOOT's reset port (ctrl_reboot_req, milan_soc.CtrlReboot; #871). The address
     map is independent of the image (docs/design/SPLIT_CONTROL_MEMORY.md
     section 4), so an export with any image gives the image's map. A csr.csv
     whose UART pops its receive FIFO on the RXTX read (rx_fifo_rx_we) is
@@ -49,7 +50,8 @@ MAP_ROWS = (("CTRL_PLAT_CSR_BASE", "memory_region", "milan_csr"),
             ("CTRL_PLAT_UART_RXTX", "csr_register", "uart_rxtx"),
             ("CTRL_PLAT_UART_TXFULL", "csr_register", "uart_txfull"),
             ("CTRL_PLAT_UART_RXEMPTY", "csr_register", "uart_rxempty"),
-            ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"))
+            ("CTRL_PLAT_UART_EV_PENDING", "csr_register", "uart_ev_pending"),
+            ("CTRL_PLAT_REBOOT", "csr_register", "ctrl_reboot_req"))
 #: LiteX's constant when the UART pops on the RXTX read (soc.py add_uart).
 RX_WE = "config_uart_rx_fifo_rx_we"
 

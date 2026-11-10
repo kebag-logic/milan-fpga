@@ -101,7 +101,7 @@ struct Firmware {
     ports.start=[](void*p,uint16_t,bool v){auto &s=*static_cast<Firmware*>(p);s.changed=s.bound&&s.started!=v;if(s.bound)s.started=v;};
     ports.format=[](void*,uint16_t t,uint16_t i,uint64_t v){return scenario_format(t,i,v);};
     ports.applied=[](void*){return true;};
-    cfg={EID,{OWN_MAC,OWN_MAC},AECP_WIRE_INTERFACES,&model,maps,2,events.data(),latency};
+    cfg={EID,{OWN_MAC,OWN_MAC},AECP_WIRE_INTERFACES,&model,maps,2,events.data(),latency,false};
     if(!fw::aecp_init(&a,&cfg,&ports))throw std::runtime_error("init");
     fw::aecp_open(&a);
   }

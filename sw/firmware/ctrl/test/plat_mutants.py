@@ -183,4 +183,54 @@ def boot_mutants(mutant: type) -> tuple:
           "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a revocation clears it"),
         m("plat-source-vid", PLAT, "\t\t\tv->vlan_id = (uint16_t)p->env->policy->sr_vid;\n", "",
           "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
+    ) + reboot_mutants(mutant)
+
+
+#: The REBOOT's sequence in ctrl_plat.c (#871): its gate, ADP's SHUTDOWN, the drained ring and the port's write.
+DUE = "\t\tif (!aecp_reboot_due(&p->aecp.core)) {\n"
+SHUTDOWN = "\t\tadp_mbx_set_enable(&p->app.adp, false);\n"
+DRAINED = "\t\tif (!adp_drained()) {\n"
+FIRE = "\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n"
+
+
+def reboot_mutants(mutant: type) -> tuple:
+    """The REBOOT's (IEEE 1722.1-2021 7.4.43): the reset before the response or the DEPARTING, the request
+    ignored, a REBOOT with no port, and a loop stopped at the reset, which tears the journal write in progress."""
+    m = mutant
+    return (
+        m("plat-reboot-before-the-response", PLAT, DUE,
+          "\t\tif (p->aecp.core.reboot != 0u) {\n\t\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n\t\t}\n" + DUE,
+          "platboot1", "Boot.B12TheResetWaitsForTheResponseToLeave",
+          "B12 no reset while the mailbox holds the response"),
+        m("plat-reboot-ignored", PLAT, FIRE, "",
+          "platboot1", "Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets", "B11 the reset port is written once",
+          also=(("platboot1", "Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain",
+                 "B15 the REBOOT fires the reset port"),
+                ("platboot1", "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+                 "B16 the REBOOT fires the reset port"))),
+        m("plat-reboot-without-departing", PLAT, SHUTDOWN, "",
+          "platboot1", "Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets",
+          "B11 every interface sends ENTITY_DEPARTING"),
+        m("plat-reboot-before-departing-left", PLAT, DRAINED, "\t\tif (!adp_drained() && false) {\n",
+          "platboot1", "Boot.B12TheResetWaitsForTheResponseToLeave",
+          "B12 no reset while the mailbox holds ENTITY_DEPARTING"),
+        m("plat-reboot-without-a-port", PLAT, "p->aecp_config.reboot = p->env->reboot != 0u;",
+          "p->aecp_config.reboot = true;",
+          "platboot1", "Boot.B14WithoutAResetPortRebootIsNotImplemented",
+          "B14 without a reset port REBOOT is NOT_IMPLEMENTED"),
+        m("plat-reboot-under-another-lock", "aecp/aecp_commands.c",
+          "\tif (aecp_foreign_lock(a)) {\n\t\treturn AECP_ENTITY_LOCKED;\n\t}\n\ta->notify = true;\n",
+          "\ta->notify = true;\n",
+          "platboot1", "Boot.B13RefusalsLeaveTheEntityInService",
+          "B13 ENTITY_LOCKED under another controller's lock"),
+        m("plat-reboot-stops-the-store", PLAT, "\t\tnvm_store_service();\n", "",
+          "platboot1", "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+          "B16 the change made before the REBOOT is kept"),
+        m("plat-reboot-hides-the-drain", PLAT, "\taecp_face_status(&p->face, restore, nvm, dirty);\n", "",
+          "platboot1", "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+          "B16 the drain ends because the write completed, not at its deadline"),
+        m("plat-reboot-takes-frames-after-the-port", PLAT, "\t} else if (ctrl_plat.reboot == 2u) {\n",
+          "\t} else if (ctrl_plat.reboot == 2u && false) {\n",
+          "platboot1", "Boot.B17NothingIsTakenOnceTheResetPortFired",
+          "B17 a bind after the reset port fired is not taken"),
     )

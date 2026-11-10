@@ -21,7 +21,7 @@ TEST(AecpDebug, EveryInputRejectsSynchronousPortDelivery)
             uint8_t bytes[312]={};
             aecp_descriptor d{0,0,0,312,bytes,bytes};
             aecp_model model{&d,1,1};aecp_event events[1]{};
-            aecp_config cfg{1,{1,2},1,&model,nullptr,0,events,nullptr};
+            aecp_config cfg{1,{1,2},1,&model,nullptr,0,events,nullptr,false};
             aecp a{},other{};
             aecp_ports quiet{};quiet.now_ms=[](void*){return 0u;};
             quiet.timer=[](void*,bool,uint32_t){};

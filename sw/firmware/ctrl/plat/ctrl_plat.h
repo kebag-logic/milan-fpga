@@ -22,6 +22,19 @@
 //   9    ADP starts last, once AECP and ACMP accept requests
 //        (ctrl_app_release_adp). The console and the store's service joined
 //        the loop at composition, and the loop is first serviced now.
+//
+// THE REBOOT (IEEE 1722.1-2021 7.4.43; #871). AECP answers a REBOOT of the
+// ENTITY only when env->reboot names the reset port. After its SUCCESS no
+// command is taken. Once the SUCCESS and its notifications have left the
+// mailbox (aecp_reboot_due), ADP shuts down, so an advertising interface
+// sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3). Once the ADP ring has drained,
+// one write of 1 to the port starts the datapath's KL_reboot_ctrl: the saved
+// state drains, the MAC empties, the PHY is held in reset and the
+// configuration reloads (docs/design/REBOOT_RESET.md). The sequence runs in
+// the console's poll, because the loop has no free poll. From the write on,
+// ctrl_plat_step services the saved-state store and its F_NVM alone. So a
+// journal write in progress completes and the drain sees it, and no frame is
+// taken that could start another during the PHY hold.
 // A stage that refuses stops the boot there: nothing after it runs, ADP never
 // starts, the loop is never serviced, and only the console answers, as the
 // all-fabric image keeps its BIOS console when its fabric stays disabled.
@@ -88,6 +101,7 @@ struct ctrl_plat_env {
 	const uint8_t *aem;                         // the paired AEM image (step 4)
 	size_t aem_bytes;
 	uint32_t aem_crc;
+	uintptr_t reboot;                           // the REBOOT reset port's register, 0 for none (#871)
 };
 
 // The allocation MAAP last reported on one interface.
@@ -106,6 +120,8 @@ struct ctrl_plat {
 	struct ctrl_plat_allocation allocation[MBX_N_IF];
 	uint32_t csr_dropped;                       // MAAP port writes with no window
 	uint32_t licences[MBX_N_IF];                // SRP's last licence per source, bit s source s
+	uint8_t reboot;                             // 1 ADP shut down for a REBOOT, 2 the reset port fired
+	uint32_t quiet_ms;                          // the store's last service once the port fired
 	struct ctrl_app app;
 	struct ctrl_app_config config;
 	struct acmp_config acmp;
