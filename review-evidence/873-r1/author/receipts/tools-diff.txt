@@ -1,0 +1,29 @@
+=== run_docs_yml.py (829-a725c copy -> this round)
+14c14
+< LANE = "$LANES/583-arty"
+---
+> LANE = "$LANES/873-act8"
+16,17c16,17
+< VENV = "$VALIDATION_STORAGE/829-a725c/gates/venv/bin"
+< HOME = "$VALIDATION_STORAGE/829-a725c/gates/home"
+---
+> VENV = "/data-2/milan/tmp/873-a763/gates/venv/bin"
+> HOME = "/data-2/milan/tmp/873-a763/gates/home"
+=== verify_docs_yml.py (829-a725c copy -> this round)
+13c13
+< text = subprocess.run(["git", "-C", "$LANES/583-arty", "show", f"{head}:.github/workflows/docs.yml"],
+---
+> text = subprocess.run(["git", "-C", "$LANES/873-act8", "show", f"{head}:.github/workflows/docs.yml"],
+=== clone_at.sh (829-a725c copy -> this round)
+4c4
+< L=$LANES/583-arty; sha=$1; d=$2
+---
+> L=$LANES/873-act8; sha=$1; d=$2
+=== not_run.json (829-a725c copy -> this round)
+4d3
+<   "ci_step_54": "ci_gate_receipts record reads the hosted step context",
+27c26,27
+<   "docs-gates-2/ci_step_11": "sudo install into /usr/local/bin through /tmp; /usr/local/bin/sv2v is already the pinned v0.0.12"
+---
+>   "docs-gates-2/ci_step_11": "sudo install into /usr/local/bin through /tmp; /usr/local/bin/sv2v is already the pinned v0.0.12",
+>   "docs-gates-0/ci_step_56": "ci_gate_receipts record reads the hosted step context"
