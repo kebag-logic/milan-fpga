@@ -1,0 +1,568 @@
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index ddc3014537..00986139f8 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -381,7 +381,7 @@ The split build's transmit path to the wire is held in the RTL
+ ([`make srptx`](../../../../tb/verilator/milan_dp/README.md#the-split-builds-srp-transmit-path-obj_srptx-867), #867).
+ That covers this adapter's MRPDUs through the SRP transmit ring, `KL_mbx_tx` and
+ `ctl_tx_mux`: their 10.8 form, the port's source address from reset, the Join
+-and LeaveAll spacing at egress within the MRP service bound (18 ms), and a full ring that loses
++and LeaveAll spacing at egress within T_svc (20 ms) on each side, and a full ring that loses
+ nothing and keeps the order. It also covers the #608 stop and the `LICENCE`
+ at the policer, the last two only under that check's fixture, which gives
+ source 0 its allocation at creation. Until the entry above re-declares a
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index d70d4f5b2d..4959093064 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+ - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
+ - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
+-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-three plants and ten code mutants
++- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-five plants, three controls and twelve code mutants
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -1551,9 +1551,9 @@ case is held in the split build only under the fixture.
+ |---|---|---|
+ | `[WIRE]` | every MSRP and MVRP frame is a well-formed MRPDU: ProtocolVersion, AttributeType and AttributeLength, the MSRP AttributeListLength with its AttributeList EndMark where it ends, each vector, each AttributeList EndMark and the PDU EndMark, nothing after it but zeros; at most 1,500 octets, and the frame at most 1,500 bytes; one Message per AttributeType; no attribute value twice in one MRPDU; a LeaveAll on every AttributeType of its application (MSRP 1 to 4, MVRP 1); the group address of its application. `srp_wire_compare.py`'s decoder also reads every MSRP frame | IEEE 802.1Q-2018 10.8.1, 10.8.2, 10.7.9, 10.8.2.6, 35.2.2.1/.2, 11.2.3.1.3; lwSRP PR #18; [issuecomment-6087462816](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6087462816) |
+ | `[SA]` | every MRPDU's source address is the port's MAC, from the first frame after reset | #839; IEEE 802.1AC-2016 11.1 |
+-| `[TIME]` | per participant, at egress, each bound widened by the MRP service bound, 18 ms: the approved T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling of 10 % of the shortest JoinTime, 180 ms). No four transmit opportunities in 1.5 x JoinTime (282 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (218 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,782 to 15,218 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; [issuecomment-6495692075](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075) |
++| `[TIME]` | per participant, at egress, each bound widened by the approved service allowance, T_svc = 20 ms. No four transmit opportunities in 1.5 x JoinTime (280 ms); each transmit opportunity a Join timer sent within JoinTime's range, 180 to 240 ms, of the one before, on each side (160 to 260 ms); after a New, or a declaration's first message, the attribute's next message within JoinTime (220 ms), unless a frame of the application was received between; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime of the last one sent or received, or of reset, with the transmit opportunity's wait (JoinTime) added (9,780 to 15,220 ms), and none missing at the run's end | IEEE 802.1Q-2018 10.7.4.1, 10.7.4.3, 10.7.11, Tables 10-3, 10-5 and 10-7; Milan v1.2 Table 4.3; #867 item 3; [issuecomment-6681686082](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082), item 3 |
+ | `[TX]` | every MRPDU the adapter accepted left the MAC, byte for byte, in the order accepted, and nothing else did; while the MAC was held, the adapter refused an MRPDU with the ring too full for its record, and the MRPDU it refused was the next one it sent | #867 item 4; the adapter's retention ([SRP README](../../../sw/firmware/ctrl/srp/README.md#protocol-commitments)) |
+-| `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within the MRP service bound, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
++| `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within T_svc, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
+ | `[LIC]` | at every millisecond, the policer's ACTIVE, admitted and stream gate equal the `LICENCE` the firmware last wrote; the AAF talker's gate opens only under source 0's licence; the CRF source's term reads the top gate bit; no stream frame leaves while no source holds a licence | #867 item 6; Milan v1.2 5.3.7.3 |
+ | `[BENCH]` | the bench's own assumptions: each modeled millisecond under 1 ms of RTL time, and lwSRP's port timers where the bench finds them | `srptx.hpp` |
+ 
+@@ -1600,7 +1600,13 @@ that expires while the Join timer runs waits for it (IEEE 802.1Q-2018
+ 10.7.4.1), within JoinTime. The MVRP frame of an opportunity leaves about
+ 11 us after the MSRP frame of the same millisecond, behind `ctl_tx_mux`'s gap.
+ The largest egress after a Join or periodic tick, 26.31 us, is far inside the
+-18 ms bound.
++20 ms T_svc. In every scenario, each transmit opportunity a Join timer sent
++left 198.989 to 200.015 ms after the one before, inside 160 to 260 ms.
++
++The Join bound is JoinTime's range, not the 200 ms the adapter configures,
++widened on each side. A frame delayed within T_svc shortens the interval after
++it: one 219 ms after the frame before leaves the next 179.99 ms later. A bound
++of 200 ms less T_svc, 180 ms, would refuse that frame, which item 3 allows.
+ 
+ Found, not held here: the split's AAF frames carry stream_id 0. No firmware
+ writes the publication block's `SRC_SID`, so the datapath's framer reads 0
+@@ -1611,7 +1617,10 @@ the allocation entry above lands.
+ 
+ `make srptx-plants` plants each check's defect into a copy of a capture
+ ([`srptx_plants.py`](srptx_plants.py)). Each must be refused by its words,
+-and no finding of its unplanted capture may hold them.
++and no finding of its unplanted capture may hold them. A plant on a `[TIME]`
++bound sits 1 ms past what #867 item 3 allows. The plants hold item 3's 20 ms
++as their own figure, apart from the grade's, so a grade bound off item 3's
++fails them.
+ 
+ | Plant | Scenario | Refused by |
+ |---|---|---|
+@@ -1621,10 +1630,12 @@ and no finding of its unplanted capture may hold them.
+ | `leave-all-wrong-type` | wire | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
+ | `oversized` | wire | `past 1500 octets and the 1500-byte frame` |
+ | `zero-source` | wire | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
+-| `join-late` | wire | `followed at ms 230, past JoinTime + the MRP service bound (218 ms` |
+-| `join-late-in-t-svc` (219 ms: inside JoinTime + T_svc, past the MRP bound) | wire | `followed at ms 220, past JoinTime + the MRP service bound (218 ms` |
++| `join-late` | wire | `followed at ms 230, past JoinTime + T_svc (220 ms` |
++| `join-late-past-t-svc` (the second MSRP frame and its record 221 ms after the first) | wire | `followed at ms 222, past JoinTime + T_svc (220 ms` |
++| `join-early-past-t-svc` (a short Join timer: the second and third MSRP frames, their records and timers earlier, the second 159 ms after the first) | wire | `a Join timer's transmit opportunity at ms 160, 159.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
++| `join-interval-late` (a long Join timer after the first MSRP LeaveAll, the second Join frame 261 ms after the one before, where no New is followed) | wire | `a Join timer's transmit opportunity at ms 15021, 261.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
+ | `rate` | wire | `four transmit opportunities in` |
+-| `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9782 to 15218 ms` |
++| `leave-all-missing` | wire | `after the last LeaveAll (reset), outside 9780 to 15220 ms` |
+ | `bench-overrun` | wire | `[BENCH] a modeled millisecond took 1200.000 us of RTL time` |
+ | `timer-layout` | wire | `[BENCH] a Join timer arm outside its participant's state` |
+ | `dropped-under-backpressure` | hold | `never left the MAC` |
+@@ -1639,6 +1650,16 @@ and no finding of its unplanted capture may hold them.
+ | `aaf-without-licence` | licence | `AAF talker's gate is open without` |
+ | `stream-without-licence` | licence | `while no source holds its licence` |
+ 
++Each control makes the same move to 1 ms inside the bound, and must grade
++with no finding. Together with its plant, it holds the grade's bound to the
++millisecond item 3 sets.
++
++| Control | Scenario | Moves |
++|---|---|---|
++| `join-late-within-t-svc` | wire | the second MSRP frame and its record 219 ms after the first |
++| `join-early-within-t-svc` | wire | `join-early-past-t-svc`'s frames, the second 161 ms after the first |
++| `join-interval-late-within` | wire | `join-interval-late`'s frames, the second 259 ms after the one before |
++
+ `make srptx-mutants` plants the defect in the code itself
+ ([`srptx_mutants.py`](srptx_mutants.py)). Each arm plants one line in a copy
+ of lwSRP, the adapter or the datapath, and builds the split half through its
+@@ -1655,8 +1676,10 @@ a catch.
+ | a LeaveAll on the last AttributeType alone | lwSRP `mrp_transmit` | wire, 16 s | `a LeaveAll on AttributeTypes [4], not on every MSRP AttributeType [1, 2, 3, 4]` |
+ | a refused MRPDU reported sent | the adapter's `send_pdu` | hold | `never left the MAC` |
+ | the first MRPDU's source address unset | the adapter's `send_pdu` | wire, 3 s | `[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC` |
+-| a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + the MRP service bound (218 ms` |
+-| a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9782 to 15218 ms` |
++| a Join timer of 23 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `past JoinTime + T_svc (220 ms` |
++| a Join timer of 10 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
++| a Join timer of 15 centiseconds | lwSRP `mrp_transmit` | wire, 3 s | `ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms` |
++| a LeaveAll drawn past 1.5 x LeaveAllTime | lwSRP `leaveall_draw` | wire, 40 s | `outside 9780 to 15220 ms` |
+ | a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
+ | a field before lwSRP's Join timer | lwSRP's port state | wire, 3 s | `[BENCH] a Join timer arm outside its participant's state` |
+ | the split's ACTIVE term held open | `milan_datapath.sv` | licence | `[LIC] at ms 1 the policer reads active 0x3, admitted 0x0` |
+diff --git a/tb/verilator/milan_dp/srptx_grade.py b/tb/verilator/milan_dp/srptx_grade.py
+index 74e511538d..080229d28e 100644
+--- a/tb/verilator/milan_dp/srptx_grade.py
++++ b/tb/verilator/milan_dp/srptx_grade.py
+@@ -15,13 +15,14 @@ Reads what twin_split.cpp --srptx records (srptx.hpp) and grades it:
+           35.2.2.1/.2, MVRP 11.2.3.1.3 and Table 10-1).
+   [SA]    every MRPDU's source address is the port's MAC from the first frame after reset (#839; IEEE
+           802.1AC-2016 11.1).
+-  [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, Table 10-7, Milan
+-          v1.2 Table 4.3's values), each bound widened by the MRP service bound, 18 ms: the owner's approved
+-          T_svc = 20 ms graded per family, min(T_svc, the MRP ceiling) (#665, approved 2026-10-29):
+-          no four in 1.5 x JoinTime; after a New, or a declaration's first message, the attribute's next
+-          message within JoinTime; each LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of
+-          the last, or of a received one (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime)
+-          added, and none missing at the run's end.
++  [TIME]  each participant's transmit opportunities at egress (IEEE 802.1Q-2018 10.7.4, 10.7.11, Table 10-7,
++          Milan v1.2 Table 4.3's values), each bound widened by the approved service allowance T_svc = 20 ms
++          (#867 item 3; #665, the owner's ruling of 2026-11-06): no four in 1.5 x JoinTime; each a Join
++          timer sends within JoinTime's range (180 to 240 ms) of the one before, on each side (10.7.4.1);
++          after a New, or a declaration's first message, the attribute's next message within JoinTime; each
++          LeaveAll within LeaveAllTime to 1.5 x LeaveAllTime (10.7.4.3) of the last, or of a received one
++          (rLA!, Table 10-5), the transmit opportunity's wait (JoinTime) added, and none missing at the
++          run's end.
+   [TX]    every MRPDU the adapter accepted from lwSRP left the MAC, byte for byte, in the order accepted,
+           and nothing else did; with the MAC held, the adapter saw the SRP transmit ring full, and the MRPDU it
+           refused was the next one it sent.
+@@ -41,7 +42,8 @@ with, and each frame's egress after its timer's expiry; and the frames per trans
+ 
+   srptx_grade.py CAPTURE [--report OUT.json]          grade; exit 1 on any finding
+   srptx_grade.py CAPTURE --make-plant NAME --out OUT   write a planted copy (srptx_plants.py)
+-  srptx_grade.py CAPTURE --plant NAME                  the planted capture must be refused by NAME's words
++  srptx_grade.py CAPTURE --plant NAME                  the planted capture must be refused by NAME's words,
++                                                       or for a control (srptx_plants.WITHIN) graded clean
+ """
+ from __future__ import annotations
+ 
+@@ -56,21 +58,24 @@ HERE = Path(__file__).resolve().parent
+ sys.path.insert(0, str(HERE.parents[2] / "sw/firmware/ctrl/test"))
+ import srp_wire_compare as swc  # noqa: E402
+ 
+-#: the project service budget the owner approved on 2026-10-29 (#665), which grades each path
+-#: against min(T_svc, its family's ceiling): for SRP/MRP 10 % of the shortest JoinTime Milan v1.2 Table 4.3 allows,
+-#: 180 ms (IEEE 802.1Q-2018 10.7.11), so 18 ms
+-T_SVC_MS = 20
+-MRP_CEILING_MS = 18
+-SVC_MS = min(T_SVC_MS, MRP_CEILING_MS)
++#: the approved service allowance, T_svc = 20 ms, which widens every [TIME] bound and the [608] window (#867
++#: item 3; #665: the owner's ruling of 2026-11-06 sets the SRP/MRP bound to T_svc, no longer min(T_svc, 10 % of the
++#: shortest JoinTime) = 18 ms)
++SVC_MS = 20
+ #: IEEE 802.1Q-2018 Table 10-7 as Milan v1.2 Table 4.3 sets it, and the adapter configures it (srp_mbx.c)
+ JOIN_MS = 200
+ LEAVE_MS = 5000
+ LEAVE_ALL_MS = 10000
+ PERIODIC_MS = 1000
++#: the JoinTime Milan v1.2 Table 4.3 allows, 180 to 240 ms (docs/reference/FR_NFR.md 3.4.1)
++JOIN_RANGE_MS = (180, 240)
+ #: lwSRP's timer resolution, one centisecond (docs/reference/FR_NFR.md 3.4.1)
+ RESOLUTION_MS = 10
+ RATE_WINDOW_MS = 3 * JOIN_MS // 2 - SVC_MS
+ JOIN_FOLLOW_MS = JOIN_MS + SVC_MS
++#: a Join timer's transmit opportunity after the one before it (IEEE 802.1Q-2018 10.7.4.1, 10.7.11): JoinTime's
++#: range widened by T_svc on each side, as LeaveAll's is
++JOIN_BOUNDS_MS = (JOIN_RANGE_MS[0] - SVC_MS, JOIN_RANGE_MS[1] + SVC_MS)
+ LEAVE_ALL_BOUNDS_MS = (LEAVE_ALL_MS - JOIN_MS - SVC_MS, 3 * LEAVE_ALL_MS // 2 + JOIN_MS + SVC_MS)
+ #: a modeled millisecond's RTL time, which the time base assumes is under one millisecond (srptx.hpp)
+ MS_US = 1000.0
+@@ -312,17 +317,23 @@ def grade_source(cap: Capture) -> tuple[list[str], dict]:
+ 
+ def grade_time(cap: Capture) -> list[str]:
+     """Each participant's transmit opportunities at egress against 10.7.4 and Table 10-7, each bound widened
+-    by the MRP service bound; a frame queued behind a hold is not graded."""
++    by T_svc; a frame queued behind a hold is not graded."""
+     found = []
+     low, high = LEAVE_ALL_BOUNDS_MS
++    join_low, join_high = JOIN_BOUNDS_MS
+     for proto in APPLICATIONS:
+         frames = [f for f in cap.mrpdus if f.proto == proto and not f.error and not cap.queued(f)]
+         for a, b in zip(frames, frames[3:]):
+             if (b.us - a.us) / 1000 < RATE_WINDOW_MS and not cap.held(a.ms, b.ms):
+                 found.append(f"[TIME] {proto}: four transmit opportunities in {(b.us - a.us) / 1000:.3f} ms from ms "
+-                             f"{a.ms}, inside 1.5 x JoinTime less the MRP service bound ({RATE_WINDOW_MS} ms; "
+-                             "IEEE 802.1Q-2018 "
++                             f"{a.ms}, inside 1.5 x JoinTime less T_svc ({RATE_WINDOW_MS} ms; IEEE 802.1Q-2018 "
+                              "10.7.4.1)")
++        # each a Join timer sent, after the one before it (10.7.4.1: jointimer spaces transmit opportunities)
++        for f, gap in join_intervals(cap, frames, causes(cap, proto, frames)):
++            if not join_low <= gap / 1000 <= join_high:
++                found.append(f"[TIME] {proto}: a Join timer's transmit opportunity at ms {f.ms}, {gap / 1000:.3f} ms "
++                             f"after the one before, outside JoinTime's range widened by T_svc ({join_low} to "
++                             f"{join_high} ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)")
+         received = cap.received(proto)
+         # after a New, or a declaration's first message, the next message of the attribute (Table 10-3:
+         # VN, AN, AA and VP each send again at the next transmit opportunity)
+@@ -342,8 +353,7 @@ def grade_time(cap: Capture) -> list[str]:
+                 if until - f.us / 1000 > JOIN_FOLLOW_MS:
+                     nxt = f"at ms {later.ms}" if later else "never"
+                     found.append(f"[TIME] {label(proto, kind, value)}: its {event} at ms {f.ms} followed {nxt}, past "
+-                                 f"JoinTime + the MRP service bound ({JOIN_FOLLOW_MS} ms; IEEE 802.1Q-2018 "
+-                                 "10.7.4.1, Table 10-3)")
++                                 f"JoinTime + T_svc ({JOIN_FOLLOW_MS} ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)")
+         # LeaveAll: from the last one sent or received (Table 10-5 restarts the timer at either), or reset
+         refs = [(0.0, "reset")] + [(r * 1000.0, "received") for r, la in received if la]
+         sent = [f for f in frames if f.leave_all_types()]
+@@ -357,8 +367,8 @@ def grade_time(cap: Capture) -> list[str]:
+             elif gap > high or (f is not None and gap < low):
+                 what = f"its LeaveAll at ms {f.ms}" if f else f"the run's end at ms {cap.doc['run_ms']}"
+                 found.append(f"[TIME] {proto}: {what} {gap:.3f} ms after the last LeaveAll ({why}), outside "
+-                             f"{low} to {high} ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and the "
+-                             "MRP service bound)")
++                             f"{low} to {high} ms (IEEE 802.1Q-2018 10.7.4.3, Table 10-7, plus JoinTime and "
++                             "T_svc)")
+             if f:
+                 refs.append((f.us, "sent"))
+     return found
+@@ -372,36 +382,48 @@ def stats(values: list[float]) -> dict:
+             "max_us": round(max(values), 3)}
+ 
+ 
++def causes(cap: Capture, proto: str, frames: list[Mrpdu]) -> list[tuple[str, dict] | None]:
++    """Each frame's timer and its expiry: a LeaveAll frame's LeaveAll expiry, any other's latest Join or periodic
++    expiry, each within ATTRIBUTE_MS before the frame, or None."""
++    expiries = [t for t in cap.doc["timers"] if t["proto"] == proto and t["event"] == "expire"
++                and t["kind"] in ("join", "periodic", "leaveall")]
++    cause: list[tuple[str, dict] | None] = []
++    for f in frames:
++        kinds = ("leaveall",) if f.leave_all_types() else ("join", "periodic")
++        before = [t for t in expiries if t["kind"] in kinds and t["us"] <= f.us
++                  and f.us - t["us"] < ATTRIBUTE_MS * 1000]
++        cause.append(("leaveall" if f.leave_all_types() else max(before, key=lambda t: t["us"])["kind"],
++                      max(before, key=lambda t: t["us"])) if before else None)
++    return cause
++
++
++def join_intervals(cap: Capture, frames: list[Mrpdu], cause: list) -> list[tuple[Mrpdu, float]]:
++    """Each frame a Join timer's expiry sent, with its egress interval in us from the frame before it, where no
++    hold lies between."""
++    return [(frames[k], frames[k].us - frames[k - 1].us) for k in range(1, len(frames))
++            if cause[k] and cause[k][0] == "join" and not cap.held(frames[k - 1].ms, frames[k].ms)]
++
++
+ def measure_time(cap: Capture) -> dict:
+     """The egress interval error per MRP timer, and each frame's egress after its timer's expiry."""
+     out: dict = {}
+     timers = cap.doc["timers"]
+     for proto in APPLICATIONS:
+         frames = [f for f in cap.mrpdus if f.proto == proto and not f.error and not cap.queued(f)]
+-        expiries = [t for t in timers if t["proto"] == proto and t["event"] == "expire"
+-                    and t["kind"] in ("join", "periodic", "leaveall")]
+         armed = {(t["id"], round(t["us"], 3)): t["cs"] for t in timers if t["event"] == "arm"}
+-        cause: list[tuple[str, dict] | None] = []
+-        for f in frames:
+-            kinds = ("leaveall",) if f.leave_all_types() else ("join", "periodic")
+-            before = [t for t in expiries if t["kind"] in kinds and t["us"] <= f.us
+-                      and f.us - t["us"] < ATTRIBUTE_MS * 1000]
+-            cause.append(("leaveall" if f.leave_all_types() else max(before, key=lambda t: t["us"])["kind"],
+-                          max(before, key=lambda t: t["us"])) if before else None)
++        cause = causes(cap, proto, frames)
+         after: dict[str, list[float]] = {"join": [], "periodic": [], "leaveall": []}
+         interval: dict[str, list[float]] = {"join": [], "periodic": [], "leaveall": []}
+         for f, c in zip(frames, cause):
+             if c and not cap.held(c[1]["ms"], f.ms):
+                 after[c[0]].append(f.us - c[1]["ms"] * 1000.0)
++        interval["join"] = [gap - JOIN_MS * 1000 for _, gap in join_intervals(cap, frames, cause)]
+         for k in range(1, len(frames)):
+             c, p = cause[k], cause[k - 1]
+             if c is None or cap.held(frames[k - 1].ms, frames[k].ms):
+                 continue
+-            gap = frames[k].us - frames[k - 1].us
+-            if c[0] == "join":
+-                interval["join"].append(gap - JOIN_MS * 1000)
+-            elif c[0] == "periodic" and p and p[0] == "periodic":
+-                interval["periodic"].append(gap - PERIODIC_MS * 1000)
++            if c[0] == "periodic" and p and p[0] == "periodic":
++                interval["periodic"].append(frames[k].us - frames[k - 1].us - PERIODIC_MS * 1000)
+         la = [(f, c) for f, c in zip(frames, cause) if c and c[0] == "leaveall"]
+         for (fa, ca), (fb, cb) in zip(la, la[1:]):
+             draw = armed.get((ca[1]["id"], round(ca[1]["us"], 3)))
+@@ -521,7 +543,7 @@ def grade_licence(cap: Capture) -> tuple[list[str], dict]:
+         stop = cleared[0] / 1000 if cleared else off["ms"]
+         if stop > deadline + SVC_MS or stop < deadline - RESOLUTION_MS:
+             found.append(f"[608] the talker stopped at ms {stop:.3f}, not at the LeaveTime deadline the peer's "
+-                         f"LeaveAll at ms {leave_all} started ({deadline} ms, the MRP service bound {SVC_MS} ms; "
++                         f"LeaveAll at ms {leave_all} started ({deadline} ms, T_svc {SVC_MS} ms; "
+                          f"the withdrawal at ms {withdraw} in LV restarts nothing, IEEE 802.1Q-2018 Table 10-4, "
+                          "Milan v1.2 4.2.7.2.2)" + FIXTURE)
+         late = [s for s in cap.doc["stream"] if s[0] > off["ms"]]
+@@ -608,6 +630,9 @@ def main() -> int:
+         args.report.write_text(json.dumps({"findings": found, "measured": measured}, indent=1) + "\n")
+     if args.plant:
+         import srptx_plants
++        if args.plant in srptx_plants.WITHIN:
++            print(f"control {args.plant}: {'REFUSED: ' + found[0] if found else 'clean'}")
++            return 1 if found else 0
+         words = srptx_plants.WORDS[args.plant]
+         caught = [x for x in found if words in x]
+         print(f"plant {args.plant}: {'refused' if caught else 'ESCAPED'}: {caught[0] if caught else words}")
+diff --git a/tb/verilator/milan_dp/srptx_mutants.py b/tb/verilator/milan_dp/srptx_mutants.py
+index 465a576a78..1b7b4e62b9 100644
+--- a/tb/verilator/milan_dp/srptx_mutants.py
++++ b/tb/verilator/milan_dp/srptx_mutants.py
+@@ -21,11 +21,17 @@ import sys
+ import tempfile
+ from pathlib import Path
+ 
++import srptx_grade as g
++
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+ MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
+ ADAPTER = ROOT / "sw/firmware/ctrl/srp/srp_mbx.c"
+ DP = ROOT / "hdl/milan/milan_datapath.sv"
++JOIN_ARM = "    shlan_timer_arm(&ps->join_timer, ps->join_cs);"
++#: the grade's words for a Join timer's transmit opportunity outside JoinTime's range widened by T_svc
++JOIN_SPACING = f"ms after the one before, outside JoinTime's range widened by T_svc ({g.JOIN_BOUNDS_MS[0]} to " \
++               f"{g.JOIN_BOUNDS_MS[1]} ms"
+ 
+ #: (name, the source, its line as tracked, the planted line, scenario, run ms or 0, the words that must refuse it)
+ ARMS = (
+@@ -47,12 +53,18 @@ ARMS = (
+      "        wire_put_be(m->owed_frame + 6,m->transmitted ? s->interface->mac : 0u,6);",
+      "wire", 3000, "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
+     ("a Join timer of 23 centiseconds", MRP,
+-     "    shlan_timer_arm(&ps->join_timer, ps->join_cs);", "    shlan_timer_arm(&ps->join_timer, ps->join_cs + 3u);",
+-     "wire", 3000, "past JoinTime + the MRP service bound (218 ms"),
++     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs + 3u);",
++     "wire", 3000, f"past JoinTime + T_svc ({g.JOIN_FOLLOW_MS} ms"),
++    ("a Join timer of 10 centiseconds", MRP,
++     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs - 10u);",
++     "wire", 3000, JOIN_SPACING),
++    ("a Join timer of 15 centiseconds", MRP,
++     JOIN_ARM, "    shlan_timer_arm(&ps->join_timer, ps->join_cs - 5u);",
++     "wire", 3000, JOIN_SPACING),
+     ("a LeaveAll drawn past 1.5 x LeaveAllTime", MRP,
+      "    return ps->leaveall_cs + 1u + ps->random % (ps->leaveall_cs / 2u - 1u);",
+      "    return ps->leaveall_cs * 3u / 2u + 30u;",
+-     "wire", 40000, "outside 9782 to 15218 ms"),
++     "wire", 40000, f"outside {g.LEAVE_ALL_BOUNDS_MS[0]} to {g.LEAVE_ALL_BOUNDS_MS[1]} ms"),
+     ("a withdrawal in LV that restarts LeaveTime (#608)", MRP,
+      "        _RX,                                /* LV: -x-                  */",
+      "        _RE(REG_IND_NONE, REG_TIMER_START, MRP_REG_STATE_LV),",
+diff --git a/tb/verilator/milan_dp/srptx_plants.py b/tb/verilator/milan_dp/srptx_plants.py
+index c003f2a52e..e0f86e6cd5 100644
+--- a/tb/verilator/milan_dp/srptx_plants.py
++++ b/tb/verilator/milan_dp/srptx_plants.py
+@@ -5,11 +5,13 @@
+ 
+ Each plant changes a copy of one scenario's capture as the defect it names would have changed it, and
+ srptx_grade.py --plant must find WORDS[name] in a finding of the planted copy. The unplanted captures have
+-no finding (make srptx). srptx_mutants.py plants the defects in the code itself.
++no finding (make srptx). Each WITHIN control moves a transmit opportunity to 1 ms inside a bound #867 item 3
++allows, beside the plant 1 ms past it, and its copy must grade with no finding. srptx_mutants.py plants the
++defects in the code itself.
+ 
+   srptx_grade.py CAPTURE --make-plant NAME --out PLANTED
+   srptx_grade.py PLANTED --plant NAME
+-  srptx_plants.py DIR      every plant against DIR/{wire,hold,licence}.json (make srptx-plants)
++  srptx_plants.py DIR      every plant and control against DIR/{wire,hold,licence}.json (make srptx-plants)
+ """
+ from __future__ import annotations
+ 
+@@ -20,6 +22,16 @@ from pathlib import Path
+ 
+ import srptx_grade as g
+ 
++#: #867 item 3's approved service allowance, T_svc 20 ms, held here apart from the grade's SVC_MS: each plant on
++#: a bound sits 1 ms past what item 3 allows and its control 1 ms inside, so a grade bound off item 3's is refused
++ITEM3_SVC_MS = 20
++FOLLOW_MS = g.JOIN_MS + ITEM3_SVC_MS
++JOIN_BOUNDS_MS = (g.JOIN_RANGE_MS[0] - ITEM3_SVC_MS, g.JOIN_RANGE_MS[1] + ITEM3_SVC_MS)
++LEAVE_ALL_BOUNDS_MS = (g.LEAVE_ALL_MS - g.JOIN_MS - ITEM3_SVC_MS,
++                       3 * g.LEAVE_ALL_MS // 2 + g.JOIN_MS + ITEM3_SVC_MS)
++JOIN_WORDS = f"ms after the one before, outside JoinTime's range widened by T_svc ({JOIN_BOUNDS_MS[0]} to " \
++             f"{JOIN_BOUNDS_MS[1]} ms"
++
+ #: name -> (the scenario it plants, what it changes, the words it must be refused by)
+ PLANTS = {
+     # [WIRE], #867 item 1
+@@ -38,13 +50,25 @@ PLANTS = {
+                     "[SA] MSRP frame at ms 1 from 000000000000, not the port's MAC"),
+     # [TIME], item 3
+     "join-late": ("wire", "the second MSRP frame 30 ms later, the Domain's second New",
+-                  "followed at ms 230, past JoinTime + the MRP service bound (218 ms"),
+-    "join-late-in-t-svc": ("wire", "the second MSRP frame 20 ms later: inside JoinTime + T_svc, past the MRP bound",
+-                           "followed at ms 220, past JoinTime + the MRP service bound (218 ms"),
++                  f"followed at ms 230, past JoinTime + T_svc ({FOLLOW_MS} ms"),
++    "join-late-past-t-svc": ("wire", f"the second MSRP frame and the adapter's record of it {FOLLOW_MS + 1} ms after "
++                             "the first: 1 ms past JoinTime + T_svc",
++                             f"followed at ms 222, past JoinTime + T_svc ({FOLLOW_MS} ms"),
++    "join-early-past-t-svc": ("wire", "a short Join timer: the second and third MSRP frames, their records and the "
++                              f"Join timer that sent each, earlier, the second {JOIN_BOUNDS_MS[0] - 1} ms after the "
++                              "first: 1 ms short of JoinTime's range less T_svc",
++                              f"a Join timer's transmit opportunity at ms 160, {JOIN_BOUNDS_MS[0] - 1:.3f} "
++                              + JOIN_WORDS),
++    "join-interval-late": ("wire", "a long Join timer: the second and third Join timer frames after the first MSRP "
++                           f"LeaveAll, their records and timers, later, the second {JOIN_BOUNDS_MS[1] + 1} ms after "
++                           "the one before: 1 ms past JoinTime's range plus T_svc, where no New is followed",
++                           f"a Join timer's transmit opportunity at ms 15021, {JOIN_BOUNDS_MS[1] + 1:.3f} "
++                           + JOIN_WORDS),
+     "rate": ("wire", "the first MSRP frame sent again 1 and 2 ms after itself",
+              "four transmit opportunities in"),
+     "leave-all-missing": ("wire", "the first MSRP LeaveAll frame sent without its LeaveAll",
+-                          "after the last LeaveAll (reset), outside 9782 to 15218 ms"),
++                          f"after the last LeaveAll (reset), outside {LEAVE_ALL_BOUNDS_MS[0]} to "
++                          f"{LEAVE_ALL_BOUNDS_MS[1]} ms"),
+     "bench-overrun": ("wire", "a modeled millisecond of 1,200 us of RTL time",
+                       "[BENCH] a modeled millisecond took 1200.000 us of RTL time"),
+     "timer-layout": ("wire", "the bench's report of a Join timer arm outside its participant's state",
+@@ -70,6 +94,25 @@ PLANTS = {
+     "stream-without-licence": ("licence", "a stream frame at ms 100", "while no source holds its licence"),
+ }
+ WORDS = {name: words for name, (_, _, words) in PLANTS.items()}
++#: name -> (the scenario it plants, what it changes): 1 ms inside the bound its plant passes, graded clean
++WITHIN = {
++    "join-late-within-t-svc": ("wire", f"the second MSRP frame and its record {FOLLOW_MS - 1} ms after the first"),
++    "join-early-within-t-svc": ("wire", f"join-early-past-t-svc's move, the second frame {JOIN_BOUNDS_MS[0] + 1} ms "
++                                "after the first"),
++    "join-interval-late-within": ("wire", f"join-interval-late's move, the second frame {JOIN_BOUNDS_MS[1] - 1} ms "
++                                  "after the one before"),
++}
++#: each timing plant and control: (the MSRP frame its move is measured from: the first, or the first after the
++#: first LeaveAll frame; how many frames after it move; the ms the first of them then leaves after it; whether
++#: the Join timer that sent each moves with it, as a timer of another length, or its egress alone, as a late one)
++TIMING = {
++    "join-late-past-t-svc": ("first", 1, FOLLOW_MS + 1, False),
++    "join-late-within-t-svc": ("first", 1, FOLLOW_MS - 1, False),
++    "join-early-past-t-svc": ("first", 2, JOIN_BOUNDS_MS[0] - 1, True),
++    "join-early-within-t-svc": ("first", 2, JOIN_BOUNDS_MS[0] + 1, True),
++    "join-interval-late": ("leave-all", 2, JOIN_BOUNDS_MS[1] + 1, True),
++    "join-interval-late-within": ("leave-all", 2, JOIN_BOUNDS_MS[1] - 1, True),
++}
+ 
+ 
+ def frames(doc: dict, proto: str) -> list[dict]:
+@@ -103,6 +146,38 @@ def raw(messages: list[g.Message]) -> list[tuple[int, list[bytes]]]:
+     return [(m.kind, [v.raw for v in m.vectors]) for m in messages]
+ 
+ 
++def leave_all(entry: dict) -> bool:
++    """Whether a MAC frame's MRPDU carries a LeaveAll."""
++    return any(v.leave_all for m in parse(entry)[1] for v in m.vectors)
++
++
++def move(doc: dict, entries: list[dict], shift: float, timer: bool) -> None:
++    """Move MAC frames by shift us with the adapter's record of each (the grade pairs them by position), and with
++    timer the Join timer's expiry and re-arm that sent each, as transmit opportunities that came then."""
++    mrpdus = [m for m in doc["mac"] if m["hex"][24:28] in ("22ea", "88f5")]
++    records = [r for r in doc["lib"] if r["rc"] == 0]
++    moved = list(entries)
++    for entry in entries:
++        moved.append(records[next(k for k, m in enumerate(mrpdus) if m is entry)])
++        if timer:
++            joins = [t for t in doc["timers"] if t["proto"] == "MSRP" and t["kind"] == "join"]
++            expiry = max((t for t in joins if t["event"] == "expire" and t["us"] <= entry["us"]), key=lambda t: t["us"])
++            moved += [t for t in joins if expiry["us"] <= t["us"] <= entry["us"]]
++    for item in moved:
++        was = item["ms"]
++        item["us"] += shift
++        item["ms"] = int(item["us"] // 1000)
++        if "last_ms" in item:
++            item["last_ms"] += item["ms"] - was
++
++
++def plant_timing(name: str, msrp: list[dict], doc: dict) -> None:
++    """A TIMING plant or control: frames after an MSRP frame moved so the first leaves the ms named after it."""
++    start, count, ms, timer = TIMING[name]
++    k = 0 if start == "first" else next(j for j, m in enumerate(msrp) if leave_all(m)) + 1
++    move(doc, msrp[k + 1:k + 1 + count], msrp[k]["us"] + ms * 1000.0 - msrp[k + 1]["us"], timer)
++
++
+ def first_queued(doc: dict) -> int:
+     """The index in doc["mac"] of the first MRPDU that left at or after the hold's end."""
+     end = doc["holds"][0][1]
+@@ -111,13 +186,15 @@ def first_queued(doc: dict) -> int:
+ 
+ def plant(name: str, doc: dict) -> None:
+     """Change the capture as the defect named would have, in place."""
+-    scenario = PLANTS[name][0]
++    scenario = (PLANTS.get(name) or WITHIN.get(name) or ("",))[0]
+     if doc["scenario"] != scenario:
+         raise SystemExit(f"srptx_plants: {name} plants the {scenario} capture, not the {doc['scenario']} one")
+     msrp = frames(doc, "MSRP")
+     first = msrp[0]
+     header, messages = parse(first)
+-    if name == "malformed-endmark":
++    if name in TIMING:
++        plant_timing(name, msrp, doc)
++    elif name == "malformed-endmark":
+         data = bytearray(bytes.fromhex(first["hex"]))
+         end = 14 + 5 + int.from_bytes(data[17:19], "big")
+         data[end - 1] = 1
+@@ -143,10 +220,9 @@ def plant(name: str, doc: dict) -> None:
+         target["hex"] = encode(header, [m for m in msgs if m[1]])
+     elif name == "zero-source":
+         first["hex"] = first["hex"][:12] + "0" * 12 + first["hex"][24:]
+-    elif name in ("join-late", "join-late-in-t-svc"):
+-        shift = 30 if name == "join-late" else 20
+-        msrp[1]["ms"] += shift
+-        msrp[1]["us"] += shift * 1000.0
++    elif name == "join-late":
++        msrp[1]["ms"] += 30
++        msrp[1]["us"] += 30 * 1000.0
+     elif name == "bench-overrun":
+         doc["intra_ms_max_us"] = 1200.0
+     elif name == "timer-layout":
+@@ -195,9 +271,18 @@ def plant(name: str, doc: dict) -> None:
+         raise SystemExit(f"srptx_plants: no plant named {name}")
+ 
+ 
++def planted_findings(out: Path, docs: dict, name: str, scenario: str) -> list[str]:
++    """The grade's findings on a copy of scenario's capture with name planted, written beside it."""
++    doc = copy.deepcopy(docs[scenario])
++    plant(name, doc)
++    planted = out / f"{scenario}-{name}.json"
++    planted.write_text(json.dumps(doc) + "\n")
++    return g.grade(g.load(planted))[0]
++
++
+ def main() -> int:
+     """Every plant against the unplanted captures in one directory: each must be refused by its words, which no
+-    finding of its unplanted capture holds."""
++    finding of its unplanted capture holds; and every control must grade clean."""
+     if len(sys.argv) != 2:
+         print("usage: srptx_plants.py DIR", file=sys.stderr)
+         return 2
+@@ -206,19 +291,23 @@ def main() -> int:
+     clean = {name: g.grade(g.load(out / f"{name}.json"))[0] for name in docs}
+     escaped = 0
+     for name, (scenario, what, words) in PLANTS.items():
+-        doc = copy.deepcopy(docs[scenario])
+-        plant(name, doc)
+-        planted = out / f"{scenario}-{name}.json"
+-        planted.write_text(json.dumps(doc) + "\n")
+-        found = g.grade(g.load(planted))[0]
+-        caught = [f for f in found if words in f]
++        caught = [f for f in planted_findings(out, docs, name, scenario) if words in f]
+         if caught and not any(words in f for f in clean[scenario]):
+             print(f"ok   {name} ({what}): {caught[0]}")
+         else:
+             print(f"FAIL {name} ({what}): escaped; wanted {words!r}")
+             escaped += 1
+-    print(f"srptx plants: {len(PLANTS) - escaped} of {len(PLANTS)} refused")
+-    return 1 if escaped else 0
++    refused = 0
++    for name, (scenario, what) in WITHIN.items():
++        found = planted_findings(out, docs, name, scenario)
++        if found:
++            print(f"FAIL {name} ({what}): inside the bound and refused: {found[0]}")
++            refused += 1
++        else:
++            print(f"ok   {name} ({what}): no finding")
++    print(f"srptx plants: {len(PLANTS) - escaped} of {len(PLANTS)} refused; {len(WITHIN) - refused} of {len(WITHIN)} "
++          "controls inside their bound clean")
++    return 1 if escaped or refused else 0
+ 
+ 
+ if __name__ == "__main__":

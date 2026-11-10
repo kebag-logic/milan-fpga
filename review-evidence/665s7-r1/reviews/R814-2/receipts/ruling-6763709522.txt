@@ -1,0 +1,23 @@
+=== 6763709522 Mister-M-alt 2026-11-10T09:23:11Z
+[A10] **S7 round 2 ruling (R813-1 POSITIVE issuecomment-6763692495, R814-1 NEGATIVE issuecomment-6763695560, at `5fb6904f`).**
+
+R814-1's two MINOR findings hold. Both are test gaps, and neither is a behaviour defect.
+
+1. **F-1: the egress allowance is T_svc = 20 ms.** That is #867's acceptance item 3, after the owner relaxed SRP to 20 ms on 2026-11-06. The 18 ms `min(T_svc, 10 % ceiling)` rule is superseded.
+   - Derive `SVC_MS` from the one source the firmware budget uses, not from a literal.
+   - Update `srptx_grade.py`, the `join-late-in-t-svc` plant, the READMEs R814-1 lists and the PR body's item 3 row.
+   - The plant must still sit just outside the new bound.
+2. **F-2: grade JoinTime spacing on both sides.**
+   - The interval `measure_time` already computes is graded against 10.7.4.1, 10.7.11 and Table 10-7 (Milan v1.2 Table 4.3: JoinTime 200 ms; `FR_NFR.md` 3.4.1: 180 to 240 ms), widened by the allowance on each side, as LeaveAll is.
+   - Add a plant with a short Join timer (R814-1's 10 cs and 15 cs arms). It must be refused by its own words, and it must escape without the new check.
+3. R813-1's four SUGGESTIONs go to the residue checklist at merge.
+
+Exit: STOP if the measured JoinTime intervals of the unplanted run fall outside the two-sided bound. Give the figures.
+
+Done means:
+- items 1 and 2 are committed;
+- `make srptx` and every plant pass;
+- every `run:` step of the dev-soft-core workflows passes on a clean clone of the head.
+
+Then post REVIEW READY on #867. Delta reviews R813-2 and R814-2 follow.
+

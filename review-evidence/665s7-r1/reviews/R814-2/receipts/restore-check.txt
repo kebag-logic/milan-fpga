@@ -1,0 +1,28 @@
+head 2131eff48066da1e3bbeb6b417ea0655fa7c7741 tree b61ef3ca8b8c07a89ba7fb32071eadf3550b31e3
+git status --porcelain (tracked+untracked):
+git diff --stat HEAD:
+index vs HEAD tree: 0 entries differ
+worktree blob/mode check: 0 entries differ
+write-tree: b61ef3ca8b8c07a89ba7fb32071eadf3550b31e3
+submodule gitlinks (HEAD | checked out):
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (135afd0433)
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b66d4)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e812)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (70936b77dc)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+lwSRP worktree: 0 changes
+ignored new paths under milan_dp:
+!! tb/verilator/milan_dp/__pycache__/
+!! tb/verilator/milan_dp/gptp_ucode.hex
+!! tb/verilator/milan_dp/ltn_rom.hex
+!! tb/verilator/milan_dp/obj_srptx/
+!! tb/verilator/milan_dp/obj_twin_fw/
+!! tb/verilator/milan_dp/obj_twin_sp/
+!! tb/verilator/milan_dp/ucode.hex

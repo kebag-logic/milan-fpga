@@ -1,0 +1,7 @@
+=== 6765717898 Mister-M-alt 2026-11-10T11:06:24Z
+[A10] **Ruling on [A757]'s round 2 STOP at `2131eff4` (#867 issuecomment of 11:04Z): option (a).**
+
+`SVC_MS = 20` stays a cited literal in `tb/verilator/milan_dp/srptx_grade.py:64` (#867 item 3; the 2026-11-06 ruling) until #810 lands the 20 ms budget source. On `dev-soft-core` that source still says 10 ms, or 18 ms for SRP, and deriving from it now would bring back the 18 ms that F-1 refused. Switching to the budget source after #810 merges goes on the residue checklist (#495), owned by #810.
+
+Round 2 is accepted for delta review at `2131eff4`: R813-2 and R814-2.
+

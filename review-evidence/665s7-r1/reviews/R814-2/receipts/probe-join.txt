@@ -1,0 +1,46 @@
+== 1. Join-timer intervals, bound (160, 260) SVC_MS 20
+wire     MSRP: N 104, min 198.989, max 200.000, outside 0
+wire     MVRP: N 104, min 198.989, max 200.015, outside 0
+hold     MSRP: N 34, min 198.989, max 200.000, outside 0
+hold     MVRP: N 32, min 198.989, max 200.000, outside 0
+licence  MSRP: N 8, min 198.989, max 200.000, outside 0
+licence  MVRP: N 5, min 198.989, max 200.000, outside 0
+
+== 5. new plants and controls at the head, full findings
+join-early-past-t-svc: 1 finding(s)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 160, 159.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; M
+join-interval-late: 1 finding(s)
+    [TIME] MSRP: a Join timer's transmit opportunity at ms 15021, 261.000 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7;
+join-late-past-t-svc: 3 finding(s)
+    [TIME] MSRP Talker Failed stream_id 0200000000010000: its New at ms 1 followed at ms 222, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+    [TIME] MSRP Talker Failed stream_id 0200000000010001: its New at ms 1 followed at ms 222, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+    [TIME] MSRP Domain value 06030002: its New at ms 1 followed at ms 222, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1, Table 10-3)
+join-early-within-t-svc: 0 finding(s)
+join-interval-late-within: 0 finding(s)
+join-late-within-t-svc: 0 finding(s)
+
+== 2. new Join-interval check removed (JOIN_BOUNDS_MS unbounded)
+join-early-past-t-svc: 0 finding(s) []
+join-interval-late: 0 finding(s) []
+-- full plant set ablated: rc 1; srptx plants: 23 of 25 refused; 3 of 3 controls inside their bound clean
+    FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms af
+    FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 26
+
+== 3. SVC_MS drift
+-- SVC_MS 19: rc 1; srptx plants: 20 of 25 refused; 3 of 3 controls inside their bound clean
+    FAIL join-late (the second MSRP frame 30 ms later, the Domain's second New): escaped; wanted 'followed at ms 230, past JoinTime + T_svc (220 ms'
+    FAIL join-late-past-t-svc (the second MSRP frame and the adapter's record of it 221 ms after the first: 1 ms past JoinTime + T_svc): escaped; wanted 'followed a
+    FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms af
+    FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 26
+    FAIL leave-all-missing (the first MSRP LeaveAll frame sent without its LeaveAll): escaped; wanted 'after the last LeaveAll (reset), outside 9780 to 15220 ms'
+-- SVC_MS 21: rc 1; srptx plants: 20 of 25 refused; 3 of 3 controls inside their bound clean
+    FAIL join-late (the second MSRP frame 30 ms later, the Domain's second New): escaped; wanted 'followed at ms 230, past JoinTime + T_svc (220 ms'
+    FAIL join-late-past-t-svc (the second MSRP frame and the adapter's record of it 221 ms after the first: 1 ms past JoinTime + T_svc): escaped; wanted 'followed a
+    FAIL join-early-past-t-svc (a short Join timer: the second and third MSRP frames, their records and the Join timer that sent each, earlier, the second 159 ms af
+    FAIL join-interval-late (a long Join timer: the second and third Join timer frames after the first MSRP LeaveAll, their records and timers, later, the second 26
+    FAIL leave-all-missing (the first MSRP LeaveAll frame sent without its LeaveAll): escaped; wanted 'after the last LeaveAll (reset), outside 9780 to 15220 ms'
+-- SVC_MS 20: rc 0; srptx plants: 25 of 25 refused; 3 of 3 controls inside their bound clean
+
+== 4. join-late-within-t-svc: the MSRP interval after the moved frame
+first MSRP frames, us: [1013.28, 220013.28, 400001.95, 1000001.94]
+gaps ms: [219.0, 179.989, 600.0]
