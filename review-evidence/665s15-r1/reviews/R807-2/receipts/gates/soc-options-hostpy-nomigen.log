@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$CLONE/sw/builder/test_soc_options.py", line 343, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$CLONE/sw/builder/test_soc_options.py", line 266, in test_refusals
+    count = _constructor_cases(directory)
+  File "$CLONE/sw/builder/test_soc_options.py", line 151, in _constructor_cases
+    _refused(_probe(directory, cpu=cpu, xlen=xlen, options=options), reason)
+             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CLONE/sw/builder/test_soc_options.py", line 115, in _probe
+    raise RuntimeError(run.stdout + run.stderr)
+RuntimeError: Traceback (most recent call last):
+  File "<string>", line 14, in <module>
+    exec(compile(source, spec["soc"], "exec"), mod.__dict__)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CLONE/sw/litex/milan_soc.py", line 48, in <module>
+    from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
+                       Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
+                       NextState, Memory, Module, Record, ResetInserter, READ_FIRST)
+ModuleNotFoundError: No module named 'migen'
+
