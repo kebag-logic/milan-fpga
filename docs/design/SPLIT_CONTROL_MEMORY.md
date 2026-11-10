@@ -2095,15 +2095,35 @@ AECP's owed frame was charged once a record and once a probe at a notice's fan-o
 - One grandmaster event an interface a pass becomes its message intervals.
 - A retained SRP record retried once for each SRP record becomes the retry's own rule, bounded by its source (the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 1). Round 24's rule tried a retained record once a poll, and the loop never sleeps while records wait, so every pass retried it: 0.56 of the CPU at 8x8/2if. Now SRP's poll retries a refused record only once what the refusal depends on changed since it, and then at most once a centisecond, a TICK dispatched since the last retry (`srp_mbx.c`, the poll and `apply_receive`). lwSRP refuses a receive only where an allocation fails (`mrp_mad.c`, `get_or_create_attr` and `map_reserve` under `rx_on_attr`), and which allocations a replay asks for follows from the receive filter's answers and the attributes' existence, values and states. While a receive waits no binding changes (`srp_mbx_bind`) and no declaration or Domain is made (`transmit`), so the filter's inputs hold; an attribute is freed only by a block returned (`ctrl_pool_returned`, `ctrl_pool.h`) and created only by one taken, which leaves no more room; its state changes are the ones lwSRP reports (`moved`, marked per interface), and its value changes only by a receive or a declaration, with no other SRP record taken meanwhile. So a retry with neither the pool's returns nor a reported change since the refusal meets the same refusal, and none is made; the 1 s give-up and "no other SRP record meanwhile" are unchanged. The retries then come at the TICK's rate whatever the records', and SRP's channel brings both: its records' rate and one retry a centisecond. The gate reads the rule's lines from the tree (`RETRY_RULE`), and a tree that retries with nothing changed, or every pass a change allows, leaves the term with no source.
 
-At this head (`load_grade.py --check`; the stated costs and their sources are the gate's `STATED_US`, `poll_grade.STATED_US` and `ctrl_loop.h`'s, and [section 14](#the-costs-at-32x322if-measured) gives the 32x32/2if costs):
+**Two columns of stated costs** (the round 25 ruling, item 3). The ACMP core walks every sink after every entry (`finish()` and `admit()`, the TSN stack), which is most of ACMP's record, its owed frame, its timer slot's expiries and the ADP record, and grows with the sinks. [tsn-c-stack #32](https://github.com/kebag-logic/tsn-c-stack/issues/32) walks only the sinks an entry changed. It reaches this branch only through that repository's review and a pin move, which also carries tsn-c-stack #28 and #31, so this tree's pin does not move. The gate therefore states two columns, each measured on this tree's image: `STATED_US` at the pin, and `STATED_US_DONOR` with #32 applied at the pin in a scratch build. In the second column each cost whose work runs the core's completion walk (an ACMP record, an ADP record, ACMP's timer slot, ACMP's owed frame and the polls' base, through SRP's delivery) is its measurement with #32; every other cost is the larger of that measurement and the first column's. **The gate grades the second column, the load the pin move owes**, and reports the first beside it. Both are measured on arm A's groups but the save groups, at 32x32/2if on the 32x32 simulation shape ([section 14](#the-costs-at-32x322if-measured)). With #32 the 8x8/2if `answering-every-port` arm does not fit its ledger ([section 5](#5-fit)), so the costs only that arm stages, a notice's among them, are the first column's.
 
-| Point | Load | Ceiling | Its three largest terms | A pass's own cost, us |
-|---|---:|---:|---|---:|
-| 1x1/1if | 0.465 | reported | `srp` 0.150, `rec.acmp` 0.056, `item.aecp` 0.048 | 180 |
-| 8x8/2if | **0.834** | 0.70 | `srp` 0.237, `rec.acmp` 0.087, `item.aecp` 0.076 | 310 |
-| 32x32/2if | **2.140** | 0.70 | `srp` 0.516, `item.acmp` 0.306, `item.mrpdu` 0.299 | 610 |
+The costs #32 moves, stated, us (pin, then with #32):
 
-With the retry bounded by its source and AECP's owed frame charged by what each source sends (round 24's loads were 0.905, 1.181 and 2.209), both held points are still over the ceiling: at 8x8/2if ACMP's records, its owed frame and its timer slot's expiries together 0.184. At 32x32/2if ACMP's three are 0.637, and THE TRANSMIT's builds and their owed MRPDUs 0.449.
+| Cost | 1x1/1if | 8x8/2if | 32x32/2if |
+|---|---:|---:|---:|
+| an ACMP record (`record.acmp`) | 280, 265 | 440, 305 | 980, 425 |
+| an ADP record (`record.adp`) | 105, 95 | 240, 125 | 735, 270 |
+| ACMP's timer slot (`event.ACMP`) | 185, 165 | 350, 205 | 845, 330 |
+| ACMP's owed frame (`item.acmp`) | 65, 35 | 185, 40 | 665, 105 |
+| the polls' base (`base`) | 155, 155 | 280, 245 | 590, 570 |
+
+ACMP's owed frame and the polls' base are `poll_grade.py`'s stated costs in the first column at 1x1/1if and 8x8/2if. With #32, a TICK event measured 75 us at 8x8/2if (30 at the pin), and every other cost moved by 10 us or less.
+
+At this head (`load_grade.py --check`; the stated costs and their sources are the gate's two columns, with `poll_grade.STATED_US`'s and `ctrl_loop.h`'s where a column states none):
+
+| Point | Load at the pin | Load with tsn-c-stack #32 (graded, owed to the pin move) | Ceiling | Its three largest graded terms | A pass's own cost, us |
+|---|---:|---:|---:|---|---:|
+| 1x1/1if | 0.466 | 0.453 | reported | `srp` 0.150, `rec.acmp` 0.053, `item.aecp` 0.049 | 180 |
+| 8x8/2if | 0.844 | **0.747** | 0.70 | `srp` 0.243, `item.aecp` 0.076, `rec.acmp` 0.061 | 275 |
+| 32x32/2if | 2.150 | **1.659** | 0.70 | `srp` 0.519, `item.mrpdu` 0.299, `builds` 0.150 | 590 |
+
+With SRP's retry bounded by its source, AECP's owed frame charged by what each source sends and the ACMP core's walk over the sinks that changed (round 24's loads were 0.905, 1.181 and 2.209), **8x8/2if is still 0.047 over its ceiling**. Each of its three largest terms alone would need:
+
+- `srp`, 0.243: an SRP record, at whose cost its retry is stated, from 405 to 326 us (-20 %), or SRP's refill from 2 to 2.61 ms;
+- `item.aecp`, 0.076: a record's owed frame, a command's notice to 32 recipients, from 340 to 103 us (-70 %), or AECP's refill from 5 to 16.5 ms;
+- `rec.acmp`, 0.061: an ACMP record from 305 to 68 us (-78 %), or ACMP's refill from 5 to 22.4 ms.
+
+#32 takes ACMP's records, its owed frame and its timer slot's expiries from 0.186 to 0.093 at 8x8/2if, and from 0.637 to 0.186 at 32x32/2if. **32x32/2if stays 0.959 over**: there SRP's channel (0.519, an SRP record 865 us) and THE TRANSMIT's builds (a build of both of an interface's MRPDUs 10,810 us) with their owed MRPDUs, stated at a build of one's cost (7,485 us), together 0.449, lead it, and #32 moves neither.
 
 ### What is left
 
@@ -2118,7 +2138,7 @@ With the retry bounded by its source and AECP's owed frame charged by what each 
 - **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
 - **The margins at this head:** 0.235 ms on the 8x8 last SRP record (arm A), and 9,580 cycles on the share (a pass that takes a record, 1.904 ms at 8x8/2if); every pass class sits at least 6,490 cycles, the data layout's measured swing, under the share at both points, at the head's layout and at the struct-ends layout ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
-- **The long-window load is over its 0.70 ceiling** at 8x8/2if (0.834) and 32x32/2if (2.140), and 0.465 at 1x1/1if ([above](#the-long-window-load)), SRP's retained retry bounded by its source, at most once a centisecond and only once the pool or an attribute changed, and AECP's owed frame charged by what each source sends.
+- **The long-window load is over its 0.70 ceiling** at 8x8/2if, 0.747 with tsn-c-stack #32, the load the pin move owes (0.844 at the pin), and at 32x32/2if, 1.659 (2.150), and 0.453 at 1x1/1if (0.466 at the pin) ([above](#the-long-window-load)). SRP's retained retry is bounded by its source, at most once a centisecond and only once the pool or an attribute changed, and AECP's owed frame is charged by what each source sends.
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
 ## 14. The 32x32 estimate
@@ -2170,7 +2190,7 @@ The derivation has limits a measurement would not: 8x8/2if already holds its str
 
 The round 22 model carried each cost to 32x32/2if by L, the line through 1x1/1if and 8x8/2if. The round 24 ruling asks for measured costs ([issuecomment-6734415848](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6734415848), item 3).
 Lane S15 (#859) built a 32x32/2if simulation shape: 32 talker and 32 listener streams on two interfaces, no saved state, run by this harness's `--point 32x32`. S15's own harness runs `dev-soft-core`'s firmware and grades rows and passes; it carries neither `poll_grade.py` nor the traced handlers that cut a pass into its items.
-So each cost here is this branch's image on S15's shape, the shape merged with this branch's harness in a scratch clone and traced as at the other two points (arm A's groups, every save group owed to #823 there, and the `answering-every-port` arm). The other two columns are this head's, at 1x1/1if and 8x8/2if, arm A's groups but the save groups and the `answering-every-port` arm; for the records, the events and a centisecond's consumers the load gate states the larger of these and round 21's measurement over every group of arm A.
+So each cost here is this branch's image at `a30c9986` on S15's shape, the shape merged with this branch's harness in a scratch clone and traced as at the other two points (arm A's groups, every save group owed to #823 there, and the `answering-every-port` arm). The other two columns are `a30c9986`'s, at 1x1/1if and 8x8/2if, arm A's groups but the save groups and the `answering-every-port` arm; for the records, the events and a centisecond's consumers the load gate states the larger of these, round 21's measurement over every group of arm A and the same groups' measurement on the image whose SRP retry is bounded by its source (the round 25 ruling, item 1), and at 32x32/2if the larger of this table's and that image's. Its second column, with tsn-c-stack #32, is [section 13](#the-long-window-load)'s.
 Each figure is the most measured plus 5 %, rounded up to 5 us, at sys, 100 MHz. L's error is its projection less the measured cost, over the measured cost:
 
 | Cost | 1x1/1if, us | 8x8/2if, us | 32x32/2if measured, us | L at 32x32/2if, us | L error | 8x8/2if over 1x1/1if | 32x32/2if over 1x1/1if |

@@ -11,6 +11,12 @@ At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for th
 issuecomment-6734415848, item 2: 0.70 at 8x8/2if and 32x32/2if). No term is kept as a margin: each has its source,
 and one without a source fails.
 
+Two columns of stated costs (#665 issuecomment-6751196896, item 3): STATED_US at this tree's TSN stack pin, and
+STATED_US_DONOR, measured with tsn-c-stack#32 (the ACMP core's completion walking only the sinks an entry changed)
+applied at the pin in a scratch build. The gate is graded on the donor's column, the load the pin move owes: that
+move carries tsn-c-stack #28, #31 and #32, and this tree's pin does not move. The pin's column is reported. The donor's
+column may state below the pin's only a cost whose work runs the ACMP core's walk (WALK); any other such cost fails.
+
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
                  and not per stream, so the same at every shape; the burst is a window's first records, not a rate.
@@ -81,31 +87,65 @@ CEILING = {'8x8/2if': 0.70, '32x32/2if': 0.70}
 POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
-#: The stated costs in microseconds at each point, each the most measured over every instance plus 5 %, rounded up to
-#: 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and 8x8/2if the polls' base and
-#: items are poll_grade.py's, which the harness holds every measured pass to, and THE TRANSMIT's builds and THE STEP's
-#: pass are ctrl_loop.h's; the records', the events', a centisecond's consumers' and a pass's events' fixed part are
-#: this table's, the larger of two traced measurements: every group of arm A on bc98d727's image, and arm A's groups
-#: but the save groups, with the answering-every-port arm's, on this image (docs/design/SPLIT_CONTROL_MEMORY.md
-#: section 14). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each
-#: cost its own; no group stages a retained record's retry or an owed MRPDU at any point, so they are stated at an SRP
-#: record's cost and at a build of one's, as poll_grade.py states them; the shape has no saved state, so THE STEP's
-#: pass is stated at ctrl_loop.h's two-interface cost.
+#: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
+#: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
+#: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
+#: TRANSMIT's builds and THE STEP's pass are ctrl_loop.h's; the records', the events', a centisecond's consumers',
+#: AECP's owed frames' and a pass's events' fixed part are this table's, the largest of three traced measurements: every
+#: group of arm A on bc98d727's image; arm A's groups but the save groups, with the answering-every-port arm's, on
+#: a30c9986's image (docs/design/SPLIT_CONTROL_MEMORY.md section 14); and arm A's groups but the save groups on this
+#: tree's image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if (section 13, the
+#: long-window load). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups,
+#: each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU
+#: or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build of one's
+#: (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass
+#: is stated there at ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
-                'event.ADP': 105, 'event.ACMP': 180, 'event.MAAP': 160, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25,
-                'item.aecp.notice': 225, 'item.aecp.response': 50, 'item.aecp.probe': 50},
-    '8x8/2if': {'record.srp': 395, 'record.aecp': 260, 'record.acmp': 435, 'record.adp': 235, 'record.maap': 125,
-                'event.ADP': 110, 'event.ACMP': 340, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
-                'event.GM': 320, 'centisecond': 390, 'events_none': 30,
+                'event.ADP': 110, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 60, 'event.TICK': 40,
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.retained': 250,
+                'item.aecp.notice': 225, 'item.aecp.response': 60, 'item.aecp.probe': 60},
+    '8x8/2if': {'record.srp': 405, 'record.aecp': 260, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 125,
+                'event.ADP': 115, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
+                'event.GM': 320, 'centisecond': 440, 'events_none': 30, 'item.retained': 405,
                 'item.aecp.notice': 340, 'item.aecp.response': 65, 'item.aecp.probe': 65},
-    '32x32/2if': {'record.srp': 860, 'record.aecp': 205, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
-                  'event.ADP': 100, 'event.ACMP': 845, 'event.MAAP': 295, 'event.AECP': 55, 'event.TICK': 30,
-                  'event.GM': 25, 'centisecond': 950, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
-                  'item.retained': 860, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp.notice': 345,
+    '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
+                  'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
+                  'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
+                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp.notice': 350,
                   'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 135,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
+#: The stated costs with tsn-c-stack#32 at the pin (a scratch build of this tree's image whose stack is the pin with
+#: the donor's change), the graded column, each cost stated at every point: each cost whose work runs the ACMP core's
+#: completion walk (an ACMP record, an ADP record, ACMP's timer slot, ACMP's owed frame and the polls' base, through
+#: SRP's delivery) its measurement there; every other cost the larger of that measurement and STATED_US's with the
+#: polls' and the headers' (stated()). Measured on arm A's groups but the save groups, at 32x32/2if on the 32x32
+#: simulation shape. The answering-every-port arm does not fit the 8x8/2if ledger with the donor (section 5), so the
+#: costs only that arm stages are STATED_US's.
+STATED_US_DONOR = {
+    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 95, 'record.maap': 90,
+                'event.ADP': 110, 'event.ACMP': 165, 'event.MAAP': 170, 'event.AECP': 60, 'event.TICK': 40,
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25,
+                'item.aecp.notice': 225, 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155,
+                'item.reclaim': 25, 'item.retained': 250, 'item.mrpdu': 405, 'item.acmp': 35, 'item.walk': 20,
+                'build': 910, 'build_one': 405, 'step': 975},
+    '8x8/2if': {'record.srp': 405, 'record.aecp': 260, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 125,
+                'event.ADP': 115, 'event.ACMP': 205, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 75,
+                'event.GM': 320, 'centisecond': 440, 'events_none': 30,
+                'item.aecp.notice': 340, 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 245,
+                'item.reclaim': 40, 'item.retained': 405, 'item.mrpdu': 1215, 'item.acmp': 40, 'item.walk': 60,
+                'build': 1995, 'build_one': 1215, 'step': 1030},
+    '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
+                  'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
+                  'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,
+                  'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 105, 'item.aecp.notice': 350,
+                  'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 140,
+                  'build': 10810, 'build_one': 7485, 'step': 1030}}
+#: The column the gate grades: the load the pin move owes.
+GRADED = STATED_US_DONOR
+#: The costs whose work runs the ACMP core's completion walk, which tsn-c-stack#32 changes: the donor column may state
+#: these below the pin's, and no other (a cost #32 does not touch measured lower there is the measurement's spread).
+WALK = ('record.acmp', 'record.adp', 'event.ACMP', 'item.acmp', 'base')
 #: The least valid_time an ADPDU may carry, in ms: one unit of two seconds (IEEE 1722.1-2021 6.2.2.5), the
 #: shortest a bound sink's discovery aging can run.
 ADP_LEAST_VALID_MS = 2000
@@ -188,7 +228,7 @@ def stated(root: Path, point: str, table: dict | None = None) -> dict[str, float
     """A point's stated costs: the table's, the polls' (poll_grade.py) and the headers' where the table has none."""
     import poll_grade
     s = POINTS[point]
-    c = dict((table or STATED_US)[point])
+    c = dict((table or GRADED)[point])
     if point in ('1x1/1if', '8x8/2if'):
         polls = poll_grade.stated_us(s['n_if'])
         for k in ITEMS:
@@ -251,11 +291,25 @@ def pass_own_us(root: Path, point: str, table: dict | None = None) -> float:
     return c['events_none'] + c['base']
 
 
+def below_pin(root: Path, table: dict | None = None) -> list[str]:
+    """Each cost the graded column states below the pin's that tsn-c-stack#32 does not move (not in WALK)."""
+    out = []
+    graded = table or GRADED
+    for point in graded:
+        pin, donor = stated(root, point, STATED_US), stated(root, point, graded)
+        out += [f'{point}: the graded column states {key} at {donor[key]} us, below the pin\'s {pin[key]}, and '
+                f'tsn-c-stack#32 does not move it' for key in sorted(pin) if key not in WALK and
+                donor.get(key, pin[key]) < pin[key]]
+    return out
+
+
 def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
              texts: dict[str, str] | None = None) -> list[str]:
-    """Each point over its ceiling, each point whose table lacks a cost the load needs, and a term without its
-    source: one the term list does not name, or SRP's retries where the tree states no rule that bounds them."""
+    """Each point over its ceiling, each point whose table lacks a cost the load needs, a term without its
+    source (one the term list does not name, or SRP's retries where the tree states no rule that bounds them), and a
+    graded cost below the pin's that tsn-c-stack#32 does not move."""
     out = [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
+    out += below_pin(root, table)
     for point, top in (ceiling or CEILING).items():
         try:
             total = sum(load(root, point, table).values())
@@ -270,23 +324,27 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
 
 
 def report(root: Path, table: dict | None = None) -> list[str]:
-    """The load table: each point's total, its ceiling, its pass's own cost and every term by share."""
-    lines = ['| Point | Load | Ceiling | A pass\'s own cost, us | Terms by share |', '|---|---:|---:|---:|---|']
+    """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, its pass's own cost
+    and every graded term by share."""
+    lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (graded, owed to the pin move) | Ceiling | '
+             'A pass\'s own cost, us | Terms by share (graded) |',
+             '|---|---:|---:|---:|---:|---|']
     for point in POINTS:
         try:
-            terms = load(root, point, table)
+            pin, terms = load(root, point, STATED_US), load(root, point, table)
         except KeyError as missing:
-            lines.append(f'| {point} | none | {CEILING.get(point, "reported")} | | no stated cost {missing} |')
+            lines.append(f'| {point} | none | none | {CEILING.get(point, "reported")} | | no stated cost {missing} |')
             continue
         ranked = sorted(terms.items(), key=lambda t: -t[1])
-        lines.append(f"| {point} | {sum(terms.values()):.3f} | {CEILING.get(point, 'reported')} | "
-                     f"{pass_own_us(root, point, table):.0f} | " + ', '.join(f'{t} {v:.3f}' for t, v in ranked) + ' |')
+        lines.append(f"| {point} | {sum(pin.values()):.3f} | {sum(terms.values()):.3f} | "
+                     f"{CEILING.get(point, 'reported')} | {pass_own_us(root, point, table):.0f} | "
+                     + ', '.join(f'{t} {v:.3f}' for t, v in ranked) + ' |')
     return lines
 
 
 def controls(root: Path) -> list[str]:
     """Each planted defect the gate must refuse: the planted names that escaped."""
-    base = {p: dict(STATED_US[p]) for p in STATED_US}
+    base = {p: dict(GRADED[p]) for p in GRADED}
     fit = {p: 10.0 for p in CEILING}
     escaped = []
     # a point's load over its ceiling: a cost raised until the total passes it
@@ -342,6 +400,15 @@ def controls(root: Path) -> list[str]:
     # a term the load counts with no source in its term list (#665 issuecomment-6734415848, item 5)
     if 'item.unsourced' not in unsourced({**load(root, '8x8/2if', base), 'item.unsourced': 0.0}):
         escaped.append('a term without a source')
+    # the graded column, tsn-c-stack#32's (#665 issuecomment-6751196896, item 3): a cost the donor does not move stated
+    # below the pin's (an SRP record, whose work runs no ACMP walk) must be refused; a cost its walk runs may be lower
+    lowered = {p: dict(v) for p, v in base.items()}
+    lowered['8x8/2if']['record.srp'] = stated(root, '8x8/2if', STATED_US)['record.srp'] - 5
+    walked = {p: dict(v) for p, v in base.items()}
+    walked['8x8/2if']['record.acmp'] = 5
+    if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
+            below_pin(root, walked) or GRADED is not STATED_US_DONOR:
+        escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
     return escaped
 
 
@@ -398,7 +465,8 @@ def period_controls(root: Path) -> list[str]:
 #: The planted defects controls() plants, in its order.
 CONTROLS = ('a cost over the ceiling', 'a stated cost missing', 'the retained retry counted once a record',
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
-            'a timer slot counted per pass', 'a term without a source')
+            'a timer slot counted per pass', 'a term without a source',
+            'the graded column below the pin where tsn-c-stack#32 moves nothing')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
