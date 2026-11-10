@@ -238,6 +238,20 @@ def two_interfaces(lines: list[str], interface: int = 1) -> list[str]:
     return sorted(out, key=lambda ln: int(ln.split()[1])) + lines[-2:]
 
 
+def late_command(lines: list[str], at_ms: int) -> list[str]:
+    """The second draw's AEM command moved to `at_ms`, its response gone: the log ends within its bound or not."""
+    out = []
+    for ln in lines[:-2]:
+        w = ln.split()
+        if w[0] == 'RXW' and w[4].startswith('aecp-') and w[4].endswith('-1'):
+            ln = ' '.join(['RXW', str(at_ms * MS), str(at_ms * MS + 30), *w[3:]])
+        elif w[0] == 'TXW' and bytes.fromhex(w[4])[14] == 0xFB and int.from_bytes(bytes.fromhex(w[4])[34:36],
+                                                                                    'big') == 0x6101:
+            continue
+        out.append(ln)
+    return sorted(out, key=lambda ln: int(ln.split()[1])) + lines[-2:]
+
+
 def inserted(lines: list[str], line: str) -> list[str]:
     """The log with one more line, in cycle order."""
     return sorted(lines[:-2] + [line], key=lambda ln: int(ln.split()[1])) + lines[-2:]
@@ -280,6 +294,9 @@ CONTROLS = (
     ('late-aecp-response', lambda: clean(aecp_cycles=240 * MS).text(), SYS_HZ, 1, 1,
      'aecp.response: 240.0 ms is not under 240.0 ms'),
     ('aecp-in-progress', lambda: clean(interim=True).text(), SYS_HZ, 1, 1, 'IN_PROGRESS answers'),
+    # a command 300 ms before the log ends, unanswered: past its 240 ms bound, so a finding, never censored
+    ('unanswered-before-the-end', lambda: late_command(clean().text(), 1499), SYS_HZ, 1, 1,
+     'aecp-get_configuration-1 (sequence_id 0x6101) has no final response'),
     # MAAP (#868 items 2 and 4)
     ('egress-past-reserve', lambda: moved(clean().text(), nth_maap(g.MAAP_PROBE, 3), 11 * MS + 1), SYS_HZ, 1, 1,
      'maap.egress: 11.'),
@@ -306,8 +323,12 @@ CONTROLS = (
     ('available-sent-twice', lambda: announced(twice=True).text(), SYS_HZ, 1, 2, 'adp.advertise_period: 1.000 ms'),
 )
 #: The clean logs, each graded at its interfaces and ANNOUNCEs, which must pass.
-CLEAN = (('clean', lambda: clean().text(), 1, 1), ('clean-announce-interval', lambda: announced().text(), 1, 2),
-         ('clean-two-interfaces', lambda: two_interfaces(clean().text()), 2, 1))
+#: Each with the commands it must report as censored.
+CLEAN = (('clean', lambda: clean().text(), 1, 1, []),
+         ('clean-announce-interval', lambda: announced().text(), 1, 2, []),
+         ('clean-two-interfaces', lambda: two_interfaces(clean().text()), 2, 1, []),
+         # the log ends 49 ms after a command, unanswered: within its bound, censored and not a finding
+         ('clean-censored-at-the-end', lambda: late_command(clean().text(), 1750), 1, 1, ['aecp-get_configuration-1']))
 
 
 def outcome(lines: list[str], sys_hz: int, interfaces: int, announces: int) -> list[str]:
@@ -356,8 +377,10 @@ def plants(text: str, sys_hz: int, draws: int, interfaces: int, announces: int) 
 def main() -> int:
     """Every control; exit 1 when a clean log fails or any control escapes."""
     failed = 0
-    for name, log, interfaces, announces in CLEAN:
-        words = outcome(log(), SYS_HZ, interfaces, announces)
+    for name, log, interfaces, announces, censored in CLEAN:
+        result, words = g.grade('\n'.join(log()) + '\n', SYS_HZ, 2, interfaces, announces)
+        if result['censored'] != censored:
+            words = [*words, f"censored {result['censored']}, not {censored}"]
         print(f'control {name}: {"PASS" if not words else "FAIL " + repr(words)}')
         failed += bool(words)
     for name, log, sys_hz, interfaces, announces, wanted in CONTROLS:

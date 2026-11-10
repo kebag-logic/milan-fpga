@@ -78,6 +78,9 @@ SETTLE_MS = 30
 #: A deadline-triggered load is offered this many bus cycles (200 us) before the timer's millisecond, so its frames
 #: have arrived and the loop is working through them when the timer expires.
 LOAD_LEAD_CYCLES = 20_000
+#: The run's tail after its last draw and ANNOUNCE: the longest response bound it grades (AECP's 240 ms, FR_NFR.md
+#: 3.4.1; ACMP's is 200 ms), so every command's answer, or its absence, falls inside the log.
+TAIL_MS = 250
 #: The ANNOUNCEs a run ends after: one for the CI run (its acquisition's three probe intervals and the first
 #: ANNOUNCE's egress), two for a campaign unit (one B.3.4.1 announce interval).
 CI_ANNOUNCES = 1
@@ -182,11 +185,12 @@ def announce_match() -> str:
 def limit_ms(n: int, announces: int = CI_ANNOUNCES) -> int:
     """The run's time limit: the boot's bound (the split boot simulation's), every draw, and, for a second
     ANNOUNCE, the longest announce interval the firmware draws, with a margin."""
-    return 2000 + n * (DRAW_MS + 2) + SETTLE_MS + (32_000 if announces > 1 else 0)
+    return 2000 + n * (DRAW_MS + 2) + SETTLE_MS + TAIL_MS + (32_000 if announces > 1 else 0)
 
 
 def script(p: budget.Point, n: int, seed: int = 0, load: bool = False, announces: int = CI_ANNOUNCES) -> str:
-    """The stimulus for N draws at one point, ending once `announces` ANNOUNCEs have left the MAC."""
+    """The stimulus for N draws at one point, ending TAIL_MS after both its last draw and the `announces`-th ANNOUNCE
+    at the MAC."""
     lines = [f'# ctrl_wire_timing: ACMP and AECP draws, MAAP and ADP timers (#868); seed {seed}, '
              f'load {"composed" if load else "none"}']
     lines += [f'link {i} 1' for i in range(p.interfaces)]
@@ -203,7 +207,7 @@ def script(p: budget.Point, n: int, seed: int = 0, load: bool = False, announces
                   f'frame 0 acmp-unbind-{d.index} {unbind.hex()}', f'wait ms {UNBIND_WAIT_MS}']
         lines += ['load aecp'] if load else []
         lines += [f'frame 0 aecp-{name}-{d.index} {command.hex()}', f'wait ms {AECP_WAIT_MS}']
-    lines += ['mark draws-end', f'wait sent {announces} {announce_match()}', 'mark end', 'end']
+    lines += ['mark draws-end', f'wait sent {announces} {announce_match()}', f'wait ms {TAIL_MS}', 'mark end', 'end']
     return '\n'.join(lines) + '\n'
 
 

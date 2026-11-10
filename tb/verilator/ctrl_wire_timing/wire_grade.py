@@ -38,13 +38,17 @@ times out at 200 ms, replacing IEEE 1722.1-2021 Table 8-1's value):
   - the bind to the PROBE_TX it causes: the bind's first byte in to the
     command's last byte out.
 Each must be under 200 ms; the margin to 200 ms is the figure. A command
-without its answer, or an answer without its command, is a finding.
+without its answer, or an answer without its command, is a finding, but for
+a command the log ends within the bound of, which is reported as censored:
+the run did not wait out that command's bound (wire_scenario.TAIL_MS waits
+it out after every run's last command).
 
 AECP (#868 item 3; IEEE 1722.1-2021 9.2.1, the AECP response the Issue
 names, whose bound is FR_NFR.md 3.4.1's 240 ms, IEEE 1722.1-2021 9.3.2.6 and
 Milan v1.2 5.4.3.4, NFR-LAT-02): each AEM or MVU command a draw sends, from
 its first byte in to the last byte out of its final response (the response
-with its sequence_id and message_type, IN_PROGRESS answers counted apart).
+with its sequence_id and message_type, IN_PROGRESS answers counted apart);
+censored as ACMP's.
 
 MAAP (#868 item 2; IEEE 1722-2016 B.3.4.2: strictly 500 ms < probe interval
 < 600 ms; B.3.4.1: strictly 30 s < announce interval < 32 s). Each PROBE and
@@ -351,7 +355,23 @@ def expired_arm(fired: list[tuple[int, int, int]], commit: int) -> tuple[int, in
     return found
 
 
-def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int]) -> list[Path_]:
+@dataclass
+class Window:
+    """Where the log ends, and the cycles of a millisecond: a command the log ends within the bound of, unanswered,
+    is censored, not a finding (see the module's docstring)."""
+    end: int
+    per_ms: int
+    censored: list[str] = field(default_factory=list)
+
+    def unanswered(self, cmd: Wire, bound_ms: float, findings: list[str], words: str) -> None:
+        """A command with no answer: censored when the log ends within its bound, else the finding `words`."""
+        if cmd.first + bound_ms * self.per_ms > self.end:
+            self.censored.append(cmd.tag)
+        else:
+            findings.append(words)
+
+
+def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int], window: Window) -> list[Path_]:
     """The three ACMP paths (see the module's docstring), on interface 0."""
     slot = ACMP_FIRST_SLOT_IFS * interfaces
     bind = Path_('acmp.bind_rx', 'Milan v1.2 Table 5.26, BIND_RX (CONNECT_RX_COMMAND): first byte in to the '
@@ -372,7 +392,8 @@ def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, in
     for cmd in binds:
         resp = [r for r in responses if r.acmp_seq == cmd.acmp_seq and r.first > cmd.last]
         if not resp:
-            findings.append(f'ACMP: the BIND_RX {cmd.tag} (sequence_id {cmd.acmp_seq:#06x}) has no BIND_RX_RESPONSE')
+            window.unanswered(cmd, ACMP_TIMEOUT_MS, findings,
+                              f'ACMP: the BIND_RX {cmd.tag} (sequence_id {cmd.acmp_seq:#06x}) has no BIND_RX_RESPONSE')
             continue
         bind.cycles.append(resp[0].last - cmd.first)
         after = [p for p in probes if p.first > cmd.last]
@@ -405,7 +426,7 @@ def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, in
     return [bind, cause, probe, entity, egress, turn, ingress]
 
 
-def aecp(log: Log, findings: list[str]) -> list[Path_]:
+def aecp(log: Log, findings: list[str], window: Window) -> list[Path_]:
     """Each graded AEM or MVU command's response time (see the module's docstring), and per command."""
     total = Path_('aecp.response', "IEEE 1722.1-2021 9.2.1 (FR_NFR.md 3.4.1's 240 ms): an AEM or MVU command's "
                   "first byte in to its final response's last byte out", AECP_RESPONSE_MS)
@@ -419,7 +440,8 @@ def aecp(log: Log, findings: list[str]) -> list[Path_]:
         interim += sum(1 for r in resp if r.status == AECP_IN_PROGRESS)
         final = [r for r in resp if r.status != AECP_IN_PROGRESS]
         if not final:
-            findings.append(f'AECP: the command {cmd.tag} (sequence_id {cmd.aecp_seq:#06x}) has no final response')
+            window.unanswered(cmd, AECP_RESPONSE_MS, findings,
+                              f'AECP: the command {cmd.tag} (sequence_id {cmd.aecp_seq:#06x}) has no final response')
             continue
         total.cycles.append(final[0].last - cmd.first)
         name = cmd.tag[len(AECP_TAG):].rsplit('-', 1)[0]
@@ -541,7 +563,8 @@ def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: in
     findings: list[str] = []
     matched = matched_commits(log)
     commit_of = {id(w): at for w, at in matched}
-    paths = acmp(log, findings, interfaces, commit_of) + aecp(log, findings) + \
+    window = Window(log.ms[-1][0], sys_hz // 1000)
+    paths = acmp(log, findings, interfaces, commit_of, window) + aecp(log, findings, window) + \
         maap(log, findings, interfaces, commit_of, us) + adp(log, findings, interfaces, commit_of, us)
     binds = len([w for w in log.rx if w.protocol == 'acmp' and w.kind == BIND_RX and w.tag.startswith(BIND_TAG)])
     if binds != draws:
@@ -563,7 +586,7 @@ def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: in
     result = dict(sys_hz=sys_hz, us_per_cycle=us, ready_ms=round(log.ready * us / 1000, 3), draws=draws,
                   interfaces=interfaces, announces=announces, rx_frames=len(log.rx), tx_frames=len(log.tx),
                   bench_rx_frames=log.bench_rx, bench_tx_frames=log.bench_tx,
-                  simulated_ms=log.ms[-1][1], summary=log.summary,
+                  simulated_ms=log.ms[-1][1], summary=log.summary, censored=window.censored,
                   load={name: dict(offers=t[0], frames=t[1], skipped=t[2]) for name, t in sorted(log.loads.items())},
                   rows=rows)
     return result, findings
@@ -581,7 +604,9 @@ def table(result: dict) -> str:
                    f"{r['bound_ms'] if r['bound_ms'] is not None else '-'} | {r.get('margin_ms', '-')} |")
     loads = ', '.join(f"{name}: {t['offers']} offers, {t['frames']} frames, {t['skipped']} echoes skipped"
                       for name, t in result['load'].items()) or 'none'
-    return '\n'.join(out) + f"\n\nLoad: {loads}. Simulated {result['simulated_ms']} ms.\n"
+    censored = ', '.join(result['censored']) or 'none'
+    return '\n'.join(out) + (f"\n\nLoad: {loads}. Simulated {result['simulated_ms']} ms. Censored (the log ends "
+                              f"within the command's bound, unanswered): {censored}.\n")
 
 
 def main(argv: list[str]) -> int:
