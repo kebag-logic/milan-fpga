@@ -266,8 +266,8 @@ def main() -> int:
     for kind, words in found:
         print(f"FINDING {kind}: {words}")
     if not found:
-        print(f"image identity: a {placement} image whose manifest, ident, firmware, bitstream and placement "
-              f"agree{', with no DDR3' if placement == 'split' else ''}")
+        print(f"image identity: {'a split' if placement == 'split' else 'an all-fabric'} image whose manifest, "
+              f"ident, firmware, bitstream and placement agree{', with no DDR3' if placement == 'split' else ''}")
     return 1 if found else 0
 
 
