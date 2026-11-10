@@ -41,6 +41,7 @@ import runpy
 from pathlib import Path
 
 from boot_policy import fabric_constants
+import check_image_identity
 import ctrl_memory
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
@@ -2994,6 +2995,33 @@ _CTRL_CDC_NVM = ("fw_nvm_backed_o", "fw_nvm_alarm_o", "fw_nvm_dirty_o", "fw_nvm_
                  "fw_nvm_img_valid_o")
 
 
+def soc_ident(cpu_human: str, xlen: int, cpu_count: int, software_profile: str, split: bool) -> str:
+    """The SoC ident string. Until the flip (#665 S13) VERSION does not tell the placements apart, so
+    a split image's ident names its placement in its last word (decision D2); the all-fabric ident is
+    the one it always was, so its image is unchanged."""
+    ident = f"Milan TSN SoC - {cpu_human} RV{xlen} {cpu_count}-core {software_profile}"
+    return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident
+
+
+def write_image_manifest(soc: SoCCore, out_dir: Path, elf: Path, bitstream: Path | None) -> Path:
+    """A split image's manifest (#665 S9, decision D2), then the identity gate on the image just written.
+
+    The manifest records the placement, the ident, VERSION, the mailbox contract the ID register
+    gives, the control firmware ELF's sha256 and, after a Vivado build, the bitstream's binding.
+    The build fails when the image it wrote disagrees with any of them."""
+    contract = ctrl_mailbox_contract()
+    major, minor = check_image_identity.rtl_version()
+    doc = check_image_identity.manifest(soc._ident, (major << 16) | minor, (contract.major, contract.minor),
+                                        elf, bitstream)
+    path = out_dir / check_image_identity.MANIFEST
+    path.write_text(json.dumps(doc, indent=2) + "\n")
+    found = check_image_identity.findings(out_dir)
+    if found:
+        raise RuntimeError("the split image's identity gate refuses it:\n  "
+                           + "\n  ".join(f"{kind}: {words}" for kind, words in found))
+    return path
+
+
 def ctrl_mailbox_contract() -> object:
     """The mailbox contract (sw/mailbox/mailbox.yaml), validated; its sizes are never restated here."""
     sys.path.insert(0, str(REPO_ROOT / "sw" / "mailbox"))
@@ -3438,10 +3466,9 @@ class MilanSoC(SoCCore):
         # "NaxRiscv" unconditionally, so every --cpu vexiiriscv build advertised the
         # wrong core over the BIOS banner and the ident CSR that bench operators read.
         _cpu_human = {"vexiiriscv": "VexiiRiscv", "naxriscv": "NaxRiscv"}[cpu]
-        SoCCore.__init__(self, platform, sys_clk_freq,
-                         ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
-                                f"{cpu_count}-core {software_profile}"),
-                         **kwargs)
+        #: the ident names the split placement (#665, decision D2; soc_ident)
+        self._ident = soc_ident(_cpu_human, xlen, cpu_count, software_profile, bool(ctrl_mailbox))
+        SoCCore.__init__(self, platform, sys_clk_freq, ident=self._ident, **kwargs)
         if ctrl_mailbox:
             add_ctrl_memory(self, Path(ctrl_firmware))
         # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
@@ -4915,6 +4942,10 @@ def main() -> None:
         with open(layout_path, "w") as f:
             json.dump(soc._flashboot_layout, f, indent=2)
         print(f"[milan] flash-boot layout ({args.flashboot}) -> {layout_path}")
+    if args.ctrl_mailbox:
+        # #665 S9, decision D2: the split image's manifest, held by the identity gate
+        bit = Path(builder.get_bitstream_filename(mode="sram")) if args.build else None
+        print(f"[milan] split image manifest -> {write_image_manifest(soc, _out_dir, args.ctrl_firmware, bit)}")
     if args.load:
         prog = platform.create_programmer()
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram"))

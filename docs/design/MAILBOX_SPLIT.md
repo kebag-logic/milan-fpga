@@ -38,7 +38,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
 - **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's and REBOOT request's exclusions, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
-- **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports and the census that sees each consumed, the crossing into the mailbox's clock, and the proofs that the all-fabric build is unchanged.
+- **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports and the census that sees each consumed, the crossing into the mailbox's clock, the proofs that the all-fabric build is unchanged, and the split image's recipe, ident, manifest and identity gate.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
@@ -1559,6 +1559,48 @@ issuecomment-6724570965, item 3). `rtl-fast`'s `split-cdc` job runs
 `make split-cdc` (ruling 6715535566 item 6), and its `publication-census` job
 runs the split census. The identity, the population, the split leg's planted
 defects, its parallel gate and the two-placement simulation are local.
+
+### The split image's identity
+
+Until the flip (S13) VERSION stays `0x0002_0060` in both placements, so a split
+image is identified another way (#665, decision D2):
+
+- **The recipe.** `endstation_builder.py <config> --placement split` builds a
+  shipped config at the split placement without editing it. Its shape artifacts
+  are the all-fabric build's byte for byte, and it writes no tracked file
+  (builder gate 23o).
+- **The ident.** A split image's SoC ident ends in `split`, for example
+  `Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split`. The all-fabric
+  ident is unchanged.
+- **The mailbox contract.** `KL_mbx`'s `ID` register gives the contract major
+  and minor ([reference](../reference/MAILBOX_CONTRACT.md)).
+- **The manifest.** A split build writes `image_manifest.json` beside its
+  outputs: the placement, the ident, VERSION, the mailbox contract, the
+  control firmware ELF's sha256 and, after a Vivado build, the bitstream's
+  payload sha256 and part. An all-fabric build writes none, so its outputs are
+  unchanged.
+
+[`check_image_identity.py`](../../sw/litex/check_image_identity.py) is the
+identity gate. It reads one image's outputs and refuses, by kind, a manifest,
+ident, firmware hash, bitstream or placement that disagrees with what the image
+holds. It also refuses an all-fabric image that carries any mailbox. A split
+build runs it on the image it has just written and fails on any finding:
+
+```sh
+python3 sw/litex/check_image_identity.py "$IMAGE"
+```
+
+Builder gate 23p exports the shipping 1x1 config split and all-fabric through
+`milan_soc.main()`. Both images pass. Eleven planted images each fail by their
+kind:
+
+- from the SoC: a split ident that names no placement, a manifest that
+  records another VERSION or another mailbox minor, a split datapath without
+  `CTRL_SPLIT_P`, and an all-fabric image with the mailbox;
+- from the image's files: the firmware relinked after the build, a manifest
+  forged to the relinked firmware, the manifest removed, a bitstream the
+  manifest does not bind, another bitstream than the bound one, and a renamed
+  placement.
 
 ## Verification
 

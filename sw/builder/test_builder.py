@@ -23599,6 +23599,149 @@ def test_datapath_params_gate_bites() -> None:
           f"not state, and the split placement's CTRL_SPLIT_P dropped")
 
 
+#  gate 23p (#665 S9, decision D2) - THE IMAGE IDENTITY GATE, ON REAL IMAGES.
+#
+#  sw/litex/check_image_identity.py grades a milan_soc.py output directory:
+#  the split image's manifest, ident, firmware hash, bitstream and placement
+#  must agree with what the image holds, and an all-fabric image must carry
+#  no mailbox. Every image here is a real export of the shipping 1x1 config,
+#  split (its synthetic firmware is gate 23m's) and all-fabric, through
+#  milan_soc.main() in test_ctrl_memory.py's export child, which applies one
+#  edit to one milan_soc.py definition. Both good images must pass. Each
+#  planted image must fail the gate with its kind, from the CLI, and a split
+#  plant also fails its own build, which runs the gate on what it wrote.
+
+import check_image_identity  # noqa: E402
+
+#: (label, kind, milan_soc.py definition, its text, the planted text, split): each makes the image
+#: the build writes disagree with its identity in one way.
+IDENTITY_SOC_PLANTS = (
+    ("the split ident names no placement", "ident", "soc_ident",
+     'return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident', "return ident", True),
+    ("the manifest records another VERSION", "manifest", "write_image_manifest",
+     "(major << 16) | minor,", "((major + 1) << 16) | minor,", True),
+    ("the manifest records another mailbox minor", "manifest", "write_image_manifest",
+     "(contract.major, contract.minor)", "(contract.major, contract.minor + 1)", True),
+    ("the split datapath built without CTRL_SPLIT_P", "placement", "add_milan_datapath",
+     'dp_params["p_CTRL_SPLIT_P"] = 1', 'dp_params["p_CTRL_SPLIT_P"] = 0', True),
+    ("an all-fabric image with the mailbox", "placement", "MilanSoC",
+     "        if ctrl_mailbox:\n            add_ctrl_mailbox(self, platform, sys_clk_freq, "
+     'dp=getattr(self, "milan", None))', "        add_ctrl_mailbox(self, platform, sys_clk_freq)", False),
+)
+
+
+def _image_export(python, argv, out, mutation=None):
+    """One milan_soc.main() export into out, through test_ctrl_memory.py's child: (rc, its error)."""
+    spec, result = out.with_suffix(".spec.json"), out.with_suffix(".result.json")
+    spec.write_text(json.dumps({"argv": [*argv, "--output-dir", str(out), "--no-compile-software"],
+                                "result": str(result), "mutation": mutation}))
+    with out.with_suffix(".log").open("w") as log:
+        subprocess.run([python, str(SOC_DIR / "test_ctrl_memory.py"), "--soc-child", str(spec)], cwd=SOC_DIR,
+                       env=dict(os.environ, PYTHONHASHSEED="0"), stdout=log, stderr=subprocess.STDOUT, check=False)
+    row = json.loads(result.read_text()) if result.exists() else {"rc": None, "error": "no result"}
+    return row["rc"], row.get("error") or row.get("refusal") or ""
+
+
+def _gate_cli(python, image, *extra):
+    """The identity gate's CLI on one image: (exit status, its output)."""
+    run = subprocess.run([python, str(SOC_DIR / "check_image_identity.py"), str(image), *map(str, extra)],
+                         cwd=ROOT, capture_output=True, text=True)
+    return run.returncode, run.stdout + run.stderr
+
+
+def _poke_text(elf, out):
+    """A copy of elf with one byte of its first load segment changed: another firmware, still an image."""
+    data = bytearray(elf.read_bytes())
+    phoff = struct.unpack_from("<I", data, 0x1C)[0]
+    offset, filesz = struct.unpack_from("<I", data, phoff + 4)[0], struct.unpack_from("<I", data, phoff + 16)[0]
+    data[offset + filesz // 2] ^= 0xFF
+    out.write_bytes(bytes(data))
+    return out
+
+
+def _identity_file_plants(good, tmp):
+    """(label, kind, image, extra CLI arguments) for the plants made by editing copies of the good split image."""
+    out = []
+
+    def copy_of(label: str) -> Path:
+        """A copy of the good image, named for its plant."""
+        image = tmp / re.sub(r"\W+", "-", label)
+        shutil.copytree(good, image)
+        return image
+
+    record = json.loads((good / check_image_identity.MANIFEST).read_text())
+    elf = Path(record["ctrl_firmware"]["path"])
+    image = copy_of("the firmware relinked after the build")
+    out.append(("the firmware relinked after the build", "firmware", image,
+                ["--firmware", _poke_text(elf, tmp / "relinked.elf")]))
+    image = copy_of("the manifest forged to the relinked firmware")
+    forged = _poke_text(elf, tmp / "forged.elf")
+    doc = dict(record, ctrl_firmware=dict(record["ctrl_firmware"], path=str(forged),
+                                          sha256=hashlib.sha256(forged.read_bytes()).hexdigest()))
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(doc))
+    out.append(("the manifest forged to the relinked firmware", "firmware", image, []))
+    image = copy_of("the manifest removed from a split image")
+    (image / check_image_identity.MANIFEST).unlink()
+    out.append(("the manifest removed from a split image", "placement", image, []))
+    image = copy_of("a bitstream the manifest does not bind")
+    qspi_transition._fake_bit(image / "gateware/alinx_ax7101.bit", b"\xff" * 16 + b"\xaa\x99\x55\x66unbound")
+    out.append(("a bitstream the manifest does not bind", "bitstream", image, []))
+    image = copy_of("a bitstream other than the one the manifest binds")
+    bound, other = tmp / "bound.bit", image / "gateware/alinx_ax7101.bit"
+    qspi_transition._fake_bit(bound, b"\xff" * 16 + b"\xaa\x99\x55\x66bound")
+    qspi_transition._fake_bit(other, b"\xff" * 16 + b"\xaa\x99\x55\x66other")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(
+        dict(record, bitstream=qspi_transition.bitstream_binding(bound))))
+    out.append(("a bitstream other than the one the manifest binds", "bitstream", image, []))
+    image = copy_of("the manifest's placement renamed")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(dict(record, placement="all-fabric")))
+    out.append(("the manifest's placement renamed", "manifest", image, []))
+    return out
+
+
+def test_image_identity_gate() -> None:
+    """gate 23p - the identity gate passes the two real images and fails every planted one by its kind."""
+    python = _litex_or_skip("gate 23p")
+    if python is None:
+        return
+    t0, bad = time.time(), []
+    with tempfile.TemporaryDirectory() as made:
+        tmp = Path(made)
+        _cfg, split_argv = _case_argv("ax7101_1x1_tdm8" + SPLIT_SUFFIX, tmp, python)
+        _cfg, fabric_argv = _config_argv("ax7101_1x1_tdm8")
+        good = {"split": tmp / "split", "all-fabric": tmp / "all-fabric"}
+        for placement, argv in (("split", split_argv), ("all-fabric", fabric_argv)):
+            rc, error = _image_export(python, argv, good[placement])
+            status, said = _gate_cli(python, good[placement])
+            if rc != 0 or status != 0:
+                bad.append(f"the good {placement} image: build rc {rc} {error}; gate {status}: {said.strip()}")
+        if (good["all-fabric"] / check_image_identity.MANIFEST).exists():
+            bad.append("the all-fabric build wrote a split image manifest")
+        assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+        plants = []
+        for label, kind, name, old, new, split in IDENTITY_SOC_PLANTS:
+            image = tmp / re.sub(r"\W+", "-", label)
+            rc, error = _image_export(python, split_argv if split else fabric_argv, image,
+                                      ["milan_soc", name, old, new])
+            if split and (rc != 1 or "identity gate refuses it" not in error or f"{kind}:" not in error):
+                bad.append(f"{label}: its build was not refused by the gate's {kind} rule (rc {rc}: {error})")
+            plants.append((label, kind, image, []))
+        plants += _identity_file_plants(good["split"], tmp)
+        for label, kind, image, extra in plants:
+            status, said = _gate_cli(python, image, *extra)
+            if status != 1 or f"FINDING {kind}:" not in said:
+                bad.append(f"{label}: the gate did not find it by its {kind} rule (exit {status}): {said.strip()}")
+            else:
+                words = next(line for line in said.splitlines() if line.startswith(f"FINDING {kind}:"))
+                print(f"    {label}: {words}")
+        count = len(plants)
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+    print(f"  [gate 23p] the good split and all-fabric images pass the identity gate; {count} planted images "
+          f"each fail it by their kind ({', '.join(sorted(set(k for _l, k, *_r in IDENTITY_SOC_PLANTS)))} "
+          f"from the SoC; firmware, bitstream, placement and manifest from the image's files) in "
+          f"{time.time() - t0:.0f} s")
+
+
 #  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
 #
 #  Every tracked config is all-fabric: it states no CTRL_SPLIT_P and emits no
@@ -29549,7 +29692,7 @@ if __name__ == "__main__":
                test_clock_plan_reaches_the_instance,
                test_clock_plan_instance_gate_bites,
                test_datapath_params_match_the_instance,
-               test_datapath_params_gate_bites,
+               test_datapath_params_gate_bites, test_image_identity_gate,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,
