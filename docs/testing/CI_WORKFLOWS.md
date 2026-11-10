@@ -2269,10 +2269,17 @@ The manager supplies these through `--cpu-ranges`.
 For example, `0-15,16-31,32-47,48-63` books four ranges.
 This example is not a host allocation table.
 The manager prevents overlap with other host work.
-Each normal range contains sixteen CPUs, aligned to sixteen.
-The fallback width is `FALLBACK_CPU_LIMIT=12`, aligned to twelve.
-Missing, overlapping, unaligned and unavailable ranges are refused.
-Eight-CPU ranges remain refused under the current owner ruling.
+A range's width is the job geometry's per-job CPU width, `--job-cpus` (#873).
+At the default width, sixteen, a range holds sixteen CPUs aligned to sixteen,
+or the twelve-CPU fallback aligned to twelve.
+At `--job-cpus 8` or `--job-cpus 6` every range holds exactly that many CPUs,
+aligned to that width, with no fallback.
+`JOB_CPU_WIDTHS` in `scripts/act_ci.py` is the one named setting for both.
+Missing, overlapping, unaligned and unavailable ranges are refused at every width.
+So is a range of a width the chosen geometry does not name.
+Without `--job-cpus`, six- and eight-CPU ranges stay refused, as the owner's
+16-CPU rule with its twelve-CPU fallback set them on #737.
+#873 adds them as an explicit operator choice, not as the default.
 Daemon slot numbers never determine CPU numbers.
 
 The dispatcher reserves a free range before executing a job.
@@ -2329,7 +2336,8 @@ Controls execute the generated shell at one, four, twelve and sixteen CPUs.
 They refuse zero CPUs and prove nested build budgets do not exceed the range.
 
 One scheduler serves every selected, byte-identical workflow file.
-`CONCURRENT_JOB_LIMIT=4` bounds admissions across workflows and nested matrices.
+The job geometry's job count, `--jobs`, bounds admissions across workflows and
+nested matrices: four by default, at most `MAX_CONCURRENT_JOBS=8`.
 The pinned dispatcher is `0.2.89+milan-ci5`.
 Vanilla dispatchers lack this combined admission and placement contract.
 Each job waits only for its declared dependencies and a free range.
@@ -2344,13 +2352,58 @@ The first failed job stops further admissions and cancels siblings.
 Successful controls require every scheduled job to complete.
 Hosted matrices retain `fail-fast: true`, including fork PRs.
 
-Each container has an eight-GiB limit, with no additional swap.
-Four containers plus four-GiB overhead fit the 36-GiB slot cap.
+The job count, the per-job CPU width and the per-job memory cap form one
+job geometry (`JobGeometry`, #873), chosen with `--jobs`, `--job-cpus` and
+`--job-memory` (in GiB).
+Each container's memory cap is also its swap cap, so it has no additional swap.
+A geometry exists only when it fits by construction.
+Any other is refused before any collaborator runs, never shrunk into a smaller replay:
+
+- jobs times the memory cap, plus `SLOT_SERVICE_MEMORY_GIB=4` for the slot's
+  daemon and services, must fit the slot's `SLOT_MEMORY_MAX=36G`;
+- jobs times the CPU width must fit `REPLAY_CPU_LIMIT=64`, the CPUs one replay
+  booked before #873 (four jobs of sixteen);
+- the job count is 1 to 8, the width 16, 8 or 6, and the memory cap 1 to 8 GiB.
+
+| Geometry | Memory: jobs x cap + 4 (of 36 GiB) | CPUs (of 64) | Result |
+|---|---:|---:|---|
+| 4 x 16 CPUs at 8 GiB, the default | 36 | 64 | accepted |
+| 8 x 6 CPUs at 4 GiB | 36 | 48 | accepted |
+| 8 x 8 CPUs at 4 GiB | 36 | 64 | accepted |
+| 8 x 6 CPUs at 8 GiB | 68 | 48 | refused: memory |
+| 8 x 16 CPUs at 4 GiB | 36 | 128 | refused: CPU |
+
+So eight jobs hold at most four GiB each.
+For example, `--jobs 8 --job-cpus 6 --job-memory 4` with
+`--cpu-ranges 0-5,6-11,12-17,18-23,24-29,30-35,36-41,42-47` books eight
+six-CPU ranges.
+A six-CPU range aligned to six can straddle a sixteen-CPU boundary, as
+`12-17` does; an eight-CPU range aligned to eight never does.
 The host now has 61 GB, shared with other work.
 This policy leaves headroom without reserving all remaining host memory.
 Measured peaks and their limits appear under resource bounds below.
-Higher concurrency requires a new measured memory allocation.
-The current runner deliberately keeps four as its maximum.
+
+The measured basis for #873 is PR #835's full replay at the default geometry.
+It took 149 minutes for 71 jobs and 574 job-minutes.
+The slot kept 7.7 CPUs busy on average, of the 64 it booked.
+A container used 2.0 busy CPUs on average, 7.3 at most.
+A container's memory peaked at 3.4 GiB median, 7.8 GiB at most, under the eight-GiB cap.
+The last 11 full replays took 137 to 150 minutes.
+Simulations are single-threaded, so the four-job queue limits the run, not CPU.
+
+The chosen default stays the geometry before #873: four jobs of sixteen CPUs
+at eight GiB.
+An unchanged command line therefore runs, and is refused, exactly as before.
+Eight jobs fit only at four GiB, below the capture campaign's measured
+5.632 GiB peak and #835's 7.8 GiB maximum.
+A peak counts reclaimable page cache, so a job above four GiB is not
+necessarily killed at four GiB.
+But an OOM anywhere in the slot refuses the replay (below).
+A calibration replay decides whether the default changes (#873 item 4).
+It runs one full replay at eight jobs of six CPUs on a head that also has a
+four-by-sixteen receipt.
+It compares per-job durations and suite timeouts, and reports wall time and peak memory.
+Until that replay is recorded here, the default does not change.
 
 The placement monitor retains the audited signal-safe cleanup boundary.
 Cleanup signals remain blocked while its reader is being joined.
@@ -2775,7 +2828,9 @@ Resource bounds:
   The eight-GiB job cap leaves 2542833664 bytes (2.368 GiB),
   29.60% of the cap and a margin of 42.05% over that measured peak.
   Four eight-GiB caps plus four GiB overhead equal the 36-GiB slot cap.
-  Admission remains `floor((36 - 4) / 8) = 4` jobs.
+  Admission remains `floor((36 - 4) / 8) = 4` jobs at the default eight-GiB cap.
+  The job geometry generalises it to at most `floor((36 - 4) / cap)` jobs, and never
+  more than eight; eight fit at four GiB (#873).
   Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
   That is a sum of separate peaks, not an observed concurrent slot peak.
   The source-build compiler bound changes; container and slot caps do not.
