@@ -1,0 +1,9 @@
+# head 1d6bf5556ae28764361d85012b86394eb467d294 workflow rtl job physical-gptp step ci_step_11: Run the physical gPTP suite with its own deadline
+# clone $VALIDATION_STORAGE/665s8-a758b/gates/base-rtl/physical-gptp/wt
+shard: 0/1   selected suites: 1
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: $VALIDATION_STORAGE/665s8-a758b/gates/base-rtl/physical-gptp/runner_temp/physical-gptp-logs
+CANCELLED: signal 15; no completed sweep result
+Command exited with non-zero status 143
+driver_wall_seconds=685.38 driver_exit_status=143

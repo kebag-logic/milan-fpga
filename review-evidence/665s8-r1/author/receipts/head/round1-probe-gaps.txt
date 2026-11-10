@@ -1,0 +1,4 @@
+# ruling item 5: round 1's probe gaps (its 1x1 log at 086e186e87, sha256 b71305297d1be19a) and the head's 1x1 unloaded run, PROBE first byte to first byte at 100 MHz, against IEEE 1722-2016 B.3.4.2 (strictly 500 to 600 ms)
+# a TXW line is a frame at the MAC; a MAAP PROBE is EtherType 0x22F0, subtype 0xFE, message_type 1 (Table B.4)
+round 1, 086e186e87: 4 PROBEs, gaps 558.713, 519.341, 513.012 ms, each strictly inside 500 to 600 ms: True
+head, 107f3f95de CI 1x1 none: 4 PROBEs, gaps 559.068, 519.120, 512.915 ms, each strictly inside 500 to 600 ms: True

@@ -1,0 +1,38 @@
+== run: point 1x1, load composed, seed 4, 342 draws, to ANNOUNCE 2
+| Path | N | min us | mean us | max us | min ms | mean ms | max ms | bound ms | margin ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `acmp.bind_rx` | 342 | 379.420 | 1256.867 | 3623.020 | 0.3794 | 1.2569 | 3.6230 | 200.0 | 196.377 |
+| `acmp.bind_to_probe_tx` | 342 | 568.900 | 1446.356 | 3812.520 | 0.5689 | 1.4464 | 3.8125 | - | - |
+| `acmp.probe_tx` | 342 | 399.040 | 2847.071 | 5318.050 | 0.3990 | 2.8471 | 5.3181 | 200.0 | 194.682 |
+| `acmp.probe_tx.entity` | 342 | 163.520 | 2354.370 | 4964.950 | 0.1635 | 2.3544 | 4.9649 | - | - |
+| `acmp.probe_tx.egress` | 342 | 1.760 | 1.765 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `acmp.probe_tx.turnaround` | 342 | 2.220 | 492.701 | 996.480 | 0.0022 | 0.4927 | 0.9965 | - | - |
+| `acmp.probe_tx.ingress` | 342 | 160.950 | 2351.805 | 4962.380 | 0.1610 | 2.3518 | 4.9624 | - | - |
+| `aecp.response` | 342 | 1856.280 | 3490.586 | 6730.420 | 1.8563 | 3.4906 | 6.7304 | 240.0 | 233.2696 |
+| `aecp.response.read_descriptor_entity` | 57 | 2636.180 | 3726.199 | 5237.000 | 2.6362 | 3.7262 | 5.2370 | - | - |
+| `aecp.response.get_configuration` | 57 | 2196.560 | 3278.739 | 5224.360 | 2.1966 | 3.2787 | 5.2244 | - | - |
+| `aecp.response.get_counters` | 57 | 2768.420 | 3998.136 | 6730.420 | 2.7684 | 3.9981 | 6.7304 | - | - |
+| `aecp.response.get_avb_info` | 57 | 2346.560 | 3475.861 | 5329.120 | 2.3466 | 3.4759 | 5.3291 | - | - |
+| `aecp.response.get_name` | 57 | 2381.000 | 3482.687 | 6402.180 | 2.3810 | 3.4827 | 6.4022 | - | - |
+| `aecp.response.mvu_get_milan_info` | 57 | 1856.280 | 2981.891 | 4792.680 | 1.8563 | 2.9819 | 4.7927 | - | - |
+| `maap.egress` | 5 | 939.710 | 1541.682 | 2190.630 | 0.9397 | 1.5417 | 2.1906 | 11.0 | 8.8094 |
+| `maap.probe_interval` | 3 | 513457.720 | 531088.080 | 560388.460 | 513.4577 | 531.0881 | 560.3885 | 600.0 | 39.6115 |
+| `maap.announce_interval` | 1 | 31958158.480 | 31958158.480 | 31958158.480 | 31958.1585 | 31958.1585 | 31958.1585 | 32000.0 | 41.8415 |
+| `maap.interval_error` | 4 | 418.060 | 855.680 | 1388.460 | 0.4181 | 0.8557 | 1.3885 | 11.0 | 9.6115 |
+| `adp.egress` | 6 | 1155.390 | 1601.760 | 2097.850 | 1.1554 | 1.6018 | 2.0978 | 400.0 | 397.9022 |
+| `adp.advertise_period` | 5 | 5364173.840 | 6821812.308 | 8387580.760 | 5364.1738 | 6821.8123 | 8387.5808 | 9400.0 | 1012.4192 |
+| `egress.adp.first` | 6 | 0.360 | 0.367 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.adp.last` | 6 | 2.080 | 2.087 | 2.090 | 0.0021 | 0.0021 | 0.0021 | - | - |
+| `egress.acmp.first` | 5130 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.acmp.last` | 5130 | 1.760 | 1.765 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `egress.aecp.first` | 5814 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.aecp.last` | 5814 | 1.180 | 7.907 | 8.210 | 0.0012 | 0.0079 | 0.0082 | - | - |
+| `egress.maap.first` | 34 | 0.360 | 0.366 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.maap.last` | 34 | 1.540 | 1.546 | 1.550 | 0.0015 | 0.0015 | 0.0015 | - | - |
+| `egress.srp.first` | 86 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.srp.last` | 86 | 0.820 | 1.783 | 4.780 | 0.0008 | 0.0018 | 0.0048 | - | - |
+
+Load: acmp: 342 offers, 19180 frames, 2366 echoes skipped, adp: 12 offers, 384 frames, 84 echoes skipped, aecp: 342 offers, 17812 frames, 2366 echoes skipped, maap: 6 offers, 240 frames, 0 echoes skipped. Simulated 34690 ms. Censored (the log ends within the command's bound, unanswered): none.
+ctrl_wire_timing grade: 0 finding(s), 342 draws
+plant egress-past-reserve: caught: maap.egress: 14.0639 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+plant shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000

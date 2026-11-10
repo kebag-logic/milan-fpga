@@ -1,0 +1,37 @@
+# head bfb2df37079f0172d6e94841ea5b9bd084e3ee06 workflow rtl job physical-gptp step ci_step_11: Run the physical gPTP suite with its own deadline
+# clone $VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/wt
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2017811, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/normal-orphan input [523]", "identities": {"2017810": ["1009413", "S"], "2017811": ["1009418", "S"]}, "pid": 2017810}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2018354, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-selection-SIGINT input [523]", "identities": {"2018351": ["1010186", "S"], "2018354": ["1010198", "S"]}, "pid": 2018351}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2018565, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-selection-SIGTERM input [523]", "identities": {"2018553": ["1010510", "S"], "2018565": ["1010522", "S"]}, "pid": 2018553}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2019024, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-preflight-SIGINT input [523]", "identities": {"2019013": ["1011004", "S"], "2019024": ["1011027", "S"]}, "pid": 2019013}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2019778, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-preflight-SIGTERM input [523]", "identities": {"2019715": ["1011566", "S"], "2019778": ["1011594", "S"]}, "pid": 2019715}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2020200, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-command-SIGINT input [523]", "identities": {"2020196": ["1012173", "S"], "2020200": ["1012188", "S"]}, "pid": 2020196}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2020621, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-command-SIGTERM input [523]", "identities": {"2020615": ["1012745", "S"], "2020621": ["1012765", "S"]}, "pid": 2020615}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2021273, "cwd": "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-transition-SIGINT input [523]", "identities": {"2021252": ["1013269", "S"], "2021273": ["1013292", "S"]}, "pid": 2021252}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/wt/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/wt/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/wt/scripts/test_suite_cancellation.py", line 184, in cancellation
+    status, output = probe.finish()
+                     ~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/wt/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-transition-SIGTERM input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/665s8-a758b/gates/rtl/physical-gptp/tmp/suite-cancellation-j3hxh0e1/cancel-transition-SIGTERM input [523]/logs']' timed out after 12 seconds
+ABORTING: sweep cancellation controls failed.
+Command exited with non-zero status 2
+driver_wall_seconds=93.78 driver_exit_status=2

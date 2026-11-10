@@ -1,0 +1,4 @@
+# milan_dp's print-srcs and print-dp-vflags as tb/verilator/capture_coherence/Makefile:102 and :106 call them (make -s --no-print-directory -C ../milan_dp print-srcs DP_SRC='../../../hdl/milan/milan_datapath.sv'; the same with print-dp-vflags, whose row below was taken both with that DP_SRC and without it, as :106 calls it), base 1d6bf5556a vs head bfb2df3707, clean clones, rc 0 each
+print-srcs base 65c47171b5678f09cee3513f026b1ce14695d9c927ba7d1d9ee0a313b57ed7b0 head 65c47171b5678f09cee3513f026b1ce14695d9c927ba7d1d9ee0a313b57ed7b0 IDENTICAL (6072 bytes)
+print-dp-vflags base 02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd head 02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd IDENTICAL (706 bytes)
+print-dp-vflags without DP_SRC: base 02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd head 02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd IDENTICAL

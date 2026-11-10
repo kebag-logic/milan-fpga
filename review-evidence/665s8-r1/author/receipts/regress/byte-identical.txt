@@ -1,0 +1,9 @@
+# split leg and twin: base 086e186e87 (clean clone) vs the working tree of 79997664d5
+base/split.out 14b57a6d8c041bfccfd0349a9613ca3ab3819adc99f4a27d5ed78d4385da14bf | reg-wip/split.out 14b57a6d8c041bfccfd0349a9613ca3ab3819adc99f4a27d5ed78d4385da14bf | IDENTICAL
+base/fabric.json fa6a5a120590aa0185849a904ebf22fdd5dde9ed485d375910f92c1e9c52873b | reg-wip/twin/fabric.json fa6a5a120590aa0185849a904ebf22fdd5dde9ed485d375910f92c1e9c52873b | IDENTICAL
+base/split.json ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308 | reg-wip/twin/split.json ee143865a5e3cfaed703f2e3e58bb8f44c9cbd4fe6c443252b16ab457bd46308 | IDENTICAL
+base/report.json 41e234b1c8857a0c459cb4891683735669c0b1abd024af8a9fe858e9ef9bab80 | reg-wip/twin/report.json 41e234b1c8857a0c459cb4891683735669c0b1abd024af8a9fe858e9ef9bab80 | IDENTICAL
+make -n build-split and build-twin-sp command lines: IDENTICAL (cmp of the tb_split_top lines, root paths normalised)
+base build-split.rc 0 wip 0
+base split.rc 0 wip 0
+base build-twin.rc 0 wip 0

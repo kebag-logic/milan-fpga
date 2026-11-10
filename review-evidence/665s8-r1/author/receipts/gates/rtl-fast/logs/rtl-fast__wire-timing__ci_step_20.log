@@ -1,0 +1,126 @@
+# head bfb2df37079f0172d6e94841ea5b9bd084e3ee06 workflow rtl-fast job wire-timing step ci_step_20: Time the split placement at the wire, without and with the composed load
+# clone $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt
+control clean-loaded-script: PASS
+control deadline-load-on-a-draw-channel: caught: the deadline load adp reaches the acmp channel, whose received records the draws measure
+control clean: PASS
+control clean-announce-interval: PASS
+control clean-two-interfaces: PASS
+control clean-censored-at-the-end: PASS
+control shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000
+control drifted-milliseconds: caught: REFUSED: the clock is shifted: the log's milliseconds are [99999, 100000, 100001] cycles apart, the declared 100000000 Hz gives 100000
+control missing-response: caught: ACMP: the BIND_RX acmp-bind-0 (sequence_id 0x4100) has no BIND_RX_RESPONSE
+control late-response: caught: acmp.bind_rx: 200.0 ms is not under 200.0 ms (Milan v1.2 Table 5.26, BIND_RX (CONNECT_RX_COMMAND): first byte in to the response's last byte out)
+control unhandled-answer: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control handled-on-another-slot: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control frame-before-commit: caught: REFUSED: a acmp frame left at cycle 10049900, before its commit at 10050864
+control incomplete-model: caught: REFUSED: the model did not complete: no tally
+control no-mailbox-egress: caught: REFUSED: the log has no KL_mbx egress (MTX) lines, so no frame's commit can be found
+control egress-without-commit: caught: REFUSED: 5 acmp frames left KL_mbx after 4 commits on its channel
+control bench-frames-counted-as-interface-0: caught: REFUSED: a acmp frame left KL_mbx on interface 0 at cycle 20049844 and never reached the MAC
+control missing-aecp-response: caught: AECP: the command aecp-read_descriptor_entity-0 (sequence_id 0x6100) has no final response
+control late-aecp-response: caught: aecp.response: 240.0 ms is not under 240.0 ms (IEEE 1722.1-2021 9.2.1 (FR_NFR.md 3.4.1's 240 ms): an AEM or MVU command's first byte in to its final response's last byte out)
+control aecp-in-progress: caught: AECP: 2 IN_PROGRESS answers to commands that change no face state
+control unanswered-before-the-end: caught: AECP: the command aecp-get_configuration-1 (sequence_id 0x6101) has no final response
+control egress-past-reserve: caught: maap.egress: 11.0304 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+control interval-error-past-reserve: caught: maap.interval_error: 11.0 ms is not under 11.0 ms (an interval at the wire less its drawn value, in magnitude, under the 11 ms reserve)
+control probe-draw-outside-reserve: caught: MAAP: an interval drawn at 590 ms, outside the reserved 511 to 589 ms (maap/README.md:44)
+control probe-interval-outside-clause: caught: maap.probe_interval: 600.029 ms is not strictly inside 500 to 600 ms (IEEE 1722-2016 B.3.4.2: consecutive PROBEs, first byte to first byte)
+control maap-frame-on-no-expiry: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control maap-expiry-cancelled: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control announce-interval-outside-clause: caught: maap.announce_interval: 32000.995 ms is not strictly inside 30000 to 32000 ms (IEEE 1722-2016 B.3.4.1: consecutive ANNOUNCEs, first byte to first byte)
+control no-announce-interval: caught: MAAP: 1 ANNOUNCEs left the MAC, the run asked for 2
+control advertise-timer-not-5s: caught: ADP: the advertise timer after the ENTITY_AVAILABLE at cycle 40400436 is 4999 ms, not 5000 ms (Milan v1.2 Table 5.50)
+control adp-delay-outside-table: caught: ADP: a delay drawn at 4001 ms, outside 0 to 4000 ms (Milan v1.2 Table 5.50, 5.6.3.5.2)
+control adp-egress-past-ceiling: caught: adp.egress: 400.000 ms is not under 200.0 ms (FR_NFR.md 3.4.1)
+control available-sent-twice: caught: adp.advertise_period: 1.000 ms is not inside 4998.0 to 9400.0 ms (Milan v1.2 Table 5.50)
+ctrl_wire_timing self-test: 33 controls, 0 failed
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $WORKSPACE_HOME/litex-milan/litex/litex/soc/software --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/runtime
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl/test/ctrl_srp_image.py --config $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/image --libc $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/soc
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/soc/csr.csv --csr-h $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/stand-ins/soc/software/include/generated/csr.h --out $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $WORKSPACE_HOME/litex-milan/litex/litex/soc/software --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/runtime
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl/test/ctrl_srp_image.py --config $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/image --flash-map $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map --libc $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/soc
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/soc/csr.csv --csr-h $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/mapped/soc/software/include/generated/csr.h --out $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map-again
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $WORKSPACE_HOME/litex-milan/litex/litex/soc/software --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/runtime
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl/test/ctrl_plat_image.py --config $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl/test/ctrl_plat_csr.csv --flash-map $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/image-provisional --libc $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/runtime/libcompiler_rt.a
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_wire_timing/wire_soc.py $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/soc-provisional endstation_ax7101_1x1_tdm8 $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/image-provisional/ctrl_app.elf 1 $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map -
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/sw/firmware/ctrl/test/ctrl_plat_image.py --config $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/soc-provisional/csr.csv --flash-map $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map --output $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/image --libc $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/runtime/libcompiler_rt.a
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_wire_timing/wire_soc.py $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/soc endstation_ax7101_1x1_tdm8 $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/image/ctrl_app.elf 1 $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split-soc/flash-map -
+COMMAND make -C $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/milan_dp -j4 build-split SPLIT_MDIR=$VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split SPLIT_SHAPE=endstation_ax7101_1x1_tdm8 SPLIT_STREAMS=1 SPLIT_IF=1
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I$VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/common -I$VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing -I$VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/fw_service_budget -I$VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_pkg.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_ring.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_rx.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_tx.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_evt.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx.sv $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/hdl/milan/mailbox/KL_mbx_wb.sv $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_716c7572eb738f5925a44a215feeaa4c.v $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/soc/gateware/sim.v $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/wt/tb/verilator/ctrl_wire_timing/wire_main.cpp $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/split/Vtb_split_top__ALL.a
+COMMAND make -j4 -C $VALIDATION_STORAGE/665s8-a758b/gates/rtl-fast/wire-timing/runner_temp/wire-timing/native -f Vsim.mk Vsim
+ctrl_wire_timing CI: build ready after 445 s
+== ci-none: point 1x1, load none, seed 0, 16 draws, to ANNOUNCE 1
+| Path | N | min us | mean us | max us | min ms | mean ms | max ms | bound ms | margin ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `acmp.bind_rx` | 16 | 378.380 | 665.514 | 967.680 | 0.3784 | 0.6655 | 0.9677 | 200.0 | 199.0323 |
+| `acmp.bind_to_probe_tx` | 16 | 567.880 | 854.999 | 1157.160 | 0.5679 | 0.8550 | 1.1572 | - | - |
+| `acmp.probe_tx` | 16 | 399.040 | 908.902 | 1079.560 | 0.3990 | 0.9089 | 1.0796 | 200.0 | 198.9204 |
+| `acmp.probe_tx.entity` | 16 | 176.810 | 458.362 | 839.260 | 0.1768 | 0.4584 | 0.8393 | - | - |
+| `acmp.probe_tx.egress` | 16 | 1.760 | 1.762 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `acmp.probe_tx.turnaround` | 16 | 0.020 | 450.540 | 901.060 | 0.0000 | 0.4505 | 0.9011 | - | - |
+| `acmp.probe_tx.ingress` | 16 | 174.250 | 455.799 | 836.690 | 0.1742 | 0.4558 | 0.8367 | - | - |
+| `aecp.response` | 16 | 871.640 | 1611.362 | 2247.940 | 0.8716 | 1.6114 | 2.2479 | 240.0 | 237.7521 |
+| `aecp.response.read_descriptor_entity` | 3 | 1764.700 | 1927.800 | 2234.900 | 1.7647 | 1.9278 | 2.2349 | - | - |
+| `aecp.response.get_configuration` | 3 | 1294.140 | 1514.833 | 1691.040 | 1.2941 | 1.5148 | 1.6910 | - | - |
+| `aecp.response.get_counters` | 3 | 1838.880 | 2074.473 | 2247.940 | 1.8389 | 2.0745 | 2.2479 | - | - |
+| `aecp.response.get_avb_info` | 3 | 1321.040 | 1448.540 | 1568.260 | 1.3210 | 1.4485 | 1.5683 | - | - |
+| `aecp.response.get_name` | 2 | 1430.360 | 1558.460 | 1686.560 | 1.4304 | 1.5585 | 1.6866 | - | - |
+| `aecp.response.mvu_get_milan_info` | 2 | 871.640 | 883.970 | 896.300 | 0.8716 | 0.8840 | 0.8963 | - | - |
+| `maap.egress` | 4 | 743.810 | 814.940 | 872.050 | 0.7438 | 0.8149 | 0.8721 | 11.0 | 10.128 |
+| `maap.probe_interval` | 3 | 512915.320 | 530368.047 | 559068.340 | 512.9153 | 530.3680 | 559.0683 | 600.0 | 40.9317 |
+| `maap.interval_error` | 3 | 68.340 | 91.167 | 120.480 | 0.0683 | 0.0912 | 0.1205 | 11.0 | 10.8795 |
+| `adp.egress` | 1 | 837.590 | 837.590 | 837.590 | 0.8376 | 0.8376 | 0.8376 | 400.0 | 399.1624 |
+| `egress.adp.first` | 1 | 0.360 | 0.360 | 0.360 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.adp.last` | 1 | 2.080 | 2.080 | 2.080 | 0.0021 | 0.0021 | 0.0021 | - | - |
+| `egress.acmp.first` | 48 | 0.360 | 0.366 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.acmp.last` | 48 | 1.760 | 1.766 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `egress.aecp.first` | 16 | 0.360 | 0.366 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.aecp.last` | 16 | 1.180 | 3.279 | 8.210 | 0.0012 | 0.0033 | 0.0082 | - | - |
+| `egress.maap.first` | 5 | 0.360 | 0.364 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.maap.last` | 5 | 1.540 | 1.544 | 1.550 | 0.0015 | 0.0015 | 0.0015 | - | - |
+| `egress.srp.first` | 7 | 0.360 | 0.364 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.srp.last` | 7 | 0.820 | 1.876 | 2.670 | 0.0008 | 0.0019 | 0.0027 | - | - |
+
+Load: none. Simulated 1935 ms. Censored (the log ends within the command's bound, unanswered): none.
+ctrl_wire_timing grade: 0 finding(s), 16 draws
+plant egress-past-reserve: caught: maap.egress: 12.7438 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+plant shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000
+== ci-composed: point 1x1, load composed, seed 0, 16 draws, to ANNOUNCE 1
+| Path | N | min us | mean us | max us | min ms | mean ms | max ms | bound ms | margin ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `acmp.bind_rx` | 16 | 624.940 | 1182.764 | 3402.860 | 0.6249 | 1.1828 | 3.4029 | 200.0 | 196.5971 |
+| `acmp.bind_to_probe_tx` | 16 | 814.440 | 1372.253 | 3592.340 | 0.8144 | 1.3723 | 3.5923 | - | - |
+| `acmp.probe_tx` | 16 | 399.040 | 2973.051 | 5263.150 | 0.3990 | 2.9731 | 5.2632 | 200.0 | 194.7369 |
+| `acmp.probe_tx.entity` | 16 | 218.820 | 2522.511 | 4540.140 | 0.2188 | 2.5225 | 4.5401 | - | - |
+| `acmp.probe_tx.egress` | 16 | 1.760 | 1.764 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `acmp.probe_tx.turnaround` | 16 | 0.020 | 450.540 | 901.060 | 0.0000 | 0.4505 | 0.9011 | - | - |
+| `acmp.probe_tx.ingress` | 16 | 216.260 | 2519.947 | 4537.570 | 0.2163 | 2.5199 | 4.5376 | - | - |
+| `aecp.response` | 16 | 2945.080 | 3568.966 | 4151.280 | 2.9451 | 3.5690 | 4.1513 | 240.0 | 235.8487 |
+| `aecp.response.read_descriptor_entity` | 3 | 3811.740 | 3971.467 | 4151.280 | 3.8117 | 3.9715 | 4.1513 | - | - |
+| `aecp.response.get_configuration` | 3 | 3153.140 | 3314.400 | 3532.380 | 3.1531 | 3.3144 | 3.5324 | - | - |
+| `aecp.response.get_counters` | 3 | 3681.360 | 3850.067 | 3968.380 | 3.6814 | 3.8501 | 3.9684 | - | - |
+| `aecp.response.get_avb_info` | 3 | 3226.640 | 3602.227 | 4149.080 | 3.2266 | 3.6022 | 4.1491 | - | - |
+| `aecp.response.get_name` | 2 | 3275.940 | 3427.810 | 3579.680 | 3.2759 | 3.4278 | 3.5797 | - | - |
+| `aecp.response.mvu_get_milan_info` | 2 | 2945.080 | 3016.680 | 3088.280 | 2.9451 | 3.0167 | 3.0883 | - | - |
+| `maap.egress` | 4 | 797.570 | 1477.170 | 2306.090 | 0.7976 | 1.4772 | 2.3061 | 11.0 | 8.6939 |
+| `maap.probe_interval` | 3 | 513491.480 | 531374.033 | 560239.540 | 513.4915 | 531.3740 | 560.2395 | 600.0 | 39.7605 |
+| `maap.interval_error` | 3 | 491.480 | 1040.700 | 1391.080 | 0.4915 | 1.0407 | 1.3911 | 11.0 | 9.6089 |
+| `adp.egress` | 1 | 1550.290 | 1550.290 | 1550.290 | 1.5503 | 1.5503 | 1.5503 | 400.0 | 398.4497 |
+| `egress.adp.first` | 1 | 0.360 | 0.360 | 0.360 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.adp.last` | 1 | 2.080 | 2.080 | 2.080 | 0.0021 | 0.0021 | 0.0021 | - | - |
+| `egress.acmp.first` | 240 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.acmp.last` | 240 | 1.760 | 1.765 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `egress.aecp.first` | 272 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.aecp.last` | 272 | 1.180 | 7.915 | 8.210 | 0.0012 | 0.0079 | 0.0082 | - | - |
+| `egress.maap.first` | 12 | 0.360 | 0.366 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.maap.last` | 12 | 1.540 | 1.546 | 1.550 | 0.0015 | 0.0015 | 0.0015 | - | - |
+| `egress.srp.first` | 7 | 0.360 | 0.363 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.srp.last` | 7 | 0.820 | 1.874 | 2.670 | 0.0008 | 0.0019 | 0.0027 | - | - |
+
+Load: acmp: 16 offers, 896 frames, 112 echoes skipped, adp: 2 offers, 64 frames, 14 echoes skipped, aecp: 16 offers, 839 frames, 105 echoes skipped, maap: 5 offers, 200 frames, 0 echoes skipped. Simulated 1935 ms. Censored (the log ends within the command's bound, unanswered): none.
+ctrl_wire_timing grade: 0 finding(s), 16 draws
+plant egress-past-reserve: caught: maap.egress: 13.915 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+plant shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000
+ctrl_wire_timing CI: PASS, wall 2317 s
