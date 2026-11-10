@@ -451,7 +451,10 @@ and a record one past the block refused), and the LiteSPI port alone on
 GoogleMock's command master and `timer0`. One name past the capacity must not
 compile: the gate builds the codec so and requires `nvm_shape.h`'s refusal.
 Nor must a map entry count past its table (256 on an input port, 65,536 on an
-output port), each refused in its words.
+output port), each refused in its words. An input port at its table's limit,
+255 entries, must compile. The doctored input-width build must not compile
+under any shape header but the host suite's own, which alone defines
+`NVM_HOST_TEST`.
 
 - **Boot** ([`test/test_nvm_boot.cpp`](test/test_nvm_boot.cpp)):
   - blank, golden and erased-record slots;
@@ -553,7 +556,7 @@ output port), each refused in its words.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (127 defects, and three controls of the compile-time refusals: the NAME block and the two map widths). They are graded at the 1x1 shape, except a defect that only
+by at least one (127 defects, and five controls of the compile-time rules: the NAME block, the two map widths, the input limit one entry early and the doctored build's `#error`). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

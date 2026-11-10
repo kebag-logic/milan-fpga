@@ -144,13 +144,17 @@ class Bench:
         return {rid: erased_record3(len(fr) - REC_HDR3) for rid, fr in self.frames.items()}
 
 
-def shape_header(inputs: ShapeInputs, ident: Ident | None = None) -> str:
+def shape_header(inputs: ShapeInputs, ident: Ident | None = None, host_test: bool = False) -> str:
     """nvm_shape_gen.h for the host: what generated/soc.h carries on the split
     target, from the same derivation (the builder's nvm_split.json through
     scripts/nvm_klj3.py), plus the writer's waits, the identity and both
-    journals."""
+    journals. With `host_test`, the header of this suite's own builds: it also
+    defines NVM_HOST_TEST, the one header under which nvm_shape.h lets the
+    doctored input-width build compile."""
     who = ident or inputs.ident
     values = dict(WRITER_TIMING_MS)
+    if host_test:
+        values["NVM_HOST_TEST"] = 1
     values.update(split_constants(inputs.space, inputs.shape))
     values.update(MILAN_ENTITY_ID_LO=who.entity_id & 0xFFFF_FFFF,
                   MILAN_ENTITY_ID_HI=who.entity_id >> 32,
@@ -205,7 +209,7 @@ def build_suite(inputs: ShapeInputs, work: Path, b: fw_gtest.Build, binary: Bina
     headers."""
     b = replace(b, address_sanitizer=binary.address_sanitizer)
     gen = work / "gen"
-    header = shape_header(inputs, VECTOR_IDENT if binary.vector else None)
+    header = shape_header(inputs, VECTOR_IDENT if binary.vector else None, host_test=True)
     write_headers(gen, doctor(header, binary.edit), inputs.clock_hz)
     flags = (*(CFLAGS if tree == TREE else tuple(x for x in CFLAGS if x != "-Werror")), *binary.cflags)
     inc = includes(tree, gen)

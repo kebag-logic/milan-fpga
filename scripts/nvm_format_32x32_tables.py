@@ -553,7 +553,9 @@ TESTS = (
     ("VERSION", "the format's chain: KLJ3 major 3, layout 3, KLJ2 `VD_VER` (`wrong_version_falls_back`, "
      "majors 2 and 4)", "`no_version_check`", "done, split; the gateware VERSION not moved, as ruled (#823)"),
     ("Map entry widths", "a count past the codec's table does not compile: 256 entries on an input port, "
-     "65,536 on an output port", "either width assert removed", DONE),
+     "65,536 on an output port; 255 on an input port compiles; the doctored input build does not compile "
+     "outside the host test", "either width assert removed; the input limit one entry early; that build's "
+     "`#error` removed", DONE),
 )
 
 

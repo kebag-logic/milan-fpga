@@ -174,7 +174,12 @@ _Static_assert(MILAN_NVM3_N_NAME <= NVM3_CAP_NAME, "the names outgrow their id b
  * truncated in the table, and the record walk would disagree with the sizes.
  * The one build without the input port's refusal is the doctored build of
  * test/test_nvm_shapes.cpp, which shows that the run-time check behind it
- * turns persistence off (DR3b). */
+ * turns persistence off (DR3b). Only the host test's own shape header
+ * (test/nvm_bench.py, build_suite) defines NVM_HOST_TEST, so that build's
+ * define compiles nowhere else (#823). */
+#if defined(NVM_DOCTORED_MAPIN) && !defined(NVM_HOST_TEST)
+#error "NVM_DOCTORED_MAPIN builds only under the host test's shape header"
+#endif
 #define NVM_MAPI_WIDE(k) ((MILAN_NVM3_MAPIN_ENTRIES_##k > 255u) ? 1u : 0u)
 #define NVM_MAPO_WIDE(k) ((MILAN_NVM3_MAPOUT_ENTRIES_##k > 65535u) ? 1u : 0u)
 #ifndef NVM_DOCTORED_MAPIN

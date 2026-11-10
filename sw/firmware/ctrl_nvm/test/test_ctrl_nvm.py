@@ -31,6 +31,9 @@ also built with its names raised to the layout 3 NAME block's capacity
 at capacity), and one name past it must not compile: nvm_shape.h refuses it,
 and this gate requires the refusal and its words. So must a map entry count
 the codec's table cannot hold: 256 for an input port, 65,536 for an output.
+An input port of 255 entries, its table's limit, must compile. The doctored
+input-width build of test_nvm_shapes.cpp must not compile under any shape
+header but this suite's own (nvm_shape.h, NVM_HOST_TEST).
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -105,6 +108,18 @@ WIDTHS = (
     ("MILAN_NVM3_MAPOUT_ENTRIES_0", 65536, MAPOUT_REFUSAL,
      f'_Static_assert(NVM_SUM32(NVM_MAPO_WIDE) == 0u, "{MAPOUT_REFUSAL}");\n'),
 )
+#: The input table's own limit, which must compile (the accept side of the
+#: input width), and the control that moves the limit one entry early.
+AT_WIDTH = ("MILAN_NVM3_MAPIN_ENTRIES_0", 255)
+AT_WIDTH_EARLY = ("(MILAN_NVM3_MAPIN_ENTRIES_##k > 255u)", "(MILAN_NVM3_MAPIN_ENTRIES_##k >= 255u)")
+#: What nvm_shape.h says when the doctored input-width build is compiled
+#: under a shape header that is not this suite's, and the block that says it
+#: (its control removes it).
+DOCTORED_REFUSAL = "NVM_DOCTORED_MAPIN builds only under the host test's shape header"
+DOCTORED_ERROR = f'#if defined(NVM_DOCTORED_MAPIN) && !defined(NVM_HOST_TEST)\n#error "{DOCTORED_REFUSAL}"\n#endif\n'
+#: The controls of the compile-time rules: the NAME assert, each width assert,
+#: the input limit one entry early and the doctored build's #error.
+CONTROLS = 1 + len(WIDTHS) + 1 + 1
 
 
 @dataclass(frozen=True)
@@ -188,6 +203,38 @@ def over_width(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -
     return found
 
 
+def at_width(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """An input port at its table's limit, 255 entries, must compile: the
+    codec built against the shape header with one port's count there, every
+    warning an error. '' findings when it does."""
+    name, count = AT_WIDTH
+    gen = work / "at-width" / "gen"
+    write_headers(gen, doctor(shape_header(shape.inputs), ((name, count),)), shape.inputs.clock_hz)
+    try:
+        fw_gtest.compile_c(b, CFLAGS, includes(tree, gen), [tree / "nvm_klj2.c"], work / "at-width" / "obj")
+    except fw_gtest.BuildError as exc:
+        return [f"{name} = {count}, its table's limit, does not compile: {str(exc)[-300:]}"]
+    print(f"  at width: {name} = {count}, its table's limit, compiles")
+    return []
+
+
+def doctored_outside(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> list[str]:
+    """The doctored input-width build under a shape header that is not this
+    suite's own (no NVM_HOST_TEST, as on the target) must not compile, in
+    nvm_shape.h's words. '' findings when it does not."""
+    gen = work / "doctored-outside" / "gen"
+    write_headers(gen, shape_header(shape.inputs), shape.inputs.clock_hz)
+    try:
+        fw_gtest.compile_c(b, (*CFLAGS, "-DNVM_DOCTORED_MAPIN"), includes(tree, gen), [tree / "nvm_klj2.c"],
+                           work / "doctored-outside" / "obj")
+    except fw_gtest.BuildError as exc:
+        if DOCTORED_REFUSAL in str(exc):
+            print(f"  doctored build outside the host test: refused at compile time ({DOCTORED_REFUSAL!r})")
+            return []
+        return [f"the doctored build outside the host test refused for another reason: {str(exc)[-300:]}"]
+    return ["the doctored build outside the host test compiled"]
+
+
 def build(shape: Shape, work: Path, b: fw_gtest.Build, tree: Path = TREE) -> dict[str, Path]:
     """Every binary of a shape from `tree`, by name."""
     return {binary.name: build_suite(shape.inputs, work / binary.name, b, binary, tree) for binary in binaries(shape)}
@@ -215,6 +262,8 @@ def run_shape(shape: Shape, work: Path, b: fw_gtest.Build, require_rv32: bool) -
     if shape.stem == SELF_TEST_SHAPE and fw_gtest.EXECUTION.run:
         findings += [f"{shape.stem}: {x}" for x in over_capacity(shape, work, b)]
         findings += [f"{shape.stem}: {x}" for x in over_width(shape, work, b)]
+        findings += [f"{shape.stem}: {x}" for x in at_width(shape, work, b)]
+        findings += [f"{shape.stem}: {x}" for x in doctored_outside(shape, work, b)]
     return findings + [f"{shape.stem}: {x}" for x in rv32_arm(shape.inputs, work, require_rv32)], tests
 
 
@@ -306,6 +355,35 @@ def over_width_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]
     return found
 
 
+def at_width_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """The input limit's own control: refused one entry early, an input port
+    of 255 entries no longer compiles, and at_width says so."""
+    m = nvm_mutants.Mutant("mapin_limit_one_early", (("nvm_shape.h", *AT_WIDTH_EARLY),), ())
+    tree = work / "tree"
+    nvm_mutants.plant(m, tree)
+    found = at_width(shape, work, b, tree)
+    shutil.rmtree(tree, ignore_errors=True)
+    if not any("does not compile" in x for x in found):
+        return [f"self-test: {m.name} was NOT caught: at_width found {found!r}"]
+    print(f"  self-test OK: {m.name:<26} caught by at_width")
+    return []
+
+
+def doctored_control(shape: Shape, work: Path, b: fw_gtest.Build) -> list[str]:
+    """The doctored build's refusal's own control: with nvm_shape.h's #error
+    removed, that build compiles outside the host test, and doctored_outside
+    says so."""
+    m = nvm_mutants.Mutant("doctored_error_removed", (("nvm_shape.h", DOCTORED_ERROR, ""),), ())
+    tree = work / "tree"
+    nvm_mutants.plant(m, tree)
+    found = doctored_outside(shape, work, b, tree)
+    shutil.rmtree(tree, ignore_errors=True)
+    if found != ["the doctored build outside the host test compiled"]:
+        return [f"self-test: {m.name} was NOT caught: doctored_outside found {found!r}"]
+    print(f"  self-test OK: {m.name:<26} caught by doctored_outside")
+    return []
+
+
 def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
     """Plant every defect; each test it names must fail, at the shipping 1x1
     shape unless the defect names another (one that shows only at a clock
@@ -330,6 +408,8 @@ def self_test(shapes: dict[str, Shape], work: Path, jobs: int) -> list[str]:
         found += [v for v in verdicts if v]
     found += over_capacity_control(shapes[SELF_TEST_SHAPE], work / "over-capacity-control", shared)
     found += over_width_control(shapes[SELF_TEST_SHAPE], work / "over-width-control", shared)
+    found += at_width_control(shapes[SELF_TEST_SHAPE], work / "at-width-control", shared)
+    found += doctored_control(shapes[SELF_TEST_SHAPE], work / "doctored-control", shared)
     return found
 
 
@@ -397,7 +477,7 @@ def main() -> int:
         print(f"saved-state store gate (#665 F1): BUILT across {len(cfgs)} shape(s), nothing run (--build-only)")
         return 0
     print(f"saved-state store gate (#665 F1): OK across {len(cfgs)} shape(s), {tests} tests"
-          + (f", and all {len(nvm_mutants.MUTANTS) + 1 + len(WIDTHS)} planted defects reddened"
+          + (f", and all {len(nvm_mutants.MUTANTS) + CONTROLS} planted defects reddened"
              if args.self_test else ""))
     return 0
 
