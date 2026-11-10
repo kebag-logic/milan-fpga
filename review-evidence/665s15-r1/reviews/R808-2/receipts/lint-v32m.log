@@ -1,0 +1,7 @@
+%Warning-UNSIGNED: $PACKET/scratch/v32m/gen/KL_mbx.sv:1045:32: Comparison is constant due to unsigned arithmetic
+                                                                                                         : ... note: In instance 'KL_mbx'
+ 1045 |                       && off_w < AW2_C'(MBX_CH_ACMP_TX_BASE_C + 4 * MBX_CH_ACMP_TX_WORDS_C);
+      |                                ^
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)

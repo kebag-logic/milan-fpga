@@ -1,0 +1,7 @@
+window 0x7800: accepted by load(); ADDR_W bits 13
+acmp tx ring 512 words placed at 0x3800, ends 0x4000
+["  assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C)"]
+crosscheck: []
+at the top: ["assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C);   //! the ring ends at the window's top"]
+decode width bits: 15 so offsets 0x7800..0x7ffc also satisfy it
+crosscheck: []

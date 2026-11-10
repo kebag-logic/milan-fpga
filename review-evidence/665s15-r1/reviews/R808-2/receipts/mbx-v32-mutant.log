@@ -1,0 +1,26 @@
+make: Entering directory '$CLONE/tb/verilator/mbx'
+python3 -B $CLONE/sw/firmware/ctrl/test/ctrl_build.py --stack-pin $CLONE/third_party/tsn-c-stack
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+$TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 3 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/v32m/gen" -GHOST_P=0 --Mdir $PACKET/scratch/v32m/obj_wb $PACKET/scratch/v32m/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv $PACKET/scratch/v32m/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb
+%Warning-UNSIGNED: $PACKET/scratch/v32m/gen/KL_mbx.sv:1045:32: Comparison is constant due to unsigned arithmetic
+                                                                                                         : ... note: In instance 'tb_mbx_top.u_mbx'
+ 1045 |                       && off_w < AW2_C'(MBX_CH_ACMP_TX_BASE_C + 4 * MBX_CH_ACMP_TX_WORDS_C);
+      |                                ^
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+make[1]: Entering directory '$PACKET/scratch/v32m/obj_wb'
+g++  -I.  -MMD -I$HOME/… -I$HOME/… -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/v32m/gen   -Os  -c -o sim_main.o ../../../../r808-2-665s15/tb/verilator/mbx/sim_main.cpp
+g++ -Os  -I.  -MMD -I$HOME/… -I$HOME/… -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/v32m/gen   -c -o verilated.o $HOME/…
+g++ -Os  -I.  -MMD -I$HOME/… -I$HOME/… -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/v32m/gen   -c -o verilated_threads.o $HOME/…
+In file included from ../../../../r808-2-665s15/tb/verilator/mbx/sim_main.cpp:24:
+../../../../r808-2-665s15/tb/verilator/mbx/suite.hpp:72:58: error: static assertion failed: the suite writes the publication block of every interface index below the adp receive ring
+   72 | static_assert(MBX_PUB_BASE + kPubBlocks * MBX_PUB_STRIDE <= MBX_CH_ADP_RX_BASE,
+  • the comparison reduces to ‘(6144 <= 4096)’
+make[1]: *** [Vtb_mbx_top.mk:63: sim_main.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory '$PACKET/scratch/v32m/obj_wb'
+%Error: 'make -C $PACKET/scratch/v32m/obj_wb -f Vtb_mbx_top.mk -j 3' exited with 2
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+%Error: Command Failed ulimit -s unlimited 2>/dev/null; exec $HOME/… --cc --exe --build -j 3 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS -std=c++17\ -O2\ -Wall\ -Wextra\ -I$PACKET/scratch/v32m/gen -GHOST_P=0 --Mdir $PACKET/scratch/v32m/obj_wb $PACKET/scratch/v32m/gen/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv $PACKET/scratch/v32m/gen/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb
+make: *** [Makefile:136: run-if2] Error 2
+make: Leaving directory '$CLONE/tb/verilator/mbx'

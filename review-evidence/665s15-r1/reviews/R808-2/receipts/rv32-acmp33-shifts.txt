@@ -1,0 +1,51 @@
+pinned acmp.c (tsn-c-stack 70936b77), host riscv64-elf-gcc 16.2.0, -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector -Os -DNDEBUG -std=c11 -DACMP_MAX_SINKS=33u -DACMP_MAX_SOURCES=33u
+--- bind_response
+00000b4c <bind_response>:
+     b4c:	fa010113          	addi	sp,sp,-96
+     b50:	04812c23          	sw	s0,88(sp)
+     b54:	04912a23          	sw	s1,84(sp)
+     b58:	05212823          	sw	s2,80(sp)
+     b5c:	00050413          	mv	s0,a0
+     b60:	00058493          	mv	s1,a1
+     b64:	00060913          	mv	s2,a2
+     b68:	00068593          	mv	a1,a3
+     b6c:	01010513          	addi	a0,sp,16
+     b70:	00000613          	li	a2,0
+     b74:	04112e23          	sw	ra,92(sp)
+     b78:	00d12623          	sw	a3,12(sp)
+     b7c:	00000097          	auipc	ra,0x0
+     b80:	000080e7          	jalr	ra # b7c <bind_response+0x30>
+     b84:	00c12683          	lw	a3,12(sp)
+     b88:	00100713          	li	a4,1
+     b8c:	01010613          	addi	a2,sp,16
+     b90:	03c6d783          	lhu	a5,60(a3)
+     b94:	00048593          	mv	a1,s1
+     b98:	012716b3          	sll	a3,a4,s2
+     b9c:	0087f793          	andi	a5,a5,8
+     ba0:	00040513          	mv	a0,s0
+     ba4:	04e11423          	sh	a4,72(sp)
+     ba8:	04f11623          	sh	a5,76(sp)
+     bac:	00000097          	auipc	ra,0x0
+     bb0:	000080e7          	jalr	ra # bac <bind_response+0x60>
+     bb4:	05c12083          	lw	ra,92(sp)
+     bb8:	05812403          	lw	s0,88(sp)
+     bbc:	05412483          	lw	s1,84(sp)
+     bc0:	05012903          	lw	s2,80(sp)
+     bc4:	06010113          	addi	sp,sp,96
+     bc8:	00008067          	ret
+
+00000bcc <send_probe>:
+--- transmit (register srl)
+652:     930:	00e7d7b3          	srl	a5,a5,a4
+776:     ae0:	00e957b3          	srl	a5,s2,a4
+826:     b98:	012716b3          	sll	a3,a4,s2
+1529:    1544:	01af9e33          	sll	t3,t6,s10
+1901:    1a4c:	009696b3          	sll	a3,a3,s1
+2749:    25b4:	00e7d7b3          	srl	a5,a5,a4
+--- function of each shift
+<p_send>:      930:	00e7d7b3          	srl	a5,a5,a4
+<.L64>:      ae0:	00e957b3          	srl	a5,s2,a4
+<bind_response>:      b98:	012716b3          	sll	a3,a4,s2
+<.L142>:     1544:	01af9e33          	sll	t3,t6,s10
+<.L172>:     1a4c:	009696b3          	sll	a3,a3,s1
+<.L303>:     25b4:	00e7d7b3          	srl	a5,a5,a4
