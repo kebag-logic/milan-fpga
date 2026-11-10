@@ -44,7 +44,10 @@ Draws reserve the service allowance at both strict interval endpoints:
 511 to 589 ms for probes, 30011 to 31989 ms for announcements.
 With at most 10 ms jitter at each commitment, intervals remain strictly inside
 B.3.4.2's 500/600 ms and B.3.4.1's 30/32 s endpoints.
-Wire egress error still needs measurement before a placement switch.
+The split simulation measures the wire egress error ([wire timing](../../../../tb/verilator/ctrl_wire_timing/README.md), #868).
+From each timer's millisecond to the frame's first byte at the MAC, it is 0.74 to 2.38 ms.
+That holds without and with the composed load, at 1x1 and at 8x8 with two interfaces.
+Each probe interval at the wire is within 1.8 ms of its draw, inside the 11 ms reserve.
 
 Sixteen static frame slots retain ordered output across backpressure.
 Each call attempts at most two sends; overflow is counted as unserved work.

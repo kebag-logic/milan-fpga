@@ -1185,6 +1185,24 @@ firmware.
 `tb_split_top` brings the datapath's CSR window (its AXI4-Lite port) out for
 that simulation; the split leg leaves it idle.
 
+The same recipe builds the top at another shape and interface count for the
+[wire-timing harness](../ctrl_wire_timing/README.md) (#868):
+`make build-split SPLIT_SHAPE=endstation_ax7101_8x8 SPLIT_STREAMS=8 SPLIT_IF=2`.
+`SPLIT_SHAPE` names the generated config directory, `SPLIT_STREAMS` the
+datapath's `N_STREAMS` (`tb_split_top`'s `N_STREAMS_P`), and `SPLIT_IF`
+`KL_mbx`'s interfaces. Past one, the package, top and header are the contract
+generator's variant (`gen_mailbox.py --variant-interfaces`), written into
+`SPLIT_MDIR`. Interface 0 is the datapath's, through `KL_mbx_cdc`. Every
+other interface has no datapath behind it: the bench drives it as the
+[CPU budget harness](../ctrl_service_budget/README.md#the-test-soc) drives
+`KL_mbx`. It gives the link level, and the frames at the mailbox's own byte
+boundary, a whole frame at a time between interface 0's. The top
+acknowledges the commit at the contract's bound, and holds the windows,
+grandmaster and face events idle. `p_mbx_tx_end`, `p_mbx_tx_if` and
+`p_mbx_tx_ch` observe each frame leaving `KL_mbx`. The defaults are the
+shipping shape with one interface, with the split leg's and the twin's own
+command line, so both legs build and run as before.
+
 ## The two-placement simulation (`obj_twin_*`, #665)
 
 `make twin` runs one stimulus ([`twin.hpp`](twin.hpp)) on two halves at the
