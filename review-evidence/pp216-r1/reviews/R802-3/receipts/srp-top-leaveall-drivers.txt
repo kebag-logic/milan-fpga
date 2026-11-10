@@ -1,0 +1,22 @@
+347:  logic       la_msrp_pend_r;  // timer intent, not a registrar event
+348:  logic       la_mvrp_pend_r;  // MVRP LeaveAll state machine Active: sLA at the next tx!
+1101:  assign la_rearm_w[0] = need_draw_r[0] || (dr_inflight_r && !dr_app_r)
+1103:  assign la_rearm_w[1] = need_draw_r[1] || (dr_inflight_r && dr_app_r)
+1138:      la_msrp_pend_r    <= 1'b0;
+1139:      la_mvrp_pend_r    <= 1'b0;
+1201:        if (la_msrp_pend_r && !(|dec_la_msrp_w)) begin
+1215:        if (!la_cancel_r) la_msrp_pend_r <= 1'b0;
+1232:        p_tx_mvrp_la_r   <= la_mvrp_pend_r && !dec_la_mvrp_w;
+1233:        mla_r            <= la_mvrp_pend_r && !dec_la_mvrp_w;
+1234:        la_mvrp_pend_r   <= 1'b0;
+1274:        dr_app_r      <= !need_draw_r[0];
+1275:        if (need_draw_r[0]) need_draw_r[0] <= 1'b0;
+1276:        else                need_draw_r[1] <= 1'b0;
+1311:              la_msrp_pend_r <= 1'b1;  // wait for a supported sLA opportunity
+1312:              need_draw_r[0] <= 1'b1;  // fresh 10-15 s draw re-arms the slot
+1317:              la_mvrp_pend_r <= 1'b1;  // Active: sLA at the next MVRP tx!
+1318:              need_draw_r[1] <= 1'b1;
+1327:        need_draw_r[0] <= 1'b1;
+1328:        la_msrp_pend_r <= 1'b0;
+1332:        need_draw_r[1] <= 1'b1;
+1333:        la_mvrp_pend_r <= 1'b0;
