@@ -51,6 +51,24 @@ static bool enter(struct srp_mbx *m)
     return true;
 }
 
+// Whether the n bytes at a and at b are the same (#665): a record's StreamID
+// and MAC comparisons, in the receive filter, the indications and the
+// registrar walk, are equality tests, a source or a sink each, and through
+// memcmp each paid its alignment checks and its ordering's byte loop, about
+// 170 cycles. This one stops at the first byte that differs, from the last:
+// one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE
+// 802.1Q-2018 35.2.2.8.2), and one talker's MACs in their last bytes.
+static __attribute__((noinline)) bool same(const uint8_t *a, const uint8_t *b, unsigned n)
+{
+    while (n != 0u) {
+        --n;
+        if (a[n] != b[n]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // A slot's participant: each interface's MSRP, then its MVRP.
 static struct mrp_app *participant(const struct srp_interface *i, unsigned slot)
 {
@@ -133,7 +151,7 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
     struct srp_interface *i = from_ctx(ctx);
     i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-        if (memcmp(i->sources[n].value.stream_id.bytes,identity->bytes,8) == 0) {
+        if (same(i->sources[n].value.stream_id.bytes,identity->bytes,8)) {
             i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||
                                declaration == MSRP_LISTENER_DECL_READY_FAILED;
             if (!i->registered[n] && i->active[n]) {
@@ -151,9 +169,9 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
     i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         struct srp_sink *s = &i->sinks[k];
-        if (s->bound && memcmp(s->stream_id.bytes,v->stream_id.bytes,8) == 0) {
+        if (s->bound && same(s->stream_id.bytes,v->stream_id.bytes,8)) {
             s->registered_kinds &= (uint8_t)~kind;
-            if (registered && memcmp(s->dest_mac,v->dest_mac,6) == 0 && s->vid == v->vlan_id) {
+            if (registered && same(s->dest_mac,v->dest_mac,6) && s->vid == v->vlan_id) {
                 s->registered_kinds |= kind;
             }
         }
@@ -253,13 +271,13 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     }
     if (type == MSRP_ATTR_TYPE_LISTENER) {
         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-            if (memcmp(i->sources[n].value.stream_id.bytes,value,8) == 0) {
+            if (same(i->sources[n].value.stream_id.bytes,value,8)) {
                 return true;
             }
         }
     } else {
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-            if (i->sinks[n].bound && memcmp(i->sinks[n].stream_id.bytes,value,8) == 0) {
+            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {
                 return true;
             }
         }
@@ -681,7 +699,7 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
     if (status->attr_type == MSRP_ATTR_TYPE_LISTENER) {
         const uint8_t *v = status->attr_val;
         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-            if (memcmp(i->sources[n].value.stream_id.bytes,v,8) == 0) {
+            if (same(i->sources[n].value.stream_id.bytes,v,8)) {
                 // One value per StreamID; Ignore occupies no registrar (35.2.2.7.2).
                 i->listener_present[n] = true;
                 i->registered[n] = v[8] == 2 || v[8] == 3;
@@ -692,8 +710,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
         const struct msrp_talker_adv *v = status->attr_val;
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
             struct srp_sink *sink = &i->sinks[n];
-            if (sink->bound && memcmp(sink->stream_id.bytes,v->stream_id.bytes,8) == 0 &&
-                memcmp(sink->dest_mac,v->dest_mac,6) == 0 && sink->vid == v->vlan_id) {
+            if (sink->bound && same(sink->stream_id.bytes,v->stream_id.bytes,8) &&
+                same(sink->dest_mac,v->dest_mac,6) && sink->vid == v->vlan_id) {
                 if (status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
                     sink->desired = 1;
                     sink->registered_kinds |= 1u;

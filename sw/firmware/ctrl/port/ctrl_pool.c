@@ -16,6 +16,11 @@
 
 uint32_t ctrl_pool_returned;
 
+// A free block's first bytes, read and written as the pointer they hold: a block is on CTRL_POOL_ALIGN, and
+// may_alias keeps the access defined on the arena's bytes (#665: through memcpy, a call each, they were a third of an
+// SRP record's allocation).
+typedef void *__attribute__((may_alias)) ctrl_pool_link;
+
 static size_t round_up(size_t value, size_t to)
 {
 	return (value + to - 1u) / to * to;
@@ -116,7 +121,7 @@ bool ctrl_pool_init(struct ctrl_pool *pool, void *arena, size_t arena_bytes,
 static void *bin_take(struct ctrl_pool_bin *bin)
 {
 	void *block = bin->free_head;
-	memcpy(&bin->free_head, block, sizeof bin->free_head);
+	bin->free_head = *(ctrl_pool_link *)block;
 	bin->free_count--;
 	size_t within;
 	bin->used[block_index(bin, (size_t)((uint8_t *)block - bin->base), &within)] = 1u;
@@ -184,7 +189,7 @@ void ctrl_pool_free(struct ctrl_pool *pool, void *ptr)
 			return;
 		}
 		bin->used[index] = 0u;
-		memcpy(ptr, &bin->free_head, sizeof bin->free_head);
+		*(ctrl_pool_link *)ptr = bin->free_head;
 		bin->free_head = ptr;
 		bin->free_count++;
 		ctrl_pool_returned++;

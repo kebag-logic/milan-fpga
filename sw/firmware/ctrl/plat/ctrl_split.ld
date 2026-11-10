@@ -186,6 +186,7 @@ SECTIONS
 		*-mbx.o(.text.mbx_rx_before)
 		*-mrp_mad.o(.text.mrp_attr_visit)
 		*-srp_mbx.o(.text.registrations)
+		*-srp_mbx.o(.text.same)
 		*-mrp_mad.o(.text.mrp_reclaim)
 		*-adp.o(.text.adp_link_change)
 		*-adp.o(.text.timer_stop)

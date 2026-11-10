@@ -79,6 +79,7 @@ Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
 Such a change is a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
 Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
+The receive filter, the indications and the walk compare each StreamID and destination MAC with `same`, an equality test that stops at the first byte that differs, from the last: one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE 802.1Q-2018 35.2.2.8.2), so a record's comparisons no longer pay `memcmp`'s alignment checks and the byte loop that orders a difference (#665).
 The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.

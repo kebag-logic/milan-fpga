@@ -346,6 +346,25 @@ TEST_F(Srp, RegisteredListenerSubtypeChangeRevokesPermission) {
     offer(frame(3,identity(),5,1));
     EXPECT_FALSE(adapter.ifs[0].listener_present[0]) << "last Listener leave removes declaration demand";
 }
+// The receive filter, the Listener indication and the registrar walk compare a
+// StreamID (IEEE 802.1Q-2018 35.2.2.8.2) byte for byte (#665: srp_mbx.c's
+// same): a Listener whose StreamID differs from a source's in its first byte
+// alone, or in its last alone, is no source's, and the source's own is its.
+TEST_F(Srp, AListenerIsASourcesOnlyForItsStreamIDByteForByte) {
+    settle();
+    for(unsigned at:{0u,7u}) {
+        auto other=identity(0,0); other[at]^=0x40u;
+        offer(frame(3,other,1,2));
+        bool none=true;
+        for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) none=none&&!adapter.ifs[0].listener_present[n]&&!adapter.ifs[0].registered[n];
+        EXPECT_TRUE(none)<<"a StreamID that differs from source 0's in byte "<<at<<" alone is no source's";
+    }
+    EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(0,0),1,2));
+    EXPECT_TRUE(adapter.ifs[0].listener_present[0]&&adapter.ifs[0].registered[0])<<"source 0's own StreamID is its";
+    EXPECT_CALL(licence,Change(0,0,false)); offer(frame(3,identity(0,0),5,2));
+    EXPECT_FALSE(adapter.ifs[0].listener_present[0])<<"and its leave removes it";
+}
+
 // The interface reset clears listener_present with the registrar it destroys
 // (#665): delivery reads no Listener the new participants have not walked.
 TEST_F(Srp, InterfaceResetClearsListenerPresent) {

@@ -8,6 +8,7 @@ import fw_gtest
 from srp_arms import arm_srp
 import srp_pub_mutants
 import srp_reopen_mutants
+import srp_compare_mutants
 import srp_retry_mutants
 import srp_transmit_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
@@ -924,6 +925,7 @@ DEFECTS += srp_pub_mutants.defects(Defect)
 DEFECTS += srp_reopen_mutants.defects(Defect)
 DEFECTS += srp_transmit_mutants.defects(Defect)
 DEFECTS += srp_retry_mutants.defects(Defect)
+DEFECTS += srp_compare_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""
