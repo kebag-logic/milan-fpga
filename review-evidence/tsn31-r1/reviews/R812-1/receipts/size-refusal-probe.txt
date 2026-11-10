@@ -1,0 +1,42 @@
+== 1. build-time refusal: head as committed (host gcc, -std=c11 -Wall -Wextra -Werror)
+N=1 rc=0  0 error-lines
+N=16 rc=0  0 error-lines
+N=31 rc=0  0 error-lines
+N=32 rc=0  0 error-lines
+N=33 rc=0  0 error-lines
+N=63 rc=0  0 error-lines
+N=64 rc=0  0 error-lines
+N=65 rc=0  0 error-lines
+N=254 rc=0  0 error-lines
+N=4294967295 rc=1 static assertion failed: "the owed release mask holds a bit for every sink" 1 error-lines
+== 2. build-time refusal: head with the one-word mask planted back (uint32_t release[1])
+402:	uint32_t release[1];
+N=16 rc=0 
+N=32 rc=0 
+N=33 rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+N=64 rc=1 static assertion failed: "the owed release mask holds a bit for every sink"
+== 3. sizeof(struct acmp_owed) and sizeof(struct acmp), x86-64 gcc and RV32I
+main N=16 x86 owed_size:80 owed_set:640 acmp_size:5080 
+main N=16 rv32 owed_size:80 owed_set:640 acmp_size:5072 
+main N=32 x86 owed_size:80 owed_set:640 acmp_size:9192 
+main N=32 rv32 owed_size:80 owed_set:640 acmp_size:9184 
+head N=16 x86 owed_size:80 owed_set:640 acmp_size:5080 
+head N=16 rv32 owed_size:80 owed_set:640 acmp_size:5072 
+head N=32 x86 owed_size:80 owed_set:640 acmp_size:9192 
+head N=32 rv32 owed_size:80 owed_set:640 acmp_size:9184 
+head N=33 x86 owed_size:84 owed_set:672 acmp_size:9488 
+head N=33 rv32 owed_size:84 owed_set:672 acmp_size:9480 
+head N=64 x86 owed_size:84 owed_set:672 acmp_size:17448 
+head N=64 rv32 owed_size:84 owed_set:672 acmp_size:17440 
+head N=65 x86 owed_size:88 owed_set:704 acmp_size:17744 
+head N=65 rv32 owed_size:88 owed_set:704 acmp_size:17736 
+== 4. RV32I text of src/acmp.c at the default 16 sinks (riscv64-elf-gcc, -ffreestanding -fno-builtin -nostdinc -DNDEBUG -DCTRL_REENTRY_ASSERT)
+-Os main=10825 head=10921 delta=96
+-O2 main=16029 head=16141 delta=112
+-O3 main=19365 head=20365 delta=1000
+== 5. RV32I at 33 sinks (head, -Os and -O3): undefined symbols (no new libcalls), text
+-Os text=10985 undefined: ctrl_reentry_assert memcpy memset 
+-O3 text=18813 undefined: ctrl_reentry_assert memcpy memset 
+== 6. main at 16 sinks, -Os, undefined symbols (for comparison)
+ctrl_reentry_assert memcpy memset  | head: ctrl_reentry_assert memcpy memset 
+riscv64-elf-gcc (Arch Linux Repositories) 16.2.0

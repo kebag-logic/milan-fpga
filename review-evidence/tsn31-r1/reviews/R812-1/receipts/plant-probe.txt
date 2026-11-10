@@ -1,0 +1,17 @@
+baseline                                 16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+acmp-wide-release-word-ignored           16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges'] san=False 
+acmp-wide-owed-count-word-ignored        16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree'] san=False 
+acmp-wide-release-loop-word-ignored      16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree'] san=False 
+x-memset-removed                         16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-memset-first-word-only                 16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-set-index-off-by-one                   16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-set-shift-unmasked                     16:OK rc=0 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-add-shift-unmasked                     16:OK rc=0 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-sub-shift-unmasked                     16:OK rc=0 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-add-word-of-next-sink                  16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-sub-word-of-next-sink                  16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-bind-releases-next-sink                16:OK rc=1 failed=2 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree'] san=False 
+x-unbind-releases-nothing                16:OK rc=1 failed=1 | 33:OK rc=0 failed=[] san=False 
+x-guard-always                           16:OK rc=-11 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-refusal-off-by-one                     16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-refusal-removed                        16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 

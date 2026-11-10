@@ -1,0 +1,365 @@
+[
+ {
+  "plant": "baseline",
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "acmp-wide-release-word-ignored",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 2,
+   "failed": [
+    "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "acmp-wide-owed-count-word-ignored",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 2,
+   "failed": [
+    "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+    "AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "acmp-wide-release-loop-word-ignored",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 2,
+   "failed": [
+    "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+    "AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-memset-removed",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-memset-first-word-only",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-set-index-off-by-one",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-set-shift-unmasked",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 0,
+   "failed": [],
+   "sanitizer": [
+    "$PACKET/scratch/plants/x-set-shift-unmasked/src/acmp.c:311:41: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+   ],
+   "xml_written": false
+  }
+ },
+ {
+  "plant": "x-add-shift-unmasked",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 0,
+   "failed": [],
+   "sanitizer": [
+    "$PACKET/scratch/plants/x-add-shift-unmasked/src/acmp.c:317:87: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+   ],
+   "xml_written": false
+  }
+ },
+ {
+  "plant": "x-sub-shift-unmasked",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 0,
+   "failed": [],
+   "sanitizer": [
+    "$PACKET/scratch/plants/x-sub-shift-unmasked/src/acmp.c:1269:89: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'"
+   ],
+   "xml_written": false
+  }
+ },
+ {
+  "plant": "x-add-word-of-next-sink",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-sub-word-of-next-sink",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-bind-releases-next-sink",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 126,
+   "failed": [
+    "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+    "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 2,
+   "failed": [
+    "AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges",
+    "AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-unbind-releases-nothing",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 126,
+   "failed": [
+    "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether"
+   ],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-guard-always",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": -11,
+   "tests_in_xml": 0,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": false
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 1,
+   "tests_in_xml": 0,
+   "failed": [],
+   "sanitizer": [
+    "$PACKET/scratch/plants/x-guard-always/src/acmp.c:311:13: runtime error: index 134217727 out of bounds for type 'uint32_t [2]'"
+   ],
+   "xml_written": false
+  }
+ },
+ {
+  "plant": "x-refusal-off-by-one",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ },
+ {
+  "plant": "x-refusal-removed",
+  "matches": 1,
+  "acmp_tests_16": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 126,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  },
+  "acmp_wide_33": {
+   "build": "OK",
+   "rc": 0,
+   "tests_in_xml": 2,
+   "failed": [],
+   "sanitizer": [],
+   "xml_written": true
+  }
+ }
+]

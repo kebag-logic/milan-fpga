@@ -1,0 +1,15 @@
+== norecover rc=1
+src/acmp.c:844:31: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+== recover rc=1
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+src/acmp.c:1263:80: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+src/acmp.c:311:75: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+src/acmp.c:844:31: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+W1 sink 0, which owes nothing, is not held by sink 32's response
+W1 sink 32's response left: one change is reported
+W1 with both bound, each sink waits behind one owed response, its own
+W2 sink 0's owed response holds sink 0 and not sink 32

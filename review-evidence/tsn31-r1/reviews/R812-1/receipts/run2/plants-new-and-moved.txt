@@ -1,0 +1,11 @@
+acmp-wide-release-word-ignored CAUGHT 1 1 ['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges']
+acmp-wide-owed-count-word-ignored CAUGHT 1 2 ['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree']
+acmp-wide-release-loop-word-ignored CAUGHT 1 2 ['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree']
+acmp-unbind-echoes-the-talker CAUGHT 1 1 ['AcmpCore.A3UnbindInEveryState']
+acmp-unbind-srp-after-response CAUGHT 1 1 ['AcmpCore.A3UnbindInEveryState']
+acmp-unbind-change-before-response CAUGHT 1 1 ['AcmpCore.A3UnbindInEveryState']
+owed-bind-answer-lost-after-decline CAUGHT 1 2 ['AcmpOwed.DeclinedBindIsAnsweredAfterTheHold', 'AcmpOwed.DeferredBindWaitsForTwoSlotsAndLosesNoProbe']
+acmp-change-not-held-for-its-response CAUGHT 1 1 ['AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits']
+acmp-first-owed-releases-every-change CAUGHT 1 1 ['AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether']
+owed-entry-widened CAUGHT 1 1 ['AcmpOwed.OwedSetIsEightFramesOfEightyBytes']
+total 447
