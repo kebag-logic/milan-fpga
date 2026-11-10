@@ -2755,8 +2755,8 @@ def _adp_name_entries(overlay):
 
 
 #: The split placement's record space, layout 3 (#823 decision 1). Its one
-#: declaration is the F1 store's header, which the store's codec compiles;
-#: the builder reads every block's capacity from it through
+#: declaration is the header of the split placement's saved-state store, which
+#: its codec compiles; the builder reads every block's capacity from it through
 #: scripts/nvm_layout3.py and restates none. The all-fabric checks above keep
 #: reading KL_nvm_backend.sv: the two placements refuse at their own bounds.
 NVM_LAYOUT3_H = ROOT / "sw" / "firmware" / "ctrl_nvm" / "nvm_layout3.h"
@@ -2791,10 +2791,10 @@ def emit_nvm_split(overlay: dict[str, Any]) -> dict[str, Any]:
     """The builder's split output: this model's saved-state record space under
     layout 3, written as nvm_split.json beside the overlay. Every block holds
     the model's count of its group, and a count over its block refuses the
-    model, naming the count, the capacity and the declaration line. The F1
-    store is built from this file (its host bench, nvm_bench.py, and
-    sw/litex/milan_soc.py --ctrl-mailbox) and its codec refuses the same
-    counts at compile time from the same declaration."""
+    model, naming the count, the capacity and the declaration line. The split
+    placement's saved-state store is built from this file (its host bench,
+    nvm_bench.py, and sw/litex/milan_soc.py --ctrl-mailbox) and its codec
+    refuses the same counts at compile time from the same declaration."""
     space = nvm_split_capacity()
     dc = overlay["descriptor_counts"]
     blocks = []

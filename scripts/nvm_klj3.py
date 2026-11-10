@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """nvm_klj3.py - the split placement's saved-state container (KLJ3) and record codec (F07.8 layout 3), #823.
 
-The reference the F1 store (sw/firmware/ctrl_nvm) is graded against, byte
-for byte and verdict for verdict. It is the KLJ2 reference (scripts/nvm_klj2.py)
-with the three changes of #823 decisions 1 and 2, and nothing else:
+The reference the split placement's saved-state store (sw/firmware/ctrl_nvm)
+is graded against, byte for byte and verdict for verdict. It is the KLJ2
+reference (scripts/nvm_klj2.py) with the three changes of #823 decisions 1
+and 2, and nothing else:
 
   * THE RECORD SPACE is layout 3, read from its one declaration
     (sw/firmware/ctrl_nvm/nvm_layout3.h, through scripts/nvm_layout3.py):
@@ -234,7 +235,8 @@ def split_counts(space: dict) -> dict[str, int]:
 
 
 def split_constants(space: dict, shape: Shape) -> dict[str, int]:
-    """The MILAN_NVM3_* constants the F1 store is built against: each count
+    """The MILAN_NVM3_* constants the split placement's saved-state store is
+    built against: each count
     from the builder's split output, every port's map entries from the shape
     (the #501 rule for an output port), and the two held equal."""
     counts = split_counts(space)
@@ -268,6 +270,7 @@ def image_bytes(shape: Shape) -> int:
 
 
 def stage_bytes(shape: Shape) -> int:
-    """The F1 store's stage for `shape`: its container and one record header
+    """The split placement's saved-state store's stage for `shape`: its
+    container and one record header
     of look-ahead (sw/firmware/ctrl_nvm/nvm_shape.h NVM_STAGE_BYTES)."""
     return image_bytes(shape) + REC_HDR3

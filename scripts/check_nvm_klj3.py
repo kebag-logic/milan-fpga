@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """check_nvm_klj3.py - the gate of the split placement's saved-state reference (#823).
 
-scripts/nvm_klj3.py is the oracle the F1 store (sw/firmware/ctrl_nvm) is
-graded against byte for byte, so a defect in it would let the store and the
-reference agree on wrong bytes. This gate holds the reference to the rules
-themselves, never to the store:
+scripts/nvm_klj3.py is the oracle the split placement's saved-state store
+(sw/firmware/ctrl_nvm) is graded against byte for byte, so a defect in it
+would let the store and the reference agree on wrong bytes. This gate holds
+the reference to the rules themselves, never to the store:
 
   space      the layout 3 declaration (nvm_layout3.h) reads as one block per
              group, each directly after the one before, inside a 16-bit id;

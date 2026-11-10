@@ -29545,7 +29545,7 @@ def _split_controls(overlay: dict) -> list[str]:
 
 def test_split_record_space_bounds_the_split_output() -> None:
     """Gate 39 (#823): the split placement's record space is layout 3, read
-    from its one declaration (the F1 store's nvm_layout3.h). The bound
+    from its one declaration (nvm_layout3.h of the split's store). The bound
     shape (32x32 TDM8, its 907 names at the NAME block's last id) is accepted
     by the builder's split output and one more name is refused, naming both
     figures; the all-fabric placement keeps refusing that shape at today's
