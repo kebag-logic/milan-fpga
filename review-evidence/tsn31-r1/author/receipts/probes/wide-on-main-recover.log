@@ -1,0 +1,46 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AcmpWide
+[ RUN      ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+main-x/src/acmp.c:844:31: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+main-x/src/acmp.c:311:75: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+$LANES/tsn-c-stack-31-mask/tests/test_acmp_wide.cpp:71: Failure
+Value of: acmp_change_pending(&a, 0)
+  Actual: true
+Expected: false
+W1 sink 0, which owes nothing, is not held by sink 32's response
+
+$LANES/tsn-c-stack-31-mask/tests/test_acmp_wide.cpp:73: Failure
+Value of: a.owed_count == 4u && a.sinks[0].change_owed == 1u && a.sinks[32].change_owed == 1u
+  Actual: false
+Expected: true
+W1 with both bound, each sink waits behind one owed response, its own
+
+main-x/src/acmp.c:1263:80: runtime error: shift exponent 32 is too large for 32-bit type 'unsigned int'
+$LANES/tsn-c-stack-31-mask/tests/test_acmp_wide.cpp:78: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED)
+    Which is: 0
+  1u
+    Which is: 1
+
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[ RUN      ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+$LANES/tsn-c-stack-31-mask/tests/test_acmp_wide.cpp:94: Failure
+Value of: acmp_change_pending(&a, 0) && !acmp_change_pending(&a, 32)
+  Actual: false
+Expected: true
+W2 sink 0's owed response holds sink 0 and not sink 32
+
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree (0 ms)
+[----------] 2 tests from AcmpWide (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges
+[  FAILED  ] AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree
+
+ 2 FAILED TESTS
+rc=1
