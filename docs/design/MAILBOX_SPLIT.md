@@ -41,8 +41,8 @@ define the interface. The numbers live in one place, the generated
 - **[The placement switch](#the-placement-switch)** -- `CTRL_SPLIT_P` and `control.placement`: the split datapath without the processor, its ctl ports and the census that sees each consumed, the crossing into the mailbox's clock, the proofs that the all-fabric build is unchanged, and the split image's recipe, ident, manifest and identity gate.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
-- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
-- **[Open items](#open-items)** -- The datapath tap, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip, the bound-talker term's area and MMRP.
+- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, its measurement at one and two interfaces closed by D7 (a), and the recipe.
+- **[Open items](#open-items)** -- The datapath tap, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip and MMRP.
 
 ## What moves, and what the fabric keeps
 
@@ -1872,6 +1872,46 @@ one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
 read-back. They were not measured with this recipe. No shipping build
 carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
 
+The bound-talker term was measured again with this recipe on 2026-11-10 (#665
+S9), at one and at two interfaces, on the mailbox RTL of `1d6bf555`, which
+S9 does not change. The two-interface contract is `gen_mailbox.py
+--variant-interfaces 2`. Each measurement is the head against a copy of the
+same head with the term tied off, kept out of the tree: `KL_mbx_rx`'s
+`bound_hit_w` is tied to 0, and so are `KL_mbx`'s two bound-talker strobes
+into it. Synthesis then removes the tables, the compares, the copier and
+the read-back:
+
+| Interfaces | The mailbox, LUT / FF | Term tied off, LUT / FF | The term, LUT / FF | WNS at 10 ns, head / tied off |
+|---|---:|---:|---:|---:|
+| 1 | 5,720 / 8,656 | 5,435 / 8,569 | 285 / 87 | +0.151 / +0.231 ns |
+| 2 | 8,719 / 14,509 | 8,037 / 14,350 | 682 / 159 | -4.715 / -2.667 ns |
+
+At one interface the term's storage is the 64 shift-register LUTs and the 22
+LUTs of read-back memory of round 3, and its flip-flops are round 3's 86 and
+one more. Its 285 LUT and 87 FF are within the ruling's target of at most 300
+LUT and 120 FF. That is 72 LUT fewer than round 3's 357, which compared
+two heads from before the publication and face blocks; both columns here
+carry them, so the two figures come from different mailboxes.
+
+At two interfaces the term costs 682 LUT and 159 FF, about 341 LUT and 80 FF
+per interface. The storage doubles to 171 shift-register LUTs and 44 LUTs of
+read-back memory. The selection of the arrival interface's table adds the
+rest. The two-interface mailbox misses 10 ns with and without the term, so
+it does not close at that clock. No image builds it: the split SoC connects
+one interface (`milan_soc.py` refuses another).
+
+The term is closed by decision D7 (a) on #665: the overshoot is accepted as
+measured, and no recovery is attempted. The two contract changes measured in
+round 3 are not taken. The close-out row, with the term in the integrated
+route, is in the
+[area plan's ledger](MARK_II_AREA_PLAN.md#m8a-2-the-integrated-split-route).
+
+In the integrated split route the term's storage maps as it does here, and
+its read-back is on the critical path. The host's register read runs from
+LiteX's AXI-Lite-to-Wishbone bridge, through the read-back of the arrival
+interface's table, to `KL_mbx`'s `reg_rdata_r`, at the 100 MHz bus clock. The
+ledger gives each placement directive's slack.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
@@ -1906,9 +1946,6 @@ report_timing_summary -delay_type max
   and 0.13 us at one interface, or 0.21 us and 0.10 us at two interfaces.
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
-- **The bound-talker term's area** is 57 LUTs over its target of 300
-  ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
-  the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.
 - **Four face fields no datapath block reads.** `F_ENTITY.CUR_CONFIG`,
   `F_ENTITY.IDENTIFY`, `F_AECP.DYN_DIRTY` and `EDIT_VALUE` cross into the
