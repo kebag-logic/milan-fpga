@@ -164,7 +164,11 @@ TEST_F(SrpRetry, NothingChangedStillExpiresAtTheDeadline) {
     exhaust(); offer(frame(4,{6,4,0,7},0));
     ASSERT_NE(adapter.pending_rx.len,0u);
     const auto refusals=adapter.refused;
-    model.now_ms+=1000u; // SRP_RX_RETRY_MS on the clock alone: no centisecond, no block, no attribute
+    model.now_ms+=999u; // the clock alone: no centisecond, no block, no attribute
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.rx_discarded,0u) << "the deadline is SRP_RX_RETRY_MS after the arrival, not a millisecond before";
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    model.now_ms+=1u; // SRP_RX_RETRY_MS
     ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.refused,refusals);
     EXPECT_EQ(adapter.pending_rx.len,0u) << "the deadline holds with nothing changed";
@@ -319,11 +323,14 @@ TEST_F(SrpRetry, RetainedReceiveWaitsForOwedTransmit) {
     mbx_model_advance_ms(&model,600);
     for(unsigned n=0;n<10;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
-    recover(); ctrl_loop_service(&loop);
+    // A block returned since the refusal and a centisecond's retry given: only the owed frame holds the retry back.
+    recover(); centisecond();
+    for(unsigned n=0;n<3;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
     EXPECT_NE(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
     EXPECT_EQ(adapter.malformed,0u);
-    // a retry was made this centisecond, before the frame was owed: the next is the next centisecond's
+    // The frame leaves; the next centisecond's retry takes the record.
     mbx_model_tx_pause(&model,false); centisecond(); settle();
     EXPECT_EQ(adapter.pending_rx.len,0u);
     EXPECT_EQ(adapter.ifs[0].domain.vid,7u);

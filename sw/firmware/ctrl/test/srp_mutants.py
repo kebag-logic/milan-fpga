@@ -603,9 +603,9 @@ DEFECTS = (
 
     Defect('receive-retention-unbounded','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
            '>= SRP_RX_RETRY_MS', '>= UINT32_MAX', 'adapter.pending_rx.len', suite='srp_rx_retry.cpp'),
-    Defect('receive-retention-short','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
+    Defect('receive-retention-short','SrpRetry.NothingChangedStillExpiresAtTheDeadline',
            '#define SRP_RX_RETRY_MS 1000u', '#define SRP_RX_RETRY_MS 999u',
-           'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
+           'not a millisecond before', suite='srp_rx_retry.cpp'),
     Defect('receive-retention-late','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
            '>= SRP_RX_RETRY_MS', '> SRP_RX_RETRY_MS', 'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
     Defect('receive-discard-uncounted','SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding',
