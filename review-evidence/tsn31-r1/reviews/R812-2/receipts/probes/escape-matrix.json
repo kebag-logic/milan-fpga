@@ -1,0 +1,186 @@
+[
+ {
+  "plant": "unplanted",
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 0,
+    "acmp_wide": 0
+   },
+   "failed_tests": [],
+   "needles_present": {
+    "sink 31's change waits behind its own owed response": false,
+    "sink 31's response left: one change is reported": false,
+    "once every owed frame left, no sink is held": false,
+    "the probe in that slot holds no sink: the last is free": false,
+    "a change of the last sink is reported at once": false,
+    "the probe in that slot holds no sink: sink 31 is free": false,
+    "the probe in that slot holds no sink: sink 32 is free": false,
+    "a change of sink 32 is reported at once": false
+   },
+   "verdict": "PASSES"
+  }
+ },
+ {
+  "plant": "acmp-wide-release-word-off-by-one",
+  "matches": 1,
+  "killers": [
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 1,
+    "acmp_wide": 1
+   },
+   "failed_tests": [
+    "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+   ],
+   "needles_present": {
+    "sink 31's change waits behind its own owed response": true
+   },
+   "verdict": "CAUGHT-WITH-ALL-NEEDLES"
+  }
+ },
+ {
+  "plant": "acmp-wide-owed-count-word-off-by-one",
+  "matches": 1,
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 1,
+    "acmp_wide": 1
+   },
+   "failed_tests": [
+    "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+    "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+   ],
+   "needles_present": {
+    "sink 31's change waits behind its own owed response": true,
+    "sink 31's response left: one change is reported": true,
+    "once every owed frame left, no sink is held": true
+   },
+   "verdict": "CAUGHT-WITH-ALL-NEEDLES"
+  }
+ },
+ {
+  "plant": "acmp-wide-release-loop-word-off-by-one",
+  "matches": 1,
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 1,
+    "acmp_wide": 1
+   },
+   "failed_tests": [
+    "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+    "AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses"
+   ],
+   "needles_present": {
+    "sink 31's response left: one change is reported": true,
+    "once every owed frame left, no sink is held": true
+   },
+   "verdict": "CAUGHT-WITH-ALL-NEEDLES"
+  }
+ },
+ {
+  "plant": "acmp-owed-release-not-cleared",
+  "matches": 1,
+  "killers": [
+   "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 1,
+    "acmp_wide": 1
+   },
+   "failed_tests": [
+    "AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink",
+    "AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink",
+    "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+   ],
+   "needles_present": {
+    "the probe in that slot holds no sink: the last is free": true,
+    "a change of the last sink is reported at once": true,
+    "the probe in that slot holds no sink: sink 31 is free": true,
+    "the probe in that slot holds no sink: sink 32 is free": true
+   },
+   "verdict": "CAUGHT-WITH-ALL-NEEDLES"
+  }
+ },
+ {
+  "plant": "acmp-wide-release-clears-one-word",
+  "matches": 1,
+  "killers": [
+   "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+  ],
+  "without_killers": {
+   "ctest_rc": 0,
+   "summary": [
+    "100% tests passed out of 9"
+   ],
+   "verdict": "ESCAPES"
+  },
+  "only_killers": {
+   "rc": {
+    "acmp_tests": 1,
+    "acmp_wide": 1
+   },
+   "failed_tests": [
+    "AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink"
+   ],
+   "needles_present": {
+    "the probe in that slot holds no sink: sink 32 is free": true,
+    "a change of sink 32 is reported at once": true
+   },
+   "verdict": "CAUGHT-WITH-ALL-NEEDLES"
+  }
+ }
+]

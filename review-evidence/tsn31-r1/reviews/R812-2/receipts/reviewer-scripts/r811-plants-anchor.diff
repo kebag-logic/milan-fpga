@@ -1,0 +1,4 @@
+21c21
+<     ('review-transmit-unbounded-shift', 'src/acmp.c', '= 1u << ((release - 1u) % 32u);', '= 1u << (release - 1u);'),
+---
+>     ('review-transmit-unbounded-shift', 'src/acmp.c', '= UINT32_C(1) << ((release - 1u) % 32u);', '= UINT32_C(1) << (release - 1u);'),

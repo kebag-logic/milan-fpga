@@ -1,0 +1,17 @@
+baseline                                 16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+acmp-wide-release-word-ignored           16:None rc=None failed=0 | 33:None rc=None failed=None san=False plant must match exactly once
+acmp-wide-owed-count-word-ignored        16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree', 'AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses', 'AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink'] san=False 
+acmp-wide-release-loop-word-ignored      16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree', 'AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses', 'AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink'] san=False 
+x-memset-removed                         16:OK rc=1 failed=1 | 33:OK rc=1 failed=['AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink', 'AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink'] san=False 
+x-memset-first-word-only                 16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink'] san=False 
+x-set-index-off-by-one                   16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses'] san=False 
+x-set-shift-unmasked                     16:None rc=None failed=0 | 33:None rc=None failed=None san=False plant must match exactly once
+x-add-shift-unmasked                     16:OK rc=0 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-sub-shift-unmasked                     16:OK rc=0 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-add-word-of-next-sink                  16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses', 'AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink'] san=False 
+x-sub-word-of-next-sink                  16:OK rc=0 failed=0 | 33:OK rc=1 failed=['AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses', 'AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink'] san=False 
+x-bind-releases-next-sink                16:OK rc=1 failed=2 | 33:OK rc=1 failed=['AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges', 'AcmpWide.SinkZerosOwedResponseLeavesSinkThirtyTwoFree', 'AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses'] san=False 
+x-unbind-releases-nothing                16:OK rc=1 failed=1 | 33:OK rc=1 failed=['AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses'] san=False 
+x-guard-always                           16:OK rc=-11 failed=0 | 33:OK rc=1 failed=[] san=True 
+x-refusal-off-by-one                     16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 
+x-refusal-removed                        16:OK rc=0 failed=0 | 33:OK rc=0 failed=[] san=False 

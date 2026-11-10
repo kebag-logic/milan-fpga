@@ -1,0 +1,15 @@
+== 1. functional probes at wide sink counts
+N=33 every_sink_probe rc=0 [  PASSED  ] 2 tests.  0 sanitizer reports
+N=33 last_sink_probe rc=0 [  PASSED  ] 1 test.  0 sanitizer reports
+N=64 every_sink_probe rc=0 [  PASSED  ] 2 tests.  0 sanitizer reports
+N=64 last_sink_probe rc=0 [  PASSED  ] 1 test.  0 sanitizer reports
+N=65 every_sink_probe rc=0 [  PASSED  ] 2 tests.  0 sanitizer reports
+N=65 last_sink_probe rc=0 [  PASSED  ] 1 test.  0 sanitizer reports
+N=255 every_sink_probe rc=0 [  PASSED  ] 2 tests.  0 sanitizer reports
+N=255 last_sink_probe rc=0 [  PASSED  ] 1 test.  0 sanitizer reports
+== 2. capacity controls of scripts/check_conditionals.py against planted refusals
+plant=none capacity_controls rc=0 :: capacity control: one-word owed storage at 33u sinks refused, "the owed release mask holds a bit for every sink" with gcc and clang
+plant=mask-off-by-one capacity_controls rc=1 :: capacity control: committed owed storage at 255u sinks compiles with gcc and clang
+plant=mask-removed capacity_controls rc=1 :: capacity control: one-word owed storage at 32u sinks compiles with gcc and clang
+plant=probe-off-by-one capacity_controls rc=1 :: capacity control: committed owed storage at 33u sinks compiles with gcc and clang
+plant=probe-removed capacity_controls rc=1 :: capacity control: committed owed storage at 255u sinks compiles with gcc and clang
