@@ -1,0 +1,17 @@
+== review clone
+HEAD 03862f75c89e5c1d84baa4735eff1c1c6f796e25 tree dec0f2f79439b89af8686f87bd1db6653a0585fd
+head matches
+status --porcelain --ignored lines: 0
+index equals ls-tree -r HEAD (mode, blob, path)
+gitlinks at head: 0
+files: 862
+== gates clone (make check writes ignored .venv-wavedrom only)
+HEAD 03862f75c89e5c1d84baa4735eff1c1c6f796e25 tree dec0f2f79439b89af8686f87bd1db6653a0585fd
+head matches
+status --porcelain --ignored lines: 1
+index equals ls-tree -r HEAD (mode, blob, path)
+gitlinks at head: 0
+files: 862
+!! .venv-wavedrom/
+== tree
+dec0f2f79439b89af8686f87bd1db6653a0585fd

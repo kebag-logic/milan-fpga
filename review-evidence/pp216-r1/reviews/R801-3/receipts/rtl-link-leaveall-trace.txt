@@ -1,0 +1,38 @@
+RTL trace at 03862f75c89e5c1d84baa4735eff1c1c6f796e25: where the link input goes, and the LeaveAll state machine's state
+== every link_up use under hdl/srp
+hdl/srp/KL_srp_domain.sv:68:    input  wire         link_up_i,           //! link status level (2FF-synced upstream)
+hdl/srp/KL_srp_domain.sv:152:  assign link_rise_w = link_up_i && !link_q_r;
+hdl/srp/KL_srp_domain.sv:153:  assign link_fall_w = !link_up_i && link_q_r;
+hdl/srp/KL_srp_domain.sv:231:      link_q_r            <= link_up_i;
+hdl/srp/KL_srp_listener_fsm.sv:168:    input  wire         link_up_i,
+hdl/srp/KL_srp_listener_fsm.sv:516:  assign link_ev_w = (link_up_i != link_q_r);
+hdl/srp/KL_srp_listener_fsm.sv:1545:      link_q_r <= link_up_i;
+hdl/srp/KL_srp_top.sv:147:    input  wire         link_up_i,         //! link status level (2FF-synced upstream)
+hdl/srp/KL_srp_top.sv:399:      .link_up_i           (link_up_i),
+hdl/srp/KL_srp_top.sv:476:      .link_up_i       (link_up_i),
+hdl/srp/KL_srp_top.sv:670:      .link_up_i               (link_up_i),
+hdl/srp/KL_srp_vlan.sv:75:    input  wire         link_up_i,        //! link status level (2FF-synced upstream): its edges are Flush! and Begin!
+hdl/srp/KL_srp_vlan.sv:187:  assign link_ev_w   = link_up_i != link_q_r;
+hdl/srp/KL_srp_vlan.sv:188:  assign link_rise_w = link_up_i && !link_q_r;
+hdl/srp/KL_srp_vlan.sv:345:      link_q_r   <= link_up_i;
+== instances in KL_srp_top that take .link_up_i (line -> module)
+399 -> KL_srp_domain
+476 -> KL_srp_vlan
+670 -> KL_srp_listener_fsm
+== LeaveAll state (la_*_pend_r, need_draw_r) assignments in KL_srp_top: none reference link
+1138:      la_msrp_pend_r    <= 1'b0;
+1139:      la_mvrp_pend_r    <= 1'b0;
+1215:        if (!la_cancel_r) la_msrp_pend_r <= 1'b0;
+1234:        la_mvrp_pend_r   <= 1'b0;
+1275:        if (need_draw_r[0]) need_draw_r[0] <= 1'b0;
+1276:        else                need_draw_r[1] <= 1'b0;
+1311:              la_msrp_pend_r <= 1'b1;  // wait for a supported sLA opportunity
+1312:              need_draw_r[0] <= 1'b1;  // fresh 10-15 s draw re-arms the slot
+1317:              la_mvrp_pend_r <= 1'b1;  // Active: sLA at the next MVRP tx!
+1318:              need_draw_r[1] <= 1'b1;
+1327:        need_draw_r[0] <= 1'b1;
+1328:        la_msrp_pend_r <= 1'b0;
+1332:        need_draw_r[1] <= 1'b1;
+1333:        la_mvrp_pend_r <= 1'b0;
+== link references in KL_srp_top outside the port and the three instance connections
+(end)
