@@ -12,7 +12,9 @@ tree's definitions. This gate fails when any of them drifts:
   4. every cited token is on exactly one line of its file, so a line that
      moves keeps its citation true;
   5. the page cites every one of its prose anchors (tables.CITED) by token
-     and file, and no line by its number;
+     and file, and no line by its number in any form: `path:N`, a range
+     `path:N-M`, a list `path:N,M`, each quoted or not, "`path` line N", or a
+     link to `path#LN`;
   6. the documentation index links the page.
 
 A generated block sits between `<!-- nvm-format: begin NAME -->` and
@@ -47,8 +49,25 @@ INDEX = ROOT / "docs/README.md"
 INDEX_LINK = "(design/SAVED_STATE_FORMAT_32X32.md)"
 BLOCK_RE = re.compile(r"<!-- nvm-format: begin (\w+) -->\n(.*?)<!-- nvm-format: end \1 -->", re.S)
 INLINE_RE = re.compile(r"<!-- fig:(\w+) -->(.*?)<!-- /fig -->")
-#: a file cited by line number, `path/file.ext:123`, which the next edit above the line makes false
-LINE_CITE_RE = re.compile(r"`([\w./-]+\.[A-Za-z]\w*):(\d+)`")
+#: a file name with its extension, as a citation gives it
+_CITED_FILE = r"[\w./-]+\.[A-Za-z]\w*"
+#: line numbers: one, a range or a list
+_LINES = r"\d+(?:\s*[-,]\s*\d+)*"
+#: a file cited by line number, which the next edit above the line makes false: `path:12`, a range `path:12-34` or
+#: a list `path:12,34`, each quoted or not; "`path` line 12" or "lines 12-34"; or a link to `path#L12`
+LINE_CITE_RE = re.compile(rf"{_CITED_FILE}:{_LINES}"
+                          rf"|`{_CITED_FILE}` lines? {_LINES}"
+                          rf"|{_CITED_FILE}#L\d+(?:-L?\d+)?")
+#: the self-test's plants: a line-number citation of each form as the page would write it, and the whole
+#: citation its finding must name
+LINE_CITE_PLANTS = (
+    ("`sw/litex/milan_soc.py:179`", "sw/litex/milan_soc.py:179"),
+    ("`sw/litex/milan_soc.py:179-181`", "sw/litex/milan_soc.py:179-181"),
+    ("`sw/firmware/ctrl_nvm/nvm_store.c:408,465`", "sw/firmware/ctrl_nvm/nvm_store.c:408,465"),
+    ("sw/litex/milan_soc.py:179", "sw/litex/milan_soc.py:179"),
+    ("`sw/litex/milan_soc.py` line 179", "`sw/litex/milan_soc.py` line 179"),
+    ("[the map](../../sw/litex/milan_soc.py#L179)", "../../sw/litex/milan_soc.py#L179"),
+)
 
 
 def rendered(r: dict) -> tuple[dict[str, str], dict[str, str]]:
@@ -80,8 +99,8 @@ def findings(page: str, index: str, r: dict, anchors: tuple,
         elif value != want_figs[key]:
             bad.append(f"FINDING: inline figure {key} reads {value}, recomputed {want_figs[key]}")
     bad += [f"FINDING: anchor {a}" for a in tables.anchor_findings(anchors, read)]
-    bad += [f"FINDING: the page cites `{m.group(1)}:{m.group(2)}` by line number; cite a token "
-            f"the gate checks instead" for m in LINE_CITE_RE.finditer(page)]
+    bad += [f"FINDING: the page cites {m.group(0)} by line number; cite a token the gate checks instead"
+            for m in LINE_CITE_RE.finditer(page)]
     bad += [f"FINDING: the page no longer cites {tables.cited(a)}"
             for a in tables.CITED if tables.cited(a) not in page]
     if [tuple(b) for b in r["declared"]] != [tuple(b) for b in r["space"]["blocks"]]:
@@ -173,8 +192,9 @@ def self_test() -> int:
     expect("anchor", findings(page, index, r, gone), "no longer carries")
     common = (tables.Anchor(**{**vars(anchors[0]), "token": "#define"}),) + anchors[1:]
     expect("anchor-unique", findings(page, index, r, common), "an anchor's token must be on one line")
-    expect("line-number", findings(page + "\nSee `sw/litex/milan_soc.py:179`.\n", index, r, anchors),
-           "by line number")
+    for written, named in LINE_CITE_PLANTS:
+        expect(f"line-number {written}", findings(page + f"\nSee {written}.\n", index, r, anchors),
+               f"cites {named} by line number")
     first = tables.cited(tables.CITED[0])
     expect("citation", findings(page.replace(first, "it"), index, r, anchors), "the page no longer cites")
     # the control: every cited file with 300 lines more above its first, as a merge may leave it
