@@ -1,0 +1,14 @@
+# head 7aa6ef0c0312818fc8da36d39bbc468f54ac265b gate behave: cd tests && $SCRATCH/gates/venv/bin/behave --no-capture -f plain
+# full log: 235354 bytes, sha256 8edbd8de2b34739254d0474e45363f406e53156e5c7868fd195e8835c6487c17 (kept in the scratch, over 200 KB); its last 12 lines:
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+508 scenarios passed, 0 failed, 0 skipped
+2330 steps passed, 0 failed, 0 skipped
+Took 0min 2.582s
+# wall=3.34 s maxrss=73276 kB

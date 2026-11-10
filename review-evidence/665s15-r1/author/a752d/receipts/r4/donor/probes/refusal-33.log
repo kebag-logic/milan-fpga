@@ -1,0 +1,4 @@
+refusal/src/acmp.c:35:1: error: static assertion failed: "the owed release mask holds a bit for every sink"
+   35 | _Static_assert(sizeof ((struct acmp_owed *)0)->release * 8u >= ACMP_MAX_SINKS,
+      | ^~~~~~~~~~~~~~
+rc=1

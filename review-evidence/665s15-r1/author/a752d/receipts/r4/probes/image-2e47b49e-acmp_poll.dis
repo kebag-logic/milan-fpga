@@ -1,0 +1,101 @@
+00006280 <acmp_poll>:
+    6280:	addi	sp,sp,-32
+    6284:	sw	s0,24(sp)
+    6288:	sw	s3,12(sp)
+    628c:	mv	s0,a0
+    6290:	sw	ra,28(sp)
+    6294:	sw	s1,20(sp)
+    6298:	sw	s2,16(sp)
+    629c:	sw	s4,8(sp)
+    62a0:	lui	s3,0x2
+    62a4:	jal	403c <enter>
+    62a8:	add	a4,s0,s3
+    62ac:	lw	a5,1344(a4)
+    62b0:	bnez	a0,62d8 <acmp_poll+0x58>
+    62b4:	snez	a0,a5
+    62b8:	lw	ra,28(sp)
+    62bc:	lw	s0,24(sp)
+    62c0:	lw	s1,20(sp)
+    62c4:	lw	s2,16(sp)
+    62c8:	lw	s3,12(sp)
+    62cc:	lw	s4,8(sp)
+    62d0:	addi	sp,sp,32
+    62d4:	ret
+    62d8:	beqz	a5,63d4 <acmp_poll+0x154>
+    62dc:	lw	s4,1340(a4)
+    62e0:	lui	a2,0x2
+    62e4:	addi	a2,a2,708 # 22c4 <adp_gm_change+0x38>
+    62e8:	slli	s1,s4,0x2
+    62ec:	add	s2,s1,s4
+    62f0:	slli	s2,s2,0x4
+    62f4:	add	a2,s2,a2
+    62f8:	add	s2,s0,s2
+    62fc:	add	s3,s3,s2
+    6300:	lbu	a1,700(s3) # 22bc <adp_gm_change+0x30>
+    6304:	add	a2,s0,a2
+    6308:	mv	a0,s0
+    630c:	jal	47c8 <p_send>
+    6310:	beqz	a0,63d4 <acmp_poll+0x154>
+    6314:	lw	a1,56(s0)
+    6318:	addi	a3,s0,288
+    631c:	li	a4,0
+    6320:	bne	a1,a4,63e8 <acmp_poll+0x168>
+    6324:	add	s1,s1,s4
+    6328:	slli	s1,s1,0x4
+    632c:	add	s1,s0,s1
+    6330:	lui	a4,0x2
+    6334:	add	s1,a4,s1
+    6338:	lbu	s1,701(s1)
+    633c:	beqz	s1,63a8 <acmp_poll+0x128>
+    6340:	addi	s1,s1,-1
+    6344:	slli	s1,s1,0x8
+    6348:	add	s1,s0,s1
+    634c:	lbu	a5,252(s1)
+    6350:	beqz	a5,63a8 <acmp_poll+0x128>
+    6354:	add	s2,a4,s2
+    6358:	lbu	a5,771(s2)
+    635c:	lbu	a3,770(s2)
+    6360:	slli	a5,a5,0x8
+    6364:	or	a3,a5,a3
+    6368:	slli	a3,a3,0x8
+    636c:	srli	a5,a5,0x8
+    6370:	or	a5,a5,a3
+    6374:	lhu	a3,202(s1)
+    6378:	slli	a5,a5,0x10
+    637c:	srli	a5,a5,0x10
+    6380:	bne	a3,a5,63a8 <acmp_poll+0x128>
+    6384:	add	a4,s0,a4
+    6388:	sb	zero,674(a4) # 22a2 <adp_gm_change+0x16>
+    638c:	li	a5,1
+    6390:	sw	a5,244(s1)
+    6394:	mv	a0,s0
+    6398:	jal	406c <now>
+    639c:	addi	a0,a0,200
+    63a0:	sw	a0,248(s1)
+    63a4:	sb	zero,252(s1)
+    63a8:	lui	a5,0x2
+    63ac:	add	a5,s0,a5
+    63b0:	lw	a4,1340(a5) # 253c <adp_poll+0x64>
+    63b4:	mv	a0,s0
+    63b8:	addi	a4,a4,1
+    63bc:	andi	a4,a4,7
+    63c0:	sw	a4,1340(a5)
+    63c4:	lw	a4,1344(a5)
+    63c8:	addi	a4,a4,-1
+    63cc:	sw	a4,1344(a5)
+    63d0:	jal	4ccc <finish>
+    63d4:	lui	a5,0x2
+    63d8:	add	s0,s0,a5
+    63dc:	lw	a0,1344(s0)
+    63e0:	snez	a0,a0
+    63e4:	j	62b8 <acmp_poll+0x38>
+    63e8:	lw	a5,704(s3)
+    63ec:	lbu	a2,0(a3) # 2000 <advertise+0x5c>
+    63f0:	addi	a3,a3,256
+    63f4:	srl	a5,a5,a4
+    63f8:	andi	a5,a5,1
+    63fc:	sub	a5,a2,a5
+    6400:	sb	a5,-256(a3)
+    6404:	addi	a4,a4,1
+    6408:	j	6320 <acmp_poll+0xa0>
+

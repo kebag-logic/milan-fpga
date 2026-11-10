@@ -1,0 +1,31 @@
+# Result lines from each workflow job's step logs at 7aa6ef0c (grep of the step logs in the scratch; every step's rc is in workflows-verify-table.md)
+docs__docs-gates-0__gate_49.log:checks: 255   failures: 0
+docs__docs-gates-1__gate_25_0.log:ALL GATES PASS EXCEPT 1 NOT RUN
+docs__docs-gates-2__gate_25_1.log:ALL GATES PASS EXCEPT 16 NOT RUN
+elaborate__elaborate-gates-0__gate_15_0.log:ALL GATES PASS EXCEPT 1 NOT RUN
+elaborate__elaborate-gates-1__gate_15_1.log:ALL GATES PASS EXCEPT 1 NOT RUN
+rtl-fast__bdd-conformance__ci_step_5.log:2330 steps passed, 0 failed, 0 skipped
+rtl-fast__bdd-conformance__ci_step_5.log:508 scenarios passed, 0 failed, 0 skipped
+rtl-fast__firmware-aecp-mutants__ci_step_9.log:test_ctrl_firmware: PASS
+rtl-fast__firmware-boundary__ci_step_9.log:ctrl_boundary: 3294 compiled sources of 3547 recorded invocations (1982 the firmware's, 377 the stack's, 935 test equipment's and builders' own), each judged by what its dependency output lists, ho
+rtl-fast__firmware-boundary__ci_step_9.log:ctrl_boundary: PASS
+rtl-fast__firmware-control-mutants__ci_step_9.log:mutants: 570 of 570 caught
+rtl-fast__firmware-control-mutants__ci_step_9.log:test_ctrl_firmware: PASS
+rtl-fast__firmware-srp-mutants__ci_step_9.log:test_ctrl_firmware: PASS
+rtl-fast__firmware-unit__ci_step_10.log:    == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_10.log:    == ctrl service bounds: checks: 47   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_10.log:    == mbx (host model): checks: 25   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_11.log:  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 85   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_11.log:  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 85   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_11.log:  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 85   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_12.log:  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_12.log:    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+rtl-fast__firmware-unit__ci_step_12.log:    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+rtl-fast__firmware-verilator__ci_step_14.log:ctrl_boundary: 1019 compiled sources of 1127 recorded invocations (536 the firmware's, 106 the stack's, 377 test equipment's and builders' own), each judged by what its dependency output lists, h
+rtl-fast__firmware-verilator__ci_step_14.log:ctrl_boundary: PASS
+rtl-fast__publication-census__ci_step_12.log:== publication census: 6 shape(s), checks: 246   failures: 0 ==
+rtl-fast__publication-census__ci_step_12.log:publication census: 6 shape(s) elaborated and classified in 295 s at --jobs 8
+rtl-fast__publication-census__ci_step_12.log:publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+rtl-fast__split-cdc__ci_step_10.log:checks: 13   failures: 0
+rtl-fast__firmware-aecp-mutants__ci_step_9.log: 139 arm lines [ok], 0 [FAIL]
+rtl-fast__firmware-srp-mutants__ci_step_9.log: 280 arm lines [ok], 0 [FAIL]

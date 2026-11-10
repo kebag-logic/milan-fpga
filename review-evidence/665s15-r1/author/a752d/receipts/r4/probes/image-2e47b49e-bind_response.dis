@@ -1,0 +1,33 @@
+00004a4c <bind_response>:
+    4a4c:	addi	sp,sp,-96
+    4a50:	sw	s1,84(sp)
+    4a54:	sw	s2,80(sp)
+    4a58:	sw	s3,76(sp)
+    4a5c:	mv	s1,a0
+    4a60:	mv	s2,a1
+    4a64:	mv	s3,a2
+    4a68:	mv	a1,a3
+    4a6c:	mv	a0,sp
+    4a70:	li	a2,0
+    4a74:	sw	ra,92(sp)
+    4a78:	sw	s0,88(sp)
+    4a7c:	mv	s0,a3
+    4a80:	jal	445c <echo>
+    4a84:	lhu	a5,60(s0)
+    4a88:	li	a3,1
+    4a8c:	sh	a3,56(sp)
+    4a90:	andi	a5,a5,8
+    4a94:	sll	a3,a3,s3
+    4a98:	mv	a2,sp
+    4a9c:	mv	a1,s2
+    4aa0:	mv	a0,s1
+    4aa4:	sh	a5,60(sp)
+    4aa8:	jal	49f4 <respond>
+    4aac:	lw	ra,92(sp)
+    4ab0:	lw	s0,88(sp)
+    4ab4:	lw	s1,84(sp)
+    4ab8:	lw	s2,80(sp)
+    4abc:	lw	s3,76(sp)
+    4ac0:	addi	sp,sp,96
+    4ac4:	ret
+

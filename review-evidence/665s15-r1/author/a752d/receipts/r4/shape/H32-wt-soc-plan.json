@@ -1,0 +1,72 @@
+{
+ "ctrl_plan": {
+  "rom": {
+   "bytes": 155196,
+   "banks": [
+    131072,
+    16384,
+    8192
+   ],
+   "RAMB36": 38,
+   "RAMB18": 0
+  },
+  "sram": {
+   "bytes": 310544,
+   "banks": [
+    262144,
+    32768,
+    16384
+   ],
+   "RAMB36": 76,
+   "RAMB18": 0
+  },
+  "tiles": 114.0,
+  "budget_tiles": 56,
+  "owed": {
+   "to": "#640, the Mark II area plan: a 32x32 shape's firmware memory",
+   "budget_bytes": 229376,
+   "allocated_bytes": 466944,
+   "over_bytes": 237568,
+   "regions": {
+    "rom": {
+     "need": 155196,
+     "allocated": 155648
+    },
+    "sram": {
+     "need": 310544,
+     "allocated": 311296
+    }
+   },
+   "largest": [
+    {
+     "symbol": "image_arena",
+     "bytes": 144832,
+     "region": "sram"
+    },
+    {
+     "symbol": "aecp_entity_image",
+     "bytes": 69488,
+     "region": "rom"
+    },
+    {
+     "symbol": "image_maps",
+     "bytes": 67584,
+     "region": "sram"
+    },
+    {
+     "symbol": "image_values",
+     "bytes": 41465,
+     "region": "sram"
+    },
+    {
+     "symbol": "image_app",
+     "bytes": 15136,
+     "region": "sram"
+    }
+   ]
+  }
+ },
+ "mailbox_layout": "shape",
+ "shape": "endstation_ax7101_32x32",
+ "interfaces": 2
+}

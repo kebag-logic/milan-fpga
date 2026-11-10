@@ -1,0 +1,13 @@
+# head 936e0a566867aa648fb48e772a26fec99e3619c9 workflow docs.yml job docs-gates-0 step ci_step_21: Fetch the builder source dependencies
+# clone $SCRATCH/gates-out/wf4b/docs__docs-gates-0/wt
+# venv $SCRATCH3/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+Cloning into '$SCRATCH/gates-out/wf4b/docs__docs-gates-0/wt/gptp-processor'...
+done.
+Cloning into '$SCRATCH/gates-out/wf4b/docs__docs-gates-0/wt/protocol-processor'...
+done.
+Cloning into '$SCRATCH/gates-out/wf4b/docs__docs-gates-0/wt/third_party/verilog-axis'...
+done.
+Submodule path 'gptp-processor': checked out '135afd043309369a87ddbc8d6550aff8ec52a157'
+Submodule path 'protocol-processor': checked out 'a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645'
+Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'

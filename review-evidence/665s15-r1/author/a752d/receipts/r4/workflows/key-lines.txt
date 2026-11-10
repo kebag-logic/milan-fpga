@@ -1,0 +1,121 @@
+docs_check: 0 finding(s) across 218 md files + 1521 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+feature_status: 0 finding(s)
+feature_status: 0 finding(s)
+source evidence: 20 exact, 0 findings
+baremetal-only: OK (0 findings across 1519 tracked first-party file(s))
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+checks: 255   failures: 0
+docs_check: 0 finding(s) across 218 md files + 1521 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_em_dash: 0 finding(s) over 354 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1d6bf555..HEAD]
+ALL GATES PASS EXCEPT 1 NOT RUN
+ALL GATES PASS EXCEPT 16 NOT RUN
+ALL GATES PASS EXCEPT 1 NOT RUN
+ALL GATES PASS EXCEPT 1 NOT RUN
+508 scenarios passed, 0 failed, 0 skipped
+test_ctrl_firmware: PASS
+ctrl_boundary: 3294 compiled sources of 3547 recorded invocations (1982 the firmware's, 377 the stack's, 935 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 112 boundary, 181 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+mutants: 570 of 570 caught
+test_ctrl_firmware: PASS
+test_ctrl_firmware: PASS
+    == ctrl service bounds: checks: 47   failures: 0 ==
+    == mbx (host model): checks: 25   failures: 0 ==
+    == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+    == ctrl ADP slice (fake ports and host model): checks: 54   failures: 0 ==
+    == ctrl units on the HAL and port-layer mocks: checks: 25   failures: 0 ==
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+    == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+    == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+    == ctrl ACMP adapter on the two-interface contract (host model): checks: 29   failures: 0 ==
+    == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+    == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+    == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+    == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+    == ctrl ADP entity fields (endstation_ax7101_32x32): checks: 9   failures: 0 ==
+    == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+    == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+    == ctrl H-MAAP mailbox: checks: 21   failures: 0 ==
+    == ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+    == ctrl H-MAAP mailbox: checks: 22   failures: 0 ==
+    == ADP debug re-entry: checks: 122   failures: 0 ==
+    == ADP release re-entry: checks: 122   failures: 0 ==
+    == ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+    == ctrl SRP mailbox: checks: 59   failures: 0 ==
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    == ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+    == ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    == ctrl SRP mailbox: checks: 59   failures: 0 ==
+    == ctrl SRP debug guard: checks: 3   failures: 0 ==
+    == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+    == ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+    == ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+    == ctrl SRP service latency: checks: 5   failures: 0 ==
+    == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+    == SRP RV32 object checks: checks: 22   failures: 0 ==
+    == AECP core: checks: 101   failures: 0 ==
+    == AECP core: checks: 101   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+    == ctrl split platform CSR window and console (host bus): checks: 10   failures: 0 ==
+    == ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+test_ctrl_firmware: PASS
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  == NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 0 ==
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 10   failures: 0 ==
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+firmware coverage: PASS (35 files)
+ctrl_boundary: 1019 compiled sources of 1127 recorded invocations (536 the firmware's, 106 the stack's, 377 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 181 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+== publication census: 6 shape(s), checks: 246   failures: 0 ==
+[ok] positive control, the tracked sources: 0 finding(s)
+[ok] positive control, the tracked sources in both placements: 0 finding(s)
+[ok] negative control, a class-D wire named in a comment: 0 finding(s)
+mutations: 0 of 57 rule(s) no arm proves
+checks: 13   failures: 0

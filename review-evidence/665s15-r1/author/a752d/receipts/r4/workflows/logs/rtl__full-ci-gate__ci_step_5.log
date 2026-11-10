@@ -1,0 +1,9 @@
+# head 936e0a566867aa648fb48e772a26fec99e3619c9 workflow rtl.yml job full-ci-gate step ci_step_5: Hold every workflow file to its contract
+# clone $SCRATCH/gates-out/wf4b/rtl__full-ci-gate/wt
+# venv $SCRATCH3/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+
+[notice] A new release of pip is available: 26.2.1 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2271 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)

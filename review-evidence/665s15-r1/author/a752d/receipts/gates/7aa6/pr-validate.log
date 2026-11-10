@@ -1,0 +1,21 @@
+# head 7aa6ef0c0312818fc8da36d39bbc468f54ac265b, clean clone, tree 0 changed paths before
+$ python3 sw/builder/endstation_builder.py configs/endstation_ax7101_32x32.yaml -o $TMPDIR/shape32
+# rc=0
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote $SCRATCH/tmp-val/shape32/endstation_ax7101_32x32/gptp_ucode.hex
+  wrote $SCRATCH/tmp-val/shape32/endstation_ax7101_32x32/aecp_aem_rom.svh
+$ python3 sw/builder/test_builder.py --gates test_control_placement_key,test_simulation_shape_option,test_shipped_shape_outputs_unchanged
+# rc=0
+wrote $SCRATCH/tmp-val/gate41-hl8k04sg/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp-val/gate41-hl8k04sg/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp-val/gate41-hl8k04sg/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+wrote $SCRATCH/tmp-val/gate41-v00y9upc/ax7101_8x8/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp-val/gate41-v00y9upc/ax7101_8x8/if2/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp-val/gate41-v00y9upc/ax7101_8x8/if2/mbx_contract.h (2 interfaces)
+  [gate 41] the 1x1 and 8x8 shapes' 33 generated outputs (ax7101_1x1_tdm8 15, ax7101_8x8 18) are byte-identical to shape_outputs_golden.json
+  [gate 41] 1/1 planted defect turned it red: the simulation mark on every shape (ax7101_1x1_tdm8 builder:build_plan: changed)
+
+SUBSET: 3 of 108 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+# wall=5.04 s maxrss=107316 kB
+# tree 0 changed paths after

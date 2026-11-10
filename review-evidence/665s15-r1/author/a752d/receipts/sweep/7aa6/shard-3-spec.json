@@ -1,0 +1,21 @@
+{
+ "cwd": "$DATA/lanes/665s15-a752c-sw3-shard3",
+ "head": "7aa6ef0c0312818fc8da36d39bbc468f54ac265b",
+ "base": "1d6bf5556a",
+ "commands": [
+  [
+   "env",
+   "PATH=$DATA/tools/pinned-verilator-5.050:$DATA/tools/sv2v-v0.0.12:$DATA/scratch/a662/make43/bin:$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=$DATA/tools/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=$HOME/milan-fpga-management/tools/tsn-gen-deca300c",
+   "TMPDIR=$SCRATCH/tmp-665s15-a752c-sw3",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "$SCRATCH/sweep3/shard-3/logs",
+   "--wait",
+   "--shard",
+   "3/4"
+  ]
+ ]
+}

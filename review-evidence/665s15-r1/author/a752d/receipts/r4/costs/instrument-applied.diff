@@ -1,0 +1,45 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index b6aeacefd1..22276720c4 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -483,7 +483,11 @@ def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
+ ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+ #: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
+ #: the commit of its return address: the saved-state store's boot and its service step (#665).
+-SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service')
++SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'dispatch_ticks'),
++                ('srp_mbx', 'open_interface'), ('aecp_mbx', 'frame'), ('srp_mbx', 'receive'), ('adp_mbx', 'on_poll'),
++                ('acmp_mbx', 'on_adp_frame'), ('acmp_mbx', 'on_frame'), ('maap_mbx', 'receive'), ('aecp_mbx', 'poll'),
++                ('srp_mbx', 'poll'), ('maap_mbx', 'poll'), ('acmp_mbx', 'on_poll'), ('ctrl_app_aecp', 'deliver'),
++                ('ctrl_app_srp', 'deliver'))
+ #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
+ #: static function) pair: the state port's owners as the boot walks apply and the write path
+ #: latches, and the flash port's calls (#665).
+@@ -491,7 +495,7 @@ CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_res
+                 'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
+                 'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
+                 ('nvm_flash_litespi', 'ls_program'), ('nvm_flash_litespi', 'ls_erase'),
+-                ('nvm_flash_litespi', 'ls_busy'))
++                ('nvm_flash_litespi', 'ls_busy'), 'mbx_event_take')
+ 
+ 
+ def traced(table: dict[str, int], elf: Path, names: tuple, modules: tuple[list[str], list]) -> list[tuple]:
+@@ -518,6 +522,18 @@ def trace_lines(table: dict[str, int], elf: Path, modules: tuple[list[str], list
+     without saved state (#859) links none of them: both tables are empty, each array one unread
+     element so that the testbench still compiles."""
+     lines = []
++    if not saved:
++        lines = []
++        store = ('nvm_', 'acmp_restore', 'aecp_value', 'aecp_restore', 'aecp_map_restore', 'acmp_binding')
++        for kind, names in (('span', SPAN_SYMBOLS), ('call', CALL_SYMBOLS)):
++            keep = tuple(n for n in names if not (isinstance(n, str) and n.startswith(store))
++                         and not (isinstance(n, tuple) and n[0] in ('acmp_nvm', 'aecp_nvm', 'nvm_flash_litespi')))
++            rows = traced(table, elf, keep, modules)
++            lines += [f'constexpr unsigned n_{kind}s = {len(rows)};',
++                      f'inline constexpr std::uint32_t {kind}_pc[n_{kind}s] = {{'
++                      + ', '.join(f'0x{pc:x}u' for _, pc in rows) + '};',
++                      f'inline const char* const {kind}_name[n_{kind}s] = {{' + ', '.join(f'"{n}"' for n, _ in rows) + '};']
++        return lines
+     if not saved:
+         for kind in ('span', 'call'):
+             lines += [f'constexpr unsigned n_{kind}s = 0;', f'inline constexpr std::uint32_t {kind}_pc[1] = {{0u}};',
