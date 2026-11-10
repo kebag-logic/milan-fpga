@@ -23,8 +23,14 @@ The terms (per millisecond):
                  lines are read from the tree (RETRY_RULE): a retry it does not bound has no source.
   item.reclaim   lwSRP's reclaim of an interface's freed attributes (mrp_reclaim, entered after an SRP record or a
                  build left one to free): two participants a record or a build.
-  item.aecp      AECP's owed response, a completed command's notification or a probe: one an AECP record, and one a
-                 registration a probe's 250 ms retry (aecp.c; Milan v1.2 5.4.5.3), every interface's registrations.
+  item.aecp      AECP's owed frame, by what each source sends (#665 issuecomment-6751196896, item 2): an AECP record's
+                 response, to one recipient, with a command that changed something its notice to the registered
+                 controllers, at most AECP_REGISTRATIONS an AVB interface (Milan v1.2 5.4.5.1; aecp.c, fan_out),
+                 the larger of the two once a record; and a registration's probe, its own frame, once its 250 ms
+                 retry (aecp.c; Milan v1.2 5.4.5.3), every interface's registrations.
+  notices        each descriptor's COUNTERS_CHANGED notice, once a holdoff_ms (Milan v1.2 5.4.5.2, Table 5.22;
+                 mailbox.yaml counters_changed), in THE RETRY's rounds, each a round's own at its stated costs
+                 (aecp_mbx.h: AECP_ROUND_COLD_US and AECP_NOTICE_US, which round_grade.py holds every round to).
   item.acmp      ACMP's owed frame: one an ACMP record, one an ADP record (a bound talker's ENTITY_AVAILABLE, Milan
                  v1.2 5.6.4.1) and one a sink's TMR_NO_RESP (Milan v1.2 5.5.2.3, Table 5.26: ACMP_TMR_NO_RESP_MS).
   ticks          a TICK a centisecond (mailbox.yaml tick_ms), each its consumers at the larger of their measured and
@@ -49,8 +55,9 @@ The terms (per millisecond):
                  announceReceiptTimeout 3 intervals).
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
-THE RETRY's rounds drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate; a pass's
-own cost is no source.
+THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
+and AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (mailbox.yaml);
+a pass's own cost is no source.
 
 usage: python3 -I load_grade.py [--check] [--selftest]
   --check      print the load table and exit 1 if any point is over its ceiling
@@ -87,14 +94,17 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 STATED_US = {
     '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
                 'event.ADP': 105, 'event.ACMP': 180, 'event.MAAP': 160, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25},
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25,
+                'item.aecp.notice': 225, 'item.aecp.response': 50, 'item.aecp.probe': 50},
     '8x8/2if': {'record.srp': 395, 'record.aecp': 260, 'record.acmp': 435, 'record.adp': 235, 'record.maap': 125,
                 'event.ADP': 110, 'event.ACMP': 340, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
-                'event.GM': 320, 'centisecond': 390, 'events_none': 30},
+                'event.GM': 320, 'centisecond': 390, 'events_none': 30,
+                'item.aecp.notice': 340, 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 860, 'record.aecp': 205, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 100, 'event.ACMP': 845, 'event.MAAP': 295, 'event.AECP': 55, 'event.TICK': 30,
                   'event.GM': 25, 'centisecond': 950, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
-                  'item.retained': 860, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp': 345, 'item.walk': 135,
+                  'item.retained': 860, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp.notice': 345,
+                  'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 135,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
 #: The least valid_time an ADPDU may carry, in ms: one unit of two seconds (IEEE 1722.1-2021 6.2.2.5), the
 #: shortest a bound sink's discovery aging can run.
@@ -103,8 +113,8 @@ ADP_LEAST_VALID_MS = 2000
 #: (initialLogAnnounceInterval 0, IEEE 802.1AS-2011 10.7.2.2), a peer delay exchange (initialLogPdelayReqInterval
 #: 0, 11.5.2.2) and an announce receipt timeout (announceReceiptTimeout 3 intervals, 10.7.3.2).
 GM_INTERVALS_MS = (1000, 1000, 3000)
-#: The poll items the load counts (poll_grade.py's names).
-ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'aecp', 'walk')
+#: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
+ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
 HEADER_COSTS = ('CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_STEP_PASS_US')
 #: The retained receive's retry rule (#665 issuecomment-6751196896, item 1), each part as the tree states it, read with
@@ -129,8 +139,9 @@ RETRY_RULE = {
 def macros(root: Path, n_if: int) -> dict[str, int]:
     """The integer constants the load reads from the tree, at that many interfaces."""
     text = ''.join((root / p).read_text() for p in (
-        'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'third_party/tsn-c-stack/include/acmp.h',
-        'third_party/tsn-c-stack/include/maap.h', 'third_party/tsn-c-stack/include/adp.h'))
+        'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'sw/firmware/ctrl/aecp/aecp_mbx.h',
+        'third_party/tsn-c-stack/include/acmp.h', 'third_party/tsn-c-stack/include/maap.h',
+        'third_party/tsn-c-stack/include/adp.h'))
     found = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
 
     def value(name: str) -> int:
@@ -144,7 +155,8 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
             raise ValueError(f'{name} is {body!r}, neither an integer nor a ternary on MBX_N_IF')
         return int(pick[2] if n_if == int(pick[1]) else pick[3])
     names = (*HEADER_COSTS, 'CTRL_LOOP_TICK_US', 'CTRL_LOOP_STEP_AGE', 'SRP_RX_RETRY_MS', 'SRP_JOIN_CS',
-             'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS')
+             'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS',
+             'AECP_NOTICE_US', 'AECP_ROUND_COLD_US')
     return {n: value(n) for n in names}
 
 
@@ -200,7 +212,10 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     out['srp'] = c['record.srp'] / refill['srp'] + c['item.retained'] / k['tick_ms']
     out['item.reclaim'] = c['item.reclaim'] * 2 * (1 / refill['srp'] + n_builds / join_ms)
     probe = probe_retry_ms(root)
-    out['item.aecp'] = c['item.aecp'] * (1 / refill['aecp'] + n_if * s['registrations'] / probe)
+    # AECP's owed frame by what each source sends: a record's response, or a command's with its notice; a probe's frame
+    record_frame = max(c['item.aecp.response'], c['item.aecp.notice'])
+    out['item.aecp'] = record_frame / refill['aecp'] + n_if * s['registrations'] * c['item.aecp.probe'] / probe
+    out['notices'] = s['counter_descriptors'] * (h['AECP_ROUND_COLD_US'] + h['AECP_NOTICE_US']) / k['holdoff_ms']
     no_resp = h['ACMP_TMR_NO_RESP_MS']
     out['item.acmp'] = c['item.acmp'] * (1 / refill['acmp'] + 1 / refill['adp'] + n_if * s['sinks_per_if'] / no_resp)
     out['ticks'] = (c['event.TICK'] + max(c['centisecond'], h['CTRL_LOOP_TICK_US'])) / k['tick_ms']
@@ -312,6 +327,18 @@ def controls(root: Path) -> list[str]:
     acmp = s['n_if'] * s['sinks_per_if'] * base['8x8/2if']['event.ACMP'] / macros(root, 2)['ACMP_TMR_NO_RESP_MS']
     if not two - one >= acmp / 1000 - 1e-9:
         escaped.append('a timer slot counted per pass')
+    # AECP's owed frame charged by what each source sends (#665 issuecomment-6751196896, item 2): a probe costs its own
+    # frame, so a dearer probe raises the term by every registration's retries of it and a dearer notice by the records'
+    # share alone; one charge for every source (round 24's notice to 32 recipients) moves both together
+    raised = {p: dict(v) for p, v in base.items()}
+    raised['8x8/2if']['item.aecp.probe'] += 1000
+    probes = POINTS['8x8/2if']['n_if'] * POINTS['8x8/2if']['registrations'] / probe_retry_ms(root)
+    up = load(root, '8x8/2if', raised)['item.aecp'] - load(root, '8x8/2if', base)['item.aecp']
+    noticed = {p: dict(v) for p, v in base.items()}
+    noticed['8x8/2if']['item.aecp.notice'] += 1000
+    more = load(root, '8x8/2if', noticed)['item.aecp'] - load(root, '8x8/2if', base)['item.aecp']
+    if abs(up - probes) > 1e-9 or abs(more - 1 / contract(root)['refill']['aecp']) > 1e-9:
+        escaped.append('one owed-frame charge for every AECP source')
     # a term the load counts with no source in its term list (#665 issuecomment-6734415848, item 5)
     if 'item.unsourced' not in unsourced({**load(root, '8x8/2if', base), 'item.unsourced': 0.0}):
         escaped.append('a term without a source')
@@ -323,7 +350,7 @@ def controls(root: Path) -> list[str]:
 PERIODS = {'refill.aecp': ('rec.aecp', 'item.aecp'), 'refill.acmp': ('rec.acmp', 'item.acmp'),
            'refill.adp': ('rec.adp', 'item.acmp', 'timers'), 'refill.maap': ('rec.maap',),
            'refill.srp': ('srp', 'item.reclaim'), 'tick_ms': ('ticks', 'item.walk', 'steps', 'srp'),
-           'holdoff_ms': ('timers',), 'SRP_JOIN_CS': ('builds', 'item.mrpdu', 'item.reclaim', 'item.walk'),
+           'holdoff_ms': ('timers', 'notices'), 'SRP_JOIN_CS': ('builds', 'item.mrpdu', 'item.reclaim', 'item.walk'),
            'CTRL_LOOP_STEP_AGE': ('steps',), 'ACMP_TMR_NO_RESP_MS': ('item.acmp', 'timers'),
            'MAAP_PROBE_BASE_MS': ('timers',), 'ADP_ADVERTISE_MS': ('timers',), 'probe': ('item.aecp', 'timers')}
 
@@ -370,8 +397,8 @@ def period_controls(root: Path) -> list[str]:
 
 #: The planted defects controls() plants, in its order.
 CONTROLS = ('a cost over the ceiling', 'a stated cost missing', 'the retained retry counted once a record',
-            'a retry with nothing changed', 'a retry every pass', 'a timer slot counted per pass',
-            'a term without a source')
+            'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
+            'a timer slot counted per pass', 'a term without a source')
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:

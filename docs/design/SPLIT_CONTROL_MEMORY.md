@@ -2075,7 +2075,8 @@ Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`
 | `rec.aecp`, `rec.acmp`, `rec.adp`, `rec.maap` | one record a refill of the channel's limiter, the same at every shape | `mailbox.yaml` `rate` |
 | `srp` | SRP's records, one a refill, and its retries of a record its participant refused for storage, at most one a centisecond: see below | `mailbox.yaml` `rate` and `tick_ms`; `srp_mbx.c` |
 | `item.reclaim` | two participants a record or a build | lwSRP's `mrp_reclaim` |
-| `item.aecp` | one an AECP record, and one a registration a probe retry | Milan v1.2 5.4.5.3 (`aecp.c`: 250 ms) |
+| `item.aecp` | by what each source sends ([round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 2): an AECP record's response to one recipient, or a command's response with its notice to the registered controllers, at most 16 an AVB interface, the larger once a record; a registration's probe, its own frame, once its retry | Milan v1.2 5.4.5.1, 5.4.5.3 (`aecp.c`: `fan_out`, 250 ms) |
+| `notices` | each descriptor's COUNTERS_CHANGED notice once a `holdoff_ms`, in THE RETRY's rounds, a round's own at `AECP_ROUND_COLD_US` + `AECP_NOTICE_US` (`aecp_mbx.h`, held by `round_grade.py`) | Milan v1.2 5.4.5.2, Table 5.22 (`mailbox.yaml` `counters_changed`) |
 | `item.acmp` | one an ACMP record, one an ADP record and one a sink's TMR_NO_RESP | Milan v1.2 5.6.4.1; 5.5.2.3, Table 5.26 (`ACMP_TMR_NO_RESP_MS`, 200 ms) |
 | `ticks` | a TICK a centisecond, its consumers at the larger of their measured and stated (`CTRL_LOOP_TICK_US`) cost | `mailbox.yaml` `tick_ms` |
 | `item.walk` | one an interface a centisecond, and one a build's declaration | lwSRP's timers; THE TRANSMIT |
@@ -2084,7 +2085,9 @@ Each term is a source's arrival rate, a contract rate (`sw/mailbox/mailbox.yaml`
 | `timers` | each slot at its own expiry rate: ADP's advertise timer, its delay re-armed by an ADP record and each bound sink's discovery aging; each sink's TMR_NO_RESP; MAAP's probe; each registration's probe retry and each descriptor's COUNTERS_CHANGED | Milan v1.2 5.6.3.5.9, Table 5.50 (`ADP_ADVERTISE_MS`), 5.6.3.5.3, IEEE 1722.1-2021 6.2.2.5 (2 s); Milan v1.2 5.5.2.3, Table 5.26; IEEE 1722-2016 B.3.4.2, Table B.8 (`MAAP_PROBE_BASE_MS` less `MAAP_PROBE_VARIATION_MS`); Milan v1.2 5.4.5.3, 5.4.5.2, Table 5.22 (`holdoff_ms`) |
 | `gm` | the grandmaster event, coalesced: at most one an interface an Announce, a peer delay exchange and an announce receipt timeout | IEEE 802.1AS-2011 10.7.2.2 (1 s), 11.5.2.2 (1 s), 10.7.3.2 (3 intervals) |
 
-Not terms: a LINK change has no arrival rate (R5's definition counts one an interface); THE RETRY's rounds drain a queue a datapath reset leaves, at most `AECP_NOTICES_MOST`, a burst and not a rate.
+Not terms: a LINK change has no arrival rate (R5's definition counts one an interface); THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most `AECP_NOTICES_MOST`, a burst and not a rate; AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE are coalesced events with no contract rate (`mailbox.yaml`).
+
+AECP's owed frame was charged once a record and once a probe at a notice's fan-out to 32 recipients (340 us at 8x8/2if). By what each source sends, each kind read from the AECP frames its transmit committed in the traced legs: a notice, the heaviest transmit that fanned one out, 32 recipients at 8x8/2if and 16 at 1x1/1if; a response, the heaviest single-frame answer; a probe, which no group stages (a registration's first probe falls 30 to 60 s after it, past every group's window), at a response's cost, since it is one frame through the same send, a header only. A record's command can change something and owe its notice with its response, so a record is charged the larger; the probes, 32 a 250 ms at two interfaces, are charged their own frame. COUNTERS_CHANGED notices have a contract rate, so they are now a term too, which they were not.
 
 **The three per-pass terms, from their sources** (the round 24 ruling, item 5). The response-time method of rounds 21 to 23 charged three terms a pass:
 
@@ -2096,11 +2099,11 @@ At this head (`load_grade.py --check`; the stated costs and their sources are th
 
 | Point | Load | Ceiling | Its three largest terms | A pass's own cost, us |
 |---|---:|---:|---|---:|
-| 1x1/1if | 0.474 | reported | `srp` 0.150, `item.aecp` 0.059, `rec.acmp` 0.056 | 180 |
-| 8x8/2if | **0.858** | 0.70 | `srp` 0.237, `item.aecp` 0.112, `rec.acmp` 0.087 | 310 |
+| 1x1/1if | 0.465 | reported | `srp` 0.150, `rec.acmp` 0.056, `item.aecp` 0.048 | 180 |
+| 8x8/2if | **0.834** | 0.70 | `srp` 0.237, `rec.acmp` 0.087, `item.aecp` 0.076 | 310 |
 | 32x32/2if | **2.140** | 0.70 | `srp` 0.516, `item.acmp` 0.306, `item.mrpdu` 0.299 | 610 |
 
-With the retry bounded by its source (round 24's loads were 0.905, 1.181 and 2.209), both held points are still over the ceiling: at 8x8/2if ACMP's records, its owed frame and its timer slot's expiries together 0.184, AECP's owed frames 0.112. At 32x32/2if ACMP's three are 0.637, and THE TRANSMIT's builds and their owed MRPDUs 0.449.
+With the retry bounded by its source and AECP's owed frame charged by what each source sends (round 24's loads were 0.905, 1.181 and 2.209), both held points are still over the ceiling: at 8x8/2if ACMP's records, its owed frame and its timer slot's expiries together 0.184. At 32x32/2if ACMP's three are 0.637, and THE TRANSMIT's builds and their owed MRPDUs 0.449.
 
 ### What is left
 
@@ -2115,7 +2118,7 @@ With the retry bounded by its source (round 24's loads were 0.905, 1.181 and 2.2
 - **SRP's 18 ms, `CTRL_LOOP_SRP_MS`, is THE SHARE's nine passes, and the composed burst's 32 SRP records at 8x8/2if take sixteen:** that row fits by the measured cost of its passes, which hold no build except in a pass that took no record at all, not by the constants ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)).
 - **The margins at this head:** 0.235 ms on the 8x8 last SRP record (arm A), and 9,580 cycles on the share (a pass that takes a record, 1.904 ms at 8x8/2if); every pass class sits at least 6,490 cycles, the data layout's measured swing, under the share at both points, at the head's layout and at the struct-ends layout ([above](#the-retrys-age-limit-the-transmit-the-ticks-cap-and-every-pass-class)). A change that grows the hot code ahead of SRP's drain, or adds fields to the loop's or a module's structs, must measure them again.
 - The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
-- **The long-window load is over its 0.70 ceiling** at 8x8/2if (0.858) and 32x32/2if (2.140), and 0.474 at 1x1/1if ([above](#the-long-window-load)), SRP's retained retry bounded by its source, at most once a centisecond and only once the pool or an attribute changed.
+- **The long-window load is over its 0.70 ceiling** at 8x8/2if (0.834) and 32x32/2if (2.140), and 0.465 at 1x1/1if ([above](#the-long-window-load)), SRP's retained retry bounded by its source, at most once a centisecond and only once the pool or an attribute changed, and AECP's owed frame charged by what each source sends.
 - The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
 
 ## 14. The 32x32 estimate
