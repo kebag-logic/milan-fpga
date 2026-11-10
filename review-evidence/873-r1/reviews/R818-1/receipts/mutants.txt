@@ -1,0 +1,60 @@
+M01 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: default fallback reported as the widest width (16, not 12)
+    FAIL fallback has one named setting
+M02 SURVIVED rc=0 fails=0 last='selftest: PASS' :: --concurrent-jobs no longer capped by the number of booked ranges
+M03 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: job_cpu_ranges selects only `concurrency` ranges, not the geometry's job count
+    FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+    FAIL the shared CPU-range monitor receives both independent jobs' disjoint ranges
+M04 KILLED rc=1 fails=0 last="Refusal: memory over-subscribed: 4 jobs of 8 GiB plus the slot's 4 GiB service share need 36 GiB, over its MemoryMax=36G" :: memory bound off by one (>=): a geometry exactly filling the slot is refused
+M05 KILLED rc=1 fails=3 last='selftest: 3 FAILURE(S)' :: CPU bound computed on the fallback width instead of the geometry width
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (4 GiB each) fits
+    FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 64 one replay may book, though their memory (6 GiB each) fits
+    FAIL CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits
+M06 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: alignment enforced only at the 16/12 widths (6/8 unaligned accepted)
+    FAIL 8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+    FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+M07 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: integer check accepts bool
+    FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+M08 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: 8-CPU geometry also accepts 6-CPU ranges
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges refuse any other width: 0-15, 0-11, 0-5
+M09 SURVIVED rc=0 fails=0 last='selftest: PASS' :: job_cpu_ranges bounds concurrency by the 8-job maximum, not the geometry
+M10 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: service share shrunk to 1 GiB
+    FAIL memory over-subscription is refused: 5 jobs of 7 GiB plus the 1 GiB service share need 36 GiB, over the slot's 36G
+M11 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: --selftest silently accepts --job-memory
+    FAIL --selftest with --job-memory is a usage error
+M12 KILLED rc=1 fails=0 last='SyntaxError: invalid syntax' :: --jobs ignored by the command-line geometry
+M13 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: act command built from the default geometry, not the chosen one
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+M14 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: host bound skipped at the 6/8 widths
+    FAIL 8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+    FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+M15 NOT-APPLIED (old occurs 2x) :: swap cap left at the default 8g while memory follows the geometry
+M16 KILLED rc=1 fails=9 last='selftest: 9 FAILURE(S)' :: replay concurrency bounded by the 8-job maximum, not the geometry
+    FAIL slot 0 uses external ranges without staging
+    FAIL slot 3 uses external ranges without staging
+    FAIL all selected workflows share the 1-job limit in every order
+    FAIL a single small workflow does not invent 1 jobs
+    FAIL all selected workflows share the 2-job limit in every order
+    FAIL all selected workflows share the 3-job limit in every order
+    ... 3 more
+M17 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: per-job memory cap admits 0 GiB
+    FAIL a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+M18 KILLED rc=1 fails=0 last="Refusal: memory over-subscribed: 4 jobs of 16 GiB plus the slot's 4 GiB service share need 68 GiB, over its MemoryMax=36" :: per-job memory ceiling raised to 16 GiB
+M19 KILLED rc=1 fails=1 last='selftest: 1 FAILURE(S)' :: replay CPU limit raised to 80
+    FAIL CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 80 one replay may book, though their memory (6 GiB each) fits
+M20 KILLED rc=1 fails=4 last='selftest: 4 FAILURE(S)' :: overlap check dropped
+    FAIL invalid or missing CPU ranges '0-15,12-23'
+    FAIL invalid or missing CPU ranges '0-15,0-15'
+    FAIL 8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+    FAIL 8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+M21 KILLED rc=1 fails=4 last='selftest: 4 FAILURE(S)' :: default container memory format changes to 8G (upper-case unit)
+    FAIL the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+    FAIL 8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+    FAIL 8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+    FAIL job containers are held to 8G of memory and the same swap ceiling, one limit each, in Docker size syntax
+M22 KILLED rc=1 fails=0 last="SyntaxError: expected 'except' or 'finally' block" :: geometry refusal not caught in main (escapes as a traceback, after nothing ran)
+M23 SURVIVED rc=0 fails=0 last='selftest: PASS' :: the slot OOM reason names the default cap, not the run's
+M24 KILLED rc=1 fails=2 last='selftest: 2 FAILURE(S)' :: 6-CPU geometry keeps a 12-CPU fallback
+    FAIL 8 jobs on 6-CPU ranges refuse any other width: 0-15, 0-11, 0-7
+    FAIL --cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused

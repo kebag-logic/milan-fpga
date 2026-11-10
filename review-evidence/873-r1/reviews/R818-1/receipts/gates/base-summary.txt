@@ -1,0 +1,15 @@
+ci_events rc=0 | ci_events: OK (2215 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_gate_workflows rc=0 | 
+diff_check rc=0 | 
+doc_paths rc=0 | doc path gate: OK (1627 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+docs_check rc=0 | docs_check: 0 finding(s) across 215 md files + 1701 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_inventory rc=0 | documentation inventory: OK (533 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+doc_style rc=0 | documentation style: OK (25 current documents)
+em_dash rc=0 | check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [45c0b56c..HEAD]
+fail_fast rc=0 |   the ratchets can be lowered to 78, 3 and 0
+hygiene rc=0 | HYGIENE RATCHET: PASS (3 population(s), 1325 file(s))
+naming rc=0 | NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+py_idiom rc=0 |   over-long line: 0 <= 0
+test_evidence rc=0 |   the mutation ratchet can be lowered to 67
+toc rc=0 | anchor check: 603 existing cross-page fragment links reproduced
+todo rc=0 | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 52 near-miss occurrence(s) on 45 line(s) correctly not treated as markers; 1393 first-party fil

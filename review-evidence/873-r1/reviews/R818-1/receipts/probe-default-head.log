@@ -1,0 +1,132 @@
+{
+ "4x12 fallback": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 4 --env MILAN_CI_CPU_RANGES=0-11,12-23,24-35,36-47 --env MILAN_CI_FALLBACK_CPUS=12 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=8g --memory-swap=8g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 4,
+   "selected": [
+    "ok",
+    [
+     "0-11",
+     "12-23",
+     "24-35",
+     "36-47"
+    ]
+   ]
+  }
+ ],
+ "4x16": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 4 --env MILAN_CI_CPU_RANGES=0-15,16-31,32-47,48-63 --env MILAN_CI_FALLBACK_CPUS=12 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=8g --memory-swap=8g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 4,
+   "selected": [
+    "ok",
+    [
+     "0-15",
+     "16-31",
+     "32-47",
+     "48-63"
+    ]
+   ]
+  }
+ ],
+ "8x16 booked": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 4 --env MILAN_CI_CPU_RANGES=0-15,16-31,32-47,48-63,64-79,80-95,96-111,112-127 --env MILAN_CI_FALLBACK_CPUS=12 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=8g --memory-swap=8g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 4,
+   "selected": [
+    "ok",
+    [
+     "0-15",
+     "16-31",
+     "32-47",
+     "48-63"
+    ]
+   ]
+  }
+ ],
+ "mixed 16+12": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 2 --env MILAN_CI_CPU_RANGES=0-15,24-35 --env MILAN_CI_FALLBACK_CPUS=12 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=8g --memory-swap=8g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 4,
+   "selected": [
+    "REFUSED",
+    "insufficient CPU ranges: 4 jobs need distinct ranges"
+   ]
+  }
+ ],
+ "one range": [
+  "ok",
+  {
+   "command": "act pull_request --strict --no-recurse --rm --directory <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --workflows <ROOT>/candidate/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/.github/workflows/rtl.yml --eventpath <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/event.json --platform ubuntu-24.04=catthehacker/ubuntu:full-latest --artifact-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/artifacts/rtl-full --artifact-server-addr 172.30.0.1 --artifact-server-port <PORT> --action-cache-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/actions --action-offline-mode --cache-server-path <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/workflow-cache --cache-server-addr 172.30.0.1 --cache-server-port 0 --env-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.env --secret-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.secrets --var-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.vars --input-file <ROOT>/state/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/empty.input --secret GITHUB_TOKEN= --container-daemon-socket - --concurrent-jobs 1 --env MILAN_CI_CPU_RANGES=0-15 --env MILAN_CI_FALLBACK_CPUS=12 --container-options --label=org.kebag-logic.milan-act-ci.owner=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --memory=8g --memory-swap=8g --network milan-act-ci-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "concurrency": 4,
+   "selected": [
+    "REFUSED",
+    "insufficient CPU ranges: 4 jobs need distinct ranges"
+   ]
+  }
+ ],
+ "ranges ''": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ],
+ "ranges '-1-14'": [
+  "REFUSED",
+  "invalid CPU range: -1-14"
+ ],
+ "ranges '0-15,'": [
+  "REFUSED",
+  "invalid CPU range: "
+ ],
+ "ranges '0-15,0-15'": [
+  "REFUSED",
+  "CPU ranges overlap: 0 and 1 share CPU 0"
+ ],
+ "ranges '0-15,12-23'": [
+  "REFUSED",
+  "CPU ranges overlap: 0 and 1 share CPU 12"
+ ],
+ "ranges '0-31'": [
+  "REFUSED",
+  "CPU range 0-31 has unsupported width 32; need 16 or 12"
+ ],
+ "ranges '0-5'": [
+  "REFUSED",
+  "CPU range 0-5 has unsupported width 6; need 16 or 12"
+ ],
+ "ranges '0-7'": [
+  "REFUSED",
+  "CPU range 0-7 has unsupported width 8; need 16 or 12"
+ ],
+ "ranges '0-7,8-15'": [
+  "REFUSED",
+  "CPU range 0-7 has unsupported width 8; need 16 or 12"
+ ],
+ "ranges '00-15'": [
+  "REFUSED",
+  "invalid CPU range: 00-15"
+ ],
+ "ranges '1-16'": [
+  "REFUSED",
+  "CPU range is not aligned to its width: 1-16"
+ ],
+ "ranges '12-17'": [
+  "REFUSED",
+  "CPU range 12-17 has unsupported width 6; need 16 or 12"
+ ],
+ "ranges '128-143'": [
+  "REFUSED",
+  "CPU range 128-143 exceeds this host's 128 CPUs"
+ ],
+ "ranges '4-15'": [
+  "REFUSED",
+  "CPU range is not aligned to its width: 4-15"
+ ],
+ "ranges None": [
+  "REFUSED",
+  "missing --cpu-ranges: manager-booked ranges are required"
+ ]
+}

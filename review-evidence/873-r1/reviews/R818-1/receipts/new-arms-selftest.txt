@@ -1,0 +1,34 @@
+8 jobs at the default 16 CPUs are refused for CPU before any collaborator
+8 jobs at the default 8 GiB are refused for memory before any collaborator
+8 jobs on 6-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 6, and each container is held to 4g of memory and swap
+8 jobs on 6-CPU ranges: a ninth concurrent job is refused
+8 jobs on 6-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+8 jobs on 6-CPU ranges refuse any other width: 0-15, 0-11, 0-7
+8 jobs on 6-CPU ranges: seven booked ranges for 8 concurrent jobs are refused
+8 jobs on 6-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected
+8 jobs on 8-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets every range and fallback width 8, and each container is held to 4g of memory and swap
+8 jobs on 8-CPU ranges: a ninth concurrent job is refused
+8 jobs on 8-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated and a beyond-the-host range each refused for its own reason
+8 jobs on 8-CPU ranges refuse any other width: 0-15, 0-11, 0-5
+8 jobs on 8-CPU ranges: seven booked ranges for 8 concurrent jobs are refused
+8 jobs on 8-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs and are all selected
+a geometry exactly at both bounds is accepted: 8 x 6 and 8 x 8 at 4 GiB, and 4 x 16 at 8 GiB, fill the slot's 36G with its service share; 8 x 8 and 4 x 16 hold 64 CPUs
+a job count, CPU width or memory cap out of range, or not an integer, is refused by name: (0, 16, 8); (9, 6, 3); (4, 12, 8); (4, 4, 8); (4, 32, 8); (4, 16, 0); (2, 16, 9); (True, 16, 8); (4, '8', 8); (4, 16, 8.0)
+an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows share that 8-job limit in every order
+a ninth job is refused before any collaborator
+CPU over-subscription is refused: 5 jobs of 16 CPUs need 80, over the 64 one replay may book, though their memory (6 GiB each) fits
+CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (1 GiB each) fits
+CPU over-subscription is refused: 8 jobs of 16 CPUs need 128, over the 64 one replay may book, though their memory (4 GiB each) fits
+--cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused
+--jobs 8 --job-cpus 6 --job-memory 4 on 8 ranges of 6 reaches its first collaborator with that geometry, which does not outlive the run
+--jobs 8 --job-cpus 8 --job-memory 4 on 8 ranges of 8 reaches its first collaborator with that geometry, which does not outlive the run
+memory over-subscription is refused: 5 jobs of 7 GiB plus the 4 GiB service share need 39 GiB, over the slot's 36G
+memory over-subscription is refused: 6 jobs of 6 GiB plus the 4 GiB service share need 40 GiB, over the slot's 36G
+memory over-subscription is refused: 8 jobs of 5 GiB plus the 4 GiB service share need 44 GiB, over the slot's 36G
+memory over-subscription is refused: 8 jobs of 8 GiB plus the 4 GiB service share need 68 GiB, over the slot's 36G
+--selftest with --job-cpus is a usage error
+--selftest with --job-memory is a usage error
+--selftest with --jobs is a usage error
+the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, and a command line naming no geometry option keeps it
+the default geometry still refuses 6- and 8-CPU ranges by their width
+under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and rtl-full more than the default 4
