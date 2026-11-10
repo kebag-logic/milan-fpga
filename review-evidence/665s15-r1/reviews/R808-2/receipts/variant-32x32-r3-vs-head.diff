@@ -1,0 +1,28 @@
+diff -r $PACKET/scratch/vid/head/endstation_ax7101_32x32/KL_mbx_pkg.sv $PACKET/scratch/vid/r3/endstation_ax7101_32x32/KL_mbx_pkg.sv
+1154c1154
+<   localparam int unsigned MBX_CH_ACMP_TX_BASE_C = 32'h00007000;
+---
+>   localparam int unsigned MBX_CH_ACMP_TX_BASE_C = 32'h00001C00;
+1156c1156
+<   localparam int unsigned MBX_CH_ACMP_TX_WORDS_C = 32'd1024;
+---
+>   localparam int unsigned MBX_CH_ACMP_TX_WORDS_C = 32'd256;
+diff -r $PACKET/scratch/vid/head/endstation_ax7101_32x32/KL_mbx.sv $PACKET/scratch/vid/r3/endstation_ax7101_32x32/KL_mbx.sv
+1041c1041
+<   // channel acmp (1): transmit ring at 0x7000
+---
+>   // channel acmp (1): transmit ring at 0x1C00
+1044c1044,1045
+<   assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C);   //! the ring ends at the window's top
+---
+>   assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C)
+>                       && off_w < AW2_C'(MBX_CH_ACMP_TX_BASE_C + 4 * MBX_CH_ACMP_TX_WORDS_C);
+diff -r $PACKET/scratch/vid/head/endstation_ax7101_32x32/mbx_contract.h $PACKET/scratch/vid/r3/endstation_ax7101_32x32/mbx_contract.h
+1153c1153
+< #define MBX_CH_ACMP_TX_BASE 0x7000u
+---
+> #define MBX_CH_ACMP_TX_BASE 0x1C00u
+1155c1155
+< #define MBX_CH_ACMP_TX_WORDS 1024u
+---
+> #define MBX_CH_ACMP_TX_WORDS 256u
