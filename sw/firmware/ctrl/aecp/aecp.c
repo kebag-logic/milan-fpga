@@ -562,12 +562,47 @@ void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 	}
 }
 
+// A recipient's fields of a notice's frame (Milan v1.2 5.4.5.1; IEEE 1722.1-2021 7.5.2, 9.2.1.1): its MAC as the
+// destination, its interface's as the source, its entity ID as the controller_entity_id and its sequence_id, each
+// byte stored once from the two words that hold it (#665: through the put helpers' calls these were a third of a
+// recipient's cost).
+static inline void address(uint8_t *f, const struct aecp_registration *r, uint64_t source)
+{
+	const uint32_t mac_hi = (uint32_t)(r->mac >> 32), mac_lo = (uint32_t)r->mac;
+	const uint32_t src_hi = (uint32_t)(source >> 32), src_lo = (uint32_t)source;
+	const uint32_t id_hi = (uint32_t)(r->controller >> 32), id_lo = (uint32_t)r->controller;
+	f[0] = (uint8_t)(mac_hi >> 8);
+	f[1] = (uint8_t)mac_hi;
+	f[2] = (uint8_t)(mac_lo >> 24);
+	f[3] = (uint8_t)(mac_lo >> 16);
+	f[4] = (uint8_t)(mac_lo >> 8);
+	f[5] = (uint8_t)mac_lo;
+	f[6] = (uint8_t)(src_hi >> 8);
+	f[7] = (uint8_t)src_hi;
+	f[8] = (uint8_t)(src_lo >> 24);
+	f[9] = (uint8_t)(src_lo >> 16);
+	f[10] = (uint8_t)(src_lo >> 8);
+	f[11] = (uint8_t)src_lo;
+	f[26] = (uint8_t)(id_hi >> 24);
+	f[27] = (uint8_t)(id_hi >> 16);
+	f[28] = (uint8_t)(id_hi >> 8);
+	f[29] = (uint8_t)id_hi;
+	f[30] = (uint8_t)(id_lo >> 24);
+	f[31] = (uint8_t)(id_lo >> 16);
+	f[32] = (uint8_t)(id_lo >> 8);
+	f[33] = (uint8_t)id_lo;
+	f[34] = (uint8_t)(r->sequence >> 8);
+	f[35] = (uint8_t)r->sequence;
+}
+
 // A notice to every recipient from a->recipient on, true while one is left: the
 // port's guard taken once, and through the fan port, which is still reading a
 // frame as the next recipient's is written, so the two alternate between the
 // frame and its copy past it (#665: a recipient's frame sets the notice's cost,
-// and with it how many a pass carries, THE RETRY in ctrl_loop.h). A->requester
-// is left out (Milan v1.2 5.4.5.1). Fan_end's completion stands for every frame.
+// and with it how many a pass carries, THE RETRY in ctrl_loop.h). The notice is
+// built once and each recipient's frame only addressed (address), the used
+// registrations walked by their mask. A->requester is left out (Milan v1.2
+// 5.4.5.1). Fan_end's completion stands for every frame.
 static bool fan_out(struct aecp *a)
 {
 	const unsigned total = a->cfg.interfaces * AECP_REGISTRATIONS;
@@ -580,15 +615,16 @@ static bool fan_out(struct aecp *a)
 		memcpy(other, frame, a->response_bytes);
 	}
 	aecp_port_begin(a);
-	while (a->recipient < total) {
-		unsigned i = a->recipient / AECP_REGISTRATIONS;
-		unsigned n = a->recipient % AECP_REGISTRATIONS;
-		struct aecp_registration *r = &a->registry[i][n];
-		if (used(a, i, n) && r->controller != a->requester) {
-			aecp_put48(frame, r->mac);
-			aecp_put48(frame + 6, a->cfg.mac[i]);
-			aecp_put64(frame + 26, r->controller);
-			aecp_put16(frame + 34, r->sequence);
+	unsigned k = a->recipient;
+	while (!owed && k < total) {
+		const unsigned i = k / AECP_REGISTRATIONS;
+		struct aecp_registration *r = &a->registry[i][k % AECP_REGISTRATIONS];
+		// the interface's used slots from k on (aecp.used), each a step of r and k
+		for (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS); slots != 0u; slots >>= 1, ++r, ++k) {
+			if ((slots & 1u) == 0u || r->controller == a->requester) {
+				continue;
+			}
+			address(frame, r, a->cfg.mac[i]);
 			if (!(fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :
 			      a->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie))) {
 				owed = true;
@@ -603,8 +639,11 @@ static bool fan_out(struct aecp *a)
 			}
 			++r->sequence;
 		}
-		++a->recipient;
+		if (!owed) {
+			k = (i + 1u) * AECP_REGISTRATIONS;
+		}
 	}
+	a->recipient = k;
 	if (fan) {
 		// a queue with no room for its completion leaves the notice owed, past its last recipient
 		owed = !a->ports->fan_end(a->ports->ctx, a->tx_cookie) || owed;

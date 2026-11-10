@@ -124,7 +124,7 @@ SPIN = '\tfor (volatile uint32_t n = 0; n < 120000u; ++n) {\n\t}\n'
 
 #: The notification loop of aecp.c's fan_out, which transmit calls while a notice is owed; the late plant spins once
 #: before a fan-out's first recipient.
-NOTIFY_LOOP = '\twhile (a->recipient < total) {'
+NOTIFY_LOOP = '\tunsigned k = a->recipient;\n\twhile (!owed && k < total) {'
 
 
 def late(path: str, anchor: str, group: str, hook: str, probe: str) -> Plant:

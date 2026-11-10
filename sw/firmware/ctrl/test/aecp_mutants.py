@@ -11,6 +11,7 @@ from pathlib import Path
 
 import aecp_arms
 import aecp_index_mutants
+import aecp_fan_mutants
 import aecp_retry_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
@@ -863,7 +864,8 @@ DEFECTS = (
            'if (!aecp_face_open(c->face)) return false;', '(void)aecp_face_open(c->face);',
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
-) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS)
+) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_fan_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

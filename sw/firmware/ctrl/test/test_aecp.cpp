@@ -1365,6 +1365,53 @@ TEST_F(Core, BackpressureOrdersResponseBeforeNotice)
     EXPECT_TRUE(aecp_ready(&a));
 }
 
+// #665 (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1): a notice is built once and goes to every registered
+// controller but the one that asked, in registry order, each frame addressed to that controller alone: its MAC, its
+// interface's MAC, its entity ID and its own sequence_id, which a notice advances once it is sent; and so do the
+// frames of a notice that backpressure stopped partway, once it resumes.
+struct Recipient { uint64_t id, mac; unsigned interface; uint16_t sequence; };
+static std::vector<Recipient> recipients()
+{
+    std::vector<Recipient> r{{CTLR+1,CMAC+1,0,0},{CTLR+2,CMAC+2,0,0}};
+    if(AECP_TEST_INTERFACES>1){r.push_back({CTLR+3,CMAC+3,1,0});r.push_back({CTLR+4,CMAC+4,1,0});}
+    return r;
+}
+static bool addressed(const Bytes &f,const Recipient &r)
+{
+    return get(f,0,6)==r.mac&&get(f,6,6)==MAC+r.interface&&get(f,26,8)==r.id&&get(f,34,2)==r.sequence&&
+           (f[36]&0x80u)!=0u&&get(f,36,2)==0x8001u;
+}
+
+TEST_F(Core, ANoticeIsAddressedToEachRecipientAlone)
+{
+    auto expected=recipients();
+    // the one that asks registers between the others, so the walk passes over it
+    std::vector<Recipient> order{expected[0],{CTLR,CMAC,0,0}};order.insert(order.end(),expected.begin()+1,expected.end());
+    for(auto &r:order){auto b=command(36,{},r.id,r.interface);put(b,6,r.mac,6);aecp_rx(&a,r.interface,b.data(),b.size());drain();}
+    Bytes unlock(16);put(unlock,0,1,4);
+    for(const Bytes &body:{Bytes(16),unlock}){
+        ask(1,body);
+        ASSERT_EQ(sent.size(),1u+expected.size())<<"the response, then one notice a recipient";
+        for(size_t k=0;k<expected.size();++k){
+            EXPECT_EQ(sent[1+k].first,expected[k].interface)<<"notice "<<k<<" leaves on its recipient's interface";
+            EXPECT_TRUE(addressed(sent[1+k].second,expected[k]))
+                <<"notice "<<k<<" carries its recipient's MAC, its interface's, its entity ID and its own sequence";
+            ++expected[k].sequence;
+        }
+    }
+    // the third frame refused: the notice owes the rest and, resumed, addresses each as it would have
+    unsigned frames=0;
+    ON_CALL(mock,Send).WillByDefault([this,&frames](unsigned i,const uint8_t*p,size_t n,uint32_t c){
+        if(frames++==2)return false;
+        sent.emplace_back(i,Bytes(p,p+n));completions.push_back(c);return true;});
+    ask(1,Bytes(16));
+    ASSERT_EQ(sent.size(),1u+expected.size())<<"the notice stopped partway is sent whole once it resumes";
+    for(size_t k=0;k<expected.size();++k){
+        EXPECT_TRUE(sent[1+k].first==expected[k].interface&&addressed(sent[1+k].second,expected[k]))
+            <<"resumed notice "<<k<<" carries its recipient's addresses and sequence";
+    }
+}
+
 TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
 {
     auto b=command(34,target(5,0));
@@ -2431,6 +2478,35 @@ TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
     EXPECT_TRUE(adapter.core.notify);
     service(100);
     EXPECT_FALSE(adapter.core.notify)<<"until the queue has";
+}
+
+// #665: through the fan port a notice's frames alternate between the notice and its copy while the mover reads the one
+// before, and the ring carries each addressed to its recipient alone (Core.ANoticeIsAddressedToEachRecipientAlone).
+TEST_F(Mailbox, ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone)
+{
+    auto expected=recipients();
+    std::vector<Recipient> order{expected[0],{CTLR,CMAC,0,0}};order.insert(order.end(),expected.begin()+1,expected.end());
+    for(auto &r:order){
+        auto p=command(36,{},r.id,r.interface);put(p,6,r.mac,6);
+        ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),r.interface));service();mbx_model_advance_ms(&fabric,5);
+    }
+    Bytes unlock(16);put(unlock,0,1,4);
+    for(const Bytes &body:{Bytes(16),unlock}){
+        const uint32_t before=fabric.tx_sent;receive(1,body);service(20);
+        std::vector<const mbx_model_tx*> aecp;
+        for(uint32_t k=before;k<fabric.tx_sent;++k){
+            auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->channel==MBX_CH_AECP)aecp.push_back(p);
+        }
+        ASSERT_EQ(aecp.size(),1u+expected.size())<<"the response, then one notice a recipient";
+        for(size_t k=0;k<expected.size();++k){
+            const mbx_model_tx *p=aecp[1+k];
+            EXPECT_TRUE(p->interface==expected[k].interface&&addressed(Bytes(p->bytes,p->bytes+p->len),expected[k]))
+                <<"notice "<<k<<" through the fan port carries its recipient's addresses and sequence";
+            ++expected[k].sequence;
+        }
+        mbx_model_advance_ms(&fabric,5);
+    }
 }
 
 // The bound on notices queued behind one another (FR_NFR.md 3.4.1, aecp_mbx.h): every notice the model holds pending at
