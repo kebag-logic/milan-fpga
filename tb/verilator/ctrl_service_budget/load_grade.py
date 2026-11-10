@@ -409,7 +409,8 @@ def controls(root: Path) -> list[str]:
         escaped.append('a timer slot counted per pass')
     # AECP's owed frame charged by what each source sends (#665 issuecomment-6751196896, item 2): a probe costs its own
     # frame, so a dearer probe raises the term by every registration's retries of it and a dearer notice by the records'
-    # share alone; one charge for every source (round 24's notice to 32 recipients) moves both together
+    # share alone; one charge for every source (a notice's fan-out to 32 recipients, #665 issuecomment-6751120577)
+    # moves both together
     raised = {p: dict(v) for p, v in base.items()}
     raised['8x8/2if']['item.aecp.probe'] += 1000
     probes = POINTS['8x8/2if']['n_if'] * POINTS['8x8/2if']['registrations'] / probe_retry_ms(root)
