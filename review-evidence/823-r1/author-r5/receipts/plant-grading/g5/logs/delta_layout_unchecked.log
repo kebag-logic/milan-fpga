@@ -1,0 +1,50 @@
+Note: Google Test filter = *.delta_refusals:*.delta_refusals/*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.delta_refusals/model
+<lane>/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:96: Failure
+Value of: r.at("terminal") == NVM_T_COMPLETE && r.at("auth") == 1 && r.at("torn") == 1 && r.at("deltas") == before[n] && r.at("seq") == 5 + before[n] && r.at("log_end") == fx().num("log_start") + 256 * before[n]
+  Actual: false
+Expected: true
+a record's layout_version: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 0, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3840, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 0, 'max_polls_call': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 0, 'prep_vd': 0, 'programs': 0, 'protected': 0, 'read_busy': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'steps': 0, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 9, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.delta_refusals/model: a record's layout_version: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 0, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3840, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 0, 'max_polls_call': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 4, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 0, 'prep_vd': 0, 'programs': 0, 'protected': 0, 'read_busy': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'steps': 0, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 9, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+<lane>/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:265: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+a record's layout_version: state of records [0x104] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.delta_refusals/model: a record's layout_version: state of records [0x104] (1 in all) differs from the slot
+[  FAILED  ] Ports/NvmBoth.delta_refusals/model, where GetParam() = 4-byte object <00-00 00-00> (97 ms)
+[ RUN      ] Ports/NvmBoth.delta_refusals/litespi
+<lane>/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:96: Failure
+Value of: r.at("terminal") == NVM_T_COMPLETE && r.at("auth") == 1 && r.at("torn") == 1 && r.at("deltas") == before[n] && r.at("seq") == 5 + before[n] && r.at("log_end") == fx().num("log_start") + 256 * before[n]
+  Actual: false
+Expected: true
+a record's layout_version: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 0, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3840, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 0, 'max_polls_call': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 0, 'prep_vd': 0, 'programs': 0, 'protected': 0, 'read_busy': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'steps': 0, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 9, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.delta_refusals/litespi: a record's layout_version: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 1, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 0, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 1, 'descending': 0, 'dirty': 0, 'effects': 0, 'erases': 0, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3840, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 0, 'max_polls_call': 0, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 0, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 0, 'prep_vd': 0, 'programs': 0, 'protected': 0, 'read_busy': 0, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 6, 'seq_a': 0, 'seq_b': 6, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 0, 'steps': 0, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 9, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+<lane>/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:265: Failure
+Value of: bad.empty()
+  Actual: false
+Expected: true
+a record's layout_version: state of records [0x104] (1 in all) differs from the slot
+
+  [FAIL] Ports/NvmBoth.delta_refusals/litespi: a record's layout_version: state of records [0x104] (1 in all) differs from the slot
+[  FAILED  ] Ports/NvmBoth.delta_refusals/litespi, where GetParam() = 4-byte object <01-00 00-00> (93 ms)
+[----------] 2 tests from Ports/NvmBoth (191 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (191 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.delta_refusals/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.delta_refusals/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 2 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

@@ -1,0 +1,36 @@
+Note: Google Test filter = *.compaction_carry:*.compaction_carry/*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.compaction_carry/model
+<lane>/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:248: Failure
+Value of: f.blobs["a.bin"].size() >= golden.size() && std::equal(golden.begin(), golden.end(), f.blobs["a.bin"].begin())
+  Actual: false
+Expected: true
+the base does not hold every record as it was when its page was written
+
+  [FAIL] Ports/NvmBoth.compaction_carry/model: the base does not hold every record as it was when its page was written
+[  FAILED  ] Ports/NvmBoth.compaction_carry/model, where GetParam() = 4-byte object <00-00 00-00> (17 ms)
+[ RUN      ] Ports/NvmBoth.compaction_carry/litespi
+<lane>/sw/firmware/ctrl_nvm/test/test_nvm_journal.cpp:248: Failure
+Value of: f.blobs["a.bin"].size() >= golden.size() && std::equal(golden.begin(), golden.end(), f.blobs["a.bin"].begin())
+  Actual: false
+Expected: true
+the base does not hold every record as it was when its page was written
+
+  [FAIL] Ports/NvmBoth.compaction_carry/litespi: the base does not hold every record as it was when its page was written
+[  FAILED  ] Ports/NvmBoth.compaction_carry/litespi, where GetParam() = 4-byte object <01-00 00-00> (9 ms)
+[----------] 2 tests from Ports/NvmBoth (26 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (27 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Ports/NvmBoth.compaction_carry/model, where GetParam() = 4-byte object <00-00 00-00>
+[  FAILED  ] Ports/NvmBoth.compaction_carry/litespi, where GetParam() = 4-byte object <01-00 00-00>
+
+ 2 FAILED TESTS
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

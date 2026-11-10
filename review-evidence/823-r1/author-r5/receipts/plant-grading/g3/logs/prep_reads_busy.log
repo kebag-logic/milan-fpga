@@ -1,0 +1,33 @@
+Note: Google Test filter = *.prep_failures:*.prep_failures/*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.prep_failures/model
+<lane>/sw/firmware/ctrl_nvm/test/nvm_suite.cpp:234: Failure
+Failed
+model: invariant read_busy=1280
+
+  [FAIL] Ports/NvmBoth.prep_failures/model: model: invariant read_busy=1280
+<lane>/sw/firmware/ctrl_nvm/test/test_nvm_write.cpp:302: Failure
+Value of: r.at("prep_failed") == 1 && r.at("prep_vd") == NVM_VD_ERASE && r.at("erases") == 1 && r.at("bg") == NVM_B_READY && r.at("read_busy") == 0
+  Actual: false
+Expected: true
+an erase past its deadline: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 3, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 76995, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 0, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3584, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 170, 'max_polls_call': 1, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 8006, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 1, 'prep_vd': 11, 'programs': 0, 'protected': 0, 'read_busy': 1280, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 5, 'seq_a': 3, 'seq_b': 5, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'steps': 76995, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+
+  [FAIL] Ports/NvmBoth.prep_failures/model: an erase past its deadline: {'abandoned': 0, 'abandoned_vd': 0, 'append_timeout_ms': 500, 'appends': 0, 'applied': 54, 'attempts': 0, 'auth': 1, 'bad': 0, 'bg': 3, 'bind_cause': 0, 'bind_terminal': 1, 'blank': 0, 'calls': 76995, 'cause': 0, 'clock_hz': 100000000, 'cmp_due': 0, 'commit_refused': 0, 'commit_tries': 0, 'compacting': 0, 'compactions': 0, 'deltas': 0, 'descending': 0, 'dirty': 0, 'effects': 1, 'erases': 1, 'exhausted': 0, 'failed': 0, 'first': 0, 'fm_resumes': 0, 'fm_suspends': 0, 'img_len': 3444, 'kept': 0, 'last': 0, 'legacy': 0, 'log_end': 3584, 'log_start': 3584, 'ls_call_ticks': 200000, 'ls_hung': 0, 'ls_max_withheld': 0, 'ls_no_wel': 0, 'ls_per': 0, 'ls_pes': 0, 'ls_pp': 0, 'ls_refused': 0, 'ls_se': 0, 'ls_short': 0, 'ls_stalled': 0, 'ls_unknown': 0, 'ls_wren': 0, 'max_call_us': 170, 'max_polls_call': 1, 'n_dirty': 0, 'n_inflight': 0, 'n_rec': 54, 'now_ms': 8006, 'ok': 0, 'outside': 0, 'pagewrap': 0, 'pending': 0, 'phase': 1, 'prep_failed': 1, 'prep_vd': 11, 'programs': 0, 'protected': 0, 'read_busy': 1280, 'read_faults': 0, 'refused': 0, 'releases': 1, 'reserve': 162048, 'seg_max': 7168, 'seq': 5, 'seq_a': 3, 'seq_b': 5, 'skipped': 0, 'slot_bytes': 327680, 'sm_applied': 54, 'sm_applies': 54, 'sm_order': 0, 'sm_refused': 0, 'sm_releases': 1, 'sm_rollbacks': 0, 'sm_settles': 1, 'sm_unbinds': 0, 'stale': 0, 'step_bound': 280, 'step_max': 256, 'steps': 76995, 'suspend_slow': 0, 'suspend_us_max': 0, 'suspended': 0, 'suspended_hit': 0, 'suspends': 0, 'terminal': 1, 'torn': 0, 'unread': 0, 'vd_a': 0, 'vd_b': 0, 'while_busy': 0, 'window_ms': 150, 'withheld': 0}
+[  FAILED  ] Ports/NvmBoth.prep_failures/model, where GetParam() = 4-byte object <00-00 00-00> (29 ms)
+[ RUN      ] Ports/NvmBoth.prep_failures/litespi
+[       OK ] Ports/NvmBoth.prep_failures/litespi (35 ms)
+[----------] 2 tests from Ports/NvmBoth (64 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 170 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (65 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Ports/NvmBoth.prep_failures/model, where GetParam() = 4-byte object <00-00 00-00>
+
+ 1 FAILED TEST
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)

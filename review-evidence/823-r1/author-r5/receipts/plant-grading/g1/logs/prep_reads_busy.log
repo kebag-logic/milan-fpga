@@ -1,0 +1,17 @@
+Note: Google Test filter = *.prep_failures:*.prep_failures/*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.prep_failures/model
+[       OK ] Ports/NvmBoth.prep_failures/model (31 ms)
+[ RUN      ] Ports/NvmBoth.prep_failures/litespi
+[       OK ] Ports/NvmBoth.prep_failures/litespi (25 ms)
+[----------] 2 tests from Ports/NvmBoth (57 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 170 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (57 ms total)
+[  PASSED  ] 2 tests.
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

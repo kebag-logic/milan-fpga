@@ -1,0 +1,13 @@
+dr2b_keeps_stale: NOT caught by recovers_after_failure
+delta_count_unbounded: NOT caught by delta_refusals
+delta_magic_unchecked: NOT caught by delta_refusals
+delta_overrun_unchecked: NOT caught by delta_refusals
+delta_pad_unchecked: NOT caught by delta_refusals
+delta_cap_unchecked: NOT caught by delta_refusals
+delta_room_unchecked: NOT caught by delta_refusals
+carry_dropped: NOT caught by compaction_carry
+move_before_base_closes: NOT caught by torn_compaction
+base_seq_above_old: NOT caught by compaction_yields
+move_forgives_attempts: NOT caught by media_failures
+prep_reads_busy: NOT caught by prep_failures
+graded 12 mutants: FAIL
