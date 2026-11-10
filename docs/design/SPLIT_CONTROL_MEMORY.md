@@ -265,6 +265,16 @@ These are planned, not mapped.
 THE STEP (`ctrl_loop.h`, section 13) and SRP's one build a pass add 336 to 424 B of `rom` and 16 to 32 B of `sram` at each point; at 8x8 with two interfaces each image takes half a tile more than the round before's 58.0 and 56.5 (#665, 2026-11-02): the fixture's `rom`, 424 B more, one more 2 KiB bank, and the platform's `sram`, 32 B more than the 112,640 B its banks held exactly.
 THE STEP's age limit, SRP's turn read before the poll's visits and the store's walk-free mark add 152 to 224 B of `rom` and up to 16 B of `sram` at each point (#665, 2026-11-03); only the platform's 1x1 two-interface image takes half a tile more, 41.5, its `rom` 216 B past the 110,592 B, 54 banks of 2 KiB, that it filled exactly.
 `ctrl_plat` is 19,968 B at the largest point, 19,960 B before the age limit's two fields, 19,944 B before THE STEP's four fields and 21,240 B when the ledger above named it, so the ledger names the new size, as it requires when that struct changes.
+The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture with a test port that answers every notice ([section 13](#the-polls-by-source)), is the image nearest its ledger: its build is refused once its `rom` passes 122,880 B, the granule past which the plan would take 58.0 tiles against the 57.5 ledgered ([section 3](#3-named-refusals)) (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 5).
+
+| Image | Arm's `rom`, B | Margin to the granule, B |
+|---|---:|---:|
+| `a30c9986` (the merge of `dev-soft-core` `1d6bf555`, the arm's readers sharing its path reader) | 122,868 | 12 |
+| This head (SRP's retry bounded by its source, `struct srp_mbx`'s two frame buffers last) | 122,556 | 324 |
+| This head with tsn-c-stack #32 at the pin (a scratch build) | 123,012 | 132 over |
+
+The retry's rule added about 104 B of code, and with the two 1.5 KB buffers last every other field of the adapter is within a load's reach of its address, which takes 348 B of address arithmetic off `srp_mbx.o` (11,916 to 11,568 B of `.text`). The other arms at this head: `answering-later` 122,400 B, `answering-ports` 122,416 B, arm A 122,248 B. tsn-c-stack #32 grows the core's `acmp.o` from 12,748 to 13,300 B of `.text`, so the pin move that carries it owes this arm 132 B of `rom`, or its next granule.
+
 The figures by part below are `b8628704`'s.
 
 By part, from the two link maps, with one section per function and object, the platform's bytes minus the fixture's at each point (`rom` / `sram`, B):
