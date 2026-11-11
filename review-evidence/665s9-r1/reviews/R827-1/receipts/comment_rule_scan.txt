@@ -1,0 +1,6 @@
+comment-rule scan of added source lines, 1d6bf555..a91fb27dd39483e4694e193504da1dbe06208807 (sv, py, hpp, cpp, h, c, mbx Makefile)
+pattern: issuecomment|comment <id>|round|lane <X>|R<nnn>|A760|A10|ruling (case-insensitive)
+1269:+                # big-endian lane and A ZERO-STROBE BYTE MUST NOT BE MODIFIED, so
+1271:+                # forwards `sel` to AXI `wstrb` verbatim). The first lane of every
+1415:+                #  THE INSTRUMENT THE 08-13 ROUND DID NOT HAVE
+(end of hits; the three 'lane' hits are byte lanes; the 08-13 ROUND line is a pre-existing milan_soc.py comment re-indented under the new 'if not ctrl_mailbox:')

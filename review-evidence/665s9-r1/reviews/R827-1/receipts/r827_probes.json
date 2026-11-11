@@ -1,0 +1,147 @@
+[
+ {
+  "probe": "control-unmodified",
+  "host": 0,
+  "why": "positive control through the Wishbone adapter",
+  "expect": "(none: must PASS)",
+  "rc": 0,
+  "result": "RESULT: PASS",
+  "fails": [],
+  "n_fail": 0
+ },
+ {
+  "probe": "control-unmodified-axil",
+  "host": 1,
+  "why": "positive control through the AXI4-Lite adapter",
+  "expect": "(none: must PASS)",
+  "rc": 0,
+  "result": "RESULT: PASS",
+  "fails": [],
+  "n_fail": 0
+ },
+ {
+  "probe": "p1-byte-taken-in-verdict-cycle",
+  "host": 0,
+  "why": "the next frame's first byte taken in the verdict's acting cycle, before the clean-up",
+  "expect": "V0",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=1 exp=2",
+   "[FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=1 exp=3",
+   "[FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=1 exp=2",
+   "[FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)",
+   "[FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=4 exp=8",
+   "[FAIL] T0 a burst of the bucket's depth passes  got=1 exp=8",
+   "[FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2",
+   "[FAIL] T1 one refill period buys exactly one more frame got=1 exp=9",
+   "[FAIL] T1 and the next is refused again         got=0 exp=3",
+   "[FAIL] Q9 five tuple failures in a row count five got=2 exp=6",
+   "[FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=2 exp=6",
+   "[FAIL] Q10 refusals by the filter take no token: a full burst still passes after them got=1 exp=8"
+  ],
+  "n_fail": 21
+ },
+ {
+  "probe": "p3-cleanup-at-the-verdict-not-the-act",
+  "host": 0,
+  "why": "the frame state cleared when the verdict is taken, so the header is written from cleared state",
+  "expect": "V0",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=2 exp=23",
+   "[FAIL] F1 record LEN                            got=0 exp=82",
+   "[FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)",
+   "[FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)",
+   "[FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1",
+   "[FAIL] D0 and is not committed                  got=12 exp=11",
+   "[FAIL] D0 every unread record survives the dropped frame byte for byte",
+   "[FAIL] D0 once released, the space takes the next frame got=13 exp=12",
+   "[FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=1 exp=2",
+   "[FAIL] D1 the record after it is still the next frame's",
+   "[FAIL] Q0 its record is the frame, byte for byte (adp)",
+   "[FAIL] Q0 its record is the frame, byte for byte (acmp, multicast)"
+  ],
+  "n_fail": 25
+ },
+ {
+  "probe": "p15-port-address-only-zeroed",
+  "host": 0,
+  "why": "only the port address carries the write decision again (the word does not)",
+  "expect": "W0",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] W0 every word the ring does not take reaches the write port at its slot, unwritten got=1 exp=20"
+  ],
+  "n_fail": 1
+ },
+ {
+  "probe": "p16-port-word-only-zeroed",
+  "host": 1,
+  "why": "only the port word carries the write decision again, through AXI4-Lite",
+  "expect": "W0",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] W0 every word the ring does not take reaches the write port at its slot, unwritten got=0 exp=20"
+  ],
+  "n_fail": 1
+ },
+ {
+  "probe": "p12-head-published-from-unregistered-port",
+  "host": 0,
+  "why": "the published head moved in the commit cycle itself, two cycles before the last header word lands",
+  "expect": "H0",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] H0 no receive ring word is written under the head the core sees got=169 exp=0"
+  ],
+  "n_fail": 1
+ },
+ {
+  "probe": "p17-verdict-reads-live-bucket",
+  "host": 0,
+  "why": "the rate verdict re-read in the acting cycle; differs only if a refill tick falls in that one cycle",
+  "expect": "V0 (or none: equivalent unless a refill lands between FIN and VRD)",
+  "rc": 0,
+  "result": "RESULT: PASS",
+  "fails": [],
+  "n_fail": 0
+ },
+ {
+  "probe": "p18-verdict-not-gated-by-fin",
+  "host": 0,
+  "why": "verdict registers sampled every cycle (equivalence probe, not a defect)",
+  "expect": "(none expected: equivalent, values in VRD_S are the FIN cycle's sample either way)",
+  "rc": 0,
+  "result": "RESULT: PASS",
+  "fails": [],
+  "n_fail": 0
+ },
+ {
+  "probe": "p19-and-or-drops-eid-valid",
+  "host": 0,
+  "why": "an unwritten BOUND_EID word answered from the read-back memory instead of 0",
+  "expect": "R1 / bound-talker read-back",
+  "rc": 1,
+  "result": "RESULT: FAIL",
+  "fails": [
+   "[FAIL] Q17 after a reset every entry of every interface's table reads 0 again",
+   "[FAIL] Q17 with BOUND_EID_HI alone written since, BOUND_EID_LO reads 0 got=0xe0f1012 exp=0x0"
+  ],
+  "n_fail": 2
+ },
+ {
+  "probe": "p20-register-read-offset-every-cycle",
+  "host": 1,
+  "why": "the registered offset follows the port every cycle, so the noise between requests reaches the answer",
+  "expect": "R0 / noise",
+  "rc": 0,
+  "result": "RESULT: PASS",
+  "fails": [],
+  "n_fail": 0
+ }
+]

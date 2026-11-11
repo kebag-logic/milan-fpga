@@ -1,0 +1,22 @@
+control-unmodified                            host=0 rc=0 RESULT: PASS   n_fail=0 expect=(none: must PASS)
+control-unmodified-axil                       host=1 rc=0 RESULT: PASS   n_fail=0 expect=(none: must PASS)
+p1-byte-taken-in-verdict-cycle                host=0 rc=1 RESULT: FAIL   n_fail=21 expect=V0
+       [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=1 exp=2
+       [FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=1 exp=3
+       [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=1 exp=2
+p3-cleanup-at-the-verdict-not-the-act         host=0 rc=1 RESULT: FAIL   n_fail=25 expect=V0
+       [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=2 exp=23
+       [FAIL] F1 record LEN                            got=0 exp=82
+       [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+p15-port-address-only-zeroed                  host=0 rc=1 RESULT: FAIL   n_fail=1 expect=W0
+       [FAIL] W0 every word the ring does not take reaches the write port at its slot, unwritten got=1 exp=20
+p16-port-word-only-zeroed                     host=1 rc=1 RESULT: FAIL   n_fail=1 expect=W0
+       [FAIL] W0 every word the ring does not take reaches the write port at its slot, unwritten got=0 exp=20
+p12-head-published-from-unregistered-port     host=0 rc=1 RESULT: FAIL   n_fail=1 expect=H0
+       [FAIL] H0 no receive ring word is written under the head the core sees got=169 exp=0
+p17-verdict-reads-live-bucket                 host=0 rc=0 RESULT: PASS   n_fail=0 expect=V0 (or none: equivalent unless a refill lands between FIN and VRD)
+p18-verdict-not-gated-by-fin                  host=0 rc=0 RESULT: PASS   n_fail=0 expect=(none expected: equivalent, values in VRD_S are the FIN cycle's sample either way)
+p19-and-or-drops-eid-valid                    host=0 rc=1 RESULT: FAIL   n_fail=2 expect=R1 / bound-talker read-back
+       [FAIL] Q17 after a reset every entry of every interface's table reads 0 again
+       [FAIL] Q17 with BOUND_EID_HI alone written since, BOUND_EID_LO reads 0 got=0xe0f1012 exp=0x0
+p20-register-read-offset-every-cycle          host=1 rc=0 RESULT: PASS   n_fail=0 expect=R0 / noise
