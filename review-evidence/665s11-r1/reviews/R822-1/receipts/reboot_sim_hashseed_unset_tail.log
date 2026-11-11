@@ -1,0 +1,3 @@
+COMMAND make -j4 -C <packet>/scratch/reboot_sim/build/plant-write-torn/native -f Vsim.mk Vsim
+COMMAND make -j4 -C <packet>/scratch/reboot_sim/build/plant-any-descriptor-type/native -f Vsim.mk Vsim
+REFUSED: the SoC's csr.csv depends on the image; the image's map cannot be generated from it

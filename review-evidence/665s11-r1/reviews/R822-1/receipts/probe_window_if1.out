@@ -1,0 +1,17 @@
+PROBE sink.bound after a BIND_RX in the window: 1
+PROBE departing=1 writes=1 acmp_frames=2 acmp_frames_at_or_after_first_departing=2
+PROBE frame 3 channel 2 plat 274
+PROBE frame 4 channel 0 plat 374
+PROBE frame 5 channel 1 plat 374
+PROBE frame 6 channel 1 plat 374
+PROBE frame 7 channel 4 plat 374
+PROBE frame 8 channel 4 plat 374
+PROBE port written at plat 375
+PROBE a BIND_RX after the REBOOT's SUCCESS is not taken
+  [FAIL] Boot.ProbeAcmpBindBetweenSuccessAndPort: PROBE a BIND_RX after the REBOOT's SUCCESS is not taken
+PROBE a BIND_RX after the REBOOT's SUCCESS is not answered
+  [FAIL] Boot.ProbeAcmpBindBetweenSuccessAndPort: PROBE a BIND_RX after the REBOOT's SUCCESS is not answered
+[  FAILED  ] Boot.ProbeAcmpBindBetweenSuccessAndPort (2 ms)
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Boot.ProbeAcmpBindBetweenSuccessAndPort
+ 1 FAILED TEST

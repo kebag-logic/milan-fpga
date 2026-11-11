@@ -1,0 +1,29 @@
+# run.py --build-dir <scratch>/build --self-test --jobs 3 at b29f94d7, PYTHONHASHSEED unset; rc=2
+REFUSED: the SoC's csr.csv depends on the image; the image's map cannot be generated from it
+== diff soc-provisional/csr.csv clean/soc/csr.csv
+41c41
+< constant,config_cpu_isa,rv32i2p0__zicsr_zifencei,,
+---
+> constant,config_cpu_isa,rv32i2p0__zifencei_zicsr,,
+46c46
+< constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zicsr_zifencei),,
+---
+> constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zifencei_zicsr),,
+== diff soc-provisional/csr.csv plant-reset-before-the-response/soc/csr.csv
+41c41
+< constant,config_cpu_isa,rv32i2p0__zicsr_zifencei,,
+---
+> constant,config_cpu_isa,rv32i2p0__zifencei_zicsr,,
+46c46
+< constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zicsr_zifencei),,
+---
+> constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zifencei_zicsr),,
+== diff soc-provisional/csr.csv plant-request-ignored/soc/csr.csv
+41c41
+< constant,config_cpu_isa,rv32i2p0__zicsr_zifencei,,
+---
+> constant,config_cpu_isa,rv32i2p0__zifencei_zicsr,,
+46c46
+< constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zicsr_zifencei),,
+---
+> constant,config_cpu_human_name,VexiiRiscv (rv32i2p0__zifencei_zicsr),,
