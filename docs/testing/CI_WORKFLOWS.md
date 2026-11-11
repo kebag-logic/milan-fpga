@@ -466,17 +466,19 @@ The CPU half needs LiteX, its VexiiRiscv Scala generation and the RV32 SDK.
 The job sets them up by the elaboration job's own steps, under the same cache
 keys, without that job's scope guard: the `changes` gate decides here. It
 takes Verilator and the SDK by `firmware-verilator`'s steps. It also installs
-the platform image's runtime sources, the picolibc and compiler-rt packages
-at the revisions the bench venv carries, which no elaboration needs and
-`sw/litex/litex_pins.txt` therefore leaves out; without them the first hosted
-run stopped at the build, `No module named 'pythondata_software_picolibc'`. It is a separate
-job, within the owner's 30-minute budget (#789), so no existing job grows
-near its timeout. A local replica of the step on four CPUs of a shared host
-took 693 s: the build 85 s, with the CPU netlist from the local generator's
-cache, then both runs at once, 608 s each. A hosted runner adds the job's setup and, on a
-cold Scala cache, the CPU generation. The aggregate `rtl-fast` requires it.
-The longer intervals,
-the IEEE 1722-2016 B.3.4.1 announce interval and the Milan v1.2 Table 5.50
+three packages at the revisions the bench venv carries: the platform image's
+runtime sources, picolibc and compiler-rt, and the tapcfg data LiteX's
+simulation export reads. No elaboration needs them, so
+`sw/litex/litex_pins.txt` leaves them out; without the first two the first
+hosted run stopped at the build, `No module named
+'pythondata_software_picolibc'`, and a fresh local runner then stopped at the
+export without the third. It is a separate job, within the owner's 30-minute
+budget (#789), so no existing job grows near its timeout. A local replica of
+the step on four CPUs of a shared host took 693 s: the build 85 s, with the
+CPU netlist from the local generator's cache, then both runs at once, 608 s
+each. A hosted runner adds the job's setup and, on a cold Scala cache, the CPU
+generation. The aggregate `rtl-fast` requires it. The longer intervals, the
+IEEE 1722-2016 B.3.4.1 announce interval and the Milan v1.2 Table 5.50
 advertise period, run in the harness's local campaign, not here: one announce
 interval needs about 34 s of simulated time.
 

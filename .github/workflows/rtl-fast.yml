@@ -1481,9 +1481,10 @@ jobs:
       - name: Apply the toolchain patch series
         run: sw/litex/patches/apply.sh
         id: ci_step_12
-      - name: Install the platform image's runtime sources at the bench's revisions
+      - name: Install the image's runtime sources and the simulation's tapcfg data at the bench's revisions
         run: python3 -m pip install --quiet git+https://github.com/litex-hub/pythondata-software-picolibc.git@6a13ccce7c575b32c102dd9dc52178505b81fe39
           git+https://github.com/litex-hub/pythondata-software-compiler_rt.git@6eb76609c9627bf26635e57c63fb22cda7115887
+          git+https://github.com/litex-hub/pythondata-misc-tapcfg.git@a12c3f592c99f9c082fdc68c065b81cbd6e6b238
         id: ci_step_13
       - name: Cache the pinned Verilator build
         id: cache-verilator
