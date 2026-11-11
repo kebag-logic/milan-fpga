@@ -1,0 +1,1 @@
+final-*: ctrl_plat_image.py from a clean clone at b29f94d7aa1d73c4d1eef705a42d9a3a34fc4702; base-*: the same builder given the firmware tree exported from 1d6bf5556a (--ctrl-source), against the same map, runtime and csr.csv

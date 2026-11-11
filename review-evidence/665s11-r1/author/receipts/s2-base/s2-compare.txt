@@ -1,0 +1,12 @@
+== 1x1/1if
+paths: base 81, head 81, both 81
+over T_svc: base 13, head 13
+change head - base over every path both measured: -2.268 to +1.450 ms
+== 8x8/2if
+paths: base 129, head 129, both 129
+over T_svc: base 31, head 29
+  acmp.disconnect_tx.if0: base 16.511 ms (start 103663674), head 1.168 ms (start 101578174): no longer over T_svc
+  acmp.probe_tx.if1: base 5.416 ms (start 123293598), head 13.602 ms (start 118852918): newly over T_svc
+  acmp.unbind_rx.if0: base 14.530 ms (start 92656404), head 1.358 ms (start 92535980): no longer over T_svc
+  acmp.unbind_rx.if1: base 13.468 ms (start 119953000), head 5.837 ms (start 116275490): no longer over T_svc
+change head - base over every path both measured: -15.343 to +8.186 ms
