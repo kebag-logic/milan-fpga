@@ -1,0 +1,29 @@
+# head e18c822536ebeaf1cb0f42abea74513501aa26c7, the 11 gPTP consumer suites (a subset, so without --expect-suite-root): python3 scripts/suite_tally.py <logs>
+suite                        checks   failures  tallies
+capture_coherence               21721          0        3
+gptp_plane                        101          0        3
+gptp_shadow                       326          0        1
+gptp_tables                        36          0        1
+gptp_txts                         285          0        3
+milan_dp                        13934          0       21
+milan_dp_gm_steps                 202          0        2
+milan_dp_mclk                     171          0        4
+milan_dp_render                   347          0        3
+pp_shadow                        2571          0        4
+tsn_fuzz                          897          0        6
+
+checks: 40591   in-suite failures: 0
+rc=0
+
+# each log's own verdict: python3 scripts/suite_tally.py --verdict <suite.log>
+capture_coherence: verdict rc=0 make rc=0
+gptp_plane: verdict rc=0 make rc=0
+gptp_shadow: verdict rc=0 make rc=0
+gptp_tables: verdict rc=0 make rc=0
+gptp_txts: verdict rc=0 make rc=0
+milan_dp_gm_steps: verdict rc=0 make rc=0
+milan_dp: verdict rc=0 make rc=0
+milan_dp_mclk: verdict rc=0 make rc=0
+milan_dp_render: verdict rc=0 make rc=0
+pp_shadow: verdict rc=0 make rc=0
+tsn_fuzz: verdict rc=0 make rc=0

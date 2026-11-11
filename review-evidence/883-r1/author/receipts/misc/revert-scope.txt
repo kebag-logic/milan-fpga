@@ -1,0 +1,32 @@
+# What the gptp-processor revert (a64be73d -> 1616fc8f, lane commit 8edfae99) can touch
+$ git -C gptp-processor diff --stat 1616fc8f a64be73d
+ docs/TEST_DEVELOPER.md         |  10 +++
+ tb/mutation_jobs_test.py       | 119 +++++++++++++++++++++++++++++++
+ tb/verilator/engine/Makefile   |  16 ++++-
+ tb/verilator/engine/mutants.py | 155 +++++++++++++++++++++++++++++++----------
+ 4 files changed, 260 insertions(+), 40 deletions(-)
+
+$ git -C gptp-processor diff --quiet 1616fc8f a64be73d -- hdl syn; echo rc=$?
+rc=0
+
+# parent gates that read submodule docs/ or tb/ content (code_quality_scope.py users, gPTP doc gates), by workflow
+check_cpp_idiom: docs.yml 
+check_hygiene: docs.yml 
+check_port_contracts: docs.yml 
+check_py_idiom: docs.yml 
+check_sh_idiom: docs.yml 
+check_sv_idiom: docs.yml 
+check_todo_ownership: docs.yml 
+measure_cohesion: docs.yml 
+measure_control_flow: docs.yml 
+measure_fail_fast: docs.yml 
+measure_naming: docs.yml 
+measure_test_evidence: docs.yml 
+check_gptp_docs: docs.yml 
+check_submodule_docs: docs.yml 
+
+# workflow steps naming the gPTP tree's tb/ or docs/ or running its make
+.github/workflows/docs.yml:275:          make -C gptp-processor docs
+
+# parent suites whose Verilator builds read gptp-processor/ (from the __ver.d files of the 6c6706e5 sweep clones), plus logs naming it
+capture_coherence gptp_plane gptp_shadow gptp_tables gptp_txts milan_dp milan_dp_gm_steps (builds in ../milan_dp) milan_dp_mclk milan_dp_render pp_shadow tsn_fuzz

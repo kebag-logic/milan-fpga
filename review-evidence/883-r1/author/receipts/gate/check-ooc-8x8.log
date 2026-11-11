@@ -1,0 +1,21 @@
+endpoint ooc-8x8: <scratch>/viv/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              37058       37276       218  ok
+FF               32126       32192        66  ok
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp: LUT +221, FF +69
+  wrapper: LUT +218, FF +66
+  u_pp/u_srp: LUT +222, FF +34
+  u_pp/u_srp/u_vlan: LUT +178, FF +18
+  u_pp/u_aecp: LUT +58, FF +5
+  u_pp/u_aecp/u_d3: LUT +60, FF +2
+  u_pp/u_adp: LUT +15, FF +32
+  u_pp/u_srp/u_decoder: LUT +44, FF +0
+  u_pp/u_rx_validator: LUT -39, FF +0
+  u_pp/u_srp/u_encoder: LUT -25, FF +4
+  u_pp/u_maap: LUT -26, FF +0
+  u_pp/u_srp/u_listener: LUT +25, FF +0
+RESULT: PASS

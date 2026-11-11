@@ -1,0 +1,173 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov 11 13:11:25 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_synth.rpt
+| Design       : alinx_ax7101
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|                        Instance                        |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| alinx_ax7101                                           |                                            (top) |      56388 |      52493 |    3890 |    5 | 55127 |     74 |     27 |         15 |
+|   (alinx_ax7101)                                       |                                            (top) |       5353 |       5093 |     258 |    2 |  6301 |     47 |     10 |          0 |
+|   KL_gptp_gmii_launch                                  |                              KL_gptp_gmii_launch |        209 |        209 |       0 |    0 |   326 |      0 |      0 |          0 |
+|     (KL_gptp_gmii_launch)                              |                              KL_gptp_gmii_launch |        198 |        198 |       0 |    0 |   202 |      0 |      0 |          0 |
+|     u_rec_cdc                                          |                                    cdc_handshake |          5 |          5 |       0 |    0 |   102 |      0 |      0 |          0 |
+|   KL_mac_rmon_events                                   |                               KL_mac_rmon_events |         53 |         53 |       0 |    0 |    86 |      0 |      0 |          0 |
+|     (KL_mac_rmon_events)                               |                               KL_mac_rmon_events |         32 |         32 |       0 |    0 |    66 |      0 |      0 |          0 |
+|   VexiiRiscvLitex_f5f08b170311db53220574624f819159     | VexiiRiscvLitex_f5f08b170311db53220574624f819159 |       3426 |       3295 |     128 |    3 |  4734 |      2 |      5 |          0 |
+|     (VexiiRiscvLitex_f5f08b170311db53220574624f819159) | VexiiRiscvLitex_f5f08b170311db53220574624f819159 |        679 |        679 |       0 |    0 |  1807 |      0 |      0 |          0 |
+|     dma_bridge_read_bridge                             |                       Axi4ReadOnlyToTilelinkFull |        113 |        105 |       8 |    0 |   131 |      0 |      1 |          0 |
+|       aligner                                          |                              Axi4ReadOnlyAligner |        105 |         97 |       8 |    0 |   122 |      0 |      1 |          0 |
+|     dma_bridge_write_bridge                            |                      Axi4WriteOnlyToTilelinkFull |        202 |        198 |       4 |    0 |   190 |      0 |      0 |          0 |
+|       aligner                                          |                             Axi4WriteOnlyAligner |        155 |        151 |       4 |    0 |   143 |      0 |      0 |          0 |
+|     dma_filter_down_to_unified_mBus_cc                 |                                           FifoCc |        105 |         77 |      28 |    0 |   105 |      1 |      1 |          0 |
+|       a_1                                              |                                     StreamFifoCC |         58 |         58 |       0 |    0 |    32 |      1 |      1 |          0 |
+|         (a_1)                                          |                                     StreamFifoCC |         58 |         58 |       0 |    0 |    16 |      1 |      1 |          0 |
+|       d_1                                              |                                   StreamFifoCC_1 |         47 |         19 |      28 |    0 |    73 |      0 |      0 |          0 |
+|         (d_1)                                          |                                   StreamFifoCC_1 |         47 |         19 |      28 |    0 |    57 |      0 |      0 |          0 |
+|     ioBus_to_peripheral_bus_cc                         |                                         FifoCc_1 |        170 |        138 |      32 |    0 |   108 |      1 |      1 |          0 |
+|       a_1                                              |                                   StreamFifoCC_2 |        122 |        122 |       0 |    0 |    32 |      1 |      1 |          0 |
+|         (a_1)                                          |                                   StreamFifoCC_2 |        122 |        122 |       0 |    0 |    16 |      1 |      1 |          0 |
+|       d_1                                              |                                   StreamFifoCC_3 |         48 |         16 |      32 |    0 |    76 |      0 |      0 |          0 |
+|         (d_1)                                          |                                   StreamFifoCC_3 |         48 |         16 |      32 |    0 |    60 |      0 |      0 |          0 |
+|     mem_toAxi4_logic_bridge                            |                                       Axi4Bridge |        230 |        226 |       4 |    0 |   343 |      0 |      0 |          0 |
+|       (mem_toAxi4_logic_bridge)                        |                                       Axi4Bridge |        192 |        192 |       0 |    0 |   338 |      0 |      0 |          0 |
+|     peripheral_bus_decoder_core                        |                                        Decoder_1 |         58 |         58 |       0 |    0 |     8 |      0 |      0 |          0 |
+|       d_arbiter                                        |                                  StreamArbiter_5 |         58 |         58 |       0 |    0 |     8 |      0 |      0 |          0 |
+|     peripheral_clint_thread_core                       |                                    TilelinkClint |         56 |         56 |       0 |    0 |   208 |      0 |      0 |          0 |
+|     peripheral_clint_time_cc_driver                    |                               StreamCCByToggle_1 |          3 |          3 |       0 |    0 |   136 |      0 |      0 |          0 |
+|       (peripheral_clint_time_cc_driver)                |                               StreamCCByToggle_1 |          3 |          3 |       0 |    0 |   130 |      0 |      0 |          0 |
+|     peripheral_plic_intc_thread_logic                  |                                     TilelinkPlic |         35 |         35 |       0 |    0 |   145 |      0 |      0 |          0 |
+|     peripheral_toAxiLite4_logic_bridge                 |                                   AxiLite4Bridge |        288 |        288 |       0 |    0 |   104 |      0 |      0 |          0 |
+|       (peripheral_toAxiLite4_logic_bridge)             |                                   AxiLite4Bridge |        190 |        190 |       0 |    0 |   103 |      0 |      0 |          0 |
+|       a_buffered_fork2                                 |                                     StreamFork_3 |         98 |         98 |       0 |    0 |     1 |      0 |      0 |          0 |
+|     unified_mBus_arbiter_core                          |                                        Arbiter_1 |        100 |        100 |       0 |    0 |     8 |      0 |      0 |          0 |
+|       a_arbiter                                        |                                  StreamArbiter_2 |        100 |        100 |       0 |    0 |     8 |      0 |      0 |          0 |
+|     unified_mBus_to_mem_toAxi4_up_widthAdapter         |                                     WidthAdapter |        137 |        133 |       4 |    0 |   346 |      0 |      0 |          0 |
+|       (unified_mBus_to_mem_toAxi4_up_widthAdapter)     |                                     WidthAdapter |         17 |         17 |       0 |    0 |   346 |      0 |      0 |          0 |
+|       upsize_d_ctx                                     |                           ContextAsyncBufferFull |        120 |        116 |       4 |    0 |     0 |      0 |      0 |          0 |
+|         contexts                                       |                       Ram_1w_1ra__parameterized0 |        120 |        116 |       4 |    0 |     0 |      0 |      0 |          0 |
+|     vexiis_0_logic_core                                |                                       VexiiRiscv |       1180 |       1129 |      48 |    3 |  1041 |      0 |      2 |          0 |
+|       (vexiis_0_logic_core)                            |                                       VexiiRiscv |        825 |        798 |      24 |    3 |  1041 |      0 |      0 |          0 |
+|       FetchCachelessPlugin_logic_buffer_words          |                                       Ram_1w_1ra |        128 |        104 |      24 |    0 |     0 |      0 |      0 |          0 |
+|       integer_RegFilePlugin_logic_regfile_fpga         |                                       RegFileMem |        227 |        227 |       0 |    0 |     0 |      0 |      2 |          0 |
+|   milan_datapath                                       |                                   milan_datapath |      47347 |      43843 |    3504 |    0 | 43680 |     25 |     12 |         15 |
+|     (milan_datapath)                                   |                                   milan_datapath |       1005 |       1005 |       0 |    0 |  3265 |      0 |      0 |          0 |
+|     aaf_latency_tap_bank                               |                          KL_aaf_latency_tap_bank |        689 |        689 |       0 |    0 |   622 |      0 |      0 |          0 |
+|       g_ltap.aaf_latency_taps                          |                              KL_aaf_latency_taps |        686 |        686 |       0 |    0 |   612 |      0 |      0 |          0 |
+|         tx_chain                                       |                          KL_aaf_latency_chain_12 |        340 |        340 |       0 |    0 |   290 |      0 |      0 |          0 |
+|         rx_chain                                       |                             KL_aaf_latency_chain |        344 |        344 |       0 |    0 |   290 |      0 |      0 |          0 |
+|     aaf_packetizer                                     |                                KL_aaf_packetizer |        796 |        796 |       0 |    0 |  1332 |      1 |      1 |          0 |
+|     aaf_rx_depkt                                       |                           KL_aaf_rx_depacketizer |        320 |        318 |       2 |    0 |   165 |      1 |      1 |          0 |
+|       (aaf_rx_depkt)                                   |                           KL_aaf_rx_depacketizer |         55 |         53 |       2 |    0 |   133 |      0 |      0 |          0 |
+|       frame_fifo                                       |                        axis_fifo__parameterized1 |        265 |        265 |       0 |    0 |    32 |      1 |      1 |          0 |
+|     adp_tx_mux                                         |                   adp_tx_arbiter__parameterized1 |        104 |        104 |       0 |    0 |    24 |      0 |      0 |          0 |
+|     avtp_rx_monitor                                    |                           KL_avtp_rx_monitor_ctx |        826 |        716 |     110 |    0 |   743 |      0 |      1 |          0 |
+|     avtp_rx_parser                                     |                               avtp_stream_parser |        605 |        605 |       0 |    0 |   800 |      0 |      0 |          0 |
+|     chan_map_capture                                   |                              KL_chan_map_capture |        851 |        803 |      48 |    0 |  1247 |      1 |      0 |          0 |
+|     chan_map_render                                    |                               KL_chan_map_render |        188 |        188 |       0 |    0 |   676 |      0 |      0 |          0 |
+|     crf_rx                                             |                                        KL_crf_rx |        234 |        234 |       0 |    0 |   574 |      0 |      1 |          0 |
+|     crf_tx                                             |                                        KL_crf_tx |        219 |        219 |       0 |    0 |   170 |      0 |      0 |          0 |
+|     csr                                                |                                        milan_csr |       3111 |       3111 |       0 |    0 |  2109 |      0 |      2 |          0 |
+|     ctl_tx_mux                                         |                   adp_tx_arbiter__parameterized0 |         51 |         51 |       0 |    0 |    22 |      0 |      0 |          0 |
+|     ethernet_counters                                  |                                  ethernet_events |         41 |         41 |       0 |    0 |   449 |      0 |      0 |          0 |
+|       (ethernet_counters)                              |                                  ethernet_events |          0 |          0 |       0 |    0 |   289 |      0 |      0 |          0 |
+|     g_aaf_meter.aaf_clock_meter                        |                               KL_aaf_clock_meter |        533 |        501 |      32 |    0 |   630 |      0 |      0 |          0 |
+|     g_aif_tdm_master.g_solo.aaf_capture                |                            KL_tdm_capture_master |         83 |         47 |      36 |    0 |   245 |      0 |      0 |          0 |
+|       (g_aif_tdm_master.g_solo.aaf_capture)            |                            KL_tdm_capture_master |         24 |         24 |       0 |    0 |   163 |      0 |      0 |          0 |
+|       u_tcdc                                           |                                    cdc_pair_fifo |         59 |         23 |      36 |    0 |    82 |      0 |      0 |          0 |
+|     g_gptp_plane.gptp_ctl_mux                          |                                 adp_tx_arbiter_0 |         97 |         97 |       0 |    0 |    23 |      0 |      0 |          0 |
+|     g_gptp_plane.u_gptp_shadow                         |                                   KL_gptp_shadow |       6148 |       5530 |     618 |    0 |  5035 |      3 |      1 |          6 |
+|       (g_gptp_plane.u_gptp_shadow)                     |                                   KL_gptp_shadow |       1842 |       1798 |      44 |    0 |  1033 |      0 |      0 |          0 |
+|       u_engine                                         |                                   KL_gptp_engine |       4013 |       3523 |     490 |    0 |  3606 |      1 |      1 |          6 |
+|         (u_engine)                                     |                                   KL_gptp_engine |        822 |        512 |     310 |    0 |  2460 |      0 |      0 |          2 |
+|         u_parser                                       |                                KL_gptp_rx_parser |        496 |        496 |       0 |    0 |   292 |      0 |      0 |          0 |
+|         u_timer                                        |                                    KL_gptp_timer |        228 |        204 |      24 |    0 |    64 |      0 |      0 |          0 |
+|         u_txslot                                       |                                  KL_gptp_tx_slot |        203 |        179 |      24 |    0 |    62 |      0 |      0 |          0 |
+|         u_ucpu                                         |                                     KL_gptp_ucpu |       2264 |       2132 |     132 |    0 |   728 |      1 |      1 |          4 |
+|       u_txret                                          |                                    KL_gptp_txret |        255 |        171 |      84 |    0 |   279 |      0 |      0 |          0 |
+|       u_txticket                                       |                                 KL_gptp_txticket |         15 |         15 |       0 |    0 |    54 |      0 |      0 |          0 |
+|     g_maap.maap_engine                                 |                                          KL_maap |        465 |        465 |       0 |    0 |   339 |      0 |      0 |          0 |
+|     g_mmcm_servo.mmcm_servo                            |                                KL_mmcm_drp_servo |       1301 |       1301 |       0 |    0 |  1014 |      0 |      0 |          0 |
+|       (g_mmcm_servo.mmcm_servo)                        |                                KL_mmcm_drp_servo |       1130 |       1130 |       0 |    0 |   970 |      0 |      0 |          0 |
+|       u_tick_cdc                                       |                      cdc_pulse__parameterized0_7 |        164 |        164 |       0 |    0 |     4 |      0 |      0 |          0 |
+|     g_pres_crf.pres_round                              |                                     KL_mtt_round |        139 |        139 |       0 |    0 |   159 |      0 |      0 |          0 |
+|     g_rx_filter.rx_filter                              |                                    rx_mac_filter |        512 |        512 |       0 |    0 |  1570 |      0 |      0 |          0 |
+|       mac_cam                                          |                                             tcam |        511 |        511 |       0 |    0 |  1568 |      0 |      0 |          0 |
+|     g_tdm_render_live.g_master.chan_tdm_render         |                             KL_tdm_render_master |        506 |        506 |       0 |    0 |   624 |      3 |      0 |          0 |
+|       (g_tdm_render_live.g_master.chan_tdm_render)     |                             KL_tdm_render_master |         23 |         23 |       0 |    0 |   600 |      0 |      0 |          0 |
+|       u_fcdc                                           |                    cdc_pair_fifo__parameterized0 |        483 |        483 |       0 |    0 |    24 |      3 |      0 |          0 |
+|     link_guard                                         |                                    KL_link_guard |         72 |         72 |       0 |    0 |   114 |      0 |      0 |          0 |
+|     media_domain_event                                 |                            KL_media_domain_event |         14 |         14 |       0 |    0 |    79 |      0 |      0 |          0 |
+|     media_grid_align                                   |                              KL_media_grid_align |        403 |        403 |       0 |    0 |   107 |      0 |      0 |          0 |
+|     media_nco                                          |                                     KL_media_nco |        131 |        131 |       0 |    0 |    46 |      0 |      0 |          1 |
+|     pp_shadow                                          |                                     KL_pp_shadow |      26599 |      23941 |    2658 |    0 | 20106 |     16 |      3 |          8 |
+|       (pp_shadow)                                      |                                     KL_pp_shadow |         18 |         18 |       0 |    0 |   332 |      0 |      0 |          0 |
+|       ctl_fifo                                         |                        axis_fifo__parameterized2 |         77 |         77 |       0 |    0 |    34 |      1 |      1 |          0 |
+|       u_nvm                                            |                                   KL_nvm_backend |        659 |        659 |       0 |    0 |   476 |      0 |      0 |          4 |
+|       u_pp                                             |                           protocol_processor_top |      25854 |      23196 |    2658 |    0 | 19264 |     15 |      2 |          4 |
+|         (u_pp)                                         |                           protocol_processor_top |        659 |        441 |     218 |    0 |  1998 |      0 |      0 |          0 |
+|         g_rx_pool[2].u_rx_slots                        |                                 KL_pp_rx_slots_2 |         52 |         52 |       0 |    0 |    62 |      1 |      0 |          0 |
+|         g_rx_pool[5].u_rx_slots                        |                                 KL_pp_rx_slots_4 |        100 |        100 |       0 |    0 |    62 |      1 |      0 |          0 |
+|         u_adp                                          |                                    KL_adp_engine |        422 |        374 |      48 |    0 |   503 |      0 |      0 |          1 |
+|         u_aecp                                         |                                   KL_aecp_engine |       8499 |       8235 |     264 |    0 |  3596 |      6 |      0 |          1 |
+|           (u_aecp)                                     |                                   KL_aecp_engine |       1841 |       1841 |       0 |    0 |  1100 |      1 |      0 |          0 |
+|           u_d3                                         |                               KL_aecp_nvm_writer |       2215 |       2171 |      44 |    0 |   580 |      0 |      0 |          0 |
+|           u_dyn                                        |                                KL_aecp_dyn_state |       1318 |       1318 |       0 |    0 |   467 |      0 |      0 |          0 |
+|           u_resp                                       |                                 KL_aecp_resp_buf |        349 |        349 |       0 |    0 |   260 |      0 |      0 |          0 |
+|           u_store                                      |                               KL_aecp_desc_store |       1032 |        944 |      88 |    0 |   694 |      2 |      0 |          1 |
+|           u_ucpu                                       |                                     KL_aecp_ucpu |       1768 |       1636 |     132 |    0 |   495 |      3 |      0 |          0 |
+|         u_ca_builder                                   |                            KL_aecp_ca_originator |        134 |        134 |       0 |    0 |   152 |      0 |      0 |          0 |
+|         u_dispatch                                     |                                   KL_pp_dispatch |        737 |        345 |     392 |    0 |   635 |      0 |      0 |          0 |
+|           u_aecp_q                                     |                            KL_pp_dispatch_fifo_6 |        398 |        206 |     192 |    0 |   287 |      0 |      0 |          0 |
+|           u_acmp_q                                     |                              KL_pp_dispatch_fifo |        227 |         91 |     136 |    0 |   204 |      0 |      0 |          0 |
+|           u_adp_q                                      |                            KL_pp_dispatch_fifo_5 |         70 |         10 |      60 |    0 |    88 |      0 |      0 |          0 |
+|         u_event_router                                 |                               KL_pp_event_router |        234 |        234 |       0 |    0 |    51 |      0 |      0 |          0 |
+|         u_listener                                     |                              KL_pp_acmp_listener |       1665 |       1453 |     212 |    0 |  1064 |      0 |      0 |          0 |
+|         u_mrp_strip                                    |                                     KL_mrp_strip |         73 |         73 |       0 |    0 |   107 |      1 |      0 |          0 |
+|         u_normalizer                                   |                                 KL_pp_normalizer |         87 |         87 |       0 |    0 |   307 |      0 |      0 |          0 |
+|         u_notify                                       |                                   KL_aecp_notify |       2209 |       1249 |     960 |    0 |  1310 |      0 |      0 |          0 |
+|         u_nvm_port                                     |                                   KL_pp_nvm_port |        555 |        555 |       0 |    0 |   160 |      0 |      0 |          0 |
+|         u_nvm_shadow                                   |                               KL_acmp_nvm_shadow |        826 |        726 |     100 |    0 |  1118 |      0 |      0 |          0 |
+|         u_originator                                   |                                 KL_pp_originator |        636 |        616 |      20 |    0 |   885 |      0 |      0 |          0 |
+|         u_prng                                         |                                       KL_pp_prng |        138 |        138 |       0 |    0 |   150 |      0 |      0 |          0 |
+|         u_rx_validator                                 |                               KL_pp_rx_validator |        515 |        515 |       0 |    0 |   751 |      0 |      1 |          0 |
+|         u_scoreboard                                   |                                 KL_pp_scoreboard |        157 |        157 |       0 |    0 |   169 |      0 |      0 |          0 |
+|         u_side_port                                    |                                  KL_pp_side_port |         54 |         54 |       0 |    0 |     6 |      0 |      0 |          0 |
+|         u_srp                                          |                                       KL_srp_top |       5519 |       5131 |     388 |    0 |  4906 |      0 |      1 |          2 |
+|           (u_srp)                                      |                                       KL_srp_top |        233 |        169 |      64 |    0 |   516 |      0 |      0 |          0 |
+|           u_admission                                  |                                 KL_srp_admission |        280 |        256 |      24 |    0 |   143 |      0 |      0 |          2 |
+|           u_decoder                                    |                                   KL_srp_decoder |       1047 |       1047 |       0 |    0 |   630 |      0 |      1 |          0 |
+|           u_domain                                     |                                    KL_srp_domain |        117 |        117 |       0 |    0 |   120 |      0 |      0 |          0 |
+|           u_encoder                                    |                                   KL_srp_encoder |       1532 |       1358 |     174 |    0 |  1163 |      0 |      0 |          0 |
+|           u_listener                                   |                              KL_srp_listener_fsm |       1080 |       1080 |       0 |    0 |  1328 |      0 |      0 |          0 |
+|           u_talker                                     |                                KL_srp_talker_fsm |        917 |        795 |     122 |    0 |   863 |      0 |      0 |          0 |
+|           u_vlan                                       |                                      KL_srp_vlan |        313 |        309 |       4 |    0 |   143 |      0 |      0 |          0 |
+|         u_talker                                       |                                   KL_acmp_talker |        879 |        823 |      56 |    0 |   663 |      0 |      0 |          0 |
+|         u_timer                                        |                              KL_pp_timer_service |        979 |        979 |       0 |    0 |   179 |      1 |      0 |          0 |
+|         u_tx_arbiter                                   |                                 KL_pp_tx_arbiter |        198 |        198 |       0 |    0 |   182 |      0 |      0 |          0 |
+|         u_tx_slots                                     |                                   KL_pp_tx_slots |        356 |        356 |       0 |    0 |   138 |      1 |      0 |          0 |
+|     ptp_clock_validity                                 |                            KL_ptp_clock_validity |         14 |         14 |       0 |    0 |    61 |      0 |      0 |          0 |
+|     ptp_sync                                           |                                     ptp_csr_sync |        292 |        292 |       0 |    0 |   405 |      0 |      0 |          0 |
+|     render_queue                                       |                                  KL_render_queue |        364 |        364 |       0 |    0 |   170 |      0 |      2 |          0 |
+|     stream_table                                       |                                  KL_stream_table |         59 |         59 |       0 |    0 |    69 |      0 |      0 |          0 |
+|     talker_diag                                        |                               KL_talker_diag_ctx |        221 |        221 |       0 |    0 |   357 |      0 |      0 |          0 |
+|     ts_counter                                         |                                timestamp_counter |        215 |        215 |       0 |    0 |   153 |      0 |      0 |          0 |
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+
+
