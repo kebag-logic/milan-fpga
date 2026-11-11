@@ -1,0 +1,11 @@
+# head e3f96a67b5dd1b9e4536ca67a6bd1595f4c19d53 workflow rtl-fast job yosys-elaboration step ci_step_7: Elaborate the integration-heavy tops
+# clone <scratch>/gates/rtl-fast/yosys-elaboration/wt
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] milan_datapath         cells=78626
+  [PASS] KL_pp_shadow           cells=68426
+  [PASS] KL_gptp_shadow         cells=3501
+--------------------------------------------------------------
+tops: 3   pass: 3   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

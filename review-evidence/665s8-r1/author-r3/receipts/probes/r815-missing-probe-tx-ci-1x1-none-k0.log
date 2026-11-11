@@ -1,0 +1,7 @@
+removed PROBE_TX #0 (sequence_id 0x0000), 7 lines
+original: findings=0 probe_tx_n=16 bind_rx_n=16
+mutant:   findings=2 probe_tx_n=15 bind_rx_n=16 bind_to_probe_tx_max_ms=1.1555
+FINDING ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+FINDING ACMP: 15 PROBE_TX transactions graded (15 sent), the run asked for 16 draws, one a bind
+VERDICT: caught
+rc=0
