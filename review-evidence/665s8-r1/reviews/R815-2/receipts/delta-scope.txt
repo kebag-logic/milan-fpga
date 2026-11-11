@@ -1,0 +1,34 @@
+# git diff --stat bfb2df3707..e3f96a67b5
+ .github/ci-templates/rtl-fast.yml              |  11 ++
+ .github/workflows/rtl-fast.yml                 |  31 ++--
+ docs/testing/CI_WORKFLOWS.md                   |  22 ++-
+ scripts/ci_events.py                           |   8 +
+ sw/firmware/ctrl/maap/README.md                |   4 +-
+ tb/verilator/ctrl_wire_timing/README.md        | 163 ++++++++++++------
+ tb/verilator/ctrl_wire_timing/run.py           |  17 +-
+ tb/verilator/ctrl_wire_timing/wire_build.py    |  87 ++++++++--
+ tb/verilator/ctrl_wire_timing/wire_grade.py    | 210 +++++++++++++++++++----
+ tb/verilator/ctrl_wire_timing/wire_main.cpp    |  59 ++++---
+ tb/verilator/ctrl_wire_timing/wire_scenario.py |  38 +++--
+ tb/verilator/ctrl_wire_timing/wire_selftest.py | 228 ++++++++++++++++++++++---
+ tb/verilator/ctrl_wire_timing/wire_soc.py      |   3 +
+ tb/verilator/milan_dp/Makefile                 |   9 +-
+ tb/verilator/milan_dp/README.md                |   6 +-
+ 15 files changed, 711 insertions(+), 185 deletions(-)
+
+# delta paths under hdl/, rtl/, sw/ (non-README), *.sv, mailbox.yaml, submodule gitlinks:
+none
+no gitlink change
+
+# git diff --stat 267fc9815d..e3f96a67b5 (since the measurement)
+ .github/ci-templates/rtl-fast.yml       |  11 +++
+ .github/workflows/rtl-fast.yml          |  31 +++---
+ docs/testing/CI_WORKFLOWS.md            |  22 +++--
+ scripts/ci_events.py                    |   8 ++
+ sw/firmware/ctrl/maap/README.md         |   4 +-
+ tb/verilator/ctrl_wire_timing/README.md | 163 ++++++++++++++++++++++----------
+ tb/verilator/milan_dp/README.md         |   6 +-
+ 7 files changed, 169 insertions(+), 76 deletions(-)
+
+# merge-base with origin/dev-soft-core: 1d6bf5556ae28764361d85012b86394eb467d294
+# origin/dev-soft-core now: 764482b45f1032a734dd2280c619f12257597f11

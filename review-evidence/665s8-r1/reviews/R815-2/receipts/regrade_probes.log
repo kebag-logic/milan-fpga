@@ -1,0 +1,23 @@
+P0 ci-1x1-none: findings 0 rows-identical True load-identical True load {}
+P1 ci-1x1-none: aecp-get_avb_info-3 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 ci-1x1-none: aecp-get_avb_info-9 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 ci-1x1-none: aecp-get_avb_info-15 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 ci-1x1-none: ACMP TX (message_type, status) [(0, 0), (7, 0), (9, 0)]; AECP TX [(1, 0), (7, 0)]
+P2 ci-1x1-none a-bind-status: found: ['ACMP: the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS (IEEE 1722.1-2021 Table 8-3)']
+P2 ci-1x1-none b-aem-status: found: ['AECP: the final response to aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 2, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)']
+P2 ci-1x1-none c-mvu-status: found: ['AECP: the final response to aecp-mvu_get_milan_info-5 (sequence_id 0x6105) carries status 1, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)']
+P2 ci-1x1-none d-frame-equation: found: ['LOAD: 0 delivered load frames and 4 a draw (16 draws) are not the 164 frames the model received (SUMMARY rx_frames + bench_rx)']
+P2 ci-1x1-none f-draws-plus-one: found: ['ACMP: 16 PROBE_TX transactions graded (16 sent), the run asked for 17 draws, one a bind']
+P2 ci-1x1-none e-probe-after-next-bind: found: ['ACMP: the BIND_RX acmp-bind-4 caused no PROBE_TX after its response and before the next bind']
+P0 8x8-none: findings 0 rows-identical True load-identical True load {}
+P1 8x8-none: aecp-get_avb_info-3 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 8x8-none: aecp-get_avb_info-9 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 8x8-none: aecp-get_avb_info-15 command_type 0x0027 descriptor_type 9 descriptor_index 0 control_data_length 16 frame bytes 60
+P1 8x8-none: ACMP TX (message_type, status) [(0, 0), (7, 0), (9, 0)]; AECP TX [(1, 0), (7, 0)]
+P2 8x8-none a-bind-status: found: ['ACMP: the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS (IEEE 1722.1-2021 Table 8-3)']
+P2 8x8-none b-aem-status: found: ['AECP: the final response to aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 2, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)']
+P2 8x8-none c-mvu-status: found: ['AECP: the final response to aecp-mvu_get_milan_info-5 (sequence_id 0x6105) carries status 1, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)']
+P2 8x8-none d-frame-equation: found: ['LOAD: 0 delivered load frames and 4 a draw (16 draws) are not the 164 frames the model received (SUMMARY rx_frames + bench_rx)']
+P2 8x8-none f-draws-plus-one: found: ['ACMP: 16 PROBE_TX transactions graded (16 sent), the run asked for 17 draws, one a bind']
+P2 8x8-none e-probe-after-next-bind: found: ['ACMP: the BIND_RX acmp-bind-4 caused no PROBE_TX after its response and before the next bind']
+regrade_probes: 0 failed
