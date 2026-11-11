@@ -43,8 +43,10 @@ It uses MilanSoC's own VexiiRiscv path with the DMA port and the split placement
 Its firmware memory is `milan_soc.add_ctrl_memory`, which hands the generator the split regions as their pieces.
 The split SoC's other CPU-visible regions are slaves that answer `err`.
 They sit at the shipping split SoC's places, in its order: the flash window where LiteX's allocator puts it, the Milan CSR window, then the mailbox.
-So the generator is handed the shipping split SoC's region list.
+So the generator is handed the region list of a split SoC without DDR3, as the Arty's split image is built.
 Its single-mask netlist matches, line for line apart from its name, the CPU netlist of the split image that would not boot on the Arty ([#878](https://github.com/kebag-logic/milan-fpga/issues/878)).
+Its cover netlist is that bring-up's booting diagnostic's own.
+The AX7101 split export also builds DDR3, so its CPU also has `main_ram` on its memory bus; `decode.py` reads that netlist on its own.
 
 Two things differ from the shipping SoC, so the test reads the CPU's decode and nothing else:
 

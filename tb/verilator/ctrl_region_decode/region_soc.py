@@ -21,8 +21,8 @@ Two things differ from the boot SoCs, both so the test reads the decode alone:
   - the split SoC's other CPU-visible regions are slaves that answer err, at
     the shipping split SoC's places and in its order (the spiflash window,
     placed by LiteX's allocator as add_spi_flash places it, the Milan CSR
-    window and the mailbox), so the CPU generator is handed the shipping
-    split SoC's region list.
+    window and the mailbox), so the CPU generator is handed the region list
+    of a split SoC without DDR3, as the Arty's split image is built (#878).
 
 MUTANTS are the planted decodes: `single-mask` hands the generator the SoC's
 regions without the split (split_soc.CpuPatches 'as-built'), the decode of
