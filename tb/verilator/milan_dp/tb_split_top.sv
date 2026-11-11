@@ -101,6 +101,14 @@ module tb_split_top
   output wire  [15:0]             p_rx_frames,
   output wire  [7:0]              p_rx_drops,
   output wire  [15:0]             p_tx_frames,
+  //! ---- the policer (#867): the stream gate the talkers' emission reads, the
+  //! AAF talker's emission gate, and the CRF source's licence and emission terms
+  output wire  [15:0]             p_stream_gate,
+  output wire                     p_aaf_gate,
+  output wire                     p_crf_res_active,
+  output wire                     p_crf_emit,
+  output wire  [7:0]              p_n_talkers,        //! the stream gate's width: the shape's talkers
+  output wire                     p_crf_tk,           //! the shape has a CRF talker, the gate's top bit
   //! ---- u_tap: its receive tap and its byte side, the bench's own
   input  wire  [63:0]             tap_tdata,
   input  wire  [7:0]              tap_tkeep,
@@ -387,6 +395,13 @@ module tb_split_top
   assign p_rx_frames    = u_dp.pp_rx_frames_w;
   assign p_rx_drops     = u_dp.pp_rx_drops_w;
   assign p_tx_frames    = u_dp.pp_tx_frames_w;
+  assign p_stream_gate  = 16'(u_dp.lwsrp_stream_gate);
+  assign p_aaf_gate     = u_dp.aaf_gate;
+  assign p_crf_res_active = u_dp.crft_res_active_w;
+  assign p_crf_emit     = u_dp.crft_emit_en_w;
+  localparam int unsigned NTK = $bits(u_dp.lwsrp_stream_gate);
+  assign p_n_talkers    = 8'(NTK);
+  assign p_crf_tk       = (u_dp.SRP_CRF_TK_C != 0);
 
   // ---- u_tap: the tap alone, on the datapath clock --------------------------------
   KL_ctrl_split u_tap (

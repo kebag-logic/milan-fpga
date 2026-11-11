@@ -377,6 +377,19 @@ The desk callback proves output ordering, not a connected target licence registe
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
+The split build's transmit path to the wire is held in the RTL
+([`make srptx`](../../../../tb/verilator/milan_dp/README.md#the-split-builds-srp-transmit-path-obj_srptx-867), #867).
+That covers this adapter's MRPDUs through the SRP transmit ring, `KL_mbx_tx` and
+`ctl_tx_mux`: their 10.8 form, the port's source address from reset, the Join
+and LeaveAll spacing at egress within T_svc (20 ms) on each side, each requested
+transmit opportunity within JoinTime and T_svc, and a full ring that loses
+nothing and keeps the order. It also covers the #608 stop and the `LICENCE`
+at the policer, the last two only under that check's fixture, which gives
+source 0 its allocation at creation. Until the entry above re-declares a
+source MAAP has allocated, no split source holds a licence. `SRC_SID` is
+written by no firmware, so a split talker's stream frames would carry
+stream_id 0.
+
 The lwSRP pin is public `main` at `08ee86e8`.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.

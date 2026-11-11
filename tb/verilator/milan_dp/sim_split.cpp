@@ -318,6 +318,36 @@ void check_pub(Tb& tb) {
     tb.check_eq("[PUB] SR_DOMAIN.ADOPTED", d->p_adopted, 1);
 }
 
+//! #867 item 6: LICENCE reaches the policer as the all-fabric build's ACTIVE
+//! AND admitted does. The split's generate drives the two nets the processor
+//! drives in the all-fabric build (pp_cd_srp_active_w, pp_cd_srp_sr_admitted_w);
+//! the stream gate every talker's emission reads (lwsrp_stream_gate) and every
+//! consumer after it are outside the generate, one RTL in both placements. So
+//! bit s alone must reach both nets and the gate as bit s alone, for every
+//! talker of the shape, the CRF source's licence term must read the top bit,
+//! and a cleared LICENCE must close them all.
+void check_policer(Tb& tb) {
+    auto* d = tb.dut();
+    const unsigned n = d->p_n_talkers;
+    tb.check("[POL] the shape has a talker for the stream gate to police", n >= 1 && n <= 16);
+    for (unsigned s = 0; s < n && s < 16; ++s) {
+        tb.wr(pub(MBX_PUB_REG_LICENCE), 1u << s);
+        tb.sys(60);
+        std::printf("[POL] LICENCE 0x%04x: active 0x%04x admitted 0x%04x gate 0x%04x crf %u\n", 1u << s,
+                    static_cast<unsigned>(d->p_active), static_cast<unsigned>(d->p_admitted),
+                    static_cast<unsigned>(d->p_stream_gate), static_cast<unsigned>(d->p_crf_res_active));
+        tb.check_eq("[POL] LICENCE bit s alone reaches ACTIVE as bit s alone", d->p_active, 1u << s);
+        tb.check_eq("[POL] ...and admitted as bit s alone", d->p_admitted, 1u << s);
+        tb.check_eq("[POL] ...and opens source s's stream gate alone", d->p_stream_gate, 1u << s);
+        tb.check_eq("[POL] the CRF source's licence term reads the gate's top bit", d->p_crf_res_active,
+                    d->p_crf_tk && s == n - 1 ? 1u : 0u);
+    }
+    tb.wr(pub(MBX_PUB_REG_LICENCE), 0u);
+    tb.sys(60);
+    tb.check_eq("[POL] a cleared LICENCE closes every stream gate", d->p_stream_gate, 0);
+    tb.check_eq("[POL] ...and the CRF source's licence term", d->p_crf_res_active, 0);
+}
+
 void check_face(Tb& tb) {
     auto* d = tb.dut();
     const std::uint64_t fmt = 0x0205022000806000ull;
@@ -648,6 +678,7 @@ int main(int argc, char** argv) {
     Tb tb(dut.get());
     tb.reset();
     check_pub(tb);
+    check_policer(tb);
     check_face(tb);
     check_windows(tb);
     check_rx(tb);
