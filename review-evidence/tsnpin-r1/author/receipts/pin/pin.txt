@@ -1,0 +1,49 @@
+$ git -C third_party/tsn-c-stack rev-parse --show-toplevel
+<lane>/third_party/tsn-c-stack
+$ git -C third_party/tsn-c-stack remote get-url origin
+https://github.com/kebag-logic/tsn-c-stack.git
+$ git -C third_party/tsn-c-stack merge-base --is-ancestor 70936b77 715589c
+rc=0
+$ git -C third_party/tsn-c-stack rev-parse origin/main
+715589c1db7cf67e2f3259fd7083ebc7f0923376
+$ git ls-tree HEAD third_party/tsn-c-stack
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+$ git log --oneline 70936b77..715589c (in the submodule)
+715589c Merge pull request #34 from kebag-logic/32-acmp-dirty-walk
+a530eca State that each ACMP entry marks a sink before the next walk reads it, the two restores right after the reset (#32)
+8661947 Assert at compile time that the ACMP interface mark holds a bit for every interface, and refuse the walk test in the conditional gate at 33 interfaces while it compiles at 4 and 32 (#32)
+4cdf2a2 Send the 33-sink walk's BIND_RX, UNBIND_RX and GET_RX_STATE to sink 32 on an interface of its own with transmit room withdrawn, require every mark cleared after each entry, and plant the four second-word marks and three clears (#32)
+9043b92 Keep the entity plants last in the plant table, the walk's plants after main's new ones, both parents' plant orders kept (#32)
+dd8b026 Merge origin/main into the changed-sink walk: the walk's release loop reads the owed mask's word for each sink, both 33-sink tests share one target, and the two wide plants on that loop re-anchored on its merged line (#32)
+9deb0dd Merge pull request #33 from kebag-logic/31-acmp-mask-width
+97414fe Compile the owed storage refusals in the conditional gate: one release word refused at 33 sinks and accepted at 32, and probe_of refused at 256 sinks and accepted at 255 (#31)
+a7fb45d Assert that sinks 31 and 32 at 33 sinks wait only behind their own owed responses and that a probe owed in a reused slot holds no sink at 33 and 16 sinks, and plant the five mask defects that escaped (#31)
+6a81006 Refuse an ACMP build of more than 255 sinks, which the owed probe_of cannot name, and shift an explicit-width one into the owed release mask (#31)
+fa31d4c Walk only the sinks an ACMP entry changed, at its completion and before each new frame, with the calls of a walk over every sink in their order, tested against that walk at 1, 8, 32 and 33 sinks with a plant for each mark (#32)
+c601380 Size the ACMP owed-release mask from ACMP_MAX_SINKS, refuse a build whose mask cannot hold every sink, and test 33 sinks under the shift and undefined-behaviour sanitizers (#31)
+ea4af6f Merge pull request #28 from kebag-logic/26-acmp-owed
+376486b Assert that a GET_RX_STATE offered after the accepting poll that follows the taken BIND_RX delays the held retry one pass, and plant a held probe owed at that poll
+c0477c8 State that a held probe has no wait bound: it takes a freed slot only at timer service with no BIND_RX waiting, after every command the core takes first, kept or offered for the first time
+715d208 Say in ACMP-12 and the change log that timer probes are held only while a BIND_RX waits with one slot free
+7960ef7 Say that a held retry is also cancelled when its earlier probe is answered, and that the one-per-sink count needs no probing restart and a wait under TMR_NO_RESP
+af31233 State the kept command's answer pass as n + 1 + f + r, n the frames owed when the egress returns, and assert ACMP_OWED_MAX + f for every command kept behind seven owed frames
+8d6786f Require the port to offer its waiting ACMP frames in arrival order after each accepting poll until one is declined, before timer service, and say that the test port does so
+a0a3211 Say that probes_held counts each held probe once per pass, that a held probe waits at most its bound and is cancelled only when its sink stops probing, and that the 1 ms re-arm means the next pass only for passes at least 1 ms apart
+c4a2bff Pin each stated behaviour of the ACMP owed bound and its hold with a named assertion and a registered plant, including the hold's scope, a refused poll and the gated port
+b7b2048 Derive the answer pass of every kept ACMP command and the egress-hold budget for the deepest backlog, and assert both pass by pass
+b7a5988 Say that the hold covers a timer probe of any sink, which would take the last free owed slot or find none
+d355236 Assert the deferred GET_TX_STATE count, test a held probe behind commands kept after the BIND_RX, and name the BIND_RX slot rule in the architecture table
+8a1cb08 Hold a timer probe while a declined BIND_RX waits for its second owed slot, so the BIND_RX keeps its pass count and no held probe is lost
+968a164 Merge origin/main cc3362f8 into 26-acmp-owed
+cc3362f Merge pull request #30: exempt the merge of #29 from the one-line message rule
+62d24a3 Record the merge of #29's one-line exemption in the verification and import docs and the change log, with a near-miss control and a log line
+0cfa842 Exempt the merge of #29 from the one-line message rule by its exact commit, keeping its content scan
+13dd785 Merge origin/main d7e6a2a1 into 26-acmp-owed
+9002bfe Deliver a kept ACMP command right after the accepting poll, before timer service
+5bce685 Decline a BIND_RX until two owed slots are free so a deferred binding loses no probe
+0e3ae73 Test that a declined BIND_RX and GET_TX_STATE are answered after the hold
+d7e6a2a Merge pull request #29: pack wire_put_be as two 32-bit halves (#27)
+c687810 Pack wire_put_be as two 32-bit halves so no byte calls the 64-bit shift helper (#27)
+3d57262 Decline, never drop, an ACMP command at the owed bound
+$ git ls-remote origin refs/heads/dev-soft-core
+1d6bf5556ae28764361d85012b86394eb467d294	refs/heads/dev-soft-core

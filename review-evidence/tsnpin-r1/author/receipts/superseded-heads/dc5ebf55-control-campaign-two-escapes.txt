@@ -1,0 +1,10 @@
+[ESCAPED] mutant acmp-timer-port-called-every-time (acmp): 3 check(s) failed, none named acmp: AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline on 'A17 the port is called only when the earliest deadline moves'
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 a change that leaves an interface's earliest deadline keeps its timer
+--
+[ESCAPED] mutant acmp-admit-on-every-entry (acmp, acmp): 28 check(s) failed, none named acmp: AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem on 'C1 GET_RX_STATE -> response'
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+--
+mutants: 577 of 579 caught
+test_ctrl_firmware: FAIL
+# head dc5ebf5532cb87944ac29128f70fe4e18550f5b8 workflow rtl-fast.yml job firmware-control-mutants step ci_step_9: Run the control mutation campaign
+# clone <scratch>/gates/wf2/rtl-fast__firmware-control-mutants/wt
