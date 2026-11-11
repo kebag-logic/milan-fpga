@@ -94,7 +94,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,384 B | 59.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,392 B | 59.0 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -293,21 +293,23 @@ M8a-2's route weighs that share against at most 1.0 tile.
 The firmware of `ce10328c`, on dev `ac2c5e77`, planned 35.0 / 38.0 / 48.5 / 54.5 and mapped 34.0 / 37.5 / 47.0 / 53.0 tiles at the same points.
 Dev `c6bd08c6` added 1,792 B of `.text` and 264 B of `.bss` at the largest point, and its `rom` gained a fifth bank.
 
-The tsn-c-stack pin move from `70936b77` to `715589c` (#665) brings tsn-c-stack PRs 29, 28, 33 and 34 and the ACMP adapter's kept command.
-Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1d6bf555` and with the move, each pin's image linked with one runtime:
+The tsn-c-stack pin move from `70936b77` to `715589c` (#665) brings tsn-c-stack PRs 29, 28, 33 and 34 and the ACMP adapter's kept command and its redelivery.
+Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1d6bf555` and with the move, each pin's image built by the pinned RV32 SDK (`scripts/ci_rv32_sdk.py`) and linked with one runtime:
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
 |---|---:|---:|---:|---:|---:|
-| 1x1, one interface (shipping) | 104,856 (+400) / 46,416 (+144) | 37.5 | 109,920 (+360) / 47,328 (+160) | 39.0 | 18,584 (+152) |
-| 1x1, two interfaces | 106,408 (+368) / 57,792 (+144) | 40.5 | 111,504 (+304) / 58,736 (+144) | 42.0 | 20,072 (+144) |
-| 8x8, one interface | 118,568 (+392) / 86,992 (+144) | 50.5 | 123,672 (+368) / 87,904 (+144) | 52.0 | 19,240 (+152) |
-| 8x8, two interfaces (largest) | 120,216 (+384) / 113,152 (+144) | 57.5, ledgered | 125,360 (+312) / 114,080 (+144) | 59.0, ledgered | 21,384 (+144) |
+| 1x1, one interface (shipping) | 104,984 (+528) / 46,416 (+144) | 37.5 | 110,048 (+488) / 47,328 (+160) | 39.0 | 18,584 (+152) |
+| 1x1, two interfaces | 106,552 (+512) / 57,808 (+160) | 41.0 (was 40.5) | 111,640 (+440) / 58,736 (+144) | 42.0 | 20,080 (+152) |
+| 8x8, one interface | 118,696 (+520) / 86,992 (+144) | 50.5 | 123,800 (+496) / 87,904 (+144) | 52.0 | 19,240 (+152) |
+| 8x8, two interfaces (largest) | 120,352 (+520) / 113,152 (+144) | 57.5, ledgered | 125,504 (+456) / 114,096 (+160) | 59.0, ledgered | 21,392 (+152) |
 
-No point's plan moves: every bank of both images is the one it was at `70936b77`.
-The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface) and the core's walk marks and owed-bound state.
+One plan moves: the fixture's 1x1 with two interfaces needs 56 B of `rom` past its three banks (106,496 B), so it takes a fourth of 2,048 B and plans 41.0, accepted (#665 issuecomment-6807277620; the owner's firmware block-RAM limit, 224 KB, covers it).
+Every other bank of both images is the one it was at `70936b77`; the platform image keeps 42.0 at that point.
+The `rom` growth past the kept command is its redelivery, the ACMP adapter's poll taking the records waiting behind it (`acmp_mbx.h`, THE KEPT COMMAND).
+The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the loop the redelivery serves, and the core's walk marks and owed-bound state.
 `__lshrdi3` leaves every image (tsn-c-stack#27).
 The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
-The tightest point is the fixture's 1x1 with two interfaces, 88 B of `rom` before its next granule.
+The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
