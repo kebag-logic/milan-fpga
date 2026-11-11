@@ -1,0 +1,50 @@
+## old pins notify [AIDX]
+-- [AIDX] #858: READ_DESCRIPTOR(ENTITY) available_index is the last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15; one processor ms = 100 cycles) --
+  [FAIL] [AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's got=0x0 exp=0x1f
+  [FAIL] [AIDX] A2 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's got=0x0 exp=0x20
+  [FAIL] [AIDX] A3 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's got=0x0 exp=0x21
+  [FAIL] [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: available_index (octets 36..39) is the wire's got=0x0 exp=0x1
+checks: 535   failures: 4
+## new pins notify [AIDX]
+-- [AIDX] #858: READ_DESCRIPTOR(ENTITY) available_index is the last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15; one processor ms = 100 cycles) --
+  [ok]   [AIDX] the image has an ENTITY descriptor holding available_index = 0x1
+  [ok]   [AIDX] PP_CTRL[0] is clear, so ADP_CTRL[0] alone requests the entity enable = 0x0
+  [ok]   [AIDX] A1: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A1: the ENTITY_AVAILABLE carried available_index 31
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x1f
+  [ok]   [AIDX] A1 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] A2: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A2: the ENTITY_AVAILABLE carried available_index 32
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x20
+  [ok]   [AIDX] A2 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] A3: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [i]    A3: the ENTITY_AVAILABLE carried available_index 33
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's = 0x21
+  [ok]   [AIDX] A3 after an ENTITY_AVAILABLE: every other octet is the image's = 0x0
+  [ok]   [AIDX] the three ENTITY_AVAILABLEs carried consecutive indices (6.2.2.15) = 0x21
+  [ok]   [AIDX] ...past the image's constant 0, so the reads above can tell them apart = 0x1
+  [ok]   [AIDX] D: clearing the entity enable sends ENTITY_DEPARTING within 1 s = 0x1
+  [i]    D: the ENTITY_DEPARTING carried available_index 34
+  [ok]   [AIDX] D after ENTITY_DEPARTING: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] D after ENTITY_DEPARTING: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] D after ENTITY_DEPARTING: available_index (octets 36..39) is the wire's = 0x0
+  [ok]   [AIDX] D after ENTITY_DEPARTING: every other octet is the image's = 0x0
+  [ok]   [AIDX] R1: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [ok]   [AIDX] R1: it carried available_index 0, counted from 0 again = 0x0
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: available_index (octets 36..39) is the wire's = 0x0
+  [ok]   [AIDX] R1 after re-enabled ENTITY_AVAILABLE 1: every other octet is the image's = 0x0
+  [ok]   [AIDX] R2: an ENTITY_AVAILABLE left within 10 s = 0x1
+  [ok]   [AIDX] R2: it carried available_index 1, counted from 0 again = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: READ_DESCRIPTOR(ENTITY) answered SUCCESS = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: no ADPDU left while it was answered = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: available_index (octets 36..39) is the wire's = 0x1
+  [ok]   [AIDX] R2 after re-enabled ENTITY_AVAILABLE 2: every other octet is the image's = 0x0
+checks: 535   failures: 0

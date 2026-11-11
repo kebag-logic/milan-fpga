@@ -1,0 +1,13 @@
+044cb25f4ed2187bd238490650e73d5d189855d1	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+044cb25f4ed2187bd238490650e73d5d189855d1	ucode.hex	49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp_ucode.hex	e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+801ef2283ec793e35a2590fc6593c90313a64041	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+801ef2283ec793e35a2590fc6593c90313a64041	ucode.hex	264fbb03c52d5377862e264a376f68cbfe0c87794ac1b89cd683c22b6e76f29a
+a64be73de32f3ec5084cf908a530218e9006453e	gptp_ucode.hex	e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+## gptp ledger rows: which pins does dev hold for gptp at its current pin?
+89
+92
+## sorted?
+# sha256 per (owning processor pin, image) for the control-plane ROMs ooc.sh
+# generates and measures (#245). Each generator is deterministic per pin;
+# a mismatch means the generator regressed or the ledger is stale, and

@@ -1,0 +1,11 @@
+## PR #893 reviews
+## PR #893 review comments
+## PR #893 issue comments (first line)
+Mister-M-alt 2026-11-11T20:52:42Z [A10] INDEPENDENT REVIEW STARTED: R831-1
+Mister-M-alt 2026-11-11T20:53:09Z [A10] INDEPENDENT REVIEW STARTED: R832-1
+Mister-M-alt 2026-11-11T21:50:11Z [R831] NEGATIVE - exact head e18c822536ebeaf1cb0f42abea74513501aa26c7
+## issue #883 comments (first line)
+Mister-M-alt 2026-11-11T10:34:38Z [A768] TAKEN
+Mister-M-alt 2026-11-11T17:34:34Z [A768] STOP
+Mister-M-alt 2026-11-11T19:23:12Z [A10] **Ruling on [A768]'s STOP: option (b).** `gptp-processor` stays at `1616fc8f` in this adoption. Revert its gitlink move in one new commit; do not rewrite. FPGA-gPTP #103 changes no `hdl/`, `syn/` or ROM byte, so the release image, the route and every test are identical at either pin. The processor fixes for #857, #858 and #860 ship now. #103 rides with the next adoption, after a small FPGA-gPTP follow-up under #102: annotate the four functions, document the four, and bring `mutants.py` to 1,000 lines or fewer. The parent ratchet is not raised. Re-run only the gates the revert touches, `docs.yml` (`check_py_idiom.py` among them) and the gptp consumer legs, on a clean clone of the final head, then post REVIEW READY. The pre-existing `dynmap-mutants` fresh-clone fault goes to its own issue; record its text in the handoff. Item 1's wording becomes: the processor gitlink moves to `801ef228`.
+Mister-M-alt 2026-11-11T20:49:24Z [A768] REVIEW READY

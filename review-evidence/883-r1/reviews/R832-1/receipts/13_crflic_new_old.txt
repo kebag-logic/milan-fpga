@@ -1,0 +1,38 @@
+## old pins (processor 044cb25f, gPTP 1616fc8f), crflic: failing checks
+[MVRPLA] #857 (processor #216): every declaration withdrawn; the LeaveAll state machines run on (IEEE 802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3)
+  -- MVRP, nothing declared: 0 LeaveAll MRPDUs after the withdrawal, at ms
+  [FAIL] MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal
+  [FAIL] MVRP, nothing declared: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest -1, longest 0 ms)
+  [FAIL] MVRP, nothing declared: and none overdue at the end of the phase
+  -- MSRP, the Domain alone: 3 LeaveAll MRPDUs after the withdrawal, at 99203 110803 121003 ms
+  [PASS] MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal
+[MRPAPP] #860 (processor #216): a declaration's New on two transmissions, then its Join (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3)
+  -- MSRP Domain {class A, 3, VID 2}: first messages 0 1 1 (0 New, 1 JoinIn, 3 JoinMt)
+  [FAIL] MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN) got=1 exp=0
+  -- MVRP VID 2: first messages 0 1 1 (0 New, 1 JoinIn, 3 JoinMt)
+  [FAIL] MVRP VID 2: message 2 is New again (AN tx!: sN)                    got=1 exp=0
+  [FAIL] MVRP VID 2: message 3 is the Join, JoinMt: no MVRPDU reached the DUT, its Registrar is MT (10.7.6.3) got=1 exp=3
+  -- Talker Advertise of source uid 0: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  -- Talker Advertise of source uid 1: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [i]    188 MVRP VID values and 228 Talker Advertise values in the run
+  [FAIL] no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3) got=185 exp=0
+checks: 458   failures: 7
+
+## new pins (processor 801ef228, gPTP 1616fc8f), crflic: the MRPAPP/MVRPLA lines
+  [i]    the raw verdict has stood 2125.42 ms: the window Run B streamed through
+  [i]    154 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [i]    37 intervals since STREAM_START, FRAMES_TX 154, 154 PDUs
+[MVRPLA] #857 (processor #216): every declaration withdrawn; the LeaveAll state machines run on (IEEE 802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3)
+  [i]    nothing declared from 95036 ms; VID 2 Lv at 95208 ms
+  -- MVRP, nothing declared: 3 LeaveAll MRPDUs after the withdrawal, at 99401 113601 126601 ms
+  [PASS] MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal
+  -- MSRP, the Domain alone: 3 LeaveAll MRPDUs after the withdrawal, at 96203 107003 120403 ms
+  [PASS] MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal
+  [i]    412 MSRP and 193 MVRP MRPDUs, 685 values; 17 MRPDUs carry two vectors of one AttributeType
+[MRPAPP] #860 (processor #216): a declaration's New on two transmissions, then its Join (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3)
+  -- MSRP Domain {class A, 3, VID 2}: first messages 0 0 1 (0 New, 1 JoinIn, 3 JoinMt)
+  -- MVRP VID 2: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  -- Talker Advertise of source uid 0: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  -- Talker Advertise of source uid 1: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [i]    190 MVRP VID values and 227 Talker Advertise values in the run
+checks: 458   failures: 0

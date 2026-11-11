@@ -1,0 +1,49 @@
+## gitlinks
+46c971fa: gptp-processor=1616fc8f062fbf58c35ad31674b5b233207bbdb8 protocol-processor=044cb25f4ed2187bd238490650e73d5d189855d1 
+4bf3eb72: gptp-processor=a64be73de32f3ec5084cf908a530218e9006453e protocol-processor=801ef2283ec793e35a2590fc6593c90313a64041 
+8edfae99: gptp-processor=1616fc8f062fbf58c35ad31674b5b233207bbdb8 protocol-processor=801ef2283ec793e35a2590fc6593c90313a64041 
+e18c8225: gptp-processor=1616fc8f062fbf58c35ad31674b5b233207bbdb8 protocol-processor=801ef2283ec793e35a2590fc6593c90313a64041 
+## processor ancestry
+801ef2283ec793e35a2590fc6593c90313a64041
+commit
+044cb25f ancestor of 801ef228: yes
+* (no branch)
+801ef22 Merge pull request #219 from Mister-M-alt/217-available-index
+14492f8 Merge main (#218) into 217-available-index
+fd2d8d2 Value-initialize adp_last_aidx so the parent idiom gate reads one declarator
+45f03e0 Merge pull request #218 from Mister-M-alt/216-mrp-applicant
+03862f7 Reword the Flush! basis in 10 section 6.2, disclose its leavealltimer! omission as GAP-19 in 00, and take the two wording fixes in 6.2 (issue #216)
+84f6d6a Record the measured srp_top total and the area of the VID link change in 10 section 5.1 (issue #216)
+ceb6a98 Record the VID link change in 10 sections 6.1, 6.2 and F10.3, the pre-join VID registration as GAP-18 in 00, the T-MRP-LEAVEALL wording in 6.5, the new rows in 09 8.15 and the measured counts in the READMEs (issue #216)
+b5f9e53 Refuse N_VIDS_P above ENC_DEPTH_P in KL_srp_top at elaboration, graded by its guard-bench case and five arms (issue #216)
+b655100 Take every VID Registrar to MT at LINK_DOWN and LINK_UP, restart each VID's Applicant at LINK_UP, and grade it and the Table 10-3 VP rows with AP8, DA6, DA7 and VR12 to VR18 and ten arms (issue #216)
+60094a2 Grade OV0 to OV10 with one arm that hands every push over twice and appends, since each Applicant now decides once per tx! and either layer alone holds them (issue #216)
+794f844 Re-anchor the rdc-base-no-overlay and store-link-detector-resets-up arms on the E_RDESCENT and harness-reset lines issue #217 moved
+06cce32 Feed M11 a peer JoinIn of the Domain so the canceled round is empty again and the arm empty-canceled-pdu fails (issue #216)
+8a73a9c Split the two VLAN rows' functions under 100 lines and record the measured area in 10 section 5.1 (issue #216)
+3da1427 Record the Applicants, the VID Registrar and the MVRP LeaveAll in 10 sections 3, 5, 6.1 (F10.2), 6.2 (F10.3) and 6.5, 09 8.15 and the three READMEs, with the measured arm counts (issue #216)
+1cf865b Plant one arm per new row, the three acceptance arms included, and re-express the 23 arms whose lines moved (issue #216)
+f247533 Give the Domain and each VID a Table 10-3 Applicant decided at tx!, a Registrar per VID and an MVRP LeaveAll with nothing declared, graded end to end and per unit (issue #216)
+43149fb Record the ENTITY descriptor's available_index from ADP, section AI, IF4 and the five arms in 04 5, 06 6.1, REQ-ADP-011 and the suite READMEs (issue #217)
+9bd6b43 Grade the last available_index in ADP P2, P3, P7, IF4 and IF9 and per interface in pp_top IF4, take the served index in the ENTITY reads, and plant five arms (issue #217)
+db131cb Serve the last ENTITY_AVAILABLE's available_index in READ_DESCRIPTOR(ENTITY) from ADP, per the command's interface (issue #217)
+07f7b04 Read ENTITY's available_index after each ENTITY_AVAILABLE and after ENTITY_DEPARTING in pp_top section AI (issue #217)
+20
+submodule.external.url git@github.com:kebag-logic/fpga-avb-ethernet.git
+submodule.third_party/verilog-axis.url https://github.com/alexforencich/verilog-axis
+submodule.protocol-processor.url https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+submodule.gptp-processor.url https://github.com/Mister-M-alt/FPGA-gPTP.git
+submodule.third_party/lwSRP.url https://github.com/kebag-logic/lwSRP.git
+submodule.third_party/tsn-c-stack.url https://github.com/kebag-logic/tsn-c-stack.git
+## protocol-processor remote main
+801ef2283ec793e35a2590fc6593c90313a64041	refs/heads/main
+## gptp-processor remote main
+a64be73de32f3ec5084cf908a530218e9006453e	refs/heads/main
+1616fc8f062fbf58c35ad31674b5b233207bbdb8
+commit
+1616 ancestor of a64b: yes
+ docs/TEST_DEVELOPER.md         |  10 +++
+ tb/mutation_jobs_test.py       | 119 +++++++++++++++++++++++++++++++
+ tb/verilator/engine/Makefile   |  16 ++++-
+ tb/verilator/engine/mutants.py | 155 +++++++++++++++++++++++++++++++----------
+ 4 files changed, 260 insertions(+), 40 deletions(-)
