@@ -1,0 +1,27 @@
+baseline findings: 0
+CAUGHT  backticked single            `sw/litex/milan_soc.py:179`
+CAUGHT  backticked range             `sw/litex/milan_soc.py:179-181`
+CAUGHT  backticked list              `scripts/nvm_klj3.py:408,465`
+CAUGHT  list with spaces             `scripts/nvm_klj3.py:408, 465`
+CAUGHT  unquoted single              sw/litex/milan_soc.py:179
+CAUGHT  backticked path line N       `sw/litex/milan_soc.py` line 179
+CAUGHT  backticked path lines N-M    `sw/litex/milan_soc.py` lines 179-181
+CAUGHT  #L link                      [map](../../sw/litex/milan_soc.py#L179)
+CAUGHT  #L range link                [map](../../sw/litex/milan_soc.py#L179-L181)
+MISSED  unquoted path line N         sw/litex/milan_soc.py line 179
+MISSED  line N of path               line 179 of `sw/litex/milan_soc.py`
+MISSED  path, line N                 `sw/litex/milan_soc.py`, line 179
+MISSED  path:LN                      `sw/litex/milan_soc.py:L179`
+MISSED  path (line N)                `sw/litex/milan_soc.py` (line 179)
+
+old single-form pattern against the gate's six plants:
+caught by old pattern: `sw/litex/milan_soc.py:179`
+MISSED by old pattern: `sw/litex/milan_soc.py:179-181`
+MISSED by old pattern: `scripts/nvm_klj3.py:408,465`
+MISSED by old pattern: sw/litex/milan_soc.py:179
+MISSED by old pattern: `sw/litex/milan_soc.py` line 179
+MISSED by old pattern: [the map](../../sw/litex/milan_soc.py#L179)
+
+new pattern over tracked docs pages (informational):
+  docs/design/SAVED_STATE_FORMAT_32X32.md: 0
+  all docs pages: 437 matches in 126 files
