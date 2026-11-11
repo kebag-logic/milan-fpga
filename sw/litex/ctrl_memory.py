@@ -133,6 +133,36 @@ ROM = Region("rom", 0x0000_0000, BUDGET_BYTES)
 RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)
 
 
+def decode_pieces(origin: int, size: int) -> tuple[tuple[int, int], ...]:
+    """[origin, origin + size) as the fewest aligned power-of-two pieces, lowest first (#791).
+
+    The VexiiRiscv generator checks a fetch or a load against each region it
+    is handed as one mask compare, (address & ~(size - 1)) == origin. That is
+    exactly the region only when the size is a power of two and the origin a
+    multiple of it. For `rom`, 224 KiB at 0, it is (address & 0xfffc8000) == 0,
+    which leaves out every address with bit 15 set. Each piece here is such a
+    region, and together the pieces are exactly [origin, origin + size). So
+    224 KiB at 0 is 128 KiB at 0, 64 KiB at 0x20000 and 32 KiB at 0x30000.
+    """
+    if origin < 0 or size <= 0:
+        raise ValueError(f"no region of {size} bytes at {origin:#x}")
+    pieces = []
+    while size:
+        fits = 1 << (size.bit_length() - 1)               # the largest power of two within size
+        piece = min(fits, origin & -origin) if origin else fits   # and that origin is a multiple of
+        pieces.append((origin, piece))
+        origin, size = origin + piece, size - piece
+    return tuple(pieces)
+
+
+def cpu_regions(regions: list[tuple]) -> list[tuple]:
+    """The region list the split CPU's generator is handed (#791): each (origin, size, mode, bus) row
+    of LiteX's list as its decode_pieces, each in the row's mode and on its bus. A row that is
+    already an aligned power of two is one piece, the row itself."""
+    return [(start, piece, mode, bus) for origin, size, mode, bus in regions
+            for start, piece in decode_pieces(origin, size)]
+
+
 @dataclass(frozen=True)
 class Section:
     """One allocated section of a linked image."""

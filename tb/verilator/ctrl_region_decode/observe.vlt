@@ -1,0 +1,23 @@
+`verilator_config
+// Passive observation of the split CPU only: its commits and traps, its
+// instruction cache's refill bus and its cacheless data bus. No source changes.
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_interrupt"
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_cause"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_valid"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_ready"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_payload_address"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_valid"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_payload_error"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_valid"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_ready"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_id"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_write"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_address"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_data"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_valid"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_id"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_data"
+public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_rsp_payload_error"

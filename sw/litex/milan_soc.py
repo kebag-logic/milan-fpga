@@ -3232,7 +3232,43 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
                           region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
     # LiteX's own flag for "rom already holds its contents": the Builder builds no BIOS.
     soc.integrated_rom_initialized = True
+    exact_cpu_decode(soc.cpu)
     print(f"[milan] --ctrl-firmware {firmware}: {json.dumps(soc.ctrl_plan.summary())}")
+
+
+def exact_cpu_decode(cpu: object) -> None:
+    """Hand the split CPU's generator each region as ctrl_memory.cpu_regions splits it (#791).
+
+    LiteX's VexiiRiscv collects its region list from the SoC bus as it
+    finalizes, names its netlist from that list (generate_netlist_name), then
+    generates the netlist from it. Here this CPU's naming step first replaces
+    the list by its aligned power-of-two pieces, so the netlist's name and its
+    fetch and load decode both follow the pieces. The SoC bus, its decoder and
+    csr.csv keep the whole regions. Finalizing refuses a CPU whose naming step
+    never ran: a LiteX that stops calling it fails the build instead of
+    building the single-mask decode. Only VexiiRiscv is split, the one CPU the
+    product profile accepts.
+    """
+    from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
+    if not isinstance(cpu, VexiiRiscv):
+        return
+    finalize, named = cpu.do_finalize, []
+
+    def generate_netlist_name() -> None:
+        """This CPU's naming step: the pieces first, then LiteX's own naming from them."""
+        VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)
+        named.append(VexiiRiscv.memory_regions)
+        VexiiRiscv.generate_netlist_name()
+
+    def do_finalize() -> None:
+        """LiteX's finalize, then the refusal of a CPU whose naming step never ran."""
+        finalize()
+        if not named:
+            raise RuntimeError("the split CPU named its netlist without its exact region pieces: LiteX's "
+                               "VexiiRiscv no longer names it through generate_netlist_name (#791)")
+
+    cpu.generate_netlist_name = generate_netlist_name
+    cpu.do_finalize = do_finalize
 
 
 def _parse_l2_bytes(token: str) -> Decimal:

@@ -147,10 +147,12 @@ The figures in [Results](#results) and [The instruction cache](#the-instruction-
 Each reaches the same kind of device over the same peripheral bus in both maps, and the flash through the product's PHY stage, so the address does not change an access's cost.
 `--ctrl-mailbox` leaves the CSR map unchanged ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
 
-The CPU generator is handed each region at its power-of-two cover (256 KiB for `rom` and `sram`).
-Generated from the 224 KiB regions, its region check excludes every `rom` address with bit 15 set, and the image faults ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
-The two netlists differ only in address-decode lines, so the cover changes no timing.
-`--cpu-regions as-built` builds the regions unchanged and reproduces the fault.
+Generated from the 224 KiB regions, the CPU's region check excluded every `rom` address with bit 15 set, and the image faulted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
+The split SoC now hands the generator each region as its aligned power-of-two pieces, which decode exactly ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-cpus-region-decode)).
+The default `--cpu-regions cover` builds that shipping list and refuses one that is not its own power-of-two cover, instead of widening it.
+Until the fix, the harness handed the generator each region at its power-of-two cover (256 KiB for `rom` and `sram`), and the figures below were measured on that CPU.
+The cover and the pieces differ only in address-decode lines, so neither changes timing.
+`--cpu-regions as-built` builds the regions without the pieces, the single-mask decode, and reproduces the fault.
 
 The TSN stack boundary gate finds six of this harness's files by text, because they name the firmware's tree.
 Each is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) with its reason.
@@ -1053,7 +1055,7 @@ The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, a
 The ordinary image measures the same path at 0.294 ms.
 `slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
 The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
-`as-built` hands the generator the SoC's regions unchanged.
+`as-built` hands the generator the SoC's regions unchanged, without the split SoC's pieces.
 The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.

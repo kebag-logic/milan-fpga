@@ -4,7 +4,7 @@
 """The split placement's firmware memory (#640 M8a): plan, rules, banks, link and SoC build.
 
 `ctrl_memory.py` is the map and its checks; `milan_soc.CtrlMemory` is the
-block RAM the SoC builds from them. This file grades seven things:
+block RAM the SoC builds from them. This file grades eight things:
 
   1. BANKS. For every need up to past the budget, the banks are powers of two
      of whole RAMB18 granules, largest first, and hold the need with less than
@@ -57,6 +57,7 @@ block RAM the SoC builds from them. This file grades seven things:
      rule or a property, and must turn its arm red with a named failure. A
      mutant is graded only against an arm that passed unmutated in the same
      run, so a failure of the environment is never counted as a kill.
+  8. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region pieces the split export hands the CPU.
 --build-only compiles and links the reset-entry probe for the boundary capture.
 It requires RV32, runs no suites and plants no defects.
 
@@ -95,6 +96,7 @@ sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
 import ctrl_memory  # noqa: E402
 from ctrl_memory_elf import poke, splice, truncate, write_elf  # noqa: E402
 import ctrl_memory_ledger as ledgers  # noqa: E402
+import ctrl_memory_decode as decode  # noqa: E402
 from ctrl_memory_probe import link  # noqa: E402
 import fw_rv32  # noqa: E402
 import milan_soc  # noqa: E402
@@ -650,6 +652,7 @@ def soc_child(spec_path: Path) -> int:
         result.update(rc=1, rule=exc.rule, refusal=str(exc))
     except Exception as exc:     # any other failure is recorded as itself, never as a refusal
         result.update(rc=1, error=f"{type(exc).__name__}: {exc}")
+    result["cpu_regions"] = decode.generator_rows()
     Path(spec["result"]).write_text(json.dumps(result))
     return 0
 
@@ -700,6 +703,7 @@ def split_export(problems: list[str], result: dict[str, Any], firmware: Path) ->
           f"the Builder writes the SoC headers once, without the firmware make inputs ({result.get('includes')})")
     check(problems, "libmilan_baremetal" not in told.get("packages", ["?"])
           and not (out / "software/libmilan_baremetal").exists(), "the split build adds no shipping firmware")
+    decode.export_check(problems, result)
 
 
 def soc_arms(problems: list[str], tmp: Path, mutation: list[str] | None = None) -> None:
@@ -758,6 +762,7 @@ PROPERTIES = {
     "stage in main": "main() runs the staging check before any export",
     "pairing": "--ctrl-mailbox and --ctrl-firmware are refused apart",
     "no shipping firmware": "the split build adds no shipping firmware library",
+    **decode.PROPERTIES,
 }
 
 _CHECKS = ("ctrl_memory", "check_map")
@@ -850,6 +855,7 @@ MUTANTS = tuple(Mutant(*row) for row in (
     ("shipping firmware linked", "no shipping firmware", "milan_soc", "main",
      'if args.software_profile == "baremetal" and not args.ctrl_mailbox:', 'if args.software_profile == "baremetal":',
      "soc"),
+    *decode.MUTANTS,
 ))
 
 
@@ -913,7 +919,7 @@ def mutant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
     Only an arm in `green`, one that passed unmutated in this run, grades a
     mutant: a failure the arm shows anyway is no evidence that the mutant is caught.
     """
-    arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms}
+    arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms, "decode": decode.arms}
     for n, m in enumerate(MUTANTS):
         if m.arm not in green:
             check(problems, False, f"MUTANT '{m.name}' ({m.target}) is not graded: the {m.arm} arm fails unmutated")
@@ -971,7 +977,8 @@ def main() -> int:
         green: set[str] = set()
         for key, label, arm in (("banks", "banks", bank_arms), ("checks", "rules", partial(check_arms, tmp=tmp)),
                                 ("sim", "simulation", sim_arms), ("link", "link", partial(link_arms, tmp=tmp)),
-                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc"))):
+                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc")),
+                                ("decode", "CPU decode", decode.arms)):
             before = len(problems)
             outcomes[key] = run_arm(problems, label, arm)
             if len(problems) == before:

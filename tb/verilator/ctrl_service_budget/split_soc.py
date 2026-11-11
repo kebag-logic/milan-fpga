@@ -130,11 +130,11 @@ def power_of_two_cover(regions: list[tuple]) -> list[tuple]:
     The CPU generator decodes a region whose size is not a power of two
     wrongly: for rom, 224 KiB at 0, it emits (address & 0xfffc8000) == 0,
     which leaves out every address with bit 15 set, so the first fetch at
-    0x8000 or above takes an instruction access fault (cause 1). The cover
-    changes only the generator's address decode (its region checks and its
-    bus decoder), never a register or a pipeline stage; the SoC's own bus
-    regions and CtrlMemory's banks, whose decode answers err past the last
-    bank, stay as shipped.
+    0x8000 or above takes an instruction access fault (cause 1). The split
+    SoC now hands it each region as aligned power-of-two pieces
+    (ctrl_memory.cpu_regions, #791), each its own cover, so CpuPatches
+    'cover' holds the shipping list to this and refuses a list it would
+    change instead of widening it.
     """
     covered = []
     for origin, size, mode, bus in regions:
@@ -399,7 +399,15 @@ def fetch_l1_geometry(fetch_l1: str) -> tuple[int, int] | None:
 
 
 class CpuPatches:
-    """MilanSoC's VexiiRiscv path as shipped, with the DMA port and the selected region set."""
+    """MilanSoC's VexiiRiscv path as shipped, with the DMA port and the selected region set.
+
+    'cover' hands the generator the shipping split's region list
+    (milan_soc.exact_cpu_decode: each region as ctrl_memory.cpu_regions
+    splits it, #791) and refuses one that is not its own power-of-two cover.
+    'as-built' hands it the SoC's regions without that split, the
+    single-mask decode of #791, as a control. Either records the SoC's own
+    whole regions, before any split.
+    """
 
     def __init__(self, cpu_regions: str) -> None:
         if cpu_regions not in ('cover', 'as-built'):
@@ -408,17 +416,23 @@ class CpuPatches:
         self.soc_regions: list[list] = []
         self.args_read = VexiiRiscv.args_read
         self.netlist_name = VexiiRiscv.generate_netlist_name
+        self.split = milan_soc.ctrl_memory.cpu_regions
 
     def shipping_args_read(self, args: object) -> None:
         """The shipping image's CPU has the DMA port (with_dma = with_milan); keep it, idle."""
         args.with_dma = True
         self.args_read(args)
 
+    def split_regions(self, regions: list[tuple]) -> list[tuple]:
+        """Record the SoC's own regions; split them as the shipping SoC does, or not for 'as-built'."""
+        self.soc_regions[:] = [list(r) for r in regions]
+        return self.split(regions) if self.cpu_regions == 'cover' else list(regions)
+
     def generate_netlist_name(self) -> None:
-        """Hand the generator the regions cpu_regions selects; record the SoC's own."""
-        self.soc_regions[:] = [list(r) for r in VexiiRiscv.memory_regions]
-        if self.cpu_regions == 'cover':
-            VexiiRiscv.memory_regions = power_of_two_cover(VexiiRiscv.memory_regions)
+        """Name the netlist from the regions split_regions gave; under 'cover' each is its own cover."""
+        if self.cpu_regions == 'cover' and power_of_two_cover(VexiiRiscv.memory_regions) != VexiiRiscv.memory_regions:
+            raise RuntimeError(f'the split SoC hands the CPU generator a region it decodes inexactly (#791): '
+                               f'{VexiiRiscv.memory_regions}')
         self.netlist_name()
 
     def applied(self) -> contextlib.ExitStack:
@@ -428,6 +442,7 @@ class CpuPatches:
         stack.enter_context(patch.object(VexiiRiscv, 'args_read', staticmethod(self.shipping_args_read)))
         stack.enter_context(patch.object(VexiiRiscv, 'generate_netlist_name',
                                          staticmethod(self.generate_netlist_name)))
+        stack.enter_context(patch.object(milan_soc.ctrl_memory, 'cpu_regions', self.split_regions))
         return stack
 
 
@@ -445,9 +460,10 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
           fetch_l1: str = 'split') -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
-    cpu_regions 'cover' gives the CPU generator each region at its
-    power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
-    which reproduces the generator's rom decode defect (a control).
+    cpu_regions 'cover' gives the CPU generator the shipping split's
+    regions, each its own power-of-two cover (#791); 'as-built' gives it the
+    SoC's regions without that split, which reproduces the generator's
+    single-mask rom decode (a control).
     fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
     """
     addresses = fixture_addresses(build_dir / FLASH_MAP)
