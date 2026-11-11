@@ -1,0 +1,29 @@
+{
+ "head": "c7e4badb4caf61dcf47e122dc79de7b709125ec9",
+ "not_run": [
+  {
+   "step": "docs__docs-gates-0/ci_packages_6",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__docs-gates-1/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__docs-gates-2/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__ci-manifest/ci_collect",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "docs__ci-fail-fast/ci_observe",
+   "reason": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+  },
+  {
+   "step": "docs__ci-cancel-tail/step2",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  }
+ ]
+}

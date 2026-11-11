@@ -1,0 +1,73 @@
+COMMAND <sdk>/host/bin/riscv32-linux-gcc -march=rv32i_zicsr -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -static -DREPORT_ADDRESS=0x10000000 -DDONE_WORD=0x444f4e45 -DHALT_WORD=0x48414c54 -T <scratch>/final/region-self/none/probe.ld -Wl,--no-relax -o <scratch>/final/region-self/none/probe.elf <scratch>/clones/head/tb/verilator/ctrl_region_decode/probe.S <scratch>/final/region-self/none/probe_data.S
+COMMAND <litex>/venv/bin/python3 -B <scratch>/clones/head/tb/verilator/ctrl_region_decode/region_soc.py <scratch>/final/region-self/none/soc endstation_ax7101_1x1_tdm8 <scratch>/final/region-self/none/probe.elf none
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/final/region-self/none/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I<scratch>/clones/head/tb/common -I<scratch>/final/region-self/none <scratch>/clones/head/tb/verilator/ctrl_region_decode/observe.vlt <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_88c5cdf96c3a124bb0d28c2aa974abb5.v <scratch>/final/region-self/none/soc/gateware/sim.v <scratch>/clones/head/tb/verilator/ctrl_region_decode/sim_main.cpp
+COMMAND make -j16 -C <scratch>/final/region-self/none/native -f Vsim.mk Vsim
+== none
+NETLIST VexiiRiscvLitex_88c5cdf96c3a124bb0d28c2aa974abb5 (none); the generator was handed [0x00000000, +0x20000) rxc, [0x00020000, +0x10000) rxc, [0x00030000, +0x8000) rxc, [0x10000000, +0x20000) rwxc, [0x10020000, +0x10000) rwxc, [0x10030000, +0x8000) rwxc, [0x01000000, +0x1000000) rxc, [0x90000000, +0x10000) rw, [0x90100000, +0x8000) rw, [0xf0000000, +0x10000) rw
+DECODE PASS the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000)
+DECODE PASS the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0010000, 0xf0020000), [0xf0c00000, 0xf1000000)
+PASS rom: a load at its last word, 0x00037ffc, reads its word from memory
+PASS rom: a fetch at its last word, 0x00037ffc, executes it
+PASS rom: a load at each seam of its decode pieces reads its word from memory
+PASS rom: a fetch at each seam of its decode pieces executes it
+PASS rom: a load one word past its end, 0x00038000, takes a load access fault (cause 5) before its bus
+PASS rom: a fetch one word past its end, 0x00038000, takes an instruction access fault (cause 1) before its bus
+PASS sram: a load at its last word, 0x10037ffc, reads its word from memory
+PASS sram: a fetch at its last word, 0x10037ffc, executes it
+PASS sram: a load at each seam of its decode pieces reads its word from memory
+PASS sram: a fetch at each seam of its decode pieces executes it
+PASS sram: a load one word past its end, 0x10038000, takes a load access fault (cause 5) before its bus
+PASS sram: a fetch one word past its end, 0x10038000, takes an instruction access fault (cause 1) before its bus
+PASS the probe ran every probe and stored its end word
+PASS DECODE the fetch decode admits exactly the SoC regions it may fetch
+PASS DECODE the load decode admits exactly the SoC regions it may load
+SELF-TEST PASS none: fails 0 check(s), wants 0
+COMMAND <sdk>/host/bin/riscv32-linux-gcc -march=rv32i_zicsr -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -static -DREPORT_ADDRESS=0x10000000 -DDONE_WORD=0x444f4e45 -DHALT_WORD=0x48414c54 -T <scratch>/final/region-self/single-mask/probe.ld -Wl,--no-relax -o <scratch>/final/region-self/single-mask/probe.elf <scratch>/clones/head/tb/verilator/ctrl_region_decode/probe.S <scratch>/final/region-self/single-mask/probe_data.S
+COMMAND <litex>/venv/bin/python3 -B <scratch>/clones/head/tb/verilator/ctrl_region_decode/region_soc.py <scratch>/final/region-self/single-mask/soc endstation_ax7101_1x1_tdm8 <scratch>/final/region-self/single-mask/probe.elf single-mask
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/final/region-self/single-mask/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I<scratch>/clones/head/tb/common -I<scratch>/final/region-self/single-mask <scratch>/clones/head/tb/verilator/ctrl_region_decode/observe.vlt <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf.v <scratch>/final/region-self/single-mask/soc/gateware/sim.v <scratch>/clones/head/tb/verilator/ctrl_region_decode/sim_main.cpp
+COMMAND make -j16 -C <scratch>/final/region-self/single-mask/native -f Vsim.mk Vsim
+== single-mask
+NETLIST VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf (single-mask); the generator was handed [0x00000000, +0x38000) rxc, [0x10000000, +0x38000) rwxc, [0x01000000, +0x1000000) rxc, [0x90000000, +0x10000) rw, [0x90100000, +0x8000) rw, [0xf0000000, +0x10000) rw
+DECODE FAIL the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00008000), [0x00010000, 0x00018000), [0x00020000, 0x00028000), [0x00030000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000); first difference 0x00008000, refused inside the regions
+DECODE FAIL the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00008000), [0x00010000, 0x00018000), [0x00020000, 0x00028000), [0x00030000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0010000, 0xf0020000), [0xf0c00000, 0xf1000000); first difference 0x00008000, refused inside the regions
+PASS rom: a load at its last word, 0x00037ffc, reads its word from memory
+PASS rom: a fetch at its last word, 0x00037ffc, executes it
+FAIL rom: a load at each seam of its decode pieces reads its word from memory: 0x0001fffc: trap cause 5; 0x0002fffc: trap cause 5
+FAIL rom: a fetch at each seam of its decode pieces executes it: 0x0001fffc: trap cause 1; 0x0002fffc: trap cause 1
+PASS rom: a load one word past its end, 0x00038000, takes a load access fault (cause 5) before its bus
+PASS rom: a fetch one word past its end, 0x00038000, takes an instruction access fault (cause 1) before its bus
+PASS sram: a load at its last word, 0x10037ffc, reads its word from memory
+PASS sram: a fetch at its last word, 0x10037ffc, executes it
+PASS sram: a load at each seam of its decode pieces reads its word from memory
+PASS sram: a fetch at each seam of its decode pieces executes it
+PASS sram: a load one word past its end, 0x10038000, takes a load access fault (cause 5) before its bus
+PASS sram: a fetch one word past its end, 0x10038000, takes an instruction access fault (cause 1) before its bus
+PASS the probe ran every probe and stored its end word
+FAIL DECODE the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00008000), [0x00010000, 0x00018000), [0x00020000, 0x00028000), [0x00030000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000); first difference 0x00008000, refused inside the regions
+FAIL DECODE the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00008000), [0x00010000, 0x00018000), [0x00020000, 0x00028000), [0x00030000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0010000, 0xf0020000), [0xf0c00000, 0xf1000000); first difference 0x00008000, refused inside the regions
+SELF-TEST PASS single-mask: fails 4 check(s), wants 4
+COMMAND <sdk>/host/bin/riscv32-linux-gcc -march=rv32i_zicsr -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -static -DREPORT_ADDRESS=0x10000000 -DDONE_WORD=0x444f4e45 -DHALT_WORD=0x48414c54 -T <scratch>/final/region-self/cover/probe.ld -Wl,--no-relax -o <scratch>/final/region-self/cover/probe.elf <scratch>/clones/head/tb/verilator/ctrl_region_decode/probe.S <scratch>/final/region-self/cover/probe_data.S
+COMMAND <litex>/venv/bin/python3 -B <scratch>/clones/head/tb/verilator/ctrl_region_decode/region_soc.py <scratch>/final/region-self/cover/soc endstation_ax7101_1x1_tdm8 <scratch>/final/region-self/cover/probe.elf cover
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/final/region-self/cover/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I<scratch>/clones/head/tb/common -I<scratch>/final/region-self/cover <scratch>/clones/head/tb/verilator/ctrl_region_decode/observe.vlt <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <litex>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_5794804317abf38f1824a9df1548eb53.v <scratch>/final/region-self/cover/soc/gateware/sim.v <scratch>/clones/head/tb/verilator/ctrl_region_decode/sim_main.cpp
+COMMAND make -j16 -C <scratch>/final/region-self/cover/native -f Vsim.mk Vsim
+== cover
+NETLIST VexiiRiscvLitex_5794804317abf38f1824a9df1548eb53 (cover); the generator was handed [0x00000000, +0x40000) rxc, [0x10000000, +0x40000) rwxc, [0x01000000, +0x1000000) rxc, [0x90000000, +0x10000) rw, [0x90100000, +0x8000) rw, [0xf0000000, +0x10000) rw
+DECODE FAIL the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00040000), [0x01000000, 0x02000000), [0x10000000, 0x10040000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000); first difference 0x00038000, admitted outside the regions
+DECODE FAIL the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00040000), [0x01000000, 0x02000000), [0x10000000, 0x10040000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0010000, 0xf0020000), [0xf0c00000, 0xf1000000); first difference 0x00038000, admitted outside the regions
+PASS rom: a load at its last word, 0x00037ffc, reads its word from memory
+PASS rom: a fetch at its last word, 0x00037ffc, executes it
+PASS rom: a load at each seam of its decode pieces reads its word from memory
+PASS rom: a fetch at each seam of its decode pieces executes it
+FAIL rom: a load one word past its end, 0x00038000, takes a load access fault (cause 5) before its bus: 0x00038000: traps [], mcause [], mtval []; 1 command(s) for it on the bus
+FAIL rom: a fetch one word past its end, 0x00038000, takes an instruction access fault (cause 1) before its bus: 0x00038000: traps ['2'], mcause [2], mtval ['0x0']; 1 command(s) for it on the bus
+PASS sram: a load at its last word, 0x10037ffc, reads its word from memory
+PASS sram: a fetch at its last word, 0x10037ffc, executes it
+PASS sram: a load at each seam of its decode pieces reads its word from memory
+PASS sram: a fetch at each seam of its decode pieces executes it
+FAIL sram: a load one word past its end, 0x10038000, takes a load access fault (cause 5) before its bus: 0x10038000: traps [], mcause [], mtval []; 1 command(s) for it on the bus
+FAIL sram: a fetch one word past its end, 0x10038000, takes an instruction access fault (cause 1) before its bus: 0x10038000: traps ['2'], mcause [2], mtval ['0x0']; 1 command(s) for it on the bus
+PASS the probe ran every probe and stored its end word
+FAIL DECODE the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00040000), [0x01000000, 0x02000000), [0x10000000, 0x10040000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000); first difference 0x00038000, admitted outside the regions
+FAIL DECODE the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00040000), [0x01000000, 0x02000000), [0x10000000, 0x10040000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0010000, 0xf0020000), [0xf0c00000, 0xf1000000); first difference 0x00038000, admitted outside the regions
+SELF-TEST PASS cover: fails 6 check(s), wants 6
+ctrl_region_decode self-test: PASS
