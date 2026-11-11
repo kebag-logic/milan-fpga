@@ -247,16 +247,64 @@ def reboot_mutants(mutant: type) -> tuple:
         # REQ-FWX-001, the processor's parity in the window from the SUCCESS to the port
         m("plat-reboot-takes-frames-after-the-success", PLAT, GATE,
           "\treturn own->ready == NULL || own->ready(own->ctx);\n",
-          "platboot1", "Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess",
-          "B19 no frame of any channel is taken after the REBOOT's SUCCESS",
-          also=(("platboot1", "Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess",
-                 "B19 a BIND_RX after the REBOOT's SUCCESS is not applied"),)),
+          "platboot1", B19, "B19 no ADP frame is taken after the REBOOT's SUCCESS",
+          also=tuple(("platboot1", B19, f"B19 no {n} frame is taken after the REBOOT's SUCCESS")
+                     for n in ("ACMP", "MAAP", "SRP")) +
+          (("platboot1", B19, "B19 a BIND_RX after the REBOOT's SUCCESS is not applied"),)),
         m("plat-reboot-transmits-after-the-departing", PLAT, DEPART,
           DEPART + "\t\tif (ctrl_plat.reboot != 3u) {\n\t\t\tctrl_loop_step(&ctrl_plat.app.loop);\n\t\t}\n",
-          "platboot1", "Boot.B20NoOtherChannelTransmitsAfterTheDeparting",
-          "B20 no other channel starts a transmission after ENTITY_DEPARTING"),
+          "platboot1", B20, "B20 no other channel starts a transmission after ENTITY_DEPARTING",
+          also=tuple(("platboot1", B20, f"B20 no {n} transmission starts after ENTITY_DEPARTING")
+                     for n in ("ACMP", "MAAP", "SRP"))),
         m("plat-reboot-departs-before-the-rings-drain", PLAT, OTHERS,
           "\t\t\tif (ch != MBX_CH_ADP && !drained(ch) && false) {\n",
-          "platboot1", "Boot.B21TheDepartingWaitsForEveryOtherRing",
-          "B21 no ENTITY_DEPARTING while another channel's ring holds a frame"),
-    )
+          "platboot1", B21, "B21 no ENTITY_DEPARTING while the ACMP ring holds a frame",
+          also=tuple(("platboot1", B21, f"B21 no ENTITY_DEPARTING while the {n} ring holds a frame")
+                     for n in ("MAAP", "SRP"))),
+        # the gate from the SUCCESS itself, not from the handover of its frames
+        m("plat-reboot-accepted-at-the-handover", "aecp/aecp.c", ACCEPTED, "\treturn a->reboot >= 2u;\n",
+          "platboot1", B22, "B22 no MAAP frame queued with the REBOOT is taken",
+          also=(("platboot1", B22, "B22 no SRP frame queued with the REBOOT is taken"),) +
+          tuple(("platboot1", B23, f"B23 no {n} frame is taken while the REBOOT's SUCCESS waits to be handed over")
+                for n in ("ADP", "ACMP", "MAAP", "SRP"))),
+    ) + channel_gate_mutants(mutant) + channel_wait_mutants(mutant)
+
+
+#: The REBOOT's tests that name a channel in their words
+B19 = "Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess"
+B20 = "Boot.B20NoOtherChannelTransmitsAfterTheDeparting"
+B21 = "Boot.B21TheDepartingWaitsForEveryOtherRing"
+B22 = "Boot.B22TheGateHoldsInThePassThatTakesTheReboot"
+B23 = "Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver"
+#: AECP's acceptance of a REBOOT, which the gate reads (aecp/aecp.c)
+ACCEPTED = "\treturn a->reboot != 0u;\n"
+#: Each channel by its contract constant and the name its tests' words carry
+CHANNELS = (("MBX_CH_ADP", "ADP"), ("MBX_CH_ACMP", "ACMP"), ("MBX_CH_AECP", "AECP"), ("MBX_CH_MAAP", "MAAP"),
+            ("MBX_CH_SRP", "SRP"))
+
+
+def channel_gate_mutants(mutant: type) -> tuple:
+    """The receive gate open on one channel only. AECP's own ready refuses a command from the SUCCESS too
+    (aecp.c), so AECP's defect opens both: its channel is taken whatever either says."""
+    out = []
+    for const, name in CHANNELS:
+        if name == "AECP":
+            new = ("\treturn own == &ctrl_plat.rx[MBX_CH_AECP] || (!aecp_reboot_accepted(&ctrl_plat.aecp.core) && "
+                   "(own->ready == NULL || own->ready(own->ctx)));\n")
+        else:
+            new = (f"\treturn (own == &ctrl_plat.rx[{const}] || !aecp_reboot_accepted(&ctrl_plat.aecp.core)) && "
+                   "(own->ready == NULL || own->ready(own->ctx));\n")
+        out.append(mutant(f"plat-reboot-takes-{name.lower()}-frames-after-the-success", PLAT, GATE, new,
+                          "platboot1", B19, f"B19 no {name} frame is taken after the REBOOT's SUCCESS",
+                          also=(("platboot1", B23,
+                                 f"B23 no {name} frame is taken while the REBOOT's SUCCESS waits to be handed over"),)))
+    return tuple(out)
+
+
+def channel_wait_mutants(mutant: type) -> tuple:
+    """The DEPARTING's wait skipping one ring. AECP's ring holds only the REBOOT's own frames once the loop has
+    stopped, which aecp_reboot_due waits for, so skipping it alone changes nothing and it has no defect here."""
+    return tuple(mutant(f"plat-reboot-departs-past-the-{name.lower()}-ring", PLAT, OTHERS,
+                        f"\t\t\tif (ch != MBX_CH_ADP && ch != {const} && !drained(ch)) {{\n",
+                        "platboot1", B21, f"B21 no ENTITY_DEPARTING while the {name} ring holds a frame")
+                 for const, name in CHANNELS if name not in ("ADP", "AECP"))

@@ -1839,6 +1839,7 @@ TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
     register_controller(CTLR);register_controller(CTLR+1);ask(1,Bytes(16));
     sent.clear();completions.clear();
     auto b=command(42,target(0,0));aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, before any poll hands its frames over";
     for(unsigned n=0;n<4;++n)aecp_poll(&a);
     ASSERT_EQ(sent.size(),2u)<<"the SUCCESS response, then one notification";
     EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, so the platform takes no frame";

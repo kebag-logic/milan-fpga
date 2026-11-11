@@ -58,15 +58,26 @@
 //       write starts during the PHY hold
 //   B18 an ENTITY_DEPARTING that ADP's ring had no room for at ADP's poll
 //       holds the reset, though the ring has drained since, until it leaves
-//   B19 from the REBOOT's SUCCESS no received frame of any channel is taken:
-//       an ENTITY_DISCOVER, a BIND_RX and an AEM command stay in their rings,
-//       and none is applied or answered (REQ-FWX-001, the processor's
-//       discard; protocol-processor 06_aecp_engine.md 6.11)
-//   B20 once ENTITY_DEPARTING is committed, no other channel starts a
-//       transmission until the reset port fires, though the mailbox holds the
-//       DEPARTING for seconds while a bound listener, SRP and MAAP run
-//   B21 ENTITY_DEPARTING waits until every other channel's ring has drained,
-//       so no frame committed before it follows it
+//   NoFrameOfAnyChannelIsTakenFromTheSuccess: after the REBOOT's SUCCESS a
+//       frame on each of the five channels (an ENTITY_DISCOVER, a BIND_RX, an
+//       AEM command, a MAAP PROBE and an MSRP PDU) stays in its ring, and none
+//       is applied or answered (REQ-FWX-001, the processor's discard;
+//       protocol-processor 06_aecp_engine.md 6.11)
+//   NoOtherChannelTransmitsAfterTheDeparting: once ENTITY_DEPARTING is
+//       committed, no ACMP, AECP, MAAP or SRP transmission starts until the
+//       reset port fires, though the mailbox holds the DEPARTING for seconds
+//       while a bound listener, SRP and MAAP run
+//   TheDepartingWaitsForEveryOtherRing: ENTITY_DEPARTING waits while the ACMP,
+//       the MAAP or the SRP ring holds a frame, so no frame committed before it
+//       follows it. AECP's ring holds only the REBOOT's own frames by then,
+//       whose completion aecp_reboot_due waits for (B12)
+//   TheGateHoldsInThePassThatTakesTheReboot: a MAAP frame, an MSRP PDU and a
+//       second AEM command queued with the REBOOT are not taken in the pass
+//       that takes it: the gate holds from the SUCCESS itself, before its
+//       frames are handed over (the processor accepts at the SUCCESS)
+//   TheGateHoldsWhileTheResponseCannotBeHandedOver: with AECP's transmit ring
+//       full, so the SUCCESS is not handed over, a frame on each of the five
+//       channels stays in its ring
 
 #include <gtest/gtest.h>
 
@@ -167,8 +178,10 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 // contract's bitstream answers ID without this contract's magic
 // While nonzero, that many reads of ADP's TX_TAIL find its ring full (B18)
 unsigned adp_full = 0;
-// Set, reads of ACMP's TX_TAIL find its last word not yet taken (B21)
-bool acmp_busy = false;
+// A channel, or -1: reads of its TX_TAIL find its last word not yet taken, so its ring holds a frame
+int busy_ch = -1;
+// Set, reads of AECP's TX_TAIL find its ring full, so no AECP frame can be handed over
+bool aecp_full = false;
 
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
     std::uint32_t value = mbx_model_read(&fabric, offset);
@@ -176,8 +189,11 @@ extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
         --adp_full;
         value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - MBX_CH_ADP_TX_WORDS);
     }
-    if (acmp_busy && offset == MBX_CH_BASE + MBX_CH_ACMP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
-        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ACMP].tx_head - 1u);
+    if (busy_ch >= 0 && offset == MBX_CH_BASE + static_cast<unsigned>(busy_ch) * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        value = static_cast<std::uint16_t>(fabric.ch[busy_ch].tx_head - 1u);
+    }
+    if (aecp_full && offset == MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_AECP].tx_head - MBX_CH_AECP_TX_WORDS);
     }
     if (other_contract && offset == MBX_REG_ID) value = 0u;
     mailbox.push_back({bus().log.size(), false, offset, value});
@@ -243,7 +259,8 @@ struct Boot : ::testing::Test {
         frames.clear();
         hold_adp = false;
         held_at = 0;
-        acmp_busy = false;
+        busy_ch = -1;
+        aecp_full = false;
         adp_full = 0;
         other_contract = false;
         mbx_model_reset(&fabric);
@@ -326,6 +343,44 @@ struct Boot : ::testing::Test {
             if ((m.offset - MBX_CH_BASE) % MBX_CH_STRIDE == reg && (adp || ch != MBX_CH_ADP)) ++n;
         }
         return n;
+    }
+    // One channel's register `reg` written from mailbox position `from` to `to`
+    static std::size_t ch_writes(std::size_t from, std::size_t to, std::uint32_t reg, unsigned ch) {
+        std::size_t n = 0;
+        for (std::size_t k = from; k < to && k < mailbox.size(); ++k) {
+            const auto& m = mailbox[k];
+            n += m.write && m.offset == MBX_CH_BASE + ch * MBX_CH_STRIDE + reg;
+        }
+        return n;
+    }
+    // A MAAP PROBE from another station for the entity's own range, which the mailbox's range term passes
+    // (IEEE 1722-2016 B.2: message_type 1 at byte 15, requested_start_address at 26, requested_count at 32)
+    void maap_probe() {
+        ASSERT_NE(fabric.maap_count, 0u) << "MAAP holds a range";
+        std::vector<std::uint8_t> f(60, 0);
+        const std::uint8_t head[] = {0x91, 0xe0, 0xf0, 0x00, 0xff, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x99,
+                                     0x22, 0xf0, 0xfe, 0x01, 0x08, 0x10};
+        std::copy(std::begin(head), std::end(head), f.begin());
+        for (unsigned k = 0; k < 6; ++k) f[26 + k] = static_cast<std::uint8_t>(fabric.maap_base >> (8 * (5 - k)));
+        f[33] = 1;
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << "the MAAP PROBE reaches the mailbox";
+    }
+    // An MSRP PDU from the link partner (IEEE 802.1Q-2018 35.2.2: ProtocolVersion 0, then an EndMark)
+    void msrp_pdu() {
+        std::vector<std::uint8_t> f(60, 0);
+        const std::uint8_t head[] = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e, 0x02, 0x00, 0x00, 0x00, 0x00, 0x98,
+                                     0x22, 0xea};
+        std::copy(std::begin(head), std::end(head), f.begin());
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << "the MSRP PDU reaches the mailbox";
+    }
+    // A frame on each of the five channels: an ENTITY_DISCOVER, a BIND_RX, an AEM command, a MAAP PROBE and an
+    // MSRP PDU
+    void one_frame_per_channel() {
+        discover();
+        bind_rx();
+        aem(7, entity0(), kCtl, kCtlMac);
+        maap_probe();
+        msrp_pdu();
     }
     // A BIND_RX of sink 0 from a controller, as the datapath delivers it (IEEE 1722.1-2021 8.2.1)
     void bind_rx() {
@@ -849,6 +904,14 @@ TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
     for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B18 ENTITY_DEPARTING leaves before the reset";
 }
 
+// The five mailbox channels, each by the name its tests' words carry
+struct Channel {
+    unsigned ch;
+    const char* name;
+};
+constexpr Channel kChannels[] = {{MBX_CH_ADP, "ADP"}, {MBX_CH_ACMP, "ACMP"}, {MBX_CH_AECP, "AECP"},
+                                 {MBX_CH_MAAP, "MAAP"}, {MBX_CH_SRP, "SRP"}};
+
 TEST_F(Boot, B19NoFrameOfAnyChannelIsTakenFromTheSuccess) {
     env.reboot = kReboot;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
@@ -858,21 +921,22 @@ TEST_F(Boot, B19NoFrameOfAnyChannelIsTakenFromTheSuccess) {
     mbx_model_tx_pause(&fabric, true);
     aem(42, entity0(), kCtl, kCtlMac);
     for (unsigned k = 0; k < 20; ++k) pass_ms();
-    ASSERT_TRUE(aecp_reboot_accepted(&ctrl_plat.aecp.core)) << "B19 the REBOOT is accepted at its SUCCESS";
+    // AECP's own state, not the accessor the gate reads, so a defect in that accessor still reaches the checks
+    ASSERT_NE(ctrl_plat.aecp.core.reboot, 0u) << "B19 the REBOOT is accepted at its SUCCESS";
     ASSERT_TRUE(aecp_frames(from, 42).empty()) << "B19 the mailbox holds the response";
     const std::size_t at = mailbox.size();
-    discover();
-    bind_rx();
-    aem(7, entity0(), kCtl, kCtlMac);
+    one_frame_per_channel();
     for (unsigned k = 0; k < 300; ++k) pass_ms();
-    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
-        << "B19 no frame of any channel is taken after the REBOOT's SUCCESS";
+    for (const auto& c : kChannels)
+        EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, c.ch), 0u)
+            << "B19 no " << c.name << " frame is taken after the REBOOT's SUCCESS";
     mbx_model_tx_pause(&fabric, false);
     take_frames();
     for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
     ASSERT_EQ(reboot_writes().size(), 1u) << "B19 the reset port is written once";
-    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
-        << "B19 no frame of any channel is taken after the REBOOT's SUCCESS";
+    for (const auto& c : kChannels)
+        EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, c.ch), 0u)
+            << "B19 no " << c.name << " frame is taken after the REBOOT's SUCCESS";
     EXPECT_FALSE(bound()) << "B19 a BIND_RX after the REBOOT's SUCCESS is not applied";
     EXPECT_TRUE(std::none_of(frames.begin() + static_cast<std::ptrdiff_t>(from), frames.end(),
                              [](const Sent& s) { return s.frame.channel == MBX_CH_ACMP; }))
@@ -911,34 +975,106 @@ TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
     }
     EXPECT_EQ(ring_writes(held_at, port, MBX_CH_REG_TX_HEAD, false), 0u)
         << "B20 no other channel starts a transmission after ENTITY_DEPARTING";
+    for (const auto& c : kChannels) {
+        if (c.ch != MBX_CH_ADP) {
+            EXPECT_EQ(ch_writes(held_at, port, MBX_CH_REG_TX_HEAD, c.ch), 0u)
+                << "B20 no " << c.name << " transmission starts after ENTITY_DEPARTING";
+        }
+    }
     const auto gone = departing(from);
     ASSERT_FALSE(gone.empty()) << "B20 ENTITY_DEPARTING leaves";
     for (std::size_t k = static_cast<std::size_t>(gone[0] - frames.data()); k < frames.size(); ++k)
         EXPECT_EQ(frames[k].frame.channel, MBX_CH_ADP) << "B20 no frame but ADP's leaves after ENTITY_DEPARTING";
 }
 
+// Each ring but ADP's and AECP's in turn, with a boot of its own: AECP's ring holds only the REBOOT's own frames
+// once the loop has stopped, and aecp_reboot_due waits for those (B12)
 TEST_F(Boot, B21TheDepartingWaitsForEveryOtherRing) {
+    env.reboot = kReboot;
+    bool first = true;
+    for (const auto& c : kChannels) {
+        if (c.ch == MBX_CH_ADP || c.ch == MBX_CH_AECP) continue;
+        if (!first) reload();
+        first = false;
+        ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+        for (unsigned k = 0; k < 50; ++k) pass_ms();
+        const std::size_t from = frames.size();
+        aem(42, entity0(), kCtl, kCtlMac);
+        for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
+        ASSERT_EQ(aecp_frames(from, 42).size(), 1u) << "B21 the SUCCESS has left";
+        // the ring still holds a frame's last word
+        busy_ch = static_cast<int>(c.ch);
+        for (unsigned k = 0; k < 300; ++k) pass_ms();
+        EXPECT_TRUE(departing(from).empty()) << "B21 no ENTITY_DEPARTING while the " << c.name << " ring holds a frame";
+        EXPECT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled)
+            << "B21 no ENTITY_DEPARTING while the " << c.name << " ring holds a frame";
+        EXPECT_TRUE(reboot_writes().empty()) << "B21 nor the reset";
+        busy_ch = -1;
+        for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+        const auto gone = departing(from);
+        const auto writes = reboot_writes();
+        ASSERT_EQ(writes.size(), 1u) << "B21 once the ring has drained, the reset port is written";
+        ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B21 ENTITY_DEPARTING leaves";
+        for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B21 ENTITY_DEPARTING leaves before the reset";
+    }
+}
+
+// The REBOOT, a second AEM command behind it, a MAAP PROBE and an MSRP PDU wait in their rings for one pass. MAAP
+// and SRP are serviced after AECP in a pass (ctrl_loop_service), so the gate refuses them in the pass that takes the
+// REBOOT, before its SUCCESS is handed over: acceptance is at the SUCCESS itself
+TEST_F(Boot, B22TheGateHoldsInThePassThatTakesTheReboot) {
     env.reboot = kReboot;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
     for (unsigned k = 0; k < 50; ++k) pass_ms();
-    const std::size_t from = frames.size();
+    const std::size_t at = mailbox.size();
     aem(42, entity0(), kCtl, kCtlMac);
-    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
-    ASSERT_EQ(aecp_frames(from, 42).size(), 1u) << "B21 the SUCCESS has left";
-    // ACMP's ring still holds a frame's last word
-    acmp_busy = true;
-    for (unsigned k = 0; k < 300; ++k) pass_ms();
-    EXPECT_TRUE(departing(from).empty()) << "B21 no ENTITY_DEPARTING while another channel's ring holds a frame";
-    EXPECT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled)
-        << "B21 no ENTITY_DEPARTING while another channel's ring holds a frame";
-    EXPECT_TRUE(reboot_writes().empty()) << "B21 nor the reset";
-    acmp_busy = false;
+    aem(7, entity0(), kCtl, kCtlMac);
+    maap_probe();
+    msrp_pdu();
+    pass_ms();
+    ASSERT_NE(ctrl_plat.aecp.core.reboot, 0u) << "B22 the REBOOT is taken in this pass";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_AECP), 1u)
+        << "B22 no AECP frame queued behind the REBOOT is taken";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_MAAP), 0u)
+        << "B22 no MAAP frame queued with the REBOOT is taken";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_SRP), 0u)
+        << "B22 no SRP frame queued with the REBOOT is taken";
     for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
-    const auto gone = departing(from);
-    const auto writes = reboot_writes();
-    ASSERT_EQ(writes.size(), 1u) << "B21 once the ring has drained, the reset port is written";
-    ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B21 ENTITY_DEPARTING leaves";
-    for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B21 ENTITY_DEPARTING leaves before the reset";
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B22 the reset port is written once";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_AECP), 1u)
+        << "B22 no AECP frame queued behind the REBOOT is taken";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_MAAP), 0u)
+        << "B22 no MAAP frame queued with the REBOOT is taken";
+    EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, MBX_CH_SRP), 0u)
+        << "B22 no SRP frame queued with the REBOOT is taken";
+}
+
+// AECP's transmit ring full, so the REBOOT's SUCCESS is accepted but not handed over: a frame on each channel then
+// stays in its ring, and once the ring has room the REBOOT completes and the reset port fires
+TEST_F(Boot, B23TheGateHoldsWhileTheResponseCannotBeHandedOver) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size(), before = mailbox.size();
+    aecp_full = true;
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 20; ++k) pass_ms();
+    ASSERT_EQ(ctrl_plat.aecp.core.reboot, 1u) << "B23 the REBOOT is accepted, its frames not handed over";
+    ASSERT_EQ(ch_writes(before, mailbox.size(), MBX_CH_REG_TX_HEAD, MBX_CH_AECP), 0u)
+        << "B23 the SUCCESS is not handed over while AECP's ring is full";
+    const std::size_t at = mailbox.size();
+    one_frame_per_channel();
+    for (unsigned k = 0; k < 300; ++k) pass_ms();
+    for (const auto& c : kChannels)
+        EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, c.ch), 0u)
+            << "B23 no " << c.name << " frame is taken while the REBOOT's SUCCESS waits to be handed over";
+    aecp_full = false;
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B23 once AECP's ring has room, the reset port is written";
+    EXPECT_EQ(aecp_frames(from, 42).size(), 1u) << "B23 the SUCCESS leaves before the reset";
+    for (const auto& c : kChannels)
+        EXPECT_EQ(ch_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, c.ch), 0u)
+            << "B23 no " << c.name << " frame is taken while the REBOOT's SUCCESS waits to be handed over";
 }
 
 }  // namespace
