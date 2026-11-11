@@ -1,0 +1,175 @@
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index ab77432c39..3ca46ed71b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -789,9 +789,13 @@ That arm refuses LiteX's firmware data packages, which the `elaborate` job does
+ not install, so it grades the same in any interpreter.
+ It requires the
+ [split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
+-rule table to equal `ctrl_memory.RULES`. Its forty-seven mutants each rebuild one
++rule table to equal `ctrl_memory.RULES`. Its fifty-nine mutants each rebuild one
+ function or class with a rule or property removed or weakened, and each must
+ turn its arm red by name; an arm that fails unmutated grades no mutant.
++Twelve of them are its CPU decode arm's (#791,
++[`ctrl_memory_decode.py`](../../sw/litex/ctrl_memory_decode.py)), which grades the
++aligned power-of-two pieces the split CPU's generator is handed and the refusals
++of a CPU whose generator may read any other region list.
+ Its mapper arm runs [`ctrl_memory_ooc.py`](../../syn/ooc/ctrl_memory_ooc.py)'s
+ `main()`: the target platform's ledgered point is refused without
+ `--ledgered`, and mapped at 59.0 RAMB36 with it. The override is refused on
+diff --git a/scripts/check_py_idiom.py b/scripts/check_py_idiom.py
+index 5a616a5db3..a2d4bbfdc9 100644
+--- a/scripts/check_py_idiom.py
++++ b/scripts/check_py_idiom.py
+@@ -191,10 +191,11 @@ DYNAMIC_EXEC_INVENTORY = {
+         "copy of the arithmetic. Guarded by `ast.walk` of the extracted definitions "
+         "against `_REBOOT_MAC_NODES` (literals, names, integer arithmetic, one "
+         "conditional), with `__builtins__` emptied.",
+-    "sw/litex/test_ctrl_memory.py":
++    "sw/litex/ctrl_memory_mutant.py":
+         "rebuilds one function or class of ctrl_memory.py or milan_soc.py, both "
+         "already imported, from its own `inspect.getsource` text with one edit "
+-        "from the test's mutant table, for the standing mutation check. Guarded "
++        "from test_ctrl_memory.py's mutant table, for that test's standing "
++        "mutation check. Guarded "
+         "by the edit matching exactly once and by `ast.parse` of the result being "
+         "exactly one definition of that name; it runs in that module's namespace.",
+     "sw/trace/test_trace_roundtrip.py":
+diff --git a/sw/litex/ctrl_memory_mutant.py b/sw/litex/ctrl_memory_mutant.py
+new file mode 100644
+index 0000000000..f8d3c66981
+--- /dev/null
++++ b/sw/litex/ctrl_memory_mutant.py
+@@ -0,0 +1,46 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""How test_ctrl_memory.py plants a mutant: one definition of ctrl_memory.py or milan_soc.py rebuilt from its
++own source with one edit (`mutated`), put in place for the duration of one arm (`patched`)."""
++
++from __future__ import annotations
++
++import __future__
++import ast
++import contextlib
++import inspect
++import textwrap
++import types
++from collections.abc import Iterator
++from typing import Any
++
++
++def mutated(owner: types.ModuleType, name: str, old: str, new: str) -> Any:
++    """`owner.name` rebuilt from its own source with `old` replaced by `new`, which must match once.
++
++    The text compiled is the module's own definition of `name` and nothing else:
++    it must parse to exactly that one definition, and it runs in the module's
++    own namespace, so the rebuilt object sees every other name as it was.
++    """
++    source = textwrap.dedent(inspect.getsource(getattr(owner, name)))
++    if source.count(old) != 1:
++        raise LookupError(f"{owner.__name__}.{name}: the edit matches {source.count(old)} times, not once")
++    edited_source = source.replace(old, new)
++    tree = ast.parse(edited_source)
++    if [getattr(node, "name", None) for node in tree.body] != [name]:
++        raise LookupError(f"{owner.__name__}.{name}: the edited source is not one definition of {name}")
++    scope: dict[str, Any] = {}
++    exec(compile(edited_source, f"<mutant of {owner.__name__}.{name}>", "exec",
++                 flags=__future__.annotations.compiler_flag, dont_inherit=True), vars(owner), scope)
++    return scope[name]
++
++
++@contextlib.contextmanager
++def patched(owner: object, name: str, value: object) -> Iterator[None]:
++    """Replace `owner.name` for the duration of one mutant."""
++    original = getattr(owner, name)
++    setattr(owner, name, value)
++    try:
++        yield
++    finally:
++        setattr(owner, name, original)
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index d3eacd2bb0..d8aa0c6f6b 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -57,19 +57,19 @@ block RAM the SoC builds from them. This file grades nine things:
+      rule or a property, and must turn its arm red with a named failure. A
+      mutant is graded only against an arm that passed unmutated in the same
+      run, so a failure of the environment is never counted as a kill.
+-  8. THE OUT-OF-CONTEXT MAPPER's override and its mutants, ctrl_memory_ledger.mapper_arms.
+-  9. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region pieces the split export hands the CPU.
++     ctrl_memory_mutant.py rebuilds each mutant and puts it in place.
++  8. THE OUT-OF-CONTEXT MAPPER's override and its mutants,
++     ctrl_memory_ledger.mapper_arms.
++  9. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region
++     pieces the split export hands the CPU.
+ --build-only compiles and links the reset-entry probe for the boundary capture.
+ It requires RV32, runs no suites and plants no defects.
+ 
+ """
+ from __future__ import annotations
+ 
+-import __future__
+-import ast
+ import contextlib
+ import importlib.abc
+-import inspect
+ import json
+ import os
+ import re
+@@ -78,9 +78,8 @@ import struct
+ import subprocess
+ import sys
+ import tempfile
+-import textwrap
+ import types
+-from collections.abc import Callable, Generator, Iterator
++from collections.abc import Callable, Generator
+ from functools import partial
+ from pathlib import Path
+ from typing import Any, NamedTuple
+@@ -98,6 +97,7 @@ import ctrl_memory  # noqa: E402
+ from ctrl_memory_elf import poke, splice, truncate, write_elf  # noqa: E402
+ import ctrl_memory_ledger as ledgers  # noqa: E402
+ import ctrl_memory_decode as decode  # noqa: E402
++from ctrl_memory_mutant import mutated, patched  # noqa: E402
+ from ctrl_memory_probe import link  # noqa: E402
+ import fw_rv32  # noqa: E402
+ import milan_soc  # noqa: E402
+@@ -860,37 +860,6 @@ MUTANTS = tuple(Mutant(*row) for row in (
+ ))
+ 
+ 
+-def mutated(owner: types.ModuleType, name: str, old: str, new: str) -> Any:
+-    """`owner.name` rebuilt from its own source with `old` replaced by `new`, which must match once.
+-
+-    The text compiled is the module's own definition of `name` and nothing else:
+-    it must parse to exactly that one definition, and it runs in the module's
+-    own namespace, so the rebuilt object sees every other name as it was.
+-    """
+-    source = textwrap.dedent(inspect.getsource(getattr(owner, name)))
+-    if source.count(old) != 1:
+-        raise LookupError(f"{owner.__name__}.{name}: the edit matches {source.count(old)} times, not once")
+-    edited_source = source.replace(old, new)
+-    tree = ast.parse(edited_source)
+-    if [getattr(node, "name", None) for node in tree.body] != [name]:
+-        raise LookupError(f"{owner.__name__}.{name}: the edited source is not one definition of {name}")
+-    scope: dict[str, Any] = {}
+-    exec(compile(edited_source, f"<mutant of {owner.__name__}.{name}>", "exec",
+-                 flags=__future__.annotations.compiler_flag, dont_inherit=True), vars(owner), scope)
+-    return scope[name]
+-
+-
+-@contextlib.contextmanager
+-def patched(owner: object, name: str, value: object) -> Iterator[None]:
+-    """Replace `owner.name` for the duration of one mutant."""
+-    original = getattr(owner, name)
+-    setattr(owner, name, value)
+-    try:
+-        yield
+-    finally:
+-        setattr(owner, name, original)
+-
+-
+ def doc_rules() -> list[tuple[str, str, str]]:
+     """(check, rule, refuses) for each row of SPLIT_CONTROL_MEMORY.md section 3's rule table."""
+     section = DOC.read_text().split("## 3. Named refusals", 1)[-1].split("\n## ", 1)[0]

@@ -1,0 +1,12 @@
+== P0: unmodified head
+rc=0
+  dynamic eval/exec: 0
+  long module: 10 <= 10
+== P1: exec inventory key reverted to sw/litex/test_ctrl_memory.py
+rc=1
+REFUSED DYNAMIC EVAL/EXEC: sw/litex/ctrl_memory_mutant.py:33 — exec(...). Rule 12 in docs/development/CODE_QUALITY.md names what replaces it.
+== P2: test_ctrl_memory.py restored to its 77e1efa0 bytes (1003 lines), helper kept
+rc=1
+REFUSED DYNAMIC EVAL/EXEC: sw/litex/test_ctrl_memory.py:878 — exec(...). Rule 12 in docs/development/CODE_QUALITY.md names what replaces it.
+FAIL: long module 11 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+status after restore:
