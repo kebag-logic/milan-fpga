@@ -1,0 +1,101 @@
+PROBE head arm platboot1: rc 0; 0 failed check(s)
+    [       OK ] Boot.B1ReachesReadyInStepOrder (3 ms)
+    [       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+    [       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+    [       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+    [       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+    [       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+    [       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+    [       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+    [       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+    [       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+    [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    [       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+    [       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+    [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+    [       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+    [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (2 ms)
+    [       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+    [       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+    [       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+    [       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+    [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (1 ms)
+    [       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+    [       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+PROBE gate-one-pass-late arm platboot1: rc 1; 4 failed check(s)
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [       OK ] Boot.B1ReachesReadyInStepOrder (3 ms)
+    [       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+    [       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+    [       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+    [       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+    [       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+    [       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (1 ms)
+    [       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+    [       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+    [       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+    [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    [       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+    [       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+    [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+    [       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+    [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (3 ms)
+    [       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+    [       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+    [       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (1 ms)
+    [       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (1 ms)
+    [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (1 ms)
+    [  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+    [       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+    [  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+PROBE aecp-transmits-after-the-departing arm platboot1: rc 1; 22 failed check(s)
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no ACMP transmission starts after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no MAAP transmission starts after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no SRP transmission starts after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no frame but ADP's leaves after ENTITY_DEPARTING
+    [       OK ] Boot.B1ReachesReadyInStepOrder (2 ms)
+    [       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+    [       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+    [       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+    [       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+    [       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+    [       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+    [       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+    [       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+    [       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (0 ms)
+    [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    [       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+    [       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+    [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+    [       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (0 ms)
+    [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+    [       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (0 ms)
+    [       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+    [       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+    [  FAILED  ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (1 ms)
+    [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (1 ms)
+    [       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+    [       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+    [  FAILED  ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+rc=0

@@ -1,0 +1,47 @@
+PROBE head arm platboot1: rc 0; 0 failed check(s); REBOOT-related 0
+    passed: [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    passed: [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+    passed: [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+    passed: [       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+    passed: [       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+    passed: [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+    passed: [       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+PROBE gate-skips-maap-and-srp arm platboot1: rc 1; 12 failed check(s); REBOOT-related 12
+    [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+    [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+    [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+    [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    passed: [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    passed: [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (1 ms)
+    passed: [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (3 ms)
+    passed: [       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (1 ms)
+    passed: [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (1 ms)
+PROBE gate-from-the-handover arm platboot1: rc 1; 12 failed check(s); REBOOT-related 12
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+    [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ADP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ACMP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ADP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ACMP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+    passed: [       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+    passed: [       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+    passed: [       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+    passed: [       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+    passed: [       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+    passed: [       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+PROBE gate-from-the-handover arm unit: rc 0; 0 failed check(s); REBOOT-related 0
+rc=0
