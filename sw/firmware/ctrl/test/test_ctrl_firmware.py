@@ -174,6 +174,7 @@ def selected_phases(shard: tuple[int, int] | None) -> tuple[str, ...]:
 def run_suites(args: argparse.Namespace, tree: Tree) -> list:
     """The normal suites, including compiled service bounds and each live shape."""
     outcomes = [ctrl_arms.arm_service_bounds(tree), ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree),
+                ctrl_arms.arm_portable(tree),
                 ctrl_arms.arm_adp(tree),
                 ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
                 ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),

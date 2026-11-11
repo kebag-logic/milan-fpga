@@ -3,6 +3,7 @@
 #include "srp_mbx.h"
 #include <string.h>
 #include "srp_bounds.h"
+#include "../plat/ctrl_cc.h"
 #ifndef NDEBUG
 #include <assert.h>
 #endif
@@ -58,7 +59,7 @@ static bool enter(struct srp_mbx *m)
 // 170 cycles. This one stops at the first byte that differs, from the last:
 // one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE
 // 802.1Q-2018 35.2.2.8.2), and one talker's MACs in their last bytes.
-static __attribute__((noinline)) bool same(const uint8_t *a, const uint8_t *b, unsigned n)
+static CTRL_CC_NOINLINE bool same(const uint8_t *a, const uint8_t *b, unsigned n)
 {
     while (n != 0u) {
         --n;
@@ -939,7 +940,7 @@ static bool turn_builds(const struct srp_mbx *m, const bool link[MBX_N_IF])
 // A participant may hold an attribute mrp_reclaim frees (#665). lwSRP reclaims
 // nothing on a participant holding a prepared PDU: while a frame is owed, its
 // interface's reclaim is owed after it.
-static __attribute__((noinline)) void reclaim(struct srp_interface *i)
+static CTRL_CC_NOINLINE void reclaim(struct srp_interface *i)
 {
     if (i->reclaim) {
         (void)mrp_reclaim(i->msrp,0);
@@ -949,7 +950,7 @@ static __attribute__((noinline)) void reclaim(struct srp_interface *i)
 }
 
 // One participant's MRPDU: lwSRP's result, with its join timer's shadow (tick) restarted by what it sent.
-static __attribute__((noinline)) int build_mrpdu(struct srp_mbx *m, struct srp_interface *i, unsigned slot)
+static CTRL_CC_NOINLINE int build_mrpdu(struct srp_mbx *m, struct srp_interface *i, unsigned slot)
 {
     struct send_context send = {i,participant(i,slot)};
     int result = mrp_transmit(send.app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);

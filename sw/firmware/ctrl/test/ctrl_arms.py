@@ -31,6 +31,35 @@ def arm_port(tree: Tree) -> Outcome:
     return execute("port", link(tree, "test_port_loop", objs))
 
 
+#: The one file of the firmware outside test/ that may name a compiler extension, behind its portable fallback (#665).
+PLATFORM_CC = "plat/ctrl_cc.h"
+#: What names one: a GNU attribute or built-in.
+EXTENSION = re.compile(r"__attribute__|__builtin_")
+#: The check's name on its [FAIL] lines, as a planted defect reads it.
+PORTABLE_CHECK = "Portable.CompilerExtensionsOnlyInThePlatformHeader"
+
+
+def arm_portable(tree: Tree) -> Outcome:
+    """Portable C11 (#665: the firmware ports to a hard core): no source or header of the tree outside test/ names a
+    compiler extension but plat/ctrl_cc.h, and the port layer, the driver and the loop pass their tests built with
+    that header's portable fallback (CTRL_CC_GNU=0)."""
+    found = []
+    for path in sorted(p for p in tree.src.rglob("*") if p.suffix in (".c", ".h", ".S") and p.is_file()):
+        rel = path.relative_to(tree.src).as_posix()
+        if "test" in path.relative_to(tree.src).parts or rel == PLATFORM_CC:
+            continue
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if EXTENSION.search(line):
+                found.append(f"  [FAIL] {PORTABLE_CHECK}: {rel}:{number} a compiler extension outside {PLATFORM_CC}")
+    fallback = ("-DCTRL_CC_GNU=0",)
+    objs = (compile_c(tree, sources(tree, PORTABLE), "portable", fallback, measured=False) +
+            compile_c(tree, sources(tree, HOST), "portable/host", measured=False) +
+            compile_tests(tree, ("test_port_loop.cpp",), "portable/tests"))
+    built = execute("portable", link(tree, "test_port_loop_portable", objs))
+    scan = f"  {PORTABLE_CHECK}: {len(found)} finding(s)"
+    return Outcome("portable", 1 if found or built.rc else 0, "\n".join([*found, scan, built.log]))
+
+
 #: The ADP binary's tests: the stack's core cases, then the adapter's, the latency bounds and the backlog.
 ADP_TESTS = ("tsn-c-stack/tests/test_adp.cpp", "test_adp.cpp")
 

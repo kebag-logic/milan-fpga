@@ -47,6 +47,13 @@ extern "C" {
 #define AECP_RETRY_MAX_MS 8u
 // The longest frame the fan port takes: every notice's but a long GET_AS_PATH's.
 #define AECP_FAN_BYTES 256u
+// The response buffer's alignment, a line of the data cache: C11's _Alignas, and C++'s alignas where a test reads this
+// header as C++.
+#ifdef __cplusplus
+#define AECP_LINE alignas(64)
+#else
+#define AECP_LINE _Alignas(64)
+#endif
 // What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
 // CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
 // is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
@@ -274,7 +281,7 @@ struct aecp {
 	uint16_t awaited; // the events whose snapshot awaits its frame's completion, the list aecp_tx_complete walks
 	// On a line of the data cache: what a recipient changes of a frame stays in one, which the record mover's read
 	// takes back from the cache each frame (#665).
-	uint8_t response[AECP_FRAME_BYTES] __attribute__((aligned(64)));
+	AECP_LINE uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
 	unsigned response_interface;
 	unsigned recipient;

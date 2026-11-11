@@ -218,6 +218,16 @@ MUTANTS = (
            "\t(void)mbx_link_up(0);\n\tmbx_timer_arm(i->slot, i->tag, mbx_now_ms() + delay_ms);",
            "adp", "AdpLatency.C0toC6EveryResponsePath",
            "C0 LINK_UP -> TMR_DELAY armed"),
+    # portable C11 (#665: the firmware ports to a hard core): a compiler extension back in the SRP adapter, and the
+    # platform header's fallback for the pool's link
+    Mutant("portable-attribute-in-the-srp-adapter", "srp/srp_mbx.c", "static CTRL_CC_NOINLINE bool same(",
+           "static __attribute__((noinline)) bool same(", "portable", ctrl_arms.PORTABLE_CHECK,
+           "srp/srp_mbx.c:"),
+    Mutant("portable-fallback-link-unwritten", "plat/ctrl_cc.h", "\tmemcpy(at, &value, sizeof value);\n",
+           "\t(void)at;\n\t(void)value;\n", "portable", "Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes",
+           "P10 then the one freed before it"),
+    Mutant("pool-link-unwritten", "port/ctrl_pool.c", "\t\tctrl_cc_ptr_store(ptr, bin->free_head);\n", "",
+           "port", "Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes", "P10 then the one freed before it"),
     Mutant("pool-free-leaks", "port/ctrl_pool.c", "\t\tbin->free_head = ptr;\n\t\tbin->free_count++;",
            "\t\tbin->free_count++;", "port", "Pool.P2ReleaseAndBadFrees", "P2 a released block"),
     Mutant("calloc-overflow-unchecked", "port/ctrl_pool.c", "if (nmemb != 0u && bytes > SIZE_MAX / nmemb) {",
@@ -929,7 +939,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
     default); True when one escaped. One build serves every copy, so a test
     object is compiled again only where a planted header changes what it
     sees."""
-    arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+    arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "portable": ctrl_arms.arm_portable,
+            "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
             "entity": ctrl_arms.arm_entity,

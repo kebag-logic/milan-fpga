@@ -293,6 +293,24 @@ TEST(Pool, P9AFreeListShorterThanItsCountIsExhausted) {
     EXPECT_EQ(pool.refused - refused, 1u) << "P9 and counted";
 }
 
+// A free writes the next free block over the bytes its client left in the block, in place (#665, ctrl_cc.h's
+// ctrl_cc_ptr_store, or its memcpy where the compiler takes no GNU attribute), so blocks come back in the order they
+// were freed, last first, whatever their clients wrote.
+TEST(Pool, P10AFreedBlocksLinkIsWrittenOverItsClientsBytes) {
+    ctrl_pool pool;
+    ASSERT_TRUE(ctrl_pool_init(&pool, arena, sizeof arena, classes, 2));
+    void* a = ctrl_pool_alloc(&pool, 24u);
+    void* b = ctrl_pool_alloc(&pool, 24u);
+    ASSERT_TRUE(in_bin(pool, 0, a) && in_bin(pool, 0, b));
+    std::memset(a, 0xA5, 24u);
+    std::memset(b, 0x5A, 24u);
+    ctrl_pool_free(&pool, a);
+    ctrl_pool_free(&pool, b);
+    EXPECT_EQ(ctrl_pool_alloc(&pool, 24u), b) << "P10 the block freed last comes back first";
+    ASSERT_EQ(pool.bins[0].free_head, a) << "P10 then the one freed before it, through the link its free wrote";
+    EXPECT_EQ(ctrl_pool_alloc(&pool, 24u), a) << "P10 and is handed out next";
+}
+
 // ---- S: the debug sink ----------------------------------------------------
 
 struct SinkCapture {

@@ -14,12 +14,9 @@
 
 #include <string.h>
 
-uint32_t ctrl_pool_returned;
+#include "../plat/ctrl_cc.h"
 
-// A free block's first bytes, read and written as the pointer they hold: a block is on CTRL_POOL_ALIGN, and
-// may_alias keeps the access defined on the arena's bytes (#665: through memcpy, a call each, they were a third of an
-// SRP record's allocation).
-typedef void *__attribute__((may_alias)) ctrl_pool_link;
+uint32_t ctrl_pool_returned;
 
 static size_t round_up(size_t value, size_t to)
 {
@@ -118,10 +115,13 @@ bool ctrl_pool_init(struct ctrl_pool *pool, void *arena, size_t arena_bytes,
 	return true;
 }
 
+// A free block's first bytes hold the next free block, read and written in place as the pointer they are: a block is
+// on CTRL_POOL_ALIGN (ctrl_cc.h's ctrl_cc_ptr_load and _store; #665: through memcpy, a call each, they were a third
+// of an SRP record's allocation).
 static void *bin_take(struct ctrl_pool_bin *bin)
 {
 	void *block = bin->free_head;
-	bin->free_head = *(ctrl_pool_link *)block;
+	bin->free_head = ctrl_cc_ptr_load(block);
 	bin->free_count--;
 	size_t within;
 	bin->used[block_index(bin, (size_t)((uint8_t *)block - bin->base), &within)] = 1u;
@@ -189,7 +189,7 @@ void ctrl_pool_free(struct ctrl_pool *pool, void *ptr)
 			return;
 		}
 		bin->used[index] = 0u;
-		*(ctrl_pool_link *)ptr = bin->free_head;
+		ctrl_cc_ptr_store(ptr, bin->free_head);
 		bin->free_head = ptr;
 		bin->free_count++;
 		ctrl_pool_returned++;
