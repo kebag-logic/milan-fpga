@@ -77,6 +77,7 @@ void note(std::vector<std::uint64_t>& times) {
 void power_on() {
     nvm_fmodel_power_on();
     nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_A + kJournal);
+    nvm_fmodel_slots(NVM_SLOT_A, NVM_SLOT_BYTES);
     litespi_model_reset();
     nvm_flash_litespi_power_on();
     nvm_smodel_reset();
@@ -204,7 +205,7 @@ void restore_snapshot() { std::memcpy(nvm_fmodel_mem + NVM_SLOT_A, rig->snapshot
 
 void protect_auth() {
     const int auth = nvm_store_status()->auth;
-    nvm_fmodel_protect(auth < 0 ? 0u : (auth != 0 ? NVM_SLOT_B : NVM_SLOT_A));
+    nvm_fmodel_protect(auth < 0 ? 0u : (auth != 0 ? NVM_SLOT_B : NVM_SLOT_A), NVM_SLOT_BYTES);
 }
 
 // The reference commit: the old state (0), the new one (1), and how many
@@ -302,14 +303,14 @@ void powercut() {
 
 // ---- files and the guard --------------------------------------------------------
 
-void load(Files& files, const std::string& name, std::uint32_t slot) {
+void load(Files& files, const std::string& name, std::uint32_t slot, std::uint32_t span = NVM_SLOT_BYTES) {
     const auto it = files.blobs.find(name);
     if (it == files.blobs.end()) {
         fail(("no file " + name).c_str(), 0, 0);
         return;
     }
-    std::memset(nvm_fmodel_mem + slot, 0xff, NVM_SLOT_BYTES);
-    const std::size_t n = it->second.size() < NVM_SLOT_BYTES ? it->second.size() : NVM_SLOT_BYTES;
+    std::memset(nvm_fmodel_mem + slot, 0xff, span);
+    const std::size_t n = it->second.size() < span ? it->second.size() : span;
     std::memcpy(nvm_fmodel_mem + slot, it->second.data(), n);
 }
 
@@ -318,7 +319,8 @@ void dump(Files& files, const std::string& name, const std::uint8_t* src, std::s
 }
 
 // The port refuses to program or erase outside the journal: the first block
-// of the device holds the bitstream.
+// of the device holds the bitstream, and today's journal, directly above this
+// store's, is the all-fabric placement's KLJ2 (#823 decision 2).
 void port_guard() {
     static constexpr std::uint8_t kPage[4] = {0u, 0u, 0u, 0u};
     long long took = 0;
@@ -327,6 +329,8 @@ void port_guard() {
     took += rig->port->program(rig->port->ctx, 0u, kPage, sizeof kPage) == 0;
     took += rig->port->erase(rig->port->ctx, NVM_SLOT_A - 1u) == 0;
     took += rig->port->program(rig->port->ctx, NVM_SLOT_A + 2u * NVM_SLOT_BYTES, kPage, sizeof kPage) == 0;
+    took += rig->port->erase(rig->port->ctx, NVM_LEGACY_A) == 0;
+    took += rig->port->program(rig->port->ctx, NVM_LEGACY_B, kPage, sizeof kPage) == 0;
     nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_A + kJournal);
     rig->run.guard = took;
 }
@@ -460,6 +464,21 @@ void change_arg(const std::string& arg) {
     nvm_store_changed(static_cast<unsigned>(group), static_cast<unsigned>(index));
 }
 
+// ADDR:NAME, a file loaded at an address the script names rather than one
+// of the store's own macros: a test then reads the flash map from the fixture.
+void load_at(Files& files, const std::string& arg) {
+    char* end = nullptr;
+    const unsigned long addr = number(arg.c_str(), &end);
+    if (end == nullptr || *end != ':' || addr >= NVM_FMODEL_BYTES) {
+        fail(("--load-at wants ADDR:NAME inside the flash, not " + arg).c_str(), 0, 0);
+        return;
+    }
+    const auto it = files.blobs.find(end + 1);
+    const std::uint32_t room = NVM_FMODEL_BYTES - static_cast<std::uint32_t>(addr);
+    const std::uint32_t n = it == files.blobs.end() ? 0u : static_cast<std::uint32_t>(it->second.size());
+    load(files, end + 1, static_cast<std::uint32_t>(addr), n < room ? n : room);
+}
+
 // A change that leaves the value as it was (DR2b).
 void touch_arg(const std::string& arg) {
     const nvm_rec r = nvm_rec_by_id(static_cast<unsigned>(number(arg.c_str(), nullptr)));
@@ -510,6 +529,14 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         load(files, v, NVM_SLOT_A);
     } else if (a == "--slot-b") {
         load(files, v, NVM_SLOT_B);
+    } else if (a == "--legacy-a") {
+        load(files, v, NVM_LEGACY_A, NVM_LEGACY_B - NVM_LEGACY_A);
+    } else if (a == "--legacy-b") {
+        load(files, v, NVM_LEGACY_B, NVM_LEGACY_B - NVM_LEGACY_A);
+    } else if (a == "--load-at") {
+        load_at(files, v);
+    } else if (a == "--dump-legacy") {
+        dump(files, v, nvm_fmodel_mem + NVM_LEGACY_A, MILAN_FLASH_JOURNAL_SIZE);
     } else if (a == "--times") {
         times_arg(v);
     } else if (a == "--refuse") {
@@ -570,6 +597,7 @@ void summarise() {
         {"blank", s->blank}, {"releases", s->releases}, {"ok", s->commits_ok}, {"failed", s->commits_failed},
         {"skipped", s->commits_skipped}, {"attempts", s->attempts}, {"exhausted", s->exhausted},
         {"stale", s->stale}, {"dirty", s->dirty}, {"pending", s->pending}, {"phase", s->phase},
+        {"n_dirty", s->n_dirty}, {"n_inflight", s->n_inflight}, {"legacy", s->legacy},
         {"step_max", s->step_bytes_max}, {"step_bound", NVM_STEP_BOUND}, {"steps", s->steps},
         {"bind_terminal", s->bind_terminal}, {"bind_cause", s->bind_cause}, {"withheld", s->withheld},
         {"abandoned", s->abandoned}, {"abandoned_vd", s->abandoned_vd}, {"unread", s->unread},
@@ -589,6 +617,7 @@ void summarise() {
     };
     for (unsigned i = 0; i < fc->erases && i < 16u; ++i) {
         rig->run.erases.push_back(fc->erase_start_us[i]);
+        rig->run.erase_at.push_back(fc->erase_addr[i]);
     }
 }
 

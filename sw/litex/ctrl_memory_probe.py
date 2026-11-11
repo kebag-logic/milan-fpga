@@ -11,7 +11,7 @@ PLAT = Path(__file__).resolve().parents[1] / "firmware/ctrl/plat"
 
 PROBE = """\
 int counter = 7;
-unsigned char nvm_stage[3344];
+unsigned char nvm_stage[3454];
 int main(void) { return counter + nvm_stage[counter]; }
 """
 

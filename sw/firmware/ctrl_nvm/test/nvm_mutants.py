@@ -117,7 +117,7 @@ MUTANTS = (
     # removed lets a torn container be applied
     Mutant("no_crc_anywhere",
            ((STORE, "\tif (~crc != nvm_rd32le(trailer))\n\t\treturn NVM_VD_CRC;\n", ""),
-            (CODEC, "\tif (~crc != nvm_rd32le(img + img_len - NVM_KLJ2_TRAILER))\n\t\treturn NVM_VD_CRC;\n",
+            (CODEC, "\tif (~crc != nvm_rd32le(img + img_len - NVM_KLJ_TRAILER))\n\t\treturn NVM_VD_CRC;\n",
              "")),
            ("powercut",)),
     _m("pick_older", STORE, "(int32_t)(s->seq_a - s->seq_b) >= 0) ? 0 : 1;",
@@ -130,7 +130,7 @@ MUTANTS = (
     _m("erased_header_only", CODEC,
        "\t\tif (!nvm_all_erased(p + NVM_REC_HDR, r.plen))\n\t\t\treturn NVM_VD_REC;\n", "",
        "verdict_parity", "codec_parity"),
-    _m("no_ascending", CODEC, "\tif ((int)p[3] <= last)\n\t\treturn NVM_VD_REC;\n", "",
+    _m("no_ascending", CODEC, "\tif ((int)id <= last)\n\t\treturn NVM_VD_REC;\n", "",
        "verdict_parity", "codec_parity"),
     _m("overrun_as_rec", CODEC,
        "\tif (pos + NVM_REC_HDR + plen > end)\n\t\treturn NVM_VD_LEN;\n\t/* A payload",
@@ -171,16 +171,58 @@ MUTANTS = (
     _m("unread_not_counted", STORE, "\t\t\tnvm.st.read_faults++;\n\t\t\tcontinue;", "\t\t\tcontinue;",
        "long_container_reads"),
     _m("no_version_check", CODEC,
-       "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ2_FMT_VER >> 16))\n\t\treturn NVM_VD_VER;\n", "",
+       "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ3_FMT_VER >> 16))\n\t\treturn NVM_VD_VER;\n", "",
        "wrong_version_falls_back"),
-    _m("no_blank_verdict", CODEC, "\tif (nvm_all_erased(hdr, NVM_KLJ2_HDR))\n\t\treturn NVM_VD_BLANK;\n",
+    # ---- #823 decision 2: KLJ2 is the previous format, refused VD_VER ----
+    _m("klj2_not_recognised", CODEC, "\tif (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)\n\t\treturn NVM_VD_VER;\n", "",
+       "klj2_in_slot_refused", "verdict_parity", "codec_parity"),
+    Mutant("klj2_reinterpreted",
+           ((CODEC, "\tif (nvm_rd32le(hdr) == NVM_KLJ2_MAGIC)\n\t\treturn NVM_VD_VER;\n", ""),
+            (CODEC, "\tif (nvm_rd32le(hdr) != NVM_KLJ3_MAGIC)\n",
+             "\tif (nvm_rd32le(hdr) != NVM_KLJ3_MAGIC && nvm_rd32le(hdr) != NVM_KLJ2_MAGIC)\n"),
+            (CODEC, "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ3_FMT_VER >> 16))\n",
+             "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ3_FMT_VER >> 16) &&\n"
+             "\t    (nvm_rd32le(hdr + 4) >> 16) != 2u)\n")),
+           ("klj2_in_slot_refused", "verdict_parity")),
+    _m("legacy_not_read", STORE, "\tnvm_legacy_check();\n", "", "klj2_journal_refused"),
+    _m("legacy_reason_dropped", STORE,
+       "\t\tif (nvm.st.last_verdict == NVM_VD_BLANK && nvm.st.legacy)\n\t\t\tnvm.st.last_verdict = NVM_VD_VER;\n",
+       "", "klj2_journal_refused"),
+    # only a KLJ2 header is the previous format, and its reason replaces a
+    # blank verdict only
+    _m("legacy_any_nonblank_header", STORE, "\t\t    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)",
+       "\t\t    !nvm_all_erased(nvm_chunk, NVM_KLJ_HDR))", "legacy_other_format_not_recorded"),
+    _m("ver_overrides_own_refusal", STORE, "\t\tif (nvm.st.last_verdict == NVM_VD_BLANK && nvm.st.legacy)\n",
+       "\t\tif (nvm.st.legacy)\n", "own_refusal_kept_over_legacy"),
+    # today's slot B read at the end of today's journal: the user slot
+    _m("legacy_b_wrong_place", "nvm_shape.h",
+       "#define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE / 2u)",
+       "#define NVM_LEGACY_B       (MILAN_FLASH_JOURNAL_OFFSET + MILAN_FLASH_JOURNAL_SIZE)",
+       "klj2_journal_at_its_flash_map_address"),
+    _m("legacy_read_fault_recorded", STORE,
+       "\t\tif (f->read(f->ctx, NVM_LEGACY_A + i * slot, nvm_chunk, NVM_KLJ_HDR) == 0 &&\n"
+       "\t\t    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)",
+       "\t\tif (f->read(f->ctx, NVM_LEGACY_A + i * slot, nvm_chunk, NVM_KLJ_HDR) != 0 ||\n"
+       "\t\t    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)",
+       "klj2_journal_unreadable"),
+    _m("reserved_byte_ignored", CODEC, " || p[2] != NVM3_LAYOUT || p[3] != 0u)", " || p[2] != NVM3_LAYOUT)",
+       "verdict_parity", "codec_parity"),
+    # ---- #823 decision 1: the NAME block's first, last and one-past ids ----
+    _m("name_base_moved", "nvm_layout3.h", "#define NVM3_ID_NAME (NVM3_ID_MAPO + NVM3_CAP_MAPO)",
+       "#define NVM3_ID_NAME (NVM3_ID_MAPO + NVM3_CAP_MAPO + 1u)", "name_block_ends", "golden_restore"),
+    _m("name_last_dropped", CODEC, "\twhile (g < NVM_G_COUNT && index >= nvm_blocks[g].count) {",
+       "\twhile (g < NVM_G_COUNT && index + (g == NVM_G_NAME) >= nvm_blocks[g].count) {",
+       "name_block_ends", "capacity_round_trip"),
+    _m("id_space_unbounded", CODEC, "\tif (!r.ok || r.plen != plen)\n\t\treturn NVM_VD_REC;\n\t*out = r;",
+       "\tif ((!r.ok && id < NVM_ID_SPACE) || (r.ok && r.plen != plen))\n\t\treturn NVM_VD_REC;\n\t*out = r;",
+       "one_past_refused", "verdict_parity"),
+    _m("no_blank_verdict", CODEC, "\tif (nvm_all_erased(hdr, NVM_KLJ_HDR))\n\t\treturn NVM_VD_BLANK;\n",
        "", "blank_boot"),
-    _m("pad_not_zero", CODEC, "\t\timg[NVM_KLJ2_HDR + NVM_AREA_RAW + i] = 0u;",
-       "\t\timg[NVM_KLJ2_HDR + NVM_AREA_RAW + i] = NVM_ERASED;", "blank_boot"),
+    _m("pad_not_zero", CODEC, "\t\timg[i] = 0u;", "\t\timg[i] = NVM_ERASED;", "blank_boot"),
     _m("header_n_rec", CODEC, "\tnvm_wr32le(img + 12, NVM_N_REC);",
        "\tnvm_wr32le(img + 12, NVM_N_REC + 1u);", "blank_boot", "first_commit_bytes"),
-    _m("frame_crc_init", CODEC, "\tcrc = nvm_crc16_update(0xffffu, rec, 6u);",
-       "\tcrc = nvm_crc16_update(0x0000u, rec, 6u);", "vector_round_trip", "change_commit_bytes"),
+    _m("frame_crc_init", CODEC, "\tcrc = nvm_crc16_update(0xffffu, rec, NVM_REC_HDR - 2u);",
+       "\tcrc = nvm_crc16_update(0x0000u, rec, NVM_REC_HDR - 2u);", "vector_round_trip", "change_commit_bytes"),
     _m("no_blank_stage", STORE, "\tif (chosen == NVM_NONE)\n\t\tnvm_klj2_blank(nvm_stage);\n", "",
        "blank_boot"),
     _m("verdict_not_named", STORE,
@@ -196,7 +238,7 @@ MUTANTS = (
     Mutant("select_on_unchecked_reread",
            ((STORE, "\t\tif (vd == NVM_VD_OK)\n\t\t\t*seq = nvm_klj2_seq(nvm_stage);",
              "\t\tif (vd == NVM_VD_OK &&\n"
-             "\t\t    !nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ2_HDR))\n"
+             "\t\t    !nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ_HDR))\n"
              "\t\t\t*seq = nvm_klj2_seq(nvm_stage);"),
             (STORE, RESTAGE_SEQ,
              "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;")),
@@ -329,8 +371,8 @@ MUTANTS = (
        "\tif (0) {", "media_failures"),
     # every change call opens a new budget, changed or not
     _m("budget_rearmed_by_change", STORE,
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tif (!taken",
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tnvm.st.attempts = 0;\n"
+       "\tnvm_open_set(&nvm.dirty, r.id);\n\tif (!taken",
+       "\tnvm_open_set(&nvm.dirty, r.id);\n\tnvm.st.attempts = 0;\n"
        "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
        "dr2c_unchanged_set"),
@@ -344,14 +386,21 @@ MUTANTS = (
        "\tnvm.st.attempts = 0;\n\tnvm.st.last_verdict = NVM_VD_OK;",
        "\tnvm.st.attempts = 0;\n\tnvm.st.abandoned = 0;\n\tnvm.st.last_verdict = NVM_VD_OK;",
        "recovers_after_failure", "dr2c_unchanged_set"),
-    _m("stale_kept", STORE, "\tif (!nvm_any(nvm.dirty))\n\t\tnvm.st.stale = 0;\n", "",
+    _m("stale_kept", STORE, "\tif (!nvm_any(&nvm.dirty))\n\t\tnvm.st.stale = 0;\n", "",
        "recovers_after_failure"),
     # a DR2b suppression leaves the claim stale with nothing outside a slot
     _m("dr2b_keeps_stale", STORE, "\t\tnvm.st.commits_skipped++;\n\t\tnvm_heal();",
        "\t\tnvm.st.commits_skipped++;", "recovers_after_failure"),
     # ---- the write sequence ----
-    _m("no_blankcheck", STORE, "\t\t\tnvm.st.phase = NVM_P_BLANKCHECK;",
-       "\t\t\tnvm.st.phase = NVM_P_PROGRAM;", "media_failures"),
+    _m("no_blankcheck", STORE, " ? NVM_P_ERASE : NVM_P_BLANKCHECK;",
+       " ? NVM_P_ERASE : NVM_P_PROGRAM;", "media_failures"),
+    # every block the container spans is erased, not only the first
+    _m("first_block_only", STORE, "\t\t\tnvm.st.phase = (++nvm.block < NVM_ERASE_BLOCKS) ? NVM_P_ERASE",
+       "\t\t\tnvm.st.phase = (++nvm.block < 1u) ? NVM_P_ERASE", "capacity_round_trip"),
+    # the right count of erases, each of the slot's first block
+    _m("erase_first_block_every_time", STORE,
+       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target) + nvm.block * NVM_ERASE_BLOCK)) {",
+       "\t    f->erase(f->ctx, nvm_slot_addr(nvm.target))) {", "capacity_commit_over_stale"),
     _m("blankcheck_first_stretch_only", STORE,
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
@@ -388,7 +437,7 @@ MUTANTS = (
        "\treturn nvm.st.verdict_a != NVM_VD_BLANK;", "first_commit_no_blank_slot"),
     Mutant("erase_authoritative",
            ((STORE, "\t\treturn !nvm.st.auth;", "\t\treturn nvm.st.auth;"),
-            (STORE, "\tif (nvm.target == nvm.st.auth || f->erase", "\tif (f->erase")),
+            (STORE, "\tif (nvm.target == nvm.st.auth ||\n\t    f->erase", "\tif (f->erase")),
            ("change_commit_bytes", "powercut")),
     Mutant("descending_pages",
            ((STORE, "\tuint32_t n = nvm_min(NVM_FLASH_PAGE, NVM_IMG_LEN - nvm.pos);\n\n"
@@ -399,13 +448,21 @@ MUTANTS = (
             (STORE, "\t\t\tnvm.pos += nvm.len;", "\t\t\tnvm.pos += NVM_FLASH_PAGE;")),
            ("first_commit_bytes",)),
     Mutant("capture_in_one_step",
-           ((STORE, "\tnvm.cursor = nvm_rec_next(r);\n\tnvm.dirty[r.id >> 5] &= ~(1u << (r.id & 31u));\n"
-                    "\tnvm.inflight[r.id >> 5] |= 1u << (r.id & 31u);\n\tnvm_latch(r);\n}",
-             "\twhile (r.ok) {\n\t\tif (nvm_bit(nvm.dirty, r.id)) {\n"
-             "\t\t\tnvm.dirty[r.id >> 5] &= ~(1u << (r.id & 31u));\n"
-             "\t\t\tnvm.inflight[r.id >> 5] |= 1u << (r.id & 31u);\n\t\t\tnvm_latch(r);\n\t\t}\n"
+           ((STORE, "\tnvm.cursor = nvm_rec_next(r);\n\tnvm_open_take(&nvm.dirty, r.id);\n"
+                    "\tnvm_open_set(&nvm.inflight, r.id);\n\tnvm_latch(r);\n}",
+             "\twhile (r.ok) {\n\t\tif (nvm_bit(&nvm.dirty, r.id)) {\n"
+             "\t\t\tnvm_open_take(&nvm.dirty, r.id);\n"
+             "\t\t\tnvm_open_set(&nvm.inflight, r.id);\n\t\t\tnvm_latch(r);\n\t\t}\n"
              "\t\tr = nvm_rec_next(r);\n\t}\n\tnvm.cursor = r;\n}"),),
            ("service_bound",)),
+    # a latched record's crc16 counted over the layout 2 header's six bytes
+    _m("step_bytes_layout2", STORE, "\tnvm.step_bytes += (NVM_REC_HDR - 2u) + r.plen;",
+       "\tnvm.step_bytes += 6u + r.plen;", "service_bound"),
+    # ---- #823 decision 6: the open bits carry their count ----
+    _m("open_count_doubled", STORE, "\tif (nvm_bit(v, id))\n\t\treturn;\n\tv->bit[id >> 5] |= 1u << (id & 31u);",
+       "\tv->bit[id >> 5] |= 1u << (id & 31u);", "open_count"),
+    _m("open_count_kept", STORE, "\tv->bit[id >> 5] &= ~(1u << (id & 31u));\n\tv->count--;",
+       "\tv->bit[id >> 5] &= ~(1u << (id & 31u));", "open_count"),
     _m("spin_wait", STORE, "\tint busy = f->busy(f->ctx);\n\n\tif (busy == 0)\n\t\treturn 1;",
        "\tint busy = f->busy(f->ctx);\n\n\twhile (busy == 1 && nvm_now() - nvm.op_start_us <= timeout_us)\n"
        "\t\tbusy = f->busy(f->ctx);\n\tif (busy == 0)\n\t\treturn 1;", "service_bound"),
@@ -419,6 +476,12 @@ MUTANTS = (
            ((LITESPI, " ||\n\t    !ls_in_journal(addr, len))", ")"),
             (LITESPI, "\tif (!ls_in_journal(base, LS_BLOCK))\n\t\treturn -1;\n", "")),
            ("port_guard",)),
+    # the guard admits today's journal, which this store must never write
+    _m("litespi_guard_admits_klj2", LITESPI,
+       "\treturn addr >= NVM_JOURNAL_OFFSET &&",
+       "\treturn (addr >= MILAN_FLASH_JOURNAL_OFFSET && len <= MILAN_FLASH_JOURNAL_SIZE &&\n"
+       "\t\taddr - MILAN_FLASH_JOURNAL_OFFSET <= MILAN_FLASH_JOURNAL_SIZE - len) ||\n"
+       "\t       addr >= NVM_JOURNAL_OFFSET &&", "port_guard"),
     # time from the PHC, held on a backward step
     _m("phc_time", LITESPI, TIMER_NOW, PHC_NOW, "time_base"),
     _m("clock_not_accumulated", LITESPI,

@@ -83,7 +83,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
 | `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
-| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
+| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ3 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
@@ -93,8 +93,8 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,240 B | 59.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 57.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,240 B | 59.0 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -143,6 +143,9 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
 - a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
 
+That run printed KLJ2 stage sizes, as `c20ed894` linked them.
+Section 5 gives both formats' stage sizes.
+
 ## 4. Boot console and diagnostics
 
 The split image loses:
@@ -169,7 +172,8 @@ The placement switch (#665) removes the wrapper in the split build; M8a-2 then r
 ## 5. Fit
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
-It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
+It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` and the lwSRP pool.
+The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
 It links the firmware of `e493dccd` against its base `e76a755a`, with one runtime for both:
@@ -210,6 +214,19 @@ The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
 The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
 These figures are planned, not mapped.
+
+**The split's KLJ3 format (#823).** The size fixture was linked again at its base `a9d69c77` and with KLJ3, one runtime for both:
+
+| Point | Base `rom` / `sram`, B | KLJ3 `rom` / `sram`, B | Delta, B | RAMB36, base to KLJ3 |
+|---|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 104,448 / 46,272 | 105,160 / 46,624 | +712 / +352 | 37.0 to 37.5 |
+| 1x1, two interfaces | 106,032 / 57,648 | 106,744 / 58,016 | +712 / +368 | 40.5 to 41.0 |
+| 8x8, one interface | 118,168 / 86,848 | 118,872 / 87,424 | +704 / +576 | 50.5 to 51.0 |
+| 8x8, two interfaces (largest) | 119,824 / 113,008 | 120,536 / 113,584 | +712 / +576 | 57.5 to 57.5 |
+
+The `sram` delta is the stage's two bytes a record and the store's open bits, 36 words per array.
+Every point stays within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
+The target platform's image was not linked again; its `ctrl_plat` is unchanged.
 
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
 Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
@@ -305,7 +322,7 @@ Link the image with the fixture, then plan it:
 python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
   --interfaces 2 --with-aecp --layout split --ledgered-point 8x8-two-interfaces --output "$OUT" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
-python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
+python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
   --ledgered-point 8x8-two-interfaces
 ```
 

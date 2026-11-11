@@ -1,15 +1,21 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /*
- * nvm_klj2.h - the KLJ2 container and F07.8 record codec of the saved-state
- * store (#665 lane F1), for the shape nvm_shape.h describes.
+ * nvm_klj2.h - the container and F07.8 record codec of the saved-state store
+ * (#665, the split placement's saved-state store), for the shape nvm_shape.h
+ * describes.
+ *
+ * The format is the split placement's (#823): the KLJ3 container, its records
+ * in F07.8 layout 3 over the record space of nvm_layout3.h. The file keeps
+ * the name of the format it was written for, because every split image's
+ * source list, the coverage ratchet and the recorded CPU-budget fixture name
+ * it; a KLJ2 container is the previous format, refused VD_VER.
  *
  * The container is docs/design/SAVED_STATE_FASTCONNECT.md section 6.1 and its
  * acceptance order section 6.2. The reference implementation is
- * scripts/nvm_klj2.py (klj2_assemble, klj2_decode); the host suite requires
+ * scripts/nvm_klj3.py (klj3_assemble, klj3_decode); the host suite requires
  * this codec to produce the same bytes and the same verdict for the same
  * input. The container's header and trailer are little-endian; the records
- * inside are big-endian, because a record is the processor's F07.8 frame
- * verbatim (KL_aecp_nvm_writer.sv, KL_acmp_nvm_shadow.sv).
+ * inside are big-endian, as the donor's F07.8 frames are.
  */
 #ifndef NVM_KLJ2_H
 #define NVM_KLJ2_H
@@ -57,11 +63,11 @@ enum nvm_group {
 
 /* One record of the shape, by value; ok is 0 past the last one. */
 struct nvm_rec {
-	uint16_t off;     /* offset of its frame inside the record area */
+	uint32_t off;     /* offset of its frame inside the record area */
 	uint16_t plen;    /* payload bytes */
-	uint8_t id;       /* record_id */
+	uint16_t id;      /* record_id, layout 3 */
+	uint16_t index;   /* index inside the group */
 	uint8_t group;    /* enum nvm_group */
-	uint8_t index;    /* index inside the group */
 	uint8_t ok;
 };
 
@@ -90,7 +96,7 @@ void nvm_rec_frame(uint8_t *rec, struct nvm_rec r);
 /* 1 when every one of len bytes is erased (0xff). */
 int nvm_all_erased(const uint8_t *p, uint32_t len);
 
-/* The ten header words of section 6.1 for sequence seq. */
+/* The ten KLJ3 header words of section 6.1 for sequence seq. */
 void nvm_klj2_header(uint8_t *img, uint32_t seq);
 /* The trailer: CRC-32 over every preceding byte of the container. */
 void nvm_klj2_seal(uint8_t *img);
@@ -100,8 +106,9 @@ void nvm_klj2_blank(uint8_t *img);
 /* The sequence word of a container. */
 uint32_t nvm_klj2_seq(const uint8_t *img);
 
-/* Rules 1 to 3 (and the blank slot) on the 40 header bytes. Sets *img_len
- * on NVM_VD_OK. */
+/* Rules 1 to 3 (and the blank slot) on the 40 header bytes: a KLJ2 header
+ * is the previous format, VD_VER (#823 decision 2). Sets *img_len on
+ * NVM_VD_OK. */
 enum nvm_verdict nvm_klj2_check_head(const uint8_t *hdr, uint32_t *img_len);
 /* Rules 6 to 12 on a container whose CRC closed; the first `loaded` bytes
  * of it are at img. */

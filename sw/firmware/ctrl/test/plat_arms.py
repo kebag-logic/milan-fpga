@@ -69,7 +69,7 @@ def generated(tree: Tree, config: Path, out: Path) -> list[str]:
         shape = nvm_bench.shape_inputs(config, out / "shape")
     except nvm_bench.Refusal as exc:
         raise Refusal(str(exc)) from exc
-    nvm_bench.write_headers(out / "gen", nvm_bench.shape_header(shape.shape, shape.donor, shape.ident),
+    nvm_bench.write_headers(out / "gen", nvm_bench.shape_header(shape),
                             shape.clock_hz)
     return [f"-I{out}", f"-I{out / 'gen'}"]
 

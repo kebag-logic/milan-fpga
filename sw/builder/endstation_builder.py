@@ -46,6 +46,7 @@ before any output is written.
 import argparse
 import ast
 import hashlib
+import importlib.util
 import json
 import re
 import runpy
@@ -2711,9 +2712,9 @@ def nvm_name_capacity() -> tuple[int, str]:
     return int(m.group(1)), f"{shown}:{line}"
 
 
-def _adp_name_entries(overlay):
-    """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
-    the saved-state backend's NAME capacity (nvm_name_capacity)."""
+def aem_name_count(overlay: dict[str, Any]) -> int:
+    """SET_NAME/GET_NAME entries this exact AEM model needs: one per named
+    descriptor, two for ENTITY."""
     # The semantic name table covers the descriptor types named by
     # gen_aem_store.build_model(). ENTITY contributes two entries while each
     # other instance contributes one. Derive the capacity from the overlay's
@@ -2732,8 +2733,13 @@ def _adp_name_entries(overlay):
     if missing_name_counts:
         raise ConfigError("AEM overlay lacks descriptor counts for named "
                           f"types: {', '.join(missing_name_counts)}")
-    aem_name_entries = 1 + sum(int(descriptor_counts[name])
-                               for name in named_types)
+    return 1 + sum(int(descriptor_counts[name]) for name in named_types)
+
+
+def _adp_name_entries(overlay):
+    """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
+    the saved-state backend's NAME capacity (nvm_name_capacity)."""
+    aem_name_entries = aem_name_count(overlay)
     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
     # refuses it above the NAME block only at elaboration (#652).
     capacity, where = nvm_name_capacity()
@@ -2746,6 +2752,69 @@ def _adp_name_entries(overlay):
             f"elaboration. The model is {aem_name_entries - capacity} over: "
             f"remove named descriptors (streams, clusters or clock sources)")
     return aem_name_entries
+
+
+#: The split placement's record space, layout 3 (#823 decision 1). Its one
+#: declaration is the header of the split placement's saved-state store, which
+#: its codec compiles; the builder reads every block's capacity from it through
+#: scripts/nvm_layout3.py and restates none. The all-fabric checks above keep
+#: reading KL_nvm_backend.sv: the two placements refuse at their own bounds.
+NVM_LAYOUT3_H = ROOT / "sw" / "firmware" / "ctrl_nvm" / "nvm_layout3.h"
+_LAYOUT3_SPEC = importlib.util.spec_from_file_location(
+    "nvm_layout3", ROOT / "scripts" / "nvm_layout3.py")
+_layout3 = sys.modules.get("nvm_layout3")
+if _layout3 is None:
+    _layout3 = importlib.util.module_from_spec(_LAYOUT3_SPEC)
+    sys.modules["nvm_layout3"] = _layout3
+    _LAYOUT3_SPEC.loader.exec_module(_layout3)
+#: block -> the descriptor type it holds one record per; a block absent here
+#: holds one record (CFG_IDX, SUID) or the model's writable names (NAME).
+_SPLIT_COUNTED = {
+    "RATE": "AUDIO_UNIT", "CLKSRC": "CLOCK_DOMAIN", "MCR": "CLOCK_DOMAIN",
+    "BINDING": "STREAM_INPUT", "FMT_IN": "STREAM_INPUT",
+    "FMT_OUT": "STREAM_OUTPUT", "PT_OFS": "STREAM_OUTPUT",
+    "MAPS_IN": "STREAM_PORT_INPUT", "MAPS_OUT": "STREAM_PORT_OUTPUT",
+}
+
+
+def nvm_split_capacity() -> Any:
+    """The layout 3 record space as NVM_LAYOUT3_H declares it: every block's
+    first id, capacity and `path:line`. A declaration the reader cannot read
+    refuses, because a capacity this cannot read is not one it may assume."""
+    try:
+        return _layout3.read(NVM_LAYOUT3_H)
+    except (_layout3.LayoutError, OSError) as exc:
+        raise ConfigError(f"the split placement's record space: {exc}") from exc
+
+
+def emit_nvm_split(overlay: dict[str, Any]) -> dict[str, Any]:
+    """The builder's split output: this model's saved-state record space under
+    layout 3, written as nvm_split.json beside the overlay. Every block holds
+    the model's count of its group, and a count over its block refuses the
+    model, naming the count, the capacity and the declaration line. The split
+    placement's saved-state store is built from this file (its host bench,
+    nvm_bench.py, and sw/litex/milan_soc.py --ctrl-mailbox) and its codec
+    refuses the same counts at compile time from the same declaration."""
+    space = nvm_split_capacity()
+    dc = overlay["descriptor_counts"]
+    blocks = []
+    for b in space.blocks:
+        if b.group == "NAME":
+            count = aem_name_count(overlay)
+        elif b.group in _SPLIT_COUNTED:
+            count = int(dc[_SPLIT_COUNTED[b.group]])
+        else:
+            count = 1
+        if count > b.cap:
+            raise ConfigError(
+                f"this AEM model has {count} {b.group} records and the split "
+                f"placement's layout 3 holds {b.cap} (ids {b.base} to {b.last}, "
+                f"{b.where}): the F1 store would refuse this shape at compile "
+                f"time. The model is {count - b.cap} over")
+        blocks.append({"group": b.group, "first_id": b.base, "capacity": b.cap,
+                       "count": count, "declared_at": b.where})
+    return {"layout": space.layout, "id_space": space.id_space,
+            "declaration": space.header, "blocks": blocks}
 
 
 def _adp_dyn_in_geometry(cfg, overlay):
@@ -5897,6 +5966,7 @@ class BuildArtifacts:
     est: dict
     plan: str
     sweep: str
+    nvm_split: dict
 
 
 def _derive_artifacts(config_path):
@@ -5910,6 +5980,7 @@ def _derive_artifacts(config_path):
     lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
     csr_svh = emit_csr_defaults_svh(cfg)
     adp_svh = emit_adp_shape_svh(cfg, overlay)
+    nvm_split = emit_nvm_split(overlay)
     # The ROM consumer does not yet express every overlay the builder can
     # emit (a shape with no CRF sink has no AEM_CRF_FMTS_C table). That is a
     # real limit, not a reason to fail every OTHER artifact: record it and
@@ -5933,7 +6004,8 @@ def _derive_artifacts(config_path):
         cfg=cfg, argv=argv, overlay=overlay, lwsrp=lwsrp,
         lwsrp_svh=lwsrp_svh, csr_svh=csr_svh, adp_svh=adp_svh,
         aem_rom=aem_rom, aem_rom_why=aem_rom_why, iparams=iparams,
-        shape=shape, marks=marks, est=est, plan=plan, sweep=sweep)
+        shape=shape, marks=marks, est=est, plan=plan, sweep=sweep,
+        nvm_split=nvm_split)
 
 
 def _write_artifact_dir(art, outdir):
@@ -6002,7 +6074,12 @@ def _write_artifact_dir(art, outdir):
     with open(p_shape, "w") as f:
         json.dump(art.shape, f, indent=1)
         f.write("\n")
+    p_nvm_split = d / "nvm_split.json"
+    with open(p_nvm_split, "w") as f:
+        json.dump(art.nvm_split, f, indent=1)
+        f.write("\n")
     return d, dict(soc_params=str(p_soc), aem_overlay=str(p_ovl),
+                   nvm_split=str(p_nvm_split),
                    build_plan=str(p_plan), lwsrp_table=str(p_srp),
                    lwsrp_svh=str(p_srp_svh), csr_defaults_svh=str(p_csr_svh),
                    adp_shape_svh=str(p_adp_svh), platform_shape=str(p_shape),
@@ -6078,7 +6155,8 @@ def build(config_path: str, outdir: str | None = None,
                  csr_defaults_svh=out["csr_defaults_svh"],
                  adp_shape_svh=out["adp_shape_svh"],
                  cfg_adp_shape_svh=p_cfg_adp,
-                 platform_shape=out["platform_shape"], sweep_opts=p_sweep)
+                 platform_shape=out["platform_shape"], sweep_opts=p_sweep,
+                 nvm_split=out["nvm_split"])
     if out["gptp_ucode"] is not None:
         paths["gptp_ucode"] = out["gptp_ucode"]
     # The TRACKED RTL header: exactly one config (the DEPLOYED shape, marked
@@ -6118,7 +6196,7 @@ def build(config_path: str, outdir: str | None = None,
                 adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
                 aem_rom_unsupported=art.aem_rom_why,
                 interface_params=art.iparams, platform=art.shape,
-                paths=paths)
+                nvm_split=art.nvm_split, paths=paths)
 
 
 def main() -> None:

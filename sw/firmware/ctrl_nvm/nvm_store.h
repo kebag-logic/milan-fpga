@@ -58,8 +58,9 @@ enum nvm_phase {
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
 /* The most bytes any service step touches: one 256-byte stretch, or one
- * latched record's copy and its crc16 over the header and the payload. */
-#define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
+ * latched record's copy and its crc16 over the header, less the crc16's own
+ * two bytes, and the payload. */
+#define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + (NVM_REC_HDR - 2u))
 /* DR2c: firmware transaction attempts per unchanged captured work set, and
  * the separation after a failed one (SAVED_STATE_MATERIALIZATION.md
  * sections 6.3 and 15.1). */
@@ -107,6 +108,16 @@ struct nvm_status {
 	int stale;                      /* a failed commit left work out of every slot */
 	int dirty;                      /* changed records not yet captured */
 	int pending;                    /* captured records not yet in a verified slot */
+	/* How many: the counts the open bits carry (#823 decision 6). */
+	unsigned int n_dirty;
+	unsigned int n_inflight;
+	/* Today's journal, the all-fabric placement's, which this store never
+	 * writes: bit 0 its slot A, bit 1 its slot B, set when that slot's
+	 * header is a KLJ2 header. A KLJ2 journal is the previous format,
+	 * refused VD_VER (#823 decision 2); when neither of this store's slots
+	 * holds a container, the boot's last_verdict is then VD_VER, not
+	 * VD_BLANK. */
+	unsigned int legacy;
 	enum nvm_phase phase;
 	uint32_t step_bytes_max;        /* the most bytes one service step touched */
 	uint32_t steps;

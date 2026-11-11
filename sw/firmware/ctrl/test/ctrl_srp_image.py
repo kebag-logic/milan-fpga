@@ -70,7 +70,7 @@ def aecp_inputs(tree: Tree, config: Path, out: Path, nvm: Path,
     import nvm_bench
     from aecp_arms import AECP_SOURCES
     shape=nvm_bench.shape_inputs(config,out/"nvm-shape")
-    header=nvm_bench.shape_header(shape.shape,shape.donor,shape.ident)
+    header=nvm_bench.shape_header(shape)
     nvm_bench.write_headers(out/"gen",header,shape.clock_hz)
     checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
              "-o",str(out/"aecp_entity_gen.h")])
