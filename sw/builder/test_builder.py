@@ -23607,9 +23607,11 @@ def test_datapath_params_gate_bites() -> None:
 #  no mailbox. Every image here is a real export of the shipping 1x1 config,
 #  split (its synthetic firmware is gate 23m's) and all-fabric, through
 #  milan_soc.main() in test_ctrl_memory.py's export child, which applies one
-#  edit to one milan_soc.py definition. Both good images must pass. Each
-#  planted image must fail the gate with its kind, from the CLI, and a split
-#  plant also fails its own build, which runs the gate on what it wrote.
+#  edit to one milan_soc.py definition. Both good images must pass, and so
+#  must a copy of the split one whose manifest binds the bitstream its
+#  gateware holds, as a split --build writes it. Each planted image must
+#  fail the gate with its kind, from the CLI, and a split plant also fails
+#  its own build, which runs the gate on what it wrote.
 
 import check_image_identity  # noqa: E402
 
@@ -23701,7 +23703,24 @@ def _identity_file_plants(good, tmp):
     image = copy_of("the manifest's placement renamed")
     (image / check_image_identity.MANIFEST).write_text(json.dumps(dict(record, placement="all-fabric")))
     out.append(("the manifest's placement renamed", "manifest", image, []))
+    # The manifest copied from another image: its ident is the all-fabric one, the image's stays split.
+    image = copy_of("the manifest's ident changed")
+    other = record["ident"].rsplit(" ", 1)[0]
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(dict(record, ident=other)))
+    out.append(("the manifest's ident changed", "manifest", image, []))
     return out
+
+
+def _identity_file_controls(good, tmp):
+    """(label, image) for copies of the good split image the gate must pass: what a split --build writes."""
+    record = json.loads((good / check_image_identity.MANIFEST).read_text())
+    image = tmp / "a-bound-bitstream-the-image-holds"
+    shutil.copytree(good, image)
+    bit = image / "gateware/alinx_ax7101.bit"
+    qspi_transition._fake_bit(bit, b"\xff" * 16 + b"\xaa\x99\x55\x66built")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(
+        dict(record, bitstream=qspi_transition.bitstream_binding(bit))))
+    return [("a bound bitstream the image holds", image)]
 
 
 def test_image_identity_gate() -> None:
@@ -23735,6 +23754,14 @@ def test_image_identity_gate() -> None:
                 bad.append(f"{label}: its build was not refused by the gate's {kind} rule (rc {rc}: {error})")
             plants.append((label, kind, image, []))
         plants += _identity_file_plants(good["split"], tmp)
+        controls = _identity_file_controls(good["split"], tmp)
+        for label, image in controls:
+            status, said = _gate_cli(python, image)
+            if status != 0 or "FINDING" in said:
+                bad.append(f"{label}: the gate refused an image that agrees with its identity "
+                           f"(exit {status}): {said.strip()}")
+            else:
+                print(f"    {label}: passes")
         for label, kind, image, extra in plants:
             status, said = _gate_cli(python, image, *extra)
             if status != 1 or f"FINDING {kind}:" not in said:
@@ -23744,7 +23771,8 @@ def test_image_identity_gate() -> None:
                 print(f"    {label}: {words}")
         count = len(plants)
     assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
-    print(f"  [gate 23p] the good split and all-fabric images pass the identity gate; {count} planted images "
+    print(f"  [gate 23p] the good split and all-fabric images and {len(controls)} bound-bitstream control pass "
+          f"the identity gate; {count} planted images "
           f"each fail it by their kind ({', '.join(sorted(set(k for _l, k, *_r in IDENTITY_SOC_PLANTS)))} "
           f"from the SoC; firmware, bitstream, placement and manifest from the image's files) in "
           f"{time.time() - t0:.0f} s")
