@@ -13,9 +13,10 @@ does, and its mutants include MUTANTS, whose targets are PROPERTIES. The arm gra
     naming step the pieces, before the name. It refuses one whose finalize never names its netlist, and
     leaves a CPU that is not a VexiiRiscv as it is;
   - it also refuses each SHAPES finalize a re-pinned LiteX could have that leaves the generator a region list
-    other than the naming step's pieces: collected again after naming, or kept on the instance, under the
-    name the generator reads today or another. And it refuses a naming step whose pieces are not aligned
-    powers of two;
+    other than the pieces the naming step hashed: collected again after naming, kept on the instance (under
+    the name the generator reads today or another), or changed in place after naming. Each is refused with
+    the refusal that names the cached netlist for removal. And it refuses a naming step whose pieces are not
+    aligned powers of two;
   - `export_check`: the split export through milan_soc.main() hands the generator rom and sram as their
     pieces, and every row it hands it is an aligned power of two.
 
@@ -51,7 +52,7 @@ PROPERTIES = {
                          "aligned power-of-two pieces is refused (#791)",
 }
 _HANDED = ("VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)\n"
-           "        named.append(VexiiRiscv.memory_regions)\n        VexiiRiscv.generate_netlist_name()")
+           "        named.append(list(VexiiRiscv.memory_regions))\n        VexiiRiscv.generate_netlist_name()")
 #: test_ctrl_memory.Mutant rows: name, target, owner, attribute, old, new, arm.
 MUTANTS = (
     ("pieces unaligned", "decode pieces", "ctrl_memory", "decode_pieces",
@@ -62,7 +63,8 @@ MUTANTS = (
      "for start, piece in decode_pieces(origin, size)]", "for start, piece in ((origin, size),)]", "decode"),
     ("pieces handed after the name", "exact decode", "milan_soc", "exact_cpu_decode", _HANDED,
      "VexiiRiscv.generate_netlist_name()\n        VexiiRiscv.memory_regions = "
-     "ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)\n        named.append(VexiiRiscv.memory_regions)", "decode"),
+     "ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)\n        named.append(list(VexiiRiscv.memory_regions))",
+     "decode"),
     ("naming guard off", "decode guard", "milan_soc", "exact_cpu_decode", "if not named:", "if False:", "decode"),
     ("decode hookup removed", "exact decode", "milan_soc", "add_ctrl_memory", "exact_cpu_decode(soc.cpu)", "None",
      "soc"),
@@ -76,9 +78,14 @@ MUTANTS = (
      ', ("the instance", cpu)]', "]", "decode"),
     ("the classes not searched", "region list guard", "milan_soc", "cpu_region_lists",
      "*((owner.__name__, owner) for owner in type(cpu).__mro__), ", "", "decode"),
+    ("the named list not copied", "region list guard", "milan_soc", "exact_cpu_decode",
+     "named.append(list(VexiiRiscv.memory_regions))", "named.append(VexiiRiscv.memory_regions)", "decode"),
 )
 #: The finalize shapes a re-pinned LiteX could have that each leave the generator a list other than the pieces.
-SHAPES = ("re-collected after naming", "kept on the instance", "kept on the instance under another name")
+SHAPES = ("re-collected after naming", "kept on the instance", "kept on the instance under another name",
+          "re-collected in place after naming", "a row appended in place after naming")
+#: The aligned row the last SHAPES row appends to the class's list after naming.
+APPENDED = (0x2000_0000, 0x1000, "rw", "p")
 
 
 def check(problems: list[str], ok: bool, what: str) -> None:
@@ -113,8 +120,10 @@ def exact(origin: int, size: int, pieces: tuple[tuple[int, int], ...]) -> str | 
 def standin(shape: str = "pinned") -> Any:
     """A VexiiRiscv that finalizes as LiteX's does at the pin: collect the split SoC's rows, then name the
     netlist from them through its own naming step. Or, for "never names", never name it; for a SHAPES row,
-    name it and leave the generator the whole rows: collected again after naming, or kept on the instance
-    as `memory_regions` (which the instance reads before its class) or as `generator_regions`."""
+    name it and leave the generator another list: the whole rows collected again after naming, or kept on
+    the instance as `memory_regions` (which the instance reads before its class) or as `generator_regions`;
+    or, in place in the list the naming step left on the class, the whole rows put back (cleared, then
+    extended) or the aligned APPENDED row added."""
     from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
 
     class StandIn(VexiiRiscv):
@@ -134,6 +143,11 @@ def standin(shape: str = "pinned") -> Any:
                 self.generate_netlist_name()
             if shape == "re-collected after naming":
                 VexiiRiscv.memory_regions = list(SPLIT_ROWS)
+            if shape == "re-collected in place after naming":
+                VexiiRiscv.memory_regions.clear()
+                VexiiRiscv.memory_regions.extend(SPLIT_ROWS)
+            if shape == "a row appended in place after naming":
+                VexiiRiscv.memory_regions.append(APPENDED)
     return StandIn()
 
 
@@ -180,7 +194,8 @@ def arms(problems: list[str]) -> None:
                                          f"({refusal})")
     for shape in SHAPES:
         seen, refusal = finalized(standin(shape))
-        held = refusal is not None and "region list other than the pieces" in refusal and "#791" in refusal
+        held = refusal is not None and all(words in refusal for words in (
+            "region list other than the pieces", "remove it from the generator's cache", "#791"))
         check(problems, seen == [SPLIT_PIECES] and held,
               f"exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: {shape} "
               f"({refusal})")
