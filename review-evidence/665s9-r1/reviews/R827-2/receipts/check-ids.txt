@@ -1,0 +1,17 @@
+== 1d6bf555 (1d6bf5556ae28764361d85012b86394eb467d294)
+suite.hpp: C0 C1 C2 C3 C4 D0 D1 E0 E1 E2 F0 F1 F2 G0 H0 H1 H2 K0 K1 K2 M0 M1 M2 P0 P1 P2 P3 P4 P5 Q0 Q1 Q10 Q11 Q12 Q13 Q14 Q15 Q16 Q17 Q18 Q19 Q2 Q20 Q21 Q22 Q23 Q3 Q4 Q5 Q6 Q7 Q8 Q9 R0 R1 R2 T0 T1 X0 X1 X2 
+suite_face.hpp: F0 F1 F10 F2 F3 F4 F7 F8 F9 T0 T1 T2 
+shared: F0 F1 F2 T0 T1 
+U0 label lines: 0  H0 label lines: ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);|ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);|ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);|
+== a91fb27d (a91fb27dd39483e4694e193504da1dbe06208807)
+suite.hpp: C0 C1 C2 C3 C4 D0 D1 E0 E1 E2 F0 F1 F2 G0 G1 H0 H1 H2 K0 K1 K2 M0 M1 M2 P0 P1 P2 P3 P4 P5 Q0 Q1 Q10 Q11 Q12 Q13 Q14 Q15 Q16 Q17 Q18 Q19 Q2 Q20 Q21 Q22 Q23 Q3 Q4 Q5 Q6 Q7 Q8 Q9 R0 R1 R2 S0 T0 T1 V0 V1 W0 X0 X1 X2 
+suite_face.hpp: F0 F1 F10 F2 F3 F4 F7 F8 F9 T0 T1 T2 
+shared: F0 F1 F2 T0 T1 
+U0 label lines: 0  H0 label lines: ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);|ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);|ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);|ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);|ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);|
+== a69fc0f5 (a69fc0f597355a0a200ec5be6bb134b897e97ff5)
+suite.hpp: C0 C1 C2 C3 C4 D0 D1 E0 E1 E2 F0 F1 F2 G0 G1 H0 H1 H2 K0 K1 K2 M0 M1 M2 P0 P1 P2 P3 P4 P5 Q0 Q1 Q10 Q11 Q12 Q13 Q14 Q15 Q16 Q17 Q18 Q19 Q2 Q20 Q21 Q22 Q23 Q3 Q4 Q5 Q6 Q7 Q8 Q9 R0 R1 R2 S0 T0 T1 U0 V0 V1 W0 X0 X1 X2 
+suite_face.hpp: F0 F1 F10 F2 F3 F4 F7 F8 F9 T0 T1 T2 
+shared: F0 F1 F2 T0 T1 
+U0 label lines: 2  H0 label lines: ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);|ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);|ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);|
+== PR lines touching an F or T label in either file, 1d6bf555..a69fc0f5:
+0
