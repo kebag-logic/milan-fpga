@@ -3292,6 +3292,7 @@ def cpu_region_lists(cpu: object) -> dict[str, list[tuple]]:
     """Every non-empty list of (origin, size, mode, bus) rows that `cpu` holds, on itself or on any class of
     it, by where it is held: the region lists a VexiiRiscv generator could be handed (#791)."""
     def rows(value: object) -> bool:
+        """Whether `value` is a non-empty list of (origin, size, mode, bus) rows."""
         return isinstance(value, (list, tuple)) and bool(value) and all(
             isinstance(row, tuple) and len(row) == 4 and isinstance(row[0], int) and isinstance(row[1], int)
             and isinstance(row[2], str) and isinstance(row[3], str) for row in value)
