@@ -266,13 +266,9 @@ _DECL_TYPE = (
     r"(?:static\s+|const\s+|constexpr\s+|volatile\s+|unsigned\s+|signed\s+|register\s+)*"
     r"(?:u?int(?:8|16|32|64|ptr|max)_t|long\s+long|size_t|ssize_t|bool|char|short"
     r"|int|long|float|double|auto|[IQCS]Data|WData)")
-#: One declarator's text up to the next: anything but `;`, a parenthesis, a
-#: brace or a newline, or a whole brace-enclosed initialiser, so the commas of
-#: `uint32_t a[4] = {0, 0, 0, 0};` separate its elements and not declarators
-#: (#495, the processor #217 consumer leg's false finding).
-_DECLARATOR_TEXT = r"(?:[^;(){}\n]|\{[^{}\n]*\})*"
-MULTI_DECL_RE = re.compile(
-    rf"^[ \t]*{_DECL_TYPE}[ \t]+\**[A-Za-z_]\w*{_DECLARATOR_TEXT},{_DECLARATOR_TEXT};[ \t]*$", re.M)
+#: A declarator's text: a whole `{...}` initialiser is one, its commas its elements' (#495).
+_DECL_TEXT = r"(?:[^;(){}\n]|\{[^{}\n]*\})*"
+MULTI_DECL_RE = re.compile(rf"^[ \t]*{_DECL_TYPE}[ \t]+\**[A-Za-z_]\w*{_DECL_TEXT},{_DECL_TEXT};[ \t]*$", re.M)
 
 #: A file-scope definition of a mutable variable. Applied only to lines at
 #: brace depth zero, so a local is never counted. `const`, `constexpr`,
@@ -707,13 +703,11 @@ def _selftest_ratchets(ck: _Tally) -> None:
        scan("static long fails = 0;\n")["multi-declarator declaration"] == 0)
     ck("a call with two arguments is not a declaration",
        scan("void f(){ g(a, b); }\n")["multi-declarator declaration"] == 0)
-    ck("a brace initialiser's commas separate elements, not declarators",
-       scan("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};\n")["multi-declarator declaration"] == 0,
-       "one declarator, the line processor #217's consumer leg miscounted (#495)")
-    ck("two declarators beside a brace initialiser are still a finding",
-       scan("uint32_t a[2] = {0, 0}, b = 1;\n")["multi-declarator declaration"] == 1)
-    ck("two brace-initialised declarators are a finding",
-       scan("int a{1}, b{2};\n")["multi-declarator declaration"] == 1)
+    ck("a brace initialiser's commas separate elements, not declarators (#495)",
+       scan("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};\n")["multi-declarator declaration"] == 0)
+    for two in ("uint32_t a[2] = {0, 0}, b = 1;\n", "int a{1}, b{2};\n"):
+        ck(f"two declarators beside a brace initialiser are a finding: {two.strip()}",
+           scan(two)["multi-declarator declaration"] == 1)
     ck("a function over the line limit is a finding",
        scan(_long_body())["long function"] == 1)
     ck("a short function is not a finding",
