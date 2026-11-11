@@ -1,0 +1,8 @@
+c1-started-unmarked LIFT=0 33 sinks: TRACE DIFFERS at step 15 (1 vs 4 calls) (seed 1)
+c1-started-unmarked LIFT=1 33 sinks: TRACE DIFFERS at step 15 (1 vs 4 calls) (seed 1)
+c2-release-mark-word0 LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0: calls 54496, steps with owed frames 0, reentry attempts 0, settled-rsv sink-steps 10239 (sinks>=32: 158), deferred 0 (seed 1)
+c2-release-mark-word0 LIFT=1 33 sinks: TRACE DIFFERS at step 7472 (2 vs 3 calls) (seed 1)
+c3-release-mark-low-only LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0: calls 54496, steps with owed frames 0, reentry attempts 0, settled-rsv sink-steps 10239 (sinks>=32: 158), deferred 0 (seed 1)
+c3-release-mark-low-only LIFT=1 33 sinks: TRACE DIFFERS at step 7472 (2 vs 3 calls) (seed 1)
+c4-probe-left-mark-word0 LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0: calls 54496, steps with owed frames 0, reentry attempts 0, settled-rsv sink-steps 10239 (sinks>=32: 158), deferred 0 (seed 1)
+c4-probe-left-mark-word0 LIFT=1 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 1 reenter 0 noopen 0: calls 19966, steps with owed frames 19957, reentry attempts 0, settled-rsv sink-steps 1062 (sinks>=32: 131), deferred 1295 (seed 1)

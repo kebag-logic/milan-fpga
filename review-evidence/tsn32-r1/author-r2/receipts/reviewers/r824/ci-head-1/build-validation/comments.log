@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "<scratch>/r824/scratch/ci-head/src/scripts/check_comments.py", line 137, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/r824/scratch/ci-head/src/scripts/check_comments.py", line 114, in main
+    print('comment lexer: ' + compiler())
+                              ~~~~~~~~^^
+  File "<scratch>/r824/scratch/ci-head/src/scripts/compiler_tokens.py", line 13, in compiler
+    result = subprocess.run([binary, '--version'], capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'clang-18'

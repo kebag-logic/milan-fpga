@@ -1,0 +1,32 @@
+== c1-started-unmarked
+acmp_tests rc=1
+[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[  FAILED  ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised (0 ms)
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.EightSinksMatchTheFullWalk (1 ms)
+[  FAILED  ] AcmpWalk.OneSinkMatchesTheFullWalk (0 ms)
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (4 ms)
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (19 ms)
+== c2-release-mark-word0
+acmp_tests rc=0
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (2 ms)
+== c3-release-mark-low-only
+acmp_tests rc=0
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (2 ms)
+== c4-probe-left-mark-word0
+acmp_tests rc=0
+acmp_wide rc=0
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (2 ms)

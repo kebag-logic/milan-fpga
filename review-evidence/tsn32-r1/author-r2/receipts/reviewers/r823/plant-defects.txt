@@ -1,0 +1,21 @@
+SAME acmp-unbind-keeps-srp
+SAME acmp-unbind-srp-after-response
+SAME acmp-registered-keeps-no-tk
+SAME acmp-unregistered-keeps-srp
+SAME acmp-expiry-not-consumed
+SAME owed-answer-keeps-the-hold
+DIFF acmp-first-owed-releases-every-change
+  main: ['-\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));', '+\t\t\t\ta->sinks[k].change_owed = 0u;']
+  head: ['-\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {', '-\t\t\t\t\ta->sinks[k].change_owed--;', '-\t\t\t\t}', '+\t\t\t\ta->sinks[k].change_owed = 0u;']
+SAME acmp-no-aging
+SAME acmp-roll-back-keeps-the-bindings
+SAME acmp-expiry-reads-the-clock-twice
+SAME acmp-owed-probe-never-starts
+SAME acmp-owed-probe-no-resp-2s
+SAME acmp-expiry-due-at-its-first-read
+DIFF acmp-wide-release-loop-word-ignored
+  main: ['-\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));', '+\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[0] >> (k % 32u)) & 1u));']
+  head: ['-\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {', '+\t\t\t\tif (((o->release[0] >> (k % 32u)) & 1u) != 0u) {']
+DIFF acmp-wide-release-loop-word-off-by-one
+  main: ['-\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));', '+\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[(k + 1u) / 32u] >> (k % 32u)) & 1u));']
+  head: ['-\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {', '+\t\t\t\tif (((o->release[(k + 1u) / 32u] >> (k % 32u)) & 1u) != 0u) {']
