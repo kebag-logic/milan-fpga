@@ -1,0 +1,13 @@
+{
+ "cwd": "<lane>",
+ "head": "03447eaa087ba0687362a7372f4a00bd40c6fd46",
+ "base": "1d6bf5556ae28764361d85012b86394eb467d294",
+ "commands": [
+  ["env", "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<management>/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash", "scripts/run_all_suites.sh", "<scratch>/sweep-unused/logs", "--wait"]
+ ]
+}

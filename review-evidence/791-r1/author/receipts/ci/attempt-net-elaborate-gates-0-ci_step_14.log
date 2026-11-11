@@ -1,0 +1,36 @@
+# head 03447eaa087ba0687362a7372f4a00bd40c6fd46 elaborate/elaborate-gates-0/ci_step_14: Place the VexiiRiscv source at the revision LiteX pins
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: <scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv'...
+HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+Submodule 'ext/NaxSoftware' (https://github.com/SpinalHDL/NaxSoftware.git) registered for path 'ext/NaxSoftware'
+Submodule 'ext/SpinalHDL' (https://github.com/SpinalHDL/SpinalHDL.git) registered for path 'ext/SpinalHDL'
+Submodule 'ext/riscv-isa-sim' (https://github.com/SpinalHDL/riscv-isa-sim.git) registered for path 'ext/riscv-isa-sim'
+Submodule 'ext/rvls' (https://github.com/SpinalHDL/rvls.git) registered for path 'ext/rvls'
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/NaxSoftware'...
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL'...
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/riscv-isa-sim'...
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/rvls'...
+Submodule path 'ext/NaxSoftware': checked out 'ae0c08016d0581b9ac79a4feb166e7a532369bd4'
+Submodule path 'ext/SpinalHDL': checked out '1097c1df52f6b4ac532e42ff35a9c610f8e9a07c'
+Submodule 'tester/src/test/python/cocotblib' (https://github.com/SpinalHDL/CocotbLib.git) registered for path 'ext/SpinalHDL/tester/src/test/python/cocotblib'
+Cloning into '<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/tester/src/test/python/cocotblib'...
+Submodule path 'ext/SpinalHDL/tester/src/test/python/cocotblib': checked out 'a98830423924fc89bfebae84cb802fc90d352602'
+error: RPC failed; curl 56 Recv failure: Connection timed out
+error: 32777 bytes of body are still expected
+fetch-pack: unexpected disconnect while reading sideband packet
+fatal: early EOF
+fatal: fetch-pack: invalid index-pack output
+fatal: could not fetch e153391fb007097a55908ca695e57bd4be9f50a9 from promisor remote
+fatal: Unable to checkout '924941a37ba7e591a1e87542cc0466262f476a4e' in submodule path 'ext/riscv-isa-sim'
+Traceback (most recent call last):
+  File "<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/wt/scripts/ci_litex_env.py", line 115, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/wt/scripts/ci_litex_env.py", line 104, in main
+    _run(["git", "submodule", "update", "--init", "--recursive",
+  File "<scratch>/ci/03447eaa087b/jobs/elaborate__elaborate-gates-0/wt/scripts/ci_litex_env.py", line 71, in _run
+    subprocess.run(cmd, cwd=cwd, check=True)
+  File "<tools>/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'submodule', 'update', '--init', '--recursive', '--filter=blob:none']' returned non-zero exit status 128.

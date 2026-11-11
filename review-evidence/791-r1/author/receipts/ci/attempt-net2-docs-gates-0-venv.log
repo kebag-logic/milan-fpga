@@ -1,0 +1,176 @@
+10:03:01 local: docs__docs-gates-2
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__docs-gates-2/bin/python3 -m pip install --upgrade pip
+docs__docs-gates-2: success
+10:20:23 local: docs__docs-gates-2 rc 0
+10:20:23 local: elaborate__elaborate-gates-0
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__elaborate-gates-0/bin/python3 -m pip install --upgrade pip
+elaborate__elaborate-gates-0: failure
+10:32:51 local: elaborate__elaborate-gates-0 rc 0
+10:32:51 local: docs__docs-gates-0
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f959312cf80>: Failed to establish a new connection: [Errno 101] Network is unreachable')': /simple/pyyaml/
+WARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f9592d56fc0>: Failed to establish a new connection: [Errno 101] Network is unreachable')': /simple/pyyaml/
+WARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f9592d575f0>: Failed to establish a new connection: [Errno 101] Network is unreachable')': /simple/pyyaml/
+WARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f9592d57800>: Failed to establish a new connection: [Errno 101] Network is unreachable')': /simple/pyyaml/
+WARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f9592d579e0>: Failed to establish a new connection: [Errno 101] Network is unreachable')': /simple/pyyaml/
+ERROR: Could not find a version that satisfies the requirement pyyaml (from versions: none)
+ERROR: No matching distribution found for pyyaml
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__docs-gates-0/bin/python3 -m pip install --upgrade pip
+Traceback (most recent call last):
+  File "<management>/2026-09-23/791-a765/tools/ci/ci_replay.py", line 770, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<management>/2026-09-23/791-a765/tools/ci/ci_replay.py", line 749, in main
+    return run_job(head, sys.argv[3], sys.argv[4], int(sys.argv[5]) if len(sys.argv) > 5 else 0)
+  File "<management>/2026-09-23/791-a765/tools/ci/ci_replay.py", line 463, in run_job
+    py = venv(inst, work)
+  File "<management>/2026-09-23/791-a765/tools/ci/ci_replay.py", line 353, in venv
+    subprocess.run([str(v / "bin/python3"), "-m", "pip", "install", "--quiet", "--cache-dir", str(TMP / "pip-cache"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "pyyaml"], check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<scratch>/tmpci/venvs/docs__docs-gates-0/bin/python3', '-m', 'pip', 'install', '--quiet', '--cache-dir', '<scratch>/tmpci/pip-cache', 'pyyaml']' returned non-zero exit status 1.
+10:34:11 local: docs__docs-gates-0 rc 1
+10:34:12 local: elaborate__ci-fail-fast
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__ci-fail-fast/bin/python3 -m pip install --upgrade pip
+elaborate__ci-fail-fast: success
+10:34:16 local: elaborate__ci-fail-fast rc 0
+10:34:16 local: rtl-fast__changes
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__changes/bin/python3 -m pip install --upgrade pip
+rtl-fast__changes: success
+10:34:47 local: rtl-fast__changes rc 0
+10:34:47 local: rtl-fast__verilator-lint
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__verilator-lint/bin/python3 -m pip install --upgrade pip
+rtl-fast__verilator-lint: success
+10:35:24 local: rtl-fast__verilator-lint rc 0
+10:35:24 local: rtl-fast__bdd-conformance
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__bdd-conformance/bin/python3 -m pip install --upgrade pip
+rtl-fast__bdd-conformance: success
+10:35:37 local: rtl-fast__bdd-conformance rc 0
+10:35:38 local: rtl-fast__yosys-tool
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__yosys-tool/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-tool: success
+10:35:46 local: rtl-fast__yosys-tool rc 0
+10:35:47 local: rtl-fast__yosys-elaboration
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__yosys-elaboration/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-elaboration: success
+11:06:40 local: rtl-fast__yosys-elaboration rc 0
+11:06:41 local: rtl-fast__split-cdc
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__split-cdc/bin/python3 -m pip install --upgrade pip
+rtl-fast__split-cdc: success
+11:10:43 local: rtl-fast__split-cdc rc 0
+11:10:43 local: rtl-fast__firmware-unit
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__firmware-unit/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-unit: success
+11:35:49 local: rtl-fast__firmware-unit rc 0
+11:35:50 local: rtl-fast__firmware-srp-mutants
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__firmware-srp-mutants/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-srp-mutants: success
+12:03:38 local: rtl-fast__firmware-srp-mutants rc 0
+12:03:38 local: rtl-fast__ci-fail-fast
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__ci-fail-fast/bin/python3 -m pip install --upgrade pip
+rtl-fast__ci-fail-fast: success
+12:03:44 local: rtl-fast__ci-fail-fast rc 0
+12:03:45 local: rtl__full-ci-gate
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__full-ci-gate/bin/python3 -m pip install --upgrade pip
+rtl__full-ci-gate: success
+12:04:34 local: rtl__full-ci-gate rc 0
+12:04:34 local: rtl__verilator-shards__0
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__0/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__0: success
+12:04:47 local: rtl__verilator-shards__0 rc 0
+12:04:47 local: rtl__verilator-shards__1
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__1/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__1: success
+12:05:49 local: rtl__verilator-shards__1 rc 0
+12:05:49 local: rtl__verilator-shards__7
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__7/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__7: success
+12:06:03 local: rtl__verilator-shards__7 rc 0
+12:06:03 local: rtl__verilator-shards__10
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__10/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__10: success
+12:06:17 local: rtl__verilator-shards__10 rc 0
+12:06:17 local: rtl__verilator-shards__13
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__13/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__13: success
+12:06:31 local: rtl__verilator-shards__13 rc 0
+12:06:32 local: rtl__verilator-shards__16
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__16/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__16: success
+12:06:47 local: rtl__verilator-shards__16 rc 0
+12:06:48 local: rtl__physical-gptp
+12:06:48 local: rtl__physical-gptp rc 0
+12:06:49 local: rtl__yosys-tool
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-tool/bin/python3 -m pip install --upgrade pip
+rtl__yosys-tool: success
+12:06:57 local: rtl__yosys-tool rc 0
+12:06:57 local: rtl__yosys-shards__0
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-shards__0/bin/python3 -m pip install --upgrade pip
+rtl__yosys-shards__0: success
+12:27:10 local: rtl__yosys-shards__0 rc 0
+12:27:11 local: rtl__yosys-portability
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-portability/bin/python3 -m pip install --upgrade pip
+rtl__yosys-portability: success
+12:27:22 local: rtl__yosys-portability rc 0
+12:27:23 local: rtl__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__ci-manifest/bin/python3 -m pip install --upgrade pip
+rtl__ci-manifest: success
+12:27:42 local: rtl__ci-manifest rc 0
+12:27:43 local: rtl__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+rtl__ci-cancel-tail: success
+12:28:00 local: rtl__ci-cancel-tail rc 0
+local: every instance has a result
