@@ -94,7 +94,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,272 B | 59.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,328 B | 59.0 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.

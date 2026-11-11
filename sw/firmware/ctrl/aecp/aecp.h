@@ -238,6 +238,9 @@ bool aecp_locked(struct aecp *, uint64_t *owner);
 // notifications and every response owed with them have completed
 // (aecp_tx_complete). The platform then resets the entity.
 bool aecp_reboot_due(struct aecp *);
+// True from an accepted REBOOT's SUCCESS until the reset (#871). The platform
+// then takes no received frame of any channel (REQ-FWX-001).
+bool aecp_reboot_accepted(const struct aecp *);
 
 #ifdef CTRL_REENTRY_ASSERT
 void ctrl_reentry_assert(const char *module);

@@ -1813,6 +1813,7 @@ TEST_F(Core, RebootRefusalsLeaveTheEntityInService)
         EXPECT_EQ(get(out,16,2)&0x7ff,16u)<<what<<", answered at cdl 16";
         EXPECT_EQ(sent.size(),1u)<<what<<", notifying no one";
         EXPECT_FALSE(aecp_reboot_due(&a))<<what<<", resetting nothing";
+        EXPECT_FALSE(aecp_reboot_accepted(&a))<<what<<", resetting nothing";
         ask(7,target(0,0));
     };
     refused({0,0},7,"BAD_ARGUMENTS short of Figure 7-68's four bytes");
@@ -1821,6 +1822,8 @@ TEST_F(Core, RebootRefusalsLeaveTheEntityInService)
     refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index");
     ask(1,Bytes(16),0,CTLR+1);
     refused(target(0,0),3,"ENTITY_LOCKED under another controller's lock");
+    // the processor's order: the index is judged before the lock (protocol-processor 06_aecp_engine.md 6.11)
+    refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index under another controller's lock");
     Bytes unlock(16);put(unlock,0,1,4);ask(1,unlock,0,CTLR+1);
     ON_CALL(mock,Applied).WillByDefault(Return(false));
     refused(target(0,0),10,"ENTITY_MISBEHAVING while a change waits for the platform");
@@ -1838,6 +1841,7 @@ TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
     auto b=command(42,target(0,0));aecp_rx(&a,0,b.data(),b.size());
     for(unsigned n=0;n<4;++n)aecp_poll(&a);
     ASSERT_EQ(sent.size(),2u)<<"the SUCCESS response, then one notification";
+    EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, so the platform takes no frame";
     const auto &r=sent[0].second,&u=sent[1].second;
     EXPECT_EQ(get(r,16,2)>>11,0u)<<"a REBOOT of ENTITY 0 by the lock's owner is SUCCESS";
     EXPECT_EQ(get(r,36,2),42u)<<"the response is solicited";

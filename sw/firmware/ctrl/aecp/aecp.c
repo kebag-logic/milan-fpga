@@ -202,6 +202,11 @@ bool aecp_reboot_due(struct aecp *a)
 	return aecp_enter(a) && a->reboot == 2u && (uint32_t)(a->tx_done - a->reboot_end) < 0x80000000u;
 }
 
+bool aecp_reboot_accepted(const struct aecp *a)
+{
+	return a->reboot != 0u;
+}
+
 bool aecp_locked(struct aecp *a, uint64_t *owner)
 {
 	if (!aecp_enter(a)) return false;
