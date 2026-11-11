@@ -66,11 +66,18 @@
 //   NoOtherChannelTransmitsAfterTheDeparting: once ENTITY_DEPARTING is
 //       committed, no ACMP, AECP, MAAP or SRP transmission starts until the
 //       reset port fires, though the mailbox holds the DEPARTING for seconds
-//       while a bound listener, SRP and MAAP run
+//       while a bound listener, SRP and MAAP run. AECP's check has no defect
+//       of its own, because AECP starts no frame after its SUCCESS; each of
+//       its three layers carries one: the loop's stop
+//       (plat-reboot-transmits-after-the-departing), the receive gate
+//       (plat-reboot-takes-aecp-frames-after-the-success) and AECP's own
+//       silence (reboot-serves-after-its-success and
+//       reboot-probes-after-its-success in aecp_mutants.py)
 //   TheDepartingWaitsForEveryOtherRing: ENTITY_DEPARTING waits while the ACMP,
 //       the MAAP or the SRP ring holds a frame, so no frame committed before it
 //       follows it. AECP's ring holds only the REBOOT's own frames by then,
-//       whose completion aecp_reboot_due waits for (B12)
+//       whose completion aecp_reboot_due waits for
+//       (TheResetWaitsForTheResponseToLeave)
 //   TheGateHoldsInThePassThatTakesTheReboot: a MAAP frame, an MSRP PDU and a
 //       second AEM command queued with the REBOOT are not taken in the pass
 //       that takes it: the gate holds from the SUCCESS itself, before its
@@ -944,6 +951,11 @@ TEST_F(Boot, B19NoFrameOfAnyChannelIsTakenFromTheSuccess) {
     EXPECT_TRUE(aecp_frames(from, 7).empty()) << "B19 an AEM command after the REBOOT's SUCCESS is not answered";
 }
 
+// AECP's check has no defect of its own, because AECP starts no frame after its SUCCESS. Each of its three layers
+// carries one: the loop's stop (plat-reboot-transmits-after-the-departing, caught on this test's ACMP, MAAP and SRP
+// checks), the receive gate (plat-reboot-takes-aecp-frames-after-the-success, caught by
+// NoFrameOfAnyChannelIsTakenFromTheSuccess and TheGateHoldsWhileTheResponseCannotBeHandedOver) and AECP's own
+// silence (reboot-serves-after-its-success and reboot-probes-after-its-success in aecp_mutants.py)
 TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
     env.reboot = kReboot;
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
@@ -988,7 +1000,7 @@ TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
 }
 
 // Each ring but ADP's and AECP's in turn, with a boot of its own: AECP's ring holds only the REBOOT's own frames
-// once the loop has stopped, and aecp_reboot_due waits for those (B12)
+// once the loop has stopped, and aecp_reboot_due waits for those (TheResetWaitsForTheResponseToLeave)
 TEST_F(Boot, B21TheDepartingWaitsForEveryOtherRing) {
     env.reboot = kReboot;
     bool first = true;
