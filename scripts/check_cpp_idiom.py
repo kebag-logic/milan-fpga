@@ -266,8 +266,8 @@ _DECL_TYPE = (
     r"(?:static\s+|const\s+|constexpr\s+|volatile\s+|unsigned\s+|signed\s+|register\s+)*"
     r"(?:u?int(?:8|16|32|64|ptr|max)_t|long\s+long|size_t|ssize_t|bool|char|short"
     r"|int|long|float|double|auto|[IQCS]Data|WData)")
-#: A declarator's text: a whole `{...}` initialiser is one, its commas its elements' (#495).
-_DECL_TEXT = r"(?:[^;(){}\n]|\{[^{}\n]*\})*"
+#: A declarator's text: a balanced one-line `{...}` initialiser up to three braces deep is one declarator (#495).
+_DECL_TEXT = r"(?:[^;(){}\n]|\{(?:[^{}\n]|\{(?:[^{}\n]|\{[^{}\n]*\})*\})*\})*"
 MULTI_DECL_RE = re.compile(rf"^[ \t]*{_DECL_TYPE}[ \t]+\**[A-Za-z_]\w*{_DECL_TEXT},{_DECL_TEXT};[ \t]*$", re.M)
 
 #: A file-scope definition of a mutable variable. Applied only to lines at
@@ -697,17 +697,19 @@ def _selftest_ratchets(ck: _Tally) -> None:
     ck("a named enum is not a finding",
        scan("enum class Reg { id = 0 };")["unnamed enum block"] == 0)
     ck("a multi-declarator declaration is a finding",
-       scan("static long fails = 0, checks = 0;\n")
-       ["multi-declarator declaration"] == 1)
+       scan("static long fails = 0, checks = 0;\n")["multi-declarator declaration"] == 1)
     ck("a single declaration is not a finding",
        scan("static long fails = 0;\n")["multi-declarator declaration"] == 0)
     ck("a call with two arguments is not a declaration",
        scan("void f(){ g(a, b); }\n")["multi-declarator declaration"] == 0)
-    ck("a brace initialiser's commas separate elements, not declarators (#495)",
-       scan("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};\n")["multi-declarator declaration"] == 0)
-    for two in ("uint32_t a[2] = {0, 0}, b = 1;\n", "int a{1}, b{2};\n"):
-        ck(f"two declarators beside a brace initialiser are a finding: {two.strip()}",
-           scan(two)["multi-declarator declaration"] == 1)
+    for one in ("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};", "int m[2][2] = {{1, 2}, {3, 4}};",
+                "int c[1][1][2] = {{{1, 2}}};"):
+        ck(f"a brace initialiser's commas separate elements, not declarators (#495): {one}",
+           scan(one + "\n")["multi-declarator declaration"] == 0)
+    for two in ("uint32_t a[2] = {0, 0}, b = 1;", "int a{1}, b{2};", "int m[2][2] = {{1, 2}, {3, 4}}, b = 0;",
+                "int n = 1, m[2][2] = {{0, 0}, {0, 0}};", "int c[1][1][2] = {{{1, 2}}}, d = 0;"):
+        ck(f"two declarators beside a brace initialiser are a finding: {two}",
+           scan(two + "\n")["multi-declarator declaration"] == 1)
     ck("a function over the line limit is a finding",
        scan(_long_body())["long function"] == 1)
     ck("a short function is not a finding",
@@ -722,8 +724,7 @@ def _selftest_ratchets(ck: _Tally) -> None:
        scan(long_member)["long function"] == 1,
        "a member opens indented; the ratchet must still see it")
     ck("a long out-of-line member definition is a finding",
-       scan("void H::run() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n")
-       ["long function"] == 1)
+       scan("void H::run() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n")["long function"] == 1)
     ck("a long lambda body is not counted as its own function",
        scan("void f() {\n  auto g = [&](int n) {\n"
             + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "  };\n}\n")
@@ -734,8 +735,7 @@ def _selftest_ratchets(ck: _Tally) -> None:
             + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "  }\n}\n")
        ["long function"] == 1)
     ck("a class head is not a function",
-       scan("class H {\n" + " int x_ = 0;\n" * (LONG_FUNCTION_LINES + 5) + "};\n")
-       ["long function"] == 0)
+       scan("class H {\n" + " int x_ = 0;\n" * (LONG_FUNCTION_LINES + 5) + "};\n")["long function"] == 0)
     ck("a brace-initialiser is not a function",
        scan("void f() {\n  Foo x{1, 2};\n  x++;\n}\n")["long function"] == 0)
 
