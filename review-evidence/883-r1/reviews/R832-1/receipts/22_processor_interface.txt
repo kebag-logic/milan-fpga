@@ -1,0 +1,20 @@
+## processor hdl files changed 044cb25f..801ef228
+ hdl/adp/KL_adp_engine.sv          |  31 ++++
+ hdl/aecp/KL_aecp_engine.sv        |  25 ++-
+ hdl/aecp/ucode/gen_ucode.py       |  34 +++-
+ hdl/srp/KL_srp_domain.sv          | 196 ++++++++++++--------
+ hdl/srp/KL_srp_encoder.sv         |   6 +-
+ hdl/srp/KL_srp_top.sv             | 117 +++++++++---
+ hdl/srp/KL_srp_vlan.sv            | 375 ++++++++++++++++++++++++++------------
+ hdl/srp/srp_pkg.sv                | 188 ++++++++++++++++++-
+ hdl/top/protocol_processor_top.sv |  22 +++
+ 9 files changed, 776 insertions(+), 218 deletions(-)
+## top: hdl/top/protocol_processor_top.sv
+
+normalised header sha256 94807c6511dffdeb55f22f9fd56b51d483e396b8abd02aaf613b09cc6e11c9ce
+
+normalised header sha256 94807c6511dffdeb55f22f9fd56b51d483e396b8abd02aaf613b09cc6e11c9ce
+## parent hdl/ and KL_pp_shadow changed in the PR?
+(empty = unchanged)
+## protocol_processor_top.sv 044cb25f..801ef228: changed lines touching port/parameter declarations (module header)
+(none = no port or parameter line changed; the 22 added lines are two internal nets, two instance connections and one generate select)

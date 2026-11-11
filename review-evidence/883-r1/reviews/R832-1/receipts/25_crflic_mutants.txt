@@ -1,0 +1,21 @@
+## make -C tb/verilator/milan_dp crflic-mutants at e18c8225 (scratch copy, pinned Verilator 5.050 wrapper), rc=0
+checks: 458   failures: 0
+checks: 61   failures: 0
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] the unmutated gateware still passes the obj_tspec8 leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+[PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 1x1 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 8x8 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: the intake takes every push twice and the SRP encoder never merges (before processor #214) - breaks "no DUT MRPDU carries one attribute value in two VectorAttributes"
+[PASS] mutant caught: LINK_UP declares the Domain in AN, so one New goes out (before processor #216) - breaks "MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN)"
+[PASS] mutant caught: a VID's first join enters AN, so one New goes out (before processor #216) - breaks "MVRP VID 2: message 2 is New again (AN tx!: sN)"
+[PASS] mutant caught: every VID Join is JoinIn whatever its Registrar (before processor #216) - breaks "no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3)"
+[PASS] mutant caught: an MVRP drain needs a pending VID, so nothing declared sends no LeaveAll (before processor #216) - breaks "MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal"
+[PASS] mutant caught: the MSRP leavealltimer's expiry is lost, so MSRP sends no LeaveAll of its own - breaks "MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal"
+16 checks: 16 PASS, 0 FAIL
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 54:17.31

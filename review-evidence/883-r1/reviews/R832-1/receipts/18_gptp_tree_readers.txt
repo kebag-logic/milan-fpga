@@ -1,0 +1,24 @@
+## parent files referencing gptp-processor tb/ or docs/ paths, or the four changed files
+docs/DOCUMENTATION_AUDIT.md:240:| [docs/guides/gptp/TEST_DEVELOPER.md](guides/gptp/TEST_DEVELOPER.md) | verification | Fabric gPTP test-developer guide | `tb/verilator/gptp_shadow`, `tb/verilator/gptp
+docs/design/GPTP_PLANE.md:36:| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b2
+docs/development/CODE_QUALITY.md:1759:| RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject (54 suites, entry `scripts/run_all_suites.sh`) and 
+docs/development/CODE_QUALITY.md:1773:| Missing or malformed tally | **Population: the 54 superproject suites** that [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) sweeps. Every one re
+docs/guides/README.md:44:| Fabric gPTP | [HDL](gptp/HDL_DEVELOPER.md) | [Tests](gptp/TEST_DEVELOPER.md) | [System](gptp/SYSTEM_INTEGRATOR.md) | [Status](gptp/MANAGER.md) |
+docs/guides/VERIFICATION_DEVELOPER.md:149:Use the [gPTP test guide](gptp/TEST_DEVELOPER.md) for time evidence.
+docs/reference/SUBMODULES.md:1082:- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md)
+scripts/check_doc_style.py:27:    ROOT / "docs" / "guides" / "gptp" / "TEST_DEVELOPER.md",
+scripts/check_gptp_docs.py:43:        "guides/gptp/TEST_DEVELOPER.md",
+scripts/check_gptp_docs.py:101:    "docs/guides/gptp/TEST_DEVELOPER.md": (
+scripts/check_gptp_docs.py:265:    "docs/TEST_DEVELOPER.md",
+scripts/check_gptp_docs.py:326:    # child such as gptp-processor/docs/MANAGER.md. Those links work in a
+scripts/check_gptp_docs.py:637:        "[guide](../gptp-processor/docs/MANAGER.md) "
+scripts/check_gptp_docs.py:639:        "[source]: ../gptp-processor/docs/SOURCE_EVIDENCE.md\n"
+scripts/check_gptp_docs.py:643:        "../gptp-processor/docs/MANAGER.md",
+scripts/check_gptp_docs.py:645:        "../gptp-processor/docs/SOURCE_EVIDENCE.md",
+scripts/check_gptp_docs.py:652:        "../gptp-processor/docs/MANAGER.md",
+scripts/docs_inventory.json:17:  "docs/guides/gptp/TEST_DEVELOPER.md",
+scripts/measure_test_evidence.py:118:    ("gptp-processor/tb/verilator", "gptp-processor", ("gptp-processor/Makefile",)),
+scripts/measure_test_evidence_readers.py:115:    "gptp-processor/tb/check_phc_contract.py":
+scripts/measure_test_evidence_readers.py:117:    "gptp-processor/tb/tsngen/mutants.py":
+scripts/measure_test_evidence_selftest.py:216:       "gptp-processor/tb/check_phc_contract.py" in population
+tb/verilator/gptp_plane/sim_main.cpp:8:// The donor repo's own engine suite (gptp-processor/tb/verilator/engine)

@@ -1,0 +1,37 @@
+## check_cpp_idiom --selftest
+[PASS] a -CFLAGS group continued across lines is one group
+[PASS] an escaped quote inside a -CFLAGS group does not end it
+[PASS] a -CFLAGS mentioned in a comment is not a build line
+[PASS] the testbench Makefile population is non-empty
+[PASS] the shared harness header exists
+[PASS] the harness header copies agree
+
+78 checks: 78 PASS, 0 FAIL
+rc=0
+## check_cpp_idiom (tree)
+cpp idiom: 353 first-party translation units, 165 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+## check_py_idiom
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0

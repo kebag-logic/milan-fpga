@@ -1,0 +1,16 @@
+## python3 gsi_mutants.py 15 at e18c8225 (scratch copy, pinned Verilator 5.050), rc=0
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: READ_DESCRIPTOR(ENTITY) copies the image whole, the AEM constant 0 (before processor #217) - breaks "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's" (its tallies report 4 failure(s) across 535 checks)
+2 checks: 2 PASS, 0 FAIL
+## python3 gsi_mutants.py 16 at e18c8225 (scratch copy, pinned Verilator 5.050), rc=0
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the AECP engine answers 0 for the available_index gather (#858) - breaks "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's" (its tallies report 4 failure(s) across 535 checks)
+2 checks: 2 PASS, 0 FAIL
+## python3 gsi_mutants.py 17 at e18c8225 (scratch copy, pinned Verilator 5.050), rc=0
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: ADP serves the next frame's index, not the last one sent (#858) - breaks "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (octets 36..39) is the wire's" (its tallies report 5 failure(s) across 535 checks)
+2 checks: 2 PASS, 0 FAIL
+## python3 gsi_mutants.py 18 at e18c8225 (scratch copy, pinned Verilator 5.050), rc=0
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: ADP keeps the last index across ENTITY_DEPARTING (#858) - breaks "[AIDX] D after ENTITY_DEPARTING: available_index (octets 36..39) is the wire's" (its tallies report 1 failure(s) across 535 checks)
+2 checks: 2 PASS, 0 FAIL
