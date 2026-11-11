@@ -1,0 +1,26 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 2e8705a099..21fdc034d1 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -232,6 +232,9 @@ OUTSIDE = {
+                                              "twin_decode.py; it compiles nothing",
+     "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
+                                             "srp_wire_compare.py; it compiles nothing",
++    # the split build's SRP transmit path (#867, make -C tb/verilator/milan_dp srptx): its grader
++    "tb/verilator/milan_dp/srptx_grade.py": "grades the split half's SRP transmit captures (#867), MSRP through "
++                                            "srp_wire_compare.py; it compiles nothing",
+ }
+ #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
+ #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
+@@ -259,6 +262,11 @@ SUITES = {
+     "tb/verilator/milan_dp/twin_fw.py": "the two-placement simulation's split firmware (#665, make -C "
+                                         "tb/verilator/milan_dp twin): the platform composition plat_arms.arm_platboot "
+                                         "lists, and lwSRP, compiled for the host with CTRL_PLAT_MAAP_PREFERRED defined",
++    "tb/verilator/milan_dp/srptx_mutants.py": "the SRP transmit path's planted defects (#867, make -C "
++                                              "tb/verilator/milan_dp srptx-mutants): twin_fw.py's composition with "
++                                              "one copy of srp_mbx.c or lwSRP's mrp_mad.c planted (--replace), or "
++                                              "the split half with milan_datapath.sv planted, in a scratch "
++                                              "directory it removes",
+ }
+ 
+ 

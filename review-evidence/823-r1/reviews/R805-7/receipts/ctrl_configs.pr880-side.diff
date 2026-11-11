@@ -1,0 +1,18 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 2e8705a099..2150aa2325 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -176,6 +176,13 @@ OUTSIDE = {
+                                            "its own compiles build the boot SoC's Verilator model",
+     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
+                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
++    "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
++                              "it compiles nothing",
++    "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
++                           "suite compares; it compiles nothing",
++    "scripts/check_nvm_klj3.py": "grades the KLJ3 reference codec against its rules (#823); it compiles nothing",
++    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the file:line anchors it cites in the "
++                                          "F1 store (#823); it compiles nothing",
+     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
+                                                    "SoC's csr.csv (#665); its self-test compiles a probe of the "
+                                                    "headers it writes with the host compiler, no firmware or stack "

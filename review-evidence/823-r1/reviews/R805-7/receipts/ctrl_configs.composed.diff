@@ -1,0 +1,40 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index 2e8705a099..2c86386238 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -176,6 +176,13 @@ OUTSIDE = {
+                                            "its own compiles build the boot SoC's Verilator model",
+     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
+                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
++    "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
++                              "it compiles nothing",
++    "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
++                           "suite compares; it compiles nothing",
++    "scripts/check_nvm_klj3.py": "grades the KLJ3 reference codec against its rules (#823); it compiles nothing",
++    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the file:line anchors it cites in the "
++                                          "F1 store (#823); it compiles nothing",
+     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
+                                                    "SoC's csr.csv (#665); its self-test compiles a probe of the "
+                                                    "headers it writes with the host compiler, no firmware or stack "
+@@ -232,6 +239,9 @@ OUTSIDE = {
+                                              "twin_decode.py; it compiles nothing",
+     "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
+                                             "srp_wire_compare.py; it compiles nothing",
++    # the split build's SRP transmit path (#867, make -C tb/verilator/milan_dp srptx): its grader
++    "tb/verilator/milan_dp/srptx_grade.py": "grades the split half's SRP transmit captures (#867), MSRP through "
++                                            "srp_wire_compare.py; it compiles nothing",
+ }
+ #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
+ #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
+@@ -259,6 +269,11 @@ SUITES = {
+     "tb/verilator/milan_dp/twin_fw.py": "the two-placement simulation's split firmware (#665, make -C "
+                                         "tb/verilator/milan_dp twin): the platform composition plat_arms.arm_platboot "
+                                         "lists, and lwSRP, compiled for the host with CTRL_PLAT_MAAP_PREFERRED defined",
++    "tb/verilator/milan_dp/srptx_mutants.py": "the SRP transmit path's planted defects (#867, make -C "
++                                              "tb/verilator/milan_dp srptx-mutants): twin_fw.py's composition with "
++                                              "one copy of srp_mbx.c or lwSRP's mrp_mad.c planted (--replace), or "
++                                              "the split half with milan_datapath.sv planted, in a scratch "
++                                              "directory it removes",
+ }
+ 
+ 
