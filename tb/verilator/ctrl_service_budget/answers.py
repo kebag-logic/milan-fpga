@@ -101,7 +101,8 @@ def check(expect: str, own: bytes | None) -> str:
 #: command, descriptor_type and descriptor_index (7.4.40.1), four bytes (#882).
 AVB_INFO = (0x0027, f.be(9, 2) + f.be(0, 2))
 #: The aecp group's unknown command: a reserved command_type (IEEE 1722.1-2021 Table 7-126) under 0x4000, since
-#: aecp.c keeps the field's low 14 bits and so answers a command at or above 0x4000 under another command_type.
+#: aecp.c keeps the field's low 14 bits and so answers a command at or above 0x4000 under another command_type
+#: (#891, whose fix sends 0x7FF0 again).
 UNKNOWN = 0x3FF0
 #: The talker commands the acmp-cmd group sends a source, each with the status it is answered with: the source has
 #: no stream destination yet, so PROBE_TX is refused TALKER_DEST_MAC_FAIL (Milan v1.2 Tables 5.42 and 5.43), and

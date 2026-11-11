@@ -7,25 +7,25 @@ The load is the work the sources bring per millisecond of a window long enough t
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
-At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665
-issuecomment-6751196896, item 4) at 1x1/1if, which this gate holds for merge. 8x8/2if is held to the same 0.70 by the
-flip check, flip_grade.py, read at the pin, a check apart from the merge gates (#665 issuecomment-6788828284, items 4
-and 6); this table reports it. 32x32/2if is reported, not held: the more-compute image, #872 (decision D,
-#665 issuecomment-6759183115 and issuecomment-6759193032; issuecomment-6779973927, item 6); the table gives the compute
-its graded load would need for 0.70, its load over 0.70, since every stated cost is CPU time at the split CPU's clock.
-No term is kept as a margin: each has its source, and one without a source fails.
+At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665, option D) at
+1x1/1if, which this gate holds for merge, at the pin and with tsn-c-stack#32 (COLUMNS), each named in what it finds.
+8x8/2if is held to the same 0.70 by the flip check, flip_grade.py, read at the pin, a check apart from the merge gates
+(#665, #890); this table reports it. 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665);
+the table gives the compute its load with tsn-c-stack#32 would need for 0.70, its load over 0.70, since every stated
+cost is CPU time at the split CPU's clock. No term is kept as a margin: each has its source, and one without a source
+fails.
 
-Two columns of stated costs (#665 issuecomment-6751196896, item 3): STATED_US at this tree's TSN stack pin, and
-STATED_US_DONOR, measured with tsn-c-stack#32 (the ACMP core's completion walking only the sinks an entry changed)
-applied at the pin in a scratch build. The gate is graded on the donor's column, the load the pin move owes: that
-move carries tsn-c-stack #28, #31 and #32, and this tree's pin does not move. The pin's column is reported. The donor's
-column may state below the pin's only a cost whose work runs the ACMP core's walk (WALK); any other such cost fails.
+Two columns of stated costs (#665): STATED_US at this tree's TSN stack pin, and STATED_US_DONOR, measured with
+tsn-c-stack#32 (the ACMP core's completion walking only the sinks an entry changed) applied at the pin in a scratch
+build. The gate holds 1x1/1if in both: the pin's column is the image that merges, and the donor's the load the pin
+move owes, which carries tsn-c-stack #28, #31 and #32. The donor's column may state below the pin's only a cost whose
+work runs the ACMP core's walk (WALK); any other such cost fails.
 
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
                  and not per stream, so the same at every shape; the burst is a window's first records, not a rate.
   srp            SRP's records, one a refill as rec.<channel>'s, and its retries of a record its participant refused
-                 for storage (srp_mbx.c, the poll, #665 issuecomment-6751196896, item 1): a retry only once a pool
+                 for storage (srp_mbx.c, the poll, #665: the retained retry's rule): a retry only once a pool
                  returned a block or lwSRP reported an Applicant or Registrar change of the interface since the
                  refusal, and at most one a centisecond, a TICK dispatched since the last (mailbox.yaml tick_ms); no
                  other SRP record is taken while one waits (srp_mbx.c's ready), for at most SRP_RX_RETRY_MS. The
@@ -33,7 +33,7 @@ The terms (per millisecond):
                  lines are read from the tree (RETRY_RULE): a retry it does not bound has no source.
   item.reclaim   lwSRP's reclaim of an interface's freed attributes (mrp_reclaim, entered after an SRP record or a
                  build left one to free): two participants a record or a build.
-  item.aecp      AECP's owed frame, by what each source sends (#665 issuecomment-6751196896, item 2): an AECP record's
+  item.aecp      AECP's owed frame, by what each source sends (#665): an AECP record's
                  response, to one recipient, with a command that changed something its notice to the registered
                  controllers, at most AECP_REGISTRATIONS an AVB interface (Milan v1.2 5.4.5.1; aecp.c, fan_out),
                  the larger of the two once a record; and a registration's probe, its own frame, once its 250 ms
@@ -76,6 +76,7 @@ usage: python3 -I load_grade.py [--check] [--selftest]
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import sys
 from pathlib import Path
@@ -83,9 +84,9 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The ceiling the merge gate holds a point's load to (#665 issuecomment-6751196896, item 4): 1x1/1if. 8x8/2if is the
-#: flip check's (flip_grade.FLIP, #665 issuecomment-6788828284, item 4); 32x32/2if is reported, not held: the
-#: more-compute image, #872 (decision D, #665 issuecomment-6759183115).
+#: The ceiling the merge gate holds a point's load to (#665, option D): 1x1/1if. 8x8/2if is the
+#: flip check's (flip_grade.FLIP, #665, #890); 32x32/2if is reported, not held: the
+#: more-compute image, #872 (decision D, #665).
 CEILING = {'1x1/1if': 0.70}
 #: What the table says in a point's ceiling column where CEILING holds none: the flip check's, or none.
 FLIPPED = 'the flip check, 0.70 at the pin (flip_grade.py)'
@@ -107,7 +108,7 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: a30c9986's image (docs/design/SPLIT_CONTROL_MEMORY.md section 14); arm A's groups but the save groups on 3a1d14c2's
 #: image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if; and every group of arm A
 #: and of the answering-every-port arm on this tree's image, its notice built once and addressed per recipient and its
-#: SRP comparisons same()'s (#665 issuecomment-6779973927, items 2 and 3), whose measurement alone states the three
+#: SRP comparisons same()'s (#665: the notice and SRP record cuts), whose measurement alone states the three
 #: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load), measured
 #: again with every row's response stated and the aecp group in arm A and arm B (#882), which moved no cost. 32x32/2if
 #: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
@@ -155,11 +156,17 @@ STATED_US_DONOR = {
                   'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 105, 'item.aecp.notice': 350,
                   'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 140,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
-#: The column the gate grades: the load the pin move owes.
+#: The column stated() and the controls read by default: the donor's, the load the pin move owes.
 GRADED = STATED_US_DONOR
+#: The columns the merge gate holds each point of CEILING at, each to the ceiling, and names in what it finds: this
+#: tree's pin, the image that merges, and the donor's (#665: 1x1/1if at the pin and with tsn-c-stack#32, each at most
+#: 0.70).
+COLUMNS = (('at the pin', STATED_US), ('with tsn-c-stack#32', STATED_US_DONOR))
 #: The costs whose work runs the ACMP core's completion walk, which tsn-c-stack#32 changes: the donor column may state
 #: these below the pin's, and no other (a cost #32 does not touch measured lower there is the measurement's spread).
 WALK = ('record.acmp', 'record.adp', 'event.ACMP', 'item.acmp', 'base')
+#: The headers the rows by every source read the loop's and AECP's constants from (rows_grade.header).
+ROW_HEADERS = ('sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/aecp/aecp.h', 'sw/firmware/ctrl/aecp/aecp_mbx.h')
 #: The least valid_time an ADPDU may carry, in ms: one unit of two seconds (IEEE 1722.1-2021 6.2.2.5), the
 #: shortest a bound sink's discovery aging can run.
 ADP_LEAST_VALID_MS = 2000
@@ -171,7 +178,7 @@ GM_INTERVALS_MS = (1000, 1000, 3000)
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
 HEADER_COSTS = ('CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_STEP_PASS_US')
-#: The retained receive's retry rule (#665 issuecomment-6751196896, item 1), each part as the tree states it, read with
+#: The retained receive's retry rule (#665), each part as the tree states it, read with
 #: its white space folded: the poll retries only once a pool returned a block or an Applicant or Registrar of the
 #: interface moved since the refusal, and spends the centisecond's retry; the centisecond's consumer gives it back; a
 #: refusal records what it saw; each change is marked and each return counted; and the poll is the only retry.
@@ -230,10 +237,17 @@ def retry_unbounded(root: Path, texts: dict[str, str] | None = None) -> list[str
     return out
 
 
+@functools.lru_cache(maxsize=4)
+def parsed(text: str) -> dict:
+    """A YAML text's document, parsed once a text: the contract is read by every load and row the checks plant."""
+    return yaml.safe_load(text)
+
+
 def contract(root: Path) -> dict:
     """Each receive channel's refill in ms, the TICK period and the counters' holdoff, from the mailbox contract."""
-    y = yaml.safe_load((root / 'sw/mailbox/mailbox.yaml').read_text())
-    holdoff = re.search(r'^\s+holdoff_ms: (\d+)', (root / 'sw/mailbox/mailbox.yaml').read_text(), re.M)
+    text = (root / 'sw/mailbox/mailbox.yaml').read_text()
+    y = parsed(text)
+    holdoff = re.search(r'^\s+holdoff_ms: (\d+)', text, re.M)
     return dict(refill={c['name']: c['rate']['refill_ms'] for c in y['channels']}, tick_ms=y['tick_ms'],
                 holdoff_ms=int(holdoff[1]))
 
@@ -305,12 +319,12 @@ def pass_own_us(root: Path, point: str, table: dict | None = None) -> float:
     return c['events_none'] + c['base']
 
 
-def below_pin(root: Path, table: dict | None = None) -> list[str]:
+def below_pin(root: Path, table: dict | None = None, pin_table: dict | None = None) -> list[str]:
     """Each cost the graded column states below the pin's that tsn-c-stack#32 does not move (not in WALK)."""
     out = []
     graded = table or GRADED
     for point in graded:
-        pin, donor = stated(root, point, STATED_US), stated(root, point, graded)
+        pin, donor = stated(root, point, pin_table or STATED_US), stated(root, point, graded)
         out += [f'{point}: the graded column states {key} at {donor[key]} us, below the pin\'s {pin[key]}, and '
                 f'tsn-c-stack#32 does not move it' for key in sorted(pin) if key not in WALK and
                 donor.get(key, pin[key]) < pin[key]]
@@ -318,37 +332,43 @@ def below_pin(root: Path, table: dict | None = None) -> list[str]:
 
 
 def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
-             texts: dict[str, str] | None = None) -> list[str]:
-    """Each point over its ceiling, each point whose table lacks a cost the load needs, a term without its
-    source (one the term list does not name, or SRP's retries where the tree states no rule that bounds them), and a
-    graded cost below the pin's that tsn-c-stack#32 does not move."""
+             texts: dict[str, str] | None = None, pin: dict | None = None) -> list[str]:
+    """Each point over its ceiling in either column the gate holds it at (COLUMNS: at the pin, and with
+    tsn-c-stack#32; `pin` and `table` stand in for them), each named; each point whose table lacks a cost the load
+    needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
+    that bounds them), and a graded cost below the pin's that tsn-c-stack#32 does not move."""
     out = [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
-    out += below_pin(root, table)
+    out += below_pin(root, table, pin)
+    planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
     for point, top in (ceiling or CEILING).items():
-        try:
-            total = sum(load(root, point, table).values())
-        except KeyError as missing:
-            out.append(f'{point}: no stated cost {missing}')
-            continue
-        for term in unsourced(load(root, point, table)):
-            out.append(f'{point}: the term {term} has no source in the term list')
-        if total > top:
-            out.append(f'{point}: the load {total:.3f} is over its ceiling {top:.2f}')
+        for name, column in COLUMNS:
+            try:
+                terms = load(root, point, planted[name] or column)
+            except KeyError as missing:
+                out.append(f'{point}: no stated cost {missing} {name}')
+                continue
+            out += [f'{point}: the term {term} has no source in the term list' for term in unsourced(terms)
+                    if name == COLUMNS[0][0]]
+            total = sum(terms.values())
+            if total > top:
+                out.append(f'{point}: the load {total:.3f} {name} is over its ceiling {top:.2f}')
     return out
 
 
 def ceiling(point: str) -> str:
     """A point's ceiling as the table prints it: the merge gate's, the flip check's (FLIPPED), or PENDING."""
     import flip_grade
-    return f'{CEILING[point]:.2f}' if point in CEILING else FLIPPED if point in flip_grade.FLIP else PENDING
+    return f'{CEILING[point]:.2f}, both columns' if point in CEILING else FLIPPED if point in flip_grade.FLIP else \
+        PENDING
 
 
 def report(root: Path, table: dict | None = None) -> list[str]:
     """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, the compute the
     graded load would need for TARGET (its load over TARGET, at least 1), its pass's own cost and every graded term by
     share."""
-    lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (graded, owed to the pin move) | Ceiling | '
-             f'Compute for {TARGET:.2f} | A pass\'s own cost, us | Terms by share (graded) |',
+    lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | '
+             f'Compute for {TARGET:.2f} (with tsn-c-stack#32) | A pass\'s own cost, us | Terms by share (with '
+             'tsn-c-stack#32) |',
              '|---|---:|---:|---:|---:|---:|---|']
     for point in POINTS:
         try:
@@ -364,6 +384,12 @@ def report(root: Path, table: dict | None = None) -> list[str]:
     return lines
 
 
+def held(root: Path) -> list[str]:
+    """Each point the gate holds, in each column it holds it at: its load and its ceiling."""
+    return [f'HELD {point} {name}: the load {sum(load(root, point, column).values()):.3f}, its ceiling {top:.2f}'
+            for point, top in CEILING.items() for name, column in COLUMNS]
+
+
 def controls(root: Path) -> list[str]:
     """Each planted defect the gate must refuse: the planted names that escaped."""
     base = {p: dict(GRADED[p]) for p in GRADED}
@@ -373,10 +399,10 @@ def controls(root: Path) -> list[str]:
     # a point's load over its ceiling: a cost raised until the total passes it
     raised = {p: dict(v) for p, v in base.items()}
     raised['8x8/2if']['record.acmp'] = 100_000
-    if not any('8x8/2if: the load' in f for f in findings(root, raised, {'8x8/2if': 0.70})):
+    if not any('8x8/2if: the load' in f for f in findings(root, raised, {'8x8/2if': 10.0})):
         escaped.append('a cost over the ceiling')
-    # each point the ruling holds at 0.70 (#665 issuecomment-6751196896, item 4): 1x1/1if by this gate as it stands,
-    # 8x8/2if by the flip check at the pin (issuecomment-6788828284, items 4 and 6); a cost raised at each until the
+    # each point held at 0.70 (#665: the long-window ceiling, option D): 1x1/1if by this gate as it stands,
+    # 8x8/2if by the flip check at the pin (#890); a cost raised at each until the
     # load passes 0.70 must fail the check that holds it
     import flip_grade
     over = {p: dict(v) for p, v in base.items()}
@@ -387,6 +413,16 @@ def controls(root: Path) -> list[str]:
             flip_grade.FLIP.get('8x8/2if') != 0.70 or not any('8x8/2if: the load' in f
                                                               for f in flip_grade.findings(root, pin)):
         escaped.append('a held point not held')
+    # a rise at the pin alone (#665: 1x1/1if held at the pin as well as with tsn-c-stack#32): an ACMP record, a cost
+    # the donor's walk may state lower, raised in the pin's column only until the pin's load passes 0.70, the donor's
+    # column at its own; the gate refuses it, naming the pin's column
+    risen = {p: dict(v) for p, v in STATED_US.items()}
+    risen['1x1/1if']['record.acmp'] = 2000
+    found = findings(root, pin=risen)
+    if not any(f.startswith('1x1/1if: the load') and ' at the pin is over' in f for f in found) or \
+            sum(load(root, '1x1/1if', risen).values()) <= 0.70 or \
+            any('with tsn-c-stack#32 is over' in f for f in found):
+        escaped.append('a rise at the pin alone')
     # a cost the load needs, missing from a point's table
     dropped = {p: dict(v) for p, v in base.items()}
     dropped['8x8/2if'].pop('event.ACMP')
@@ -399,7 +435,7 @@ def controls(root: Path) -> list[str]:
     if not load(root, '8x8/2if', base)['srp'] >= rule / 1000 - 1e-9:
         escaped.append('the retained retry counted once a record')
     # the retry's source: a tree whose poll retries with nothing changed, or every pass a change allows, states no rule
-    # that bounds the retries, so the term srp has none (#665 issuecomment-6751196896, item 1)
+    # that bounds the retries, so the term srp has none (#665: the retained retry's rule)
     srp = (root / 'sw/firmware/ctrl/srp/srp_mbx.c').read_text()
     for name, old, new in (('a retry with nothing changed',
                             'if (!i->moved && ctrl_pool_returned == m->pending_freed) {', 'if (false) {'),
@@ -420,9 +456,9 @@ def controls(root: Path) -> list[str]:
     acmp = s['n_if'] * s['sinks_per_if'] * base['8x8/2if']['event.ACMP'] / macros(root, 2)['ACMP_TMR_NO_RESP_MS']
     if not two - one >= acmp / 1000 - 1e-9:
         escaped.append('a timer slot counted per pass')
-    # AECP's owed frame charged by what each source sends (#665 issuecomment-6751196896, item 2): a probe costs its own
+    # AECP's owed frame charged by what each source sends (#665): a probe costs its own
     # frame, so a dearer probe raises the term by every registration's retries of it and a dearer notice by the records'
-    # share alone; one charge for every source (a notice's fan-out to 32 recipients, #665 issuecomment-6751120577)
+    # share alone; one charge for every source (a notice's fan-out to 32 recipients, #665)
     # moves both together
     raised = {p: dict(v) for p, v in base.items()}
     raised['8x8/2if']['item.aecp.probe'] += 1000
@@ -433,10 +469,10 @@ def controls(root: Path) -> list[str]:
     more = load(root, '8x8/2if', noticed)['item.aecp'] - load(root, '8x8/2if', base)['item.aecp']
     if abs(up - probes) > 1e-9 or abs(more - 1 / contract(root)['refill']['aecp']) > 1e-9:
         escaped.append('one owed-frame charge for every AECP source')
-    # a term the load counts with no source in its term list (#665 issuecomment-6734415848, item 5)
+    # a term the load counts with no source in its term list (#665: no term without its source)
     if 'item.unsourced' not in unsourced({**load(root, '8x8/2if', base), 'item.unsourced': 0.0}):
         escaped.append('a term without a source')
-    # the graded column, tsn-c-stack#32's (#665 issuecomment-6751196896, item 3): a cost the donor does not move stated
+    # the graded column, tsn-c-stack#32's (#665): a cost the donor does not move stated
     # below the pin's (an SRP record, whose work runs no ACMP walk) must be refused; a cost its walk runs may be lower
     lowered = {p: dict(v) for p, v in base.items()}
     lowered['8x8/2if']['record.srp'] = stated(root, '8x8/2if', STATED_US)['record.srp'] - 5
@@ -499,7 +535,7 @@ def period_controls(root: Path) -> list[str]:
 
 
 #: The planted defects controls() plants, in its order.
-CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a stated cost missing',
+CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the pin alone', 'a stated cost missing',
             'the retained retry counted once a record',
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
@@ -530,7 +566,7 @@ def main() -> int:
         print(f'load gate: {total - len(escaped)} of {total} planted controls refused')
         rc |= bool(escaped)
     if args.check or not args.selftest:
-        print('\n'.join(report(ROOT)))
+        print('\n'.join(report(ROOT) + held(ROOT)))
         found = findings(ROOT)
         for line in found:
             print('OVER', line)

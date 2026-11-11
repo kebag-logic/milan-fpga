@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The polls by source (#665, the round 22 ruling, item 1): a light base every ordinary pass runs, and the heavy work,
+"""The polls by source (#665): a light base every ordinary pass runs, and the heavy work,
 each item its own function, which does its work only once its source has posted it, each at a stated cost.
 
 A pass's polls run from the first firmware poll's entry, ADP's, to the last one's return, SRP's delivery (the
@@ -29,13 +29,13 @@ them all). That section less the items inside it is the pass's base, which every
 An item nested in another (a walk inside a retained record's apply) is that one's, counted once. Calls outside the polls
 (a record's own apply, a build's MRPDU, a round's notices, the LINK event's withdrawal) are their own source's, not the
 polls'. A record's own apply, SRP's (apply_receive outside the polls, the record's handler's: RECORD), is the work its
-retained retry repeats, so it is held to the same stated cost (#665 issuecomment-6779973927, item 3): an SRP record
+retained retry repeats, so it is held to the same stated cost (#665): an SRP record
 dearer than its retry's stated cost fails the gate as the retry would.
 
 Each cost is the most measured over every group at its point plus 5 %, rounded up to 5 us (100 CPU cycles a
 microsecond on the split CPU), or where no group stages an item the cost of the measured work that holds it (STATED_US):
 a stated cost is an upper bound, and a gate fails when any measured instance exceeds it
-(the round 19 ruling, item 2; the round 21 ruling). Each item's arrival bound, from its source's protocol timer or
+(#665). Each item's arrival bound, from its source's protocol timer or
 contract rate, is the response-time method's (docs/design/SPLIT_CONTROL_MEMORY.md section 13).
 """
 from __future__ import annotations
@@ -54,7 +54,7 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 405 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
-#: SRP comparisons are same()'s (#665 issuecomment-6779973927, items 2 and 3), over every group of both arms.
+#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms.
 STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
                     aecp=210),
              2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,

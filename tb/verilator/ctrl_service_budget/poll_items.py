@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The polls by source's trace and plants (#665, the round 22 ruling, item 1): the functions the testbench reports for a
+"""The polls by source's trace and plants (#665): the functions the testbench reports for a
 pass's polls and their heavy items (build.SPAN_SYMBOLS; poll_grade.py grades them), and the planted firmware defects
 that test that gate (build.MUTATIONS, run.verdict)."""
 from __future__ import annotations
@@ -16,7 +16,7 @@ ITEMS = {'withdraw': ('srp_mbx:reset_interface', None), 'rebuild': ('srp_mbx:ope
 #: build.SPAN_SYMBOLS' entries for them: a global by its symbol, a static function as (module, function).
 SPANS = tuple(tuple(label.split(':')) if ':' in label else label
               for label in (FIRST, LAST, *(label for label, _ in ITEMS.values())))
-#: A pass's parts (#665 issuecomment-6779973927, items 2 and 3): each channel's record and event handler, each module's
+#: A pass's parts (#665: the cuts' stated costs): each channel's record and event handler, each module's
 #: poll and the centisecond's dispatch as build.SPAN_SYMBOLS' entries, and each event taken and record dispatched as
 #: build.CALL_SYMBOLS', which cut a pass into them; the load gate's stated costs are measured from them (load_grade.py).
 PART_SPANS = (('ctrl_loop', 'dispatch_ticks'), ('aecp_mbx', 'frame'), ('srp_mbx', 'receive'),
@@ -113,11 +113,11 @@ PLANTS = {
     'polls-rebuild-twice': ('srp/srp_mbx.c', '    if (create_participants(i)) {\n        // its declarations are owed',
                             '    if (create_participants(i) && (msrp_app_destroy(i->msrp), mvrp_app_destroy(i->mvrp), '
                             'create_participants(i))) {\n        // its declarations are owed', 'backlog', 'none'),
-    # the old cost of a notice's recipients (#665 issuecomment-6779973927, item 2): the fan-out as it was, each
+    # the old cost of a notice's recipients (#665: the notice built once): the fan-out as it was, each
     # registration found from the recipient's index and its frame addressed through the put helpers' calls, so the
     # group whose notice goes to every registered controller passes the AECP item's stated cost
     'notice-fan-out-as-it-was': ('aecp/aecp.c', FAN_NOW, FAN_BEFORE, 'aecp-fanout', 'none'),
-    # the old cost of an SRP record's comparisons (#665 issuecomment-6779973927, item 3): each StreamID and MAC
+    # the old cost of an SRP record's comparisons (#665: StreamIDs and MACs compared by same()): each StreamID and MAC
     # compared through memcmp, so the group with the heaviest SRP record passes its retry's stated cost
     'srp-compared-by-memcmp': ('srp/srp_mbx.c', SAME_NOW, SAME_BEFORE, 'notice-every-2', 'answering-every-port'),
 }

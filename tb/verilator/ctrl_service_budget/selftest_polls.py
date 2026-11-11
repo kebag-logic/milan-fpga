@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The self-test's checks of the polls by source (poll_grade.py; #665, the round 22 ruling, item 1): every pass's base,
+"""The self-test's checks of the polls by source (poll_grade.py; #665): every pass's base,
 its polls less the heavy items inside them, and every heavy item held to its stated cost at its point, an ACMP or AECP
 call that committed no frame the base's, and a base or an item over its cost failing the run whatever findings it
 records."""

@@ -26,6 +26,7 @@ import mrpdu_grade
 import notice_window
 import poll_grade
 import round_grade
+import rows_grade
 import run
 import save_grade
 import save_window
@@ -467,6 +468,17 @@ MUTANTS: dict[str, Patches] = {
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
     'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
         load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
+    'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
+        load_grade, 'COLUMNS', load_grade.COLUMNS[1:])],
+    'rows: the rows by every source not held': lambda: [patch.object(rows_grade, 'findings', lambda *a, **k: [])],
+    "rows: SRP's rows held to T_svc's 20 ms": lambda: [patch.object(
+        rows_grade, 'BOUNDS', dict(rows_grade.BOUNDS, R5=20, R6=20))],
+    "rows: the grandmaster events left out of a row's window": lambda: [patch.object(
+        rows_grade, 'demand', lambda row, inputs, w, f=rows_grade.demand: {
+            k: v for k, v in f(row, inputs, w).items() if k != 'gm'})],
+    'rows: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
+        rows_grade, 'costs', lambda root, point, table=None, f=rows_grade.costs: f(
+            root, point, table or load_grade.STATED_US_DONOR))],
     "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
                                                                       min(f.values()) if None not in f.values()
                                                                       else None)],
