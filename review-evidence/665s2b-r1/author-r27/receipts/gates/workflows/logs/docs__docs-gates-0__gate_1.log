@@ -1,0 +1,26 @@
+# head e7e2b7444a9859b058deff0d9edb575f2fb1946f workflow docs.yml job docs-gates-0 step gate_1: Build the validated HDL reference
+# clone <scratch>/gates-out/wf-e7e2b744/docs__docs-gates-0/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: <scratch>/gates-out/wf-e7e2b744/docs__docs-gates-0/tmp/hdl-reference-selftest-rsecifxn/positive/index.html
+HDL reference self-test: 44/44 arms passed
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: e7e2b7444a9859b058deff0d9edb575f2fb1946f
+Supported sections: 88 (84 modules, 4 packages)
+Module diagrams: 84
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: <scratch>/gates-out/wf-e7e2b744/docs__docs-gates-0/runner_temp/milan-hdl-reference/index.html

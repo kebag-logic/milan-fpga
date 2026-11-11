@@ -1,0 +1,25 @@
+rtl-fast__firmware-aecp-mutants__ci_step_1	rc=0
+rtl-fast__firmware-aecp-mutants__ci_step_3	rc=0
+rtl-fast__firmware-aecp-mutants__ci_step_9	rc=1
+Traceback (most recent call last):
+  File "<scratch>/gates/run_wf.py", line 126, in <module>
+    status = run("git", "status", "--porcelain", cwd=wt)
+  File "<scratch>/gates/run_wf.py", line 35, in <lambda>
+    run = lambda *a, cwd=None: subprocess.run(a, cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
+                               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: PosixPath('<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt')

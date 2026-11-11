@@ -1,0 +1,33 @@
+10:00:21 shard 0 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+10:00:22 shard 1 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+10:00:23 shard 2 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+10:00:24 shard 3 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:06:10 shard 0 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:06:11 shard 1 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:06:14 shard 2 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:06:17 shard 3 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:12:52 shard 0 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:12:53 shard 1 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:12:53 shard 2 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+11:12:54 shard 3 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+12:09:39 shard 0 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+12:09:39 shard 1 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+12:09:40 shard 2 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+12:09:40 shard 3 clone prepared at e7e2b7444a9859b058deff0d9edb575f2fb1946f
+12:11:04 launching on 24-31 80-87 68-71 88-95 (MemAvailable 35493 MB)
+Running as unit: milan-665s2b-a683zj-sweep-shard0.service; invocation ID: a94771485e074645a0c3749973e9e943
+Running as unit: milan-665s2b-a683zj-sweep-shard1.service; invocation ID: 73eaa79332534be8a92ad2c181a7fc2f
+Running as unit: milan-665s2b-a683zj-sweep-shard2.service; invocation ID: 7bec93582a4543faaf77969333d63d38
+Running as unit: milan-665s2b-a683zj-sweep-shard3.service; invocation ID: 916b71cd2f154cffbaa48098656045fb
+{"label": "665s2b-a683zj-sweep", "head": "e7e2b7444a9859b058deff0d9edb575f2fb1946f", "shards": 4, "out": "<scratch>/sweep", "units": ["milan-665s2b-a683zj-sweep-shard0", "milan-665s2b-a683zj-sweep-shard1", "milan-665s2b-a683zj-sweep-shard2", "milan-665s2b-a683zj-sweep-shard3"]}
+12:11:08 native-shards rc=0
+12:42:14 launching on 8-15 16-23 40-43 72-79 (MemAvailable 42811 MB)
+Traceback (most recent call last):
+  File "<management>/2026-09-23/native-shards.py", line 23, in <module>
+    out.mkdir(parents=True, exist_ok=False)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '<scratch>/sweep'
+12:42:15 native-shards rc=1
