@@ -129,10 +129,18 @@ The testbench traces a pass's first and last firmware poll and every item ([`pol
 [`load_grade.py`](load_grade.py) is the long-window load of every source at its stated arrival bound (#665, the round 24 ruling, item 2): each source's rate, a contract rate or a protocol timer, its clause in the module's term list and its value read from the tree, times its stated cost, at 1x1/1if, 8x8/2if and 32x32/2if.
 Its stated costs are `poll_grade.STATED_US`'s for the polls and `ctrl_loop.h`'s for THE TRANSMIT's builds and THE STEP at the two harness points, and its own `STATED_US` for the records, the events and a centisecond's consumers there and for every cost at 32x32/2if, measured on the 32x32 simulation shape (#859).
 That is the column at this tree's TSN stack pin. A second, `STATED_US_DONOR`, is measured with tsn-c-stack #32 applied at the pin in a scratch build (the ACMP core walking only the sinks an entry changed), each cost stated at every point; the gate grades that column, the load the pin move owes (#665, the round 25 ruling, item 3), and reports both.
-A pass's own cost is no source and is reported beside the load. The ceiling is 0.70 at 1x1/1if and 8x8/2if (#665, the round 25 ruling, item 4); 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665 issuecomment-6759183115; the round 26 ruling, issuecomment-6779973927, item 6), with the compute its graded load would need for 0.70. A point over its ceiling fails the gate, and so does a term the load counts with no source in the term list, or SRP's retries where the tree states no rule that bounds them (`RETRY_RULE`):
+A pass's own cost is no source and is reported beside the load. The ceiling is 0.70 (#665, the round 25 ruling, item 4); the gate holds it at 1x1/1if, for merge. 32x32/2if is reported, not held: the more-compute image, #872 (decision D, #665 issuecomment-6759183115; the round 26 ruling, issuecomment-6779973927, item 6), with the compute its graded load would need for 0.70. A point over its ceiling fails the gate, and so does a term the load counts with no source in the term list, or SRP's retries where the tree states no rule that bounds them (`RETRY_RULE`):
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/load_grade.py --check
+```
+
+8x8/2if is held to the same 0.70 by the flip check, [`flip_grade.py`](flip_grade.py), a check apart from the merge gates (#665, the [round 27 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6788828284), items 4 and 6).
+It reads the load at this tree's TSN stack pin, `load_grade.STATED_US`, not the column graded with tsn-c-stack #32, through `load_grade.load` itself, and fails a load over the ceiling, a missing cost or a term with no source.
+The split placement's flip at 8x8/2if must pass it; at this head it fails, its load over the ceiling ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-split-cpu-on-sys-at-100-mhz)):
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
 ```
 
 
@@ -184,6 +192,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 ```
 
 - `answering-ports` (arm B) makes the four observation ports answer zeroed values.
+  Its `aecp` group, where GET_AVB_INFO and GET_COUNTERS answer SUCCESS, is one of the load gate's legs at both points (#882).
   Three are contract 2.3's face block, `stream`, `avb` and `counters` (`aecp_face.c`): the arm replaces them in the face's ports before the core takes them, so it reads no window.
   The fourth is the fixture's own `path` port, which answers an empty sequence.
   Run with `--groups` naming three backlog rows, as S2's runs did, its composed maximum is partial; the 100 MHz runs of section 13 take all four.
@@ -1132,6 +1141,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule) | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
 | scenario: the face's getters stated SUCCESS on the image as linked | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
 | scenario: the talker's refusals stated SUCCESS | the talker rows state the statuses Milan gives them, restated |
+| flip: an over-ceiling row passes | the load gate refuses a held point not held |
+| flip: read on the column graded with tsn-c-stack#32 | the flip check refuses the graded column read, not the pin |
+| flip: 8x8/2if held to a looser ceiling | the load gate refuses a held point not held |
+| load: 8x8/2if held by the merge gate again (earlier rule) | the load gate refuses a held point not held |
 | notify: the first recipient's commit ends the fan-out | two recipients across interfaces end at the last |
 | notify: the first unsolicited response on any interface ends it (earlier rule) | two recipients across interfaces end at the last |
 | notify: any unsolicited response counts as the change | unrelated unsolicited responses do not end it |
@@ -1373,7 +1386,8 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 --variant answeri
 
 Each must print its `STATED` line in its group, an AECP item over its stated cost for the first and an SRP record's apply over its retry's for the second, with no refusal: `CONTROL notice-fan-out-as-it-was caught` and `CONTROL srp-compared-by-memcmp caught`.
 
-The load gate has ten planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost raised at 1x1/1if and at 8x8/2if that the gate's own ceiling must hold (`load_grade.CEILING`), a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, the retry's rule planted in a copy of `srp_mbx.c` as a retry with nothing changed since the refusal and as a retry every pass a change allows (each leaves SRP's term with no source, `load_grade.RETRY_RULE`), AECP's owed frame charged once for every source rather than by what each sends (a dearer probe must raise the term by every registration's retries of it, a dearer notice by the records' share alone), a timer slot counted once a pass rather than at its expiry rate, a term with no source in the term list, and a cost the graded column (tsn-c-stack #32's) states below the pin's though #32 does not move it, an SRP record's (`load_grade.WALK` names the costs it moves); and for each period the load reads from the tree (each channel's refill, `tick_ms`, `holdoff_ms`, `SRP_JOIN_CS`, `CTRL_LOOP_STEP_AGE`, `ACMP_TMR_NO_RESP_MS`, `MAAP_PROBE_BASE_MS`, `ADP_ADVERTISE_MS` and a registration's probe retry), the period halved, which must raise the terms it sets (`load_grade.PERIODS`). Each must be refused; one that is not prints `ESCAPED`.
+The load gate has ten planted defects and one an arrival bound, which the self-test runs (`load_grade.ceiling_checks`) and `load_grade.py --selftest` prints: a cost raised over the ceiling at 8x8/2if, a cost raised at 1x1/1if that the gate's own ceiling must hold (`load_grade.CEILING`) and at 8x8/2if that the flip check's must (`flip_grade.FLIP`), a cost the load needs missing from a point's table, a retained record's retries counted once a record rather than by the retry's own rule, the retry's rule planted in a copy of `srp_mbx.c` as a retry with nothing changed since the refusal and as a retry every pass a change allows (each leaves SRP's term with no source, `load_grade.RETRY_RULE`), AECP's owed frame charged once for every source rather than by what each sends (a dearer probe must raise the term by every registration's retries of it, a dearer notice by the records' share alone), a timer slot counted once a pass rather than at its expiry rate, a term with no source in the term list, and a cost the graded column (tsn-c-stack #32's) states below the pin's though #32 does not move it, an SRP record's (`load_grade.WALK` names the costs it moves); and for each period the load reads from the tree (each channel's refill, `tick_ms`, `holdoff_ms`, `SRP_JOIN_CS`, `CTRL_LOOP_STEP_AGE`, `ACMP_TMR_NO_RESP_MS`, `MAAP_PROBE_BASE_MS`, `ADP_ADVERTISE_MS` and a registration's probe retry), the period halved, which must raise the terms it sets (`load_grade.PERIODS`). Each must be refused; one that is not prints `ESCAPED`.
+The flip check has six, which the self-test runs (`flip_grade.flip_checks`, through `load_grade.ceiling_checks`) and `flip_grade.py --selftest` prints: the 8x8/2if row at the pin against a ceiling a thousandth under its load, which must be refused, and a thousandth over it, which must pass; a cost raised over the ceiling; a cost the load needs missing; the ceiling other than 0.70 at 8x8/2if; and the column graded with tsn-c-stack #32 read instead of the pin's.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

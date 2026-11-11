@@ -7,8 +7,10 @@ The load is the work the sources bring per millisecond of a window long enough t
 each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read from the tree) or a protocol timer
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
-At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 at 1x1/1if and 8x8/2if
-(#665 issuecomment-6751196896, item 4). 32x32/2if is reported, not held: the more-compute image, #872 (decision D,
+At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 (#665
+issuecomment-6751196896, item 4) at 1x1/1if, which this gate holds for merge. 8x8/2if is held to the same 0.70 by the
+flip check, flip_grade.py, read at the pin, a check apart from the merge gates (#665 issuecomment-6788828284, items 4
+and 6); this table reports it. 32x32/2if is reported, not held: the more-compute image, #872 (decision D,
 #665 issuecomment-6759183115 and issuecomment-6759193032; issuecomment-6779973927, item 6); the table gives the compute
 its graded load would need for 0.70, its load over 0.70, since every stated cost is CPU time at the split CPU's clock.
 No term is kept as a margin: each has its source, and one without a source fails.
@@ -81,10 +83,12 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The ceiling a point's load is held to (#665 issuecomment-6751196896, item 4); 32x32/2if is reported, not held:
-#: the more-compute image, #872 (decision D, #665 issuecomment-6759183115).
-CEILING = {'1x1/1if': 0.70, '8x8/2if': 0.70}
-#: What the table says in a point's ceiling column where CEILING holds none.
+#: The ceiling the merge gate holds a point's load to (#665 issuecomment-6751196896, item 4): 1x1/1if. 8x8/2if is the
+#: flip check's (flip_grade.FLIP, #665 issuecomment-6788828284, item 4); 32x32/2if is reported, not held: the
+#: more-compute image, #872 (decision D, #665 issuecomment-6759183115).
+CEILING = {'1x1/1if': 0.70}
+#: What the table says in a point's ceiling column where CEILING holds none: the flip check's, or none.
+FLIPPED = 'the flip check, 0.70 at the pin (flip_grade.py)'
 PENDING = 'reported: the more-compute image, #872'
 #: The load the compute factor is reported against: the ceiling the held points are held to.
 TARGET = 0.70
@@ -104,7 +108,8 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if; and every group of arm A
 #: and of the answering-every-port arm on this tree's image, its notice built once and addressed per recipient and its
 #: SRP comparisons same()'s (#665 issuecomment-6779973927, items 2 and 3), whose measurement alone states the three
-#: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load). 32x32/2if
+#: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load), measured
+#: again with every row's response stated and the aecp group in arm A and arm B (#882), which moved no cost. 32x32/2if
 #: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
@@ -333,8 +338,9 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
 
 
 def ceiling(point: str) -> str:
-    """A point's ceiling as the table prints it, or PENDING where CEILING holds none."""
-    return f'{CEILING[point]:.2f}' if point in CEILING else PENDING
+    """A point's ceiling as the table prints it: the merge gate's, the flip check's (FLIPPED), or PENDING."""
+    import flip_grade
+    return f'{CEILING[point]:.2f}' if point in CEILING else FLIPPED if point in flip_grade.FLIP else PENDING
 
 
 def report(root: Path, table: dict | None = None) -> list[str]:
@@ -361,21 +367,26 @@ def report(root: Path, table: dict | None = None) -> list[str]:
 def controls(root: Path) -> list[str]:
     """Each planted defect the gate must refuse: the planted names that escaped."""
     base = {p: dict(GRADED[p]) for p in GRADED}
-    fit = {p: 10.0 for p in CEILING}
+    # a ceiling every planted table fits, at both points the ruling holds at 0.70 (this gate's and the flip check's)
+    fit = {p: 10.0 for p in ('1x1/1if', '8x8/2if')}
     escaped = []
     # a point's load over its ceiling: a cost raised until the total passes it
     raised = {p: dict(v) for p, v in base.items()}
     raised['8x8/2if']['record.acmp'] = 100_000
     if not any('8x8/2if: the load' in f for f in findings(root, raised, {'8x8/2if': 0.70})):
         escaped.append('a cost over the ceiling')
-    # each point the ruling holds (#665 issuecomment-6751196896, item 4), held by the gate's own ceiling: a cost raised
-    # at 1x1/1if and at 8x8/2if until the load passes 0.70 must fail the gate as it stands
-    for point in ('1x1/1if', '8x8/2if'):
-        over = {p: dict(v) for p, v in base.items()}
-        over[point]['record.acmp'] = 100_000
-        if CEILING.get(point) != 0.70 or not any(f'{point}: the load' in f for f in findings(root, over)):
-            escaped.append('a held point not held')
-            break
+    # each point the ruling holds at 0.70 (#665 issuecomment-6751196896, item 4): 1x1/1if by this gate as it stands,
+    # 8x8/2if by the flip check at the pin (issuecomment-6788828284, items 4 and 6); a cost raised at each until the
+    # load passes 0.70 must fail the check that holds it
+    import flip_grade
+    over = {p: dict(v) for p, v in base.items()}
+    over['1x1/1if']['record.acmp'] = 100_000
+    pin = {p: dict(v) for p, v in STATED_US.items()}
+    pin['8x8/2if']['record.acmp'] = 100_000
+    if CEILING != {'1x1/1if': 0.70} or not any('1x1/1if: the load' in f for f in findings(root, over)) or \
+            flip_grade.FLIP.get('8x8/2if') != 0.70 or not any('8x8/2if: the load' in f
+                                                              for f in flip_grade.findings(root, pin)):
+        escaped.append('a held point not held')
     # a cost the load needs, missing from a point's table
     dropped = {p: dict(v) for p, v in base.items()}
     dropped['8x8/2if'].pop('event.ACMP')
@@ -496,11 +507,12 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a stated cost m
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
-    """The harness self-test's checks of this gate: every planted defect refused."""
+    """The harness self-test's checks of this gate and of the flip check: every planted defect refused."""
+    import flip_grade
     escaped = controls(ROOT) + period_controls(ROOT)
     names = (*CONTROLS, *(f'the period {name} not read' for name in PERIODS))
     return [(f'the load gate refuses {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
-            for name in names]
+            for name in names] + flip_grade.flip_checks()
 
 
 def main() -> int:

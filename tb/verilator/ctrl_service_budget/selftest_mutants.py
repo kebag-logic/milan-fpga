@@ -19,7 +19,9 @@ from unittest.mock import patch
 
 import answers
 import build
+import flip_grade
 import grade
+import load_grade
 import mrpdu_grade
 import notice_window
 import poll_grade
@@ -459,6 +461,12 @@ MUTANTS: dict[str, Patches] = {
         answers, 'aecp_statuses', lambda build: dict(unknown_command='NOT_IMPLEMENTED'))],
     "scenario: the talker's refusals stated SUCCESS": lambda: [patch.object(
         answers, 'TALKER', tuple((msg, 'SUCCESS') for msg, _ in answers.TALKER))],
+    'flip: an over-ceiling row passes': lambda: [patch.object(flip_grade, 'findings', lambda *a, **k: [])],
+    'flip: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
+        flip_grade, 'COLUMN', load_grade.STATED_US_DONOR)],
+    'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
+    'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
+        load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
     "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
                                                                       min(f.values()) if None not in f.values()
                                                                       else None)],
