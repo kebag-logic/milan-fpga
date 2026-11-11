@@ -28,7 +28,7 @@ import plat_arms
 import plat_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
-from ctrl_mutant import ACMP_C, ADP_C, Mutant
+from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -273,6 +273,14 @@ MUTANTS = (
            "\treturn __builtin_malloc(size);", "port", "Pool.P4ShlanFunctionsDrawOnTheBoundPool",
            "P4 shlan_malloc and shlan_calloc draw on the bound pool",
            (("rv32", "", "symbols outside the C library"),)),
+    # tsn-c-stack#27: the per-byte form, a variable 64-bit shift for every byte
+    Mutant("wire-put-be-shifts-64-bits", WIRE_H,
+           ("\tuint32_t high = (uint32_t)(value >> 32);\n\tuint32_t low = (uint32_t)value;\n"
+            "\tfor (unsigned i = bytes; i > 0u; --i) {\n\t\tp[i - 1u] = (uint8_t)low;\n"
+            "\t\tlow = (low >> 8) | (high << 24);\n\t\thigh >>= 8;\n\t}\n"),
+           ("\tfor (unsigned i = 0; i < bytes; ++i) {\n"
+            "\t\tp[i] = (uint8_t)(value >> (8u * (bytes - 1u - i)));\n\t}\n"),
+           "platrv32", "", "the 64-bit shift helper (tsn-c-stack#27)"),
     Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
            "\tif (ch->tokens == 0u && false) {",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 the frames past it count in RATE_DROP"),
@@ -898,7 +906,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
-            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2)}
+            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
+            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True)}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()
