@@ -1,0 +1,27 @@
+arms run:
+2:-- banks
+6:-- rules
+75:-- simulation
+84:-- link
+97:-- SoC build
+113:-- CPU decode
+126:-- register
+131:-- mutants
+191:-- planted ledgers
+198:-- out-of-context mapper
+skip lines: 0
+MUTANT ok: 62
+MUTANT not ok: 0
+non-ok check lines: 1
+FAIL lines: 0
+decode-arm mutants:
+11
+mapper-arm lines:
+7
+3
+CPU decode arm checks:
+12
+24:SELF-TEST PASS none: fails 0 check(s), wants 0
+48:SELF-TEST PASS single-mask: fails 4 check(s), wants 4
+72:SELF-TEST PASS cover: fails 6 check(s), wants 6
+73:ctrl_region_decode self-test: PASS
