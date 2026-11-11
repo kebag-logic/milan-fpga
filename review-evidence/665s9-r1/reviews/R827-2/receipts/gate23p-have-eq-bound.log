@@ -1,0 +1,42 @@
+head a69fc0f597355a0a200ec5be6bb134b897e97ff5 arm have-eq-bound
+planted diff:
+ sw/litex/check_image_identity.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..61bc43bf3a 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -221,7 +221,7 @@ def _bitstream_rules(got: dict, bitstream: Path | None, found: list) -> None:
+     except TransitionError as exc:
+         found.append(("bitstream", f"{candidates[0]} is not a bitstream: {exc}"))
+         return
+-    if have != bound:
++    if have == bound:
+         found.append(("bitstream", f"{candidates[0]} binds {have}, the manifest records {bound}"))
+ 
+ 
+---
+test_image_identity_gate:
+    the split ident names no placement: FINDING ident: the ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' does not name the split placement
+    the manifest records another VERSION: FINDING manifest: the manifest's VERSION 0x00030060 is not the image's milan_csr.sv 0x00020060
+    the manifest records another mailbox minor: FINDING manifest: the manifest's mailbox contract {'major': 2, 'minor': 5} is not the image's KL_mbx_pkg.sv (2, 4)
+    the split datapath built without CTRL_SPLIT_P: FINDING placement: a split image whose datapath has CTRL_SPLIT_P = 0 and mailbox ['KL_mbx', 'KL_mbx_cdc', 'KL_mbx_wb', 'ctrl_mbx']
+    a split image with DDR3 left in: FINDING ddr3: a split image carries DDR3: ddram pads, ddrphy, main_ram, sdram (decision D4 builds none)
+    an all-fabric image with the mailbox: FINDING placement: an all-fabric image carries a mailbox ['KL_mbx', 'KL_mbx_wb', 'ctrl_mbx'] or a split datapath (CTRL_SPLIT_P = 0)
+    the firmware relinked after the build: FINDING firmware: the control firmware /tmp/tmpjjsh34ad/relinked.elf has sha256 4d135f670a2121d5004f2ce64709e038bb28ac9d86d1064957f927bf27dba5d8, the manifest records 852e53d82f99c88319e96495f45bf4ea83d3130243a7b3253a668ade812743d9
+    the manifest forged to the relinked firmware: FINDING firmware: the rom banks hold 3017 words that are not the 3017 rom words of /tmp/tmpjjsh34ad/forged.elf
+    the manifest removed from a split image: FINDING placement: an all-fabric image carries a mailbox ['KL_mbx', 'KL_mbx_cdc', 'KL_mbx_wb', 'ctrl_mbx'] or a split datapath (CTRL_SPLIT_P = 1)
+    a bitstream the manifest does not bind: FINDING bitstream: the manifest binds no bitstream, the image has ['/tmp/tmpjjsh34ad/a-bitstream-the-manifest-does-not-bind/gateware/alinx_ax7101.bit']
+    the manifest's placement renamed: FINDING manifest: the manifest is schema 1 at placement 'all-fabric'; only a split image has a manifest, schema 1
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+Traceback (most recent call last):
+  File "<scratch>/c-have-eq-bound/sw/builder/test_builder.py", line 29775, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/c-have-eq-bound/sw/builder/test_builder.py", line 23773, in test_image_identity_gate
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+           ^^^^^^^
+AssertionError: gate 23p:
+  a bound bitstream the image holds: the gate refused an image that agrees with its identity (exit 1): FINDING bitstream: /tmp/tmpjjsh34ad/a-bound-bitstream-the-image-holds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}
+  a bitstream other than the one the manifest binds: the gate did not find it by its bitstream rule (exit 0): image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+rc=1
