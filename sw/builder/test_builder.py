@@ -23850,7 +23850,7 @@ def test_control_placement_key() -> None:
 
 #: The shape artifacts a placement must not touch, by build() path label.
 RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
-                          "platform_shape", "aem_rom_svh", "gptp_ucode")
+                          "platform_shape", "aem_rom_svh", "gptp_ucode", "nvm_split")
 
 
 def _tracked_generated():
