@@ -1,0 +1,30 @@
+#### ax7101_1x1_tdm8 base (1d6bf5556a) vs base-again (1d6bf5556a)
+files 22: identical as above 22, differing 0, in one only 0
+#### ax7101_8x8 base (1d6bf5556a) vs base-again (1d6bf5556a)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: gateware/alinx_ax7101.v (the same 843 tree lines, another order)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: litex.log (the same 811 tree lines, another order)
+files 22: identical as above 22, differing 0, in one only 0
+#### ax7101_1x1_tdm8 base (1d6bf5556a) vs final (d08d30c6ec)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: gateware/alinx_ax7101.v (the same 840 tree lines, another order)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: litex.log (the same 810 tree lines, another order)
+files 22: identical as above 22, differing 0, in one only 0
+#### ax7101_8x8 base (1d6bf5556a) vs final (d08d30c6ec)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: gateware/alinx_ax7101.v (the same 843 tree lines, another order)
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: litex.log (the same 811 tree lines, another order)
+files 22: identical as above 22, differing 0, in one only 0
+#### ax7101_1x1_tdm8 base (1d6bf5556a) vs r1-tie (b29f94d7aa)
+DIFFERS: gateware/alinx_ax7101.v (5 lines)
+    -│    ├── [BB:OBUFDS]
+    -│    ├── [BB:OSERDESE2]
+    +│    ├── [BB:OSERDESE2]
+    +│    ├── [BB:OBUFDS]
+    +	.i_reboot_req         (1'd0),
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: litex.log (the same 810 tree lines, another order)
+files 22: identical as above 21, differing 1, in one only 0
+#### ax7101_8x8 base (1d6bf5556a) vs r1-tie (b29f94d7aa)
+DIFFERS: gateware/alinx_ax7101.v (3 lines)
+    -│    ├── [BB:OSERDESE2]
+    +│    ├── [BB:OSERDESE2]
+    +	.i_reboot_req         (1'd0),
+TIMESTAMP AND HIERARCHY-COMMENT ORDER ONLY: litex.log (the same 811 tree lines, another order)
+files 22: identical as above 21, differing 1, in one only 0

@@ -1,0 +1,146 @@
+# head 9534d51f0fd9d2d87f6de5f1739b8eb9102420ea job docs-gates-0 step ci_step_28: Install and verify the pinned RV32 SDK
+# clone <scratch>/gates/pass1/docs/docs-gates-0/wt
+test_archive_root (__main__.InstallerTests.test_archive_root)
+An authenticated archive with another root is still not extracted. ... SDK archive verified: <scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-z2yznwpe/wrong-root.tar.xz sha256=85e0d9d1841992c3beb0239edd0d9bb62098cb692825b09c7038e7a3a86d3ca6
+ok
+test_bad_archive (__main__.InstallerTests.test_bad_archive)
+A wrong offline --archive never reaches tar or creates an installation. ... ok
+test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache. ... ok
+test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run. ... ok
+test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names. ... ok
+test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+A wrong download is refused before tar reads it or anything runs. ... ok
+test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed. ... ok
+test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed. ... ok
+test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit. ... ok
+test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse. ... ok
+test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance. ... ok
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... ok
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... ok
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... ok
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... ok
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... ok
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... ok
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... ok
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-l8395t8k/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-l8395t8k/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-l8395t8k/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-l8395t8k/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... ok
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-kvnt33iw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-0hfj60ra/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-0hfj60ra/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-0hfj60ra/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/gates/pass1/docs/docs-gates-0/tmp/rv32-installer-test-0hfj60ra/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.950s
+
+OK
+SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/urllib/request.py", line 1333, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/http/client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/http/client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/http/client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/http/client.py", line 1141, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "/usr/lib/python3.14/http/client.py", line 1085, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/http/client.py", line 1520, in connect
+    super().connect()
+    ~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/http/client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ~~~~~~~~~~~~~~~~~~~~~~~^
+        (self.host,self.port), self.timeout, self.source_address)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socket.py", line 850, in create_connection
+    for res in getaddrinfo(host, port, 0, SOCK_STREAM):
+               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/socket.py", line 989, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<scratch>/gates/pass1/docs/docs-gates-0/wt/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/gates/pass1/docs/docs-gates-0/wt/scripts/ci_rv32_sdk.py", line 185, in main
+    install(args.destination, args.archive)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/gates/pass1/docs/docs-gates-0/wt/scripts/ci_rv32_sdk.py", line 162, in install
+    with urllib.request.urlopen(ARCHIVE_URL, timeout=120) as response:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 187, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 487, in open
+    response = self._open(req, data)
+  File "/usr/lib/python3.14/urllib/request.py", line 504, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "/usr/lib/python3.14/urllib/request.py", line 464, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python3.14/urllib/request.py", line 1381, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        context=self._context)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/urllib/request.py", line 1336, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno -3] Temporary failure in name resolution>

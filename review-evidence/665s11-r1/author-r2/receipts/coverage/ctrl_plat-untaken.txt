@@ -1,0 +1,8 @@
+# the kept measurement: fw_coverage.py --check --keep, at 10b0fe93 (rc 1)
+  191 count=60 arcs=[60, 0] | if (p->rx[ch].fn != NULL) {
+  268 count=42 arcs=[21, 0] | return ctrl_app_compose(&p->app, &p->config) &&
+  269 count=42 arcs=[21, 0, 21, 0] | ctrl_app_compose_aecp(&p->app, &p->bridge, &p->aecp, &p->aecp_config, &p->face.ports, &p->state) &&
+  292 count=21 arcs=[0, 21] | if (!compose(p)) {
+  293 count=0 arcs=[] | return reach(p, CTRL_PLAT_COMPOSE, "Milan split: composition refused; entity disabled\r\n");
+  310 count=20 arcs=[20, 0, 0, 20] | if (!srp_mbx_init(&p->srp, &p->srp_config) || !ctrl_app_attach_srp(&p->app, &p->srp)) {
+  311 count=0 arcs=[] | return reach(p, CTRL_PLAT_SRP, "Milan split: SRP refused; entity disabled\r\n");
