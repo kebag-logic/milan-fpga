@@ -7,7 +7,7 @@
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
-#                    nine planted RTL defects (one per leaf, one in the
+#                    twelve planted RTL defects (one per leaf, one in the
 #                    skeleton, one in the filter's tuple, one in the
 #                    publication block, one in the face block and one per
 #                    timing cut of #870), each of which must redden the check

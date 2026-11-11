@@ -7,7 +7,10 @@ register decode (a storage register for every ``rw`` register, a pulse for
 every ``wo`` register, a read for every readable one), the read multiplexer
 and one ring instance per direction per channel. The read multiplexer decodes
 a registered copy of the read's offset, never the bus (#870, a timing cut), so
-the register window answers a read one cycle later than a ring or a write. The bound-talker registers
+the register window answers a read one cycle later than a ring or a write, and
+it is the AND-OR of one-hot selects, one per register, which the generator
+proves one-hot over the contract's address map (``check_read_onehot``) and
+the cross-check finds in the tracked skeleton (``read_mux_findings``). The bound-talker registers
 are the exception: the skeleton decodes them and ``KL_mbx_rx`` holds them, in
 distributed RAM beside the compare that reads them. The publication block is
 decoded and held here, and each of its fields leaves on a ``pub_*_o`` port
@@ -23,6 +26,9 @@ contract can never describe a field the skeleton silently reads as zero.
 """
 
 from __future__ import annotations
+
+import re
+from dataclasses import dataclass
 
 import mailbox_face as face
 from mailbox_emit import GENERATOR, SOURCE
@@ -508,55 +514,154 @@ def _write_block(contract: Contract) -> list[str]:
     return out
 
 
-def _read_block(contract: Contract) -> list[str]:
-    """The register read value, from storage or from each field's source, decoded
-    from the registered read offset (``READ``), so no path runs from the bus to
-    ``reg_rdata_r`` (#870). The bound-talker words are KL_mbx_rx's read-back of
-    the read it registered at the same request."""
+@dataclass(frozen=True)
+class ReadTerm:
+    """One term of the register read multiplexer (#870): the register it reads,
+    its select on the read side's decode, the word it answers, and every byte
+    offset the contract gives that register (one per interface, entry or
+    channel), which is where its select is set."""
+
+    label: str
+    select: str
+    value: str
+    offsets: frozenset[int]
+
+
+def read_terms(contract: Contract) -> list[ReadTerm]:
+    """The register read multiplexer's terms, in the order the skeleton numbers
+    their selects: from storage or from each field's source, decoded from the
+    registered read offset (``READ``), so no path runs from the bus to
+    ``reg_rdata_r``. The bound-talker words are KL_mbx_rx's read-back of the
+    read it registered at the same request."""
     off, pre = READ
-    out = ["  logic [31:0] reg_rdata_w;   //! the register the registered read offset names, 0 when none",
-           "  always_comb begin : reg_read", "    reg_rdata_w = '0;"]
+    terms: list[ReadTerm] = []
     for reg in contract.registers:
         if reg.access == "wo":
             continue
         value = f"{reg.name.lower()}_r" if reg.access == "rw" else _sources(reg, RO_SOURCES, {})
-        out.append(f"    if ({off} == {AW}'(MBX_REG_{reg.name}_C)) reg_rdata_w = {value};")
+        terms.append(ReadTerm(reg.name, f"{off} == {AW}'(MBX_REG_{reg.name}_C)", value, frozenset({reg.offset})))
     for i in range(contract.interfaces):
         for reg in contract.if_registers:
             base = f"MBX_IF_BASE_C + {i} * MBX_IF_STRIDE_C + MBX_IF_REG_{reg.name}_C"
-            out.append(f"    if ({off} == {AW}'({base})) reg_rdata_w = {_sources(reg, IF_SOURCES, {'i': i})};")
+            terms.append(ReadTerm(f"{reg.name} of interface {i}", f"{off} == {AW}'({base})",
+                                  _sources(reg, IF_SOURCES, {'i': i}),
+                                  frozenset({contract.if_base + i * contract.if_stride + reg.offset})))
         for reg in contract.iff_registers:
             if reg.access != "rw":
                 raise ContractError(f"interface filter register {reg.name}: the skeleton stores rw registers only")
             base = f"MBX_IFF_BASE_C + {i} * MBX_IFF_STRIDE_C + MBX_IFF_REG_{reg.name}_C"
-            out.append(f"    if ({off} == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
+            terms.append(ReadTerm(f"{reg.name} of interface {i}", f"{off} == {AW}'({base})",
+                                  f"32'({reg.name.lower()}_r[{i}])",
+                                  frozenset({contract.iff_base + i * contract.iff_stride + reg.offset})))
     for reg in contract.bnd_registers:
         if reg.access != "rw":
             raise ContractError(f"bound-talker register {reg.name}: KL_mbx_rx holds rw registers only")
-    out.append(f"    if ({pre}bnd_at_w && {pre}bnd_reg_w == 2'd{BOUND_CODE['BOUND_EN']}) reg_rdata_w = "
-               f"{_place('BOUND_EN', 'EN', 'bnd_en_w')};")
-    out.append(f"    if ({pre}bnd_at_w && {pre}bnd_reg_w != 2'd{BOUND_CODE['BOUND_EN']} && bnd_eid_vld_w) "
-               "reg_rdata_w = bnd_eid_w;")
+
+    def bound(names: tuple[str, ...]) -> frozenset[int]:
+        """The offsets of the named registers in every entry of every interface's table."""
+        return frozenset(contract.bnd_base + i * contract.bnd_stride + e * contract.bnd_entry_stride + r.offset
+                         for i in range(contract.interfaces) for e in range(contract.bound_talkers)
+                         for r in contract.bnd_registers if r.name in names)
+    en = BOUND_CODE["BOUND_EN"]
+    terms.append(ReadTerm("BOUND_EN", f"{pre}bnd_at_w && {pre}bnd_reg_w == 2'd{en}",
+                          _place("BOUND_EN", "EN", "bnd_en_w"), bound(("BOUND_EN",))))
+    terms.append(ReadTerm("BOUND_EID_LO/BOUND_EID_HI",
+                          f"{pre}bnd_at_w && {pre}bnd_reg_w != 2'd{en} && bnd_eid_vld_w", "bnd_eid_w",
+                          bound(("BOUND_EID_LO", "BOUND_EID_HI"))))
     at, src, sink, reg_w = f"{pre}pub_at_w", f"{pre}pub_src_w", f"{pre}pub_sink_w", f"{pre}pub_reg_w"
     pif, ps, pk = f"{pre}pub_if_w", f"{pre}pub_s_w", f"{pre}pub_k_w"
+    ifs = [contract.pub_base + i * contract.pub_stride for i in range(contract.interfaces)]
+
+    def pub(rel: int, stride: int = 0, count: int = 1) -> frozenset[int]:
+        """The offsets `rel` (and `count` entries `stride` apart) into every interface's block."""
+        return frozenset(b + rel + e * stride for b in ifs for e in range(count))
     for reg in contract.pub_registers:
-        out.append(f"    if ({at} && !{src} && !{sink} && {reg_w} == {AW}'(MBX_PUB_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}]);")
+        terms.append(ReadTerm(reg.name, f"{at} && !{src} && !{sink} && {reg_w} == {AW}'(MBX_PUB_REG_{reg.name}_C)",
+                              f"32'(pub_{reg.name.lower()}_r[{pif}])", pub(reg.offset)))
     for reg in contract.pub_source_registers:
-        out.append(f"    if ({at} && {src} && {reg_w} == {AW}'(MBX_PUB_SRC_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}][{ps}]);")
+        terms.append(ReadTerm(reg.name, f"{at} && {src} && {reg_w} == {AW}'(MBX_PUB_SRC_REG_{reg.name}_C)",
+                              f"32'(pub_{reg.name.lower()}_r[{pif}][{ps}])",
+                              pub(contract.pub_source_base + reg.offset, contract.pub_source_stride,
+                                  contract.pub_sources)))
     for reg in contract.pub_sink_registers:
-        out.append(f"    if ({at} && {sink} && {reg_w} == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)) "
-                   f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[{pif}][{pk}]);")
-    out += face.read(contract, pre)
-    out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
-    for reg in contract.ch_registers:
-        base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
-        value = (_place(reg.name, reg.fields[0].name, f"{reg.name.lower()}_r[c]") if reg.access == "rw"
-                 else _sources(reg, {k: {f: s.replace("{c}", "c") for f, s in v.items()}
-                                     for k, v in CH_SOURCES.items()}, {}))
-        out.append(f"      if ({off} == {AW}'({base})) reg_rdata_w = {value};")
-    out += ["    end", "  end : reg_read", ""]
+        terms.append(ReadTerm(reg.name, f"{at} && {sink} && {reg_w} == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)",
+                              f"32'(pub_{reg.name.lower()}_r[{pif}][{pk}])",
+                              pub(contract.pub_sink_base + reg.offset, contract.pub_sink_stride, contract.pub_sinks)))
+    terms += [ReadTerm(f"the face register {label}", select, value, offsets)
+              for label, select, value, offsets in face.read(contract, pre)]
+    for c in range(len(contract.channels)):
+        for reg in contract.ch_registers:
+            base = f"MBX_CH_BASE_C + {c} * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
+            value = (_place(reg.name, reg.fields[0].name, f"{reg.name.lower()}_r[{c}]") if reg.access == "rw"
+                     else _sources(reg, CH_SOURCES, {"c": c}))
+            terms.append(ReadTerm(f"{reg.name} of channel {c}", f"{off} == {AW}'({base})", value,
+                                  frozenset({contract.ch_base + c * contract.ch_stride + reg.offset})))
+    return terms
+
+
+def check_read_onehot(terms: list[ReadTerm]) -> None:
+    """The read multiplexer ORs every term's word under its own select, which is
+    a multiplexer only while at most one select is set: no byte offset may be
+    one two terms read. The contract's address map is disjoint, so this holds,
+    and a window laid over another is refused here, by name (#870)."""
+    owner: dict[int, str] = {}
+    for t in terms:
+        for at in sorted(t.offsets):
+            if at in owner:
+                raise ContractError(f"the register read multiplexer ORs one-hot selects, but {owner[at]} and "
+                                    f"{t.label} both select offset {at:#06x}")
+            owner[at] = t.label
+
+
+#: The read multiplexer's two statement forms in the skeleton: a select, and
+#: one term of the OR (the first opens the assignment, the last closes it).
+READ_SELECT = re.compile(r"^    rd_hit_w\[(\d+)\] = [^?]+;   // .+$")
+READ_TERM = re.compile(r"^    (?:reg_rdata_w = |            \| )\(\{32\{rd_hit_w\[(\d+)\]\}\} & 32'\([^?]+\)\);?$")
+
+
+def read_mux_findings(contract: Contract, text: str) -> list[str]:
+    """A skeleton's register read multiplexer, as a reader finds it: the AND-OR
+    of the contract's one-hot selects, every select once and in order, then
+    every word under its own select, and nothing else in the block (no if,
+    case or ?:, which would make it a priority chain again)."""
+    m = re.search(r"\n  always_comb begin : reg_read\n(.*?)\n  end : reg_read\n", text, re.S)
+    if m is None:
+        return ["skeleton: the register read multiplexer (always_comb reg_read) is missing"]
+    n = len(read_terms(contract))
+    lines = m[1].split("\n")
+    selects = [s for s in (READ_SELECT.match(ln) for ln in lines[:n]) if s]
+    words = [t for t in (READ_TERM.match(ln) for ln in lines[n:]) if t]
+    in_order = ([int(s[1]) for s in selects] == list(range(n)) and [int(t[1]) for t in words] == list(range(n))
+                and len(lines) == 2 * n and lines[n].startswith("    reg_rdata_w = ") and lines[-1].endswith(";")
+                and not any(ln.endswith(";") for ln in lines[n:-1]))
+    if not in_order:
+        return [f"skeleton: the register read multiplexer is not the AND-OR of the contract's {n} one-hot selects "
+                "(#870): each select once in order, then each word under its own select, and no priority construct"]
+    return []
+
+
+def _read_block(contract: Contract) -> list[str]:
+    """The register read multiplexer: the AND-OR of one-hot selects (#870, a
+    timing cut), proven one-hot over the contract's address map first."""
+    terms = read_terms(contract)
+    check_read_onehot(terms)
+    out = ["  // ---- the register read multiplexer: an AND-OR of one-hot selects ---------------",
+           "  // Term k answers its word while rd_hit_w[k] is set. The address map is",
+           "  // disjoint, which the generator proves term by term (no offset selects two",
+           "  // terms), so at most one select is set and the OR of the selected words is",
+           "  // the multiplexer, with no priority chain (#870, a timing cut). It decodes",
+           "  // the registered read offset, so no path runs from the bus to reg_rdata_r;",
+           "  // the bound-talker words are KL_mbx_rx's read-back of the read it",
+           "  // registered at the same request.",
+           f"  localparam int unsigned RD_TERMS_C = {len(terms)};   //! the read multiplexer's terms",
+           "  logic [RD_TERMS_C-1:0] rd_hit_w;      //! term k's select: one-hot, none for a hole",
+           "  logic [31:0]           reg_rdata_w;   //! the register the registered read offset names, 0 when none",
+           "  always_comb begin : reg_read"]
+    out += [f"    rd_hit_w[{k}] = {t.select};   // {t.label}" for k, t in enumerate(terms)]
+    for k, t in enumerate(terms):
+        lead = "    reg_rdata_w = " if k == 0 else "                | "
+        out.append(f"{lead}({{32{{rd_hit_w[{k}]}}}} & 32'({t.value})){';' if k == len(terms) - 1 else ''}")
+    out += ["  end : reg_read", ""]
     return out
 
 

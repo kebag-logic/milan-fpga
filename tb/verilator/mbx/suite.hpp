@@ -132,16 +132,27 @@ class Suite {
     }
 
     //! The receive side and the register read across their timing cuts (#870),
-    //! which only a cycle-by-cycle bench shows. First, over every clock of every
-    //! check run before it: no receive ring word written under the head the core
-    //! saw that cycle, so the head is never published before the data it covers.
-    //! Then GM_LO and the GM_HI snapshot it takes, sampled in one cycle whichever
-    //! cycle the identity changes in. sim_main runs it last; the model never does.
+    //! which only a cycle-by-cycle bench shows: GM_LO and the GM_HI snapshot it
+    //! takes, sampled in one cycle whichever cycle the identity changes in; the
+    //! ring write port carrying a word it does not write (W0); frames back to
+    //! back across the registered verdict (V0, V1); and every word of the host
+    //! window read through the AND-OR read multiplexer (S0). Then, over every
+    //! clock of every check run before, these included: no receive ring word
+    //! written under the head the core saw that cycle (H0), and no register
+    //! read answered with two of the multiplexer's selects set (S0). sim_main
+    //! runs it last; the model never does.
     void run_read_timing() {
-        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
-        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
         restart();
         check_gm_coherent();
+        restart();
+        check_ring_port_unwritten();
+        restart();
+        check_verdict_back_to_back();
+        restart();
+        check_read_mux_onehot();
+        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+        ck_.dec("S0 no register read of any check sets two selects of the read multiplexer", b_.reg_reads_multi, 0);
         ck_.dec("no bus access went unanswered in the read timing checks", b_.bus_timeouts, 0);
     }
 
@@ -344,6 +355,9 @@ class Suite {
     void check_tick();
     void check_gm_snapshot();
     void check_gm_coherent();
+    void check_ring_port_unwritten();
+    void check_verdict_back_to_back();
+    void check_read_mux_onehot();
     void check_tuple_controls();
     void check_tuple_rejections();
     void check_rejected(const std::string& what, const std::vector<std::uint8_t>& f, std::uint32_t counted);
@@ -2094,6 +2108,137 @@ void Suite<Bench, Check>::check_pub_reset() {
         zero = zero && same_pub(v, pub_zero());
     }
     ck_.that("P5 a reset clears every publication register and every output of every interface", zero);
+}
+
+//! W0 (#870): only the ring write port's enable carries the write decision.
+//! With the adp ring filled to its last whole record, a frame the free space
+//! cannot hold is drained word by word all the same: each word the ring does
+//! not take reaches the port at its slot (head + 2 + its index), unwritten. A
+//! port whose address and word the decision zeroes shows none of them.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_ring_port_unwritten() {
+    open(1u << kAdp);
+    static const std::uint32_t words[MBX_N_CH] = MBX_CH_RX_WORDS_TBL;
+    const std::uint32_t per = 2u + 21u;
+    const std::uint32_t fit = words[kAdp] / per;
+    for (std::uint32_t i = 0; i < fit; ++i) {
+        b_.send_frame(mbx_tb::adpdu(2, 0), 0);
+        b_.drain_rx();
+        b_.ms(MBX_CH_ADP_RATE_REFILL_MS);
+    }
+    const std::uint32_t head = rx_head(kAdp);
+    const std::uint32_t free_words = words[kAdp] - ((head - rx_tail_[kAdp]) & 0xFFFFu);
+    auto extra = mbx_tb::adpdu(2, 0);
+    for (std::size_t k = 26; k < extra.size(); ++k) {
+        extra[k] = static_cast<std::uint8_t>(0xA0u + k);   // every word its own
+    }
+    b_.port_trace.clear();
+    b_.port_trace_on = true;
+    b_.send_frame(extra, 0);
+    b_.drain_rx();
+    b_.port_trace_on = false;
+    ck_.dec("W0 the frame the free space cannot hold counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+    // the words past the free space, each (slot, word), in drain order
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> want;
+    for (std::uint32_t k = 0; 4u * k < extra.size(); ++k) {
+        if (k + 2u < free_words) {
+            continue;   // written: it fits the free space
+        }
+        std::uint32_t w = 0;
+        for (std::uint32_t j = 0; j < 4u && 4u * k + j < extra.size(); ++j) {
+            w |= static_cast<std::uint32_t>(extra[4u * k + j]) << (8u * j);
+        }
+        want.push_back({(head + 2u + k) & (words[kAdp] - 1u), w});
+    }
+    std::size_t seen = 0;
+    for (const auto& at : b_.port_trace) {
+        seen += (seen < want.size() && at == want[seen]) ? 1u : 0u;
+    }
+    ck_.that("W0 the frame has words past the free space", want.size() > 4u);
+    ck_.dec("W0 every word the ring does not take reaches the write port at its slot, unwritten", seen,
+            want.size());
+}
+
+//! V0, V1 (#870): the receive verdict is taken once the last byte's word has
+//! drained and acts a mailbox clock later, from registers. Twelve frames are
+//! queued back to back, every verdict among them (committed, RX_DROP for
+//! max_frame_bytes, FILTER_MISMATCH, refused by its identity term, RATE_DROP),
+//! so each frame's first byte is offered in both cycles of the verdict before
+//! it. V0: none is lost and none counted twice. V1: the receiver takes the
+//! next frame's first byte 6 clocks after a committed frame's last byte (the
+//! verdict taken, acting, two header words, then RECV) and 4 after any other
+//! frame's, one clock more than an unregistered verdict.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_verdict_back_to_back() {
+    open(1u << kAdp);
+    std::vector<std::pair<std::vector<std::uint8_t>, bool>> frames;   // the frame; it is committed
+    std::uint32_t passing = 0;
+    auto pass = [&](std::uint64_t eid) {
+        auto f = mbx_tb::adpdu(2, eid);
+        f[60] = static_cast<std::uint8_t>(++passing);
+        frames.push_back({f, true});
+    };
+    pass(kOwnEid);
+    frames.push_back({mbx_tb::adpdu(2, 0, MBX_CH_ADP_MAX_FRAME_BYTES + 2u), false});
+    pass(0);
+    frames.push_back({mbx_tb::to(mbx_tb::adpdu(2, 0), mbx_tb::kIdentifyMac), false});
+    frames.push_back({mbx_tb::adpdu(2, kForeignEid), false});
+    while (passing < MBX_CH_ADP_RATE_BURST) {
+        pass(kOwnEid);
+    }
+    frames.push_back({mbx_tb::adpdu(2, kOwnEid), false});   // past the bucket
+    const auto verdicts = b_.verdicts;
+    const auto offered = b_.verdict_offered;
+    b_.clear_rx_gaps();
+    for (const auto& f : frames) {
+        b_.send_frame(f.first, 0);
+    }
+    b_.drain_rx(40000);
+    ck_.dec("V0 frames back to back across each verdict: a verdict for every one", b_.verdicts - verdicts,
+            frames.size());
+    ck_.dec("V0 the next frame's first byte offered in both cycles of every verdict before it",
+            b_.verdict_offered - offered, 2u * (frames.size() - 1u));
+    ck_.dec("V0 every frame that passes is committed once", rx_pass(kAdp), passing);
+    ck_.dec("V0 the oversized one counts once in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+    ck_.dec("V0 the one past the bucket counts once in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("V0 the one no tuple takes counts once in FILTER_MISMATCH", mismatches(), 1);
+    bool intact = true;
+    for (const auto& f : frames) {
+        if (f.second) {
+            const Record r = peek(kAdp);
+            intact = intact && same_bytes(r.bytes, f.first);
+            release(kAdp, r);
+        }
+    }
+    ck_.that("V0 the ring holds each committed frame once, byte for byte, in order, and nothing else",
+             intact && rx_head(kAdp) == rx_tail_[kAdp]);
+    std::uint64_t after_pass = 6;
+    std::uint64_t after_other = 4;
+    for (std::size_t k = 0; k + 1u < frames.size() && k < b_.rx_gaps.size(); ++k) {
+        std::uint64_t& slot = frames[k].second ? after_pass : after_other;
+        slot = (slot == (frames[k].second ? 6u : 4u)) ? b_.rx_gaps[k] : slot;
+    }
+    ck_.dec("V1 a gap for every frame but the last", b_.rx_gaps.size(), frames.size() - 1u);
+    ck_.dec("V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte", after_pass, 6);
+    ck_.dec("V1 and 4 clocks after any other frame's", after_other, 4);
+}
+
+//! S0 (#870): the register read multiplexer is the AND-OR of one-hot selects,
+//! which the address map's disjointness allows. Every word of the host window
+//! is read: none sets two selects, registers set one and holes none. The
+//! count over every read of every check is graded at the end of
+//! run_read_timing.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_read_mux_onehot() {
+    const auto reads = b_.reg_reads;
+    const auto hits = b_.reg_reads_hit;
+    const auto multi = b_.reg_reads_multi;
+    for (std::uint32_t off = 0; off < MBX_WINDOW_BYTES; off += 4u) {
+        static_cast<void>(rd(off));
+    }
+    ck_.dec("S0 no word of the host window sets two selects of the read multiplexer", b_.reg_reads_multi - multi, 0);
+    ck_.that("S0 the window's registers set one select and its holes none",
+             b_.reg_reads_hit - hits > 0u && b_.reg_reads - reads > b_.reg_reads_hit - hits);
 }
 
 }  // namespace mbx_tb

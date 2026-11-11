@@ -25,6 +25,12 @@
 // `writes_under_head` counts the ring words written at an edge while a read
 // of that cycle could already have taken them, i.e. under RX_HEAD and at or
 // past RX_TAIL, which is the head published before the data it covers.
+// Three more probes, sampled the same way (#870): the ring write port's
+// address and word in the cycles it writes nothing (`port_trace`), the
+// receive verdict's two cycles against the byte offered in them, and the
+// register read multiplexer's selects in each cycle it is sampled
+// (`reg_reads_multi` counts a read two of them answer). And every frame's
+// gap, from its last byte taken to the next byte taken (`rx_gaps`).
 
 #ifndef MBX_BENCH_HPP
 #define MBX_BENCH_HPP
@@ -34,6 +40,7 @@
 #include <deque>
 #include <functional>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "Vtb_mbx_top.h"
@@ -76,7 +83,15 @@ class Bench {
             probe_axil();
         }
         watch_ring_write();
+        watch_probes();
         const bool rx_taken = dut_->rx_valid_i && dut_->rx_ready_o;
+        if (rx_taken) {
+            if (last_was_end_) {
+                rx_gaps.push_back(cycles_ - last_end_cycle_);
+            }
+            last_was_end_ = rx_q_.front().last;
+            last_end_cycle_ = cycles_;
+        }
         if (dut_->tx_valid_o && dut_->tx_ready_i) {
             take_tx_byte();
         }
@@ -367,6 +382,22 @@ class Bench {
     std::uint64_t ring_writes = 0;        //!< receive ring words written, every edge of every check
     std::uint64_t writes_under_head = 0;  //!< of them, written under the head the core saw that cycle
     std::uint64_t heads_moved = 0;        //!< cycles a channel's published head moved
+    std::uint64_t reg_reads = 0;          //!< register reads the read multiplexer answered, every check
+    std::uint64_t reg_reads_hit = 0;      //!< of them, with one of its selects set
+    std::uint64_t reg_reads_multi = 0;    //!< of them, with two or more set
+    std::uint64_t verdicts = 0;           //!< receive verdicts taken
+    std::uint64_t verdict_offered = 0;    //!< cycles a verdict was taken or acted with a byte offered
+    //! Clocks from a frame's last byte taken to the next byte taken, one per
+    //! frame after the first since clear_rx_gaps().
+    std::vector<std::uint64_t> rx_gaps;
+    void clear_rx_gaps() {
+        rx_gaps.clear();
+        last_was_end_ = false;
+    }
+    //! While `port_trace_on`: the ring write port's (address, word) in each
+    //! cycle it writes nothing, a repeat of the cycle before left out.
+    bool port_trace_on = false;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> port_trace;
 
     //! Clocks per modeled millisecond: enough for the 16-slot timer scan.
     static constexpr unsigned kClocksPerMs = 24;
@@ -452,6 +483,22 @@ class Bench {
         const std::uint32_t held = (head - tail) & 0xFFFFu;   // words the core may read this cycle
         const std::uint32_t at = (dut_->probe_rxw_addr_o - tail) & (words - 1u);
         writes_under_head += (held <= words && at < held) ? 1u : 0u;
+    }
+
+    //! The receive verdict's cycles, the ring write port's unwritten words and
+    //! the read multiplexer's selects, before each edge.
+    void watch_probes() {
+        verdicts += (dut_->probe_rx_vrd_o & 1u) != 0 ? 1u : 0u;
+        verdict_offered += (dut_->probe_rx_vrd_o != 0 && dut_->rx_valid_i) ? 1u : 0u;
+        reg_reads += (dut_->probe_rd_sel_o & 1u) != 0 ? 1u : 0u;
+        reg_reads_hit += (dut_->probe_rd_sel_o & 2u) != 0 ? 1u : 0u;
+        reg_reads_multi += (dut_->probe_rd_sel_o & 4u) != 0 ? 1u : 0u;
+        if (port_trace_on && dut_->probe_rxw_en_o == 0) {
+            const std::pair<std::uint32_t, std::uint32_t> now{dut_->probe_rxw_addr_o, dut_->probe_rxw_data_o};
+            if (port_trace.empty() || port_trace.back() != now) {
+                port_trace.push_back(now);
+            }
+        }
     }
 
     //! Bits [lsb +: width] (width at most 64) of a port: a Verilator scalar,
@@ -616,6 +663,8 @@ class Bench {
     std::uint64_t writes_ = 0;
     std::uint64_t noise_ = 0x870u;
     std::array<std::uint32_t, MBX_N_CH> last_head_{};
+    bool last_was_end_ = false;          //!< the last byte taken ended its frame
+    std::uint64_t last_end_cycle_ = 0;   //!< the clock it was taken in
 };
 
 }  // namespace mbx_tb

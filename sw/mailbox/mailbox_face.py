@@ -391,32 +391,48 @@ def _outputs(contract: Contract) -> list[str]:
     return out
 
 
-def read(contract: Contract, pre: str = "") -> list[str]:
-    """The face block's read-back: the stored settings and requests, each status, each answer,
-    on the decode whose signals carry ``pre`` (the skeleton's read side)."""
+def read(contract: Contract, pre: str = "") -> list[tuple[str, str, str, frozenset[int]]]:
+    """The face block's read-back terms: the stored settings and requests, each status, each
+    answer, each as (register, select on the decode whose signals carry ``pre``, the word it
+    answers, every byte offset the contract gives the register, one per interface and entry),
+    for the skeleton's AND-OR read multiplexer (#870)."""
+    regs = {r.name: r for r in contract.face_registers}
+    ifs = [contract.face_base + i * contract.face_stride for i in range(contract.interfaces)]
+
+    def at(name: str) -> frozenset[int]:
+        """The named interface register's offset in every interface's block."""
+        return frozenset(b + regs[name].offset for b in ifs)
+
+    def entries(r: Register, base: int, stride: int, count: int) -> frozenset[int]:
+        """The entry register's offset in each of `count` entries of every interface's block."""
+        return frozenset(b + base + e * stride + r.offset for b in ifs for e in range(count))
+
     out = []
     fi = f"{pre}face_if_w"
     for r in settings(contract):
-        out.append(f"    if ({_hit(0, r.name, pre=pre)}) reg_rdata_w = 32'(face_{r.name.lower()}_r[{fi}]);")
-    out.append(f"    if ({_hit(0, FACE_STATUS, pre=pre)}) reg_rdata_w = "
-               f"mbx_place_f(32'(fw_busy_r[{fi}]), MBX_{FACE_STATUS}_BUSY_LSB_C, MBX_{FACE_STATUS}_BUSY_WIDTH_C);")
+        out.append((r.name, _hit(0, r.name, pre=pre), f"32'(face_{r.name.lower()}_r[{fi}])", at(r.name)))
+    out.append((FACE_STATUS, _hit(0, FACE_STATUS, pre=pre),
+                f"mbx_place_f(32'(fw_busy_r[{fi}]), MBX_{FACE_STATUS}_BUSY_LSB_C, MBX_{FACE_STATUS}_BUSY_WIDTH_C)",
+                at(FACE_STATUS)))
     for w in contract.face_windows:
         lw = w.name.lower()
         for n in w.request:
-            out.append(f"    if ({_hit(0, n, pre=pre)}) reg_rdata_w = 32'(face_{n.lower()}_r[{fi}]);")
+            out.append((n, _hit(0, n, pre=pre), f"32'(face_{n.lower()}_r[{fi}])", at(n)))
         st = w.status
         status = " | ".join(f"mbx_place_f(32'({src}), MBX_{st}_{fld}_LSB_C, MBX_{st}_{fld}_WIDTH_C)"
                             for fld, src in (("BUSY", f"{lw}_busy_r[{fi}]"), ("DONE", f"{lw}_done_r[{fi}]"),
                                              ("TIMEOUT", f"{lw}_tmo_r[{fi}]"), ("TAG", f"{lw}_tag_r[{fi}]")))
-        out.append(f"    if ({_hit(0, st, pre=pre)}) reg_rdata_w = {status};")
+        out.append((st, _hit(0, st, pre=pre), status, at(st)))
         for k, n in enumerate(w.data):
-            out.append(f"    if ({_hit(0, n, pre=pre)}) reg_rdata_w = {lw}_data_r[{fi}][32*{k} +: 32];")
+            out.append((n, _hit(0, n, pre=pre), f"{lw}_data_r[{fi}][32*{k} +: 32]", at(n)))
     for r in contract.face_source_registers:
-        out.append(f"    if ({_hit(1, r.name, 'SRC_REG', pre)}) "
-                   f"reg_rdata_w = 32'(face_{r.name.lower()}_r[{fi}][{pre}face_s_w]);")
+        out.append((r.name, _hit(1, r.name, 'SRC_REG', pre),
+                    f"32'(face_{r.name.lower()}_r[{fi}][{pre}face_s_w])",
+                    entries(r, contract.face_source_base, contract.face_source_stride, contract.pub_sources)))
     for r in contract.face_sink_registers:
-        out.append(f"    if ({_hit(2, r.name, 'SNK_REG', pre)}) "
-                   f"reg_rdata_w = 32'(face_{r.name.lower()}_r[{fi}][{pre}face_k_w]);")
+        out.append((r.name, _hit(2, r.name, 'SNK_REG', pre),
+                    f"32'(face_{r.name.lower()}_r[{fi}][{pre}face_k_w])",
+                    entries(r, contract.face_sink_base, contract.face_sink_stride, contract.pub_sinks)))
     return out
 
 

@@ -31,8 +31,8 @@ define the interface. The numbers live in one place, the generated
 - **[One contract, four outputs](#one-contract-four-outputs)** -- The YAML that is the only place a number is written, the four files generated from it, and the drift, cross-output and planted-defect checks.
 - **[Byte order](#byte-order)** -- Fixed bit positions for every 32-bit word, little-endian lanes for frame bytes, network order inside a frame.
 - **[Rings, records and events](#rings-records-and-events)** -- The record shapes, a head published only after the words it covers, commit order across channels, the doorbells and their range rule, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
-- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, and the MRPDU form the SRP channel hands lwSRP.
-- **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- A register read answered a cycle after a ring read or a write; Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
+- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, the verdict that acts a clock after it is taken, and the MRPDU form the SRP channel hands lwSRP.
+- **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- A register read answered a cycle after a ring read or a write, through an AND-OR of one-hot selects; Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
@@ -134,7 +134,11 @@ in words, and storage the producer writes only past the consumer's tail.
   cut), so each word reaches the ring the cycle after it is decided, and
   RX_HEAD is published a cycle after the commit, when the last header word
   is in the ring. In no cycle does the head cover a word the ring does not
-  yet hold; the mailbox suite checks it every clock (its check H0).
+  yet hold; the mailbox suite checks it every clock (its check H0). Only the
+  port's enable carries the write decision (the channel, the free space and
+  the largest frame); its address and word follow the receive state alone,
+  so a drained word the ring does not take still reaches the port, unwritten
+  (#870, a timing cut; check W0).
 - **TX record:** the same shape, written by the core, committed by TX_HEAD;
   its second word carries SEQ, the core's count of TX records committed on
   every channel. The TX merge checks a record before a byte leaves and
@@ -243,6 +247,18 @@ token.
   contract went to 2.1.
 - **The token buckets stay.** Only a committed frame takes a token, so a
   frame the filter refuses spends none.
+- **The verdict acts a clock after it is taken.** It is taken once the last
+  byte's word has drained, into four registers (committed, `RX_DROP`,
+  `RATE_DROP`, `FILTER_MISMATCH`), and acts in the next mailbox clock on the
+  counters, the frame's clean-up and the header writes (#870, a timing cut:
+  no path runs from the accept terms or the free space to an action's
+  enable). That costs one mailbox clock per received frame, 10 ns at the
+  split's 100 MHz, and none per host access. The receiver takes no byte in
+  either cycle, so the next frame's first byte waits on `rx_ready` and is
+  taken once: 6 clocks after a committed frame's last byte, 4 after any
+  other's. The mailbox suite queues twelve frames back to back across every
+  verdict and checks each counted once and each committed record once, in
+  order (its checks V0 and V1).
 
 This narrows what the filter passes, so the contract went to major 2. A
 firmware built against major 1 would not write the own MAC the AECP channel
@@ -261,7 +277,16 @@ multiplexer decodes a copy of the read's offset registered at the request,
 never the bus, so no path runs from the bus bridge to its output register.
 The bound-talker read-back is read the same cycle, from an address
 registered at the request. The added cost is one mailbox clock per register
-read, 10 ns at the split's 100 MHz, and none per ring read or write. A bus
+read, 10 ns at the split's 100 MHz, and none per ring read or write. The
+multiplexer is the AND-OR of one select per register, each word ANDed with
+its own select and the words ORed, with no priority chain (#870, a timing
+cut, no added cycle). That is a multiplexer only while at most one select is
+set, which the contract's disjoint address map gives: the generator computes
+every register's offsets from the contract and refuses a window laid over
+another, naming both registers (`check_read_onehot`); its cross-check finds
+the AND-OR in the tracked skeleton (`read_mux_findings`); and the mailbox
+suite reads every word of the window and counts any read two selects answer
+(its check S0). A bus
 adapter holds one request until its answer, which Wishbone B4 and AXI4-Lite
 allow to come any cycle later, so the adapters are unchanged.
 [`KL_mbx_wb`](../../hdl/milan/mailbox/KL_mbx_wb.sv) presents it to the
@@ -1642,7 +1667,7 @@ refused. Twelve planted images each fail by their kind:
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
 | the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); a change the datapath never takes answered within 120 ms of its IN_PROGRESS and 240 ms of its command, the service bound included, on the model's millisecond clock (`Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`), the expired lock read and refused as its owner's until then (`Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease`), SET_SYSTEM_UNIQUE_ID refused as every change is (`Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs`), and the final response leaving on the interface its command came in on (`Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; nine of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; twelve of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build
 

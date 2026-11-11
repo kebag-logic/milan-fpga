@@ -40,7 +40,16 @@
 //                so a word is written the cycle after it is decided, and the
 //                head the core sees (rx_head_words_o) is head_r registered
 //                too: the core never sees a head before the words it covers
-//                are in the ring, its last header word included.
+//                are in the ring, its last header word included. Only the
+//                port's enable carries the write decision; its address and
+//                word follow the state alone (#870).
+//
+//                The verdict is registered (#870, a timing cut): it is taken
+//                once the last byte's word has drained, and it acts in the
+//                next mailbox clock (VRD_S), on the counters, the frame's
+//                clean-up and the header writes. That is one mailbox clock
+//                per received frame: the next frame's first byte waits it out
+//                on rx_ready_o, so it is neither lost nor counted twice.
 //
 //                Tagged frames, by construction: an 802.1Q tag puts its TPID
 //                at bytes 12 and 13, which the contract lets no tuple name, so
@@ -168,7 +177,7 @@ module KL_mbx_rx
     $error("KL_mbx_rx: the eq_bound terms read different fields, or %0d bound-talker entries exceed 32", NB_C);
   end : g_bad_bound
 
-  typedef enum logic [1:0] {RECV_S, FIN_S, HDR0_S, HDR1_S} state_t;
+  typedef enum logic [2:0] {RECV_S, FIN_S, VRD_S, HDR0_S, HDR1_S} state_t;
 
   state_t                  st_r;
   logic [10:0]             cnt_r;          //! bytes of the frame taken so far (its length at FIN)
@@ -477,29 +486,34 @@ module KL_mbx_rx
   assign drain_slot_w = head_r[ch_r] + 16'd2 + 16'(q_idx_r[q_rd_r]);
 
   // ---- the ring write port -----------------------------------------------------
-  // The word is decided here and written the next cycle, from a register.
-  logic                     wen_w;     //! a ring word is decided this cycle
+  // The word is decided here and written the next cycle, from a register. Only
+  // the enable carries the write decision (the channel hit, the free space and
+  // max_frame_bytes): the address and the word follow the state alone, so a
+  // drained word the ring does not take still reaches the port, unwritten
+  // (#870, a timing cut: no path from the free space to the port's address or
+  // word registers).
+  logic                     wen_w;     //! a ring word is written next cycle
   logic [MBX_RING_AW_C-1:0] waddr_w;   //! its index inside the ring
   logic [31:0]              wdata_w;   //! the word
   always_comb begin : ring_write
-    wen_w   = 1'b0;
-    waddr_w = '0;
-    wdata_w = '0;
-    if (drain_w && hit_r && !overflow_r && !oversize_r && drain_fits_w) begin
-      wen_w   = 1'b1;
-      waddr_w = MBX_RING_AW_C'(drain_slot_w & (ring_words_w - 16'd1));
-      wdata_w = q_data_r[q_rd_r];
-    end else if (st_r == HDR0_S) begin
-      wen_w   = 1'b1;
-      waddr_w = MBX_RING_AW_C'(head_r[ch_r] & (ring_words_w - 16'd1));
-      wdata_w = (32'(cnt_r) << MBX_RXREC_W0_LEN_LSB_C)
-              | (32'(if_r) << MBX_RXREC_W0_IF_LSB_C)
-              | (32'(MBX_RX_KIND_C) << MBX_RXREC_W0_KIND_LSB_C);
-    end else if (st_r == HDR1_S) begin
-      wen_w   = 1'b1;
-      waddr_w = MBX_RING_AW_C'((head_r[ch_r] + 16'd1) & (ring_words_w - 16'd1));
-      wdata_w = arrival_ms_r << MBX_RXREC_W1_ARRIVAL_MS_LSB_C;
-    end
+    wen_w = (drain_w && hit_r && !overflow_r && !oversize_r && drain_fits_w)
+            || st_r == HDR0_S || st_r == HDR1_S;
+    unique case (st_r)
+      HDR0_S: begin
+        waddr_w = MBX_RING_AW_C'(head_r[ch_r] & (ring_words_w - 16'd1));
+        wdata_w = (32'(cnt_r) << MBX_RXREC_W0_LEN_LSB_C)
+                | (32'(if_r) << MBX_RXREC_W0_IF_LSB_C)
+                | (32'(MBX_RX_KIND_C) << MBX_RXREC_W0_KIND_LSB_C);
+      end
+      HDR1_S: begin
+        waddr_w = MBX_RING_AW_C'((head_r[ch_r] + 16'd1) & (ring_words_w - 16'd1));
+        wdata_w = arrival_ms_r << MBX_RXREC_W1_ARRIVAL_MS_LSB_C;
+      end
+      default: begin
+        waddr_w = MBX_RING_AW_C'(drain_slot_w & (ring_words_w - 16'd1));
+        wdata_w = q_data_r[q_rd_r];
+      end
+    endcase
   end : ring_write
   always_ff @(posedge clk_i) begin : ring_write_reg
     if (!rst_n) begin
@@ -515,9 +529,20 @@ module KL_mbx_rx
     end
   end : ring_write_reg
 
-  // ---- the frame: bytes, words, terms, FSM ---------------------------------------
-  logic fin_ready_w;    //! FIN with the queue drained: the verdict can be taken
+  // ---- the verdict: taken at FIN, acting a cycle later ---------------------------
+  // The verdict is taken in the cycle FIN has the queue drained and registered
+  // (VRD_S); it acts in the next cycle, from those registers: RX_DROP,
+  // RATE_DROP, FILTER_MISMATCH, the frame clean-up and the header writes
+  // (#870, a timing cut: no path from the accept terms or the free space to an
+  // action's enable). Every term it reads holds in between, since no byte is
+  // taken outside RECV_S. The cost is one mailbox clock per received frame.
+  logic fin_ready_w;    //! FIN with the queue drained: the verdict is taken this cycle
   logic bad_w;          //! the frame did not fit max_frame_bytes or the free space
+  logic act_w;          //! the verdict taken last cycle acts this cycle (VRD_S)
+  logic vd_drop_r;      //! the verdict: RX_DROP
+  logic vd_rate_r;      //! the verdict: RATE_DROP
+  logic vd_acc_r;       //! the verdict: committed, header writes follow
+  logic vd_mis_r;       //! the verdict: FILTER_MISMATCH
   logic accept_w;       //! the frame is committed: header writes follow
   logic commit_w;       //! the record's header is written this cycle (HDR1)
   logic drop_w;         //! RX_DROP moves this cycle
@@ -525,12 +550,28 @@ module KL_mbx_rx
   logic mis_w;          //! FILTER_MISMATCH moves this cycle
   assign fin_ready_w = (st_r == FIN_S) && (q_cnt_r == 3'd0) && cls_done_r;
   assign bad_w       = overflow_r || oversize_r || (32'(cnt_r) > MBX_CH_MAX_FRAME_BYTES_TBL_C[ch_r]);
-  assign drop_w      = fin_ready_w && hit_r && rule_pass_w && bad_w;
-  assign rate_w      = fin_ready_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);
-  assign accept_w    = fin_ready_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);
-  assign mis_w       = fin_ready_w && mis_r;
+  always_ff @(posedge clk_i) begin : verdict_reg
+    if (!rst_n) begin
+      vd_drop_r <= 1'b0;
+      vd_rate_r <= 1'b0;
+      vd_acc_r  <= 1'b0;
+      vd_mis_r  <= 1'b0;
+    end else if (fin_ready_w) begin
+      vd_drop_r <= hit_r && rule_pass_w && bad_w;
+      vd_rate_r <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);
+      vd_acc_r  <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);
+      vd_mis_r  <= mis_r;
+    end
+  end : verdict_reg
+  assign act_w       = (st_r == VRD_S);
+  assign drop_w      = act_w && vd_drop_r;
+  assign rate_w      = act_w && vd_rate_r;
+  assign accept_w    = act_w && vd_acc_r;
+  assign mis_w       = act_w && vd_mis_r;
   assign commit_w    = (st_r == HDR1_S);
   assign err_p_o     = drop_w || rate_w || mis_w;
+
+  // ---- the frame: bytes, words, terms, FSM ---------------------------------------
 
   // the word the taken byte completes or extends
   logic [31:0] word_w;
@@ -621,11 +662,12 @@ module KL_mbx_rx
         end
       end
       q_cnt_r <= q_cnt_r + 3'(take_w && (lane_r == 2'd3 || rx_last_i)) - 3'(drain_w);
-      if (fin_ready_w) st_r <= accept_w ? HDR0_S : RECV_S;
+      if (fin_ready_w) st_r <= VRD_S;
+      if (act_w) st_r <= accept_w ? HDR0_S : RECV_S;
       if (st_r == HDR0_S) st_r <= HDR1_S;
       if (st_r == HDR1_S) st_r <= RECV_S;
       // a new frame starts clean
-      if ((fin_ready_w && !accept_w) || st_r == HDR1_S) begin
+      if ((act_w && !accept_w) || st_r == HDR1_S) begin
         cnt_r      <= '0;
         wacc_r     <= '0;
         lane_r     <= '0;
