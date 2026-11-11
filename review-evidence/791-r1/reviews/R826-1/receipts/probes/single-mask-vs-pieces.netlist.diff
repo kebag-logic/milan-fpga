@@ -1,0 +1,95 @@
+8179a8180,8181
+>   wire       [0:0]    _zz_hit;
+>   wire       [0:0]    _zz_hit_1;
+8197d8198
+<   wire       [31:0]   _zz_argsHits_3_addrHit;
+8211a8213,8224
+>   wire                argsHits_8_argHit;
+>   wire                argsHits_8_addrHit;
+>   wire                argsHits_8_hit;
+>   wire                argsHits_9_argHit;
+>   wire                argsHits_9_addrHit;
+>   wire                argsHits_9_hit;
+>   wire                argsHits_10_argHit;
+>   wire                argsHits_10_addrHit;
+>   wire                argsHits_10_hit;
+>   wire                argsHits_11_argHit;
+>   wire                argsHits_11_addrHit;
+>   wire                argsHits_11_hit;
+8276a8290,8291
+>   assign _zz_hit = argsHits_1_hit;
+>   assign _zz_hit_1 = argsHits_0_hit;
+8417c8432
+<   assign argsHits_2_addrHit = (|((addrKey & 32'hfffc8000) == 32'h0));
+---
+>   assign argsHits_2_addrHit = (|((addrKey & 32'hfffe0000) == 32'h0));
+8420,8421c8435
+<   assign _zz_argsHits_3_addrHit = addrKey;
+<   assign argsHits_3_addrHit = (|{((_zz_argsHits_3_addrHit & 32'hfffe0000) == 32'h10000000),{((_zz_argsHits_3_addrHit & 32'hffff0000) == 32'h10020000),((_zz_argsHits_3_addrHit & 32'hffff8000) == 32'h10030000)}});
+---
+>   assign argsHits_3_addrHit = (|((addrKey & 32'hffff0000) == 32'h00020000));
+8424c8438
+<   assign argsHits_4_addrHit = (|((addrKey & 32'hff000000) == 32'h01000000));
+---
+>   assign argsHits_4_addrHit = (|((addrKey & 32'hffff8000) == 32'h00030000));
+8427c8441
+<   assign argsHits_5_addrHit = (|((addrKey & 32'hffff0000) == 32'h90000000));
+---
+>   assign argsHits_5_addrHit = (|((addrKey & 32'hfffe0000) == 32'h10000000));
+8430c8444
+<   assign argsHits_6_addrHit = (|((addrKey & 32'hffff8000) == 32'h90100000));
+---
+>   assign argsHits_6_addrHit = (|((addrKey & 32'hffff0000) == 32'h10020000));
+8433c8447
+<   assign argsHits_7_addrHit = (|((addrKey & 32'hffff0000) == 32'hf0000000));
+---
+>   assign argsHits_7_addrHit = (|((addrKey & 32'hffff8000) == 32'h10030000));
+8435c8449,8461
+<   assign hit = (|{argsHits_7_hit,{argsHits_6_hit,{argsHits_5_hit,{argsHits_4_hit,{argsHits_3_hit,{argsHits_2_hit,{argsHits_1_hit,argsHits_0_hit}}}}}}});
+---
+>   assign argsHits_8_argHit = (|{_zz_argsHits_0_argHit,_zz_argsHits_2_argHit});
+>   assign argsHits_8_addrHit = (|((addrKey & 32'hff000000) == 32'h01000000));
+>   assign argsHits_8_hit = (argsHits_8_argHit && argsHits_8_addrHit);
+>   assign argsHits_9_argHit = (|{_zz_argsHits_0_argHit,_zz_argsHits_2_argHit});
+>   assign argsHits_9_addrHit = (|((addrKey & 32'hffff0000) == 32'h90000000));
+>   assign argsHits_9_hit = (argsHits_9_argHit && argsHits_9_addrHit);
+>   assign argsHits_10_argHit = (|{_zz_argsHits_0_argHit,_zz_argsHits_2_argHit});
+>   assign argsHits_10_addrHit = (|((addrKey & 32'hffff8000) == 32'h90100000));
+>   assign argsHits_10_hit = (argsHits_10_argHit && argsHits_10_addrHit);
+>   assign argsHits_11_argHit = (|{_zz_argsHits_0_argHit,_zz_argsHits_2_argHit});
+>   assign argsHits_11_addrHit = (|((addrKey & 32'hffff0000) == 32'hf0000000));
+>   assign argsHits_11_hit = (argsHits_11_argHit && argsHits_11_addrHit);
+>   assign hit = (|{argsHits_11_hit,{argsHits_10_hit,{argsHits_9_hit,{argsHits_8_hit,{argsHits_7_hit,{argsHits_6_hit,{argsHits_5_hit,{argsHits_4_hit,{argsHits_3_hit,{argsHits_2_hit,{_zz_hit,_zz_hit_1}}}}}}}}}}});
+10846,10848d10871
+<   wire       [31:0]   _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2;
+<   wire       [31:0]   _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3;
+<   wire       [31:0]   _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4;
+10857c10880
+<   wire       [3:0]    _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5;
+---
+>   wire       [2:0]    _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5;
+12924,12928c12947,12948
+<   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = 32'hfffc8000;
+<   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff0000);
+<   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2 = 32'h10020000;
+<   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff8000);
+<   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4 = 32'h10030000;
+---
+>   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = 32'hefff0000;
+>   assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 = 32'hefff8000;
+12930,12934c12950,12954
+<   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 = (LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000);
+<   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2 = 32'hf0000000;
+<   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000);
+<   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffc8000) == 32'h0);
+<   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5 = {((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff0000) == 32'h90000000),{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff0000) == 32'h10020000),{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h90100000),((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h10030000)}}};
+---
+>   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 = (LsuCachelessPlugin_pmaBuilder_addressBits & 32'heffe0000);
+>   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2 = 32'h0;
+>   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'hf0000000);
+>   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hefff0000) == 32'h00020000);
+>   assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5 = {((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hefff8000) == 32'h00030000),{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff0000) == 32'h90000000),((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h90100000)}};
+16697c16717
+<   assign FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = (! ((|{((FetchL1Plugin_pmaBuilder_addressBits & 32'hff000000) == 32'h01000000),{((FetchL1Plugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000),{((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault) == 32'h0),{(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2),(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4)}}}}) && (|FetchL1Plugin_pmaBuilder_onTransfers_0_hit)));
+---
+>   assign FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = (! ((|{((FetchL1Plugin_pmaBuilder_addressBits & 32'hff000000) == 32'h01000000),{((FetchL1Plugin_pmaBuilder_addressBits & 32'heffe0000) == 32'h0),{((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault) == 32'h00020000),((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1) == 32'h00030000)}}}) && (|FetchL1Plugin_pmaBuilder_onTransfers_0_hit)));

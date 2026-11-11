@@ -1,0 +1,131 @@
+{
+  "sources": [
+    "<generator-cache>/Ram_1w_1rs_Generic.v",
+    "<generator-cache>/Ram_1w_1ra_Generic.v",
+    "<generator-cache>/VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf.v",
+    "<packet>/scratch/build/region-self/single-mask/soc/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "mutant": "single-mask",
+  "netlist": "VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      2416967680,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      16777216,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      2416967680,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_devices": [
+    [
+      4026597376,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      4039114752,
+      4194304,
+      "rw",
+      "p"
+    ]
+  ],
+  "vexii_args": " --with-isa=,zicsr,zifencei,i --xlen=32 --fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1 --reset-vector 0",
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 229376,
+      "banks": [
+        131072,
+        65536,
+        32768,
+        32768
+      ],
+      "RAMB36": 64,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 229376,
+      "banks": [
+        131072,
+        65536,
+        32768,
+        32768
+      ],
+      "RAMB36": 64,
+      "RAMB18": 0
+    },
+    "tiles": 128.0,
+    "budget_tiles": 56
+  }
+}

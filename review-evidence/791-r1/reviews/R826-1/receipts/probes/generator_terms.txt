@@ -1,0 +1,41 @@
+# The pinned generator's region-to-term decomposition (SpinalHDL AddressMapping.terms), in the product generator tree:
+# <generator>/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/misc/Misc.scala lines 54-80, sha256 a321e35654bf0e858828a880483567dd36c658861e3b1f0366c3d7660c83f6db
+  def terms(mapping : AddressMapping, width : Int) : ArrayBuffer[Masked] = {
+    val ret = ArrayBuffer[Masked]()
+    val widthMask = (BigInt(1) << width)-1
+    def rec(e : AddressMapping, mask : Masked): Unit = e match {
+      case OrMapping(conds) => conds.foreach(cond => rec(cond, mask))
+      case InterleavedMapping(mapping, blockSize, ratio, sel) => rec(mapping, mask fuse Masked(sel << log2Up(blockSize), ratio-1 << log2Up(blockSize)))
+      case m : SizeMapping => {
+        var ptr = m.base
+        var end = m.base + m.size
+        while(ptr < end){
+          val step = if(ptr == 0) m.size else BigInt(1) << ptr.lowestSetBit
+          if(ptr + step > end){
+            while(ptr < end){
+              val step = if(end == 0) m.size else BigInt(1) << end.lowestSetBit
+              if(ptr <= end - step){
+                end -= step
+                ret += mask fuse Masked(end, (~(step-1)) & widthMask)
+              }
+            }
+          } else {
+            ret += mask fuse Masked(ptr, (~(step-1)) & widthMask)
+            ptr += step
+          }
+        }
+      }
+    }
+    rec(mapping, Masked(0,0))
+
+# PmaLogic builds each region's terms through it: <generator>/src/main/scala/vexiiriscv/memory/Pma.scala
+54:    val regionTerms = AddressMapping.terms(region.mapping, addressWidth)
+64:    for (region <- regions) terms ++= AddressMapping.terms(region.mapping, addressWidth)
+
+# The as-built (single-mask) netlist's fetch fault term and its constants, VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf.v (sha256 d425a0e7545ad51c0ead6c4c7afd4c528b82eb0ff2ecc35fb6b8f79548dcfd5d):
+12924:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = 32'hfffc8000;
+12925:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff0000);
+12926:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2 = 32'h10020000;
+12927:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff8000);
+12928:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4 = 32'h10030000;
+16697:  assign FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = (! ((|{((FetchL1Plugin_pmaBuilder_addressBits & 32'hff000000) == 32'h01000000),{((FetchL1Plugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000),{((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault) == 32'h0),{(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2),(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4)}}}}) && (|FetchL1Plugin_pmaBuilder_onTransfers_0_hit)));
