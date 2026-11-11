@@ -25,6 +25,31 @@
 // never acted on), and a poll that sends one owed frame per pass and tells
 // the loop it still owes one. The env (struct acmp_env) is the integrator's.
 //
+// THE KEPT COMMAND (tsn-c-stack ACMP-12, its port contract "ACMP owed bound").
+// With every one of the core's ACMP_OWED_MAX frames owed, and for a BIND_RX
+// with fewer than two free, acmp_rx declines a command for this entity's
+// listener or talker instead of dropping it: IEEE 1722.1-2021 8.2.4 and 8.2.5
+// answer every command, and Table 8-3 has no status for a full output queue.
+// Every record is offered to acmp_rx; acmp_rx_ready is not consulted, since a
+// port that gates on it gives the core no sign of the waiting command. The
+// adapter keeps the declined record (one, MBX_CH_ACMP_MAX_FRAME_BYTES) and
+// takes no later record of the acmp ring while it holds it, so the commands
+// keep their arrival order. It offers the kept record again after each poll
+// that sent an owed frame, in that poll, so before the next pass's timer
+// service; a poll that sent nothing offers nothing, so each refused pass costs
+// no decline. The records behind it are offered by the receive service of the
+// passes that follow, after their timer service: where the kept command
+// leaves a slot free (a BIND_RX that is only answered), a timer probe owed at
+// that service can take it and delay the next kept command one pass, as the
+// port contract says of a port that offers fewer frames after an accepting
+// poll. Otherwise a kept command's response leaves in pass n + 1 + f + r after
+// the room returns: n the frames owed then (ACMP_OWED_MAX, or one less for a
+// BIND_RX declined with one slot free), f the frames the kept commands ahead
+// of it owe, r the refused polls. The first leaves by ACMP_MBX_KEPT_PASSES.
+// A declined offer reads and writes no mailbox register, so a pass that
+// declines a record and offers a kept one again stays within
+// ACMP_MBX_PASS_MAX's two records and two handlers.
+//
 // THE ADP CHANNEL'S AVAILABLE AND DEPARTING (Milan v1.2 5.6.4.1). The listener's
 // discovery machine needs every ENTITY_AVAILABLE and ENTITY_DEPARTING of a bound
 // talker. acmp_mbx_attach() takes the adp channel's handler, which F0's ADP
@@ -166,6 +191,8 @@ extern "C" {
 // An owed response: k <= ACMP_OWED_MAX - 1 ahead of it, one per pass.
 #define ACMP_MBX_OWED_PASSES ACMP_OWED_MAX
 #define ACMP_MBX_OWED_ACCESSES ((ACMP_MBX_OWED_PASSES + 1u) * ACMP_MBX_PASS_MAX)
+// The first kept command (THE KEPT COMMAND): behind ACMP_OWED_MAX owed frames, no poll refused.
+#define ACMP_MBX_KEPT_PASSES (ACMP_OWED_MAX + 1u)
 
 struct acmp_mbx_if {
 	uint8_t slot;           // the fabric timer slot this interface's sinks share
@@ -175,11 +202,19 @@ struct acmp_mbx_if {
 	uint32_t stale_expiries;// expiries of an arm that is no longer current
 };
 
+// THE KEPT COMMAND: the record the core declined, until it takes it.
+struct acmp_mbx_kept {
+	uint8_t frame[MBX_CH_ACMP_MAX_FRAME_BYTES];
+	uint16_t len;           // zero while no record is kept
+	uint8_t interface;
+};
+
 struct acmp_mbx {
 	struct acmp acmp;
 	struct acmp_mbx_if ifs[MBX_N_IF];
 	struct acmp_ports ports;
 	struct ctrl_loop_rx adp_next;   // the adp channel's handler the tap stands in front of
+	struct acmp_mbx_kept kept;
 };
 
 // The core on the mailbox, interface i's timer on slot first_slot + i and sink

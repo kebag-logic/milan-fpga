@@ -579,7 +579,11 @@ does.
 A change of a sink's Table 5.22 items is reported through the env's
 `changed` port only after the response of the command that caused it has
 been taken by the transmit ring (#653). A response that finds no room is
-owed, in order (at most eight frames), and its change waits with it. The
+owed, in order (at most eight frames), and its change waits with it. A
+command that arrives with all eight owed is declined, not dropped: the
+adapter keeps it, takes no later acmp record, and offers it again after the
+next poll that sends an owed frame (tsn-c-stack ACMP-12; the adapter's
+header states the passes). The
 F5 application bridge queues the corresponding AECP notification from that port. Every port call is
 bracketed by a flag, and an entry while it is set does nothing but count
 (#678); the host tests' build also reports it to the test.

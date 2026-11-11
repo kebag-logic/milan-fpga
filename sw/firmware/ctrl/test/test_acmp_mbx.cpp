@@ -1118,6 +1118,135 @@ TEST_F(AcmpMailbox, E2AnOwedResponseIsCommittedInPassKPlus1) {
     }
 }
 
+// ---- K: THE KEPT COMMAND (acmp_mbx.h; tsn-c-stack ACMP-12) ---------------------------------
+
+// Every one of the core's ACMP_OWED_MAX frames owed with the egress held: a GET_RX_STATE
+// response each, sequence 0x6000 + j, from kCtl2.
+void fill_owed() {
+    fill_acmp_tx();
+    for (unsigned j = 0; j < ACMP_OWED_MAX; ++j) {
+        Pdu p;
+        p.msg = spec::MSG_GET_RX_STATE_COMMAND;
+        p.controller = kCtl2;
+        p.listener = kOwn;
+        p.seq = static_cast<std::uint16_t>(0x6000u + j);
+        ASSERT_TRUE(offer(p));
+        settle();
+    }
+    ASSERT_EQ(core()->owed_count, ACMP_OWED_MAX);
+}
+
+// A frame the model sent: the pass it left in, counted from the room's return, its
+// interface and its PDU.
+struct Sent {
+    unsigned pass = 0;
+    unsigned interface = MBX_N_IF;
+    Pdu pdu{};
+};
+
+TEST_F(AcmpMailbox, K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder) {
+    fill_owed();
+    const unsigned i = acfg.sink_interface[1];
+    const std::uint32_t taken = app.loop.stats.rx_records;
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7001), spec::MULTICAST_MAC, i));
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7002), spec::MULTICAST_MAC, i));
+    for (unsigned p = 0; p < 20u; ++p) {
+        static_cast<void>(pass());
+    }
+    EXPECT_TRUE(core()->busy_declined == 1u && app.acmp.kept.len != 0u && app.loop.stats.rx_records == taken + 1u)
+        << "K1 the first command behind the full owed set is declined once and kept, the second left in the ring";
+    mbx_model_tx_pause(&model, false);
+    std::uint32_t base = model.tx_sent;
+    Sent first;
+    Sent second;
+    std::vector<std::uint16_t> order;
+    std::uint64_t worst = 0;
+    for (unsigned p = 1; p <= ACMP_MBX_KEPT_PASSES + 4u; ++p) {
+        std::uint64_t n = pass();
+        worst = n > worst ? n : worst;
+        for (std::uint32_t j = base; j < model.tx_sent; ++j) {
+            Pdu w = wire(j);
+            order.push_back(w.seq);
+            Sent& s = w.seq == 0x7001u ? first : second;
+            if ((w.seq == 0x7001u || w.seq == 0x7002u) && s.pass == 0u) {
+                s = Sent{p, mbx_model_tx_frame(&model, j)->interface, w};
+            }
+        }
+        base = model.tx_sent;
+    }
+    EXPECT_EQ(first.pass, ACMP_MBX_KEPT_PASSES)
+        << "K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns";
+    EXPECT_EQ(second.pass, ACMP_MBX_KEPT_PASSES + 1u)
+        << "K1 the command kept behind it in pass n + 1 + f, f = 1: the response ahead of it";
+    for (const Sent* s : {&first, &second}) {
+        EXPECT_TRUE(s->pdu.msg == spec::MSG_GET_RX_STATE_RESPONSE && s->pdu.status == spec::STATUS_SUCCESS &&
+                    s->pdu.controller == kCtl1 && s->pdu.listener == kOwn && s->pdu.listener_uid == 1u)
+            << "K1 each is its GET_RX_STATE_RESPONSE, SUCCESS for an unbound sink (Milan v1.2 Table 5.34)";
+        EXPECT_EQ(s->interface, i) << "K1 on the interface it arrived on";
+    }
+    std::vector<std::uint16_t> expected;
+    for (unsigned j = 0; j < ACMP_OWED_MAX; ++j) {
+        expected.push_back(static_cast<std::uint16_t>(0x6000u + j));
+    }
+    expected.push_back(0x7001);
+    expected.push_back(0x7002);
+    EXPECT_EQ(order, expected) << "K1 the owed frames, then the kept commands, in arrival order";
+    EXPECT_TRUE(core()->busy_declined == 2u && app.acmp.kept.len == 0u && core()->owed_count == 0u)
+        << "K1 each command declined once, a refused poll offering nothing, and nothing kept or owed after";
+    bound("K1 the worst pass of the drain, a kept command offered again", worst, ACMP_MBX_PASS_MAX);
+}
+
+TEST_F(AcmpMailbox, K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe) {
+    fill_owed();
+    const unsigned i = acfg.sink_interface[1];
+    ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, 1, kCtl1, 0x7101), spec::MULTICAST_MAC, i));
+    settle();
+    EXPECT_TRUE(core()->busy_declined == 1u && core()->sinks[1].state == ACMP_UNBOUND && app.acmp.kept.len != 0u)
+        << "K2 the BIND_RX is declined, binds nothing and is kept";
+    mbx_model_tx_pause(&model, false);
+    std::uint32_t base = model.tx_sent;
+    Sent response;
+    Sent probe;
+    for (unsigned p = 1; p <= ACMP_MBX_KEPT_PASSES + 4u; ++p) {
+        static_cast<void>(pass());
+        if (p == 1u) {
+            EXPECT_TRUE(core()->busy_declined == 2u && core()->bind_waiting && app.acmp.kept.len != 0u)
+                << "K2 offered again after the first send, one slot free: declined again and still kept";
+        }
+        for (std::uint32_t j = base; j < model.tx_sent; ++j) {
+            Pdu w = wire(j);
+            Sent& s = w.msg == spec::MSG_BIND_RX_RESPONSE ? response : probe;
+            if ((w.msg == spec::MSG_BIND_RX_RESPONSE || w.msg == spec::MSG_PROBE_TX_COMMAND) && s.pass == 0u) {
+                s = Sent{p, mbx_model_tx_frame(&model, j)->interface, w};
+            }
+        }
+        base = model.tx_sent;
+    }
+    EXPECT_TRUE(response.pass == ACMP_MBX_KEPT_PASSES && response.pdu.status == spec::STATUS_SUCCESS &&
+                response.pdu.seq == 0x7101u && response.interface == i)
+        << "K2 the BIND_RX is answered SUCCESS in pass n + 1 after the room returns, on its interface";
+    EXPECT_TRUE(probe.pass == ACMP_MBX_KEPT_PASSES + 1u && probe.pdu.talker == kTkA && core()->probes_lost == 0u)
+        << "K2 its first PROBE_TX leaves in the next pass, no probe lost";
+    EXPECT_TRUE(core()->sinks[1].state == ACMP_PRB_W_RESP && app.acmp.kept.len == 0u)
+        << "K2 the sink waits for the probe's answer, nothing kept";
+}
+
+TEST_F(AcmpMailbox, K3AStartDropsTheKeptCommand) {
+    fill_owed();
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7201), spec::MULTICAST_MAC,
+                      acfg.sink_interface[1]));
+    settle();
+    ASSERT_NE(app.acmp.kept.len, 0u);
+    SetUp();
+    EXPECT_EQ(app.acmp.kept.len, 0u) << "K3 a start keeps no command from the run before";
+    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7202), spec::MULTICAST_MAC,
+                      acfg.sink_interface[1]));
+    std::uint32_t base = model.tx_sent;
+    settle();
+    EXPECT_TRUE(model.tx_sent == base + 1u && wire(base).seq == 0x7202u)
+        << "K3 and the ring is taken again: the next command is answered at once";
+}
+
 // ---- F: the bound with full backlogs (ctrl_loop.h A1 to A4) ------------------------------
 
 TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
