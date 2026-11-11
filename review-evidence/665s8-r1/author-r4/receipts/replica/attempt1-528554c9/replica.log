@@ -1,0 +1,134 @@
+== venv (08:58:15)
+== venv rc=0
+== litex (08:58:17)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+== litex rc=0
+== vexii-source (08:59:23)
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv'...
+HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+Submodule 'ext/NaxSoftware' (https://github.com/SpinalHDL/NaxSoftware.git) registered for path 'ext/NaxSoftware'
+Submodule 'ext/SpinalHDL' (https://github.com/SpinalHDL/SpinalHDL.git) registered for path 'ext/SpinalHDL'
+Submodule 'ext/riscv-isa-sim' (https://github.com/SpinalHDL/riscv-isa-sim.git) registered for path 'ext/riscv-isa-sim'
+Submodule 'ext/rvls' (https://github.com/SpinalHDL/rvls.git) registered for path 'ext/rvls'
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/NaxSoftware'...
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL'...
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/riscv-isa-sim'...
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/rvls'...
+Submodule path 'ext/NaxSoftware': checked out 'ae0c08016d0581b9ac79a4feb166e7a532369bd4'
+Submodule path 'ext/SpinalHDL': checked out '1097c1df52f6b4ac532e42ff35a9c610f8e9a07c'
+Submodule 'tester/src/test/python/cocotblib' (https://github.com/SpinalHDL/CocotbLib.git) registered for path 'ext/SpinalHDL/tester/src/test/python/cocotblib'
+Cloning into '<scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/tester/src/test/python/cocotblib'...
+Submodule path 'ext/SpinalHDL/tester/src/test/python/cocotblib': checked out 'a98830423924fc89bfebae84cb802fc90d352602'
+Submodule path 'ext/riscv-isa-sim': checked out '924941a37ba7e591a1e87542cc0466262f476a4e'
+Submodule path 'ext/rvls': checked out '94f850e5f7c9a36e5aceb3810d658fffae55b497'
+VexiiRiscv ready at 235753e24f2d960e49a0852205bae1400bf22c19
+== vexii-source rc=0
+== patches (08:59:36)
+[patches] 0002-liteeth-gmii-tx-clk-invert.patch -> <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages
+[patches]   applied.
+[patches] 0007-liteeth-gmii-rx-capture.patch -> <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages
+[patches]   applied.
+[patches] 0004-vexiiriscv-baremetal-variant.patch -> <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages
+[patches]   applied.
+[patches] 0006-bios-dispatch-hook.patch -> <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages
+[patches]   applied.
+[patches] 0005-vexiiriscv-cacheless-litex.patch -> <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages
+[patches]   applied.
+[patches] series applied (5 patches).
+== patches rc=0
+== runtime-sources (08:59:36)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+== runtime-sources rc=0
+== sdk (09:00:01)
+SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+SDK archive verified: <scratch>/replica/tmp/milan-rv32-download-j78etgaf/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+SDK argv: ["<scratch>/replica<home-path>/host/relocate-sdk.sh"]
+Relocating the buildroot SDK from /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1 to <scratch>/replica<home-path>/host ...
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<scratch>/replica<home-path>/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<scratch>/replica<home-path>/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<scratch>/replica<home-path>/host/bin/toolchain-wrapper", "sysroot": "<scratch>/replica<home-path>/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+SDK fresh installation: verified
+== sdk rc=0
+== verilator (09:00:18)
+Verilator 5.050 2026-07-01 rev v5.050
+== verilator rc=0
+== wire-timing step (09:00:18)
+control clean-loaded-script: PASS
+control deadline-load-on-a-draw-channel: caught: the deadline load adp reaches the acmp channel, whose received records the draws measure
+control clean-reuse: PASS
+control reuse-after-an-edit-of-tb_split_top.sv: caught: the reused build is stale: ['tb/verilator/milan_dp/tb_split_top.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-milan_datapath.sv: caught: the reused build is stale: ['hdl/milan/milan_datapath.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-KL_mbx.sv: caught: the reused build is stale: ['hdl/milan/mailbox/KL_mbx.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-Makefile: caught: the reused build is stale: ['tb/verilator/milan_dp/Makefile'] changed, missing or never recorded
+control reuse-after-an-edit-of-tree:firmware: caught: the reused build is stale: ['tree:firmware'] changed, missing or never recorded
+control clean: PASS
+control clean-announce-interval: PASS
+control clean-two-interfaces: PASS
+control clean-censored-at-the-end: PASS
+control clean-loaded: PASS
+control shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000
+control drifted-milliseconds: caught: REFUSED: the clock is shifted: the log's milliseconds are [99999, 100000, 100001] cycles apart, the declared 100000000 Hz gives 100000
+control missing-response: caught: ACMP: the BIND_RX acmp-bind-0 (sequence_id 0x4100) has no BIND_RX_RESPONSE
+control late-response: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control unhandled-answer: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control handled-on-another-slot: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control bind-without-its-probe-tx: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control probe-tx-transactions-not-the-draws: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control bind-refused: caught: ACMP: the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS (IEEE 1722.1-2021 Table 8-3)
+control frame-before-commit: caught: REFUSED: a acmp frame left at cycle 10049900, before its commit at 10050864
+control incomplete-model: caught: REFUSED: the model did not complete: no tally
+control no-mailbox-egress: caught: REFUSED: the log has no KL_mbx egress (MTX) lines, so no frame's commit can be found
+control egress-without-commit: caught: REFUSED: 5 acmp frames left KL_mbx after 4 commits on its channel
+control bench-frames-counted-as-interface-0: caught: REFUSED: a acmp frame left KL_mbx on interface 0 at cycle 20049844 and never reached the MAC
+control missing-aecp-response: caught: AECP: the command aecp-read_descriptor_entity-0 (sequence_id 0x6100) has no final response
+control late-aecp-response: caught: aecp.response: 240.0 ms is not under 240.0 ms (IEEE 1722.1-2021 9.2.1 (FR_NFR.md 3.4.1's 240 ms): an AEM or MVU command's first byte in to its final response's last byte out)
+control aecp-in-progress: caught: AECP: 2 IN_PROGRESS answers to commands that change no face state
+control aem-refused: caught: AECP: the final response to aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 2, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)
+control mvu-refused: caught: AECP: the final response to aecp-mvu_get_milan_info-0 (sequence_id 0x6100) carries status 1, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)
+control unanswered-before-the-end: caught: AECP: the command aecp-get_configuration-1 (sequence_id 0x6101) has no final response
+control egress-past-reserve: caught: maap.egress: 11.0304 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+control interval-error-past-reserve: caught: maap.interval_error: 11.0 ms is not under 11.0 ms (an interval at the wire less its drawn value, in magnitude, under the 11 ms reserve)
+control probe-draw-outside-reserve: caught: MAAP: an interval drawn at 590 ms, outside the reserved 511 to 589 ms (maap/README.md:44)
+control probe-interval-outside-clause: caught: maap.probe_interval: 600.029 ms is not strictly inside 500 to 600 ms (IEEE 1722-2016 B.3.4.2: consecutive PROBEs, first byte to first byte)
+control maap-frame-on-no-expiry: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control maap-expiry-cancelled: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control announce-interval-outside-clause: caught: maap.announce_interval: 32000.995 ms is not strictly inside 30000 to 32000 ms (IEEE 1722-2016 B.3.4.1: consecutive ANNOUNCEs, first byte to first byte)
+control no-announce-interval: caught: MAAP: 1 ANNOUNCEs left the MAC, the run asked for 2
+control advertise-timer-not-5s: caught: ADP: the advertise timer after the ENTITY_AVAILABLE at cycle 40400436 is 4999 ms, not 5000 ms (Milan v1.2 Table 5.50)
+control adp-delay-outside-table: caught: ADP: a delay drawn at 4001 ms, outside 0 to 4000 ms (Milan v1.2 Table 5.50, 5.6.3.5.2)
+control adp-egress-past-ceiling: caught: adp.egress: 400.000 ms is not under 200.0 ms (FR_NFR.md 3.4.1)
+control available-sent-twice: caught: adp.advertise_period: 1.000 ms is not inside 4998.0 to 9400.0 ms (Milan v1.2 Table 5.50)
+control no-advertise-period: caught: adp.advertise_period: no sample in a run to its second ANNOUNCE (Milan v1.2 Table 5.50)
+control stopped-advertising: caught: adp.advertise_period: no ENTITY_AVAILABLE in the log's last 22394.996 ms, past the 9400.0 ms bound: the entity stopped advertising (Milan v1.2 Table 5.50)
+control echo-skipped-after-the-announce: caught: LOAD: 1 echoes of load aecp skipped on interface 0 at cycle 175000000, after its first ANNOUNCE left
+control received-frame-unaccounted: caught: LOAD: 14 delivered load frames and 4 a draw (2 draws) are not the 23 frames the model received (SUMMARY rx_frames + bench_rx)
+ctrl_wire_timing self-test: 49 controls, 0 failed
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_picolibc/data --compiler-rt <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_compiler_rt/data --litex-software <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/litex/soc/software --output <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/runtime
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/replica/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/image --libc <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/runtime/libc.a --compiler-runtime <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <scratch>/replica/wt/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/soc
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/soc/csr.csv --csr-h <scratch>/replica/runner_temp/wire-timing/split-soc/stand-ins/soc/software/include/generated/csr.h --out <scratch>/replica/runner_temp/wire-timing/split-soc/flash-map
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_picolibc/data --compiler-rt <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_compiler_rt/data --litex-software <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/litex/soc/software --output <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/runtime
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/replica/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/image --flash-map <scratch>/replica/runner_temp/wire-timing/split-soc/flash-map --libc <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/runtime/libc.a --compiler-runtime <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <scratch>/replica/wt/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/soc
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/soc/csr.csv --csr-h <scratch>/replica/runner_temp/wire-timing/split-soc/mapped/soc/software/include/generated/csr.h --out <scratch>/replica/runner_temp/wire-timing/split-soc/flash-map-again
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_picolibc/data --compiler-rt <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/pythondata_software_compiler_rt/data --litex-software <scratch>/replica/runner_temp/litex-venv/lib/python3.14/site-packages/litex/soc/software --output <scratch>/replica/runner_temp/wire-timing/runtime
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/sw/firmware/ctrl/test/ctrl_plat_image.py --config <scratch>/replica/wt/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <scratch>/replica/wt/sw/firmware/ctrl/test/ctrl_plat_csr.csv --flash-map <scratch>/replica/runner_temp/wire-timing/split-soc/flash-map --output <scratch>/replica/runner_temp/wire-timing/image-provisional --libc <scratch>/replica/runner_temp/wire-timing/runtime/libc.a --compiler-runtime <scratch>/replica/runner_temp/wire-timing/runtime/libcompiler_rt.a
+COMMAND <scratch>/replica/runner_temp/litex-venv/bin/python3 -B <scratch>/replica/wt/tb/verilator/ctrl_wire_timing/wire_soc.py <scratch>/replica/runner_temp/wire-timing/soc-provisional endstation_ax7101_1x1_tdm8 <scratch>/replica/runner_temp/wire-timing/image-provisional/ctrl_app.elf 1 <scratch>/replica/runner_temp/wire-timing/split-soc/flash-map -
+REFUSED: python3 exited 1; see <scratch>/replica/runner_temp/wire-timing/soc-provisional.log
+== wire-timing step rc=2 wall 271 s

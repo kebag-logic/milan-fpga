@@ -1,0 +1,16 @@
+mutant bind-status-check-gone: KILLED rc=1 failing=['bind-refused']
+mutant pairing-by-any-later-probe: KILLED rc=1 failing=['bind-without-its-probe-tx']
+mutant probe-count-check-gone: KILLED rc=1 failing=['probe-tx-transactions-not-the-draws']
+mutant aecp-status-check-gone: KILLED rc=1 failing=['aem-refused', 'mvu-refused']
+mutant no-period-check-gone: KILLED rc=1 failing=['no-advertise-period']
+mutant stopped-check-gone: KILLED rc=1 failing=['stopped-advertising']
+mutant skip-after-announce-gone: KILLED rc=1 failing=['echo-skipped-after-the-announce']
+mutant frame-equation-gone: KILLED rc=1 failing=['received-frame-unaccounted']
+mutant expiry-met-ignores-arm: KILLED rc=1 failing=['clean-loaded']
+mutant split-sources-unrecorded: KILLED rc=1 failing=['reuse-after-an-edit-of-tb_split_top.sv', 'reuse-after-an-edit-of-milan_datapath.sv', 'reuse-after-an-edit-of-KL_mbx.sv']
+mutant makefile-unrecorded: KILLED rc=1 failing=['reuse-after-an-edit-of-Makefile']
+mutant firmware-tree-unrecorded: KILLED rc=1 failing=['reuse-after-an-edit-of-tree:firmware']
+mutant partial-offers-never-counted: KILLED rc=1 failing=['clean-loaded']
+mutant over-delivery-check-gone: SURVIVED rc=1 failing=['load-offer-over-delivered']
+delta_mutants: 14 mutants, 1 survived or not applied
+rc=1
