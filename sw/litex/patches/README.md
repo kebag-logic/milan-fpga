@@ -37,13 +37,14 @@ toolchain-patch gate before committing it.
 
 At any re-pin of LiteX or of the VexiiRiscv generator, also run the split
 CPU's region-decode checks (#791), from the repository root, with the
-prerequisites in `tb/verilator/ctrl_region_decode/README.md`. The split SoC's
-exact fetch and load decode depends on LiteX's VexiiRiscv naming its netlist
-through its own naming step and generating it from the region list that step
-leaves, which `sw/litex/test_ctrl_memory.py` grades on a stand-in CPU and on
-the split export. `tb/verilator/ctrl_region_decode` runs the generated CPU at
-each region's edges and reads its decode at every address; no workflow runs
-it:
+prerequisites in the [region-decode simulation](../../../tb/verilator/ctrl_region_decode/README.md#run).
+The split SoC's exact fetch and load decode depends on LiteX's VexiiRiscv
+naming its netlist through its own naming step and generating it from the
+region list that step leaves, which
+[`test_ctrl_memory.py`](../test_ctrl_memory.py) grades on a stand-in CPU and
+on the split export. The region-decode simulation
+(`tb/verilator/ctrl_region_decode`) runs the generated CPU at each region's
+edges and reads its decode at every address; no workflow runs it:
 
 ```sh
 python3 sw/litex/test_ctrl_memory.py
