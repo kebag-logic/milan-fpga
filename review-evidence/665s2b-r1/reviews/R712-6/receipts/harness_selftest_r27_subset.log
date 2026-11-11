@@ -1,0 +1,72 @@
+PASS: the load gate refuses a cost over the ceiling
+PASS: the load gate refuses a held point not held
+PASS: the load gate refuses a stated cost missing
+PASS: the load gate refuses the retained retry counted once a record
+PASS: the load gate refuses a retry with nothing changed
+PASS: the load gate refuses a retry every pass
+PASS: the load gate refuses one owed-frame charge for every AECP source
+PASS: the load gate refuses a timer slot counted per pass
+PASS: the load gate refuses a term without a source
+PASS: the load gate refuses the graded column below the pin where tsn-c-stack#32 moves nothing
+PASS: the load gate refuses the period refill.aecp not read
+PASS: the load gate refuses the period refill.acmp not read
+PASS: the load gate refuses the period refill.adp not read
+PASS: the load gate refuses the period refill.maap not read
+PASS: the load gate refuses the period refill.srp not read
+PASS: the load gate refuses the period tick_ms not read
+PASS: the load gate refuses the period holdoff_ms not read
+PASS: the load gate refuses the period SRP_JOIN_CS not read
+PASS: the load gate refuses the period CTRL_LOOP_STEP_AGE not read
+PASS: the load gate refuses the period ACMP_TMR_NO_RESP_MS not read
+PASS: the load gate refuses the period MAAP_PROBE_BASE_MS not read
+PASS: the load gate refuses the period ADP_ADVERTISE_MS not read
+PASS: the load gate refuses the period probe not read
+PASS: the flip check refuses an over-ceiling row
+PASS: the flip check refuses a row within its ceiling
+PASS: the flip check refuses a cost raised over the ceiling
+PASS: the flip check refuses a stated cost missing
+PASS: the flip check refuses the flip ceiling not 0.70 at 8x8/2if
+PASS: the flip check refuses the graded column read, not the pin
+PASS: a response with the type and status its row states is measured
+PASS: a response with another status than its row states is refused
+PASS: a response to another command type than its row states is refused
+PASS: a probe's response is the one answering its sequence_id, not an earlier one on its channel
+PASS: a refusal its row states and names is measured
+PASS: an MVU response with its stated command type and status is measured
+PASS: an MVU response with another status is refused
+PASS: an AEM response where an MVU response is stated is refused
+PASS: an ACMP response of another message type is refused
+PASS: an ACMP response with another status is refused
+PASS: an ACMP refusal its row states and names is measured
+PASS: every row of the scenario that ends at a response states its type and status, each refusal named
+PASS: the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer
+PASS: the talker rows state the statuses Milan gives them, restated
+PASS: a probe that ends at a response and states no type and status is named
+PASS: a refusal its row does not name is named
+PASS: a stated status that is no code of its kind is named
+PASS: a run refuses a group whose row states no response, by name
+MUTANT caught: answers: a response's status is not checked: a response with another status than its row states is refused
+MUTANT caught: answers: a response's command or message type is not checked: a response to another command type than its row states is refused
+MUTANT caught: answers: a probe's response is the first on its channel, whatever its sequence_id: a probe's response is the one answering its sequence_id, not an earlier one on its channel
+MUTANT caught: answers: an MVU response read as an AEM response: an MVU response with its stated command type and status is measured
+MUTANT caught: answers: a row that ends at a response need not state it (earlier rule): a probe that ends at a response and states no type and status is named
+MUTANT caught: answers: a refusal row need not name its refusal: every row of the scenario that ends at a response states its type and status, each refusal named
+MUTANT caught: run: a group whose row states no response is graded as any other: a run refuses a group whose row states no response, by name
+MUTANT caught: scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule): the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer
+MUTANT caught: scenario: the face's getters stated SUCCESS on the image as linked: the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer
+MUTANT caught: scenario: the talker's refusals stated SUCCESS: the talker rows state the statuses Milan gives them, restated
+MUTANT caught: flip: an over-ceiling row passes: the load gate refuses a held point not held
+MUTANT caught: flip: read on the column graded with tsn-c-stack#32: the flip check refuses the graded column read, not the pin
+MUTANT caught: flip: 8x8/2if held to a looser ceiling: the load gate refuses a held point not held
+MUTANT caught: load: 8x8/2if held by the merge gate again (earlier rule): the load gate refuses a held point not held
+MUTANT ESCAPED: run: a CPU trap is not refused
+MUTANT ESCAPED: run: a budget miss never fails the run
+MUTANT ESCAPED: run: a refusal does not fail the run
+MUTANT ESCAPED: run: the as-built control is caught by an instruction access fault only (earlier rule)
+MUTANT ESCAPED: run: the as-built control is caught by any trap
+MUTANT ESCAPED: run: the as-built control matches the cause's leading digit
+MUTANT ESCAPED: run: the as-built control is caught whatever the boot does
+MUTANT ESCAPED: load: any window may hold the flood's last change
+MUTANT ESCAPED: load: an aged window may hold no more than its row's
+subset: 47 checks, 23 mutants, 9 failures
+rc=1

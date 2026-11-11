@@ -1,0 +1,7 @@
+| Point | Load at the pin | Load with tsn-c-stack#32 (graded, owed to the pin move) | Ceiling | Compute for 0.70 | A pass's own cost, us | Terms by share (graded) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.463 | 0.450 | 0.70 | 1.00x | 180 | srp 0.150, rec.acmp 0.053, ticks 0.047, item.aecp 0.046, rec.aecp 0.041, steps 0.033, item.reclaim 0.025, timers 0.017, item.acmp 0.011, rec.adp 0.010, builds 0.005, rec.maap 0.004, item.mrpdu 0.004, item.walk 0.002, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.815 | 0.719 | the flip check, 0.70 at the pin (flip_grade.py) | 1.03x | 275 | srp 0.219, item.aecp 0.062, rec.acmp 0.061, ticks 0.059, timers 0.057, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.042, steps 0.034, builds 0.024, item.acmp 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+| 32x32/2if | 2.150 | 1.659 | reported: the more-compute image, #872 | 2.37x | 590 | srp 0.519, item.mrpdu 0.299, builds 0.150, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.036, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000 |
+RESULT: PASS
+rc=0
