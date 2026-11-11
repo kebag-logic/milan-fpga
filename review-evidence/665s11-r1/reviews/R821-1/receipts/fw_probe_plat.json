@@ -1,0 +1,44 @@
+[
+  {
+    "name": "quiet-without-the-face-poll",
+    "file": "sw/firmware/ctrl/plat/ctrl_plat.c",
+    "arm": "platboot",
+    "rc": 0,
+    "expected_test": "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+    "expected_words": "the drain ends because the write completed",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": []
+  },
+  {
+    "name": "drained-reads-the-aecp-ring",
+    "file": "sw/firmware/ctrl/plat/ctrl_plat.c",
+    "arm": "platboot",
+    "rc": 1,
+    "expected_test": "Boot.B12TheResetWaitsForTheResponseToLeave",
+    "expected_words": "no reset while the mailbox holds ENTITY_DEPARTING",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING",
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 ENTITY_DEPARTING leaves before the reset"
+    ],
+    "observed": []
+  },
+  {
+    "name": "shutdown-before-due",
+    "file": "sw/firmware/ctrl/plat/ctrl_plat.c",
+    "arm": "platboot",
+    "rc": 1,
+    "expected_test": "Boot.B12TheResetWaitsForTheResponseToLeave",
+    "expected_words": "nor is ADP shut down",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 nor is ADP shut down",
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 the mailbox holds ENTITY_DEPARTING",
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 the mailbox holds ENTITY_DEPARTING",
+      "[FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING",
+      "[FAIL] Boot.B18ADepartingTheRingRefusedHoldsTheReset: B18 ENTITY_DEPARTING was owed while ADP's ring had no room"
+    ],
+    "observed": []
+  }
+]

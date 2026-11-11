@@ -1,0 +1,21 @@
+[
+  {
+    "name": "behaviour-acmp-after-success",
+    "file": "sw/firmware/ctrl/test/test_plat_boot.cpp",
+    "arm": "platboot",
+    "rc": 1,
+    "expected_test": "Boot.ReviewProbeAcmpAfterTheRebootSuccess",
+    "expected_words": "",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Boot.ReviewProbeAcmpAfterTheRebootSuccess: PROBE a BIND_RX after the REBOOT's SUCCESS is not applied",
+      "[FAIL] Boot.ReviewProbeAcmpAfterTheRebootSuccess: PROBE a BIND_RX after the REBOOT's SUCCESS is not answered",
+      "[FAIL] Boot.ReviewProbeAcmpAfterTheDeparting: PROBE no frame but ADP's leaves after ENTITY_DEPARTING"
+    ],
+    "observed": [
+      "PROBE-OBSERVED acmp_frames_after_success=2 sink_bound=1 frames_after_departing=0 first_departing_index=2 total_frames=3",
+      "PROBE-OBSERVED departing_left_before_the_port=1",
+      "PROBE-OBSERVED acmp_frames_after_departing=2 port_writes=1"
+    ]
+  }
+]

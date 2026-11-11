@@ -1,0 +1,70 @@
+[
+  {
+    "name": "end-one-early",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "not due before the notification has left",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: not due before the notification has left"
+    ],
+    "observed": []
+  },
+  {
+    "name": "older-completion-moves-back",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "an older completion does not hold the reset back",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: an older completion does not hold the reset back"
+    ],
+    "observed": []
+  },
+  {
+    "name": "due-without-the-reentry-guard",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "a port's call cannot read the release",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: a port's call cannot read the release",
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: a port's call cannot read the release"
+    ],
+    "observed": []
+  },
+  {
+    "name": "lock-before-the-index",
+    "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+    "arm": "aecp",
+    "rc": 0,
+    "expected_test": "Core.RebootRefusalsLeaveTheEntityInService",
+    "expected_words": "",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": []
+  },
+  {
+    "name": "refusing-ignored",
+    "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootRefusalsLeaveTheEntityInService",
+    "expected_words": "ENTITY_MISBEHAVING while a change waits for the platform",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: status for command 42",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform, notifying no one",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform, resetting nothing",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: command produces a response: 7"
+    ],
+    "observed": []
+  }
+]
