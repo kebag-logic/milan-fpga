@@ -1481,6 +1481,10 @@ jobs:
       - name: Apply the toolchain patch series
         run: sw/litex/patches/apply.sh
         id: ci_step_12
+      - name: Install the platform image's runtime sources at the bench's revisions
+        run: python3 -m pip install --quiet git+https://github.com/litex-hub/pythondata-software-picolibc.git@6a13ccce7c575b32c102dd9dc52178505b81fe39
+          git+https://github.com/litex-hub/pythondata-software-compiler_rt.git@6eb76609c9627bf26635e57c63fb22cda7115887
+        id: ci_step_13
       - name: Cache the pinned Verilator build
         id: cache-verilator
         uses: actions/cache@v4
@@ -1488,25 +1492,25 @@ jobs:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
-      - name: Resolve exact package downloads 12
-        id: ci_packages_12
+      - name: Resolve exact package downloads 13
+        id: ci_packages_13
         run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_12" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_13" --output "$GITHUB_OUTPUT"
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
-      - name: Cache exact package downloads 12
+      - name: Cache exact package downloads 13
         uses: actions/cache@v4
         with:
-          path: ${{ runner.temp }}/ci_packages_12
-          key: ${{ runner.os }}-${{ steps.ci_packages_12.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+          path: ${{ runner.temp }}/ci_packages_13
+          key: ${{ runner.os }}-${{ steps.ci_packages_13.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
-        id: ci_step_15
+        id: ci_step_16
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
           set -euo pipefail
           : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_12" install -y --no-install-recommends \
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_13" install -y --no-install-recommends \
             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
@@ -1516,31 +1520,31 @@ jobs:
           ./configure --prefix=/opt/verilator
           make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
-        id: ci_step_16
+        id: ci_step_17
       - name: Put Verilator on PATH and prove the version
         run: |
           set -euo pipefail
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
-        id: ci_step_17
+        id: ci_step_18
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_18
+        id: ci_step_19
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_19
+        id: ci_step_20
       - name: Time the split placement at the wire, without and with the composed load
         run: WIRE_JOBS="$CI_BUILD_JOBS" python3 tb/verilator/ctrl_wire_timing/run.py --ci --build-dir
           "$RUNNER_TEMP/wire-timing"
-        id: ci_step_20
+        id: ci_step_21
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}

@@ -2655,6 +2655,12 @@ RTL_STEP_LISTS[(RTL_FAST, WIRE_TIMING_JOB)] = (
     {"uses": "actions/setup-python@v5", "with": {"python-version": "3.12"}},
     *({key: value for key, value in ELABORATION_STEPS[name].items() if key != "if"}
       for name in WIRE_TIMING_LITEX_STEPS),
+    {"name": "Install the platform image's runtime sources at the bench's revisions",
+     "run": ("python3 -m pip install --quiet "
+             "git+https://github.com/litex-hub/pythondata-software-picolibc.git@"
+             "6a13ccce7c575b32c102dd9dc52178505b81fe39 "
+             "git+https://github.com/litex-hub/pythondata-software-compiler_rt.git@"
+             "6eb76609c9627bf26635e57c63fb22cda7115887",)},
     *RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_VERILATOR_JOB)][3:8],
     {"name": "Time the split placement at the wire, without and with the composed load",
      "run": ('WIRE_JOBS="$CI_BUILD_JOBS" python3 tb/verilator/ctrl_wire_timing/run.py --ci '
