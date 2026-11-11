@@ -191,9 +191,20 @@ void aecp_open(struct aecp *a)
 	arm(a);
 }
 
+// No command is taken after a REBOOT's SUCCESS (#871).
 bool aecp_ready(struct aecp *a)
 {
-	return aecp_enter(a) && a->open && !a->response_owed && !a->notify;
+	return aecp_enter(a) && a->open && !a->response_owed && !a->notify && a->reboot == 0u;
+}
+
+bool aecp_reboot_due(struct aecp *a)
+{
+	return aecp_enter(a) && a->reboot == 2u && (uint32_t)(a->tx_done - a->reboot_end) < 0x80000000u;
+}
+
+bool aecp_reboot_accepted(const struct aecp *a)
+{
+	return a->reboot != 0u;
 }
 
 bool aecp_locked(struct aecp *a, uint64_t *owner)
@@ -388,6 +399,11 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 			swap(a);
 			refuse(a, AECP_IN_PROGRESS);
 		}
+		if (cmd == 42u && status == AECP_SUCCESS) {
+			// IEEE 1722.1-2021 7.4.43: accepted at its SUCCESS; nothing else is
+			// taken until the reset (#871)
+			a->reboot = 1u;
+		}
 		if (a->start_pending) {
 			/* Reserve service time and millisecond quantization within T_svc. */
 			a->start_deadline = a->now + 8u;
@@ -438,6 +454,10 @@ void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 {
 	if (!aecp_enter(a)) {
 		return;
+	}
+	uint32_t ahead = cookie + 1u - a->tx_done;
+	if (ahead != 0u && ahead < 0x80000000u) {
+		a->tx_done = cookie + 1u;
 	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
@@ -611,6 +631,16 @@ bool aecp_poll(struct aecp *a)
 			refuse(a, AECP_ENTITY_MISBEHAVING);
 		}
 		return true;
+	}
+	if (a->reboot != 0u) {
+		// Every frame owed is handed over, the REBOOT's last; its completion
+		// releases the reset (aecp_reboot_due). The entity departs, so no
+		// probe or notification is started (Milan v1.2 5.6.3.3; #871)
+		if (a->reboot == 1u) {
+			a->reboot_end = a->tx_cookie;
+			a->reboot = 2u;
+		}
+		return false;
 	}
 	bool pending = asynchronous(a);
 	arm(a);

@@ -611,6 +611,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! PHY (a reset-less toggle in the MAC's transmit domain). Tie 0 on a
   //! build without a MAC: the REBOOT's egress wait then runs to its bound
   input  wire        i_ethtxend_tgl,
+  //! the split placement's REBOOT request (CTRL_SPLIT_P = 1; #871): the
+  //! firmware's reset port, a level in axis_clk (the SoC synchronises it),
+  //! held until the reload. It stands for the processor's reboot_req_o, and
+  //! KL_reboot_ctrl reads it as reboot_req_i. The all-fabric datapath reads
+  //! the processor's request instead and leaves this port unread; tie 0
+  input  wire        i_reboot_req,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -10138,9 +10144,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign pp_err_w             = 1'b1;
     assign pp_rdata_w           = 32'd0;
     assign pp_nvm_csr_rdata_w   = 32'd0;
-    //! AECP REBOOT is the firmware AECP owner's, and the split carries no
-    //! request for it yet (#787; the census's REBOOT exclusion)
-    assign pp_reboot_req_w      = 1'b0;
+    //! AECP REBOOT is the firmware AECP owner's: its request reaches
+    //! KL_reboot_ctrl from the platform reset port (#871, #787)
+    assign pp_reboot_req_w      = i_reboot_req;
     //! the record face of the map writer, which the split does not build
     assign mrec_gnt_w           = 1'b0;
     assign mrec_wready_w        = 1'b0;

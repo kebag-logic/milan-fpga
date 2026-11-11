@@ -1176,13 +1176,16 @@ The ruling
 settles the AECP REBOOT request, `reboot_req_o` (#787). It drives
 `KL_reboot_ctrl`, which stays in the datapath and runs the drain, the egress
 wait, the PHY hold and the configuration reload. In the split the firmware's
-AECP owner takes REBOOT, and the split has no carrier for the request yet. So
-`reboot_req_o` is G, and its cone stops at the one cell input
-`REBOOT_TERMINAL` names, `reboot_ctrl.reboot_req_i`, and at no other input of
-that cell. A second consumer of the same net is still the wire. The split
-carries no REBOOT request: ruling 6715535566 item 3 holds `reboot_req_i` at 0
-until S11 gives REBOOT its carrier. The split census proves the hold:
-`pp_reboot_req_w` is a constant there, so it needs no exclusion either.
+AECP owner takes REBOOT. Its request reaches `KL_reboot_ctrl` from the
+platform's reset port, a CSR of the split SoC (#871), not through the
+mailbox. So `reboot_req_o` stays G, and its cone in the all-fabric datapath
+stops at the one cell input `REBOOT_TERMINAL` names,
+`reboot_ctrl.reboot_req_i`, and at no other input of that cell. A second
+consumer of the same net is still the wire. In the split census
+`pp_reboot_req_w` is driven by the datapath input `i_reboot_req` alone, never
+a constant (`G_CARRIED` in
+[`census_split.py`](../../sw/mailbox/census_split.py)), so it needs no
+exclusion either.
 
 The census's 12 new rules (`port-*`, `g-*` in
 [`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
@@ -1474,7 +1477,7 @@ its ledger row:
 Its 14 rules are the `split-*` entries of
 [`census_rules.py`](../../sw/mailbox/census_rules.py).
 Each has an arm in [`census_plants.py`](../../sw/mailbox/census_plants.py),
-23 in all. Seventeen plant a copy of the datapath, elaborated in both
+24 in all. Eighteen plant a copy of the datapath, elaborated in both
 placements.
 
 - The processor, the MAAP engine and the map writer left in the split.
@@ -1484,7 +1487,8 @@ placements.
 - Half a field dropped, and a setting from another setting's port.
 - Two bits of a packed setting swapped, and an answer from another window.
 - A face notification never raised.
-- The REBOOT request driven, and a value the block does not carry driven.
+- The REBOOT request from another port, and tied off; a value the block does
+  not carry driven.
 - The frame block on another net, a later entry read, and a port no row
   names.
 
@@ -1590,7 +1594,8 @@ defects, its parallel gate and the two-placement simulation are local.
 default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
 and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
 `KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
-page so no existing bank moves, and one interrupt. It also regenerates the
+page so no existing bank moves, the REBOOT reset port's one-bit bank pinned
+below that (#871), and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that
@@ -1876,13 +1881,15 @@ report_timing_summary -delay_type max
   ([The split's control face](#the-splits-control-face)). They stay on the
   face as firmware-written state until the flip (issuecomment-6716584453,
   item 2), each with its ledger row.
-- **The AECP REBOOT request** (#787) has no carrier in the split: the
-  firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
-  request its carrier, a face-block level being the expected end state, decided
-  in that lane; until then the split ties `reboot_req_i` to
-  0. Its split elaboration must then pass the port census without the REBOOT
-  exclusion ([Every port, one class](#every-port-one-class)). The split
-  census proves the hold.
+- **The AECP REBOOT request** (#787) is carried by the platform's reset
+  port, not by the face block (S11, #871). A face-block level would add a
+  field to `mailbox.yaml`, a contract change, and the port needs none: one
+  CSR bit of the split SoC (`milan_soc.CtrlReboot`), crossed into the
+  datapath's clock by a `MultiReg` onto `i_reboot_req` and so onto
+  `reboot_ctrl.reboot_req_i`. `reboot_req_o` therefore stays G with its
+  all-fabric exclusion ([Every port, one class](#every-port-one-class)), and
+  the split census holds the net to that one port. The firmware's sequence
+  is in [REBOOT_RESET.md](REBOOT_RESET.md#8-the-split-placement).
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
   the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the

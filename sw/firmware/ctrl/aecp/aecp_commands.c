@@ -536,6 +536,38 @@ static unsigned control(struct aecp *a, bool set, const uint8_t *in, size_t len,
 	return AECP_SUCCESS;
 }
 
+// IEEE 1722.1-2021 7.4.43, Figure 7-68: {descriptor_type, descriptor_index},
+// echoed. ENTITY 0 is the one target, because no MEMORY_OBJECT firmware image
+// exists (7.4.43.1). So another type is NOT_SUPPORTED, another index
+// NO_SUCH_DESCRIPTOR, and another controller's lock ENTITY_LOCKED (7.4.43.2).
+// The entity is never acquired. The routes run in the processor's order. A
+// SUCCESS notifies (7.4.43, 7.5.2; Milan v1.2 5.4.5.2), and aecp_rx accepts
+// the REBOOT at it (#871). Without a reset port it is NOT_IMPLEMENTED, its
+// whole body echoed (*bytes is len), as for every command without a target.
+static unsigned reboot(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
+{
+	if (!a->cfg.reboot) {
+		memcpy(out, in, *bytes);
+		return AECP_NOT_IMPLEMENTED;
+	}
+	*bytes = 4u;
+	memcpy(out, in, len > 4u ? 4u : len);
+	if (len < 4u) {
+		return AECP_BAD_ARGUMENTS;
+	}
+	if (wire_be16(in) != 0u) {
+		return AECP_NOT_SUPPORTED;
+	}
+	if (wire_be16(in + 2) != 0u) {
+		return AECP_NO_SUCH_DESCRIPTOR;
+	}
+	if (aecp_foreign_lock(a)) {
+		return AECP_ENTITY_LOCKED;
+	}
+	a->notify = true;
+	return AECP_SUCCESS;
+}
+
 static bool dynamic_member(uint16_t cmd)
 {
 	switch (cmd) {
@@ -641,6 +673,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_BAD_ARGUMENTS; // IEEE 7.4.39.2: unsolicited-only opcode
 	case 39: case 40: return avb(a, cmd == 40u, in, len, out, bytes);
 	case 41: return counters(a, in, len, out, bytes);
+	case 42: return reboot(a, in, len, out, bytes);
 	case 43: case 44: case 45: return aecp_map_command(a, cmd, in, len, out, bytes);
 	case 75: return dynamic(a, interface, in, len, out, bytes);
 	default:

@@ -136,7 +136,7 @@ struct Core : testing::Test {
             v->valid=0xf3f;for(unsigned n=0;n<32;++n)v->value[n]=0x10203000+n;return observations;});
         maps[0]={14,0,0,8,input.data(),0,input.size(),nullptr,0};
         maps[1]={15,0,0,8,output.data(),0,output.size(),nullptr,0};
-        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data()};
+        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data(),false};
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     aecp_descriptor& desc(unsigned type,unsigned index=0) {
@@ -1784,6 +1784,90 @@ TEST_F(Core, NotificationBackpressureAndLatestCompletion)
     EXPECT_EQ(sent.size(),count)<<"an old completion cannot release a newer copy";
     aecp_tx_complete(&a,latest,5000);ms=5999;drain();EXPECT_EQ(sent.size(),count);
     ms=6000;drain();EXPECT_EQ(sent.size(),count+2);
+}
+
+// IEEE 1722.1-2021 7.4.43 (#871): a composition without a reset port answers
+// REBOOT NOT_IMPLEMENTED, as it did before, and stays in service.
+TEST_F(Core, RebootIsNotImplementedWithoutAResetPort)
+{
+    auto out=ask(42,target(0,0),1);
+    EXPECT_EQ(get(out,16,2)>>11,1u)<<"REBOOT without a reset port is NOT_IMPLEMENTED";
+    EXPECT_EQ(Bytes(out.begin()+38,out.end()),target(0,0))<<"the refusal echoes its body";
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"REBOOT without a reset port resets nothing";
+    ask(7,target(0,0));
+}
+
+// Figure 7-68's routes, in the processor's order: too short is BAD_ARGUMENTS,
+// another type NOT_SUPPORTED (no MEMORY_OBJECT firmware image exists, 7.4.43.1),
+// another ENTITY index NO_SUCH_DESCRIPTOR, and another controller's lock
+// ENTITY_LOCKED (7.4.43.2). A change the platform has not applied is refused
+// ENTITY_MISBEHAVING, as every change is. Each refusal is answered at cdl 16,
+// notifies no one and leaves the entity in service.
+TEST_F(Core, RebootRefusalsLeaveTheEntityInService)
+{
+    cfg.reboot=true;ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    register_controller(CTLR+1);
+    auto refused=[&](Bytes body,unsigned status,const char* what){
+        auto out=ask(42,body,status);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<what;
+        EXPECT_EQ(get(out,16,2)&0x7ff,16u)<<what<<", answered at cdl 16";
+        EXPECT_EQ(sent.size(),1u)<<what<<", notifying no one";
+        EXPECT_FALSE(aecp_reboot_due(&a))<<what<<", resetting nothing";
+        EXPECT_FALSE(aecp_reboot_accepted(&a))<<what<<", resetting nothing";
+        ask(7,target(0,0));
+    };
+    refused({0,0},7,"BAD_ARGUMENTS short of Figure 7-68's four bytes");
+    refused(target(5,0),11,"NOT_SUPPORTED for a STREAM_INPUT");
+    refused(target(11,0),11,"NOT_SUPPORTED for a MEMORY_OBJECT");
+    refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index");
+    ask(1,Bytes(16),0,CTLR+1);
+    refused(target(0,0),3,"ENTITY_LOCKED under another controller's lock");
+    // the processor's order: the index is judged before the lock (protocol-processor 06_aecp_engine.md 6.11)
+    refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index under another controller's lock");
+    Bytes unlock(16);put(unlock,0,1,4);ask(1,unlock,0,CTLR+1);
+    ON_CALL(mock,Applied).WillByDefault(Return(false));
+    refused(target(0,0),10,"ENTITY_MISBEHAVING while a change waits for the platform");
+}
+
+// 7.4.43: SUCCESS echoes {ENTITY, 0}, and every other registered controller is
+// notified (7.5.2; Milan v1.2 5.4.5.2). The reset is due only once each of
+// those frames has completed, and no command is taken, nor probe or
+// notification started, after the SUCCESS. The lock's owner may reboot.
+TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
+{
+    cfg.reboot=true;ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    register_controller(CTLR);register_controller(CTLR+1);ask(1,Bytes(16));
+    sent.clear();completions.clear();
+    auto b=command(42,target(0,0));aecp_rx(&a,0,b.data(),b.size());
+    for(unsigned n=0;n<4;++n)aecp_poll(&a);
+    ASSERT_EQ(sent.size(),2u)<<"the SUCCESS response, then one notification";
+    EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, so the platform takes no frame";
+    const auto &r=sent[0].second,&u=sent[1].second;
+    EXPECT_EQ(get(r,16,2)>>11,0u)<<"a REBOOT of ENTITY 0 by the lock's owner is SUCCESS";
+    EXPECT_EQ(get(r,36,2),42u)<<"the response is solicited";
+    EXPECT_EQ(Bytes(r.begin()+38,r.end()),target(0,0))<<"the response echoes Figure 7-68's fields";
+    EXPECT_EQ(get(u,36,2),0x8000u|42u)<<"the notification is unsolicited";
+    EXPECT_EQ(get(u,26,8),CTLR+1)<<"the requester is not notified";
+    EXPECT_EQ(Bytes(u.begin()+38,u.end()),target(0,0))<<"the notification echoes Figure 7-68's fields";
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the response has left";
+    const uint32_t response=completions[0];
+    aecp_tx_complete(&a,completions[0],ms);aecp_poll(&a);
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the notification has left";
+    aecp_tx_complete(&a,completions[1],ms);
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
+    sent.clear();auto read=command(4,Bytes(8));aecp_rx(&a,0,read.data(),read.size());drain();
+    EXPECT_TRUE(sent.empty())<<"no command is taken after a REBOOT's SUCCESS";
+    EXPECT_EQ(a.busy_drops,1u)<<"no command is taken after a REBOOT's SUCCESS";
+    ms=120000;drain();
+    EXPECT_TRUE(sent.empty())<<"no probe or notification is started after a REBOOT's SUCCESS";
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
+    aecp_tx_complete(&a,response,ms);
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"an older completion does not hold the reset back";
+    const uint32_t reentries=a.reentries;
+    EXPECT_CALL(mock,Now).WillOnce([this]{
+        EXPECT_FALSE(aecp_reboot_due(&a))<<"a port's call cannot read the release";return ms;});
+    aecp_poll(&a);
+    EXPECT_EQ(a.reentries,reentries+1u)<<"a port's call cannot read the release";
 }
 
 TEST_F(Core, DescriptorAndObservationBoundaryFailures)

@@ -22,6 +22,23 @@
 //   9    ADP starts last, once AECP and ACMP accept requests
 //        (ctrl_app_release_adp). The console and the store's service joined
 //        the loop at composition, and the loop is first serviced now.
+//
+// THE REBOOT (IEEE 1722.1-2021 7.4.43; #871), as the processor it replaces
+// (REQ-FWX-001). AECP answers a REBOOT of the ENTITY only when env->reboot
+// names the reset port. From its SUCCESS no received frame of any channel is
+// taken (aecp_reboot_accepted gates every channel's take). Once the SUCCESS
+// and its notifications have left the mailbox (aecp_reboot_due), the loop is
+// not serviced again, so no channel starts another transmission. Once every
+// other channel's ring has drained, ADP shuts down, so an advertising
+// interface sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3) and nothing follows
+// it. Once the ADP ring has drained too, one write of 1 to the port starts
+// the datapath's KL_reboot_ctrl: the saved state drains, the MAC empties, the
+// PHY is held in reset and the configuration reloads
+// (docs/design/REBOOT_RESET.md). From the loop's last pass, ctrl_plat_step
+// services the saved-state store and its F_NVM, and ADP until the port. So a
+// journal write in progress completes and the drain sees it, and no frame is
+// taken that could start another during the PHY hold. A ring the datapath
+// never drains holds the port back: the sequence has no deadline.
 // A stage that refuses stops the boot there: nothing after it runs, ADP never
 // starts, the loop is never serviced, and only the console answers, as the
 // all-fabric image keeps its BIOS console when its fabric stays disabled.
@@ -88,6 +105,7 @@ struct ctrl_plat_env {
 	const uint8_t *aem;                         // the paired AEM image (step 4)
 	size_t aem_bytes;
 	uint32_t aem_crc;
+	uintptr_t reboot;                           // the REBOOT reset port's register, 0 for none (#871)
 };
 
 // The allocation MAAP last reported on one interface.
@@ -106,6 +124,9 @@ struct ctrl_plat {
 	struct ctrl_plat_allocation allocation[MBX_N_IF];
 	uint32_t csr_dropped;                       // MAAP port writes with no window
 	uint32_t licences[MBX_N_IF];                // SRP's last licence per source, bit s source s
+	uint8_t reboot;                             // a REBOOT's: 1 the loop stopped, 2 ADP shut down, 3 the port fired
+	uint32_t quiet_ms;                          // the store's last service once the loop stopped
+	struct ctrl_loop_rx rx[MBX_N_CH];           // each channel's own binding, behind the REBOOT's gate
 	struct ctrl_app app;
 	struct ctrl_app_config config;
 	struct acmp_config acmp;
@@ -132,7 +153,8 @@ void ctrl_plat_generated_image(struct ctrl_plat_env *env);
 // env must outlive the image.
 enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env);
 
-// One turn of the image: a loop step once ready, else the console alone.
+// One turn of the image: a loop step once ready, the REBOOT's sequence once
+// its frames are out (ctrl_plat.c), else the console alone.
 void ctrl_plat_step(void);
 
 // The boot's console lines (the #396 plan counts the first as one boot).

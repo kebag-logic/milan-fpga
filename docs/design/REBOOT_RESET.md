@@ -20,6 +20,7 @@ The design therefore picks the reset closest to a power cycle that a running dev
 - **[5. Why the JTAG-reload defect cannot recur](#5-why-the-jtag-reload-defect-cannot-recur)** -- What a JTAG reload leaves unreset, what the chosen reset adds, and the bench check that decides.
 - **[6. After the reset](#6-after-the-reset)** -- The four #396 power-area checks, and where each is graded.
 - **[7. Evidence](#7-evidence)** -- The suites, the planted mutants and the routed image.
+- **[8. The split placement](#8-the-split-placement)** -- The firmware's AECP owner answers the REBOOT as the processor does: no frame taken from the SUCCESS, nothing after ENTITY_DEPARTING, then the platform's reset port starts the same reset while the saved-state store runs on.
 
 ## 1. The decision
 
@@ -255,3 +256,56 @@ The [UART smoke](../integration/BAREMETAL_FIRMWARE.md#uart-commands) grades the 
 | `sw/builder/test_builder.py` gates 1f and 23m | the FIFOs built from the named depths, the statement from `_mac_tx_egress_octets` and the PHY table, the toggle reset-less in `eth_tx` on `phy.sink`'s last octet, the no-MAC stub's zero toggle, nine cuts each refused by name; every config's Instance binding exactly the builder's evaluated statement |
 | The shipping route | the resource gate on `route-1x1`, `ooc-1x1` and `ooc-8x8` ([SUBMODULES.md](../reference/SUBMODULES.md), the #787 adoption record) |
 | The bench | the #396 `power` area's 50 soft resets on the shipping image, the manager's step after merge |
+
+## 8. The split placement
+
+In the split (`CTRL_SPLIT_P` = 1, #665) the processor is not built, and the firmware's AECP owner answers the REBOOT ([#871](https://github.com/kebag-logic/milan-fpga/issues/871)).
+The reset is sections 1 to 4's, unchanged: `KL_reboot_ctrl`'s drain, egress wait, PHY hold and IPROG.
+The request's source differs, and the firmware keeps the processor's window from the SUCCESS to the request (REQ-FWX-001; the processor's `06_aecp_engine.md` section 6.11).
+
+**The command.** [`sw/firmware/ctrl/aecp`](../../sw/firmware/ctrl/aecp/README.md) judges IEEE 1722.1-2021 7.4.43 in the processor's order.
+A command shorter than Figure 7-68's four bytes is BAD_ARGUMENTS, another type NOT_SUPPORTED and another ENTITY index NO_SUCH_DESCRIPTOR.
+Another controller's lock is ENTITY_LOCKED (7.4.43.2), and a change the platform has not applied ENTITY_MISBEHAVING, as for every change.
+Otherwise the answer is SUCCESS, notified to every other registered controller (7.5.2; Milan v1.2 5.4.5.2).
+A composition without a reset port answers NOT_IMPLEMENTED, as before.
+
+**No frame is taken from the SUCCESS.** The processor's top discards every frame that starts on `rx_*` from the SUCCESS, so no ADP, ACMP or AECP command reaches an engine.
+In the split every channel's take is behind the platform's gate on `aecp_reboot_accepted`, which is true from the SUCCESS.
+So no ADP, ACMP, AECP, MAAP or SRP frame is taken: each stays in its ring, and the mailbox drops whole one that then finds no room (`RX_DROP`).
+
+**The order.** The [platform](../../sw/firmware/ctrl/plat/README.md) waits until the SUCCESS and its notifications have left the mailbox (`aecp_reboot_due`).
+From then it no longer services the loop, so no channel starts another transmission.
+Once every other channel's ring has drained, ADP shuts down, so each advertising interface sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3).
+Nothing follows it until the reset, as the processor's transmit gate closes every lane but ADP's from its last ENTITY_DEPARTING.
+A frame committed before it has already left, so none follows it on the wire either.
+Once ADP's ring has drained too, the platform writes 1 to the reset port.
+From the mailbox to the MAC port the path is cut-through (`KL_mbx_cdc`'s 16-byte FIFO, `KL_ctrl_split`'s packer, `ctl_tx_mux`).
+So a frame that has left the mailbox is already half taken at the MAC port when the request arrives, and the egress wait holds the PHY until it has left.
+
+**The port.** `milan_soc.CtrlReboot` is one CSR bit, `ctrl_reboot_req`, in its own bank below the mailbox's.
+A `MultiReg` crosses it into the datapath's clock, onto `milan_datapath`'s `i_reboot_req`.
+The split branch drives `reboot_ctrl.reboot_req_i` from that input alone, which the split census holds (`G_CARRIED`).
+A later write of 0 cancels nothing. No mailbox register changes; the split adds this one CSR bit and one datapath input.
+
+**The journal.** From the loop's last pass the platform services the saved-state store on its own centisecond, its F_NVM, and ADP's poll until the port fires.
+So a write in progress completes, and the drain sees it complete.
+No frame or event is taken, so nothing new becomes dirty and no write starts during the PHY hold.
+A write that cannot complete is abandoned at a command boundary, as section 4 states.
+
+**The bound.** The firmware stage has no bound while a mailbox ring is held.
+It waits for the SUCCESS, its notifications and every ring to drain, so a datapath that never takes a frame holds the reset port back.
+The processor documents the same of its MAC: "A MAC that never takes a frame holds the request back" (section 6.11).
+Section 3's bound to the IPROG word starts at the port.
+
+**One measurement.** In the CPU simulation's REBOOT scenario (the shipping shape, no ring held), the reset port rose 424,271 bus cycles after the REBOOT command's last byte reached the mailbox.
+That is 212,135 CPU cycles, 4.243 ms at 50 MHz.
+The SUCCESS left at 2.157 ms, its notification at 2.300 ms and ENTITY_DEPARTING at 4.199 ms.
+These are that scenario's figures, not a bound.
+A write in progress at the REBOOT then kept the drain 581.1 ms.
+
+| Evidence | What it proves |
+|---|---|
+| `sw/firmware/ctrl/test/test_aecp.cpp`, `Core.Reboot*` | each route, the index judged before the lock, the notification, the acceptance at the SUCCESS, no command after it, the reset due only once every frame has completed, and NOT_IMPLEMENTED without a port; thirteen planted defects in `aecp_mutants.py` |
+| `sw/firmware/ctrl/test/test_plat_boot.cpp`, B11 to B21 | the order on the mailbox model, held and full rings included; each refusal in service; the reset and the boot after it; a REBOOT during a journal write; nothing taken or sent after the port; no frame of any channel taken from the SUCCESS; no other channel's transmission after ENTITY_DEPARTING, which waits for every other ring; thirteen planted defects in `plat_mutants.py` |
+| [`tb/verilator/ctrl_reboot`](../../tb/verilator/ctrl_reboot/README.md) | the same on the split CPU, its flash kept across the reset: the #396 power-area checks, the order at the mailbox with an AEM command and a BIND_RX in the window, the refusals, a REBOOT inside a journal write and a cut one, with five planted images and seven grader controls, each caught by its own words |
+| `sw/mailbox/census_split.py`, `G_CARRIED` | the split's request net driven by `i_reboot_req` alone, with two planted edits |

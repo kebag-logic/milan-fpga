@@ -32,6 +32,41 @@
 //   B10 a controller's bind after READY is written back to the flash by the
 //       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
 //       acmp_nvm.h's boot order)
+//
+// THE REBOOT (IEEE 1722.1-2021 7.4.43; #871; ctrl_plat.h). The reset port is a
+// register on the host bus; a write of 1 to it is the reset's request:
+//   B11 a REBOOT of the ENTITY is answered SUCCESS and notified to the other
+//       registered controller. Every interface then sends ENTITY_DEPARTING
+//       (Milan v1.2 5.6.3.3), and the port is written once, after all of them
+//       have left the mailbox. No command is answered after the SUCCESS
+//   B12 while the mailbox holds the response, the port is not written, nor is
+//       ADP shut down; once the response leaves, it is
+//   B13 too short, another type, another ENTITY index and another
+//       controller's lock are refused as 7.4.43 states. Each notifies no one,
+//       leaves the port unwritten and the entity in service
+//   B14 an image with no reset port answers REBOOT NOT_IMPLEMENTED and stays
+//       in service
+//   B15 across the reset (the flash kept, everything else from reset, as the
+//       reload does), the saved name and binding are restored and ADP
+//       advertises again within its valid time (Milan v1.2 Table 5.50)
+//   B16 a REBOOT during the journal write that saves a change: the store runs
+//       on while the datapath's drain waits on F_NVM, so the write completes
+//       and the change is restored after the reset (docs/design/REBOOT_RESET.md
+//       section 4)
+//   B17 once the reset port has fired, nothing is taken and nothing is sent: a
+//       bind stays in its ring, a bound listener's frames stop, and no journal
+//       write starts during the PHY hold
+//   B18 an ENTITY_DEPARTING that ADP's ring had no room for at ADP's poll
+//       holds the reset, though the ring has drained since, until it leaves
+//   B19 from the REBOOT's SUCCESS no received frame of any channel is taken:
+//       an ENTITY_DISCOVER, a BIND_RX and an AEM command stay in their rings,
+//       and none is applied or answered (REQ-FWX-001, the processor's
+//       discard; protocol-processor 06_aecp_engine.md 6.11)
+//   B20 once ENTITY_DEPARTING is committed, no other channel starts a
+//       transmission until the reset port fires, though the mailbox holds the
+//       DEPARTING for seconds while a bound listener, SRP and MAAP run
+//   B21 ENTITY_DEPARTING waits until every other channel's ring has drained,
+//       so no frame committed before it follows it
 
 #include <gtest/gtest.h>
 
@@ -77,6 +112,19 @@ struct Mbx {
 mbx_model fabric;
 std::vector<Mbx> mailbox;
 bool other_contract = false;
+
+// One frame the model sent, with bus().log.size() when it left the mailbox.
+struct Sent {
+    std::size_t plat;
+    mbx_model_tx frame;
+};
+std::vector<Sent> frames;
+
+void take_frames() {
+    while (frames.size() < fabric.tx_sent) {
+        frames.push_back({bus().log.size(), *mbx_model_tx_frame(&fabric, static_cast<std::uint32_t>(frames.size()))});
+    }
+}
 // mailbox.size() at each flash read, program and erase
 std::vector<std::size_t> media;
 
@@ -117,16 +165,39 @@ const ctrl_plat_stream kStreams[CTRL_SRP_SOURCES] = CTRL_PLAT_STREAMS_INIT;
 
 // mbx_hal.h on the model, every access in the shared order; another
 // contract's bitstream answers ID without this contract's magic
+// While nonzero, that many reads of ADP's TX_TAIL find its ring full (B18)
+unsigned adp_full = 0;
+// Set, reads of ACMP's TX_TAIL find its last word not yet taken (B21)
+bool acmp_busy = false;
+
 extern "C" std::uint32_t mbx_hal_read32(std::uint32_t offset) {
     std::uint32_t value = mbx_model_read(&fabric, offset);
+    if (adp_full != 0u && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        --adp_full;
+        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ADP].tx_head - MBX_CH_ADP_TX_WORDS);
+    }
+    if (acmp_busy && offset == MBX_CH_BASE + MBX_CH_ACMP * MBX_CH_STRIDE + MBX_CH_REG_TX_TAIL) {
+        value = static_cast<std::uint16_t>(fabric.ch[MBX_CH_ACMP].tx_head - 1u);
+    }
     if (other_contract && offset == MBX_REG_ID) value = 0u;
     mailbox.push_back({bus().log.size(), false, offset, value});
     return value;
 }
 
+// Set, the mailbox's transmit stops at the ADP ring's next commit, before it is taken (B12);
+// held_at is mailbox.size() at that commit
+bool hold_adp = false;
+std::size_t held_at = 0;
+
 extern "C" void mbx_hal_write32(std::uint32_t offset, std::uint32_t value) {
     mailbox.push_back({bus().log.size(), true, offset, value});
+    if (hold_adp && offset == MBX_CH_BASE + MBX_CH_ADP * MBX_CH_STRIDE + MBX_CH_REG_TX_HEAD) {
+        hold_adp = false;
+        held_at = mailbox.size();
+        mbx_model_tx_pause(&fabric, true);
+    }
     mbx_model_write(&fabric, offset, value, 0xFu);
+    take_frames();
 }
 
 extern "C" void mbx_hal_wait(void) {}
@@ -141,13 +212,7 @@ struct Boot : ::testing::Test {
     std::vector<std::uint8_t> image;
 
     void SetUp() override {
-        bus().reset();
-        mailbox.clear();
-        media.clear();
-        other_contract = false;
-        mbx_model_reset(&fabric);
-        mbx_model_far_bind(&fabric, &side);
-        for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_link(&fabric, i, true);
+        fabric_from_reset();
         nvm_fmodel_blank();
         nvm_fmodel_power_on();
         nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_B + NVM_SLOT_BYTES);
@@ -170,6 +235,124 @@ struct Boot : ::testing::Test {
         srp_mbx_destroy(&ctrl_plat.srp);
         mbx_model_far_bind(&fabric, nullptr);
     }
+    // Every bus and the mailbox from reset, as SetUp and the configuration reload start them
+    void fabric_from_reset() {
+        bus().reset();
+        mailbox.clear();
+        media.clear();
+        frames.clear();
+        hold_adp = false;
+        held_at = 0;
+        acmp_busy = false;
+        adp_full = 0;
+        other_contract = false;
+        mbx_model_reset(&fabric);
+        mbx_model_far_bind(&fabric, &side);
+        for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_link(&fabric, i, true);
+    }
+    // The reset a REBOOT ends in: the configuration reload starts the fabric, the CPU and its
+    // memory from the bitstream, and the flash keeps its contents (docs/design/REBOOT_RESET.md)
+    void reload() {
+        TearDown();
+        fabric_from_reset();
+        nvm_fmodel_power_on();
+    }
+    // One loop pass, each of both clocks a millisecond on
+    void pass_ms(unsigned ms = 1) {
+        mbx_model_advance_ms(&fabric, ms);
+        nvm_fmodel_advance_us(1000ull * ms);
+        ctrl_plat_step();
+        take_frames();
+    }
+    // An AEM command from a controller, as the datapath delivers it (IEEE 1722.1-2021 9.2.1)
+    void aem(std::uint16_t cmd, const std::vector<std::uint8_t>& body, std::uint64_t controller,
+             std::uint64_t mac) {
+        std::vector<std::uint8_t> f(38 + body.size());
+        auto put = [&f](std::size_t at, std::uint64_t v, unsigned n) {
+            for (unsigned k = 0; k < n; ++k) f[at + k] = static_cast<std::uint8_t>(v >> (8 * (n - k - 1)));
+        };
+        put(0, ctrl_plat.config.entity->mac, 6);
+        put(6, mac, 6);
+        put(12, 0x22f0u, 2);
+        f[14] = 0xfbu;
+        put(16, 12u + body.size(), 2);
+        put(18, ctrl_plat.config.entity->entity_id, 8);
+        put(26, controller, 8);
+        put(34, ++sequence, 2);
+        put(36, cmd, 2);
+        std::copy(body.begin(), body.end(), f.begin() + 38);
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << "the command reaches the mailbox";
+    }
+    std::uint16_t sequence = 0;
+    // The writes of the reset port, as bus().log positions
+    std::vector<std::size_t> reboot_writes() const {
+        std::vector<std::size_t> out;
+        for (std::size_t k = 0; k < bus().log.size(); ++k) {
+            if (bus().log[k].write && bus().log[k].address == kReboot) out.push_back(k);
+        }
+        return out;
+    }
+    static std::uint64_t field(const mbx_model_tx& f, std::size_t at, unsigned n) {
+        std::uint64_t v = 0;
+        for (unsigned k = 0; k < n; ++k) v = v << 8 | f.bytes[at + k];
+        return v;
+    }
+    // The AECP frames sent from `from` on with command_type cmd (u included)
+    std::vector<const Sent*> aecp_frames(std::size_t from, std::uint16_t cmd) const {
+        std::vector<const Sent*> out;
+        for (std::size_t k = from; k < frames.size(); ++k) {
+            const auto& f = frames[k].frame;
+            if (f.channel == MBX_CH_AECP && field(f, 36, 2) == cmd) out.push_back(&frames[k]);
+        }
+        return out;
+    }
+    // The ENTITY_DEPARTINGs sent from `from` on (IEEE 1722.1-2021 6.2.1, message_type 1)
+    std::vector<const Sent*> departing(std::size_t from) const {
+        std::vector<const Sent*> out;
+        for (std::size_t k = from; k < frames.size(); ++k) {
+            const auto& f = frames[k].frame;
+            if (f.channel == MBX_CH_ADP && (f.bytes[15] & 0x0fu) == 1u) out.push_back(&frames[k]);
+        }
+        return out;
+    }
+    // Each channel's register `reg` written from mailbox position `from` to `to`, ADP's skipped when `adp` is
+    // false: an RX_TAIL write is a frame taken, a TX_HEAD write a transmission started (mbx.c)
+    static std::size_t ring_writes(std::size_t from, std::size_t to, std::uint32_t reg, bool adp) {
+        std::size_t n = 0;
+        for (std::size_t k = from; k < to && k < mailbox.size(); ++k) {
+            const auto& m = mailbox[k];
+            if (!m.write || m.offset < MBX_CH_BASE || m.offset >= MBX_CH_BASE + MBX_N_CH * MBX_CH_STRIDE) continue;
+            const std::uint32_t ch = (m.offset - MBX_CH_BASE) / MBX_CH_STRIDE;
+            if ((m.offset - MBX_CH_BASE) % MBX_CH_STRIDE == reg && (adp || ch != MBX_CH_ADP)) ++n;
+        }
+        return n;
+    }
+    // A BIND_RX of sink 0 from a controller, as the datapath delivers it (IEEE 1722.1-2021 8.2.1)
+    void bind_rx() {
+        acmp_test::Pdu bind;
+        bind.msg = spec::MSG_BIND_RX_COMMAND;
+        bind.controller = acmp_test::kCtl1;
+        bind.talker = acmp_test::kTkA;
+        bind.listener = ctrl_plat.config.entity->entity_id;
+        const auto frame = acmp_test::acmpdu(bind);
+        ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) << "the BIND_RX reaches the mailbox";
+    }
+    // An ENTITY_DISCOVER for every entity (IEEE 1722.1-2021 6.2.1: message_type 2, entity_id 0, cdl 56)
+    void discover() {
+        std::vector<std::uint8_t> f(14 + 68, 0);
+        const std::uint8_t head[] = {0x91, 0xe0, 0xf0, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x83,
+                                     0x22, 0xf0, 0xfa, 0x02, 0x00, 56};
+        std::copy(std::begin(head), std::end(head), f.begin());
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << "the ENTITY_DISCOVER reaches the mailbox";
+    }
+    bool bound() const {
+        acmp_sink_view sink{};
+        return acmp_view(&ctrl_plat.app.acmp.acmp, 0, &sink) && sink.bound;
+    }
+    static constexpr std::uintptr_t kReboot = 0xf0001800u;
+    static constexpr std::uint64_t kCtl = 0x0011223344556677ull, kCtlMac = 0x020000000081ull;
+    static constexpr std::uint64_t kOther = 0x0099aabbccddeeffull, kOtherMac = 0x020000000082ull;
+    static std::vector<std::uint8_t> entity0() { return {0, 0, 0, 0}; }
     void steps(unsigned n) {
         for (unsigned k = 0; k < n; ++k) ctrl_plat_step();
     }
@@ -399,6 +582,363 @@ TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
     EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u)
         << "B10 the bind is written back by the store's service on the loop's tick";
     EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
+}
+
+// ---- THE REBOOT (#871) ------------------------------------------------------
+
+namespace {
+
+// SET_NAME's body for the ENTITY's entity_name (IEEE 1722.1-2021 7.4.17.1)
+std::vector<std::uint8_t> entity_name(const std::string& name) {
+    std::vector<std::uint8_t> b(8 + 64, 0);
+    std::copy(name.begin(), name.end(), b.begin() + 8);
+    return b;
+}
+
+// GET_NAME's answer for the ENTITY's entity_name, from the frames from `from` on
+std::string answered_name(const std::vector<Sent>& sent, std::size_t from) {
+    for (std::size_t k = from; k < sent.size(); ++k) {
+        const auto& f = sent[k].frame;
+        if (f.channel == MBX_CH_AECP && f.bytes[36] == 0 && f.bytes[37] == 17u && f.len >= 46u + 64u) {
+            const char* name = reinterpret_cast<const char*>(f.bytes + 46);
+            return std::string(name, strnlen(name, 64));
+        }
+    }
+    return "<no GET_NAME response>";
+}
+
+}  // namespace
+
+TEST_F(Boot, B11ARebootIsAnsweredNotifiedDepartsAndThenResets) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    aem(36, {}, kOther, kOtherMac);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    const auto resp = aecp_frames(from, 42), note = aecp_frames(from, 0x8000u | 42u);
+    const auto gone = departing(from);
+    const auto writes = reboot_writes();
+    ASSERT_EQ(resp.size(), 1u) << "B11 the REBOOT is answered once";
+    EXPECT_EQ(field(resp[0]->frame, 16, 2) >> 11, 0u) << "B11 a REBOOT of the ENTITY is SUCCESS";
+    EXPECT_EQ(field(resp[0]->frame, 26, 8), kCtl) << "B11 the response goes to the requester";
+    EXPECT_EQ(field(resp[0]->frame, 38, 4), 0u) << "B11 the response echoes ENTITY 0";
+    ASSERT_EQ(note.size(), 1u) << "B11 the other registered controller is notified";
+    EXPECT_EQ(field(note[0]->frame, 26, 8), kOther) << "B11 the other registered controller is notified";
+    EXPECT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B11 every interface sends ENTITY_DEPARTING";
+    ASSERT_EQ(writes.size(), 1u) << "B11 the reset port is written once";
+    EXPECT_EQ(bus().log[writes[0]].value, 1u) << "B11 the reset port is written once";
+    EXPECT_LE(resp[0]->plat, writes[0]) << "B11 the response leaves before the reset";
+    EXPECT_LE(note[0]->plat, writes[0]) << "B11 the notification leaves before the reset";
+    for (const auto* d : gone) {
+        EXPECT_GE(d->plat, note[0]->plat) << "B11 ENTITY_DEPARTING follows the notification";
+        EXPECT_LE(d->plat, writes[0]) << "B11 ENTITY_DEPARTING leaves before the reset";
+    }
+    const std::size_t after = frames.size();
+    aem(7, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    EXPECT_TRUE(aecp_frames(after, 7).empty()) << "B11 no command is answered after the SUCCESS";
+    EXPECT_EQ(reboot_writes().size(), 1u) << "B11 the reset port is written once";
+}
+
+TEST_F(Boot, B12TheResetWaitsForTheResponseToLeave) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    mbx_model_tx_pause(&fabric, true);
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 300; ++k) pass_ms();
+    EXPECT_TRUE(aecp_frames(from, 42).empty()) << "B12 the mailbox holds the response";
+    EXPECT_TRUE(reboot_writes().empty()) << "B12 no reset while the mailbox holds the response";
+    EXPECT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled) << "B12 nor is ADP shut down";
+    // the response leaves, and the mailbox then holds what ADP commits next: its ENTITY_DEPARTINGs
+    hold_adp = true;
+    mbx_model_tx_pause(&fabric, false);
+    take_frames();
+    for (unsigned k = 0; k < 300; ++k) pass_ms();
+    EXPECT_FALSE(hold_adp) << "B12 the mailbox holds ENTITY_DEPARTING";
+    EXPECT_FALSE(ctrl_plat.app.adp.ifs[0].adp.enabled) << "B12 the response has left, so ADP is shut down";
+    EXPECT_TRUE(departing(from).empty()) << "B12 the mailbox holds ENTITY_DEPARTING";
+    EXPECT_TRUE(reboot_writes().empty()) << "B12 no reset while the mailbox holds ENTITY_DEPARTING";
+    mbx_model_tx_pause(&fabric, false);
+    take_frames();
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    const auto resp = aecp_frames(from, 42);
+    const auto gone = departing(from);
+    const auto writes = reboot_writes();
+    ASSERT_EQ(resp.size(), 1u) << "B12 the response leaves";
+    ASSERT_EQ(writes.size(), 1u) << "B12 once the response leaves, the reset port is written";
+    EXPECT_LE(resp[0]->plat, writes[0]) << "B12 the response leaves before the reset";
+    ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B12 ENTITY_DEPARTING leaves";
+    for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B12 ENTITY_DEPARTING leaves before the reset";
+}
+
+TEST_F(Boot, B13RefusalsLeaveTheEntityInService) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    aem(36, {}, kOther, kOtherMac);
+    for (unsigned k = 0; k < 20; ++k) pass_ms();
+    struct Case {
+        std::vector<std::uint8_t> body;
+        unsigned status;
+        const char* what;
+    };
+    const std::vector<Case> cases = {
+        {{0, 0}, 7u, "B13 BAD_ARGUMENTS short of Figure 7-68's four bytes"},
+        {{0, 5, 0, 0}, 11u, "B13 NOT_SUPPORTED for a STREAM_INPUT"},
+        {{0, 0x0b, 0, 0}, 11u, "B13 NOT_SUPPORTED for a MEMORY_OBJECT, which this entity lacks"},
+        {{0, 0, 0, 1}, 2u, "B13 NO_SUCH_DESCRIPTOR for another ENTITY index"},
+        {{}, 3u, "B13 ENTITY_LOCKED under another controller's lock"},
+    };
+    for (const auto& c : cases) {
+        if (c.status == 3u) {
+            aem(1, std::vector<std::uint8_t>(16, 0), kOther, kOtherMac);
+            for (unsigned k = 0; k < 20; ++k) pass_ms();
+        }
+        const std::size_t from = frames.size();
+        aem(42, c.status == 3u ? entity0() : c.body, kCtl, kCtlMac);
+        for (unsigned k = 0; k < 30; ++k) pass_ms();
+        const auto resp = aecp_frames(from, 42);
+        ASSERT_EQ(resp.size(), 1u) << c.what;
+        EXPECT_EQ(field(resp[0]->frame, 16, 2) >> 11, c.status) << c.what;
+        EXPECT_EQ(field(resp[0]->frame, 16, 2) & 0x7ffu, 16u) << c.what << ", at cdl 16";
+        EXPECT_TRUE(aecp_frames(from, 0x8000u | 42u).empty()) << c.what << ", notifying no one";
+        aem(7, entity0(), kCtl, kCtlMac);
+        for (unsigned k = 0; k < 30; ++k) pass_ms();
+        EXPECT_EQ(aecp_frames(from, 7).size(), 1u) << c.what << ", leaving the entity in service";
+    }
+    EXPECT_TRUE(reboot_writes().empty()) << "B13 a refused REBOOT resets nothing";
+    EXPECT_TRUE(departing(0).empty()) << "B13 a refused REBOOT sends no ENTITY_DEPARTING";
+}
+
+TEST_F(Boot, B14WithoutAResetPortRebootIsNotImplemented) {
+    ASSERT_EQ(env.reboot, 0u);
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const auto resp = aecp_frames(from, 42);
+    ASSERT_EQ(resp.size(), 1u) << "B14 the REBOOT is answered";
+    EXPECT_EQ(field(resp[0]->frame, 16, 2) >> 11, 1u) << "B14 without a reset port REBOOT is NOT_IMPLEMENTED";
+    aem(7, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 30; ++k) pass_ms();
+    EXPECT_EQ(aecp_frames(from, 7).size(), 1u) << "B14 and the entity stays in service";
+    EXPECT_TRUE(departing(0).empty()) << "B14 and sends no ENTITY_DEPARTING";
+}
+
+TEST_F(Boot, B15TheResetRestoresTheSavedStateAndAdvertisesAgain) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    aem(16, entity_name("after the reboot"), kCtl, kCtlMac);
+    acmp_test::Pdu bind;
+    bind.msg = spec::MSG_BIND_RX_COMMAND;
+    bind.controller = acmp_test::kCtl1;
+    bind.talker = acmp_test::kTkA;
+    bind.listener = ctrl_plat.config.entity->entity_id;
+    const auto frame = acmp_test::acmpdu(bind);
+    ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0));
+    for (unsigned k = 0; k < 400 && (nvm_store_status()->dirty != 0 || nvm_store_status()->pending != 0 ||
+                                     nvm_store_status()->commits_ok == 0u); ++k) {
+        pass_ms(10);
+    }
+    ASSERT_GT(nvm_store_status()->commits_ok, 0u) << "B15 the name and the binding are saved";
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B15 the REBOOT fires the reset port";
+    reload();
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B15 the image boots again after the reset";
+    acmp_sink_view sink{};
+    ASSERT_TRUE(acmp_view(&ctrl_plat.app.acmp.acmp, 0, &sink));
+    EXPECT_TRUE(sink.bound) << "B15 the binding is restored";
+    const std::size_t from = frames.size();
+    aem(17, std::vector<std::uint8_t>(8, 0), kCtl, kCtlMac);
+    auto available = [] {
+        return std::any_of(frames.begin(), frames.end(), [](const Sent& s) {
+            return s.frame.channel == MBX_CH_ADP && (s.frame.bytes[15] & 0x0fu) == 0u;
+        });
+    };
+    unsigned ms = 0;
+    for (; ms < 20000u && !available(); ms += 10) pass_ms(10);
+    EXPECT_LT(ms, 20000u) << "B15 ADP advertises again within its valid time";
+    EXPECT_EQ(answered_name(frames, from), "after the reboot") << "B15 the saved name is restored";
+}
+
+TEST_F(Boot, B16ARebootDuringTheJournalWriteKeepsTheChange) {
+    env.reboot = kReboot;
+    nvm_fmodel_times(200000, 2000);
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    const unsigned erases = nvm_fmodel_count()->erases, commits = nvm_store_status()->commits_ok;
+    aem(16, entity_name("kept"), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 4000 && nvm_fmodel_count()->erases == erases; ++k) pass_ms();
+    ASSERT_GT(nvm_fmodel_count()->erases, erases) << "B16 the change's journal write has started";
+    ASSERT_EQ(nvm_store_status()->commits_ok, commits) << "B16 and has not completed";
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B16 the REBOOT fires the reset port";
+    // KL_reboot_ctrl's drain: until no live writer or nothing accepted outside a slot, at most 10,000 ms
+    unsigned drained = 0;
+    auto settled = [] {
+        mbx_model_face v{};
+        mbx_model_face_view(&fabric, 0, &v);
+        const bool backed = (v.nvm >> MBX_F_NVM_BACKED_LSB) & 1u, dirty = (v.nvm >> MBX_F_NVM_DIRTY_LSB) & 1u,
+                   pend = (v.nvm >> MBX_F_NVM_PEND_LSB) & 1u;
+        return !backed || (!dirty && !pend);
+    };
+    for (; drained < 10000u && !settled(); drained += 10) pass_ms(10);
+    EXPECT_LT(drained, 10000u) << "B16 the drain ends because the write completed, not at its deadline";
+    EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u) << "B16 the write in progress completes";
+    nvm_fmodel_advance_us(3500000);
+    reload();
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B16 the image boots again after the reset";
+    const std::size_t from = frames.size();
+    aem(17, std::vector<std::uint8_t>(8, 0), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    EXPECT_EQ(answered_name(frames, from), "kept") << "B16 the change made before the REBOOT is kept";
+}
+
+TEST_F(Boot, B17NothingIsTakenOrSentOnceTheResetPortFired) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    // a bound listener, saved, so ACMP and SRP have frames of their own to send
+    bind_rx();
+    for (unsigned k = 0; k < 400 && (nvm_store_status()->dirty != 0 || nvm_store_status()->pending != 0 ||
+                                     nvm_store_status()->commits_ok == 0u); ++k) {
+        pass_ms(10);
+    }
+    ASSERT_TRUE(bound()) << "B17 the listener is bound and saved before the REBOOT";
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B17 the REBOOT fires the reset port";
+    const std::size_t from = frames.size(), at = mailbox.size();
+    const unsigned erases = nvm_fmodel_count()->erases, commits = nvm_store_status()->commits_ok;
+    bind_rx();
+    // the PHY hold's 3,500 ms, past the store's debounce and a write's
+    for (unsigned k = 0; k < 350; ++k) pass_ms(10);
+    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
+        << "B17 a bind after the reset port fired is not taken";
+    EXPECT_TRUE(std::none_of(frames.begin() + static_cast<std::ptrdiff_t>(from), frames.end(),
+                             [](const Sent& s) { return s.frame.channel == MBX_CH_ACMP; }))
+        << "B17 a bind after the reset port fired is not answered";
+    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_TX_HEAD, true), 0u)
+        << "B17 nothing is sent once the reset port fired";
+    EXPECT_EQ(nvm_fmodel_count()->erases, erases) << "B17 no journal write starts during the PHY hold";
+    EXPECT_EQ(nvm_store_status()->commits_ok, commits) << "B17 no journal write starts during the PHY hold";
+}
+
+TEST_F(Boot, B18ADepartingTheRingRefusedHoldsTheReset) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
+    // ADP's ring is full for its SHUTDOWN's sends and its next poll's, then drained
+    adp_full = 2u * MBX_N_IF;
+    bool owed = false;
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) {
+        pass_ms();
+        for (unsigned i = 0; i < MBX_N_IF; ++i) owed = owed || ctrl_plat.app.adp.ifs[i].adp.departing_owed != 0u;
+    }
+    EXPECT_TRUE(owed) << "B18 ENTITY_DEPARTING was owed while ADP's ring had no room";
+    const auto gone = departing(from);
+    const auto writes = reboot_writes();
+    ASSERT_EQ(writes.size(), 1u) << "B18 the reset port is written once ENTITY_DEPARTING has left";
+    ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B18 ENTITY_DEPARTING leaves before the reset";
+    for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B18 ENTITY_DEPARTING leaves before the reset";
+}
+
+TEST_F(Boot, B19NoFrameOfAnyChannelIsTakenFromTheSuccess) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    // the mailbox holds the response, so the window from the SUCCESS to the reset lasts
+    mbx_model_tx_pause(&fabric, true);
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 20; ++k) pass_ms();
+    ASSERT_TRUE(aecp_reboot_accepted(&ctrl_plat.aecp.core)) << "B19 the REBOOT is accepted at its SUCCESS";
+    ASSERT_TRUE(aecp_frames(from, 42).empty()) << "B19 the mailbox holds the response";
+    const std::size_t at = mailbox.size();
+    discover();
+    bind_rx();
+    aem(7, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 300; ++k) pass_ms();
+    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
+        << "B19 no frame of any channel is taken after the REBOOT's SUCCESS";
+    mbx_model_tx_pause(&fabric, false);
+    take_frames();
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    ASSERT_EQ(reboot_writes().size(), 1u) << "B19 the reset port is written once";
+    EXPECT_EQ(ring_writes(at, mailbox.size(), MBX_CH_REG_RX_TAIL, true), 0u)
+        << "B19 no frame of any channel is taken after the REBOOT's SUCCESS";
+    EXPECT_FALSE(bound()) << "B19 a BIND_RX after the REBOOT's SUCCESS is not applied";
+    EXPECT_TRUE(std::none_of(frames.begin() + static_cast<std::ptrdiff_t>(from), frames.end(),
+                             [](const Sent& s) { return s.frame.channel == MBX_CH_ACMP; }))
+        << "B19 a BIND_RX after the REBOOT's SUCCESS is not answered";
+    EXPECT_TRUE(aecp_frames(from, 7).empty()) << "B19 an AEM command after the REBOOT's SUCCESS is not answered";
+}
+
+TEST_F(Boot, B20NoOtherChannelTransmitsAfterTheDeparting) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    // a bound listener before the REBOOT, so ACMP and SRP have frames of their own to send
+    bind_rx();
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    ASSERT_TRUE(bound()) << "B20 the listener is bound before the REBOOT";
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
+    ASSERT_EQ(aecp_frames(from, 42).size(), 1u) << "B20 the SUCCESS has left";
+    // the mailbox then holds what ADP commits next, its ENTITY_DEPARTING, for 5 s
+    hold_adp = true;
+    for (unsigned k = 0; k < 500 && hold_adp; ++k) pass_ms();
+    ASSERT_FALSE(hold_adp) << "B20 the mailbox holds ENTITY_DEPARTING";
+    for (unsigned k = 0; k < 500; ++k) pass_ms(10);
+    EXPECT_TRUE(reboot_writes().empty()) << "B20 no reset while the mailbox holds ENTITY_DEPARTING";
+    mbx_model_tx_pause(&fabric, false);
+    take_frames();
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    const auto writes = reboot_writes();
+    ASSERT_EQ(writes.size(), 1u) << "B20 the reset port is written once ENTITY_DEPARTING has left";
+    std::size_t port = mailbox.size();
+    for (std::size_t k = held_at; k < mailbox.size(); ++k) {
+        if (mailbox[k].plat > writes[0]) {
+            port = k;
+            break;
+        }
+    }
+    EXPECT_EQ(ring_writes(held_at, port, MBX_CH_REG_TX_HEAD, false), 0u)
+        << "B20 no other channel starts a transmission after ENTITY_DEPARTING";
+    const auto gone = departing(from);
+    ASSERT_FALSE(gone.empty()) << "B20 ENTITY_DEPARTING leaves";
+    for (std::size_t k = static_cast<std::size_t>(gone[0] - frames.data()); k < frames.size(); ++k)
+        EXPECT_EQ(frames[k].frame.channel, MBX_CH_ADP) << "B20 no frame but ADP's leaves after ENTITY_DEPARTING";
+}
+
+TEST_F(Boot, B21TheDepartingWaitsForEveryOtherRing) {
+    env.reboot = kReboot;
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    for (unsigned k = 0; k < 50; ++k) pass_ms();
+    const std::size_t from = frames.size();
+    aem(42, entity0(), kCtl, kCtlMac);
+    for (unsigned k = 0; k < 500 && aecp_frames(from, 42).empty(); ++k) pass_ms();
+    ASSERT_EQ(aecp_frames(from, 42).size(), 1u) << "B21 the SUCCESS has left";
+    // ACMP's ring still holds a frame's last word
+    acmp_busy = true;
+    for (unsigned k = 0; k < 300; ++k) pass_ms();
+    EXPECT_TRUE(departing(from).empty()) << "B21 no ENTITY_DEPARTING while another channel's ring holds a frame";
+    EXPECT_TRUE(ctrl_plat.app.adp.ifs[0].adp.enabled)
+        << "B21 no ENTITY_DEPARTING while another channel's ring holds a frame";
+    EXPECT_TRUE(reboot_writes().empty()) << "B21 nor the reset";
+    acmp_busy = false;
+    for (unsigned k = 0; k < 500 && reboot_writes().empty(); ++k) pass_ms();
+    const auto gone = departing(from);
+    const auto writes = reboot_writes();
+    ASSERT_EQ(writes.size(), 1u) << "B21 once the ring has drained, the reset port is written";
+    ASSERT_EQ(gone.size(), static_cast<std::size_t>(MBX_N_IF)) << "B21 ENTITY_DEPARTING leaves";
+    for (const auto* d : gone) EXPECT_LE(d->plat, writes[0]) << "B21 ENTITY_DEPARTING leaves before the reset";
 }
 
 }  // namespace

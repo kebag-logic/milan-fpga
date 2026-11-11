@@ -15,6 +15,7 @@
 #include "aecp_entity_gen.h"
 #include "aecp_image.h"
 #include "ctrl_plat_io.h"
+#include "mbx_hal.h"
 #include "nvm_store.h"
 #include "wire.h"
 
@@ -164,6 +165,43 @@ static void configure_sources(struct ctrl_plat *p)
 	p->srp_config.ctx = p;
 }
 
+// ---- the REBOOT (ctrl_plat.h) ----------------------------------------------
+
+// Each channel's take, behind the REBOOT's gate: from its SUCCESS no received
+// frame of any channel is taken, so no command reaches a protocol. A frame
+// stays in its ring, and the mailbox drops whole one that then finds no room
+// (RX_DROP), as the processor's top discards every frame from that point
+// (protocol-processor 06_aecp_engine.md 6.11; REQ-FWX-001; #871).
+static bool taking(void *ctx)
+{
+	const struct ctrl_loop_rx *own = ctx;
+	return !aecp_reboot_accepted(&ctrl_plat.aecp.core) && (own->ready == NULL || own->ready(own->ctx));
+}
+
+static void taken(void *ctx, const struct mbx_frame *f)
+{
+	const struct ctrl_loop_rx *own = ctx;
+	own->fn(own->ctx, f);
+}
+
+static void gate(struct ctrl_plat *p)
+{
+	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+		p->rx[ch] = p->app.loop.rx[ch];
+		if (p->rx[ch].fn != NULL) {
+			(void)ctrl_loop_bind_rx(&p->app.loop, ch, taken, &p->rx[ch]);
+			ctrl_loop_set_rx_ready(&p->app.loop, ch, taking);
+		}
+	}
+}
+
+// A channel's ring has handed every frame committed to it to the datapath
+static bool drained(unsigned ch)
+{
+	const uint32_t at = MBX_CH_BASE + ch * MBX_CH_STRIDE;
+	return (uint16_t)mbx_hal_read32(at + MBX_CH_REG_TX_TAIL) == (uint16_t)mbx_hal_read32(at + MBX_CH_REG_TX_HEAD);
+}
+
 // ---- the boot --------------------------------------------------------------
 
 static enum ctrl_plat_stage reach(struct ctrl_plat *p, enum ctrl_plat_stage stage, const char *line)
@@ -224,6 +262,7 @@ static bool compose(struct ctrl_plat *p)
 	p->aecp_config.map_count = AECP_ENTITY_MAPS;
 	p->aecp_config.events = events;
 	p->aecp_config.latency = latency;
+	p->aecp_config.reboot = p->env->reboot != 0u;
 	p->aecp_platform = (struct aecp_ports){.random = random_value, .path = path};
 	aecp_face_init(&p->face, &p->aecp_platform);
 	return ctrl_app_compose(&p->app, &p->config) &&
@@ -277,14 +316,73 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	}
 	// Step 9: ADP last, once AECP and ACMP accept requests
 	ctrl_app_release_adp(&p->app);
+	// With a reset port, every channel's take behind the REBOOT's gate
+	if (p->aecp_config.reboot) {
+		gate(p);
+	}
 	return reach(p, CTRL_PLAT_READY, CTRL_PLAT_READY_LINE);
+}
+
+// Once the loop has stopped for a REBOOT, the store alone, on its own
+// centisecond, and its F_NVM, which the drain reads. No frame or event is
+// taken, so nothing becomes dirty and no journal write starts during the PHY
+// hold, when the reload may read the flash (docs/design/REBOOT_RESET.md
+// section 4; #871).
+static void quiet(struct ctrl_plat *p)
+{
+	const uint32_t now = mbx_now_ms();
+	if ((uint32_t)(now - p->quiet_ms) >= 10u) {
+		p->quiet_ms = now;
+		nvm_store_service();
+	}
+	uint32_t restore = 0;
+	uint32_t nvm = 0;
+	bool dirty = false;
+	ctrl_app_aecp_store_words(nvm_store_status(), &restore, &nvm, &dirty);
+	aecp_face_status(&p->face, restore, nvm, dirty);
+	(void)aecp_face_poll(&p->face);
+	(void)ctrl_plat_console_poll(&p->console);
+}
+
+// Once the REBOOT's frames are out (aecp_reboot_due), the loop is not serviced
+// again, so no channel starts another transmission (REQ-FWX-001). Once every
+// other channel's ring has drained, ADP's SHUTDOWN: each advertising interface
+// sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3), so nothing follows it. Once
+// those have left too, the reset port (IEEE 1722.1-2021 7.4.43).
+static void depart(struct ctrl_plat *p)
+{
+	quiet(p);
+	if (p->reboot == 1u) {
+		for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+			if (ch != MBX_CH_ADP && !drained(ch)) {
+				return;
+			}
+		}
+		adp_mbx_set_enable(&p->app.adp, false);
+		p->reboot = 2u;
+	} else if (p->reboot == 2u) {
+		bool owed = false;
+		for (unsigned i = 0; i < MBX_N_IF; ++i) {
+			(void)adp_poll(&p->app.adp.ifs[i].adp);
+			owed = owed || p->app.adp.ifs[i].adp.departing_owed != 0u;
+		}
+		if (owed || !drained(MBX_CH_ADP)) {
+			return;
+		}
+		ctrl_plat_io_write32(p->env->reboot, 1u);
+		p->reboot = 3u;
+	}
 }
 
 void ctrl_plat_step(void)
 {
-	if (ctrl_plat.stage == CTRL_PLAT_READY) {
-		ctrl_loop_step(&ctrl_plat.app.loop);
-	} else {
+	if (ctrl_plat.stage != CTRL_PLAT_READY) {
 		(void)ctrl_plat_console_poll(&ctrl_plat.console);
+	} else if (ctrl_plat.reboot != 0u) {
+		depart(&ctrl_plat);
+	} else if (aecp_reboot_due(&ctrl_plat.aecp.core)) {
+		ctrl_plat.reboot = 1u;
+	} else {
+		ctrl_loop_step(&ctrl_plat.app.loop);
 	}
 }

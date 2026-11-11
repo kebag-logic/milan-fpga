@@ -163,6 +163,10 @@ struct aecp_config {
 	size_t map_count;
 	struct aecp_event *events; // model->count entries
 	uint32_t *latency; // one entry per STREAM_OUTPUT descriptor
+	// The platform resets the entity on an accepted REBOOT (IEEE 1722.1-2021
+	// 7.4.43; #871): it polls aecp_reboot_due, then fires its reset port.
+	// Without one, REBOOT is NOT_IMPLEMENTED, as before.
+	bool reboot;
 };
 struct aecp {
 	struct aecp_config cfg;
@@ -209,6 +213,12 @@ struct aecp {
 	unsigned held_interface;
 	size_t held_bytes;
 	uint8_t held[AECP_HELD_BYTES];
+	// An accepted REBOOT (#871): 1 from its SUCCESS, when no command is taken
+	// any more; 2 once every frame owed was handed to send, reboot_end the
+	// cookie after the last. tx_done is the cookie after the last completed.
+	uint8_t reboot;
+	uint32_t reboot_end;
+	uint32_t tx_done;
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
@@ -224,6 +234,13 @@ void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
 // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
 void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);
 bool aecp_locked(struct aecp *, uint64_t *owner);
+// IEEE 1722.1-2021 7.4.43 (#871): true once an accepted REBOOT's SUCCESS, its
+// notifications and every response owed with them have completed
+// (aecp_tx_complete). The platform then resets the entity.
+bool aecp_reboot_due(struct aecp *);
+// True from an accepted REBOOT's SUCCESS until the reset (#871). The platform
+// then takes no received frame of any channel (REQ-FWX-001).
+bool aecp_reboot_accepted(const struct aecp *);
 
 #ifdef CTRL_REENTRY_ASSERT
 void ctrl_reentry_assert(const char *module);

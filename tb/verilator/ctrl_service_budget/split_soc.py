@@ -358,7 +358,8 @@ class FlashBoundary(LiteXModule):
 def add_devices(soc: object, platform: object, addresses: dict[str, int], contract: object, n_if: int) -> None:
     """The mailbox where the fixture addresses it; the flash and timer0 in the split SoC's banks and
     window. The flash is add_spi_flash's (milan_soc.py: mode 1x, 12.5 MHz, with its command master)
-    with the native model as its PHY."""
+    with the native model as its PHY. The AECP REBOOT's reset port is the split SoC's own
+    (milan_soc.add_ctrl_reboot, #871), its level left to the testbench's SoC to observe."""
     soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if)
     soc.bus.add_slave('ctrl_mbx', soc.ctrl_mbx.bus, region=SoCRegion(
         origin=addresses['mailbox'], size=contract.window_bytes, cached=False))
@@ -379,6 +380,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
         origin=addresses['flash'], size=module.total_size, mode=spiflash.bus.mode + 'x'))
     soc.csr.add('timer0', n=(addresses['timer0'] - csr_base) // CSR_BANK_BYTES)
     soc.add_timer('timer0')
+    milan_soc.add_ctrl_reboot(soc)
 
 
 def fetch_l1_geometry(fetch_l1: str) -> tuple[int, int] | None:

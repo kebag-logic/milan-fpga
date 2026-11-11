@@ -22,6 +22,7 @@ static struct ctrl_plat_env env = {
 	.uart = {CTRL_PLAT_UART_RXTX, CTRL_PLAT_UART_TXFULL, CTRL_PLAT_UART_RXEMPTY, CTRL_PLAT_UART_EV_PENDING},
 	.policy = &policy, .streams = streams, .aaf_outputs = CTRL_PLAT_AAF_OUTPUTS,
 	.crf_output = CTRL_PLAT_CRF_OUTPUT, .link_rate_bps = CTRL_PLAT_LINK_BPS,
+	.reboot = CTRL_PLAT_REBOOT,
 };
 
 int main(void)

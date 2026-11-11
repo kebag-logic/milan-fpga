@@ -63,10 +63,12 @@ THE RULES are census_rules.py's ``split-*`` entries, each enforced only where
                      and sinks, reaches a cone end
   split-beyond       no bit of an entry past the shape's own is read
 
-THE REBOOT HOLD (#665). The split carries no REBOOT request: reboot_req_o's
-net, pp_reboot_req_w, is a constant 0 there, so KL_reboot_ctrl's reboot_req_i
-never rises (split-tied holds it). The REBOOT carrier is not built yet; until
-it is, the hold is documented here.
+THE REBOOT CARRIER (#871). The split's REBOOT request is the firmware's
+platform reset port: reboot_req_o's net, pp_reboot_req_w, is driven there by
+the datapath input i_reboot_req and by nothing else, never a constant
+(``G_CARRIED``; split-tied holds it). The port is a CSR of the split SoC, not
+a mailbox register, so the contract does not carry it, and reboot_req_o stays
+class G with census_ports.py's exclusion for the all-fabric datapath.
 """
 
 from __future__ import annotations
@@ -242,6 +244,11 @@ TIED_C = ("srp_domain_change_o", "srp_lstn_reg_state_o", "srp_granted_slope_bps_
 G_DRIVEN = {
     "host_ack_o": ("pp_req_w", "the host window answers every access at once, refused, so the CSR is never "
                                "left busy"),
+}
+#: The G outputs whose net the split drives from exactly one datapath port, never a constant (#871).
+G_CARRIED = {
+    "reboot_req_o": ("i_reboot_req", "the firmware's AECP owner requests the REBOOT's reset through the "
+                                     "platform reset port"),
 }
 #: The wrapper ports KL_ctrl_split takes over, by its port of the same name.
 FRAME_PORTS = ("rx_tdata_i", "rx_tkeep_i", "rx_tvalid_i", "rx_tready_i", "rx_tlast_i", "m_axis_tx_tdata",
@@ -572,7 +579,7 @@ def _tied(ctx: _Ctx) -> list[str]:
             continue
         named = ctx.face.bits.get(wport, ())
         bits = [b for b in _split_bits(ctx.net, named) if b is not None]
-        ruled = G_DRIVEN.get(wport, ("",))[0]
+        ruled = G_DRIVEN.get(wport, G_CARRIED.get(wport, ("",)))[0]
         srcs: set[tuple] = set()
         for b in bits:
             srcs |= ctx.back.sources(b)
@@ -580,6 +587,11 @@ def _tied(ctx: _Ctx) -> list[str]:
         if ruled and driven == [ruled]:
             continue
         driven = sorted(ctx.back.closure(bits))
+        if wport in G_CARRIED:
+            name = sorted({x[0] for x in named if isinstance(x, tuple)})
+            out.append(f"{', '.join(name)}, the net of the wrapper's G output {wport}, is driven by "
+                       f"{', '.join(driven) or 'a constant'} in the split, not by {ruled}")
+            continue
         if driven:
             name = sorted({x[0] for x in named if isinstance(x, tuple)})
             kind = "G output" if wport in census_ports.PORTS["G"] else "class-D value the block does not carry"
