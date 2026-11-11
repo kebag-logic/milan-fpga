@@ -581,9 +581,10 @@ A change of a sink's Table 5.22 items is reported through the env's
 been taken by the transmit ring (#653). A response that finds no room is
 owed, in order (at most eight frames), and its change waits with it. A
 command that arrives with all eight owed is declined, not dropped: the
-adapter keeps it, takes no later acmp record, and offers it again after the
-next poll that sends an owed frame (tsn-c-stack ACMP-12; the adapter's
-header states the passes). The
+adapter keeps it and takes no later acmp record. After each poll that sends
+an owed frame it offers the kept command again, then the records waiting in
+the acmp ring, until the core declines one or none is left (tsn-c-stack
+ACMP-12, its redelivery rule; the adapter's header states the passes). The
 F5 application bridge queues the corresponding AECP notification from that port. Every port call is
 bracketed by a flag, and an entry while it is set does nothing but count
 (#678); the host tests' build also reports it to the test.
@@ -672,14 +673,17 @@ The H-DISC rows are measured from the record the model's filter commits (its
 RX_HEAD), through the bound-talker term, at one interface and, in the
 `acmpif2` arm, at each of two.
 
-A pass of the composition costs at most 1,030 accesses (`ACMP_MBX_PASS_MAX`;
-1,012 before the publication block). That covers 8 events at 6 + 31 + 4,
-sixteen sinks' due timers at one probe each, the clock read after it and one
-`BINDING` write (24), 2 adp records at 36 + 7, 2 acmp records at 36 + 52 (a
-BIND's `BINDING` write included), ADP's poll at 31 and one owed ACMP frame at
-25 (a probe's: the clock and its TMR_NO_RESP). ADP's records and events are
-served by the same passes, so the ADP figures above (407 a pass) hold for ADP
-alone. With ACMP composed, ADP's figures take the same pass count at 1,030.
+A pass of the composition costs at most 2,754 accesses (`ACMP_MBX_PASS_MAX`;
+1,030 before the kept command's redelivery, 1,012 before the publication
+block). That covers 8 events at 6 + 31 + 4, sixteen sinks' due timers at one
+probe each, the clock read after it and one `BINDING` write (24), 2 adp
+records at 36 + 7, 2 acmp records at 36 + 52 (a BIND's `BINDING` write
+included), ADP's poll at 31, one owed ACMP frame at 25 (a probe's: the clock
+and its TMR_NO_RESP) and, after it, the redelivery at 1,724: the kept
+command's handler (52) and a full ring of 19 records at 36 + 52
+(`ACMP_MBX_REDELIVER_MAX`). ADP's records and events are served by the same
+passes, so the ADP figures above (407 a pass) hold for ADP alone. With ACMP
+composed, ADP's figures take the same pass count at 2,754.
 
 The bound with a backlog counts from a pass already running when the input
 arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
@@ -690,29 +694,32 @@ The access times are the bound's time over its accesses, rounded down.
 
 | Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
 |---|---:|---:|---:|---:|---|
-| an event behind 15 others | 2 | 3,090 | 3.23 us | 6.47 us | every event by pass 2; worst pass 193 accesses |
-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 0.88 us | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.44 us | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 1.07 us | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
+| an event behind 15 others | 2 | 8,262 | 1.21 us | 2.42 us | every event by pass 2; worst pass 193 accesses |
+| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 30,294 | 0.33 us | 0.66 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 60,588 | 0.16 us | 0.33 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 24,786 | 0.40 us | 0.80 us | pass k + 1 for k = 0, 3 and 7: 26, 104 and 208 accesses |
 
 The access time is not measured (A4). At F0's assumed 1 us per access every
-path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
-The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
-that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
-9,270 accesses (8,865 before round 2 added the probe's timer to a poll,
-8,964 before round 4 added the clock read after each probe sent at once, and
-9,108 before the publication block), fits T_svc at that figure: 9.27 ms, the
-time waiting for room excluded. The
+path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc
+(8.26 ms). The bounds behind a full acmp ring or a full adp ring do not fit
+T_svc at that figure, and both exceed the ceiling. The owed-frame bound,
+24,786 accesses (9,270 before the kept command's redelivery, 8,865 before
+round 2 added the probe's timer to a poll, 8,964 before round 4 added the
+clock read after each probe sent at once, and 9,108 before the publication
+block), no longer fits T_svc at that figure: 24.79 ms, over the ceiling too,
+the time waiting for room excluded. Each poll that sends now also reads the
+acmp ring's RX_HEAD once for the redelivery, so the measured owed paths take
+one access more a pass. The
 bounds charge every pass with every term at its maximum at once (sixteen
-sinks each probing, eight events each at ADP's costliest action), which the
-measured backlogs stay far below. Whether these paths meet T_svc on the
+sinks each probing, eight events each at ADP's costliest action, a full ring
+redelivered after every poll), which the measured backlogs stay far below. Whether these paths meet T_svc on the
 shipping core is open until the access time is measured (see
 [Open items](#open-items)). Meeting it may need a tighter per-pass
 composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
 with margin) needs the datapath tap and is not measured here.
 
 With MAAP and F3b freshness publication composed as well, a pass costs at most
-1,783 accesses (`CTRL_APP_THREE_PASS_MAX`; 1,879 at two interfaces).
+3,507 accesses (`CTRL_APP_THREE_PASS_MAX`; 3,603 at two interfaces).
 MAAP adds each of eight event callbacks at 65 accesses, two records at
 20 + 64, and each interface's poll at 65. These bounds fund up to sixteen
 source freshness reads in the dispatch path, outside every MAAP callback.
@@ -720,23 +727,22 @@ Each input has the same pass count as above.
 
 | Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
 |---|---:|---:|---:|---:|
-| an event behind 15 others | 2 | 5,349 | 1.86 us | 3.73 us |
-| an ACMP command behind a full acmp ring | 10 | 19,613 | 0.50 us | 1.01 us |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.25 us | 0.50 us |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 0.62 us | 1.24 us |
+| an event behind 15 others | 2 | 10,521 | 0.95 us | 1.90 us |
+| an ACMP command behind a full acmp ring | 10 | 38,577 | 0.25 us | 0.51 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 77,154 | 0.12 us | 0.25 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 31,563 | 0.31 us | 0.63 us |
 
 On the model, 15 events, 12 acmp records and 7 maap records behind them
 take a worst pass of 231 accesses (233 at two interfaces), every record and
 event within 10 passes (`test_acmp_mbx.cpp` F6).
 
-At F0's assumed 1 us per access, only the event bound still fits T_svc
-(5.35 ms). The owed-frame bound, which fits it without MAAP, no longer does
-(16.05 ms, under the ceiling); the bound behind a full acmp ring stays
-under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
-(39.23 ms).
+At F0's assumed 1 us per access no bound fits T_svc. The event bound
+(10.52 ms) is under the ceiling; the owed-frame bound (31.56 ms), the bound
+behind a full acmp ring (38.58 ms) and the one behind a full adp ring
+(77.15 ms) exceed it.
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
-accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 5,247
+accesses at one interface and 6,153 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
 Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
@@ -764,12 +770,12 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
-| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
+| an event behind 15 others | 2 | 15,741 / 18,459 | 0.63 / 0.54 us |
+| an ACMP command behind a full acmp ring | 10 | 57,717 / 67,683 | 0.17 / 0.14 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 115,434 / 135,366 | 0.08 / 0.07 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 47,223 / 55,377 | 0.21 / 0.18 us |
 
-At 1 us per access, event envelopes are 10.569 / 13.287 ms.
+At 1 us per access, event envelopes are 15.741 / 18.459 ms.
 Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
 ceiling still covers both event envelopes, but none of the other rows.
 The firmware gate compiles these header bounds at both interface counts.

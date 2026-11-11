@@ -387,11 +387,11 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
   its end. A refusal stops the composition before the later modules attach.
 - **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
-  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,030 at
+  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 2,754 at
   one interface) plus MAAP's share of 753, its costliest action on each of
   the 8 events (65, freshness queries included), its 2 maap records
-  (20 + 64) and its poll on each interface (65). That is 1,783 at one
-  interface and 1,879 at two. It is also the two modules' own pass bounds
+  (20 + 64) and its poll on each interface (65). That is 3,507 at one
+  interface and 3,603 at two. It is also the two modules' own pass bounds
   less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (801 at
   one interface, 866 at two) less the 6 accesses of each of the 8 event
   records. Every pass
@@ -439,7 +439,7 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,523 accesses at one interface and 4,429 at two. The SRP bound counts one maximum-size frame per
+The result is 5,247 accesses at one interface and 6,153 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.
