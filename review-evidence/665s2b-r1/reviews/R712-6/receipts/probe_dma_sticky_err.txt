@@ -1,0 +1,25 @@
+    [ RUN      ] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted
+    <packet>/scratch/pool-probe/sw/firmware/ctrl/test/test_mbx_dma_driver.cpp:335: Failure
+    Expected equality of these values:
+        Which is: 3
+        Which is: 0
+    probe: a word-loop record after a failed move is sent
+      [FAIL] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted: probe: a word-loop record after a failed move is sent
+    <packet>/scratch/pool-probe/sw/firmware/ctrl/test/test_mbx_dma_driver.cpp:337: Failure
+    Expected equality of these values:
+        Which is: 100
+        Which is: 118
+    probe: and committed at TX_HEAD
+      [FAIL] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted: probe: and committed at TX_HEAD
+    <packet>/scratch/pool-probe/sw/firmware/ctrl/test/test_mbx_dma_driver.cpp:339: Failure
+    Expected equality of these values:
+        Which is: 3
+        Which is: 0
+    probe: and so is the next word-loop record
+      [FAIL] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted: probe: and so is the next word-loop record
+    [  FAILED  ] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted (0 ms)
+    [  FAILED  ] 1 test, listed below:
+    [  FAILED  ] MbxDma.ProbeAWordLoopRecordAfterAFailedMoveIsCommitted
+     1 FAILED TEST
+arm unit: rc 1
+rc=1

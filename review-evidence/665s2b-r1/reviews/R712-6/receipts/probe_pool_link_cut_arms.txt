@@ -1,0 +1,37 @@
+wrote <packet>/scratch/pool-out/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/pool-out/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/pool-out/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/pool-out/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/pool-out/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/pool-out/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+arm port: rc 0; FAILED lines 0
+arm lwsrp: rc 0; FAILED lines 0
+arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8: rc 1; FAILED lines 63
+    [  FAILED  ] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt (67 ms)
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported (1 ms)
+    [  FAILED  ] Srp.PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits (49 ms)
+    [  FAILED  ] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst (54 ms)
+    [  FAILED  ] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails (0 ms)
+    [  FAILED  ] Srp.InterfaceStateDoesNotCross (0 ms)
+arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8: rc 1; FAILED lines 15
+    [  FAILED  ] SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond (0 ms)
+    [  FAILED  ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+    [  FAILED  ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+    [  FAILED  ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+    [  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+    [  FAILED  ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8: rc 1; FAILED lines 71
+    [  FAILED  ] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt (114 ms)
+    [  FAILED  ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported (3 ms)
+    [  FAILED  ] Srp.PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits (104 ms)
+    [  FAILED  ] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst (122 ms)
+    [  FAILED  ] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails (0 ms)
+    [  FAILED  ] Srp.InterfaceStateDoesNotCross (3 ms)
+arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8: rc 1; FAILED lines 17
+    [  FAILED  ] SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond (0 ms)
+    [  FAILED  ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+    [  FAILED  ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (3 ms)
+    [  FAILED  ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+    [  FAILED  ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+    [  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+rc=1

@@ -1,0 +1,7 @@
+Reviewer plant (disposable) in a scratch copy of head e7e2b744, sw/firmware/ctrl/port/ctrl_pool.c, ctrl_pool_free:
+  -		*(ctrl_pool_link *)ptr = bin->free_head;
+  +		*(ctrl_pool_link *)ptr = NULL;
+(a freed block links to nothing, cutting the free list behind it). Run: python3 -I scripts/run_srp_arms.py <copy> <out>.
+Receipts: receipts/probe_pool_link_cut_arms.txt (planted: 4 SRP arms fail) and receipts/probe_pool_control_head_arms.txt
+(same arms at head bytes: all rc 0). receipts/probe_pool_link_cut.log is a first attempt with the whole host suite that
+hit the 580 s foreground limit with no output (rc 124); it is not evidence either way.
