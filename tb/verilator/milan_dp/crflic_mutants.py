@@ -37,13 +37,15 @@ handed over twice in one window and that arm alone survives (#883). It now
 removes both layers, as the processor's own push-twice-encoder-appends arm
 does: the encoder's intake takes every push twice, and the encoder appends.
 
-#883 adds four processor controls of the same kind, for processor #216 (the
-leg's [MRPAPP] and [MVRPLA] sections, #860 and #857). They plant the
-processor's own arms for its #216 defects, each the behaviour before #216: the
-Domain declared at LINK_UP in AN, so it sends one New (IEEE 802.1Q-2018 Table
-10-3); a VID's first join in AN, one New; every VID Join encoded JoinIn
-whatever its Registrar (10.7.6.3); and an MVRP drain that needs a pending VID,
-so with nothing declared no LeaveAll goes out (10.7.9, Table 10-5). Each must
+#883 adds five processor controls of the same kind, for processor #216 (the
+leg's [MRPAPP] and [MVRPLA] sections, #860 and #857), each one of the
+processor's own arms. Four are the behaviour before #216: the Domain declared
+at LINK_UP in AN, so it sends one New (IEEE 802.1Q-2018 Table 10-3); a VID's
+first join in AN, one New; every VID Join encoded JoinIn whatever its
+Registrar (10.7.6.3); and an MVRP drain that needs a pending VID, so with
+nothing declared no LeaveAll goes out (10.7.9, Table 10-5). The fifth,
+leaveall-expiry-lost, loses the MSRP leavealltimer's expiry, so the section's
+MSRP half, with the Domain alone declared, has no LeaveAll to count. Each must
 fail its named check.
 
 The other half of #530's failing arms, the protocol processor at its previous
@@ -170,6 +172,11 @@ PP_MUTATIONS = [
        "                 && ((cnt_mvrp_r != '0) || la_pend_r[1] || leaveall_i[1]);",
        "                 && (cnt_mvrp_r != '0);")],
      "MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal"),
+    ("the MSRP leavealltimer's expiry is lost, so MSRP sends no LeaveAll of its own",
+     [("srp/KL_srp_top.sv",
+       "  assign cad_hit_w       = exp_valid_i && (cad_exp_ix_w < N_CAD_C);",
+       "  assign cad_hit_w       = exp_valid_i && (cad_exp_ix_w != CAD_LA_MSRP_C) && (cad_exp_ix_w < N_CAD_C);")],
+     "MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal"),
 ]
 
 

@@ -665,9 +665,9 @@ sidmove8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
 # Six additional elaborations remove ACTIVE or the real grant at each
 # consumer, and two more (#774) give every source talker 0's TSpec, one per
 # shape. One more (#851, processor #214) builds a copy of the processor whose
-# SRP encoder never merges, and four more (#883, processor #216) build copies
-# with its MRP Applicant and LeaveAll defects. Their cost is outside the
-# default sweep's stated margin.
+# SRP intake takes every push twice and whose encoder never merges, and five
+# more (#883, processor #216) build copies with its MRP Applicant and LeaveAll
+# defects. Their cost is outside the default sweep's stated margin.
 crflic-mutants: crflic tspec8
 	python3 crflic_mutants.py
 
