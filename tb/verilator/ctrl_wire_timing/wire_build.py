@@ -20,7 +20,15 @@ In order:
   5. the native model: the CPU half's export with wire_main.cpp, linked with
      the split top's archive.
 Every input the model is built from, or reads when it runs, is recorded in
-build.json with its digest, so a reused build is refused when any changed.
+build.json with its digest, so a reused build is refused when any changed
+(#868): the image, the ROM files and the generated headers; this harness's
+model, export and build; the build's tools elsewhere (TOOLS, milan_dp's split
+recipe among them); the split recipe's own source list (milan_dp's
+print-split-srcs: the datapath's, KL_mbx's and the split top's); every file a
+Verilator run or the native compile read, from the dependency lists they
+leave; the checkout's modules the CPU half's export imported; the shape's
+config; and the firmware's source trees, the TSN stack's among them
+(FIRMWARE_TREES), by one digest.
 """
 from __future__ import annotations
 
@@ -28,6 +36,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -68,6 +77,14 @@ from mailbox_model import load as load_contract  # noqa: E402
 sys.path.insert(0, str(ROOT / 'sw/builder'))
 import endstation_builder as eb  # noqa: E402  the builder's datapath parameters, read only
 
+#: The source trees the platform image is compiled from, bound to a build by one digest of every file in them: the
+#: CPU budget harness's list (its build.FIRMWARE_TREES: the control firmware and its image tools, the saved-state
+#: store, the RV32 toolchain pin's harness, the mailbox contract, the TSN stack's cores and lwSRP).
+FIRMWARE_TREES = budget_build.FIRMWARE_TREES
+#: The build's tools outside this directory, each by digest: the split boot simulation's link and runtime build,
+#: the CPU budget harness's flash map and runtime archives, and milan_dp's split recipe.
+TOOLS = (BOOT / 'run.py', BUDGET / 'build.py', BUDGET / 'runtime_ssp.py', MILAN_DP / 'Makefile')
+
 
 def image(out: Path, name: str, point: tuple[str, int], maps: object, archives: tuple[Path, Path]) -> Path:
     """The platform image of one point against one map: the split boot simulation's link (run.image's command),
@@ -94,16 +111,55 @@ def streams(shape: str) -> int:
     return eb.datapath_params(eb.load_config(str(ROOT / 'configs' / (shape + '.yaml'))))['N_STREAMS']
 
 
-def split_top(out: Path, shape: str, n_if: int) -> Path:
-    """The split top's model, by milan_dp's split recipe at the point's shape, streams and interfaces, its Mdir
-    in the build directory."""
+def split_vars(shape: str, n_if: int) -> dict[str, str]:
+    """The split recipe's variables at one point: its shape, the shape's streams and the interfaces."""
+    return {'SPLIT_SHAPE': shape, 'SPLIT_STREAMS': str(streams(shape)), 'SPLIT_IF': str(n_if)}
+
+
+def split_top(out: Path, variables: dict[str, str]) -> Path:
+    """The split top's model, by milan_dp's split recipe at the point's variables, its Mdir in the build
+    directory."""
     mdir = out / 'split'
-    boot.run(['make', '-C', str(MILAN_DP), f'-j{JOBS}', 'build-split', f'SPLIT_MDIR={mdir}', f'SPLIT_SHAPE={shape}',
-              f'SPLIT_STREAMS={streams(shape)}', f'SPLIT_IF={n_if}'], out / 'split.log')
+    boot.run(['make', '-C', str(MILAN_DP), f'-j{JOBS}', 'build-split', f'SPLIT_MDIR={mdir}',
+              *[f'{k}={v}' for k, v in variables.items()]], out / 'split.log')
     archive = mdir / SPLIT_ARCHIVE
     if not archive.is_file():
         raise RuntimeError(f'the split recipe left no {SPLIT_ARCHIVE} in {mdir}')
     return mdir
+
+
+def split_sources(out: Path, spec: dict) -> list[Path]:
+    """The split recipe's own source list (milan_dp's print-split-srcs) at the build's variables, or at the
+    recipe's defaults where the build recorded none."""
+    argv = ['make', '-s', '--no-print-directory', '-C', str(MILAN_DP), 'print-split-srcs',
+            f'SPLIT_MDIR={out / "split"}', *[f'{k}={v}' for k, v in spec.get('split_vars', {}).items()]]
+    listed = subprocess.run(argv, capture_output=True, text=True, env=dict(os.environ, MAKEFLAGS=''))
+    if listed.returncode or not listed.stdout.split():
+        raise RuntimeError(f"the reused build is stale: the split recipe's source list cannot be read "
+                           f'({(listed.stderr.strip().splitlines() or ["no output"])[-1]})')
+    return [(MILAN_DP / word).resolve() for word in listed.stdout.split()]
+
+
+def dependencies(path: Path, base: Path) -> list[Path]:
+    """The prerequisites one make dependency file names (Verilator's __ver.d, a compiler's -MMD file), each
+    relative to the directory its tool ran in."""
+    out = []
+    for line in path.read_text().replace('\\\n', ' ').splitlines():
+        _, colon, prerequisites = line.partition(': ')
+        out += [(base / word).resolve() for word in prerequisites.split()] if colon else []
+    return out
+
+
+def read_by_tools(out: Path) -> list[Path]:
+    """Every file a Verilator run or the native compile read, from the dependency lists they left (each run's
+    __ver.d, each object's .d), but the Mdirs' own generated C++: the split top's Verilator run in milan_dp, the
+    native model's in the export's gateware, each compile in its Mdir."""
+    found = []
+    for mdir, verilated_in in ((out / 'split', MILAN_DP), (out / 'native', out / 'soc/gateware')):
+        for listing in sorted(mdir.glob('*.d')) if mdir.is_dir() else []:
+            found += dependencies(listing, verilated_in if listing.name.endswith('__ver.d') else mdir)
+    own = {(out / 'split').resolve(), (out / 'native').resolve()}
+    return [p for p in found if p.parent not in own]
 
 
 def same_mailbox(spec: dict, mdir: Path, n_if: int) -> None:
@@ -167,15 +223,20 @@ def digest(path: Path) -> str:
 
 
 def inputs(out: Path, spec: dict) -> dict[str, str]:
-    """Every input the native model is built from or reads when it runs, by a key relative to its root."""
+    """Every input the native model is built from or reads when it runs (see the module's docstring), by a key
+    relative to its root; a file listed and gone is recorded as missing."""
+    out = out.resolve()
     files = [Path(spec['elf']), *sorted((out / 'soc/gateware').glob('*.init')), out / 'wire_config.hpp',
              HERE / 'wire_main.cpp', HERE / 'wire_soc.py', HERE / 'wire_build.py', out / 'split' / SPLIT_ARCHIVE,
-             SIBLING / 'flash.hpp', *[Path(s) for s in spec['sources']]]
+             SIBLING / 'flash.hpp', *TOOLS, *[Path(s) for s in spec['sources']], *split_sources(out, spec),
+             *map(Path, spec.get('generator_modules', ())), *read_by_tools(out),
+             *([ROOT / 'configs' / (spec['shape'] + '.yaml')] if 'shape' in spec else [])]
     found = {}
-    for f in files:
+    for f in dict.fromkeys(p.resolve() for p in files):
         key = str(f.relative_to(ROOT)) if ROOT in f.parents else 'build:' + str(f.relative_to(out)) \
             if out in f.parents else str(f)
-        found[key] = digest(f)
+        found[key] = digest(f) if f.is_file() else 'missing'
+    found['tree:firmware'] = budget_build.tree_digest([ROOT / t for t in FIRMWARE_TREES])
     return found
 
 
@@ -192,9 +253,9 @@ def build(out: Path, point: str) -> dict:
     spec = export(out, 'soc', shape, elf, n_if, flash_map)
     if boot.rows(out / 'soc/csr.csv') != boot.rows(csr_csv):
         raise RuntimeError("the CPU half's csr.csv depends on the image; the map cannot be generated from it")
-    spec.update(elf=str(elf), point=point)
+    spec.update(elf=str(elf), point=point, split_vars=split_vars(shape, n_if))
     config_header(out, spec, contract_words())
-    mdir = split_top(out, shape, n_if)
+    mdir = split_top(out, spec['split_vars'])
     same_mailbox(spec, mdir, n_if)
     executable = verilate(out, spec, mdir)
     spec['inputs'] = inputs(out, spec)
@@ -206,6 +267,8 @@ def build(out: Path, point: str) -> dict:
 def reused(out: Path) -> dict:
     """A previous build, refused unless every recorded input still has its digest and the model is the one built."""
     spec = json.loads((out / 'build.json').read_text())
+    if not spec.get('inputs'):
+        raise RuntimeError('the reused build is stale: build.json records no inputs')
     now = inputs(out, spec)
     changed = sorted(k for k in set(spec['inputs']) | set(now) if spec['inputs'].get(k) != now.get(k))
     if changed:

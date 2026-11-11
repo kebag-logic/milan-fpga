@@ -132,6 +132,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path, le
         'fetch_l1_geometry': list(geometry) if geometry else None,
         'ctrl_plan': soc.ctrl_plan.summary(), 'ledger': ledger,
         'mailbox_sources': [str(path) for path in mailbox],
+        # the checkout's modules this export ran on, which wire_build.py records for its reuse guard (#868)
+        'generator_modules': sorted({str(Path(m.__file__).resolve()) for m in list(sys.modules.values())
+                                     if getattr(m, '__file__', None) and ROOT in Path(m.__file__).resolve().parents}),
     }
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec

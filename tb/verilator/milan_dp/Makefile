@@ -1085,9 +1085,16 @@ exec-counters-8-frames:
 # thing every leg here depends on is that SRCS is the list that elaborates.
 # Paths are relative to a tb/verilator/<suite>/ directory, which every consumer
 # of this target also is.
-.PHONY: print-srcs print-pp-srcs print-dp-vflags
+.PHONY: print-srcs print-pp-srcs print-dp-vflags print-split-srcs
 print-srcs:
 	@echo $(SRCS)
+
+# ...and the split recipe's whole list at its SPLIT_* variables (#868): the
+# datapath's, KL_mbx's (the variant's past one interface) and the split top's,
+# which the wire-timing harness records so a reused build of it is refused
+# once any of them changes.
+print-split-srcs:
+	@echo $(SRCS) $(SPLIT_SRCS)
 
 # ...and the protocol-processor half on its own, for a suite that keeps its
 # own datapath list but must still build the plane inside it.
