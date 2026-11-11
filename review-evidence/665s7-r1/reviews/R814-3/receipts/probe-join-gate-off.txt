@@ -1,0 +1,48 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31
+verilator: $VALIDATION_TOOLS/pinned-verilator-5.050/verilator, 'Verilator 5.050 2026-07-01 rev v5.050', sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+commands: scripts/run_probes.sh (scripts/gate_probe.py), work under scratch/ (unpublished)
+planted line (copy of third_party/lwSRP/src/core/mrp_mad.c, via twin_fw.py --replace): '    ps->join_wait = ps->join_cs;' -> '    ps->join_wait = 0;'
+=== mutant, wire 3000 ms (gate_probe.py; rc 0)
+build join-gate-off: ok
+run join-gate-off wire 3000 ms: binary rc 0; findings 0
+   MSRP: records 6, after_join 0, requested 3, neither 3
+   MVRP: records 5, after_join 0, requested 3, neither 2
+   record keys: ['after_join', 'hex', 'idle_us', 'last_ms', 'ms', 'opportunity', 'proto', 'rc', 'record', 'retries', 'ring_used', 'us']
+=== mutant, frame list at wire 3000 ms
+   MSRP ms 1 us 1012.93 after_join False idle_us -1.0
+   MVRP ms 1 us 1013.15 after_join False idle_us -1.0
+   MSRP ms 1 us 1014.59 after_join False idle_us -1.0
+   MVRP ms 1 us 1014.81 after_join False idle_us -1.0
+   MSRP ms 1 us 1016.27 after_join False idle_us -1.0
+   MSRP ms 1000 us 1000001.59 after_join False idle_us 999001.01
+   MVRP ms 1000 us 1000001.81 after_join False idle_us 999001.01
+   MSRP ms 2000 us 2000001.59 after_join False idle_us 1999001.01
+   MVRP ms 2000 us 2000001.81 after_join False idle_us 1999001.01
+   MSRP ms 3000 us 3000001.59 after_join False idle_us 2999001.01
+   MVRP ms 3000 us 3000001.81 after_join False idle_us 2999001.01
+   MSRP Join timer events: [('arm', 1.013), ('arm', 1.015), ('arm', 1.016), ('expire', 200.001), ('arm', 1000.002), ('expire', 1200.001), ('arm', 2000.002), ('expire', 2200.001), ('arm', 3000.002)]
+=== mutant, wire (full scenario; wire to 40000 ms); grade rc 1
+srptx wire: 169 control frames, 103 MRPDUs from lwSRP, 103 sent by the adapter, 0 host timeouts, 40000 ms
+   rate-rule findings: 3
+[TIME] MSRP: four transmit opportunities in 90.000 ms from ms 27910, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+[TIME] MSRP: four transmit opportunities in 160.028 ms from ms 39000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+[TIME] MVRP: four transmit opportunities in 230.008 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+srptx wire: 3 finding(s), 103 MRPDUs, run 40000 ms
+=== mutant, licence (full scenario; wire to 40000 ms); grade rc 1
+srptx licence: 78 control frames, 69 MRPDUs from lwSRP, 69 sent by the adapter, 0 host timeouts, 26000 ms
+   rate-rule findings: 1
+[TIME] MVRP: four transmit opportunities in 229.997 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+srptx licence: 1 finding(s), 69 MRPDUs, run 26000 ms
+=== mutant, hold (full scenario; wire to 40000 ms); grade rc 1
+srptx hold: 337 control frames, 283 MRPDUs from lwSRP, 271 sent by the adapter, 0 host timeouts, 40000 ms
+   rate-rule findings: 104
+[TIME] MSRP: four transmit opportunities in 201.042 ms from ms 20000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+[TIME] MSRP: four transmit opportunities in 200.013 ms from ms 20001, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+[TIME] MSRP: four transmit opportunities in 200.013 ms from ms 20201, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+srptx hold: 104 finding(s), 271 MRPDUs, run 40000 ms
+=== clean control, wire 3000 ms (rc 0)
+build clean: ok
+run clean wire 3000 ms: binary rc 0; findings 0
+   MSRP: records 6, after_join 2, requested 3, neither 1
+   MVRP: records 5, after_join 1, requested 3, neither 1
+   record keys: ['after_join', 'hex', 'idle_us', 'last_ms', 'ms', 'opportunity', 'proto', 'rc', 'record', 'retries', 'ring_used', 'us']

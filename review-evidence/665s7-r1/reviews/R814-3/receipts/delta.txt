@@ -1,0 +1,23 @@
+head 2128daad26b932feeed1ef2bde8f2774e8a51a31; previously reviewed head 2131eff48066da1e3bbeb6b417ea0655fa7c7741; PR base dev-soft-core 1d6bf5556ae28764361d85012b86394eb467d294 (merge-base 1d6bf5556ae28764361d85012b86394eb467d294)
+commits 2131eff4..HEAD:
+  2128daad26b932feeed1ef2bde8f2774e8a51a31 Attribute a Join timer's transmit opportunity by what lwSRP did at its boundary, grade each reque
+git diff --raw 2131eff4 HEAD:
+  :100644 100644 00986139f8 ecd0dd1865 M	sw/firmware/ctrl/srp/README.md
+  :100644 100644 f880c17de8 92ba6da508 M	tb/verilator/milan_dp/Makefile
+  :100644 100644 4959093064 71912ead56 M	tb/verilator/milan_dp/README.md
+  :100644 100644 9c8570e662 4fa43b9048 M	tb/verilator/milan_dp/srptx.hpp
+  :100644 100644 080229d28e d4fa59a7ab M	tb/verilator/milan_dp/srptx_grade.py
+  :100644 100644 e0f86e6cd5 955126d4cd M	tb/verilator/milan_dp/srptx_plants.py
+  :100644 100644 699224ec78 e3d9a5e789 M	tb/verilator/milan_dp/twin_split.cpp
+git diff --numstat 2131eff4 HEAD:
+  2	1	sw/firmware/ctrl/srp/README.md
+  16	4	tb/verilator/milan_dp/Makefile
+  52	11	tb/verilator/milan_dp/README.md
+  57	5	tb/verilator/milan_dp/srptx.hpp
+  42	18	tb/verilator/milan_dp/srptx_grade.py
+  66	5	tb/verilator/milan_dp/srptx_plants.py
+  24	2	tb/verilator/milan_dp/twin_split.cpp
+git diff --check 2131eff4 HEAD: rc 0
+git diff --check 1d6bf555 HEAD: rc 0
+comment-rule scan of added lines (lane labels, review rounds, reviewer IDs, comment IDs) in source files:
+  matches: 0
