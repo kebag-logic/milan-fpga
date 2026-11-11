@@ -1,0 +1,61 @@
+{
+  "cwd": "$LANES/823-cand-full-native",
+  "head": "e282ecd2691bdf2018d31376d3930c984a2c0499",
+  "base": "663555fd8a6c9a350c255ab4aab19b841ffd2812",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/823-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "SUITE_TIMEOUT=7200",
+      "python3",
+      "$MANAGEMENT/2026-09-23/parallel-suites.py",
+      "$VALIDATION_STORAGE/823-candidate-0923/full-suite-logs",
+      "5"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/823-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/823-candidate-0923/yosys-results"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/823-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "$MANAGEMENT/2026-09-23/pin-receipt.py",
+      "run",
+      "protocol-processor",
+      "--",
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/823-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "$MANAGEMENT/2026-09-23/pin-receipt.py",
+      "run",
+      "gptp-processor",
+      "--",
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/823-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "behave",
+      "tests/features"
+    ]
+  ],
+  "parallel": true
+}
