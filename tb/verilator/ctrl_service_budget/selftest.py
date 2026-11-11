@@ -52,6 +52,7 @@ import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
+from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
 from selftest_polls import polls_checks  # noqa: E402
@@ -276,7 +277,7 @@ def marker_checks() -> list[Check]:
     out.append(('last end decides', r.get('end_sys') == 6000, str(r)))
     # The expected response is checked: a BIND_RX answered with a failure status is refused.
     bind = scenario.Probe('s.cmd.if0', 'BIND_RX', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'],
-                          expect='acmp_status:BIND_RX_RESPONSE:0')
+                          expect='acmp:BIND_RX_RESPONSE:SUCCESS')
     r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41, 'BIND_RX_RESPONSE', 1), 0, 2000)), bind)
     out.append(('the expected response is checked', r.get('status') == 'unexpected response', str(r)))
     out += timing_checks()
@@ -352,7 +353,7 @@ def timing_checks() -> list[Check]:
 def notification(lines_after: list[tuple[int, bytes, int]], recipients: tuple = ((CTL1, 0), (CTL1, 1))) -> dict:
     """SET_NAME's probe over a solicited response and the notifications given as (interface, frame, cycle)."""
     probe = scenario.Probe('s.notify.if0', 'SET_NAME', 'notify', f'rxc:{AECP}',
-                           [f'resp:{AECP}:41', f'notify:{AECP}:0010:0:0'], expect='aecp_response',
+                           [f'resp:{AECP}:41', f'notify:{AECP}:0010:0:0'], expect='aem:0010:SUCCESS',
                            recipients=recipients)
     records = [(0, aem_response(0x0A0B0C0D0E0F0002, 0x41), 201173), *lines_after]
     records.sort(key=lambda record: record[2])
@@ -927,7 +928,7 @@ def checks() -> list[Check]:
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ),
-            *polls_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
+            *polls_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(), *answer_checks(sys.modules[__name__]),
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
             *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
             *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ),

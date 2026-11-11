@@ -34,6 +34,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import answers
 import mrpdu_grade
 import poll_grade
 import round_grade
@@ -637,25 +638,30 @@ def pass_figures(taking: Pass) -> dict:
                 pass_modules=dict(sorted(taking.modules.items(), key=lambda kv: -kv[1])[:6]))
 
 
+def own_response(grader: Grader, probe: scenario.Probe, interface: int, start: int, before: int) -> bytes | None:
+    """The probe's own response: the first its resp end's channel committed on its interface that answers its
+    sequence_id."""
+    spec = next((s for s in probe.ends if s.startswith('resp:')), None)
+    if spec is None:
+        raise Refusal(f'{probe.name}: the expectation {probe.expect} needs a resp end')
+    _, ch, seq = spec.split(':')
+    return next((fr for c, k, i, fr in grader.log.tx if start <= c <= before and k == int(ch) and i == interface
+                 and response_sequence(fr) == int(seq, 16)), None)
+
+
 def expectation(grader: Grader, probe: scenario.Probe, interface: int, start: int, before: int) -> str:
-    """'' when the response the probe expects left; else what was wrong."""
+    """'' when the response the probe expects left; else what was wrong. A response's type and status are its own
+    response's (answers.py, #882)."""
     if not probe.expect:
         return ''
     kind, *args = probe.expect.split(':')
+    if kind in answers.KINDS:
+        return answers.check(probe.expect, own_response(grader, probe, interface, start, before))
     frames = [fr for c, _, i, fr in grader.log.tx if start <= c <= before and i == interface]
-    if kind in ('acmp_status', 'acmp_type'):
-        want = scenario.f.ACMP[args[0]]
-        got = [w for w in frames if len(w) > 16 and w[14] == 0xFC and w[15] & 0xF == want]
-        if not got:
-            return f'no {args[0]} frame'
-        if kind == 'acmp_status' and got[0][16] >> 3 != int(args[1]):
-            return f'{args[0]} status {got[0][16] >> 3}'
-        return ''
+
     def sent(subtype: int, types: tuple[int, ...]) -> bool:
         """A frame of that AVTP subtype and one of those message types left."""
         return any(len(w) > 16 and w[14] == subtype and w[15] & 0xF in types for w in frames)
-    if kind == 'aecp_response':
-        return '' if sent(0xFB, (1, 7)) else 'no AECP response'
     if kind == 'adp_available':
         return '' if sent(0xFA, (0,)) else 'no ENTITY_AVAILABLE'
     if kind == 'adp_departing':

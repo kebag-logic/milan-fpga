@@ -17,6 +17,7 @@ from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import patch
 
+import answers
 import build
 import grade
 import mrpdu_grade
@@ -436,6 +437,28 @@ MUTANTS: dict[str, Patches] = {
     'marker: a receive commit goes to the oldest pending frame (earlier rule)':
         lambda: [patch.object(grade, 'owner', _owner_oldest)],
     'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
+    "answers: a response's status is not checked": lambda: [patch.object(
+        answers, 'differs', lambda kind, got, want, f=answers.differs: f(kind, (got[0], want[1]), want))],
+    "answers: a response's command or message type is not checked": lambda: [patch.object(
+        answers, 'differs', lambda kind, got, want, f=answers.differs: f(kind, (want[0], got[1]), want))],
+    "answers: a probe's response is the first on its channel, whatever its sequence_id": lambda: [patch.object(
+        grade, 'own_response', lambda grader, probe, i, start, before: next(
+            (fr for c, k, n, fr in grader.log.tx if start <= c <= before and n == i
+             and k == int(probe.start.split(':')[1]) and grade.response_sequence(fr) is not None), None))],
+    "answers: an MVU response read as an AEM response": lambda: [patch.object(
+        answers, 'answered', lambda frame, kind, f=answers.answered: f(frame, 'aem' if kind == 'mvu' else kind))],
+    'answers: a row that ends at a response need not state it (earlier rule)': lambda: [patch.object(
+        answers, 'unstated', lambda probes: [])],
+    'answers: a refusal row need not name its refusal': lambda: [patch.object(
+        answers, 'refused', lambda row, status: row)],
+    'run: a group whose row states no response is graded as any other': lambda: [patch.object(
+        run, 'unstated', lambda group: [])],
+    'scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule)': lambda: [
+        patch.object(answers, 'AVB_INFO', (0x0028, scenario.f.be(9, 2) + scenario.f.be(0, 2) + bytes(16)))],
+    "scenario: the face's getters stated SUCCESS on the image as linked": lambda: [patch.object(
+        answers, 'aecp_statuses', lambda build: dict(unknown_command='NOT_IMPLEMENTED'))],
+    "scenario: the talker's refusals stated SUCCESS": lambda: [patch.object(
+        answers, 'TALKER', tuple((msg, 'SUCCESS') for msg, _ in answers.TALKER))],
     "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
                                                                       min(f.values()) if None not in f.values()
                                                                       else None)],

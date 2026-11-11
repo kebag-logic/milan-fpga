@@ -291,6 +291,15 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 - The test-only SHUTDOWN input starts at the commit of `adp_mbx_set_enable`'s entry.
 - A path ends when its last required output is committed: an accepted TX_HEAD write, a TMR_CMD arm or cancel, a publication write or the record's RX_TAIL release.
 - A response is matched by its sequence_id and its interface.
+- A row that ends at a response states the response it measures ([`answers.py`](answers.py), #882): an AEM, MVU or ACMP response of its command or message type, with its status (IEEE 1722.1-2021 Table 7-141 for AEM and MVU, Table 8-3 for ACMP).
+  Its own response, the one answering its sequence_id, must have that type and that status, or the row is an unexpected response and the run fails.
+  A row that states a status other than SUCCESS measures a refusal and is named as one, `<row>, refused <status>`, so a refusal is never reported as the path it refuses.
+  The run refuses a group with a row that ends at a response and states no type and status, or states a refusal its row does not name.
+  Until #882 the `aecp` group's `get_avb_info` row sent GET_AS_PATH (`0x0028`) with descriptor_index 9, which no image has, and timed its NO_SUCH_DESCRIPTOR as GET_AVB_INFO.
+  It now sends GET_AVB_INFO (`0x0027`) on AVB_INTERFACE 0 with its four-byte command (IEEE 1722.1-2021 7.4.40.1).
+- The rows that measure a refusal: the `aecp` group's unknown command, a reserved command_type under `0x4000` (NOT_IMPLEMENTED; `aecp.c` keeps the field's low 14 bits, so a command at or above `0x4000` is answered under another command_type), `acmp-cmd`'s PROBE_TX (TALKER_DEST_MAC_FAIL: the source has no stream destination in that group, Milan v1.2 Tables 5.42 and 5.43) and GET_TX_CONNECTION (NOT_SUPPORTED, Milan v1.2 5.5.4.4), and in arm A GET_AVB_INFO and GET_COUNTERS.
+  Their values come through a window of the face block (`aecp_face.c`), which the test SoC's idle datapath never answers, so arm A refuses each ENTITY_MISBEHAVING once the window read's bound has passed.
+  In arm B, whose observation ports answer, both answer SUCCESS.
 - A notification fan-out ends at the last required recipient's commit.
   Each recipient is a controller registered for unsolicited notifications on an interface (IEEE 1722.1-2021 7.5.2).
   Each must receive the unsolicited response of the probe's command type and descriptor.
@@ -471,6 +480,7 @@ The 1x1 first TMR_NO_RESP and ENTITY_DEPARTING cells are the `fixture` group's i
 
 Each row ends at the command's solicited response (H-AECP).
 The notification a setter's change causes is the fan-out below.
+No row's response status was checked then: three rows measured a refusal, as their labels now say, and at this head every row states its response ([Markers and grading](#markers-and-grading), #882).
 
 | AECP path | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses, 1x1 / 8x8 |
 |---|---:|---:|---:|
@@ -489,15 +499,15 @@ The notification a setter's change causes is the fan-out below.
 | READ_DESCRIPTOR type 26, 113 B | 4.95 (6.09) | 5.59 (11.41) / - | 81 / 75 |
 | READ_DESCRIPTOR type 36, 82 B | 4.84 (5.98) | 6.26 (11.72) / - | 73 / 71 |
 | entity_available | 4.49 (5.63) | 5.00 (11.16) / 5.77 (11.59) | 57 / 51 |
-| get_avb_info | 4.51 (5.66) | 5.92 (11.35) / 5.21 (11.03) | 53 / 48 |
+| get_avb_info, as GET_AS_PATH on AVB_INTERFACE 9: refused NO_SUCH_DESCRIPTOR (#882) | 4.51 (5.66) | 5.92 (11.35) / 5.21 (11.03) | 53 / 48 |
 | get_configuration | 4.42 (5.56) | 14.82 (27.43) **miss** / 5.69 (11.10) | 53 / 60 |
-| get_counters | 4.92 (6.06) | 6.57 (12.39) / 6.21 (12.03) | 86 / 80 |
+| get_counters, refused ENTITY_MISBEHAVING (the fixture's counters unavailable) | 4.92 (6.06) | 6.57 (12.39) / 6.21 (12.03) | 86 / 80 |
 | get_name | 4.69 (5.83) | 7.05 (12.87) / 5.21 (11.36) | 70 / 99 |
 | lock_entity | 3.96 (5.41) | 8.32 (14.50) / 8.19 (14.64) | 66 / 73 |
 | MVU GET_MILAN_INFO | 2.50 (3.64) | 3.52 (9.68) / 3.53 (9.35) | 50 / 52 |
 | register_unsolicited | 2.48 (3.61) | 5.91 (11.72) / 4.87 (10.68) | 46 / 54 |
 | set_name | 4.81 (6.90) | 7.47 (15.08) / 7.52 (15.20) | 106 / 114 |
-| unknown_command | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
+| unknown_command (`0x7FF0`), refused NOT_IMPLEMENTED | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
 | unlock_entity | 3.95 (5.40) | 5.61 (11.51) / 6.12 (12.56) | 65 / 66 |
 
 ### Notification fan-out
@@ -1066,6 +1076,7 @@ Its checks:
 - W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 20 ms misses both;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
+- a probe's own response, the one answering its sequence_id and not an earlier one, is held to its row's stated type and status: an AEM response with another status or to another command type, an MVU response with another status, an AEM response where an MVU one is stated, and an ACMP response of another message type or status are each refused, and a refusal its row states and names is measured; every row of the real scenario that ends at a response, at one and two interfaces, in arm A and arm B, states its type and status and names each refusal; the `get_avb_info` row sends GET_AVB_INFO on AVB_INTERFACE 0 at its four-byte length, SUCCESS in arm B and named ENTITY_MISBEHAVING in arm A; the talker rows' statuses, restated; a row that states no response, a refusal its row does not name and a status that is no code of its kind are each named, and a run refuses such a group by name: these are [`selftest_answers.py`](selftest_answers.py)'s, which `selftest.py` runs;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
 - a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it; over three recipients, the cost a recipient is the first to last commit over the two gaps;
 - the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
@@ -1111,6 +1122,16 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | marker: the first required output ends the path | fixture row fixture.set_name.if0 |
 | marker: a receive commit goes to the oldest pending frame (earlier rule) | a receive commit belongs to the frame it follows |
 | marker: the expected-response check is skipped | the expected response is checked |
+| answers: a response's status is not checked | the expected response is checked |
+| answers: a response's command or message type is not checked | a response to another command type than its row states is refused |
+| answers: a probe's response is the first on its channel, whatever its sequence_id | a probe's response is the one answering its sequence_id, not an earlier one on its channel |
+| answers: an MVU response read as an AEM response | an MVU response with its stated command type and status is measured |
+| answers: a row that ends at a response need not state it (earlier rule) | a probe that ends at a response and states no type and status is named |
+| answers: a refusal row need not name its refusal | every row of the scenario that ends at a response states its type and status, each refusal named |
+| run: a group whose row states no response is graded as any other | a run refuses a group whose row states no response, by name |
+| scenario: get_avb_info sent as GET_AS_PATH on AVB_INTERFACE 9, the refused command (earlier rule) | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: the face's getters stated SUCCESS on the image as linked | the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer |
+| scenario: the talker's refusals stated SUCCESS | the talker rows state the statuses Milan gives them, restated |
 | notify: the first recipient's commit ends the fan-out | two recipients across interfaces end at the last |
 | notify: the first unsolicited response on any interface ends it (earlier rule) | two recipients across interfaces end at the last |
 | notify: any unsolicited response counts as the change | unrelated unsolicited responses do not end it |

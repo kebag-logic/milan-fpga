@@ -42,6 +42,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import answers
 import frames as f
 import save_window
 
@@ -327,23 +328,23 @@ def acmp_groups(p: Point) -> list[Group]:
         k = i
         g.probe(Probe(f'acmp.bind_rx.if{i}', 'BIND_RX', 'acmp', f'rxc:{acmp}',
                       [f'resp:{acmp}:{seq:x}', f'acmp_cmd:{acmp}:PROBE_TX', f'arm:{slot(i)}',
-                       f'pub:{binding_word(i, k)}'], accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
+                       f'pub:{binding_word(i, k)}'], accesses=77, expect=answers.acmp('BIND_RX_RESPONSE')),
                 f'frame {i} {acmp_cmd(p, "BIND_RX", k, seq).hex()}', wait=f'tx {acmp} 2 within {20 * MS}')
         seq += 1
         g.probe(Probe(f'acmp.probe_tx_response.if{i}', 'PROBE_TX_RESPONSE', 'acmp', f'rxc:{acmp}',
                       [f'arm:{slot(i)}'], accesses=32), probe_answer(i), wait=f'tmr {slot(i)} 1 within {300 * MS}')
         g.probe(Probe(f'acmp.get_rx_state.if{i}', 'GET_RX_STATE', 'acmp', f'rxc:{acmp}', [f'resp:{acmp}:{seq:x}'],
-                      accesses=47, expect='acmp_type:GET_RX_STATE_RESPONSE'),
+                      accesses=47, expect=answers.acmp('GET_RX_STATE_RESPONSE')),
                 f'frame {i} {acmp_cmd(p, "GET_RX_STATE", k, seq).hex()}', wait=f'tx {acmp} 1 within {20 * MS}')
         seq += 1
         g.probe(Probe(f'acmp.unbind_rx.if{i}', 'UNBIND_RX', 'acmp', f'rxc:{acmp}',
                       [f'resp:{acmp}:{seq:x}', f'tmr:{slot(i)}'], accesses=50,
-                      expect='acmp_status:UNBIND_RX_RESPONSE:0'),
+                      expect=answers.acmp('UNBIND_RX_RESPONSE')),
                 f'frame {i} {acmp_cmd(p, "UNBIND_RX", k, seq).hex()}', wait=f'tx {acmp} 1 within {20 * MS}')
         seq += 1
-        for msg in ('PROBE_TX', 'GET_TX_STATE', 'DISCONNECT_TX', 'GET_TX_CONNECTION'):
-            g.probe(Probe(f'acmp.{msg.lower()}.if{i}', msg, 'acmp', f'rxc:{acmp}', [f'resp:{acmp}:{seq:x}'],
-                          accesses=48, expect=f'acmp_type:{msg}_RESPONSE'),
+        for msg, status in answers.TALKER:
+            g.probe(Probe(f'acmp.{msg.lower()}.if{i}', answers.refused(msg, status), 'acmp', f'rxc:{acmp}',
+                          [f'resp:{acmp}:{seq:x}'], accesses=48, expect=answers.acmp(f'{msg}_RESPONSE', status)),
                     f'frame {i} {talker_cmd(p, msg, i, seq).hex()}', wait=f'tx {acmp} 1 within {20 * MS}')
             seq += 1
     out.append(g)
@@ -427,21 +428,19 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
     aecp = CH['aecp']
     g = Group('aecp', sim_ms=2500)
     ready(g, p)
-    seq = [0x6100]
+    seq, statuses = [0x6100], answers.aecp_statuses(build)
 
     def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1,
             notices: int = 0) -> None:
-        """One AEM command probe, ending at its response; its wait also lets the change's notices leave."""
+        """One AEM command probe, ending at its response, with its row's status; its wait lets its notices leave."""
         frame = f.aem_command(f.Aem(p.entity_id, controller, CTL_MAC, p.mac, seq[0]), command_type, payload)
-        ends = [f'resp:{aecp}:{seq[0]:x}']
+        ends, status = [f'resp:{aecp}:{seq[0]:x}'], statuses.get(name, 'SUCCESS')
         seq[0] += 1
-        g.probe(Probe(f'aecp.{name}.if{i}', name, 'aecp', f'rxc:{aecp}', ends, expect='aecp_response'),
+        g.probe(Probe(f'aecp.{name}.if{i}', answers.refused(name, status), 'aecp', f'rxc:{aecp}', ends,
+                      expect=answers.aem(command_type, status)),
                 f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + notices} within {50 * MS}')
 
-    rows = descriptors(build)
-    last = {}
-    for row in rows:                          # one per type: the last index, whose read walks farthest
-        last[(row[0], row[1])] = row
+    last = {(row[0], row[1]): row for row in descriptors(build)}   # one per type: the last index, read farthest
     for i in range(p.interfaces):
         cmd(i, 'register_unsolicited', 0x0024, bytes(4))
         for config, kind, index, length in (sorted(last.values()) if i == 0 else sorted(last.values())[:3]):
@@ -450,19 +449,19 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
             seq[0] += 1
             g.probe(Probe(f'aecp.read_descriptor.t{kind}.i{index}.c{config}.if{i}',
                           f'READ_DESCRIPTOR ({length} B)', 'aecp', f'rxc:{aecp}', [end],
-                          expect='aecp_response'),
+                          expect=answers.aem(0x0004)),
                     f'frame {i} {frame.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
         cmd(i, 'get_configuration', 0x0007, bytes(4))
         cmd(i, 'entity_available', 0x0002, bytes(20))
         cmd(i, 'get_name', 0x0011, bytes(8))
         cmd(i, 'get_counters', 0x0029, f.be(9, 2) + f.be(0, 2))
-        cmd(i, 'get_avb_info', 0x0028, f.be(9, 2) + f.be(0, 2) + bytes(16))
-        cmd(i, 'unknown_command', 0x7FF0, bytes(4))
+        cmd(i, 'get_avb_info', *answers.AVB_INFO)
+        cmd(i, 'unknown_command', answers.UNKNOWN, bytes(4))
         mvu = f.mvu_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq[0]), 0x0000, bytes(2))
         end = f'resp:{aecp}:{seq[0]:x}'
         seq[0] += 1
         g.probe(Probe(f'aecp.mvu_get_milan_info.if{i}', 'MVU GET_MILAN_INFO', 'aecp', f'rxc:{aecp}',
-                      [end], expect='aecp_response'),
+                      [end], expect=answers.mvu(0x0000)),
                 f'frame {i} {mvu.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
         # A state change by another controller: its response, then a notice to CTL1 on every
         # interface it has registered on so far (7.5.2), which the wait lets leave.
@@ -560,7 +559,7 @@ def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
         frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, seq[0]), command_type, payload)
         selector = f'{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:{int.from_bytes(payload[2:4], "big")}'
         g.probe(Probe(f'aecp_fanout.{name}.if{i}', name, 'notify', f'rxc:{aecp}',
-                      [f'resp:{aecp}:{seq[0]:x}', f'notify:{aecp}:{selector}'], expect='aecp_response',
+                      [f'resp:{aecp}:{seq[0]:x}', f'notify:{aecp}:{selector}'], expect=answers.aem(command_type),
                       recipients=everyone, path=path),
                 f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(everyone)} within {200 * MS}')
         seq[0] += 1
@@ -605,7 +604,7 @@ def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
         for i in ifs:
             g.probe(Probe(f'aecp_fanout.bind_rx_stream_info.if{i}', 'BIND_RX -> GET_STREAM_INFO notice', 'notify',
                           f'rxc:{acmp}', [f'resp:{acmp}:{0x5f00 + i:x}', f'notify:{aecp}:000f:5:{i}'],
-                          recipients=everyone),
+                          recipients=everyone, expect=answers.acmp('BIND_RX_RESPONSE')),
                     f'frame {i} {acmp_cmd(p, "BIND_RX", i, 0x5f00 + i).hex()}',
                     wait=f'tx {aecp} {len(everyone)} within {200 * MS}')
     return [paced(g, aecp)]
@@ -829,7 +828,7 @@ def owed_group(p: Point) -> Group:
     behind = admission('acmp', get(0))['at_once'] - OWED_AHEAD - 1
     probe = Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
                   [f'resp:{acmp}:{0x7380 + OWED_AHEAD:x}'], until='composed_end', also_from='room',
-                  owed=tuple(0x7380 + n for n in range(OWED_AHEAD)))
+                  owed=tuple(0x7380 + n for n in range(OWED_AHEAD)), expect=answers.acmp('GET_RX_STATE_RESPONSE'))
     g.probe(probe, f'frame 0 {get(0x7380 + OWED_AHEAD).hex()}', wait=f'drained within {10 * MS}', settle='')
     g.load['acmp'] += 1
     # Each command behind the input is a path too: the core owes at most ACMP_OWED_MAX
@@ -838,7 +837,7 @@ def owed_group(p: Point) -> Group:
         name = f'backlog.owed_behind{n}.if0'
         g.probes.append(Probe(name, 'an ACMP command behind the owed input', 'acmp', f'rxc:{acmp}',
                               [f'resp:{acmp}:{0x7390 + n:x}'], until='composed_end', path='backlog.owed_behind',
-                              may_drop=True))
+                              may_drop=True, expect=answers.acmp('GET_RX_STATE_RESPONSE')))
         g.add(f'mark {name}')
         g.offer('acmp', f'frame 0 {get(0x7390 + n).hex()} {name}', get(0))
     g.add(f'wait drained within {10 * MS}', f'wait cycles {60 * MS}', 'mark room', 'txready 1',
@@ -876,7 +875,8 @@ def backlog_groups(p: Point) -> list[Group]:
     for n in range(count - 1):
         g.offer('acmp', f'frame 0 {get(0x7200 + n).hex()}', get(0))
     g.probe(Probe('backlog.acmp_command.if0', 'an ACMP command behind a full acmp ring', 'acmp', f'rxc:{acmp}',
-                  [f'resp:{acmp}:72ff'], until='composed_end'), f'frame 0 {get(0x72ff).hex()}',
+                  [f'resp:{acmp}:72ff'], until='composed_end', expect=answers.acmp('GET_RX_STATE_RESPONSE')),
+            f'frame 0 {get(0x72ff).hex()}',
             wait=f'tx {acmp} {count} within {300 * MS}', settle='quiet 3 within 50000000')
     g.load['acmp'] += 1
     g.add('mark composed_end')
@@ -965,7 +965,7 @@ def fixture_groups(p: Point) -> list[Group]:
     frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6101), 0x0010, bytes(8) + name)
     # The fan-out's markers on one registration: the capacity's path is aecp_fanout.set_name.
     g.probe(Probe('fixture.set_name.if0', 'SET_NAME fan-out to one registered controller', 'notify', f'rxc:{aecp}',
-                  [f'resp:{aecp}:6101', f'notify:{aecp}:0010:0:0'], expect='aecp_response',
+                  [f'resp:{aecp}:6101', f'notify:{aecp}:0010:0:0'], expect=answers.aem(0x0010),
                   recipients=((CTL1, 0),), path='fixture.set_name_one_recipient'),
             f'frame 0 {frame.hex()}', wait=f'tx {aecp} 2 within {50 * MS}')
     g.probe(Probe('fixture.link_down.if0', 'LINK_DOWN', 'adp', 'pad:LINK:0', ['cancel:0'], accesses=9,
@@ -973,7 +973,7 @@ def fixture_groups(p: Point) -> list[Group]:
             'link 0 0', wait=f'tmr 0 2 within {300 * MS}')
     g.probe(Probe('fixture.bind_rx.if0', 'BIND_RX', 'acmp', f'rxc:{acmp}',
                   [f'resp:{acmp}:4100', f'acmp_cmd:{acmp}:PROBE_TX', 'arm:1', f'pub:{binding_word(0, 0)}'],
-                  accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0', path='acmp.bind_rx'),
+                  accesses=77, expect=answers.acmp('BIND_RX_RESPONSE'), path='acmp.bind_rx'),
             f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x4100).hex()}', wait=f'tx {acmp} 2 within {50 * MS}')
     g.probe(Probe('fixture.tmr_no_resp1.if0', 'TMR_DELAY, or the first TMR_NO_RESP', 'acmp', 'deadline:1',
                   [f'acmp_cmd:{acmp}:PROBE_TX', 'arm:1'], accesses=35, path='acmp.tmr_no_resp1'),

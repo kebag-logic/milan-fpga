@@ -455,11 +455,19 @@ def recorded(groups: list, out: Path) -> tuple[list, list[Path], list[str]]:
     return kept, logs, refusals
 
 
+def unstated(group: object) -> list[str]:
+    """Each of the group's probes that ends at a response and states no type and status, or states a refusal its row
+    does not name (answers.py, #882): the run refuses each by name."""
+    import answers
+    return [f'{group.name}: {line}' for line in answers.unstated(group.probes)]
+
+
 def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list, list, list]:
     """Every group's grade, the refusals and the budget misses; each grade is written beside its log."""
     import grade
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
+        refusals += unstated(group)
         try:
             result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
         except grade.Refusal as error:
