@@ -1,0 +1,29 @@
+Note: Google Test filter = Core.Reboot*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Core
+[ RUN      ] Core.RebootIsNotImplementedWithoutAResetPort
+[       OK ] Core.RebootIsNotImplementedWithoutAResetPort (0 ms)
+[ RUN      ] Core.RebootRefusalsLeaveTheEntityInService
+[       OK ] Core.RebootRefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_aecp.cpp:1842: Failure
+Value of: aecp_reboot_accepted(&a)
+  Actual: false
+Expected: true
+accepted at its SUCCESS, before any poll hands its frames over
+
+  [FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: accepted at its SUCCESS, before any poll hands its frames over
+[  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete (0 ms)
+[----------] 3 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete
+
+ 1 FAILED TEST
+== AECP core: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)

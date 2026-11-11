@@ -1,0 +1,171 @@
+[==========] Running 23 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 23 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (2 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (0 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:931: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B19 no MAAP frame is taken after the REBOOT's SUCCESS
+
+  [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:931: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B19 no SRP frame is taken after the REBOOT's SUCCESS
+
+  [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:938: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B19 no MAAP frame is taken after the REBOOT's SUCCESS
+
+  [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:938: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B19 no SRP frame is taken after the REBOOT's SUCCESS
+
+  [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+[  FAILED  ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1038: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, 3u)
+    Which is: 1
+  0u
+    Which is: 0
+B22 no MAAP frame queued with the REBOOT is taken
+
+  [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1040: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, 4u)
+    Which is: 1
+  0u
+    Which is: 0
+B22 no SRP frame queued with the REBOOT is taken
+
+  [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1046: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, 3u)
+    Which is: 1
+  0u
+    Which is: 0
+B22 no MAAP frame queued with the REBOOT is taken
+
+  [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1048: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, 4u)
+    Which is: 1
+  0u
+    Which is: 0
+B22 no SRP frame queued with the REBOOT is taken
+
+  [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken
+[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1069: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+
+  [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1069: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+
+  [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1076: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+
+  [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1076: Failure
+Expected equality of these values:
+  ch_writes(at, mailbox.size(), 0x4u, c.ch)
+    Which is: 1
+  0u
+    Which is: 0
+B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+
+  [FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over
+[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[----------] 23 tests from Boot (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 1 test suite ran. (16 ms total)
+[  PASSED  ] 20 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+
+ 3 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 23   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 23 checks, exit 1)

@@ -1,0 +1,103 @@
+[==========] Running 23 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 23 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (2 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1008: Failure
+Value of: departing(from).empty()
+  Actual: false
+Expected: true
+B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1009: Failure
+Value of: ctrl_plat.app.adp.ifs[0].adp.enabled
+  Actual: false
+Expected: true
+B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1011: Failure
+Value of: reboot_writes().empty()
+  Actual: false
+Expected: true
+B21 nor the reset
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 nor the reset
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1008: Failure
+Value of: departing(from).empty()
+  Actual: false
+Expected: true
+B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1009: Failure
+Value of: ctrl_plat.app.adp.ifs[0].adp.enabled
+  Actual: false
+Expected: true
+B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+$REVIEWS/665s11-r822-3-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_plat_boot.cpp:1011: Failure
+Value of: reboot_writes().empty()
+  Actual: false
+Expected: true
+B21 nor the reset
+
+  [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 nor the reset
+[  FAILED  ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[----------] 23 tests from Boot (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 1 test suite ran. (16 ms total)
+[  PASSED  ] 22 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Boot.B21TheDepartingWaitsForEveryOtherRing
+
+ 1 FAILED TEST
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 23   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 23 checks, exit 1)

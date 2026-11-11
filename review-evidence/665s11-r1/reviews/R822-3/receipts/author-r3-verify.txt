@@ -1,0 +1,19 @@
+source: review-evidence/665s11-r1 at 5f043cf80e65e8c7943dfc28db9a6ca020d1d6d7, MANIFEST.json published_sha256
+MATCH author-r3/receipts/round3/campaigns/platmut3.log 8767f6f09c1632c6f668f723918d387b1927c0a0421564c359e9b22392d2343f
+MATCH author-r3/receipts/round3/campaigns/platmut4.log ce33f0b8304d0a8f79b0f98766193d19c66fdf409f7082edaf6aff9c97eae2a5
+MATCH author-r3/receipts/round3/campaigns/aecpmut3.log 4140ebef7da29fab8b94ab608269d6e46f1750b72e8bd8de253a95372da77075
+MATCH author-r3/receipts/round3/probes/r822.log 5bd14f5b60146dbe478dcc3bf7068b8f5b6ee4a88a1d2bc38fd1754bd572d9d7
+MATCH author-r3/receipts/round3/probes/r822/results.json 23f855fff3369b7b7b412a6bccc3f1dd1823be90496d13a292a505a5b86a1541
+MATCH author-r3/receipts/round3/gates/lane/LARGE.tsv f5b1a469295484ced0583b152434c1a6bbfd54d81ec01c79c2ddbb28ed84ae32
+MATCH author-r3/receipts/round3/gates/lane/RAW.tsv 9982c4c9dce5b3d27224d8b5626182479e72fc681c4c02f71381c781c9e13314
+MATCH author-r3/receipts/round3/campaigns/RAW.tsv d54091742be2bfeb5be8c0e755a03e87cd9c2a9636797c78f92842b9023740b2
+MATCH author-r3/receipts/round3/probes/final.txt 1bca98530cf325035f366e132fdc4447839dc7493c570798c07123cc62e210ff
+MATCH author-r3/receipts/round3/gates/lane/reboot.log 39d4378bed290455bde194edc56a1dca41853fccc92ac9b58a0132f01c23810d
+MATCH author-r3/receipts/round3/gates/lane/aecp_mutants.log 7cec456564eb9fae29baadb336afe6e849e788176a4299ef8b6c18d30cefff8f
+campaigns_platmut3.log: selected 23 mutants: ['plat-loop-before-ready', 'plat-reboot-before-the-response', 'plat-reboot-ignored', 'plat-reboot-without-departing', 'plat-reboot-departin
+campaigns_platmut4.log: selected 23 mutants: ['plat-loop-before-ready', 'plat-reboot-before-the-response', 'plat-reboot-ignored', 'plat-reboot-without-departing', 'plat-reboot-departin
+aecp_mutants.log: # head 6171d65473875239d97e6f6b9327c394db65aab8 gate aecp_mutants: /usr/bin/python3 sw/firmware/ctrl/test/aecp_mutants.py --output <scratch>/gates/pass3/lane-r3
+reboot.log: # head 6171d65473875239d97e6f6b9327c394db65aab8 gate reboot: litex python3 -B tb/verilator/ctrl_reboot/run.py --build-dir <scratch>/gates/pass3/lane-r3cpu/scrat
+reboot.log: ctrl_reboot self-test: 12 of 12 plants and controls caught
+probes_final.txt: head 6171d65473875239d97e6f6b9327c394db65aab8, clone changes after: 0
+aecp_mutants.log [ok] lines: 153

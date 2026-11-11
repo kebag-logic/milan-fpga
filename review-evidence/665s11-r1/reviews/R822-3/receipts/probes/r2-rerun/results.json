@@ -1,0 +1,93 @@
+{
+ "clean": {
+  "platboot1": {
+   "rc": 0,
+   "fails": []
+  },
+  "platboot2": {
+   "rc": 0,
+   "fails": []
+  },
+  "aecp": {
+   "rc": 0,
+   "fails": []
+  }
+ },
+ "gate-skips-maap-and-srp": {
+  "platboot1": {
+   "rc": 1,
+   "fails": [
+    "[  FAILED  ] 3 tests, listed below:",
+    "[  FAILED  ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess",
+    "[  FAILED  ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)",
+    "[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot",
+    "[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)",
+    "[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver",
+    "[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)",
+    "[FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS",
+    "[FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS",
+    "[FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken",
+    "[FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over"
+   ]
+  }
+ },
+ "depart-ignores-maap-and-srp-rings": {
+  "platboot1": {
+   "rc": 1,
+   "fails": [
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] Boot.B21TheDepartingWaitsForEveryOtherRing",
+    "[  FAILED  ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)",
+    "[FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame",
+    "[FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the SRP ring holds a frame",
+    "[FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 nor the reset"
+   ]
+  }
+ },
+ "accepted-from-the-poll": {
+  "platboot1": {
+   "rc": 1,
+   "fails": [
+    "[  FAILED  ] 2 tests, listed below:",
+    "[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot",
+    "[  FAILED  ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)",
+    "[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver",
+    "[  FAILED  ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)",
+    "[FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken",
+    "[FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no SRP frame queued with the REBOOT is taken",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ACMP frame is taken while the REBOOT's SUCCESS waits to be handed over",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no ADP frame is taken while the REBOOT's SUCCESS waits to be handed over",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no MAAP frame is taken while the REBOOT's SUCCESS waits to be handed over",
+    "[FAIL] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver: B23 no SRP frame is taken while the REBOOT's SUCCESS waits to be handed over"
+   ]
+  },
+  "aecp": {
+   "rc": 1,
+   "fails": [
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "[  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete (0 ms)",
+    "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: accepted at its SUCCESS, before any poll hands its frames over"
+   ]
+  }
+ },
+ "no-adp-poll-in-state-2": {
+  "platboot1": {
+   "rc": 1,
+   "fails": [
+    "[  FAILED  ] 1 test, listed below:",
+    "[  FAILED  ] Boot.B18ADepartingTheRingRefusedHoldsTheReset",
+    "[  FAILED  ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (1 ms)",
+    "[FAIL] Boot.B18ADepartingTheRingRefusedHoldsTheReset: B18 the reset port is written once ENTITY_DEPARTING has left"
+   ]
+  }
+ },
+ "quiet-only-after-the-port": {
+  "platboot1": {
+   "rc": 0,
+   "fails": []
+  }
+ }
+}
