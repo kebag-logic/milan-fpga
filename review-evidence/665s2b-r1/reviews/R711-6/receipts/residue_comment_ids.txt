@@ -1,0 +1,26 @@
+tb/verilator/ctrl_service_budget/flip_grade.py:3: """The flip check (#665, issuecomment-6788828284, items 4 and 6): the long-window load at 8x8/2if, read at this
+tb/verilator/ctrl_service_budget/flip_grade.py:5: (#665 issuecomment-6751196896, item 4).
+tb/verilator/ctrl_service_budget/flip_grade.py:80:     # the held point and its ceiling (#665 issuecomment-6751196896, item 4), read at the pin (issuecomment-6788828284,
+tb/verilator/ctrl_service_budget/load_grade.py:11: issuecomment-6751196896, item 4) at 1x1/1if, which this gate holds for merge. 8x8/2if is held to the same 0.70 by the
+tb/verilator/ctrl_service_budget/load_grade.py:12: flip check, flip_grade.py, read at the pin, a check apart from the merge gates (#665 issuecomment-6788828284, items 4
+tb/verilator/ctrl_service_budget/load_grade.py:14: #665 issuecomment-6759183115 and issuecomment-6759193032; issuecomment-6779973927, item 6); the table gives the compute
+tb/verilator/ctrl_service_budget/load_grade.py:18: Two columns of stated costs (#665 issuecomment-6751196896, item 3): STATED_US at this tree's TSN stack pin, and
+tb/verilator/ctrl_service_budget/load_grade.py:28:                  for storage (srp_mbx.c, the poll, #665 issuecomment-6751196896, item 1): a retry only once a pool
+tb/verilator/ctrl_service_budget/load_grade.py:36:   item.aecp      AECP's owed frame, by what each source sends (#665 issuecomment-6751196896, item 2): an AECP record's
+tb/verilator/ctrl_service_budget/load_grade.py:86: #: The ceiling the merge gate holds a point's load to (#665 issuecomment-6751196896, item 4): 1x1/1if. 8x8/2if is the
+tb/verilator/ctrl_service_budget/load_grade.py:87: #: flip check's (flip_grade.FLIP, #665 issuecomment-6788828284, item 4); 32x32/2if is reported, not held: the
+tb/verilator/ctrl_service_budget/load_grade.py:88: #: more-compute image, #872 (decision D, #665 issuecomment-6759183115).
+tb/verilator/ctrl_service_budget/load_grade.py:110: #: SRP comparisons same()'s (#665 issuecomment-6779973927, items 2 and 3), whose measurement alone states the three
+tb/verilator/ctrl_service_budget/load_grade.py:174: #: The retained receive's retry rule (#665 issuecomment-6751196896, item 1), each part as the tree states it, read with
+tb/verilator/ctrl_service_budget/load_grade.py:378:     # each point the ruling holds at 0.70 (#665 issuecomment-6751196896, item 4): 1x1/1if by this gate as it stands,
+tb/verilator/ctrl_service_budget/load_grade.py:379:     # 8x8/2if by the flip check at the pin (issuecomment-6788828284, items 4 and 6); a cost raised at each until the
+tb/verilator/ctrl_service_budget/load_grade.py:402:     # that bounds the retries, so the term srp has none (#665 issuecomment-6751196896, item 1)
+tb/verilator/ctrl_service_budget/load_grade.py:423:     # AECP's owed frame charged by what each source sends (#665 issuecomment-6751196896, item 2): a probe costs its own
+tb/verilator/ctrl_service_budget/load_grade.py:425:     # share alone; one charge for every source (a notice's fan-out to 32 recipients, #665 issuecomment-6751120577)
+tb/verilator/ctrl_service_budget/load_grade.py:436:     # a term the load counts with no source in its term list (#665 issuecomment-6734415848, item 5)
+tb/verilator/ctrl_service_budget/load_grade.py:439:     # the graded column, tsn-c-stack#32's (#665 issuecomment-6751196896, item 3): a cost the donor does not move stated
+tb/verilator/ctrl_service_budget/poll_grade.py:32: retained retry repeats, so it is held to the same stated cost (#665 issuecomment-6779973927, item 3): an SRP record
+tb/verilator/ctrl_service_budget/poll_grade.py:57: #: SRP comparisons are same()'s (#665 issuecomment-6779973927, items 2 and 3), over every group of both arms.
+tb/verilator/ctrl_service_budget/poll_items.py:19: #: A pass's parts (#665 issuecomment-6779973927, items 2 and 3): each channel's record and event handler, each module's
+tb/verilator/ctrl_service_budget/poll_items.py:104:     # the old cost of a notice's recipients (#665 issuecomment-6779973927, item 2): the fan-out as it was, each
+tb/verilator/ctrl_service_budget/poll_items.py:108:     # the old cost of an SRP record's comparisons (#665 issuecomment-6779973927, item 3): each StreamID and MAC
