@@ -1,0 +1,26 @@
+head a2690e682d929e6d3811006f961a24361827c596
+command: syn/ooc/pp_resource_gate.py check <the export's gateware, the recipe directive's reports> --endpoint route-1x1 --placement full-split --shipping-selection
+full log: 1357 bytes, sha256 21d8ebcaed81eafcef923599fdd69c8a55822d723d79b719e676d28744c7e0e8
+---
+endpoint route-1x1: <scratch>/route/shipping-view
+placement full-split: intermediate comparison
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       29377    -22635  ok, below the baseline
+FF               53707       39235    -14472  ok, below the baseline
+SLICE            15780       12671     -3109  ok, below the baseline
+RAMB36              74          56       -18  ok, below the baseline
+RAMB18              27          32         5  REGRESSION: grew by more than 0
+DSP                 13           5        -8  ok, below the baseline
+WNS_ns            0.44       0.274    -0.166  ok
+WHS_ns           0.036       0.036       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.274  WHS_ns    0.102
+  Slow_85C  WNS_ns    0.274  WHS_ns    0.102
+  Fast_0C   WNS_ns    1.636  WHS_ns    0.036
+  Fast_85C  WNS_ns    1.636  WHS_ns    0.036
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: LUT, FF, SLICE, RAMB36, DSP improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block attribution roots differ: selected image versus wrapper; no scope deltas claimed
+RESULT: MATERIAL REGRESSION
+rc=1

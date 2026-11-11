@@ -1,0 +1,23 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: design and per-clock summary of alinx_ax7101_signoff_Fast_85C_timing.rpt
+full log: 3506 bytes, sha256 8cb0cd128e5d50b9bd48a30ee408ee7e4be307364a4b3a9e7abf28870d50e9c2
+---
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      1.636        0.000                      0               118911        0.036        0.000                      0               118829        1.100        0.000                       0                 41273  
+
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 4.342        0.000                      0                    7        0.178        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   1.641        0.000                      0                36514        0.064        0.000                      0                36514        3.000        0.000                       0                 12529  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       32.373        0.000                      0                 1973        0.036        0.000                      0                 1973       19.645        0.000                       0                   648  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   1.636        0.000                      0                75808        0.036        0.000                      0                75808        7.500        0.000                       0                 27418  
+  milansoc_crg_clkout2                   3.253        0.000                      0                  172        0.121        0.000                      0                  172        1.591        0.000                       0                    70  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  

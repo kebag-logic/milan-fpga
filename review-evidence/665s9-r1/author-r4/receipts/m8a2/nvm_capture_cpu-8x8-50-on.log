@@ -1,0 +1,2164 @@
+head 0f3c475685b6247779398457249beafebb0b275a
+command: tools/m8a2_runs.sh
+full log: 171798 bytes, sha256 bb6cb0d81d02201288eb948e3d508b5052c21a98024062e6f195ecbf6017eab3
+---
+# head 0f3c475685b6247779398457249beafebb0b275a run nvm_capture_cpu-8x8-50-on: PATH=<home>/litex-milan/venv/bin:<tools>/pinned-verilator-5.050:/usr/local/bin:/usr/bin:/bin:<home>/br-milan-rv32/host/bin <home>/litex-milan/venv/bin/python3 -B tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir <scratch>/nvmcap-8x8-50-on
+# tree:  M docs/design/MAILBOX_SPLIT.md 
+2026-11-10T10:05:49+01:00
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-11-10 10:05:51)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : SIM.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:Allocating Cached Region of size 0x01000000...
+INFO:SoCBusHandler:spiflash Region allocated at Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x01000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCBusHandler:milan_csr Region added at Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:milan_csr Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:milan_csr added as Bus Slave.
+[milan] --audio-interface-master: no `tdm` pads on this platform - bclk/fsync/dout float and the capture front-end frames DIGITAL SILENCE at the declared width
+wrote <lane>/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<lane>/configs/generated/ucode.hex: 2048 words, 95 programs
+INFO:SoCDMABusHandler:milan_desc_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_desc_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_resp_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_resp_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_nvm_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_nvm_mem added as Bus Master.
+INFO:SoCCSRHandler:ppmem CSR added at Location 31.
+[milan] no user_led pad - IDENTIFY LED not wired
+INFO:SoCCSRHandler:probe CSR allocated at Location 0.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 5).
+INFO:SoCDMABusHandler:Interconnect: AXIInterconnectShared (3 <-> 1).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 1.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 2.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 3.
+INFO:SoCCSRHandler:spiflash CSR allocated at Location 4.
+INFO:SoCCSRHandler:timer0 CSR allocated at Location 5.
+INFO:SoCCSRHandler:uart CSR allocated at Location 6.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (8)
+rom                 : Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False
+spiflash            : Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+milan_csr           : Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : r
+- sram              : rw
+- spiflash          : r
+- milan_csr         : rw
+- csr               : rw
+INFO:SoC:32-bit axi Bus, 4.0GiB Address Space.
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (3)
+- milan_desc_mem    : rw
+- milan_resp_mem    : rw
+- milan_nvm_mem     : rw
+Bus Slaves: (1)
+- dma               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (8)
+- probe          : 0
+- ctrl           : 1
+- identifier_mem : 2
+- sdram          : 3
+- spiflash       : 4
+- timer0         : 5
+- uart           : 6
+- ppmem          : 31
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+ProductSimulation
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    ├── offset_0 (Offset) [Gen]
+│    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    └── fsm (FSM)
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    ├── offset_0 (Offset) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── memory_port_stage0 (AXIReadyStage)
+│    │    ├── aw_pipe (PipeReady)
+│    │    └── ar_pipe (PipeReady)
+│    └── [BB:VexiiRiscvLitex_f5f08b170311db53220574624f819159]
+├── dma_bus (SoCBusHandler)
+│    ├── converter_0 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_0 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_1 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_1 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_2 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_2 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    └── _interconnect (AXIInterconnectShared)
+│         ├── arbiter (AXIArbiter)
+│         │    ├── rr_write (RoundRobin)
+│         │    ├── rr_read (RoundRobin)
+│         │    ├── wr_lock (_AXIRequestCounter)
+│         │    └── rd_lock (_AXIRequestCounter)
+│         ├── decoder (AXIDecoder)
+│         │    ├── _axirequestcounter_0 (_AXIRequestCounter) [Gen]
+│         │    └── _axirequestcounter_1 (_AXIRequestCounter) [Gen]
+│         └── timeout (AXITimeout)
+│              ├── waittimer_0 (WaitTimer) [Gen]
+│              ├── waittimer_1 (WaitTimer) [Gen]
+│              ├── wr_fsm (FSM)
+│              └── rd_fsm (FSM)
+├── rom (SRAM)
+├── sram (SRAM)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHYModel)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── crg (SimClocks)
+├── ddrphy (SDRAMPHYModel)
+│    ├── dfiphasemodel_0 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_1 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_2 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_3 (DFIPhaseModel) [Gen]
+│    ├── bankmodel_0 (BankModel) [Gen]
+│    ├── bankmodel_1 (BankModel) [Gen]
+│    ├── bankmodel_2 (BankModel) [Gen]
+│    ├── bankmodel_3 (BankModel) [Gen]
+│    ├── bankmodel_4 (BankModel) [Gen]
+│    ├── bankmodel_5 (BankModel) [Gen]
+│    ├── bankmodel_6 (BankModel) [Gen]
+│    └── bankmodel_7 (BankModel) [Gen]
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (RegisteredRefresher)
+│    │    │    └── refresher (Refresher)
+│    │    │         ├── timer (RefreshTimer)
+│    │    │         ├── postponer (RefreshPostponer)
+│    │    │         ├── sequencer (RefreshSequencer)
+│    │    │         │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │         ├── zqcs_timer (RefreshTimer)
+│    │    │         ├── zqs_executer (ZQCSExecuter)
+│    │    │         └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── spiflash_phy (LiteSPIPHYModel)
+│    ├── spiflash_phy (LiteSPIPHYModelCore)
+│    │    └── fsm (FSM)
+│    └── stage (SPIPHYStage)
+│         ├── tx (Buffer)
+│         │    ├── pipe_valid (PipeValid)
+│         │    ├── pipe_ready (PipeReady)
+│         │    └── pipeline (Pipeline)
+│         └── rx (Buffer)
+│              ├── pipe_valid (PipeValid)
+│              ├── pipe_ready (PipeReady)
+│              └── pipeline (Pipeline)
+├── spiflash (LiteSPI)
+│    ├── crossbar (LiteSPICrossbar)
+│    │    ├── rr (RoundRobin)
+│    │    ├── tx_mux (Multiplexer)
+│    │    └── rx_demux (Demultiplexer)
+│    ├── mmap (LiteSPIMMAP)
+│    │    ├── burst_timeout (WaitTimer)
+│    │    └── fsm (FSM)
+│    ├── master (LiteSPIMaster)
+│    │    ├── tx_fifo (SyncFIFO)
+│    │    │    └── buffer_0 (Buffer) [Gen]
+│    │    │         ├── pipe_valid (PipeValid)
+│    │    │         └── pipeline (Pipeline)
+│    │    └── rx_fifo (SyncFIFO)
+│    │         └── buffer_0 (Buffer) [Gen]
+│    │              ├── pipe_valid (PipeValid)
+│    │              └── pipeline (Pipeline)
+│    └── phy (LiteSPIPHYModel)
+│         ├── spiflash_phy (LiteSPIPHYModelCore)
+│         │    └── fsm (FSM)
+│         └── stage (SPIPHYStage)
+│              ├── tx (Buffer)
+│              │    ├── pipe_valid (PipeValid)
+│              │    ├── pipe_ready (PipeReady)
+│              │    └── pipeline (Pipeline)
+│              └── rx (Buffer)
+│                   ├── pipe_valid (PipeValid)
+│                   ├── pipe_ready (PipeReady)
+│                   └── pipeline (Pipeline)
+├── milan (MilanNIC)
+│    ├── milan_axil_cdc (AXILiteClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── [BB:milan_datapath]
+├── descmem_fsm (FSM)
+├── respmem_fsm (FSM)
+├── nvmmem_fsm (FSM)
+├── ppmem (_PPMemDiag)
+├── probe (CaptureProbe)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstatus_3 (CSRStatus) [Gen]
+│    │    └── csrstatus_4 (CSRStatus) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    └── csrstatus_2 (CSRStatus) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstorage_6 (CSRStorage) [Gen]
+│    │    ├── csrstorage_7 (CSRStorage) [Gen]
+│    │    ├── csrstorage_8 (CSRStorage) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstorage_9 (CSRStorage) [Gen]
+│    │    ├── csrstorage_10 (CSRStorage) [Gen]
+│    │    ├── csrstorage_11 (CSRStorage) [Gen]
+│    │    ├── csrstorage_12 (CSRStorage) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstorage_13 (CSRStorage) [Gen]
+│    │    ├── csrstorage_14 (CSRStorage) [Gen]
+│    │    ├── csrstorage_15 (CSRStorage) [Gen]
+│    │    ├── csrstorage_16 (CSRStorage) [Gen]
+│    │    └── csrstatus_3 (CSRStatus) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    ├── csrbank_5 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_6 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+cp <home>/litex-milan/litex/litex/soc/software/libc/picolibc-minimal.h <scratch>/nvmcap-8x8-50-on/software/libc/picolibc.h
+printf "#define FORMAT_DEFAULT_%s\n" "INTEGER" >> <scratch>/nvmcap-8x8-50-on/software/libc/picolibc.h
+rm -f -r <scratch>/nvmcap-8x8-50-on/software/include/../picolibc_src
+cp -a <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data <scratch>/nvmcap-8x8-50-on/software/include/../picolibc_src
+printf "#define __IO_DEFAULT '%s'\n" "i" >> <scratch>/nvmcap-8x8-50-on/software/libc/picolibc.h
+if [ -d "<home>/litex-milan/litex/litex/soc/software/libc/riscv" ]; then \
+	cp <home>/litex-milan/litex/litex/soc/software/libc/riscv/* <scratch>/nvmcap-8x8-50-on/software/include/../picolibc_src/libc/machine/riscv/ ;\
+fi
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_ctype_ctype_.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_errno_errno.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_string_strchr.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_string_strncpy.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_string_strncmp.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_string_strnlen.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_fgetc.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_fputc.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_fputs.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_printf.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_puts.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_strtoul.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_strtoull.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdlib_lldiv.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_memcpy-asm.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_memmove.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_strcmp.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_memset.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_strcpy.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_machine_riscv_strlen.o
+ CC       minimal__data_milan_tmp_665s9-a760_nvmcap-8x8-50-on_software_include_.._picolibc_src_libc_stdio_vfiprintf.o
+ AR       __libc_minimal.a
+ CC       _libc_minimal.a
+ AR       _libc_minimal.a
+cp __libc_minimal.a _libc_minimal.a
+ CC       libc-minimal.a
+ AR       libc-minimal.a
+cp _libc_minimal.a libc-minimal.a
+cp libc-minimal.a libc.a
+ CC       umodsi3.o
+ CC       udivsi3.o
+ CC       divsi3.o
+ CC       modsi3.o
+ CC       comparesf2.o
+ CC       comparedf2.o
+ CC       negsf2.o
+ CC       negdf2.o
+ CC       addsf3.o
+ CC       subsf3.o
+ CC       mulsf3.o
+ CC       extendsfdf2.o
+ CC       divsf3.o
+ CC       truncdfsf2.o
+ CC       lshrdi3.o
+ CC       muldi3.o
+ CC       divdi3.o
+ CC       ashldi3.o
+<home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparedf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpdf2, __ledf2);
+      | ^~~~~~~
+ CC       ashrdi3.o
+ CC       floatsisf.o
+ CC       fixsfsi.o
+ CC       fixdfdi.o
+ CC       floatunsisf.o
+ CC       fixunssfsi.o
+ CC       udivmoddi4.o
+ CC       fixunsdfdi.o
+ CC       adddf3.o
+ CC       subdf3.o
+ CC       muldf3.o
+ CC       divdf3.o
+ CC       floatsidf.o
+<home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparesf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpsf2, __lesf2);
+      | ^~~~~~~
+ CC       floatunsidf.o
+ CC       floatdidf.o
+ CC       fixdfsi.o
+ CC       fixunsdfsi.o
+ CC       ctzsi2.o
+ CC       clzdi2.o
+ CC       udivdi3.o
+ CC       clzsi2.o
+ CC       ctzdi2.o
+ CC       umoddi3.o
+ CC       moddi3.o
+ CC       ucmpdi2.o
+ CC       mulsi3.o
+ AR       libcompiler_rt.a
+ CC       crc16.o
+ CC       crc32.o
+ CC       console.o
+ CC       format.o
+ CC       system.o
+ CC       progress.o
+ CC       memtest.o
+ CC       uart.o
+ CC       startup.o
+ CC       spiflash.o
+ CC       i2c.o
+ CC       isr.o
+ CC       hyperram.o
+ AR       libbase.a
+ CC       ffunicode.o
+ CC       ff.o
+ AR       libfatfs.a
+ CC       spiflash.o
+ CC       spiram.o
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_erase_range’:
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:295:48: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  295 |                 printf("Erase SPI Flash @0x%08lx", ((uint32_t)addr+i));
+      |                                            ~~~~^   ~~~~~~~~~~~~~~~~~~
+      |                                                |                  |
+      |                                                long unsigned int  unsigned int
+      |                                            %08x
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:312:63: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘uint32_t’ {aka ‘unsigned int’} [-Wformat=]
+  312 |                                 printf("Error: location 0x%08lx not erased (%0x2x)\n", addr+i+j, *peek);
+      |                                                           ~~~~^                        ~~~~~~~~
+      |                                                               |                              |
+      |                                                               long unsigned int              uint32_t {aka unsigned int}
+      |                                                           %08x
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_write_stream’:
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:357:71: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  357 |                                 printf("Error: verify failed at 0x%08lx (0x%02x should be 0x%02x)\n", (uint32_t)peek, *peek, stream[offset+j]);
+      |                                                                   ~~~~^                               ~~~~~~~~~~~~~~
+      |                                                                       |                               |
+      |                                                                       long unsigned int               unsigned int
+      |                                                                   %08x
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: At top level:
+<home>/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:118:13: warning: ‘spiflash_master_write’ defined but not used [-Wunused-function]
+  118 | static void spiflash_master_write(uint32_t val, size_t len, size_t width, uint32_t mask)
+      |             ^~~~~~~~~~~~~~~~~~~~~
+ AR       liblitespi.a
+ CC       sdram.o
+ CC       sdram_dbg.o
+ CC       sdram_spd.o
+ CC       bist.o
+ CC       utils.o
+ CC       accessors.o
+ AR       liblitedram.a
+ CC       udp.o
+ CC       tftp.o
+ CC       mdio.o
+ CC       dhcp.o
+ AR       libliteeth.a
+ CC       sdcard.o
+ CC       spisdcard.o
+ AR       liblitesdcard.a
+ CC       sata.o
+ AR       liblitesata.a
+ CC       milan_baremetal.o
+ AR       libmilan_baremetal.a
+ CC       crt0.o
+ CC       boot-helper.o
+ CC       boot.o
+ CC       helpers.o
+ CC       cmd_bios.o
+ CC       cmd_mem.o
+ CC       cmd_boot.o
+ CC       cmd_i2c.o
+ CC       cmd_spiflash.o
+ CC       cmd_litedram.o
+ CC       cmd_liteeth.o
+ CC       cmd_litesdcard.o
+ CC       sim_debug.o
+ CC       cmd_litesata.o
+ CC       complete.o
+ CC       main.o
+ CC       readline.o
+ CC       bios.elf
+<home>/br-milan-rv32/host/lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: bios.elf has a LOAD segment with RWX permissions
+chmod -x bios.elf
+ OBJCOPY  bios.bin
+chmod -x bios.bin
+python3 -m litex.soc.software.crcfbigen bios.bin --little
+python3 -m litex.soc.software.memusage  bios.elf <scratch>/nvmcap-8x8-50-on/software/bios/../include/generated/regions.ld riscv32-linux
+
+ROM usage: 50.34KiB 	(39.33%)
+SRAM usage: 2.49KiB 	(31.15%)
+  .data: 0.41KiB
+  .bss: 2.08KiB
+  stack margin: 5.51KiB
+
+INFO:SoC:Initializing ROM rom with contents (Size: 0xc964).
+INFO:SoC:Auto-Resizing ROM rom from 0x20000 to 0xc964.
+COMMAND verilator --cc --exe --build -j 8 -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/nvmcap-8x8-50-on/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on' -I<scratch>/nvmcap-8x8-50-on/generated/endstation_ax7101_8x8 -I<scratch>/nvmcap-8x8-50-on/generated/endstation_ax7101_8x8/gen -I<lane>/hdl/common -I<lane>/hdl/ieee8021q/ts -I<lane>/hdl/ieee8021as/ptp_timestamp -I<lane>/hdl/ieee17221/adp -I<lane>/hdl/common/csr -I<lane>/hdl/common/eth_event_counter -I<lane>/hdl/ieee1722/avtp <lane>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv <lane>/protocol-processor/hdl/adp/pp_adp_pkg.sv <lane>/protocol-processor/hdl/aecp/ucpu_pkg.sv <lane>/protocol-processor/hdl/common/pp_pkg.sv <lane>/protocol-processor/hdl/srp/srp_pkg.sv <lane>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv <lane>/protocol-processor/hdl/acmp/KL_acmp_talker.sv <lane>/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv <lane>/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv <lane>/protocol-processor/hdl/adp/KL_adp_engine.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_engine.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_notify.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv <lane>/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv <lane>/protocol-processor/hdl/common/KL_pp_prng.sv <lane>/protocol-processor/hdl/common/KL_pp_timer_service.sv <lane>/protocol-processor/hdl/maap/KL_pp_maap.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_originator.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv <lane>/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv <lane>/protocol-processor/hdl/srp/KL_srp_admission.sv <lane>/protocol-processor/hdl/srp/KL_srp_decoder.sv <lane>/protocol-processor/hdl/srp/KL_srp_domain.sv <lane>/protocol-processor/hdl/srp/KL_srp_encoder.sv <lane>/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv <lane>/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv <lane>/protocol-processor/hdl/srp/KL_srp_top.sv <lane>/protocol-processor/hdl/srp/KL_srp_vlan.sv <lane>/protocol-processor/hdl/top/KL_mrp_strip.sv <lane>/protocol-processor/hdl/top/protocol_processor_top.sv <lane>/hdl/milan/KL_pp_shadow.sv <lane>/hdl/milan/KL_pp_maap_shim.sv <lane>/hdl/milan/KL_nvm_backend.sv <lane>/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv <lane>/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv <lane>/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv <lane>/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv <lane>/gptp-processor/hdl/common/KL_gptp_timer.sv <lane>/gptp-processor/hdl/top/KL_gptp_engine.sv <lane>/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv <lane>/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv <lane>/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv <lane>/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv <lane>/hdl/common/ethernet_packet_pkg.sv <lane>/hdl/common/axi_stream_if.sv <lane>/third_party/verilog-axis/rtl/axis_fifo.v <lane>/third_party/verilog-axis/rtl/axis_arb_mux.v <lane>/third_party/verilog-axis/rtl/arbiter.v <lane>/third_party/verilog-axis/rtl/priority_encoder.v <lane>/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv <lane>/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv <lane>/hdl/common/cdc_pulse.sv <lane>/hdl/common/cdc_handshake.sv <lane>/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv <lane>/hdl/ieee8021q/filtering/tcam.sv <lane>/hdl/ieee8021q/filtering/rx_mac_filter.sv <lane>/hdl/common/tx_ifg_gasket.sv <lane>/hdl/ieee1722/aaf/KL_pcm_lpf.sv <lane>/hdl/common/KL_link_guard.sv <lane>/hdl/milan/KL_reboot_ctrl.sv <lane>/hdl/ieee17221/adp/adp_tx_arbiter.sv <lane>/hdl/ieee1722/aaf/aaf_talker_i2s.sv <lane>/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv <lane>/hdl/ieee1722/aaf/KL_i2s_playback.sv <lane>/hdl/ieee1722/aaf/KL_tone_gen.sv <lane>/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv <lane>/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv <lane>/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv <lane>/hdl/ieee1722/aaf/KL_media_adv.sv <lane>/hdl/common/cdc_pair_fifo.sv <lane>/hdl/ieee1722/avtp/avtp_subtype_pkg.sv <lane>/hdl/ieee1722/avtp/avtp_stream_parser.sv <lane>/hdl/ieee1722/avtp/KL_stream_table.sv <lane>/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv <lane>/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv <lane>/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv <lane>/hdl/ieee1722/avtp/KL_media_clock_restart.sv <lane>/hdl/ieee1722/aaf/KL_pcm_route.sv <lane>/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv <lane>/hdl/ieee1722/aaf/KL_tdm_capture.sv <lane>/hdl/ieee1722/aaf/KL_tdm_capture_master.sv <lane>/hdl/ieee1722/aaf/KL_pair_blend.sv <lane>/hdl/ieee1722/aaf/KL_pair_zero_fill.sv <lane>/hdl/ieee1722/aaf/KL_tdm_render.sv <lane>/hdl/ieee1722/aaf/KL_tdm_render_master.sv <lane>/hdl/ieee1722/aaf/KL_render_queue.sv <lane>/hdl/ieee1722/aaf/KL_chan_map_render.sv <lane>/hdl/ieee1722/aaf/KL_chan_map_capture.sv <lane>/hdl/ieee1722/aaf/KL_aaf_packetizer.sv <lane>/hdl/ieee1722/crf/KL_crf_rx.sv <lane>/hdl/ieee1722/crf/KL_crf_tx.sv <lane>/hdl/ieee1722/maap/KL_maap.sv <lane>/hdl/ieee1722/crf/KL_aaf_clock_meter.sv <lane>/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv <lane>/hdl/ieee1722/crf/KL_media_nco.sv <lane>/hdl/ieee1722/crf/KL_media_grid_align.sv <lane>/hdl/ieee1722/crf/KL_media_domain_event.sv <lane>/hdl/ieee1722/crf/KL_media_if_latency_pkg.sv <lane>/hdl/ieee1722/crf/KL_mtt_round.sv <lane>/hdl/common/eth_event_counter/ethernet_events.sv <lane>/hdl/common/eth_event_counter/event_counter.sv <lane>/hdl/common/eth_event_counter/KL_mac_rmon_events.sv <lane>/hdl/common/csr/milan_csr.sv <lane>/hdl/milan/milan_datapath.sv <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v <scratch>/nvmcap-8x8-50-on/gateware/sim.v <lane>/tb/verilator/nvm_capture_cpu/sim_main.cpp
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:806:48: Instance has missing pin: 'clk'
+  806 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:806:48: Instance has missing pin: 'rst_n'
+  806 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:807:48: Instance has missing pin: 'clk'
+  807 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:807:48: Instance has missing pin: 'rst_n'
+  807 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:808:48: Instance has missing pin: 'clk'
+  808 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: <lane>/hdl/milan/milan_datapath.sv:808:48: Instance has missing pin: 'rst_n'
+  808 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     <lane>/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_sclk_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:528:35: ... Location of port declaration
+  528 |   output wire                     i2s_sclk_o,
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_lrck_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:529:35: ... Location of port declaration
+  529 |   output wire                     i2s_lrck_o,
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_sdout_i'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:530:35: ... Location of port declaration
+  530 |   input  wire                     i2s_sdout_i,
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'tdm_mclk_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:557:35: ... Location of port declaration
+  557 |   output wire                     tdm_mclk_o,      
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_dac_mclk_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:561:35: ... Location of port declaration
+  561 |   output wire                     i2s_dac_mclk_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_dac_sclk_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:562:35: ... Location of port declaration
+  562 |   output wire                     i2s_dac_sclk_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_dac_lrck_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:563:35: ... Location of port declaration
+  563 |   output wire                     i2s_dac_lrck_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i2s_dac_sdin_o'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:564:35: ... Location of port declaration
+  564 |   output wire                     i2s_dac_sdin_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_tx_en'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:581:22: ... Location of port declaration
+  581 |   output wire        o_mac_tx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_rx_en'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:582:22: ... Location of port declaration
+  582 |   output wire        o_mac_rx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_promisc'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:583:22: ... Location of port declaration
+  583 |   output wire        o_mac_promisc,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_allmulti'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:584:22: ... Location of port declaration
+  584 |   output wire        o_mac_allmulti,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_is_1g'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:585:22: ... Location of port declaration
+  585 |   output wire        o_mac_is_1g,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_ifg'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:586:22: ... Location of port declaration
+  586 |   output wire [7:0]  o_mac_ifg,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_addr'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:587:22: ... Location of port declaration
+  587 |   output wire [47:0] o_mac_addr,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mc_hash'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:588:22: ... Location of port declaration
+  588 |   output wire [63:0] o_mc_hash,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_phy_reset_n'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:589:22: ... Location of port declaration
+  589 |   output wire        o_phy_reset_n,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mac_reinit'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:594:22: ... Location of port declaration
+  594 |   output wire        o_mac_reinit,      
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_eth_rst'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:595:22: ... Location of port declaration
+  595 |   output wire        o_eth_rst,         
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_eth_guard'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:596:22: ... Location of port declaration
+  596 |   output wire        o_eth_guard,       
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_reboot_phy_hold'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:607:22: ... Location of port declaration
+  607 |   output wire        o_reboot_phy_hold,
+      |                      ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_icap_csib'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:608:22: ... Location of port declaration
+  608 |   output wire        o_icap_csib,       
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_icap_i'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:609:22: ... Location of port declaration
+  609 |   output wire [31:0] o_icap_i,          
+      |                      ^~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_drp_addr'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:674:22: ... Location of port declaration
+  674 |   output wire [6:0]  o_mmcm_drp_addr,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_drp_en'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:675:22: ... Location of port declaration
+  675 |   output wire        o_mmcm_drp_en,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_drp_we'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:676:22: ... Location of port declaration
+  676 |   output wire        o_mmcm_drp_we,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_drp_di'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:677:22: ... Location of port declaration
+  677 |   output wire [15:0] o_mmcm_drp_di,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_rst'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:680:22: ... Location of port declaration
+  680 |   output wire        o_mmcm_rst,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_ps_en'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:682:22: ... Location of port declaration
+  682 |   output wire        o_mmcm_ps_en,
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_mmcm_ps_incdec'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:683:22: ... Location of port declaration
+  683 |   output wire        o_mmcm_ps_incdec,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_rx_valid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:694:22: ... Location of port declaration
+  694 |   output wire        o_ctl_rx_valid,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_rx_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:695:22: ... Location of port declaration
+  695 |   output wire [7:0]  o_ctl_rx_data,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_rx_last'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:696:22: ... Location of port declaration
+  696 |   output wire        o_ctl_rx_last,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_rx_ready'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:697:22: ... Location of port declaration
+  697 |   input  wire        i_ctl_rx_ready,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_tx_valid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:699:22: ... Location of port declaration
+  699 |   input  wire        i_ctl_tx_valid,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_tx_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:700:22: ... Location of port declaration
+  700 |   input  wire [7:0]  i_ctl_tx_data,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_tx_last'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:701:22: ... Location of port declaration
+  701 |   input  wire        i_ctl_tx_last,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_tx_ready'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:702:22: ... Location of port declaration
+  702 |   output wire        o_ctl_tx_ready,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_link_up'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:705:22: ... Location of port declaration
+  705 |   output wire        o_ctl_link_up,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_gm_change_p'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:706:22: ... Location of port declaration
+  706 |   output wire        o_ctl_gm_change_p,
+      |                      ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_gm_id'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:707:22: ... Location of port declaration
+  707 |   output wire [63:0] o_ctl_gm_id,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_gptp_domain'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:708:22: ... Location of port declaration
+  708 |   output wire [7:0]  o_ctl_gptp_domain,
+      |                      ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_da_gate'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:710:39: ... Location of port declaration
+  710 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_da_gate,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_licence'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:711:39: ... Location of port declaration
+  711 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_licence,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_talker_decl'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:712:39: ... Location of port declaration
+  712 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_talker_decl,  
+      |                                       ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_src_sid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:713:39: ... Location of port declaration
+  713 |   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_pub_src_sid,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_idle_slope_bps'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:714:39: ... Location of port declaration
+  714 |   input  wire [31:0]                  i_ctl_pub_idle_slope_bps,  
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_dom_vid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:715:39: ... Location of port declaration
+  715 |   input  wire [11:0]                  i_ctl_pub_dom_vid,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_dom_prio'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:716:39: ... Location of port declaration
+  716 |   input  wire [2:0]                   i_ctl_pub_dom_prio,     
+      |                                       ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_dom_adopted'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:717:39: ... Location of port declaration
+  717 |   input  wire                         i_ctl_pub_dom_adopted,  
+      |                                       ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_bound'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:718:39: ... Location of port declaration
+  718 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_bound,        
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_sid_valid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:719:39: ... Location of port declaration
+  719 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_sid_valid,    
+      |                                       ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_started'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:720:39: ... Location of port declaration
+  720 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pub_started,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pub_sid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:721:39: ... Location of port declaration
+  721 |   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_pub_sid,          
+      |                                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_cur_config'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:726:39: ... Location of port declaration
+  726 |   input  wire [15:0]                  i_ctl_cur_config,       
+      |                                       ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_identify'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:727:39: ... Location of port declaration
+  727 |   input  wire [7:0]                   i_ctl_identify,         
+      |                                       ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_clk_src_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:728:39: ... Location of port declaration
+  728 |   input  wire [15:0]                  i_ctl_clk_src_index,    
+      |                                       ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_lock_held'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:729:39: ... Location of port declaration
+  729 |   input  wire                         i_ctl_lock_held,        
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_dyn_dirty'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:730:39: ... Location of port declaration
+  730 |   input  wire                         i_ctl_dyn_dirty,        
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pt_offset_ns'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:731:39: ... Location of port declaration
+  731 |   input  wire [CTRL_ENTRIES_P*32-1:0] i_ctl_pt_offset_ns,     
+      |                                       ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_pt_offset_v'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:732:39: ... Location of port declaration
+  732 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_pt_offset_v,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_fmt_out'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:733:39: ... Location of port declaration
+  733 |   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_fmt_out,          
+      |                                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_fmt_out_v'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:734:39: ... Location of port declaration
+  734 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_fmt_out_v,        
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_fmt_in'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:735:39: ... Location of port declaration
+  735 |   input  wire [CTRL_ENTRIES_P*64-1:0] i_ctl_fmt_in,           
+      |                                       ^~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_fmt_in_v'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:736:39: ... Location of port declaration
+  736 |   input  wire [CTRL_ENTRIES_P-1:0]    i_ctl_fmt_in_v,         
+      |                                       ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_restore'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:739:39: ... Location of port declaration
+  739 |   input  wire [5:0]                   i_ctl_restore,          
+      |                                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_rs_cause'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:740:39: ... Location of port declaration
+  740 |   input  wire [2:0]                   i_ctl_rs_cause,         
+      |                                       ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_restore_cause'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:741:39: ... Location of port declaration
+  741 |   input  wire [1:0]                   i_ctl_restore_cause,    
+      |                                       ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_nvm'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:742:39: ... Location of port declaration
+  742 |   input  wire [5:0]                   i_ctl_nvm,              
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_nvm_verdict'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:743:39: ... Location of port declaration
+  743 |   input  wire [3:0]                   i_ctl_nvm_verdict,      
+      |                                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_ctr_req'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:746:22: ... Location of port declaration
+  746 |   input  wire        i_ctl_ctr_req,                           
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_ctr_type'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:749:22: ... Location of port declaration
+  749 |   input  wire [15:0] i_ctl_ctr_type,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_ctr_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:750:22: ... Location of port declaration
+  750 |   input  wire [15:0] i_ctl_ctr_index,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_ctr_word'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:751:22: ... Location of port declaration
+  751 |   input  wire [5:0]  i_ctl_ctr_word,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_ctr_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:752:22: ... Location of port declaration
+  752 |   output wire [31:0] o_ctl_ctr_data,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_ctr_wait'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:753:22: ... Location of port declaration
+  753 |   output wire        o_ctl_ctr_wait,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_req'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:754:22: ... Location of port declaration
+  754 |   input  wire        i_ctl_amap_req,                          
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_type'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:757:22: ... Location of port declaration
+  757 |   input  wire [15:0] i_ctl_amap_type,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:758:22: ... Location of port declaration
+  758 |   input  wire [15:0] i_ctl_amap_index,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_map_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:759:22: ... Location of port declaration
+  759 |   input  wire [15:0] i_ctl_amap_map_index,
+      |                      ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_sel'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:760:22: ... Location of port declaration
+  760 |   input  wire [1:0]  i_ctl_amap_sel,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_amap_rec'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:761:22: ... Location of port declaration
+  761 |   input  wire [7:0]  i_ctl_amap_rec,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_amap_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:762:22: ... Location of port declaration
+  762 |   output wire [63:0] o_ctl_amap_data,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_amap_wait'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:763:22: ... Location of port declaration
+  763 |   output wire        o_ctl_amap_wait,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_req'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:764:22: ... Location of port declaration
+  764 |   input  wire        i_ctl_edit_req,                          
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_phase'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:767:22: ... Location of port declaration
+  767 |   input  wire [2:0]  i_ctl_edit_phase,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_remove'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:768:22: ... Location of port declaration
+  768 |   input  wire        i_ctl_edit_remove,
+      |                      ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_type'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:769:22: ... Location of port declaration
+  769 |   input  wire [15:0] i_ctl_edit_type,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:770:22: ... Location of port declaration
+  770 |   input  wire [15:0] i_ctl_edit_index,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_count'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:771:22: ... Location of port declaration
+  771 |   input  wire [15:0] i_ctl_edit_count,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_rec'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:772:22: ... Location of port declaration
+  772 |   input  wire [7:0]  i_ctl_edit_rec,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_record'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:773:22: ... Location of port declaration
+  773 |   input  wire [63:0] i_ctl_edit_record,
+      |                      ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_edit_value'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:774:22: ... Location of port declaration
+  774 |   input  wire [63:0] i_ctl_edit_value,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_edit_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:775:22: ... Location of port declaration
+  775 |   output wire [63:0] o_ctl_edit_data,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_edit_wait'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:776:22: ... Location of port declaration
+  776 |   output wire        o_ctl_edit_wait,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_req'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:777:22: ... Location of port declaration
+  777 |   input  wire        i_ctl_gsi_req,                           
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_kind'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:780:22: ... Location of port declaration
+  780 |   input  wire [1:0]  i_ctl_gsi_kind,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_type'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:781:22: ... Location of port declaration
+  781 |   input  wire [15:0] i_ctl_gsi_type,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:782:22: ... Location of port declaration
+  782 |   input  wire [15:0] i_ctl_gsi_index,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_sel'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:783:22: ... Location of port declaration
+  783 |   input  wire [3:0]  i_ctl_gsi_sel,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_ord'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:784:22: ... Location of port declaration
+  784 |   input  wire [7:0]  i_ctl_gsi_ord,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'i_ctl_gsi_prop'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:785:22: ... Location of port declaration
+  785 |   input  wire [63:0] i_ctl_gsi_prop,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_gsi_data'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:786:22: ... Location of port declaration
+  786 |   output wire [63:0] o_ctl_gsi_data,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_gsi_wait'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:787:22: ... Location of port declaration
+  787 |   output wire        o_ctl_gsi_wait,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_ctr_chg_valid'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:790:22: ... Location of port declaration
+  790 |   output wire        o_ctl_ctr_chg_valid,
+      |                      ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_ctr_chg_type'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:791:22: ... Location of port declaration
+  791 |   output wire [15:0] o_ctl_ctr_chg_type,
+      |                      ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_ctr_chg_index'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:792:22: ... Location of port declaration
+  792 |   output wire [15:0] o_ctl_ctr_chg_index,
+      |                      ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_avb_chg_p'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:793:22: ... Location of port declaration
+  793 |   output wire        o_ctl_avb_chg_p,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_asp_chg_p'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:794:22: ... Location of port declaration
+  794 |   output wire        o_ctl_asp_chg_p,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21555:3: Instance has missing pin: 'o_ctl_amap_wr_p'
+21555 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     <lane>/hdl/milan/milan_datapath.sv:795:22: ... Location of port declaration
+  795 |   output wire        o_ctl_amap_wr_p
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21674:50: Instance has missing pin: 'dma_bus_awregion'
+21674 | VexiiRiscvLitex_f5f08b170311db53220574624f819159 VexiiRiscvLitex_f5f08b170311db53220574624f819159(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v:14:24: ... Location of port declaration
+   14 |   input  wire [3:0]    dma_bus_awregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:21674:50: Instance has missing pin: 'dma_bus_arregion'
+21674 | VexiiRiscvLitex_f5f08b170311db53220574624f819159 VexiiRiscvLitex_f5f08b170311db53220574624f819159(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     <home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v:35:24: ... Location of port declaration
+   35 |   input  wire [3:0]    dma_bus_arregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_acmp_pkg;
+      |         ^~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/adp/pp_adp_pkg.sv:23:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | package pp_adp_pkg;
+      |         ^~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/ucpu_pkg.sv:32:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | package ucpu_pkg;
+      |         ^~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/common/pp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_pkg;
+      |         ^~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/srp_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package srp_pkg;
+      |         ^~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:121:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  121 | module KL_acmp_nvm_shadow
+      |        ^~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/acmp/KL_acmp_talker.sv:181:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  181 | module KL_acmp_talker
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_pp_acmp_listener
+      |        ^~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv:83:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   83 | module KL_pp_acmp_lsn_admit #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/adp/KL_adp_engine.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_adp_engine
+      |        ^~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module KL_aecp_ca_originator #(
+      |        ^~~~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module KL_aecp_desc_mem_guard (
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:167:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  167 | module KL_aecp_desc_store #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:82:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   82 | module KL_aecp_dyn_state #(
+      |        ^~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_engine.sv:286:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  286 | module KL_aecp_engine
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_notify.sv:238:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  238 | module KL_aecp_notify
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:179:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  179 | module KL_aecp_nvm_writer #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:96:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   96 | module KL_aecp_resp_buf #(
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_aecp_ucpu
+      |        ^~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/common/KL_pp_prng.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_prng (
+      |        ^~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/common/KL_pp_timer_service.sv:43:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   43 | module KL_pp_timer_service #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/maap/KL_pp_maap.sv:153:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  153 | module KL_pp_maap
+      |        ^~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_dispatch
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:224:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  224 | module KL_pp_dispatch_fifo
+      |        ^~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_event_router #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_pp_normalizer
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:72:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   72 | module KL_pp_nvm_mgr_arb (
+      |        ^~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:111:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  111 | module KL_pp_nvm_port #(
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:53:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   53 | module KL_pp_originator #(
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module KL_pp_release_merge #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_rx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:80:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   80 | module KL_pp_rx_validator
+      |        ^~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:66:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   66 | module KL_pp_scoreboard #(
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_side_port #(
+      |        ^~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:39:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   39 | module KL_pp_trace_ring #(
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:52:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   52 | module KL_pp_tx_arbiter
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_tx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_admission.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_srp_admission #(
+      |        ^~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_decoder.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_decoder
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_domain.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module KL_srp_domain #(
+      |        ^~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_encoder.sv:70:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   70 | module KL_srp_encoder #(
+      |        ^~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:126:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  126 | module KL_srp_listener_fsm
+      |        ^~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:95:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   95 | module KL_srp_talker_fsm
+      |        ^~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_top.sv:94:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   94 | module KL_srp_top
+      |        ^~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/srp/KL_srp_vlan.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_srp_vlan #(
+      |        ^~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/top/KL_mrp_strip.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mrp_strip #(
+      |        ^~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <lane>/protocol-processor/hdl/top/protocol_processor_top.sv:98:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   98 | module protocol_processor_top
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       <lane>/hdl/milan/KL_pp_shadow.sv:188:8: ... Location of module with timescale
+  188 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-SELRANGE: <lane>/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                       : ... note: In instance 'sim.milan_datapath.g_af_pp.pp_shadow.ctl_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: <lane>/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                       : ... note: In instance 'sim.milan_datapath.g_af_pp.pp_shadow.ctl_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: <lane>/third_party/verilog-axis/rtl/axis_fifo.v:236:65: Selection index out of range: 71:64 outside 68:0
+                                                                                                       : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  236 | wire [KEEP_WIDTH-1:0]  m_axis_tkeep_pipe  = KEEP_ENABLE ? m_axis[KEEP_OFFSET +: KEEP_WIDTH] : {KEEP_WIDTH{1'b1}};
+      |                                                                 ^
+%Warning-SELRANGE: <lane>/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 72:65 outside 68:0
+                                                                                                       : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: <lane>/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 72:65 outside 68:0
+                                                                                                       : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface1_adapted_interface_ack'
+                                                                                      : ... note: In instance 'sim'
+ 1632 | reg           productsimulation_interface1_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.050
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1654:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface3_adapted_interface_ack'
+                                                                                      : ... note: In instance 'sim'
+ 1654 | reg           productsimulation_interface3_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1654:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7549:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1647:15:      Example path: sim.productsimulation_interface2_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7595:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1654:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1676:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface5_adapted_interface_ack'
+                                                                                      : ... note: In instance 'sim'
+ 1676 | reg           productsimulation_interface5_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1676:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7750:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1669:15:      Example path: sim.productsimulation_interface4_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7796:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1676:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6027:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self22'
+                                                                                      : ... note: In instance 'sim'
+ 6027 | reg           rhs_self22 = 1'd0;
+      |               ^~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6027:15:      Example path: sim.rhs_self22
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8168:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6211:15:      Example path: sim.socbushandler1_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8022:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1121:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6041:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self35'
+                                                                                      : ... note: In instance 'sim'
+ 6041 | reg           rhs_self35 = 1'd0;
+      |               ^~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6041:15:      Example path: sim.rhs_self35
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8168:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6211:15:      Example path: sim.socbushandler1_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8022:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1121:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6049:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self42'
+                                                                                      : ... note: In instance 'sim'
+ 6049 | reg           rhs_self42 = 1'd0;
+      |               ^~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6049:15:      Example path: sim.rhs_self42
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8168:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6211:15:      Example path: sim.socbushandler1_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8022:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1121:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6089:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self8'
+                                                                                      : ... note: In instance 'sim'
+ 6089 | reg           rhs_self8 = 1'd0;
+      |               ^~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6089:15:      Example path: sim.rhs_self8
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8200:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6197:15:      Example path: sim.socbushandler1_ar_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7968:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1107:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6026:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self21'
+                                                                                      : ... note: In instance 'sim'
+ 6026 | reg           rhs_self21 = 1'd0;
+      |               ^~~~~~~~~~
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6026:15:      Example path: sim.rhs_self21
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:8200:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:6197:15:      Example path: sim.socbushandler1_ar_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7968:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1107:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1632:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7348:1:      Example path: ALWAYS
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:1625:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    <scratch>/nvmcap-8x8-50-on/gateware/sim.v:7394:1:      Example path: ALWAYS
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -Os  -c -o sim_main.o <lane>/tb/verilator/nvm_capture_cpu/sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -c -o verilated_dpi.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -x c++-header Vsim__pch.h -o Vsim__pch.h.fast.gch
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -x c++-header Vsim__pch.h -o Vsim__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_1.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_2.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_3.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_4.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_5.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_sim__60.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim_vm_classes_6.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.fast -c Vsim__Dpi.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_1.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_2.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_3.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_4.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_5.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_sim__37__Slow.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_6.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim__Syms__ctor__0__Slow.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim__Syms__ctor__1__Slow.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim__Syms__ctor__2__Slow.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim__Syms__dtor__0__Slow.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I<lane>/tb/common -I<scratch>/nvmcap-8x8-50-on   -include Vsim__pch.h.slow -c Vsim__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vsim__ALL.a    -pthread -lpthread -latomic   -o Vsim
+rm Vsim__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 170.913 MB sources in 181 modules, into 27.746 MB in 147 C++ files needing 0.024 MB
+- Verilator: Walltime 27.895 s (elab=1.444, cvt=11.965, bld=13.078); cpu 15.185 s on 8 threads; allocated 1277.305 MB
+COMMAND <scratch>/nvmcap-8x8-50-on/native/Vsim
+{
+  "shape": "endstation_ax7101_8x8",
+  "captures": 16,
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "configured_cpu_hz": 50000000,
+  "phase": "aligned rising edges",
+  "traffic": "on",
+  "minimum_ms": 13.84694,
+  "maximum_ms": 13.86384,
+  "hold_ms": 50,
+  "hold_floor_ms": 49,
+  "margin": 3.5343743147641637,
+  "rows": [
+    {
+      "index": 0,
+      "ok": 1,
+      "sys_cycles": 1385200,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86489,
+      "responses": 92,
+      "reads": 3557
+    },
+    {
+      "index": 1,
+      "ok": 1,
+      "sys_cycles": 1385534,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86509,
+      "responses": 92,
+      "reads": 3564
+    },
+    {
+      "index": 2,
+      "ok": 1,
+      "sys_cycles": 1385488,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86506,
+      "responses": 92,
+      "reads": 3563
+    },
+    {
+      "index": 3,
+      "ok": 1,
+      "sys_cycles": 1385710,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86520,
+      "responses": 91,
+      "reads": 3554
+    },
+    {
+      "index": 4,
+      "ok": 1,
+      "sys_cycles": 1385264,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86492,
+      "responses": 92,
+      "reads": 3582
+    },
+    {
+      "index": 5,
+      "ok": 1,
+      "sys_cycles": 1385710,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86520,
+      "responses": 91,
+      "reads": 3554
+    },
+    {
+      "index": 6,
+      "ok": 1,
+      "sys_cycles": 1385228,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86491,
+      "responses": 91,
+      "reads": 3579
+    },
+    {
+      "index": 7,
+      "ok": 1,
+      "sys_cycles": 1385218,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86489,
+      "responses": 91,
+      "reads": 3549
+    },
+    {
+      "index": 8,
+      "ok": 1,
+      "sys_cycles": 1384694,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86457,
+      "responses": 91,
+      "reads": 3577
+    },
+    {
+      "index": 9,
+      "ok": 1,
+      "sys_cycles": 1385809,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86526,
+      "responses": 91,
+      "reads": 3549
+    },
+    {
+      "index": 10,
+      "ok": 1,
+      "sys_cycles": 1385488,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86506,
+      "responses": 92,
+      "reads": 3563
+    },
+    {
+      "index": 11,
+      "ok": 1,
+      "sys_cycles": 1385264,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86492,
+      "responses": 92,
+      "reads": 3582
+    },
+    {
+      "index": 12,
+      "ok": 1,
+      "sys_cycles": 1385218,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86489,
+      "responses": 91,
+      "reads": 3549
+    },
+    {
+      "index": 13,
+      "ok": 1,
+      "sys_cycles": 1385809,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86526,
+      "responses": 91,
+      "reads": 3549
+    },
+    {
+      "index": 14,
+      "ok": 1,
+      "sys_cycles": 1386384,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86562,
+      "responses": 92,
+      "reads": 3588
+    },
+    {
+      "index": 15,
+      "ok": 1,
+      "sys_cycles": 1385218,
+      "raw": 13210,
+      "records": 164,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 86490,
+      "responses": 91,
+      "reads": 3549
+    }
+  ]
+}
+2026-11-10T11:29:51+01:00

@@ -1,0 +1,85 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: the suite's own log
+full log: 367220 bytes, sha256 98f6f60b7aed84f7029ab26c7f1706c30cc88bddf211fbe6aebf2f9c55e1eea4
+---
+--- over 200 KB: the verdict lines only
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_dp -GMILAN_CLK_FREQ_HZ=50000000 -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_RENDER_SLOTS_P=8 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 \
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+ 1038 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+ 1042 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+ 1085 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+ 1136 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1139 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1142 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1145 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1947 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <scratch>/tmp-sweep/capture-coherence-mutants-na21rjo5/build_break_dp/milan_datapath.sv:10238:15: syntax error, unexpected break, expecting ',' or ';'
+== capture_coherence: checks: 20832   failures: 0 ==
+RESULT: PASS
+== capture_coherence_dp: checks: 847   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated source still passes the junction harness
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+[PASS] the unmutated source still passes the dp harness
+[PASS] the unmutated source still passes the dp-band harness
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp): the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset back in the timestamp (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp-band): the time base latched at the media tick instead of banked with the frame: a close on the tick's own cycle stamps the frame before, a sample early (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the domain event's marker latency drops its frame term: every stamp a sample period late (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632) - breaks "[PIN] ...and inside the marker latency's derivation"
+[PASS] mutant caught (dp): the AAF talkers stamp without their lead: the frame instant plus the offset, #770's stamp (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant" and "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the AAF fixed delay one period short: the instant plus 7 periods (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant"
+[PASS] mutant caught (dp): the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every AAF PDU's after it less TUmax, 125 us" and "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
+[PASS] mutant caught (dp): the CRF output stamps without its Equation (14) TC (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF output's TC one period short: 1 period at 1x1 (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF stamps 125 us late: past Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every CRF PDU's after it less TUmax, 125 us"
+[PASS] mutant caught (dp): the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773) - its build refuses it: "exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+[PASS] mutant caught (chmap): the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick cycle with none pending names the frame before (#632) - breaks "F: tick-cycle: col 1 walk instant is frame 2's"
+42 checks: 42 PASS, 0 FAIL

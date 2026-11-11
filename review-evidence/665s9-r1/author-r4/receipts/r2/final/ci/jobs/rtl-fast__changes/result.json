@@ -1,0 +1,43 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 712 bytes, sha256 b76b79c0bf6683df576859cd1e289085caf71d70f8d77bd0e90607a170bc8c8b
+---
+{
+ "result": "success",
+ "outputs": {
+  "rtl": "true"
+ },
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "scope",
+   "name": "Classify the change conservatively",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

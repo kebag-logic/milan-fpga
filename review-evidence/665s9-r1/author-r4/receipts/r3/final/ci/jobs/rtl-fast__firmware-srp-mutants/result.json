@@ -1,0 +1,86 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job
+full log: 2812 bytes, sha256 6e2d28347f4f7a1dcea8d8903be1e3855e2a6f37718719b52f6f50c0e62efa00
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Cache exact package downloads 2",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Cache the pinned RV32 SDK",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_9",
+   "name": "Run both SRP mutation campaigns and pin controls",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

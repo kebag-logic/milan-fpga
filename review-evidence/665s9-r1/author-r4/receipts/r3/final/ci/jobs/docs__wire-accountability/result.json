@@ -1,0 +1,53 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job
+full log: 1035 bytes, sha256 5580968b8d4e816d1f5de728f15f34da5c41725b3c7390804763adc3af797355
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Fetch the engine authority the builder derives from",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

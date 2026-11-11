@@ -1,0 +1,20 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: the suite's own log
+full log: 576936 bytes, sha256 1ce9cb6a6c4e6bd2bbe598adab6ceddf2576793ae2cdb6dd72aa3662847a7c96
+---
+--- over 200 KB: the verdict lines only
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+== aaf-start: checks: 34020   failures: 0 ==
+RESULT: PASS
+[PASS] disable keeps the previous start: startup step equals steady; rc=1
+[PASS] reset keeps the previous start: startup step equals steady; rc=1
+[PASS] offset omitted: sample plus offset; rc=1
+[PASS] stale admission restored: startup step equals steady; rc=1
+[PASS] normal timestamp marked invalid: valid normal timestamp; rc=1
+[PASS] bank never published: bounded first ten; rc=1
+[PASS] sequence held: consecutive sequence; rc=1
+[PASS] left samples corrupt: complete sample rows; rc=1
+startup mutants: 8/8 caught
+RESULT: PASS
+RESULT: PASS

@@ -1,0 +1,194 @@
+head 0f3c475685b6247779398457249beafebb0b275a
+command: tools/ledger_table.py
+full log: 2959 bytes, sha256 286cf2741131690e34adfc4c52016dbf86ace7fd67b8ee4653fdfd6c16c30a07
+---
+{
+ "1x1-1if": {
+  "label": "1x1, one interface (shipping)",
+  "text": 96456,
+  "rodata": 12990,
+  "data": 112,
+  "bss": 38860,
+  "stack": 8192,
+  "pool": 9920,
+  "stage": 3344,
+  "descriptor_values": 4527,
+  "descriptors": 672,
+  "rom_need": 109560,
+  "sram_need": 47168,
+  "alignment": 6,
+  "planned_tiles": 39.0,
+  "mapped_ramb36": 37,
+  "mapped_ramb18": 1,
+  "mapped_tiles": 37.5,
+  "mapped_lut": 253,
+  "mapped_ff": 38,
+  "usable": 159744,
+  "unused_in_banks": 3016,
+  "budget_left_tiles": 18.5,
+  "largest_bss": [
+   [
+    "arena",
+    9920
+   ],
+   [
+    "ctrl_plat.app",
+    8880
+   ],
+   [
+    "ctrl_plat.srp",
+    4824
+   ],
+   [
+    "values",
+    4527
+   ],
+   [
+    "ctrl_plat.aecp",
+    3352
+   ]
+  ],
+  "ledgered": null
+ },
+ "1x1-2if": {
+  "label": "1x1, two interfaces",
+  "text": 98096,
+  "rodata": 12990,
+  "data": 112,
+  "bss": 50276,
+  "stack": 8192,
+  "pool": 19840,
+  "stage": 3344,
+  "descriptor_values": 4527,
+  "descriptors": 672,
+  "rom_need": 111200,
+  "sram_need": 58592,
+  "alignment": 14,
+  "planned_tiles": 42.0,
+  "mapped_ramb36": 40,
+  "mapped_ramb18": 2,
+  "mapped_tiles": 41.0,
+  "mapped_lut": 224,
+  "mapped_ff": 38,
+  "usable": 172032,
+  "unused_in_banks": 2240,
+  "budget_left_tiles": 15.0,
+  "largest_bss": [
+   [
+    "arena",
+    19840
+   ],
+   [
+    "ctrl_plat.app",
+    10064
+   ],
+   [
+    "ctrl_plat.srp",
+    5032
+   ],
+   [
+    "values",
+    4527
+   ],
+   [
+    "ctrl_plat.aecp",
+    3352
+   ]
+  ],
+  "ledgered": null
+ },
+ "8x8-1if": {
+  "label": "8x8, one interface",
+  "text": 96544,
+  "rodata": 26254,
+  "data": 504,
+  "bss": 79044,
+  "stack": 8192,
+  "pool": 24032,
+  "stage": 13264,
+  "descriptor_values": 11753,
+  "descriptors": 1984,
+  "rom_need": 123304,
+  "sram_need": 87760,
+  "alignment": 22,
+  "planned_tiles": 52.0,
+  "mapped_ramb36": 50,
+  "mapped_ramb18": 2,
+  "mapped_tiles": 51.0,
+  "mapped_lut": 215,
+  "mapped_ff": 35,
+  "usable": 212992,
+  "unused_in_banks": 1928,
+  "budget_left_tiles": 5.0,
+  "largest_bss": [
+   [
+    "arena",
+    24032
+   ],
+   [
+    "nvm_stage",
+    13264
+   ],
+   [
+    "values",
+    11753
+   ],
+   [
+    "ctrl_plat.app",
+    8880
+   ],
+   [
+    "ctrl_plat.srp",
+    5256
+   ]
+  ],
+  "ledgered": null
+ },
+ "8x8-2if": {
+  "label": "8x8, two interfaces (largest)",
+  "text": 98288,
+  "rodata": 26254,
+  "data": 504,
+  "bss": 105228,
+  "stack": 8192,
+  "pool": 48064,
+  "stage": 13264,
+  "descriptor_values": 11753,
+  "descriptors": 1984,
+  "rom_need": 125048,
+  "sram_need": 113936,
+  "alignment": 14,
+  "planned_tiles": 59.0,
+  "mapped_ramb36": 57,
+  "mapped_ramb18": 1,
+  "mapped_tiles": 57.5,
+  "mapped_lut": 300,
+  "mapped_ff": 40,
+  "usable": 241664,
+  "unused_in_banks": 2680,
+  "budget_left_tiles": -1.5,
+  "largest_bss": [
+   [
+    "arena",
+    48064
+   ],
+   [
+    "nvm_stage",
+    13264
+   ],
+   [
+    "values",
+    11753
+   ],
+   [
+    "ctrl_plat.app",
+    10064
+   ],
+   [
+    "ctrl_plat.srp",
+    5896
+   ]
+  ],
+  "ledgered": "platform-8x8-two-interfaces"
+ }
+}

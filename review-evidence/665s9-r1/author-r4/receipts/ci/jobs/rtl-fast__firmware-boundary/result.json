@@ -1,0 +1,87 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: ci_replay.py job
+full log: 3109 bytes, sha256 d17af4fc27167a56ed1e577ecc4b3f97d8de6436aa7a555d1cca46f624833a22
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Fetch RTL dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_packages_2",
+   "name": "Resolve exact package downloads 2",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Cache exact package downloads 2",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "replaced": "the boundary gate's LiteX is the pinned tree in its own venv, the one the split image recipe uses; the step's pip install of sw/litex/litex_pins.txt would rewrite that venv, so this proves the venv carries pyyaml, migen and LiteX; GoogleTest from pacman (no apt)",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Cache the pinned RV32 SDK",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_8",
+   "name": "Install and verify the pinned RV32 SDK",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_9",
+   "name": "Hold the TSN stack boundary over the firmware builders' compiles",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

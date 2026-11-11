@@ -1,0 +1,25 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: the first ExtraTimingOpt attempt's routed checkpoint (implementation commands identical to the rerun) re-timed by ana.tcl through the slot wrapper
+full log: 1182 bytes, sha256 1938acd4f8e9b29363eaa72365c64fc2397367c219b212d8dc14577abd096a7b
+---
+open_checkpoint <scratch>/route/attempts/split-ExtraTimingOpt.1-recipe-reports/alinx_ax7101_route.dcp
+set ep [get_cells -hier -filter {NAME =~ KL_mbx/reg_rdata_r_reg*}]
+set ps [get_timing_paths -setup -to $ep -max_paths 2000 -nworst 20 -slack_lesser_than 1.0]
+set fh [open paths_rdata.tsv w]
+foreach p $ps {
+  set nets [get_nets -of_objects $p]
+  set w ""
+  foreach n $nets {
+    foreach k {face_ pub_ bnd rx_head rx_tail tx_ ctr_ gsi_ amap_ edit_ fw_ evt_ own_ irq gm_ domain} {
+      if {[string match "*$k*" $n] && [string first $k $w] < 0} { append w "$k," }
+    }
+  }
+  puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]\t$w"
+}
+close $fh
+set ps3 [get_timing_paths -setup -max_paths 300 -nworst 1 -slack_lesser_than 0.4 -group [get_clocks milansoc_crg_clkout0]]
+set fh [open paths_clk0.tsv w]
+foreach p $ps3 { puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]" }
+close $fh
+set worst [get_timing_paths -setup -to $ep -max_paths 1 -nworst 1]
+report_timing -of_objects $worst -file worst_rdata.rpt

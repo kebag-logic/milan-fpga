@@ -1,0 +1,167 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 5394 bytes, sha256 fbe1e5b6dddda47ea934f231857ea0cf11fb78e45985a714ce6d9fceee4290f4
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Fetch RTL dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Record the tree this worker validates",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "cache-verilator",
+   "name": "Cache the pinned Verilator build",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Cache exact package downloads 4",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Build Verilator from source on cache miss",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": "not run",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "ci_step_8",
+   "name": "Put Verilator on PATH and prove the version",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_9",
+   "name": "Prove specialized suite ownership",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "cache-yosys",
+   "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+   "kind": "actions/cache",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_packages_8",
+   "name": "Resolve exact package downloads 8",
+   "kind": "run",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_12",
+   "name": "Cache exact package downloads 8",
+   "kind": "actions/cache",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_13",
+   "name": "Build Yosys from source on cache miss",
+   "kind": "run",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_packages_9",
+   "name": "Resolve exact package downloads 9",
+   "kind": "run",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_15",
+   "name": "Cache exact package downloads 9",
+   "kind": "actions/cache",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_16",
+   "name": "Install the pinned Yosys and prove the version",
+   "kind": "run",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_17",
+   "name": "Cache verified sv2v archive",
+   "kind": "actions/cache",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_18",
+   "name": "Install sv2v for the netlist-level suite owner",
+   "kind": "run",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_step_19",
+   "name": "Cache pinned field oracle build",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_20",
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_21",
+   "name": "Run this exhaustive suite shard",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "ci_step_22",
+   "name": "Upload this shard's suite logs",
+   "kind": "actions/upload-artifact",
+   "rc": "not run",
+   "reason": "uploads the suite logs ci_step_21 writes; the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

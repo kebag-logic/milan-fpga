@@ -1,0 +1,364 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 8576 bytes, sha256 082ebd9d39a31b9ec3b08f8db982c2eadae87a99a68ce9b971f6d41b5b9c5b63
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "gate_1",
+   "name": "Build the validated HDL reference",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_2",
+   "name": "Upload the HDL reference HTML",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Install the python gate dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Cache the pinned Markdown renderer downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Install the pinned Markdown renderer",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_packages_6",
+   "name": "Resolve exact package downloads 6",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "ci_step_9",
+   "name": "Cache exact package downloads 6",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_10",
+   "name": "Install diagram gate dependencies",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "gate_7",
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_8",
+   "name": "Added-line em-dash gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_9",
+   "name": "Concise audience documentation gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_10",
+   "name": "Audience diagram no-drift gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_11",
+   "name": "Product solution source-fact gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_12",
+   "name": "Verified submodule documentation gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_13",
+   "name": "HDL timing diagram no-drift gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_14",
+   "name": "Published diagram PNG gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_15",
+   "name": "Milan feature-status consistency gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_16",
+   "name": "Traceability matrix no-drift gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_21",
+   "name": "Fetch the builder source dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_18",
+   "name": "Imported gPTP documentation gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_19",
+   "name": "Code-quality measurement self-tests",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_24",
+   "name": "Cache verified sv2v archive",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_25",
+   "name": "Install the pinned sv2v release",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "gate_21",
+   "name": "Bare-metal scope gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_27",
+   "name": "Cache the pinned RV32 SDK",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_28",
+   "name": "Install and verify the pinned RV32 SDK",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "gate_24",
+   "name": "Compiler-absent firmware controls",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_26",
+   "name": "NVM record-space gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_27",
+   "name": "Capture measurement census and clock gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_28",
+   "name": "Saved-state writer gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_29",
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "gate_30",
+   "name": "RTL source-list drift gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_31",
+   "name": "Boundary-unit naming ratchet",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_32",
+   "name": "Port contract gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_33",
+   "name": "Fail-fast ratchet",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_34",
+   "name": "TODO ownership gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_35",
+   "name": "Test-evidence ratchet",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_36",
+   "name": "Mechanical hygiene ratchet",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_37",
+   "name": "SystemVerilog idiom gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_38",
+   "name": "C and C++ idiom gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_39",
+   "name": "Python idiom gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_40",
+   "name": "Shell idiom gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_43",
+   "name": "Doc cited-path gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_44",
+   "name": "Archive integrity gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_45",
+   "name": "Per-page contents gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_46",
+   "name": "AEM store generator self-test",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_47",
+   "name": "Sweep/build shape gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_48",
+   "name": "Deploy shape gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_49",
+   "name": "Entity shape gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_52",
+   "name": "Fetch inventory dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_50",
+   "name": "CI scheduling and evidence controls",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_54",
+   "name": "Record executed gate outcomes",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_55",
+   "name": "Upload executed gate outcomes",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

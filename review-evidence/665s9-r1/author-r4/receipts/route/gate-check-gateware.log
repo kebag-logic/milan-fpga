@@ -1,0 +1,26 @@
+head 5d6d28356a6c73bdfba43a9b023e60279a0d461b
+command: see the file name
+full log: 1546 bytes, sha256 32089ba862a6e83614a9cbc99fb00699910a8e036561b0ed896717db2fc5ebfd
+---
+endpoint route-1x1: <scratch>/route/split/gateware
+placement full-split: intermediate comparison
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       29277    -22735  ok, below the baseline
+FF               53707       39060    -14647  ok, below the baseline
+SLICE            15780       12767     -3013  ok, below the baseline
+RAMB36              74          56       -18  ok, below the baseline
+RAMB18              27          32         5  REGRESSION: grew by more than 0
+DSP                 13           5        -8  ok, below the baseline
+WNS_ns            0.44      -0.078    -0.518  REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036        0.03    -0.006  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns   -0.078  WHS_ns    0.065
+  Slow_85C  WNS_ns   -0.078  WHS_ns    0.065
+  Fast_0C   WNS_ns    1.687  WHS_ns     0.03
+  Fast_85C  WNS_ns    1.687  WHS_ns     0.03
+WARNING: WNS_ns fell from the record by more than the timing fall; reported, never gated (#818)
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: LUT, FF, SLICE, RAMB36, DSP improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block attribution roots differ: selected image versus wrapper; no scope deltas claimed
+RESULT: MATERIAL REGRESSION

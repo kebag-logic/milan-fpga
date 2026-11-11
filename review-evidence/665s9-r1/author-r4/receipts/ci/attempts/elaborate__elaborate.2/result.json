@@ -1,0 +1,71 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: ci_replay.py job
+full log: 1455 bytes, sha256 2cd7a48a13c1a7e5f00110772bac43a1971c7d6163e366ba1e8a299242a13937
+---
+{
+ "result": "failure",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Cache pinned evidence reader downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Install the pinned evidence reader",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Download executed gate outcomes",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Require every gate exactly once",
+   "kind": "run",
+   "rc": 1
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Upload verified gate union",
+   "kind": "actions/upload-artifact",
+   "rc": "skipped (if: false)"
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

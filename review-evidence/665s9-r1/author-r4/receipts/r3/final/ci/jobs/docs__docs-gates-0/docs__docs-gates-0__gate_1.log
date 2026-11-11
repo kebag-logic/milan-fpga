@@ -1,0 +1,24 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job (the step's own log)
+full log: 1016 bytes, sha256 cb1cc4141d9277ff00c211f7ab1a41f469d1ce9bcb56a555bff0d6cbb6f32623
+---
+# head a91fb27dd39483e4694e193504da1dbe06208807 docs/docs-gates-0/gate_1: Build the validated HDL reference
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: <scratch>/ci/a91fb27dd394/jobs/docs__docs-gates-0/tmp/hdl-reference-selftest-5iqyv506/positive/index.html
+HDL reference self-test: 44/44 arms passed
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: a91fb27dd39483e4694e193504da1dbe06208807
+Supported sections: 87 (83 modules, 4 packages)
+Module diagrams: 83
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: <scratch>/ci/a91fb27dd394/jobs/docs__docs-gates-0/temp/milan-hdl-reference/index.html

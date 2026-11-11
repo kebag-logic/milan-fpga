@@ -1,0 +1,52 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: results.json: point, counts, misses, refusals
+full log: 2686 bytes, sha256 35416e7816d49a6e99ba797454f0336d8162485d9bda7e86234037405d72be79
+---
+{
+ "point": "1x1",
+ "counts": {
+  "paths": 81,
+  "path_misses": 15,
+  "instances": 141,
+  "instance_misses": 36
+ },
+ "misses": [
+  "backlog.acmp_command.if0: 36.976 ms over T_svc 10 ms",
+  "backlog.service.adp.last.if0: 29.902 ms over T_svc 10 ms",
+  "backlog.service.acmp.last.if0: 40.767 ms over T_svc 10 ms",
+  "backlog.service.aecp.last.if0: 80.290 ms over T_svc 10 ms",
+  "backlog.service.maap.last.if0: 29.887 ms over T_svc 10 ms",
+  "backlog.service.srp.first.if0: 24.163 ms over T_svc 10 ms",
+  "backlog.service.srp.last.if0: 87.626 ms over T_svc 10 ms",
+  "backlog.adp_available.if0: 42.071 ms over T_svc 10 ms",
+  "backlog-adp.service.adp.last.if0: 49.705 ms over T_svc 10 ms",
+  "backlog-adp.service.acmp.last.if0: 85.290 ms over T_svc 10 ms",
+  "backlog-adp.service.aecp.last.if0: 253.595 ms over T_svc 10 ms",
+  "backlog-adp.service.maap.last.if0: 49.742 ms over T_svc 10 ms",
+  "backlog-adp.service.srp.first.if0: never released, at least 542.107 ms over T_svc 10 ms",
+  "backlog-adp.service.srp.last.if0: never released, at least 542.087 ms over T_svc 10 ms",
+  "backlog.adp_available_refill.if0: 38.635 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.adp.last.if0: 45.855 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.acmp.last.if0: 85.811 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.aecp.last.if0: 254.115 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.maap.last.if0: 49.319 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.srp.first.if0: never released, at least 578.620 ms over T_svc 10 ms",
+  "backlog-adp-refill.service.srp.last.if0: never released, at least 578.600 ms over T_svc 10 ms",
+  "backlog.owed.if0: 95.091 ms over T_svc 10 ms",
+  "backlog.owed_behind0.if0: never answered, at least 363.387 ms over T_svc 10 ms",
+  "backlog.owed_behind1.if0: never answered, at least 363.386 ms over T_svc 10 ms",
+  "backlog.owed_behind2.if0: never answered, at least 363.386 ms over T_svc 10 ms",
+  "backlog.owed_behind3.if0: never answered, at least 363.385 ms over T_svc 10 ms",
+  "backlog-owed.service.adp.last.if0: 28.250 ms over T_svc 10 ms",
+  "backlog-owed.service.acmp.last.if0: 37.893 ms over T_svc 10 ms",
+  "backlog-owed.service.aecp.last.if0: 108.090 ms over T_svc 10 ms",
+  "backlog-owed.service.maap.last.if0: 28.235 ms over T_svc 10 ms",
+  "backlog-owed.service.srp.first.if0: 28.234 ms over T_svc 10 ms",
+  "backlog-owed.service.srp.last.if0: 80.167 ms over T_svc 10 ms",
+  "acmp.entity_available.if0: 10.434 ms over T_svc 10 ms",
+  "acmp.probe_tx_response.if0: 12.504 ms over T_svc 10 ms",
+  "acmp.get_tx_state.if0: 11.185 ms over T_svc 10 ms",
+  "fixture.entity_departing.if0: 15.329 ms over T_svc 10 ms"
+ ],
+ "refusals": []
+}

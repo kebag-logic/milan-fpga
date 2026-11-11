@@ -1,0 +1,101 @@
+head 5d6d28356a6c73bdfba43a9b023e60279a0d461b
+command: ctrl_plat_image.py (tools/ledger_points.sh)
+full log: 1844 bytes, sha256 06105de3bbcfe9fd77b72c6d88b86b2040c9770bbb28f363fadd17d5e5765915
+---
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 96456,
+    ".rodata": 12990,
+    ".data": 112,
+    ".bss": 38860,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 9920
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 8880
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 4824
+    },
+    {
+      "symbol": "values",
+      "bytes": 4527
+    },
+    {
+      "symbol": "ctrl_plat.aecp",
+      "bytes": 3352
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 8880,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 64,
+    "srp": 4824,
+    "srp_config": 24,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 109560,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        4096
+      ],
+      "RAMB36": 27,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 47168,
+      "banks": [
+        32768,
+        16384
+      ],
+      "RAMB36": 12,
+      "RAMB18": 0
+    },
+    "tiles": 39.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "c911618d2a1a29f2ba76915dd3003c622e0c5b2ccd3ad4afea33f96ce7d947c4"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "a6329a38d82e2f3db0a4f04d27071495a7e5727ebced88480306aee43243e9fc"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 140628,
+      "sha256": "72bc7dde9e774130effd5eb82f3179e9ba45e5e472c7b6ea437952d6dbadfa19"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 129354,
+      "sha256": "e6be360c6ca9c3226adb6f86b38b6ca33984e3b45bebd86fafaf85d302676505"
+    }
+  ]
+}

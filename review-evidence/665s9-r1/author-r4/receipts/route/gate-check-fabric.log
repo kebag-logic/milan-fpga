@@ -1,0 +1,35 @@
+head 5d6d28356a6c73bdfba43a9b023e60279a0d461b
+command: see the file name
+full log: 1339 bytes, sha256 f8ee0e0aa1b67221fff3a3d47d942e66352f534b260c6459e0f4371ad7f5bc23
+---
+endpoint route-1x1: <scratch>/route/fabric/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       52272       260  ok
+FF               53707       54108       401  ok
+SLICE            15780       15843        63  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.245    -0.195  ok
+WHS_ns           0.036       0.027    -0.009  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.245  WHS_ns    0.065
+  Slow_85C  WNS_ns    0.245  WHS_ns    0.065
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.027
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.027
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -319, FF +15
+  wrapper: LUT -283, FF +15
+  u_pp/u_aecp: LUT -263, FF +1
+  u_pp/u_aecp/u_dyn: LUT -176, FF +0
+  u_pp/u_notify: LUT -120, FF +0
+  u_pp/u_originator: LUT -95, FF +0
+  u_pp/u_ca_builder: LUT +67, FF +0
+  u_pp/u_dispatch: LUT +66, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +61, FF +0
+  u_nvm: LUT +34, FF +0
+  u_pp/u_adp: LUT +32, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +31, FF +0
+RESULT: PASS

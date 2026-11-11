@@ -1,0 +1,28 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: tools/signoff.py over the three directives
+full log: 989 bytes, sha256 8e930cb15d36cbf252c2782c6b505ac2dd8ed9c55cd3e9be6b7148057dce857b
+---
+== split/gateware
+Slow_85C: WNS +0.000 ns (0 failing), WHS +0.057 ns (0 failing)
+Slow_0C: WNS +0.000 ns (0 failing), WHS +0.057 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.019 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.019 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff rc=1
+== split-ExtraTimingOpt
+Slow_85C: WNS +0.021 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.021 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff rc=1
+== split-AltSpreadLogic_high
+Slow_85C: WNS -0.003 ns (4 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS -0.003 ns (4 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+signoff rc=1
