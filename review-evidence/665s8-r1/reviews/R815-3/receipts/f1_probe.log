@@ -1,0 +1,38 @@
+LINE TMR 4000010 40000102 598
+LINE LOAD 59780000 maap 2 1 4000010 2 1
+LINE LOAD 9995000 acmp 3 1 9995000 - 1
+LINE LOAD 19995000 acmp 3 1 19995000 - 1
+LINE TMR 59802000 40000102 1117
+LINE LOAD 111680000 maap 2 1 59802000 2 1
+LINE TMR 111702000 40000102 1630
+LINE LOAD 162980000 maap 2 1 111702000 2 1
+LINE TMR 163001000 40000102 1720
+LINE LOAD 171980000 maap 2 1 163001000 2 1
+LINE TMR 163001500 80000102 1720
+LINE TMR 163002000 40000102 32630
+LINE LOAD 3262980000 maap 2 1 163002000 2 1
+LINE RXW 175000000 175000030 60 load-aecp-0 91e0f00100000a0b0c0d0e0122f0fa0200380c0d0e0f101100010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+LINE LOAD 175000000 aecp 3 0 175000000 - 0
+LINE RXW 175000200 175000230 60 load-aecp-0 91e0f00100000a0b0c0d0e0122f0fa0200380c0d0e0f101100010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+LINE RXW 175000400 175000430 60 load-aecp-0 91e0f00100000a0b0c0d0e0122f0fa0200380c0d0e0f101100010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+LINE RXW 179500000 179500030 60 load-aecp-1 91e0f00100000a0b0c0d0e0122f0fa0200380c0d0e0f101100010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+LINE LOAD 179500000 aecp 3 0 179500000 - 0
+CASE clean-loaded
+ expected LOADED {'acmp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 2, 'armed': 0, 'delivered_offers': 2, 'partial_offers': 0, 'delivered_frames': 6, 'expiries_met': 0}, 'aecp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 0, 'armed': 0, 'delivered_offers': 1, 'partial_offers': 1, 'delivered_frames': 4, 'expiries_met': 0}, 'maap': {'queued_offers': 5, 'queued_frames': 10, 'skipped': 5, 'armed': 5, 'delivered_offers': 4, 'partial_offers': 0, 'delivered_frames': 8, 'expiries_met': 3}}
+CASE load-offer-over-delivered
+ expected LOADED {'acmp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 2, 'armed': 0, 'delivered_offers': 2, 'partial_offers': 0, 'delivered_frames': 6, 'expiries_met': 0}, 'aecp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 0, 'armed': 0, 'delivered_offers': 1, 'partial_offers': 1, 'delivered_frames': 4, 'expiries_met': 0}, 'maap': {'queued_offers': 5, 'queued_frames': 10, 'skipped': 5, 'armed': 5, 'delivered_offers': 4, 'partial_offers': 0, 'delivered_frames': 8, 'expiries_met': 3}}
+CASE received-frame-unaccounted
+ expected LOADED {'acmp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 2, 'armed': 0, 'delivered_offers': 2, 'partial_offers': 0, 'delivered_frames': 6, 'expiries_met': 0}, 'aecp': {'queued_offers': 2, 'queued_frames': 6, 'skipped': 0, 'armed': 0, 'delivered_offers': 1, 'partial_offers': 1, 'delivered_frames': 4, 'expiries_met': 0}, 'maap': {'queued_offers': 5, 'queued_frames': 10, 'skipped': 5, 'armed': 5, 'delivered_offers': 4, 'partial_offers': 0, 'delivered_frames': 8, 'expiries_met': 3}}
+
+BASE control clean-loaded-script: PASS
+BASE control clean-loaded: PASS
+BASE control received-frame-unaccounted: caught: LOAD: 17 delivered load frames and 4 a draw (2 draws) are not the 26 frames the model received (SUMMARY rx_frames + bench_rx)
+BASE control load-offer-over-delivered: caught: LOAD: 4 frames of offer 0 of load acmp were received, 3 were queued
+BASE ctrl_wire_timing self-test: 50 controls, 0 failed
+mutant delivered-counts-partial: KILLED rc=1 failing=['clean-loaded']
+mutant frames-only-whole: KILLED rc=1 failing=['clean-loaded', 'received-frame-unaccounted']
+mutant armed-only-delivered: KILLED rc=1 failing=['clean-loaded']
+mutant met-counts-partial: SURVIVED rc=0 failing=[]
+mutant partial-includes-undelivered: KILLED rc=1 failing=['clean-loaded']
+mutant over-delivery-threshold-doubled: KILLED rc=1 failing=['load-offer-over-delivered']
+mutant expiry-ignores-cancel: KILLED rc=1 failing=['clean-loaded', 'maap-expiry-cancelled']
