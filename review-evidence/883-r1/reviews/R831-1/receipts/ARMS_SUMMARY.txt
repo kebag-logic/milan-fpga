@@ -1,0 +1,37 @@
+# campaign arm verdicts at e18c8225 (each its own process; rc 0 = caught)
+0  arms/crflic_pp0.rc  [PASS] mutant caught: the intake takes every push twice and the SRP encoder never merges (before processor #214) - breaks "no DUT MRPDU carries one at
+0  arms/crflic_pp1.rc  [PASS] mutant caught: LINK_UP declares the Domain in AN, so one New goes out (before processor #216) - breaks "MSRP Domain {class A, 3, VID 2}: messag
+0  arms/crflic_pp2.rc  [PASS] mutant caught: a VID's first join enters AN, so one New goes out (before processor #216) - breaks "MVRP VID 2: message 2 is New again (AN tx!: 
+0  arms/crflic_pp3.rc  [PASS] mutant caught: every VID Join is JoinIn whatever its Registrar (before processor #216) - breaks "no MVRP JoinIn in the whole run: no VID was ev
+0  arms/crflic_pp4.rc  [PASS] mutant caught: an MVRP drain needs a pending VID, so nothing declared sends no LeaveAll (before processor #216) - breaks "MVRP, nothing declare
+0  arms/crflic_pp5.rc  [PASS] mutant caught: the MSRP leavealltimer's expiry is lost, so MSRP sends no LeaveAll of its own - breaks "MSRP, the Domain alone: at least two Lea
+0  arms/gsi_15.rc  [PASS] mutant caught: READ_DESCRIPTOR(ENTITY) copies the image whole, the AEM constant 0 (before processor #217) - breaks "[AIDX] A1 after an ENTITY_A
+0  arms/gsi_16.rc  [PASS] mutant caught: the AECP engine answers 0 for the available_index gather (#858) - breaks "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (
+0  arms/gsi_17.rc  [PASS] mutant caught: ADP serves the next frame's index, not the last one sent (#858) - breaks "[AIDX] A1 after an ENTITY_AVAILABLE: available_index (
+0  arms/gsi_18.rc  [PASS] mutant caught: ADP keeps the last index across ENTITY_DEPARTING (#858) - breaks "[AIDX] D after ENTITY_DEPARTING: available_index (octets 36..3
+0  arms_rest/crflic_dp_0.rc  [PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+0  arms_rest/crflic_dp_1.rc  [PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+0  arms_rest/crflic_dp_2.rc  [PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+0  arms_rest/crflic_dp_3.rc  [PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+0  arms_rest/crflic_dp_4.rc  [PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+0  arms_rest/crflic_dp_5.rc  [PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+0  arms_rest/crflic_dp_6.rc  [PASS] mutant caught: every source declares talker 0's TSpec on the 1x1 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+0  arms_rest/crflic_dp_7.rc  [PASS] mutant caught: every source declares talker 0's TSpec on the 8x8 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+0  arms_rest/gsi_10.rc  [PASS] mutant caught: GET_STREAM_INFO reads the CRF output's offset as set, not applied - breaks "[NOTIFY] SET_STREAM_INFO CRF step 2: GET_STREAM_INFO
+0  arms_rest/gsi_11.rc  [PASS] mutant caught: GET_STREAM_INFO reads every output's offset rounded by Equation 14 again - breaks "[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_I
+0  arms_rest/gsi_12.rc  [PASS] mutant caught: the processor passes selectors 0, 2 and 4 through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASSIVE afte
+0  arms_rest/gsi_13.rc  [PASS] mutant caught: the processor passes selector 0's three flags through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASSIVE 
+0  arms_rest/gsi_14.rc  [PASS] mutant caught: the processor passes selector 4's stream_dest_mac through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASS
+0  arms_rest/gsi_1.rc  [PASS] mutant caught: the processor ties a sink's failure bridge id to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tall
+0  arms_rest/gsi_2.rc  [PASS] mutant caught: selector 5 goes back to the parent, whose input answer is zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" 
+0  arms_rest/gsi_3.rc  [PASS] mutant caught: the processor ties a sink's failure code to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_code" (its tallies report
+0  arms_rest/gsi_4.rc  [PASS] mutant caught: the failure-code byte is left to the parent, which no longer supplies it - breaks "[GSI] G5 sink 1 Talker Failed: msrp_failure_c
+0  arms_rest/gsi_5.rc  [PASS] mutant caught: the processor ties probing/ACMP status to zero - breaks "[GSI] G2 sink 0 two probes unanswered: acmp_status" (its tallies report
+0  arms_rest/gsi_6.rc  [PASS] mutant caught: the processor reads the other sink's owners - breaks "[GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id" (
+0  arms_rest/gsi_7.rc  [PASS] mutant caught: the parent's bound/settled approximation answers selector 7 again - breaks "[GSI] G1 sink 0 bound: probing_status" (its tallies 
+0  arms_rest/gsi_8.rc  [PASS] mutant caught: the processor duplicates the withdrawal push after 4096 cycles - breaks "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(
+0  arms_rest/gsi_9.rc  [PASS] mutant caught: SET_STREAM_INFO's push gate compares with the applied offset again - breaks "[NOTIFY] SET_STREAM_INFO CRF step 3: 2,010,000 ns a
+# reviewer probes
+0  probes/851_encoder_only.rc  RESULT: NOT CAUGHT (survives or not evidence; see above)
+0  probes/mvrpla_long.rc  RESULT: CAUGHT
+0  probes/mvrpla_short.rc  RESULT: CAUGHT
