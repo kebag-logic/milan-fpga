@@ -403,7 +403,7 @@ MUTANTS = (
     Mutant("acmp-timer-port-called-every-time", ACMP_C,
            "\t\tif (any && (!a->timer_armed[i] || a->timer_at[i] != at)) {", "\t\tif (any) {",
            "acmp", "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
-           "A17 the port is called only when the earliest deadline moves"),
+           "A17 a change that leaves an interface's earliest deadline keeps its timer"),
     Mutant("acmp-timer-never-stopped", ACMP_C, "\t\t} else if (!any && a->timer_armed[i]) {",
            "\t\t} else if (!any && a->timer_armed[i] && false) {",
            "acmp", "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",

@@ -221,12 +221,15 @@ MUTANTS = (
            (("acmp", "AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding", "B8 a BIND_RX writes its sink's entry"),
             ("acmp", "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem",
              "C0 and its talker admitted in that pass"))),
+    # tsn-c-stack#32: an entry admits only the sinks it marks, so a GET_RX_STATE (none) cannot show the extra
+    # admission; a PROBE_TX_RESPONSE marks its bound sink, and its path's accesses do
     Mutant("acmp-admit-on-every-entry", ACMP_C,
            "if (s->bound != s->admitted || (s->bound && talker != s->admitted_talker)) {",
            "if (s->bound != s->admitted || s->bound) {",
            "acmp", "AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker",
            "A29 a re-bind to the same talker, from any controller or source, admits nothing",
-           (("acmp", "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem", "C1 GET_RX_STATE -> response"),)),
+           (("acmp", "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem",
+             "C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed"),)),
     # #697: the stack's test (tsn-c-stack tests/test_acmp.cpp) asserts the admission count first, in its own
     # words, which are this killer's, as they are its own table's.
     Mutant("acmp-admit-ignores-another-talker", ACMP_C,
