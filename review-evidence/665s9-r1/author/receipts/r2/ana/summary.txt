@@ -1,0 +1,7 @@
+head 5d6d28356a6c73bdfba43a9b023e60279a0d461b
+command: summary of paths_rdata.tsv (round 1 ExtraTimingOpt route, paths to KL_mbx/reg_rdata_r, slack < 2 ns, up to 40 per endpoint)
+---
+paths: 1280; through the bound-talker read-back (rb_a_w or bnd_eid_vld_w): 874; not through it: 406
+worst through the read-back: ['0.005', '21'] KL_mbx/reg_rdata_r_reg[22]/D
+worst NOT through the read-back: ['0.022', '18'] KL_mbx/reg_rdata_r_reg[24]/D <- under the +0.030 ns floor without the read-back
+endpoints whose worst non-read-back path is under +0.100 ns: ['KL_mbx/reg_rdata_r_reg[16]/D', 'KL_mbx/reg_rdata_r_reg[18]/D', 'KL_mbx/reg_rdata_r_reg[24]/D']

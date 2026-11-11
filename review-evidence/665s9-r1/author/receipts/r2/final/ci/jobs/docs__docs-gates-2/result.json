@@ -1,0 +1,141 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 4360 bytes, sha256 826ba2c4efc5eef0ed05ab12ce5b1ec61e8061af1f4105bac36ff25a377b1fef
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Install the python gate dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Cache the pinned Markdown renderer downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Install the pinned Markdown renderer",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_packages_4",
+   "name": "Resolve exact package downloads 4",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Cache exact package downloads 4",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_8",
+   "name": "Install diagram gate dependencies",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_9",
+   "name": "Fetch the builder source dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_10",
+   "name": "Cache verified sv2v archive",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_11",
+   "name": "Install the pinned sv2v release",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_12",
+   "name": "Cache the pinned RV32 SDK",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_13",
+   "name": "Install and verify the pinned RV32 SDK",
+   "kind": "run",
+   "transformed": "this host has no apt and no root: apt-get lines dropped (the packages are installed here: gtest, librsvg2's rsvg-convert, tcl), dpkg-query read from pacman, what a step installs under /opt or /usr/local placed in the job's $HOME/opt instead, and the RV32 SDK installed from a local copy of its pinned archive (--archive; the installer checks its sha256) rather than downloaded again",
+   "rc": 0
+  },
+  {
+   "step": "gate_25_1",
+   "name": "End-station builder gates, leg 1 of 2",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_41",
+   "name": "CI event and SHA contract gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate_42",
+   "name": "Local act runner contract gate",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_17",
+   "name": "Record executed gate outcomes",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_18",
+   "name": "Upload executed gate outcomes",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

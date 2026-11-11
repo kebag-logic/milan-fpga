@@ -1,0 +1,63 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job
+full log: 1426 bytes, sha256 3dfdc4c1637d3eaefeb70d7870d47e97d19dda0be0cedffb8bd8b63b7f50c98a
+---
+{
+ "result": "success",
+ "outputs": {
+  "observer_only_error": "false"
+ },
+ "steps": [
+  {
+   "step": "step0",
+   "name": "actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "step2",
+   "name": "Fetch inventory dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "step3",
+   "name": "Cache pinned evidence reader downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "step4",
+   "name": "Install the pinned evidence reader",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "step5",
+   "name": "Download completed execution artifacts",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_collect",
+   "name": "Collect actual runtime evidence",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload canonical CI manifest",
+   "kind": "actions/upload-artifact",
+   "rc": "not run",
+   "reason": "uploads the manifest that ci_collect writes from a hosted run's artifacts; ci_collect does not run here (no hosted run)"
+  }
+ ],
+ "tree_after": ""
+}

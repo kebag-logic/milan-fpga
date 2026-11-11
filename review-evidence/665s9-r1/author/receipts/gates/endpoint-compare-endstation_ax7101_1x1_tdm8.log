@@ -1,0 +1,159 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: tools/gates.sh, tools/budget-points.sh (see the file name)
+full log: 4532 bytes, sha256 af569287763617b2a208d447f4de331479be08df0c905e67ac1555401e9f6697
+---
+{
+ "files": 21,
+ "identical": 21,
+ "different": [],
+ "rows": [
+  {
+   "file": "aem_desc.bin",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 7512,
+   "sha256_normalised": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d"
+  },
+  {
+   "file": "aem_desc.json",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 266,
+   "sha256_normalised": "ba08511e11780706f723baeb3335e3254e3606d523796aeb7eefc7c01f469947"
+  },
+  {
+   "file": "aem_desc.map",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 1600,
+   "sha256_normalised": "24d2d0122d4d73a32b4d87a5fc689d8c560d38826aa4c5eacc88a6d353436d99"
+  },
+  {
+   "file": "csr.csv",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 9022,
+   "sha256_normalised": "8703080924969a1cb6894336eee3170d54b62b5e9e2cf537c612665fa479145e"
+  },
+  {
+   "file": "csr.json",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 15821,
+   "sha256_normalised": "1868b0fc62fb32fd994e477827c20bbb31f5ad1a5d018a7f6527d8e0de4cc68c"
+  },
+  {
+   "file": "flashboot_layout.json",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 715,
+   "sha256_normalised": "487d89f7231a009aae9ad91b928f78592b8129a3b242727aeeb5bfcc942a4aca"
+  },
+  {
+   "file": "gateware/alinx_ax7101.tcl",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 23348,
+   "sha256_normalised": "3d063d23e805a56eb4159c0d3ef0c706cb8b5d15a5dba4747e4638a823bef8bb"
+  },
+  {
+   "file": "gateware/alinx_ax7101.v",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 1812816,
+   "sha256_normalised": "68889e4bd5a25e3a2528fc07c2de1395e569df4c414ba5be7071e11357f31a99"
+  },
+  {
+   "file": "gateware/alinx_ax7101.xdc",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 19504,
+   "sha256_normalised": "81bbf89c34dd0e911c43a66a00533145544e15f2d5b4a45727b954f678793b2d"
+  },
+  {
+   "file": "gateware/alinx_ax7101_mem.init",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 147,
+   "sha256_normalised": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335"
+  },
+  {
+   "file": "gateware/alinx_ax7101_rom.init",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 0,
+   "sha256_normalised": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "file": "gateware/alinx_ax7101_sram.init",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 0,
+   "sha256_normalised": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "file": "gateware/build_alinx_ax7101.sh",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 91,
+   "sha256_normalised": "cbbbfde27360f056256e74c8ca7d3749d554b6ad636a1cac1c0deb21c5422d56"
+  },
+  {
+   "file": "software/include/generated/csr.h",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 30670,
+   "sha256_normalised": "5b20d951d1af57bbc23c3cf16fecaa6d28e05a51bb3c627f87172284b1f09a25"
+  },
+  {
+   "file": "software/include/generated/git.h",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 306,
+   "sha256_normalised": "143e419a0b518c394dcc903b726fe1785a642bfa42de0c94b16ca358f00f8d0a"
+  },
+  {
+   "file": "software/include/generated/mem.h",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 2019,
+   "sha256_normalised": "81e6ce3aa1ba0589271345021c4d151b89f2b1bebcab5837232ce0f25d12d5c4"
+  },
+  {
+   "file": "software/include/generated/output_format.ld",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 35,
+   "sha256_normalised": "14009799501c0b832653a9a146767576a62a6df1266dbdb8b2b224f111c74422"
+  },
+  {
+   "file": "software/include/generated/regions.ld",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 415,
+   "sha256_normalised": "e28d856906eb49e4ba7e456a5875ecf6c1eac089199d0d821a8ed0944e8c8af6"
+  },
+  {
+   "file": "software/include/generated/sdram_phy.h",
+   "verdict": "identical",
+   "raw_identical": true,
+   "bytes": 3665,
+   "sha256_normalised": "dd0d197d6e10ffe4f00b8e4f82aff8c05a537f37afa5316f67c0a3155807ead6"
+  },
+  {
+   "file": "software/include/generated/soc.h",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 11936,
+   "sha256_normalised": "604410e6738d06da644c35cf4d488f7a28473e4d5a703c2b012b58c593b13ecc"
+  },
+  {
+   "file": "software/include/generated/variables.mak",
+   "verdict": "identical",
+   "raw_identical": false,
+   "bytes": 2397,
+   "sha256_normalised": "3368319e184b60611d1d77b8bf611a5b59f11dfd339feb7d03709b94c932f314"
+  }
+ ]
+}
+rc=0

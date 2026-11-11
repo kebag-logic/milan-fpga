@@ -1,0 +1,445 @@
+{
+ "head": "72f596b8f375407a4b8ac6d15868b7f975c18850",
+ "not_run": [
+  {
+   "step": "docs__docs-gates-0/ci_packages_6",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__docs-gates-1/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__docs-gates-2/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "docs__ci-manifest/ci_collect",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "docs__ci-fail-fast/ci_observe",
+   "reason": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+  },
+  {
+   "step": "docs__ci-cancel-tail/step2",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  },
+  {
+   "step": "elaborate__elaborate-gates-1/ci_packages_17",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "elaborate__elaborate-gates-1/ci_step_22",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "elaborate__ci-manifest/ci_collect",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "elaborate__ci-fail-fast/ci_observe",
+   "reason": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+  },
+  {
+   "step": "elaborate__ci-cancel-tail/step2",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  },
+  {
+   "step": "rtl-fast__verilator-lint/ci_packages_3",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__verilator-lint/ci_step_6",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl-fast__yosys-tool/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__yosys-tool/ci_step_5",
+   "reason": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+  },
+  {
+   "step": "rtl-fast__publication-census/ci_packages_3",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__publication-census/ci_step_8",
+   "reason": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+  },
+  {
+   "step": "rtl-fast__split-cdc/ci_packages_3",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__split-cdc/ci_step_6",
+   "reason": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+  },
+  {
+   "step": "rtl-fast__firmware-unit/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-control-mutants/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-aecp-mutants/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-srp-mutants/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-boundary/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-verilator/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-verilator/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl-fast__firmware-verilator/ci_step_10",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl-fast__ci-manifest/ci_collect",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "rtl-fast__ci-fail-fast/ci_observe",
+   "reason": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+  },
+  {
+   "step": "rtl-fast__ci-cancel-tail/step2",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  },
+  {
+   "step": "rtl__full-ci-gate/ci_step_4",
+   "reason": "reads the repository's default branch through the GitHub API (gh api, GH_TOKEN); not authenticated here, and the step would read 'unreadable'"
+  },
+  {
+   "step": "rtl__verilator-shards__0/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__0/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__0/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__1/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__1/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__1/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__2/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__2/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__2/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_packages_8",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_step_13",
+   "reason": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_packages_9",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__3/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__4/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__4/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__4/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__5/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__5/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__5/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__6/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__6/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__6/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__7/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__7/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__7/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__8/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__8/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__8/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__9/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__9/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__9/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__10/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__10/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__10/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__11/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__11/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__11/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__12/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__12/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__12/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__13/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__13/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__13/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__14/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__14/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__14/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__15/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__15/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__15/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__16/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__16/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__16/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__17/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__17/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__17/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "step": "rtl__verilator-shards__18/ci_packages_4",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__verilator-shards__18/ci_step_7",
+   "reason": "builds Verilator v5.050 from source into /opt/verilator; the pinned Verilator v5.050 (rev v5.050) is already built on this host and the job finds it on PATH and at $HOME/opt/verilator"
+  },
+  {
+   "step": "rtl__verilator-shards__18/ci_step_21",
+   "reason": "the 19 hosted workers' suites (scripts/run_all_suites.sh --shard k/19) run here once, as the full sweep: four native-shards units of scripts/run_all_suites.sh --shard k/4 at this head (receipts sweep/); the partition differs, the suites and the command are the same"
+  },
+  {
+   "job": "rtl__physical-gptp",
+   "reason": "the job's if: is false for a pull_request to dev-soft-core at this head (it runs only on another event)"
+  },
+  {
+   "step": "rtl__verilator-suites/ci_step_5",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__verilator-suites/ci_step_6",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__verilator-suites/ci_step_8",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__yosys-shards__0/ci_packages_5",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__yosys-shards__1/ci_packages_5",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__yosys-shards__2/ci_packages_5",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__yosys-shards__3/ci_packages_5",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__yosys-tool/ci_packages_2",
+   "reason": "resolves the runner's APT downloads through apt-get's solver (scripts/ci_install_cache.py); this host is Arch with no apt; the packages the job's install step names are installed here (gtest 1.18.0, librsvg's rsvg-convert, tcl, the compiler and build tools)"
+  },
+  {
+   "step": "rtl__yosys-tool/ci_step_5",
+   "reason": "builds Yosys v0.66 (86f2ddeb) from source into /opt/yosys; this host's Yosys is 0.66 at that commit, ABC linked in, and the job finds it on PATH and at $HOME/opt/yosys/bin"
+  },
+  {
+   "step": "rtl__union-milan_dp/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__union-milan_dp_mclk/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__union-capture_coherence/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__union-maap/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__union-milan_dp_render/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__union-pp_shadow/ci_step_4",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "rtl__ci-manifest/ci_collect",
+   "reason": "collects a hosted run's artifacts through the GitHub API (GH_TOKEN, GITHUB_RUN_ID); this head has no hosted run"
+  },
+  {
+   "step": "rtl__ci-fail-fast/ci_observe",
+   "reason": "watches a hosted run through the GitHub API (GH_TOKEN); this head has no hosted run"
+  },
+  {
+   "step": "rtl__ci-cancel-tail/step2",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  }
+ ]
+}

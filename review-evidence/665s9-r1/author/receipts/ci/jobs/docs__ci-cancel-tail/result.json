@@ -1,0 +1,30 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: ci_replay.py job
+full log: 585 bytes, sha256 64e0b92344a33820b87f544f42f0c9d0de7bf0a1358868b25ac5cb133f7d6fb9
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "step0",
+   "name": "actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  }
+ ],
+ "tree_after": ""
+}

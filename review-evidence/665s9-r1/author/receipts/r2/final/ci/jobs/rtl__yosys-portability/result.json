@@ -1,0 +1,59 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 1090 bytes, sha256 a96278923558bc7b373774605a2ebd02da63ad3bede480324fbebdcb2d6722b7
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "download-results",
+   "name": "Download every shard's evidence",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Require every shard to have validated this run's SHA",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Reconcile the live inventory and structural gates",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Require every Yosys worker to pass",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

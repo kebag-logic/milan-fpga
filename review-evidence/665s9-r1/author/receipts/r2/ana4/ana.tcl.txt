@@ -1,0 +1,11 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: AltSpreadLogic_high's routed checkpoint re-timed: every setup path under +0.4 ns per clock, worst per endpoint
+full log: 462 bytes, sha256 d32757b53a1ddb4fc07f8b43dbb0b88159de2ad7da5a4f63698762196e39aded
+---
+open_checkpoint <scratch>/route/split-AltSpreadLogic_high/alinx_ax7101_route.dcp
+foreach g {milansoc_crg_clkout0 milansoc_crg_clkout1} {
+  set ps [get_timing_paths -setup -max_paths 2000 -nworst 1 -slack_lesser_than 0.4 -group [get_clocks $g]]
+  set fh [open paths_$g.tsv w]
+  foreach p $ps { puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]" }
+  close $fh
+}

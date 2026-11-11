@@ -1,0 +1,23 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: the full sweep's spec (Make's --no-print-directory in MAKEFLAGS)
+full log: 724 bytes, sha256 3146a984dd3c8bce6a68b82bd663270b147afdd877c930a9f20d7d3c93974f20
+---
+{
+ "cwd": "<lane>",
+ "head": "a91fb27dd39483e4694e193504da1dbe06208807",
+ "base": "1d6bf5556ae28764361d85012b86394eb467d294",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-unused/logs",
+   "--wait"
+  ]
+ ]
+}

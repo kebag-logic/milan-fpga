@@ -1,0 +1,59 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job
+full log: 1081 bytes, sha256 e2f6cd9bca0245654b2c4f4aa983c4b8e301d1d44fea5317f79cddac42461df9
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Fetch the processor model inputs",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Install behave",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Run the specification-facing suite",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

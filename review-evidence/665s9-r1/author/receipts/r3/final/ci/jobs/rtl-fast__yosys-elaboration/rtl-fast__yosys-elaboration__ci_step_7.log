@@ -1,0 +1,14 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job (the step's own log)
+full log: 492 bytes, sha256 1cd34ed401653cf1553c682988c825253e9e5d4e572531be30405ae1220a0fcc
+---
+# head a91fb27dd39483e4694e193504da1dbe06208807 rtl-fast/yosys-elaboration/ci_step_7: Elaborate the integration-heavy tops
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] milan_datapath         cells=78626
+  [PASS] KL_pp_shadow           cells=68426
+  [PASS] KL_gptp_shadow         cells=3501
+--------------------------------------------------------------
+tops: 3   pass: 3   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

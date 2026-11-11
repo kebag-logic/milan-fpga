@@ -1,0 +1,42 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: the suite's own log
+full log: 237855 bytes, sha256 85229fd88e7435a0f9eebcbce53bee31667b9006379f2cae368c0e670c708fe6
+---
+--- over 200 KB: the verdict lines only
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+checks: 408   failures: 0
+RESULT: PASS
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+checks: 408   failures: 0
+RESULT: PASS
+  [PASS] chmap readback: mapped/fed/unmapped are distinguishable, and a silent port poisons
+checks: 121   failures: 0
+RESULT: PASS
+checks: 44   failures: 0
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+checks: 408   failures: 0
+RESULT: PASS
+== csr_lock: checks: 5   failures: 0 ==
+RESULT: PASS
+== csr_lock: checks: 5   failures: 0 ==
+RESULT: PASS
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+checks: 408   failures: 0
+RESULT: PASS
+[PASS] the unmutated block still passes the lockstep leg
+[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+8 checks: 8 PASS, 0 FAIL

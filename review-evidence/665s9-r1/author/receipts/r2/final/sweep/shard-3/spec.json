@@ -1,0 +1,25 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: sweep-shard.py 3
+full log: 744 bytes, sha256 55cb8f4275cca1819ccf65306d98b9338a32807d32c8d5d212a4baa0f9f39484
+---
+{
+ "cwd": "<data>/lanes/a760d-shard3",
+ "head": "72f596b8f375407a4b8ac6d15868b7f975c18850",
+ "base": "1d6bf5556ae28764361d85012b86394eb467d294",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep/shard-3/logs",
+   "--wait",
+   "--shard",
+   "3/4"
+  ]
+ ]
+}
