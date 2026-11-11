@@ -1,0 +1,25 @@
+# pin check 2026-11-11T20:07:39Z
+$ git ls-tree HEAD third_party/tsn-c-stack
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+$ git ls-tree 1d6bf555 third_party/tsn-c-stack
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+$ git ls-remote https://github.com/kebag-logic/tsn-c-stack refs/heads/main
+715589c1db7cf67e2f3259fd7083ebc7f0923376	refs/heads/main
+$ merge-base --is-ancestor 70936b77 715589c1
+rc=0
+$ merges 70936b77..715589c1
+715589c1db7cf67e2f3259fd7083ebc7f0923376 9deb0ddb299013fcf2d9df7ad3d31961a33013cd a530ecafe7e503a57c81a5aba4ffe38fa8f37e7e Merge pull request #34 from kebag-logic/32-acmp-dirty-walk
+dd8b026f38edd4b55c65e82213c06078f72dd576 fa31d4c8052b60443572ee8338228e82ae6cbf05 9deb0ddb299013fcf2d9df7ad3d31961a33013cd Merge origin/main into the changed-sink walk: the walk's release loop reads the owed mask's word for each sink, both 33-sink tests share one target, and the two wide plants on that loop re-anchored on its merged line (#32)
+9deb0ddb299013fcf2d9df7ad3d31961a33013cd ea4af6f1b82de81ced75b4c23a4c87efd3ddaf06 97414fe6518cda2bf7c4ea136fdd8bd25c860d83 Merge pull request #33 from kebag-logic/31-acmp-mask-width
+ea4af6f1b82de81ced75b4c23a4c87efd3ddaf06 cc3362f8e29e5da2acdd534b01afb201859d49fd 376486b374782147d71e5e9bb4f93c42cd10e636 Merge pull request #28 from kebag-logic/26-acmp-owed
+968a164929698b9a2c4eb96ec207979ff7fea856 13dd785ba2b9b5bec9e93afebfce3db9921d2786 cc3362f8e29e5da2acdd534b01afb201859d49fd Merge origin/main cc3362f8 into 26-acmp-owed
+cc3362f8e29e5da2acdd534b01afb201859d49fd d7e6a2a19a57a8277cd26042557a8c99f2ee5496 62d24a37c4b81a78edda2721dd8611d753b2bc8e Merge pull request #30: exempt the merge of #29 from the one-line message rule
+13dd785ba2b9b5bec9e93afebfce3db9921d2786 9002bfec5b135da4c0e11892464f509f725feb1f d7e6a2a19a57a8277cd26042557a8c99f2ee5496 Merge origin/main d7e6a2a1 into 26-acmp-owed
+d7e6a2a19a57a8277cd26042557a8c99f2ee5496 70936b77dc41981e192438388cd0aced69954f18 c687810b74b53b69c1fbdff7bfd0ec9da94eaa78 Merge pull request #29: pack wire_put_be as two 32-bit halves (#27)
+$ submodule worktree status (incl. ignored)
+0
+PR 28 merged=true merge_commit=ea4af6f1b82de81ced75b4c23a4c87efd3ddaf06 base=main
+PR 29 merged=true merge_commit=d7e6a2a19a57a8277cd26042557a8c99f2ee5496 base=main
+PR 30 merged=true merge_commit=cc3362f8e29e5da2acdd534b01afb201859d49fd base=main
+PR 33 merged=true merge_commit=9deb0ddb299013fcf2d9df7ad3d31961a33013cd base=main
+PR 34 merged=true merge_commit=715589c1db7cf67e2f3259fd7083ebc7f0923376 base=main

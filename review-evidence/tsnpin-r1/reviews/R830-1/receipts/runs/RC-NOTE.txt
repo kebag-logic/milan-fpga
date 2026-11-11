@@ -1,0 +1,5 @@
+fw-shard0..3.rc were written after the runs from each log's own verdict line ("test_ctrl_firmware: PASS" -> 0):
+the runner's first form exited inside its log group before it wrote the rc file; it was corrected (scripts/run_bg.sh)
+before every later run, whose rc files the runner wrote itself. docs-submodule-*.rc were written the same way from
+their "OK (6 exact gitlinks" lines. litex-test-ctrl-memory.rc is 1: the host has no LiteX/migen interpreter
+(ModuleNotFoundError: migen), so that gate did not run here.

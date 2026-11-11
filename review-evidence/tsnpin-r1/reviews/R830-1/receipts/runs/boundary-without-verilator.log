@@ -1,0 +1,14 @@
+# head 50e2a722ef2671b3f5b017f97b1c7d41705c4f32 cmd: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+2026-11-11T19:52:50Z
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (412 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (100 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (289 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 1 (0 s)
+REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: Traceback (most recent call last):
+  File "<clone>/sw/litex/test_ctrl_memory.py", line 86, in <module>
+    from migen import ClockDomain, Module, run_simulation
+ModuleNotFoundError: No module named 'migen'
+2026-11-11T20:06:21Z

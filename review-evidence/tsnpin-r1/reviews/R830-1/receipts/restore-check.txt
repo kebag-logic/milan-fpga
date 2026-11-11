@@ -1,0 +1,25 @@
+# restore check 2026-11-11T20:07:11Z
+HEAD 50e2a722ef2671b3f5b017f97b1c7d41705c4f32
+tree 895066febbe99d8a88c9152a2432aeab908e9dc9
+status-porcelain-ignored-lines 0
+worktree+index == HEAD: yes
+index(mode,blob,path) sha 386892d4a103f2d002b4d82b2a1959368fd6c115439329d6b1aa0469b4c68b88 ; HEAD tree sha 386892d4a103f2d002b4d82b2a1959368fd6c115439329d6b1aa0469b4c68b88 ; equal: yes
+tracked blob bytes and modes: all match
+gitlinks:
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+  gptp-processor checkout 135afd043309369a87ddbc8d6550aff8ec52a157 dirty=0
+  protocol-processor checkout a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 dirty=1
+  third_party/lwSRP checkout 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 dirty=0
+  third_party/tsn-c-stack checkout 715589c1db7cf67e2f3259fd7083ebc7f0923376 dirty=0
+  third_party/verilog-axis checkout 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+# after removing protocol-processor/hdl/aecp/desc/__pycache__/ (created 2026-11-11 20:34 CET by this review's campaign run)
+  gptp-processor checkout 135afd043309369a87ddbc8d6550aff8ec52a157 dirty-incl-ignored=0
+  protocol-processor checkout a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 dirty-incl-ignored=0
+  third_party/lwSRP checkout 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 dirty-incl-ignored=0
+  third_party/tsn-c-stack checkout 715589c1db7cf67e2f3259fd7083ebc7f0923376 dirty-incl-ignored=0
+  third_party/verilog-axis checkout 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty-incl-ignored=0
+parent status-porcelain-ignored-lines 0
