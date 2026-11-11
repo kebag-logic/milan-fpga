@@ -1,0 +1,10 @@
+--- <packet>/scratch/plants/head.c	2026-11-11 07:43:52.969697771 +0100
++++ <packet>/scratch/plants/c1-started-unmarked.c	2026-11-11 07:43:53.037697766 +0100
+@@ -1293,7 +1293,6 @@
+ 	if (sink >= a->cfg.n_sinks || !a->sinks[sink].bound) {
+ 		return false;
+ 	}
+-	mark(a, sink);
+ 	a->sinks[sink].started = started;
+ 	finish(a);
+ 	return true;

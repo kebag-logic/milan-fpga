@@ -1,0 +1,11 @@
+--- <packet>/scratch/plants/head.c	2026-11-11 07:43:52.969697771 +0100
++++ <packet>/scratch/plants/c4-probe-left-mark-word0.c	2026-11-11 07:43:53.038641200 +0100
+@@ -791,7 +791,7 @@
+ 	}
+ 	struct acmp_sink *s = &a->sinks[o->probe_of - 1u];
+ 	if (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {
+-		mark(a, o->probe_of - 1u);
++		mark(a, (o->probe_of - 1u) % 32u);
+ 		no_resp_from_send(a, s);
+ 	}
+ }

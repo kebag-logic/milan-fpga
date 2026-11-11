@@ -1,0 +1,103 @@
+== src/acmp.c: the walk's change (base..ours) against the head over main (theirs..head)
+42,43c42,43
+< -				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));
+< +				if (((o->release >> k) & 1u) != 0u) {
+---
+> -				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));
+> +				if (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {
+== src/acmp.c: main's change (base..theirs) against the head over the walk (ours..head)
+19,20c19,20
+< -				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));
+< +				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));
+---
+> -				if (((o->release >> k) & 1u) != 0u) {
+> +				if (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {
+== include/acmp.h: the walk's change (base..ours) against the head over main (theirs..head)
+   identical
+== include/acmp.h: main's change (base..theirs) against the head over the walk (ours..head)
+   identical
+== CMakeLists.txt: the walk's change (base..ours) against the head over main (theirs..head)
+1,6c1
+< +  add_library(tsn_walk STATIC src/acmp.c)
+< +  target_include_directories(tsn_walk PUBLIC include)
+< +  target_compile_definitions(tsn_walk PUBLIC ACMP_MAX_SINKS=33u PRIVATE NDEBUG CTRL_REENTRY_ASSERT)
+< +  target_compile_options(tsn_walk PUBLIC -fsanitize=shift,undefined -fno-sanitize-recover=shift,undefined)
+< +  target_link_options(tsn_walk INTERFACE -fsanitize=shift,undefined)
+< +  core_test(acmp_walk tests/test_acmp_walk.cpp tsn_walk)
+---
+> +  core_test(acmp_walk tests/test_acmp_walk.cpp tsn_wide)
+== CMakeLists.txt: main's change (base..theirs) against the head over the walk (ours..head)
+0a1,6
+> -  add_library(tsn_walk STATIC src/acmp.c)
+> -  target_include_directories(tsn_walk PUBLIC include)
+> -  target_compile_definitions(tsn_walk PUBLIC ACMP_MAX_SINKS=33u PRIVATE NDEBUG CTRL_REENTRY_ASSERT)
+> -  target_compile_options(tsn_walk PUBLIC -fsanitize=shift,undefined -fno-sanitize-recover=shift,undefined)
+> -  target_link_options(tsn_walk INTERFACE -fsanitize=shift,undefined)
+> -  core_test(acmp_walk tests/test_acmp_walk.cpp tsn_walk)
+6a13
+> +  core_test(acmp_walk tests/test_acmp_walk.cpp tsn_wide)
+== scripts/mutation.py: the walk's change (base..ours) against the head over main (theirs..head)
+1,13c1,7
+< -           "adp_debug": "test_adp_reentry.cpp", "adp_release": "test_adp_reentry.cpp", "maap_debug": "test_maap_debug.cpp"}
+< +           "adp_debug": "test_adp_reentry.cpp", "adp_release": "test_adp_reentry.cpp", "maap_debug": "test_maap_debug.cpp",
+< +           "acmp_walk": "test_acmp_walk.cpp"}
+< +# The changed-sink walk arm builds its core and its test at 33 sinks with the CMake target's sanitizers (#32).
+< +WALK = ["-DACMP_MAX_SINKS=33u", "-fsanitize=shift,undefined", "-fno-sanitize-recover=shift,undefined"]
+< -        [] if arm.endswith("_debug") else ["-DNDEBUG", "-DCTRL_REENTRY_ASSERT"])
+< +        [] if arm.endswith("_debug") else ["-DNDEBUG", "-DCTRL_REENTRY_ASSERT"]) + walk(arm)
+< -        ["-DADP_TEST_RELEASE"] if arm == "adp_release" else [])
+< +        ["-DADP_TEST_RELEASE"] if arm == "adp_release" else []) + walk(arm)
+< +def walk(arm):
+< +    return WALK if arm == "acmp_walk" else []
+< -        return [str(baseline / "port_extra.o")] if arm == "port" else []
+< +        return ([str(baseline / "port_extra.o")] if arm == "port" else []) + walk(arm)
+---
+> -           "acmp_wide": "test_acmp_wide.cpp"}
+> -# The 33-sink arm builds its core and its test with the CMake target's definition and sanitizers (#31).
+> +           "acmp_wide": "test_acmp_wide.cpp", "acmp_walk": "test_acmp_walk.cpp"}
+> +# The 33-sink arms build their core and their test with the CMake target's definition and sanitizers: the wide
+> +# arm's (#31) and the changed-sink walk arm's (#32), on the same target.
+> -    return WIDE if arm == "acmp_wide" else []
+> +    return WIDE if arm in ("acmp_wide", "acmp_walk") else []
+== scripts/mutation.py: main's change (base..theirs) against the head over the walk (ours..head)
+1,4c1,6
+< -           "adp_debug": "test_adp_reentry.cpp", "adp_release": "test_adp_reentry.cpp", "maap_debug": "test_maap_debug.cpp"}
+< +           "adp_debug": "test_adp_reentry.cpp", "adp_release": "test_adp_reentry.cpp", "maap_debug": "test_maap_debug.cpp",
+< +           "acmp_wide": "test_acmp_wide.cpp"}
+< +# The 33-sink arm builds its core and its test with the CMake target's definition and sanitizers (#31).
+---
+> -           "acmp_walk": "test_acmp_walk.cpp"}
+> -# The changed-sink walk arm builds its core and its test at 33 sinks with the CMake target's sanitizers (#32).
+> -WALK = ["-DACMP_MAX_SINKS=33u", "-fsanitize=shift,undefined", "-fno-sanitize-recover=shift,undefined"]
+> +           "acmp_wide": "test_acmp_wide.cpp", "acmp_walk": "test_acmp_walk.cpp"}
+> +# The 33-sink arms build their core and their test with the CMake target's definition and sanitizers: the wide
+> +# arm's (#31) and the changed-sink walk arm's (#32), on the same target.
+6c8
+< -        [] if arm.endswith("_debug") else ["-DNDEBUG", "-DCTRL_REENTRY_ASSERT"])
+---
+> -        [] if arm.endswith("_debug") else ["-DNDEBUG", "-DCTRL_REENTRY_ASSERT"]) + walk(arm)
+8c10
+< -        ["-DADP_TEST_RELEASE"] if arm == "adp_release" else [])
+---
+> -        ["-DADP_TEST_RELEASE"] if arm == "adp_release" else []) + walk(arm)
+9a12,13
+> -def walk(arm):
+> -    return WALK if arm == "acmp_walk" else []
+11,12c15,16
+< +    return WIDE if arm == "acmp_wide" else []
+< -        return [str(baseline / "port_extra.o")] if arm == "port" else []
+---
+> +    return WIDE if arm in ("acmp_wide", "acmp_walk") else []
+> -        return ([str(baseline / "port_extra.o")] if arm == "port" else []) + walk(arm)
+== tests/test_acmp.cpp: the walk's change (base..ours) against the head over main (theirs..head)
+   identical
+== tests/test_acmp.cpp: main's change (base..theirs) against the head over the walk (ours..head)
+   identical
+== tests/test_acmp_walk.cpp: the walk's change (base..ours) against the head over main (theirs..head)
+   identical
+== tests/test_acmp_walk.cpp: main's change (base..theirs) against the head over the walk (ours..head)
+   identical
+== tests/test_acmp_wide.cpp: the walk's change (base..ours) against the head over main (theirs..head)
+   identical
+== tests/test_acmp_wide.cpp: main's change (base..theirs) against the head over the walk (ours..head)
+   identical
