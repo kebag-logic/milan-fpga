@@ -32,7 +32,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
   Shipping defaults wait for F2-F5 suites and bench acceptance.
 - **Estimated saving:** L2 credits 14,000 LUTs, range 11,500-16,000.
   This includes the measured 3,102-LUT mailbox cost.
-  The [integrated split route](#m8a-2-the-integrated-split-route) measures 29,302 LUTs at the shipping shape after its two mailbox timing cuts, but still misses the timing floor by 0.009 ns.
+  The [integrated split route](#m8a-2-the-integrated-split-route) measures 29,377 LUTs at the shipping shape after its third round of mailbox timing cuts, and meets the timing floor: +0.274 ns at the recipe's directive.
 - **Estimated finish:** the [ledger](#ledger) reaches 31,667 LUTs centrally.
   Its conservative combined estimate is 35,867, below 38,040.
   These arithmetic scenarios are not fit or timing evidence.
@@ -963,21 +963,26 @@ The first route, exported at `5d6d2835`, missed the timing floor.
 #870's second round (the ruling, issuecomment-6779934014) cut two mailbox paths for timing only.
 The register read is decoded from an offset registered at its request ([bus adapters](MAILBOX_SPLIT.md#bus-adapters-and-the-hard-core)).
 The receive ring write port and the published head are registered ([rings](MAILBOX_SPLIT.md#rings-records-and-events)).
-That round routed the image again from one new synthesis checkpoint, exported at `3ba76ae7`.
+That round routed the image again from one new synthesis checkpoint, exported at `3ba76ae7`, and still missed the floor.
+The third round (the ruling, issuecomment-6788700325) cut three more, for timing only: the receive ring port's address and word are registered without the write decision, the receive verdict acts a mailbox clock after it is taken ([the ingress filter](MAILBOX_SPLIT.md#the-ingress-filter)), and the register read multiplexer is the AND-OR of one-hot selects ([bus adapters](MAILBOX_SPLIT.md#bus-adapters-and-the-hard-core)).
+It routed the image from one more synthesis checkpoint, exported at `a2690e68`.
 No later commit of #870 changes that netlist.
-Every routable net is routed in both: 66,578 of 66,578, then 66,913 of 66,913, none with an error.
+A host reset cut the recipe route's session in placement, after it had written that checkpoint, so all three directives were placed and routed from the checkpoint, the recipe's among them.
+Every routable net is routed in every round: 66,578 of 66,578, then 66,913 of 66,913, then 67,358 of 67,358, none with an error.
 
 | Measurement | LUT | LUTRAM | FF | Slice | RAMB36 | RAMB18 | BRAM tiles | DSP | CARRY4 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Gate record, all-fabric `route-1x1` | 52,012 | - | 53,707 | 15,780 | 74 | 27 | 87.5 | 13 | 3,631 |
 | Split route, first round, the recipe's `ExtraPostPlacementOpt` | 29,277 | 1,035 | 39,060 | 12,767 | 56 | 32 | 72 | 5 | 2,290 |
 | Split route, second round, the same directive | 29,302 | 1,034 | 39,229 | 12,899 | 56 | 32 | 72 | 5 | 2,295 |
-| Second round minus the record | -22,710 | - | -14,478 | -2,881 | -18 | +5 | -15.5 | -8 | -1,336 |
-| Second round, percent of `xc7a100t` | 46.22 | 5.44 | 30.94 | 81.38 | 41.48 | 11.85 | 53.33 | 2.08 | - |
+| Split route, third round, the same directive | 29,377 | 1,034 | 39,235 | 12,671 | 56 | 32 | 72 | 5 | 2,295 |
+| Third round minus the record | -22,635 | - | -14,472 | -3,109 | -18 | +5 | -15.5 | -8 | -1,336 |
+| Third round, percent of `xc7a100t` | 46.34 | 5.44 | 30.94 | 79.94 | 41.48 | 11.85 | 53.33 | 2.08 | - |
 
-Against the first round the cuts cost 25 LUTs, 169 FFs and 132 slices.
+Against the first round the second round's cuts cost 25 LUTs, 169 FFs and 132 slices.
 They are the registered read offset with its own copy of the window decodes, and the registered ring write port.
 The published heads and the read-back's registered address make up the rest.
+Against the second round the third round's cuts cost 75 LUTs and 6 FFs, and 228 slices fewer: the four verdict registers and the wider state, and the read multiplexer's selects.
 
 **Timing, every signoff corner, by placement directive** ([#818](https://github.com/kebag-logic/milan-fpga/issues/818)'s three, each round's own synthesis checkpoint and the default seed):
 
@@ -989,38 +994,42 @@ The published heads and the read-back's registered address make up the rest.
 | `ExtraPostPlacementOpt`, the recipe's | second | +0.000 / +0.057 | +1.660 / +0.019 | 0 | 29,302 | 39,229 | 12,899 |
 | `ExtraTimingOpt` | second | **+0.021** / +0.102 | +1.636 / +0.036 | 0 | 29,359 | 39,232 | 13,679 |
 | `AltSpreadLogic_high` | second | -0.003 / +0.102 | +1.636 / +0.036 | 4 | 29,361 | 39,239 | 13,684 |
+| `ExtraPostPlacementOpt`, the recipe's | third | **+0.274** / +0.102 | +1.636 / **+0.036** | 0 | 29,377 | 39,235 | 12,671 |
+| `ExtraTimingOpt` | third | +0.089 / +0.064 | +1.641 / +0.036 | 0 | 29,462 | 39,235 | 13,584 |
+| `AltSpreadLogic_high` | third | +0.153 / +0.082 | +1.641 / +0.036 | 0 | 29,455 | 39,235 | 13,581 |
 
 The slow corners are 0 C and 85 C, and so are the fast; each pair reads the same.
-The second round's best, `ExtraTimingOpt`, meets timing by 0.021 ns, 0.009 ns under the gate's +0.030 ns floor.
-Its hold slack, +0.036 ns at the fast corners, meets both the gate's 0 ns floor and the round's +0.030 ns.
-So the split route still does not meet the [target](#target)'s timing gate (#870, acceptance 1), and the round stops for a decision.
-The cuts removed both path families of the first round.
-No path from LiteX's AXI-Lite-to-Wishbone bridge reaches `KL_mbx/reg_rdata_r`, and none from `KL_mbx/u_rx/head_r` reaches a ring.
-Every path below +0.030 ns, in all three directives, is still inside `KL_mbx` at the 100 MHz bus clock, `milansoc_crg_clkout0`:
-- `ExtraTimingOpt`: from the receive block's picked channel, `u_rx/ch_r`, through the free space and the drain decision to the reset pins of the new ring write port's address and data registers, +0.021 ns over 17 logic levels. Also from `u_rx/ch_r` through the frame's verdict to the reset of its term fields, `u_rx/field_r`, +0.025 ns over 21;
-- `AltSpreadLogic_high`: from `u_rx/ch_r` through the verdict to RX_DROP's enable, -0.003 ns over 22 levels, four endpoints;
-- `ExtraPostPlacementOpt`: the register read multiplexer from the registered offset, `rd_off_r`, to `reg_rdata_r`, +0.000 ns over 19 levels and 74 percent of its delay routing. Synthesis builds the generated if-chain as a priority multiplexer.
+The second round's best, `ExtraTimingOpt`, met timing by 0.021 ns, 0.009 ns under the gate's +0.030 ns floor, and that round stopped for a decision.
+Every path below +0.030 ns, in all three directives, was inside `KL_mbx` at the 100 MHz bus clock, `milansoc_crg_clkout0`:
+- from the receive block's picked channel, `u_rx/ch_r`, through the free space and the drain decision to the reset pins of the ring write port's address and data registers (+0.021 ns over 17 logic levels), and through the frame's verdict to the reset of its term fields (+0.025 ns over 21) and to RX_DROP's enable (-0.003 ns over 22);
+- the register read multiplexer from the registered offset, `rd_off_r`, to `reg_rdata_r` (+0.000 ns over 19 levels, 74 percent of its delay routing), the generated if-chain built as a priority multiplexer.
 
-The next cut needs no contract change:
-- the ring write port's address and data registered without the write decision, which only its enable needs;
-- the verdict registered a cycle before it acts, one mailbox clock per received frame;
-- the register read multiplexer generated as an AND-OR of its window selects, which the contract's disjoint address map allows, with no added cycle.
+The third round meets the gate at every directive, and the recipe's is the best.
+`ExtraPostPlacementOpt` meets timing by 0.274 ns at the slow corners, and its hold slack is +0.036 ns at the fast; both are at or above the round's +0.030 ns floor, on the same directive and the one checkpoint.
+So the split route meets the [target](#target)'s timing gate (#870, acceptance 1).
+No path from the receive block, `KL_mbx/u_rx`, is among the 15 worst at the bus clock in any directive.
+The worst paths left:
+- `ExtraPostPlacementOpt`: the design's worst is +0.274 ns at the 125 MHz receive clock, `eth_clocks0_rx`, from the MAC's transmit state into `KL_gptp_gmii_launch` (6 levels); at the bus clock the worst is the read multiplexer, `rd_off_r` to `reg_rdata_r`, +0.516 ns over 15 levels;
+- `ExtraTimingOpt`: `KL_mbx/tx_head_r` to the transmit merge's `u_tx/left_r` enables, +0.089 ns over 14 levels;
+- `AltSpreadLogic_high`: the read multiplexer, +0.153 ns over 15 levels.
 
-The fast corners' worst hold slack is the recipe directive's +0.019 ns, a datapath path at 50 MHz in the TDM render's FIFO; the other two directives have +0.036 ns.
-The 50 MHz datapath clock, `milansoc_crg_clkout1`, has +1.359 to +1.385 ns at the slow corners in every directive of both rounds.
+The fast corners' worst hold slack is +0.036 ns in every directive of the third round, a 50 MHz datapath path into the gPTP plane's event queue or the TDM render's FIFO.
+The 50 MHz datapath clock, `milansoc_crg_clkout1`, has +1.242 to +1.385 ns at the slow corners in every directive of all three rounds.
 
 The resource gate judges a selected split route alone, at the recipe's directive (`check --endpoint route-1x1 --placement full-split --shipping-selection`).
-In both rounds it exits 1, a material regression, naming two figures: WNS below the floor at the slow corners, and RAMB18 grown by 5, from 27 to 32.
+In the first two rounds it exits 1, a material regression, naming two figures: WNS below the floor at the slow corners, and RAMB18 grown by 5, from 27 to 32.
+In the third it names RAMB18 alone, and still exits 1; its WNS, +0.274 ns, and its WHS, +0.036 ns, pass.
+It read the export's gateware directory, whose integrated script it identifies, with the recipe directive's own reports from the checkpoint's route.
 Every other figure is below the record, and it recommends a re-baseline, which only M9 takes.
 
-The LUT bar is met with room; the timing gate is not (above).
-The second round's image is 8,738 LUTs below NFR-RES-01's 38,040 and 8,357 below D8's 37,659.
-Against the gate's all-fabric record it is 22,710 LUTs, 14,478 FFs and 15.5 tiles smaller.
+The LUT bar is met with room, and so is the timing gate (above).
+The third round's image is 8,663 LUTs below NFR-RES-01's 38,040 and 8,282 below D8's 37,659.
+Against the gate's all-fabric record it is 22,635 LUTs, 14,472 FFs and 15.5 tiles smaller.
 The [cumulative estimates](#cumulative-default-image-estimates)' row 1, the complete split alone, put the image at 36,267 LUTs (34,267 to 38,767).
-The route, which also drops DDR3 (M8a), is 6,965 below that central figure.
+The route, which also drops DDR3 (M8a), is 6,890 below that central figure.
 M9 (#640) re-records acceptance; this checkpoint records no baseline.
 
-**Block RAM, by owner, in the route** (the second round's maps the same, owner by owner):
+**Block RAM, by owner, in the route** (the second and third rounds' map the same, owner by owner):
 
 | Owner | RAMB36 | RAMB18 | Tiles |
 |---|---:|---:|---:|
@@ -1108,8 +1117,10 @@ The largest image's own 8x8 datapath is not routed here.
 | Out of context, two interfaces, first round | 682 | 159 | The same, at `gen_mailbox.py --variant-interfaces 2` |
 | Out of context, one interface, second round | 474 | 89 | The same recipe on the mailbox RTL of the timing cuts |
 | Out of context, two interfaces, second round | 707 | 154 | The same, two interfaces |
-| In the route, one interface, second round | 86 of storage, logic not separable | 97 | 64 SRLs and 22 LUTRAMs in `KL_mbx/u_rx`, as out of context; its FFs are `u_rx`'s 1,292 against 1,195 tied off out of context |
-| D7 close-out | accepted as measured | | Closed by D7 (a): no recovery and no contract change. At one interface the term is now 174 LUTs over its 300 LUT target and within its 120 FF target. D7's trigger for (b), the route within 300 LUTs of the M9 bar, is not met: the route is 8,738 below it |
+| Out of context, one interface, third round | 349 | 93 | The same recipe on the mailbox RTL of the third round's cuts |
+| Out of context, two interfaces, third round | 754 | 151 | The same, two interfaces |
+| In the route, one interface, third round | 86 of storage, logic not separable | 90 | 64 SRLs and 22 LUTRAMs in `KL_mbx/u_rx`, as out of context; its FFs are `u_rx`'s 1,290 against 1,200 tied off out of context |
+| D7 close-out | accepted as measured | | Closed by D7 (a): no recovery and no contract change. At one interface the term is now 49 LUTs over its 300 LUT target and within its 120 FF target. D7's trigger for (b), the route within 300 LUTs of the M9 bar, is not met: the route is 8,663 below it |
 
 The second round's term at one interface is 189 LUTs above the first round's.
 The cuts add the read side's bound-talker decode in `KL_mbx` and, in `KL_mbx_rx`, the read address registered at the request: six FFs.
@@ -1118,12 +1129,16 @@ The routed mailbox is 5,270 LUTs and 8,733 FFs, against 5,624 and 8,829 out of c
 In the first round it was 4,372 and 8,563, because synthesis had merged part of its register read path with the bus bridge.
 The second round's registered offset keeps the read multiplexer inside `KL_mbx`, so the whole image moved by 25 LUTs while the mailbox gained 898.
 The term's read-back is off the host read path now: it is read from an address registered at the request, a cycle before the multiplexer samples it.
+The third round's term at one interface is 125 LUTs below the second round's.
+`KL_mbx_rx`'s share of the difference rose from 308 to 351 LUTs and `KL_mbx`'s own fell from +233 to -51: the AND-OR multiplexer answers the bound-talker words through two selects of its 114, not a priority chain.
+`KL_mbx_wb`, which neither build changes, differs by 59 LUTs between them.
+The routed mailbox is 5,368 LUTs and 8,739 FFs, against 5,675 and 8,826 out of context.
 
 **The all-fabric endpoint is unchanged.**
-Its export at the second round's head equals the base `1d6bf555`'s, file for file: 21 files each at the 1x1 and 8x8 shapes, apart from the run's timestamps, the checkout and output paths, and LiteX's comment-only hierarchy tree.
-The all-fabric image reads none of the mailbox's sources, and none of the 124 sources its export reads changed in the second round.
+Its export at the third round's head `a2690e68` equals the base `1d6bf555`'s, file for file: 21 files each at the 1x1 and 8x8 shapes, apart from the run's timestamps, the checkout and output paths, and LiteX's comment-only hierarchy tree.
+The all-fabric image reads none of the mailbox's sources, and none of the 124 sources its export reads changed in the second or third round.
 The builder's all-fabric outputs of the five shipped configs are byte for byte the base's, 50 files, and an all-fabric build writes no image manifest.
-Its route at the first round's head `ad2ed0e3`, whose inputs the second round leaves unchanged, by the same recipe at the default selection, is 52,272 LUTs, 54,108 FFs, 15,843 slices, 74 / 27 block RAM and 13 DSPs.
+Its route at the first round's head `ad2ed0e3`, whose inputs the second and third rounds leave unchanged, by the same recipe at the default selection, is 52,272 LUTs, 54,108 FFs, 15,843 slices, 74 / 27 block RAM and 13 DSPs.
 WNS is +0.245 ns at the slow corners and WHS +0.027 ns at the fast; the floors are met.
 The gate passes it against `route-1x1` (exit 0): +260 LUTs and +401 FFs are within tolerance, and block RAM and DSP are unchanged.
 The export is the base's, so those deltas are not #870's.

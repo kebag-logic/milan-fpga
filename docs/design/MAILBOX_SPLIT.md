@@ -1961,6 +1961,26 @@ neither build changes, differs by 49 LUT between them. At two interfaces the
 term moved by 25 LUT. Against the target the term is 174 LUT over at one
 interface, where round 3 measured 57.
 
+S9's third round (#870) cuts three more mailbox paths for timing only: the
+receive ring port, the receive verdict and the register read multiplexer
+([Rings](#rings-records-and-events), [The ingress
+filter](#the-ingress-filter), [Bus adapters and the
+hard core](#bus-adapters-and-the-hard-core)). The term was measured a fourth
+time on 2026-11-11, on that RTL, with the same recipe and tie-off:
+
+| Interfaces | The mailbox, LUT / FF | Term tied off, LUT / FF | The term, LUT / FF | WNS at 10 ns, head / tied off |
+|---|---:|---:|---:|---:|
+| 1 | 5,913 / 8,827 | 5,564 / 8,734 | 349 / 93 | +0.413 / +0.644 ns |
+| 2 | 8,969 / 14,709 | 8,215 / 14,558 | 754 / 151 | -1.560 / -1.748 ns |
+
+The storage maps as before at one interface, 64 shift-register LUTs and 22
+LUTs of read-back memory; at two it is 155 and 44. At one interface
+`KL_mbx_rx`'s share of the difference is 351 LUT and `KL_mbx`'s own -51,
+where the second round measured 308 and +233: the AND-OR multiplexer reads
+the bound-talker words through two of its selects. `KL_mbx_wb` differs by 59
+LUT between the builds. Against the target the term is 49 LUT over at one
+interface.
+
 The term is closed by decision D7 (a) on #665: the overshoot is accepted as
 measured, and no recovery is attempted. The two contract changes measured in
 round 3 are not taken. The close-out row, with the term in the integrated
@@ -1973,9 +1993,13 @@ read ran from LiteX's AXI-Lite-to-Wishbone bridge, through the read-back of
 the arrival interface's table, to `KL_mbx`'s `reg_rdata_r`, at the 100 MHz
 bus clock. The second round's cuts take the bus and the read-back off that
 path: the read multiplexer decodes the registered offset, and the read-back
-is read at the registered address. What remains under the floor is inside
+is read at the registered address. What remained under the floor was inside
 `KL_mbx` still, in the receive block's verdict and the read multiplexer's
-depth. The ledger gives each placement directive's slack and paths.
+depth. The third round's cuts take those off: the ring write port's address
+and word no longer carry the write decision, the verdict acts from
+registers, and the read multiplexer is an AND-OR of one-hot selects. Its
+route meets the floor, +0.274 ns at the recipe's directive. The ledger gives
+each placement directive's slack and paths.
 
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
