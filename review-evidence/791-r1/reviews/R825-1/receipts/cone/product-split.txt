@@ -1,0 +1,17 @@
+cone: 30 assigns; cut inputs {'FetchL1Plugin_logic_ctrl_pmaPort_cmd_address': 32, 'LsuCachelessPlugin_logic_onPma_port_cmd_address': 32, 'LsuCachelessPlugin_logic_onPma_port_cmd_size': 2, 'LsuCachelessPlugin_logic_onPma_port_cmd_op': 1}
+spec fetch [('0x0', '0x38000'), ('0x10000000', '0x10038000'), ('0x40000000', '0x80000000'), ('0x1000000', '0x2000000')]
+spec load [('0xf0c00000', '0xf1000000'), ('0xf0010000', '0xf0020000'), ('0x0', '0x38000'), ('0x10000000', '0x10038000'), ('0x40000000', '0x80000000'), ('0x1000000', '0x2000000'), ('0x90000000', '0x90010000'), ('0x90100000', '0x90108000'), ('0xf0000000', '0xf0010000')]
+SPAN fetch [0x00000000, 0x00038000)
+SPAN load [0x00000000, 0x00038000)
+SPAN fetch [0x01000000, 0x02000000)
+SPAN load [0x01000000, 0x02000000)
+SPAN fetch [0x10000000, 0x10038000)
+SPAN load [0x10000000, 0x10038000)
+SPAN fetch [0x40000000, 0x80000000)
+SPAN load [0x40000000, 0x80000000)
+SPAN load [0x90000000, 0x90010000)
+SPAN load [0x90100000, 0x90108000)
+SPAN load [0xf0000000, 0xf0020000)
+SPAN load [0xf0c00000, 0xf1000000)
+RESULT fetch: 0 word address(es) of 2^30 differ from the SoC regions -> EXACT
+RESULT load: 0 word address(es) of 2^30 differ from the SoC regions -> EXACT

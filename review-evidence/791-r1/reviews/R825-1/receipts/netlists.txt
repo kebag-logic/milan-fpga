@@ -1,0 +1,19 @@
+Netlists named by this review's runs vs the author's packet (module name normalised): changed lines
+none:        review 88c5cdf96c3a124bb0d28c2aa974abb5 vs author d43c74db1718eac021023f2c5f17b21e: 0
+single-mask: review 18be4f88125a407b2774e1bfc7239bdf vs author 831c88b07e6941542abc89b2601bfe83: 0
+cover:       review 5794804317abf38f1824a9df1548eb53 vs author e620f662d83be0fa74f90e4aeffbaea8: 0
+sha256 6b5a22fc30df314d7ba37541d5f3d037ded2ad2e99435e1d4a0eead4f192459e VexiiRiscvLitex_88c5cdf96c3a124bb0d28c2aa974abb5.v
+sha256 d425a0e7545ad51c0ead6c4c7afd4c528b82eb0ff2ecc35fb6b8f79548dcfd5d VexiiRiscvLitex_18be4f88125a407b2774e1bfc7239bdf.v
+sha256 b47ecbdf92a71f7061c7a067d0d203dd6fb249a4337c868f101a56444764ee44 VexiiRiscvLitex_5794804317abf38f1824a9df1548eb53.v
+sha256 1fde79b5d7e018d29ec745f001966ccf3aaa37b6d0a9545cddc0d2c91b83dbec VexiiRiscvLitex_99bc789b84f1739fffd107909b8ce672.v
+sha256 c9ce67a1b715fe06bb5d95f1482c5196048f01c6279c785a056b86361d4310b4 VexiiRiscvLitex_f8b2743639f353f9ded505dea4bbc545.v
+sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+sha256 2ba0e3397a286a5cf6dc61ee674d598113f1e2ad2fab1e306a9d6587ef2eb1ac VexiiRiscvLitex_7c73187a77da20f7d3d54867209ef638.v
+
+single-mask netlist (18be4f88...) fetch PMA term and its constants: rom one mask, sram three exact pieces
+12924:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = 32'hfffc8000;
+12925:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff0000);
+12926:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2 = 32'h10020000;
+12927:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 = (FetchL1Plugin_pmaBuilder_addressBits & 32'hffff8000);
+12928:  assign _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4 = 32'h10030000;
+16697:  assign FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = (! ((|{((FetchL1Plugin_pmaBuilder_addressBits & 32'hff000000) == 32'h01000000),{((FetchL1Plugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000),{((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault) == 32'h0),{(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2),(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4)}}}}) && (|FetchL1Plugin_pmaBuilder_onTransfers_0_hit)));

@@ -1,0 +1,9 @@
+PROBE guard litex-order: refused=False named_lists=1 generator_list_exact=True generator_list_is_pieces=True
+PROBE guard class-call: refused=True named_lists=1 generator_list_exact=False generator_list_is_pieces=False refusal="the split CPU named its netlist without its exact region pieces: LiteX's VexiiRiscv no longer names it through generate_netlist_name (#791)"
+PROBE guard inline-name: refused=True named_lists=0 generator_list_exact=False generator_list_is_pieces=False refusal="the split CPU named its netlist without its exact region pieces: LiteX's VexiiRiscv no longer names it through generate_netlist_name (#791)"
+PROBE guard name-then-collect: refused=False named_lists=1 generator_list_exact=False generator_list_is_pieces=False
+PROBE guard name-twice: refused=False named_lists=2 generator_list_exact=True generator_list_is_pieces=True
+PROBE CpuPatches cover / shipping split: refused=False named=1 recorded_soc_regions_whole=True
+PROBE CpuPatches cover / split removed: refused=True named=0 recorded_soc_regions_whole=True refusal="the split SoC hands the CPU generator a region it decodes inexactly (#791): [(0, 229376, '..."
+PROBE CpuPatches cover / cover list: refused=False named=1 recorded_soc_regions_whole=True
+PROBE CpuPatches as-built / as-built control: refused=False named=1 recorded_soc_regions_whole=True
