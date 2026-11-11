@@ -1385,9 +1385,12 @@ static bool addressed(const Bytes &f,const Recipient &r)
 TEST_F(Core, ANoticeIsAddressedToEachRecipientAlone)
 {
     auto expected=recipients();
-    // the one that asks registers between the others, so the walk passes over it
-    std::vector<Recipient> order{expected[0],{CTLR,CMAC,0,0}};order.insert(order.end(),expected.begin()+1,expected.end());
+    // the one that asks registers between the others, and one more that then leaves, so the walk passes over the
+    // asker and over a freed slot (its registration's words still in place)
+    std::vector<Recipient> order{expected[0],{CTLR+9,CMAC+9,0,0},{CTLR,CMAC,0,0}};
+    order.insert(order.end(),expected.begin()+1,expected.end());
     for(auto &r:order){auto b=command(36,{},r.id,r.interface);put(b,6,r.mac,6);aecp_rx(&a,r.interface,b.data(),b.size());drain();}
+    ask(37,{},0,CTLR+9);
     Bytes unlock(16);put(unlock,0,1,4);
     for(const Bytes &body:{Bytes(16),unlock}){
         ask(1,body);

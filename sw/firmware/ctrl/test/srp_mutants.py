@@ -248,7 +248,7 @@ DEFECTS = (
     Defect(
         name='sink-da-ignored',
         test='WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt',
-        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        old='same(sink->dest_mac,v->dest_mac,6) &&',
         new='true &&',
         needle='declared',
         path='srp/srp_mbx.c',
@@ -421,7 +421,7 @@ DEFECTS = (
     Defect(
         name='walk-match-da-ignored',
         test='SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal',
-        old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
+        old='same(sink->dest_mac,v->dest_mac,6) &&',
         new='true &&',
         needle='declared',
         suite='srp_walk.cpp',
