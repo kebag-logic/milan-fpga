@@ -1,0 +1,14 @@
+++ python3 -B protocol-processor/hdl/aecp/ucode/gen_ucode.py -o <packet>/scratch/roms/ucode.hex
+<packet>/scratch/roms/ucode.hex: 2048 words, 95 programs
+++ python3 -B protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o <packet>/scratch/roms/ltn_rom.hex
+wrote <packet>/scratch/roms/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+++ python3 -B gptp-processor/hdl/ucode/gen_gptp_ucode.py -o <packet>/scratch/roms/gptp_ucode.hex
+<packet>/scratch/roms/gptp_ucode.hex: 1024 words, 1015 real (99.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@975 BECGATE@941 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@988 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@999 NOTEN@1009
+rc=0
+264fbb03c52d5377862e264a376f68cbfe0c87794ac1b89cd683c22b6e76f29a  ucode.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  ltn_rom.hex
+e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357  gptp_ucode.hex
+1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp_ucode.hex	e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+801ef2283ec793e35a2590fc6593c90313a64041	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+801ef2283ec793e35a2590fc6593c90313a64041	ucode.hex	264fbb03c52d5377862e264a376f68cbfe0c87794ac1b89cd683c22b6e76f29a

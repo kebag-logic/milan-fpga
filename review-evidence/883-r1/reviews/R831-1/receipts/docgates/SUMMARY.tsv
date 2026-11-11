@@ -1,0 +1,12 @@
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_submodule_docs.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_gptp_docs.py --with-submodule
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_diagram_pngs.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/docs_inventory.py --check
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base 46c971fa
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/check_py_idiom.py
+0	<tools>/md-venv-40cdefe08ebd/bin/python scripts/pp_srcs.py --check
+0	git diff --check 46c971fa HEAD
