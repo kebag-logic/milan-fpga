@@ -302,6 +302,7 @@ import collections
 import contextlib
 import copy
 import gzip
+import hashlib
 import io
 import json
 import os
@@ -23598,6 +23599,185 @@ def test_datapath_params_gate_bites() -> None:
           f"not state, and the split placement's CTRL_SPLIT_P dropped")
 
 
+#  gate 23p (#665 S9, decision D2) - THE IMAGE IDENTITY GATE, ON REAL IMAGES.
+#
+#  sw/litex/check_image_identity.py grades a milan_soc.py output directory:
+#  the split image's manifest, ident, firmware hash, bitstream and placement
+#  must agree with what the image holds, and an all-fabric image must carry
+#  no mailbox. Every image here is a real export of the shipping 1x1 config,
+#  split (its synthetic firmware is gate 23m's) and all-fabric, through
+#  milan_soc.main() in test_ctrl_memory.py's export child, which applies one
+#  edit to one milan_soc.py definition. Both good images must pass, and so
+#  must a copy of the split one whose manifest binds the bitstream its
+#  gateware holds, as a split --build writes it. Each planted image must
+#  fail the gate with its kind, from the CLI, and a split plant also fails
+#  its own build, which runs the gate on what it wrote.
+
+import check_image_identity  # noqa: E402
+
+#: (label, kind, milan_soc.py definition, its text, the planted text, split): each makes the image
+#: the build writes disagree with its identity in one way.
+IDENTITY_SOC_PLANTS = (
+    ("the split ident names no placement", "ident", "soc_ident",
+     'return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident', "return ident", True),
+    ("the manifest records another VERSION", "manifest", "write_image_manifest",
+     "(major << 16) | minor,", "((major + 1) << 16) | minor,", True),
+    ("the manifest records another mailbox minor", "manifest", "write_image_manifest",
+     "(contract.major, contract.minor)", "(contract.major, contract.minor + 1)", True),
+    ("the split datapath built without CTRL_SPLIT_P", "placement", "add_milan_datapath",
+     'dp_params["p_CTRL_SPLIT_P"] = 1', 'dp_params["p_CTRL_SPLIT_P"] = 0', True),
+    ("a split image with DDR3 left in", "ddr3", "MilanSoC",
+     '            if with_dram:\n                raise ValueError("--ctrl-mailbox builds no DDR3',
+     '            with_dram = True\n            if False:\n'
+     '                raise ValueError("--ctrl-mailbox builds no DDR3',
+     True),
+    ("an all-fabric image with the mailbox", "placement", "MilanSoC",
+     "        if ctrl_mailbox:\n            add_ctrl_mailbox(self, platform, sys_clk_freq, "
+     'dp=getattr(self, "milan", None))', "        add_ctrl_mailbox(self, platform, sys_clk_freq)", False),
+)
+
+
+def _image_export(python, argv, out, mutation=None):
+    """One milan_soc.main() export into out, through test_ctrl_memory.py's child: (rc, its error and output)."""
+    spec, result = out.with_suffix(".spec.json"), out.with_suffix(".result.json")
+    spec.write_text(json.dumps({"argv": [*argv, "--output-dir", str(out), "--no-compile-software"],
+                                "result": str(result), "mutation": mutation}))
+    with out.with_suffix(".log").open("w") as log:
+        subprocess.run([python, str(SOC_DIR / "test_ctrl_memory.py"), "--soc-child", str(spec)], cwd=SOC_DIR,
+                       env=dict(os.environ, PYTHONHASHSEED="0"), stdout=log, stderr=subprocess.STDOUT, check=False)
+    row = json.loads(result.read_text()) if result.exists() else {"rc": None, "error": "no result"}
+    return row["rc"], (row.get("error") or row.get("refusal") or "") + "\n" + out.with_suffix(".log").read_text()
+
+
+def _gate_cli(python, image, *extra):
+    """The identity gate's CLI on one image: (exit status, its output)."""
+    run = subprocess.run([python, str(SOC_DIR / "check_image_identity.py"), str(image), *map(str, extra)],
+                         cwd=ROOT, capture_output=True, text=True)
+    return run.returncode, run.stdout + run.stderr
+
+
+def _poke_text(elf, out):
+    """A copy of elf with one byte of its first load segment changed: another firmware, still an image."""
+    data = bytearray(elf.read_bytes())
+    phoff = struct.unpack_from("<I", data, 0x1C)[0]
+    offset, filesz = struct.unpack_from("<I", data, phoff + 4)[0], struct.unpack_from("<I", data, phoff + 16)[0]
+    data[offset + filesz // 2] ^= 0xFF
+    out.write_bytes(bytes(data))
+    return out
+
+
+def _identity_file_plants(good, tmp):
+    """(label, kind, image, extra CLI arguments) for the plants made by editing copies of the good split image."""
+    out = []
+
+    def copy_of(label: str) -> Path:
+        """A copy of the good image, named for its plant."""
+        image = tmp / re.sub(r"\W+", "-", label)
+        shutil.copytree(good, image)
+        return image
+
+    record = json.loads((good / check_image_identity.MANIFEST).read_text())
+    elf = Path(record["ctrl_firmware"]["path"])
+    image = copy_of("the firmware relinked after the build")
+    out.append(("the firmware relinked after the build", "firmware", image,
+                ["--firmware", _poke_text(elf, tmp / "relinked.elf")]))
+    image = copy_of("the manifest forged to the relinked firmware")
+    forged = _poke_text(elf, tmp / "forged.elf")
+    doc = dict(record, ctrl_firmware=dict(record["ctrl_firmware"], path=str(forged),
+                                          sha256=hashlib.sha256(forged.read_bytes()).hexdigest()))
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(doc))
+    out.append(("the manifest forged to the relinked firmware", "firmware", image, []))
+    image = copy_of("the manifest removed from a split image")
+    (image / check_image_identity.MANIFEST).unlink()
+    out.append(("the manifest removed from a split image", "placement", image, []))
+    image = copy_of("a bitstream the manifest does not bind")
+    qspi_transition._fake_bit(image / "gateware/alinx_ax7101.bit", b"\xff" * 16 + b"\xaa\x99\x55\x66unbound")
+    out.append(("a bitstream the manifest does not bind", "bitstream", image, []))
+    image = copy_of("a bitstream other than the one the manifest binds")
+    bound, other = tmp / "bound.bit", image / "gateware/alinx_ax7101.bit"
+    qspi_transition._fake_bit(bound, b"\xff" * 16 + b"\xaa\x99\x55\x66bound")
+    qspi_transition._fake_bit(other, b"\xff" * 16 + b"\xaa\x99\x55\x66other")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(
+        dict(record, bitstream=qspi_transition.bitstream_binding(bound))))
+    out.append(("a bitstream other than the one the manifest binds", "bitstream", image, []))
+    image = copy_of("the manifest's placement renamed")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(dict(record, placement="all-fabric")))
+    out.append(("the manifest's placement renamed", "manifest", image, []))
+    # The manifest copied from another image: its ident is the all-fabric one, the image's stays split.
+    image = copy_of("the manifest's ident changed")
+    other = record["ident"].rsplit(" ", 1)[0]
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(dict(record, ident=other)))
+    out.append(("the manifest's ident changed", "manifest", image, []))
+    return out
+
+
+def _identity_file_controls(good, tmp):
+    """(label, image) for copies of the good split image the gate must pass: what a split --build writes."""
+    record = json.loads((good / check_image_identity.MANIFEST).read_text())
+    image = tmp / "a-bound-bitstream-the-image-holds"
+    shutil.copytree(good, image)
+    bit = image / "gateware/alinx_ax7101.bit"
+    qspi_transition._fake_bit(bit, b"\xff" * 16 + b"\xaa\x99\x55\x66built")
+    (image / check_image_identity.MANIFEST).write_text(json.dumps(
+        dict(record, bitstream=qspi_transition.bitstream_binding(bit))))
+    return [("a bound bitstream the image holds", image)]
+
+
+def test_image_identity_gate() -> None:
+    """gate 23p - the identity gate passes the two real images and fails every planted one by its kind."""
+    python = _litex_or_skip("gate 23p")
+    if python is None:
+        return
+    t0, bad = time.time(), []
+    with tempfile.TemporaryDirectory() as made:
+        tmp = Path(made)
+        _cfg, split_argv = _case_argv("ax7101_1x1_tdm8" + SPLIT_SUFFIX, tmp, python)
+        _cfg, fabric_argv = _config_argv("ax7101_1x1_tdm8")
+        good = {"split": tmp / "split", "all-fabric": tmp / "all-fabric"}
+        for placement, argv in (("split", split_argv), ("all-fabric", fabric_argv)):
+            rc, error = _image_export(python, argv, good[placement])
+            status, said = _gate_cli(python, good[placement])
+            if rc != 0 or status != 0:
+                bad.append(f"the good {placement} image: build rc {rc} {error}; gate {status}: {said.strip()}")
+        if (good["all-fabric"] / check_image_identity.MANIFEST).exists():
+            bad.append("the all-fabric build wrote a split image manifest")
+        rc, said = _image_export(python, [*split_argv, "--with-dram"], tmp / "with-dram")
+        if rc != 2 or "--ctrl-mailbox builds no DDR3" not in said:
+            bad.append(f"--ctrl-mailbox --with-dram was not refused by D4's words (rc {rc})")
+        assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+        plants = []
+        for label, kind, name, old, new, split in IDENTITY_SOC_PLANTS:
+            image = tmp / re.sub(r"\W+", "-", label)
+            rc, error = _image_export(python, split_argv if split else fabric_argv, image,
+                                      ["milan_soc", name, old, new])
+            if split and (rc != 1 or "identity gate refuses it" not in error or f"{kind}:" not in error):
+                bad.append(f"{label}: its build was not refused by the gate's {kind} rule (rc {rc}: {error})")
+            plants.append((label, kind, image, []))
+        plants += _identity_file_plants(good["split"], tmp)
+        controls = _identity_file_controls(good["split"], tmp)
+        for label, image in controls:
+            status, said = _gate_cli(python, image)
+            if status != 0 or "FINDING" in said:
+                bad.append(f"{label}: the gate refused an image that agrees with its identity "
+                           f"(exit {status}): {said.strip()}")
+            else:
+                print(f"    {label}: passes")
+        for label, kind, image, extra in plants:
+            status, said = _gate_cli(python, image, *extra)
+            if status != 1 or f"FINDING {kind}:" not in said:
+                bad.append(f"{label}: the gate did not find it by its {kind} rule (exit {status}): {said.strip()}")
+            else:
+                words = next(line for line in said.splitlines() if line.startswith(f"FINDING {kind}:"))
+                print(f"    {label}: {words}")
+        count = len(plants)
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+    print(f"  [gate 23p] the good split and all-fabric images and {len(controls)} bound-bitstream control pass "
+          f"the identity gate; {count} planted images "
+          f"each fail it by their kind ({', '.join(sorted(set(k for _l, k, *_r in IDENTITY_SOC_PLANTS)))} "
+          f"from the SoC; firmware, bitstream, placement and manifest from the image's files) in "
+          f"{time.time() - t0:.0f} s")
+
+
 #  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
 #
 #  Every tracked config is all-fabric: it states no CTRL_SPLIT_P and emits no
@@ -23656,6 +23836,102 @@ def test_control_placement_key() -> None:
     print(f"  [gate 23n] {len(cfgs)} configs all-fabric, each split variant differing in CTRL_SPLIT_P = 1 and "
           f"--ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key "
           f"naming the fabric firmware refused")
+
+
+#  gate 23o (#665 S9) - THE SPLIT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
+#
+#  `endstation_builder.py <cfg> --placement split` builds a shipped config at
+#  the split placement without editing it. Its loaded config must equal what
+#  the same file stating `control: {placement: split}` loads to (the loader is
+#  the oracle, not the recipe's own copy), every shape artifact it writes must
+#  be byte for byte the all-fabric build's, its soc_params.json must carry
+#  that loaded config's argv, and no tracked file may change: the shape
+#  include and the sweep fragment stay the all-fabric build's until the flip.
+
+#: The shape artifacts a placement must not touch, by build() path label.
+RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
+                          "platform_shape", "aem_rom_svh", "gptp_ucode")
+
+
+def _tracked_generated():
+    """{path: sha256} of every tracked file a builder run can write."""
+    names = subprocess.run(["git", "ls-files", eb.GEN_CONFIG_DIR, eb.CSR_DEFAULTS_REL, eb.ADP_SHAPE_REL],
+                           cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    return {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in names}
+
+
+def _recipe_findings(builder, name, path, tmp):
+    """Every way the split recipe of one config departs from gate 23o's contract."""
+    out, before = [], _tracked_generated()
+    doc = yaml.safe_load(path.read_text())
+    stated = Path(tmp) / "stated" / path.name
+    stated.parent.mkdir(parents=True, exist_ok=True)
+    stated.write_text(yaml.safe_dump(dict(doc, control={"placement": "split"})))
+    want = eb.load_config(str(stated))
+    got = builder.with_placement(eb.load_config(str(path)), "split")
+    drop = lambda c: {k: v for k, v in c.items() if k != "source"}  # noqa: E731
+    if drop(got) != drop(want):
+        keys = sorted(k for k in set(got) | set(want) if k != "source" and got.get(k) != want.get(k))
+        out.append(f"{name}: the recipe's config differs from the file stating the key in {keys}")
+    fabric = eb.build(str(path), str(Path(tmp) / "fabric"))
+    split = builder.build(str(path), str(Path(tmp) / "split"), placement="split")
+    for label in RECIPE_SHAPE_ARTIFACTS:
+        a, b = fabric["paths"].get(label), split["paths"].get(label)
+        if (a is None) != (b is None) or (a and Path(a).read_bytes() != Path(b).read_bytes()):
+            out.append(f"{name}: the recipe's {label} is not the all-fabric build's")
+    argv = json.loads(Path(split["paths"]["soc_params"]).read_text())["argv"]
+    if argv != eb.emit_soc_argv(want):
+        out.append(f"{name}: the recipe's soc_params.json argv is not the stated config's")
+    if _tracked_generated() != before:
+        out.append(f"{name}: the recipe changed a tracked file")
+    return out
+
+
+def test_placement_recipe() -> None:
+    """gate 23o - the split recipe: each config's own shape at control.placement: split, no tracked file written."""
+    bad = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, path in CONFIGS.items():
+            bad += _recipe_findings(eb, name, path, Path(tmp) / name)
+        assert not bad, "gate 23o:\n  " + "\n  ".join(bad)
+        path = CONFIGS["ax7101_1x1_tdm8"]
+        for kwargs in ({"write_rtl": True}, {"write_fragment": True}):
+            try:
+                eb.build(str(path), str(Path(tmp) / "own"), placement="split", **kwargs)
+            except eb.ConfigError as exc:
+                assert "the split recipe writes no tracked file" in str(exc), f"gate 23o: {kwargs} refused: {exc}"
+            else:
+                raise AssertionError(f"gate 23o: the split recipe took tracked ownership with {kwargs}")
+        try:
+            eb.with_placement(eb.load_config(str(path)), "both")
+        except eb.ConfigError as exc:
+            assert "placement recipe 'both' is not one of all-fabric, split" in str(exc), exc
+        else:
+            raise AssertionError("gate 23o: the recipe accepted the placement 'both'")
+        # negative controls: a recipe that also changes another key, and one that leaves the key unset
+        plants = {"the recipe also changes the UART baud rate": lambda cfg, p, real=eb.with_placement: {
+                      **real(cfg, p), "constraints": dict(cfg["constraints"], uart_baudrate=9600)},
+                  "the recipe leaves the placement all-fabric": lambda cfg, p: cfg}
+        for why, recipe in plants.items():
+            planted = types.SimpleNamespace(with_placement=recipe,
+                                            build=lambda *a, recipe=recipe, **k: _planted_build(recipe, *a, **k))
+            found = _recipe_findings(planted, "ax7101_1x1_tdm8", path, Path(tmp) / why.replace(" ", "-"))
+            assert any("differs from the file stating the key" in f for f in found), (
+                f"gate 23o accepted a recipe in which {why}: {found}")
+    print(f"  [gate 23o] {len(CONFIGS)} configs: the split recipe loads to the config stating "
+          f"control.placement: split, writes the all-fabric build's {len(RECIPE_SHAPE_ARTIFACTS)} shape "
+          f"artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, "
+          f"--write-fragment and an unknown placement refused by name; 2 planted recipes refused")
+
+
+def _planted_build(recipe, config_path, outdir=None, **kwargs):
+    """build() with the derivation's recipe replaced by a planted one: gate 23o's negative controls."""
+    real = eb.with_placement
+    eb.with_placement = recipe
+    try:
+        return eb.build(config_path, outdir, **kwargs)
+    finally:
+        eb.with_placement = real
 
 
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
@@ -29419,7 +29695,7 @@ if __name__ == "__main__":
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
-               test_control_placement_key,
+               test_control_placement_key, test_placement_recipe,
                test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -29452,7 +29728,7 @@ if __name__ == "__main__":
                test_clock_plan_reaches_the_instance,
                test_clock_plan_instance_gate_bites,
                test_datapath_params_match_the_instance,
-               test_datapath_params_gate_bites,
+               test_datapath_params_gate_bites, test_image_identity_gate,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,

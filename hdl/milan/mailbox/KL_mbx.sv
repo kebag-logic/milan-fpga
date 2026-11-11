@@ -15,11 +15,15 @@
 //                Reachable only behind the SoC's default-off mailbox
 //                switch; the default build never elaborates it.
 //
-//                The one decision that matters: the host port answers
-//                every request exactly one cycle later, so a bus adapter
-//                (KL_mbx_wb, KL_mbx_axil) holds one request in flight and
-//                adds nothing to the contract. A write without all four
-//                byte strobes is refused and counted in BUS_ERR.
+//                The one decision that matters: the host port answers a
+//                write, and a read of a receive ring or the event ring, one
+//                cycle after the request, and a read of any register two:
+//                the read multiplexer decodes a registered copy of the
+//                offset, never the bus (#870, a timing cut; Wishbone B4
+//                lets ACK come any cycle later). A bus adapter (KL_mbx_wb,
+//                KL_mbx_axil) holds one request in flight until its
+//                answer and adds nothing to the contract. A write without
+//                all four byte strobes is refused and counted in BUS_ERR.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -30,12 +34,12 @@ module KL_mbx
   input  wire                          clk_i,          //! the mailbox clock: host port and fabric side
   input  wire                          rst_n,          //! synchronous active-low reset
 
-  input  wire                          host_req_i,     //! a host access this cycle
+  input  wire                          host_req_i,     //! a host access this cycle, none until its answer
   input  wire                          host_we_i,      //! the access is a write
-  input  wire  [MBX_ADDR_W_C-1:0]      host_addr_i,    //! word address inside the window
+  input  wire  [MBX_ADDR_W_C-1:0]      host_addr_i,    //! word address inside the window, read with host_req_i only
   input  wire  [31:0]                  host_wdata_i,   //! write data
   input  wire  [3:0]                   host_be_i,      //! byte strobes; a write without all four is refused
-  output logic                         host_ack_o,     //! the access completes, one cycle after host_req_i
+  output logic                         host_ack_o,     //! the access completes: 1 cycle after host_req_i, 2 for a register read
   output logic [31:0]                  host_rdata_o,   //! read data, valid with host_ack_o
   output logic                         irq_o,          //! the interrupt: OR of IRQ_STATUS AND IRQ_ENABLE
 
@@ -175,6 +179,16 @@ module KL_mbx
   assign rd_w      = host_req_i && !host_we_i;
   assign refused_w = host_req_i && host_we_i && (host_be_i != 4'hF);
 
+  // ---- the register read: decoded a cycle after its request ------------------------
+  // A timing cut (#870): the read multiplexer and the bound-talker read-back
+  // decode a registered copy of the read's offset, never the bus, so a read of
+  // a register is answered two cycles after its request; a ring read and a
+  // write keep one.
+  logic             rd_q_r;     //! a register read was requested last cycle: the read multiplexer answers it
+  logic [AW2_C-1:0] rd_off_r;   //! that read's byte offset, registered at its request
+  logic [AW2_C-1:0] rd_off_w;   //! the offset the read multiplexer decodes: rd_off_r, never the bus
+  assign rd_off_w = rd_off_r;
+
   // ---- what the leaves drive ------------------------------------------------------
   logic [MBX_N_CH_C*16-1:0] rx_head_w;
   logic [MBX_N_CH_C*16-1:0] rx_drop_w;
@@ -202,9 +216,9 @@ module KL_mbx
   logic                     evt_pending_w;
   logic [15:0]              filter_mismatch_w;
   logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination
-  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word an access names, as KL_mbx_rx stores it
+  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word last cycle's read names, as stored
   logic                     bnd_eid_vld_w;  //! that word was written since the reset (else it reads 0)
-  logic                     bnd_en_w;       //! the BOUND_EN of the entry an access names
+  logic                     bnd_en_w;       //! the BOUND_EN of the entry last cycle's read names
 
   // ---- the bound-talker tables: decoded here, held by KL_mbx_rx -------------------
   // The strides are powers of two, so an offset's interface and entry are
@@ -304,6 +318,95 @@ module KL_mbx
                       || (face_area_w == 2'd1 && entry < AW2_C'(MBX_N_PUB_SOURCES_C) && (face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C)))
                       || (face_area_w == 2'd2 && entry < AW2_C'(MBX_N_PUB_SINKS_C) && (face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C) || face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C) || face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C))));
   end : face_decode
+
+  // ---- the bound-talker register the registered read offset names ----------------
+  logic                  rd_bnd_at_w;      //! the registered read offset names a bound-talker register
+  logic [MBX_IF_W_C-1:0] rd_bnd_if_w;      //! its interface
+  logic [4:0]            rd_bnd_entry_w;   //! its entry (bound_talkers is at most 32)
+  logic [1:0]            rd_bnd_reg_w;     //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN
+  always_comb begin : rd_bound_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_entry;
+    logic [AW2_C-1:0] entry;
+    rel         = rd_off_w - AW2_C'(MBX_BND_BASE_C);
+    in_entry    = rel & AW2_C'(MBX_BND_ENTRY_STRIDE_C - 1);
+    entry       = (rel & AW2_C'(MBX_BND_STRIDE_C - 1)) >> $clog2(MBX_BND_ENTRY_STRIDE_C);
+    rd_bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));
+    rd_bnd_entry_w = 5'(entry);
+    rd_bnd_reg_w   = '0;
+    if (in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_HI_C)) rd_bnd_reg_w = 2'd1;
+    if (in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C)) rd_bnd_reg_w = 2'd2;
+    rd_bnd_at_w    = rd_off_w >= AW2_C'(MBX_BND_BASE_C)
+                  && (rel >> $clog2(MBX_BND_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                  && entry < AW2_C'(MBX_N_BOUND_C)
+                  && (in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_LO_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_HI_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C));
+  end : rd_bound_decode
+
+  // ---- the publication register the registered read offset names -----------------
+  logic                  rd_pub_at_w;     //! the registered read offset names a publication register
+  logic                  rd_pub_src_w;    //! a source entry's register
+  logic                  rd_pub_sink_w;   //! a sink entry's register; neither: an interface register
+  logic [MBX_IF_W_C-1:0] rd_pub_if_w;     //! its interface
+  logic [PUB_SW_C-1:0]   rd_pub_s_w;      //! its source entry
+  logic [PUB_KW_C-1:0]   rd_pub_k_w;      //! its sink entry
+  logic [AW2_C-1:0]      rd_pub_reg_w;    //! its offset inside the interface block or the entry
+  always_comb begin : rd_pub_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_if;
+    logic [AW2_C-1:0] in_srcs;
+    logic [AW2_C-1:0] in_sinks;
+    logic [AW2_C-1:0] src_entry;
+    logic [AW2_C-1:0] entry;
+    rel        = rd_off_w - AW2_C'(MBX_PUB_BASE_C);
+    in_if      = rel & AW2_C'(MBX_PUB_STRIDE_C - 1);
+    in_srcs    = in_if - AW2_C'(MBX_PUB_SRC_BASE_C);
+    in_sinks   = in_if - AW2_C'(MBX_PUB_SINK_BASE_C);
+    src_entry  = in_srcs >> $clog2(MBX_PUB_SRC_STRIDE_C);
+    entry      = in_sinks >> $clog2(MBX_PUB_SINK_STRIDE_C);
+    rd_pub_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_PUB_STRIDE_C));
+    rd_pub_sink_w = in_if >= AW2_C'(MBX_PUB_SINK_BASE_C);
+    rd_pub_src_w  = !rd_pub_sink_w && in_if >= AW2_C'(MBX_PUB_SRC_BASE_C);
+    rd_pub_s_w    = PUB_SW_C'(src_entry);
+    rd_pub_k_w    = PUB_KW_C'(entry);
+    rd_pub_reg_w  = rd_pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1))
+               : rd_pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;
+    rd_pub_at_w   = rd_off_w >= AW2_C'(MBX_PUB_BASE_C)
+                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                 && (rd_pub_sink_w ? (entry < AW2_C'(MBX_N_PUB_SINKS_C) && (rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)))
+                   : rd_pub_src_w ? (src_entry < AW2_C'(MBX_N_PUB_SOURCES_C) && (rd_pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_LO_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_HI_C)))
+                   : (rd_pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C) || rd_pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)));
+  end : rd_pub_decode
+
+  // ---- the face register the registered read offset names -------------------------
+  logic                  rd_face_at_w;     //! the registered read offset names a face register
+  logic [1:0]            rd_face_area_w;   //! 0 the interface's registers, 1 a source entry, 2 a sink entry
+  logic [MBX_IF_W_C-1:0] rd_face_if_w;     //! its interface
+  logic [FACE_SW_C-1:0]  rd_face_s_w;      //! its source entry
+  logic [FACE_KW_C-1:0]  rd_face_k_w;      //! its sink entry
+  logic [AW2_C-1:0]      rd_face_reg_w;    //! its offset inside the interface's registers or the entry
+  always_comb begin : rd_face_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_if;
+    logic [AW2_C-1:0] entry;
+    rel         = rd_off_w - AW2_C'(MBX_FACE_BASE_C);
+    in_if       = rel & AW2_C'(MBX_FACE_STRIDE_C - 1);
+    rd_face_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_FACE_STRIDE_C));
+    rd_face_area_w = (in_if >= AW2_C'(MBX_FACE_SINK_BASE_C)) ? 2'd2
+                : (in_if >= AW2_C'(MBX_FACE_SOURCE_BASE_C)) ? 2'd1 : 2'd0;
+    entry       = (rd_face_area_w == 2'd2)
+                  ? ((in_if - AW2_C'(MBX_FACE_SINK_BASE_C)) >> $clog2(MBX_FACE_SINK_STRIDE_C))
+                  : ((in_if - AW2_C'(MBX_FACE_SOURCE_BASE_C)) >> $clog2(MBX_FACE_SOURCE_STRIDE_C));
+    rd_face_s_w    = FACE_SW_C'(entry);
+    rd_face_k_w    = FACE_KW_C'(entry);
+    rd_face_reg_w  = (rd_face_area_w == 2'd2) ? ((in_if - AW2_C'(MBX_FACE_SINK_BASE_C)) & AW2_C'(MBX_FACE_SINK_STRIDE_C - 1))
+                : (rd_face_area_w == 2'd1) ? ((in_if - AW2_C'(MBX_FACE_SOURCE_BASE_C)) & AW2_C'(MBX_FACE_SOURCE_STRIDE_C - 1))
+                : in_if;
+    rd_face_at_w   = rd_off_w >= AW2_C'(MBX_FACE_BASE_C)
+                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                  && ((rd_face_area_w == 2'd0 && (rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_COMMIT_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_STATUS_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_CMD_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_STATUS_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_DATA_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_CMD_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_STATUS_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_CMD_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_STATUS_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_CMD_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_STATUS_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_HI_C)))
+                      || (rd_face_area_w == 2'd1 && entry < AW2_C'(MBX_N_PUB_SOURCES_C) && (rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C) || rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C)))
+                      || (rd_face_area_w == 2'd2 && entry < AW2_C'(MBX_N_PUB_SINKS_C) && (rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C) || rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C) || rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C))));
+  end : rd_face_decode
 
   // ---- the face block's storage: the firmware writes it, the datapath reads it ---------
   logic [0:0] face_f_ctrl_r [MBX_N_IF_C];   //! F_CTRL per interface
@@ -793,7 +896,8 @@ module KL_mbx
         err_r <= 1'b0;
       if ((refused_w || tmr_bad_p_w || face_refused_w) && bus_err_r != 16'hFFFF) bus_err_r <= bus_err_r + 16'd1;
       for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
-        if (rd_w && off_w == AW2_C'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin
+        // taken the cycle the read multiplexer samples GM_LO, so the two halves are one identity
+        if (rd_q_r && rd_off_w == AW2_C'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin
           gm_hi_snap_r[i]  <= gm_id_i[64*i + 32 +: 32];
           domain_snap_r[i] <= gptp_domain_i[8*i +: 8];
         end
@@ -880,93 +984,246 @@ module KL_mbx
     end
   end : pub_out
 
-  logic [31:0] reg_rdata_w;   //! the register a read addresses, 0 when none
+  // ---- the register read multiplexer: an AND-OR of one-hot selects ---------------
+  // Term k answers its word while rd_hit_w[k] is set. The address map is
+  // disjoint, which the generator proves term by term (no offset selects two
+  // terms), so at most one select is set and the OR of the selected words is
+  // the multiplexer, with no priority chain (#870, a timing cut). It decodes
+  // the registered read offset, so no path runs from the bus to reg_rdata_r;
+  // the bound-talker words are KL_mbx_rx's read-back of the read it
+  // registered at the same request.
+  localparam int unsigned RD_TERMS_C = 114;   //! the read multiplexer's terms
+  logic [RD_TERMS_C-1:0] rd_hit_w;      //! term k's select: one-hot, none for a hole
+  logic [31:0]           reg_rdata_w;   //! the register the registered read offset names, 0 when none
   always_comb begin : reg_read
-    reg_rdata_w = '0;
-    if (off_w == AW2_C'(MBX_REG_ID_C)) reg_rdata_w = mbx_place_f(32'(MBX_VERSION_MINOR_C), MBX_ID_MINOR_LSB_C, MBX_ID_MINOR_WIDTH_C) | mbx_place_f(32'(MBX_VERSION_MAJOR_C), MBX_ID_MAJOR_LSB_C, MBX_ID_MAJOR_WIDTH_C) | mbx_place_f(32'(MBX_MAGIC_C), MBX_ID_MAGIC_LSB_C, MBX_ID_MAGIC_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_CAPS_C)) reg_rdata_w = mbx_place_f(32'(MBX_N_CH_C), MBX_CAPS_N_CH_LSB_C, MBX_CAPS_N_CH_WIDTH_C) | mbx_place_f(32'(MBX_N_IF_C), MBX_CAPS_N_IF_LSB_C, MBX_CAPS_N_IF_WIDTH_C) | mbx_place_f(32'(MBX_N_TIMERS_C), MBX_CAPS_N_TIMERS_LSB_C, MBX_CAPS_N_TIMERS_WIDTH_C) | mbx_place_f(32'($clog2(MBX_EVT_WORDS_C)), MBX_CAPS_EVT_WORDS_LOG2_LSB_C, MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_IRQ_STATUS_C)) reg_rdata_w = mbx_place_f(32'(rx_pending_w), MBX_IRQ_STATUS_RX_LSB_C, MBX_IRQ_STATUS_RX_WIDTH_C) | mbx_place_f(32'(evt_pending_w), MBX_IRQ_STATUS_EVT_LSB_C, MBX_IRQ_STATUS_EVT_WIDTH_C) | mbx_place_f(32'(err_r), MBX_IRQ_STATUS_ERR_LSB_C, MBX_IRQ_STATUS_ERR_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_IRQ_ENABLE_C)) reg_rdata_w = irq_enable_r;
-    if (off_w == AW2_C'(MBX_REG_NOW_MS_C)) reg_rdata_w = mbx_place_f(32'(now_ms_r), MBX_NOW_MS_MS_LSB_C, MBX_NOW_MS_MS_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_LINK_C)) reg_rdata_w = mbx_place_f(32'(link_up_i), MBX_LINK_UP_LSB_C, MBX_LINK_UP_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_TICK_CTL_C)) reg_rdata_w = tick_ctl_r;
-    if (off_w == AW2_C'(MBX_REG_OWN_EID_LO_C)) reg_rdata_w = own_eid_lo_r;
-    if (off_w == AW2_C'(MBX_REG_OWN_EID_HI_C)) reg_rdata_w = own_eid_hi_r;
-    if (off_w == AW2_C'(MBX_REG_FILTER_EN_C)) reg_rdata_w = filter_en_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_LO_C)) reg_rdata_w = maap_base_lo_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_BASE_HI_C)) reg_rdata_w = maap_base_hi_r;
-    if (off_w == AW2_C'(MBX_REG_MAAP_COUNT_C)) reg_rdata_w = maap_count_r;
-    if (off_w == AW2_C'(MBX_REG_TMR_DEADLINE_C)) reg_rdata_w = tmr_deadline_r;
-    if (off_w == AW2_C'(MBX_REG_EVT_HEAD_C)) reg_rdata_w = mbx_place_f(32'(evt_head_w), MBX_EVT_HEAD_WORDS_LSB_C, MBX_EVT_HEAD_WORDS_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_EVT_TAIL_C)) reg_rdata_w = evt_tail_r;
-    if (off_w == AW2_C'(MBX_REG_BUS_ERR_C)) reg_rdata_w = mbx_place_f(32'(bus_err_r), MBX_BUS_ERR_COUNT_LSB_C, MBX_BUS_ERR_COUNT_WIDTH_C);
-    if (off_w == AW2_C'(MBX_REG_FILTER_MISMATCH_C)) reg_rdata_w = mbx_place_f(32'(filter_mismatch_w), MBX_FILTER_MISMATCH_COUNT_LSB_C, MBX_FILTER_MISMATCH_COUNT_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) reg_rdata_w = mbx_place_f(32'(gm_id_i[64*0 +: 32]), MBX_GM_LO_ID_LSB_C, MBX_GM_LO_ID_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_HI_C)) reg_rdata_w = mbx_place_f(32'(gm_hi_snap_r[0]), MBX_GM_HI_ID_LSB_C, MBX_GM_HI_ID_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C)) reg_rdata_w = mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C);
-    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C)) reg_rdata_w = 32'(own_mac_lo_r[0]);
-    if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
-    if (bnd_at_w && bnd_reg_w == 2'd2) reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);
-    if (bnd_at_w && bnd_reg_w != 2'd2 && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;
-    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C)) reg_rdata_w = 32'(pub_da_gate_r[pub_if_w]);
-    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C)) reg_rdata_w = 32'(pub_licence_r[pub_if_w]);
-    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C)) reg_rdata_w = 32'(pub_idle_slope_r[pub_if_w]);
-    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C)) reg_rdata_w = 32'(pub_sr_domain_r[pub_if_w]);
-    if (pub_at_w && !pub_src_w && !pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)) reg_rdata_w = 32'(pub_talker_decl_r[pub_if_w]);
-    if (pub_at_w && pub_src_w && pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_LO_C)) reg_rdata_w = 32'(pub_src_sid_lo_r[pub_if_w][pub_s_w]);
-    if (pub_at_w && pub_src_w && pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_HI_C)) reg_rdata_w = 32'(pub_src_sid_hi_r[pub_if_w][pub_s_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
-    if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C)) reg_rdata_w = 32'(face_f_ctrl_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C)) reg_rdata_w = 32'(face_f_entity_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C)) reg_rdata_w = 32'(face_f_clock_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C)) reg_rdata_w = 32'(face_f_aecp_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C)) reg_rdata_w = 32'(face_f_restore_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C)) reg_rdata_w = 32'(face_f_nvm_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_STATUS_C)) reg_rdata_w = mbx_place_f(32'(fw_busy_r[face_if_w]), MBX_F_STATUS_BUSY_LSB_C, MBX_F_STATUS_BUSY_WIDTH_C);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C)) reg_rdata_w = 32'(face_ctr_req_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C)) reg_rdata_w = 32'(face_ctr_word_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_STATUS_C)) reg_rdata_w = mbx_place_f(32'(ctr_busy_r[face_if_w]), MBX_CTR_STATUS_BUSY_LSB_C, MBX_CTR_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(ctr_done_r[face_if_w]), MBX_CTR_STATUS_DONE_LSB_C, MBX_CTR_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(ctr_tmo_r[face_if_w]), MBX_CTR_STATUS_TIMEOUT_LSB_C, MBX_CTR_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(ctr_tag_r[face_if_w]), MBX_CTR_STATUS_TAG_LSB_C, MBX_CTR_STATUS_TAG_WIDTH_C);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_DATA_C)) reg_rdata_w = ctr_data_r[face_if_w][32*0 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C)) reg_rdata_w = 32'(face_amap_req_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C)) reg_rdata_w = 32'(face_amap_page_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_STATUS_C)) reg_rdata_w = mbx_place_f(32'(amap_busy_r[face_if_w]), MBX_AMAP_STATUS_BUSY_LSB_C, MBX_AMAP_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(amap_done_r[face_if_w]), MBX_AMAP_STATUS_DONE_LSB_C, MBX_AMAP_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(amap_tmo_r[face_if_w]), MBX_AMAP_STATUS_TIMEOUT_LSB_C, MBX_AMAP_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(amap_tag_r[face_if_w]), MBX_AMAP_STATUS_TAG_LSB_C, MBX_AMAP_STATUS_TAG_WIDTH_C);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_LO_C)) reg_rdata_w = amap_data_r[face_if_w][32*0 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_HI_C)) reg_rdata_w = amap_data_r[face_if_w][32*1 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C)) reg_rdata_w = 32'(face_edit_req_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C)) reg_rdata_w = 32'(face_edit_beat_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C)) reg_rdata_w = 32'(face_edit_record_lo_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C)) reg_rdata_w = 32'(face_edit_record_hi_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C)) reg_rdata_w = 32'(face_edit_value_lo_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C)) reg_rdata_w = 32'(face_edit_value_hi_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_STATUS_C)) reg_rdata_w = mbx_place_f(32'(edit_busy_r[face_if_w]), MBX_EDIT_STATUS_BUSY_LSB_C, MBX_EDIT_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(edit_done_r[face_if_w]), MBX_EDIT_STATUS_DONE_LSB_C, MBX_EDIT_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(edit_tmo_r[face_if_w]), MBX_EDIT_STATUS_TIMEOUT_LSB_C, MBX_EDIT_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(edit_tag_r[face_if_w]), MBX_EDIT_STATUS_TAG_LSB_C, MBX_EDIT_STATUS_TAG_WIDTH_C);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_LO_C)) reg_rdata_w = edit_data_r[face_if_w][32*0 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_HI_C)) reg_rdata_w = edit_data_r[face_if_w][32*1 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C)) reg_rdata_w = 32'(face_gsi_req_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C)) reg_rdata_w = 32'(face_gsi_sel_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C)) reg_rdata_w = 32'(face_gsi_prop_lo_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C)) reg_rdata_w = 32'(face_gsi_prop_hi_r[face_if_w]);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_STATUS_C)) reg_rdata_w = mbx_place_f(32'(gsi_busy_r[face_if_w]), MBX_GSI_STATUS_BUSY_LSB_C, MBX_GSI_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(gsi_done_r[face_if_w]), MBX_GSI_STATUS_DONE_LSB_C, MBX_GSI_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(gsi_tmo_r[face_if_w]), MBX_GSI_STATUS_TIMEOUT_LSB_C, MBX_GSI_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(gsi_tag_r[face_if_w]), MBX_GSI_STATUS_TAG_LSB_C, MBX_GSI_STATUS_TAG_WIDTH_C);
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_LO_C)) reg_rdata_w = gsi_data_r[face_if_w][32*0 +: 32];
-    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_HI_C)) reg_rdata_w = gsi_data_r[face_if_w][32*1 +: 32];
-    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C)) reg_rdata_w = 32'(face_f_pt_offset_r[face_if_w][face_s_w]);
-    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C)) reg_rdata_w = 32'(face_f_fmt_out_lo_r[face_if_w][face_s_w]);
-    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C)) reg_rdata_w = 32'(face_f_fmt_out_hi_r[face_if_w][face_s_w]);
-    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C)) reg_rdata_w = 32'(face_f_src_valid_r[face_if_w][face_s_w]);
-    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C)) reg_rdata_w = 32'(face_f_fmt_in_lo_r[face_if_w][face_k_w]);
-    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C)) reg_rdata_w = 32'(face_f_fmt_in_hi_r[face_if_w][face_k_w]);
-    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C)) reg_rdata_w = 32'(face_f_snk_valid_r[face_if_w][face_k_w]);
-    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(tx_head_r[c]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(tx_tail_w[16*c +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C)) reg_rdata_w = mbx_place_f(32'(rx_drop_w[16*c +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C)) reg_rdata_w = mbx_place_f(32'(rate_drop_w[16*c +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C)) reg_rdata_w = mbx_place_f(32'(tx_err_w[16*c +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C);
-      if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C)) reg_rdata_w = mbx_place_f(32'(rx_pass_w[16*c +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C);
-    end
+    rd_hit_w[0] = rd_off_w == AW2_C'(MBX_REG_ID_C);   // ID
+    rd_hit_w[1] = rd_off_w == AW2_C'(MBX_REG_CAPS_C);   // CAPS
+    rd_hit_w[2] = rd_off_w == AW2_C'(MBX_REG_IRQ_STATUS_C);   // IRQ_STATUS
+    rd_hit_w[3] = rd_off_w == AW2_C'(MBX_REG_IRQ_ENABLE_C);   // IRQ_ENABLE
+    rd_hit_w[4] = rd_off_w == AW2_C'(MBX_REG_NOW_MS_C);   // NOW_MS
+    rd_hit_w[5] = rd_off_w == AW2_C'(MBX_REG_LINK_C);   // LINK
+    rd_hit_w[6] = rd_off_w == AW2_C'(MBX_REG_TICK_CTL_C);   // TICK_CTL
+    rd_hit_w[7] = rd_off_w == AW2_C'(MBX_REG_OWN_EID_LO_C);   // OWN_EID_LO
+    rd_hit_w[8] = rd_off_w == AW2_C'(MBX_REG_OWN_EID_HI_C);   // OWN_EID_HI
+    rd_hit_w[9] = rd_off_w == AW2_C'(MBX_REG_FILTER_EN_C);   // FILTER_EN
+    rd_hit_w[10] = rd_off_w == AW2_C'(MBX_REG_MAAP_BASE_LO_C);   // MAAP_BASE_LO
+    rd_hit_w[11] = rd_off_w == AW2_C'(MBX_REG_MAAP_BASE_HI_C);   // MAAP_BASE_HI
+    rd_hit_w[12] = rd_off_w == AW2_C'(MBX_REG_MAAP_COUNT_C);   // MAAP_COUNT
+    rd_hit_w[13] = rd_off_w == AW2_C'(MBX_REG_TMR_DEADLINE_C);   // TMR_DEADLINE
+    rd_hit_w[14] = rd_off_w == AW2_C'(MBX_REG_EVT_HEAD_C);   // EVT_HEAD
+    rd_hit_w[15] = rd_off_w == AW2_C'(MBX_REG_EVT_TAIL_C);   // EVT_TAIL
+    rd_hit_w[16] = rd_off_w == AW2_C'(MBX_REG_BUS_ERR_C);   // BUS_ERR
+    rd_hit_w[17] = rd_off_w == AW2_C'(MBX_REG_FILTER_MISMATCH_C);   // FILTER_MISMATCH
+    rd_hit_w[18] = rd_off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C);   // GM_LO of interface 0
+    rd_hit_w[19] = rd_off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_GM_HI_C);   // GM_HI of interface 0
+    rd_hit_w[20] = rd_off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C);   // DOMAIN of interface 0
+    rd_hit_w[21] = rd_off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C);   // OWN_MAC_LO of interface 0
+    rd_hit_w[22] = rd_off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C);   // OWN_MAC_HI of interface 0
+    rd_hit_w[23] = rd_bnd_at_w && rd_bnd_reg_w == 2'd2;   // BOUND_EN
+    rd_hit_w[24] = rd_bnd_at_w && rd_bnd_reg_w != 2'd2 && bnd_eid_vld_w;   // BOUND_EID_LO/BOUND_EID_HI
+    rd_hit_w[25] = rd_pub_at_w && !rd_pub_src_w && !rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C);   // DA_GATE
+    rd_hit_w[26] = rd_pub_at_w && !rd_pub_src_w && !rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C);   // LICENCE
+    rd_hit_w[27] = rd_pub_at_w && !rd_pub_src_w && !rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C);   // IDLE_SLOPE
+    rd_hit_w[28] = rd_pub_at_w && !rd_pub_src_w && !rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C);   // SR_DOMAIN
+    rd_hit_w[29] = rd_pub_at_w && !rd_pub_src_w && !rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C);   // TALKER_DECL
+    rd_hit_w[30] = rd_pub_at_w && rd_pub_src_w && rd_pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_LO_C);   // SRC_SID_LO
+    rd_hit_w[31] = rd_pub_at_w && rd_pub_src_w && rd_pub_reg_w == AW2_C'(MBX_PUB_SRC_REG_SRC_SID_HI_C);   // SRC_SID_HI
+    rd_hit_w[32] = rd_pub_at_w && rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C);   // SID_LO
+    rd_hit_w[33] = rd_pub_at_w && rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C);   // SID_HI
+    rd_hit_w[34] = rd_pub_at_w && rd_pub_sink_w && rd_pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C);   // BINDING
+    rd_hit_w[35] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C);   // the face register F_CTRL
+    rd_hit_w[36] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C);   // the face register F_ENTITY
+    rd_hit_w[37] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C);   // the face register F_CLOCK
+    rd_hit_w[38] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C);   // the face register F_AECP
+    rd_hit_w[39] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C);   // the face register F_RESTORE
+    rd_hit_w[40] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C);   // the face register F_NVM
+    rd_hit_w[41] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_F_STATUS_C);   // the face register F_STATUS
+    rd_hit_w[42] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C);   // the face register CTR_REQ
+    rd_hit_w[43] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C);   // the face register CTR_WORD
+    rd_hit_w[44] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_STATUS_C);   // the face register CTR_STATUS
+    rd_hit_w[45] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_CTR_DATA_C);   // the face register CTR_DATA
+    rd_hit_w[46] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C);   // the face register AMAP_REQ
+    rd_hit_w[47] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C);   // the face register AMAP_PAGE
+    rd_hit_w[48] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_STATUS_C);   // the face register AMAP_STATUS
+    rd_hit_w[49] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_LO_C);   // the face register AMAP_DATA_LO
+    rd_hit_w[50] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_HI_C);   // the face register AMAP_DATA_HI
+    rd_hit_w[51] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C);   // the face register EDIT_REQ
+    rd_hit_w[52] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C);   // the face register EDIT_BEAT
+    rd_hit_w[53] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C);   // the face register EDIT_RECORD_LO
+    rd_hit_w[54] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C);   // the face register EDIT_RECORD_HI
+    rd_hit_w[55] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C);   // the face register EDIT_VALUE_LO
+    rd_hit_w[56] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C);   // the face register EDIT_VALUE_HI
+    rd_hit_w[57] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_STATUS_C);   // the face register EDIT_STATUS
+    rd_hit_w[58] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_LO_C);   // the face register EDIT_DATA_LO
+    rd_hit_w[59] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_HI_C);   // the face register EDIT_DATA_HI
+    rd_hit_w[60] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C);   // the face register GSI_REQ
+    rd_hit_w[61] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C);   // the face register GSI_SEL
+    rd_hit_w[62] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C);   // the face register GSI_PROP_LO
+    rd_hit_w[63] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C);   // the face register GSI_PROP_HI
+    rd_hit_w[64] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_STATUS_C);   // the face register GSI_STATUS
+    rd_hit_w[65] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_LO_C);   // the face register GSI_DATA_LO
+    rd_hit_w[66] = rd_face_at_w && rd_face_area_w == 2'd0 && rd_face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_HI_C);   // the face register GSI_DATA_HI
+    rd_hit_w[67] = rd_face_at_w && rd_face_area_w == 2'd1 && rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C);   // the face register F_PT_OFFSET
+    rd_hit_w[68] = rd_face_at_w && rd_face_area_w == 2'd1 && rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C);   // the face register F_FMT_OUT_LO
+    rd_hit_w[69] = rd_face_at_w && rd_face_area_w == 2'd1 && rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C);   // the face register F_FMT_OUT_HI
+    rd_hit_w[70] = rd_face_at_w && rd_face_area_w == 2'd1 && rd_face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C);   // the face register F_SRC_VALID
+    rd_hit_w[71] = rd_face_at_w && rd_face_area_w == 2'd2 && rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C);   // the face register F_FMT_IN_LO
+    rd_hit_w[72] = rd_face_at_w && rd_face_area_w == 2'd2 && rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C);   // the face register F_FMT_IN_HI
+    rd_hit_w[73] = rd_face_at_w && rd_face_area_w == 2'd2 && rd_face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C);   // the face register F_SNK_VALID
+    rd_hit_w[74] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C);   // RX_HEAD of channel 0
+    rd_hit_w[75] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C);   // RX_TAIL of channel 0
+    rd_hit_w[76] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C);   // TX_HEAD of channel 0
+    rd_hit_w[77] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C);   // TX_TAIL of channel 0
+    rd_hit_w[78] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C);   // RX_DROP of channel 0
+    rd_hit_w[79] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C);   // RATE_DROP of channel 0
+    rd_hit_w[80] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C);   // TX_ERR of channel 0
+    rd_hit_w[81] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 0 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C);   // RX_PASS of channel 0
+    rd_hit_w[82] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C);   // RX_HEAD of channel 1
+    rd_hit_w[83] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C);   // RX_TAIL of channel 1
+    rd_hit_w[84] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C);   // TX_HEAD of channel 1
+    rd_hit_w[85] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C);   // TX_TAIL of channel 1
+    rd_hit_w[86] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C);   // RX_DROP of channel 1
+    rd_hit_w[87] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C);   // RATE_DROP of channel 1
+    rd_hit_w[88] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C);   // TX_ERR of channel 1
+    rd_hit_w[89] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 1 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C);   // RX_PASS of channel 1
+    rd_hit_w[90] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C);   // RX_HEAD of channel 2
+    rd_hit_w[91] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C);   // RX_TAIL of channel 2
+    rd_hit_w[92] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C);   // TX_HEAD of channel 2
+    rd_hit_w[93] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C);   // TX_TAIL of channel 2
+    rd_hit_w[94] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C);   // RX_DROP of channel 2
+    rd_hit_w[95] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C);   // RATE_DROP of channel 2
+    rd_hit_w[96] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C);   // TX_ERR of channel 2
+    rd_hit_w[97] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 2 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C);   // RX_PASS of channel 2
+    rd_hit_w[98] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C);   // RX_HEAD of channel 3
+    rd_hit_w[99] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C);   // RX_TAIL of channel 3
+    rd_hit_w[100] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C);   // TX_HEAD of channel 3
+    rd_hit_w[101] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C);   // TX_TAIL of channel 3
+    rd_hit_w[102] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C);   // RX_DROP of channel 3
+    rd_hit_w[103] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C);   // RATE_DROP of channel 3
+    rd_hit_w[104] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C);   // TX_ERR of channel 3
+    rd_hit_w[105] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 3 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C);   // RX_PASS of channel 3
+    rd_hit_w[106] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C);   // RX_HEAD of channel 4
+    rd_hit_w[107] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C);   // RX_TAIL of channel 4
+    rd_hit_w[108] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_HEAD_C);   // TX_HEAD of channel 4
+    rd_hit_w[109] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_TAIL_C);   // TX_TAIL of channel 4
+    rd_hit_w[110] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_DROP_C);   // RX_DROP of channel 4
+    rd_hit_w[111] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_RATE_DROP_C);   // RATE_DROP of channel 4
+    rd_hit_w[112] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_TX_ERR_C);   // TX_ERR of channel 4
+    rd_hit_w[113] = rd_off_w == AW2_C'(MBX_CH_BASE_C + 4 * MBX_CH_STRIDE_C + MBX_CH_REG_RX_PASS_C);   // RX_PASS of channel 4
+    reg_rdata_w = ({32{rd_hit_w[0]}} & 32'(mbx_place_f(32'(MBX_VERSION_MINOR_C), MBX_ID_MINOR_LSB_C, MBX_ID_MINOR_WIDTH_C) | mbx_place_f(32'(MBX_VERSION_MAJOR_C), MBX_ID_MAJOR_LSB_C, MBX_ID_MAJOR_WIDTH_C) | mbx_place_f(32'(MBX_MAGIC_C), MBX_ID_MAGIC_LSB_C, MBX_ID_MAGIC_WIDTH_C)))
+                | ({32{rd_hit_w[1]}} & 32'(mbx_place_f(32'(MBX_N_CH_C), MBX_CAPS_N_CH_LSB_C, MBX_CAPS_N_CH_WIDTH_C) | mbx_place_f(32'(MBX_N_IF_C), MBX_CAPS_N_IF_LSB_C, MBX_CAPS_N_IF_WIDTH_C) | mbx_place_f(32'(MBX_N_TIMERS_C), MBX_CAPS_N_TIMERS_LSB_C, MBX_CAPS_N_TIMERS_WIDTH_C) | mbx_place_f(32'($clog2(MBX_EVT_WORDS_C)), MBX_CAPS_EVT_WORDS_LOG2_LSB_C, MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C)))
+                | ({32{rd_hit_w[2]}} & 32'(mbx_place_f(32'(rx_pending_w), MBX_IRQ_STATUS_RX_LSB_C, MBX_IRQ_STATUS_RX_WIDTH_C) | mbx_place_f(32'(evt_pending_w), MBX_IRQ_STATUS_EVT_LSB_C, MBX_IRQ_STATUS_EVT_WIDTH_C) | mbx_place_f(32'(err_r), MBX_IRQ_STATUS_ERR_LSB_C, MBX_IRQ_STATUS_ERR_WIDTH_C)))
+                | ({32{rd_hit_w[3]}} & 32'(irq_enable_r))
+                | ({32{rd_hit_w[4]}} & 32'(mbx_place_f(32'(now_ms_r), MBX_NOW_MS_MS_LSB_C, MBX_NOW_MS_MS_WIDTH_C)))
+                | ({32{rd_hit_w[5]}} & 32'(mbx_place_f(32'(link_up_i), MBX_LINK_UP_LSB_C, MBX_LINK_UP_WIDTH_C)))
+                | ({32{rd_hit_w[6]}} & 32'(tick_ctl_r))
+                | ({32{rd_hit_w[7]}} & 32'(own_eid_lo_r))
+                | ({32{rd_hit_w[8]}} & 32'(own_eid_hi_r))
+                | ({32{rd_hit_w[9]}} & 32'(filter_en_r))
+                | ({32{rd_hit_w[10]}} & 32'(maap_base_lo_r))
+                | ({32{rd_hit_w[11]}} & 32'(maap_base_hi_r))
+                | ({32{rd_hit_w[12]}} & 32'(maap_count_r))
+                | ({32{rd_hit_w[13]}} & 32'(tmr_deadline_r))
+                | ({32{rd_hit_w[14]}} & 32'(mbx_place_f(32'(evt_head_w), MBX_EVT_HEAD_WORDS_LSB_C, MBX_EVT_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[15]}} & 32'(evt_tail_r))
+                | ({32{rd_hit_w[16]}} & 32'(mbx_place_f(32'(bus_err_r), MBX_BUS_ERR_COUNT_LSB_C, MBX_BUS_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[17]}} & 32'(mbx_place_f(32'(filter_mismatch_w), MBX_FILTER_MISMATCH_COUNT_LSB_C, MBX_FILTER_MISMATCH_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[18]}} & 32'(mbx_place_f(32'(gm_id_i[64*0 +: 32]), MBX_GM_LO_ID_LSB_C, MBX_GM_LO_ID_WIDTH_C)))
+                | ({32{rd_hit_w[19]}} & 32'(mbx_place_f(32'(gm_hi_snap_r[0]), MBX_GM_HI_ID_LSB_C, MBX_GM_HI_ID_WIDTH_C)))
+                | ({32{rd_hit_w[20]}} & 32'(mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C)))
+                | ({32{rd_hit_w[21]}} & 32'(32'(own_mac_lo_r[0])))
+                | ({32{rd_hit_w[22]}} & 32'(32'(own_mac_hi_r[0])))
+                | ({32{rd_hit_w[23]}} & 32'(mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C)))
+                | ({32{rd_hit_w[24]}} & 32'(bnd_eid_w))
+                | ({32{rd_hit_w[25]}} & 32'(32'(pub_da_gate_r[rd_pub_if_w])))
+                | ({32{rd_hit_w[26]}} & 32'(32'(pub_licence_r[rd_pub_if_w])))
+                | ({32{rd_hit_w[27]}} & 32'(32'(pub_idle_slope_r[rd_pub_if_w])))
+                | ({32{rd_hit_w[28]}} & 32'(32'(pub_sr_domain_r[rd_pub_if_w])))
+                | ({32{rd_hit_w[29]}} & 32'(32'(pub_talker_decl_r[rd_pub_if_w])))
+                | ({32{rd_hit_w[30]}} & 32'(32'(pub_src_sid_lo_r[rd_pub_if_w][rd_pub_s_w])))
+                | ({32{rd_hit_w[31]}} & 32'(32'(pub_src_sid_hi_r[rd_pub_if_w][rd_pub_s_w])))
+                | ({32{rd_hit_w[32]}} & 32'(32'(pub_sid_lo_r[rd_pub_if_w][rd_pub_k_w])))
+                | ({32{rd_hit_w[33]}} & 32'(32'(pub_sid_hi_r[rd_pub_if_w][rd_pub_k_w])))
+                | ({32{rd_hit_w[34]}} & 32'(32'(pub_binding_r[rd_pub_if_w][rd_pub_k_w])))
+                | ({32{rd_hit_w[35]}} & 32'(32'(face_f_ctrl_r[rd_face_if_w])))
+                | ({32{rd_hit_w[36]}} & 32'(32'(face_f_entity_r[rd_face_if_w])))
+                | ({32{rd_hit_w[37]}} & 32'(32'(face_f_clock_r[rd_face_if_w])))
+                | ({32{rd_hit_w[38]}} & 32'(32'(face_f_aecp_r[rd_face_if_w])))
+                | ({32{rd_hit_w[39]}} & 32'(32'(face_f_restore_r[rd_face_if_w])))
+                | ({32{rd_hit_w[40]}} & 32'(32'(face_f_nvm_r[rd_face_if_w])))
+                | ({32{rd_hit_w[41]}} & 32'(mbx_place_f(32'(fw_busy_r[rd_face_if_w]), MBX_F_STATUS_BUSY_LSB_C, MBX_F_STATUS_BUSY_WIDTH_C)))
+                | ({32{rd_hit_w[42]}} & 32'(32'(face_ctr_req_r[rd_face_if_w])))
+                | ({32{rd_hit_w[43]}} & 32'(32'(face_ctr_word_r[rd_face_if_w])))
+                | ({32{rd_hit_w[44]}} & 32'(mbx_place_f(32'(ctr_busy_r[rd_face_if_w]), MBX_CTR_STATUS_BUSY_LSB_C, MBX_CTR_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(ctr_done_r[rd_face_if_w]), MBX_CTR_STATUS_DONE_LSB_C, MBX_CTR_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(ctr_tmo_r[rd_face_if_w]), MBX_CTR_STATUS_TIMEOUT_LSB_C, MBX_CTR_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(ctr_tag_r[rd_face_if_w]), MBX_CTR_STATUS_TAG_LSB_C, MBX_CTR_STATUS_TAG_WIDTH_C)))
+                | ({32{rd_hit_w[45]}} & 32'(ctr_data_r[rd_face_if_w][32*0 +: 32]))
+                | ({32{rd_hit_w[46]}} & 32'(32'(face_amap_req_r[rd_face_if_w])))
+                | ({32{rd_hit_w[47]}} & 32'(32'(face_amap_page_r[rd_face_if_w])))
+                | ({32{rd_hit_w[48]}} & 32'(mbx_place_f(32'(amap_busy_r[rd_face_if_w]), MBX_AMAP_STATUS_BUSY_LSB_C, MBX_AMAP_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(amap_done_r[rd_face_if_w]), MBX_AMAP_STATUS_DONE_LSB_C, MBX_AMAP_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(amap_tmo_r[rd_face_if_w]), MBX_AMAP_STATUS_TIMEOUT_LSB_C, MBX_AMAP_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(amap_tag_r[rd_face_if_w]), MBX_AMAP_STATUS_TAG_LSB_C, MBX_AMAP_STATUS_TAG_WIDTH_C)))
+                | ({32{rd_hit_w[49]}} & 32'(amap_data_r[rd_face_if_w][32*0 +: 32]))
+                | ({32{rd_hit_w[50]}} & 32'(amap_data_r[rd_face_if_w][32*1 +: 32]))
+                | ({32{rd_hit_w[51]}} & 32'(32'(face_edit_req_r[rd_face_if_w])))
+                | ({32{rd_hit_w[52]}} & 32'(32'(face_edit_beat_r[rd_face_if_w])))
+                | ({32{rd_hit_w[53]}} & 32'(32'(face_edit_record_lo_r[rd_face_if_w])))
+                | ({32{rd_hit_w[54]}} & 32'(32'(face_edit_record_hi_r[rd_face_if_w])))
+                | ({32{rd_hit_w[55]}} & 32'(32'(face_edit_value_lo_r[rd_face_if_w])))
+                | ({32{rd_hit_w[56]}} & 32'(32'(face_edit_value_hi_r[rd_face_if_w])))
+                | ({32{rd_hit_w[57]}} & 32'(mbx_place_f(32'(edit_busy_r[rd_face_if_w]), MBX_EDIT_STATUS_BUSY_LSB_C, MBX_EDIT_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(edit_done_r[rd_face_if_w]), MBX_EDIT_STATUS_DONE_LSB_C, MBX_EDIT_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(edit_tmo_r[rd_face_if_w]), MBX_EDIT_STATUS_TIMEOUT_LSB_C, MBX_EDIT_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(edit_tag_r[rd_face_if_w]), MBX_EDIT_STATUS_TAG_LSB_C, MBX_EDIT_STATUS_TAG_WIDTH_C)))
+                | ({32{rd_hit_w[58]}} & 32'(edit_data_r[rd_face_if_w][32*0 +: 32]))
+                | ({32{rd_hit_w[59]}} & 32'(edit_data_r[rd_face_if_w][32*1 +: 32]))
+                | ({32{rd_hit_w[60]}} & 32'(32'(face_gsi_req_r[rd_face_if_w])))
+                | ({32{rd_hit_w[61]}} & 32'(32'(face_gsi_sel_r[rd_face_if_w])))
+                | ({32{rd_hit_w[62]}} & 32'(32'(face_gsi_prop_lo_r[rd_face_if_w])))
+                | ({32{rd_hit_w[63]}} & 32'(32'(face_gsi_prop_hi_r[rd_face_if_w])))
+                | ({32{rd_hit_w[64]}} & 32'(mbx_place_f(32'(gsi_busy_r[rd_face_if_w]), MBX_GSI_STATUS_BUSY_LSB_C, MBX_GSI_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(gsi_done_r[rd_face_if_w]), MBX_GSI_STATUS_DONE_LSB_C, MBX_GSI_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(gsi_tmo_r[rd_face_if_w]), MBX_GSI_STATUS_TIMEOUT_LSB_C, MBX_GSI_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(gsi_tag_r[rd_face_if_w]), MBX_GSI_STATUS_TAG_LSB_C, MBX_GSI_STATUS_TAG_WIDTH_C)))
+                | ({32{rd_hit_w[65]}} & 32'(gsi_data_r[rd_face_if_w][32*0 +: 32]))
+                | ({32{rd_hit_w[66]}} & 32'(gsi_data_r[rd_face_if_w][32*1 +: 32]))
+                | ({32{rd_hit_w[67]}} & 32'(32'(face_f_pt_offset_r[rd_face_if_w][rd_face_s_w])))
+                | ({32{rd_hit_w[68]}} & 32'(32'(face_f_fmt_out_lo_r[rd_face_if_w][rd_face_s_w])))
+                | ({32{rd_hit_w[69]}} & 32'(32'(face_f_fmt_out_hi_r[rd_face_if_w][rd_face_s_w])))
+                | ({32{rd_hit_w[70]}} & 32'(32'(face_f_src_valid_r[rd_face_if_w][rd_face_s_w])))
+                | ({32{rd_hit_w[71]}} & 32'(32'(face_f_fmt_in_lo_r[rd_face_if_w][rd_face_k_w])))
+                | ({32{rd_hit_w[72]}} & 32'(32'(face_f_fmt_in_hi_r[rd_face_if_w][rd_face_k_w])))
+                | ({32{rd_hit_w[73]}} & 32'(32'(face_f_snk_valid_r[rd_face_if_w][rd_face_k_w])))
+                | ({32{rd_hit_w[74]}} & 32'(mbx_place_f(32'(rx_head_w[16*0 +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[75]}} & 32'(mbx_place_f(32'(rx_tail_r[0]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[76]}} & 32'(mbx_place_f(32'(tx_head_r[0]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[77]}} & 32'(mbx_place_f(32'(tx_tail_w[16*0 +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[78]}} & 32'(mbx_place_f(32'(rx_drop_w[16*0 +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[79]}} & 32'(mbx_place_f(32'(rate_drop_w[16*0 +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[80]}} & 32'(mbx_place_f(32'(tx_err_w[16*0 +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[81]}} & 32'(mbx_place_f(32'(rx_pass_w[16*0 +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[82]}} & 32'(mbx_place_f(32'(rx_head_w[16*1 +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[83]}} & 32'(mbx_place_f(32'(rx_tail_r[1]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[84]}} & 32'(mbx_place_f(32'(tx_head_r[1]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[85]}} & 32'(mbx_place_f(32'(tx_tail_w[16*1 +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[86]}} & 32'(mbx_place_f(32'(rx_drop_w[16*1 +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[87]}} & 32'(mbx_place_f(32'(rate_drop_w[16*1 +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[88]}} & 32'(mbx_place_f(32'(tx_err_w[16*1 +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[89]}} & 32'(mbx_place_f(32'(rx_pass_w[16*1 +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[90]}} & 32'(mbx_place_f(32'(rx_head_w[16*2 +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[91]}} & 32'(mbx_place_f(32'(rx_tail_r[2]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[92]}} & 32'(mbx_place_f(32'(tx_head_r[2]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[93]}} & 32'(mbx_place_f(32'(tx_tail_w[16*2 +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[94]}} & 32'(mbx_place_f(32'(rx_drop_w[16*2 +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[95]}} & 32'(mbx_place_f(32'(rate_drop_w[16*2 +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[96]}} & 32'(mbx_place_f(32'(tx_err_w[16*2 +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[97]}} & 32'(mbx_place_f(32'(rx_pass_w[16*2 +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[98]}} & 32'(mbx_place_f(32'(rx_head_w[16*3 +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[99]}} & 32'(mbx_place_f(32'(rx_tail_r[3]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[100]}} & 32'(mbx_place_f(32'(tx_head_r[3]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[101]}} & 32'(mbx_place_f(32'(tx_tail_w[16*3 +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[102]}} & 32'(mbx_place_f(32'(rx_drop_w[16*3 +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[103]}} & 32'(mbx_place_f(32'(rate_drop_w[16*3 +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[104]}} & 32'(mbx_place_f(32'(tx_err_w[16*3 +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[105]}} & 32'(mbx_place_f(32'(rx_pass_w[16*3 +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[106]}} & 32'(mbx_place_f(32'(rx_head_w[16*4 +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[107]}} & 32'(mbx_place_f(32'(rx_tail_r[4]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[108]}} & 32'(mbx_place_f(32'(tx_head_r[4]), MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[109]}} & 32'(mbx_place_f(32'(tx_tail_w[16*4 +: 16]), MBX_TX_TAIL_WORDS_LSB_C, MBX_TX_TAIL_WORDS_WIDTH_C)))
+                | ({32{rd_hit_w[110]}} & 32'(mbx_place_f(32'(rx_drop_w[16*4 +: 16]), MBX_RX_DROP_COUNT_LSB_C, MBX_RX_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[111]}} & 32'(mbx_place_f(32'(rate_drop_w[16*4 +: 16]), MBX_RATE_DROP_COUNT_LSB_C, MBX_RATE_DROP_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[112]}} & 32'(mbx_place_f(32'(tx_err_w[16*4 +: 16]), MBX_TX_ERR_COUNT_LSB_C, MBX_TX_ERR_COUNT_WIDTH_C)))
+                | ({32{rd_hit_w[113]}} & 32'(mbx_place_f(32'(rx_pass_w[16*4 +: 16]), MBX_RX_PASS_COUNT_LSB_C, MBX_RX_PASS_COUNT_WIDTH_C)));
   end : reg_read
 
   // ---- the rings ------------------------------------------------------------------
@@ -1145,20 +1402,29 @@ module KL_mbx
     .rd_data_o (srp_tx_rdata_w)
   );
 
-  // ---- the answer, one cycle after the request ---------------------------------
+  // ---- the answer: one cycle after the request, two for a register read ------------
+  // A register read's offset is registered at its request (rd_off_r) and its
+  // value at the next cycle (reg_rdata_r), so its answer comes a cycle after a
+  // ring read's (#870); a ring read's word is the ring's registered read port.
   logic        ack_r;
   logic [31:0] reg_rdata_r;
   logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's receive ring
   logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the transmit ring the merge read last cycle
+  logic        reg_rd_w;   //! the request is a read the register multiplexer answers, not a ring's
+  assign reg_rd_w = rd_w && !evt_host_w && !adp_rx_host_w && !acmp_rx_host_w && !aecp_rx_host_w && !maap_rx_host_w && !srp_rx_host_w;
   always_ff @(posedge clk_i) begin : answer
     if (!rst_n) begin
       ack_r       <= 1'b0;
       reg_rdata_r <= '0;
       rsel_r      <= '0;
       txr_ch_r    <= '0;
+      rd_q_r      <= 1'b0;
+      rd_off_r    <= '0;
     end else begin
-      ack_r       <= host_req_i;
-      reg_rdata_r <= reg_rdata_w;
+      ack_r       <= (host_req_i && !reg_rd_w) || rd_q_r;
+      rd_q_r      <= reg_rd_w;
+      if (reg_rd_w) rd_off_r <= off_w;
+      if (rd_q_r) reg_rdata_r <= reg_rdata_w;
       txr_ch_r    <= txr_ch_w;
       rsel_r      <= evt_host_w ? 4'd1
                    : adp_rx_host_w ? 4'd2
@@ -1301,10 +1567,13 @@ module KL_mbx
 
   // the window bits a 16-bit register does not carry, the upper
   // filter-enable, MAAP and TICK_CTL bits a narrower build does not use,
-  // and the ring index bits above the narrower rings of this contract
+  // the ring index bits above the narrower rings of this contract, and the
+  // read side's bound-talker interface and entry (KL_mbx_rx registers its
+  // own read address at the request)
   logic unused_w;
   assign unused_w = ^{evt_tail_r[31:16], maap_base_hi_r[31:16], maap_count_r[31:16],
-                      filter_en_r[31:MBX_N_CH_C], tick_ctl_r[31:1], rxw_addr_w, txr_addr_w};
+                      filter_en_r[31:MBX_N_CH_C], tick_ctl_r[31:1], rxw_addr_w, txr_addr_w,
+                      rd_bnd_if_w, rd_bnd_entry_w};
 
 endmodule : KL_mbx
 

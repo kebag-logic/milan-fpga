@@ -4,7 +4,7 @@
 """The split placement's firmware memory (#640 M8a): plan, rules, banks, link and SoC build.
 
 `ctrl_memory.py` is the map and its checks; `milan_soc.CtrlMemory` is the
-block RAM the SoC builds from them. This file grades eight things:
+block RAM the SoC builds from them. This file grades nine things:
 
   1. BANKS. For every need up to past the budget, the banks are powers of two
      of whole RAMB18 granules, largest first, and hold the need with less than
@@ -57,7 +57,8 @@ block RAM the SoC builds from them. This file grades eight things:
      rule or a property, and must turn its arm red with a named failure. A
      mutant is graded only against an arm that passed unmutated in the same
      run, so a failure of the environment is never counted as a kill.
-  8. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region pieces the split export hands the CPU.
+  8. THE OUT-OF-CONTEXT MAPPER's override and its mutants, ctrl_memory_ledger.mapper_arms.
+  9. THE CPU DECODE (#791): ctrl_memory_decode.py's arm, and the region pieces the split export hands the CPU.
 --build-only compiles and links the reset-entry probe for the boundary capture.
 It requires RV32, runs no suites and plants no defects.
 
@@ -986,6 +987,8 @@ def main() -> int:
         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
         run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
         run_arm(problems, "planted ledgers", partial(ledger_plant_arms, tmp=tmp, green=green))
+        run_arm(problems, "out-of-context mapper", partial(ledgers.mapper_arms, check=check, tmp=tmp, write=partial(
+            ledger_elf, tmp), rebuild=partial(mutated, ledgers.mapper(), "main")))
     for problem in problems:
         print(f"FAIL: {problem}", file=sys.stderr)
     print(f"test_ctrl_memory: {len(problems)} failure(s)")

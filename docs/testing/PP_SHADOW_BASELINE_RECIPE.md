@@ -234,6 +234,9 @@ A retained moved engine fails by its placement and role.
 It checks again after implementation and writes `baseline_placement.tsv`.
 The gate independently validates that census against the requested selection.
 A mismatched selection, missing census or missing role exits 2.
+Under `full-split` the image inventory reads the control firmware's `rom_bank` memories as banks (#665 S9).
+They hold the linked image word for word, so the last bank ends with the image.
+A bank is never empty, never longer than its depth, and has its width; every other image stays complete.
 
 The default selection keeps its recipe and writes no census.
 For an integrated route, the gate counts the hierarchy report's module column instead.

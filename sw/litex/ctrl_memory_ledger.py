@@ -1,18 +1,26 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The memory test's ledgered points (#665): each override's own image, the images it must refuse, and the
-planted ledgers that widen one.
+"""The memory test's ledgered points (#665): each override's own image, the images it must refuse, the
+planted ledgers that widen one, and the out-of-context mapper's override.
 
 `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
 only by its own name, under #665's documented memory exceptions: the size fixture's at 57.5 RAMB36 and the target
 platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
 writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
+syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+(#665 S9); `mapper_arms` grades that override and plants three defects in it.
 """
 
 from __future__ import annotations
 
 import contextlib
 import dataclasses
+import importlib
+import io
+import json
+import shutil
+import sys
+import types
 from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import NamedTuple
@@ -119,3 +127,77 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
              ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
              ("the size fixture's entry at the platform's 59.0", FIXTURE, {"tiles": 59.0}))
     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]
+
+
+#: Each planted defect of the mapper's override: (what, the edit of ctrl_memory_ooc.main, its replacement).
+_OVERRIDE = "ledgered=points.get(tag))"
+MAPPER_MUTANTS = (("the mapper's override ignored", _OVERRIDE, "ledgered=None)"),
+                  ("the mapper's override on every image", _OVERRIDE, "ledgered=next(iter(points.values()), None))"),
+                  ("the mapper's stray override accepted", "if stray:", "if False:"))
+
+
+def mapper() -> types.ModuleType:
+    """syn/ooc/ctrl_memory_ooc.py, imported when first asked for: it needs LiteX, which nothing else here does."""
+    path = str(Path(__file__).resolve().parents[2] / "syn/ooc")
+    if path not in sys.path:
+        sys.path.insert(0, path)
+    return importlib.import_module("ctrl_memory_ooc")
+
+
+def _mapped(tmp: Path, label: str, *argv: str) -> tuple[object, dict]:
+    """The mapper's main, looked up when it runs, on argv into its own directory: (exit status, its plans)."""
+    out = tmp / f"ooc-{label}"
+    shutil.rmtree(out, ignore_errors=True)
+    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        try:
+            status: object = mapper().main([str(out), *argv])
+        except SystemExit as exc:     # argparse refuses an override whose tag names no image by exiting
+            status = exc.code
+    plans = out / "ctrl_memory_plan.json"
+    return status, json.loads(plans.read_text()) if plans.exists() else {}
+
+
+def mapper_facts(write: Callable[[Case], Path], tmp: Path) -> Iterator[tuple[bool, str]]:
+    """(holds, what): the mapper refuses the platform's point without `--ledgered`, maps it at its tiles with it
+    beside an image of exactly the budget planned with no override, and refuses the override on that other image
+    and on a tag that names no image, each exit 2."""
+    own, within = OWN[PLATFORM], write(Case(STAGE_1X1, None, None, 56.0))
+    status, _ = _mapped(tmp, "bare", f"p={write(own)}")
+    yield status == 2, f"the mapper refuses the {PLATFORM} image without --ledgered (exit {status})"
+    status, plans = _mapped(tmp, "held", f"w={within}", f"p={write(own)}", "--ledgered", f"p={PLATFORM}")
+    held = {tag: (plan.get("tiles"), plan.get("ledgered")) for tag, plan in plans.items()}
+    yield (status == 0 and held == {"w": (56.0, None), "p": (own.tiles, PLATFORM)},
+           f"--ledgered p={PLATFORM} maps that image at {own.tiles} RAMB36 and the other at 56.0 with no override "
+           f"(exit {status}, {held})")
+    for label, tag, what in (("other", "w", "on another image"), ("stray", "x", "whose tag names no image")):
+        status, _ = _mapped(tmp, label, f"w={within}", "--ledgered", f"{tag}={PLATFORM}")
+        yield status == 2, f"the mapper refuses the {PLATFORM} override {what} (exit {status})"
+
+
+def mapper_arms(problems: list[str], check: Callable[[list[str], bool, str], None], tmp: Path,
+                write: Callable[[Case], Path], rebuild: Callable[[str, str], Callable[..., object]]) -> None:
+    """The mapper's facts through test_ctrl_memory.py's `check`; then, only when every fact held, each
+    MAPPER_MUTANTS edit of its main, rebuilt by `rebuild(old, new)`, must turn a fact red."""
+    before = len(problems)
+    for holds, what in mapper_facts(write, tmp):
+        check(problems, holds, what)
+    if len(problems) != before:
+        check(problems, False, "the mapper's mutants are not graded: its facts fail unmutated")
+        return
+    module = mapper()
+    original = module.main
+    for name, old, new in MAPPER_MUTANTS:
+        try:
+            rebuilt = rebuild(old, new)
+        except LookupError as exc:
+            check(problems, False, f"MUTANT '{name}': {exc}")
+            continue
+        module.main = rebuilt
+        try:
+            red = [what for holds, what in mapper_facts(write, tmp) if not holds]
+        except Exception as exc:     # a mutant that breaks the mapper outright is caught too
+            red = [f"the arm raised {type(exc).__name__}: {exc}"]
+        finally:
+            module.main = original
+        check(problems, bool(red), f"MUTANT '{name}' (ooc override) is caught by the mapper's facts: "
+                                   f"{red[0] if red else 'nothing went red'}")

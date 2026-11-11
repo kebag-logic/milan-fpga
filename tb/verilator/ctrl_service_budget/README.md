@@ -272,7 +272,8 @@ T_svc misses, counted per path and per probe instance (a path several groups mea
 | 8x8 | 9.49 | 1.68 | 9 / 9 | 9.13 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.5 mean (138-303) | 11,396 / 43,060 B |
 
 Every access is timed at the CPU, command to response, in CPU cycles at 50 MHz.
-A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answers in one bus cycle, and the rest is the clock crossing and the bus.
+A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answered in one bus cycle at that head, and the rest is the clock crossing and the bus.
+Since #870 a register read waits one more mailbox clock (a write and a ring read do not), so this harness's `host_cycles` reads 1 to 2 where the fixture's reads 1.
 A fetch waits behind a slow flash read, hence the 303-cycle maximum.
 Instruction fetches are 85 to 89 % of the CPU's bus transactions in every taking pass.
 Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch is outstanding on average: the cacheless core is fetch-bound.
