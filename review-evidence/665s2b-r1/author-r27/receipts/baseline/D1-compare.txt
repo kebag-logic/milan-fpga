@@ -1,0 +1,16 @@
+# D1: builds/D1 (clone at 9d2d66fef0e40750a37ac854f926a8f1ecda48c2) against round 26's D1
+image/ctrl_app.elf objcopy -O binary identical: old a4d0de93cbf679cf987f27f3864772d03e1f72ea4315ff917cd759946d9ee306 new a4d0de93cbf679cf987f27f3864772d03e1f72ea4315ff917cd759946d9ee306, 107568 B
+image/ctrl_app.elf elf identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary identical: old a4d0de93cbf679cf987f27f3864772d03e1f72ea4315ff917cd759946d9ee306 new a4d0de93cbf679cf987f27f3864772d03e1f72ea4315ff917cd759946d9ee306, 107568 B
+split-soc/mapped/image/ctrl_app.elf elf identical
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary identical: old 19de1c84fa746a5e6a8f43460a02bce8df4b089b7c39956f7893b8cb8eb74c04 new 19de1c84fa746a5e6a8f43460a02bce8df4b089b7c39956f7893b8cb8eb74c04, 107568 B
+split-soc/stand-ins/image/ctrl_app.elf elf identical
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29, identical: 24
+executable_sha256 differs
+group control log identical: recorded cec281b80e8fe884ede663046c4d85df389ca56e21702e45ac579a4c426eac95 new cec281b80e8fe884ede663046c4d85df389ca56e21702e45ac579a4c426eac95, 6305474 bytes
+group control script identical

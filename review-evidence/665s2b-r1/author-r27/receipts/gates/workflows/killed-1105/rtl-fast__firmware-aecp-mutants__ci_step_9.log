@@ -1,0 +1,779 @@
+# head e7e2b7444a9859b058deff0d9edb575f2fb1946f workflow rtl-fast.yml job firmware-aecp-mutants step ci_step_9: Run the AECP mutation campaign
+# clone <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt
+# venv <scratch>/gates/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1300 live invocations in exactly one shard; shard sizes [67, 673, 221, 339]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-input-refusal: Core.S2_NoSubcommandSetOnInputIsNotSupported
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-applies-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-reports-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-notifies-change: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-timer-lost: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] entity-available-index-static: Core.EntityAvailableIndexUsesTheIngressObservation:App.EntityReadSeesTheLastAdvertisedIndex
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] hdcp-data-length-echo: Core.NonAemMessageTypesFollowTheirOwnContracts
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] cross-instance-guard-removed: Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unavailable-head-blocks-notices: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unavailable-retry-spins: Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] command-body-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] hdcp-body-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unlock-notice-body-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] dynamic-entry-header-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] map-body-not-cleared: Core.ResponsesDependOnNothingTheBufferHeld
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-backoff-unbounded: Core.UnavailableNoticeRetriesBackOffToEightMilliseconds
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-backoff-constant: Core.UnavailableNoticeRetriesBackOffToEightMilliseconds:Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-backoff-kept-after-delivery: Core.UnavailableNoticeRetriesBackOffToEightMilliseconds
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] notice-scan-not-raised: Core.UnavailableNoticeRetriesBackOffToEightMilliseconds
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] notice-scan-dropped-with-retries-left: Core.UnavailableNoticeRetriesBackOffToEightMilliseconds
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] notice-scan-not-raised-at-open: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] completion-scan-never-counted: Core.CounterNoticesCoalesceAndWaitForEligibility
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] completion-wrap-loses-a-slot: Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-scan-stops-at-clear-word: Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-scan-word-index-dropped: Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] ring-store-word-lanes-rotated: Mailbox.EveryInterfaceAndObservationPort
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] stream-info-request-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] stream-info-flags-echo: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] stream-info-noop-refused: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] root-configuration-refused: Core.RootDescriptorConfigurationIsIgnored
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] identify-refusal-body-lost: Core.UnsupportedAndAcquire
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] descriptor-last-byte: Core.EveryDescriptorAndReadFailures
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unknown-body-lost: Core.UnsupportedAndAcquire
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] lock-long: Core.LockQueriesAndExpiry
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] group-name-offset: Core.GroupNameDoesNotOverwriteFirmwareVersion:Core.NamesAndDescriptorOverlay:Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] scalar-refusal-reports-request: Core.ScalarGetSetAndCurrentValueRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] default-is-not-override: Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] restore-forgets-override: Core.RestoreValuesValidateAndRollbackWithoutLiveEvents:Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] boot-clip-boundary: Core.RestoreMapWholeSetClipAndDefaults:Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] counter-last-word: Core.ObservationsHaveFullWireForms
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] path-failure-success: Core.ObservationRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] latency-sign-accepted: Core.StreamInfoDirectionFlagsAndLatency
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] owed-response-discarded: Core.BackpressureOrdersResponseBeforeNotice
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] start-wait-ten-ms: Core.StartIsDeferredAndHasFailureDeadline:Latency.DeferredFailureAndTimerPathsUseTheirDueTime
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] dynamic-unknown-status: Core.DynamicInfoWhitelistAndIndependentResults
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] registry-no-retry: Core.RegistryCapacityInterfaceKeysAndLiveness
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] foreign-lock-ignored: Core.ConfigurationAndLockedSetRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] extra-name-accepted: Core.NameRefusalsAndNoOp
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] identify-one-accepted: Core.IdentifyCurrentValueAndRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] clock-reserved-halfword-omitted: Core.ChangedScalarValuesAndDamagedLists
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] dynamic-overflow-kept: Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] map-capacity-ignored: Core.MapsAreAtomicAndPaginated
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] counter-spacing-short: Core.CounterNoticesCoalesceAndWaitForEligibility:Mailbox.OutputTailStartsCounterSpacingAfterAStall
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unsupported-events-queued: Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] static-map-orphan-accepted: Core.StaticMapsPreventOrphaningFormats
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] output-owner-crossed: Core.OutputMappingsHaveOneGlobalOwner
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] saved-latency-wrong-type: Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] empty-map-no-page: Core.MapTopologyFailuresAndEmptyPartitions:Core.OutputPartitionGeometryUsesAllAdvertisedWidths
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] boot-map-capacity-ignored: Core.BootMapFaultsCannotPartlyReplaceTheSet
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] probe-status-matters: Core.ProbeRepliesResetOnlyTheirOwnInterface
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] framing-version-ignored: Core.FramingRejectsInvalidIdentityAndTruncation
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] reentry-uncounted: Core.ReentrantPortsCannotMutateState
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] probe-sequence-ignored: Core.ProbeIdentityAndSequenceMustBothMatch
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] counter-timer-during-output: Core.CounterTimerArmsOnlyEligibleCompletedSnapshots
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] descriptor-configuration-ignored: Core.MetadataConfigurationKeysAndRepeatedOverrides
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] map-cluster-channel-ignored: Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] no-interface-accepted: Core.InitRefusalsAndClosedService
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] system-id-write-lost: Core.MilanVendorCommandsAndRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] completion-cookie-ignored: Core.NotificationBackpressureAndLatestCompletion
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] stream-interface-bound-ignored: Core.DescriptorAndObservationBoundaryFailures
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-hole-accepted: Nvm.WholeMapFramingAndEmptySetAreDistinct
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-latency-dirty-lost: Nvm.AcceptedStateSurvivesTheRealStorePowerCycle:Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-partial-latch-writes: Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-empty-map-keeps-defaults: Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle:Nvm.WholeMapFramingAndEmptySetAreDistinct
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nvm-unused-payload-reads-erased: Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-start-inverted: App.DeferredStartAndLockUseTheRealAcmpOwner
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-notice-overtakes-unbind: App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-write-owner-lost: App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-failure-flags-lost: App.InputInfoReflectsAcmpSettlementAndFailures
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-poll-space-short: App.CompositionRefusalsLeaveExistingBindingsIntact
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-expired-start-applies: App.ExpiredAndMissingStartRequestsCannotApplyLate
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-unbound-start-refused: App.UnboundStartAndStopAreSuccessfulNoOps
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-available-index-next: App.EntityReadSeesTheLastAdvertisedIndex
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-available-index-unguarded: App.EntityReadSeesTheLastAdvertisedIndex
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-start-skips-publication: App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] app-start-response-before-publication: App.StartAndStopPublishTheStartedLevelBeforeTheirResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mailbox-interface-crossed: Mailbox.EveryInterfaceAndObservationPort
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mailbox-stale-tag-accepted: Mailbox.TimerIdentityAndAttachRefusals
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mailbox-full-completions-overwritten: Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] latency-response-missing: Latency.EveryCommandAndRefusalUsesOneArrivalBudget
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] latency-budget-relaxed: Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin
+[ok] image-byte-corrupted: Image.EveryDescriptor
+[ok] image-crc-ignored: Image.RejectHeader
+[ok] image-type-ignored: Image.RejectDirectory
+[ok] debug-guard-silent: AecpDebug.EveryInputRejectsSynchronousPortDelivery
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-write-after-response: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-identify-in-the-configuration-field: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-sink-format-skipped: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-window-read-past-its-bound: Face.CountersAreReadThroughTheWindowEachWithinItsBound
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-commit-not-waited: Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-lock-not-published: Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-lock-expiry-not-published: Face.LockExpiryIsPublishedBeforeItsNotification
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-output-never-streams: Face.StreamAvbAndFormatAreTheDatapathsWords
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-ready-never-published: Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-ready-before-open: Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-stream-on-every-interface: Face.AStreamsSettingGoesToItsOwnInterface
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-short-descriptor-trusted: Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-window-read-slow: FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-store-status-after-open: AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-store-closed-not-a-failure: AppFace.StoreWordsCarryEveryTerminalAndFlag
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-attach-ignores-a-full-loop: AppFace.AttachRefusesAFullLoop
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-commit-lets-the-loop-sleep: AppFace.AHeldCommitKeepsTheLoopBusy
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-counter-change-event-missed: AppFace.FaceEventsDriveTheirTable522Notifications
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unapplied-change-not-refused: Core.AChangeThePlatformHasNotAppliedPromisesNothing
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] refusal-reports-the-request: Core.AChangeThePlatformHasNotAppliedPromisesNothing
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] refusal-claims-a-lock: Core.AChangeThePlatformHasNotAppliedPromisesNothing
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] change-before-the-expiry-is-notified: Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-change-not-undone: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unapplied-change-claims-success: Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] stream-info-does-not-wait: Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] lock-entity-does-not-wait: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] in-progress-reports-the-request: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-change-not-redone: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-success-not-notified: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-failure-notified: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-never-times-out: Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-times-out-early: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-failure-not-republished: Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-failure-reports-the-request: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-response-forgets-its-requester: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-change-not-kept: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-lock-deadline-not-kept: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-override-not-kept: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-undo-misses-a-byte: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-expiry-not-deferred: Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] unapplied-lock-release-notified: Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease:Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] late-lock-release-never-notified: Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-read-released: Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-owner-dropped: Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-not-read-by-acmp: Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-not-held-against-others: Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease:Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-owner-kept-once-notified: Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] system-id-refusal-not-implemented: Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs:Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-response-leaves-on-the-last-interface: Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] wait-bound-past-the-cadence: Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] wait-bound-past-the-cadence-with-its-service: Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-never-unapplied: Face.ALateCommitIsOwedAndPublishedAgainWhole
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-interface-counted-applied: Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-held-commit-counted-applied: Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-counted-while-a-change-waits: Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-publishes-while-a-change-waits: Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-publish-writes-a-held-block: Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-open-claims-its-acknowledgement: AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] aecp-opens-before-its-publication-is-acknowledged: AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] live-list-appends: Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] changed-event-not-linked: Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] built-event-not-unlinked: Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] live-list-not-rebuilt-at-open: Indexed.FailedNoticesStayLinkedAndOpenRelinksDirectWrites
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] event-links-unbounded: Indexed.RefusesAModelTheEventLinksCannotIndex
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] registration-bit-not-set: Indexed.RegistryScansSkipUnusedRegistrations
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] deregistration-bit-kept: Indexed.RegistryScansSkipUnusedRegistrations
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] probe-expiry-bit-kept: Indexed.RegistryScansSkipUnusedRegistrations
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] index-run-skips-an-index: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] index-run-joins-a-later-run: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] index-run-never-grows: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] find-past-the-run: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] find-ignores-the-scan-mark: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] index-rebuild-keeps-old-runs: Indexed.AKeyChangedAfterInitIsFoundOnlyAfterARebuild
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] key-changed-after-init: Indexed.FindAnswersEachKeyAsAScanOfTheModel
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-in-the-bursts-pass: Mailbox.RetryWaitsForARoundsPass:Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-timer-armed-while-held: Mailbox.RetryWaitsForARoundsPass:Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-held-not-owed: Mailbox.RetryWaitsForARoundsPass:Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-not-held-by-the-adapter: Mailbox.RetryWaitsForARoundsPass:Mailbox.RetryWaitsForARoundsPass
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-before-the-owed-response: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-before-the-owed-notice: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-beside-a-waiting-command: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-beside-a-pending-start: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-built-not-owed: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-takes-one-notice: Mailbox.ARoundFillsWhatItsPassHasLeft
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-past-its-room: Mailbox.ARoundFillsWhatItsPassHasLeft
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-beside-a-refusal: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-before-the-open: Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-arms-no-timer: Mailbox.RetryWaitsForARoundsPass:Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] retry-round-unguarded: Core.CrossInstanceInputsAreRefusedInsideRealCallbacks
+Traceback (most recent call last):
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/aecp_mutants.py", line 924, in campaign
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/aecp_arms.py", line 71, in core_arm
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/aecp_arms.py", line 29, in mailbox_sources
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/srp_arms.py", line 25, in prepared
+ctrl_build.Refusal: SRP entity generation failed: Traceback (most recent call last):
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/srp/srp_entity.py", line 9, in <module>
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/adp/adp_entity.py", line 45, in <module>
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/builder/endstation_builder.py", line 74, in <module>
+  File "<frozen runpy>", line 293, in run_path
+  File "<frozen runpy>", line 261, in _get_code_from_file
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/tb/verilator/nvm_capture_cpu/recipe.py'
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/aecp_mutants.py", line 929, in campaign
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/retry-client-taken-ignored.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 332, in <module>
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 323, in main
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 231, in run_selected
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/wt/sw/firmware/ctrl/test/aecp_mutants.py", line 931, in campaign
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-aecp-mutants/tmp/ctrl-fw-glrhrz7a/aecp-mutants/work/ctrl/aecp/aecp_mbx.c'

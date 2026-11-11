@@ -1,0 +1,16 @@
+# GA8: builds/GA8 (clone at e5baac61185079692aa46b89f1136b3b4bd3eda5) against round 26's GA8
+image/ctrl_app.elf objcopy -O binary identical: old 5b2317d871b373cc981c69e8b66754307168060e0a81c038db644a91225cf330 new 5b2317d871b373cc981c69e8b66754307168060e0a81c038db644a91225cf330, 122328 B
+image/ctrl_app.elf elf identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary identical: old be42e7c948f11eabffbf1f7f320fb8845177ef683db8803b17df36e6efb56843 new be42e7c948f11eabffbf1f7f320fb8845177ef683db8803b17df36e6efb56843, 120656 B
+split-soc/mapped/image/ctrl_app.elf elf identical
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary identical: old 57b60044c2dcbc160066ec53ef3e2bf6ea6447d649931a5d00aed91684b78ffe new 57b60044c2dcbc160066ec53ef3e2bf6ea6447d649931a5d00aed91684b78ffe, 120656 B
+split-soc/stand-ins/image/ctrl_app.elf elf identical
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29, identical: 24
+executable_sha256 differs
+group control log identical: recorded 6d06a3ef8e8ba31ec710056f3d17227f7cb05a7909d794264c5695fa74cd59fc new 6d06a3ef8e8ba31ec710056f3d17227f7cb05a7909d794264c5695fa74cd59fc, 3310619 bytes
+group control script identical

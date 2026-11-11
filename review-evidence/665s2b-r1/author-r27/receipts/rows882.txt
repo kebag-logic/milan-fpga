@@ -1,0 +1,33 @@
+## before-8x8: heaviest AECP records [20893, 16741, 15064]
+aecp.get_counters.if0 | get_counters | measured | 0.25523 ms (bound 0.64898) | pass 32048 cycles
+aecp.get_avb_info.if0 | get_avb_info | measured | 0.31558 ms (bound 0.71105) | pass 49547 cycles
+aecp.unknown_command.if0 | unknown_command | measured | 0.22515 ms (bound 0.59535) | pass 28270 cycles
+aecp.get_counters.if1 | get_counters | measured | 0.14839 ms (bound 0.58295) | pass 32164 cycles
+aecp.get_avb_info.if1 | get_avb_info | measured | 0.25037 ms (bound 0.64817) | pass 29133 cycles
+aecp.unknown_command.if1 | unknown_command | measured | 0.13658 ms (bound 0.52408) | pass 28629 cycles
+## after-8x8-A: heaviest AECP records [20893, 16741, 15064]
+aecp.get_counters.if0 | get_counters, refused ENTITY_MISBEHAVING | measured | 0.25523 ms (bound 0.64898) | pass 32048 cycles
+aecp.get_avb_info.if0 | get_avb_info, refused ENTITY_MISBEHAVING | measured | 0.33764 ms (bound 0.73579) | pass 52021 cycles
+aecp.unknown_command.if0 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.22644 ms (bound 0.59913) | pass 28399 cycles
+aecp.get_counters.if1 | get_counters, refused ENTITY_MISBEHAVING | measured | 0.16266 ms (bound 0.43234) | pass 43234 cycles
+aecp.get_avb_info.if1 | get_avb_info, refused ENTITY_MISBEHAVING | measured | 0.27338 ms (bound 0.672) | pass 31552 cycles
+aecp.unknown_command.if1 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.13776 ms (bound 0.52457) | pass 28588 cycles
+## after-8x8-B: heaviest AECP records [21201, 16818, 14774]
+aecp.get_counters.if0 | get_counters | measured | 0.28433 ms (bound 0.67755) | pass 31802 cycles
+aecp.get_avb_info.if0 | get_avb_info | measured | 0.34133 ms (bound 0.73605) | pass 48591 cycles
+aecp.unknown_command.if0 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.25192 ms (bound 0.62252) | pass 27556 cycles
+aecp.get_counters.if1 | get_counters | measured | 0.11834 ms (bound 0.31249) | pass 31249 cycles
+aecp.get_avb_info.if1 | get_avb_info | measured | 0.101 ms (bound 0.29448) | pass 29448 cycles
+aecp.unknown_command.if1 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.16758 ms (bound 0.548) | pass 27540 cycles
+## before-1x1: heaviest AECP records [15266, 14997, 12037]
+aecp.get_counters.if0 | get_counters | measured | 0.14851 ms (bound 0.35321) | pass 23103 cycles
+aecp.get_avb_info.if0 | get_avb_info | measured | 0.09461 ms (bound 0.21003) | pass 21003 cycles
+aecp.unknown_command.if0 | unknown_command | measured | 0.11927 ms (bound 0.31396) | pass 19149 cycles
+## after-1x1-A: heaviest AECP records [15322, 14997, 12192]
+aecp.get_counters.if0 | get_counters, refused ENTITY_MISBEHAVING | measured | 0.14851 ms (bound 0.35321) | pass 23103 cycles
+aecp.get_avb_info.if0 | get_avb_info, refused ENTITY_MISBEHAVING | measured | 0.11819 ms (bound 0.23528) | pass 23528 cycles
+aecp.unknown_command.if0 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.11931 ms (bound 0.31791) | pass 19079 cycles
+## after-1x1-B: heaviest AECP records [15838, 15160, 12361]
+aecp.get_counters.if0 | get_counters | measured | 0.20046 ms (bound 0.40361) | pass 23456 cycles
+aecp.get_avb_info.if0 | get_avb_info | measured | 0.14264 ms (bound 0.35341) | pass 22942 cycles
+aecp.unknown_command.if0 | unknown_command, refused NOT_IMPLEMENTED | measured | 0.16266 ms (bound 0.36507) | pass 19382 cycles

@@ -1,0 +1,152 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_mem.c b/sw/firmware/ctrl/plat/ctrl_mem.c
+index 46be7e4ddb..abc866f88d 100644
+--- a/sw/firmware/ctrl/plat/ctrl_mem.c
++++ b/sw/firmware/ctrl/plat/ctrl_mem.c
+@@ -23,8 +23,9 @@
+ //     otherwise by the same merge from the top (an insertion into a packed
+ //     list moves its tail up by an element of any length);
+ //   * memcmp compares a word at a time while the two share their alignment,
+-//     and returns the difference of the first differing bytes, as the
+-//     runtime's byte loop did (lwSRP compares attribute values with it).
++//     four bytes a turn while they do not, and returns the difference of the
++//     first differing bytes, as the runtime's byte loop did (lwSRP compares
++//     attribute values with it).
+ // No access is misaligned, and none reads or writes outside [dst, dst + n)
+ // or [src, src + n): the merge composes its first word from bytes, and stops
+ // while the next aligned source word would run past the source.
+@@ -292,6 +293,17 @@ int memcmp(const void *a, const void *b, size_t n)
+ 			y += WORD_BYTES;
+ 			n -= WORD_BYTES;
+ 		}
++	} else {
++		// Four bytes a turn while all four are equal, each read on its own, so
++		// no read waits on the compare before it (#665: lwSRP compares an SRP
++		// record's StreamIDs here, eight bytes whose first six one talker's
++		// streams share, at alignments that differ).
++		while (n >= WORD_BYTES &&
++		       ((x[0] ^ y[0]) | (x[1] ^ y[1]) | (x[2] ^ y[2]) | (x[3] ^ y[3])) == 0u) {
++			x += WORD_BYTES;
++			y += WORD_BYTES;
++			n -= WORD_BYTES;
++		}
+ 	}
+ 	for (; n != 0u; --n, ++x, ++y) {
+ 		if (*x != *y) {
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index c666215de7..5ddce4bd37 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -69,6 +69,14 @@ static __attribute__((noinline)) bool same(const uint8_t *a, const uint8_t *b, u
+     return true;
+ }
+ 
++// same(), its last byte compared where it is called (#665): a record's comparisons that fail, a source or a sink
++// each, almost all differ in that byte, so they cost no call; only one whose last byte matches calls same() for the
++// bytes before it.
++static inline bool matches(const uint8_t *a, const uint8_t *b, unsigned n)
++{
++    return a[n - 1u] == b[n - 1u] && same(a, b, n - 1u);
++}
++
+ // A slot's participant: each interface's MSRP, then its MVRP.
+ static struct mrp_app *participant(const struct srp_interface *i, unsigned slot)
+ {
+@@ -151,7 +159,7 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
+     struct srp_interface *i = from_ctx(ctx);
+     i->stale = true; // what an indication writes, snapshot copies (#665)
+     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+-        if (same(i->sources[n].value.stream_id.bytes,identity->bytes,8)) {
++        if (matches(i->sources[n].value.stream_id.bytes,identity->bytes,8)) {
+             i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||
+                                declaration == MSRP_LISTENER_DECL_READY_FAILED;
+             if (!i->registered[n] && i->active[n]) {
+@@ -169,9 +177,9 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
+     i->stale = true; // what an indication writes, snapshot copies (#665)
+     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+         struct srp_sink *s = &i->sinks[k];
+-        if (s->bound && same(s->stream_id.bytes,v->stream_id.bytes,8)) {
++        if (s->bound && matches(s->stream_id.bytes,v->stream_id.bytes,8)) {
+             s->registered_kinds &= (uint8_t)~kind;
+-            if (registered && same(s->dest_mac,v->dest_mac,6) && s->vid == v->vlan_id) {
++            if (registered && matches(s->dest_mac,v->dest_mac,6) && s->vid == v->vlan_id) {
+                 s->registered_kinds |= kind;
+             }
+         }
+@@ -263,7 +271,9 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
+         struct srp_sink *s = &i->sinks[k];
+         uint8_t previous = s->desired;
+         s->desired = (s->registered_kinds & 1u) ? 1u : (s->registered_kinds & 2u);
+-        capture(s,previous);
++        if (previous | s->desired) {
++            capture(s,previous);
++        }
+     }
+     if (type == MSRP_ATTR_TYPE_DOMAIN) {
+         const struct msrp_domain *d = value;
+@@ -271,13 +281,13 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
+     }
+     if (type == MSRP_ATTR_TYPE_LISTENER) {
+         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+-            if (same(i->sources[n].value.stream_id.bytes,value,8)) {
++            if (matches(i->sources[n].value.stream_id.bytes,value,8)) {
+                 return true;
+             }
+         }
+     } else {
+         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
+-            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {
++            if (i->sinks[n].bound && matches(i->sinks[n].stream_id.bytes,value,8)) {
+                 return true;
+             }
+         }
+@@ -699,7 +709,7 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
+     if (status->attr_type == MSRP_ATTR_TYPE_LISTENER) {
+         const uint8_t *v = status->attr_val;
+         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+-            if (same(i->sources[n].value.stream_id.bytes,v,8)) {
++            if (matches(i->sources[n].value.stream_id.bytes,v,8)) {
+                 // One value per StreamID; Ignore occupies no registrar (35.2.2.7.2).
+                 i->listener_present[n] = true;
+                 i->registered[n] = v[8] == 2 || v[8] == 3;
+@@ -710,8 +720,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
+         const struct msrp_talker_adv *v = status->attr_val;
+         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
+             struct srp_sink *sink = &i->sinks[n];
+-            if (sink->bound && same(sink->stream_id.bytes,v->stream_id.bytes,8) &&
+-                same(sink->dest_mac,v->dest_mac,6) && sink->vid == v->vlan_id) {
++            if (sink->bound && matches(sink->stream_id.bytes,v->stream_id.bytes,8) &&
++                matches(sink->dest_mac,v->dest_mac,6) && sink->vid == v->vlan_id) {
+                 if (status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
+                     sink->desired = 1;
+                     sink->registered_kinds |= 1u;
+@@ -726,6 +736,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
+     }
+ }
+ 
++// A sink's capture of its kind: called only where the kind was or is one, since a kind none before and none
++// now changes nothing (#665).
+ static void capture(struct srp_sink *s, uint8_t previous)
+ {
+     if (previous && !s->desired) {
+@@ -743,7 +755,9 @@ static void snapshot(struct srp_interface *i)
+         // Nothing the walk reads changed since it last ran, so it would copy
+         // the values held: only each sink's capture runs (#665).
+         for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+-            capture(&i->sinks[k],i->sinks[k].desired);
++            if (i->sinks[k].desired) {
++                capture(&i->sinks[k],i->sinks[k].desired);
++            }
+         }
+         return;
+     }
+@@ -758,7 +772,9 @@ static void snapshot(struct srp_interface *i)
+     }
+     (void)mrp_attr_visit(i->msrp,0,registrations,i);
+     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+-        capture(&i->sinks[k],previous[k]);
++        if (previous[k] | i->sinks[k].desired) {
++            capture(&i->sinks[k],previous[k]);
++        }
+         // a binding's declaration changed: THE TRANSMIT's call declares and sends it
+         if (i->sinks[k].desired != previous[k]) {
+             hold(i);

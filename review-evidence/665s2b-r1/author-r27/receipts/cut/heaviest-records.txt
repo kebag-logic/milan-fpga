@@ -1,0 +1,22 @@
+# The scratch cut q1 (q1.diff on e5baac61, not committed): the heaviest SRP records (srp_mbx:receive SPAN, CPU cycles) and work passes of the same groups at 8x8/2if, at the baseline's image (round 26's logs; the baseline builds' images are byte-identical to it, receipts/baseline/) and at the cut's
+## the baseline
+<round-26 scratch>/builds/GN8/results-merged/notice-every-3.log: 128 records, heaviest [34361, 23475, 16749, 16350, 16111, 14678]
+<round-26 scratch>/builds/GN8/results-merged/notice-every-1.log: 128 records, heaviest [34269, 23496, 16381, 16332, 16179, 14388]
+<round-26 scratch>/builds/GA8/results-merged/backlog-owed.log: 32 records, heaviest [33260, 22742, 10469, 10233, 10214, 9950]
+<round-26 scratch>/builds/GA8/results-merged/backlog.log: 32 records, heaviest [26664, 9917, 9063, 7753, 7436, 7403]
+<round-26 scratch>/builds/D8/results-merged/backlog-owed.log: 32 records, heaviest [33098, 22800, 13022, 12016, 10780, 9900]
+## the cut q1
+<scratch>/builds/QN8/results-new/notice-every-3.log: 128 records, heaviest [33741, 22458, 15915, 15539, 15069, 13123]
+<scratch>/builds/QN8/results-new/notice-every-1.log: 128 records, heaviest [33248, 22544, 15771, 15583, 15371, 14008]
+<scratch>/builds/QA8/results-new/backlog-owed.log: 32 records, heaviest [33251, 22667, 12183, 12069, 10132, 9109]
+<scratch>/builds/QA8/results-new/backlog.log: 32 records, heaviest [26691, 9873, 9237, 7586, 6641, 6606]
+## the heaviest work pass (grade.py's passes.worst)
+GA8 backlog: 193,609 -> 177,622 (-15,987)
+GA8 backlog-owed: 171,404 -> 167,983 (-3,421)
+GN8 notice-every-3: 179,486 -> 181,542 (+2,056)
+GN8 notice-every-1: 180,126 -> 176,535 (-3,591)
+## the cut's images, rom (ctrl_memory.py's figure, each build's image.log)
+QN8 "bytes":122788,
+QA8 "bytes":122480,
+QD8, arm A with tsn-c-stack#32 at the pin: REFUSED: allocation over budget: 58 RAMB36 (rom 122936 bytes in 124928, sram 112432 bytes in 112640) exceeds the 57.5-RAMB36 budget ledgered for 8x8, two interfaces
+## the legs: logs/QN8.log, QA8.log, QD8.log (rc 0 0 1)

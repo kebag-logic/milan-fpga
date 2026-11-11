@@ -1,0 +1,17 @@
+# head e7e2b7444a9859b058deff0d9edb575f2fb1946f workflow rtl-fast.yml job firmware-boundary step ci_step_9: Hold the TSN stack boundary over the firmware builders' compiles
+# clone <scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt
+# venv <home>/litex-milan/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (22 s)
+Traceback (most recent call last):
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt/sw/firmware/ctrl/test/ctrl_boundary.py", line 540, in <module>
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt/sw/firmware/ctrl/test/ctrl_boundary.py", line 494, in main
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt/sw/firmware/ctrl/test/ctrl_runs.py", line 162, in captures
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt/sw/firmware/ctrl/test/ctrl_runs.py", line 144, in standalone
+  File "<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/wt/sw/firmware/ctrl/test/ctrl_capture.py", line 271, in run
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates-out/wf-e7e2b744/rtl-fast__firmware-boundary/tmp/ctrl-boundary-o8__nb3y/standalone/manifest.jsonl'

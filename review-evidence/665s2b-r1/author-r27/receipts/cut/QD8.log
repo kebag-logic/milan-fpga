@@ -1,0 +1,34 @@
+HEAD a45126886f407600f9215478a811b2973cb7c5cd DIRTY 0 groups backlog-owed args 
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/builds/QD8/split-soc/stand-ins/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/QD/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/builds/QD8/split-soc/stand-ins/image --libc <scratch>/builds/QD8/split-soc/stand-ins/runtime/libc.a --compiler-runtime <scratch>/builds/QD8/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <scratch>/QD/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware <scratch>/builds/QD8/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/builds/QD8/split-soc/stand-ins/soc
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/builds/QD8/split-soc/stand-ins/soc/csr.csv --csr-h <scratch>/builds/QD8/split-soc/stand-ins/soc/software/include/generated/csr.h --out <scratch>/builds/QD8/split-soc/flash-map
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/builds/QD8/split-soc/mapped/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/QD/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/builds/QD8/split-soc/mapped/image --flash-map <scratch>/builds/QD8/split-soc/flash-map --libc <scratch>/builds/QD8/split-soc/mapped/runtime/libc.a --compiler-runtime <scratch>/builds/QD8/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <scratch>/QD/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware <scratch>/builds/QD8/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/builds/QD8/split-soc/mapped/soc
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/builds/QD8/split-soc/mapped/soc/csr.csv --csr-h <scratch>/builds/QD8/split-soc/mapped/soc/software/include/generated/csr.h --out <scratch>/builds/QD8/split-soc/flash-map-again
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <home>/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <home>/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <home>/litex-milan/litex/litex/soc/software --output <scratch>/builds/QD8/runtime
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/QD/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/QD/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/builds/QD8/image --ledgered-point 8x8-two-interfaces --flash-map <scratch>/builds/QD8/split-soc/flash-map --libc <scratch>/builds/QD8/runtime/libc.a --compiler-runtime <scratch>/builds/QD8/runtime/libcompiler_rt.a
+Traceback (most recent call last):
+  File "<scratch>/QD/tb/verilator/ctrl_service_budget/run.py", line 712, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/QD/tb/verilator/ctrl_service_budget/run.py", line 640, in main
+    spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
+                         core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+  File "<scratch>/QD/tb/verilator/ctrl_service_budget/build.py", line 915, in build
+    elf = firmware(build_dir, shape, n_if, mutation, variant, flash)
+  File "<scratch>/QD/tb/verilator/ctrl_service_budget/build.py", line 335, in firmware
+    run([sys.executable, '-B', *entry,
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+         '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        out / 'image.log', cwd=ROOT)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/QD/tb/verilator/ctrl_service_budget/build.py", line 50, in run
+    raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
+RuntimeError: <home>/litex-milan/venv/bin/python3 exited 2; see image.log
+elapsed=28s rc=1
