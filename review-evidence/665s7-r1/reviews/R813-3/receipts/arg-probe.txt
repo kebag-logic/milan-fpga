@@ -1,0 +1,10 @@
+$ Vmilan_dp_twin_sp --srptx licence CAP --peer-leave-all-ms abc --ms 1
+  what():  stoul
+timeout: the monitored command dumped core
+rc=134
+$ Vmilan_dp_twin_sp --srptx licence CAP --peer-leave-all-ms -5 --ms 1
+srptx licence: 3 control frames, 2 MRPDUs from lwSRP, 2 sent by the adapter, 0 host timeouts, 1 ms
+rc=0
+$ Vmilan_dp_twin_sp --srptx licence CAP --peer-leave-all-ms 18500 --ms 1
+srptx licence: 3 control frames, 2 MRPDUs from lwSRP, 2 sent by the adapter, 0 host timeouts, 1 ms
+rc=0

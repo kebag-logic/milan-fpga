@@ -1,0 +1,46 @@
+== arm clean: build ok
+-- clean wire 16000: bench rc 0
+   bench records: 43 accepted MRPDUs, {'after_join': 9, 'requested(idle_us>=0)': 32, 'neither': 2}
+   head grade: rc 0, 0 findings, 0 [TIME]
+   round-2 grade: rc 0, 0 findings, 0 [TIME]
+-- clean wire 60000: bench rc 0
+   bench records: 149 accepted MRPDUs, {'after_join': 26, 'requested(idle_us>=0)': 121, 'neither': 2}
+   head grade: rc 0, 0 findings, 0 [TIME]
+   round-2 grade: rc 0, 0 findings, 0 [TIME]
+-- clean licence 0: bench rc 0
+   bench records: 69 accepted MRPDUs, {'after_join': 14, 'requested(idle_us>=0)': 53, 'neither': 2}
+   head grade: rc 0, 0 findings, 0 [TIME]
+   round-2 grade: rc 0, 0 findings, 0 [TIME]
+== arm join_wait_ignored: build ok
+-- join_wait_ignored wire 16000: bench rc 0
+   bench records: 43 accepted MRPDUs, {'after_join': 0, 'requested(idle_us>=0)': 34, 'neither': 9}
+   head grade: rc 0, 0 findings, 0 [TIME]
+   round-2 grade: rc 0, 0 findings, 0 [TIME]
+-- join_wait_ignored wire 60000: bench rc 0
+   bench records: 152 accepted MRPDUs, {'after_join': 0, 'requested(idle_us>=0)': 125, 'neither': 27}
+   head grade: rc 1, 5 findings, 5 [TIME]
+     [TIME] MSRP: four transmit opportunities in 90.000 ms from ms 27910, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MSRP: four transmit opportunities in 160.028 ms from ms 39000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MSRP: four transmit opportunities in 170.028 ms from ms 50000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: four transmit opportunities in 230.008 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: four transmit opportunities in 140.013 ms from ms 56860, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+   round-2 grade: rc 1, 7 findings, 7 [TIME]
+     [TIME] MSRP: four transmit opportunities in 90.000 ms from ms 27910, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MSRP: four transmit opportunities in 160.028 ms from ms 39000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MSRP: four transmit opportunities in 170.028 ms from ms 50000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: four transmit opportunities in 230.008 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: four transmit opportunities in 140.013 ms from ms 56860, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 21230, 0.011 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+-- join_wait_ignored licence 0: bench rc 0
+   bench records: 69 accepted MRPDUs, {'after_join': 0, 'requested(idle_us>=0)': 55, 'neither': 14}
+   head grade: rc 1, 1 findings, 1 [TIME]
+     [TIME] MVRP: four transmit opportunities in 229.997 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+   round-2 grade: rc 1, 3 findings, 3 [TIME]
+     [TIME] MVRP: four transmit opportunities in 229.997 ms from ms 21000, inside 1.5 x JoinTime less T_svc (280 ms; IEEE 802.1Q-2018 10.7.4.1)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 21230, 0.011 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+     [TIME] MVRP: a Join timer's transmit opportunity at ms 21230, 0.011 ms after the one before, outside JoinTime's range widened by T_svc (160 to 260 ms; IEEE 802.1Q-2018 10.7.4.1, 10.7.11, Table 10-7; Milan v1.2 Table 4.3)
+
+real	1m5.349s
+user	2m17.056s
+sys	0m11.058s
+rc=0

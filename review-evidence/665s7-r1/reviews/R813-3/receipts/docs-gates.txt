@@ -1,0 +1,18 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 217 md files + 1518 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_em_dash.py --base 1d6bf5556a
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc=0
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (1086 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc=0
+$ git diff --check 2131eff48066da1e3bbeb6b417ea0655fa7c7741 HEAD
+rc=0
+$ git diff --check 1d6bf5556a HEAD
+rc=0
+em dashes in the 248 added lines of the raw round-3 diff (2131eff4..2128daad, -U0): 0
+check_em_dash rc=2 (cannot judge: html5lib renderer not installed on this host; no install made); replaced by the added-line scan above
