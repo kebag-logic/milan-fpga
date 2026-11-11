@@ -104,24 +104,31 @@ MAX_CHECKED_FILE_BYTES = 4 * 1024 * 1024
 MAX_GITMODULES_BYTES = 64 * 1024
 DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
-#: Each job receives a distinct sixteen-CPU scheduler affinity. Source matrices
-#: are materialized as concrete jobs, so the four-job scheduler limit is global
-#: across the selected workflows, without a second nested matrix multiplier.
-CONTAINER_CPU_LIMIT = 16
-FALLBACK_CPU_LIMIT = 12
+#: Each job receives a distinct scheduler affinity: one manager-booked range of
+#: its job geometry's width (JobGeometry, #873). Source matrices are
+#: materialized as concrete jobs, so the geometry's job limit is global across
+#: the selected workflows, without a second nested matrix multiplier.
+#: Per-job CPU width -> the booked range widths a job of that width accepts,
+#: widest first: sixteen keeps its twelve-CPU fallback, a narrower width has
+#: none. The pinned dispatcher accepts sixteen or its MILAN_CI_FALLBACK_CPUS
+#: (ci/act/cpu_ranges.go), so it is given the narrowest width listed here.
+JOB_CPU_WIDTHS: dict[int, tuple[int, ...]] = {16: (16, 12), 8: (8,), 6: (6,)}
+#: The most job containers one replay runs at once (#873).
+MAX_CONCURRENT_JOBS = 8
+#: The most CPUs one replay's concurrent jobs hold together: the four jobs of
+#: sixteen it ran before #873. Jobs times width beyond it over-subscribes CPU.
+REPLAY_CPU_LIMIT = 64
 BOOKED_CPU_RANGES: contextvars.ContextVar[tuple[str, ...]] = contextvars.ContextVar(
     "booked_cpu_ranges", default=())
-#: Four eight-GiB containers fit below the slot's aggregate cap. Swap is included
-#: in the same bound; exhaustion fails the replay rather than expanding the host.
-CONTAINER_MEMORY = "8g"
-CONCURRENT_JOB_LIMIT = 4
+#: A job container's memory cap in GiB: the default and the most any geometry
+#: gives a job. Swap is included in the same bound; exhaustion fails the replay
+#: rather than expanding the host.
+MAX_CONTAINER_MEMORY_GIB = 8
 #: act 0.2.89's own matrix width when a job names no ``strategy.max-parallel``
 #: (pkg/model/workflow.go, Strategy.GetMaxParallel); a job without a matrix
 #: runs one container. A fact of the pinned act, like SUPPORTED_ACT_VERSION,
 #: not of any workflow.
 ACT_DEFAULT_MAX_PARALLEL = 4
-#: One admission token owns one manager-booked range until job cleanup ends.
-SLOT_JOB_RANGES = CONCURRENT_JOB_LIMIT
 #: Read-only auditing includes updates so a later move cannot pass silently.
 JOB_CPU_RANGE_EVENTS = ("create", "update", "start", "die", "destroy")
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
@@ -157,16 +164,20 @@ DEFAULT_SLOT_ROOT = pathlib.Path("/var/lib/milan-act-ci")
 SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: What one isolated slot - its daemon, containerd and job containers
 #: together - may hold in memory, with no swap beyond it (unit-property size
-#: syntax). Four eight-GiB job caps leave four GiB for service overhead.
+#: syntax). SLOT_SERVICE_MEMORY_GIB of it is the daemon's and services' share;
+#: a job geometry's jobs times its per-job cap must fit the rest (JobGeometry):
+#: four eight-GiB job caps, or eight of four GiB, leave four GiB for overhead.
 #: A slot that overruns is killed inside its own slice rather than starving the
 #: host or a sibling slot. A run with any OOM inside the slice, at this cap or
-#: at a job container's CONTAINER_MEMORY below it, is refused rather than
+#: at a job container's geometry cap below it, is refused rather than
 #: reported as a verdict (SlotMemory, read from the slice's hierarchical
 #: memory.events before teardown). That is all it detects: reclaim at a limit,
 #: and an allocation that fails there without an OOM, still yield a verdict,
 #: and each slot run prints its peak and how often a limit was hit. Slot 0
 #: keeps only the per-container bound it had, with no slice to read.
-SLOT_MEMORY_MAX = "36G"
+SLOT_MEMORY_GIB = 36
+SLOT_SERVICE_MEMORY_GIB = 4
+SLOT_MEMORY_MAX = f"{SLOT_MEMORY_GIB}G"
 SLOT_COMMAND_TIMEOUT_SECONDS = 60
 #: A slot daemon's start job (until dockerd reports ready) and its stop job
 #: (dockerd stops its containers first), bounded by the service manager itself.
@@ -2131,7 +2142,7 @@ def replay_container_concurrency(root: pathlib.Path, workflows: Sequence[str]) -
             if not isinstance(job, dict):
                 raise Refusal(f"workflow {relative} has a malformed job")
             count += job_container_width(job, f"workflow {relative} job {job_id}")
-    return min(CONCURRENT_JOB_LIMIT, count)
+    return min(JOB_GEOMETRY.get().jobs, count)
 
 
 def parse_action_reference(spec: str) -> RemoteAction | None:
@@ -4578,7 +4589,7 @@ class SlotMemory:
 
     The counts are the slice's hierarchical `memory.events`, which include
     every cgroup below it: `oom` and `oom_kill` count an OOM at a job
-    container's CONTAINER_MEMORY limit as well as one at the slice's own
+    container's job-geometry cap as well as one at the slice's own
     SLOT_MEMORY_MAX, whichever job it hit, and `max` counts how often usage
     reached any of those limits. `peak` is the slice's `memory.peak` in
     bytes, None when unreadable.
@@ -4608,7 +4619,7 @@ class SlotMemory:
         """Why an exhausted slot's evidence is invalid."""
         return (
             f"replay slot {self.slot} recorded {self.oom_kill} OOM kill(s) and {self.oom} "
-            f"OOM event(s) at a memory limit inside it (a job container's {CONTAINER_MEMORY} "
+            f"OOM event(s) at a memory limit inside it (a job container's {JOB_GEOMETRY.get().container_memory} "
             f"or the slot's MemoryMax={SLOT_MEMORY_MAX}): memory, not the candidate, decided "
             "at least one job, so the evidence is invalid (valid build: False) whichever "
             "job it hit and whatever the jobs returned; bound the job's memory and replay it"
@@ -4728,6 +4739,82 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
 
 
 
+@dataclass(frozen=True)
+class JobGeometry:
+    """How many job containers one replay runs at once, and what each one is held to (#873).
+
+    `jobs` bounds act's admission: one token per manager-booked range, each
+    owning its range until that job's cleanup ends. `cpus` is the width of the
+    range a job is created on, and `memory_gib` its container's memory and
+    swap cap. The default is the runner's geometry before #873: four jobs of
+    sixteen CPUs (or the twelve-CPU fallback) at eight GiB. A geometry exists
+    only when it fits by construction: its jobs times `memory_gib`, plus the
+    slot's service share, within SLOT_MEMORY_MAX, and its jobs times `cpus`
+    within REPLAY_CPU_LIMIT. Any other is a Refusal, never a smaller replay.
+    """
+
+    jobs: int = 4
+    cpus: int = 16
+    memory_gib: int = MAX_CONTAINER_MEMORY_GIB
+
+    def __post_init__(self) -> None:
+        """Refuse a count, width or cap out of range, and any memory or CPU over-subscription."""
+        for name in ("jobs", "cpus", "memory_gib"):
+            value = getattr(self, name)
+            if type(value) is not int:
+                raise Refusal(f"job geometry {name} must be an integer, not {value!r}")
+        if not 1 <= self.jobs <= MAX_CONCURRENT_JOBS:
+            raise Refusal(f"unsupported concurrent job count: {self.jobs}; need 1 to {MAX_CONCURRENT_JOBS}")
+        if self.cpus not in JOB_CPU_WIDTHS:
+            raise Refusal(f"unsupported per-job CPU width: {self.cpus}; need "
+                          + " or ".join(str(width) for width in JOB_CPU_WIDTHS))
+        if not 1 <= self.memory_gib <= MAX_CONTAINER_MEMORY_GIB:
+            raise Refusal(f"unsupported per-job memory cap: {self.memory_gib} GiB; need 1 to "
+                          f"{MAX_CONTAINER_MEMORY_GIB}")
+        memory = self.jobs * self.memory_gib + SLOT_SERVICE_MEMORY_GIB
+        if memory > SLOT_MEMORY_GIB:
+            raise Refusal(
+                f"memory over-subscribed: {self.jobs} jobs of {self.memory_gib} GiB plus the slot's "
+                f"{SLOT_SERVICE_MEMORY_GIB} GiB service share need {memory} GiB, over its "
+                f"MemoryMax={SLOT_MEMORY_MAX}; {self.jobs} jobs fit at most "
+                f"{(SLOT_MEMORY_GIB - SLOT_SERVICE_MEMORY_GIB) // self.jobs} GiB each")
+        cpus = self.jobs * self.cpus
+        if cpus > REPLAY_CPU_LIMIT:
+            raise Refusal(
+                f"CPU over-subscribed: {self.jobs} jobs of {self.cpus} CPUs need {cpus} CPUs, over "
+                f"the {REPLAY_CPU_LIMIT} one replay may book; at most {REPLAY_CPU_LIMIT // self.cpus} "
+                f"jobs of {self.cpus} fit")
+
+    @property
+    def range_widths(self) -> tuple[int, ...]:
+        """The booked range widths a job of this geometry is created on, widest first."""
+        return JOB_CPU_WIDTHS[self.cpus]
+
+    @property
+    def fallback_cpus(self) -> int:
+        """The narrowest accepted width: the pinned dispatcher's MILAN_CI_FALLBACK_CPUS."""
+        return self.range_widths[-1]
+
+    @property
+    def container_memory(self) -> str:
+        """Each job container's memory and swap cap, in Docker size syntax."""
+        return f"{self.memory_gib}g"
+
+
+DEFAULT_JOB_GEOMETRY = JobGeometry()
+#: The geometry main() builds from --jobs, --job-cpus and --job-memory before
+#: --cpu-ranges is parsed against it; every reader below takes it from here.
+JOB_GEOMETRY: contextvars.ContextVar[JobGeometry] = contextvars.ContextVar(
+    "job_geometry", default=DEFAULT_JOB_GEOMETRY)
+
+
+def job_geometry_arguments(jobs: int | None, cpus: int | None, memory_gib: int | None) -> JobGeometry:
+    """The geometry the command line asks for; an option it omits keeps the default's value."""
+    chosen = {name: value for name, value in (("jobs", jobs), ("cpus", cpus), ("memory_gib", memory_gib))
+              if value is not None}
+    return replace(DEFAULT_JOB_GEOMETRY, **chosen)
+
+
 def cpu_range_overlaps(named: Sequence[tuple[str, str]]) -> list[str]:
     """Each CPU two `(owner, "first-last")` ranges share, as `<owner> and <owner> share CPU <n>`; [] if disjoint."""
     holders: dict[int, str] = {}
@@ -4748,14 +4835,15 @@ def parse_cpu_ranges(raw: str | None) -> tuple[str, ...]:
         raise Refusal("missing --cpu-ranges: manager-booked ranges are required")
     ranges = tuple(raw.split(","))
     host_cpus = os.cpu_count() or 1
+    widths = JOB_GEOMETRY.get().range_widths
     for text in ranges:
         if not re.fullmatch(r"(?:0|[1-9][0-9]*)-(?:0|[1-9][0-9]*)", text):
             raise Refusal("invalid CPU range: " + text)
         first, last = map(int, text.split("-"))
         width = last - first + 1
-        if width not in (CONTAINER_CPU_LIMIT, FALLBACK_CPU_LIMIT):
+        if width not in widths:
             raise Refusal(f"CPU range {text} has unsupported width {width}; need "
-                          f"{CONTAINER_CPU_LIMIT} or {FALLBACK_CPU_LIMIT}")
+                          + " or ".join(str(each) for each in widths))
         if first % width:
             raise Refusal("CPU range is not aligned to its width: " + text)
         if last >= host_cpus:
@@ -4770,11 +4858,12 @@ def job_cpu_ranges(slot: int, concurrency: int) -> tuple[str, ...]:
     """Select explicitly booked ranges for the bounded admission width."""
     ReplaySlot(slot)
     ranges = parse_cpu_ranges(",".join(BOOKED_CPU_RANGES.get()))
-    if not 1 <= concurrency <= CONCURRENT_JOB_LIMIT:
+    jobs = JOB_GEOMETRY.get().jobs
+    if not 1 <= concurrency <= jobs:
         raise Refusal("unsupported concurrent job count: " + str(concurrency))
     if len(ranges) < concurrency:
         raise Refusal(f"insufficient CPU ranges: {concurrency} jobs need distinct ranges")
-    return ranges[:CONCURRENT_JOB_LIMIT]
+    return ranges[:jobs]
 
 
 
@@ -4811,6 +4900,7 @@ def build_act_command(
     if gateway.version != 4:
         raise Refusal("Docker boundary server-bind gateway must be IPv4")
     server_address = str(gateway)
+    geometry = JOB_GEOMETRY.get()
     artifact_path = layout.artifacts / workflow
     artifact_path.mkdir(parents=True, exist_ok=True)
     return [
@@ -4854,12 +4944,12 @@ def build_act_command(
         "--container-daemon-socket",
         "-",
         "--concurrent-jobs",
-        str(min(CONCURRENT_JOB_LIMIT, len(BOOKED_CPU_RANGES.get()))),
+        str(min(geometry.jobs, len(BOOKED_CPU_RANGES.get()))),
         "--env", "MILAN_CI_CPU_RANGES=" + ",".join(BOOKED_CPU_RANGES.get()),
-        "--env", "MILAN_CI_FALLBACK_CPUS=" + str(FALLBACK_CPU_LIMIT),
+        "--env", "MILAN_CI_FALLBACK_CPUS=" + str(geometry.fallback_cpus),
         "--container-options",
         f"--label={DOCKER_OWNER_LABEL}={boundary.token} "
-        f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
+        f"--memory={geometry.container_memory} --memory-swap={geometry.container_memory}",
         "--network",
         boundary.name,
     ]
@@ -6685,13 +6775,13 @@ def selftest_validation_transcript(
     check(
         "dry-run prints the job bound and the bounded container options as "
         "one quoted argv word",
-        f" --concurrent-jobs {CONCURRENT_JOB_LIMIT} "
+        f" --concurrent-jobs {JOB_GEOMETRY.get().jobs} "
         in transcript.getvalue()
         and " --container-options "
         f"'--label={DOCKER_OWNER_LABEL}="
         in transcript.getvalue()
-        and f" --memory={CONTAINER_MEMORY}"
-        f" --memory-swap={CONTAINER_MEMORY}'" in transcript.getvalue(),
+        and f" --memory={JOB_GEOMETRY.get().container_memory}"
+        f" --memory-swap={JOB_GEOMETRY.get().container_memory}'" in transcript.getvalue(),
     )
 
 
@@ -6812,6 +6902,7 @@ def selftest_runner_label_replay(
 ) -> None:
     """Arms: a ubuntu-24.04 job replays to an act command that maps it; other labels are refused first (#784)."""
     check = tally.check
+    memory = JOB_GEOMETRY.get().container_memory
     rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
     check(
         "a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command "
@@ -6820,8 +6911,8 @@ def selftest_runner_label_replay(
         and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
     )
     check(
-        f"a ubuntu-24.04 replay holds its job containers to the {CONTAINER_MEMORY} memory and swap bound",
-        f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'" in transcript,
+        f"a ubuntu-24.04 replay holds its job containers to the {memory} memory and swap bound",
+        f" --memory={memory} --memory-swap={memory}'" in transcript,
     )
     for label in ("ubuntu-latest", "ubuntu-26.04"):
         rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, label)
@@ -7540,6 +7631,7 @@ def selftest_docker_fixture(layout: RunLayout) -> DockerFixture:
 def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
     """Arms: the act command line isolates the job and binds its servers to the bridge gateway."""
     check = tally.check
+    geometry = JOB_GEOMETRY.get()
     selftest_boundary = docker.boundary
     first = docker.layout
     allocated_port = docker.port
@@ -7577,18 +7669,18 @@ def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
         command.count("--container-options") == 1
         and command[command.index("--container-options") + 1]
         == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token} "
-        f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
+        f"--memory={geometry.container_memory} --memory-swap={geometry.container_memory}",
     )
     #: Hosted jobs each get their own runner; a replica's jobs share one
-    #: host, so act starts at most CONCURRENT_JOB_LIMIT of a stage's jobs.
+    #: host, so act starts at most the job geometry's jobs of a stage at once.
     #: Below one, act falls back to one job per host CPU.
     check(
-        f"act starts at most {CONCURRENT_JOB_LIMIT} jobs of a stage at once, "
+        f"act starts at most {geometry.jobs} jobs of a stage at once, "
         "stated exactly once",
         command.count("--concurrent-jobs") == 1
         and command[command.index("--concurrent-jobs") + 1]
-        == str(CONCURRENT_JOB_LIMIT)
-        and CONCURRENT_JOB_LIMIT >= 1,
+        == str(geometry.jobs)
+        and geometry.jobs >= 1,
     )
     check(
         "only an explicitly empty GitHub token reaches candidate jobs",
@@ -7629,7 +7721,7 @@ def selftest_container_cpu_bound(tally: SelftestTally, docker: DockerFixture) ->
     options = shlex.split(command[command.index("--container-options") + 1])
     tally.check("booked ranges and named fallback reach creation scheduler",
                 "MILAN_CI_CPU_RANGES=" + ",".join(BOOKED_CPU_RANGES.get()) in command
-                and "MILAN_CI_FALLBACK_CPUS=" + str(FALLBACK_CPU_LIMIT) in command)
+                and "MILAN_CI_FALLBACK_CPUS=" + str(JOB_GEOMETRY.get().fallback_cpus) in command)
     tally.check("no staging affinity or privileged job", not any("cpuset" in word for word in options)
                 and options[0] == f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token}"
                 and "--privileged" not in command)
@@ -7637,8 +7729,9 @@ def selftest_container_cpu_bound(tally: SelftestTally, docker: DockerFixture) ->
 
 
 def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: job containers are held to CONTAINER_MEMORY, swap included, in a word of exactly four bounded tokens."""
+    """Arms: job containers are held to the geometry's memory cap, swap included, in one word of four bounded tokens."""
     check = tally.check
+    memory = JOB_GEOMETRY.get().container_memory
     selftest_boundary = docker.boundary
     command = build_act_command(
         ["act"], "rtl-full", docker.layout, docker.port, selftest_boundary
@@ -7650,19 +7743,19 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
     #: needs more fails hosted too, and a bounded container fails the replica
     #: instead of the host. Swap equal to memory is Docker for "no swap beyond it".
     check(
-        f"job containers are held to {CONTAINER_MEMORY} of memory and the "
+        f"job containers are held to {memory} of memory and the "
         "same swap ceiling, one limit each, in Docker size syntax",
-        memory_words == [f"--memory={CONTAINER_MEMORY}"]
-        and swap_words == [f"--memory-swap={CONTAINER_MEMORY}"]
-        and re.fullmatch(r"[1-9][0-9]*[kmg]", CONTAINER_MEMORY) is not None,
+        memory_words == [f"--memory={memory}"]
+        and swap_words == [f"--memory-swap={memory}"]
+        and re.fullmatch(r"[1-9][0-9]*[kmg]", memory) is not None,
     )
     check(
         "container options preserve label, memory and swap in order",
         option_words
         == [
             f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}",
-            f"--memory={CONTAINER_MEMORY}",
-            f"--memory-swap={CONTAINER_MEMORY}",
+            f"--memory={memory}",
+            f"--memory-swap={memory}",
         ],
     )
 
@@ -7675,7 +7768,7 @@ def write_concurrency_workflow(root: pathlib.Path, workflow: str, jobs: str) -> 
 
 
 def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
-    """Arms: a replay's concurrent job containers come from max-parallel and CONCURRENT_JOB_LIMIT (#730)."""
+    """Arms: a replay's concurrent job containers come from max-parallel and the job geometry's jobs (#730, #873)."""
     check = tally.check
     refused = tally.refused
     matrix = {"matrix": {"shard": ["0", "1", "2", "3", "4"]}}
@@ -7713,7 +7806,8 @@ def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) 
         write_concurrency_workflow(root, "rtl-fast", "".join(f"  job{n}:\n{plain}" for n in range(2)))
         write_concurrency_workflow(root, "docs", f"  only:\n{plain}")
         for limit in (1, 2, 3, 4):
-            with mock.patch.object(sys.modules[__name__], "CONCURRENT_JOB_LIMIT", limit):
+            with mock.patch.object(sys.modules[__name__], "JOB_GEOMETRY", contextvars.ContextVar(
+                    "test_job_geometry", default=JobGeometry(limit))):
                 check(f"all selected workflows share the {limit}-job limit in every order",
                       {replay_container_concurrency(root, order) for order in orders} == {limit})
                 check(f"a single small workflow does not invent {limit} jobs",
@@ -7723,13 +7817,27 @@ def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) 
             write_concurrency_workflow(root, "rtl-full", f"  matrix:\n{plain}    strategy:\n"
                                        f"      max-parallel: {maximum}\n      matrix:\n        n: [1, 2]\n")
             check(f"nested matrix width {maximum} shares the global four-job admission gate",
-                  replay_container_concurrency(root, ("rtl-full",)) == min(maximum, CONCURRENT_JOB_LIMIT))
+                  replay_container_concurrency(root, ("rtl-full",)) == min(maximum, JOB_GEOMETRY.get().jobs))
+        with mock.patch.object(sys.modules[__name__], "JOB_GEOMETRY", contextvars.ContextVar(
+                "test_job_geometry", default=JobGeometry(8, 6, 4))):
+            check("an 8-job geometry admits 8 legs of a 9-wide nested matrix, and all selected workflows "
+                  "share that 8-job limit in every order",
+                  replay_container_concurrency(root, ("rtl-full",)) == 8
+                  and {replay_container_concurrency(root, order) for order in orders} == {8})
     shipping = {name: replay_container_concurrency(shipping_root, (name,)) for name in WORKFLOWS}
     check(
-        f"every shipping workflow derives 1 to {SLOT_JOB_RANGES} concurrent containers, and "
+        f"every shipping workflow derives 1 to {JOB_GEOMETRY.get().jobs} concurrent containers, and "
         "rtl-full's matrix legs run more than one at once",
-        all(1 <= each <= SLOT_JOB_RANGES for each in shipping.values())
+        all(1 <= each <= JOB_GEOMETRY.get().jobs for each in shipping.values())
         and shipping["rtl-full"] > 1,
+    )
+    with mock.patch.object(sys.modules[__name__], "JOB_GEOMETRY", contextvars.ContextVar(
+            "test_job_geometry", default=JobGeometry(8, 6, 4))):
+        eight = {name: replay_container_concurrency(shipping_root, (name,)) for name in WORKFLOWS}
+    check(
+        "under an 8-job geometry every shipping workflow derives 1 to 8 concurrent containers, and "
+        f"rtl-full more than the default {DEFAULT_JOB_GEOMETRY.jobs}",
+        all(1 <= each <= 8 for each in eight.values()) and eight["rtl-full"] > DEFAULT_JOB_GEOMETRY.jobs,
     )
 
 
@@ -7746,7 +7854,8 @@ def selftest_job_cpu_ranges(tally: SelftestTally) -> None:
             tally.refused(f"invalid or missing CPU ranges {raw!r}", lambda raw=raw: parse_cpu_ranges(raw))
         for raw in ("0-15,16-31,32-47,48-63", "0-11,12-23,24-35,36-47", "0-15,24-35"):
             tally.check("booked ranges accepted: " + raw, parse_cpu_ranges(raw) == tuple(raw.split(",")))
-        tally.check("fallback has one named setting", FALLBACK_CPU_LIMIT == 12)
+        tally.check("fallback has one named setting", JOB_CPU_WIDTHS[16] == (16, 12)
+                    and DEFAULT_JOB_GEOMETRY.fallback_cpus == 12)
         tally.check("slot number cannot relocate booked CPUs", job_cpu_ranges(0, 4) == job_cpu_ranges(63, 4))
         with mock.patch.object(sys.modules[__name__], "BOOKED_CPU_RANGES",
                                contextvars.ContextVar("test_cpu_ranges", default=("0-15",))):
@@ -7756,6 +7865,143 @@ def selftest_job_cpu_ranges(tally: SelftestTally) -> None:
             tally.refused("no implicit host CPU allocation", lambda: job_cpu_ranges(0, 1))
         for count in (0, 5):
             tally.refused("unsupported job admission width", lambda count=count: job_cpu_ranges(0, count))
+
+
+@contextlib.contextmanager
+def selftest_geometry(geometry: JobGeometry, ranges: Sequence[str]) -> Iterator[None]:
+    """Run the body as a replay of `geometry` on the manager-booked `ranges`; neither outlives it."""
+    module = sys.modules[__name__]
+    with mock.patch.object(module, "JOB_GEOMETRY", contextvars.ContextVar("test_job_geometry", default=geometry)), \
+            mock.patch.object(module, "BOOKED_CPU_RANGES",
+                              contextvars.ContextVar("test_cpu_ranges", default=tuple(ranges))):
+        yield
+
+
+def aligned_cpu_ranges(count: int, width: int) -> tuple[str, ...]:
+    """`count` adjacent ranges of `width` CPUs from CPU 0, each aligned to its width."""
+    return tuple(f"{n * width}-{n * width + width - 1}" for n in range(count))
+
+
+def selftest_job_geometry(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms (#873): 8 jobs run on 6- or 8-CPU ranges, and a memory or CPU over-subscription is refused."""
+    check = tally.check
+    check("the default geometry is the runner's before #873, 4 jobs of 16 CPUs (12 fallback) at 8g, "
+          "and a command line naming no geometry option keeps it",
+          (DEFAULT_JOB_GEOMETRY.jobs, DEFAULT_JOB_GEOMETRY.cpus, DEFAULT_JOB_GEOMETRY.memory_gib) == (4, 16, 8)
+          and DEFAULT_JOB_GEOMETRY.range_widths == (16, 12) and DEFAULT_JOB_GEOMETRY.container_memory == "8g"
+          and JOB_GEOMETRY.get() == DEFAULT_JOB_GEOMETRY
+          and job_geometry_arguments(None, None, None) == DEFAULT_JOB_GEOMETRY
+          and job_geometry_arguments(8, 6, 4) == JobGeometry(8, 6, 4)
+          and job_geometry_arguments(None, 8, None) == JobGeometry(4, 8, 8))
+    with mock.patch.object(os, "cpu_count", return_value=128):
+        check("the default geometry still refuses 6- and 8-CPU ranges by their width",
+              all(refusal_text(lambda raw=raw: parse_cpu_ranges(raw)).startswith(f"CPU range {raw.split(',')[0]} "
+                                                                                 "has unsupported width")
+                  for raw in ("0-5", "0-7,8-15", "0-5,16-31")))
+        for cpus, unaligned, beyond, foreign in ((6, "3-8", "126-131", ("0-15", "0-11", "0-7")),
+                                                 (8, "4-11", "128-135", ("0-15", "0-11", "0-5"))):
+            ranges = aligned_cpu_ranges(8, cpus)
+            with selftest_geometry(JobGeometry(8, cpus, 4), ranges):
+                check(f"8 jobs on {cpus}-CPU ranges: the 8 booked ranges parse, admit 8 concurrent jobs "
+                      "and are all selected",
+                      parse_cpu_ranges(",".join(ranges)) == ranges and job_cpu_ranges(0, 8) == ranges)
+                command = build_act_command(["act"], "rtl-full", docker.layout, docker.port, docker.boundary)
+                options = shlex.split(command[command.index("--container-options") + 1])
+                check(f"8 jobs on {cpus}-CPU ranges: act starts 8 jobs at once, stated once, the dispatcher gets "
+                      f"every range and fallback width {cpus}, and each container is held to 4g of memory and swap",
+                      command.count("--concurrent-jobs") == 1
+                      and command[command.index("--concurrent-jobs") + 1] == "8"
+                      and "MILAN_CI_CPU_RANGES=" + ",".join(ranges) in command
+                      and f"MILAN_CI_FALLBACK_CPUS={cpus}" in command
+                      and options == [f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token}",
+                                      "--memory=4g", "--memory-swap=4g"])
+                check(f"8 jobs on {cpus}-CPU ranges: a ninth concurrent job is refused",
+                      refusal_text(lambda: job_cpu_ranges(0, 9)) == "unsupported concurrent job count: 9")
+                with mock.patch.object(sys.modules[__name__], "BOOKED_CPU_RANGES",
+                                       contextvars.ContextVar("test_cpu_ranges", default=ranges[:7])):
+                    check(f"8 jobs on {cpus}-CPU ranges: seven booked ranges for 8 concurrent jobs are refused",
+                          refusal_text(lambda: job_cpu_ranges(0, 8)).startswith("insufficient CPU ranges: 8 jobs"))
+                kept = (
+                    ("unaligned", unaligned, "CPU range is not aligned to its width: " + unaligned),
+                    ("repeated", f"{ranges[0]},{ranges[1]},{ranges[0]}", "CPU ranges overlap: 0 and 2 share CPU 0"),
+                    ("beyond the host", f"{ranges[1]},{beyond}", f"CPU range {beyond} exceeds this host's 128 CPUs"),
+                )
+                check(f"8 jobs on {cpus}-CPU ranges keep the --cpu-ranges refusals: an unaligned, a repeated "
+                      "and a beyond-the-host range each refused for its own reason",
+                      all(refusal_text(lambda raw=raw: parse_cpu_ranges(raw)) == reason for _, raw, reason in kept))
+                check(f"8 jobs on {cpus}-CPU ranges refuse any other width: " + ", ".join(foreign),
+                      all(refusal_text(lambda raw=raw: parse_cpu_ranges(raw)) == f"CPU range {raw} has unsupported "
+                          f"width {int(raw.split('-')[1]) + 1}; need {cpus}" for raw in foreign))
+    for jobs, cpus, memory in ((8, 6, 8), (8, 8, 5), (6, 8, 6), (5, 6, 7)):
+        need = jobs * memory + SLOT_SERVICE_MEMORY_GIB
+        check(f"memory over-subscription is refused: {jobs} jobs of {memory} GiB plus the "
+              f"{SLOT_SERVICE_MEMORY_GIB} GiB service share need {need} GiB, over the slot's {SLOT_MEMORY_MAX}",
+              refusal_text(lambda: JobGeometry(jobs, cpus, memory)).startswith(
+                  f"memory over-subscribed: {jobs} jobs of {memory} GiB plus the slot's {SLOT_SERVICE_MEMORY_GIB} "
+                  f"GiB service share need {need} GiB, over its MemoryMax={SLOT_MEMORY_MAX}"))
+    for jobs, cpus, memory in ((8, 16, 4), (5, 16, 6), (8, 16, 1)):
+        check(f"CPU over-subscription is refused: {jobs} jobs of {cpus} CPUs need {jobs * cpus}, over the "
+              f"{REPLAY_CPU_LIMIT} one replay may book, though their memory ({memory} GiB each) fits",
+              jobs * memory + SLOT_SERVICE_MEMORY_GIB <= SLOT_MEMORY_GIB
+              and refusal_text(lambda: JobGeometry(jobs, cpus, memory)).startswith(
+                  f"CPU over-subscribed: {jobs} jobs of {cpus} CPUs need {jobs * cpus} CPUs, over the "
+                  f"{REPLAY_CPU_LIMIT} one replay may book"))
+    check("a geometry exactly at both bounds is accepted: 8 x 6 and 8 x 8 at 4 GiB, and 4 x 16 at 8 GiB, "
+          f"fill the slot's {SLOT_MEMORY_MAX} with its service share; 8 x 8 and 4 x 16 hold {REPLAY_CPU_LIMIT} CPUs",
+          all(refusal_text(lambda shape=shape: JobGeometry(*shape)) == ""
+              for shape in ((8, 6, 4), (8, 8, 4), (4, 16, 8), (1, 6, 1))))
+    out_of_range = (
+        ((0, 16, 8), "unsupported concurrent job count: 0; need 1 to 8"),
+        ((9, 6, 3), "unsupported concurrent job count: 9; need 1 to 8"),
+        ((4, 12, 8), "unsupported per-job CPU width: 12; need 16 or 8 or 6"),
+        ((4, 4, 8), "unsupported per-job CPU width: 4; need 16 or 8 or 6"),
+        ((4, 32, 8), "unsupported per-job CPU width: 32; need 16 or 8 or 6"),
+        ((4, 16, 0), "unsupported per-job memory cap: 0 GiB; need 1 to 8"),
+        ((2, 16, 9), "unsupported per-job memory cap: 9 GiB; need 1 to 8"),
+        ((True, 16, 8), "job geometry jobs must be an integer, not True"),
+        ((4, "8", 8), "job geometry cpus must be an integer, not '8'"),
+        ((4, 16, 8.0), "job geometry memory_gib must be an integer, not 8.0"),
+    )
+    check("a job count, CPU width or memory cap out of range, or not an integer, is refused by name: "
+          + "; ".join(repr(shape) for shape, _ in out_of_range),
+          all(refusal_text(lambda shape=shape: JobGeometry(*shape)) == reason for shape, reason in out_of_range))
+
+
+def selftest_job_geometry_arguments(tally: SelftestTally) -> None:
+    """Arms (#873): the command line's geometry, and --cpu-ranges read against it, refuse before any collaborator."""
+    check = tally.check
+    clean = {"PATH": SAFE_PATH}
+    for flag, value in (("--jobs", "8"), ("--job-cpus", "6"), ("--job-memory", "4")):
+        # A main that let the option through would start the self-test again; the stub ends that run with
+        # RC_OK, so a missing usage error fails this arm rather than recursing.
+        with mock.patch.object(sys.modules[__name__], "selftest_configured", lambda _root: RC_OK):
+            status, _stderr, reached = main_with_recorded_collaborators(["--selftest", flag, value], clean)
+        check(f"--selftest with {flag} is a usage error", status == 2 and reached == [])
+    cases = (
+        ("8 jobs at the default 8 GiB are refused for memory before any collaborator",
+         ["--jobs", "8", "--job-cpus", "6"], aligned_cpu_ranges(8, 6), "memory over-subscribed: 8 jobs of 8 GiB"),
+        ("8 jobs at the default 16 CPUs are refused for CPU before any collaborator",
+         ["--jobs", "8", "--job-memory", "4"], aligned_cpu_ranges(8, 16), "CPU over-subscribed: 8 jobs of 16 CPUs"),
+        ("a ninth job is refused before any collaborator",
+         ["--jobs", "9", "--job-cpus", "6", "--job-memory", "3"], aligned_cpu_ranges(9, 6),
+         "unsupported concurrent job count: 9"),
+        ("--cpu-ranges is read against the chosen width: 16-CPU ranges under --job-cpus 6 are refused",
+         ["--jobs", "4", "--job-cpus", "6", "--job-memory", "8"], aligned_cpu_ranges(4, 16),
+         "CPU range 0-15 has unsupported width 16; need 6"),
+    )
+    for label, argv, ranges, reason in cases:
+        with selftest_geometry(DEFAULT_JOB_GEOMETRY, ranges):
+            status, stderr, reached = main_with_recorded_collaborators(["--pr", "1", *argv], clean)
+        check(label, status == RC_REFUSED and f"act-ci: REFUSED: {reason}" in stderr and reached == [])
+    for cpus in (6, 8):
+        with selftest_geometry(DEFAULT_JOB_GEOMETRY, aligned_cpu_ranges(8, cpus)):
+            status, stderr, reached = main_with_recorded_collaborators(
+                ["--pr", "1", "--jobs", "8", "--job-cpus", str(cpus), "--job-memory", "4"], clean)
+            chosen = JOB_GEOMETRY.get()
+        check(f"--jobs 8 --job-cpus {cpus} --job-memory 4 on 8 ranges of {cpus} reaches its first collaborator "
+              "with that geometry, which does not outlive the run",
+              reached == ["validate_bootstrap_options"] and chosen == JobGeometry(8, cpus, 4)
+              and JOB_GEOMETRY.get() == DEFAULT_JOB_GEOMETRY)
 
 
 
@@ -14257,7 +14503,7 @@ def selftest_slot_act_command(tally: SelftestTally, docker: DockerFixture) -> No
         "container options preserve the label and memory limits",
         default_command[options]
         == f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token} "
-        f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
+        f"--memory={JOB_GEOMETRY.get().container_memory} --memory-swap={JOB_GEOMETRY.get().container_memory}",
     )
     check(
         "daemon slot numbering cannot change booked creation affinity",
@@ -15231,6 +15477,7 @@ def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
     selftest_slot_environment(tally, docker.layout)
     selftest_inherited_docker_environment(tally)
     selftest_slot_arguments(tally)
+    selftest_job_geometry_arguments(tally)
     selftest_host_tool_paths(tally)
     selftest_slot_commands(tally)
     selftest_slot_act_command(tally, docker)
@@ -15264,6 +15511,7 @@ def selftest_run_directory_stages(
             selftest_combined_execution(tally, docker)
             selftest_container_cpu_bound(tally, docker)
             selftest_job_cpu_ranges(tally)
+            selftest_job_geometry(tally, docker)
             selftest_job_cpu_record(tally, docker)
             selftest_job_cpu_monitor(tally, docker)
             selftest_container_memory_bound(tally, docker)
@@ -17105,6 +17353,20 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="workflow alias; repeatable (default: all)",
     )
     parser.add_argument("--cpu-ranges", help="manager-booked aligned CPU ranges, comma-separated")
+    parser.add_argument(
+        "--jobs", type=int,
+        help=f"job containers run at once, 1-{MAX_CONCURRENT_JOBS} (default {DEFAULT_JOB_GEOMETRY.jobs})")
+    parser.add_argument(
+        "--job-cpus", type=int,
+        help=("each job's booked CPU range width: "
+              + ", ".join(f"{width} (ranges of " + " or ".join(map(str, widths)) + ")"
+                          for width, widths in JOB_CPU_WIDTHS.items())
+              + f" (default {DEFAULT_JOB_GEOMETRY.cpus})"))
+    parser.add_argument(
+        "--job-memory", type=int,
+        help=(f"each job container's memory and swap cap in GiB, 1-{MAX_CONTAINER_MEMORY_GIB} "
+              f"(default {DEFAULT_JOB_GEOMETRY.memory_gib}); jobs times it plus "
+              f"{SLOT_SERVICE_MEMORY_GIB} must fit {SLOT_MEMORY_GIB}"))
     parser.add_argument("--act-bin", default="act", help="trusted act executable")
     parser.add_argument("--evidence-directory", type=pathlib.Path,
                         help="new durable directory outside the candidate tree (default: private temporary directory)")
@@ -17207,11 +17469,15 @@ def main(argv: Sequence[str]) -> int:
             or args.slot_root is not None
             or args.evidence_directory is not None
             or args.cpu_ranges is not None
+            or args.jobs is not None
+            or args.job_cpus is not None
+            or args.job_memory is not None
         ):
             parser.error("--selftest cannot be combined with PR-run arguments")
         shipping_root = (args.worktree or ROOT).expanduser().resolve()
         return selftest_configured(shipping_root)
     try:
+        JOB_GEOMETRY.set(job_geometry_arguments(args.jobs, args.job_cpus, args.job_memory))
         BOOKED_CPU_RANGES.set(parse_cpu_ranges(args.cpu_ranges))
     except Refusal as exc:
         print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
