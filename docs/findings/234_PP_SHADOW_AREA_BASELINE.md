@@ -20,13 +20,13 @@ The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gP
 Dev then moved the processor pin to `ed211803` (#780), and the #799 record moved it to `f65c8ff7`; the gPTP pin stayed `55680bff`.
 Dev then moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66`, and the #845 record moved the processor pin to `92100657`.
 The #843 record moved the gPTP pin to `1616fc8f`, and the #851 record moved the processor pin to `044cb25f`; the #854 record moved no pin.
-The current record, #883's, moves the processor pin to `801ef228` and the gPTP pin to `a64be73d`.
+The current record, #883's, moves the processor pin to `801ef228`; the gPTP pin stays `1616fc8f`.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-11-11, processor 801ef228 with FPGA-gPTP a64be73d](#re-baseline-of-2026-11-11-processor-801ef228-with-fpga-gptp-a64be73d)** -- The current record: #883's processor `801ef228` and FPGA-gPTP `a64be73d` on dev `46c971fa`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at each directive against the preceding record's own routes, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-11, processor 801ef228](#re-baseline-of-2026-11-11-processor-801ef228)** -- The current record: #883's processor `801ef228` on dev `46c971fa`, gPTP kept at `1616fc8f`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at each directive against the preceding record's own routes, sub-block movements, route-corner timing, worst paths and input receipts.
 - **[Re-baseline of 2026-11-09, the control-frame drop count](#re-baseline-of-2026-11-09-the-control-frame-drop-count)** -- The preceding record: #854's control-frame drop count on dev `ac0a01e3`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at one directive against the preceding record's own route, the tap's own share, sub-block movements, route-corner timing, worst paths and input receipts.
 - **[Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)** -- The preceding record: processor `044cb25f` on the merge of dev `0a75aa77`, the first image with all four lab fixes, remeasured at three endpoints, the route on the recipe's three directives with AltSpreadLogic_high selected, the adoption's share on both bases, sub-block movements, route-corner timing, worst paths and input receipts.
 - **[Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f)** -- The preceding route record, under the same maintainer decision: FPGA-gPTP `1616fc8f` with processor `92100657` on the merge of dev `1eb5289d`, the route alone on the recipe's three directives with AltSpreadLogic_high selected, against dev's own route, the engine's share, route-corner timing and input receipts.
@@ -52,15 +52,17 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
 
-## Re-baseline of 2026-11-11, processor 801ef228 with FPGA-gPTP a64be73d
+## Re-baseline of 2026-11-11, processor 801ef228
 
-This re-baseline records [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s adoption of processor `801ef2283ec793e35a2590fc6593c90313a64041` (protocol-processor PRs #218 and #219, for its #216 and #217) and FPGA-gPTP `a64be73de32f3ec5084cf908a530218e9006453e` (FPGA-gPTP PR #103, for its #102).
-All three endpoints measure lane commit `a89802c8dc278fabeff06fd2a79070611187a8f7` on dev `46c971fa0a09e2c8ca21acb95769defdc06c3068`, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input.
+This re-baseline records [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s adoption of processor `801ef2283ec793e35a2590fc6593c90313a64041` (protocol-processor PRs #218 and #219, for its #216 and #217); the gPTP pin stays `1616fc8f062fbf58c35ad31674b5b233207bbdb8`.
+All three endpoints measure lane commit `a89802c8dc278fabeff06fd2a79070611187a8f7` on dev `46c971fa0a09e2c8ca21acb95769defdc06c3068`, the live dev tip, so the lane is its own merge result.
+That commit carried FPGA-gPTP `a64be73de32f3ec5084cf908a530218e9006453e` (FPGA-gPTP PR #103, for its #102); lane commit `8edfae99` reverts it to `1616fc8f`, and the lane's other later commits change no synthesis input.
 `ooc-8x8` is out of context only; it was not routed.
 From the [preceding record](#re-baseline-of-2026-11-09-the-control-frame-drop-count)'s commit `7a19f62b` to dev `46c971fa` no synthesis input moves: the diff lists documentation, CI and register-reference tooling, testbench files, `sw/builder/test_builder.py` and the baseline JSON only.
 From dev to `a89802c8` the synthesis inputs that move are the processor's: its SRP sources `KL_srp_top.sv`, `KL_srp_domain.sv`, `KL_srp_vlan.sv`, `KL_srp_encoder.sv` and `srp_pkg.sv` (#216), and `KL_adp_engine.sv`, `KL_aecp_engine.sv`, the AECP microcode generator and `protocol_processor_top.sv` (#217).
 FPGA-gPTP `a64be73d` changes test infrastructure only; its `hdl/` and `syn/` are byte-identical to `1616fc8f`'s and its ROM digest is unchanged.
-So the differences below are the processor adoption's.
+So the differences below are the processor adoption's, and the record holds at the final pins.
+An export at the final pins reads the same 131 files and the same six ROM images; the gate's input digest of it differs only because the exporter's hierarchy comment lists black boxes in a different order.
 
 **Gate verdict.** Against the preceding record `check` exits 0 on all three endpoints.
 The route moved by -73 LUTs against a tolerance of 500, `ooc-1x1` by +214 against 250 and `ooc-8x8` by +218 against 316.

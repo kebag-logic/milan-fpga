@@ -60,7 +60,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Unreleased - processor pin 801ef228
 
 - Issue #883 adopts processor `801ef228` (PRs #218 and #219).
-- It adopts FPGA-gPTP `a64be73d` (PR #103) too.
+- The FPGA-gPTP pin stays `1616fc8f`.
+- FPGA-gPTP PR #103 rides with the next adoption.
 - A declaration now sends New twice, then its Join.
 - 802.1Q-2018 Table 10-3 says so.
 - JoinIn needs the Registrar IN (10.7.6.3).
@@ -71,7 +72,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - READ_DESCRIPTOR(ENTITY) reports the last advertised available_index.
 - IEEE 1722.1-2021 Table 7-2 requires it.
 - Before, it read the AEM image's constant 0 (#858).
-- FPGA-gPTP `a64be73d` changes test infrastructure only.
 - No top-level port, parameter or register changes.
 - The `milan_dp` crflic and notify legs grade all three.
 - At the old pins those checks fail.

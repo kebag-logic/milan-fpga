@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
 It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s lane commit `a89802c8` on dev `46c971fa`, with processor `801ef228` and FPGA-gPTP `a64be73d`: the image with all four lab fixes, the control-frame drop count, and processor #216's MRP Applicant and LeaveAll and #217's ENTITY available_index.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s lane commit `a89802c8` on dev `46c971fa`, with processor `801ef228`: the image with all four lab fixes, the control-frame drop count, and processor #216's MRP Applicant and LeaveAll and #217's ENTITY available_index.
 Its figures back the protocol processor budget and resource gate below.
 
 The current command and media-clock claims are checked against the
@@ -133,9 +133,10 @@ That measurement was the gate's record; its [receipts and differences](../findin
 Issue [#854](https://github.com/kebag-logic/milan-fpga/issues/854) then re-recorded all three endpoints at lane commit `7a19f62b` on dev `ac0a01e3`, for the all-fabric tap's control-frame drop count.
 Against #851's record the gate passed all three endpoints; they are re-recorded because the change moves the shipping image.
 That measurement was the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) retain the preceding record.
-Issue [#883](https://github.com/kebag-logic/milan-fpga/issues/883) then re-recorded all three endpoints at lane commit `a89802c8` on dev `46c971fa`, adopting processor `801ef228` with FPGA-gPTP `a64be73d`.
+Issue [#883](https://github.com/kebag-logic/milan-fpga/issues/883) then re-recorded all three endpoints at lane commit `a89802c8` on dev `46c971fa`, adopting processor `801ef228`.
+That commit carried FPGA-gPTP `a64be73d`, which a later lane commit reverts to `1616fc8f`; the two pins' synthesis inputs are the same.
 Against #854's record the gate passed all three endpoints; they are re-recorded because the change moves the shipping image.
-That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-11-processor-801ef228-with-fpga-gptp-a64be73d) retain the preceding record.
+That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-11-processor-801ef228) retain the preceding record.
 All these measurements use the same recipe identity and policy.
 The route record's placement directive is ExtraPostPlacementOpt, the one flow difference the gate allows.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
@@ -152,7 +153,7 @@ The [#799](https://github.com/kebag-logic/milan-fpga/issues/799) route was 13,97
 The shipping image must fit the device.
 The resource gate holds it, with no other LUT bound:
 
-| Resource | Device | Shipping route, #883 on dev `46c971fa`, processor `801ef228`, FPGA-gPTP `a64be73d`, ExtraPostPlacementOpt | Used | Target | Status |
+| Resource | Device | Shipping route, #883 on dev `46c971fa`, processor `801ef228`, ExtraPostPlacementOpt | Used | Target | Status |
 |---|---:|---:|---:|---|---|
 | Slice LUT | 63,400 | 53,461 | 84.32 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
 | Slice register | 126,800 | 54,971 | 43.35 % | none stated | - |
