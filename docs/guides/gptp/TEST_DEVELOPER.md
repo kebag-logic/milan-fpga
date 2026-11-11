@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
 
 Python models must not mirror implementation blindly.
 
-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md).
+Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/a64be73de32f3ec5084cf908a530218e9006453e/docs/TEST_DEVELOPER.md).
 
 ## Choose a suite
 

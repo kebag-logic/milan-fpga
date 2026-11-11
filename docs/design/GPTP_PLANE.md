@@ -30,10 +30,10 @@ This page defines parent integration.
 
 | Reader | Parent guide | Engine guide |
 |---|---|---|
-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md) |
-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/INTEGRATION.md) |
-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/HDL_DEVELOPER.md) |
-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md) |
+| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/a64be73de32f3ec5084cf908a530218e9006453e/docs/MANAGER.md) |
+| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/a64be73de32f3ec5084cf908a530218e9006453e/docs/INTEGRATION.md) |
+| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/a64be73de32f3ec5084cf908a530218e9006453e/docs/HDL_DEVELOPER.md) |
+| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/a64be73de32f3ec5084cf908a530218e9006453e/docs/TEST_DEVELOPER.md) |
 
 Parent guides own integration behavior.
 
