@@ -1,0 +1,19 @@
+head ad2ed0e3 / 3ba76ae7
+command: every path's worst instance, results.json of the two 1x1 runs, compared (delta ms, passes, the taking pass's mailbox accesses and CPU cycles)
+full log: 1256 bytes, sha256 394daac39f1a1c12baeb1e8f64a0da58e9ce30496fdd28c2de0f59f822a89598
+---
+paths compared: 81
+delta ms: min -0.438 median 0.000 max 3.969
+within +-0.05 ms: 64  over +1 ms: 4  under -1 ms: 0
++0.309 ('aecp_fanout.unlock_entity', 0) r1 4.616 r2 4.925 passes 1->1 pass_mbx 363->369 pass_cycles 270099->285525
++0.363 ('acmp.tmr_retry', 0) r1 0.748 r2 1.111 passes 1->1 pass_mbx 108->118 pass_cycles 589757->675699
++0.390 ('aecp_fanout.set_control', 0) r1 4.377 r2 4.767 passes 1->1 pass_mbx 312->348 pass_cycles 258137->277576
++0.661 ('backlog.owed_behind', 0) r1 362.726 r2 363.387 passes None->None pass_mbx None->None pass_cycles None->None
++1.609 ('backlog.owed', 0) r1 93.481 r2 95.091 passes 23->26 pass_mbx 147->153 pass_cycles 199752->216643
++1.711 ('acmp.entity_available', 0) r1 8.723 r2 10.434 passes 1->1 pass_mbx 146->156 pass_cycles 702040->788214
++1.730 ('acmp.get_tx_state', 0) r1 9.454 r2 11.185 passes 1->1 pass_mbx 159->169 pass_cycles 713928->800429
++3.969 ('acmp.tmr_delay', 0) r1 0.981 r2 4.950 passes 1->2 pass_mbx 140->140 pass_cycles 692437->692298
+-0.438 ('acmp.tmr_no_tk', 0) r1 1.990 r2 1.553 passes 1->1
+-0.307 ('aecp.read_descriptor.t5.i1.c0', 0) r1 2.741 r2 2.434 passes 1->1
+-0.305 ('backlog.acmp_command', 0) r1 37.281 r2 36.976 passes 6->6
+-0.023 ('adp.tmr_advertise', 0) r1 0.786 r2 0.763 passes 1->1

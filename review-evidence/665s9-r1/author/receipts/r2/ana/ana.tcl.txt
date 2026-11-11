@@ -1,0 +1,25 @@
+head 5d6d28356a6c73bdfba43a9b023e60279a0d461b
+command: round 1's routed split checkpoint (ExtraTimingOpt, exported at 5d6d2835) re-timed by ana.tcl through the slot wrapper; read only
+full log: 1363 bytes, sha256 e7fcf56fbff1e6c0b9f0d19abb855c3ffb22d88bda9bad0465a66bb19ecf55ea
+---
+open_checkpoint <data>/tmp/665s9-a760/route/split-ExtraTimingOpt/alinx_ax7101_route.dcp
+# per-endpoint worst for each reg_rdata_r bit, and the 10 worst per bit
+set ep [get_cells -hier -filter {NAME =~ KL_mbx/reg_rdata_r_reg*}]
+set ps [get_timing_paths -setup -to $ep -max_paths 2000 -nworst 40 -slack_lesser_than 2.0]
+set fh [open paths_rdata.tsv w]
+foreach p $ps {
+  set nets [get_nets -of_objects $p]
+  set thr_bnd 0
+  foreach n $nets { if {[string match "*bnd_eid_vld_w*" $n] || [string match "*rb_a_w*" $n]} { set thr_bnd 1 } }
+  puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t$thr_bnd\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]"
+}
+close $fh
+set ep2 [get_cells -hier -filter {NAME =~ KL_mbx/u_*_rx/mem_r_reg*}]
+set ps2 [get_timing_paths -setup -to $ep2 -max_paths 500 -nworst 5 -slack_lesser_than 2.0]
+set fh [open paths_ring.tsv w]
+foreach p $ps2 { puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]" }
+close $fh
+set ps3 [get_timing_paths -setup -max_paths 400 -nworst 1 -slack_lesser_than 0.6 -group [get_clocks milansoc_crg_clkout0]]
+set fh [open paths_clk0.tsv w]
+foreach p $ps3 { puts $fh "[get_property SLACK $p]\t[get_property LOGIC_LEVELS $p]\t[get_property STARTPOINT_PIN $p]\t[get_property ENDPOINT_PIN $p]" }
+close $fh

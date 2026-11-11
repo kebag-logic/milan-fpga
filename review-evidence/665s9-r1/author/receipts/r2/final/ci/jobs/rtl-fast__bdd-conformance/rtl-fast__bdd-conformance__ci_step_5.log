@@ -1,0 +1,124 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: ci_replay.py job (the step's own log)
+full log: 235297 bytes, sha256 8a4b55958a073eafc314d431cbc086438b855434cdc0e34e992d72b1510d1ba7
+---
+--- over 200 KB: the verdict lines only
+    Then every identity verdict is PASS ... passed in 0.000s
+    Then the identity check reports FAIL on "uncrossed" ... passed in 0.000s
+    Then the identity check reports FAIL on "no-duplicate-neighbour" ... passed in 0.000s
+    Then the identity check reports FAIL on "no-silent-channel" ... passed in 0.000s
+    Then the identity check reports FAIL on "channel-count" ... passed in 0.000s
+    Then the THD+N gate verdict is PASS because the worst channel is inside -120 ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because one bad channel fails the set ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because a clipped capture is not a measurement ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because nothing analysed is not a pass ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    Then the tv-tnv verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.1 the two real escapes and their controls
+    Then the growth verdict is PASS ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.2 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.3 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.4 the two real escapes and their controls
+    Then the growth verdict is PASS ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls
+    Then the growth verdict is FAIL ... passed in 0.000s
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.7 the two real escapes and their controls
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+  Scenario: an anomaly delta exceeding the packet delta is caught
+    Then the interval-ceiling verdict is FAIL ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-event ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is impossible ... passed in 0.000s
+  Scenario: interval-rate FRAMES_RX on a flowing stream is a FAIL
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+    Then the REBOOT oracle grades it PASS ... passed in 0.000s
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+    Then the REBOOT oracle grades it FAIL ... passed in 0.000s
+    Then the gPTP relock oracle grades it PASS ... passed in 0.000s
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+    Then the gPTP relock oracle grades it FAIL ... passed in 0.000s
+    When release repeat soak.continuous has its soak.no-counter-errors assertion dropped ... passed in 0.001s
+    Then the soak counter oracle grades it PASS ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it PASS ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the soak counter oracle grades it FAIL ... passed in 0.000s
+    Then the state oracle grades the commit cut PASS ... passed in 0.000s
+    Then the state oracle grades the commit cut PASS ... passed in 0.000s
+    Then the state oracle grades the commit cut FAIL ... passed in 0.000s
+    Then a chained discontinuity clearing at 0.62 seconds is PASS ... passed in 0.000s
+    And a chained discontinuity clearing at 0.8 seconds is FAIL ... passed in 0.000s
+    Then a lone discontinuity at -0.0005 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.002 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.1 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at -0.001 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+    Then a lone discontinuity at -0.001001 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0.4 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+    Then a lone discontinuity at 0.401 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+  Scenario: a talker declaring 8 channels and emitting 2 is caught
+    Then the analyser reports FAIL on "declared-vs-wire" ... passed in 0.000s
+    Then every declared-vs-wire verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "seq-continuity" ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+    Then the analyser reports PASS on "pts-step" ... passed in 0.000s
+  Scenario: a presentation time that steps four times too far is caught
+    Then the analyser reports FAIL on "pts-step" ... passed in 0.000s
+    Then the analyser reports PASS on "class-a-transit" ... passed in 0.000s
+    Then the analyser reports FAIL on "class-a-transit" ... passed in 0.000s
+    Then the analyser reports FAIL on "c-tag-vid" ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.c-tag-present" ... passed in 0.000s
+    Then every VLAN verdict is PASS ... passed in 0.000s
+    Then every zero-fill verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "zero-fill-present" ... passed in 0.000s
+    Then the analyser reports FAIL on "fed-non-silent" ... passed in 0.000s
+    Then every CRF format verdict is PASS ... passed in 0.000s
+    And the analyser reports PASS on "crf.pdu-rate" ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.milan-format" ... passed in 0.000s
+    Then every ADP verdict is PASS ... passed in 0.000s
+    Then the analyser reports FAIL on "available-index-advances" ... passed in 0.000s
+  Scenario: a frame that lies about its control_data_length is caught
+    Then the analyser reports FAIL on "length-honest" ... passed in 0.000s
+  Scenario: an empty capture is a FAIL, never a clean pass
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+    Then the analyser reports PASS on "stream-frames-present" ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+    Then no check verdict is PASS ... passed in 0.000s
+    And the capture-shape verdict is FAIL ... passed in 0.000s
+    Then the analyser reports FAIL on "talker-advertise-declared" ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s

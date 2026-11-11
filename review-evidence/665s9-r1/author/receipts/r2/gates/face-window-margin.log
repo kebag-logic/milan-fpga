@@ -1,0 +1,8 @@
+head ad2ed0e3 / 3ba76ae7
+command: ad2ed0e3's suite_face.hpp with one printf of the cycles from the EDIT window's GO to its tag-1 answer, built (mutants.build_and_run, AXI4-Lite) against each head's mailbox RTL at one and two interfaces; scratch only
+full log: 656 bytes, sha256 39db090b26fb9dc6bf61a4c8f0e9a7fa5c1d4d8c7786aff0f6755b3357e5e109
+---
+ad2ed0e3 interfaces 1 AXI4-Lite rc 0 ['MEASURE EDIT answer(tag 1) at +53 cycles after GO returned', '== mbx (AXI4-Lite host): checks: 570   failures: 0 ==']
+ad2ed0e3 interfaces 2 AXI4-Lite rc 0 ['MEASURE EDIT answer(tag 1) at +58 cycles after GO returned', '== mbx (AXI4-Lite host, 2 interfaces): checks: 577   failures: 0 ==']
+3ba76ae7 interfaces 1 AXI4-Lite rc 0 ['MEASURE EDIT answer(tag 1) at +59 cycles after GO returned', '== mbx (AXI4-Lite host): checks: 575   failures: 0 ==']
+3ba76ae7 interfaces 2 AXI4-Lite rc 1 ['MEASURE EDIT answer(tag 1) at +65 cycles after GO returned', '== mbx (AXI4-Lite host, 2 interfaces): checks: 582   failures: 5 ==']

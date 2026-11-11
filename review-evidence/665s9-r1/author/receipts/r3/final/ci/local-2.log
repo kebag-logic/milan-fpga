@@ -1,0 +1,115 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py local (runner 2)
+full log: 5518 bytes, sha256 219d63888b48e39f4fc197ac32fa8907d634daca1dc34865896d91e405631c1f
+---
+10:44:47 local: docs__docs-gates-1
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__docs-gates-1/bin/python3 -m pip install --upgrade pip
+docs__docs-gates-1: success
+11:17:01 local: docs__docs-gates-1 rc 0
+11:17:02 local: docs__docs-check
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__docs-check/bin/python3 -m pip install --upgrade pip
+docs__docs-check: success
+11:17:14 local: docs__docs-check rc 0
+11:17:15 local: docs__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__ci-manifest/bin/python3 -m pip install --upgrade pip
+docs__ci-manifest: success
+11:17:27 local: docs__ci-manifest rc 0
+11:17:27 local: docs__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+docs__ci-cancel-tail: success
+11:17:36 local: docs__ci-cancel-tail rc 0
+11:17:37 local: elaborate__ci-fail-fast
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__ci-fail-fast/bin/python3 -m pip install --upgrade pip
+elaborate__ci-fail-fast: success
+11:17:46 local: elaborate__ci-fail-fast rc 0
+11:17:47 local: rtl-fast__changes
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__changes/bin/python3 -m pip install --upgrade pip
+rtl-fast__changes: success
+11:18:49 local: rtl-fast__changes rc 0
+11:18:50 local: rtl-fast__verilator-lint
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__verilator-lint/bin/python3 -m pip install --upgrade pip
+rtl-fast__verilator-lint: success
+11:19:47 local: rtl-fast__verilator-lint rc 0
+11:19:48 local: rtl-fast__bdd-conformance
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__bdd-conformance/bin/python3 -m pip install --upgrade pip
+rtl-fast__bdd-conformance: success
+11:20:06 local: rtl-fast__bdd-conformance rc 0
+11:20:07 local: rtl-fast__yosys-tool
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__yosys-tool/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-tool: success
+11:20:15 local: rtl-fast__yosys-tool rc 0
+11:20:16 local: rtl-fast__yosys-elaboration
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__yosys-elaboration/bin/python3 -m pip install --upgrade pip
+rtl-fast__yosys-elaboration: success
+11:50:56 local: rtl-fast__yosys-elaboration rc 0
+11:50:57 local: rtl-fast__firmware-aecp-mutants
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__firmware-aecp-mutants/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-aecp-mutants: success
+12:06:57 local: rtl-fast__firmware-aecp-mutants rc 0
+12:06:57 local: rtl__verilator-shards__15
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__15/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__15: success
+12:07:13 local: rtl__verilator-shards__15 rc 0
+12:07:14 local: rtl__verilator-shards__17
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__verilator-shards__17/bin/python3 -m pip install --upgrade pip
+rtl__verilator-shards__17: success
+12:07:29 local: rtl__verilator-shards__17 rc 0
+12:07:29 local: rtl__physical-gptp
+12:07:30 local: rtl__physical-gptp rc 0
+12:07:31 local: rtl__yosys-tool
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-tool/bin/python3 -m pip install --upgrade pip
+rtl__yosys-tool: success
+12:07:39 local: rtl__yosys-tool rc 0
+12:07:40 local: rtl__yosys-shards__0
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-shards__0/bin/python3 -m pip install --upgrade pip
+rtl__yosys-shards__0: success
+12:29:33 local: rtl__yosys-shards__0 rc 0
+12:29:34 local: rtl__yosys-portability
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__yosys-portability/bin/python3 -m pip install --upgrade pip
+rtl__yosys-portability: success
+12:29:47 local: rtl__yosys-portability rc 0
+12:29:48 local: rtl__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__ci-manifest/bin/python3 -m pip install --upgrade pip
+rtl__ci-manifest: success
+12:30:05 local: rtl__ci-manifest rc 0
+12:30:05 local: rtl__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+rtl__ci-cancel-tail: success
+12:30:15 local: rtl__ci-cancel-tail rc 0
+local: every instance has a result

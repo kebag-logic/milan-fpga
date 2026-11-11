@@ -1,0 +1,150 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: the recipe directive (ExtraPostPlacementOpt) routed checkpoint re-timed by ana.tcl through the slot wrapper
+full log: 12658 bytes, sha256 6fcb1a91173ea3e2de56d5f7b6e8298098d8305f0dbdcc85704f96c84b6f13a9
+---
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov 11 01:11:27 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -of_objects [get_timing_paths -setup -to [get_cells -hier -filter {NAME =~ KL_mbx/reg_rdata_r_reg*}] -max_paths 1 -nworst 1] -file worst_rdata.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.000ns  (required time - arrival time)
+  Source:                 KL_mbx/rd_off_r_reg[8]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            KL_mbx/reg_rdata_r_reg[13]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.979ns  (logic 2.578ns (25.835%)  route 7.401ns (74.165%))
+  Logic Levels:           19  (LUT2=6 LUT3=1 LUT4=1 LUT5=3 LUT6=7 MUXF7=1)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.610ns = ( 16.610 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.027ns
+    Clock Pessimism Removal (CPR):    0.378ns
+  Clock Uncertainty:      0.055ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.083ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y4                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y4        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0                                                     r  BUFG/I
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=12517, routed)       1.357     7.027    KL_mbx/out
+    SLICE_X53Y69         FDRE                                         r  KL_mbx/rd_off_r_reg[8]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X53Y69         FDRE (Prop_fdre_C_Q)         0.379     7.406 r  KL_mbx/rd_off_r_reg[8]/Q
+                         net (fo=25, routed)          0.408     7.814    KL_mbx/rd_off_r[8]
+    SLICE_X53Y70                                                      r  KL_mbx/reg_rdata_r[31]_i_31_replica/I0
+    SLICE_X53Y70         LUT2 (Prop_lut2_I0_O)        0.105     7.919 r  KL_mbx/reg_rdata_r[31]_i_31_replica/O
+                         net (fo=3, routed)           0.336     8.255    KL_mbx/reg_rdata_r[31]_i_31_n_0_repN
+    SLICE_X55Y70                                                      r  KL_mbx/reg_rdata_r[31]_i_47/I1
+    SLICE_X55Y70         LUT2 (Prop_lut2_I1_O)        0.105     8.360 r  KL_mbx/reg_rdata_r[31]_i_47/O
+                         net (fo=7, routed)           0.550     8.910    KL_mbx/reg_rdata_r[31]_i_47_n_0
+    SLICE_X52Y71                                                      r  KL_mbx/reg_rdata_r[31]_i_61/I1
+    SLICE_X52Y71         LUT4 (Prop_lut4_I1_O)        0.105     9.015 f  KL_mbx/reg_rdata_r[31]_i_61/O
+                         net (fo=4, routed)           0.574     9.588    KL_mbx/reg_rdata_r[31]_i_61_n_0
+    SLICE_X53Y71                                                      f  KL_mbx/reg_rdata_r[31]_i_46/I4
+    SLICE_X53Y71         LUT6 (Prop_lut6_I4_O)        0.105     9.693 f  KL_mbx/reg_rdata_r[31]_i_46/O
+                         net (fo=1, routed)           0.205     9.898    KL_mbx/reg_rdata_r[31]_i_46_n_0
+    SLICE_X53Y71                                                      f  KL_mbx/reg_rdata_r[31]_i_27/I5
+    SLICE_X53Y71         LUT6 (Prop_lut6_I5_O)        0.105    10.003 f  KL_mbx/reg_rdata_r[31]_i_27/O
+                         net (fo=1, routed)           0.264    10.268    KL_mbx/reg_rdata_r[31]_i_27_n_0
+    SLICE_X52Y71                                                      f  KL_mbx/reg_rdata_r[31]_i_9/I0
+    SLICE_X52Y71         LUT6 (Prop_lut6_I0_O)        0.105    10.373 r  KL_mbx/reg_rdata_r[31]_i_9/O
+                         net (fo=14, routed)          0.396    10.769    KL_mbx/reg_rdata_r[31]_i_9_n_0
+    SLICE_X50Y71                                                      r  KL_mbx/reg_rdata_r[18]_i_38/I1
+    SLICE_X50Y71         LUT2 (Prop_lut2_I1_O)        0.105    10.874 f  KL_mbx/reg_rdata_r[18]_i_38/O
+                         net (fo=36, routed)          0.342    11.215    KL_mbx/reg_rdata_r[18]_i_38_n_0
+    SLICE_X50Y69                                                      f  KL_mbx/reg_rdata_r[0]_i_64/I1
+    SLICE_X50Y69         LUT2 (Prop_lut2_I1_O)        0.105    11.320 r  KL_mbx/reg_rdata_r[0]_i_64/O
+                         net (fo=11, routed)          0.609    11.929    KL_mbx/reg_rdata_r[0]_i_64_n_0
+    SLICE_X51Y75                                                      r  KL_mbx/reg_rdata_r[23]_i_51/I1
+    SLICE_X51Y75         LUT3 (Prop_lut3_I1_O)        0.105    12.034 f  KL_mbx/reg_rdata_r[23]_i_51/O
+                         net (fo=6, routed)           0.421    12.456    KL_mbx/reg_rdata_r[23]_i_51_n_0
+    SLICE_X48Y73                                                      f  KL_mbx/reg_rdata_r[23]_i_44/I1
+    SLICE_X48Y73         LUT2 (Prop_lut2_I1_O)        0.105    12.561 f  KL_mbx/reg_rdata_r[23]_i_44/O
+                         net (fo=14, routed)          0.307    12.868    KL_mbx/reg_rdata_r[23]_i_44_n_0
+    SLICE_X50Y73                                                      f  KL_mbx/reg_rdata_r[23]_i_31_replica/I1
+    SLICE_X50Y73         LUT2 (Prop_lut2_I1_O)        0.105    12.973 r  KL_mbx/reg_rdata_r[23]_i_31_replica/O
+                         net (fo=5, routed)           0.808    13.781    KL_mbx/reg_rdata_r[23]_i_31_n_0_repN
+    SLICE_X57Y76                                                      r  KL_mbx/reg_rdata_r[13]_i_59/I4
+    SLICE_X57Y76         LUT5 (Prop_lut5_I4_O)        0.105    13.886 f  KL_mbx/reg_rdata_r[13]_i_59/O
+                         net (fo=1, routed)           0.451    14.337    KL_mbx/u_rx/reg_rdata_r[13]_i_50_1
+    SLICE_X57Y75                                                      f  KL_mbx/u_rx/KL_mbx_rx_LUT5_206/I0
+    SLICE_X57Y75         LUT5 (Prop_lut5_I0_O)        0.105    14.442 f  KL_mbx/u_rx/KL_mbx_rx_LUT5_206/O
+                         net (fo=1, routed)           0.116    14.557    KL_mbx/u_rx/KL_mbx_rx_net_505
+    SLICE_X57Y75                                                      f  KL_mbx/u_rx/KL_mbx_rx_LUT6_428/I5
+    SLICE_X57Y75         LUT6 (Prop_lut6_I5_O)        0.105    14.662 f  KL_mbx/u_rx/KL_mbx_rx_LUT6_428/O
+                         net (fo=1, routed)           0.503    15.166    KL_mbx/u_rx/KL_mbx_rx_net_506
+    SLICE_X60Y74                                                      f  KL_mbx/u_rx/KL_mbx_rx_LUT6_429/I5
+    SLICE_X60Y74         LUT6 (Prop_lut6_I5_O)        0.105    15.271 f  KL_mbx/u_rx/KL_mbx_rx_LUT6_429/O
+                         net (fo=1, routed)           0.239    15.509    KL_mbx/u_rx/KL_mbx_rx_net_507
+    SLICE_X60Y73                                                      f  KL_mbx/u_rx/KL_mbx_rx_LUT6_430/I5
+    SLICE_X60Y73         LUT6 (Prop_lut6_I5_O)        0.105    15.614 r  KL_mbx/u_rx/KL_mbx_rx_LUT6_430/O
+                         net (fo=1, routed)           0.407    16.021    KL_mbx/u_rx/KL_mbx_rx_net_508
+    SLICE_X60Y73                                                      r  KL_mbx/u_rx/KL_mbx_rx_LUT5_207/I4
+    SLICE_X60Y73         LUT5 (Prop_lut5_I4_O)        0.105    16.126 r  KL_mbx/u_rx/KL_mbx_rx_LUT5_207/O
+                         net (fo=1, routed)           0.000    16.126    KL_mbx/u_rx/reg_rdata_r[13]_i_7_n_0
+    SLICE_X60Y73                                                      r  KL_mbx/u_rx/reg_rdata_r_reg[13]_i_3/I0
+    SLICE_X60Y73         MUXF7 (Prop_muxf7_I0_O)      0.173    16.299 r  KL_mbx/u_rx/reg_rdata_r_reg[13]_i_3/O
+                         net (fo=1, routed)           0.465    16.765    KL_mbx/u_tx/reg_rdata_r_reg[13]
+    SLICE_X60Y69                                                      r  KL_mbx/u_tx/KL_mbx_tx_LUT6_112/I3
+    SLICE_X60Y69         LUT6 (Prop_lut6_I3_O)        0.241    17.006 r  KL_mbx/u_tx/KL_mbx_tx_LUT6_112/O
+                         net (fo=1, routed)           0.000    17.006    KL_mbx/u_tx_n_2
+    SLICE_X60Y69         FDRE                                         r  KL_mbx/reg_rdata_r_reg[13]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y4                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y4        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0                                                     r  BUFG/I
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=12517, routed)       1.252    16.610    KL_mbx/out
+    SLICE_X60Y69         FDRE                                         r  KL_mbx/reg_rdata_r_reg[13]/C
+                         clock pessimism              0.378    16.988    <hidden>
+                         clock uncertainty           -0.055    16.933    <hidden>
+    SLICE_X60Y69         FDRE (Setup_fdre_C_D)        0.072    17.005    KL_mbx/reg_rdata_r_reg[13]
+  -------------------------------------------------------------------
+                         required time                         17.005    <hidden>
+                         arrival time                         -17.006    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.000    <hidden>
+
+
+
+

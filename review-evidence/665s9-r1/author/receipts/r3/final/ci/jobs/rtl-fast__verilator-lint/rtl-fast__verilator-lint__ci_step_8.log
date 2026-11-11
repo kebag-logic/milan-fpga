@@ -1,0 +1,13 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job (the step's own log)
+full log: 1088 bytes, sha256 346be016ac2d7b6a9c0a78777a0acdaec962cf2b8fc218c1f4075b9a85225845
+---
+# head a91fb27dd39483e4694e193504da1dbe06208807 rtl-fast/verilator-lint/ci_step_8: Prove protocol-processor source lists are derived
+pp source list: 46 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror

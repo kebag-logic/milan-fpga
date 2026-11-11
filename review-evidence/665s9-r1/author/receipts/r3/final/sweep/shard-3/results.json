@@ -1,0 +1,29 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: run-recorded-gates.py
+full log: 917 bytes, sha256 95d9f9cc67478c9314cb837e859e24f82f5a3ab48d11d1fe05a13ce06076db0a
+---
+{
+  "head": "a91fb27dd39483e4694e193504da1dbe06208807",
+  "base": "1d6bf5556ae28764361d85012b86394eb467d294",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+        "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+        "TMPDIR=<scratch>/tmp-sweep",
+        "MAKEFLAGS=-j4 --no-print-directory",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep/shard-3/logs",
+        "--wait",
+        "--shard",
+        "3/4"
+      ],
+      "exit_code": 0,
+      "seconds": 3456.896,
+      "log": "<scratch>/sweep/shard-3/spec/01.log"
+    }
+  ]
+}
