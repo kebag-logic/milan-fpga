@@ -1201,7 +1201,11 @@ acknowledges the commit at the contract's bound, and holds the windows,
 grandmaster and face events idle. `p_mbx_tx_end`, `p_mbx_tx_if` and
 `p_mbx_tx_ch` observe each frame leaving `KL_mbx`. The defaults are the
 shipping shape with one interface, with the split leg's and the twin's own
-command line, so both legs build and run as before.
+command line, so both legs build and run as before. `make print-split-srcs`,
+at the same variables, prints the recipe's whole source list: the datapath's,
+`KL_mbx`'s (the variant's past one interface) and `tb_split_top`'s. The
+wire-timing harness records each of them, so a reused build is refused once
+any of them changes.
 
 ## The two-placement simulation (`obj_twin_*`, #665)
 
