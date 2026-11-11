@@ -1,0 +1,82 @@
+hosted check runs at e3f96a67b5dd1b9e4536ca67a6bd1595f4c19d53 (read-only API, 2026-11-11T16:16:49Z)
+bdd-conformance	success	130637802381
+Cancel late CI failures	success	130642077054
+Cancel late CI failures	success	130642316241
+Cancel late CI failures	success	130642351955
+Cancel late CI failures	success	130642466014
+changes	success	130637802041
+Collect CI manifest	failure	130642071596
+Collect CI manifest	success	130641660229
+Collect CI manifest	success	130641903147
+Collect CI manifest	success	130641980863
+docs-check	failure	130641477968
+docs-check-no-git	success	130637802533
+docs-gates-0	failure	130637802613
+docs-gates-1	failure	130637802085
+docs-gates-2	cancelled	130637802766
+elaborate	failure	130641663966
+elaborate-gates-0	cancelled	130637802408
+elaborate-gates-1	cancelled	130637802064
+Fail fast across this head	cancelled	130637801630
+Fail fast across this head	cancelled	130637802113
+Fail fast across this head	cancelled	130637802364
+Fail fast across this head	cancelled	130637802793
+firmware-aecp-mutants	cancelled	130638330971
+firmware-boundary	cancelled	130638330810
+firmware-control-mutants	cancelled	130638330683
+firmware-srp-mutants	cancelled	130638330862
+firmware-unit	cancelled	130638330667
+firmware-verilator	cancelled	130638330855
+full-ci-gate	success	130637801370
+Physical gPTP (nightly and manual)	skipped	130638439536
+Prepare pinned Yosys	cancelled	130638436434
+Prepare pinned Yosys	success	130638330836
+publication-census	cancelled	130638330639
+rtl-fast	cancelled	130641662235
+split-cdc	cancelled	130638330912
+Union capture_coherence	failure	130641622074
+Union maap	failure	130641622043
+Union milan_dp	failure	130641622109
+Union milan_dp_mclk	failure	130641622180
+Union milan_dp_render	failure	130641622032
+Union pp_shadow	failure	130641622033
+verilator-lint	cancelled	130638330670
+Verilator shard 0/19	cancelled	130638436972
+Verilator shard 10/19	cancelled	130638437172
+Verilator shard 11/19	cancelled	130638437104
+Verilator shard 1/19	cancelled	130638437037
+Verilator shard 12/19	cancelled	130638437198
+Verilator shard 13/19	cancelled	130638437118
+Verilator shard 14/19	cancelled	130638437084
+Verilator shard 15/19	cancelled	130638437073
+Verilator shard 16/19	cancelled	130638437149
+Verilator shard 17/19	cancelled	130638437257
+Verilator shard 18/19	cancelled	130638437197
+Verilator shard 2/19	cancelled	130638436934
+Verilator shard 3/19	cancelled	130638436956
+Verilator shard 4/19	cancelled	130638436960
+Verilator shard 5/19	cancelled	130638437139
+Verilator shard 6/19	cancelled	130638437043
+Verilator shard 7/19	cancelled	130638437127
+Verilator shard 8/19	cancelled	130638437109
+Verilator shard 9/19	cancelled	130638437297
+verilator-suites	failure	130641803700
+wire-accountability	success	130637802622
+wire-timing	cancelled	130638331015
+yosys-elaboration	cancelled	130640237965
+yosys-portability	failure	130641948983
+Yosys shard ${{ matrix.shard }}/${{ matrix.total }}	cancelled	130641643852
+--- docs-gates-0 job 130637802613 non-success steps
+12	Install diagram gate dependencies	failure
+13	Link health, wording, dead-reference and local-info gate	skipped
+14	Added-line em-dash gate	skipped
+--- wire-timing job 130638331015 steps 15-23
+15	Install the image's runtime sources and the simulation's tapcfg data at the bench's revisions	success
+16	Cache the pinned Verilator build	success
+17	Resolve exact package downloads 13	success
+18	Cache exact package downloads 13	success
+19	Build Verilator from source on cache miss	cancelled
+20	Put Verilator on PATH and prove the version	skipped
+21	Cache the pinned RV32 SDK	skipped
+22	Install and verify the pinned RV32 SDK	skipped
+23	Time the split placement at the wire, without and with the composed load	skipped

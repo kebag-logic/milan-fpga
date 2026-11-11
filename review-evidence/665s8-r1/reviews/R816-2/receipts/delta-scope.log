@@ -1,0 +1,30 @@
+git diff --stat bfb2df3707..e3f96a67b5
+ .github/ci-templates/rtl-fast.yml              |  11 ++
+ .github/workflows/rtl-fast.yml                 |  31 ++--
+ docs/testing/CI_WORKFLOWS.md                   |  22 ++-
+ scripts/ci_events.py                           |   8 +
+ sw/firmware/ctrl/maap/README.md                |   4 +-
+ tb/verilator/ctrl_wire_timing/README.md        | 163 ++++++++++++------
+ tb/verilator/ctrl_wire_timing/run.py           |  17 +-
+ tb/verilator/ctrl_wire_timing/wire_build.py    |  87 ++++++++--
+ tb/verilator/ctrl_wire_timing/wire_grade.py    | 210 +++++++++++++++++++----
+ tb/verilator/ctrl_wire_timing/wire_main.cpp    |  59 ++++---
+ tb/verilator/ctrl_wire_timing/wire_scenario.py |  38 +++--
+ tb/verilator/ctrl_wire_timing/wire_selftest.py | 228 ++++++++++++++++++++++---
+ tb/verilator/ctrl_wire_timing/wire_soc.py      |   3 +
+ tb/verilator/milan_dp/Makefile                 |   9 +-
+ tb/verilator/milan_dp/README.md                |   6 +-
+ 15 files changed, 711 insertions(+), 185 deletions(-)
+--- paths under hdl/, sw/firmware (non-README), sw/mailbox, protocol-processor, gptp-processor, third_party, *.sv/*.c/*.h:
+(none above this line means none)
+--- gitlink changes:
+(none)
+--- code delta since the measurement head 267fc9815d (harness code, Makefile, sources):
+(empty above means none)
+--- commits
+e3f96a67b5dd1b9e4536ca67a6bd1595f4c19d53 Report the wire-timing figures at the fixed stimulus and grader, the campaign r
+fbe5acc9837dcd2a3ce4633b187982b2d684833d Install the LiteX simulation export's tapcfg data in the wire-timing job beside
+528554c93f8412e0ece78673648ea53f6fab0d42 Install the platform image's runtime sources in the wire-timing job at the benc
+267fc9815d386cd955e05cf3f1e1c17435824b70 Pair each bind with its own PROBE_TX, grade every response's status and the adv
+0e38c2fdd24c1898e7baa9bfea78cbdec6ddf799 Refuse a reused wire-timing build once the split recipe's sources, a file its t
+a3ec99904d0fb3b3181f3bf215597418ab102f34 Send GET_AVB_INFO as 0x0027 on AVB_INTERFACE 0 with its 7.4.40 command, and sta

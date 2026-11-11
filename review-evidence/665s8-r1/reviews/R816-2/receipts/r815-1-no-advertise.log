@@ -1,0 +1,5 @@
+clean-announce-interval (control): findings=0 adp.advertise_period n=5 adp.egress n=6 maap.announce_interval n=1
+no periodic advertising: findings=2 adp.advertise_period n=0 adp.egress n=1 maap.announce_interval n=1
+  FINDING adp.advertise_period: no sample in a run to its second ANNOUNCE (Milan v1.2 Table 5.50)
+  FINDING adp.advertise_period: no ENTITY_AVAILABLE in the log's last 36594.996 ms, past the 9400.0 ms bound: the entity stopped advertising (Milan v1.2 Table 5.50)
+rc=0

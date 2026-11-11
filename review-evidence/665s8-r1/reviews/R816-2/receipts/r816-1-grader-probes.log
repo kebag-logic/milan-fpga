@@ -1,0 +1,8 @@
+R0 regrade ci-1x1-none at head: 0 finding(s); results identical to published
+R0 regrade 8x8-none at head: 0 finding(s); results identical to published
+R1 one of 16 PROBE_TXs (draw 5) never sent, nor answered: 2 finding(s) ['ACMP: the BIND_RX acmp-bind-5 caused no PROBE_TX after its response and before the next bind', 'ACMP: 15 PROBE_TX transactions graded (15 sent), the run asked for 16 draws, one a bind']; acmp.probe_tx N=15, acmp.bind_rx N=16
+R2 only the last of 16 PROBE_TXs sent (15 binds cause none): 16 finding(s) ['ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind', 'ACMP: the BIND_RX acmp-bind-1 caused no PROBE_TX after its response and before the next bind']; acmp.probe_tx N=1
+R3 control: no PROBE_TX at all: 18 finding(s), first ['ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind']
+R4 first BIND_RX_RESPONSE with status 1 (LISTENER_UNKNOWN_ID): 1 finding(s) ['ACMP: the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS (IEEE 1722.1-2021 Table 8-3)']
+R5 first AECP response with status 1 (NOT_IMPLEMENTED): 1 finding(s) ['AECP: the final response to aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 1, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)']
+rc=0
