@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """aecp_fan_mutants.py - the AECP campaign's planted defects in a notice's fan-out (#665, aecp.c's fan_out and address):
 the notice built once, each recipient's frame addressed to it alone (its MAC, its interface's, its entity ID and its
-own sequence_id), the used registrations walked by their mask from the recipient a stopped notice resumes at, and the
-one that asked left out (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1). aecp_mutants.py appends this table to its own,
+own sequence_id), the used registrations walked by their mask from the recipient a stopped notice resumes at, the
+one that asked left out, and a frame the fan port reports lost sent again to its recipient at the sequence_id it did
+not have (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1). aecp_mutants.py appends this table to its own,
 each row its defect()'s arguments: the name, the file in aecp/, the text, its replacement, and each test that must
 refuse it with its words.
 """
@@ -14,6 +15,9 @@ FAN = 'Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone'
 ADDRESSED = "carries its recipient's MAC, its interface's, its entity ID and its own sequence"
 COUNTED = 'the response, then one notice a recipient'
 RESUMED = 'the notice stopped partway is sent whole once it resumes'
+LOST = 'Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain'
+ONCE = 'was lost is delivered once to each recipient, in order'
+AGAIN = 'was lost carries its recipient\'s addresses and sequence'
 #: The walk of an interface's used registrations.
 SLOTS = 'for (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS); slots != 0u;'
 
@@ -52,4 +56,21 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      'if ((slots & 1u) == 0u || r->controller == a->requester) {',
      'if ((slots & 1u) == 0u) {',
      (CORE, COUNTED)),
+    # a frame the fan port reports lost (#665): the walk resumes past it, as it did before the port reported one
+    ('notice-lost-frame-skipped', 'aecp.c',
+     '\t\t\t\tlost = taken == AECP_FAN_LOST;\n',
+     '\t\t\t\tlost = false;\n',
+     (LOST, ONCE)),
+    ('notice-lost-frame-sequence-spent', 'aecp.c',
+     '\t\t--held_r->sequence;\n',
+     '\t\t(void)held_r;\n',
+     (LOST, AGAIN)),
+    ('notice-lost-last-frame-dropped', 'aecp.c',
+     '\t\tlost = lost || end == AECP_FAN_LOST;\n',
+     '',
+     (LOST, ONCE)),
+    ('notice-lost-frame-resumed-at-the-next', 'aecp.c',
+     '\t\t\t\theld = k;\n',
+     '\t\t\t\theld = k + 1u;\n',
+     (LOST, ONCE)),
 )

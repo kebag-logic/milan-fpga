@@ -1415,6 +1415,63 @@ TEST_F(Core, ANoticeIsAddressedToEachRecipientAlone)
     }
 }
 
+namespace {
+// A fan port as the mailbox gives one (aecp_mbx.c, #665): a frame is delivered when the call after it commits it, and
+// the frame numbered `lose`, counting every frame started, is lost once, which that call reports (AECP_FAN_LOST).
+struct FanModel {
+    std::vector<std::pair<unsigned,Bytes>> *sent=nullptr;
+    std::vector<uint32_t> *completions=nullptr;
+    unsigned lose=~0u, started=0, number=0, interface=0;
+    bool held=false;
+    Bytes frame;
+    aecp_fan commit() {
+        if(!held)return AECP_FAN_TAKEN;
+        held=false;
+        if(number==lose){lose=~0u;return AECP_FAN_LOST;}
+        sent->emplace_back(interface,frame);return AECP_FAN_TAKEN;
+    }
+    aecp_fan fan(unsigned i,const uint8_t *p,size_t n) {
+        const aecp_fan before=commit();
+        if(before!=AECP_FAN_TAKEN)return before;
+        held=true;interface=i;frame.assign(p,p+n);number=started++;return AECP_FAN_TAKEN;
+    }
+    aecp_fan end(uint32_t cookie) {
+        const aecp_fan last=commit();
+        if(last==AECP_FAN_TAKEN)completions->push_back(cookie);
+        return last;
+    }
+};
+FanModel fan_model;
+}
+
+// #665 (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1): a frame of a notice that the fan port reports lost, by the fan
+// after it or by fan_end for the last, is sent again to its recipient at the sequence_id it did not have, so each
+// registered controller has the notice once, in registry order.
+TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
+{
+    std::vector<Recipient> expected{{CTLR+1,CMAC+1,0,0},{CTLR+2,CMAC+2,0,0},{CTLR+5,CMAC+5,0,0}};
+    std::vector<Recipient> order{expected[0],{CTLR,CMAC,0,0},expected[1],expected[2]};
+    for(auto &r:order){auto b=command(36,{},r.id,r.interface);put(b,6,r.mac,6);aecp_rx(&a,r.interface,b.data(),b.size());drain();}
+    fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
+    ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
+    ports.fan_end=[](void*,uint32_t c){return fan_model.end(c);};
+    // a lock's notice with its second frame lost, which the third's fan reports, then the unlock's with its last,
+    // which fan_end reports
+    Bytes unlock(16);put(unlock,0,1,4);
+    for(unsigned lose:{1u,2u}){
+        fan_model.started=0;fan_model.lose=lose;
+        ask(1,lose==1u?Bytes(16):unlock);
+        ASSERT_EQ(sent.size(),1u+expected.size())
+            <<"the notice whose frame "<<lose<<" was lost is delivered once to each recipient, in order";
+        for(size_t k=0;k<expected.size();++k){
+            EXPECT_TRUE(sent[1+k].first==expected[k].interface&&addressed(sent[1+k].second,expected[k]))
+                <<"notice "<<k<<" after frame "<<lose<<" was lost carries its recipient's addresses and sequence";
+            ++expected[k].sequence;
+        }
+    }
+    ports.fan=nullptr;ports.fan_end=nullptr;
+}
+
 TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
 {
     auto b=command(34,target(5,0));
@@ -2474,7 +2531,8 @@ TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.notify)<<"and goes when it has";
     for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n){
-        ASSERT_TRUE(adapter.ports.fan(&adapter,0,filler.data(),filler.size())&&adapter.ports.fan_end(&adapter,n));
+        ASSERT_TRUE(adapter.ports.fan(&adapter,0,filler.data(),filler.size())==AECP_FAN_TAKEN&&
+                    adapter.ports.fan_end(&adapter,n)==AECP_FAN_TAKEN);
     }
     aecp_changed(&adapter.core,5,0,1);
     EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US))<<"a notice with no room for its completion stays owed";
@@ -2562,7 +2620,8 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
     const auto notice=[&](uint32_t cookie){
-        return adapter.ports.fan(&adapter,0,filler.data(),filler.size())&&adapter.ports.fan_end(&adapter,cookie);
+        return adapter.ports.fan(&adapter,0,filler.data(),filler.size())==AECP_FAN_TAKEN&&
+               adapter.ports.fan_end(&adapter,cookie)==AECP_FAN_TAKEN;
     };
     for(unsigned n=0;n<5;++n)ASSERT_TRUE(notice(200+n));
     service(100);ASSERT_EQ(adapter.completion_count,0u);

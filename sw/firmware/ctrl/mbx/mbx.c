@@ -77,8 +77,12 @@ struct tx_ring {
 	uint16_t max_frame;
 	uint16_t head;
 	uint16_t tail;   // TX_TAIL as last read: the room it shows only grows
-	uint16_t moving; // the words of the record mbx_tx_begin started, 0 when none
+	uint16_t moving; // the words of the record mbx_tx_begin started, 0 when none, with TX_MOVED where the mover carries it
 };
+// A record's moving flag: the record mover carries its payload, so its commit judges that move (mbx_tx_commit). A bit
+// an instruction's immediate holds, past every record's words.
+#define TX_MOVED 0x400u
+_Static_assert(MBX_TX_HDR_WORDS + (MBX_FRAME_BYTES_MAX + 3u) / 4u < TX_MOVED, "a record's words stay below TX_MOVED");
 static struct tx_ring tx[MBX_N_CH];
 static uint16_t tx_seq;
 static uint16_t evt_tail;
@@ -511,18 +515,19 @@ static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, ui
 bool mbx_tx_commit(unsigned ch)
 {
 	struct tx_ring *t = &tx[ch];
-	if (t->moving == 0u) {
+	const uint16_t moving = t->moving;
+	if (moving == 0u) {
 		return true;
 	}
-	const uint16_t record = t->moving;
 	t->moving = 0u;
 #ifdef CTRL_MBX_DMA_BASE
-	// a record whose payload did not reach the ring is not committed
-	if (!mbx_dma_wait()) {
+	// a record whose payload did not reach the ring is not committed; the move it started is judged, and no other: the
+	// mover's ERR stays set until its next start, which a record the word loop wrote never makes (#665)
+	if ((moving & TX_MOVED) != 0u && !mbx_dma_wait()) {
 		return false;
 	}
 #endif
-	t->head = (uint16_t)(t->head + record);
+	t->head = (uint16_t)(t->head + (moving & (TX_MOVED - 1u)));
 	tx_seq = (uint16_t)(tx_seq + 1u);
 	mbx_bus_write32(ch_reg(ch, MBX_CH_REG_TX_HEAD), t->head);
 	return true;
@@ -538,9 +543,9 @@ enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *fra
 		return MBX_STATUS_BAD;
 	}
 	// the record before it, which also ends its move: a window access waits for a move, and that wait can hold the
-	// move up
+	// move up. A record whose move failed is reported for itself, and nothing is started after it (#665)
 	if (!mbx_tx_commit(ch)) {
-		return MBX_STATUS_BAD;
+		return MBX_STATUS_LOST;
 	}
 	const uint32_t words = t->words;
 	const uint32_t base = t->base;
@@ -563,17 +568,20 @@ enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *fra
 	mbx_bus_write32(base + 4u * (((uint32_t)head + 1u) & mask),
 			mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
 	const uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
-	t->moving = (uint16_t)record;
+	uint32_t moving = record;
 #ifdef CTRL_MBX_DMA_BASE
-	// The split placement's record mover takes a frame on a word (mbx_dma.h)
+	// The split placement's record mover takes a frame on a word (mbx_dma.h), and the record holds that the move is its
+	// own
 	if (((uintptr_t)frame & 3u) == 0u) {
 		mbx_dma_start(base, words, at, frame, len, true);
+		moving |= TX_MOVED;
 	} else {
 		tx_payload(ch, at, frame, len);
 	}
 #else
 	tx_payload(ch, at, frame, len);
 #endif
+	t->moving = (uint16_t)moving;
 	return MBX_STATUS_OK;
 }
 

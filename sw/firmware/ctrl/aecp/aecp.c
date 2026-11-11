@@ -602,7 +602,10 @@ static inline void address(uint8_t *f, const struct aecp_registration *r, uint64
 // and with it how many a pass carries, THE RETRY in ctrl_loop.h). The notice is
 // built once and each recipient's frame only addressed (address), the used
 // registrations walked by their mask. A->requester is left out (Milan v1.2
-// 5.4.5.1). Fan_end's completion stands for every frame.
+// 5.4.5.1). Fan_end's completion stands for every frame. A frame the fan port
+// reports lost is owed: the notice resumes at its recipient, whose sequence_id
+// it did not spend (IEEE 1722.1-2021 7.5.2: each registered controller is sent
+// the notice).
 static bool fan_out(struct aecp *a)
 {
 	const unsigned total = a->cfg.interfaces * AECP_REGISTRATIONS;
@@ -610,6 +613,9 @@ static bool fan_out(struct aecp *a)
 	uint8_t *frame = a->response;
 	uint8_t *other = a->response + AECP_FAN_BYTES;
 	bool owed = false;
+	bool lost = false;
+	unsigned held = 0; // the recipient of the frame the fan port holds uncommitted, and its registration
+	struct aecp_registration *held_r = NULL;
 	a->response[36] |= 0x80u;
 	if (fan) {
 		memcpy(other, frame, a->response_bytes);
@@ -625,15 +631,20 @@ static bool fan_out(struct aecp *a)
 				continue;
 			}
 			address(frame, r, a->cfg.mac[i]);
-			if (!(fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :
-			      a->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie))) {
+			const enum aecp_fan taken = fan ? a->ports->fan(a->ports->ctx, i, frame, a->response_bytes) :
+				a->ports->send(a->ports->ctx, i, frame, a->response_bytes, a->tx_cookie) ? AECP_FAN_TAKEN :
+				AECP_FAN_REFUSED;
+			if (taken != AECP_FAN_TAKEN) {
 				owed = true;
+				lost = taken == AECP_FAN_LOST;
 				break;
 			}
 			if (fan) {
 				uint8_t *next = other;
 				other = frame;
 				frame = next;
+				held = k;
+				held_r = r;
 			} else {
 				sent_frame(a);
 			}
@@ -643,14 +654,22 @@ static bool fan_out(struct aecp *a)
 			k = (i + 1u) * AECP_REGISTRATIONS;
 		}
 	}
-	a->recipient = k;
 	if (fan) {
-		// a queue with no room for its completion leaves the notice owed, past its last recipient
-		owed = !a->ports->fan_end(a->ports->ctx, a->tx_cookie) || owed;
+		// a queue with no room for its completion leaves the notice owed, past its last recipient; a last frame lost
+		// leaves it owed at that frame's
+		const enum aecp_fan end = a->ports->fan_end(a->ports->ctx, a->tx_cookie);
+		lost = lost || end == AECP_FAN_LOST;
+		owed = end != AECP_FAN_TAKEN || owed;
 		if (!owed) {
 			sent_frame(a);
 		}
 	}
+	if (lost) {
+		// a lost frame is one this walk started: its recipient is sent it again, at the sequence_id it did not have
+		k = held;
+		--held_r->sequence;
+	}
+	a->recipient = k;
 	aecp_port_end(a);
 	a->notify = owed;
 	return owed;

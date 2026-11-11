@@ -139,6 +139,12 @@ enum aecp_change {
 	AECP_CHANGE_RATE, AECP_CHANGE_CLOCK, AECP_CHANGE_NAME, AECP_CHANGE_MAP,
 	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID, AECP_CHANGE_LOCK
 };
+// What a call of the fan port did (aecp_ports.fan and fan_end, #665).
+enum aecp_fan {
+	AECP_FAN_TAKEN,   // fan: its frame started; fan_end: the last frame delivered and its completion kept
+	AECP_FAN_REFUSED, // no room: for fan's frame, or for fan_end's completion; the frame before it delivered
+	AECP_FAN_LOST,    // the frame before it was not delivered, and nothing is started or kept
+};
 // All ports are required. They return without delivering ANY protocol input.
 // A port may publish an observation or apply a hardware value synchronously;
 // completion/event delivery is deferred to the event loop (#678).
@@ -178,10 +184,12 @@ struct aecp_ports {
 	bool (*applied)(void *);
 	// A notice's frame with no completion of its own, or NULL, when send takes
 	// every frame: the same delivery, committed by the next fan or by fan_end at
-	// the latest, which gives the notice's last frame cookie's completion and is
-	// false when it has no room for it (#665).
-	bool (*fan)(void *, unsigned, const uint8_t *, size_t);
-	bool (*fan_end)(void *, uint32_t cookie);
+	// the latest, which gives the notice's last frame cookie's completion
+	// (#665). Each call reports a frame that was not delivered for that frame:
+	// AECP_FAN_LOST from the call after it, so the notice resumes at the
+	// recipient whose frame it was, at the sequence_id it has not had.
+	enum aecp_fan (*fan)(void *, unsigned, const uint8_t *, size_t);
+	enum aecp_fan (*fan_end)(void *, uint32_t cookie);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
 // SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and

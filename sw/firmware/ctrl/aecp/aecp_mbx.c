@@ -16,24 +16,28 @@ static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len
 	return mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) == MBX_STATUS_OK;
 }
 
-static bool fan(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
+// A record the mover failed to move is reported for itself (mbx_tx_begin, #665): the frame before this one lost.
+static enum aecp_fan fan(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
 {
 	(void)ctx;
-	return mbx_tx_begin(MBX_CH_AECP, interface, frame, (uint16_t)len) == MBX_STATUS_OK;
+	const enum mbx_status status = mbx_tx_begin(MBX_CH_AECP, interface, frame, (uint16_t)len);
+	return status == MBX_STATUS_OK ? AECP_FAN_TAKEN : status == MBX_STATUS_LOST ? AECP_FAN_LOST : AECP_FAN_REFUSED;
 }
 
-// What the last fan call started, and the completion of the notice it ended.
-static bool fan_end(void *ctx, uint32_t cookie)
+// What the last fan call started, and the completion of the notice it ended: none for a last frame not committed.
+static enum aecp_fan fan_end(void *ctx, uint32_t cookie)
 {
 	struct aecp_mbx *m = ctx;
-	(void)mbx_tx_commit(MBX_CH_AECP);
+	if (!mbx_tx_commit(MBX_CH_AECP)) {
+		return AECP_FAN_LOST;
+	}
 	if (m->completion_count == AECP_MBX_COMPLETIONS) {
-		return false;
+		return AECP_FAN_REFUSED;
 	}
 	unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;
 	m->completions[n] = (struct aecp_mbx_completion){cookie, tx_count(MBX_CH_REG_TX_HEAD)};
 	++m->completion_count;
-	return true;
+	return AECP_FAN_TAKEN;
 }
 
 static uint32_t now(void *ctx)

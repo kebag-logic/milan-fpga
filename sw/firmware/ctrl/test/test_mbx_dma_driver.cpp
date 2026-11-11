@@ -28,9 +28,21 @@
 //       the driver wrote, at every tail length and across the ring's end,
 //       and committed at TX_HEAD;
 //   T2  a move that ends with ERR is not committed: TX_HEAD and the sequence
-//       stay, and the next frame is written at the same head;
+//       stay, and the next frame is written at the same head; a begin that
+//       finds the record before it so is LOST and starts nothing;
 //   T3  a frame off a word takes the driver's word loop, and the mover is
-//       not started.
+//       not started;
+//   T4  a record's commit judges the move that record started and no other:
+//       after a move that ends with ERR, whose flag the mover holds until its
+//       next start, a frame off a word is committed, sent whole or in halves;
+//   T5  the notice's fan port (aecp_mbx.c's fan and fan_end) reports a frame
+//       its move failed for that frame: the next fan is AECP_FAN_LOST and
+//       starts nothing, a lost last frame makes fan_end AECP_FAN_LOST with no
+//       completion kept, and the frame sent again goes.
+//
+// T5 links the adapter alone, over this driver and the window's HAL
+// (mbx_plat_mmio.c): the AECP core and the loop it calls are stubs below,
+// since only its fan port is under test.
 
 #include <gtest/gtest.h>
 
@@ -39,6 +51,7 @@
 #include <utility>
 #include <vector>
 
+#include "aecp_mbx.h"
 #include "fw_gtest.hpp"
 #include "mbx.h"
 #include "mbx_wire.h"
@@ -155,6 +168,22 @@ std::uint32_t ctrl_test_window[CTRL_TEST_WINDOW_WORDS];
 std::uint32_t ctrl_test_dma[CTRL_TEST_DMA_WORDS];
 void ctrl_test_wfi(void) {}
 uintptr_t ctrl_test_dma_base(void) { return mover.access(); }
+
+// The AECP core and the loop, as the adapter's fan port test (T5) needs them: the adapter's init accepts, and the rest
+// is never called.
+bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *) { return true; }
+void aecp_open(struct aecp *) {}
+bool aecp_ready(struct aecp *) { return true; }
+void aecp_rx(struct aecp *, unsigned, const uint8_t *, size_t) {}
+bool aecp_poll(struct aecp *) { return false; }
+bool aecp_retry(struct aecp *, unsigned, int32_t) { return false; }
+bool aecp_retry_aged(struct aecp *, uint32_t) { return false; }
+void aecp_tx_complete(struct aecp *, uint32_t, uint32_t) {}
+bool ctrl_loop_bind_rx(struct ctrl_loop *, unsigned, ctrl_rx_fn, void *) { return false; }
+void ctrl_loop_set_rx_ready(struct ctrl_loop *, unsigned, bool (*)(void *)) {}
+bool ctrl_loop_add_sink(struct ctrl_loop *, ctrl_event_fn, void *) { return false; }
+bool ctrl_loop_add_poll(struct ctrl_loop *, ctrl_poll_fn, void *) { return false; }
+bool ctrl_loop_set_retry(struct ctrl_loop *, ctrl_retry_fn, ctrl_retry_aged_fn, void *) { return false; }
 }
 
 namespace {
@@ -293,9 +322,12 @@ TEST_F(MbxDma, T2AMoveEndingInErrorIsNotCommitted) {
     EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), head + MBX_TX_HDR_WORDS + sizeof frame / 4u)
         << "T2 and committed there";
     mover.fail = true;
+    const std::uint32_t committed = at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD));
     ASSERT_EQ(mbx_tx_begin(kCh, 0, frame, sizeof frame), MBX_STATUS_OK);
-    EXPECT_EQ(mbx_tx_begin(kCh, 0, frame, sizeof frame), MBX_STATUS_BAD)
-        << "T2 a begin that finds the record before it ended in ERR is refused";
+    EXPECT_EQ(mbx_tx_begin(kCh, 0, frame, sizeof frame), MBX_STATUS_LOST)
+        << "T2 a begin that finds the record before it ended in ERR reports it lost";
+    EXPECT_TRUE(mover.starts.size() == 3u && at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)) == committed)
+        << "T2 and starts nothing, the lost record not committed";
     mover.fail = false;
 }
 
@@ -315,6 +347,63 @@ TEST_F(MbxDma, T3AFrameOffAWordTakesTheWordLoop) {
     EXPECT_TRUE(same) << "T3 the ring holds the frame's words";
     EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), static_cast<std::uint16_t>(head + MBX_TX_HDR_WORDS + 16u))
         << "T3 and the record is committed at TX_HEAD";
+}
+
+TEST_F(MbxDma, T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError) {
+    const std::uint16_t head = 100;
+    open(0, head);
+    alignas(4) static std::uint8_t frame[200];
+    alignas(4) static std::uint8_t buffer[72];
+    for (std::uint32_t i = 0; i < sizeof frame; ++i) frame[i] = pattern(i);
+    for (std::uint32_t i = 0; i < sizeof buffer; ++i) buffer[i] = pattern(i + 3u);
+    const std::uint8_t* off = buffer + 1;
+    const std::uint16_t len = 61, record = MBX_TX_HDR_WORDS + 16u;
+    mover.memory = {{frame, sizeof frame}, {buffer, sizeof buffer}};
+    mover.fail = true;
+    ASSERT_EQ(mbx_tx_send(kCh, 0, frame, sizeof frame), MBX_STATUS_BAD) << "T4 a move that ends in ERR is refused";
+    ASSERT_EQ(ctrl_test_dma[kStatus], kErr) << "T4 the mover holds its ERR until its next start";
+    EXPECT_EQ(mbx_tx_send(kCh, 0, off, len), MBX_STATUS_OK)
+        << "T4 a frame off a word sent after a failed move is committed";
+    EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), head + record) << "T4 at TX_HEAD";
+    ASSERT_EQ(mbx_tx_begin(kCh, 0, off, len), MBX_STATUS_OK);
+    EXPECT_TRUE(mbx_tx_commit(kCh)) << "T4 a frame off a word begun after a failed move is committed by its own commit";
+    EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), head + 2u * record) << "T4 at TX_HEAD, in halves";
+    bool same = true;
+    for (std::uint32_t k = 0; k < (len + 3u) / 4u; ++k) same = same && tx_ring(head + record + MBX_TX_HDR_WORDS + k) == lanes(off, len, k);
+    EXPECT_TRUE(same && mover.starts.size() == 1u) << "T4 the ring holds the frame's words, and no move was started";
+    ASSERT_EQ(mbx_tx_send(kCh, 0, frame, sizeof frame), MBX_STATUS_OK) << "T4 a frame on a word is then moved";
+    EXPECT_EQ(at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)), head + 2u * record + MBX_TX_HDR_WORDS + sizeof frame / 4u)
+        << "T4 and committed";
+}
+
+TEST_F(MbxDma, T5TheNoticeFanPortReportsALostFrameForItself) {
+    const std::uint16_t head = 100;
+    const std::uint32_t record = MBX_TX_HDR_WORDS + 15u;   // a 60-byte frame
+    open(0, head);
+    static aecp_mbx m;
+    static const aecp_ports environment{};
+    aecp_config cfg{};
+    cfg.interfaces = 1;
+    ASSERT_TRUE(aecp_mbx_init(&m, &cfg, &environment, 0));
+    alignas(4) static std::uint8_t first[64], second[64];
+    for (std::uint32_t i = 0; i < sizeof first; ++i) first[i] = pattern(i), second[i] = pattern(i + 9u);
+    mover.memory = {{first, sizeof first}, {second, sizeof second}};
+    const auto committed = [] { return at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)); };
+    mover.fail = true;
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T5 a notice's frame is started";
+    EXPECT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_LOST)
+        << "T5 the fan after a frame whose move failed reports that frame lost";
+    EXPECT_TRUE(mover.starts.size() == 1u && committed() == head) << "T5 and starts nothing, the lost frame uncommitted";
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T5 the lost frame is started again";
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T5 and the next";
+    mover.fail = true;   // the model starts the move at the driver's next access to the mover
+    EXPECT_EQ(m.ports.fan_end(&m, 7), AECP_FAN_LOST) << "T5 fan_end reports a last frame whose move failed lost";
+    EXPECT_TRUE(committed() == head + record && m.completion_count == 0u)
+        << "T5 and keeps no completion for it, the frame before it committed";
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T5 the lost last frame is started again";
+    EXPECT_EQ(m.ports.fan_end(&m, 7), AECP_FAN_TAKEN) << "T5 and fan_end ends the notice";
+    EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == 1u && m.completions[0].cookie == 7u)
+        << "T5 with both frames committed and the notice's completion kept";
 }
 
 }  // namespace

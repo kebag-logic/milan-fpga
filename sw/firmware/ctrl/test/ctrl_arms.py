@@ -223,8 +223,8 @@ def arm_reentry_release(tree: Tree) -> Outcome:
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
     mocks; then the MMIO platform over a host window, the driver built for that
-    window, the driver built as the split image builds it, with the record mover,
-    and the platform's memory primitives."""
+    window, the driver built as the split image builds it, with the record mover
+    and the notice's fan port over it, and the platform's memory primitives."""
     fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
     objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
     seams = execute("unit", link(tree, "test_unit", objs))
@@ -240,8 +240,11 @@ def arm_unit(tree: Tree) -> Outcome:
     # over a register model of the mover (mmio_dma.h, #665).
     dma = (*window, f"-include{HERE / 'mmio_dma.h'}", "-DCTRL_MBX_DMA_BASE=(ctrl_test_dma_base())")
     mover = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-dma", dma)
+    # with the notice's fan port over that driver (aecp_mbx.c), on the window's HAL
+    aecp = (f"-I{tree.src / 'aecp'}",)
+    mover += compile_c(tree, sources(tree, ("aecp/aecp_mbx.c", "plat/mbx_plat_mmio.c")), "mmio-dma-aecp", (*dma, *aecp))
     moved = execute("unit", link(tree, "test_mbx_dma_driver",
-                                 mover + compile_tests(tree, ("test_mbx_dma_driver.cpp",), "mmio-dma/tests")))
+                                 mover + compile_tests(tree, ("test_mbx_dma_driver.cpp",), "mmio-dma/tests", aecp)))
     # The platform's memcpy, memmove, memset and memcmp under names the host's C library does not own.
     renamed = ("-Dmemcpy=ctrl_mem_memcpy", "-Dmemmove=ctrl_mem_memmove", "-Dmemset=ctrl_mem_memset",
                "-Dmemcmp=ctrl_mem_memcmp")

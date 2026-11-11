@@ -40,6 +40,7 @@ enum mbx_status {
 	MBX_STATUS_EMPTY,       // nothing to take
 	MBX_STATUS_FULL,        // the transmit ring has no room for the record now
 	MBX_STATUS_BAD,         // refused: a malformed record or argument
+	MBX_STATUS_LOST,        // mbx_tx_begin: the record before it was not committed, its move failed; none started
 };
 
 // One received frame, copied out of its receive ring.
@@ -178,15 +179,23 @@ bool mbx_rx_waiting(unsigned ch, uint16_t mark);
 
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the
-// channel's max_frame_bytes or an unknown interface. Frames leave in the
-// order they were committed, across every channel.
+// channel's max_frame_bytes or an unknown interface, and for a frame the
+// record mover failed to move. Frames leave in the order they were
+// committed, across every channel.
 enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len);
 // mbx_tx_send in two halves (#665: a notice to every recipient): mbx_tx_begin
 // commits the record before it and starts this one, and mbx_tx_commit, or the
 // next mbx_tx_begin, commits it. Between them the mover may be reading frame,
 // so the caller leaves it alone, and makes no other access to the channel or
 // the window: a window access waits for the move and can hold it up. A frame
-// the mover cannot take in one go, and a record the move failed, as mbx_tx_send.
+// the mover cannot take in one go, off a word, goes through the word loop.
+// A record's commit judges the move that record started and no other (the
+// mover's ERR stays set until its next start, mbx_dma.h): a record the word
+// loop wrote is committed whatever a move before it left. A record whose own
+// move failed is not committed, and the failure is reported for that record:
+// mbx_tx_commit is false, and mbx_tx_begin, which commits the record before
+// its own, is LOST and starts nothing, so its caller sends that record again
+// before this one.
 enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len);
 bool mbx_tx_commit(unsigned ch);
 
