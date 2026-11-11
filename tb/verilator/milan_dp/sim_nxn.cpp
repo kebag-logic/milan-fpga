@@ -2088,6 +2088,28 @@ class NxnDatapathHarness {
             } else {
                 gsi_resp[static_cast<uint16_t>(gsi_be(f, 34, 2))] = f;
             }
+        } else if (f[14] == 0xFA && f.size() >= 54) {
+            aidx_on_adpdu(f);
+        }
+    }
+
+    //! [AIDX] #858: every ADPDU the entity sends, filed here so the section's
+    //! oracle is the wire and never the processor. message_type (byte 15
+    //! [3:0], IEEE 1722.1-2021 6.2.1.5) 0 is ENTITY_AVAILABLE and 1 ENTITY_
+    //! DEPARTING; available_index is ADPDU octets 50..53 (6.2.1, 6.2.2.15).
+    long aidx_avail_n = 0;
+    long aidx_depart_n = 0;
+    uint32_t aidx_last_avail = 0;
+    uint32_t aidx_last_depart = 0;
+    void aidx_on_adpdu(const std::vector<uint8_t>& f) {
+        const unsigned msg = f[15] & 0x0Fu;
+        const uint32_t idx = static_cast<uint32_t>(gsi_be(f, 50, 4));
+        if (msg == 0) {
+            aidx_avail_n++;
+            aidx_last_avail = idx;
+        } else if (msg == 1) {
+            aidx_depart_n++;
+            aidx_last_depart = idx;
         }
     }
 
@@ -2994,6 +3016,110 @@ class NxnDatapathHarness {
         notify_clear();
     }
 
+    // ======================================================================
+    //  [AIDX] #858, processor #217: the ENTITY descriptor's available_index
+    // ======================================================================
+    //  READ_DESCRIPTOR(ENTITY)'s available_index is "the same as the
+    //  available_index field in ATDECC Discovery Protocol" (IEEE 1722.1-2021
+    //  Table 7-2), which ADP increments after each ENTITY_AVAILABLE it sends and
+    //  resets to zero when it sends ENTITY_DEPARTING (6.2.2.15). So the
+    //  descriptor carries the index the last ENTITY_AVAILABLE on the wire
+    //  carried, and 0 once an ENTITY_DEPARTING has left; before processor #217
+    //  it was the AEM image's constant 0. The oracle is the wire (gsi_tx_frame
+    //  files every ADPDU); every other descriptor octet is held to the image's.
+    static constexpr size_t kAidxOff = 36;           // ENTITY octets 36..39
+    struct AidxRead {
+        bool answered = false;
+        uint32_t index = 0;
+        unsigned long other_bad = ~0ul;
+    };
+    AidxRead aidx_read_entity() {
+        AidxRead out;
+        const std::vector<uint8_t>* img = desc_of(0x0000, 0);
+        const std::vector<uint8_t> pl(8, 0);         // configuration 0, ENTITY 0
+        const std::vector<uint8_t> r = gsi_xact(CTL_A, 0x0004, pl);
+        if (!img || img->size() < kAidxOff + 4 || r.size() < 42 + img->size()
+            || aecp_status(r) != 0) return out;
+        out.answered = true;
+        out.index = static_cast<uint32_t>(gsi_be(r, 42 + kAidxOff, 4));
+        out.other_bad = 0;
+        for (size_t i = 0; i < img->size(); i++)
+            if ((i < kAidxOff || i >= kAidxOff + 4) && r[42 + i] != (*img)[i]) out.other_bad++;
+        return out;
+    }
+    //! One graded read against the index `want` the wire last carried. No
+    //! ADPDU may leave while the command is answered, or the oracle would not
+    //! name one value.
+    void aidx_grade(const char* tag, uint32_t want) {
+        const long a0 = aidx_avail_n;
+        const long d0 = aidx_depart_n;
+        const AidxRead got = aidx_read_entity();
+        char w[192];
+        snprintf(w, sizeof w, "[AIDX] %s: READ_DESCRIPTOR(ENTITY) answered SUCCESS", tag);
+        ck(w, got.answered, 1);
+        snprintf(w, sizeof w, "[AIDX] %s: no ADPDU left while it was answered", tag);
+        ck(w, aidx_avail_n == a0 && aidx_depart_n == d0, 1);
+        snprintf(w, sizeof w, "[AIDX] %s: available_index (octets 36..39) is the wire's", tag);
+        ck(w, got.index, want);
+        snprintf(w, sizeof w, "[AIDX] %s: every other octet is the image's", tag);
+        ck(w, got.other_bad, 0);
+    }
+    //! Clock the section's ports until `count` moves past `from` or `limit_ms`
+    //! processor milliseconds pass; true when it moved.
+    bool aidx_wait(const long& count, long from, long limit_ms) {
+        for (long c = 0; c < limit_ms * kMsCycTb && count == from; c++) gsi_tick();
+        return count != from;
+    }
+    void entity_available_index_section() {
+        printf("-- [AIDX] #858: READ_DESCRIPTOR(ENTITY) available_index is the last "
+               "ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15; one processor "
+               "ms = %d cycles) --\n", kMsCycTb);
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        //! ENTITY_AVAILABLEs come TMR_ADVERTISE (5 s) plus a TMR_DELAY draw of
+        //! 0 to 4 s apart, and the first after an enable 0 to 2 s after it
+        //! (Milan v1.2 5.6.3.5.2, 5.6.3.5.5, 5.6.3.5.9)
+        constexpr long kAdvWaitMs = 10000;
+        ck("[AIDX] the image has an ENTITY descriptor holding available_index",
+           desc_of(0x0000, 0) != nullptr && desc_of(0x0000, 0)->size() >= kAidxOff + 4, 1);
+        ck("[AIDX] PP_CTRL[0] is clear, so ADP_CTRL[0] alone requests the entity enable",
+           axi_read(A_PP_CTRL) & 1u, 0);
+        axi_write(A_ADP_CTRL, 0x1);
+        uint32_t first = 0;
+        for (int k = 1; k <= 3; k++) {
+            char tag[64];
+            snprintf(tag, sizeof tag, "A%d after an ENTITY_AVAILABLE", k);
+            const bool sent = aidx_wait(aidx_avail_n, aidx_avail_n, kAdvWaitMs);
+            char w[128];
+            snprintf(w, sizeof w, "[AIDX] A%d: an ENTITY_AVAILABLE left within 10 s", k);
+            ck(w, sent, 1);
+            if (k == 1) first = aidx_last_avail;
+            printf("  [i]    A%d: the ENTITY_AVAILABLE carried available_index %u\n", k, aidx_last_avail);
+            aidx_grade(tag, aidx_last_avail);
+        }
+        ck("[AIDX] the three ENTITY_AVAILABLEs carried consecutive indices (6.2.2.15)",
+           aidx_last_avail, first + 2);
+        ck("[AIDX] ...past the image's constant 0, so the reads above can tell them apart",
+           first > 0, 1);
+        const long d0 = aidx_depart_n;
+        axi_write(A_ADP_CTRL, 0x0);
+        const bool departed = aidx_wait(aidx_depart_n, d0, 1000);
+        ck("[AIDX] D: clearing the entity enable sends ENTITY_DEPARTING within 1 s", departed, 1);
+        printf("  [i]    D: the ENTITY_DEPARTING carried available_index %u\n", aidx_last_depart);
+        aidx_grade("D after ENTITY_DEPARTING", 0);
+        axi_write(A_ADP_CTRL, 0x1);
+        for (uint32_t k = 0; k < 2; k++) {
+            char tag[64];
+            snprintf(tag, sizeof tag, "R%u after re-enabled ENTITY_AVAILABLE %u", k + 1, k + 1);
+            const bool sent = aidx_wait(aidx_avail_n, aidx_avail_n, kAdvWaitMs);
+            char w[128];
+            snprintf(w, sizeof w, "[AIDX] R%u: an ENTITY_AVAILABLE left within 10 s", k + 1);
+            ck(w, sent, 1);
+            snprintf(w, sizeof w, "[AIDX] R%u: it carried available_index %u, counted from 0 again", k + 1, k);
+            ck(w, aidx_last_avail, k);
+            aidx_grade(tag, aidx_last_avail);
+        }
+    }
+
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     static constexpr uint8_t sidB[8] = {
         0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -3377,6 +3503,7 @@ class NxnDatapathHarness {
         notify_section(true);
         gsi_seam_section();
         unbind_order_section();
+        entity_available_index_section();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
