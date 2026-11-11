@@ -1,0 +1,12 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: what round 3 deleted from its scratch, with the sha256 and size of each cited file
+full log: 1112 bytes, sha256 dfecef9859111fddb5590d5fa58c8b5e81bedf9dd648520aa87bef9574a7058e
+---
+deleted 2026-11-11T11:48:51+01:00: superseded clones and build trees of round 3 (their logs are receipts); cited files first:
+e3310074de8e24116f1e4d9aaf479dfebef27b24754f8cff3d0e84371d469afa  361197 bytes  tmp/budget-1x1/results/results.json
+41a3ca9836a634053aba0d618125257788977d500bd8d9e4aded57ab63a33359  472759 bytes  tmp/budget-8x8/results/results.json
+d30c3a87fe18647f1e68564da1b7713aa6efcf5b3c122cd434833d8ccf2d3d1f  140628 bytes  tmp/boot-1x1/image-provisional/ctrl_app.elf
+a41979fdfa8eb52ee02deb99c9bf208f988bbe06b476b5cb05c4bd6815b00aac  5542 bytes  tmp/boot-1x1/runtime/libc.a
+6bbe4dd6246be83e6a6b44bda23ba7685929ce5ad9cfc835da8945bb93c8d193  29432 bytes  tmp/boot-1x1/runtime/libcompiler_rt.a
+trees: dev (iteration clone), gates/{boot,budget,budget-1x1,budget-8x8,diffcheck,builder,endpoint} (gate clones), tmp/{boot-1x1,boot-8x8,budget-1x1,budget-8x8} (build dirs)
+deleted 2026-11-11T12:34:42+01:00: the four sweep shard clones beside the lane (a760e-shard0 to 3, 9.6 GB, each at a91fb27d) after their logs were copied into receipts/r3/final/sweep; no receipt cites their contents beyond those logs

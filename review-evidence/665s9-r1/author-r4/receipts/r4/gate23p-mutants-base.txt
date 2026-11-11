@@ -1,0 +1,66 @@
+head a91fb27dd39483e4694e193504da1dbe06208807 (round 3, before the controls)
+command: bash tools/gate_mutants.sh <clone> <log>
+inputs: sw/builder/test_builder.py 61bb7917f61f3a7b1fb21b5e6f40a2c5e2cb36ce711cd0925dc7fa1e47037e25, sw/litex/check_image_identity.py 1b3ba46f09f54e776891980616e17d862d405abf715c7ed6e06f4858246446c5
+---
+=== arm if-true:  1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..1a983bf5e3 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -221,7 +221,7 @@ def _bitstream_rules(got: dict, bitstream: Path | None, found: list) -> None:
+     except TransitionError as exc:
+         found.append(("bitstream", f"{candidates[0]} is not a bitstream: {exc}"))
+         return
+-    if have != bound:
++    if True:
+         found.append(("bitstream", f"{candidates[0]} binds {have}, the manifest records {bound}"))
+ 
+ 
+ALL GATES PASS
+arm if-true: test_builder rc=0
+=== arm have-eq-bound:  1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..61bc43bf3a 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -221,7 +221,7 @@ def _bitstream_rules(got: dict, bitstream: Path | None, found: list) -> None:
+     except TransitionError as exc:
+         found.append(("bitstream", f"{candidates[0]} is not a bitstream: {exc}"))
+         return
+-    if have != bound:
++    if have == bound:
+         found.append(("bitstream", f"{candidates[0]} binds {have}, the manifest records {bound}"))
+ 
+ 
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+AssertionError: gate 23p:
+arm have-eq-bound: test_builder rc=1
+=== arm no-manifest-ident:  1 file changed, 2 deletions(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..859d695334 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -172,8 +172,6 @@ def _manifest_rules(got: dict, found: list) -> None:
+     if claimed["schema"] != SCHEMA or claimed["placement"] != SPLIT_WORD:
+         found.append(("manifest", f"the manifest is schema {claimed['schema']} at placement {claimed['placement']!r}; "
+                                   f"only a split image has a manifest, schema {SCHEMA}"))
+-    if claimed["ident"] != got["ident"]:
+-        found.append(("manifest", f"the manifest's ident {claimed['ident']!r} is not the image's {got['ident']!r}"))
+     if claimed["version"] != f"0x{got['version']:08x}":
+         found.append(("manifest", f"the manifest's VERSION {claimed['version']} is not the image's "
+                                   f"milan_csr.sv 0x{got['version']:08x}"))
+ALL GATES PASS
+arm no-manifest-ident: test_builder rc=0
+restored: 0 changed lines in sw/litex/check_image_identity.py
+rc=0
+--- arm if-true: gate 23p's own output
+    a bitstream other than the one the manifest binds: FINDING bitstream: <scratch>/tmp/tmpodcjwz7u/a-bitstream-other-than-the-one-the-manifest-binds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': 'a793a9f533acd38d2343f4e7c2397f68d784f9913290bd8a88554a737a95ad99', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '7b3cc3c411cfc97f919bbd69de9f06f7f13c4ed21fc6a7b8fedc4d06fbe62679', 'bitstream_fpga_part': '7a100tfgg484'}
+  [gate 23p] the good split and all-fabric images pass the identity gate; 12 planted images each fail it by their kind (ddr3, ident, manifest, placement from the SoC; firmware, bitstream, placement and manifest from the image's files) in 48 s
+ALL GATES PASS
+--- arm have-eq-bound: gate 23p's own output
+AssertionError: gate 23p:
+  a bitstream other than the one the manifest binds: the gate did not find it by its bitstream rule (exit 0): image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+--- arm no-manifest-ident: gate 23p's own output
+    a bitstream other than the one the manifest binds: FINDING bitstream: <scratch>/tmp/tmp7lqtrwwh/a-bitstream-other-than-the-one-the-manifest-binds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': 'a793a9f533acd38d2343f4e7c2397f68d784f9913290bd8a88554a737a95ad99', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '7b3cc3c411cfc97f919bbd69de9f06f7f13c4ed21fc6a7b8fedc4d06fbe62679', 'bitstream_fpga_part': '7a100tfgg484'}
+  [gate 23p] the good split and all-fabric images pass the identity gate; 12 planted images each fail it by their kind (ddr3, ident, manifest, placement from the SoC; firmware, bitstream, placement and manifest from the image's files) in 53 s
+ALL GATES PASS

@@ -1,0 +1,10 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: the suite's own log
+full log: 289 bytes, sha256 7a0d6bba5b873481fbb291b7c9e4b494cc384d5d6ad838f8f2dbf4246108de2d
+---
+python3 -B run.py --self-test
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+PASS: dispatch removal caught by continuous backing and per-line checks
+fw_service_budget_oracle: checks: 55 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census

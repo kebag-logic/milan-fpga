@@ -1,0 +1,61 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job
+full log: 1546 bytes, sha256 d606b7b200a7d1aed1497bfea106b97935945d3aa0d1450125062f97e8b30999
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_3",
+   "name": "Download executed case evidence",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Require successful owners and every case exactly once",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Upload verified suite union",
+   "kind": "actions/upload-artifact",
+   "rc": "not run",
+   "reason": "uploads the union ci_step_4 writes; reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

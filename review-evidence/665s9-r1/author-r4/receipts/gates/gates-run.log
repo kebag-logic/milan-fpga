@@ -1,0 +1,18 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: every standalone gate's finish line, in order
+full log: 533 bytes, sha256 e25481e0511c2e1ff6440b84cae76b540f8c82baa2a58fb995ac203195ee5c8d
+---
+14:52:20 diff-check rc=0
+14:54:51 test-ctrl-memory rc=0
+14:55:00 endpoint-export-endstation_ax7101_1x1_tdm8 rc=0
+14:55:00 endpoint-compare-endstation_ax7101_1x1_tdm8 rc=0
+14:55:06 endpoint-export-endstation_ax7101_8x8 rc=0
+14:55:06 endpoint-compare-endstation_ax7101_8x8 rc=1
+14:58:17 split-boot-1x1 rc=0
+15:03:09 split-boot-8x8 rc=0
+16:05:42 test-builder rc=0
+16:06:31 budget-selftest rc=0
+19:44:44 budget-1x1 rc=0
+19:59:26 timingcuts-pair-base rc=0 wall=1702s
+20:00:38 timingcuts-pair-head rc=0 wall=1774s
+20:52:25 budget-8x8 rc=0

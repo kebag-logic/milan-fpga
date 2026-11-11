@@ -1,0 +1,44 @@
+head 3ba76ae7c75f655fb77cad80866f6799d0e73087
+command: the last 40 lines of the attempt's vivado.out
+full log: 4575 bytes, sha256 93290bbc5e907580bd7c02932b8dbc88a9641574a1c8b99edf5f69292143d22a
+---
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/rate_drop_w[37].  Did not re-place instance KL_mbx/u_rx/rate_drop_r_reg[2][5]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/rate_drop_w[39].  Did not re-place instance KL_mbx/u_rx/rate_drop_r_reg[2][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[11].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[19].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[25].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[27].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][19]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[31].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/p_9_out[33].  Did not re-place instance KL_mbx/u_rx/field_r_reg[3][25]
+INFO: [Physopt 32-661] Optimized 35 nets.  Re-placed 35 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 35 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 35 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.378 | TNS=-32.430 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 4074.117 ; gain = 0.000 ; free physical = 8819 ; free virtual = 92583
+Phase 15 Single Cell Placement Optimization | Checksum: 27732e690
+
+Time (s): cpu = 01:11:02 ; elapsed = 00:06:00 . Memory (MB): peak = 4074.117 ; gain = 59.383 ; free physical = 8872 ; free virtual = 92612
+
+Phase 16 Multi Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 100 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/ch_r_reg_n_0_[0]_repN_4.  Did not re-place instance KL_mbx/u_rx/ch_r_reg[0]_replica_4/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/cls_done_r_i_4_n_0.  Did not re-place instance KL_mbx/u_rx/cls_done_r_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_851.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT2_11/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/cls_done_r_i_14_n_0.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_108/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wr_addr_o[7]_i_3_n_0.  Did not re-place instance KL_mbx/u_rx/wr_addr_o[7]_i_3/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_218.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT3_34/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[17].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[17]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[7].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[7]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[25].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[25]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[26].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[26]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[28].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[28]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[9].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[9]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/ch_r_reg_n_0_[1]_repN_6.  Did not re-place instance KL_mbx/u_rx/ch_r_reg[1]_replica_6/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/cls_done_r_i_491_n_0.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT2_12/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wr_addr_o[7]_i_2_n_0.  Did not re-place instance KL_mbx/u_rx/wr_addr_o[7]_i_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/rate_drop_r[0][0]_i_3_n_0.  Did not re-place instance KL_mbx/u_rx/rate_drop_r[0][0]_i_3/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[10].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[10]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[13].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[13]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[22].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[22]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[23].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[23]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_23.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_19/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/wacc_r_reg_n_0_[0].  Did not re-place instance KL_mbx/u_rx/wacc_r_reg[0]/Q

@@ -1,0 +1,70 @@
+head ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa
+command: ci_replay.py job
+full log: 1530 bytes, sha256 77d584252159e17d9fd2c1e70d1bb11a055bf838b47e690d571a990f1109f410
+---
+{
+ "result": "success",
+ "outputs": {
+  "run_full": "true",
+  "rtl": "true",
+  "target_sha": "ad2ed0e3ab3daa9697bdf42ae504b4504bfd04aa"
+ },
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Cache exact Python downloads",
+   "kind": "actions/cache",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "target",
+   "name": "Print the event and pin the one SHA this run validates",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Assert the repository default branch is dev",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "reads the repository's default branch through the GitHub API (gh api, GH_TOKEN); not authenticated here, and the step would read 'unreadable'"
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Hold every workflow file to its contract",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "gate",
+   "name": "Decide whether this exact head needs the exhaustive gates",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

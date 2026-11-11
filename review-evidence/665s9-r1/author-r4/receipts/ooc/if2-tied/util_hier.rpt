@@ -1,0 +1,41 @@
+head e16c1343057ca23e544f22c4c023065809c3b5bf
+command: tools/ooc_term.sh
+full log: 2765 bytes, sha256 5bbfed63307640fe027d72dbe3bb49175367bb979ae9b6d322ccf0f66b041a5b
+---
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Tue Nov 10 07:26:23 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -file util_hier.rpt
+| Design       : tb_mbx_top
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|    Instance    |             Module            | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++----------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| tb_mbx_top     |                         (top) |       8037 |       8037 |       0 |    0 | 14350 |      1 |     10 |          0 |
+|   (tb_mbx_top) |                         (top) |          0 |          0 |       0 |    0 |     0 |      0 |      0 |          0 |
+|   g_wb.u_wb    |                     KL_mbx_wb |        265 |        265 |       0 |    0 |     1 |      0 |      0 |          0 |
+|   u_mbx        |                        KL_mbx |       7772 |       7772 |       0 |    0 | 14349 |      1 |     10 |          0 |
+|     (u_mbx)    |                        KL_mbx |       4171 |       4171 |       0 |    0 | 11770 |      0 |      0 |          0 |
+|     u_evt      |                    KL_mbx_evt |       1504 |       1504 |       0 |    0 |  1234 |      0 |      0 |          0 |
+|     u_rx       |                     KL_mbx_rx |       1493 |       1493 |       0 |    0 |  1065 |      0 |      0 |          0 |
+|     u_srp_tx   | KL_mbx_ring__parameterized2_5 |         52 |         52 |       0 |    0 |     0 |      0 |      1 |          0 |
+|     u_tx       |                     KL_mbx_tx |        454 |        454 |       0 |    0 |   280 |      0 |      0 |          0 |
++----------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

@@ -1,0 +1,64 @@
+head 72f596b8f375407a4b8ac6d15868b7f975c18850
+command: the replay runners' progress lines
+full log: 3100 bytes, sha256 26642722d88877604d24955a20be2dc9e0e5269e764ab0bc7c7999f9d97c7e5e
+---
+02:17:56 local: docs__docs-gates-2
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/docs__docs-gates-2/bin/python3 -m pip install --upgrade pip
+docs__docs-gates-2: success
+02:38:53 local: docs__docs-gates-2 rc 0
+02:38:54 local: elaborate__elaborate-gates-1
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__elaborate-gates-1/bin/python3 -m pip install --upgrade pip
+elaborate__elaborate-gates-1: failure
+03:27:20 local: elaborate__elaborate-gates-1 rc 0
+03:27:21 local: elaborate__elaborate
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__elaborate/bin/python3 -m pip install --upgrade pip
+elaborate__elaborate: failure
+03:27:33 local: elaborate__elaborate rc 0
+03:27:33 local: elaborate__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__ci-manifest/bin/python3 -m pip install --upgrade pip
+elaborate__ci-manifest: success
+03:27:48 local: elaborate__ci-manifest rc 0
+03:27:49 local: elaborate__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/elaborate__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+elaborate__ci-cancel-tail: success
+03:28:00 local: elaborate__ci-cancel-tail rc 0
+03:28:01 local: rtl-fast__firmware-aecp-mutants
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__firmware-aecp-mutants/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-aecp-mutants: success
+03:43:28 local: rtl-fast__firmware-aecp-mutants rc 0
+03:43:28 local: rtl-fast__firmware-verilator
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__firmware-verilator/bin/python3 -m pip install --upgrade pip
+rtl-fast__firmware-verilator: success
+03:56:36 local: rtl-fast__firmware-verilator rc 0
+03:56:36 local: rtl-fast__rtl-fast
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__rtl-fast/bin/python3 -m pip install --upgrade pip
+rtl-fast__rtl-fast: success
+03:56:40 local: rtl-fast__rtl-fast rc 0
+03:56:41 local: rtl-fast__ci-manifest
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__ci-manifest/bin/python3 -m pip install --upgrade pip
+rtl-fast__ci-manifest: success
+03:56:47 local: rtl-fast__ci-manifest rc 0
+03:56:47 local: rtl-fast__ci-cancel-tail
+
+[notice] A new release of pip is available: 24.0 -> 26.3
+[notice] To update, run: <scratch>/tmpci/venvs/rtl-fast__ci-cancel-tail/bin/python3 -m pip install --upgrade pip
+rtl-fast__ci-cancel-tail: success
+03:56:51 local: rtl-fast__ci-cancel-tail rc 0

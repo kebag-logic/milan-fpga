@@ -1,0 +1,78 @@
+tree bc5cc0e0f7d41e4a8a1aff1a704afc1cc58f5adc (a91fb27d with round 4's three commits applied; equal to the final head a69fc0f597355a0a200ec5be6bb134b897e97ff5's tree)
+command: bash tools/gate_mutants.sh <clone> <log>
+inputs: sw/builder/test_builder.py 84cf12d698b9737139d864634c21f42c6d993b47492e83d976c8e1b20942f810, sw/litex/check_image_identity.py 1b3ba46f09f54e776891980616e17d862d405abf715c7ed6e06f4858246446c5
+---
+=== arm if-true:  1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..1a983bf5e3 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -221,7 +221,7 @@ def _bitstream_rules(got: dict, bitstream: Path | None, found: list) -> None:
+     except TransitionError as exc:
+         found.append(("bitstream", f"{candidates[0]} is not a bitstream: {exc}"))
+         return
+-    if have != bound:
++    if True:
+         found.append(("bitstream", f"{candidates[0]} binds {have}, the manifest records {bound}"))
+ 
+ 
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+AssertionError: gate 23p:
+  a bound bitstream the image holds: the gate refused an image that agrees with its identity (exit 1): FINDING bitstream: <scratch>/tmp/tmpfnb7_aqw/a-bound-bitstream-the-image-holds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstr
+arm if-true: test_builder rc=1
+=== arm have-eq-bound:  1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..61bc43bf3a 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -221,7 +221,7 @@ def _bitstream_rules(got: dict, bitstream: Path | None, found: list) -> None:
+     except TransitionError as exc:
+         found.append(("bitstream", f"{candidates[0]} is not a bitstream: {exc}"))
+         return
+-    if have != bound:
++    if have == bound:
+         found.append(("bitstream", f"{candidates[0]} binds {have}, the manifest records {bound}"))
+ 
+ 
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+AssertionError: gate 23p:
+  a bound bitstream the image holds: the gate refused an image that agrees with its identity (exit 1): FINDING bitstream: <scratch>/tmp/tmpea9ajkp4/a-bound-bitstream-the-image-holds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstr
+arm have-eq-bound: test_builder rc=1
+=== arm no-manifest-ident:  1 file changed, 2 deletions(-)
+diff --git a/sw/litex/check_image_identity.py b/sw/litex/check_image_identity.py
+index 7ad8637ef7..859d695334 100644
+--- a/sw/litex/check_image_identity.py
++++ b/sw/litex/check_image_identity.py
+@@ -172,8 +172,6 @@ def _manifest_rules(got: dict, found: list) -> None:
+     if claimed["schema"] != SCHEMA or claimed["placement"] != SPLIT_WORD:
+         found.append(("manifest", f"the manifest is schema {claimed['schema']} at placement {claimed['placement']!r}; "
+                                   f"only a split image has a manifest, schema {SCHEMA}"))
+-    if claimed["ident"] != got["ident"]:
+-        found.append(("manifest", f"the manifest's ident {claimed['ident']!r} is not the image's {got['ident']!r}"))
+     if claimed["version"] != f"0x{got['version']:08x}":
+         found.append(("manifest", f"the manifest's VERSION {claimed['version']} is not the image's "
+                                   f"milan_csr.sv 0x{got['version']:08x}"))
+    a bound bitstream the image holds: passes
+    assert not bad, "gate 23p:\n  " + "\n  ".join(bad)
+AssertionError: gate 23p:
+  the manifest's ident changed: the gate did not find it by its manifest rule (exit 0): image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+arm no-manifest-ident: test_builder rc=1
+restored: 0 changed lines in sw/litex/check_image_identity.py
+rc=0
+--- arm if-true: gate 23p's own output
+    a bitstream other than the one the manifest binds: FINDING bitstream: <scratch>/tmp/tmpfnb7_aqw/a-bitstream-other-than-the-one-the-manifest-binds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': 'a793a9f533acd38d2343f4e7c2397f68d784f9913290bd8a88554a737a95ad99', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '7b3cc3c411cfc97f919bbd69de9f06f7f13c4ed21fc6a7b8fedc4d06fbe62679', 'bitstream_fpga_part': '7a100tfgg484'}
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+AssertionError: gate 23p:
+  a bound bitstream the image holds: the gate refused an image that agrees with its identity (exit 1): FINDING bitstream: <scratch>/tmp/tmpfnb7_aqw/a-bound-bitstream-the-image-holds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}
+--- arm have-eq-bound: gate 23p's own output
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+AssertionError: gate 23p:
+  a bound bitstream the image holds: the gate refused an image that agrees with its identity (exit 1): FINDING bitstream: <scratch>/tmp/tmpea9ajkp4/a-bound-bitstream-the-image-holds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '5148d2124a4c329eac07b7dd7e8310b0ba71315e837d5c7a3d1e1b9cb8059c02', 'bitstream_fpga_part': '7a100tfgg484'}
+  a bitstream other than the one the manifest binds: the gate did not find it by its bitstream rule (exit 0): image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+--- arm no-manifest-ident: gate 23p's own output
+    a bound bitstream the image holds: passes
+    a bitstream other than the one the manifest binds: FINDING bitstream: <scratch>/tmp/tmpdabuwruw/a-bitstream-other-than-the-one-the-manifest-binds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': 'a793a9f533acd38d2343f4e7c2397f68d784f9913290bd8a88554a737a95ad99', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '7b3cc3c411cfc97f919bbd69de9f06f7f13c4ed21fc6a7b8fedc4d06fbe62679', 'bitstream_fpga_part': '7a100tfgg484'}
+AssertionError: gate 23p:
+  the manifest's ident changed: the gate did not find it by its manifest rule (exit 0): image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3

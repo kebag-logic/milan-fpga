@@ -1,0 +1,80 @@
+head a91fb27dd39483e4694e193504da1dbe06208807
+command: ci_replay.py job
+full log: 2081 bytes, sha256 0e87b53aba4c0cd626bfc2b2a2df29e30feea9098af1cc0ca485e3f49ac29137
+---
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "ci_step_0",
+   "name": "Run actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "ci_step_1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_2",
+   "name": "Fetch inventory dependencies",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "download-logs",
+   "name": "Download every shard's logs",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_4",
+   "name": "Download verified suite unions",
+   "kind": "actions/download-artifact",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_5",
+   "name": "Require every shard to have validated this run's SHA",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "ci_step_6",
+   "name": "Prove exhaustive ownership and tally every log",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "ci_step_7",
+   "name": "Require every Verilator worker to pass",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_step_8",
+   "name": "Require every case union to succeed",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "reconciles the 19 hosted workers' uploaded suite logs, which this replay does not produce (the suites run once as the four-shard native sweep, whose own per-shard tallies and rc stand instead)"
+  },
+  {
+   "step": "ci_record",
+   "name": "Record actual job execution",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "ci_upload",
+   "name": "Upload actual job execution",
+   "kind": "actions/upload-artifact",
+   "rc": 0
+  }
+ ],
+ "tree_after": ""
+}

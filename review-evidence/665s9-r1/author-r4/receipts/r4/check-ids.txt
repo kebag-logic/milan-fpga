@@ -1,0 +1,319 @@
+command: python3 -I tools/check_ids.py <final head clone> <round 3 head clone> <merge base 1d6bf555 suite files>
+(function names are the nearest preceding definition line, approximate; the labels decide the family)
+---
+=== final head a69fc0f5: 74 IDs
+C0   suite.hpp:pub_domain
+C1   suite.hpp:pub_domain
+C2   suite.hpp:pub_domain
+C3   suite.hpp:pub_domain
+C4   suite.hpp:pub_domain
+D0   suite.hpp:pub_domain
+D1   suite.hpp:pub_domain
+E0   suite.hpp:ev_type
+E1   suite.hpp:ev_type
+E2   suite.hpp:ev_type
+F0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F0 a closed channel stores nothing"
+       "F0 and counts nothing"
+       "F0 and the datapath sees no commit, every setting 0, every window idle with tag 0 and fie
+       "F0 every face register of every interface reads 0 after reset, every status and answer in
+F1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F1 ENTITY_DISCOVER for entity_id 0 is committed whole"
+       "F1 IRQ_STATUS.RX shows the channel"
+       "F1 RX_PASS counts it"
+       "F1 an enabled RX level raises the interrupt"
+       "F1 each reads back what was written to it, and only that"
+       "F1 each setting, request and entry register keeps its own fields only, per interface and 
+       "F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)"
+       "F1 no setting or request write is refused while nothing is held"
+       "F1 record ARRIVAL_MS is NOW_MS at the last byte"
+       "F1 record IF"
+       "F1 record KIND"
+       "F1 record LEN"
+       "F1 releasing the record (RX_TAIL) drops the level and the line"
+F2   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed"
+       "F2 ENTITY_DISCOVER for this entity passes"
+       "F2 a DISCOVER truncated inside its entity_id field is not passed"
+       "F2 and are dropped uncounted (not addressed to this entity)"
+       "F2 each setting field, each request field and each source's and sink's value moves its ow
+       "F2 every setting, entry and request field reaches the datapath on its own port, for its o
+F3   suite_face.hpp:face_value
+F4   suite_face.hpp:face_value
+F7   suite_face.hpp:face_value
+F8   suite_face.hpp:face_value
+F9   suite_face.hpp:face_value
+F10  suite_face.hpp:face_value
+G0   suite.hpp:ev_type
+G1   suite.hpp:ev_type
+H0   suite.hpp:channels_of
+H1   suite.hpp:channels_of
+H2   suite.hpp:channels_of
+K0   suite.hpp:ev_type
+K1   suite.hpp:ev_type
+K2   suite.hpp:ev_type
+M0   suite.hpp:ev_type
+M1   suite.hpp:ev_type
+M2   suite.hpp:ev_type
+P0   suite.hpp:ev_type
+P1   suite.hpp:ev_type
+P2   suite.hpp:ev_type
+P3   suite.hpp:ev_type
+P4   suite.hpp:ev_type
+P5   suite.hpp:ev_type
+Q0   suite.hpp:ev_type
+Q1   suite.hpp:ev_type
+Q2   suite.hpp:ev_type
+Q3   suite.hpp:ev_type
+Q4   suite.hpp:ev_type
+Q5   suite.hpp:ev_type
+Q6   suite.hpp:ev_type
+Q7   suite.hpp:ev_type
+Q8   suite.hpp:ev_type
+Q9   suite.hpp:ev_type
+Q10  suite.hpp:ev_type
+Q11  suite.hpp:ev_type
+Q12  suite.hpp:ev_type
+Q13  suite.hpp:ev_type
+Q14  suite.hpp:ev_type
+Q15  suite.hpp:ev_type
+Q16  suite.hpp:ev_type
+Q17  suite.hpp:ev_type
+Q18  suite.hpp:ev_type
+Q19  suite.hpp:ev_type
+Q20  suite.hpp:ev_type
+Q21  suite.hpp:ev_type
+Q22  suite.hpp:ev_type
+Q23  suite.hpp:ev_type
+R0   suite.hpp:pub_domain
+R1   suite.hpp:pub_domain
+R2   suite.hpp:pub_domain
+S0   IN TWO PLACES suite.hpp:ev_type, suite.hpp:run_read_timing
+       "S0 no register read of any check sets two selects of the read multiplexer"
+       "S0 no word of the host window sets two selects of the read multiplexer"
+       "S0 the window's registers set one select and its holes none"
+T0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T0 "
+       "T0 a burst of the bucket's depth passes"
+       "T0 the frames past it count in RATE_DROP"
+T1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T1 "
+       "T1 and the next is refused again"
+       "T1 one refill period buys exactly one more frame"
+T2   suite_face.hpp:face_value
+U0   suite.hpp:run_read_timing
+V0   suite.hpp:ev_type
+V1   suite.hpp:ev_type
+W0   suite.hpp:ev_type
+X0   suite.hpp:tx_w0
+X1   suite.hpp:channels_of
+X2   suite.hpp:channels_of
+=== round 3 head a91fb27d: 73 IDs
+C0   suite.hpp:pub_domain
+C1   suite.hpp:pub_domain
+C2   suite.hpp:pub_domain
+C3   suite.hpp:pub_domain
+C4   suite.hpp:pub_domain
+D0   suite.hpp:pub_domain
+D1   suite.hpp:pub_domain
+E0   suite.hpp:ev_type
+E1   suite.hpp:ev_type
+E2   suite.hpp:ev_type
+F0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F0 a closed channel stores nothing"
+       "F0 and counts nothing"
+       "F0 and the datapath sees no commit, every setting 0, every window idle with tag 0 and fie
+       "F0 every face register of every interface reads 0 after reset, every status and answer in
+F1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F1 ENTITY_DISCOVER for entity_id 0 is committed whole"
+       "F1 IRQ_STATUS.RX shows the channel"
+       "F1 RX_PASS counts it"
+       "F1 an enabled RX level raises the interrupt"
+       "F1 each reads back what was written to it, and only that"
+       "F1 each setting, request and entry register keeps its own fields only, per interface and 
+       "F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)"
+       "F1 no setting or request write is refused while nothing is held"
+       "F1 record ARRIVAL_MS is NOW_MS at the last byte"
+       "F1 record IF"
+       "F1 record KIND"
+       "F1 record LEN"
+       "F1 releasing the record (RX_TAIL) drops the level and the line"
+F2   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed"
+       "F2 ENTITY_DISCOVER for this entity passes"
+       "F2 a DISCOVER truncated inside its entity_id field is not passed"
+       "F2 and are dropped uncounted (not addressed to this entity)"
+       "F2 each setting field, each request field and each source's and sink's value moves its ow
+       "F2 every setting, entry and request field reaches the datapath on its own port, for its o
+F3   suite_face.hpp:face_value
+F4   suite_face.hpp:face_value
+F7   suite_face.hpp:face_value
+F8   suite_face.hpp:face_value
+F9   suite_face.hpp:face_value
+F10  suite_face.hpp:face_value
+G0   suite.hpp:ev_type
+G1   suite.hpp:ev_type
+H0   IN TWO PLACES suite.hpp:channels_of, suite.hpp:run_read_timing
+       "H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays"
+       "H0 and the frame counts in RX_DROP"
+       "H0 back in range, the next frame is stored"
+       "H0 no receive ring word is written under the head the core sees"
+       "H0 the checks wrote ring words and moved heads"
+H1   suite.hpp:channels_of
+H2   suite.hpp:channels_of
+K0   suite.hpp:ev_type
+K1   suite.hpp:ev_type
+K2   suite.hpp:ev_type
+M0   suite.hpp:ev_type
+M1   suite.hpp:ev_type
+M2   suite.hpp:ev_type
+P0   suite.hpp:ev_type
+P1   suite.hpp:ev_type
+P2   suite.hpp:ev_type
+P3   suite.hpp:ev_type
+P4   suite.hpp:ev_type
+P5   suite.hpp:ev_type
+Q0   suite.hpp:ev_type
+Q1   suite.hpp:ev_type
+Q2   suite.hpp:ev_type
+Q3   suite.hpp:ev_type
+Q4   suite.hpp:ev_type
+Q5   suite.hpp:ev_type
+Q6   suite.hpp:ev_type
+Q7   suite.hpp:ev_type
+Q8   suite.hpp:ev_type
+Q9   suite.hpp:ev_type
+Q10  suite.hpp:ev_type
+Q11  suite.hpp:ev_type
+Q12  suite.hpp:ev_type
+Q13  suite.hpp:ev_type
+Q14  suite.hpp:ev_type
+Q15  suite.hpp:ev_type
+Q16  suite.hpp:ev_type
+Q17  suite.hpp:ev_type
+Q18  suite.hpp:ev_type
+Q19  suite.hpp:ev_type
+Q20  suite.hpp:ev_type
+Q21  suite.hpp:ev_type
+Q22  suite.hpp:ev_type
+Q23  suite.hpp:ev_type
+R0   suite.hpp:pub_domain
+R1   suite.hpp:pub_domain
+R2   suite.hpp:pub_domain
+S0   IN TWO PLACES suite.hpp:ev_type, suite.hpp:run_read_timing
+       "S0 no register read of any check sets two selects of the read multiplexer"
+       "S0 no word of the host window sets two selects of the read multiplexer"
+       "S0 the window's registers set one select and its holes none"
+T0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T0 "
+       "T0 a burst of the bucket's depth passes"
+       "T0 the frames past it count in RATE_DROP"
+T1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T1 "
+       "T1 and the next is refused again"
+       "T1 one refill period buys exactly one more frame"
+T2   suite_face.hpp:face_value
+V0   suite.hpp:ev_type
+V1   suite.hpp:ev_type
+W0   suite.hpp:ev_type
+X0   suite.hpp:tx_w0
+X1   suite.hpp:channels_of
+X2   suite.hpp:channels_of
+=== merge base 1d6bf555: 68 IDs
+C0   suite.hpp:pub_domain
+C1   suite.hpp:pub_domain
+C2   suite.hpp:pub_domain
+C3   suite.hpp:pub_domain
+C4   suite.hpp:pub_domain
+D0   suite.hpp:pub_domain
+D1   suite.hpp:pub_domain
+E0   suite.hpp:ev_type
+E1   suite.hpp:ev_type
+E2   suite.hpp:ev_type
+F0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F0 a closed channel stores nothing"
+       "F0 and counts nothing"
+       "F0 and the datapath sees no commit, every setting 0, every window idle with tag 0 and fie
+       "F0 every face register of every interface reads 0 after reset, every status and answer in
+F1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F1 ENTITY_DISCOVER for entity_id 0 is committed whole"
+       "F1 IRQ_STATUS.RX shows the channel"
+       "F1 RX_PASS counts it"
+       "F1 an enabled RX level raises the interrupt"
+       "F1 each reads back what was written to it, and only that"
+       "F1 each setting, request and entry register keeps its own fields only, per interface and 
+       "F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)"
+       "F1 no setting or request write is refused while nothing is held"
+       "F1 record ARRIVAL_MS is NOW_MS at the last byte"
+       "F1 record IF"
+       "F1 record KIND"
+       "F1 record LEN"
+       "F1 releasing the record (RX_TAIL) drops the level and the line"
+F2   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed"
+       "F2 ENTITY_DISCOVER for this entity passes"
+       "F2 a DISCOVER truncated inside its entity_id field is not passed"
+       "F2 and are dropped uncounted (not addressed to this entity)"
+       "F2 each setting field, each request field and each source's and sink's value moves its ow
+       "F2 every setting, entry and request field reaches the datapath on its own port, for its o
+F3   suite_face.hpp:face_value
+F4   suite_face.hpp:face_value
+F7   suite_face.hpp:face_value
+F8   suite_face.hpp:face_value
+F9   suite_face.hpp:face_value
+F10  suite_face.hpp:face_value
+G0   suite.hpp:ev_type
+H0   suite.hpp:channels_of
+H1   suite.hpp:channels_of
+H2   suite.hpp:channels_of
+K0   suite.hpp:ev_type
+K1   suite.hpp:ev_type
+K2   suite.hpp:ev_type
+M0   suite.hpp:ev_type
+M1   suite.hpp:ev_type
+M2   suite.hpp:ev_type
+P0   suite.hpp:ev_type
+P1   suite.hpp:ev_type
+P2   suite.hpp:ev_type
+P3   suite.hpp:ev_type
+P4   suite.hpp:ev_type
+P5   suite.hpp:ev_type
+Q0   suite.hpp:ev_type
+Q1   suite.hpp:ev_type
+Q2   suite.hpp:ev_type
+Q3   suite.hpp:ev_type
+Q4   suite.hpp:ev_type
+Q5   suite.hpp:ev_type
+Q6   suite.hpp:ev_type
+Q7   suite.hpp:ev_type
+Q8   suite.hpp:ev_type
+Q9   suite.hpp:ev_type
+Q10  suite.hpp:ev_type
+Q11  suite.hpp:ev_type
+Q12  suite.hpp:ev_type
+Q13  suite.hpp:ev_type
+Q14  suite.hpp:ev_type
+Q15  suite.hpp:ev_type
+Q16  suite.hpp:ev_type
+Q17  suite.hpp:ev_type
+Q18  suite.hpp:ev_type
+Q19  suite.hpp:ev_type
+Q20  suite.hpp:ev_type
+Q21  suite.hpp:ev_type
+Q22  suite.hpp:ev_type
+Q23  suite.hpp:ev_type
+R0   suite.hpp:pub_domain
+R1   suite.hpp:pub_domain
+R2   suite.hpp:pub_domain
+T0   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T0 "
+       "T0 a burst of the bucket's depth passes"
+       "T0 the frames past it count in RATE_DROP"
+T1   IN TWO PLACES suite.hpp:pub_domain, suite_face.hpp:face_value
+       "T1 "
+       "T1 and the next is refused again"
+       "T1 one refill period buys exactly one more frame"
+T2   suite_face.hpp:face_value
+X0   suite.hpp:tx_w0
+X1   suite.hpp:channels_of
+X2   suite.hpp:channels_of
