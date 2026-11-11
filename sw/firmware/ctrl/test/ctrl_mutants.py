@@ -597,12 +597,15 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
 ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
+               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
                "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
                "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
                "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
                "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
                "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
-               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n}")
+               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
+#: The walk's marks are cleared last (tsn-c-stack#32), so a publication moved behind the report still sees them.
+ACMP_FINISH_CLEAR = "\tmemset(a->dirty, 0, sizeof a->dirty);\n\ta->dirty_if = 0u;\n}"
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
@@ -752,8 +755,8 @@ MUTANTS += (
     Mutant("pub-acmp-started-after-the-response", ACMP_C, ACMP_REBIND,
            "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
            "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
-    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH,
-           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
+    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH + ACMP_FINISH_CLEAR,
+           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);") + "\tpublish(a);\n" + ACMP_FINISH_CLEAR,
            "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
     Mutant("pub-acmp-started-from-bound", ACMP_C,
            "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",

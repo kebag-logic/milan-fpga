@@ -136,39 +136,39 @@ MUTANTS = (
            "acmp", "AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId", "A2 a command for a sink the entity lacks"),
     # UNBIND_RX (A3)
     Mutant("acmp-unbind-echoes-the-talker", ACMP_C,
-           "\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);",
-           "\trespond(a, interface, &r, 1u << k);",
+           "\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);",
+           "\trespond(a, interface, &r, k + 1u);",
            "acmp", "AcmpCore.A3UnbindInEveryState", "A3 UNBIND_RX_RESPONSE is Table 5.36",
            (("acmpwalk", "Table530/ListenerWalk.Graded/UNBIND_PWR", "frame 0 byte for byte"),)),
     Mutant("acmp-unbind-keeps-srp", ACMP_C,
-           "\tstruct acmp_sink *s = &a->sinks[k];\n"
-           "\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n"
-           "\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;",
-           "\tstruct acmp_sink *s = &a->sinks[k];\n\tdisc_stop(s);\n\ts->bound = false;",
+           ("\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n"
+            "\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n"
+            "\tdisc_stop(s);\n\ts->bound = false;"),
+           "\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tdisc_stop(s);\n\ts->bound = false;",
            "acmp", "AcmpCore.A3UnbindInEveryState", "A3 a settled sink stops SRP before the response",
            (("acmpwalk", "Table530/ListenerWalk.Graded/UNBIND_SNR", "SRP stopped"),)),
     Mutant("acmp-unbind-srp-after-response", ACMP_C,
-           ("\tstruct acmp_sink *s = &a->sinks[k];\n"
+           ("\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n"
             "\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n"
             "\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n"
             "\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n"
             "\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n"
-            "\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n"
+            "\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);\n"
             "\ts->state = ACMP_UNBOUND;\n"),
-           ("\tstruct acmp_sink *s = &a->sinks[k];\n"
+           ("\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n"
             "\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n"
             "\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n"
             "\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n"
             "\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n"
-            "\trespond(a, interface, &r, 1u << k);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n"
+            "\trespond(a, interface, &r, k + 1u);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n"
             "\ts->state = ACMP_UNBOUND;\n"),
            "acmp", "AcmpCore.A3UnbindInEveryState", "A3 a settled sink stops SRP before the response"),
     Mutant("acmp-unbind-keeps-discovery", ACMP_C, "\tdisc_stop(s);\n\ts->bound = false;",
            "\ts->bound = false;", "acmp", "AcmpCore.A3UnbindInEveryState", "A3 then UNBOUND, binding cleared",
            (("acmpwalk", "Table530/ListenerWalk.Graded/UNBIND_PWR", "discovery runs exactly while"),)),
     Mutant("acmp-unbind-change-before-response", ACMP_C,
-           "\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);",
-           "\tr.talker_uid = 0u;\n\tp_changed(a, k);\n\trespond(a, interface, &r, 1u << k);",
+           "\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);",
+           "\tr.talker_uid = 0u;\n\tp_changed(a, k);\n\trespond(a, interface, &r, k + 1u);",
            "acmp", "AcmpCore.A3UnbindInEveryState", "A3 the change is reported after the response (#653)"),
     # the lock (A4)
     Mutant("acmp-not-authorized-is-13", ACMP_H, "#define ACMP_STATUS_CONTROLLER_NOT_AUTHORIZED 16u",
@@ -353,9 +353,9 @@ MUTANTS = (
            "acmp", "AcmpCore.A14RegisteredSettlesTheReservation", "A14 EVT_TK_REGISTERED anywhere else",
            (("acmpwalk", "Table530/ListenerWalk.Graded/TK_REG_PWR", "state, probing and ACMP status"),)),
     Mutant("acmp-registered-keeps-no-tk", ACMP_C,
-           ("\t}\n\tstruct acmp_sink *s = &a->sinks[sink];                  // Milan v1.2 5.5.3.5.42\n\tsm_stop(s);\n"
-            "\ts->tk_failed = failed;\n"),
-           "\t}\n\tstruct acmp_sink *s = &a->sinks[sink];\n\ts->tk_failed = failed;\n",
+           ("\t}\n\tstruct acmp_sink *s = &a->sinks[sink];                  // Milan v1.2 5.5.3.5.42\n"
+            "\tmark(a, sink);\n\tsm_stop(s);\n\ts->tk_failed = failed;\n"),
+           "\t}\n\tstruct acmp_sink *s = &a->sinks[sink];\n\tmark(a, sink);\n\ts->tk_failed = failed;\n",
            "acmp", "AcmpCore.A14RegisteredSettlesTheReservation", "A14 EVT_TK_REGISTERED: TMR_NO_TK cleared",
            (("acmpwalk", "Table530/ListenerWalk.Graded/TK_REG_SNR", "the sink's timer armed or not"),)),
     Mutant("acmp-registered-kind-dropped", ACMP_C, "\ts->tk_failed = failed;",
@@ -385,9 +385,11 @@ MUTANTS = (
            "\tif (sink >= a->cfg.n_sinks) {\n\t\ta->impossible++;\n",
            "acmp", "AcmpCore.KindChangesOnlyTheSettledView", "kind refuses non-settled state"),
     Mutant("acmp-unregistered-keeps-srp", ACMP_C,
-           ("\t}\n\tsrp_stop(a, sink);                                      // Milan v1.2 5.5.3.5.48\n"
+           ("\t}\n\tmark(a, sink);\n"
+            "\tsrp_stop(a, sink);                                      // Milan v1.2 5.5.3.5.48\n"
             "\treprobe(a, &a->sinks[sink]);\n"),
-           "\t}\n\t(void)sink;\n\treprobe(a, &a->sinks[sink]);\n", "acmp", "AcmpCore.A15UnregisteredReprobes",
+           "\t}\n\tmark(a, sink);\n\t(void)sink;\n\treprobe(a, &a->sinks[sink]);\n",
+           "acmp", "AcmpCore.A15UnregisteredReprobes",
            "A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped",
            (("acmpwalk", "Table530/ListenerWalk.Graded/TK_UNREG_SOK", "SRP stopped"),)),
     # one timer per interface (A17, A18)
@@ -412,8 +414,9 @@ MUTANTS = (
            "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {",
            "acmp", "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline", "A17 an expiry takes the due timers only"),
     Mutant("acmp-expiry-not-consumed", ACMP_C,
-           "\t}\n\ta->timer_armed[interface] = false;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
-           "\t}\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
+           ("\t}\n\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
+            "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
+           "\t}\n\ta->dirty_if |= 1u << interface;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
            "acmp", "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
            "A17 an expiry with nothing due changes nothing and re-arms the timer it consumed"),
     Mutant("acmp-zero-delay-waits", ACMP_C,
@@ -443,24 +446,27 @@ MUTANTS = (
            "acmp", "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits", "A19 one frame per poll",
            (("acmp", "AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1", "E2 3 frames owed ahead"),)),
     Mutant("acmp-change-not-held-for-its-response", ACMP_C,
-           "\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((release >> k) & 1u));",
+           ("\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((o->release[k / 32u] >> (k % 32u)) & "
+            "1u));"),
            "\t\t(void)release;",
            "acmp", "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
            "A19 but its change is not reported while its response waits (#653)",
            (("acmp", "AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt", "E1 nothing reported yet"),)),
     Mutant("acmp-full-queue-acts", ACMP_C,
-           "\tif (a->owed_count < ACMP_OWED_MAX) {\n\t\treturn true;\n\t}\n\ta->busy_drops++;",
-           "\tif (true) {\n\t\treturn true;\n\t}\n\ta->busy_drops++;",
-           "acmp", "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs",
-           "A19 a command whose response would find the queue full is dropped"),
+           "\tif (a->owed_count + frames <= ACMP_OWED_MAX) {\n\t\treturn true;\n\t}\n\ta->busy_declined++;",
+           "\tif (a->owed_count + frames <= ACMP_OWED_MAX || true) {\n\t\treturn true;\n\t}\n\ta->busy_declined++;",
+           "acmp", "AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs",
+           "A19 a command whose response would find the queue full is declined before it changes anything",
+           (("acmp", "AcmpOwed.HeldEgressDefersTheCommandBehindTheOwedSet", "is declined to the port, not taken"),)),
     Mutant("acmp-lost-probe-uncounted", ACMP_C,
            "\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t\ta->probes_lost++;\n\t}",
            "\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t}",
            "acmp", "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
            "A19 a probe the full queue cannot take is lost and counted"),
     Mutant("acmp-first-owed-releases-every-change", ACMP_C,
-           "\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));",
-           "\t\t\t\ta->sinks[k].change_owed = 0u;",
+           ("\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {\n\t\t\t\t\tmark(a, k);\n"
+            "\t\t\t\t\ta->sinks[k].change_owed--;\n\t\t\t\t}"),
+           "\t\t\t\tmark(a, k);\n\t\t\t\ta->sinks[k].change_owed = 0u;",
            "acmp", "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
            "A19 the bind's response left but the unbind's is still owed"),
     Mutant("acmp-poll-newest-first", ACMP_C,
@@ -609,8 +615,9 @@ MUTANTS = (
              "TMR_NO_ADP stopped"),)),
     Mutant("acmp-no-aging", ACMP_C,
            ("\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {      // Milan v1.2 5.6.4.5.4\n"
+            "\t\t\tmark(a, k);\n\t\t\ts->adp_armed = false;\n"),
+           ("\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a)) && false) {\n\t\t\tmark(a, k);\n"
             "\t\t\ts->adp_armed = false;\n"),
-           "\t\t}\n\t\tif (s->adp_armed && due(s->adp_deadline, now(a)) && false) {\n\t\t\ts->adp_armed = false;\n",
            "acmp", "AcmpCore.A22DepartingAndAging", "A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED",
            (("acmpwalk", "Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_DISCOVERED", "the discovery state"),)),
     Mutant("acmp-discovery-on-every-interface", ACMP_C,
@@ -695,8 +702,8 @@ MUTANTS = (
            "\t\ts->binding.talker_unique_id = (uint16_t)(payload[2] | (payload[3] << 8));",
            "acmp", "AcmpCore.A24ARestoredBindingFastConnects", "A24 the record's flags and parameters, big-endian"),
     Mutant("acmp-roll-back-keeps-the-bindings", ACMP_C,
-           "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tsink_reset(a, k);\n\t\tsink_settle(&a->sinks[k]);\n"
-           "\t}\n}",
+           ("\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tsink_reset(a, k);\n"
+            "\t\tsink_settle(&a->sinks[k]);\n\t\tmark(a, k);\n\t}\n}"),
            "\t(void)a;\n}",
            "acmp", "AcmpCore.A24UnboundRecordsRefusalsAndRollback", "A24 the roll-back drops every restored binding",
            (("acmpnvm", "AcmpStore.N6TheRollBackAndEveryOtherGroup", "N6 and drops what it applied"),)),
@@ -815,9 +822,10 @@ MUTANTS = (
            "\tunsigned src = cmd->talker_uid + 0u * now(a);\n\tif (cmd->msg == ACMP_MSG_GET_TX_CONNECTION_COMMAND) {",
            "acmp", "AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem", "C4 talker command -> response"),
     Mutant("acmp-expiry-reads-the-clock-twice", ACMP_C,
-           "\ta->timer_armed[interface] = false;\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n",
-           ("\ta->timer_armed[interface] = false;\n\t(void)a->ports->now_ms(a->ports->ctx);\n"
+           ("\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
             "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
+           ("\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
+            "\t(void)a->ports->now_ms(a->ports->ctx);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
            "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry",
            "C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP"),
     Mutant("acmp-available-reads-the-clock-twice", ACMP_C, "\ts->adp_deadline = now(a) + valid_ms;",
