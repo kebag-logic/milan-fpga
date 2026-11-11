@@ -15,8 +15,9 @@ The runs, all at the shipping shape endstation_ax7101_1x1_tdm8, one interface:
           second controller registers. Every item is read at its default, set
           away from it where the shape allows, and read again. The journal
           write that saves them starts, and inside it controller 1's REBOOT of
-          the ENTITY. Then the reset; frames given after the reset port fired
-          must not be taken.
+          the ENTITY. Once its SUCCESS has left the mailbox, an AEM command
+          and an ACMP BIND_RX; then the reset; frames given after the reset
+          port fired must not be taken.
   after   from that journal: every item is read again, and the run waits for
           ADP's first ENTITY_AVAILABLE.
   cut     from that journal: two names change, and the run is cut after the
@@ -29,8 +30,10 @@ Each is graded from its log:
            entity still answering;
   ORDER    (item 2) the SUCCESS, its notification (7.5.2) and ENTITY_DEPARTING
            (Milan v1.2 5.6.3.3) leave the mailbox before the reset port fires.
-           No command is answered after the SUCCESS, and no frame given after
-           the port fired is taken;
+           As the processor (REQ-FWX-001): neither the AEM command nor the
+           BIND_RX given between the SUCCESS and the port is answered, no frame
+           but ADP's leaves after ENTITY_DEPARTING, none leaves after the port,
+           and no frame given after the port fired is taken;
   JOURNAL  (item 4) the REBOOT came inside the write, the drain ended because
            the state was durable, and the write completed: after the reset
            every item reads back as before it. The cut's replay reads back one
@@ -41,8 +44,12 @@ Each is graded from its log:
   ADP      (item 1) ADP advertises again within its valid time, from the
            REBOOT command (Milan v1.2 5.6.2, Table 5.50);
   BOUND    the measured request-to-reset cycles.
---self-test also builds each planted image (PLANTS) and requires its finding,
-and plants each grader control (CONTROLS) into a clean log.
+--self-test also builds each planted image (PLANTS) and requires its own
+finding, and plants each grader control (CONTROLS) into a clean log and
+requires its own finding.
+
+Every export runs with PYTHONHASHSEED 0: LiteX orders the CPU's ISA string
+from a set, so exports with other seeds can differ in csr.csv.
 
 Exit 0 is a pass, 1 a finding and 2 a refusal.
 """
@@ -252,8 +259,11 @@ def reboot_script(entity: Entity, full: bool = True) -> Script:
         set_all(s)
         read_all(s, 'pre')
         s.step('erase')
-    s.aem('reboot', REBOOT, target(ENTITY, 0), pause=2)
+    s.aem('reboot', REBOOT, target(ENTITY, 0), pause=0)
+    # the window from the SUCCESS to the reset port, which the processor serves no command in (REQ-FWX-001)
+    s.step('answered reboot 300')
     s.aem('after-success', GET_CONFIGURATION, bytes(4), pause=0)
+    s.acmp('after-success-bind', 'BIND_RX', LATE_TALKER, pause=0)
     s.step('request 300')
     s.aem('after-port', GET_CONFIGURATION, bytes(4), pause=0)
     s.acmp('after-port-bind', 'BIND_RX', LATE_TALKER, pause=0)
@@ -543,11 +553,25 @@ def grade_reboot(log: Log, spec: dict, full: bool = True) -> tuple[list[str], li
                             f'{len(note)} time(s) before the reset port fired, not once')
         if not departing or departing[0].cycle >= at or (note and departing[0].cycle < note[0].cycle):
             findings.append('ORDER: ENTITY_DEPARTING did not leave between the notification and the reset port')
+        # the processor's transmit gate (06_aecp_engine.md 6.11): nothing but ADP's after the first DEPARTING,
+        # and nothing at all once the request has risen
+        if departing and any(departing[0].cycle < f.cycle < at and f.channel != CH_ADP for f in log.tx):
+            findings.append('ORDER: a frame other than ADP\'s left the mailbox after ENTITY_DEPARTING, before the '
+                            'reset port fired')
+        if any(f.cycle > at for f in log.tx):
+            findings.append('ORDER: a frame left the mailbox after the reset port fired')
+        bind_at = log.rx_end.get('after-success-bind')
+        if ok is None or bind_at is None or not ok.cycle < bind_at < at:
+            findings.append('ORDER: the BIND_RX for the window did not reach the mailbox between the SUCCESS and the '
+                            'reset port')
         report.append(f'ORDER REBOOT received at cycle {reboot_at}; SUCCESS at {ok.cycle if ok else None}; '
                       f'notification at {note[0].cycle if note else None}; ENTITY_DEPARTING at '
-                      f'{departing[0].cycle if departing else None}; the reset port at {at}')
+                      f'{departing[0].cycle if departing else None}; the reset port at {at}; the BIND_RX in the '
+                      f'window reached the mailbox at {bind_at}, the AEM command at {log.rx_end.get("after-success")}')
     if 'after-success' in got:
         findings.append('ORDER: a command after the REBOOT\'s SUCCESS was answered')
+    if 'after-success-bind' in got:
+        findings.append('ORDER: a BIND_RX given after the REBOOT\'s SUCCESS had left was answered')
     if 'after-port' in got or 'after-port-bind' in got:
         findings.append('ORDER: a frame given after the reset port fired was taken')
     # BOUND
@@ -637,30 +661,43 @@ def native(log: Log) -> list[str]:
 
 @dataclass(frozen=True)
 class Plant:
-    """A planted image: a firmware edit, the reboot run it is driven by, and the grade that must find it."""
+    """A planted image: a firmware edit, the reboot run it is driven by, and the finding that must name it."""
     path: str
     old: str
     new: str
     full: bool
-    kind: str
+    words: str
 
+
+#: The platform's take of each frame, where AECP's acceptance of a REBOOT is first visible
+TAKEN = '\town->fn(own->ctx, f);\n'
 
 PLANTS = {
-    # item 2: the reset port fired at the REBOOT's acceptance, before its frames leave
+    # item 2: the reset port fired at the REBOOT's acceptance, in the take that accepts it, before its SUCCESS is
+    # handed to send
     'reset-before-the-response': Plant(
-        'plat/ctrl_plat.c', '\t\tif (!aecp_reboot_due(&p->aecp.core)) {\n',
-        '\t\tif (p->aecp.core.reboot != 0u) {\n\t\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n\t\t}\n'
-        '\t\tif (!aecp_reboot_due(&p->aecp.core)) {\n', False, 'ORDER'),
+        'plat/ctrl_plat.c', TAKEN,
+        TAKEN + '\tif (aecp_reboot_accepted(&ctrl_plat.aecp.core)) {\n'
+                '\t\tctrl_plat_io_write32(ctrl_plat.env->reboot, 1u);\n\t}\n', False,
+        'ORDER: the REBOOT\'s SUCCESS left the mailbox after the reset port fired'),
     # item 3: the request answered and never fired
-    'request-ignored': Plant('plat/ctrl_plat.c', '\tctrl_plat_io_write32(p->env->reboot, 1u);\n', '', False,
-                             'ORDER'),
-    # item 4: the store stopped at the reset port, which tears the write in progress
-    'write-torn': Plant('plat/ctrl_plat.c', '\t\tnvm_store_service();\n', '', True, 'JOURNAL'),
+    'request-ignored': Plant('plat/ctrl_plat.c', '\t\tctrl_plat_io_write32(p->env->reboot, 1u);\n', '', False,
+                             'ORDER: the reset port never fired'),
+    # item 4: the store stopped once the loop stops, which tears the write in progress
+    'write-torn': Plant('plat/ctrl_plat.c', '\t\tnvm_store_service();\n', '', True,
+                        'JOURNAL: the drain ended cap, not because the state was durable'),
     # item 5: a REBOOT of another descriptor type accepted
     'any-descriptor-type': Plant(
         'aecp/aecp_commands.c',
         '\tif (wire_be16(in) != 0u) {\n\t\treturn AECP_NOT_SUPPORTED;\n\t}\n\tif (wire_be16(in + 2) != 0u) {\n',
-        '\tif (wire_be16(in + 2) != 0u) {\n', False, 'REFUSE'),
+        '\tif (wire_be16(in + 2) != 0u) {\n', False,
+        'REFUSE: refuse-input answered status 0 at cdl 16, not 11 at cdl 16'),
+    # REQ-FWX-001: the platform's receive gate open, so a BIND_RX after the SUCCESS is taken
+    'frames-taken-after-the-success': Plant(
+        'plat/ctrl_plat.c',
+        '\treturn !aecp_reboot_accepted(&ctrl_plat.aecp.core) && (own->ready == NULL || own->ready(own->ctx));\n',
+        '\treturn own->ready == NULL || own->ready(own->ctx);\n', False,
+        'ORDER: a BIND_RX given after the REBOOT\'s SUCCESS had left was answered'),
 }
 
 
@@ -682,17 +719,47 @@ def _early_port(text: str) -> str:
     return re.sub(r'^REQ \d+$', f'REQ {arrived + 1}', text, flags=re.M)
 
 
-#: Grader controls: (the run they edit, the edit, the grade that must find it)
-CONTROLS: dict[str, tuple[str, Callable[[str], str], str]] = {
-    'response-after-the-port': ('reboot', _early_port, 'ORDER'),
+def _frame_after_departing(text: str) -> str:
+    """An ACMP frame one cycle after the first ENTITY_DEPARTING that follows the REBOOT."""
+    arrived = int(re.search(r'^RXE (\d+) reboot$', text, flags=re.M)[1])
+    lines = text.splitlines()
+    for k, line in enumerate(lines):
+        w = line.split()
+        if w[:1] == ['TX'] and int(w[1]) > arrived and int(w[3]) == CH_ADP and int(w[4][30:32], 16) & 0x0F == 1:
+            lines.insert(k + 1, f'TX {int(w[1]) + 1} 0 {CH_ACMP} {"00" * 64}')
+            return '\n'.join(lines) + '\n'
+    raise ValueError('the clean reboot run sent no ENTITY_DEPARTING after the REBOOT')
+
+
+def _mixed_replay(text: str) -> str:
+    """The replay's object name read as the other snapshot's, its entity name kept: half a write applied."""
+    saved, cut = 'reboot input'.encode(), 'cut input'.encode()
+    width = max(len(saved), len(cut))
+    a, b = saved.ljust(width, b'\0').hex(), cut.ljust(width, b'\0').hex()
+    if a in text:
+        return text.replace(a, b)
+    if b in text:
+        return text.replace(b, a)
+    raise ValueError('the clean replay read neither object name')
+
+
+#: Grader controls: (the run they edit, the edit, the words its finding must carry)
+CONTROLS: dict[str, tuple[str, Callable[[str], str], tuple[str, ...]]] = {
+    'response-after-the-port': ('reboot', _early_port,
+                                ('ORDER: the REBOOT\'s SUCCESS left the mailbox after the reset port fired',)),
+    'frame-after-the-departing': ('reboot', _frame_after_departing,
+                                  ('ORDER: a frame other than ADP\'s left the mailbox after ENTITY_DEPARTING',)),
     'drain-at-its-cap': ('reboot', lambda t: re.sub(r'^DRAIN (\d+) durable$', r'DRAIN \1 cap', t, flags=re.M),
-                         'JOURNAL'),
+                         ('JOURNAL: the drain ended cap',)),
     'no-advertisement': ('after', lambda t: '\n'.join(ln for ln in t.splitlines()
-                                                      if not re.match(r'TX \d+ \d+ 0 ', ln)) + '\n', 'ADP'),
+                                                      if not re.match(r'TX \d+ \d+ 0 ', ln)) + '\n',
+                         ('ADP: no ENTITY_AVAILABLE after the reset',)),
     'name-reverted': ('after', lambda t: t.replace('after the reboot'.encode().hex(),
                                                    'Milan FPGA 1x1 TDM8'.encode().hex().ljust(32, '0')[:32]),
-                      'RESTORE'),
-    'binding-lost': ('after', lambda t: t.replace(f'{TALKER:016x}', f'{0:016x}'), 'RESTORE'),
+                      ('RESTORE: the #396 grader says FAIL', 'entity_names')),
+    'binding-lost': ('after', lambda t: t.replace(f'{TALKER:016x}', f'{0:016x}'),
+                     ('RESTORE: the #396 grader says FAIL', 'stream_binding')),
+    'replay-mixed': ('replay', _mixed_replay, ("JOURNAL: the cut's replay reads", 'a write half applied')),
 }
 
 
@@ -722,24 +789,25 @@ def clean(out: Path, shared: tuple, jobs: int) -> tuple[list[str], list[str], di
 
 
 def plant_point(out: Path, shared: tuple, name: str, plant: Plant) -> tuple[bool, str]:
-    """One planted image, its reboot run and its grade: caught when the grade it names finds it."""
+    """One planted image, its reboot run and its grade: caught when a finding carries the plant's own words."""
     where = out / f'plant-{name}'
     exe, spec = build(where, shared, planted(where, plant))
     log = parse(run(exe, where / 'runs', 'reboot', reboot_script(entity_of(where / 'image'), plant.full), None))
     findings, _ = grade_reboot(log, spec, plant.full)
-    caught = any(f.startswith(plant.kind + ':') for f in findings)
-    return caught, f'PLANT {name}: {"caught" if caught else "ESCAPED"} ({plant.kind}); findings: {findings}'
+    caught = any(plant.words in f for f in findings)
+    return caught, f'PLANT {name}: {"caught" if caught else "ESCAPED"} ({plant.words}); findings: {findings}'
 
 
 def control(logs: dict[str, Log], spec: dict, name: str) -> tuple[bool, str]:
-    """One grader control on the clean logs: caught when its grade finds it."""
-    which, edit, kind = CONTROLS[name]
+    """One grader control on the clean logs: caught when one finding carries every one of its words."""
+    which, edit, words = CONTROLS[name]
     edited = dict(logs)
     edited[which] = parse(Path(f'{which}.log'), logs[which].tags, edit(logs[which].text))
     edited[which].status = logs[which].status
-    findings = grade_reboot(edited['reboot'], spec)[0] + grade_after(edited['reboot'], edited['after'], spec)[0]
-    caught = any(f.startswith(kind + ':') for f in findings)
-    return caught, f'CONTROL {name}: {"caught" if caught else "ESCAPED"} ({kind}); findings: {findings}'
+    findings = (grade_reboot(edited['reboot'], spec)[0] + grade_after(edited['reboot'], edited['after'], spec)[0] +
+                grade_cut(edited['reboot'], edited['replay'])[0])
+    caught = any(all(w in f for w in words) for f in findings)
+    return caught, f'CONTROL {name}: {"caught" if caught else "ESCAPED"} ({words}); findings: {findings}'
 
 
 def main() -> int:
@@ -752,6 +820,9 @@ def main() -> int:
     parser.add_argument('--jobs', type=int, default=JOBS, help='runs and builds at once')
     args = parser.parse_args()
     out = args.build_dir.resolve()
+    # LiteX builds config_cpu_isa from a set, so every export (a child process) pins the hash seed, or two exports
+    # of one SoC can differ in csr.csv (ctrl_service_budget pins it too)
+    os.environ['PYTHONHASHSEED'] = '0'
     try:
         out.mkdir(parents=True, exist_ok=True)
         shared = common(out)

@@ -28,6 +28,8 @@
 //   ready            wait for the ready line
 //   wait <ms>        wait that many milliseconds
 //   send <tag> <hex> give a frame to the mailbox on interface 0
+//   answered <tag> <ms>  wait for the response to the AEM command sent under
+//                    that tag to leave the mailbox, at most that many ms
 //   erase            wait for the flash's next sector erase
 //   program <n>      wait for the n-th page program since the last erase
 //   adp <ms>         wait for an ENTITY_AVAILABLE, at most that many milliseconds
@@ -50,6 +52,7 @@
 //   RELOAD <cycle>                 the run ends at the reload
 //   CUT <cycle>                    the run ends at a cut
 //   NOREQ <cycle>                  the reset port did not rise in time
+//   NOANSWER <cycle> <tag>         an answered step's response did not leave in time
 //   STEP <cycle> <n> <op>          a script step taken
 //   SUMMARY sys=<cycles> cpu=<cycles> ...
 #include "Vsim.h"
@@ -65,6 +68,7 @@
 #include <deque>
 #include <fstream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -252,6 +256,10 @@ private:
         for (auto byte : egress_) { std::snprintf(b, sizeof b, "%02x", byte); hex += b; }
         std::printf("TX %llu %u %u %s\n", ull(sys_), unsigned(dut.mbx_tx_if), unsigned(dut.mbx_tx_ch), hex.c_str());
         if (unsigned(dut.mbx_tx_ch) == MBX_CH_ADP && egress_.size() > 15 && (egress_[15] & 0x0fu) == 0u) available_ = true;
+        // an AEM response (IEEE 1722.1-2021 9.2.1.1, u clear), by its sequence_id
+        if (unsigned(dut.mbx_tx_ch) == MBX_CH_AECP && egress_.size() >= 38 && (egress_[15] & 0x0fu) == 1u &&
+            !(egress_[36] & 0x80u))
+            answered_.insert(unsigned(egress_[34]) << 8 | egress_[35]);
         egress_.clear();
     }
 
@@ -349,7 +357,18 @@ private:
             if (ms_ - mark_ms_ >= std::stoul(s.args.at(0))) next();
         } else if (s.op == "send") {
             frames_.push_back({s.args.at(0), unhex(s.args.at(1))});
+            const auto& f = frames_.back().bytes;
+            if (f.size() >= 38) sequence_[s.args.at(0)] = unsigned(f[34]) << 8 | f[35];
             next();
+        } else if (s.op == "answered") {
+            // the AEM command sent under a tag has its response's last byte out of the mailbox
+            const auto seq = sequence_.find(s.args.at(0));
+            if (seq != sequence_.end() && answered_.count(seq->second)) {
+                next();
+            } else if (ms_ - mark_ms_ >= std::stoul(s.args.at(1))) {
+                std::printf("NOANSWER %llu %s\n", ull(sys_), s.args.at(0).c_str());
+                next();
+            }
         } else if (s.op == "erase") {
             if (erases_ > mark_erases_) next();
         } else if (s.op == "program") {
@@ -390,6 +409,8 @@ private:
     std::map<std::uint32_t, std::uint32_t> words_;
     std::string transcript_;
     std::vector<Step> steps_;
+    std::map<std::string, unsigned> sequence_;   // each sent AEM command's sequence_id, by its tag
+    std::set<unsigned> answered_;                // the sequence_ids of the AEM responses that have left
     std::deque<Frame> frames_;
     std::vector<std::uint8_t> egress_;
     std::size_t offset_ = 0;
