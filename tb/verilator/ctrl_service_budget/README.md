@@ -152,7 +152,7 @@ The split SoC now hands the generator each region as its aligned power-of-two pi
 The default `--cpu-regions cover` builds that shipping list and refuses one that is not its own power-of-two cover, instead of widening it.
 Until the fix, the harness handed the generator each region at its power-of-two cover (256 KiB for `rom` and `sram`), and the figures below were measured on that CPU.
 The cover and the pieces differ only in address-decode lines, so neither changes timing.
-`--cpu-regions as-built` builds the regions without the pieces, the single-mask decode, and reproduces the fault.
+`--cpu-regions as-built` builds the SoC without the region-decode hookup, whose refusals would stop it, so the generator is handed the whole regions: the single-mask decode, which reproduces the fault.
 
 The TSN stack boundary gate finds six of this harness's files by text, because they name the firmware's tree.
 Each is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) with its reason.

@@ -404,9 +404,11 @@ class CpuPatches:
     'cover' hands the generator the shipping split's region list
     (milan_soc.exact_cpu_decode: each region as ctrl_memory.cpu_regions
     splits it, #791) and refuses one that is not its own power-of-two cover.
-    'as-built' hands it the SoC's regions without that split, the
-    single-mask decode of #791, as a control. Either records the SoC's own
-    whole regions, before any split.
+    'as-built' builds the SoC as it was before that hookup
+    (milan_soc.exact_cpu_decode left out, whose refusals would stop it), so
+    the generator is handed the SoC's whole regions, the single-mask decode
+    of #791, as a control. Either records the SoC's own whole regions, before
+    any split.
     """
 
     def __init__(self, cpu_regions: str) -> None:
@@ -424,13 +426,16 @@ class CpuPatches:
         self.args_read(args)
 
     def split_regions(self, regions: list[tuple]) -> list[tuple]:
-        """Record the SoC's own regions; split them as the shipping SoC does, or not for 'as-built'."""
+        """Record the SoC's own regions and split them as the shipping SoC does ('as-built' has no hookup)."""
         self.soc_regions[:] = [list(r) for r in regions]
-        return self.split(regions) if self.cpu_regions == 'cover' else list(regions)
+        return self.split(regions)
 
     def generate_netlist_name(self) -> None:
-        """Name the netlist from the regions split_regions gave; under 'cover' each is its own cover."""
-        if self.cpu_regions == 'cover' and power_of_two_cover(VexiiRiscv.memory_regions) != VexiiRiscv.memory_regions:
+        """Name the netlist from the regions split_regions gave; under 'cover' each is its own cover. Under
+        'as-built' they are the SoC's own, recorded here."""
+        if self.cpu_regions == 'as-built':
+            self.soc_regions[:] = [list(r) for r in VexiiRiscv.memory_regions]
+        elif power_of_two_cover(VexiiRiscv.memory_regions) != VexiiRiscv.memory_regions:
             raise RuntimeError(f'the split SoC hands the CPU generator a region it decodes inexactly (#791): '
                                f'{VexiiRiscv.memory_regions}')
         self.netlist_name()
@@ -443,6 +448,8 @@ class CpuPatches:
         stack.enter_context(patch.object(VexiiRiscv, 'generate_netlist_name',
                                          staticmethod(self.generate_netlist_name)))
         stack.enter_context(patch.object(milan_soc.ctrl_memory, 'cpu_regions', self.split_regions))
+        if self.cpu_regions == 'as-built':
+            stack.enter_context(patch.object(milan_soc, 'exact_cpu_decode', lambda cpu: None))
         return stack
 
 
