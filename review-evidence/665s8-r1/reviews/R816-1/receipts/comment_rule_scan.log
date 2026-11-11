@@ -1,0 +1,28 @@
+370:406:+ANNOUNCE's egress, the AECP response times and the ACMP round trips), each
+581:623:+#: (ctrl_memory.LEDGERED; docs/design/SPLIT_CONTROL_MEMORY.md section 5, ledgered at 59.0 by the owner's ruling of
+1010:1058:+            out.update(min_us=round(min(us), 3), mean_us=round(statistics.fmean(us), 3), max_us=round(max(us), 3),
+1011:1059:+                       min_ms=round(min(us) / 1000, 4), mean_ms=round(statistics.fmean(us) / 1000, 4),
+1012:1060:+                       max_ms=round(max(us) / 1000, 4))
+1014:1062:+                out['margin_ms'] = round(self.bound_ms - max(us) / 1000, 4)
+1245:1293:+            error.cycles.append(abs(gap - round(d * 1000 / us)))
+1337:1385:+    result = dict(sys_hz=sys_hz, us_per_cycle=us, ready_ms=round(log.ready * us / 1000, 3), draws=draws,
+2216:2276:+THE LOAD (#868, the round 2 ruling): the CPU budget harness's composed load
+2234:2294:+    with a draw's command: the 1x1 campaign at 79997664d5 measured it twice,
+2239:2299:+composed load; interface 0's would need the gPTP plane tb_split_top builds off.
+3164:3352:+    .s_clk(sys_clk), .s_rst(~sys_rst_n), .s_axis_tdata(m_tx_data), .s_axis_tkeep(1'b1), .s_axis_tvalid(x_tx_valid),
+3175:3364:+    assign bench_rx_ready = 1'b0;
+3176:3365:+    assign bench_tx_valid = 1'b0;
+3190:3379:+        hold_r  <= 1'b0;
+3191:3380:+        bench_r <= 1'b0;
+3213:3402:+    assign m_gm_change_p[k] = 1'b0;
+3221:3410:+      else if (waited_r != MBX_FACE_ACK_CYCLES_C) waited_r <= waited_r + 1'b1;
+3225:3414:+    assign ctr_ans_p[k]  = 1'b0;
+3228:3417:+    assign amap_ans_p[k] = 1'b0;
+3231:3420:+    assign edit_ans_p[k] = 1'b0;
+3234:3423:+    assign gsi_ans_p[k]  = 1'b0;
+3237:3426:+    assign ctr_chg_p[k]  = 1'b0;
+3240:3429:+    assign avb_chg_p[k]  = 1'b0;
+3241:3430:+    assign asp_chg_p[k]  = 1'b0;
+3242:3431:+    assign amap_wr_p[k]  = 1'b0;
+3245:3436:+  milan_datapath #(.CTRL_SPLIT_P(SPLIT_P), .N_STREAMS(N_STREAMS_P), .RXFILT_P(0), .GPTP_PLANE_EN_P(1'b0)) u_dp (
+3246:3439:+  assign unused_ok = &{1'b0, NSRC[0], NSNK[0], fw_ctrl_ready, bench_link_up[0]};

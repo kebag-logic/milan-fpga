@@ -1,0 +1,8 @@
+R0 regrade ci-1x1-none at head: 0 finding(s); results identical to published
+R0 regrade 8x8-none at head: 0 finding(s); results identical to published
+R1 one of 16 PROBE_TXs (draw 5) never sent, nor answered: 0 finding(s) []; acmp.probe_tx N=15, acmp.bind_rx N=16
+R2 only the last of 16 PROBE_TXs sent (15 binds cause none): 0 finding(s) []; acmp.probe_tx N=1
+R3 control: no PROBE_TX at all: 17 finding(s), first ['ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX']
+R4 first BIND_RX_RESPONSE with status 1 (LISTENER_UNKNOWN_ID): 0 finding(s) []
+R5 first AECP response with status 1 (NOT_IMPLEMENTED): 0 finding(s) []
+rc=0
