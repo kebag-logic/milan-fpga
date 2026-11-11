@@ -1,0 +1,78 @@
+Reviewer readout of the published author route receipts (evidence archive 2f0c3d52e360c931471713f40bf76466cb2f358f, review-evidence/665s9-r1/author/receipts/r3/route), RTL head a2690e682d929e6d3811006f961a24361827c596
+git diff a2690e68..a91fb27d touches only docs/design/MAILBOX_SPLIT.md and docs/design/MARK_II_AREA_PLAN.md
+== split-ExtraPostPlacementOpt
+open_checkpoint {<scratch>/route/split/gateware/alinx_ax7101_synth.dcp}
+opt_design -directive ExploreArea
+place_design -directive ExtraPostPlacementOpt
+phys_opt_design -directive AggressiveExplore
+route_design -directive AggressiveExplore
+phys_opt_design -directive AggressiveExplore
+| Slice LUTs                 | 29377 |     0 |          0 |     63400 | 46.34 |
+| Slice Registers            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Slice Registers                            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Block RAM Tile    |   72 |     0 |          0 |       135 | 53.33 |
+|   RAMB36/FIFO*    |   56 |     0 |          0 |       135 | 41.48 |
+       # of routable nets..................... :       67358 :
+           # of fully routed nets............. :       67358 :
+       # of nets with routing errors.......... :           0 :
+route.rc: 0
+== split-ExtraTimingOpt
+open_checkpoint {<scratch>/route/split/gateware/alinx_ax7101_synth.dcp}
+opt_design -directive ExploreArea
+place_design -directive ExtraTimingOpt
+phys_opt_design -directive AggressiveExplore
+route_design -directive AggressiveExplore
+phys_opt_design -directive AggressiveExplore
+| Slice LUTs                 | 29462 |     0 |          0 |     63400 | 46.47 |
+| Slice Registers            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Slice Registers                            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Block RAM Tile    |   72 |     0 |          0 |       135 | 53.33 |
+|   RAMB36/FIFO*    |   56 |     0 |          0 |       135 | 41.48 |
+       # of routable nets..................... :       67354 :
+           # of fully routed nets............. :       67354 :
+       # of nets with routing errors.......... :           0 :
+route.rc: 0
+== split-AltSpreadLogic_high
+open_checkpoint {<scratch>/route/split/gateware/alinx_ax7101_synth.dcp}
+opt_design -directive ExploreArea
+place_design -directive AltSpreadLogic_high
+phys_opt_design -directive AggressiveExplore
+route_design -directive AggressiveExplore
+phys_opt_design -directive AggressiveExplore
+| Slice LUTs                 | 29455 |     0 |          0 |     63400 | 46.46 |
+| Slice Registers            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Slice Registers                            | 39235 |     0 |          0 |    126800 | 30.94 |
+| Block RAM Tile    |   72 |     0 |          0 |       135 | 53.33 |
+|   RAMB36/FIFO*    |   56 |     0 |          0 |       135 | 41.48 |
+       # of routable nets..................... :       67333 :
+           # of fully routed nets............. :       67333 :
+       # of nets with routing errors.......... :           0 :
+route.rc: 0
+== signoff
+== ExtraPostPlacementOpt
+Slow_85C: WNS +0.274 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.274 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== ExtraTimingOpt
+Slow_85C: WNS +0.089 ns (0 failing), WHS +0.064 ns (0 failing)
+Slow_0C: WNS +0.089 ns (0 failing), WHS +0.064 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== AltSpreadLogic_high
+Slow_85C: WNS +0.153 ns (0 failing), WHS +0.082 ns (0 failing)
+Slow_0C: WNS +0.153 ns (0 failing), WHS +0.082 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+== synthesis checkpoint
+bytes 60113078
+sha256 6ae97a5d084fb0d8849d36482a32a3ba81a2cb8b6ce4683b6aa42920cc4334d9
+ docs/design/MAILBOX_SPLIT.md     | 28 +++++++++++++-
+ docs/design/MARK_II_AREA_PLAN.md | 83 ++++++++++++++++++++++++----------------
+ 2 files changed, 75 insertions(+), 36 deletions(-)

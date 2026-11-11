@@ -1,0 +1,168 @@
+[CAUGHT] probe probe-rx-ready-in-verdict-cycle rc=1
+    [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=1 exp=2
+    [FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=1 exp=3
+    [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=1 exp=2
+    [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+    [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=4 exp=8
+    [FAIL] T0 a burst of the bucket's depth passes  got=1 exp=8
+    [FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2
+    [FAIL] T1 one refill period buys exactly one more frame got=1 exp=9
+    [FAIL] T1 and the next is refused again         got=0 exp=3
+    [FAIL] Q9 five tuple failures in a row count five got=2 exp=6
+    [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=2 exp=6
+    [FAIL] Q10 refusals by the filter take no token: a full burst still passes after them got=1 exp=8
+    [FAIL] Q10 the bucket refuses the frame past it in RATE_DROP got=0 exp=1
+    [FAIL] Q10 and FILTER_MISMATCH counts the tuple failures only got=1 exp=16
+    [FAIL] V0 every frame that passes is committed once got=1 exp=8
+    [FAIL] V0 the oversized one counts once in RX_DROP got=0 exp=1
+    [FAIL] V0 the one past the bucket counts once in RATE_DROP got=0 exp=1
+    [FAIL] V0 the one no tuple takes counts once in FILTER_MISMATCH got=0 exp=1
+    [FAIL] V0 the ring holds each committed frame once, byte for byte, in order, and nothing else
+    [FAIL] V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte got=3 exp=6
+    [FAIL] V1 and 4 clocks after any other frame's  got=3 exp=4
+[CAUGHT] probe probe-cleanup-on-stale-verdict rc=1
+    [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=2 exp=23
+    [FAIL] F1 record LEN                            got=0 exp=82
+    [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+    [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+    [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+    [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=7 exp=8
+    [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+    [FAIL] D0 and is not committed                  got=12 exp=11
+    [FAIL] D0 every unread record survives the dropped frame byte for byte
+    [FAIL] D0 once released, the space takes the next frame got=13 exp=12
+    [FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=1 exp=2
+    [FAIL] T0 the frames past it count in RATE_DROP got=1 exp=2
+    [FAIL] T1 and the next is refused again         got=2 exp=3
+    [FAIL] Q0 its record is the frame, byte for byte (adp)
+    [FAIL] Q7 its record is the response, byte for byte
+    [FAIL] Q7 every command type (even) for this target passes got=7 exp=8
+    [FAIL] Q11 its record is the DEFEND, byte for byte
+    [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q12 its record is the ADPDU, byte for byte
+    [FAIL] Q12 one that ends with its entity_id passes got=5 exp=0
+    [FAIL] Q12 rewritten, the entry's new talker passes got=5 exp=0
+    [FAIL] Q14 and the bound talker's after that passes got=5 exp=0
+    [FAIL] Q16 the newest talker passes             got=5 exp=0
+    [FAIL] Q18 the next one passes                  got=5 exp=0
+    [FAIL] Q21 BOUND_EID_LO rewritten at each of 32 clocks after BOUND_EN is set again: the new talker passes got=16 exp=32
+    [FAIL] W0 the frame the free space cannot hold counts in RX_DROP got=0 exp=1
+    [FAIL] W0 the frame has words past the free space
+    [FAIL] V0 the oversized one counts once in RX_DROP got=2 exp=1
+    [FAIL] V0 the one past the bucket counts once in RATE_DROP got=0 exp=1
+    [FAIL] V0 the ring holds each committed frame once, byte for byte, in order, and nothing else
+    [FAIL] V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte got=4 exp=6
+[CAUGHT] probe probe-verdict-acts-from-stale-registers rc=1
+    [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=0 exp=23
+    [FAIL] F1 RX_PASS counts it                     got=0 exp=1
+    [FAIL] F1 IRQ_STATUS.RX shows the channel       got=0 exp=1
+    [FAIL] F1 record LEN                            got=0 exp=82
+    [FAIL] F1 record KIND                           got=0 exp=1
+    [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+    [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+    [FAIL] F1 an enabled RX level raises the interrupt got=0 exp=1
+    [FAIL] F1 releasing the record (RX_TAIL) drops the level and the line got=1 exp=0
+    [FAIL] F2 ENTITY_DISCOVER for this entity passes got=1 exp=2
+    [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=1 exp=2
+    [FAIL] F2 and are dropped uncounted (not addressed to this entity) got=1 exp=0
+    [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=1 exp=2
+    [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=1 exp=2
+    [FAIL] D0 records fill the ring to the last whole one got=10 exp=11
+    [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+    [FAIL] D0 every unread record survives the dropped frame byte for byte
+    [FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=0 exp=2
+    [FAIL] D1 and sets IRQ_STATUS.ERR               got=0 exp=1
+    [FAIL] T0 a burst of the bucket's depth passes  got=9 exp=8
+    [FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2
+    [FAIL] T1 one refill period buys exactly one more frame got=10 exp=9
+    [FAIL] T1 and the next is refused again         got=1 exp=3
+    [FAIL] H0 and the frame counts in RX_DROP       got=0 exp=1
+    [FAIL] H0 back in range, the next frame is stored
+    [FAIL] Q0 a valid frame reaches its channel (adp) got=5 exp=0
+    [FAIL] Q0 its record is the frame, byte for byte (adp)
+    [FAIL] Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (acmp, multicast): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (acmp, own unicast): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (aecp, command): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (aecp, response): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (maap): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (maap, DEFEND to own unicast): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (srp MSRP): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (srp MSRP): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q1 tagged, it (srp MVRP): FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q2 to another destination MAC, it (srp MVRP): FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q3 under a non-control EtherType (gPTP), an ADPDU: FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q6 untagged AAF to a stream address: FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q6 tagged AAF, the media path's: FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring got=5 exp=2
+    [FAIL] Q7 its record is the response, byte for byte
+    [FAIL] Q7 a CONTROLLER_AVAILABLE response for another controller: no RX record, no delivery got=2 exp=5
+    [FAIL] Q7 every command type (even) for this target passes got=7 exp=8
+    [FAIL] Q7 every response type (odd) for this controller passes got=0 exp=8
+    [FAIL] Q7 no command passes on its controller, no response on its target, none counted got=8 exp=0
+    [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=2 exp=3
+    [FAIL] Q8 another interface's own MAC, or one on an index with no interface, reaches no ring got=1 exp=0
+    [FAIL] Q8 and counts once each in FILTER_MISMATCH got=2 exp=3
+    [FAIL] Q8 rewritten, the new own MAC passes     got=5 exp=2
+    [FAIL] Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q9 a mismatch sets IRQ_STATUS.ERR        got=0 exp=1
+    [FAIL] Q9 five tuple failures in a row count five got=5 exp=6
+    [FAIL] Q9 and set no IRQ_STATUS.ERR             got=1 exp=0
+    [FAIL] Q10 the bucket refuses the frame past it in RATE_DROP got=0 exp=1
+    [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3
+    [FAIL] Q11 its record is the DEFEND, byte for byte
+    [FAIL] Q11 a PROBE to this interface's own MAC: no RX record, no delivery got=0 exp=5
+    [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q11 a DEFEND to the MAAP multicast address still passes got=5 exp=3
+    [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: no RX record, no delivery got=0 exp=5
+    [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+    [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it got=1 exp=0
+    [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+    [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+    [FAIL] Q12 its record is the ADPDU, byte for byte
+    [FAIL] Q12 an ENTITY_AVAILABLE of a talker no entry holds: no RX record, no delivery got=0 exp=5
+    [FAIL] Q12 ENTITY_DISCOVER for every entity and for this one still pass got=1 exp=2
+    [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id: no RX record, no delivery got=0 exp=5
+    [FAIL] Q12 one that ends with its entity_id passes got=5 exp=0
+    [FAIL] Q12 an entry with BOUND_EN clear, its identity still written: no RX record, no delivery got=0 exp=5
+    [FAIL] Q12 the last entry passes its talker     got=5 exp=0
+    [FAIL] Q12 rewritten, the entry's old talker: no RX record, no delivery got=0 exp=5
+    [FAIL] Q12 rewritten, the entry's new talker passes got=5 exp=0
+    [FAIL] Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing got=1 exp=0
+    [FAIL] Q14 the bound talker's right after it passes got=5 exp=0
+    [FAIL] Q14 right after that, one differing from it in the first identity byte only: no RX record, no delivery got=0 exp=5
+    [FAIL] Q14 and the bound talker's after that passes got=5 exp=0
+    [FAIL] Q15 an entity_id differing from the entry in one identity byte is refused, for each of the eight got=7 exp=8
+    [FAIL] Q16 the new talker passes                got=5 exp=0
+    [FAIL] Q16 then BOUND_EID_HI rewritten: the talker before: no RX record, no delivery got=0 exp=5
+    [FAIL] Q16 the newest talker passes             got=5 exp=0
+    [FAIL] Q17 it holds talker 0, whose ENTITY_AVAILABLE passes got=5 exp=0
+    [FAIL] Q17 its old talker: no RX record, no delivery got=0 exp=5
+    [FAIL] Q18 a bound talker's ENTITY_AVAILABLE stalled inside its identity passes got=5 exp=0
+    [FAIL] Q18 one stalled while BOUND_EN is cleared and set again, the identity unchanged, reaches no ring got=0 exp=5
+    [FAIL] Q18 the next one passes                  got=5 exp=0
+    [FAIL] Q19 one stalled while BOUND_EN is set again alone, its copy made meanwhile, reaches no ring got=0 exp=5
+    [FAIL] Q19 the next one passes                  got=5 exp=0
+    [FAIL] Q21 BOUND_EID_LO rewritten at each of 32 clocks after BOUND_EN is set again: the new talker passes got=1 exp=32
+    [FAIL] Q21 and the old one never does           got=0 exp=32
+    [FAIL] Q22 its record's IF the arrival interface got=0 exp=1
+    [FAIL] W0 the frame the free space cannot hold counts in RX_DROP got=0 exp=1
+    [FAIL] W0 the frame has words past the free space
+    [FAIL] V0 the one past the bucket counts once in RATE_DROP got=0 exp=1
+    [FAIL] V0 the ring holds each committed frame once, byte for byte, in order, and nothing else
+    [FAIL] V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte got=4 exp=6
+    [FAIL] V1 and 4 clocks after any other frame's  got=6 exp=4
+[CAUGHT] probe probe-second-header-word-never-written rc=1
+    [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+arms: 4 of 4 run
+
+real	10m36.192s
+user	2m48.447s
+sys	0m19.271s

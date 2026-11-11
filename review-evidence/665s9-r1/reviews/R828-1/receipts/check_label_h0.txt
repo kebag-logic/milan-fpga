@@ -1,0 +1,15 @@
+head a91fb27dd39483e4694e193504da1dbe06208807: check labels starting H0 in the mbx suite, and the README's check table rows
+153:        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+154:        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+958:    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+959:    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+963:    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);
+155:| H0 to H2 | a wrong host counter: an RX_TAIL ahead of RX_HEAD stores nothing (RX_DROP), a TX_HEAD a ring ahead of TX_TAIL is refused (TX_ERR), an EVT_TAIL 
+164:| H0 | on the RTL only, last, over every clock of every check before it (#870): no receive ring word is written while the head the core sees that cycle cove
+base 1d6bf555:
+929:    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+930:    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+934:    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);
+docs naming the new check by ID:
+137:  yet hold; the mailbox suite checks it every clock (its check H0). Only the
+102:without it fails H0, since it then sees no ring word written:

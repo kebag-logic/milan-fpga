@@ -1,0 +1,18 @@
+[
+  {"name": "probe-rx-ready-in-verdict-cycle", "path": "KL_mbx_rx.sv",
+   "old": "assign rx_ready_o = (st_r == RECV_S) && (q_cnt_r < 3'(QD_C));",
+   "new": "assign rx_ready_o = (st_r == RECV_S || st_r == VRD_S) && (q_cnt_r < 3'(QD_C));",
+   "host": 0, "needle": "V0", "ifs": 1},
+  {"name": "probe-cleanup-on-stale-verdict", "path": "KL_mbx_rx.sv",
+   "old": "if ((act_w && !accept_w) || st_r == HDR1_S) begin",
+   "new": "if ((fin_ready_w && !vd_acc_r) || st_r == HDR1_S) begin",
+   "host": 0, "needle": "V0", "ifs": 1},
+  {"name": "probe-verdict-acts-from-stale-registers", "path": "KL_mbx_rx.sv",
+   "old": "    end else if (fin_ready_w) begin\n      vd_drop_r <= hit_r && rule_pass_w && bad_w;",
+   "new": "    end else if (act_w) begin\n      vd_drop_r <= hit_r && rule_pass_w && bad_w;",
+   "host": 0, "needle": "V0", "ifs": 1},
+  {"name": "probe-second-header-word-never-written", "path": "KL_mbx_rx.sv",
+   "old": "      wr_en_o   <= wen_w;\n",
+   "new": "      wr_en_o   <= wen_w && !(st_r == HDR1_S);\n",
+   "host": 0, "needle": "H0", "ifs": 1}
+]
