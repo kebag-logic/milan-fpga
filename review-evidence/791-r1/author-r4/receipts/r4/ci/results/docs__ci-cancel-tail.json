@@ -1,0 +1,26 @@
+{
+ "result": "success",
+ "outputs": {},
+ "steps": [
+  {
+   "step": "step0",
+   "name": "actions/checkout@v4",
+   "kind": "actions/checkout",
+   "rc": "action (checkout by the clone; cache and setup-python not replayed)"
+  },
+  {
+   "step": "step1",
+   "name": "Set CPU-derived job budgets",
+   "kind": "run",
+   "rc": 0
+  },
+  {
+   "step": "step2",
+   "name": "Cancel confirmed terminal failures",
+   "kind": "run",
+   "rc": "not run",
+   "reason": "cancels a hosted run's terminal failures through the GitHub API (GH_TOKEN); never run outside a hosted run"
+  }
+ ],
+ "tree_after": ""
+}

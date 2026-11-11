@@ -1,0 +1,327 @@
+# A765c HANDOFF: rounds 2 to 4 of #791 (the split CPU's region decode), PR #888
+
+PRIVATE. Nothing pushed. Lane $LANES/791-region-decode, branch `791-split-region-decode`, base
+`dev-soft-core` `1d6bf555`, round-1 head `03447eaa`. origin/dev-soft-core moved during the round to `764482b4`
+(#874, S7: lwSRP's transmit path); it touches none of this branch's files and `git merge-tree` of the head with it
+is clean (rc 0). No rebase: the candidate merge validation is the manager's. Authority: the round-3
+ruling on #791 ([A10], issuecomment-6806697619) on R826-2; before it, the round-2 ruling ([A10]), R825-1 (POSITIVE) and R826-1 (NEGATIVE: F1 MINOR; F2 SUGGESTION, taken by the ruling; F3,
+F4 RESIDUE).
+
+## Status: REVIEW READY at `6a5acf06` (round 4: R826-4 F1, F2 and S1 as ruled; the ruling's gates rc 0; no STOP)
+
+Head `6a5acf06c80c8a04cef0c5d2b3aeb47252393b8c`: two commits on the manager's sync merge `77e1efa0` (S9's head
+`a69fc0f5` merged into `c7e4badb`); no merge, rebase, force or amend of mine.
+
+- `14a0c538` Move test_ctrl_memory.py's mutant planting into ctrl_memory_mutant.py, under the idiom gate's module length, and state the suite's fifty-nine mutants and CPU decode arm (#791)
+- `6a5acf06` List ctrl_memory_mutant.py, where test_ctrl_memory.py's mutant rebuild now runs, as the Python idiom gate's exec site in the test's place (#791)
+
+On resume the lane was clean at `77e1efa0`: no uncommitted edits, no earlier round-4 commit. TAKEN is not posted
+again (round 2, issuecomment-6797883336). Round 4's REVIEW READY: issuecomment-6809760871 (`receipts/posts/review-ready-r4.md`).
+
+## Round 4 (ruling on R826-4 at `77e1efa0`, issuecomment-6809199534)
+
+### Changes (file:line at `6a5acf06`, reason)
+
+- F1. `sw/litex/ctrl_memory_mutant.py` (new, 46 lines): `mutated` (`:18`) and `patched` (`:38-39`), moved verbatim
+  from `test_ctrl_memory.py`, with the imports only they used. `test_ctrl_memory.py:100` imports both back, so every
+  caller (the mutant arm, the soc child's rebuild, the ledger plant arm) runs unchanged; `__future__`, `ast`,
+  `inspect`, `textwrap` and `Iterator` left its imports. The file is 972 lines (was 1,003 at `77e1efa0`), under
+  `LONG_MODULE_LINES = 1000`; `scripts/py_idiom.budget` is unchanged.
+- F1, found by the gate on the clean clone of `14a0c538`: `check_py_idiom.py` refused `exec(...)` at
+  `ctrl_memory_mutant.py:33` (`REFUSED DYNAMIC EVAL/EXEC`), since its `DYNAMIC_EXEC_INVENTORY` is keyed by file and
+  listed `test_ctrl_memory.py`. The lane run had passed only because the new file was still untracked. Fix:
+  `scripts/check_py_idiom.py:194`, the entry's key moves to `sw/litex/ctrl_memory_mutant.py` and its reason names
+  `test_ctrl_memory.py`'s mutant table; the guard it describes is the moved code's, unchanged. The inventory keeps
+  five entries; no site is added.
+- F2. `docs/testing/TESTING.md:792-798`: "forty-seven" becomes "fifty-nine" (`len(test_ctrl_memory.MUTANTS) == 59` at
+  this head), and one sentence names the CPU decode arm: twelve of the fifty-nine are its, in
+  `ctrl_memory_decode.py`, which grades the aligned pieces and the guard's refusals. S9's mapper sentence ("Three
+  more mutants ...") is unchanged; 59 + 3 = the run's 62 `MUTANT` lines.
+- S1. `test_ctrl_memory.py:61-64`: docstring items 8 and 9 wrapped at the items' width; `:60` adds to item 7 that
+  `ctrl_memory_mutant.py` rebuilds each mutant and puts it in place. The header still says "nine things" (`:7`),
+  and the items are 1 to 9.
+
+### Gate table (head `6a5acf06`, clean clones; receipts under `receipts/r4/`)
+
+| Gate | rc | Result | Receipt |
+|---|---|---|---|
+| `python3 scripts/check_py_idiom.py` | 0 | `long module: 10 <= 10`, no refusal | `r4/gates/py-idiom.*` |
+| `python3 scripts/check_py_idiom.py --selftest` | 0 | `54 checks: 54 PASS, 0 FAIL` | `r4/gates/py-idiom-selftest.*` |
+| `test_ctrl_memory.py` | 0 | 192 `[ok  ]`, 0 `[FAIL]`, `RESULT: PASS`; 62 `[ok  ] MUTANT` lines; the `-- CPU decode` and `-- out-of-context mapper` arms both run | `r4/tcm/` |
+| region-decode `run.py --self-test` | 0 | `none 0/0`, `single-mask 4/4`, `cover 6/6`, PASS; netlists `88c5cdf9`, `18be4f88`, `57948043`, as at every earlier head; no generator command | `r4/region-decode/` |
+| docs gates: every docs.yml job in the replay, each on its own clean clone | 0 | 9 of 9 jobs `success`; `102 steps ran, 0 failed; 6 not run, each with its reason` (three APT resolutions, three hosted GitHub API steps). Within them: the Python idiom gate (`long module: 10 <= 10`), `docs_check: 0 finding(s)`, `doc path gate: OK`, `anchor check: 623 ... reproduced`, `TOC gate: OK`, `check_em_dash: 0 finding(s)`, `documentation style: OK`, and the `test_builder.py --require-rv32` legs | `r4/ci/` |
+| `git diff --check` against the merge base `1d6bf555` | 0 | no output | `r4/gates/diff-check.*` |
+| STOP check: all-fabric export compare, `77e1efa0` against `6a5acf06`, every shipped config | 0 | every builder output and CPU netlist identical (`f5f08b17`, `7c73187a`); AX7101 comment-only timestamp lines; `0 failure(s)`; no generator command | `r4/allfabric/` |
+
+The first gate pass, at `14a0c538`, is superseded and not cited (its idiom gate was the refusal above). While it
+ran I misread this sandbox's `ps` (it shows only the session's own processes) as the jobs having died; they had
+not, and they finished. My cleanup then removed that superseded head's replay directory while its last docs jobs
+were writing. Nothing from `14a0c538` is evidence here except its idiom-gate refusal
+(`r4/ci/superseded-14a0c538-py-idiom.log`), which the second commit answers.
+
+# Round 3 (head `c7e4badb`)
+
+## Status: REVIEW READY at `c7e4badb` (round 3: R826-2 F5 fixed as ruled; the ruling's gates rc 0; no STOP)
+
+Head `c7e4badb4caf61dcf47e122dc79de7b709125ec9`: one commit on round 2's `596e2ae3`, six on `03447eaa`, eight on
+`1d6bf555`; no merge, rebase, force or amend.
+
+- `c7e4badb` Compare the split CPU's region lists against a copy of the list its naming step hashed, so a change in place after naming is refused too (#791)
+
+The session resumed after a host restart: the lane was clean at `596e2ae3` with no uncommitted edits, and the cut
+round-3 session had left no commit, receipt or post. TAKEN was posted in round 2 (issuecomment-6797883336) and is
+not posted again. Round 3's REVIEW READY: issuecomment-6807127028 (`receipts/posts/review-ready-r3.md`).
+
+## Round 3 (ruling on R826-2 at `596e2ae3`: fix F5 exactly, nothing else)
+
+R826-2 F5 (MINOR; Robustness, Tests, Docs): the naming step stored a reference to the class's list, so the guard
+compared what the generator may read against that live list. A change in place after naming was then either not
+refused (a row appended) or refused without the cache-removal words (cleared and refilled).
+
+### Change (file:line at `c7e4badb`, reason)
+
+- `sw/litex/milan_soc.py:3271` `named.append(list(VexiiRiscv.memory_regions))`: the naming step keeps a copy
+  of the list as it hands it to LiteX's naming, so the after-finalize comparison (`:3280-3281`) is against what
+  was hashed; any change in place after naming makes the class's list differ from it and gets the stray refusal,
+  which names the cached netlist for removal. Docstrings: `:3268-3269` (the naming step) and `:3252-3257` (the
+  refused shapes now include a change in place after naming). The pieces, the hashed list and the rows the
+  generator is handed are unchanged, so no netlist name moves.
+- `sw/litex/ctrl_memory_decode.py:54-55` (`_HANDED`) and `:64-66` (`pieces handed after the name`): the mutant
+  anchor texts follow the changed line.
+- `:85-88` `SHAPES` gains two in-place shapes, `re-collected in place after naming` (the class list cleared, then
+  extended with the whole rows) and `a row appended in place after naming` (the aligned `APPENDED` row,
+  `(0x2000_0000, 0x1000, "rw", "p")`), built in `standin` at `:146-150`.
+- `:196-198`: every SHAPES refusal must now carry `region list other than the pieces`, `remove it from the
+  generator's cache` and `#791`, so a shape refused only as unaligned fails.
+- `:81-82`, new mutant `the named list not copied` (`named.append(list(VexiiRiscv.memory_regions))` ->
+  `named.append(VexiiRiscv.memory_regions)`), target `region list guard`.
+- Module docstring `:15-19`: the shapes as now graded.
+- `PR-BODY.md`: the guard bullet names the in-place change and the copy; the guard-test table gains the mutant;
+  the Status lines say which head each gate ran at.
+
+Not changed, as the ruling says "nothing else": R826-2's R5 (residue wording at `SPLIT_CONTROL_MEMORY.md:54` and
+the docstring's first line) and its suggestions S3 (refuse before generation) and S4. The design doc's guard text
+is true as written once the comparison is against the copy, as F5's Required outcome states.
+
+### The new checks, the mutant, and the failing words (`receipts/r3/tcm/run.log`)
+
+| Check / mutant | Result |
+|---|---|
+| `re-collected in place after naming` (log line 122) | `[ok  ]`, refused with `a region list other than the pieces is held at ['VexiiRiscv.memory_regions'], ... remove it from the generator's cache (#791)` |
+| `a row appended in place after naming` (line 123) | `[ok  ]`, the same refusal |
+| MUTANT `the named list not copied` (line 190) | caught by the decode arm: `exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected in place after naming (the split CPU's generator may not read its exact region pieces [...]: the naming step's list is not aligned powers of two (#791))`, that is refused without the cache-removal words; the appended shape is then not refused at all |
+| every mutant | 59 `[ok  ] MUTANT` lines (log lines 132-190), 0 `[FAIL]`: the 58 of `596e2ae3` and the new one |
+
+F5's Verification, at this head:
+- R826-2's own `tools/guard_probe2.py` (`receipts/r3/probes/guard_probe2.log`, rc 0): shape 1 `pinned order:
+  built exact`; 2 `refused; reason never-named`; 3 to 7 `refused; reason names-cache`. At `596e2ae3`, shape 7 was
+  `BUILT, GENERATOR LIST != HASHED LIST, SILENTLY` and 5 and 6 were `reason not-aligned`.
+- `test_ctrl_memory.py` passes with the new shapes and the mutant caught (below).
+- The region self-test is unchanged: `none 0/0`, `single-mask 4/4`, `cover 6/6`, PASS.
+- The netlist names are unchanged (below).
+
+### Gate table (head `c7e4badb`, clean clones of it; receipts under `receipts/r3/`)
+
+| Gate | rc | Result | Receipt |
+|---|---|---|---|
+| `test_ctrl_memory.py` with every mutant | 0 | 185 `[ok  ]`, 0 `[FAIL]`, `test_ctrl_memory: 0 failure(s)`, `RESULT: PASS` | `r3/tcm/` |
+| region-decode `run.py --self-test` | 0 | `SELF-TEST PASS none: fails 0 check(s), wants 0`; `single-mask: fails 4, wants 4`; `cover: fails 6, wants 6`; `ctrl_region_decode self-test: PASS` | `r3/region-decode/` |
+| docs gates: every job of docs.yml in the replay, each on its own clean clone of the head | 0 | 9 of 9 jobs `success`; `102 steps ran, 0 failed; 6 not run, each with its reason` (three APT resolutions; three hosted GitHub API steps: the manifest's collect, the fail-fast watcher, the cancel tail). Within them: `docs_check: 0 finding(s)`, `doc path gate: OK`, `anchor check: 610 ... reproduced`, `TOC gate: OK`, `check_em_dash: 0 finding(s)`, `documentation style: OK`, the Python idiom gate, and `test_builder.py --require-rv32` builder legs 0 and 1 | `r3/ci/` |
+| `git diff --check` against the merge base `1d6bf555` | 0 | no output | `r3/gates/diff-check.*` |
+| STOP check: netlist identity against `03447eaa` | 0 | region test `88c5cdf9`, `18be4f88`, `57948043` and product split `f8b27436`, the same names and sha256 as at `03447eaa` and `596e2ae3`; no netlist generated | `r3/gates/netlist-identity.*` |
+| STOP check: split export decode, 1x1 and 8x8 | 0 | `DECODE PASS` fetch and load, netlist `f8b27436` | `r3/decode/` |
+| STOP check: all-fabric export compare, base `1d6bf555`, every shipped config | 0 | every builder output and CPU netlist identical (`f5f08b17`, `7c73187a`); AX7101 comment-only timestamp lines, as before; `0 failure(s)` | `r3/allfabric/` |
+| R826-1's `guard_probe.py` and `cpupatches_probe.py` | 0 | as at `596e2ae3` | `r3/probes/` |
+
+Docs-chain note: its first run (`r3/ci/docs-chain-attempt1.txt`) ran the three needs-free jobs, then called the
+three gate jobs by a wrong key, so they never started, and the chain went on to `docs-check`, `ci-manifest` and
+`ci-cancel-tail` without them (`docs-check` failed: its gates were missing). Those three were moved aside
+(`ci_replay.py again`) and re-run after the gate jobs (`r3/ci/docs-chain.txt`). That first log's printed rc values
+are not evidence (the `$(date)` in the echo reset `$?`); each job's `result.json` is (`r3/ci/results/`).
+
+Not re-run at `c7e4badb`, because the ruling's gate list for round 3 does not include them and no file they read
+changed except the two Python files above (the full sweep reads `milan_soc.py` but no Verilator suite reaches
+`exact_cpu_decode`, which only `add_ctrl_memory` calls): the full sweep, the elaborate, rtl-fast and rtl workflow
+jobs, the split boots and S2's harness. Their round-2 results at `596e2ae3` are below.
+
+# Round 2 (head `596e2ae3`)
+
+## Status: REVIEW READY (every ruling item done; every gate rc 0 at `596e2ae3`; no STOP condition met)
+
+Head `596e2ae3708c4693e0929b530fea37020dc8db25`, five commits on `03447eaa`, no merge, rebase, force or amend:
+
+- `3344c581` Refuse a split CPU whose generator may read a region list other than its naming step's aligned pieces, and name the decode checks in the re-pin procedure (#791)
+- `d91e8ef1` State the region decode's root cause as the pinned generator behaves: only a region based at 0 is taken whole, so rom was inexact and sram exact (#791)
+- `1b77f2a5` Build the harness's as-built control without the region-decode hookup, so the new aligned-pieces refusal leaves the single-mask control buildable (#791)
+- `723db89c` Link the region-decode simulation and test_ctrl_memory.py from the LiteX re-pin procedure (#791)
+- `596e2ae3` Document the region-row test in cpu_region_lists, as the Python idiom gate requires (#791)
+
+Why five: `1b77f2a5` because the region self-test at `d91e8ef1` showed the new aligned refusal also refused the
+harness's single-mask control; `723db89c` because the replay's link-health gate (`docs_check.py`) at `1b77f2a5`
+flagged a bare README path (`sw/litex/patches/README.md:40: bare reference ... make it a link`); `596e2ae3` because
+`check_py_idiom.py` flagged the nested `rows` helper as an undocumented public function. Every gate in the table
+below ran at `596e2ae3`; runs at the superseded heads are not cited as evidence.
+
+| Ruling item | State |
+|---|---|
+| TAKEN on #791 | posted, issuecomment-6797883336 (`receipts/posts/taken.md`) |
+| 1. Root cause as the generator behaves (F1) | done (below); checked against R826-1's `generator_terms.txt` |
+| 2. Naming guard after finalize, a test of both silent shapes, the re-pin procedure, PR wording (F2) | done (below) |
+| 3. Residue F3, F4 with the exact texts | done |
+| 4. Gates on a clean clone of the final head | done, all rc 0 (table below) |
+| REVIEW READY on #791 | posted, issuecomment-6802190574 (`receipts/posts/review-ready.md`) |
+| STOP condition: a generated CPU netlist or an all-fabric export byte changed | not met: none changed (below) |
+
+## Changes (file:line, reason)
+
+All line numbers at `596e2ae3`.
+
+### Ruling item 1 (F1): the root cause as the pinned generator behaves
+
+- `docs/design/SPLIT_CONTROL_MEMORY.md:38-43`: the generator splits each region into aligned power-of-two terms
+  (SpinalHDL `AddressMapping.terms`). A region based at 0 is the exception, taken whole as the one term
+  `(address & ~(size - 1)) == 0`. So `rom` became `(address & 0xfffc8000) == 0`, while `sram` at 0x1000_0000 was
+  already exact as 128, 64 and 32 KiB terms. Checked against `Misc.scala:54-80` (`step = if(ptr == 0) m.size`) and
+  the as-built netlist's fetch terms quoted in R826-1's `receipts/probes/generator_terms.txt`: `rom` mask
+  `32'hfffc8000 == 0`; `sram` `32'hfffe0000 == 32'h10000000`, `32'hffff0000 == 32'h10020000`,
+  `32'hffff8000 == 32'h10030000`. `~(0x38000 - 1) = 0xfffc8000`. That netlist,
+  `VexiiRiscvLitex_18be4f88...`, sha256 `d425a0e7...`, is this round's single-mask CPU
+  (`receipts/gates/netlist-identity.log`).
+- `:47-48`: each piece is an aligned power of two, which one mask compare decodes exactly, at 0 as anywhere else,
+  so handing the pieces makes every region exact without depending on the decomposition. (An aligned
+  power-of-two piece comes out of `AddressMapping.terms` as one term: at 0, `step = size`; elsewhere the
+  origin's lowest set bit, or failing that the end's, is the size.)
+- `:396`: names `rom` only ("The non-power-of-two `rom` decode of #791").
+- `sw/litex/ctrl_memory.py:139-149`: the `decode_pieces` docstring says the same.
+- PR body: "The fault (#791)" paragraph says the same (`PR-BODY.md`).
+
+### Ruling item 2 (F2): the naming guard
+
+- `sw/litex/milan_soc.py:3239` `exact_cpu_decode`, docstring `:3250-3258`, finalize `:3271-3285`: after LiteX's
+  finalize and the existing never-named refusal (`:3274`), it also refuses unless every region-shaped list the
+  CPU holds, on the instance or on any class of it, equals the naming step's list (`:3278`), and that list is
+  aligned powers of two (`:3279-3280`). The stray refusal names the netlist for removal from the generator's
+  cache: in those shapes the pinned LiteX's finalize has already generated a netlist under the pieces' name from
+  another list. `pieces = ... if named else []` (`:3277`) keeps the never-named refusal the one that fires first.
+- `sw/litex/milan_soc.py:3291` `cpu_region_lists`: every non-empty list of `(int, int, str, str)` rows held by
+  the instance or any class in its MRO, by where it is held. Reason: the generator's list at the pin is
+  `VexiiRiscv.memory_regions`; a re-pin may keep it on the instance (under that name, which the instance reads
+  first, or another), so the guard reads every list the generator could be handed, not one name.
+- `tb/verilator/ctrl_service_budget/split_soc.py:407-411, 428-440, 451-452` `CpuPatches`: `as-built` now builds
+  the SoC without the hookup (`milan_soc.exact_cpu_decode` patched to a no-op inside `applied()`) and records the
+  SoC's regions in its naming step. Reason: the new aligned refusal refused the control, which hands the
+  generator the whole regions (region self-test at `d91e8ef1`: `single-mask` REFUSED, `the naming step's list is
+  not aligned powers of two`). The control is now the pre-#791 SoC. It hands the generator the same rows as
+  before, so its netlist name, an MD5 over every generator input, is unchanged (`18be4f88` at both heads).
+  `cover` is unchanged in behaviour (`split_regions` returned `self.split(regions)` for it before too).
+- `tb/verilator/ctrl_service_budget/README.md:155`: the as-built control described as built without the hookup.
+- `sw/litex/patches/README.md:38-52`: at any LiteX or generator re-pin, run `test_ctrl_memory.py` and
+  `tb/verilator/ctrl_region_decode/run.py --self-test`, with the reason (no workflow runs the region test).
+- `docs/design/SPLIT_CONTROL_MEMORY.md:54-58`: the two refusals, the cache-entry note, the re-pin pointer.
+- PR wording: "a LiteX that stops calling the naming step is refused" (`PR-BODY.md`), replacing round 1's
+  "cannot silently restore the single mask".
+
+### Ruling item 3: residue
+
+- F3, `tb/verilator/ctrl_region_decode/README.md:7`: R826-1's exact text.
+- F4, `tb/verilator/ctrl_region_decode/README.md:101`: R826-1's exact text.
+
+## New checks, planted mutants and failing words
+
+All in `sw/litex/ctrl_memory_decode.py` (the `decode` arm of `test_ctrl_memory.py`), property `region list guard`
+(`:50`). The stand-in finalize shapes are `SHAPES` (`:81`), built by `standin` (`:113`).
+
+| Check (`:line`) | What it requires |
+|---|---|
+| `:177-180` | the never-named finalize is refused in the never-named refusal's own words (`no longer names it through generate_netlist_name`); tightened so the round-1 mutant `naming guard off` fails by name, not by an IndexError |
+| `:181-186`, one per SHAPES row | re-collected after naming; kept on the instance as `memory_regions`; kept on the instance as `generator_regions` (R826-1's probe's name): each refused with `region list other than the pieces` and `#791`, after the naming step saw the pieces |
+| `:187-190` | a naming step whose list is not aligned powers of two (`ctrl_memory.cpu_regions` patched to `list`) is refused with `not aligned powers of two` |
+
+| Mutant (`:line`) | Edit | Fails with (`receipts/tcm/run.log`) |
+|---|---|---|
+| `region list check off` (`:69`) | `if stray or not all(` -> `if not all(` | `exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected after naming (None)` |
+| `unaligned pieces let through` (`:71`) | the alignment test -> `True` | `exact_cpu_decode refuses a CPU whose naming step's list is not aligned powers of two (None)` |
+| `the pieces themselves refused` (`:73`) | `if rows != pieces)` -> `if True)` | `exact_cpu_decode hands the CPU's naming step the pieces, before it names the netlist (..., the split CPU's generator may not read its exact region pieces ...: a region list other than the pieces is held at ['VexiiRiscv.memory_regions'] ...)` |
+| `the instance not searched` (`:75`) | the instance dropped from `cpu_region_lists` | `... after naming: kept on the instance (None)` |
+| `the classes not searched` (`:77`) | the classes dropped from `cpu_region_lists` | `... after naming: re-collected after naming (None)` |
+| `naming guard off` (round 1's, now caught by name) | `if not named:` -> `if False:` | `exact_cpu_decode refuses a CPU whose finalize never names its netlist (the split CPU's generator may not read its exact region pieces []: ...)` |
+
+R826-1's own probes, run unchanged on this head:
+- `guard_probe.py` (`receipts/probes/guard_probe.log`): `list re-collected after naming: refused`, `list kept on
+  the instance: refused`; both were `BUILT SINGLE-MASK SILENTLY` at `03447eaa`. `pinned order: built exact`.
+- `cpupatches_probe.py` (`receipts/probes/cpupatches_probe.log`): `cover` builds with the shipping split and
+  refuses with the split undone or the hookup absent, as at `03447eaa`; `as-built` builds and hands over the
+  whole regions in every case, and now records the SoC's regions with the hookup absent too.
+
+## Netlist identity (the ruling's STOP condition: not met)
+
+`receipts/gates/netlist-identity.log`, rc 0, `tools/netlist_identity.py`; one environment (`PYTHONHASHSEED=0`)
+for both heads. LiteX names a netlist by an MD5 over every generator input, so one name at both heads is one
+generator input, and both builds elaborate the one cached file:
+
+| CPU | `596e2ae3` | `03447eaa` | cached netlist sha256 |
+|---|---|---|---|
+| region test, shipping | `88c5cdf9` | `88c5cdf9` | `6b5a22fc...` |
+| region test, single-mask control | `18be4f88` | `18be4f88` | `d425a0e7...` (= R826-1's as-built netlist) |
+| region test, cover control | `57948043` | `57948043` | `b47ecbdf...` |
+| product split export, 1x1 and 8x8 | `f8b27436` | `f8b27436` | `c9ce67a1...` (= round 1's `decode/` receipt) |
+| split boot, 1x1 and 8x8 | `99bc789b` | R826-1 records `99bc789b` for both | `1fde79b5...` |
+
+No run logged a generator command: every netlist was read from the cache, none generated. All-fabric:
+`receipts/allfabric/allfabric-compare.txt`, base `1d6bf555` against `596e2ae3`, every shipped config: every
+builder output identical; CPU netlist names and bytes identical (AX7101 `f5f08b17`, Arty `7c73187a`, whose export
+LiteX's PLL search refuses after naming, at base and head alike); at AX7101 the top Verilog, `csr.csv` and `soc.h`
+differ in comment lines only (generation timestamps), as at round 1; `0 failure(s)`.
+
+## Gate table (head `596e2ae3`, clean clones of it; receipts under `receipts/`, index `receipts/INDEX.md`)
+
+| Gate | rc | Result | Receipt |
+|---|---|---|---|
+| `test_ctrl_memory.py` (every mutant, and the new guard checks) | 0 | 182 `[ok  ]`, 0 `[FAIL]`, `test_ctrl_memory: 0 failure(s)`, `RESULT: PASS` | `tcm/` |
+| region-decode `run.py --self-test` | 0 | `SELF-TEST PASS none: fails 0 check(s), wants 0`; `single-mask: fails 4, wants 4`; `cover: fails 6, wants 6`; `ctrl_region_decode self-test: PASS` | `region-decode/` |
+| split export decode check (product split export, 1x1 and 8x8) | 0 | both: fetch and load `DECODE PASS`, one netlist `f8b27436` | `decode/` |
+| all-fabric export compare, every shipped config, base `1d6bf555` | 0 | identical (above), `0 failure(s)` | `allfabric/` |
+| netlist identity against `03447eaa` | 0 | `0 difference(s)`, no netlist generated | `gates/netlist-identity.*` |
+| R826-1's guard and CpuPatches probes | 0 | both silent shapes refused | `probes/` |
+| split boot 1x1 / 8x8 | 0 / 0 | `ctrl_split_boot: PASS (0 finding(s))`, ready 84.425 ms / 184.695 ms, trace's first 18 equal; as round 1 | `boot/` |
+| S2 harness `--self-test` | 0 | `self-test: 0 failures` | `budget/selftest.*` |
+| S2 harness 1x1/1if (`--record-budget-findings`) | 0 | `18 groups graded, 0 refusals, 34 T_svc misses (34 of 141 probe instances, 13 of 81 paths)`; round 1's line | `budget/1x1.*` |
+| S2 harness 8x8/2if (`--record-budget-findings`) | 0 | `17 groups graded, 0 refusals, 63 T_svc misses (63 of 182 probe instances, 31 of 129 paths)`; round 1's line | `budget/8x8.*` |
+| `git diff --check` against the merge base `1d6bf555` | 0 | no output | `gates/diff-check.*` |
+| full sweep: 4 native-shards units, `MAKEFLAGS=-j4 --no-print-directory`, CPUs 0-7, 40-47, 60-63, 64-71; shard 2 (capture_coherence) on 60-63, 4 CPUs | 0, 0, 0, 0 | 65 suites (15 + 17 + 17 + 16), 65 passed, 0 timed out; 2,192,899 checks, 0 in-suite failures. No #833 failure this run, so no re-run | `sweep/` |
+| workflow replay: every `run:` step of docs, elaborate, rtl-fast (firmware-boundary in the LiteX venv, firmware-verilator) and rtl, 69 job instances, each on its own clean clone of the head | 0 | `497 steps ran, 0 failed or missing; 110 not run, each with its reason`. 68 instances success; `physical-gptp` skipped by its own `if:`. The 110: 41 APT resolutions (no apt here; the packages are installed), 28 sweep-shard and union steps (run once as the sweep above), 27 source builds of the pinned Verilator and Yosys (already built here), 13 hosted GitHub API steps, the skipped job | `ci/replay-table.md`, `ci/not_run.json` |
+| elaborate-gates-1 first attempt (moved aside, re-run once) | 92 | `TIMEOUT test_soc_timing_cuts (900s wall clock - result UNKNOWN, not a failure)` at host load about 100; `elaborate` then refused (`elaborate-gates-1: dependent job failed`). `test_soc_timing_cuts` does not reach the split path (no `ctrl_mailbox`, `ctrl_memory` or `exact_cpu_decode` in it). Re-run: `PASS test_soc_timing_cuts`, `simulations: 8 passed: 8`; `elaborate`, its manifest and cancel tail then success | `ci/attempt-1-*`, `ci/attempt-2-elaborate-gates-1-gate_19.log` |
+| check_py_idiom.py, docs_check.py, check_doc_paths.py, check_doc_style.py | 0 | in the lane before commit; and in the replay (docs-gates-0) | `ci/replay-table.md` |
+
+The replay runs the round's listed gates as the workflows run them: `test_builder.py --require-rv32` (docs-gates-1
+and -2, builder legs 0 and 1), behave (rtl-fast bdd-conformance), `test_ctrl_firmware.py --require-rv32
+--self-test` in four shards (firmware-unit and the three firmware mutant jobs), which drives every firmware mutant
+driver (`acmp`, `acmp_review`, `aecp`, `ctrl`, `maap`, `plat`, `srp`, `srp_pub`), `fw_coverage.py --check`
+(firmware-unit), firmware-boundary in the LiteX venv, and firmware-verilator. Every `run:` step of docs.yml is in
+the replay (the docs jobs).
+
+Replay tool changes this round (in `tools/ci/`, not in the tree): its scratch paths and unit names; `local` also
+waits while the host has under 20 GB available (the rule for running beside the sweep); `tick` claims an instance
+before launching it, as `local` does, so the two never run one instance twice. While the sweep ran, MemAvailable fell
+to 1.7 GB for a few minutes from another lane's two Vivado runs (27 GB together); my unit held 4.6 GB. The four
+round-1-code loops were stopped by PID between jobs (their running jobs finished and wrote their results) and
+replaced by memory-aware loops.
+
+## Not done / limits
+
+- The guard reads the region lists held on the CPU and its classes after LiteX's finalize; a re-pin that hands the
+  generator a list held nowhere on the CPU is caught only by the split export check and the region simulation at
+  the re-pin (now named in the re-pin procedure). Stated in the PR body's limits.
+- Physical calibration NOT RUN; no hardware, bench, Vivado route or flash was used.
+- Hosted contexts at this head: not read (nothing pushed).
+
+## Scratch
+
+Round 3 added clones `head3`, `head3-pd`, `head3-af` (at `c7e4badb`), the runs under `r3/`, the replay's
+`ci/c7e4badb4caf/` (docs jobs and the three moved-aside attempts), `pd3/` and `allfabric3/`.
+
+`/data-2/milan/tmp/791-a765c` (4.7 GB): clones (base, r1, r1-pd, head, head-pd, head-af, head-sims), final/ (this
+head's runs), r1/ (the runs at `03447eaa`), superseded/ (runs at `d91e8ef1` and `1b77f2a5`, cited by no receipt
+except the one link-gate log), ci/ (replay jobs, attempts, the superseded head's three jobs), tmpci/, sweep/.
+Shard clones `$LANES/791-a765c-shard0..3`. No generator netlist was added to the shared cache by this
+session (newest entry 14:53, before it started; no run logged a generator command).

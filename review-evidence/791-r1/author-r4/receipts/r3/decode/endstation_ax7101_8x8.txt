@@ -1,0 +1,43 @@
+shape endstation_ax7101_8x8 (config endstation_ax7101_8x8), split export: the builder argv + --ctrl-mailbox --ctrl-firmware
+netlist VexiiRiscvLitex_f8b2743639f353f9ded505dea4bbc545.v sha256 c9ce67a1b715fe06bb5d95f1482c5196048f01c6279c785a056b86361d4310b4 (1600812 bytes)
+normalised sha256 (netlist name replaced) 6acdddda9ddc0772637e7510ae9a1e725dc474c698e444509c416e6047452d46
+rows LiteX collected (handed to ctrl_memory.cpu_regions):
+  [0x00000000, +0x38000) rxc p
+  [0x10000000, +0x38000) rwxc p
+  [0x40000000, +0x40000000) rwxc m
+  [0x01000000, +0x1000000) rxc p
+  [0x90000000, +0x10000) rw p
+  [0x90100000, +0x8000) rw p
+  [0xf0000000, +0x10000) rw p
+rows the generator was handed:
+  [0x00000000, +0x20000) rxc p
+  [0x00020000, +0x10000) rxc p
+  [0x00030000, +0x8000) rxc p
+  [0x10000000, +0x20000) rwxc p
+  [0x10020000, +0x10000) rwxc p
+  [0x10030000, +0x8000) rwxc p
+  [0x40000000, +0x40000000) rwxc m
+  [0x01000000, +0x1000000) rxc p
+  [0x90000000, +0x10000) rw p
+  [0x90100000, +0x8000) rw p
+  [0xf0000000, +0x10000) rw p
+the CPU devices (csr.csv linker rows): [0xf0c00000, +0x400000), [0xf0010000, +0x10000)
+the netlist bus decoder, one compare per row:
+  assign argsHits_0_addrHit = (|((addrKey & 32'hc0000000) == 32'h40000000));
+  assign argsHits_1_addrHit = (|((addrKey & 32'hffff0000) == 32'hf0010000));
+  assign argsHits_2_addrHit = (|((addrKey & 32'hffc00000) == 32'hf0c00000));
+  assign argsHits_3_addrHit = (|((addrKey & 32'hfffe0000) == 32'h0));
+  assign argsHits_4_addrHit = (|((addrKey & 32'hffff0000) == 32'h00020000));
+  assign argsHits_5_addrHit = (|((addrKey & 32'hffff8000) == 32'h00030000));
+  assign argsHits_6_addrHit = (|((addrKey & 32'hfffe0000) == 32'h10000000));
+  assign argsHits_7_addrHit = (|((addrKey & 32'hffff0000) == 32'h10020000));
+  assign argsHits_8_addrHit = (|((addrKey & 32'hffff8000) == 32'h10030000));
+  assign argsHits_9_addrHit = (|((addrKey & 32'hff000000) == 32'h01000000));
+  assign argsHits_10_addrHit = (|((addrKey & 32'hffff0000) == 32'h90000000));
+  assign argsHits_11_addrHit = (|((addrKey & 32'hffff8000) == 32'h90100000));
+  assign argsHits_12_addrHit = (|((addrKey & 32'hffff0000) == 32'hf0000000));
+the netlist PMA fault terms:
+  assign FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault = (! ((|{((FetchL1Plugin_pmaBuilder_addressBits & 32'hc0000000) == 32'h40000000),{((FetchL1Plugin_pmaBuilder_addressBits & 32'hff000000) == 32'h01000000),{((FetchL1Plugin_pmaBuilder_addressBits & _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault) == 32'h0),{(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_1 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_2),(_zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_3 == _zz_FetchL1Plugin_logic_ctrl_pmaPort_rsp_fault_4)}}}}) && (|FetchL1Plugin_pmaBuilder_onTransfers_0_hit)));
+  assign LsuCachelessPlugin_logic_onPma_port_rsp_fault = (! ((|{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hc0000000) == 32'h40000000),{((LsuCachelessPlugin_pmaBuilder_addressBits & _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault) == 32'h01000000),{(_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 == _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2),{_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3,{_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4,_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5}}}}}) && (|{LsuCachelessPlugin_pmaBuilder_onTransfers_1_hit,LsuCachelessPlugin_pmaBuilder_onTransfers_0_hit})));
+DECODE PASS the fetch decode admits exactly the SoC regions it may fetch: 131072 representatives of 17 bits; admits [0x00000000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000), [0x40000000, 0x80000000); wants the x regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x40000000, 0x80000000), [0x01000000, 0x02000000)
+DECODE PASS the load decode admits exactly the SoC regions it may load: 131072 representatives of 17 bits; admits [0x00000000, 0x00038000), [0x01000000, 0x02000000), [0x10000000, 0x10038000), [0x40000000, 0x80000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0020000), [0xf0c00000, 0xf1000000); wants the r regions [0x00000000, 0x00038000), [0x10000000, 0x10038000), [0x40000000, 0x80000000), [0x01000000, 0x02000000), [0x90000000, 0x90010000), [0x90100000, 0x90108000), [0xf0000000, 0xf0010000), [0xf0c00000, 0xf1000000), [0xf0010000, 0xf0020000)
