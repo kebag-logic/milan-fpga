@@ -1,0 +1,15 @@
+rc=0 git -C protocol-processor merge-base --is-ancestor 044cb25f4ed2187bd238490650e73d5d189855d1 801ef2283ec793e35a2590fc6593c90313a64041
+rc=0 git -C protocol-processor merge-base --is-ancestor 801ef2283ec793e35a2590fc6593c90313a64041 origin/main
+rc=0 git -C gptp-processor merge-base --is-ancestor 1616fc8f062fbf58c35ad31674b5b233207bbdb8 a64be73de32f3ec5084cf908a530218e9006453e
+rc=0 git -C gptp-processor merge-base --is-ancestor a64be73de32f3ec5084cf908a530218e9006453e origin/main
+
+801ef22 Merge pull request #219 from Mister-M-alt/217-available-index
+a64be73 Merge pull request #103 from Mister-M-alt/102-parallel-mutants
+160000 commit a64be73de32f3ec5084cf908a530218e9006453e	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+ docs/TEST_DEVELOPER.md         |  10 +++
+ tb/mutation_jobs_test.py       | 119 +++++++++++++++++++++++++++++++
+ tb/verilator/engine/Makefile   |  16 ++++-
+ tb/verilator/engine/mutants.py | 155 +++++++++++++++++++++++++++++++----------
+ 4 files changed, 260 insertions(+), 40 deletions(-)
+gptp hdl+syn diff lines: 0

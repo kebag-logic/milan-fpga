@@ -1,0 +1,797 @@
+<tools>/pinned-verilator-5.050/verilator crflic_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -GDIAG_TICK_CYC_P=200000 --Mdir obj_crflic -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_crf_licence.cpp -o Vmilan_dp_crflic
+make[1]: Entering directory '<scratch>/wk/tb/verilator/milan_dp/obj_crflic'
+g++  -I.  -MMD -I<containers>/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<containers>/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -Wall -Wextra   -Os  -c -o sim_crf_licence.o ../sim_crf_licence.cpp
+../sim_crf_licence.cpp:1605:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_tspec_open()’ defined but not used [-Wunused-function]
+ 1605 | void CrfLicenceHarness::phase_tspec_open() {
+      |      ^~~~~~~~~~~~~~~~~
+g++    sim_crf_licence.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_crflic
+make[1]: Leaving directory '<scratch>/wk/tb/verilator/milan_dp/obj_crflic'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 5.185 s (elab=0.000, cvt=0.000, bld=5.172); cpu 0.004 s on 8 threads; allocated 16.637 MB
+./obj_crflic/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim started
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count  got=2 exp=2
+  [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  [t]       25.56 ms  listener PROBE_TX, uid 1 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 0 (1)
+  [t]       28.21 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]       34.04 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]     1802.52 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1802.52 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)               got=1 exp=1
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 2125.42 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  [t]     4028.21 ms  listener PROBE_TX, uid 1 (2)
+  [t]     4030.86 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]     4034.04 ms  listener PROBE_TX, uid 0 (2)
+  [t]     4036.69 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]     4070.86 ms  switch declares the FIRST Listener Ready, uid 1
+  [t]     4071.94 ms  CRF licence RISES, uid 1
+  [t]     4071.94 ms  ACTIVE RISES, uid 1
+  [t]     4076.69 ms  switch declares the FIRST Listener Ready, uid 0
+  [t]     4189.84 ms  first AAF PDU on the wire
+  [t]     4423.95 ms  first CRF PDU on the wire
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=407194 exp=407194
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=407777 exp=407777
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [t]     7025.64 ms  switch withdraws its Listener (Lv), uid 0
+  [t]    10204.14 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=702672 exp=702672
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [t]    19202.21 ms  DUT Talker Advertise LEAVE, uid 0
+  [t]    20194.14 ms  switch LeaveAll MRPDU (Run B layout) (1)
+  [t]    33203.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    43193.49 ms  switch LeaveAll MRPDU (Run B layout) (2)
+  [t]    53603.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    63593.49 ms  switch LeaveAll MRPDU (Run B layout) (3)
+  [t]    73803.49 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    3 DUT and 3 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+  [i]    3 DUT LeaveAll MRPDUs followed a switch LeaveAll, the soonest 10210.00 ms after it
+  [PASS] each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    154 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 154, 154 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX follows wire PDUs (one in-flight completion permitted)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=154 exp=154
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [t]    80025.60 ms  listener PROBE_TX, uid 1 (3)
+  [t]    80028.25 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]    80526.68 ms  CRF licence FALLS, uid 1
+  [t]    80526.68 ms  ACTIVE FALLS, uid 1
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8052668 exp=8052668
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [t]    82526.68 ms  CRF licence RISES, uid 1
+  [t]    82526.68 ms  ACTIVE RISES, uid 1
+  [t]    83793.49 ms  switch LeaveAll MRPDU (Run B layout) (4)
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8252668 exp=8252668
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: only new-run wire PDUs (one in flight)
+[E] the CRF listener unbinds inside a fresh probe window
+  [t]    85025.60 ms  switch withdraws its Listener (Lv), uid 1
+  [t]    85026.68 ms  CRF licence FALLS, uid 1
+  [t]    85026.68 ms  ACTIVE FALLS, uid 1
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8502668 exp=8502668
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+  -- source uid 0 (AAF PCM32 48 kHz), 27 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output, 1 ts/pdu), 104 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- against the wire
+  [PASS] the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet      got=29 exp=29
+  [PASS] the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet      got=217 exp=217
+[MVRPLA] #857 (processor #216): every declaration withdrawn; the LeaveAll state machines run on (IEEE 802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3)
+  [PASS] every DA gate closed and every Talker Advertise was withdrawn within 20 s
+  [i]    nothing declared from 95036 ms; VID 2 Lv at 95208 ms
+  [PASS] the DUT sent VID 2 Lv when its last user left (Table 10-3 Lv!: sL)
+  [PASS] ...and VID 2's last message is that Lv                             got=5 exp=5
+  [PASS] after the Lv no MVRP message declares a VID (no New, JoinIn or JoinMt) got=0 exp=0
+  -- MVRP, nothing declared: 3 LeaveAll MRPDUs after the withdrawal, at 99401 113601 126601 ms
+  [PASS] MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal
+  [PASS] MVRP, nothing declared: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest 13000, longest 14600 ms)
+  [PASS] MVRP, nothing declared: and none overdue at the end of the phase
+  -- MSRP, the Domain alone: 3 LeaveAll MRPDUs after the withdrawal, at 96203 107003 120403 ms
+  [PASS] MSRP, the Domain alone: at least two LeaveAll MRPDUs after the withdrawal
+  [PASS] MSRP, the Domain alone: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest 10800, longest 13400 ms)
+  [PASS] MSRP, the Domain alone: and none overdue at the end of the phase
+[G/H] #551: real admission ceiling and both round phases
+  [t]   128035.64 ms  listener PROBE_TX, uid 0 (3)
+  [t]   128035.64 ms  listener PROBE_TX, uid 1 (4)
+  [t]   128038.29 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]   128044.12 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 0, admission phase 0: refused re-declaration
+  [t]   128617.56 ms  listener PROBE_TX, uid 0 (4)
+  [t]   128620.21 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13121995 exp=13121995
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+[H] source 0, admission phase 0: admitted re-declaration
+  [t]   133720.63 ms  listener PROBE_TX, uid 0 (5)
+  [t]   133723.28 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13632303 exp=13632303
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=0 ACTIVE=13632304 grant=13632309 licence=13632309 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 0, admission phase 0: refused re-declaration
+  [t]   138823.67 ms  listener PROBE_TX, uid 0 (6)
+  [t]   138826.32 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14142607 exp=14142607
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+[J] source 0, admission phase 0: admitted re-declaration
+  [t]   143926.75 ms  listener PROBE_TX, uid 0 (7)
+  [t]   143929.40 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=14652915 exp=14652915
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=0 ACTIVE=14652916 grant=14652921 licence=14652921 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 0, admission phase 1: refused re-declaration
+  [t]   149029.79 ms  listener PROBE_TX, uid 0 (8)
+  [t]   149032.44 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15163218 exp=15163218
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+[H] source 0, admission phase 1: admitted re-declaration
+  [t]   154132.86 ms  listener PROBE_TX, uid 0 (9)
+  [t]   154135.51 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=15673526 exp=15673526
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=1 ACTIVE=15673527 grant=15673532 licence=15673532 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 0, admission phase 1: refused re-declaration
+  [t]   159235.90 ms  listener PROBE_TX, uid 0 (10)
+  [t]   159238.55 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16183830 exp=16183830
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+[J] source 0, admission phase 1: admitted re-declaration
+  [t]   164338.98 ms  listener PROBE_TX, uid 0 (11)
+  [t]   164341.63 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=16694138 exp=16694138
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=1 ACTIVE=16694139 grant=16694144 licence=16694144 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 1, admission phase 0: refused re-declaration
+  [t]   169623.94 ms  listener PROBE_TX, uid 1 (5)
+  [t]   169626.59 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   172226.34 ms  ACTIVE RISES, uid 1
+  [t]   172226.42 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17222633 exp=17222633
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=160 exp=160
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=160 exp=160
+[H] source 1, admission phase 0: admitted re-declaration
+  [t]   174727.05 ms  listener PROBE_TX, uid 1 (6)
+  [t]   174729.70 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   177329.46 ms  ACTIVE RISES, uid 1
+  [t]   177329.49 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17732945 exp=17732945
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=0 ACTIVE=17732946 grant=17732949 licence=17732949 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 1, admission phase 0: refused re-declaration
+  [t]   179830.09 ms  listener PROBE_TX, uid 1 (7)
+  [t]   179832.74 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   180330.10 ms  CRF licence FALLS, uid 1
+  [t]   180330.10 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   182432.50 ms  ACTIVE RISES, uid 1
+  [t]   182432.58 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=18243249 exp=18243249
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=166 exp=166
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=166 exp=166
+[J] source 1, admission phase 0: admitted re-declaration
+  [t]   184933.21 ms  listener PROBE_TX, uid 1 (8)
+  [t]   184935.86 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   187535.62 ms  ACTIVE RISES, uid 1
+  [t]   187535.65 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=18753561 exp=18753561
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=0 ACTIVE=18753562 grant=18753565 licence=18753565 added_cycles=3
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+[G] source 1, admission phase 1: refused re-declaration
+  [t]   190036.25 ms  listener PROBE_TX, uid 1 (9)
+  [t]   190038.90 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   190536.26 ms  CRF licence FALLS, uid 1
+  [t]   190536.26 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   192638.65 ms  ACTIVE RISES, uid 1
+  [t]   192638.75 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=19263864 exp=19263864
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=172 exp=172
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=172 exp=172
+[H] source 1, admission phase 1: admitted re-declaration
+  [t]   195139.36 ms  listener PROBE_TX, uid 1 (10)
+  [t]   195142.01 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   197741.77 ms  ACTIVE RISES, uid 1
+  [t]   197741.82 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=19774176 exp=19774176
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=1 ACTIVE=19774177 grant=19774182 licence=19774182 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[I] source 1, admission phase 1: refused re-declaration
+  [t]   200242.40 ms  listener PROBE_TX, uid 1 (11)
+  [t]   200245.05 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   200742.41 ms  CRF licence FALLS, uid 1
+  [t]   200742.41 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   202844.81 ms  ACTIVE RISES, uid 1
+  [t]   202844.91 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=20284480 exp=20284480
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=178 exp=178
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=178 exp=178
+[J] source 1, admission phase 1: admitted re-declaration
+  [t]   205345.52 ms  listener PROBE_TX, uid 1 (12)
+  [t]   205348.17 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   207947.93 ms  ACTIVE RISES, uid 1
+  [t]   207947.98 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=20794792 exp=20794792
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=1 ACTIVE=20794793 grant=20794798 licence=20794798 added_cycles=5
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   210448.57 ms  CRF licence FALLS, uid 1
+  [t]   210448.57 ms  ACTIVE FALLS, uid 1
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+[ONEVEC] processor #214: every DUT MRPDU carries each attribute value at most once
+  [i]    412 MSRP and 193 MVRP MRPDUs, 685 values; 17 MRPDUs carry two vectors of one AttributeType
+  [PASS] the DUT sent MSRP and MVRP MRPDUs
+  [PASS] every DUT MRPDU walks to its EndMark                               got=0 exp=0
+  [PASS] no DUT MRPDU carries one attribute value in two VectorAttributes (802.1Q-2022 10.7.7, 10.7.5.13 c)) got=0 exp=0
+[MRPAPP] #860 (processor #216): a declaration's New on two transmissions, then its Join (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3)
+  -- MSRP Domain {class A, 3, VID 2}: first messages 0 0 1 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] MSRP Domain {class A, 3, VID 2}: the DUT sent it at least three times
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 1 is New (VN tx!: sN)     got=0 exp=0
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] MSRP Domain {class A, 3, VID 2}: message 3 is the Join, JoinIn: the switch's Domain registered at boot (10.7.6.3) got=1 exp=1
+  -- MVRP VID 2: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] MVRP VID 2: the DUT sent it at least three times
+  [PASS] MVRP VID 2: message 1 is New (VN tx!: sN)                          got=0 exp=0
+  [PASS] MVRP VID 2: message 2 is New again (AN tx!: sN)                    got=0 exp=0
+  [PASS] MVRP VID 2: message 3 is the Join, JoinMt: no MVRPDU reached the DUT, its Registrar is MT (10.7.6.3) got=3 exp=3
+  -- Talker Advertise of source uid 0: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] Talker Advertise of source uid 0: the DUT sent it at least three times
+  [PASS] Talker Advertise of source uid 0: message 1 is New (VN tx!: sN)    got=0 exp=0
+  [PASS] Talker Advertise of source uid 0: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] Talker Advertise of source uid 0: message 3 is the Join, JoinMt: no peer declares a Talker Advertise (10.7.6.3) got=3 exp=3
+  -- Talker Advertise of source uid 1: first messages 0 0 3 (0 New, 1 JoinIn, 3 JoinMt)
+  [PASS] Talker Advertise of source uid 1: the DUT sent it at least three times
+  [PASS] Talker Advertise of source uid 1: message 1 is New (VN tx!: sN)    got=0 exp=0
+  [PASS] Talker Advertise of source uid 1: message 2 is New again (AN tx!: sN) got=0 exp=0
+  [PASS] Talker Advertise of source uid 1: message 3 is the Join, JoinMt: no peer declares a Talker Advertise (10.7.6.3) got=3 exp=3
+  [i]    190 MVRP VID values and 227 Talker Advertise values in the run
+  [PASS] no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3) got=0 exp=0
+  [PASS] no Talker Advertise JoinIn in the whole run: none was ever registered (10.7.6.3) got=0 exp=0
+--------------------------------------------------------------
+simulated 210548.56 ms (21054856 cycles)
+checks: 458   failures: 0
+RESULT: PASS
+<tools>/pinned-verilator-5.050/verilator crflic_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -GDIAG_TICK_CYC_P=200000 --Mdir obj_tspec8 -GN_STREAMS=8 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -DSOURCES_TB=9 -DTSPEC_ONLY_TB=1 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_crf_licence.cpp -o Vmilan_dp_tspec8
+make[1]: Entering directory '<scratch>/wk/tb/verilator/milan_dp/obj_tspec8'
+g++  -I.  -MMD -I<containers>/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<containers>/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -DSOURCES_TB=9 -DTSPEC_ONLY_TB=1 -Wall -Wextra   -Os  -c -o sim_crf_licence.o ../sim_crf_licence.cpp
+../sim_crf_licence.cpp:1645:6: warning: ‘void {anonymous}::CrfLicenceHarness::grade_invariants()’ defined but not used [-Wunused-function]
+ 1645 | void CrfLicenceHarness::grade_invariants() {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1559:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_real_grant()’ defined but not used [-Wunused-function]
+ 1559 | void CrfLicenceHarness::phase_real_grant() {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1424:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_e()’ defined but not used [-Wunused-function]
+ 1424 | void CrfLicenceHarness::phase_e() {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1396:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_d()’ defined but not used [-Wunused-function]
+ 1396 | void CrfLicenceHarness::phase_d() {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1367:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_f_after_c(uint64_t)’ defined but not used [-Wunused-function]
+ 1367 | void CrfLicenceHarness::phase_f_after_c(uint64_t t_start) {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1326:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_c(uint64_t)’ defined but not used [-Wunused-function]
+ 1326 | void CrfLicenceHarness::phase_c(uint64_t t0) {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1306:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_b2(uint64_t)’ defined but not used [-Wunused-function]
+ 1306 | void CrfLicenceHarness::phase_b2(uint64_t t0) {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1274:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_b(uint64_t)’ defined but not used [-Wunused-function]
+ 1274 | void CrfLicenceHarness::phase_b(uint64_t t0) {
+      |      ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1234:10: warning: ‘uint64_t {anonymous}::CrfLicenceHarness::phase_a()’ defined but not used [-Wunused-function]
+ 1234 | uint64_t CrfLicenceHarness::phase_a() {
+      |          ^~~~~~~~~~~~~~~~~
+../sim_crf_licence.cpp:1035:6: warning: ‘void {anonymous}::CrfLicenceHarness::phase_nothing_declared()’ defined but not used [-Wunused-function]
+ 1035 | void CrfLicenceHarness::phase_nothing_declared() {
+      |      ^~~~~~~~~~~~~~~~~
+g++    sim_crf_licence.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_tspec8
+make[1]: Leaving directory '<scratch>/wk/tb/verilator/milan_dp/obj_tspec8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 5.240 s (elab=0.000, cvt=0.000, bld=5.223); cpu 0.005 s on 8 threads; allocated 16.637 MB
+./obj_tspec8/Vmilan_dp_tspec8
+=== #774 TSpec per source, 9 talker sources, 8 wire channels, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim started
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count  got=9 exp=9
+  [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] every source probed: MAAP grants and the DUT declares each one
+  [t]       25.56 ms  listener PROBE_TX, uid 0 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 1 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 2 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 3 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 4 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 5 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 6 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 7 (1)
+  [t]       25.56 ms  listener PROBE_TX, uid 8 (1)
+  [t]       28.21 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]       34.04 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]       39.87 ms  PROBE_TX answered, status, uid 2 (3)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 2 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 3 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 4 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 5 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 6 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 7 (0)
+  [t]     1807.54 ms  DUT Talker Advertise first on the wire, uid 8 (0)
+  [PASS] KL_maap reached ANNOUNCE (a block of one address per source is claimed) got=1 exp=1
+  -- source uid 0 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 1 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 2 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 3 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 4 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 5 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 6 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 7 (AAF)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+  -- source uid 8 (CRF Media Clock Output)
+  [PASS] ...MAAP's grant opens the DA gate
+  [PASS] the DUT declares Talker Advertise on the wire
+[TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+  -- source uid 0 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 1 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 2 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 3 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 4 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 5 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 6 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 7 (AAF PCM32 48 kHz), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 8 (CRF Media Clock Output, 1 ts/pdu), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 3925.60 ms (392560 cycles)
+checks: 61   failures: 0
+RESULT: PASS
+python3 crflic_mutants.py
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] the unmutated gateware still passes the obj_tspec8 leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+[PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 1x1 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 8x8 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: the intake takes every push twice and the SRP encoder never merges (before processor #214) - breaks "no DUT MRPDU carries one attribute value in two VectorAttributes"
+[PASS] mutant caught: LINK_UP declares the Domain in AN, so one New goes out (before processor #216) - breaks "MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN)"
+[PASS] mutant caught: a VID's first join enters AN, so one New goes out (before processor #216) - breaks "MVRP VID 2: message 2 is New again (AN tx!: sN)"
+[PASS] mutant caught: every VID Join is JoinIn whatever its Registrar (before processor #216) - breaks "no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3)"
+[PASS] mutant caught: an MVRP drain needs a pending VID, so nothing declared sends no LeaveAll (before processor #216) - breaks "MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal"
+
+15 checks: 15 PASS, 0 FAIL
+WALL_S=4379

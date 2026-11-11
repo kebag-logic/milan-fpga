@@ -1,0 +1,29 @@
+# the two reviewers' F1 probes, unchanged, run with -I on a clean clone at 3c58b143eac812d173b4326423c030b65ec63f9a
+$ python3 -I probe_cpp_multidecl.py <clone>   (R832-1; sha256 25fba1ba10af4dec)
+real base head  line
+   1    1    0  uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+   2    1    1  uint32_t a[2] = {0, 0}, b = 1;
+   2    1    1  int a{1}, b{2};
+   2    1    1  int a, b;
+   1    0    0  int a = 1;
+   1    1    0  uint32_t m[2][2] = {{0, 0}, {0, 0}};
+   2    1    1  uint32_t m[2][2] = {{0, 0}, {0, 0}}, n = 1;
+   2    1    1  int n = 1, m[2][2] = {{0, 0}, {0, 0}};
+   2    1    1  uint8_t k[3] = {1, 2, 3}, *p = k;
+rc=0
+
+$ python3 -I probe_cpp_edges.py <clone>   (R831-1; sha256 32dc9a5f5a4d10eb)
+'int a[2][2] = {{1, 2}, {3, 4}}, b = 0;' 1
+'int a[2][2] = {{1, 2}, {3, 4}};' 0
+'int a = 1, b = 2;' 1
+'uint32_t x[3] = {1, 2, 3};' 0
+'int a{1}, b{2};' 1
+'int a = f(1, 2), b;' 0
+rc=0
+
+$ python3 -I probe_cpp_old_regex.py <clone> --selftest   (R831-1: dev's pattern swapped in)
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int m[2][2] = {{1, 2}, {3, 4}};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int c[1][1][2] = {{{1, 2}}};
+83 checks: 80 PASS, 3 FAIL
+rc=0

@@ -1,0 +1,15 @@
+# planted controls for #883 F1 in a clean clone at 3c58b143eac812d173b4326423c030b65ec63f9a; each plant replaces one line of scripts/check_cpp_idiom.py, runs --selftest, and is restored
+== dev-46c971fa-pattern: planted 'MULTI_DECL_RE = re.compile(\n    rf"^[ \\t]*{_DECL_TYPE}[ \\t]+\\**[A-Za-z_]\\w*[^;()\\n]*,[^;()\\n]*;[ \\t]*$", re.M)'
+   rc=1; 83 checks: 80 PASS, 3 FAIL
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): int m[2][2] = {{1, 2}, {3, 4}};
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): int c[1][1][2] = {{{1, 2}}};
+== flat-braces-e18c8225: planted '_DECL_TEXT = r"(?:[^;(){}\\n]|\\{[^{}\\n]*\\})*"'
+   rc=1; 83 checks: 80 PASS, 3 FAIL
+   [FAIL] two declarators beside a brace initialiser are a finding: int m[2][2] = {{1, 2}, {3, 4}}, b = 0;
+   [FAIL] two declarators beside a brace initialiser are a finding: int n = 1, m[2][2] = {{0, 0}, {0, 0}};
+   [FAIL] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+== one-nested-level: planted '_DECL_TEXT = r"(?:[^;(){}\\n]|\\{(?:[^{}\\n]|\\{[^{}\\n]*\\})*\\})*"'
+   rc=1; 83 checks: 82 PASS, 1 FAIL
+   [FAIL] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+restored; git status --porcelain empty
