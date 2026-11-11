@@ -824,8 +824,11 @@ def owed_group(p: Point) -> Group:
                   owed=tuple(0x7380 + n for n in range(OWED_AHEAD)))
     g.probe(probe, f'frame 0 {get(0x7380 + OWED_AHEAD).hex()}', wait=f'drained within {10 * MS}', settle='')
     g.load['acmp'] += 1
-    # Each command behind the input is a path too: the core owes at most ACMP_OWED_MAX
-    # responses (tsn-c-stack acmp.h), so one it takes beyond them may never be answered.
+    # Each command behind the input is a path too. The core owes at most ACMP_OWED_MAX
+    # responses (tsn-c-stack acmp.h): at tsn-c-stack 70936b77 it dropped a command beyond
+    # them, never answered; since 715589c it declines it and the ACMP adapter keeps and
+    # answers it (tsn-c-stack#26). may_drop reports a response that never comes as a
+    # measured finding, not a refusal, at either pin.
     for n in range(behind):
         name = f'backlog.owed_behind{n}.if0'
         g.probes.append(Probe(name, 'an ACMP command behind the owed input', 'acmp', f'rxc:{acmp}',

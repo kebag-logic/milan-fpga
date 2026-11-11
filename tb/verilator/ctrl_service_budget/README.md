@@ -550,10 +550,11 @@ Every window committed exactly its defined load (the run refuses one that did no
   The mailbox posts a TICK every 10 ms, so a pass longer than 10 ms always leaves one pending, and SRP takes nothing.
   In arm A's `backlog-adp` and `backlog-adp-refill`, after the bind, every pass is over 10 ms: none of SRP's 32 records is released in windows of 568 to 659 ms, at both points.
   Where SRP is served its first record waits 66 to 144 ms and its 32nd up to 341 ms, against MRP's 18 ms ceiling, in both arms.
-- **The ACMP core drops the commands it cannot owe.**
-  The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; `room()` counts a busy drop).
-  With the egress held and eight responses owed, the core takes the commands behind and never answers them.
-  At 1x1 none of the four commands behind the owed input is ever answered, in either arm; at 8x8 two of the four are, after 176.52 and 188.27 ms, and two are not. Their controller sees no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expires.
+- **At tsn-c-stack `70936b77` the ACMP core dropped the commands it could not owe.**
+  The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; at `70936b77` `room()` counted a busy drop).
+  With the egress held and eight responses owed, the core at that pin took the commands behind and never answered them.
+  At 1x1 none of the four commands behind the owed input was ever answered, in either arm; at 8x8 two of the four were, after 176.52 and 188.27 ms, and two were not. Their controller saw no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expired.
+  Since `715589c` the core declines those commands instead (tsn-c-stack#26, ACMP-12), and the ACMP adapter keeps each and offers it again once a frame leaves (`acmp_mbx.h`, THE KEPT COMMAND): PR #892 records every command behind the owed input answered at both points with `715589c`, against none at 1x1 and two of four at 8x8 at `70936b77`.
 - **Notification fan-out costs a recipient 11,786 to 22,030 CPU cycles** (11,818 to 20,486 in arm A), so 16 registrations take 7.77 to 14.80 ms at 1x1 (7.77 to 11.33 in arm A) and 32 take 12.39 to 32.78 ms at 8x8 (12.39 to 22.98 in arm A).
   SET_NAME misses T_svc at both points, and at 1x1 so do arm B's SET_STREAM_INFO (11.68 ms) and BIND_RX's GET_STREAM_INFO notice (14.80 ms).
   Every fan-out misses it at 8x8, and there BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
@@ -572,7 +573,7 @@ Every window committed exactly its defined load (the run refuses one that did no
     Each record ahead of an input therefore costs up to a whole pass, and the last record of every loaded channel misses T_svc (the load's service).
   - So a smaller ring or bucket removes whole passes from the ring rows, but no row fits T_svc while one pass can exceed it.
     The refill leg shows the other side: its input arrives behind 4 records instead of 7, but during the longest passes, and takes 88.33 ms against 67.93.
-  - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference is dropped.
+  - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference was dropped at tsn-c-stack `70936b77`; since `715589c` it is declined and kept (THE KEPT COMMAND).
 - **The fixture's AECP retried every millisecond.**
   For each pending change notice, `aecp.c:535-569` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
   The fixture's ports always reported unavailable (firmware `e76a755a`), so after a bind every pass rebuilt the notices: up to 1.57 M cycles, 31 ms, at 1x1.
