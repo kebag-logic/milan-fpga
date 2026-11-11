@@ -1,0 +1,8 @@
+ .github/ci-templates/rtl-fast.yml       |  11 +++
+ .github/workflows/rtl-fast.yml          |  31 +++---
+ docs/testing/CI_WORKFLOWS.md            |  22 +++--
+ scripts/ci_events.py                    |   8 ++
+ sw/firmware/ctrl/maap/README.md         |   4 +-
+ tb/verilator/ctrl_wire_timing/README.md | 163 ++++++++++++++++++++++----------
+ tb/verilator/milan_dp/README.md         |   6 +-
+ 7 files changed, 169 insertions(+), 76 deletions(-)

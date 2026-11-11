@@ -1,0 +1,18 @@
+{
+  "ci_record": "records GitHub's own step results; needs the hosted step context",
+  "ci_packages_17": "resolves the Ubuntu runner's apt package downloads (ci_install_cache.py); this host has no apt, and the packages that job installs are present",
+  "ci_step_6": "installs sv2v into /usr/local/bin with sudo; sv2v v0.0.12 is already installed there",
+  "ci_step_8": "creates a job-private venv for the pip install that follows; the LiteX venv at the pinned revisions with the patch series applied is first on PATH here",
+  "ci_step_10": "pip-installs the LiteX pins into the runner's fresh venv; the LiteX venv at the pins is first on PATH here",
+  "ci_step_13": "downloads sbt 1.10.7 into /opt with sudo; the host's offline sbt and its coursier cache generate the CPU here",
+  "ci_step_14": "places the VexiiRiscv source at the revision LiteX pins in the runner's fresh venv; the LiteX venv here carries it",
+  "ci_step_15": "applies the toolchain patch series to the runner's fresh LiteX; the LiteX venv here carries the series applied",
+  "elaborate-gates-1/ci_step_22": "builds Verilator v5.050 from source on a cache miss; the pinned v5.050 build is on PATH here",
+  "elaborate-gates-1/ci_step_23": "puts /opt/verilator on PATH and runs it from there; the pinned v5.050 build is on PATH here (verilator --version in the gate logs)",
+  "elaborate-gates-0/ci_step_20": "ci_gate_receipts record reads the hosted step context",
+  "elaborate-gates-1/ci_step_26": "ci_gate_receipts record reads the hosted step context",
+  "elaborate/*": "verifies the hosted gate receipts; each gate step ran above",
+  "ci-manifest/*": "CI orchestration: collects a hosted run's runtime evidence",
+  "ci-fail-fast/*": "CI orchestration: watches and cancels a hosted run",
+  "ci-cancel-tail/*": "CI orchestration: cancels a hosted run"
+}
