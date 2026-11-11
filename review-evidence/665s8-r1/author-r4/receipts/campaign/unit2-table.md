@@ -1,0 +1,36 @@
+| Path | N | min us | mean us | max us | min ms | mean ms | max ms | bound ms | margin ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `acmp.bind_rx` | 342 | 389.040 | 1287.734 | 5024.020 | 0.3890 | 1.2877 | 5.0240 | 200.0 | 194.976 |
+| `acmp.bind_to_probe_tx` | 342 | 578.540 | 1477.225 | 5213.500 | 0.5785 | 1.4772 | 5.2135 | - | - |
+| `acmp.probe_tx` | 342 | 399.040 | 2959.415 | 5592.460 | 0.3990 | 2.9594 | 5.5925 | 200.0 | 194.4075 |
+| `acmp.probe_tx.entity` | 342 | 163.400 | 2461.817 | 5298.230 | 0.1634 | 2.4618 | 5.2982 | - | - |
+| `acmp.probe_tx.egress` | 342 | 1.760 | 1.765 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `acmp.probe_tx.turnaround` | 342 | 2.380 | 497.599 | 996.220 | 0.0024 | 0.4976 | 0.9962 | - | - |
+| `acmp.probe_tx.ingress` | 342 | 160.840 | 2459.251 | 5295.660 | 0.1608 | 2.4593 | 5.2957 | - | - |
+| `aecp.response` | 342 | 2202.100 | 3996.936 | 7251.380 | 2.2021 | 3.9969 | 7.2514 | 240.0 | 232.7486 |
+| `aecp.response.read_descriptor_entity` | 57 | 3088.480 | 4313.422 | 7251.380 | 3.0885 | 4.3134 | 7.2514 | - | - |
+| `aecp.response.get_configuration` | 57 | 2202.100 | 3977.472 | 6982.340 | 2.2021 | 3.9775 | 6.9823 | - | - |
+| `aecp.response.get_counters` | 57 | 3076.760 | 4326.571 | 6224.920 | 3.0768 | 4.3266 | 6.2249 | - | - |
+| `aecp.response.get_avb_info` | 57 | 2825.200 | 3964.137 | 6214.420 | 2.8252 | 3.9641 | 6.2144 | - | - |
+| `aecp.response.get_name` | 57 | 2825.120 | 4058.231 | 6221.040 | 2.8251 | 4.0582 | 6.2210 | - | - |
+| `aecp.response.mvu_get_milan_info` | 57 | 2315.300 | 3341.786 | 5454.980 | 2.3153 | 3.3418 | 5.4550 | - | - |
+| `maap.egress` | 5 | 980.930 | 1638.650 | 2456.910 | 0.9809 | 1.6387 | 2.4569 | 11.0 | 8.5431 |
+| `maap.probe_interval` | 3 | 513730.200 | 531435.153 | 559755.840 | 513.7302 | 531.4352 | 559.7558 | 600.0 | 40.2442 |
+| `maap.announce_interval` | 1 | 31958383.540 | 31958383.540 | 31958383.540 | 31958.3835 | 31958.3835 | 31958.3835 | 32000.0 | 41.6165 |
+| `maap.interval_error` | 4 | 730.200 | 1172.250 | 1819.420 | 0.7302 | 1.1723 | 1.8194 | 11.0 | 9.1806 |
+| `adp.egress` | 6 | 233.090 | 896.910 | 1303.550 | 0.2331 | 0.8969 | 1.3035 | 400.0 | 398.6965 |
+| `adp.advertise_period` | 5 | 5362966.240 | 6820603.460 | 8385437.880 | 5362.9662 | 6820.6035 | 8385.4379 | 9400.0 | 1014.5621 |
+| `egress.adp.first` | 6 | 0.360 | 0.363 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.adp.last` | 6 | 2.080 | 2.083 | 2.090 | 0.0021 | 0.0021 | 0.0021 | - | - |
+| `egress.acmp.first` | 5130 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.acmp.last` | 5130 | 1.760 | 1.765 | 1.770 | 0.0018 | 0.0018 | 0.0018 | - | - |
+| `egress.aecp.first` | 5814 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.aecp.last` | 5814 | 1.180 | 7.911 | 8.210 | 0.0012 | 0.0079 | 0.0082 | - | - |
+| `egress.maap.first` | 1656 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.maap.last` | 1656 | 1.540 | 1.545 | 1.550 | 0.0015 | 0.0015 | 0.0015 | - | - |
+| `egress.srp.first` | 86 | 0.360 | 0.365 | 0.370 | 0.0004 | 0.0004 | 0.0004 | - | - |
+| `egress.srp.last` | 86 | 0.820 | 1.784 | 4.790 | 0.0008 | 0.0018 | 0.0048 | - | - |
+
+Margin to a clause's own end, beside its widened bound: `adp.advertise_period`: 614.5621 ms to the strict 9000 ms.
+
+Load: acmp: queued 342 offers (0 by a timer's arm), 21434 frames, 112 echoes skipped; delivered (reached the MAC or the bench inside the run) 342 offers whole, 0 in part, 21434 frames; adp: queued 12 offers (12 by a timer's arm), 454 frames, 14 echoes skipped; delivered (reached the MAC or the bench inside the run) 11 offers whole, 0 in part, 415 frames; expiries met 11; aecp: queued 342 offers (0 by a timer's arm), 20073 frames, 105 echoes skipped; delivered (reached the MAC or the bench inside the run) 342 offers whole, 0 in part, 20073 frames; maap: queued 6 offers (6 by a timer's arm), 240 frames, 0 echoes skipped; delivered (reached the MAC or the bench inside the run) 5 offers whole, 0 in part, 200 frames; expiries met 4. Simulated 34705 ms. Censored (the log ends within the command's bound, unanswered): none.

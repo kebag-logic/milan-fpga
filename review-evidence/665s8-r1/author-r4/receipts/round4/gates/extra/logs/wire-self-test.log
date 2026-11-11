@@ -1,0 +1,52 @@
+# head dbe54e46f09802ab8b9bd3f3223d36bf4891394b gate wire-self-test: python3 -B tb/verilator/ctrl_wire_timing/run.py --self-test
+control clean-loaded-script: PASS
+control deadline-load-on-a-draw-channel: caught: the deadline load adp reaches the acmp channel, whose received records the draws measure
+control clean-reuse: PASS
+control reuse-after-an-edit-of-tb_split_top.sv: caught: the reused build is stale: ['tb/verilator/milan_dp/tb_split_top.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-milan_datapath.sv: caught: the reused build is stale: ['hdl/milan/milan_datapath.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-KL_mbx.sv: caught: the reused build is stale: ['hdl/milan/mailbox/KL_mbx.sv'] changed, missing or never recorded
+control reuse-after-an-edit-of-Makefile: caught: the reused build is stale: ['tb/verilator/milan_dp/Makefile'] changed, missing or never recorded
+control reuse-after-an-edit-of-tree:firmware: caught: the reused build is stale: ['tree:firmware'] changed, missing or never recorded
+control clean: PASS
+control clean-announce-interval: PASS
+control clean-two-interfaces: PASS
+control clean-censored-at-the-end: PASS
+control clean-loaded: PASS
+control shifted-clock: caught: REFUSED: the clock is shifted: the log's milliseconds are [100000] cycles apart, the declared 125000000 Hz gives 125000
+control drifted-milliseconds: caught: REFUSED: the clock is shifted: the log's milliseconds are [99999, 100000, 100001] cycles apart, the declared 100000000 Hz gives 100000
+control missing-response: caught: ACMP: the BIND_RX acmp-bind-0 (sequence_id 0x4100) has no BIND_RX_RESPONSE
+control late-response: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control unhandled-answer: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control handled-on-another-slot: caught: ACMP: the PROBE_TX_RESPONSE to sequence_id 0x0010 was never handled
+control bind-without-its-probe-tx: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control probe-tx-transactions-not-the-draws: caught: ACMP: the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind
+control bind-refused: caught: ACMP: the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS (IEEE 1722.1-2021 Table 8-3)
+control frame-before-commit: caught: REFUSED: a acmp frame left at cycle 10049900, before its commit at 10050864
+control incomplete-model: caught: REFUSED: the model did not complete: no tally
+control no-mailbox-egress: caught: REFUSED: the log has no KL_mbx egress (MTX) lines, so no frame's commit can be found
+control egress-without-commit: caught: REFUSED: 5 acmp frames left KL_mbx after 4 commits on its channel
+control bench-frames-counted-as-interface-0: caught: REFUSED: a acmp frame left KL_mbx on interface 0 at cycle 20049844 and never reached the MAC
+control missing-aecp-response: caught: AECP: the command aecp-read_descriptor_entity-0 (sequence_id 0x6100) has no final response
+control late-aecp-response: caught: aecp.response: 240.0 ms is not under 240.0 ms (IEEE 1722.1-2021 9.2.1 (FR_NFR.md 3.4.1's 240 ms): an AEM or MVU command's first byte in to its final response's last byte out)
+control aecp-in-progress: caught: AECP: 2 IN_PROGRESS answers to commands that change no face state
+control aem-refused: caught: AECP: the final response to aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 2, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)
+control mvu-refused: caught: AECP: the final response to aecp-mvu_get_milan_info-0 (sequence_id 0x6100) carries status 1, not the 0 its scenario states (IEEE 1722.1-2021 Table 7-170)
+control unanswered-before-the-end: caught: AECP: the command aecp-get_configuration-1 (sequence_id 0x6101) has no final response
+control egress-past-reserve: caught: maap.egress: 11.0304 ms is not under 11.0 ms (a timer-driven PROBE's or ANNOUNCE's millisecond to its first byte out, under the 11 ms reserve (maap/README.md:43-46))
+control interval-error-past-reserve: caught: maap.interval_error: 11.0 ms is not under 11.0 ms (an interval at the wire less its drawn value, in magnitude, under the 11 ms reserve)
+control probe-draw-outside-reserve: caught: MAAP: an interval drawn at 590 ms, outside the reserved 511 to 589 ms (maap/README.md:44)
+control probe-interval-outside-clause: caught: maap.probe_interval: 600.029 ms is not strictly inside 500 to 600 ms (IEEE 1722-2016 B.3.4.2: consecutive PROBEs, first byte to first byte)
+control maap-frame-on-no-expiry: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control maap-expiry-cancelled: caught: MAAP: the frame at cycle 59803036 (type 1) left on no expired timer
+control announce-interval-outside-clause: caught: maap.announce_interval: 32000.995 ms is not strictly inside 30000 to 32000 ms (IEEE 1722-2016 B.3.4.1: consecutive ANNOUNCEs, first byte to first byte)
+control no-announce-interval: caught: MAAP: 1 ANNOUNCEs left the MAC, the run asked for 2
+control advertise-timer-not-5s: caught: ADP: the advertise timer after the ENTITY_AVAILABLE at cycle 40400436 is 4999 ms, not 5000 ms (Milan v1.2 Table 5.50)
+control adp-delay-outside-table: caught: ADP: a delay drawn at 4001 ms, outside 0 to 4000 ms (Milan v1.2 Table 5.50, 5.6.3.5.2)
+control adp-egress-past-ceiling: caught: adp.egress: 400.000 ms is not under 200.0 ms (FR_NFR.md 3.4.1)
+control available-sent-twice: caught: adp.advertise_period: 1.000 ms is not inside 4998.0 to 9400.0 ms (Milan v1.2 Table 5.50)
+control no-advertise-period: caught: adp.advertise_period: no sample in a run to its second ANNOUNCE (Milan v1.2 Table 5.50)
+control stopped-advertising: caught: adp.advertise_period: no ENTITY_AVAILABLE in the log's last 22394.996 ms, past the 9400.0 ms bound: the entity stopped advertising (Milan v1.2 Table 5.50)
+control echo-skipped-after-the-announce: caught: LOAD: 1 echoes of load aecp skipped on interface 0 at cycle 175000000, after its first ANNOUNCE left
+control received-frame-unaccounted: caught: LOAD: 17 delivered load frames and 4 a draw (2 draws) are not the 26 frames the model received (SUMMARY rx_frames + bench_rx)
+control load-offer-over-delivered: caught: LOAD: 4 frames of offer 0 of load acmp were received, 3 were queued
+ctrl_wire_timing self-test: 50 controls, 0 failed
