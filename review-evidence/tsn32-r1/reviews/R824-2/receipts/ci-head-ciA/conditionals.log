@@ -1,0 +1,424 @@
+conditional control: compiling nested unreachable region refused
+conditional control: both assembly sides compiled and found in object symbols
+capacity control: committed owed storage at 33u sinks compiles with gcc and clang
+capacity control: committed owed storage at 255u sinks compiles with gcc and clang
+capacity control: committed owed storage at 256u sinks refused, "the owed probe_of names one plus the index of every sink" with gcc and clang
+capacity control: one-word owed storage at 32u sinks compiles with gcc and clang
+capacity control: one-word owed storage at 33u sinks refused, "the owed release mask holds a bit for every sink" with gcc and clang
+Traceback (most recent call last):
+  File "<packet>/scratch/ciA/src/scripts/check_conditionals.py", line 228, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<packet>/scratch/ciA/src/scripts/check_conditionals.py", line 210, in main
+    selftest(work)
+    ~~~~~~~~^^^^^^
+  File "<packet>/scratch/ciA/src/scripts/check_conditionals.py", line 140, in selftest
+    interface_controls(work)
+    ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<packet>/scratch/ciA/src/scripts/check_conditionals.py", line 195, in interface_controls
+    raise RuntimeError(f'interface control at {interfaces} interfaces with {cxx}: rc '
+                       f'{result.returncode}\n{result.stderr}')
+RuntimeError: interface control at 4 interfaces with clang++: rc 1
+In file included from <packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:6:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest.h:54:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/iomanip:47:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/ios_base.h:43:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/locale_classes.h:43:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/string:51:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const char *, basic_string<char>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/basic_string.h:4018:37: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const char *, std::basic_string<char>>' requested here
+ 4018 |     { return std::move(__rhs.insert(0, __lhs)); }
+      |                                     ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/system_error:568:36: note: in instantiation of function template specialization 'std::operator+<char, std::char_traits<char>, std::allocator<char>>' requested here
+  568 |     : runtime_error(__what + (": " + __ec.message())), _M_code(__ec) { }
+      |                                    ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const char *, std::basic_string<char>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<char *, basic_string<char>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/basic_string.h:1071:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<char *, std::basic_string<char>>' requested here
+ 1071 |       begin() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/locale_facets_nonio.tcc:323:27: note: in instantiation of member function 'std::basic_string<char>::begin' requested here
+  323 |               __res.insert(__res.begin(), '-');
+      |                                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<char *, std::basic_string<char>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+In file included from <packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:6:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest.h:56:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/memory:83:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/shared_ptr_atomic.h:33:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:43:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:55:24: error: use of undeclared identifier '__builtin_popcountg'
+   55 |         = is_scalar_v<_Tp> && __builtin_popcountg(sizeof(_Tp)) == 1
+      |                               ^
+In file included from <packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:6:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest.h:54:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/iomanip:47:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/ios_base.h:43:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/locale_classes.h:43:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/string:51:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const basic_string<char> *, vector<basic_string<char>>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:998:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const std::basic_string<char> *, std::vector<std::basic_string<char>>>' requested here
+  998 |       begin() const _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1214:16: note: in instantiation of member function 'std::vector<std::basic_string<char>>::begin' requested here
+ 1214 |       { return begin() == end(); }
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1360:2: note: in instantiation of member function 'std::vector<std::basic_string<char>>::empty' requested here
+ 1360 |         __glibcxx_requires_nonempty();
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/debug/assertions.h:42:27: note: expanded from macro '__glibcxx_requires_nonempty'
+   42 |   __glibcxx_assert(!this->empty())
+      |                           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<std::basic_string<char>>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<std::basic_string<char>>::emplace_back<std::basic_string<char>>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<tools>/gtest-1.14.0/include/gtest/gtest-printers.h:1130:12: note: in instantiation of member function 'std::vector<std::basic_string<char>>::push_back' requested here
+ 1130 |   strings->push_back(ss.str());
+      |            ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const std::basic_string<char> *, std::vector<std::basic_string<char>>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<basic_string<char> *, vector<basic_string<char>>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1008:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<std::basic_string<char> *, std::vector<std::basic_string<char>>>' requested here
+ 1008 |       end() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1361:11: note: in instantiation of member function 'std::vector<std::basic_string<char>>::end' requested here
+ 1361 |         return *(end() - 1);
+      |                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<std::basic_string<char>>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<std::basic_string<char>>::emplace_back<std::basic_string<char>>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<tools>/gtest-1.14.0/include/gtest/gtest-printers.h:1130:12: note: in instantiation of member function 'std::vector<std::basic_string<char>>::push_back' requested here
+ 1130 |   strings->push_back(ss.str());
+      |            ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<std::basic_string<char> *, std::vector<std::basic_string<char>>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<ParameterizedTestSuiteInfoBase **, vector<ParameterizedTestSuiteInfoBase *>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:988:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<testing::internal::ParameterizedTestSuiteInfoBase **, std::vector<testing::internal::ParameterizedTestSuiteInfoBase *>>' requested here
+  988 |       begin() _GLIBCXX_NOEXCEPT
+      |       ^
+<tools>/gtest-1.14.0/include/gtest/internal/gtest-param-util.h:696:32: note: in instantiation of member function 'std::vector<testing::internal::ParameterizedTestSuiteInfoBase *>::begin' requested here
+  696 |     for (auto& test_suite_info : test_suite_infos_) {
+      |                                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<testing::internal::ParameterizedTestSuiteInfoBase **, std::vector<testing::internal::ParameterizedTestSuiteInfoBase *>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const Call *, vector<Call>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:998:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const acmp_test::Call *, std::vector<acmp_test::Call>>' requested here
+  998 |       begin() const _GLIBCXX_NOEXCEPT
+      |       ^
+<packet>/scratch/ciA/src/tests/acmp_fake.hpp:133:28: note: in instantiation of member function 'std::vector<acmp_test::Call>::begin' requested here
+  133 |         for (const Call& c : calls) {
+      |                            ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const acmp_test::Call *, std::vector<acmp_test::Call>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<Call *, vector<Call>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1008:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<acmp_test::Call *, std::vector<acmp_test::Call>>' requested here
+ 1008 |       end() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1361:11: note: in instantiation of member function 'std::vector<acmp_test::Call>::end' requested here
+ 1361 |         return *(end() - 1);
+      |                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<acmp_test::Call>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<acmp_test::Call>::emplace_back<acmp_test::Call>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/acmp_fake.hpp:157:14: note: in instantiation of member function 'std::vector<acmp_test::Call>::push_back' requested here
+  157 |     fk.calls.push_back({Call::SEND, interface, fk.room, 0u, {}});
+      |              ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<acmp_test::Call *, std::vector<acmp_test::Call>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<Pub *, void>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_uninitialized.h:1389:49: note: in instantiation of template class '__gnu_cxx::__normal_iterator<acmp_test::Fake::Pub *, void>' requested here
+ 1389 |               __gnu_cxx::__normal_iterator<_Tp*, void> __out(__result);
+      |                                                        ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_uninitialized.h:1410:19: note: in instantiation of function template specialization 'std::__relocate_a_1<acmp_test::Fake::Pub, acmp_test::Fake::Pub>' requested here
+ 1410 |       return std::__relocate_a_1(std::__niter_base(__first),
+      |                   ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:607:26: note: in instantiation of function template specialization 'std::__relocate_a<acmp_test::Fake::Pub *, acmp_test::Fake::Pub *, std::allocator<acmp_test::Fake::Pub>>' requested here
+  607 |             __new_finish = std::__relocate_a(__old_start, __old_finish,
+      |                                 ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:127:4: note: in instantiation of function template specialization 'std::vector<acmp_test::Fake::Pub>::_M_realloc_append<acmp_test::Fake::Pub>' requested here
+  127 |           _M_realloc_append(std::forward<_Args>(__args)...);
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<acmp_test::Fake::Pub>::emplace_back<acmp_test::Fake::Pub>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/acmp_fake.hpp:230:13: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::push_back' requested here
+  230 |     fk.pubs.push_back({interface, sink, bound, started, stream, moved, fk.calls.size()});
+      |             ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<acmp_test::Fake::Pub *, void>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const Pub *, vector<Pub>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:998:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const acmp_test::Fake::Pub *, std::vector<acmp_test::Fake::Pub>>' requested here
+  998 |       begin() const _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1214:16: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::begin' requested here
+ 1214 |       { return begin() == end(); }
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1360:2: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::empty' requested here
+ 1360 |         __glibcxx_requires_nonempty();
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/debug/assertions.h:42:27: note: expanded from macro '__glibcxx_requires_nonempty'
+   42 |   __glibcxx_assert(!this->empty())
+      |                           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<acmp_test::Fake::Pub>::emplace_back<acmp_test::Fake::Pub>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/acmp_fake.hpp:230:13: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::push_back' requested here
+  230 |     fk.pubs.push_back({interface, sink, bound, started, stream, moved, fk.calls.size()});
+      |             ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const acmp_test::Fake::Pub *, std::vector<acmp_test::Fake::Pub>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<Pub *, vector<Pub>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1008:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<acmp_test::Fake::Pub *, std::vector<acmp_test::Fake::Pub>>' requested here
+ 1008 |       end() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1361:11: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::end' requested here
+ 1361 |         return *(end() - 1);
+      |                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<acmp_test::Fake::Pub>::emplace_back<acmp_test::Fake::Pub>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/acmp_fake.hpp:230:13: note: in instantiation of member function 'std::vector<acmp_test::Fake::Pub>::push_back' requested here
+  230 |     fk.pubs.push_back({interface, sink, bound, started, stream, moved, fk.calls.size()});
+      |             ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<acmp_test::Fake::Pub *, std::vector<acmp_test::Fake::Pub>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<unsigned long *, void>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_uninitialized.h:1389:49: note: in instantiation of template class '__gnu_cxx::__normal_iterator<unsigned long *, void>' requested here
+ 1389 |               __gnu_cxx::__normal_iterator<_Tp*, void> __out(__result);
+      |                                                        ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_uninitialized.h:1410:19: note: in instantiation of function template specialization 'std::__relocate_a_1<unsigned long, unsigned long>' requested here
+ 1410 |       return std::__relocate_a_1(std::__niter_base(__first),
+      |                   ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:607:26: note: in instantiation of function template specialization 'std::__relocate_a<unsigned long *, unsigned long *, std::allocator<unsigned long>>' requested here
+  607 |             __new_finish = std::__relocate_a(__old_start, __old_finish,
+      |                                 ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:127:4: note: in instantiation of function template specialization 'std::vector<unsigned long>::_M_realloc_append<unsigned long>' requested here
+  127 |           _M_realloc_append(std::forward<_Args>(__args)...);
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<unsigned long>::emplace_back<unsigned long>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:48:14: note: in instantiation of member function 'std::vector<unsigned long>::push_back' requested here
+   48 |         call.push_back(frame[i]);
+      |              ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<unsigned long *, void>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const unsigned long *, vector<unsigned long>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:998:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long>>' requested here
+  998 |       begin() const _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1214:16: note: in instantiation of member function 'std::vector<unsigned long>::begin' requested here
+ 1214 |       { return begin() == end(); }
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1360:2: note: in instantiation of member function 'std::vector<unsigned long>::empty' requested here
+ 1360 |         __glibcxx_requires_nonempty();
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/debug/assertions.h:42:27: note: expanded from macro '__glibcxx_requires_nonempty'
+   42 |   __glibcxx_assert(!this->empty())
+      |                           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<unsigned long>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<unsigned long>::emplace_back<unsigned long>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:48:14: note: in instantiation of member function 'std::vector<unsigned long>::push_back' requested here
+   48 |         call.push_back(frame[i]);
+      |              ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<unsigned long *, vector<unsigned long>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1008:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long>>' requested here
+ 1008 |       end() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1361:11: note: in instantiation of member function 'std::vector<unsigned long>::end' requested here
+ 1361 |         return *(end() - 1);
+      |                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<unsigned long>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<unsigned long>::emplace_back<unsigned long>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:48:14: note: in instantiation of member function 'std::vector<unsigned long>::push_back' requested here
+   48 |         call.push_back(frame[i]);
+      |              ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<const vector<unsigned long> *, vector<vector<unsigned long>>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:998:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<const std::vector<unsigned long> *, std::vector<std::vector<unsigned long>>>' requested here
+  998 |       begin() const _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1214:16: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::begin' requested here
+ 1214 |       { return begin() == end(); }
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1360:2: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::empty' requested here
+ 1360 |         __glibcxx_requires_nonempty();
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/debug/assertions.h:42:27: note: expanded from macro '__glibcxx_requires_nonempty'
+   42 |   __glibcxx_assert(!this->empty())
+      |                           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<std::vector<unsigned long>>::emplace_back<std::vector<unsigned long>>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:55:21: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::push_back' requested here
+   55 |     side(ctx).trace.push_back({NOW, side(ctx).now});
+      |                     ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<const std::vector<unsigned long> *, std::vector<std::vector<unsigned long>>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1337:19: error: member access into incomplete type 'const __normal_iterator<vector<unsigned long> *, vector<vector<unsigned long>>>'
+ 1337 |         -> decltype(__lhs.base() - __rhs.base())
+      |                          ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1008:7: note: in instantiation of template class '__gnu_cxx::__normal_iterator<std::vector<unsigned long> *, std::vector<std::vector<unsigned long>>>' requested here
+ 1008 |       end() _GLIBCXX_NOEXCEPT
+      |       ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1361:11: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::end' requested here
+ 1361 |         return *(end() - 1);
+      |                  ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/vector.tcc:129:9: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::back' requested here
+  129 |         return back();
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_vector.h:1424:9: note: in instantiation of function template specialization 'std::vector<std::vector<unsigned long>>::emplace_back<std::vector<unsigned long>>' requested here
+ 1424 |       { emplace_back(std::move(__x)); }
+      |         ^
+<packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:55:21: note: in instantiation of member function 'std::vector<std::vector<unsigned long>>::push_back' requested here
+   55 |     side(ctx).trace.push_back({NOW, side(ctx).now});
+      |                     ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/stl_iterator.h:1026:11: note: definition of '__gnu_cxx::__normal_iterator<std::vector<unsigned long> *, std::vector<std::vector<unsigned long>>>' is not complete until the closing '}'
+ 1026 |     class __normal_iterator
+      |           ^
+In file included from <packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:6:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest.h:56:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/memory:83:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/shared_ptr_atomic.h:33:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:43:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:398:29: error: no matching constructor for initialization of '__detail::__wait_args'
+  398 |       __detail::__wait_args __args{ __addr, __bare_wait };
+      |                             ^     ~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:270:12: note: in instantiation of function template specialization 'std::__atomic_notify_address<bool>' requested here
+  270 |     { std::__atomic_notify_address(&_M_i, false); }
+      |            ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:221:2: note: candidate template ignored: substitution failure [with _Tp = bool]
+  221 |         __wait_args(const _Tp* __addr, bool __bare_wait = false) noexcept
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:239:7: note: candidate constructor not viable: requires 1 argument, but 2 were provided
+  239 |       __wait_args(const __wait_args&) noexcept = default;
+      |       ^           ~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:231:7: note: candidate constructor not viable: requires at least 3 arguments, but 2 were provided
+  231 |       __wait_args(const __platform_wait_t* __addr, __platform_wait_t __old,
+      |       ^           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  232 |                   int __order, bool __bare_wait = false) noexcept
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:358:29: error: no matching constructor for initialization of '__detail::__wait_args'
+  358 |       __detail::__wait_args __args{ __addr, __bare_wait };
+      |                             ^     ~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:390:12: note: in instantiation of function template specialization 'std::__atomic_wait_address<bool, (lambda at /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:388:20) &, (lambda at /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:627:7)>' requested here
+  390 |       std::__atomic_wait_address(__addr, __pfn, forward<_ValFn>(__vfn));
+      |            ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:626:7: note: in instantiation of function template specialization 'std::__atomic_wait_address_v<bool, (lambda at /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_base.h:627:7)>' requested here
+  626 |         std::__atomic_wait_address_v(&_M_i, __old,
+      |              ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/atomic:180:15: note: in instantiation of member function 'std::__atomic_base<bool>::wait' requested here
+  180 |     { _M_base.wait(__old, __m); }
+      |               ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:221:2: note: candidate template ignored: substitution failure [with _Tp = bool]
+  221 |         __wait_args(const _Tp* __addr, bool __bare_wait = false) noexcept
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:239:7: note: candidate constructor not viable: requires 1 argument, but 2 were provided
+  239 |       __wait_args(const __wait_args&) noexcept = default;
+      |       ^           ~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:231:7: note: candidate constructor not viable: requires at least 3 arguments, but 2 were provided
+  231 |       __wait_args(const __platform_wait_t* __addr, __platform_wait_t __old,
+      |       ^           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  232 |                   int __order, bool __bare_wait = false) noexcept
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from <packet>/scratch/ciA/src/tests/test_acmp_walk.cpp:6:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest.h:64:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest-assertion-result.h:46:
+In file included from <tools>/gtest-1.14.0/include/gtest/gtest-message.h:57:
+In file included from <tools>/gtest-1.14.0/include/gtest/internal/gtest-port.h:820:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/condition_variable:51:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/stop_token:41:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/semaphore:42:
+In file included from /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/semaphore_base.h:42:
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_timed_wait.h:188:29: error: no matching constructor for initialization of '__detail::__wait_args'
+  188 |       __detail::__wait_args __args{ __addr, __bare_wait };
+      |                             ^     ~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/semaphore_base.h:114:16: note: in instantiation of function template specialization 'std::__atomic_wait_address_for<long, std::__semaphore_impl::_Available &, (lambda at /usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/semaphore_base.h:104:20) &, long, std::ratio<1, 1000000000>>' requested here
+  114 |       if (std::__atomic_wait_address_for(&_M_counter, __is_available,
+      |                ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:221:2: note: candidate template ignored: substitution failure [with _Tp = long]
+  221 |         __wait_args(const _Tp* __addr, bool __bare_wait = false) noexcept
+      |         ^
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:239:7: note: candidate constructor not viable: requires 1 argument, but 2 were provided
+  239 |       __wait_args(const __wait_args&) noexcept = default;
+      |       ^           ~~~~~~~~~~~~~~~~~~
+/usr/lib64/gcc/x86_64-pc-linux-gnu/16/../../../../include/c++/16/bits/atomic_wait.h:231:7: note: candidate constructor not viable: requires at least 3 arguments, but 2 were provided
+  231 |       __wait_args(const __platform_wait_t* __addr, __platform_wait_t __old,
+      |       ^           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  232 |                   int __order, bool __bare_wait = false) noexcept
+      |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+

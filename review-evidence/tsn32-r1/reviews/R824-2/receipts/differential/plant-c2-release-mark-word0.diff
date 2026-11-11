@@ -1,0 +1,11 @@
+--- <packet>/scratch/plants/head.c	2026-11-11 07:43:52.969697771 +0100
++++ <packet>/scratch/plants/c2-release-mark-word0.c	2026-11-11 07:43:53.038457875 +0100
+@@ -1309,7 +1309,7 @@
+ 		if (p_send(a, o->interface, o->frame)) {
+ 			for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+ 				if (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {
+-					mark(a, k);
++					mark(a, k % 32u);
+ 					a->sinks[k].change_owed--;
+ 				}
+ 			}

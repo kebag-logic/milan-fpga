@@ -1,0 +1,8 @@
+c1-started-unmarked LIFT=0 33 sinks: TRACE DIFFERS at step 15 (1 vs 4 calls)
+c1-started-unmarked LIFT=1 33 sinks: TRACE DIFFERS at step 15 (1 vs 4 calls)
+c2-release-mark-word0 LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0
+c2-release-mark-word0 LIFT=1 33 sinks: TRACE DIFFERS at step 7472 (2 vs 3 calls)
+c3-release-mark-low-only LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0
+c3-release-mark-low-only LIFT=1 33 sinks: TRACE DIFFERS at step 7472 (2 vs 3 calls)
+c4-probe-left-mark-word0 LIFT=0 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 0 reenter 0 noopen 0
+c4-probe-left-mark-word0 LIFT=1 33 sinks: PASS max_sinks 33 sinks 33 steps 20000 seed 0x00000001 lift 1 reenter 0 noopen 0

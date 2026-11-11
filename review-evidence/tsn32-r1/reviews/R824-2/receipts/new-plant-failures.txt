@@ -1,0 +1,21 @@
+walk-bind-second-word-unmarked CAUGHT rc 1
+   failures: {"AcmpWalk.ThirtyThreeSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:338\nValue of: walked.trace == full.trace\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\nthe changed-sink walk makes the full walk's calls, in order, at step 12 of 33 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n"}
+   tests: 1
+walk-unbind-second-word-unmarked CAUGHT rc 1
+   failures: {"AcmpWalk.ThirtyThreeSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:338\nValue of: walked.trace == full.trace\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\nthe changed-sink walk makes the full walk's calls, in order, at step 52 of 33 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n"}
+   tests: 1
+walk-release-second-word-unmarked CAUGHT rc 1
+   failures: {"AcmpWalk.ThirtyThreeSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:338\nValue of: walked.trace == full.trace\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\nthe changed-sink walk makes the full walk's calls, in order, at step 274 of 33 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n"}
+   tests: 1
+walk-probe-left-second-word-unmarked CAUGHT rc 1
+   failures: {"AcmpWalk.ThirtyThreeSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:338\nValue of: walked.trace == full.trace\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\nthe changed-sink walk makes the full walk's calls, in order, at step 276 of 33 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n"}
+   tests: 1
+walk-marks-never-cleared CAUGHT rc 1
+   failures: {"AcmpWalk.OneSinkMatchesTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:342\nExpected equality of these values:\n  word\n    Which is: 1\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\na completed entry leaves no sink marked, at step 2 of 1 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n", "AcmpWalk.EightSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:342\nExpected equality of these values:\n  word\n    Which is: 16\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\na completed entry leaves no sink marked, at step 2 of 8 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n", "AcmpWalk.ThirtyTwoSinksMatchTheFullWalk": "/srv/
+   tests: 4
+walk-interface-marks-never-cleared CAUGHT rc 1
+   failures: {"AcmpWalk.OneSinkMatchesTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:345\nExpected equality of these values:\n  walked.a.dirty_if\n    Which is: 1\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\na completed entry leaves no interface marked, at step 2 of 1 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n", "AcmpWalk.EightSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:345\nExpected equality of these values:\n  walked.a.dirty_if\n    Which is: 2\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\na completed entry leaves no interface marked, at step 2 of 8 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n", "AcmpWalk.Thir
+   tests: 4
+walk-clear-first-word-only CAUGHT rc 1
+   failures: {"AcmpWalk.ThirtyThreeSinksMatchTheFullWalk": "<packet>/scratch/ciB/build-validation/mutations/baseline/tests/test_acmp_walk.cpp:342\nExpected equality of these values:\n  word\n    Which is: 1\n  0u\n    Which is: 0\n\nTSN_MESSAGE_BEGIN_2e2ff718fe47c55ce4b08ee1e33a0ae6\na completed entry leaves no sink marked, at step 9 of 33 sinks\nTSN_MESSAGE_END_3385b7d91b787ed26643cd87009d7eb0\n\n"}
+   tests: 1

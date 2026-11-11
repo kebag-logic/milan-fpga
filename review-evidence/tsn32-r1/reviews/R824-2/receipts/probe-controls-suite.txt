@@ -1,0 +1,39 @@
+== c1-started-unmarked
+acmp_tests rc=1
+[  FAILED  ] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink (0 ms)
+[  FAILED  ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[  FAILED  ] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised (0 ms)
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyOnesResponseHoldsNoSink (0 ms)
+[  FAILED  ] AcmpWide.ProbeInTheSlotOfSinkThirtyTwosResponseHoldsNoSink (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.EightSinksMatchTheFullWalk (1 ms)
+[  FAILED  ] AcmpWalk.OneSinkMatchesTheFullWalk (0 ms)
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (4 ms)
+[  FAILED  ] AcmpWalk.ThirtyTwoSinksMatchTheFullWalk (17 ms)
+    message: the changed-sink walk makes the full walk's calls, in order, at step 3879 of 32 sinks
+    message: the changed-sink walk makes the full walk's calls, in order, at step 451 of 8 sinks
+    message: the changed-sink walk makes the full walk's calls, in order, at step 533 of 33 sinks
+    message: the changed-sink walk makes the full walk's calls, in order, at step 5 of 1 sinks
+== c2-release-mark-word0
+acmp_tests rc=0
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (3 ms)
+    message: the changed-sink walk makes the full walk's calls, in order, at step 274 of 33 sinks
+== c3-release-mark-low-only
+acmp_tests rc=0
+acmp_wide rc=1
+[  FAILED  ] AcmpWide.OwedResponsesHoldOnlyTheirOwnSinksChanges (0 ms)
+[  FAILED  ] AcmpWide.SinksThirtyOneAndThirtyTwoWaitOnlyForTheirOwnResponses (0 ms)
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (4 ms)
+    message: the changed-sink walk makes the full walk's calls, in order, at step 274 of 33 sinks
+== c4-probe-left-mark-word0
+acmp_tests rc=0
+acmp_wide rc=0
+acmp_walk rc=1
+[  FAILED  ] AcmpWalk.ThirtyThreeSinksMatchTheFullWalk (3 ms)
+    message: the changed-sink walk makes the full walk's calls, in order, at step 276 of 33 sinks

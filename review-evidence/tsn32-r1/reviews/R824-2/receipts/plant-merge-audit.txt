@@ -1,0 +1,86 @@
+counts base 444 ours 462 theirs 452 head 477
+head unique names: True
+head == ours|theirs names: False
+dropped from base (ours, theirs): [] []
+in head but neither parent: ['walk-bind-second-word-unmarked', 'walk-clear-first-word-only', 'walk-interface-marks-never-cleared', 'walk-marks-never-cleared', 'walk-probe-left-second-word-unmarked', 'walk-release-second-word-unmarked', 'walk-unbind-second-word-unmarked']
+missing from head: []
+plants equal to an unconflicted parent version: 464
+plants differing from every parent version (hand-merged or re-anchored):
+  acmp-unbind-srp-after-response changed-ours=True changed-theirs=True
+    base   old='\tstruct acmp_sink *s = &a->sinks[k];\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\ts->state = ACMP_UNBOUND;\n'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n\ts->state = ACMP_UNBOUND;\n'
+    ours   old='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\ts->state = ACMP_UNBOUND;\n'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, 1u << k);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n\ts->state = ACMP_UNBOUND;\n'
+    theirs old='\tstruct acmp_sink *s = &a->sinks[k];\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);\n\ts->state = ACMP_UNBOUND;\n'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n\ts->state = ACMP_UNBOUND;\n'
+    head   old='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tif (s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK) {\n\t\tsrp_stop(a, k);\n\t}\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);             // Milan v1.2 Table 5.36\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);\n\ts->state = ACMP_UNBOUND;\n'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tbool settled = s->state == ACMP_SETTLED_NO_RSV || s->state == ACMP_SETTLED_RSV_OK;\n\tdisc_stop(s);\n\ts->bound = false;\n\tmemset(&s->binding, 0, sizeof s->binding);\n\ts->started = false;\n\ts->probing = ACMP_PROBING_DISABLED;\n\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\tsm_stop(s);\n\tstruct pdu r = echo(cmd, ACMP_STATUS_SUCCESS);\n\tr.talker = 0u;\n\tr.talker_uid = 0u;\n\trespond(a, interface, &r, k + 1u);\n\tif (settled) {\n\t\tsrp_stop(a, k);\n\t}\n\ts->state = ACMP_UNBOUND;\n'
+    kills head == ours: True  == theirs: True
+  acmp-first-owed-releases-every-change changed-ours=True changed-theirs=True
+    base   old='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));'
+           new='\t\t\t\ta->sinks[k].change_owed = 0u;'
+    ours   old='\t\t\t\tif (((o->release >> k) & 1u) != 0u) {\n\t\t\t\t\tmark(a, k);\n\t\t\t\t\ta->sinks[k].change_owed--;\n\t\t\t\t}'
+           new='\t\t\t\tmark(a, k);\n\t\t\t\ta->sinks[k].change_owed = 0u;'
+    theirs old='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));'
+           new='\t\t\t\ta->sinks[k].change_owed = 0u;'
+    head   old='\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {\n\t\t\t\t\tmark(a, k);\n\t\t\t\t\ta->sinks[k].change_owed--;\n\t\t\t\t}'
+           new='\t\t\t\tmark(a, k);\n\t\t\t\ta->sinks[k].change_owed = 0u;'
+    kills head == ours: True  == theirs: True
+  acmp-wide-release-loop-word-ignored changed-ours=False changed-theirs=False
+    theirs old='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));'
+           new='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[0] >> (k % 32u)) & 1u));'
+    head   old='\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {'
+           new='\t\t\t\tif (((o->release[0] >> (k % 32u)) & 1u) != 0u) {'
+    kills head == ours: False  == theirs: True
+  acmp-wide-release-loop-word-off-by-one changed-ours=False changed-theirs=False
+    theirs old='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[k / 32u] >> (k % 32u)) & 1u));'
+           new='\t\t\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release[(k + 1u) / 32u] >> (k % 32u)) & 1u));'
+    head   old='\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {'
+           new='\t\t\t\tif (((o->release[(k + 1u) / 32u] >> (k % 32u)) & 1u) != 0u) {'
+    kills head == ours: False  == theirs: True
+  walk-release-unmarked changed-ours=False changed-theirs=False
+    ours   old='\t\t\t\t\tmark(a, k);\n\t\t\t\t\ta->sinks[k].change_owed--;'
+           new='\t\t\t\t\ta->sinks[k].change_owed--;'
+    head   old='\t\t\t\t\tmark(a, k);\n\t\t\t\t\ta->sinks[k].change_owed--;'
+           new='\t\t\t\t\ta->sinks[k].change_owed--;'
+    kills head == ours: False  == theirs: False
+  walk-probe-left-unmarked changed-ours=False changed-theirs=False
+    ours   old='\t\tmark(a, o->probe_of - 1u);\n'
+           new=''
+    head   old='\t\tmark(a, o->probe_of - 1u);\n'
+           new=''
+    kills head == ours: False  == theirs: False
+  walk-bind-second-word-unmarked changed-ours=False changed-theirs=False
+    head   old='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tbool sw'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tif (k < 32u) {\n\t\tmark(a, k);\n\t}\n\tbool sw'
+    kills head == ours: False  == theirs: False
+  walk-unbind-second-word-unmarked changed-ours=False changed-theirs=False
+    head   old='\tstruct acmp_sink *s = &a->sinks[k];\n\tmark(a, k);\n\tif (s->state'
+           new='\tstruct acmp_sink *s = &a->sinks[k];\n\tif (k < 32u) {\n\t\tmark(a, k);\n\t}\n\tif (s->state'
+    kills head == ours: False  == theirs: False
+  walk-release-second-word-unmarked changed-ours=False changed-theirs=False
+    head   old='\t\t\t\t\tmark(a, k);\n\t\t\t\t\ta->sinks[k].change_owed--;'
+           new='\t\t\t\t\tif (k < 32u) {\n\t\t\t\t\t\tmark(a, k);\n\t\t\t\t\t}\n\t\t\t\t\ta->sinks[k].change_owed--;'
+    kills head == ours: False  == theirs: False
+  walk-probe-left-second-word-unmarked changed-ours=False changed-theirs=False
+    head   old='\t\tmark(a, o->probe_of - 1u);\n'
+           new='\t\tif (o->probe_of - 1u < 32u) {\n\t\t\tmark(a, o->probe_of - 1u);\n\t\t}\n'
+    kills head == ours: False  == theirs: False
+  walk-marks-never-cleared changed-ours=False changed-theirs=False
+    head   old='\tmemset(a->dirty, 0, sizeof a->dirty);\n'
+           new=''
+    kills head == ours: False  == theirs: False
+  walk-interface-marks-never-cleared changed-ours=False changed-theirs=False
+    head   old='\ta->dirty_if = 0u;\n'
+           new=''
+    kills head == ours: False  == theirs: False
+  walk-clear-first-word-only changed-ours=False changed-theirs=False
+    head   old='\tmemset(a->dirty, 0, sizeof a->dirty);'
+           new='\tmemset(a->dirty, 0, sizeof a->dirty[0]);'
+    kills head == ours: False  == theirs: False
+ours order kept: True
+theirs order kept: True
+last three: ['entity-wrong-count', 'entity-swapped-interface', 'entity-dropped-field']
+last three paths: ['examples/entities/ax7101/entity_config.c', 'examples/entities/duplex/entity_config.c', 'examples/entities/talker/entity_config.c']
+walk- plants: 25 contiguous: True
+index first walk 447 neighbours acmp-wide-release-clears-one-word | wire-put-be-skips-an-odd-field-first-byte
