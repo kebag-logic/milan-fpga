@@ -664,7 +664,10 @@ sidmove8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
 # Six additional elaborations remove ACTIVE or the real grant at each
 # consumer, and two more (#774) give every source talker 0's TSpec, one per
-# shape. Their cost is outside the default sweep's stated margin.
+# shape. One more (#851, processor #214) builds a copy of the processor whose
+# SRP encoder never merges, and four more (#883, processor #216) build copies
+# with its MRP Applicant and LeaveAll defects. Their cost is outside the
+# default sweep's stated margin.
 crflic-mutants: crflic tspec8
 	python3 crflic_mutants.py
 
@@ -674,8 +677,8 @@ notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 notify: notify-build
 	./$(NOTIFY_MDIR)/Vmilan_dp_notify
 
-# An EXPLICIT campaign like crflic-mutants: eight more elaborations and
-# nine runs of the timed leg, outside the sweep's deadline.
+# An EXPLICIT campaign like crflic-mutants: sixteen more elaborations and
+# nineteen runs of the timed leg, outside the sweep's deadline.
 gsi-mutants: notify
 	python3 gsi_mutants.py
 
