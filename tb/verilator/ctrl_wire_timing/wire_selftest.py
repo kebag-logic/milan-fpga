@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -58,6 +59,13 @@ def answered(command: bytes, status: int = 0) -> str:
     return bytes(frame).hex()
 
 
+def stamp(line: str) -> tuple[int, bool]:
+    """A line's place in the log: its cycle, a LOAD line's the cycle it was queued at (its sixth word), after the
+    other lines of that cycle, as the model prints a frame's end before it queues."""
+    w = line.split()
+    return int(w[5] if w[0] == 'LOAD' else w[1]), w[0] == 'LOAD'
+
+
 class Synth:
     """A synthetic log: its lines, and each channel's commits so far."""
 
@@ -78,9 +86,12 @@ class Synth:
         self.lines.append(f'TMR {at} {(op << 30) | (1 << 8) | slot:08x} {deadline}')
 
     def text(self) -> list[str]:
-        """The lines in cycle order, the tally last."""
-        body = sorted(self.lines, key=lambda ln: int(ln.split()[1]))
-        return body + ['SUMMARY sys=40000000', '== ctrl_wire_timing: checks: 1   failures: 0 ==']
+        """The lines in cycle order (stamp), the model's SUMMARY counts and the tally last."""
+        body = sorted(self.lines, key=stamp)
+        received = sum(ln.startswith('RXW') for ln in body)
+        bench = sum(ln.startswith('RXB') for ln in body)
+        return body + [f'SUMMARY sys=40000000 rx_frames={received} bench_rx={bench}',
+                       '== ctrl_wire_timing: checks: 1   failures: 0 ==']
 
 
 def maap_frame(kind: int) -> str:
@@ -128,31 +139,60 @@ def advertising(log: Synth, delays: tuple[int, ...] = (), advertise_ms: int = g.
         expiry += advertise_ms
 
 
-def draws(log: Synth, response_cycles: int = 50_000, aecp_cycles: int = 80_000, interim: bool = False) -> None:
-    """Two draws: a bind answered after response_cycles, its probe and the talker's answer handled, and an AEM
-    command answered after aecp_cycles."""
+def bound(seq: int, status: int = 0) -> str:
+    """This entity's BIND_RX_RESPONSE to a sequence_id, with a status (IEEE 1722.1-2021 Table 8-3)."""
+    frame = bytearray(bytes.fromhex(acmp_frame(f.ACMP['BIND_RX_RESPONSE'], seq, ENTITY_MAC)))
+    frame[16] = (frame[16] & 0x07) | (status << 3)
+    return bytes(frame).hex()
+
+
+@dataclass(frozen=True)
+class Changes:
+    """What a control changes in the two draws (draws()): the bind's and the AEM command's response delays, an
+    IN_PROGRESS answer first, the draws whose bind causes a PROBE_TX, the first draw's response statuses, and each
+    draw's row of AECP_COMMANDS."""
+    response_cycles: int = 50_000
+    aecp_cycles: int = 80_000
+    interim: bool = False
+    probing: tuple[int, ...] = (0, 1)
+    bind_status: int = 0
+    aecp_status: int = 0
+    commands: tuple[int, ...] = (0, 1)
+
+
+def draws(log: Synth, changes: Changes = Changes()) -> None:
+    """Two draws: a bind answered after response_cycles, its probe and the talker's answer handled (for the draws
+    in `probing`; another draw's bind causes no PROBE_TX, so the talker sends nothing), the unbind, and an AEM
+    command (AECP_COMMANDS' row of `commands`) answered after aecp_cycles (Changes)."""
+    response_cycles, aecp_cycles, interim = changes.response_cycles, changes.aecp_cycles, changes.interim
+    probing, bind_status, aecp_status, commands = (changes.probing, changes.bind_status, changes.aecp_status,
+                                                   changes.commands)
     for k, at in enumerate((100 * MS, 200 * MS)):
         seq, probe_seq = 0x4100 + 2 * k, 0x10 + k
         log.lines.append(f'RXW {at} {at + 30} 60 acmp-bind-{k} {acmp_frame(f.ACMP["BIND_RX"], seq, s.budget.CTL_MAC)}')
-        log.send(at + response_cycles - 136, 'acmp', acmp_frame(f.ACMP['BIND_RX_RESPONSE'], seq, ENTITY_MAC))
-        log.send(at + response_cycles + 64, 'acmp', acmp_frame(f.ACMP['PROBE_TX'], probe_seq, ENTITY_MAC))
-        log.lines.append(f'RXW {at + response_cycles + 300} {at + response_cycles + 330} 60 talker '
-                         f'{acmp_frame(f.ACMP["PROBE_TX_RESPONSE"], probe_seq, s.budget.TALKER_A_MAC)}')
-        # its own timeout, committed after the prompt answer's last byte in, as the bench measures it
-        log.arm(at + response_cycles + 350, g.ACMP_FIRST_SLOT_IFS, at // MS + 200)
-        log.arm(at + response_cycles + 5000, g.ACMP_FIRST_SLOT_IFS, at // MS + 10000)   # its handling
+        log.send(at + response_cycles - 136, 'acmp', bound(seq, bind_status if k == 0 else 0))
+        if k in probing:
+            log.send(at + response_cycles + 64, 'acmp', acmp_frame(f.ACMP['PROBE_TX'], probe_seq, ENTITY_MAC))
+            log.lines.append(f'RXW {at + response_cycles + 300} {at + response_cycles + 330} 60 talker '
+                             f'{acmp_frame(f.ACMP["PROBE_TX_RESPONSE"], probe_seq, s.budget.TALKER_A_MAC)}')
+            # its own timeout, committed after the prompt answer's last byte in, as the bench measures it
+            log.arm(at + response_cycles + 350, g.ACMP_FIRST_SLOT_IFS, at // MS + 200)
+            log.arm(at + response_cycles + 5000, g.ACMP_FIRST_SLOT_IFS, at // MS + 10000)   # its handling
+        unbind_at = at + 60 * MS
+        log.lines.append(f'RXW {unbind_at} {unbind_at + 30} 60 acmp-unbind-{k} '
+                         f'{acmp_frame(f.ACMP["UNBIND_RX"], seq + 1, s.budget.CTL_MAC)}')
         cmd_at = at + 80 * MS
-        name, command = s.aecp_command(POINT, k, 0x6100 + k)
+        name, command = s.aecp_command(POINT, commands[k], 0x6100 + k)
         log.lines.append(f'RXW {cmd_at} {cmd_at + 30} {len(command)} aecp-{name}-{k} {command.hex()}')
         if interim:
             log.send(cmd_at + 1000, 'aecp', answered(command, g.AECP_IN_PROGRESS))
-        log.send(cmd_at + aecp_cycles - 136, 'aecp', answered(command))
+        log.send(cmd_at + aecp_cycles - 136, 'aecp', answered(command, aecp_status if k == 0 else 0))
 
 
 def clean(probe_draws: tuple[int, ...] = PROBE_DRAWS, late_arm_ms: int = 0, **changes: object) -> Synth:
     """The draws, MAAP's acquisition and ADP's startup advertisement over 1.8 s."""
     log = Synth(1800)
-    draws(log, **changes)
+    draws(log, Changes(**changes))
     acquisition(log, probe_draws=probe_draws, late_arm_ms=late_arm_ms)
     advertising(log)
     return log
@@ -165,6 +205,73 @@ def announced(delays: tuple[int, ...] = ADP_DELAYS, **changes: object) -> Synth:
     acquisition(log, announces=2)
     advertising(log, delays, **changes)
     return log
+
+
+#: A load frame (another entity's ENTITY_DISCOVER, the composed load's ADP record) and an unrelated frame sent (an
+#: SRP Listener Ready).
+LOAD_FRAME = f.adp(f.ADP_DISCOVER, s.OTHER_ENTITY, s.budget.CTL_MAC, f.Adp(valid_time=0)).hex()
+SRP_FRAME = s.budget.listener_ready(POINT).hex()
+#: The unrelated frames sent after the ANNOUNCE in the loaded log: more than the 64 a whole-traffic history held.
+UNRELATED = 70
+
+
+@dataclass(frozen=True)
+class Queued:
+    """One offer as the model queues it: its load's name and offer number, its frames, the timer slot whose arm
+    queued it (None: a step), its echoes skipped, and how many of its frames reached the MAC (None: all)."""
+    name: str
+    k: int
+    frames: int
+    trigger: int | None = None
+    skipped: int = 0
+    delivered: int | None = None
+
+
+def offer(log: Synth, at: int, begin: int, queued: Queued) -> None:
+    """One LOAD line as the model prints it (queued at `at`, its frames from `begin`), and the delivered of its
+    frames received at the MAC with the offer's tag, load-<name>-<k>."""
+    q = queued
+    log.lines.append(f'LOAD {begin} {q.name} {q.frames} {q.skipped} {at} {"-" if q.trigger is None else q.trigger} '
+                     f'{q.skipped}')
+    for n in range(q.frames if q.delivered is None else q.delivered):
+        first = begin + 200 * n
+        log.lines.append(f'RXW {first} {first + 30} 60 load-{q.name}-{q.k} {LOAD_FRAME}')
+
+
+def loaded(skip_after_announce: bool = False, untagged: bool = False) -> Synth:
+    """clean() under a load as the model logs it: a step's offer before each bind, its echo skipped (no ANNOUNCE
+    yet); an offer at each of MAAP's arms, a lead before its deadline, the last one's past the log's end; then,
+    after the ANNOUNCE, UNRELATED frames sent and one more offer, its echo found. skip_after_announce: that echo
+    skipped, as a history the unrelated frames filled leaves it; untagged: one of its frames received untagged."""
+    log = clean()
+    for k, at in enumerate((100 * MS, 200 * MS)):
+        offer(log, at - 5000, at - 5000, Queued('acmp', k, 3, skipped=1))
+    slot = g.MAAP_FIRST_SLOT_IFS
+    maap_arms = [(int(ln.split()[1]), int(ln.split()[3])) for ln in log.lines if ln.startswith('TMR') and
+                 (int(ln.split()[2], 16) & 0xFF) == slot]
+    for k, (at, deadline) in enumerate(maap_arms):
+        within = deadline < 1800
+        offer(log, at, deadline * MS - s.LOAD_LEAD_CYCLES,
+              Queued('maap', k, 2, slot, skipped=1, delivered=None if within else 0))
+    for n in range(UNRELATED):
+        log.send((1650 + n) * MS, 'srp', SRP_FRAME)
+    at = 1750 * MS
+    if skip_after_announce:
+        offer(log, at, at, Queued('aecp', 0, 2, skipped=1))
+    else:
+        offer(log, at, at, Queued('aecp', 0, 3, delivered=2))
+        offer_tag = '-' if untagged else 'load-aecp-0'
+        log.lines.append(f'RXW {at + 400} {at + 430} 60 {offer_tag} {LOAD_FRAME}')
+    return log
+
+
+#: The load the clean loaded log must report: queued, delivered and met kept apart (#868).
+LOADED = {'acmp': dict(queued_offers=2, queued_frames=6, skipped=2, armed=0, delivered_offers=2, partial_offers=0,
+                       delivered_frames=6, expiries_met=0),
+          'aecp': dict(queued_offers=1, queued_frames=3, skipped=0, armed=0, delivered_offers=1, partial_offers=0,
+                       delivered_frames=3, expiries_met=0),
+          'maap': dict(queued_offers=4, queued_frames=8, skipped=4, armed=4, delivered_offers=3, partial_offers=0,
+                       delivered_frames=6, expiries_met=3)}
 
 
 def without(lines: list[str], what: Callable[[str], bool]) -> list[str]:
@@ -235,7 +342,7 @@ def two_interfaces(lines: list[str], interface: int = 1) -> list[str]:
             value = int(w[2], 16)
             ln = f'TMR {w[1]} {(value & ~0xFF) | ((value & 0xFF) * 2):08x} {w[3]}'
         out.append(ln)
-    return sorted(out, key=lambda ln: int(ln.split()[1])) + lines[-2:]
+    return sorted(out, key=stamp) + lines[-2:]
 
 
 def late_command(lines: list[str], at_ms: int) -> list[str]:
@@ -249,12 +356,12 @@ def late_command(lines: list[str], at_ms: int) -> list[str]:
                                                                                     'big') == 0x6101:
             continue
         out.append(ln)
-    return sorted(out, key=lambda ln: int(ln.split()[1])) + lines[-2:]
+    return sorted(out, key=stamp) + lines[-2:]
 
 
 def inserted(lines: list[str], line: str) -> list[str]:
     """The log with one more line, in cycle order."""
-    return sorted(lines[:-2] + [line], key=lambda ln: int(ln.split()[1])) + lines[-2:]
+    return sorted(lines[:-2] + [line], key=stamp) + lines[-2:]
 
 
 def extra_egress(lines: list[str]) -> list[str]:
@@ -280,6 +387,13 @@ CONTROLS = (
     ('unhandled-answer', lambda: without(clean().text(), slot_arm(1, 10_100)), SYS_HZ, 1, 1, 'was never handled'),
     ('handled-on-another-slot', lambda: [ln.replace(' 40000101 10100', ' 40000107 10100') for ln in clean().text()],
      SYS_HZ, 1, 1, 'was never handled'),
+    # each bind's own PROBE_TX (#868): the first bind causes none, so the next draw's must not stand in for it
+    ('bind-without-its-probe-tx', lambda: clean(probing=(1,)).text(), SYS_HZ, 1, 1,
+     'the BIND_RX acmp-bind-0 caused no PROBE_TX after its response and before the next bind'),
+    ('probe-tx-transactions-not-the-draws', lambda: clean(probing=(1,)).text(), SYS_HZ, 1, 1,
+     'ACMP: 1 PROBE_TX transactions graded (1 sent), the run asked for 2 draws'),
+    ('bind-refused', lambda: clean(bind_status=1).text(), SYS_HZ, 1, 1,
+     'the BIND_RX_RESPONSE to acmp-bind-0 (sequence_id 0x4100) carries status 1, not SUCCESS'),
     ('frame-before-commit', lambda: [late_commit(ln) for ln in clean().text()], SYS_HZ, 1, 1, 'before its commit'),
     ('incomplete-model', lambda: without(clean().text(), lambda ln: ln.startswith('==')), SYS_HZ, 1, 1,
      'did not complete'),
@@ -294,6 +408,11 @@ CONTROLS = (
     ('late-aecp-response', lambda: clean(aecp_cycles=240 * MS).text(), SYS_HZ, 1, 1,
      'aecp.response: 240.0 ms is not under 240.0 ms'),
     ('aecp-in-progress', lambda: clean(interim=True).text(), SYS_HZ, 1, 1, 'IN_PROGRESS answers'),
+    # a refused AEM and a refused MVU command (#868): NO_SUCH_DESCRIPTOR and NOT_IMPLEMENTED, where SUCCESS is stated
+    ('aem-refused', lambda: clean(aecp_status=2).text(), SYS_HZ, 1, 1,
+     'aecp-read_descriptor_entity-0 (sequence_id 0x6100) carries status 2, not the 0 its scenario states'),
+    ('mvu-refused', lambda: clean(aecp_status=1, commands=(5, 1)).text(), SYS_HZ, 1, 1,
+     'aecp-mvu_get_milan_info-0 (sequence_id 0x6100) carries status 1, not the 0 its scenario states'),
     # a command 300 ms before the log ends, unanswered: past its 240 ms bound, so a finding, never censored
     ('unanswered-before-the-end', lambda: late_command(clean().text(), 1499), SYS_HZ, 1, 1,
      'aecp-get_configuration-1 (sequence_id 0x6101) has no final response'),
@@ -321,14 +440,27 @@ CONTROLS = (
     ('adp-egress-past-ceiling', lambda: announced(late_cycles=400 * MS).text(), SYS_HZ, 1, 2, 'adp.egress: 400.'),
     # the one fault only the period at the wire sees: the same expiry's ENTITY_AVAILABLE sent twice
     ('available-sent-twice', lambda: announced(twice=True).text(), SYS_HZ, 1, 2, 'adp.advertise_period: 1.000 ms'),
+    # an entity that never advertises again after its startup, and one that stops (#868)
+    ('no-advertise-period', lambda: announced(delays=()).text(), SYS_HZ, 1, 2,
+     'adp.advertise_period: no sample in a run to its second ANNOUNCE'),
+    ('stopped-advertising', lambda: announced(delays=ADP_DELAYS[:2]).text(), SYS_HZ, 1, 2,
+     'the entity stopped advertising'),
+    # the load (#868): an echo lost after unrelated frames filled a history, and a received frame no tag accounts for
+    ('echo-skipped-after-the-announce', lambda: loaded(skip_after_announce=True).text(), SYS_HZ, 1, 1,
+     f'LOAD: 1 echoes of load aecp skipped on interface 0 at cycle {1750 * MS}, after its first ANNOUNCE left'),
+    ('received-frame-unaccounted', lambda: loaded(untagged=True).text(), SYS_HZ, 1, 1,
+     'LOAD: 14 delivered load frames and 4 a draw (2 draws) are not the 23 frames the model received'),
 )
 #: The clean logs, each graded at its interfaces and ANNOUNCEs, which must pass.
-#: Each with the commands it must report as censored.
-CLEAN = (('clean', lambda: clean().text(), 1, 1, []),
-         ('clean-announce-interval', lambda: announced().text(), 1, 2, []),
-         ('clean-two-interfaces', lambda: two_interfaces(clean().text()), 2, 1, []),
+#: Each with the commands it must report as censored, and the load it must report (None: not compared).
+CLEAN = (('clean', lambda: clean().text(), 1, 1, [], None),
+         ('clean-announce-interval', lambda: announced().text(), 1, 2, [], None),
+         ('clean-two-interfaces', lambda: two_interfaces(clean().text()), 2, 1, [], None),
          # the log ends 49 ms after a command, unanswered: within its bound, censored and not a finding
-         ('clean-censored-at-the-end', lambda: late_command(clean().text(), 1750), 1, 1, ['aecp-get_configuration-1']))
+         ('clean-censored-at-the-end', lambda: late_command(clean().text(), 1750), 1, 1, ['aecp-get_configuration-1'],
+          None),
+         # an echo found after UNRELATED frames sent since the ANNOUNCE; the deadline past the end queued, not met
+         ('clean-loaded', lambda: loaded().text(), 1, 1, [], LOADED))
 
 
 def outcome(lines: list[str], sys_hz: int, interfaces: int, announces: int) -> list[str]:
@@ -390,6 +522,43 @@ SCRIPT_CONTROLS = (
 )
 
 
+def reuse_words(edited: str | None) -> list[str]:
+    """wire_build.reused()'s words on a stand-in build directory recorded by wire_build.inputs itself, after
+    `edited`'s recorded digest is made another, as an edit of that source after the build leaves it (None: the
+    record as made)."""
+    import json
+    import tempfile
+    import wire_build
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp)
+        for rel in ('image/ctrl_app.elf', 'soc/gateware/rom.init', 'wire_config.hpp',
+                    f'split/{wire_build.SPLIT_ARCHIVE}', 'native/Vsim'):
+            (out / rel).parent.mkdir(parents=True, exist_ok=True)
+            (out / rel).write_text(f'stand-in {rel}\n')
+        spec = dict(elf=str(out / 'image/ctrl_app.elf'),
+                    sources=[str(wire_build.ROOT / 'hdl/milan/mailbox/KL_mbx_wb.sv')])
+        spec['inputs'] = wire_build.inputs(out, spec)
+        spec['executable_sha256'] = wire_build.digest(out / 'native/Vsim')
+        if edited is not None:
+            if edited not in spec['inputs']:
+                return [f'{edited} is not recorded']
+            spec['inputs'][edited] = '0' * 64
+        (out / 'build.json').write_text(json.dumps(spec))
+        try:
+            wire_build.reused(out)
+        except RuntimeError as why:
+            return [str(why)]
+    return []
+
+
+#: The reuse guard's controls (#868): a build is refused once any source it was built from changed, the split
+#: top's, the datapath's, KL_mbx's, the split recipe's and the firmware's among them (wire_build.inputs).
+REUSE_CONTROLS = (('clean-reuse', None, ''),
+                  *((f'reuse-after-an-edit-of-{key.rsplit("/", 1)[-1]}', key, f"'{key}'") for key in (
+                      'tb/verilator/milan_dp/tb_split_top.sv', 'hdl/milan/milan_datapath.sv',
+                      'hdl/milan/mailbox/KL_mbx.sv', 'tb/verilator/milan_dp/Makefile', 'tree:firmware')))
+
+
 def main() -> int:
     """Every control; exit 1 when a clean log fails or any control escapes."""
     failed = 0
@@ -398,10 +567,17 @@ def main() -> int:
         ok = not words if not wanted else any(wanted in w for w in words)
         print(f'control {name}: {("PASS" if not wanted else "caught: " + words[0]) if ok else "FAIL " + repr(words)}')
         failed += not ok
-    for name, log, interfaces, announces, censored in CLEAN:
+    for name, edited, wanted in REUSE_CONTROLS:
+        words = reuse_words(edited)
+        ok = not words if not wanted else any(wanted in w for w in words)
+        print(f'control {name}: {("PASS" if not wanted else "caught: " + words[0]) if ok else "FAIL " + repr(words)}')
+        failed += not ok
+    for name, log, interfaces, announces, censored, load in CLEAN:
         result, words = g.grade('\n'.join(log()) + '\n', SYS_HZ, 2, interfaces, announces)
         if result['censored'] != censored:
             words = [*words, f"censored {result['censored']}, not {censored}"]
+        if load is not None and result['load'] != load:
+            words = [*words, f"load {result['load']}, not {load}"]
         print(f'control {name}: {"PASS" if not words else "FAIL " + repr(words)}')
         failed += bool(words)
     for name, log, sys_hz, interfaces, announces, wanted in CONTROLS:
@@ -409,7 +585,7 @@ def main() -> int:
         caught = any(wanted in w for w in words)
         print(f'control {name}: {"caught" if caught else "ESCAPED"}: {words[0] if words else "no finding"}')
         failed += not caught
-    total = len(SCRIPT_CONTROLS) + len(CLEAN) + len(CONTROLS)
+    total = len(SCRIPT_CONTROLS) + len(REUSE_CONTROLS) + len(CLEAN) + len(CONTROLS)
     print(f'ctrl_wire_timing self-test: {total} controls, {failed} failed')
     return 1 if failed else 0
 

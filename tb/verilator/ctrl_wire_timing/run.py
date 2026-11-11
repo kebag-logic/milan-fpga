@@ -37,6 +37,7 @@ import os
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -174,17 +175,27 @@ def main() -> int:
             return 2
         run = dict(point=spec['point'], draws=wire_scenario.CAMPAIGN_DRAWS, seed=args.seed, load=args.load,
                    announces=wire_scenario.CAMPAIGN_ANNOUNCES)
-        return run_one(build_dir, spec, args.out.resolve(), run)
+        return refusing(lambda: run_one(build_dir, spec, args.out.resolve(), run))
     out = args.out.resolve() if args.out else build_dir / 'results' / f'{args.load}-s{args.seed}'
     if args.regrade:
         if not (out / 'wire.log').is_file() or not (out / 'wire.status').is_file() or not (out / 'run.json').is_file():
             print(f'REFUSED: no log, saved status and run parameters to regrade in {out}')
             return 2
-        return graded(spec, out)
+        return refusing(lambda: graded(spec, out))
     run = dict(point=spec['point'], draws=args.draws if args.draws is not None else DRAWS, seed=args.seed,
                load=args.load,
                announces=args.announces if args.announces is not None else wire_scenario.CI_ANNOUNCES)
-    return run_one(build_dir, spec, out, run)
+    return refusing(lambda: run_one(build_dir, spec, out, run))
+
+
+def refusing(step: Callable[[], int]) -> int:
+    """A run or a regrade, its refusal (a stimulus refused, a log the grader cannot read) exit 2 on every path."""
+    import wire_grade
+    try:
+        return step()
+    except (ValueError, wire_grade.Refused) as error:
+        print(f'REFUSED: {error}')
+        return 2
 
 
 if __name__ == '__main__':

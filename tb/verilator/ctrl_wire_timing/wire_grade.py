@@ -36,19 +36,25 @@ times out at 200 ms, replacing IEEE 1722.1-2021 Table 8-1's value):
     the command's last byte out, the talker's turnaround, and the response's
     last byte in to the handling;
   - the bind to the PROBE_TX it causes: the bind's first byte in to the
-    command's last byte out.
+    command's last byte out. A bind's PROBE_TX is the first one out after
+    the bind's own response and before the next draw's bind (every draw binds
+    the same stream, so its identity cannot tell the draws apart).
 Each must be under 200 ms; the margin to 200 ms is the figure. A command
 without its answer, or an answer without its command, is a finding, but for
 a command the log ends within the bound of, which is reported as censored:
 the run did not wait out that command's bound (wire_scenario.TAIL_MS waits
-it out after every run's last command).
+it out after every run's last command). So is a bind without its own
+PROBE_TX, a BIND_RX_RESPONSE whose status is not SUCCESS (IEEE 1722.1-2021
+Table 8-3), and a count of graded PROBE_TX transactions other than the draws.
 
 AECP (#868 item 3; IEEE 1722.1-2021 9.2.1, the AECP response the Issue
 names, whose bound is FR_NFR.md 3.4.1's 240 ms, IEEE 1722.1-2021 9.3.2.6 and
 Milan v1.2 5.4.3.4, NFR-LAT-02): each AEM or MVU command a draw sends, from
 its first byte in to the last byte out of its final response (the response
 with its sequence_id and message_type, IN_PROGRESS answers counted apart);
-censored as ACMP's.
+censored as ACMP's. A final response whose status is not the one the
+scenario states for its command (wire_scenario.AECP_COMMANDS: SUCCESS for
+every one) is a finding.
 
 MAAP (#868 item 2; IEEE 1722-2016 B.3.4.2: strictly 500 ms < probe interval
 < 600 ms; B.3.4.1: strictly 30 s < announce interval < 32 s). Each PROBE and
@@ -71,13 +77,25 @@ Graded: every advertise arm 5000 ms, every delay drawn inside its range, each
 AVAILABLE's egress from its delay's millisecond under FR_NFR.md 3.4.1's
 ceiling (400 ms, the startup's 200 ms), and each advertise period at the wire
 (consecutive AVAILABLEs, first byte to first byte) inside Table 5.50's 5 to
-9 s, widened by two milliseconds' phase below and the ceiling above.
+9 s, widened to 4998 to 9400 ms by two milliseconds' phase below and the
+ceiling above; the margin to the strict 9 s is published beside it. A run to
+a second ANNOUNCE must sample a period, and a log that runs on past the
+widened bound after its last AVAILABLE has stopped advertising: both
+findings.
 
 EGRESS. Each sent frame's mailbox commit to its first and last beat out, per
 protocol.
 
-LOAD. Each LOAD line, by name: the frames offered and the echoes skipped,
-reported so the stated load is in the result.
+LOAD. Each load, by name, three counts kept apart: what was queued (each LOAD
+line: an offer queued by a script step or by a timer slot's arm, the armed
+trigger, with its frames and the echoes skipped), what was delivered (the
+offers and frames, by their tag load-<name>-<n>, that reached the MAC or the
+bench's KL_mbx boundary inside the run), and, for a triggered load, the
+expiries met (its arm expired and its burst was delivered). Every frame
+received is a draw's (four a draw) or a delivered load frame: their sum must
+be the model's own count (SUMMARY rx_frames and bench_rx). An echo is skipped
+only while its interface has sent no ANNOUNCE; one skipped after is a
+finding.
 
 Exit codes of main(): 0 a pass, 1 a finding, 2 a refusal.
 """
@@ -110,6 +128,13 @@ ADP_CEILING_MS = 400.0
 ADP_STARTUP_CEILING_MS = 200.0
 #: The millisecond phases an advertise period can lose against its timers: one at each of its two arms.
 ADP_PHASE_MS = 2.0
+#: Milan v1.2 Table 5.50's own upper end of the advertise period, 5 s and 4 s: its margin is published beside the
+#: widened bound's.
+ADP_PERIOD_STRICT_MS = float(ADP_ADVERTISE_MS + ADP_DELAY_MS[1])
+#: ACMP and AECP status SUCCESS (IEEE 1722.1-2021 Table 8-3, Table 7-170).
+SUCCESS = 0
+#: The frames each draw sends at the MAC: its bind, its unbind, its AEM command and the talker's answer.
+FRAMES_PER_DRAW = 4
 #: The mailbox channels (sw/mailbox/mailbox.yaml), by index, and the protocol each one carries at the wire.
 CHANNELS = ('adp', 'acmp', 'aecp', 'maap', 'srp')
 #: AVTP control subtypes (IEEE 1722-2016 Table 6; IEEE 1722.1-2021 Table B.1).
@@ -175,6 +200,25 @@ class Wire:
 
 
 @dataclass
+class Offer:
+    """One LOAD line: a load's offer as the model queued it (wire_main.cpp)."""
+    begin: int
+    name: str
+    frames: int
+    skipped: int
+    at: int
+    trigger: int | None
+    skipped_on: list[int]
+    #: The interfaces whose first ANNOUNCE had left when the offer was queued (the log's order is the model's).
+    announced: frozenset[int]
+
+
+def is_announce(data: bytes) -> bool:
+    """A MAAP ANNOUNCE (IEEE 1722-2016 Table B.4): the AVTP control EtherType, subtype 0xFE, message_type 3."""
+    return data[12:15] == b'\x22\xf0\xfe' and (data[15] & 0x0F) == MAAP_ANNOUNCE
+
+
+@dataclass
 class Log:
     """The parsed log."""
     ms: list[tuple[int, int]] = field(default_factory=list)
@@ -185,7 +229,9 @@ class Log:
     txc: list[tuple[int, int]] = field(default_factory=list)
     mtx: list[tuple[int, int, int]] = field(default_factory=list)
     tmr: list[tuple[int, int, int]] = field(default_factory=list)
-    loads: dict[str, list[int]] = field(default_factory=dict)
+    offers: list[Offer] = field(default_factory=list)
+    #: Each tag's frames received whole, at the MAC (RXW) or at the bench's KL_mbx boundary (RXB).
+    received: dict[str, int] = field(default_factory=dict)
     ready: int | None = None
     summary: str = ''
     tally: str = ''
@@ -194,6 +240,7 @@ class Log:
 def parse(text: str) -> Log:
     """Every line the grade reads; others (UART, CSRW, CSRR, MARK) are kept out."""
     log = Log()
+    announced: set[int] = set()
     for line in text.splitlines():
         w = line.split()
         if not w:
@@ -202,12 +249,18 @@ def parse(text: str) -> Log:
             log.ms.append((int(w[1]), int(w[2])))
         elif w[0] == 'RXW':
             log.rx.append(Wire(int(w[1]), int(w[2]), bytes.fromhex(w[5]), w[4]))
+            log.received[w[4]] = log.received.get(w[4], 0) + 1
         elif w[0] == 'TXW':
             log.tx.append(Wire(int(w[1]), int(w[2]), bytes.fromhex(w[4])))
+            if is_announce(log.tx[-1].data):
+                announced.add(0)
         elif w[0] == 'RXB':
             log.bench_rx += 1
+            log.received[w[5]] = log.received.get(w[5], 0) + 1
         elif w[0] == 'TXB':
             log.bench_tx += 1
+            if is_announce(bytes.fromhex(w[6])):
+                announced.add(int(w[3]))
         elif w[0] == 'TXC':
             log.txc.append((int(w[1]), int(w[2])))
         elif w[0] == 'MTX':
@@ -215,10 +268,11 @@ def parse(text: str) -> Log:
         elif w[0] == 'TMR':
             log.tmr.append((int(w[1]), int(w[2], 16), int(w[3])))
         elif w[0] == 'LOAD':
-            tally = log.loads.setdefault(w[2], [0, 0, 0])
-            tally[0] += 1
-            tally[1] += int(w[3])
-            tally[2] += int(w[4])
+            if len(w) != 8:
+                raise Refused(f'a LOAD line without its queue cycle, trigger and skips per interface: {line[:80]}')
+            log.offers.append(Offer(int(w[1]), w[2], int(w[3]), int(w[4]), int(w[5]),
+                                    None if w[6] == '-' else int(w[6]), [int(n) for n in w[7].split(',')],
+                                    frozenset(announced)))
         elif w[0] == 'READY' and log.ready is None:
             log.ready = int(w[1])
         elif w[0] == 'SUMMARY':
@@ -226,6 +280,15 @@ def parse(text: str) -> Log:
         elif line.startswith('== ctrl_wire_timing: checks:'):
             log.tally = line
     return log
+
+
+def summary_count(log: Log, name: str) -> int:
+    """One of the model's own counts from its SUMMARY line."""
+    for word in log.summary.split()[1:]:
+        key, _, value = word.partition('=')
+        if key == name:
+            return int(value)
+    raise Refused(f'the SUMMARY line has no {name}, so the frames received cannot be accounted for')
 
 
 def clock(log: Log, sys_hz: int) -> float:
@@ -245,22 +308,27 @@ def clock(log: Log, sys_hz: int) -> float:
 
 @dataclass
 class Path_:
-    """One graded path's samples, in bus cycles."""
+    """One graded path's samples, in bus cycles; strict_ms a clause's own end, published beside a widened bound."""
     name: str
     clause: str
     bound_ms: float | None
     cycles: list[int] = field(default_factory=list)
+    strict_ms: float | None = None
 
     def row(self, us_per_cycle: float) -> dict:
         """The path's distribution in microseconds and milliseconds, with its bound and margin."""
         us = [c * us_per_cycle for c in self.cycles]
         out = dict(path=self.name, clause=self.clause, n=len(us), bound_ms=self.bound_ms)
+        if self.strict_ms is not None:
+            out['strict_ms'] = self.strict_ms
         if us:
             out.update(min_us=round(min(us), 3), mean_us=round(statistics.fmean(us), 3), max_us=round(max(us), 3),
                        min_ms=round(min(us) / 1000, 4), mean_ms=round(statistics.fmean(us) / 1000, 4),
                        max_ms=round(max(us) / 1000, 4))
             if self.bound_ms is not None:
                 out['margin_ms'] = round(self.bound_ms - max(us) / 1000, 4)
+            if self.strict_ms is not None:
+                out['strict_margin_ms'] = round(self.strict_ms - max(us) / 1000, 4)
         return out
 
 
@@ -371,7 +439,8 @@ class Window:
             findings.append(words)
 
 
-def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int], window: Window) -> list[Path_]:
+def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int], window: Window,
+         draws: int) -> list[Path_]:
     """The three ACMP paths (see the module's docstring), on interface 0."""
     slot = ACMP_FIRST_SLOT_IFS * interfaces
     bind = Path_('acmp.bind_rx', 'Milan v1.2 Table 5.26, BIND_RX (CONNECT_RX_COMMAND): first byte in to the '
@@ -389,18 +458,24 @@ def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, in
     probes = [w for w in log.tx if w.protocol == 'acmp' and w.kind == PROBE_TX]
     answers = [w for w in log.rx if w.protocol == 'acmp' and w.kind == PROBE_TX_RESPONSE]
     binds = [w for w in log.rx if w.protocol == 'acmp' and w.kind == BIND_RX and w.tag.startswith(BIND_TAG)]
-    for cmd in binds:
+    for n, cmd in enumerate(binds):
         resp = [r for r in responses if r.acmp_seq == cmd.acmp_seq and r.first > cmd.last]
         if not resp:
             window.unanswered(cmd, ACMP_TIMEOUT_MS, findings,
                               f'ACMP: the BIND_RX {cmd.tag} (sequence_id {cmd.acmp_seq:#06x}) has no BIND_RX_RESPONSE')
             continue
+        if resp[0].status != SUCCESS:
+            findings.append(f'ACMP: the BIND_RX_RESPONSE to {cmd.tag} (sequence_id {cmd.acmp_seq:#06x}) carries '
+                            f'status {resp[0].status}, not SUCCESS (IEEE 1722.1-2021 Table 8-3)')
         bind.cycles.append(resp[0].last - cmd.first)
-        after = [p for p in probes if p.first > cmd.last]
-        if not after:
-            findings.append(f'ACMP: the BIND_RX {cmd.tag} caused no PROBE_TX')
+        until = binds[n + 1].first if n + 1 < len(binds) else None   # its own: before the next draw's bind
+        own = [p for p in probes if p.first > resp[0].last and (until is None or p.first < until)]
+        if not own:
+            window.unanswered(cmd, ACMP_TIMEOUT_MS, findings,
+                              f'ACMP: the BIND_RX {cmd.tag} caused no PROBE_TX after its response and before the '
+                              'next bind')
             continue
-        cause.cycles.append(after[0].last - cmd.first)
+        cause.cycles.append(own[0].last - cmd.first)
     slot_arms = [at for at, _ in arms(log, slot)]
     starts = sorted(commit_of[id(p)] for p in probes)
     for p in probes:
@@ -423,17 +498,24 @@ def acmp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, in
     extra = [a for a in answers if not any(p.acmp_seq == a.acmp_seq for p in probes)]
     for a in extra:
         findings.append(f'ACMP: a PROBE_TX_RESPONSE (sequence_id {a.acmp_seq:#06x}) answers no PROBE_TX')
+    if len(probe.cycles) != draws:
+        findings.append(f'ACMP: {len(probe.cycles)} PROBE_TX transactions graded ({len(probes)} sent), the run '
+                        f'asked for {draws} draws, one a bind')
     return [bind, cause, probe, entity, egress, turn, ingress]
 
 
-def aecp(log: Log, findings: list[str], window: Window) -> list[Path_]:
-    """Each graded AEM or MVU command's response time (see the module's docstring), and per command."""
+def aecp(log: Log, findings: list[str], window: Window, statuses: dict[str, int]) -> list[Path_]:
+    """Each graded AEM or MVU command's response time (see the module's docstring), and per command; `statuses`
+    the status each command's final response must carry, by its name in the tag."""
     total = Path_('aecp.response', "IEEE 1722.1-2021 9.2.1 (FR_NFR.md 3.4.1's 240 ms): an AEM or MVU command's "
                   "first byte in to its final response's last byte out", AECP_RESPONSE_MS)
     per: dict[str, Path_] = {}
     commands = [w for w in log.rx if w.protocol == 'aecp' and w.tag.startswith(AECP_TAG)]
     interim = 0
     for cmd in commands:
+        name = cmd.tag[len(AECP_TAG):].rsplit('-', 1)[0]
+        if name not in statuses:
+            raise Refused(f'the graded AEM command {cmd.tag} has no status stated for it (wire_scenario.AECP_COMMANDS)')
         want = AECP_RESPONSE_OF.get(cmd.kind)
         resp = [r for r in log.tx if r.protocol == 'aecp' and r.kind == want and r.aecp_seq == cmd.aecp_seq
                 and r.first > cmd.last]
@@ -443,8 +525,11 @@ def aecp(log: Log, findings: list[str], window: Window) -> list[Path_]:
             window.unanswered(cmd, AECP_RESPONSE_MS, findings,
                               f'AECP: the command {cmd.tag} (sequence_id {cmd.aecp_seq:#06x}) has no final response')
             continue
+        if final[0].status != statuses[name]:
+            findings.append(f'AECP: the final response to {cmd.tag} (sequence_id {cmd.aecp_seq:#06x}) carries status '
+                            f'{final[0].status}, not the {statuses[name]} its scenario states (IEEE 1722.1-2021 '
+                            'Table 7-170)')
         total.cycles.append(final[0].last - cmd.first)
-        name = cmd.tag[len(AECP_TAG):].rsplit('-', 1)[0]
         per.setdefault(name, Path_(f'aecp.response.{name}', 'the same, for one command', None)).cycles.append(
             final[0].last - cmd.first)
     if interim:
@@ -495,17 +580,21 @@ def maap(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, in
     return [egress, probe, announce, error]
 
 
-def adp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int], us: float) -> list[Path_]:
+def adp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int], us: float,
+        announces: int) -> list[Path_]:
     """ADP's advertise period and each ENTITY_AVAILABLE's egress at the wire (see the module's docstring)."""
     ms = Clock(log)
     slot = ADP_FIRST_SLOT_IFS * interfaces
     fired = expiries(log, slot, ms)
     slot_arms = arms(log, slot)
     frames = [w for w in log.tx if w.protocol == 'adp' and w.kind == ADP_AVAILABLE]
+    low = ADP_ADVERTISE_MS + ADP_DELAY_MS[0] - ADP_PHASE_MS
+    high = ADP_ADVERTISE_MS + ADP_DELAY_MS[1] + ADP_CEILING_MS
     egress = Path_('adp.egress', "an ENTITY_AVAILABLE's delay millisecond to its first byte out, under "
                    "FR_NFR.md 3.4.1's 400 ms", ADP_CEILING_MS)
     period = Path_('adp.advertise_period', 'Milan v1.2 Table 5.50: consecutive ENTITY_AVAILABLEs, first byte to '
-                   'first byte, inside 5 to 9 s', ADP_ADVERTISE_MS + ADP_DELAY_MS[1] + ADP_CEILING_MS)
+                   f'first byte, 5 to 9 s, graded inside {low:.0f} to {high:.0f} ms (two milliseconds\' phase '
+                   "below, FR_NFR.md 3.4.1's 400 ms ceiling above)", high, strict_ms=ADP_PERIOD_STRICT_MS)
     for n, w in enumerate(frames):
         arm = expired_arm(fired, commit_of[id(w)])
         if arm is None:
@@ -525,14 +614,18 @@ def adp(log: Log, findings: list[str], interfaces: int, commit_of: dict[int, int
         if nxt is not None and nxt[1] - ms.now(nxt[0]) != ADP_ADVERTISE_MS:
             findings.append(f'ADP: the advertise timer after the ENTITY_AVAILABLE at cycle {w.first} is '
                             f'{nxt[1] - ms.now(nxt[0])} ms, not 5000 ms (Milan v1.2 Table 5.50)')
-    low = ADP_ADVERTISE_MS + ADP_DELAY_MS[0] - ADP_PHASE_MS
-    high = ADP_ADVERTISE_MS + ADP_DELAY_MS[1] + ADP_CEILING_MS
     for a, b in zip(frames, frames[1:]):
         gap = b.first - a.first
         period.cycles.append(gap)
         if not low <= gap * us / 1000 < high:
             findings.append(f'adp.advertise_period: {gap * us / 1000:.3f} ms is not inside {low} to {high} ms '
                             '(Milan v1.2 Table 5.50)')
+    if announces > 1 and not period.cycles:
+        findings.append('adp.advertise_period: no sample in a run to its second ANNOUNCE (Milan v1.2 Table 5.50)')
+    quiet = (log.ms[-1][0] - frames[-1].first) * us / 1000 if frames else 0.0
+    if quiet >= high:
+        findings.append(f'adp.advertise_period: no ENTITY_AVAILABLE in the log\'s last {quiet:.3f} ms, past the '
+                        f'{high} ms bound: the entity stopped advertising (Milan v1.2 Table 5.50)')
     return [egress, period]
 
 
@@ -546,14 +639,55 @@ def egress(log: Log, matched: list[tuple[Wire, int]]) -> list[Path_]:
     return [p for n in CHANNELS for p in (first[n], last[n]) if p.cycles]
 
 
+def loads(log: Log, findings: list[str], draws: int, ms: Clock) -> dict[str, dict]:
+    """Each load's queued, delivered and met counts (see LOAD in the module's docstring), and the checks on them."""
+    fired = {slot: {at for at, _, _ in expiries(log, slot, ms)} for slot in {o.trigger for o in log.offers}
+             if slot is not None}
+    out: dict[str, dict] = {}
+    numbered: dict[str, int] = {}
+    for offer in log.offers:
+        k = numbered[offer.name] = numbered.get(offer.name, -1) + 1
+        got = log.received.get(f'load-{offer.name}-{k}', 0)
+        t = out.setdefault(offer.name, dict(queued_offers=0, queued_frames=0, skipped=0, armed=0, delivered_offers=0,
+                                            partial_offers=0, delivered_frames=0, expiries_met=0))
+        t['queued_offers'] += 1
+        t['queued_frames'] += offer.frames
+        t['skipped'] += offer.skipped
+        t['delivered_frames'] += got
+        whole = got == offer.frames
+        t['delivered_offers'] += whole
+        t['partial_offers'] += 0 < got < offer.frames
+        if got > offer.frames:
+            findings.append(f'LOAD: {got} frames of offer {k} of load {offer.name} were received, {offer.frames} '
+                            'were queued')
+        if offer.trigger is not None:
+            t['armed'] += 1
+            t['expiries_met'] += whole and offer.at in fired[offer.trigger]
+        for interface, skipped in enumerate(offer.skipped_on):
+            if skipped and interface in offer.announced:
+                findings.append(f'LOAD: {skipped} echoes of load {offer.name} skipped on interface {interface} at '
+                                f'cycle {offer.at}, after its first ANNOUNCE left')
+    delivered = sum(t['delivered_frames'] for t in out.values())
+    received = summary_count(log, 'rx_frames') + summary_count(log, 'bench_rx')
+    if delivered + FRAMES_PER_DRAW * draws != received:
+        findings.append(f'LOAD: {delivered} delivered load frames and {FRAMES_PER_DRAW} a draw ({draws} draws) are '
+                        f'not the {received} frames the model received (SUMMARY rx_frames + bench_rx)')
+    return out
+
+
 #: The paths every run must sample: the bound is checked only where samples exist, so a run that lost its draws or
 #: its timers would otherwise pass.
 REQUIRED = ('acmp.bind_rx', 'acmp.probe_tx', 'aecp.response', 'maap.egress', 'maap.probe_interval',
             'maap.interval_error', 'adp.egress')
 
 
-def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: int = 1) -> tuple[dict, list[str]]:
-    """The result and the findings; Refused when the log cannot be graded."""
+def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: int = 1,
+          statuses: dict[str, int] | None = None) -> tuple[dict, list[str]]:
+    """The result and the findings; Refused when the log cannot be graded. `statuses`: each graded AEM command's
+    stated final status, by default the scenario's (wire_scenario.aecp_statuses)."""
+    if statuses is None:
+        import wire_scenario
+        statuses = wire_scenario.aecp_statuses()
     log = parse(text)
     if not log.tally.endswith('failures: 0 =='):
         raise Refused(f'the model did not complete: {log.tally or "no tally"}')
@@ -564,8 +698,9 @@ def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: in
     matched = matched_commits(log)
     commit_of = {id(w): at for w, at in matched}
     window = Window(log.ms[-1][0], sys_hz // 1000)
-    paths = acmp(log, findings, interfaces, commit_of, window) + aecp(log, findings, window) + \
-        maap(log, findings, interfaces, commit_of, us) + adp(log, findings, interfaces, commit_of, us)
+    paths = acmp(log, findings, interfaces, commit_of, window, draws) + aecp(log, findings, window, statuses) + \
+        maap(log, findings, interfaces, commit_of, us) + adp(log, findings, interfaces, commit_of, us, announces)
+    load = loads(log, findings, draws, Clock(log))
     binds = len([w for w in log.rx if w.protocol == 'acmp' and w.kind == BIND_RX and w.tag.startswith(BIND_TAG)])
     if binds != draws:
         findings.append(f'ACMP: the log carries {binds} BIND_RX commands, the run asked for {draws}')
@@ -587,8 +722,7 @@ def grade(text: str, sys_hz: int, draws: int, interfaces: int = 1, announces: in
                   interfaces=interfaces, announces=announces, rx_frames=len(log.rx), tx_frames=len(log.tx),
                   bench_rx_frames=log.bench_rx, bench_tx_frames=log.bench_tx,
                   simulated_ms=log.ms[-1][1], summary=log.summary, censored=window.censored,
-                  load={name: dict(offers=t[0], frames=t[1], skipped=t[2]) for name, t in sorted(log.loads.items())},
-                  rows=rows)
+                  load=dict(sorted(load.items())), rows=rows)
     return result, findings
 
 
@@ -602,10 +736,18 @@ def table(result: dict) -> str:
         out.append(f"| `{r['path']}` | {r['n']} | {r['min_us']:.3f} | {r['mean_us']:.3f} | {r['max_us']:.3f} | "
                    f"{r['min_ms']:.4f} | {r['mean_ms']:.4f} | {r['max_ms']:.4f} | "
                    f"{r['bound_ms'] if r['bound_ms'] is not None else '-'} | {r.get('margin_ms', '-')} |")
-    loads = ', '.join(f"{name}: {t['offers']} offers, {t['frames']} frames, {t['skipped']} echoes skipped"
-                      for name, t in result['load'].items()) or 'none'
+    strict = [f"`{r['path']}`: {r['strict_margin_ms']} ms to the strict {r['strict_ms']:.0f} ms"
+              for r in result['rows'] if r.get('strict_margin_ms') is not None]
+    loads = '; '.join(
+        f"{name}: queued {t['queued_offers']} offers ({t['armed']} by a timer's arm), {t['queued_frames']} frames, "
+        f"{t['skipped']} echoes skipped; delivered (reached the MAC or the bench inside the run) "
+        f"{t['delivered_offers']} offers whole, {t['partial_offers']} in part, {t['delivered_frames']} frames"
+        + (f"; expiries met {t['expiries_met']}" if t['armed'] else '')
+        for name, t in result['load'].items()) or 'none'
     censored = ', '.join(result['censored']) or 'none'
-    return '\n'.join(out) + (f"\n\nLoad: {loads}. Simulated {result['simulated_ms']} ms. Censored (the log ends "
+    strict_text = ', '.join(strict) or 'none'
+    return '\n'.join(out) + (f"\n\nMargin to a clause's own end, beside its widened bound: {strict_text}."
+                              f"\n\nLoad: {loads}. Simulated {result['simulated_ms']} ms. Censored (the log ends "
                               f"within the command's bound, unanswered): {censored}.\n")
 
 

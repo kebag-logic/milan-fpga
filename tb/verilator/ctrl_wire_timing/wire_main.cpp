@@ -37,7 +37,13 @@
 // Load (#868): a named set of frames (defload), offered at once (load) or a
 // stated lead before every deadline a timer slot is armed with (onarm), so the
 // frames meet the loop when that timer expires. Frames wait in one queue per
-// interface in the order of the cycle they may be offered from.
+// interface in the order of the cycle they may be offered from; each carries
+// the tag load-<name>-<n>, its load's n-th offer, so the grader counts the
+// frames of each offer that reached the MAC. An echo is the newest frame its
+// interface sent that matches its selectors, kept for that echo as each frame
+// is sent from the echo's definition on, so no other frame, of its channel or
+// another, can push it out (the CPU budget harness keeps its history per
+// channel; a MAAP echo's own channel carries the DEFENDs the echoes cause).
 //
 // Output lines, which wire_grade.py grades:
 //   MS <cycle> <now_ms>                    each millisecond pulse
@@ -53,8 +59,13 @@
 //   TXC <cycle> <channel> <value>          a TX_HEAD write: a mailbox commit
 //   TMR <cycle> <value> <deadline>         a TMR_CMD write, the deadline the
 //                                          last TMR_DEADLINE write gave
-//   LOAD <cycle> <name> <offered> <skipped>  a load's frames queued; an echo with
-//                                          no frame to copy is skipped
+//   LOAD <from> <name> <offered> <skipped> <at> <trigger> <skipped per if>
+//                                          a load's frames queued at cycle <at>,
+//                                          to be offered from <from>, by a timer
+//                                          slot's arm (<trigger>, the slot) or a
+//                                          script step (-); an echo with no frame
+//                                          to copy is skipped, counted per
+//                                          interface (comma-separated)
 //   CSRW|CSRR <cycle> <offset> <value> <cycles>  a CSR window access
 //   RXSTALL <cycle>                        a received beat the datapath refused
 //   UART <cycle> <hex byte>; READY <cycle>; MARK <cycle> <label>
@@ -117,13 +128,15 @@ struct Frame {
 };
 
 //! One load item: a frame for an interface, or an echo, a copy of the newest frame that interface sent whose
-//! bytes match every selector, patched (the CPU budget harness's reply), and skipped while there is none.
+//! bytes match every selector, patched (the CPU budget harness's reply), and skipped while there is none. An
+//! echo keeps its own newest match (latest), so no other frame sent can displace it.
 struct LoadItem {
     unsigned interface = 0;
     std::vector<std::uint8_t> bytes;
     bool echo = false;
     std::vector<std::pair<std::size_t, std::uint8_t>> select;
     std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> patch;
+    std::vector<std::uint8_t> latest;
 };
 
 struct Trigger { unsigned slot; std::uint64_t lead; std::string load; };
@@ -308,7 +321,7 @@ private:
             if ((host_wdata_ & 0xFFu) != trig.slot) continue;
             // the cycle NOW_MS reaches the deadline, less the lead; at once when that has passed
             const std::uint64_t due = deadline_ > now_ms_ ? ms_cycle_ + std::uint64_t(deadline_ - now_ms_) * ms_div : sys_;
-            offer(trig.load, due > sys_ + trig.lead ? due - trig.lead : sys_);
+            offer(trig.load, due > sys_ + trig.lead ? due - trig.lead : sys_, std::to_string(trig.slot));
         }
     }
 
@@ -472,11 +485,11 @@ private:
         top.bench_rx_last = b_rx_offset_ + 1 == f.bytes.size();
     }
 
-    //! The newest frames each interface sent, for the echoes.
+    //! A frame an interface sent: each echo of that interface it matches keeps it as its newest.
     void history(unsigned interface, const std::vector<std::uint8_t>& sent) {
-        auto& h = sent_.at(interface);
-        h.push_back(sent);
-        if (h.size() > 64) h.pop_front();
+        for (auto& [name, items] : loads_def_)
+            for (LoadItem& item : items)
+                if (item.echo && item.interface == interface && matches(sent, item.select)) item.latest = sent;
     }
 
     void queue(unsigned interface, Frame f) {
@@ -486,19 +499,19 @@ private:
         else enqueue(b_rx_[interface], std::move(f), b_if_ == interface && b_rx_offset_ > 0);
     }
 
-    //! A named load's frames, queued to be offered from cycle `from`; an echo copies what was sent by now.
-    void offer(const std::string& name, std::uint64_t from) {
+    //! A named load's frames, queued to be offered from cycle `from`, each tagged with the load's offer number;
+    //! an echo copies what was sent by now. `trigger` is the timer slot whose arm queued it, or - for a step.
+    void offer(const std::string& name, std::uint64_t from, const std::string& trigger) {
         const auto found = loads_def_.find(name);
         if (found == loads_def_.end()) throw std::runtime_error("no load named " + name);
+        const std::string tag = "load-" + name + "-" + std::to_string(offers_[name]++);
         unsigned offered = 0, skipped = 0;
+        std::array<unsigned, n_if> skipped_on{};
         for (const LoadItem& item : found->second) {
-            Frame f{"load-" + name, item.bytes, from};
+            Frame f{tag, item.bytes, from};
             if (item.echo) {
-                const auto& h = sent_.at(item.interface);
-                auto it = h.rbegin();
-                while (it != h.rend() && !matches(*it, item.select)) ++it;
-                if (it == h.rend()) { ++skipped; continue; }
-                f.bytes = *it;
+                if (item.latest.empty()) { ++skipped; ++skipped_on.at(item.interface); continue; }
+                f.bytes = item.latest;
                 for (const auto& [at, bytes] : item.patch)
                     for (std::size_t i = 0; i < bytes.size(); ++i) f.bytes.at(at + i) = bytes[i];
             }
@@ -506,11 +519,17 @@ private:
             ++offered;
         }
         ++loads_;
-        std::printf("LOAD %llu %s %u %u\n", ull(from), name.c_str(), offered, skipped);
+        std::string per_if;
+        for (unsigned i = 0; i < n_if; ++i) per_if += (i ? "," : "") + std::to_string(skipped_on[i]);
+        std::printf("LOAD %llu %s %u %u %llu %s %s\n", ull(from), name.c_str(), offered, skipped, ull(sys_),
+                    trigger.c_str(), per_if.c_str());
     }
 
     //! defload <name> <item>...: <if>/<hex> a frame; <if>/echo/<at>:<byte>[,<at>:<byte>...]/<at>=<hex>... an echo.
     void define_load(const Step& s) {
+        // an echo matches the frames sent from its definition on, so every load is defined before the first
+        if (tx_frames_ || b_tx_frames_) throw std::runtime_error("defload after the first frame sent: " + s.args.at(0));
+        if (loads_def_.count(s.args.at(0))) throw std::runtime_error("a load defined twice: " + s.args.at(0));
         std::vector<LoadItem> items;
         for (std::size_t a = 1; a < s.args.size(); ++a) {
             std::vector<std::string> parts;
@@ -588,7 +607,7 @@ private:
             } else if (s.op == "defload") {
                 define_load(s);
             } else if (s.op == "load") {
-                offer(s.args.at(0), sys_);
+                offer(s.args.at(0), sys_, "-");
             } else if (s.op == "onarm") {            // onarm <slot> <lead cycles> <load>
                 triggers_.push_back(Trigger{unsigned(std::stoul(s.args.at(0))), std::stoull(s.args.at(1)), s.args.at(2)});
             } else if (s.op == "reply") {
@@ -628,10 +647,10 @@ private:
     std::vector<Reply> replies_;
     std::deque<Frame> rx_;
     std::array<std::deque<Frame>, n_if> b_rx_;
-    std::array<std::deque<std::vector<std::uint8_t>>, n_if> sent_;
     std::vector<std::vector<std::uint8_t>> sent_all_;
     std::vector<std::pair<std::size_t, std::uint8_t>> sent_match_;
     std::map<std::string, std::vector<LoadItem>> loads_def_;
+    std::map<std::string, unsigned> offers_;
     std::vector<Trigger> triggers_;
     std::vector<std::uint8_t> b_tx_bytes_;
     std::uint64_t ms_cycle_ = 0;
