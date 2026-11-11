@@ -91,11 +91,11 @@ decision record for the one deliberate 2011-vs-2020 wire difference
 
 | Clause | Requirement | Status / evidence |
 |---|---|---|
-| 4.2.7.1 | MRP support + Table 4.3 timer tolerances | implemented -- PP srp_top / timer_service; since processor pin `b2db3a97` PP srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3, and a received LeaveAll restarts the leavealltimer (802.1Q-2014 Table 10-5) |
+| 4.2.7.1 | MRP support + Table 4.3 timer tolerances | implemented -- PP srp_top / timer_service; since processor pin `b2db3a97` PP srp_top suite grades joinTime, the periodictimer and the leavealltimer against Table 4.3, and a received LeaveAll restarts the leavealltimer (802.1Q-2014 Table 10-5); since processor pin `801ef228` (#857) the MVRP LeaveAll runs with nothing declared (802.1Q-2018 10.7.9), graded on the AX7101 1x1 shape by milan_dp `obj_crflic` `[MVRPLA]` |
 | 4.2.7.1.2 / .3 | malformed-MRPDU tolerance; EndMark 0x0000 | implemented — PP srp_decoder / srp_encoder |
 | 4.2.7.2.1 | Domain: SR class A, priority 3, VID 2 | implemented — PP srp_top; SILICON reservation against a real bridge; the adopted {priority, VID} pair tags every emitted frame |
 | 4.2.7.2.2 | instantaneous IN→MT registrar transition | implemented — PP srp_stream_fsms |
-| 4.2.7.3 / 4.4.1 | MVRP (talker + listener) | implemented -- PP srp suites; SILICON join; since processor pin `b2db3a97` the talker licence waits for the stream VID's MVRP join to leave (4.3.2), graded by the PP srp_top suite, R1-R4 |
+| 4.2.7.3 / 4.4.1 | MVRP (talker + listener) | implemented -- PP srp suites; SILICON join; since processor pin `b2db3a97` the talker licence waits for the stream VID's MVRP join to leave (4.3.2), graded by the PP srp_top suite, R1-R4; since processor pin `801ef228` (#860) a VID's declaration sends New twice, then JoinMt while its Registrar is MT (802.1Q-2018 Table 10-3, 10.7.6.3), graded by milan_dp `obj_crflic` `[MRPAPP]` |
 | 4.3.3 | talker attribute declaration + Table 4.4 bandwidth | implemented: TSpec derived per source from real frame geometry (`milan_datapath`: AAF 24·N + 24 + 1, CRF 28 + 1, #774), declared by the processor; RTL milan_dp `[TSPEC]` on the AX 1x1 and 8x8 shapes |
 
 ### 1.3 AECP AEM command set (Section 5.4.2)
@@ -116,7 +116,7 @@ input, are silently refused.
 | 5.4.2.1 | ACQUIRE_ENTITY | not-supported | Milan's required refusal, `owner_id` 0 — PP pp_top; RTL pp_shadow |
 | 5.4.2.2 | LOCK_ENTITY (+ auto-unlock push) | implemented | PP pp_top + aecp_notify |
 | 5.4.2.3 | ENTITY_AVAILABLE | implemented | RTL milan_dp `[AECP-MODEL]` |
-| 5.4.2.4 | READ_DESCRIPTOR | implemented | RTL milan_dp — walks every generated descriptor + absent-descriptor oracle |
+| 5.4.2.4 | READ_DESCRIPTOR | implemented | RTL milan_dp -- walks every generated descriptor + absent-descriptor oracle; since processor pin `801ef228` (#858) the ENTITY descriptor's available_index is the last ENTITY_AVAILABLE's (IEEE 1722.1-2021 Table 7-2, 6.2.2.15), graded against the wire by milan_dp `obj_notify` `[AIDX]` |
 | 5.4.2.5 / .6 | SET/GET_CONFIGURATION | implemented | lock-guarded; `STREAM_IS_RUNNING` reduction — PP dyn_state + pp_top |
 | 5.4.2.7 / .8 | SET/GET_STREAM_FORMAT | implemented | landed 0x0053 with the bound/streaming interlocks |
 | 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included: PP pp_top byte-exact. Since #508 a Stream Input's probing/ACMP status (5.3.8.6) and failure code and bridge id (5.3.8.8) come from processor state; `milan_dp` `obj_notify` `[GSI]` grades every transition on both sinks, solicited and unsolicited. Since [#790](https://github.com/kebag-logic/milan-fpga/issues/790) (processor #206) a Stream Input's stream_id, stream_dest_mac and stream_vlan_id and their Table 5.9 flags are reported only while it is settled (5.4.2.10.1): `[GSI]` G11 and the `pp_shadow` `[GSI]` group grade bound and probing, settled, PROBING_PASSIVE with a stale ID and unbound, and `make gsi-mutants` plants the pass-through. A Stream Output's stream_id is the current one, moved after a MAAP conflict (processor #202, #799) |
