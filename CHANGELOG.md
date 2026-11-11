@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
 - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
 - **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
@@ -55,6 +56,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 801ef228
+
+- Issue #883 adopts processor `801ef228` (PRs #218 and #219).
+- It adopts FPGA-gPTP `a64be73d` (PR #103) too.
+- A declaration now sends New twice, then its Join.
+- 802.1Q-2018 Table 10-3 says so.
+- JoinIn needs the Registrar IN (10.7.6.3).
+- Before, the Domain and VID 2 sent one New.
+- VID 2 also sent JoinIn with nothing registered (#860).
+- MVRP now sends LeaveAll with nothing declared (10.7.9).
+- Before, it fell silent with nothing declared (#857).
+- READ_DESCRIPTOR(ENTITY) reports the last advertised available_index.
+- IEEE 1722.1-2021 Table 7-2 requires it.
+- Before, it read the AEM image's constant 0 (#858).
+- FPGA-gPTP `a64be73d` changes test infrastructure only.
+- No top-level port, parameter or register changes.
+- The `milan_dp` crflic and notify legs grade all three.
+- At the old pins those checks fail.
+- Planted processor arms fail them in two campaigns.
+- The #851 control now plants both of its layers.
+- The best directive, ExtraPostPlacementOpt, is at +0.334 ns.
+- Every corner meets the floor.
+- Placement leaves 1 of 15,850 slices free.
+- Against #854's route it moves -73 LUTs, +121 FFs.
+- The resource gate passes all three endpoints.
+- All three records are re-recorded.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
+- The [pin page](docs/reference/SUBMODULES.md) gives the adopted changes.
 
 ## Unreleased - control-frame drop count
 

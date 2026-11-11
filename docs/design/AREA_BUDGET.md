@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
 It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#854](https://github.com/kebag-logic/milan-fpga/issues/854)'s lane commit `7a19f62b` on dev `ac0a01e3`, with processor `044cb25f` and FPGA-gPTP `1616fc8f`: the image with all four lab fixes and the control-frame drop count.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s lane commit `a89802c8` on dev `46c971fa`, with processor `801ef228` and FPGA-gPTP `a64be73d`: the image with all four lab fixes, the control-frame drop count, and processor #216's MRP Applicant and LeaveAll and #217's ENTITY available_index.
 Its figures back the protocol processor budget and resource gate below.
 
 The current command and media-clock claims are checked against the
@@ -132,7 +132,10 @@ Against #843's record the gate passed all three endpoints; they are re-recorded 
 That measurement was the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) retain the preceding record.
 Issue [#854](https://github.com/kebag-logic/milan-fpga/issues/854) then re-recorded all three endpoints at lane commit `7a19f62b` on dev `ac0a01e3`, for the all-fabric tap's control-frame drop count.
 Against #851's record the gate passed all three endpoints; they are re-recorded because the change moves the shipping image.
-That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) retain the preceding record.
+That measurement was the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) retain the preceding record.
+Issue [#883](https://github.com/kebag-logic/milan-fpga/issues/883) then re-recorded all three endpoints at lane commit `a89802c8` on dev `46c971fa`, adopting processor `801ef228` with FPGA-gPTP `a64be73d`.
+Against #854's record the gate passed all three endpoints; they are re-recorded because the change moves the shipping image.
+That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-11-processor-801ef228-with-fpga-gptp-a64be73d) retain the preceding record.
 All these measurements use the same recipe identity and policy.
 The route record's placement directive is ExtraPostPlacementOpt, the one flow difference the gate allows.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
@@ -149,17 +152,20 @@ The [#799](https://github.com/kebag-logic/milan-fpga/issues/799) route was 13,97
 The shipping image must fit the device.
 The resource gate holds it, with no other LUT bound:
 
-| Resource | Device | Shipping route, #854 on dev `ac0a01e3`, processor `044cb25f`, FPGA-gPTP `1616fc8f`, ExtraPostPlacementOpt | Used | Target | Status |
+| Resource | Device | Shipping route, #883 on dev `46c971fa`, processor `801ef228`, FPGA-gPTP `a64be73d`, ExtraPostPlacementOpt | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 53,534 | 84.44 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
-| Slice register | 126,800 | 54,850 | 43.26 % | none stated | - |
-| Slice | 15,850 | 15,820 | 99.81 % | must stay below the device to place | 30 free |
+| Slice LUT | 63,400 | 53,461 | 84.32 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
+| Slice register | 126,800 | 54,971 | 43.35 % | none stated | - |
+| Slice | 15,850 | 15,849 | 99.99 % | must stay below the device to place | 1 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
 | DSP | 240 | 15 | 6.25 % | none stated | - |
-| WNS / WHS | - | +0.166 / +0.032 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+| WNS / WHS | - | +0.334 / +0.017 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: the selected route places 15,820 slices, so placement has 30 of 15,850 left.
+The slice row is the binding limit: the selected route places 15,849 slices, so placement has 1 of 15,850 left.
+The two comparison directives place all 15,850 and still meet the build floor at every corner, at +0.218 and +0.162 ns.
+#854's route placed 15,820 slices, 30 left; #883's processor adds about 214 LUTs out of context, which the route absorbs at -73 LUTs and +29 slices.
+So the next growth on the shipping image has no slice margin at all; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) is what recovers it.
 The shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` placed 15,823 slices, 27 left.
 That route met the build floor at every corner, at +0.032 / +0.034 ns. Its WNS was 0.408 ns under the +0.440 ns record then held, beyond the 0.25 ns fall tolerance.
 Before [#818](https://github.com/kebag-logic/milan-fpga/issues/818) the gate refused that fall; under #818 it prints a WARNING and passes.

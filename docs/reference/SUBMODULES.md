@@ -856,6 +856,92 @@ Against it, `check` and `check-baseline` exit 0.
 
 The [area budget](../design/AREA_BUDGET.md) gives the figures.
 
+Issue #883 adopts processor pin `801ef228` and FPGA-gPTP pin `a64be73d`.
+
+Each fast-forwards the old pin on its donor's `main`.
+
+| Donor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| Processor #216, MRP Applicant and MVRP LeaveAll | [218](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/218), merge commit `45f03e04` | A new declaration sends New on two `tx!` opportunities, then the Join its Registrar gives: JoinIn with it IN, JoinMt otherwise (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3). Before, the Domain and each VID sent one New, and a VID sent JoinIn with its Registrar MT (#860). MVRP's LeaveAll state machine now runs with nothing declared and sends the LeaveAll-only MVRPDU (10.7.9, Table 10-5); before, MVRP fell silent once it declared nothing (#857) |
+| Processor #217, ENTITY `available_index` from ADP | [219](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/219), merge commit `801ef228` | READ_DESCRIPTOR(ENTITY) carries the available_index of the last ENTITY_AVAILABLE sent, 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Table 7-2, 6.2.2.15); before, the AEM image's constant 0 (#858) |
+| FPGA-gPTP #102, concurrent engine mutants | [103](https://github.com/Mister-M-alt/FPGA-gPTP/pull/103), merge commit `a64be73d` | Test infrastructure only: `hdl/` and `syn/` are byte-identical, and `gptp_ucode.hex` matches the `1616fc8f` row |
+
+The top's ports, parameters and register map are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+`ucode.hex` changes; its new ledger row is recorded.
+
+`ltn_rom.hex` matches the `044cb25f` row.
+
+The `milan_dp` crflic leg grades #860 and #857.
+
+Its notify leg grades #858 against the wire.
+
+At the old pins, both legs fail those checks.
+
+| Leg, AX7101 1x1 | At `801ef228`, `a64be73d` | At `044cb25f`, `1616fc8f`, the same harness |
+|---|---|---|
+| crflic: `[MRPAPP]`, `[MVRPLA]` | 458 checks, 0 failures | 7 failures: one New and then JoinIn for the Domain and VID 2, 185 VID JoinIns with no registration, and no MVRP LeaveAll once nothing is declared |
+| notify: `[AIDX]` | 535 checks, 0 failures | 4 failures: READ_DESCRIPTOR(ENTITY) reads 0 against the wire's 31, 32, 33 and 1 |
+
+`crflic-mutants` plants five processor arms for them.
+
+`gsi-mutants` plants four for #858.
+
+Each is the processor's own arm.
+
+Since #216 one control needed both layers planted.
+
+The #851 encoder arm alone no longer doubles a value.
+
+Each Applicant now decides one message per `tx!`.
+
+So the control's intake also takes every push twice.
+
+The shipping route was measured at lane commit `a89802c8`.
+
+Dev `46c971fa` is #854's record, measured at `7a19f62b`.
+
+No synthesis input differs between those two commits.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.334 / +0.017 ns | 53,461 | 54,971 | 15,849 | 1 |
+| ExtraTimingOpt | +0.218 / +0.036 ns | 53,474 | 54,974 | 15,850 | 0 |
+| AltSpreadLogic_high | +0.162 / +0.039 ns | 53,494 | 54,976 | 15,850 | 0 |
+
+Every route completes with no routing error.
+
+Every directive meets the build floor at every corner.
+
+| Figure | Dev `46c971fa`, ExtraPostPlacementOpt | This adoption, ExtraPostPlacementOpt | Change |
+|---|---:|---:|---:|
+| LUT | 53,534 | 53,461 | -73 |
+| FF | 54,850 | 54,971 | +121 |
+| Slice of 15,850 | 15,820 | 15,849 | +29 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 15 | 15 | 0 |
+| WNS / WHS, worst corner | +0.166 / +0.032 ns | +0.334 / +0.017 ns | +0.168 / -0.015 ns |
+
+Placement leaves one slice free.
+
+The worst setup path is the SoC's SDRAM controller.
+
+Against #854's record the resource gate passed all three endpoints.
+
+The gate's seventeenth record re-records all three at `a89802c8`.
+
+Against it, `check` and `check-baseline` exit 0.
+
+| Endpoint, against #854's record | LUT | FF |
+|---|---:|---:|
+| `route-1x1` | -73 | +121 |
+| `ooc-1x1` | +214 | +64 |
+| `ooc-8x8` | +218 | +66 |
+
+The [area budget](../design/AREA_BUDGET.md) gives the figures.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
