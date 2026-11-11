@@ -34,21 +34,21 @@
 // port that gates on it gives the core no sign of the waiting command. The
 // adapter keeps the declined record (one, MBX_CH_ACMP_MAX_FRAME_BYTES) and
 // takes no later record of the acmp ring while it holds it, so the commands
-// keep their arrival order. It offers the kept record again after each poll
-// that sent an owed frame, in that poll, so before the next pass's timer
-// service; a poll that sent nothing offers nothing, so each refused pass costs
-// no decline. The records behind it are offered by the receive service of the
-// passes that follow, after their timer service: where the kept command
-// leaves a slot free (a BIND_RX that is only answered), a timer probe owed at
-// that service can take it and delay the next kept command one pass, as the
-// port contract says of a port that offers fewer frames after an accepting
-// poll. Otherwise a kept command's response leaves in pass n + 1 + f + r after
+// keep their arrival order. After each poll that sent an owed frame, in that
+// poll, so before the next pass's timer service, it keeps the contract's
+// redelivery rule: it offers the kept record, then the records waiting in the
+// acmp ring in arrival order, each until acmp_rx declines one, which it keeps,
+// or none is left. A poll that sent nothing offers nothing, so each refused
+// pass costs no decline. The redelivery takes at most
+// ACMP_MBX_REDELIVER_RECORDS records, a full ring of the smallest record the
+// filter passes, so under A1 it reaches every record waiting when the poll
+// starts. So no timer probe is owed ahead of a waiting command, a frame that
+// needs no answer or a BIND_RX that is only answered between them included,
+// and a kept or waiting command's response leaves in pass n + 1 + f + r after
 // the room returns: n the frames owed then (ACMP_OWED_MAX, or one less for a
-// BIND_RX declined with one slot free), f the frames the kept commands ahead
-// of it owe, r the refused polls. The first leaves by ACMP_MBX_KEPT_PASSES.
-// A declined offer reads and writes no mailbox register, so a pass that
-// declines a record and offers a kept one again stays within
-// ACMP_MBX_PASS_MAX's two records and two handlers.
+// BIND_RX declined with one slot free), f the frames the commands ahead of it
+// owe, r the refused polls. The first leaves by ACMP_MBX_KEPT_PASSES. The
+// redelivery's work, ACMP_MBX_REDELIVER_MAX, is a term of ACMP_MBX_PASS_MAX.
 //
 // THE ADP CHANNEL'S AVAILABLE AND DEPARTING (Milan v1.2 5.6.4.1). The listener's
 // discovery machine needs every ENTITY_AVAILABLE and ENTITY_DEPARTING of a bound
@@ -114,11 +114,17 @@
 //                                new talker admitted)
 //   polls   31 + 25              ADP's (adp_mbx.h) and one owed ACMP frame (a
 //                                probe's: the clock and its TMR_NO_RESP armed)
+//   redelivery 52 + 19 x (36 + 52)  after a poll that sent: the kept record's
+//                                handler, then a full ring of records, each
+//                                read and handled (THE KEPT COMMAND)
 //
 // The smallest ACMP record the filter passes is 13 words (a frame that reaches
-// the end of talker_entity_id, byte 42), so a full acmp ring holds 19 and its
-// record is taken by pass ACMP_MBX_RX_PASSES (10), counted from the first pass
-// that starts after the fabric posted it; an event by pass 2. With the pass
+// the end of talker_entity_id, byte 42), so a full acmp ring holds 19 and,
+// while no command is kept, its record is taken by pass ACMP_MBX_RX_PASSES
+// (10), counted from the first pass that starts after the fabric posted it;
+// an event by pass 2. While a command is kept the ring is held: its records
+// wait for the room (A3) and are taken by the redelivery after each poll that
+// sends an owed frame, in arrival order (THE KEPT COMMAND). With the pass
 // already running when the input arrived, and under A3, a response is
 // committed within ACMP_MBX_RX_ACCESSES and an event's action within
 // ACMP_MBX_EVT_ACCESSES. An adp record is taken by pass
@@ -174,15 +180,19 @@ extern "C" {
 #define ACMP_MBX_POLL_MAX 25u           // one owed frame, a probe's: 22 + the clock 1 + its TMR_NO_RESP 2
 #define ACMP_MBX_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + MBX_CH_ACMP_MAX_FRAME_BYTES / 4u)
 #define ACMP_MBX_ADP_HANDLER_MAX (ADP_MBX_HANDLER_MAX > ACMP_MBX_DISC_MAX ? ADP_MBX_HANDLER_MAX : ACMP_MBX_DISC_MAX)
+// A1 for the acmp ring: its smallest record is a frame through talker_entity_id.
+#define ACMP_MBX_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + (MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES + 3u) / 4u)
+#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS)
+// THE KEPT COMMAND's redelivery: a full ring of records, and the kept record's handler.
+#define ACMP_MBX_REDELIVER_RECORDS ACMP_MBX_RX_BACKLOG
+#define ACMP_MBX_REDELIVER_MAX                                                                                     \
+	(ACMP_MBX_HANDLER_MAX + ACMP_MBX_REDELIVER_RECORDS * (ACMP_MBX_RX_RECORD_MAX + ACMP_MBX_HANDLER_MAX))
 #define ACMP_MBX_PASS_MAX                                                                                          \
 	(CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + ADP_MBX_SINK_MAX + ACMP_MBX_EVENT_MAX) +                 \
 	 ACMP_MAX_SINKS * ACMP_MBX_SINK_WORK +                                                                     \
 	 CTRL_LOOP_RX_PER_PASS * (ADP_MBX_RX_RECORD_MAX + (ACMP_MBX_ADP_HANDLER_MAX)) +                            \
 	 CTRL_LOOP_RX_PER_PASS * (ACMP_MBX_RX_RECORD_MAX + ACMP_MBX_HANDLER_MAX) + MBX_N_IF * ADP_MBX_POLL_MAX +    \
-	 ACMP_MBX_POLL_MAX)
-// A1 for the acmp ring: its smallest record is a frame through talker_entity_id.
-#define ACMP_MBX_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + (MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES + 3u) / 4u)
-#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS)
+	 ACMP_MBX_POLL_MAX + ACMP_MBX_REDELIVER_MAX)
 #define ACMP_MBX_RX_PASSES ((ACMP_MBX_RX_BACKLOG + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
 #define ACMP_MBX_EVT_ACCESSES ((CTRL_LOOP_EVT_PASSES + 1u) * ACMP_MBX_PASS_MAX)
 #define ACMP_MBX_RX_ACCESSES ((ACMP_MBX_RX_PASSES + 1u) * ACMP_MBX_PASS_MAX)
@@ -214,6 +224,7 @@ struct acmp_mbx {
 	struct acmp_mbx_if ifs[MBX_N_IF];
 	struct acmp_ports ports;
 	struct ctrl_loop_rx adp_next;   // the adp channel's handler the tap stands in front of
+	struct ctrl_loop *loop;         // the loop attached to, whose buffer and counts the redelivery uses
 	struct acmp_mbx_kept kept;
 };
 
