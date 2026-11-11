@@ -291,8 +291,9 @@ Each clean log must pass, and each control must be refused or found by its own w
 
 The clean logs are `clean`, `clean-announce-interval` and `clean-two-interfaces`, with no finding.
 The fourth, `clean-censored-at-the-end`, ends 49 ms after an unanswered command, which it must report as censored and not as a finding.
-The fifth, `clean-loaded`, is `clean` under a load as the model logs it: an offer before each bind, its echo skipped before the ANNOUNCE; an offer at each of MAAP's four arms, the last one's deadline past the log's end; then, after the ANNOUNCE, 70 unrelated frames sent, more than a 64-frame history of every protocol held, and one more offer whose echo is found.
-It must report its load exactly: 4 MAAP offers queued, 3 delivered and 3 expiries met.
+The fifth, `clean-loaded`, is `clean` under a load as the model logs it: an offer before each bind, its echo skipped before the ANNOUNCE; an offer at each of MAAP's five arms, the last one's deadline past the log's end, and one the same pass cancels before its deadline, as the firmware's final probe expiry arms a probe deadline and cancels it for the announce; then, after the ANNOUNCE, 70 unrelated frames sent, more than a 64-frame history of every protocol held, one more offer whose echo is found, and a last offer the log ends inside, one of its three frames received.
+It must report its load exactly: 5 MAAP offers queued, 4 delivered and 3 expiries met (the cancelled arm's burst is delivered and meets none), and 2 AECP offers queued, 1 delivered whole and 1 in part.
+So a grader that counted a cancelled arm's burst as meeting its expiry, or no offer as delivered in part, fails it.
 
 | Control | What it changes | Words |
 |---|---|---|
@@ -331,7 +332,8 @@ It must report its load exactly: 4 MAAP offers queued, 3 delivered and 3 expirie
 | `no-advertise-period` | the 37 s log with no advertising after the startup ENTITY_AVAILABLE | `adp.advertise_period: no sample in a run to its second ANNOUNCE` |
 | `stopped-advertising` | the same log with advertising stopping after its second period | `the entity stopped advertising` |
 | `echo-skipped-after-the-announce` | the loaded log's last offer with its echo skipped, as a history the unrelated frames filled leaves it | `echoes of load aecp skipped on interface 0 ... after its first ANNOUNCE left` |
-| `received-frame-unaccounted` | one of that offer's frames received untagged | `14 delivered load frames and 4 a draw (2 draws) are not the 23 frames the model received` |
+| `received-frame-unaccounted` | one of that offer's frames received untagged | `17 delivered load frames and 4 a draw (2 draws) are not the 26 frames the model received` |
+| `load-offer-over-delivered` | a fourth frame of the loaded log's first offer, of three, received under its tag | `LOAD: 4 frames of offer 0 of load acmp were received, 3 were queued` |
 
 After every run's grade, `run.py` grades two plants on that run's own log, and each must be caught:
 

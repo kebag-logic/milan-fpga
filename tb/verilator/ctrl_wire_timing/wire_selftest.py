@@ -238,18 +238,26 @@ def offer(log: Synth, at: int, begin: int, queued: Queued) -> None:
         log.lines.append(f'RXW {first} {first + 30} 60 load-{q.name}-{q.k} {LOAD_FRAME}')
 
 
-def loaded(skip_after_announce: bool = False, untagged: bool = False) -> Synth:
+def loaded(skip_after_announce: bool = False, untagged: bool = False, over_delivered: bool = False) -> Synth:
     """clean() under a load as the model logs it: a step's offer before each bind, its echo skipped (no ANNOUNCE
-    yet); an offer at each of MAAP's arms, a lead before its deadline, the last one's past the log's end; then,
-    after the ANNOUNCE, UNRELATED frames sent and one more offer, its echo found. skip_after_announce: that echo
-    skipped, as a history the unrelated frames filled leaves it; untagged: one of its frames received untagged."""
+    yet); an offer at each of MAAP's arms, a lead before its deadline, the last one's past the log's end, and one
+    the same pass cancels before its deadline (as the firmware's final probe expiry arms a probe deadline and
+    cancels it for the announce), its burst delivered whole and meeting no expiry; then, after the ANNOUNCE,
+    UNRELATED frames sent, one more offer, its echo found, and a last offer the log ends inside, one of its three
+    frames received. skip_after_announce: that echo skipped, as a history the unrelated frames filled leaves it;
+    untagged: one of its frames received untagged; over_delivered: a fourth frame of the first offer's three
+    received under its tag."""
     log = clean()
     for k, at in enumerate((100 * MS, 200 * MS)):
         offer(log, at - 5000, at - 5000, Queued('acmp', k, 3, skipped=1))
+    if over_delivered:
+        log.lines.append(f'RXW {100 * MS - 4000} {100 * MS - 3970} 60 load-acmp-0 {LOAD_FRAME}')
     slot = g.MAAP_FIRST_SLOT_IFS
+    log.arm(1630 * MS + 1000, slot, CANCELLED_DEADLINE)
+    log.arm(1630 * MS + 1500, slot, CANCELLED_DEADLINE, op=2)
     maap_arms = [(int(ln.split()[1]), int(ln.split()[3])) for ln in log.lines if ln.startswith('TMR') and
-                 (int(ln.split()[2], 16) & 0xFF) == slot]
-    for k, (at, deadline) in enumerate(maap_arms):
+                 (int(ln.split()[2], 16) & 0xFF) == slot and int(ln.split()[2], 16) >> 30 == g.TMR_ARM]
+    for k, (at, deadline) in enumerate(sorted(maap_arms)):
         within = deadline < 1800
         offer(log, at, deadline * MS - s.LOAD_LEAD_CYCLES,
               Queued('maap', k, 2, slot, skipped=1, delivered=None if within else 0))
@@ -262,16 +270,21 @@ def loaded(skip_after_announce: bool = False, untagged: bool = False) -> Synth:
         offer(log, at, at, Queued('aecp', 0, 3, delivered=2))
         offer_tag = '-' if untagged else 'load-aecp-0'
         log.lines.append(f'RXW {at + 400} {at + 430} 60 {offer_tag} {LOAD_FRAME}')
+    offer(log, 1795 * MS, 1795 * MS, Queued('aecp', 1, 3, delivered=1))
     return log
 
 
-#: The load the clean loaded log must report: queued, delivered and met kept apart (#868).
+#: The probe deadline the loaded log's final probe expiry arms and cancels, inside the log (ms).
+CANCELLED_DEADLINE = 1720
+#: The load the clean loaded log must report: queued, delivered and met kept apart (#868). MAAP's 5 arms queue 5
+#: bursts; 4 are delivered (the last one's deadline is past the log) and 3 meet an expiry (the cancelled arm's burst
+#: is delivered and meets none); AECP's last offer is delivered in part.
 LOADED = {'acmp': dict(queued_offers=2, queued_frames=6, skipped=2, armed=0, delivered_offers=2, partial_offers=0,
                        delivered_frames=6, expiries_met=0),
-          'aecp': dict(queued_offers=1, queued_frames=3, skipped=0, armed=0, delivered_offers=1, partial_offers=0,
-                       delivered_frames=3, expiries_met=0),
-          'maap': dict(queued_offers=4, queued_frames=8, skipped=4, armed=4, delivered_offers=3, partial_offers=0,
-                       delivered_frames=6, expiries_met=3)}
+          'aecp': dict(queued_offers=2, queued_frames=6, skipped=0, armed=0, delivered_offers=1, partial_offers=1,
+                       delivered_frames=4, expiries_met=0),
+          'maap': dict(queued_offers=5, queued_frames=10, skipped=5, armed=5, delivered_offers=4, partial_offers=0,
+                       delivered_frames=8, expiries_met=3)}
 
 
 def without(lines: list[str], what: Callable[[str], bool]) -> list[str]:
@@ -449,7 +462,10 @@ CONTROLS = (
     ('echo-skipped-after-the-announce', lambda: loaded(skip_after_announce=True).text(), SYS_HZ, 1, 1,
      f'LOAD: 1 echoes of load aecp skipped on interface 0 at cycle {1750 * MS}, after its first ANNOUNCE left'),
     ('received-frame-unaccounted', lambda: loaded(untagged=True).text(), SYS_HZ, 1, 1,
-     'LOAD: 14 delivered load frames and 4 a draw (2 draws) are not the 23 frames the model received'),
+     'LOAD: 17 delivered load frames and 4 a draw (2 draws) are not the 26 frames the model received'),
+    # an offer whose tag more frames reached than it queued: a frame counted twice, or another offer's
+    ('load-offer-over-delivered', lambda: loaded(over_delivered=True).text(), SYS_HZ, 1, 1,
+     'LOAD: 4 frames of offer 0 of load acmp were received, 3 were queued'),
 )
 #: The clean logs, each graded at its interfaces and ANNOUNCEs, which must pass.
 #: Each with the commands it must report as censored, and the load it must report (None: not compared).
@@ -459,7 +475,8 @@ CLEAN = (('clean', lambda: clean().text(), 1, 1, [], None),
          # the log ends 49 ms after a command, unanswered: within its bound, censored and not a finding
          ('clean-censored-at-the-end', lambda: late_command(clean().text(), 1750), 1, 1, ['aecp-get_configuration-1'],
           None),
-         # an echo found after UNRELATED frames sent since the ANNOUNCE; the deadline past the end queued, not met
+         # an echo found after UNRELATED frames sent since the ANNOUNCE; the deadline past the end queued, not met; a
+         # cancelled arm's burst delivered, not met; an offer delivered in part (LOADED)
          ('clean-loaded', lambda: loaded().text(), 1, 1, [], LOADED))
 
 
