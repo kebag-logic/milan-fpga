@@ -1,0 +1,42 @@
+[
+  {
+    "name": "lock-before-the-index",
+    "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootRefusalsLeaveTheEntityInService",
+    "expected_words": "",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: status for command 42",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: NO_SUCH_DESCRIPTOR for another ENTITY index under another controller's lock"
+    ],
+    "observed": []
+  },
+  {
+    "name": "quiet-without-the-face-poll",
+    "file": "sw/firmware/ctrl/plat/ctrl_plat.c",
+    "arm": "platboot",
+    "rc": 0,
+    "expected_test": "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+    "expected_words": "the drain ends because the write completed",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": []
+  },
+  {
+    "name": "behaviour-acmp-after-success",
+    "file": "sw/firmware/ctrl/test/test_plat_boot.cpp",
+    "arm": "platboot",
+    "rc": 0,
+    "expected_test": "Boot.ReviewProbeAcmpAfterTheRebootSuccess",
+    "expected_words": "",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": [
+      "PROBE-OBSERVED acmp_frames_after_success=0 sink_bound=0 frames_after_departing=0 first_departing_index=0 total_frames=1",
+      "PROBE-OBSERVED departing_left_before_the_port=1",
+      "PROBE-OBSERVED acmp_frames_after_departing=0 port_writes=1"
+    ]
+  }
+]
