@@ -15,8 +15,10 @@ Usage:
     python3 -B tb/verilator/nvm_split_target/run.py --self-test
 
 Exit 0 = every case passed (no service step over T_svc among them) and every
-planted control was caught; 1 = a case failed or a control escaped; 2 = a
-build or an input failed. The capture's CPU and elapsed times are recorded and
+planted control was caught; 1 = a case failed or a control escaped, or the
+point is built without saved state (the 32x32 point, #859), whose cases are
+each reported owed to #823 by name and none run; 2 = a build or an input
+failed. The capture's CPU and elapsed times are recorded and
 graded against no bound of their own (#665 owner decision 2026-10-29, option
 (c)).
 
@@ -50,7 +52,18 @@ import target_cases as cases  # noqa: E402
 import target_grade as tg  # noqa: E402
 
 build, scenario = cases.build, cases.scenario
-POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
+POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
+          '32x32': ('endstation_ax7101_32x32', 2)}
+#: Whom a point built without saved state owes these cases (#859): the record space at that shape.
+SAVE_OWNER = '#823'
+
+
+def owed(point: str, selected: list) -> list[str]:
+    """Each selected case, owed to SAVE_OWNER by name, when the point is built without saved state."""
+    if build.keeps_saved_state(POINTS[point][0]):
+        return []
+    return [f'OWED {c.name}: a save group, owed to {SAVE_OWNER}; the {point} point is built without saved state '
+            f'(#859)' for c in selected]
 
 
 def built(root: Path, key: str, point: str, reuse: bool) -> dict:
@@ -305,6 +318,12 @@ def main(argv: list[str] | None = None) -> int:
     if unknown:
         ap.error(f'unknown cases {sorted(unknown)}')
     selected = [c for c in cases.CASES if c.name in names or c.commit]
+    # A point without saved state runs none of these cases and counts none as passing.
+    lines = owed(args.point, selected)
+    if lines:
+        print('\n'.join(lines))
+        print(f'{len(lines)} save groups owed to {SAVE_OWNER}, none run')
+        return 1
     REGRADE['on'] = args.regrade
     args.reuse_build |= args.regrade
     root = args.build_dir.resolve()

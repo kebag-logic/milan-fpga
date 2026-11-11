@@ -193,6 +193,60 @@ class ConfigError(Exception):
     """Raised for any config that violates the schema or board physics."""
 
 
+# ---------------------------------------------------- simulation shapes --
+#: What a config may state as its saved state (#859). `journal`, the default,
+#: is the KLJ2 record space and journal every shape the image build may route
+#: or flash keeps. `none` builds a simulation shape without saved state: no
+#: store, no record space, no journal image, while #823 owns the record space
+#: at that shape (#859).
+SAVED_STATE_CHOICES = ("journal", "none")
+#: AAF streams per direction. With saved state the bound is the record space's
+#: 16-id BINDING, FORMAT and OFFSET blocks (hdl/milan/KL_nvm_backend.sv, #823).
+#: Without it the record space bounds nothing, and the bound is the Mark II
+#: target, 32x32 (#640).
+MAX_STREAMS_SAVED = 16
+MAX_STREAMS_UNSAVED = 32
+
+
+def config_simulation(path: str | Path) -> tuple[bool, str]:
+    """A config's (simulation_only, saved_state) as load_config reads them,
+    from the document alone: for the checks that take every config, so each
+    can state which shapes it holds (#859)."""
+    return _load_simulation(_load_document(str(path)))
+
+
+def saved_state_configs(paths: Sequence[str | Path]) -> list[Path]:
+    """The configs built with saved state, in order. Each built without it
+    (a simulation shape, #859) is named and left out: it has no record space
+    to check while #823 owns the record space at that shape."""
+    kept = []
+    for path in map(Path, paths):
+        if config_simulation(path)[1] == "none":
+            print(f"{path.stem}: built without saved state (#859), so no record "
+                  f"space to check; #823 owns the record space at this shape")
+        else:
+            kept.append(path)
+    return kept
+
+
+def _load_simulation(cfg):
+    """simulation_only and saved_state (#859): only a simulation shape may be
+    built without saved state."""
+    only = cfg.get("simulation_only", False)
+    if not isinstance(only, bool):
+        raise ConfigError(f"simulation_only: {only!r} is not true or false")
+    saved = cfg.get("saved_state", "journal")
+    if saved not in SAVED_STATE_CHOICES:
+        raise ConfigError(f"saved_state: {saved!r} is not one of "
+                          f"{', '.join(SAVED_STATE_CHOICES)}")
+    if saved == "none" and not only:
+        raise ConfigError(
+            "saved_state: none is a simulation shape's option (#859): a shape "
+            "the image build may route or flash keeps its saved state; "
+            "declare simulation_only: true, or remove saved_state")
+    return only, saved
+
+
 # ------------------------------------------------------------------ tables --
 # Board physical truth (cross-checked against configs; the config carries the
 # values so the emitted argv is reviewable, the table rejects impossibilities).
@@ -1458,11 +1512,11 @@ def _crf_format(value: Any, ctx: str) -> str:
     return word
 
 
-def _streams(lst, ctx, direction, rate_hz=48000):
+def _streams(lst, ctx, direction, rate_hz=48000, cap=MAX_STREAMS_SAVED):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
-    if len(lst) > 16:
-        raise ConfigError(f"{ctx}: {len(lst)} streams (max 16 per direction)")
+    if len(lst) > cap:
+        raise ConfigError(f"{ctx}: {len(lst)} streams (max {cap} per direction)")
     out = []
     for k, s in enumerate(lst):
         sctx = f"{ctx}[{k}]"
@@ -1978,6 +2032,9 @@ class SrpShape:
     cons: dict
     binfo: dict
     wire_channels: int = None
+    #: A simulation-only shape (#859): its datapath, whose SRP row index
+    #: bounds the rows, is not elaborated before #640's redesign.
+    simulation_only: bool = False
 
 
 def _srp_section(raw):
@@ -2228,7 +2285,9 @@ def load_srp(raw: dict[str, Any] | None,
         # at class A).
         crf_idle_slope_bps=crf_slope_c,
     )
-    if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
+    # The row index is the datapath's (milan_csr.sv o_srp_ctx_idx); a
+    # simulation-only shape's datapath waits for #640, which _marks_srp says.
+    if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS) and not shape.simulation_only:
         raise ConfigError(
             f"{s['ctx_rows_required']} lwSRP attribute rows needed "
             f"(L+T incl the dedicated listener-0 row) but ctx_idx is "
@@ -2711,9 +2770,11 @@ def nvm_name_capacity() -> tuple[int, str]:
     return int(m.group(1)), f"{shown}:{line}"
 
 
-def _adp_name_entries(overlay):
+def _adp_name_entries(overlay, saved=True):
     """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
-    the saved-state backend's NAME capacity (nvm_name_capacity)."""
+    the saved-state backend's NAME capacity (nvm_name_capacity). A shape
+    without saved state (`saved` false, #859) saves no name, so no capacity
+    bounds it."""
     # The semantic name table covers the descriptor types named by
     # gen_aem_store.build_model(). ENTITY contributes two entries while each
     # other instance contributes one. Derive the capacity from the overlay's
@@ -2737,7 +2798,7 @@ def _adp_name_entries(overlay):
     # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
     # refuses it above the NAME block only at elaboration (#652).
     capacity, where = nvm_name_capacity()
-    if aem_name_entries > capacity:
+    if saved and aem_name_entries > capacity:
         raise ConfigError(
             f"this AEM model has {aem_name_entries} writable names and the "
             f"saved-state backend holds {capacity} NAME records "
@@ -3186,7 +3247,7 @@ def emit_adp_shape_svh(cfg: dict[str, Any],
         overlay = emit_aem_overlay(cfg)
     sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as aem_store
-    aem_name_entries = _adp_name_entries(overlay)
+    aem_name_entries = _adp_name_entries(overlay, cfg.get("saved_state") != "none")
     dm = _adp_dyn_in_geometry(cfg, overlay)
     od = _adp_dyn_out_geometry(cfg, overlay, aem_store)
     ln = _adp_banner(cfg)
@@ -4342,6 +4403,8 @@ def _validate_output_clock_sources(talkers: Sequence[Any], clocking: dict[str, A
 def _load_streams(cfg, path, clocking):
     """The declared listener and talker streams, and the two shape
     rules that constrain the set as a whole."""
+    # the bound per direction follows saved_state (#859)
+    cap = MAX_STREAMS_UNSAVED if _load_simulation(cfg)[1] == "none" else MAX_STREAMS_SAVED
     st = _req(cfg, "streams", path)
     _validate_output_clock_sources(st.get("talkers", []), clocking)
     # the AUDIO_UNIT's current rate is the one a stream's default Base format
@@ -4349,9 +4412,9 @@ def _load_streams(cfg, path, clocking):
     # truth, and 5.3.3.4 makes the formats list the Stream's - a stream
     # defaulting to a rate the unit does not report would put the two at odds.
     listeners = _streams(_req(st, "listeners", "streams"), "streams.listeners",
-                         "listener", clocking["sampling_rate_hz"])
+                         "listener", clocking["sampling_rate_hz"], cap)
     talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
-                       "talker", clocking["sampling_rate_hz"])
+                       "talker", clocking["sampling_rate_hz"], cap)
 
     # The capture crossbar currently has one image-wide static/dynamic
     # selector. A mixed set of Stream Port Outputs would therefore switch a
@@ -4460,6 +4523,7 @@ def load_config(path: str) -> dict[str, Any]:
     interface = _load_interface(cfg, path, clocking)
     policy = interface["cluster_policy"]
     phys, pools = interface["physical_channels"], interface["cluster_pools"]
+    simulation_only, saved_state = _load_simulation(cfg)
     listeners, talkers = _load_streams(cfg, path, clocking)
     soc = _load_soc(cfg, cons)
     control = _load_control(cfg)
@@ -4471,7 +4535,8 @@ def load_config(path: str) -> dict[str, Any]:
                                         board_target=target))
     srp = load_srp(cfg.get("srp"),
                    SrpShape(listeners, talkers, clocking, cons,
-                            BOARDS[target], wire_channels=wire_ch))
+                            BOARDS[target], wire_channels=wire_ch,
+                            simulation_only=simulation_only))
     platform = load_platform(cfg.get("platform"))
 
     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
@@ -4506,6 +4571,7 @@ def load_config(path: str) -> dict[str, Any]:
         # protocol-processor model lint waivers, passed through to the packed
         # document unread; the packer validates and reports them
         model_lint_waivers=list(cfg.get("model_lint_waivers") or []),
+        simulation_only=simulation_only, saved_state=saved_state,
     )
     validate_render_lane(out)
 
@@ -4797,6 +4863,14 @@ def _marks_srp(cfg):
     # 1x1 therefore has more declarations than rows: talker gate bits and
     # listener rows collide. Surfaced here, not hidden.
     srp = cfg["srp"]
+    if srp["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
+        # load_srp refuses this for every shape but a simulation-only one (#859)
+        marks.append((f"{srp['ctx_rows_required']} lwSRP attribute rows past "
+                      f"the {SRP_CTX_IDX_BITS}-bit row index",
+                      "planned (#640 - the datapath at the Mark II shape)",
+                      "milan_csr.sv o_srp_ctx_idx holds "
+                      f"{1 << SRP_CTX_IDX_BITS} rows; this simulation-only "
+                      "shape's datapath is not elaborated before #640"))
     if srp["ctx_rows_required"] > srp["ctx_rows_available"]:
         marks.append((f"{srp['ctx_rows_required']} lwSRP attribute rows "
                       f"(L+T-1) in {srp['ctx_rows_available']} contexts",
@@ -5118,6 +5192,9 @@ def emit_soc_argv(cfg: dict[str, Any]) -> list[str]:
     argv += [f"--scala-args={a}" for a in soc["scala_args"]]
     argv += ["--uart-baudrate", str(c["uart_baudrate"])]
     argv += ["--cpu-count", str(soc["cpu_count"])]
+    # milan_soc.py refuses to route or load a simulation-only shape (#859).
+    if cfg.get("simulation_only"):
+        argv += ["--simulation-only"]
     # the split placement: the mailbox SoC, which builds the datapath with
     # CTRL_SPLIT_P = 1 and boots the control firmware from block RAM
     if cfg["control"]["placement"] == "split":
@@ -6070,6 +6147,19 @@ def build(config_path: str, outdir: str | None = None,
     paths + in-memory artifacts (for tests)."""
     art = _derive_artifacts(config_path)
     cfg = art.cfg
+    # A simulation-only shape (#859) is never routed, so it owns none of the
+    # tree's routed-image files; refused before anything is written.
+    owns = [what for what, asked in (
+        ("--write-rtl (the tracked entity definition)", write_rtl),
+        ("--write-fragment (the board's sweep fragment)",
+         write_rtl if write_fragment is None else write_fragment),
+        ("srp.rtl_table (the tracked CSR reset words)", cfg["srp"]["rtl_table"]))
+        if asked]
+    if cfg["simulation_only"] and owns:
+        raise ConfigError(
+            f"{cfg['name']} is a simulation-only shape (#859): it takes no "
+            f"{', no '.join(owns)}, which belong to a shape the image build "
+            f"routes")
     d, out = _write_artifact_dir(art, outdir)
     p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
     paths = dict(soc_params=out["soc_params"], aem_overlay=out["aem_overlay"],

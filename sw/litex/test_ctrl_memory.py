@@ -95,6 +95,7 @@ sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
 import ctrl_memory  # noqa: E402
 from ctrl_memory_elf import poke, splice, truncate, write_elf  # noqa: E402
 import ctrl_memory_ledger as ledgers  # noqa: E402
+import ctrl_memory_simulation as simulation  # noqa: E402
 from ctrl_memory_probe import link  # noqa: E402
 import fw_rv32  # noqa: E402
 import milan_soc  # noqa: E402
@@ -309,6 +310,7 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
          plan(GOOD._replace(bss=215_000))),
         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
         *ledgers.refusals(partial(ledger_elf, tmp)),
+        *simulation.refusals(tmp),
         *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image", soc(own))
           for name, own in ledgers.OWN.items()),
         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
@@ -810,6 +812,8 @@ MUTANTS = tuple(Mutant(*row) for row in (
      "if None in carried.values():", "checks"),
     ("an override on any image with its staging buffer", "budget", "ctrl_memory", "ledgered_tiles", _LEDGER,
      "if carried[STAGE_SYMBOL] != dict(point.symbols)[STAGE_SYMBOL]:", "checks"),
+    ("simulation identity off", "simulation identity", "ctrl_memory", "simulated", "if carried != dict(point.symbols):",
+     "if False:", "checks"),
     ("stage symbol off", "stage symbol", "ctrl_memory", "check_stage", "if STAGE_SYMBOL not in image.symbols:",
      "if False:", "checks"),
     ("stage size off", "stage size", "ctrl_memory", "check_stage", "if size != stage:", "if False:", "checks"),
@@ -976,6 +980,7 @@ def main() -> int:
             outcomes[key] = run_arm(problems, label, arm)
             if len(problems) == before:
                 green.add(key)
+        run_arm(problems, "simulation map", partial(simulation.arms, tmp=tmp, check=check))
         run_arm(problems, "register", partial(registry_arms, tmp=tmp))
         run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
         run_arm(problems, "planted ledgers", partial(ledger_plant_arms, tmp=tmp, green=green))

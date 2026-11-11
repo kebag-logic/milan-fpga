@@ -959,7 +959,9 @@ def main() -> int:
         _emit_record_table(args.emit_record_table, args.out, donor)
         return 0
 
-    cfgs = args.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    cfgs = eb.saved_state_configs(args.config or sorted((ROOT / "configs").glob("endstation_*.yaml")))
     if not args.quiet:
         print(f"BINDING base read from the donor: "
               f"REC_ID_BASE_P = 0x{donor.base:02X}, "

@@ -6,7 +6,11 @@ The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on
 the runtime ctrl_image_runtime.py builds (through runtime_ssp.py, #723).
 Its saved-state flash port is compiled against the split SoC's own map
 (flash_map(): gen_flash_port.py over the csr.csv milan_soc.py exports for the
-shape, #665), and the test SoC places the flash and timer0 there.
+shape, #665), and the test SoC places the flash and timer0 there. A shape the
+builder builds without saved state (#859) links no store and no flash port:
+it has no flash map, and the test SoC places the flash and timer0 at the RV32
+stand-ins' placeholders; a simulation-only shape links into its simulation
+memory map (sw/litex/ctrl_memory.py).
 Every input of the native model and of its run is hashed into build.json:
 the checkout's sources, the firmware source trees the image is compiled
 from, the image, its runtime archives and the ROM files the model reads at
@@ -182,6 +186,19 @@ LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
 def ledgered_point(shape: str, n_if: int) -> str | None:
     """The ledgered point's name when this build is that point, else None."""
     return LEDGERED_POINTS.get((shape, n_if))
+
+
+def shape_config(shape: str) -> dict:
+    """The end-station builder's view of the shape's config."""
+    sys.path.insert(0, str(ROOT / 'sw/builder'))
+    import endstation_builder as eb
+    return eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
+
+
+def keeps_saved_state(shape: str) -> bool:
+    """Whether the shape keeps saved state: the builder's saved_state, `none` for a simulation shape
+    built without it while #823 owns its record space (#859)."""
+    return shape_config(shape)['saved_state'] != 'none'
 
 
 def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', variant: str | Variant = 'none',
@@ -496,9 +513,16 @@ def traced(table: dict[str, int], elf: Path, names: tuple, modules: tuple[list[s
     return found
 
 
-def trace_lines(table: dict[str, int], elf: Path, modules: tuple[list[str], list]) -> list[str]:
-    """The testbench's SPAN and CALL tables: each traced function's entry pc and label."""
+def trace_lines(table: dict[str, int], elf: Path, modules: tuple[list[str], list], saved: bool = True) -> list[str]:
+    """The testbench's SPAN and CALL tables: each traced function's entry pc and label. An image
+    without saved state (#859) links none of them: both tables are empty, each array one unread
+    element so that the testbench still compiles."""
     lines = []
+    if not saved:
+        for kind in ('span', 'call'):
+            lines += [f'constexpr unsigned n_{kind}s = 0;', f'inline constexpr std::uint32_t {kind}_pc[1] = {{0u}};',
+                      f'inline const char* const {kind}_name[1] = {{""}};']
+        return lines
     for kind, names in (('span', SPAN_SYMBOLS), ('call', CALL_SYMBOLS)):
         rows = traced(table, elf, names, modules)
         lines += [f'constexpr unsigned n_{kind}s = {len(rows)};',
@@ -541,8 +565,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               + ', '.join(f'0x{table[name]:x}u' for name in ENTRY_SYMBOLS) + '};',
               'inline const char* const entry_name[n_entries] = {'
               + ', '.join(f'"{name}"' for name in ENTRY_SYMBOLS) + '};']
-    lines += trace_lines(table, Path(spec['elf']), modules)
-    journal = json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
+    lines += trace_lines(table, Path(spec['elf']), modules, spec.get('saved_state', True))
+    journal = (json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
+               if spec['flash_map'] else {'offset': 0, 'size': 0})
     lines += [f"constexpr std::uint32_t journal_offset = 0x{journal['offset']:x}u;",
               f"constexpr std::uint32_t journal_size = 0x{journal['size']:x}u;"]
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
@@ -665,7 +690,7 @@ def run_inputs(build_dir: Path, spec: dict) -> list[Path]:
     """Every file the native model is built from or reads when it runs."""
     gateware = build_dir / 'gateware'
     return [Path(spec['elf']), *([Path(spec['flash_image'])] if spec.get('flash_image') else []),
-            *[Path(spec['flash_map']) / name for name in FLASH_MAP_FILES],
+            *[Path(spec['flash_map']) / name for name in (FLASH_MAP_FILES if spec['flash_map'] else ())],
             *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
             build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'observe.vlt', SIBLING / 'flash.hpp',
             *[Path(s) for s in spec['sources']]]
@@ -689,7 +714,11 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     """The whole build at one point; returns build.json's contents."""
     import split_soc
     build_dir.mkdir(parents=True, exist_ok=True)
-    flash = flash_map(build_dir / split_soc.FLASH_MAP, shape)
+    saved = keeps_saved_state(shape)
+    if core.xip and not saved:
+        raise RuntimeError('the hybrid-XIP arm keeps the saved-state flash driver in rom; this shape is built '
+                           'without saved state (#859)')
+    flash = flash_map(build_dir / split_soc.FLASH_MAP, shape) if saved else None
     elf = firmware(build_dir, shape, n_if, mutation, variant, flash)
     rom_elf, flash_image = elf, None
     if core.xip:
@@ -698,7 +727,9 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
-    spec['flash_map'] = str(flash)
+    spec['flash_map'] = str(flash) if flash is not None else None
+    if not saved:
+        spec['saved_state'] = False
     spec['xip'] = core.xip
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))

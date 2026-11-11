@@ -187,11 +187,15 @@ def recipe() -> Recipe:
 
 def shapes() -> tuple[Shape, ...]:
     """The recipe's shape, then one per configs/*.yaml in name order: the builder's
-    generated header directory for it and the parameters the builder states."""
+    generated header directory for it and the parameters the builder states. A
+    simulation-only shape (#859) is none: its datapath is not elaborated before
+    #640's redesign."""
     out = [RECIPE]
     for path in sorted((REPO / "configs").glob("*.yaml")) if live("shapes") else ():
         try:
             cfg = eb.load_config(str(path))
+            if cfg["simulation_only"]:
+                continue
             params = eb.datapath_params(cfg)
         except (eb.ConfigError, OSError, KeyError, ValueError) as exc:
             raise CensusError(f"the builder cannot state the shape of {rel(path)}: {exc}") from exc

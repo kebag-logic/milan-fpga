@@ -22,6 +22,7 @@ Cycle time is `1e9 / milan_clk_hz` nanoseconds.
 | `endstation_arty_8ch` | 50000000 | 20 | present |
 | `endstation_arty_current` | 50000000 | 20 | present |
 | `endstation_ax7101_1x1_tdm8` | 50000000 | 20 | present |
+| `endstation_ax7101_32x32` | 50000000 | 20 | pruned |
 | `endstation_ax7101_8x8` | 50000000 | 20 | pruned |
 <!-- configured-tap-clocks:end -->
 

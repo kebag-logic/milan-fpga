@@ -53,6 +53,7 @@ import frames as f
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
 from mailbox_model import load  # noqa: E402
+from shape_point import binding_word, mailbox_layout, pub_word, scaled, wait_scale  # noqa: E402
 
 CONTRACT = load()
 CH = {ch.name: n for n, ch in enumerate(CONTRACT.channels)}
@@ -71,17 +72,6 @@ def word(byte_offset: int) -> int:
 def ch_word(ch: int, name: str) -> int:
     """The word address of a channel register."""
     return word(CONTRACT.ch_base + ch * CONTRACT.ch_stride + CH_REG[name])
-
-
-def pub_word(interface: int, name: str) -> int:
-    """The word address of an interface's publication register (contract 2.2)."""
-    return word(CONTRACT.pub_base + interface * CONTRACT.pub_stride + PUB_REG[name])
-
-
-def binding_word(interface: int, sink: int) -> int:
-    """The word address of a sink's BINDING publication register."""
-    return word(CONTRACT.pub_base + interface * CONTRACT.pub_stride + CONTRACT.pub_sink_base
-                + sink * CONTRACT.pub_sink_stride + SINK_REG['BINDING'])
 
 
 TMR_CMD_WORD = word(REG['TMR_CMD'])
@@ -200,15 +190,17 @@ class Point:
     mac: int
     sources: int
     sinks: int
+    #: The mailbox layout its build carries (shape_point.mailbox_layout, #859).
+    layout: object = CONTRACT
 
 
 def point(label: str, build: dict) -> Point:
-    """The point's identity from the generated entity header of its image."""
+    """The point's identity from the generated entity header of its image, and its mailbox layout."""
     import re
     header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
     values = {k: int(v, 16) for k, v in re.findall(r'\.(\w+) = (0x[0-9A-Fa-f]+)', header)}
     return Point(label, build['shape'], build['interfaces'], values['entity_id'], values['mac'],
-                 values['talker_stream_sources'], values['listener_stream_sinks'])
+                 values['talker_stream_sources'], values['listener_stream_sinks'], mailbox_layout(build))
 
 
 CTL1 = 0x0A0B0C0D0E0F0001          # a controller entity
@@ -332,7 +324,7 @@ def acmp_groups(p: Point) -> list[Group]:
         k = i
         g.probe(Probe(f'acmp.bind_rx.if{i}', 'BIND_RX', 'acmp', f'rxc:{acmp}',
                       [f'resp:{acmp}:{seq:x}', f'acmp_cmd:{acmp}:PROBE_TX', f'arm:{slot(i)}',
-                       f'pub:{binding_word(i, k)}'], accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
+                       f'pub:{binding_word(i, k, p.layout)}'], accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
                 f'frame {i} {acmp_cmd(p, "BIND_RX", k, seq).hex()}', wait=f'tx {acmp} 2 within {20 * MS}')
         seq += 1
         g.probe(Probe(f'acmp.probe_tx_response.if{i}', 'PROBE_TX_RESPONSE', 'acmp', f'rxc:{acmp}',
@@ -663,7 +655,7 @@ def srp_groups(p: Point) -> list[Group]:
                 f'frame {i} {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
         domain = f.mrp_message(4, f.domain_value(6, 4, 3), [1])
         g.probe(Probe(f'srp.domain.if{i}', 'Domain RX -> declarations (JoinTime wait)', 'srp', f'rxc:{srp}',
-                      [f'pub:{pub_word(i, "SR_DOMAIN")}', f'tx:{srp}'], wait_ms=200.0),
+                      [f'pub:{pub_word(i, "SR_DOMAIN", p.layout)}', f'tx:{srp}'], wait_ms=200.0),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
     return [g]
 
@@ -809,11 +801,18 @@ def owed_group(p: Point) -> Group:
     g = Group('backlog-owed', sim_ms=4000)
     ready(g, p)
     announced(g)
-    tx_room = CONTRACT.channels[acmp].tx_words // (len(CONTRACT.tx_header) + (len(get(0)) + 3) // 4)
+    tx_room = p.layout.channels[acmp].tx_words // (len(CONTRACT.tx_header) + (len(get(0)) + 3) // 4)
+    chunk, refill = admission('acmp', get(0))['at_once'], CONTRACT.channels[acmp].refill_ms
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
+        if n and n % chunk == 0:     # a ring past one admitted burst (#859): the bucket refills between them
+            g.add(f'wait tx {acmp} {chunk} within {300 * MS}', f'wait cycles {chunk * refill * MS}')
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+    # The settle lets the pass that queued them end before the window, whose event ring the defined
+    # load fills from empty; it is longer at a larger shape (#859: 65 ms at 32x32/2if).
+    settle = 50 * MS * wait_scale(p.sources, p.sinks)
+    g.add(f'wait tx {acmp} {tx_room - (tx_room - 1) // chunk * chunk} within {300 * MS}', f'wait cycles {settle}',
+          'gap 1', 'mark composed')
     gm_run(g, p)
     composed_load(g, p, own='acmp')
     for n in range(OWED_AHEAD):
@@ -992,9 +991,10 @@ def fixture_groups(p: Point) -> list[Group]:
 
 
 def all_groups(p: Point, build: dict) -> list[Group]:
-    """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
+    """Every group of a point's build, longest first, its bounded waits scaled to the point (#859); the
+    shutdown-entry variant has only its own."""
     if build.get('variant') == 'shutdown-entry':
-        return shutdown_groups(p)
+        return scaled(shutdown_groups(p), p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
-    return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
+    return scaled(sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else []), p)

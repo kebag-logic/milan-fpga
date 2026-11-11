@@ -19,8 +19,10 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 // This recovery limit does not extend the 10 ms service budget.
 #define SRP_RX_RETRY_MS 1000u
 
-// Every source has its bit of the publication block's LICENCE and TALKER_DECL.
-_Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE and a TALKER_DECL bit");
+// Every source has its bit of its interface's LICENCE and TALKER_DECL (mbx.h's
+// MBX_STREAM_ENTRY).
+_Static_assert(MBX_STREAM_ENTRIES(CTRL_SRP_SOURCES) <= MBX_N_PUB_SOURCES,
+               "every source needs a LICENCE and a TALKER_DECL bit");
 
 static struct srp_mbx *timer_owner;
 static void tick(void);
@@ -59,19 +61,24 @@ static void tick(void)
 }
 
 // The interface's licences as the fabric datapath reads them (the publication
-// block's LICENCE, bit s source s), written before any licence change is
-// reported, so the stream gate never trails the notification it causes.
+// block's LICENCE, source s's bit MBX_STREAM_ENTRY(s) on its own interface),
+// written before any licence change is reported, so the stream gate never
+// trails the notification it causes.
 static void publish_licence(const struct srp_interface *i)
 {
     uint32_t active = 0;
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+#ifdef MBX_ENTRY_ORDINAL
+        if (MBX_STREAM_ON(i->index, k)) active |= (i->active[k] ? 1u : 0u) << MBX_STREAM_ENTRY(k);
+#else
         active |= (i->active[k] ? 1u : 0u) << k;
+#endif
     }
     (void)mbx_pub_licence(i->index,active);
 }
 
 // The interface's Talker declarations as the fabric datapath reads them (the
-// publication block's TALKER_DECL, bit s source s): set by declare_sources
+// publication block's TALKER_DECL, source s's bit as LICENCE's): set by declare_sources
 // before the declarations it describes are sent, and cleared here before the
 // participants holding them are destroyed, so the datapath tags a stream's
 // frames only while its Talker attribute is declared (802.1Q 35.1.2: a bridge
@@ -180,7 +187,11 @@ static bool declare_sources(struct srp_interface *i)
                          &value,true) != 0) {
             return false;
         }
+#ifdef MBX_ENTRY_ORDINAL
+        if (MBX_STREAM_ON(i->index, n)) declared |= 1u << MBX_STREAM_ENTRY(n);
+#else
         declared |= 1u << n;
+#endif
     }
     // The admitted bandwidth (IDLE_SLOPE) and the declared sources
     // (TALKER_DECL), before these declarations are sent. used is at most

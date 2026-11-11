@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """SRP host, debug and RV32 arms using the shared firmware harness."""
 from __future__ import annotations
+import re
 import resource
 import shutil
 import sys
@@ -16,21 +17,37 @@ SRP_SOURCES = PORTABLE + ("srp/srp_mbx.c", "app/ctrl_app_srp.c")
 DEFAULT_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 
 
+def shape_layout(header: Path) -> bool:
+    """Whether the shape's streams (the generated CTRL_SRP_SOURCES and CTRL_SRP_SINKS) outgrow the
+    contract's tables, which hold stream n at entry n of every interface's: such a shape takes the
+    layout sized from its streams on each interface (gen_mailbox.py --variant-shape, #859)."""
+    sys.path.insert(0,str(ROOT / "sw/mailbox"))
+    import gen_mailbox
+    contract = gen_mailbox.load()
+    text = header.read_text()
+    sources, sinks = (int(re.search(rf"^#define CTRL_SRP_{name} (\d+)u$", text, re.M).group(1))
+                      for name in ("SOURCES", "SINKS"))
+    return gen_mailbox.outgrows(contract, sources, sinks)
+
+
 def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple[Path, list[str]]:
-    """Generate the entity shape and, for two interfaces, the mailbox header."""
+    """Generate the entity shape and, for two interfaces or a shape past the contract's tables, the
+    mailbox header."""
     out.mkdir(parents=True, exist_ok=True)
     header = out / "srp_entity_gen.h"
     result = run([sys.executable,"-B",str(CTRL / "srp/srp_entity.py"),str(config),"-o",str(header)])
     if result.returncode:
         raise Refusal(f"SRP entity generation failed: {result.stderr}")
     include_tree = tree.src
-    if interface_count != 1:
+    sized = shape_layout(header)
+    if interface_count != 1 or sized:
         include_tree = out / "variant"
         shutil.copytree(tree.src, include_tree, dirs_exist_ok=True,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         sys.path.insert(0,str(ROOT / "sw/mailbox"))
         import gen_mailbox
-        findings = gen_mailbox.write_variant(gen_mailbox.load(),interface_count,out / "contract")
+        findings = (gen_mailbox.write_shape_variant(gen_mailbox.load(),config,interface_count,out / "contract")
+                    if sized else gen_mailbox.write_variant(gen_mailbox.load(),interface_count,out / "contract"))
         if findings:
             raise Refusal(f"mailbox variant findings: {findings}")
         shutil.copyfile(out / "contract/mbx_contract.h",include_tree / "mbx/mbx_contract.h")
@@ -129,9 +146,20 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
 
 
 def all_shapes(tree: Tree, lwsrp: Path, rv32: bool = False) -> list[Outcome]:
-    """Exercise static storage at every shipped entity shape and interface count."""
+    """Exercise static storage at every shipped entity shape and interface count. A simulation-only shape (#859)
+    is the CPU budget harness's two-interface point: it is linked for RV32 at two interfaces only, where its layout
+    holds 17 streams an interface (one interface would hold 33, past the contract's 32), and the host suite, which
+    offers one MRPDU a sink before any time passes, past SRP's burst of 32 at 33 sinks, is not built for it."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
     outcomes = []
     for config in sorted((ROOT / "configs").glob("endstation_*.yaml")):
+        if eb.config_simulation(config)[0]:
+            if rv32:
+                o = arm_srp_rv32(tree, lwsrp, 2, config)
+                outcomes.append(Outcome(o.arm, o.rc, f"  {config.stem}: simulation-only (#859), RV32 at two "
+                                                     f"interfaces only, no host shape suite\n{o.log}"))
+            continue
         for interfaces in (1, 2):
             outcomes.append(arm_srp(tree, lwsrp, interfaces, test="srp_shape.cpp", config=config))
             if rv32:

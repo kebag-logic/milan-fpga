@@ -98,8 +98,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "sw/litex"))
+sys.path[:0] = [str(ROOT / "sw/litex"), str(ROOT / "scripts"), str(ROOT / "sw/builder")]
 
 from nvm_contract import (                                    # noqa: E402
     KLJ2_HDR, KLJ2_TRAILER, REC_HDR, VD_BLANK, VD_CRC, VD_ERASE, VD_OK,
@@ -947,16 +946,17 @@ def self_test_read_faults(benches: list[Bench], work: Path, firmware_text: str) 
 
 
 def main() -> int:
-    """Grade every shipped shape; with --self-test, the controls too."""
+    """Grade every shipped shape with saved state; with --self-test, the controls too."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--config", action="append", type=Path,
-                    help="configs to grade (default: every configs/endstation_*.yaml)")
+                    help="configs to grade (default: every configs/endstation_*.yaml with saved state)")
     ap.add_argument("--self-test", action="store_true",
                     help="also plant each writer defect and require a finding")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4,
                     help="threads check 13 walks its cases on")
     a = ap.parse_args()
-    cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
+    import endstation_builder as eb
+    cfgs = eb.saved_state_configs(a.config or sorted((ROOT / "configs").glob("endstation_*.yaml")))
     firmware_text = FIRMWARE.read_text()
     import test_boot_walk as bootwalk
     import test_disabled_writer as disabled

@@ -34,7 +34,12 @@ from dataclasses import dataclass, field
 
 import scenario
 
-TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
+def tx_rings(layout: object = scenario.CONTRACT) -> dict[int, tuple[int, int]]:
+    """Each channel's transmit ring, its word base and words, in a point's mailbox layout (shape_point, #859)."""
+    return {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(layout.channels)}
+
+
+TX_RING = tx_rings()
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
 EVENT = {e.value: e.name for e in scenario.CONTRACT.event_types}
 EV_TIMER = next(v for v, name in EVENT.items() if name == 'TIMER')
@@ -128,7 +133,7 @@ def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -
     return frame[:3]
 
 
-def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
+def parse(text: str, sys_hz: int, cpu_hz: int, rings: dict = TX_RING) -> Log:
     """Every observation line; a line the testbench does not print is refused."""
     log = Log(sys_hz, cpu_hz)
     pending_rx: list[tuple[int, str, int, int]] = []   # interface, tag, bytes, last byte of frames not yet committed
@@ -205,28 +210,29 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             raise Refusal(f'unknown observation line: {line[:80]}')
     log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
     log.writes.sort()
-    log.tx = tx_records(log.writes, commits)
+    log.tx = tx_records(log.writes, commits, rings)
     return log
 
 
-def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int, int]]) -> list[tuple]:
+def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int, int]],
+               rings: dict = TX_RING) -> list[tuple]:
     """Each committed TX record's cycle, channel, interface and length, off its header word.
 
     A TX_HEAD write commits every record between the previous head and the
     new one; each record's word 0 holds its length and interface.
     """
-    ring: dict[int, dict[int, int]] = {ch: {} for ch in TX_RING}
-    head = {ch: 0 for ch in TX_RING}
+    ring: dict[int, dict[int, int]] = {ch: {} for ch in rings}
+    head = {ch: 0 for ch in rings}
     out = []
     w = 0
     for cycle, ch, value in sorted(commits):
         while w < len(writes) and writes[w][0] <= cycle:
             _, word, data = writes[w]
-            for c, (base, words) in TX_RING.items():
+            for c, (base, words) in rings.items():
                 if base <= word < base + words:
                     ring[c][word - base] = data
             w += 1
-        base, words = TX_RING[ch]
+        base, words = rings[ch]
         at = head[ch]
         while (value - at) & 0xFFFF:
             w0 = ring[ch].get(at % words)
@@ -781,9 +787,10 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
                 window_ms=round(grader.ms(end - start), 5))
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
-    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
-    log = parse(text, sys_hz, cpu_hz)
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, rings: dict = TX_RING) -> dict:
+    """A group's log: every probe, its passes and its run evidence, its transmit records read from the
+    point's rings (tx_rings). Refuses a log that did not finish."""
+    log = parse(text, sys_hz, cpu_hz, rings)
     refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
     grader = Grader(log)

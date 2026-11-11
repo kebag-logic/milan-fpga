@@ -521,13 +521,23 @@ def _read_block(contract: Contract) -> list[str]:
     return out
 
 
+def _ring_decode(contract: Contract, host: str, access: str, base: str, words: str, end: int) -> list[str]:
+    """A ring's host decode: the offsets from its base to its end. A ring that ends at the window's last byte
+    takes no upper bound, since every AW2_C-bit offset is below it and the bound cast to AW2_C bits wraps to
+    zero (#859: the 32x32 layout's ACMP transmit ring at 0x7000)."""
+    if end == contract.window_bytes:
+        return [f"  assign {host} = {access} && off_w >= {AW}'({base});   //! the ring ends at the window's top"]
+    return [f"  assign {host} = {access} && off_w >= {AW}'({base})",
+            f"                      && off_w < {AW}'({base} + 4 * {words});"]
+
+
 def _ring_block(contract: Contract) -> list[str]:
     """The event ring and one RX and one transmit ring per channel, with their host windows."""
     out = ["  // ---- the rings ------------------------------------------------------------------",
            "  logic [31:0] evt_rdata_w;",
            "  logic        evt_host_w;   //! the host reads the event ring this cycle",
-           f"  assign evt_host_w = rd_w && off_w >= {AW}'(MBX_EVT_BASE_C)",
-           f"                      && off_w < {AW}'(MBX_EVT_BASE_C + 4 * MBX_EVT_WORDS_C);",
+           *_ring_decode(contract, "evt_host_w", "rd_w", "MBX_EVT_BASE_C", "MBX_EVT_WORDS_C",
+                         contract.evt_base + 4 * contract.evt_words),
            "  KL_mbx_ring #(.WORDS_P(MBX_EVT_WORDS_C)) u_evt_ring (",
            "    .clk_i     (clk_i),", "    .rst_n     (rst_n),",
            "    .wr_en_i   (evw_en_w),", "    .wr_addr_i (evw_addr_w),", "    .wr_data_i (evw_data_w),",
@@ -545,8 +555,8 @@ def _ring_block(contract: Contract) -> list[str]:
             out += [f"  // channel {lo} ({ch.ident}): {word} ring at 0x{ch.rx_base if d == 'RX' else ch.tx_base:04X}",
                     f"  logic [31:0] {lo}_{d.lower()}_rdata_w;",
                     f"  logic        {host};   //! the host {'reads' if d == 'RX' else 'writes'} this ring this cycle",
-                    f"  assign {host} = {'rd_w' if d == 'RX' else 'wr_w'} && off_w >= {AW}'({base})",
-                    f"                      && off_w < {AW}'({base} + 4 * {words});",
+                    *_ring_decode(contract, host, 'rd_w' if d == 'RX' else 'wr_w', base, words,
+                                  ch.rx_base + 4 * ch.rx_words if d == 'RX' else ch.tx_base + 4 * ch.tx_words),
                     f"  KL_mbx_ring #(.WORDS_P({words})) u_{lo}_{d.lower()} (",
                     "    .clk_i     (clk_i),", "    .rst_n     (rst_n),"]
             if d == "RX":

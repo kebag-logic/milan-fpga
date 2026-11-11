@@ -365,6 +365,15 @@ OUT = HERE / "out"
 #: a reviewer reads.
 CLUSTER_NAMES_GOLDEN = HERE / "cluster_names_golden.json"
 CLUSTER_NAMES_GOLDEN_CONFIGS = ("ax7101_8x8", "ax7101_1x1_tdm8")
+#: gate 41's pin of the 1x1 and 8x8 shapes' generated outputs (#859): every
+#: file the builder writes for them, the AEM image, the firmware's entity
+#: headers and the 8x8 two-interface mailbox variant, by SHA-256. Written by
+#: `python3 sw/builder/test_builder.py --write-shape-golden`; a deliberate
+#: change to those shapes regenerates it, and its diff is what a reviewer reads.
+SHAPE_OUTPUTS_GOLDEN = HERE / "shape_outputs_golden.json"
+SHAPE_OUTPUTS_GOLDEN_CONFIGS = ("ax7101_1x1_tdm8", "ax7101_8x8")
+#: The simulation-only shape (#859): built without saved state, never routed.
+SIMULATION_CONFIG = ROOT / "configs/endstation_ax7101_32x32.yaml"
 #: The three tree files ONE boot-contract mutation may substitute for the
 #: tracked copy; `None` means "read the tracked one".  A mutation row names
 #: the file it replaces instead of positioning it behind two bare `None`s,
@@ -29335,6 +29344,189 @@ def _name_guard_elaborations() -> str:
             "with N_NAME_MAX_C planted at 127")
 
 
+def _planted_builder(old: str, new: str) -> dict:
+    """A copy of the end-station builder module with one substitution, executed apart."""
+    import types
+    source = Path(eb.__file__).read_text()
+    assert source.count(old) == 1, f"planted builder: anchor occurs {source.count(old)} times: {old!r}"
+    module = types.ModuleType("planted_endstation_builder")
+    module.__file__ = eb.__file__
+    sys.modules[module.__name__] = module
+    try:
+        exec(compile(source.replace(old, new), eb.__file__, "exec"), module.__dict__)
+    finally:
+        del sys.modules[module.__name__]
+    return vars(module)
+
+
+def _simulation_refusals(builder: dict) -> list[str]:
+    """What gate 39 requires of `builder` (the module's namespace): the simulation shape builds
+    without saved state, a shape that may be routed is refused that option, and no routed
+    output of the simulation shape is written. Each requirement not met, by name."""
+    found = []
+    with tempfile.TemporaryDirectory(prefix="gate39-") as tmp:
+        out = Path(tmp)
+        try:
+            cfg = builder["load_config"](str(SIMULATION_CONFIG))
+            if (cfg["simulation_only"], cfg["saved_state"]) != (True, "none"):
+                found.append(f"the 32x32 shape loads as {cfg['simulation_only']}, {cfg['saved_state']}")
+        except builder["ConfigError"] as exc:
+            found.append(f"the 32x32 simulation shape is refused: {exc}")
+        routed = yaml.safe_load(CONFIGS["ax7101_8x8"].read_text())
+        for label, edit, words in (
+                ("saved_state: none on a shape that may be routed", {"saved_state": "none"},
+                 "saved_state: none is a simulation shape's option (#859)"),
+                ("simulation_only: false beside saved_state: none",
+                 {"saved_state": "none", "simulation_only": False},
+                 "saved_state: none is a simulation shape's option (#859)"),
+                ("an unknown saved_state", {"saved_state": "flash"}, "saved_state: 'flash' is not one of")):
+            planted = out / f"{len(found)}-{edit['saved_state']}.yaml"
+            planted.write_text(yaml.safe_dump({**routed, **edit}))
+            try:
+                builder["load_config"](str(planted))
+                found.append(f"{label}: accepted")
+            except builder["ConfigError"] as exc:
+                if words not in str(exc):
+                    found.append(f"{label}: refused without its words: {exc}")
+        # every tracked file a build may write: the configs' includes and fragments, the RTL shape
+        # include and the CSR reset words; a planted builder that writes one is put back
+        tracked = [ROOT / "configs/generated", ROOT / "hdl/common/gen", ROOT / eb.CSR_DEFAULTS_REL]
+        shape = yaml.safe_load(SIMULATION_CONFIG.read_text())
+        rtl_table = out / "rtl-table.yaml"
+        rtl_table.write_text(yaml.safe_dump({**shape, "srp": {**shape.get("srp", {}), "rtl_table": True}}))
+        for label, config, kwargs, words in (
+                ("--write-rtl", SIMULATION_CONFIG, dict(write_rtl=True), "--write-rtl (the tracked entity definition)"),
+                ("--write-fragment", SIMULATION_CONFIG, dict(write_fragment=True),
+                 "--write-fragment (the board's sweep fragment)"),
+                ("srp.rtl_table", rtl_table, {}, "srp.rtl_table (the tracked CSR reset words)")):
+            before = {p: p.read_bytes() for t in tracked for p in ([t] if t.is_file() else t.rglob("*"))
+                      if p.is_file()}
+            try:
+                builder["build"](str(config), str(out / "build"), **kwargs)
+                found.append(f"{label} of the simulation shape: accepted")
+            except builder["ConfigError"] as exc:
+                if "is a simulation-only shape (#859)" not in str(exc) or words not in str(exc):
+                    found.append(f"{label} of the simulation shape: refused without its words: {exc}")
+            after = {p: p.read_bytes() for t in tracked for p in ([t] if t.is_file() else t.rglob("*"))
+                     if p.is_file()}
+            if after != before:
+                found.append(f"{label} of the simulation shape moved a tracked generated file")
+                for path in set(after) - set(before):
+                    path.unlink()
+                for path, data in before.items():
+                    path.write_bytes(data)
+    return found
+
+
+def test_simulation_shape_option() -> None:
+    """gate 39 - saved_state: none is a simulation shape's option alone (#859).
+
+    The 32x32 config is the simulation shape: it builds without saved state.
+    The option is refused on a config that does not declare simulation_only,
+    and the simulation shape takes no routed output (--write-rtl,
+    --write-fragment, srp.rtl_table), each refused by its words before a
+    file is written.
+    Each refusal is planted away in a copy of the builder and must turn the
+    gate red.
+    """
+    found = _simulation_refusals(vars(eb))
+    assert not found, f"gate 39: {found}"
+    plants = (
+        ("the option accepted on any shape", '    if saved == "none" and not only:',
+         '    if False:'),
+        ("the simulation shape writing routed outputs", '    if cfg["simulation_only"] and owns:',
+         '    if False:'),
+        ("the simulation shape taking srp.rtl_table",
+         '        ("srp.rtl_table (the tracked CSR reset words)", cfg["srp"]["rtl_table"]))',
+         '        ("srp.rtl_table (the tracked CSR reset words)", False))'),
+    )
+    caught = []
+    for label, old, new in plants:
+        planted = _simulation_refusals(_planted_builder(old, new))
+        assert planted, f"gate 39: planted '{label}' was not caught"
+        caught.append(f"{label}: {planted[0]}")
+    print("  [gate 39] the 32x32 simulation shape builds without saved state; saved_state: none is "
+          "refused on a shape that may be routed and the simulation shape writes no routed output, "
+          "each by its words")
+    print(f"  [gate 39] {len(caught)}/{len(plants)} planted defects turned it red: {'; '.join(caught)}")
+
+
+def shape_output_digests(builder: dict | None = None) -> dict[str, dict[str, str]]:
+    """gate 41's inventory: each pinned shape's generated outputs by SHA-256 (SHAPE_OUTPUTS_GOLDEN)."""
+    import hashlib
+    builder = builder or vars(eb)
+    sys.path.insert(0, str(ROOT / "sw/mailbox"))
+    import gen_mailbox
+    out: dict[str, dict[str, str]] = {}
+    with tempfile.TemporaryDirectory(prefix="gate41-") as tmp:
+        root = Path(tmp)
+        for name in SHAPE_OUTPUTS_GOLDEN_CONFIGS:
+            config = CONFIGS[name]
+            files: dict[str, bytes] = {}
+            r = builder["build"](str(config), str(root / "builder"))
+            for label, written in sorted(r["paths"].items()):
+                files[f"builder:{label}"] = Path(written).read_bytes()
+            entity = root / name
+            entity.mkdir()
+            for tag, generator, target in (
+                    ("adp_entity_gen.h", "sw/firmware/ctrl/adp/adp_entity.py", entity / "adp_entity_gen.h"),
+                    ("srp_entity_gen.h", "sw/firmware/ctrl/srp/srp_entity.py", entity / "srp_entity_gen.h"),
+                    ("aecp_entity_gen.h", "sw/firmware/ctrl/aecp/aecp_entity.py", entity / "aecp_entity_gen.h")):
+                subprocess.run([sys.executable, "-B", str(ROOT / generator), str(config), "-o", str(target)],
+                               check=True, cwd=ROOT, capture_output=True)
+                files[f"firmware:{tag}"] = target.read_bytes()
+            if name == "ax7101_8x8":
+                findings = gen_mailbox.write_variant(gen_mailbox.load(), 2, entity / "if2")
+                assert not findings, findings
+                for path in gen_mailbox.VARIANT_OUTPUTS:
+                    files[f"mailbox-if2:{Path(path).name}"] = (entity / "if2" / Path(path).name).read_bytes()
+            out[name] = {label: hashlib.sha256(data).hexdigest() for label, data in sorted(files.items())}
+    return out
+
+
+def write_shape_outputs_golden() -> None:
+    """Regenerate shape_outputs_golden.json from the current generators."""
+    golden = {"_generated_by": "python3 sw/builder/test_builder.py --write-shape-golden",
+              "_what": "gate 41: the 1x1 and 8x8 shapes' generated outputs by SHA-256 (#859); regenerate "
+                       "only for a deliberate change to those shapes", **shape_output_digests()}
+    SHAPE_OUTPUTS_GOLDEN.write_text(json.dumps(golden, indent=1) + "\n")
+    print(f"wrote {SHAPE_OUTPUTS_GOLDEN}")
+
+
+def _shape_output_drift(found: dict[str, dict[str, str]]) -> list[str]:
+    """Each pinned output that is missing, new or not byte-identical to the golden."""
+    golden = {k: v for k, v in json.loads(SHAPE_OUTPUTS_GOLDEN.read_text()).items() if not k.startswith("_")}
+    drift = []
+    for name in sorted(set(golden) | set(found)):
+        want, got = golden.get(name, {}), found.get(name, {})
+        drift += [f"{name} {label}: {'missing' if label not in got else 'new' if label not in want else 'changed'}"
+                  for label in sorted(set(want) | set(got)) if want.get(label) != got.get(label)]
+    return drift
+
+
+def test_shipped_shape_outputs_unchanged() -> None:
+    """gate 41 - the 1x1 and 8x8 shapes' generated outputs stay byte-identical (#859).
+
+    Every output the end-station builder writes for each of them, the
+    firmware's three entity headers and the 8x8 two-interface mailbox variant
+    are regenerated through their generators and compared by SHA-256 with
+    SHAPE_OUTPUTS_GOLDEN. The plant leaks the simulation shape's
+    --simulation-only mark into every shape's argv in a copy of the builder,
+    which must change the 8x8's soc_params.json and turn the gate red.
+    """
+    drift = _shape_output_drift(shape_output_digests())
+    assert not drift, f"gate 41: the pinned shapes' outputs moved: {drift}"
+    planted = _shape_output_drift(shape_output_digests(_planted_builder(
+        '    if cfg.get("simulation_only"):\n        argv += ["--simulation-only"]',
+        '    argv += ["--simulation-only"]')))
+    assert any("ax7101_8x8 builder:soc_params: changed" in d for d in planted), \
+        f"gate 41: the planted mark leak was not caught: {planted}"
+    counts = {k: len(v) for k, v in shape_output_digests().items()}
+    print(f"  [gate 41] the 1x1 and 8x8 shapes' {sum(counts.values())} generated outputs "
+          f"({', '.join(f'{k} {v}' for k, v in counts.items())}) are byte-identical to {SHAPE_OUTPUTS_GOLDEN.name}")
+    print(f"  [gate 41] 1/1 planted defect turned it red: the simulation mark on every shape ({planted[0]})")
+
+
 def test_name_count_fits_the_nvm_name_block() -> None:
     """Gate 38 (#652): a model with more writable names than the saved-state
     NAME block holds is refused when it is generated, not at synthesis. The
@@ -29376,6 +29568,9 @@ if __name__ == "__main__":
 
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
+        sys.exit(0)
+    if "--write-shape-golden" in sys.argv:
+        write_shape_outputs_golden()
         sys.exit(0)
 
     def _gate_run_list(bank: dict[str, list[str]],
@@ -29493,7 +29688,9 @@ if __name__ == "__main__":
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
-               test_name_count_fits_the_nvm_name_block)):
+               test_name_count_fits_the_nvm_name_block,
+               test_simulation_shape_option,
+               test_shipped_shape_outputs_unchanged)):
         print(f"{fn.__name__}:")
         before = len(SKIPPED)
         fn()

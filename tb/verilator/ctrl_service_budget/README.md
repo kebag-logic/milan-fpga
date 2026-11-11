@@ -9,7 +9,7 @@ Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../.
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the three points, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
@@ -44,6 +44,25 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 57.5 RAMB36 against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
 The planner refuses the override on any other image, and the product SoC build names none.
+
+`32x32` is `endstation_ax7101_32x32` with two (#859), a simulation-only shape the image build never routes:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 32x32 \
+  --build-dir /tmp/budget-32x32 --record-budget-findings
+```
+
+It is built without saved state while #823 owns its record space, so its image links no store and no flash port, `build.py` makes no flash map, and the test SoC places the flash and `timer0` at the RV32 stand-ins' placeholders (`split_soc.stand_in_addresses`).
+Its image links into its simulation-only memory map, `32x32-two-interfaces` ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#8-the-simulation-only-map), section 8), so the CPU netlist is generated for that map's regions.
+Its mailbox is the contract laid out from the shape's streams on each interface (`gen_mailbox.py --variant-shape`, [the shape layout](../../../docs/design/MAILBOX_SPLIT.md)), and the probes' publication addresses follow that layout (`scenario.Point.layout`, [`shape_point.py`](shape_point.py)).
+So do the transmit rings the grader reads records from (`grade.tx_rings`, given by `run.py`), since the layout's ACMP transmit ring is 1,024 words at `0x7000`.
+The owed row fills that ring as at the other points, with the egress held, one admitted burst of the ACMP receive side at a time (12 commands), waiting between bursts for their responses and for the bucket to refill: 51 responses at `32x32`, 12 at `1x1` and `8x8`, whose scripts are unchanged.
+Every group runs there; the saved-state store's groups, which `nvm_split_target` runs, are each reported by name as owed to #823 (`OWED` lines, `results.json`'s `owed`, the table's last line) and none is graded.
+Every bounded wait of its scripts is four times as long (`shape_point.wait_scale`: the point's streams over the 8x8 shape's 18, rounded up; 1 at `1x1` and `8x8`, whose scripts are unchanged).
+A wait bounds how long a step waits for its event and grades nothing; with the 8x8 waits a GET_TX_STATE answered 54.5 ms after its command at `32x32`, after the next probe's frame had gone in, and the probe was refused unmeasured.
+So is the owed row's settle before its composed window, which the defined load needs to begin with an empty event ring: at `32x32` the pass that queues the held responses lasts 65 ms, so with the 8x8 shape's 50 ms four ticks were still in the ring at the window's first instant, two of the fifteen grandmaster changes did not fit, and the row was refused.
+No two consecutive passes are idle at `32x32` (each 10 ms tick's pass writes the mailbox), so each `wait quiet 3` of its scripts ends at its bound, a `TIMEOUT` step, as a bounded wait may; the settle is a fixed wait for that reason.
+[`selftest_shape.py`](selftest_shape.py) holds the self-test's checks of this point: its owed save groups, its layout's addresses and its scaled waits.
 
 **The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
