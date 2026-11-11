@@ -71,10 +71,11 @@
 //          the table's one octet.
 //   [ONEVEC] processor #214: every MSRP and MVRP MRPDU the DUT sends over
 //          the whole run carries each attribute value in at most one
-//          VectorAttribute (IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)). An
-//          encoder that appends every hand-over of a pending value, as before
-//          #214, sends MVRP VID 2 twice in one MRPDU in this run
-//          (crflic_mutants.py's processor control).
+//          VectorAttribute (IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)). Since
+//          processor #216 each Applicant decides one message per tx!, so an
+//          encoder that only appends doubles nothing here; crflic_mutants.py's
+//          processor control removes both layers (the intake takes every push
+//          twice, the encoder appends) and sends values twice per MRPDU.
 //   [MRPAPP] #860, processor #216: over the whole run, a new declaration's
 //          New goes out on two transmissions and is followed by the Join the
 //          Registrar gives (IEEE 802.1Q-2018 Table 10-3, note 8, 10.7.6.3): the

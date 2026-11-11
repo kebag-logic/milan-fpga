@@ -26,12 +26,16 @@ with TSPEC8_MDIR overridden), each beside its own clean control.
 
 #851 adds one control on the processor side, for processor #214's rule that
 each MRPDU carries each attribute value at most once (the leg's [ONEVEC]
-section, IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)): the SRP encoder's value
-search never hits, so every hand-over of a pending value appends a second
-entry, as the encoder did before #214. It is planted in a COPY of the
-processor's hdl/ tree, built through the same recipe with PP_DIR overridden,
-and must fail "no DUT MRPDU carries one attribute value in two
-VectorAttributes".
+section, IEEE 802.1Q-2022 10.7.7, 10.7.5.13 c)). It is planted in a COPY of
+the processor's hdl/ tree, built through the same recipe with PP_DIR
+overridden, and must fail "no DUT MRPDU carries one attribute value in two
+VectorAttributes". At #851 it tied the SRP encoder's value search to a miss,
+so every second hand-over of a pending value appended an entry, as the
+encoder did before #214. Since processor #216 each Applicant decides one
+message per tx! and each round's drain waits for its tx!, so no value is
+handed over twice in one window and that arm alone survives (#883). It now
+removes both layers, as the processor's own push-twice-encoder-appends arm
+does: the encoder's intake takes every push twice, and the encoder appends.
 
 #883 adds four processor controls of the same kind, for processor #216 (the
 leg's [MRPAPP] and [MVRPLA] sections, #860 and #857). They plant the
@@ -120,33 +124,51 @@ TSPEC_MUTATIONS = [
     ("every source declares talker 0's TSpec on the 8x8", *TALKER0_TSPEC, "tspec8"),
 ]
 
-#: #851, processor #214: (name, the file under the processor's hdl/, the exact
-#: fragment, its replacement, the check it must fail), each on the 1x1 leg
+#: the SRP top's intake of the five producers, verbatim at the pin
+PP_INTAKE = ("  assign dom_ev_ready_w  = enc_ev_ready_w && dom_ev_valid_w;\n"
+             "  assign vlan_ev_ready_w = enc_ev_ready_w && !dom_ev_valid_w\n")
+#: ...and the intake taking every push twice (the processor's push-twice arm)
+PP_INTAKE_TWICE = ("  logic dup_r;\n"
+                   "  always_ff @(posedge clk_i) begin : push_twice\n"
+                   "    if (!rst_n) dup_r <= 1'b0;\n"
+                   "    else if (enc_ev_valid_w && enc_ev_ready_w) dup_r <= !dup_r;\n"
+                   "  end\n"
+                   "  assign dom_ev_ready_w  = dup_r && enc_ev_ready_w && dom_ev_valid_w;\n"
+                   "  assign vlan_ev_ready_w = dup_r && enc_ev_ready_w && !dom_ev_valid_w\n")
+PP_INTAKE_TK = "  assign tk_ev_ready_w   = enc_ev_ready_w && !dom_ev_valid_w\n"
+PP_INTAKE_LS = "  assign ls_ev_ready_w   = enc_ev_ready_w && !dom_ev_valid_w\n"
+
+#: #851, processor #214, and #883, processor #216: (name, [(the file under the
+#: processor's hdl/, the exact fragment, its replacement), ...], the check it
+#: must fail), each on the 1x1 leg
 PP_MUTATIONS = [
-    ("the SRP encoder never merges a pending value, every hand-over appends (before processor #214)",
-     "srp/KL_srp_encoder.sv",
-     "  assign sr_hit_w    = sr_cont_w && (q_key_w == sr_key_r);",
-     "  assign sr_hit_w    = 1'b0;",
+    ("the intake takes every push twice and the SRP encoder never merges (before processor #214)",
+     [("srp/KL_srp_top.sv", PP_INTAKE, PP_INTAKE_TWICE),
+      ("srp/KL_srp_top.sv", PP_INTAKE_TK, PP_INTAKE_TK.replace("= enc_ev", "= dup_r && enc_ev")),
+      ("srp/KL_srp_top.sv", PP_INTAKE_LS, PP_INTAKE_LS.replace("= enc_ev", "= dup_r && enc_ev")),
+      ("srp/KL_srp_encoder.sv",
+       "  assign sr_hit_w    = sr_cont_w && (q_key_w == sr_key_r);",
+       "  assign sr_hit_w    = 1'b0;")],
      "no DUT MRPDU carries one attribute value in two VectorAttributes"),
     ("LINK_UP declares the Domain in AN, so one New goes out (before processor #216)",
-     "srp/KL_srp_domain.sv",
-     "        app_r      <= SRP_AP_VN_C;\n        declared_r <= 1'b1;\n",
-     "        app_r      <= SRP_AP_AN_C;\n        declared_r <= 1'b1;\n",
+     [("srp/KL_srp_domain.sv",
+       "        app_r      <= SRP_AP_VN_C;\n        declared_r <= 1'b1;\n",
+       "        app_r      <= SRP_AP_AN_C;\n        declared_r <= 1'b1;\n")],
      "MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN)"),
     ("a VID's first join enters AN, so one New goes out (before processor #216)",
-     "srp/KL_srp_vlan.sv",
-     "      2'd0:    one_nx_w = srp_app_next(one_st_w, SRP_AE_NEW_C, reg_nx_w[one_ix_w], p2p_i);",
-     "      2'd0:    one_nx_w = SRP_AP_AN_C;",
+     [("srp/KL_srp_vlan.sv",
+       "      2'd0:    one_nx_w = srp_app_next(one_st_w, SRP_AE_NEW_C, reg_nx_w[one_ix_w], p2p_i);",
+       "      2'd0:    one_nx_w = SRP_AP_AN_C;")],
      "MVRP VID 2: message 2 is New again (AN tx!: sN)"),
     ("every VID Join is JoinIn whatever its Registrar (before processor #216)",
-     "srp/KL_srp_vlan.sv",
-     "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, reg_nx_w[widx_r]);",
-     "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, 1'b1);",
+     [("srp/KL_srp_vlan.sv",
+       "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, reg_nx_w[widx_r]);",
+       "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, 1'b1);")],
      "no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3)"),
     ("an MVRP drain needs a pending VID, so nothing declared sends no LeaveAll (before processor #216)",
-     "srp/KL_srp_encoder.sv",
-     "                 && ((cnt_mvrp_r != '0) || la_pend_r[1] || leaveall_i[1]);",
-     "                 && (cnt_mvrp_r != '0);",
+     [("srp/KL_srp_encoder.sv",
+       "                 && ((cnt_mvrp_r != '0) || la_pend_r[1] || leaveall_i[1]);",
+       "                 && (cnt_mvrp_r != '0);")],
      "MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal"),
 ]
 
@@ -222,20 +244,24 @@ def run_mutant(src: str, mutation: tuple[str, ...], work: Path) -> bool:
     return False
 
 
-def run_pp_mutant(mutation: tuple[str, ...], work: Path) -> bool:
-    """Plant one mutation in a copy of the processor's hdl/ tree, build the
-    1x1 leg against it and the real datapath, and run it; True when caught."""
-    name, rel, pattern, replacement, breaks = mutation
-    src = (PP_HDL / rel).read_text()
-    if src.count(pattern) != 1:
-        print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
-              f"time(s) in {rel}, expected exactly 1. The processor moved and this "
-              f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
-        return False
+def run_pp_mutant(mutation: tuple, work: Path) -> bool:
+    """Plant one mutation's edits in a copy of the processor's hdl/ tree, build
+    the 1x1 leg against it and the real datapath, and run it; True when caught."""
+    name, edits, breaks = mutation
+    texts: dict[str, str] = {}
+    for rel, pattern, replacement in edits:
+        src = texts.get(rel, (PP_HDL / rel).read_text())
+        if src.count(pattern) != 1:
+            print(f"[FAIL] mutation {name!r}: a pattern appears {src.count(pattern)} "
+                  f"time(s) in {rel}, expected exactly 1. The processor moved and this "
+                  f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
+            return False
+        texts[rel] = src.replace(pattern, replacement)
     tag = re.sub(r"[^A-Za-z0-9]+", "_", name)[:60]
     pp_dir = work / f"pp_hdl_{tag}"
     shutil.copytree(PP_HDL, pp_dir)
-    (pp_dir / rel).write_text(src.replace(pattern, replacement))
+    for rel, text in texts.items():
+        (pp_dir / rel).write_text(text)
     exe = build(DP_RTL, work / f"obj_{tag}", "crflic", pp_dir)
     if exe is None:
         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
