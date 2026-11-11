@@ -8,10 +8,10 @@ each source's arrival rate, from a contract rate (sw/mailbox/mailbox.yaml, read 
 (each clause below, its value read from the tree where the tree states it), times its stated cost. A pass's own cost
 (its events' fixed part and its polls' base) is not a source, so it is not a term: it is reported beside the load.
 At or above 1.0 no ordering of the work bounds a row; CEILING leaves room for the rows: 0.70 at 1x1/1if and 8x8/2if
-(#665 issuecomment-6751196896, item 4). 32x32/2if is reported, not held, pending the owner's choice between more
-compute and contract rates per shape; the table gives the compute its graded load would need for 0.70, its load over
-0.70, since every stated cost is CPU time at the split CPU's clock. No term is kept as a margin: each has its source,
-and one without a source fails.
+(#665 issuecomment-6751196896, item 4). 32x32/2if is reported, not held: the more-compute image, #872 (decision D,
+#665 issuecomment-6759183115 and issuecomment-6759193032; issuecomment-6779973927, item 6); the table gives the compute
+its graded load would need for 0.70, its load over 0.70, since every stated cost is CPU time at the split CPU's clock.
+No term is kept as a margin: each has its source, and one without a source fails.
 
 Two columns of stated costs (#665 issuecomment-6751196896, item 3): STATED_US at this tree's TSN stack pin, and
 STATED_US_DONOR, measured with tsn-c-stack#32 (the ACMP core's completion walking only the sinks an entry changed)
@@ -81,11 +81,11 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The ceiling a point's load is held to (#665 issuecomment-6751196896, item 4); 32x32/2if is reported, not held,
-#: pending the owner's choice (more compute, or contract rates per shape).
+#: The ceiling a point's load is held to (#665 issuecomment-6751196896, item 4); 32x32/2if is reported, not held:
+#: the more-compute image, #872 (decision D, #665 issuecomment-6759183115).
 CEILING = {'1x1/1if': 0.70, '8x8/2if': 0.70}
 #: What the table says in a point's ceiling column where CEILING holds none.
-PENDING = 'reported, pending the owner'
+PENDING = 'reported: the more-compute image, #872'
 #: The load the compute factor is reported against: the ceiling the held points are held to.
 TARGET = 0.70
 #: Each point's counts: interfaces, sinks an interface (counted all on each), registrations an interface
@@ -98,50 +98,52 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
 #: TRANSMIT's builds and THE STEP's pass are ctrl_loop.h's; the records', the events', a centisecond's consumers',
-#: AECP's owed frames' and a pass's events' fixed part are this table's, the largest of three traced measurements: every
+#: AECP's owed frames' and a pass's events' fixed part are this table's, the largest of four traced measurements: every
 #: group of arm A on bc98d727's image; arm A's groups but the save groups, with the answering-every-port arm's, on
-#: a30c9986's image (docs/design/SPLIT_CONTROL_MEMORY.md section 14); and arm A's groups but the save groups on this
-#: tree's image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if (section 13, the
-#: long-window load). 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups,
-#: each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU
-#: or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build of one's
-#: (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass
-#: is stated there at ctrl_loop.h's two-interface cost.
+#: a30c9986's image (docs/design/SPLIT_CONTROL_MEMORY.md section 14); arm A's groups but the save groups on 3a1d14c2's
+#: image, its SRP retry bounded by its source, with the answering-every-port arm's at 8x8/2if; and every group of arm A
+#: and of the answering-every-port arm on this tree's image, its notice built once and addressed per recipient and its
+#: SRP comparisons same()'s (#665 issuecomment-6779973927, items 2 and 3), whose measurement alone states the three
+#: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load). 32x32/2if
+#: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
+#: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
+#: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
+#: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
+#: ctrl_loop.h's two-interface cost.
 STATED_US = {
     '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
                 'event.ADP': 110, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.retained': 250,
-                'item.aecp.notice': 225, 'item.aecp.response': 60, 'item.aecp.probe': 60},
-    '8x8/2if': {'record.srp': 405, 'record.aecp': 260, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 125,
-                'event.ADP': 115, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
-                'event.GM': 320, 'centisecond': 440, 'events_none': 30, 'item.retained': 405,
-                'item.aecp.notice': 340, 'item.aecp.response': 65, 'item.aecp.probe': 65},
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.retained': 250, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60},
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 130,
+                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.retained': 365, 'item.aecp.notice': 270,
+                'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 590, 'item.reclaim': 100,
                   'item.retained': 865, 'item.mrpdu': 7485, 'item.acmp': 665, 'item.aecp.notice': 350,
                   'item.aecp.response': 65, 'item.aecp.probe': 65, 'item.walk': 135,
                   'build': 10810, 'build_one': 7485, 'step': 1030}}
-#: The stated costs with tsn-c-stack#32 at the pin (a scratch build of this tree's image whose stack is the pin with
-#: the donor's change), the graded column, each cost stated at every point: each cost whose work runs the ACMP core's
+#: The stated costs with tsn-c-stack#32 at the pin (a scratch build of this tree's image whose stack is the pin with the
+#: donor's change), the graded column, each cost stated at every point: each cost whose work runs the ACMP core's
 #: completion walk (an ACMP record, an ADP record, ACMP's timer slot, ACMP's owed frame and the polls' base, through
 #: SRP's delivery) its measurement there; every other cost the larger of that measurement and STATED_US's with the
 #: polls' and the headers' (stated()). Measured on arm A's groups but the save groups, at 32x32/2if on the 32x32
-#: simulation shape. The answering-every-port arm does not fit the 8x8/2if ledger with the donor (section 5), so the
-#: costs only that arm stages are STATED_US's.
+#: simulation shape; at 1x1/1if and 8x8/2if on 3a1d14c2's image and on this tree's, each cost the larger of the two but
+#: for the three the cuts move, which are this tree's. The answering-every-port arm does not fit the 8x8/2if ledger with
+#: the donor (section 5), so the costs only that arm stages are STATED_US's.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 95, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
                 'event.ADP': 110, 'event.ACMP': 165, 'event.MAAP': 170, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25,
-                'item.aecp.notice': 225, 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155,
-                'item.reclaim': 25, 'item.retained': 250, 'item.mrpdu': 405, 'item.acmp': 35, 'item.walk': 20,
-                'build': 910, 'build_one': 405, 'step': 975},
-    '8x8/2if': {'record.srp': 405, 'record.aecp': 260, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 125,
-                'event.ADP': 115, 'event.ACMP': 205, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 75,
-                'event.GM': 320, 'centisecond': 440, 'events_none': 30,
-                'item.aecp.notice': 340, 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 245,
-                'item.reclaim': 40, 'item.retained': 405, 'item.mrpdu': 1215, 'item.acmp': 40, 'item.walk': 60,
-                'build': 1995, 'build_one': 1215, 'step': 1030},
+                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155, 'item.reclaim': 25, 'item.retained': 250,
+                'item.mrpdu': 405, 'item.acmp': 35, 'item.walk': 20, 'build': 910, 'build_one': 405, 'step': 975},
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
+                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 75,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 270,
+                'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 245, 'item.reclaim': 40, 'item.retained': 365,
+                'item.mrpdu': 1215, 'item.acmp': 40, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,

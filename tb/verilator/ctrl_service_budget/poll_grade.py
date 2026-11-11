@@ -51,12 +51,14 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: The stated costs in microseconds at 1x1/1if and 8x8/2if: each the most measured over every group of arm A and the
 #: answering-every-port arm at its point plus 5 %, rounded up to 5 us. No group stages a retained record or an MRPDU
 #: its ring refused, so those two have no measured line: a retained record's retry is the apply an SRP record's handler
-#: makes, stated at the SRP record's cost (250 and 395 us), and an owed MRPDU is a part of a build of one, stated at
-#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 405 and 1,215 us).
+#: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
+#: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 405 and 1,215 us). The SRP record's and AECP's item (a notice to the
+#: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
+#: SRP comparisons are same()'s (#665 issuecomment-6779973927, items 2 and 3), over every group of both arms.
 STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
-                    aecp=225),
-             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=395, mrpdu=1215, acmp=185,
-                    aecp=340)}
+                    aecp=210),
+             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,
+                    aecp=270)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
