@@ -1,0 +1,16 @@
+labels gate 23o compares: aem_overlay, lwsrp_table, lwsrp_svh, csr_defaults_svh, adp_shape_svh, platform_shape, aem_rom_svh, gptp_ucode
+labels build() writes: adp_shape_svh, aem_overlay, aem_rom_svh, build_plan, cfg_adp_shape_svh, csr_defaults_svh, gptp_ucode, lwsrp_svh, lwsrp_table, nvm_split, platform_shape, soc_params, sweep_opts
+FACT arty_current: split recipe's nvm_split.json equals the all-fabric build's: True
+FACT arty_4x4: split recipe's nvm_split.json equals the all-fabric build's: True
+FACT arty_8ch: split recipe's nvm_split.json equals the all-fabric build's: True
+FACT ax7101_8x8: split recipe's nvm_split.json equals the all-fabric build's: True
+FACT ax7101_1x1_tdm8: split recipe's nvm_split.json equals the all-fabric build's: True
+  [gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 8 shape artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes refused
+PLANT the split recipe writes a different nvm_split.json: gate 23o PASSED (not caught)
+  [gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 9 shape artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes refused
+FIX-CHECK unplanted gate with nvm_split held: PASSED
+FIX-CHECK plant with nvm_split held: gate 23o FAILED (caught): gate 23o:
+  arty_current: the recipe's nvm_split is not the all-fabric build's
+  arty_4x4: the recipe's nvm_split is not the all-fabric build's
+  arty_8ch: the recipe's nvm_split is not the all-fabric
+rc=0
