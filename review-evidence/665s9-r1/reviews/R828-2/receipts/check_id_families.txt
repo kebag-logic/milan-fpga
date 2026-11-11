@@ -1,0 +1,239 @@
+=== a69fc0f597355a0a200ec5be6bb134b897e97ff5
+       C0: suite.hpp
+       C1: suite.hpp
+       C2: suite.hpp
+       C3: suite.hpp
+       C4: suite.hpp
+       D0: suite.hpp
+       D1: suite.hpp
+       E0: suite.hpp
+       E1: suite.hpp
+       E2: suite.hpp
+SHARED F0: suite.hpp suite_face.hpp
+SHARED F1: suite.hpp suite_face.hpp
+SHARED F2: suite.hpp suite_face.hpp
+       F3: suite_face.hpp
+       F4: suite_face.hpp
+       F7: suite_face.hpp
+       F8: suite_face.hpp
+       F9: suite_face.hpp
+       F10: suite_face.hpp
+       G0: suite.hpp
+       G1: suite.hpp
+       H0: suite.hpp
+       H1: suite.hpp
+       H2: suite.hpp
+       K0: suite.hpp
+       K1: suite.hpp
+       K2: suite.hpp
+       M0: suite.hpp
+       M1: suite.hpp
+       M2: suite.hpp
+       P0: suite.hpp
+       P1: suite.hpp
+       P2: suite.hpp
+       P3: suite.hpp
+       P4: suite.hpp
+       P5: suite.hpp
+       Q0: suite.hpp
+       Q1: suite.hpp
+       Q2: suite.hpp
+       Q3: suite.hpp
+       Q4: suite.hpp
+       Q5: suite.hpp
+       Q6: suite.hpp
+       Q7: suite.hpp
+       Q8: suite.hpp
+       Q9: suite.hpp
+       Q10: suite.hpp
+       Q11: suite.hpp
+       Q12: suite.hpp
+       Q13: suite.hpp
+       Q14: suite.hpp
+       Q15: suite.hpp
+       Q16: suite.hpp
+       Q17: suite.hpp
+       Q18: suite.hpp
+       Q19: suite.hpp
+       Q20: suite.hpp
+       Q21: suite.hpp
+       Q22: suite.hpp
+       Q23: suite.hpp
+       R0: suite.hpp
+       R1: suite.hpp
+       R2: suite.hpp
+       S0: suite.hpp
+SHARED T0: suite.hpp suite_face.hpp
+SHARED T1: suite.hpp suite_face.hpp
+       T2: suite_face.hpp
+       U0: suite.hpp
+       V0: suite.hpp
+       V1: suite.hpp
+       W0: suite.hpp
+       X0: suite.hpp
+       X1: suite.hpp
+       X2: suite.hpp
+--- labels starting U0 / H0 at a69fc0f597355a0a200ec5be6bb134b897e97ff5
+tb/verilator/mbx/mutants.py:138:        "free_w       = ring_words_w - used_w;", 0, "H0 an RX_TAIL ahead of RX_HEAD stores nothing"),
+tb/verilator/mbx/mutants.py:603:           "U0 no receive ring word is written under the head the core sees"),
+tb/verilator/mbx/suite.hpp:153:        ck_.dec("U0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+tb/verilator/mbx/suite.hpp:154:        ck_.that("U0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+tb/verilator/mbx/suite.hpp:958:    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+tb/verilator/mbx/suite.hpp:959:    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+tb/verilator/mbx/suite.hpp:963:    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);
+=== a91fb27dd39483e4694e193504da1dbe06208807
+       C0: suite.hpp
+       C1: suite.hpp
+       C2: suite.hpp
+       C3: suite.hpp
+       C4: suite.hpp
+       D0: suite.hpp
+       D1: suite.hpp
+       E0: suite.hpp
+       E1: suite.hpp
+       E2: suite.hpp
+SHARED F0: suite.hpp suite_face.hpp
+SHARED F1: suite.hpp suite_face.hpp
+SHARED F2: suite.hpp suite_face.hpp
+       F3: suite_face.hpp
+       F4: suite_face.hpp
+       F7: suite_face.hpp
+       F8: suite_face.hpp
+       F9: suite_face.hpp
+       F10: suite_face.hpp
+       G0: suite.hpp
+       G1: suite.hpp
+       H0: suite.hpp
+       H1: suite.hpp
+       H2: suite.hpp
+       K0: suite.hpp
+       K1: suite.hpp
+       K2: suite.hpp
+       M0: suite.hpp
+       M1: suite.hpp
+       M2: suite.hpp
+       P0: suite.hpp
+       P1: suite.hpp
+       P2: suite.hpp
+       P3: suite.hpp
+       P4: suite.hpp
+       P5: suite.hpp
+       Q0: suite.hpp
+       Q1: suite.hpp
+       Q2: suite.hpp
+       Q3: suite.hpp
+       Q4: suite.hpp
+       Q5: suite.hpp
+       Q6: suite.hpp
+       Q7: suite.hpp
+       Q8: suite.hpp
+       Q9: suite.hpp
+       Q10: suite.hpp
+       Q11: suite.hpp
+       Q12: suite.hpp
+       Q13: suite.hpp
+       Q14: suite.hpp
+       Q15: suite.hpp
+       Q16: suite.hpp
+       Q17: suite.hpp
+       Q18: suite.hpp
+       Q19: suite.hpp
+       Q20: suite.hpp
+       Q21: suite.hpp
+       Q22: suite.hpp
+       Q23: suite.hpp
+       R0: suite.hpp
+       R1: suite.hpp
+       R2: suite.hpp
+       S0: suite.hpp
+SHARED T0: suite.hpp suite_face.hpp
+SHARED T1: suite.hpp suite_face.hpp
+       T2: suite_face.hpp
+       V0: suite.hpp
+       V1: suite.hpp
+       W0: suite.hpp
+       X0: suite.hpp
+       X1: suite.hpp
+       X2: suite.hpp
+--- labels starting U0 / H0 at a91fb27dd39483e4694e193504da1dbe06208807
+tb/verilator/mbx/mutants.py:138:        "free_w       = ring_words_w - used_w;", 0, "H0 an RX_TAIL ahead of RX_HEAD stores nothing"),
+tb/verilator/mbx/mutants.py:603:           "H0 no receive ring word is written under the head the core sees"),
+tb/verilator/mbx/suite.hpp:153:        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+tb/verilator/mbx/suite.hpp:154:        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+tb/verilator/mbx/suite.hpp:958:    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+tb/verilator/mbx/suite.hpp:959:    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+tb/verilator/mbx/suite.hpp:963:    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);
+=== 1d6bf555
+       C0: suite.hpp
+       C1: suite.hpp
+       C2: suite.hpp
+       C3: suite.hpp
+       C4: suite.hpp
+       D0: suite.hpp
+       D1: suite.hpp
+       E0: suite.hpp
+       E1: suite.hpp
+       E2: suite.hpp
+SHARED F0: suite.hpp suite_face.hpp
+SHARED F1: suite.hpp suite_face.hpp
+SHARED F2: suite.hpp suite_face.hpp
+       F3: suite_face.hpp
+       F4: suite_face.hpp
+       F7: suite_face.hpp
+       F8: suite_face.hpp
+       F9: suite_face.hpp
+       F10: suite_face.hpp
+       G0: suite.hpp
+       H0: suite.hpp
+       H1: suite.hpp
+       H2: suite.hpp
+       K0: suite.hpp
+       K1: suite.hpp
+       K2: suite.hpp
+       M0: suite.hpp
+       M1: suite.hpp
+       M2: suite.hpp
+       P0: suite.hpp
+       P1: suite.hpp
+       P2: suite.hpp
+       P3: suite.hpp
+       P4: suite.hpp
+       P5: suite.hpp
+       Q0: suite.hpp
+       Q1: suite.hpp
+       Q2: suite.hpp
+       Q3: suite.hpp
+       Q4: suite.hpp
+       Q5: suite.hpp
+       Q6: suite.hpp
+       Q7: suite.hpp
+       Q8: suite.hpp
+       Q9: suite.hpp
+       Q10: suite.hpp
+       Q11: suite.hpp
+       Q12: suite.hpp
+       Q13: suite.hpp
+       Q14: suite.hpp
+       Q15: suite.hpp
+       Q16: suite.hpp
+       Q17: suite.hpp
+       Q18: suite.hpp
+       Q19: suite.hpp
+       Q20: suite.hpp
+       Q21: suite.hpp
+       Q22: suite.hpp
+       Q23: suite.hpp
+       R0: suite.hpp
+       R1: suite.hpp
+       R2: suite.hpp
+SHARED T0: suite.hpp suite_face.hpp
+SHARED T1: suite.hpp suite_face.hpp
+       T2: suite_face.hpp
+       X0: suite.hpp
+       X1: suite.hpp
+       X2: suite.hpp
+--- labels starting U0 / H0 at 1d6bf555
+tb/verilator/mbx/mutants.py:138:        "free_w       = ring_words_w - used_w;", 0, "H0 an RX_TAIL ahead of RX_HEAD stores nothing"),
+tb/verilator/mbx/suite.hpp:929:    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+tb/verilator/mbx/suite.hpp:930:    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+tb/verilator/mbx/suite.hpp:934:    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);

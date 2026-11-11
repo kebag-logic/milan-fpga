@@ -1,0 +1,30 @@
+head a69fc0f597355a0a200ec5be6bb134b897e97ff5
+$ git diff --stat a91fb27d a69fc0f5
+ docs/design/MAILBOX_SPLIT.md     | 12 +++++++-----
+ docs/design/MARK_II_AREA_PLAN.md |  6 ++++--
+ sw/builder/test_builder.py       | 36 ++++++++++++++++++++++++++++++++----
+ tb/verilator/mbx/README.md       |  6 +++---
+ tb/verilator/mbx/mutants.py      |  2 +-
+ tb/verilator/mbx/suite.hpp       |  6 +++---
+ 6 files changed, 50 insertions(+), 18 deletions(-)
+$ git diff --name-only a91fb27d a69fc0f5 -- hdl sw/mailbox sw/litex configs VERSION scripts .github "*.tcl" "*.xdc" "*.yaml" "*.sh"
+(end; empty means none)
+$ git diff --check 1d6bf555 a69fc0f5
+rc=0
+$ git diff --check a91fb27d a69fc0f5
+rc=0
+$ git diff --raw a91fb27d a69fc0f5 (modes)
+:100644 100644 7713647dd6 7bce7d2785 M	docs/design/MAILBOX_SPLIT.md
+:100644 100644 739ac35673 b480a4b03b M	docs/design/MARK_II_AREA_PLAN.md
+:100644 100644 263be0279d fd389bd431 M	sw/builder/test_builder.py
+:100644 100644 d4c8d1bd18 a3b14c1bb6 M	tb/verilator/mbx/README.md
+:100644 100644 62937025a4 8363475cd2 M	tb/verilator/mbx/mutants.py
+:100644 100644 e02afe47c5 5dd58807ca M	tb/verilator/mbx/suite.hpp
+$ git log --format="%H %s" a91fb27d..a69fc0f5
+a69fc0f597355a0a200ec5be6bb134b897e97ff5 hackerman-kl | State the identity gate's bound-bitstream control and manifest-ident plant, the routed nets of every directive of every round, and the bus clock's listed setup paths the receive block is absent from (#665)
+626414f0bc10e156d9d38136af4e97dc166bb5c4 hackerman-kl | Name the mailbox suite's head-publication check U0, an ID no other check uses, in the suite, its mutant needle, the bench README and the mailbox design (#665)
+8fea72f2d525f9ce47014dc1cc88df50bd8e29c4 hackerman-kl | Grade a split image whose manifest binds the bitstream its gateware holds as one the identity gate passes, and plant a manifest whose ident is not the image's, in builder gate 23p (#665)
+$ commit bodies/trailers
+a69fc0f597355a0a200ec5be6bb134b897e97ff5 body_lines=0
+626414f0bc10e156d9d38136af4e97dc166bb5c4 body_lines=0
+8fea72f2d525f9ce47014dc1cc88df50bd8e29c4 body_lines=0
