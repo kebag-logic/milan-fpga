@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
 - **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
 - **[Unreleased - processor pin 92100657](#unreleased---processor-pin-92100657)** -- Pre-settle Talkers apply at the settle.
 - **[Unreleased - station MAC from reset](#unreleased---station-mac-from-reset)** -- No zero source address.
@@ -54,6 +55,33 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - control-frame drop count
+
+- Issue #854 makes the all-fabric tap count what it loses.
+- `PP_DIAG[15:8]` counts control frames the tap's FIFO drops.
+- The FIFO drops a frame it has no room for.
+- It drops one longer than its 4,096 bytes too.
+- It holds `tready` high while it drops them.
+- The count read `tready`, so it never moved.
+- It now reads the FIFO's own overflow indication.
+- Each control frame lost counts once.
+- A refused frame or a runt is not counted.
+- The count saturates at 255.
+- `pp_shadow` section `[DR]` grades it.
+- `drops-mutant` plants eight defects, each caught.
+- No port, parameter or register changes.
+- The image now holds the count.
+- Its best directive, ExtraPostPlacementOpt, is at +0.166 ns.
+- Every corner meets the floor.
+- Placement leaves 30 of 15,850 slices free.
+- Against #851's route it grows 106 LUTs and 13 FFs.
+- At ExtraPostPlacementOpt alone it grows 151 LUTs.
+- There WNS rises by 0.054 ns.
+- The resource gate passes all three endpoints.
+- All three records are re-recorded.
+- `check` exits 0 against them.
+- The [area budget](docs/design/AREA_BUDGET.md) gives the figures.
 
 ## Unreleased - processor pin 044cb25f
 

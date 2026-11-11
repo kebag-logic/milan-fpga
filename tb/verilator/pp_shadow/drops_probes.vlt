@@ -1,0 +1,9 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only cycle probes for section [DR] (#854): the tap serializer's byte
+// stream into the processor and its FIFO's overflow strobe.
+`verilator_config
+public_flat_rd -module "KL_pp_shadow" -var "pp_rx_valid_w"
+public_flat_rd -module "KL_pp_shadow" -var "pp_rx_data_w"
+public_flat_rd -module "KL_pp_shadow" -var "pp_rx_last_w"
+public_flat_rd -module "KL_pp_shadow" -var "ff_overflow_w"

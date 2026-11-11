@@ -4413,7 +4413,7 @@ RTL name: `A_PP_DIAG`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `PP_TX_FRAMES` | R | X | Control frames transmitted. |
-| 15:8 | `PP_RX_DROPS` | R | X | Control frames lost to a full ingress FIFO. |
+| 15:8 | `PP_RX_DROPS` | R | X | Control frames lost to a full ingress FIFO, or longer than the FIFO; saturates at 255. |
 | 7:0 | `PP_RX_FRAMES` | R | X | Control frames received. Bits [7:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_diag-offset-0x930).

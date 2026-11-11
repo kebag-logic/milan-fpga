@@ -17,45 +17,45 @@
       "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2",
       "opt_design -directive ExploreArea",
       "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}",
-      "place_design -directive AltSpreadLogic_high",
+      "place_design -directive ExtraPostPlacementOpt",
       "phys_opt_design -directive AggressiveExplore",
       "route_design -directive AggressiveExplore",
       "phys_opt_design -directive AggressiveExplore"
      ],
      "standalone_clock_ns": []
     },
-    "inputs_sha256": "6eace23d2f36282170f810eb3329422045ebf64d2b2ed717b8d3c1bb6ee05cd8",
+    "inputs_sha256": "401aabd7080837073732ee56c3f990a7e845d488708d2c15b8e6db707ad04840",
     "figures": {
-     "LUT": 53428,
-     "FF": 54837,
-     "SLICE": 15829,
+     "LUT": 53534,
+     "FF": 54850,
+     "SLICE": 15820,
      "BRAM_TILE": 87.5,
      "RAMB36": 74,
      "RAMB18": 27,
      "DSP": 15,
-     "WNS_ns": 0.21,
-     "WHS_ns": 0.036,
+     "WNS_ns": 0.166,
+     "WHS_ns": 0.032,
      "CARRY4": 3741
     },
     "scopes": {
      "wrapper": {
-      "LUT": 25184,
-      "FF": 20028,
+      "LUT": 25219,
+      "FF": 20038,
       "RAMB36": 16,
       "RAMB18": 3,
       "DSP": 8,
       "CARRY4": 1587
      },
      "ctl_fifo": {
-      "LUT": 73,
-      "FF": 33,
+      "LUT": 74,
+      "FF": 34,
       "RAMB36": 1,
       "RAMB18": 1,
       "DSP": 0,
       "CARRY4": 3
      },
      "u_nvm": {
-      "LUT": 654,
+      "LUT": 653,
       "FF": 476,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -63,7 +63,7 @@
       "CARRY4": 45
      },
      "u_pp": {
-      "LUT": 24464,
+      "LUT": 24491,
       "FF": 19196,
       "RAMB36": 15,
       "RAMB18": 2,
@@ -79,7 +79,7 @@
       "CARRY4": 7
      },
      "u_pp/g_rx_pool[1].u_rx_slots": {
-      "LUT": 32,
+      "LUT": 31,
       "FF": 22,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -95,7 +95,7 @@
       "CARRY4": 2
      },
      "u_pp/g_rx_pool[4].u_rx_slots": {
-      "LUT": 33,
+      "LUT": 34,
       "FF": 22,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -111,7 +111,7 @@
       "CARRY4": 4
      },
      "u_pp/u_adp": {
-      "LUT": 418,
+      "LUT": 417,
       "FF": 471,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -119,7 +119,7 @@
       "CARRY4": 38
      },
      "u_pp/u_aecp": {
-      "LUT": 8081,
+      "LUT": 8083,
       "FF": 3594,
       "RAMB36": 6,
       "RAMB18": 0,
@@ -127,7 +127,7 @@
       "CARRY4": 454
      },
      "u_pp/u_aecp/u_d3": {
-      "LUT": 1846,
+      "LUT": 1835,
       "FF": 580,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -135,7 +135,7 @@
       "CARRY4": 117
      },
      "u_pp/u_aecp/u_dyn": {
-      "LUT": 1345,
+      "LUT": 1348,
       "FF": 467,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -151,7 +151,7 @@
       "CARRY4": 16
      },
      "u_pp/u_aecp/u_store": {
-      "LUT": 974,
+      "LUT": 973,
       "FF": 694,
       "RAMB36": 2,
       "RAMB18": 0,
@@ -159,7 +159,7 @@
       "CARRY4": 106
      },
      "u_pp/u_aecp/u_ucpu": {
-      "LUT": 1827,
+      "LUT": 1829,
       "FF": 495,
       "RAMB36": 3,
       "RAMB18": 0,
@@ -183,7 +183,7 @@
       "CARRY4": 0
      },
      "u_pp/u_dispatch": {
-      "LUT": 739,
+      "LUT": 738,
       "FF": 635,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -199,7 +199,7 @@
       "CARRY4": 1
      },
      "u_pp/u_dispatch/u_adp_q": {
-      "LUT": 75,
+      "LUT": 74,
       "FF": 88,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -223,7 +223,7 @@
       "CARRY4": 0
      },
      "u_pp/u_event_router": {
-      "LUT": 159,
+      "LUT": 160,
       "FF": 51,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -231,7 +231,7 @@
       "CARRY4": 0
      },
      "u_pp/u_listener": {
-      "LUT": 1548,
+      "LUT": 1567,
       "FF": 1064,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -263,7 +263,7 @@
       "CARRY4": 6
      },
      "u_pp/u_notify": {
-      "LUT": 2160,
+      "LUT": 2158,
       "FF": 1310,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -279,7 +279,7 @@
       "CARRY4": 0
      },
      "u_pp/u_nvm_port": {
-      "LUT": 554,
+      "LUT": 555,
       "FF": 160,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -287,7 +287,7 @@
       "CARRY4": 73
      },
      "u_pp/u_nvm_shadow": {
-      "LUT": 810,
+      "LUT": 807,
       "FF": 1118,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -303,7 +303,7 @@
       "CARRY4": 53
      },
      "u_pp/u_prng": {
-      "LUT": 137,
+      "LUT": 138,
       "FF": 150,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -319,7 +319,7 @@
       "CARRY4": 0
      },
      "u_pp/u_rx_validator": {
-      "LUT": 525,
+      "LUT": 524,
       "FF": 751,
       "RAMB36": 0,
       "RAMB18": 1,
@@ -327,7 +327,7 @@
       "CARRY4": 45
      },
      "u_pp/u_scoreboard": {
-      "LUT": 137,
+      "LUT": 136,
       "FF": 169,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -343,7 +343,7 @@
       "CARRY4": 0
      },
      "u_pp/u_srp": {
-      "LUT": 4949,
+      "LUT": 4950,
       "FF": 4872,
       "RAMB36": 0,
       "RAMB18": 1,
@@ -375,7 +375,7 @@
       "CARRY4": 4
      },
      "u_pp/u_srp/u_encoder": {
-      "LUT": 1438,
+      "LUT": 1437,
       "FF": 1160,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -383,7 +383,7 @@
       "CARRY4": 111
      },
      "u_pp/u_srp/u_listener": {
-      "LUT": 1060,
+      "LUT": 1057,
       "FF": 1328,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -391,7 +391,7 @@
       "CARRY4": 64
      },
      "u_pp/u_srp/u_talker": {
-      "LUT": 649,
+      "LUT": 651,
       "FF": 863,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -399,7 +399,7 @@
       "CARRY4": 10
      },
      "u_pp/u_srp/u_vlan": {
-      "LUT": 280,
+      "LUT": 283,
       "FF": 126,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -407,7 +407,7 @@
       "CARRY4": 9
      },
      "u_pp/u_talker": {
-      "LUT": 864,
+      "LUT": 867,
       "FF": 663,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -431,7 +431,7 @@
       "CARRY4": 4
      },
      "u_pp/u_tx_arbiter": {
-      "LUT": 187,
+      "LUT": 186,
       "FF": 182,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -448,7 +448,7 @@
      }
     }
    },
-   "measured": "2026-11-08, issue #851 (processor pin 044cb25f4ed2187bd238490650e73d5d189855d1, processor #214, PR #215) with FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8 (issue #843, PR #846): RTL inputs at lane commit e44a4d20d95858124b83048c0db4980b3e05a238, the lane's merge of dev 0a75aa774b89ac89351700f63dd8cbb89694af6c; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; the first route with all four lab fixes; the recipe's three placement directives from one synthesis checkpoint, AltSpreadLogic_high selected by the gate at WNS +0.210 ns over ExtraPostPlacementOpt +0.112 ns and ExtraTimingOpt +0.018 ns. 21 of 15,850 slices remain. Against the fourteenth record (#843's route, which measures dev 0a75aa77's synthesis inputs) the route moved by +207 LUT (tolerance +500), +83 FF (+600) and -5 slices (80), with RAMB36, RAMB18 and DSP unchanged, WNS -0.032 ns and WHS +0.024 ns: the gate passed it, and that movement is this adoption's alone. It is re-recorded so that the record measures the merged tree; the lab fixes' growth up to the fourteenth record is under the maintainer decision of 2026-11-06, https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-11-09, issue #854 (the all-fabric tap's control-frame drop count, read from the FIFO's own overflow indication) on processor pin 044cb25f4ed2187bd238490650e73d5d189855d1 and FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8, both unchanged: RTL inputs at lane commit 7a19f62b4e622d1d7d563184363a42e2644776c1 on dev ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; the recipe's three placement directives from one synthesis checkpoint, ExtraPostPlacementOpt selected by the gate at WNS +0.166 ns over AltSpreadLogic_high +0.147 ns and ExtraTimingOpt +0.127 ns. 30 of 15,850 slices remain. Against the fifteenth record (#851's route, AltSpreadLogic_high) the route moved by +106 LUT (tolerance +500), +13 FF (+600) and -9 slices (80), with RAMB36 +0, RAMB18 +0 and DSP +0, WNS -0.044 ns and WHS -0.004 ns: the gate passed it. From the fifteenth record's measured commit e44a4d20 to dev ac0a01e3 no synthesis input moves, so the difference is this change's and the selected directive's. At one directive, against the fifteenth record's own ExtraPostPlacementOpt route (53,383 LUT, 54,837 FF, 15,848 slices, WNS +0.112 ns), this route at ExtraPostPlacementOpt moved by +151 LUT, +13 FF and -28 slices, WNS +0.054 ns and WHS -0.004 ns: the WNS fall against the record is the directive's, not this change's; on dev the count is constant 0 and synthesis removes it with the FIFO's overflow register; it now exists, with the register of the last beat's classification. It is re-recorded because the change moves the shipping image (docs/design/AREA_BUDGET.md, the re-baseline rule). Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 500,
     "FF": 600,
@@ -485,10 +485,10 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "411ff583c8428aab0a567ea0a22a9631c89c052135aa46dc051b17a3a90604e9",
+    "inputs_sha256": "27ef2ef69d4a14c6d29c5354a7d646ad32ec93e4db9ea60be2dbe34cc169ee56",
     "figures": {
-     "LUT": 25199,
-     "FF": 21010,
+     "LUT": 25209,
+     "FF": 21020,
      "BRAM_TILE": 17.5,
      "RAMB36": 16,
      "RAMB18": 3,
@@ -499,16 +499,16 @@
     },
     "scopes": {
      "wrapper": {
-      "LUT": 25199,
-      "FF": 21010,
+      "LUT": 25209,
+      "FF": 21020,
       "RAMB36": 16,
       "RAMB18": 3,
       "DSP": 8,
       "CARRY4": 1649
      },
      "ctl_fifo": {
-      "LUT": 75,
-      "FF": 33,
+      "LUT": 78,
+      "FF": 34,
       "RAMB36": 1,
       "RAMB18": 1,
       "DSP": 0,
@@ -916,7 +916,7 @@
      }
     }
    },
-   "measured": "2026-11-08, issue #851 (processor pin 044cb25f4ed2187bd238490650e73d5d189855d1, processor #214, PR #215) with FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8 (issue #843, PR #846): RTL inputs at lane commit e44a4d20d95858124b83048c0db4980b3e05a238, the lane's merge of dev 0a75aa774b89ac89351700f63dd8cbb89694af6c; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; the shipping 20 ns clock. Against the fourteenth record, whose standalone records are #845's (processor 92100657), the wrapper moved by +203 LUT and +76 FF (tolerances 250 and 250), RAMB36, RAMB18 and DSP unchanged; the gate passed it. The figures equal the measurement at lane commit a566d4f9 on dev 1eb5289d; the input digest differs because the export's read set also holds FPGA-gPTP sources and images, which KL_pp_shadow does not instantiate. It is re-recorded with the route so that the record measures one tree. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-11-09, issue #854 (the all-fabric tap's control-frame drop count, read from the FIFO's own overflow indication) on processor pin 044cb25f4ed2187bd238490650e73d5d189855d1 and FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8, both unchanged: RTL inputs at lane commit 7a19f62b4e622d1d7d563184363a42e2644776c1 on dev ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; the shipping 20 ns clock. Against the fifteenth record (#851's) the wrapper moved by +10 LUT and +10 FF (tolerances 250 and 250), RAMB36 +0, RAMB18 +0 and DSP +0; the gate passed it. From the fifteenth record's measured commit e44a4d20 to dev ac0a01e3 no synthesis input moves, so the movement is this change's: on dev the count is constant 0 and synthesis removes it with the FIFO's overflow register; it now exists, with the register of the last beat's classification. It is re-recorded because the change moves the shipping image (docs/design/AREA_BUDGET.md, the re-baseline rule). Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 250,
     "FF": 250,
@@ -943,10 +943,10 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "f1ffc8db9c3354f4fc2d9587f408aead6defbd77b7d5cd87f59bd796511c3b58",
+    "inputs_sha256": "f185c126b037e9cef3bd9dec0f1e830d885944ec6537cfce133090e68455d5ae",
     "figures": {
-     "LUT": 37048,
-     "FF": 32116,
+     "LUT": 37058,
+     "FF": 32126,
      "BRAM_TILE": 23.5,
      "RAMB36": 21,
      "RAMB18": 5,
@@ -957,16 +957,16 @@
     },
     "scopes": {
      "wrapper": {
-      "LUT": 37048,
-      "FF": 32116,
+      "LUT": 37058,
+      "FF": 32126,
       "RAMB36": 21,
       "RAMB18": 5,
       "DSP": 8,
       "CARRY4": 2329
      },
      "ctl_fifo": {
-      "LUT": 75,
-      "FF": 33,
+      "LUT": 79,
+      "FF": 34,
       "RAMB36": 1,
       "RAMB18": 1,
       "DSP": 0,
@@ -1374,7 +1374,7 @@
      }
     }
    },
-   "measured": "2026-11-08, issue #851 (processor pin 044cb25f4ed2187bd238490650e73d5d189855d1, processor #214, PR #215) with FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8 (issue #843, PR #846): RTL inputs at lane commit e44a4d20d95858124b83048c0db4980b3e05a238, the lane's merge of dev 0a75aa774b89ac89351700f63dd8cbb89694af6c; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; out of context only, not routed; an RTL elaboration supplies the bound parameters; the shipping 20 ns clock. Against the fourteenth record, whose standalone records are #845's (processor 92100657), the wrapper moved by +184 LUT and +80 FF (tolerances 316 and 339), RAMB36, RAMB18 and DSP unchanged; the gate passed it. The figures equal the measurement at lane commit a566d4f9 on dev 1eb5289d; the input digest differs because the export's read set also holds FPGA-gPTP sources and images, which KL_pp_shadow does not instantiate. It is re-recorded with the route so that the record measures one tree. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
+   "measured": "2026-11-09, issue #854 (the all-fabric tap's control-frame drop count, read from the FIFO's own overflow indication) on processor pin 044cb25f4ed2187bd238490650e73d5d189855d1 and FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8, both unchanged: RTL inputs at lane commit 7a19f62b4e622d1d7d563184363a42e2644776c1 on dev ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input. Explicit synth.maxThreads 1, general.maxThreads 32; out of context only, not routed; an RTL elaboration supplies the bound parameters; the shipping 20 ns clock. Against the fifteenth record (#851's) the wrapper moved by +10 LUT and +10 FF (tolerances 316 and 339), RAMB36 +0, RAMB18 +0 and DSP +0; the gate passed it. From the fifteenth record's measured commit e44a4d20 to dev ac0a01e3 no synthesis input moves, so the movement is this change's: on dev the count is constant 0 and synthesis removes it with the FIFO's overflow register; it now exists, with the register of the last beat's classification. It is re-recorded because the change moves the shipping image (docs/design/AREA_BUDGET.md, the re-baseline rule). Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 316,
     "FF": 339,

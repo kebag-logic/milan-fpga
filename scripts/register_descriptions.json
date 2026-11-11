@@ -3916,7 +3916,7 @@
       "purpose": "Control frames sent, received and dropped.",
       "fields": {
         "PP_TX_FRAMES": "Control frames transmitted.",
-        "PP_RX_DROPS": "Control frames lost to a full ingress FIFO.",
+        "PP_RX_DROPS": "Control frames lost to a full ingress FIFO, or longer than the FIFO; saturates at 255.",
         "PP_RX_FRAMES": "Control frames received."
       },
       "notes": [],

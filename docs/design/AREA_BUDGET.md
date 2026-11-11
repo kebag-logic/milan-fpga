@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
 It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#851](https://github.com/kebag-logic/milan-fpga/issues/851)'s lane commit `e44a4d20`, its merge of dev `0a75aa77`, with processor `044cb25f` and FPGA-gPTP `1616fc8f`: the first image with all four lab fixes.
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#854](https://github.com/kebag-logic/milan-fpga/issues/854)'s lane commit `7a19f62b` on dev `ac0a01e3`, with processor `044cb25f` and FPGA-gPTP `1616fc8f`: the image with all four lab fixes and the control-frame drop count.
 Its figures back the protocol processor budget and resource gate below.
 
 The current command and media-clock claims are checked against the
@@ -129,9 +129,12 @@ Its standalone endpoints keep #845's records: their top, `KL_pp_shadow`, holds n
 That route and those standalone records were the gate's record; the route's [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) retain the preceding route record.
 Issue [#851](https://github.com/kebag-logic/milan-fpga/issues/851) then re-recorded all three endpoints at lane commit `e44a4d20`, its merge of dev `0a75aa77`, adopting processor `044cb25f` with FPGA-gPTP `1616fc8f`.
 Against #843's record the gate passed all three endpoints; they are re-recorded so that the record measures the merged tree, the first image with all four lab fixes.
-That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) retain the preceding record.
+That measurement was the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) retain the preceding record.
+Issue [#854](https://github.com/kebag-logic/milan-fpga/issues/854) then re-recorded all three endpoints at lane commit `7a19f62b` on dev `ac0a01e3`, for the all-fabric tap's control-frame drop count.
+Against #851's record the gate passed all three endpoints; they are re-recorded because the change moves the shipping image.
+That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) retain the preceding record.
 All these measurements use the same recipe identity and policy.
-The route record's placement directive is AltSpreadLogic_high, the one flow difference the gate allows.
+The route record's placement directive is ExtraPostPlacementOpt, the one flow difference the gate allows.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inputs differ from F's only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) and comment lines of [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv); the processor pins are F's.
 
@@ -146,17 +149,17 @@ The [#799](https://github.com/kebag-logic/milan-fpga/issues/799) route was 13,97
 The shipping image must fit the device.
 The resource gate holds it, with no other LUT bound:
 
-| Resource | Device | Shipping route, #851 on dev `0a75aa77`, processor `044cb25f`, FPGA-gPTP `1616fc8f`, AltSpreadLogic_high | Used | Target | Status |
+| Resource | Device | Shipping route, #854 on dev `ac0a01e3`, processor `044cb25f`, FPGA-gPTP `1616fc8f`, ExtraPostPlacementOpt | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 53,428 | 84.27 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
-| Slice register | 126,800 | 54,837 | 43.25 % | none stated | - |
-| Slice | 15,850 | 15,829 | 99.87 % | must stay below the device to place | 21 free |
+| Slice LUT | 63,400 | 53,534 | 84.44 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
+| Slice register | 126,800 | 54,850 | 43.26 % | none stated | - |
+| Slice | 15,850 | 15,820 | 99.81 % | must stay below the device to place | 30 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
 | DSP | 240 | 15 | 6.25 % | none stated | - |
-| WNS / WHS | - | +0.210 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+| WNS / WHS | - | +0.166 / +0.032 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: the selected route places 15,829 slices, so placement has 21 of 15,850 left.
+The slice row is the binding limit: the selected route places 15,820 slices, so placement has 30 of 15,850 left.
 The shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` placed 15,823 slices, 27 left.
 That route met the build floor at every corner, at +0.032 / +0.034 ns. Its WNS was 0.408 ns under the +0.440 ns record then held, beyond the 0.25 ns fall tolerance.
 Before [#818](https://github.com/kebag-logic/milan-fpga/issues/818) the gate refused that fall; under #818 it prints a WARNING and passes.
@@ -219,7 +222,7 @@ Against the fourteenth record the gate passed it: `check` exited 0 on all three 
 From dev `0a75aa77` to that commit only the processor gitlink moves a synthesis input, so the differences are this adoption's alone.
 On `route-1x1` the gate selects AltSpreadLogic_high, the best of the three directives at WNS +0.210 ns.
 Its 53,428 LUTs (+207, tolerance +500), 54,837 FFs (+83, tolerance +600), 15,829 slices (-5, tolerance +80), block RAM, 15 DSPs (0), WNS and WHS passed; 21 slices are left.
-The table above holds that route, re-recorded with `record --write` so that the record measures the merged tree, and `check` exits 0 on all three endpoints against it.
+The fifteenth record held that route, re-recorded with `record --write` so that the record measured the merged tree, and `check` exited 0 on all three endpoints against it.
 All three directives route without error; ExtraTimingOpt misses the WNS floor at its slow corners, and the gate judges the selected route against the floors:
 
 | Directive, processor `044cb25f` with FPGA-gPTP `1616fc8f` | WNS / WHS, worst corner | LUT | FF | Slice | Free |
@@ -235,6 +238,30 @@ The gate's sub-block rows, which it does not judge, put the SRP encoder at +118 
 The routed critical setup path has 37 logic levels on the processor's 20 ns clock, inside the wrapper and outside the encoder.
 It runs from the AECP microcode CPU's `u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_pp/u_aecp/u_d3/deb_cnt_r_reg[10]`; its data delay is 19.258 ns, of which 12.942 ns is routing.
 The preceding [#843](https://github.com/kebag-logic/milan-fpga/issues/843) image, at `a6d7cdf3`, used 53,221 LUTs and 15,834 slices, 16 free, at +0.242 / +0.012 ns, under the same [maintainer decision](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541); the #843 paragraph above gives its critical path.
+The all-fabric tap's control-frame drop count ([#854](https://github.com/kebag-logic/milan-fpga/issues/854)) moves the shipping image: on dev `ac0a01e3` the count is constant 0 and synthesis removes it with the FIFO's overflow register.
+Its route, at lane commit `7a19f62b` on dev `ac0a01e3`, the live dev tip, is its own merge result; later commits change no synthesis input.
+From the fifteenth record's commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves, so the differences are this change's and the selected directive's.
+Against the fifteenth record the gate passed it: `check` exited 0 on all three endpoints.
+On `route-1x1` the gate selects ExtraPostPlacementOpt, the shipping directive and the best of the three at WNS +0.166 ns.
+Its 53,534 LUTs (+106, tolerance +500), 54,850 FFs (+13, tolerance +600), 15,820 slices (-9, tolerance +80), block RAM, 15 DSPs (0), WNS (-0.044 ns) and WHS (-0.004 ns) passed; 30 slices are left.
+The table above holds that route, re-recorded with `record --write`, and `check` exits 0 on all three endpoints against it.
+All three directives route without error and meet the build floor at every corner:
+
+| Directive, the drop count | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.166 / +0.032 ns | 53,534 | 54,850 | 15,820 | 30 |
+| AltSpreadLogic_high | +0.147 / +0.036 ns | 53,513 | 54,847 | 15,846 | 4 |
+| ExtraTimingOpt | +0.127 / +0.036 ns | 53,512 | 54,847 | 15,846 | 4 |
+
+At one directive, against the fifteenth record's own ExtraPostPlacementOpt route, the route moved by +151 LUTs, +13 FFs and -28 slices, WNS +0.054 ns and WHS -0.004 ns; the WNS fall against the record is the change of selected directive, not this change.
+Of those FFs the change carries +10, the 8-bit count, the register of the last beat's classification and the FIFO's overflow register, as measured out of context and at the wrapper; the other +3 is placement replication in the SoC's DMA write bridge, as the AltSpreadLogic_high route's +10 FFs against the fifteenth record shows.
+Both standalone endpoints moved by +10 LUTs and +10 FFs (tolerances +250 and +250 at 1x1, +316 and +339 at 8x8); RAMB36, RAMB18 and DSP are unchanged, and the processor `u_pp` does not move.
+Out of context the tap's share, the change in the wrapper's remainder (the instance total less its children), is +7 LUTs and +9 FFs at 1x1 and +6 LUTs and +9 FFs at 8x8: the 8-bit count and the register of the last beat's classification; `ctl_fifo` adds +3 or +4 LUTs and +1 FF, its overflow register.
+On the route the gate's wrapper row is the instance total, children included: +35 LUTs and +10 FFs, of which `u_pp` moved +27 LUTs with no RTL change, `ctl_fifo` +1 and +1, `u_nvm` -1 LUT, and the remainder +8 LUTs and +9 FFs.
+The FF share is an exact count, because the hierarchy's FF totals are additive at this boundary; the LUT share is the change in the remainder, not a count of the tap's cells, because its LUT totals are not.
+The routed critical setup path has 37 logic levels on the processor's 20 ns clock, inside the wrapper and outside the tap.
+It runs from the AECP microcode CPU's `u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_pp/u_aecp/u_d3/deb_cnt_r_reg[13]`; its data delay is 19.393 ns, of which 12.899 ns is routing.
+The preceding [#851](https://github.com/kebag-logic/milan-fpga/issues/851) image, at `e44a4d20`, used 53,428 LUTs and 15,829 slices, 21 free, at +0.210 / +0.036 ns; the #851 paragraph above gives its critical path.
 The preceding [#845](https://github.com/kebag-logic/milan-fpga/issues/845) image, at `b16f0175`, used 52,529 LUTs and 15,835 slices, 15 free, at +0.373 / +0.012 ns, under the [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981); its critical path had 15 logic levels from the SoC's SDRAM bank machine to its write-to-read timer.
 The [#799](https://github.com/kebag-logic/milan-fpga/issues/799) image before it, at `8b76de69`, used 52,012 LUTs and 15,780 slices, 70 free, at +0.440 / +0.036 ns, under the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634); its critical path had 18 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
 The [#632](https://github.com/kebag-logic/milan-fpga/issues/632) image before that, at `5282b8b6`, used 51,259 LUTs and 15,835 slices, 15 free, at +0.236 / +0.028 ns; its critical path had 13 logic levels from the SoC's write buffer level to `storage_13_dat1_reg[6]`.
@@ -250,10 +277,10 @@ The baseline records F's endpoint and sub-block differences from E.
 
 ### Allocation to the protocol processor
 
-The standalone wrapper uses 25,199 LUTs, 39.7 % of the device, at the shipping clock.
+The standalone wrapper uses 25,209 LUTs, 39.8 % of the device, at the shipping clock.
 The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229) milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
-Read as `milan_datapath`, that stack names 44,831 LUTs in the routed image, 70.7 % of the device.
-The wrapper names 25,184 of them in that rebuilt hierarchy.
+Read as `milan_datapath`, that stack names 44,964 LUTs in the routed image, 70.9 % of the device.
+The wrapper names 25,219 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
 
 The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ceiling.
@@ -667,6 +694,13 @@ From dev `0a75aa77` only the processor gitlink moves a synthesis input, so its d
 Against the fourteenth, its route moved by +207 LUTs, +83 FFs and -5 slices, with RAM and DSP unchanged, WNS -0.032 ns and WHS +0.024 ns; the standalone records moved by +203 LUTs and +76 FFs at 1x1 and +184 LUTs and +80 FFs at 8x8.
 The gate passed all three endpoints; all three are re-recorded so that the record measures the merged tree.
 The record still names AltSpreadLogic_high, and every policy value stays unchanged.
+The [sixteenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) records [#854](https://github.com/kebag-logic/milan-fpga/issues/854)'s control-frame drop count at lane commit `7a19f62b` on dev `ac0a01e3`, the live dev tip, with processor `044cb25f` and FPGA-gPTP `1616fc8f`.
+From the fifteenth's commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves, so its differences are this change's and the selected directive's.
+Against the fifteenth, its route moved by +106 LUTs, +13 FFs and -9 slices, with RAM and DSP unchanged, WNS -0.044 ns and WHS -0.004 ns; at one directive, ExtraPostPlacementOpt, the route moved by +151 LUTs, +13 FFs and -28 slices and WNS rose by 0.054 ns.
+Of those FFs the change carries +10, as measured out of context and at the wrapper; the other +3 is placement replication in the SoC, and at AltSpreadLogic_high the route moved by +10 FFs.
+The standalone records moved by +10 LUTs and +10 FFs at both 1x1 and 8x8.
+The gate passed all three endpoints; all three are re-recorded because the change moves the shipping image.
+The record now names ExtraPostPlacementOpt, the directive the gate selected; every policy value stays unchanged.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
 That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.
