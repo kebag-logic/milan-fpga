@@ -1,0 +1,108 @@
+[
+  {
+    "name": "end-one-early",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "not due before the notification has left",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: not due before the notification has left"
+    ],
+    "observed": []
+  },
+  {
+    "name": "older-completion-moves-back",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "an older completion does not hold the reset back",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: an older completion does not hold the reset back"
+    ],
+    "observed": []
+  },
+  {
+    "name": "due-without-the-reentry-guard",
+    "file": "sw/firmware/ctrl/aecp/aecp.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+    "expected_words": "a port's call cannot read the release",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: a port's call cannot read the release",
+      "[FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: a port's call cannot read the release"
+    ],
+    "observed": []
+  },
+  {
+    "name": "lock-before-the-index",
+    "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootRefusalsLeaveTheEntityInService",
+    "expected_words": "",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: status for command 42",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: NO_SUCH_DESCRIPTOR for another ENTITY index under another controller's lock"
+    ],
+    "observed": []
+  },
+  {
+    "name": "refusing-ignored",
+    "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+    "arm": "aecp",
+    "rc": 1,
+    "expected_test": "Core.RebootRefusalsLeaveTheEntityInService",
+    "expected_words": "ENTITY_MISBEHAVING while a change waits for the platform",
+    "caught_by_expected": true,
+    "fail_lines": [
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: status for command 42",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform, notifying no one",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform, resetting nothing",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: ENTITY_MISBEHAVING while a change waits for the platform, resetting nothing",
+      "[FAIL] Core.RebootRefusalsLeaveTheEntityInService: command produces a response: 7"
+    ],
+    "observed": []
+  },
+  {
+    "name": "quiet-without-the-face-poll",
+    "file": "sw/firmware/ctrl/plat/ctrl_plat.c",
+    "arm": "platboot",
+    "rc": 0,
+    "expected_test": "Boot.B16ARebootDuringTheJournalWriteKeepsTheChange",
+    "expected_words": "the drain ends because the write completed",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": []
+  },
+  {
+    "name": "drained-reads-the-aecp-ring",
+    "error": "anchor occurs 0 times"
+  },
+  {
+    "name": "shutdown-before-due",
+    "error": "anchor occurs 0 times"
+  },
+  {
+    "name": "behaviour-acmp-after-success",
+    "file": "sw/firmware/ctrl/test/test_plat_boot.cpp",
+    "arm": "platboot",
+    "rc": 0,
+    "expected_test": "Boot.ReviewProbeAcmpAfterTheRebootSuccess",
+    "expected_words": "",
+    "caught_by_expected": false,
+    "fail_lines": [],
+    "observed": [
+      "PROBE-OBSERVED acmp_frames_after_success=0 sink_bound=0 frames_after_departing=0 first_departing_index=0 total_frames=1",
+      "PROBE-OBSERVED departing_left_before_the_port=1",
+      "PROBE-OBSERVED acmp_frames_after_departing=0 port_writes=1"
+    ]
+  }
+]

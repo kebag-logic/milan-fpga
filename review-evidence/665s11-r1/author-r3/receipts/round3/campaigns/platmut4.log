@@ -1,0 +1,49 @@
+selected 23 mutants: ['plat-loop-before-ready', 'plat-reboot-before-the-response', 'plat-reboot-ignored', 'plat-reboot-without-departing', 'plat-reboot-departing-owed-ignored', 'plat-reboot-before-departing-left', 'plat-reboot-without-a-port', 'plat-reboot-under-another-lock', 'plat-reboot-stops-the-store', 'plat-reboot-hides-the-drain', 'plat-reboot-serves-the-loop-after-the-port', 'plat-reboot-takes-frames-after-the-success', 'plat-reboot-transmits-after-the-departing', 'plat-reboot-departs-before-the-rings-drain', 'plat-reboot-accepted-at-the-handover', 'plat-reboot-takes-adp-frames-after-the-success', 'plat-reboot-takes-acmp-frames-after-the-success', 'plat-reboot-takes-aecp-frames-after-the-success', 'plat-reboot-takes-maap-frames-after-the-success', 'plat-reboot-takes-srp-frames-after-the-success', 'plat-reboot-departs-past-the-acmp-ring', 'plat-reboot-departs-past-the-maap-ring', 'plat-reboot-departs-past-the-srp-ring']
+[ok] mutant plat-loop-before-ready (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B7OnlyAReadyBootServicesTheLoop: B7 and never services the loop
+[ok] mutant plat-reboot-before-the-response (platboot1): 15 check(s) failed
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+[ok] mutant plat-reboot-ignored (platboot1, platboot1, platboot1): 33 check(s) failed
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 the reset port is written once
+[ok] mutant plat-reboot-without-departing (platboot1): 9 check(s) failed
+    first: [FAIL] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets: B11 every interface sends ENTITY_DEPARTING
+[ok] mutant plat-reboot-departing-owed-ignored (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B18ADepartingTheRingRefusedHoldsTheReset: B18 ENTITY_DEPARTING leaves before the reset
+[ok] mutant plat-reboot-before-departing-left (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B12TheResetWaitsForTheResponseToLeave: B12 no reset while the mailbox holds ENTITY_DEPARTING
+[ok] mutant plat-reboot-without-a-port (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B14WithoutAResetPortRebootIsNotImplemented: B14 without a reset port REBOOT is NOT_IMPLEMENTED
+[ok] mutant plat-reboot-under-another-lock (platboot1): 5 check(s) failed
+    first: [FAIL] Boot.B13RefusalsLeaveTheEntityInService: B13 ENTITY_LOCKED under another controller's lock
+[ok] mutant plat-reboot-stops-the-store (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+[ok] mutant plat-reboot-hides-the-drain (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange: B16 the drain ends because the write completed, not at its deadline
+[ok] mutant plat-reboot-serves-the-loop-after-the-port (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired: B17 nothing is sent once the reset port fired
+[ok] mutant plat-reboot-takes-frames-after-the-success (platboot1, platboot1, platboot1, platboot1, platboot1): 110 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ADP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-transmits-after-the-departing (platboot1, platboot1, platboot1, platboot1): 88 check(s) failed
+    first: [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+[ok] mutant plat-reboot-departs-before-the-rings-drain (platboot1, platboot1, platboot1): 27 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+[ok] mutant plat-reboot-accepted-at-the-handover (platboot1, platboot1, platboot1, platboot1, platboot1, platboot1): 72 check(s) failed
+    first: [FAIL] Boot.B22TheGateHoldsInThePassThatTakesTheReboot: B22 no MAAP frame queued with the REBOOT is taken
+[ok] mutant plat-reboot-takes-adp-frames-after-the-success (platboot1, platboot1): 8 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ADP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-takes-acmp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no ACMP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-takes-aecp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-takes-maap-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no MAAP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-takes-srp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no SRP frame is taken after the REBOOT's SUCCESS
+[ok] mutant plat-reboot-departs-past-the-acmp-ring (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the ACMP ring holds a frame
+[ok] mutant plat-reboot-departs-past-the-maap-ring (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the MAAP ring holds a frame
+[ok] mutant plat-reboot-departs-past-the-srp-ring (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B21TheDepartingWaitsForEveryOtherRing: B21 no ENTITY_DEPARTING while the SRP ring holds a frame
+mutants: 23 of 23 caught
+RESULT: ALL CAUGHT

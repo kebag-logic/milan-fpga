@@ -1,0 +1,12 @@
+wrote <scratch>/probes3/final/aecp-handover/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/probes3/final/aecp-handover/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/probes3/final/aecp-handover/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+PROBE aecp handover: rc 1
+    [       OK ] Core.RebootIsNotImplementedWithoutAResetPort (0 ms)
+    [       OK ] Core.RebootRefusalsLeaveTheEntityInService (0 ms)
+    [FAIL] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete: accepted at its SUCCESS, before any poll hands its frames over
+    [  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete (0 ms)
+    [  PASSED  ] 2 tests.
+    [  FAILED  ] 1 test, listed below:
+    [  FAILED  ] Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete
+    1 FAILED TEST
