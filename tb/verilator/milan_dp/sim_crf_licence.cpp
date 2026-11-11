@@ -75,6 +75,18 @@
 //          encoder that appends every hand-over of a pending value, as before
 //          #214, sends MVRP VID 2 twice in one MRPDU in this run
 //          (crflic_mutants.py's processor control).
+//   [MRPAPP] #860, processor #216: over the whole run, a new declaration's
+//          New goes out on two transmissions and is followed by the Join the
+//          Registrar gives (IEEE 802.1Q-2018 Table 10-3, note 8, 10.7.6.3): the
+//          Domain from LINK_UP, which the switch registers at boot, so its Join
+//          is JoinIn; MVRP VID 2 from the first Talker Advertise, which no
+//          peer ever registers, so its Join is JoinMt and no VID is ever sent
+//          JoinIn; each source's first Talker Advertise likewise.
+//   [MVRPLA] #857, processor #216: after [E] the listeners and the switch
+//          fall silent, every probe window closes and every declaration is
+//          withdrawn; the MVRP LeaveAll state machine runs on with nothing
+//          declared, a LeaveAll every 9.5 to 15.5 s (802.1Q-2018 10.7.9, Table
+//          10-5; Milan v1.2 Table 4.3), and MSRP's beside it with the Domain.
 //
 // TSPEC_ONLY_TB builds the [TSPEC] grading alone on another shape
 // (SOURCES_TB talker sources, the last one the CRF Media Clock Output): boot,
@@ -85,6 +97,7 @@
 #include "Vmilan_datapath___024root.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdio>
@@ -172,6 +185,15 @@ struct OneVecSeen {
     long shared_type = 0;          // MRPDUs with two value-carrying vectors of one type
     long doubled = 0;              // MRPDUs that carry one value twice
     long malformed = 0;            // MRPDUs the walk could not finish
+};
+
+//! [MRPAPP] #860: one attribute value in a DUT MRPDU, in wire order, keyed as
+//! [ONEVEC] keys it: the AttributeEvent (0 New, 1 JoinIn, 2 In, 3 JoinMt, 4 Mt,
+//! 5 Lv; IEEE 802.1Q-2018 10.8.2.10.1) and the cycle its MRPDU left.
+struct MrpSent {
+    uint64_t cyc = 0;
+    uint64_t value = 0;
+    int event = 0;
 };
 
 //! A captured AVTP stream PDU.
@@ -291,6 +313,12 @@ class CrfLicenceHarness {
     long dut_malformed = 0;
     OneVecSeen onevec;
     uint64_t maap_off = 0;
+    //! [MRPAPP]/[MVRPLA]: what the DUT's MRPDUs carried, from the same walk
+    std::vector<MrpSent> domain_sent;    // MSRP Domain values
+    std::vector<MrpSent> talker_sent;    // MSRP Talker Advertise values
+    std::vector<MrpSent> mvrp_sent;      // MVRP VID values
+    std::array<std::vector<uint64_t>, 2> la_sent;   // LeaveAll MRPDUs: [0] MSRP, [1] MVRP
+    std::vector<uint64_t> bridge_la_sent;           // the switch's MSRP LeaveAll MRPDUs
 
     // ---- clocking ----------------------------------------------------------
     void lo();
@@ -323,6 +351,12 @@ class CrfLicenceHarness {
     void on_mrpdu(const std::vector<uint8_t>& f);
     void check_one_vector(const std::vector<uint8_t>& f, bool msrp);
     void grade_one_vector();
+    void grade_first_messages(const char* what, const std::vector<MrpSent>& sent, uint64_t value,
+                              int join_event, const char* join_why);
+    void grade_mrp_applicant();
+    void phase_nothing_declared();
+    void grade_leave_all_gaps(const char* app, const std::vector<uint64_t>& la,
+                              const std::vector<uint64_t>& peer_la, uint64_t from, uint64_t to);
     void on_dut_leave_all(int mask);
     void on_dut_talker_event(int uid, int ev);
     void on_acmp(const std::vector<uint8_t>& f);
@@ -789,6 +823,7 @@ void CrfLicenceHarness::check_one_vector(const std::vector<uint8_t>& f, bool msr
     onevec.mrpdus[msrp ? 0 : 1]++;
     std::map<std::pair<int, uint64_t>, std::vector<int>> uses;   // {type, value} -> its events
     bool shared = false;
+    bool leave_all = false;
     bool ok = f.size() >= 17 && f[14] == 0x00;                    // ProtocolVersion 0
     size_t off = 15;
     while (ok && off + 2 <= f.size() && !(f[off] == 0 && f[off + 1] == 0)) {
@@ -805,6 +840,7 @@ void CrfLicenceHarness::check_one_vector(const std::vector<uint8_t>& f, bool msr
         int carrying = 0;
         while (p + 2 <= end && !(f[p] == 0 && f[p + 1] == 0)) {
             const int n = static_cast<int>(get_be(f, p, 2) & 0x1FFFu);
+            if ((get_be(f, p, 2) >> 13) != 0) leave_all = true;   // the VectorHeader's LeaveAllEvent
             p += 2;
             const size_t n3 = static_cast<size_t>((n + 2) / 3);
             const size_t n4 = (msrp && type == 3) ? static_cast<size_t>((n + 3) / 4) : 0;
@@ -834,6 +870,9 @@ void CrfLicenceHarness::check_one_vector(const std::vector<uint8_t>& f, bool msr
                 }
                 uses[{msrp ? type : 0x100 | type, id}].push_back(event);
                 onevec.values++;
+                if (msrp && type == 4) domain_sent.push_back({cyc, id, event});
+                if (msrp && type == 1) talker_sent.push_back({cyc, id, event});
+                if (!msrp && type == 1) mvrp_sent.push_back({cyc, id, event});
             }
         }
         if (!ok) break;
@@ -850,6 +889,7 @@ void CrfLicenceHarness::check_one_vector(const std::vector<uint8_t>& f, bool msr
         note(msrp ? "[ONEVEC] MSRP MRPDU the walk could not finish" : "[ONEVEC] MVRP MRPDU the walk could not finish", -1, -1);
         return;
     }
+    if (leave_all) la_sent[msrp ? 0 : 1].push_back(cyc);
     if (shared) onevec.shared_type++;
     bool doubled = false;
     for (const auto& u : uses) {
@@ -874,6 +914,158 @@ void CrfLicenceHarness::grade_one_vector() {
     ck("every DUT MRPDU walks to its EndMark", static_cast<uint64_t>(onevec.malformed), 0);
     ck("no DUT MRPDU carries one attribute value in two VectorAttributes (802.1Q-2022 10.7.7, 10.7.5.13 c))",
        static_cast<uint64_t>(onevec.doubled), 0);
+}
+
+// ============================================================================
+//  [MRPAPP] #860: New on two transmissions, then the Join the Registrar gives
+// ============================================================================
+//! IEEE 802.1Q-2018 Table 10-3: New! enters VN; VN's tx! sends New (sN) and
+//! enters AN; AN's tx! sends New again and enters QA with the Registrar IN, AA
+//! otherwise (note 8); the next message is a Join (sJ), which 10.7.6.3 encodes
+//! JoinIn with the Registrar IN and JoinMt with it MT or LV. So a declaration
+//! that nothing withdraws and no LeaveAll interrupts sends New, New, then its
+//! Join. Graded on each value's first three messages in the run.
+void CrfLicenceHarness::grade_first_messages(const char* what, const std::vector<MrpSent>& sent,
+                                             uint64_t value, int join_event, const char* join_why) {
+    std::vector<int> ev;
+    for (const MrpSent& m : sent)
+        if (m.value == value && ev.size() < 3) ev.push_back(m.event);
+    printf("  -- %s: first messages", what);
+    for (int e : ev) printf(" %d", e);
+    printf(" (0 New, 1 JoinIn, 3 JoinMt)\n");
+    char line[192];
+    snprintf(line, sizeof line, "%s: the DUT sent it at least three times", what);
+    ck_true(line, ev.size() >= 3);
+    if (ev.size() < 3) return;
+    snprintf(line, sizeof line, "%s: message 1 is New (VN tx!: sN)", what);
+    ck(line, static_cast<uint64_t>(ev[0]), 0);
+    snprintf(line, sizeof line, "%s: message 2 is New again (AN tx!: sN)", what);
+    ck(line, static_cast<uint64_t>(ev[1]), 0);
+    snprintf(line, sizeof line, "%s: message 3 is the Join, %s (10.7.6.3)", what, join_why);
+    ck(line, static_cast<uint64_t>(ev[2]), static_cast<uint64_t>(join_event));
+}
+
+//! The Domain is declared from LINK_UP (Begin!, New!) and the switch's Domain
+//! JoinIn at boot registers it, so its Join is JoinIn. VID 2 is the Talker
+//! Advertise's VLAN, joined by the first declaring source; no peer sends an
+//! MVRPDU in this leg, so the VID's Registrar is never IN and every VID Join
+//! is JoinMt. No Talker Advertise is ever registered either (the switch
+//! declares Listeners only).
+void CrfLicenceHarness::grade_mrp_applicant() {
+    printf("[MRPAPP] #860 (processor #216): a declaration's New on two transmissions, then its Join "
+           "(IEEE 802.1Q-2018 Table 10-3, 10.7.6.3)\n");
+    constexpr uint64_t kDomainA = (6ull << 24) | (3ull << 16) | 2ull;   // SRclassID 6, priority 3, VID 2
+    grade_first_messages("MSRP Domain {class A, 3, VID 2}", domain_sent, kDomainA, 1,
+                         "JoinIn: the switch's Domain registered at boot");
+    grade_first_messages("MVRP VID 2", mvrp_sent, 2, 3,
+                         "JoinMt: no MVRPDU reached the DUT, its Registrar is MT");
+    for (int s = 0; s < kSources; s++) {
+        char what[64];
+        snprintf(what, sizeof what, "Talker Advertise of source uid %d", s);
+        grade_first_messages(what, talker_sent, sid_of(s), 3,
+                             "JoinMt: no peer declares a Talker Advertise");
+    }
+    long vid_join_in = 0;
+    long ta_join_in = 0;
+    for (const MrpSent& m : mvrp_sent) vid_join_in += (m.event == 1);
+    for (const MrpSent& m : talker_sent) ta_join_in += (m.event == 1);
+    printf("  [i]    %zu MVRP VID values and %zu Talker Advertise values in the run\n",
+           mvrp_sent.size(), talker_sent.size());
+    ck("no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3)",
+       static_cast<uint64_t>(vid_join_in), 0);
+    ck("no Talker Advertise JoinIn in the whole run: none was ever registered (10.7.6.3)",
+       static_cast<uint64_t>(ta_join_in), 0);
+}
+
+// ============================================================================
+//  [MVRPLA] #857: with nothing declared the LeaveAll state machine runs on
+// ============================================================================
+//! Every LeaveAll MRPDU of `app` in (from, to] comes 9.5 to 15.5 s after its
+//! leavealltimer last started, and none is overdue at `to`: IEEE 802.1Q-2018
+//! 10.7.9 and Table 10-5 (the timer starts at its own expiry, whose tx! sends
+//! sLA, and at a received LeaveAll, rLA!; the machine runs whatever the
+//! Participant declares), Milan v1.2 Table 4.3 (leavealltimer 10 to 15 s, 9.5 to
+//! 15.5 s with its tolerance). A start is the DUT's own LeaveAll or a peer's
+//! (`peer_la`), whichever came last.
+void CrfLicenceHarness::grade_leave_all_gaps(const char* app, const std::vector<uint64_t>& la,
+                                             const std::vector<uint64_t>& peer_la,
+                                             uint64_t from, uint64_t to) {
+    const auto last_start = [&](uint64_t t) {     // the latest timer start before t
+        uint64_t best = kNever;
+        for (const std::vector<uint64_t>* v : {&la, &peer_la})
+            for (uint64_t x : *v)
+                if (x < t && (best == kNever || x > best)) best = x;
+        return best;
+    };
+    std::vector<uint64_t> in;
+    for (uint64_t t : la)
+        if (t > from && t <= to) in.push_back(t);
+    printf("  -- %s: %zu LeaveAll MRPDUs after the withdrawal, at", app, in.size());
+    for (uint64_t t : in) printf(" %.0f", t_ms(t));
+    printf(" ms\n");
+    char line[192];
+    snprintf(line, sizeof line, "%s: at least two LeaveAll MRPDUs after the withdrawal", app);
+    ck_true(line, in.size() >= 2);
+    uint64_t lo = kNever;
+    uint64_t hi = 0;
+    bool started = true;
+    for (uint64_t t : in) {
+        const uint64_t s0 = last_start(t);
+        if (s0 == kNever) { started = false; continue; }
+        lo = std::min(lo, t - s0);
+        hi = std::max(hi, t - s0);
+    }
+    snprintf(line, sizeof line, "%s: each LeaveAll 9.5 to 15.5 s after its timer's last start (shortest %.0f, longest %.0f ms)",
+             app, lo == kNever ? -1.0 : t_ms(lo), t_ms(hi));
+    ck_true(line, started && !in.empty() && lo >= ms(9500) && hi <= ms(15500));
+    const uint64_t s_end = last_start(to + 1);
+    snprintf(line, sizeof line, "%s: and none overdue at the end of the phase", app);
+    ck_true(line, s_end != kNever && to - s_end <= ms(15500));
+}
+
+//! After [E] both listeners have unbound and the switch has withdrawn both
+//! Listeners. From here the peers are silent, so the last probe window closes
+//! (Milan v1.2 4.3.3.1, 15 s), each source's DA gate closes and its Talker
+//! Advertise is withdrawn, and the last user's leave withdraws VID 2 (Table
+//! 10-3 Lv!). MVRP then declares nothing; MSRP keeps the Domain alone. No peer
+//! LeaveAll restarts either leavealltimer (Table 10-5 rLA!), so each LeaveAll is
+//! the DUT's own timer. It runs before [G]-[J], whose staged declarations are
+//! verification-only.
+void CrfLicenceHarness::phase_nothing_declared() {
+    printf("[MVRPLA] #857 (processor #216): every declaration withdrawn; the LeaveAll state machines run on "
+           "(IEEE 802.1Q-2018 10.7.9, Table 10-5; Milan v1.2 Table 4.3)\n");
+    corner_phase = true;
+    sched.clear();
+    for (auto& p : peer) { p.listener_on = false; p.bridge_decl = 0; }
+    const auto declared = [this] {
+        for (int s = 0; s < kSources; s++)
+            if (declaring[s].v || ta_declared[s].v) return true;
+        return false;
+    };
+    const uint64_t t0 = cyc;
+    while (declared() && cyc < t0 + ms(20000)) run_until(cyc + ms(10));
+    ck_true("every DA gate closed and every Talker Advertise was withdrawn within 20 s", !declared());
+    const uint64_t t_free = cyc;
+    run_until(t_free + ms(1000));
+    uint64_t t_lv = kNever;
+    int last_vid2 = -1;
+    for (const MrpSent& m : mvrp_sent) {
+        if (m.value != 2) continue;
+        last_vid2 = m.event;
+        if (m.event == 5 && m.cyc >= t0) t_lv = m.cyc;
+    }
+    printf("  [i]    nothing declared from %.0f ms; VID 2 Lv at %.0f ms\n", t_ms(t_free),
+           t_lv == kNever ? -1.0 : t_ms(t_lv));
+    ck_true("the DUT sent VID 2 Lv when its last user left (Table 10-3 Lv!: sL)", t_lv != kNever);
+    ck("...and VID 2's last message is that Lv", static_cast<uint64_t>(last_vid2), 5);
+    const uint64_t from = (t_lv != kNever) ? t_lv : t_free;
+    run_until(t_free + ms(33000));
+    long declares = 0;
+    for (const MrpSent& m : mvrp_sent)
+        if (m.cyc > from && (m.event == 0 || m.event == 1 || m.event == 3)) declares++;
+    ck("after the Lv no MVRP message declares a VID (no New, JoinIn or JoinMt)", static_cast<uint64_t>(declares), 0);
+    grade_leave_all_gaps("MVRP, nothing declared", la_sent[1], {}, from, cyc);
+    grade_leave_all_gaps("MSRP, the Domain alone", la_sent[0], bridge_la_sent, from, cyc);
 }
 
 //! The switch scopes a received LeaveAll per attribute type (Run B: 9 of 9
@@ -942,6 +1134,7 @@ void CrfLicenceHarness::bridge_send_leave_all(uint64_t gen) {
     if (gen != bridge_la_gen) return;              // restarted by a later DUT LeaveAll
     bridge_la++;
     bridge_la_cyc = cyc;
+    bridge_la_sent.push_back(cyc);
     rx_q.push_back(bridge_leave_all());
     note("switch LeaveAll MRPDU (Run B layout)", -1, bridge_la);
 }
@@ -1455,6 +1648,7 @@ void CrfLicenceHarness::grade_invariants() {
     ck("the AAF gate is never open without ACTIVE[AAF] AND real grant", static_cast<uint64_t>(aaf_without_active), 0);
     ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
     grade_one_vector();
+    grade_mrp_applicant();
 }
 
 int CrfLicenceHarness::run() {
@@ -1483,6 +1677,7 @@ int CrfLicenceHarness::run() {
     phase_d();
     phase_e();
     grade_tspec(true);
+    phase_nothing_declared();
     phase_real_grant();
     grade_invariants();
 #endif

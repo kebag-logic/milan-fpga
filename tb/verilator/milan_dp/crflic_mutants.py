@@ -33,6 +33,15 @@ processor's hdl/ tree, built through the same recipe with PP_DIR overridden,
 and must fail "no DUT MRPDU carries one attribute value in two
 VectorAttributes".
 
+#883 adds four processor controls of the same kind, for processor #216 (the
+leg's [MRPAPP] and [MVRPLA] sections, #860 and #857). They plant the
+processor's own arms for its #216 defects, each the behaviour before #216: the
+Domain declared at LINK_UP in AN, so it sends one New (IEEE 802.1Q-2018 Table
+10-3); a VID's first join in AN, one New; every VID Join encoded JoinIn
+whatever its Registrar (10.7.6.3); and an MVRP drain that needs a pending VID,
+so with nothing declared no LeaveAll goes out (10.7.9, Table 10-5). Each must
+fail its named check.
+
 The other half of #530's failing arms, the protocol processor at its previous
 pin 424c688f, needs a second processor checkout and is not run here; the
 leg's README records how it was run and what it reported.
@@ -119,6 +128,26 @@ PP_MUTATIONS = [
      "  assign sr_hit_w    = sr_cont_w && (q_key_w == sr_key_r);",
      "  assign sr_hit_w    = 1'b0;",
      "no DUT MRPDU carries one attribute value in two VectorAttributes"),
+    ("LINK_UP declares the Domain in AN, so one New goes out (before processor #216)",
+     "srp/KL_srp_domain.sv",
+     "        app_r      <= SRP_AP_VN_C;\n        declared_r <= 1'b1;\n",
+     "        app_r      <= SRP_AP_AN_C;\n        declared_r <= 1'b1;\n",
+     "MSRP Domain {class A, 3, VID 2}: message 2 is New again (AN tx!: sN)"),
+    ("a VID's first join enters AN, so one New goes out (before processor #216)",
+     "srp/KL_srp_vlan.sv",
+     "      2'd0:    one_nx_w = srp_app_next(one_st_w, SRP_AE_NEW_C, reg_nx_w[one_ix_w], p2p_i);",
+     "      2'd0:    one_nx_w = SRP_AP_AN_C;",
+     "MVRP VID 2: message 2 is New again (AN tx!: sN)"),
+    ("every VID Join is JoinIn whatever its Registrar (before processor #216)",
+     "srp/KL_srp_vlan.sv",
+     "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, reg_nx_w[widx_r]);",
+     "    wmsg_w = srp_app_msg(app_ev_w[widx_r], wla_r, 1'b1);",
+     "no MVRP JoinIn in the whole run: no VID was ever registered (10.7.6.3)"),
+    ("an MVRP drain needs a pending VID, so nothing declared sends no LeaveAll (before processor #216)",
+     "srp/KL_srp_encoder.sv",
+     "                 && ((cnt_mvrp_r != '0) || la_pend_r[1] || leaveall_i[1]);",
+     "                 && (cnt_mvrp_r != '0);",
+     "MVRP, nothing declared: at least two LeaveAll MRPDUs after the withdrawal"),
 ]
 
 
