@@ -1,0 +1,17 @@
+=== job 130611360716
+8 Require every gate exactly once failure
+=== job 130607609566
+10 Install diagram gate dependencies failure
+=== job 130611488646
+8 Require every gate exactly once failure
+=== job 130611701172
+7 Require every shard to have validated this run's SHA failure
+8 Prove exhaustive ownership and tally every log failure
+9 Require every Verilator worker to pass failure
+10 Require every case union to succeed failure
+docs-gates-1	Install diagram gate dependencies	2026-11-11T15:14:20.6585471Z   Temporary failure resolving 'azure.archive.ubuntu.com'
+docs-gates-1	Install diagram gate dependencies	2026-11-11T15:14:20.6649571Z E: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/pool/main/libr/librsvg/librsvg2-2_2.58.0%2bdfsg-1ubuntu0.1_amd64.deb  Temporary failure resolving 'azure.arc
+docs-gates-1	Install diagram gate dependencies	2026-11-11T15:14:20.6651412Z E: Failed to fetch mirror+file:/etc/apt/apt-mirrors.txt/pool/universe/libr/librsvg/librsvg2-bin_2.58.0%2bdfsg-1ubuntu0.1_amd64.deb  Temporary failure resolving 'azu
+docs-gates-1	Install diagram gate dependencies	2026-11-11T15:14:20.6676240Z ##[error]Process completed with exit code 100.
+docs-check	Require every gate exactly once	2026-11-11T15:15:16.7888124Z gate evidence refused: docs-gates-1: dependent job failed, cancelled or skipped
+docs-check	Require every gate exactly once	2026-11-11T15:15:16.7991375Z ##[error]Process completed with exit code 1.

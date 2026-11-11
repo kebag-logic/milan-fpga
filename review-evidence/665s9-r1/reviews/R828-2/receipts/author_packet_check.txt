@@ -1,0 +1,34 @@
+archive: kebag-logic/milan-fpga tarball at 460db965ea6517b4c14fc7c6801613417d337e9c (commit verification: unsigned, per the commits API)
+tarball sha256: 24c3fdad618bfe5b5063b0a583c2fc39045213e15d994d7207ce190d973ed2b5
+files under review-evidence/665s9-r1/author-r4: 2561
+--- sha256 of the round 4 receipts this review relied on
+c7c6384ef7a5ac83b4ad7f8a73e56defaea042e565de0d5aeae44d7574224cad  HANDOFF.md
+93867e56709346ba17ecf2ae3da67b58a98a9e6f343ea0135c0e116a598f9870  PR-BODY.md
+da9e026fc473c158190769fcfc35eadcdab4fd0101101a9b44ee3f1b69e5c608  receipts/r4/gate23p-mutants-dev.txt
+012198b46adfb855150bd4354a78bcdd2cfc9046a5cae56acdc18b06781eb3be  receipts/r4/gate23p-mutants-base.txt
+ee7dd06fbd52613b6e0cf0a64e5b0e2a6719dc0a9705f3f69f10e838d697208e  receipts/r4/check-ids.txt
+b024ca28db24d8a0901ad7d6fccf374ac23081e95fc2a2ef108ad54fed828314  receipts/r4/bus-clock-paths.txt
+daff52bc10156180a4adaee2a0b00fa6a2085975e34568bec7b0573a2fa24c15  receipts/r4/gates/test-builder.log
+cf556d2c5382abe80fdf8f3c1f73d71ef2e434256376c9a92bb2788ff998a731  receipts/r4/gates/mbx-make.log
+ab8c93354f5de5ce3d7ad67c21b812bb5db98995dfc01ef3d5fe8613a30b9093  receipts/r4/gates/mbx-mutants.log
+2709e6b9cd32572c1a06a0cb3dc68c320e7acc27531ed536b9e11939d61f252f  receipts/r4/gates/diff-check.log
+2d9d84efa3a59732612483a887f065d8ac108fe18df32a9165c0274eda4c5b8a  receipts/r4/tools/gate_mutants.sh
+d12264accf42f35b2219d24d9cefef2d90dabd896ff1a4e4a7a74ec5e2725271  receipts/r4/delta-inputs.txt
+3a877cb6ebf0948cf630781b667cbc38a685353628a9562886ab8d1078b5b8f0  receipts/r3/route/split-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+478bfa54471b6ee8393111f7b1bcdeaa6cf662f5d6d67fb614f9e75d84346d5f  receipts/r3/route/split-ExtraPostPlacementOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+10dd65189c11aaf705bcb1c891081bb46f569c2fac754f60255e1592d09b4569  receipts/r3/route/split-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+--- receipts/r4/INDEX.md byte counts against the files
+MISMATCH gates/test-builder.log
+MISMATCH sdk-verify.log
+MISMATCH tools/env.sh
+index rows matching size: 166, mismatched or missing: 3
+--- round 3 published sha256 for the 9 reports read by bus-clock-paths.txt
+split-ExtraPostPlacementOpt/alinx_ax7101_timing.rpt: NO round-3 published hash in the archive
+split-ExtraPostPlacementOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt: receipts/r3/route/split-ExtraPostPlacementOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+split-ExtraPostPlacementOpt/alinx_ax7101_signoff_Slow_0C_timing.rpt: NO round-3 published hash in the archive
+split-ExtraTimingOpt/alinx_ax7101_timing.rpt: NO round-3 published hash in the archive
+split-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt: receipts/r3/route/split-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+split-ExtraTimingOpt/alinx_ax7101_signoff_Slow_0C_timing.rpt: NO round-3 published hash in the archive
+split-AltSpreadLogic_high/alinx_ax7101_timing.rpt: NO round-3 published hash in the archive
+split-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_timing.rpt: receipts/r3/route/split-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_timing.rpt.sha256
+split-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_0C_timing.rpt: NO round-3 published hash in the archive
