@@ -138,7 +138,7 @@ class Suite {
     //! back across the registered verdict (V0, V1); and every word of the host
     //! window read through the AND-OR read multiplexer (S0). Then, over every
     //! clock of every check run before, these included: no receive ring word
-    //! written under the head the core saw that cycle (H0), and no register
+    //! written under the head the core saw that cycle (U0), and no register
     //! read answered with two of the multiplexer's selects set (S0). sim_main
     //! runs it last; the model never does.
     void run_read_timing() {
@@ -150,8 +150,8 @@ class Suite {
         check_verdict_back_to_back();
         restart();
         check_read_mux_onehot();
-        ck_.dec("H0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
-        ck_.that("H0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
+        ck_.dec("U0 no receive ring word is written under the head the core sees", b_.writes_under_head, 0);
+        ck_.that("U0 the checks wrote ring words and moved heads", b_.ring_writes > 0 && b_.heads_moved > 0);
         ck_.dec("S0 no register read of any check sets two selects of the read multiplexer", b_.reg_reads_multi, 0);
         ck_.dec("no bus access went unanswered in the read timing checks", b_.bus_timeouts, 0);
     }

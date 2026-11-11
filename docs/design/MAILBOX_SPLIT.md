@@ -134,7 +134,7 @@ in words, and storage the producer writes only past the consumer's tail.
   cut), so each word reaches the ring the cycle after it is decided, and
   RX_HEAD is published a cycle after the commit, when the last header word
   is in the ring. In no cycle does the head cover a word the ring does not
-  yet hold; the mailbox suite checks it every clock (its check H0). Only the
+  yet hold; the mailbox suite checks it every clock (its check U0). Only the
   port's enable carries the write decision (the channel, the free space and
   the largest frame); its address and word follow the receive state alone,
   so a drained word the ring does not take still reaches the port, unwritten

@@ -600,7 +600,7 @@ ARMS += (
     # the head published at the commit, a cycle before its last header word reaches the ring
     *_both("rx-head-published-one-cycle-early", "KL_mbx_rx.sv", "rx_head_words_o[16*c +: 16] = head_pub_r[c];",
            "rx_head_words_o[16*c +: 16] = head_r[c];",
-           "H0 no receive ring word is written under the head the core sees"),
+           "U0 no receive ring word is written under the head the core sees"),
 )
 
 
