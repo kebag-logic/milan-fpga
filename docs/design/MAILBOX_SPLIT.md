@@ -1594,7 +1594,8 @@ defects, its parallel gate and the two-placement simulation are local.
 default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
 and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
 `KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
-page so no existing bank moves, and one interrupt. It also regenerates the
+page so no existing bank moves, the REBOOT reset port's one-bit bank pinned
+below that (#871), and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that

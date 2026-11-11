@@ -120,7 +120,7 @@ def soc_crossings() -> list[tuple[str, str, str]]:
     n_multireg = len(re.findall(r"MultiReg\(", body))
     if n_multireg:
         rows.append(("MultiReg 2-FF", f"x{n_multireg} call sites",
-                     "single-bit status/IRQ levels (incl. the CSR IRQ to sys)"))
+                     "single-bit status/IRQ levels (incl. the CSR IRQ to sys) and the split's REBOOT request level"))
     if not rows:
         die("any _axis_dp_cdc / AXILiteClockDomainCrossing / MultiReg in milan_soc.py")
     return rows
