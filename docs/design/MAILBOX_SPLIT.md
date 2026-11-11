@@ -1633,8 +1633,10 @@ python3 sw/litex/check_image_identity.py "$IMAGE"
 ```
 
 Builder gate 23p exports the shipping 1x1 config split and all-fabric through
-`milan_soc.main()`. Both images pass, and `--ctrl-mailbox --with-dram` is
-refused. Twelve planted images each fail by their kind:
+`milan_soc.main()`. Both images pass, and so does a copy of the split image
+whose manifest binds the bitstream its gateware holds, as a split `--build`
+writes it. `--ctrl-mailbox --with-dram` is refused. Thirteen planted images
+each fail by their kind:
 
 - from the SoC: a split ident that names no placement, a manifest that
   records another VERSION or another mailbox minor, a split datapath without
@@ -1642,8 +1644,8 @@ refused. Twelve planted images each fail by their kind:
   with the mailbox;
 - from the image's files: the firmware relinked after the build, a manifest
   forged to the relinked firmware, the manifest removed, a bitstream the
-  manifest does not bind, another bitstream than the bound one, and a renamed
-  placement.
+  manifest does not bind, another bitstream than the bound one, a renamed
+  placement, and a manifest whose ident is not the image's.
 
 ## Verification
 

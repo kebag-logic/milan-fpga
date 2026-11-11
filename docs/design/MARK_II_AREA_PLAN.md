@@ -968,7 +968,8 @@ The third round (the ruling, issuecomment-6788700325) cut three more, for timing
 It routed the image from one more synthesis checkpoint, exported at `a2690e68`.
 No later commit of #870 changes that netlist.
 A host reset cut the recipe route's session in placement, after it had written that checkpoint, so all three directives were placed and routed from the checkpoint, the recipe's among them.
-Every routable net is routed in every round: 66,578 of 66,578, then 66,913 of 66,913, then 67,358 of 67,358, none with an error.
+Every routable net is routed in every directive of every round, none with an error.
+At the recipe's directive: 66,578 of 66,578, then 66,913 of 66,913, then 67,358 of 67,358 (67,354 and 67,333 at the other two directives in round 3).
 
 | Measurement | LUT | LUTRAM | FF | Slice | RAMB36 | RAMB18 | BRAM tiles | DSP | CARRY4 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -1007,7 +1008,8 @@ Every path below +0.030 ns, in all three directives, was inside `KL_mbx` at the 
 The third round meets the gate at every directive, and the recipe's is the best.
 `ExtraPostPlacementOpt` meets timing by 0.274 ns at the slow corners, and its hold slack is +0.036 ns at the fast; both are at or above the round's +0.030 ns floor, on the same directive and the one checkpoint.
 So the split route meets the [target](#target)'s timing gate (#870, acceptance 1).
-No path from the receive block, `KL_mbx/u_rx`, is among the 15 worst at the bus clock in any directive.
+No path from or to the receive block, `KL_mbx/u_rx`, is among the bus clock's setup paths the route's timing report lists in any directive: the 10 worst within the bus clock, and the 10 worst into it from the Ethernet receive clock under their datapath-only bound.
+Both slow signoff corners' reports list 5 of each, and none is in `u_rx` either.
 The worst paths left:
 - `ExtraPostPlacementOpt`: the design's worst is +0.274 ns at the 125 MHz receive clock, `eth_clocks0_rx`, from the MAC's transmit state into `KL_gptp_gmii_launch` (6 levels); at the bus clock the worst is the read multiplexer, `rd_off_r` to `reg_rdata_r`, +0.516 ns over 15 levels;
 - `ExtraTimingOpt`: `KL_mbx/tx_head_r` to the transmit merge's `u_tx/left_r` enables, +0.089 ns over 14 levels;
