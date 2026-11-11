@@ -1,0 +1,12 @@
+clang version 23.1.4
+conditional control: compiling nested unreachable region refused
+conditional control: both assembly sides compiled and found in object symbols
+capacity control: committed owed storage at 33u sinks compiles with gcc and clang
+capacity control: committed owed storage at 255u sinks compiles with gcc and clang
+capacity control: committed owed storage at 256u sinks refused, "the owed probe_of names one plus the index of every sink" with gcc and clang
+capacity control: one-word owed storage at 32u sinks compiles with gcc and clang
+capacity control: one-word owed storage at 33u sinks refused, "the owed release mask holds a bit for every sink" with gcc and clang
+interface control: the walk test at 4 interfaces compiles with gcc and clang
+interface control: the walk test at 32 interfaces compiles with gcc and clang
+interface control: the walk test at 33 interfaces refused, "the interface mark holds a bit for every interface" with gcc and clang
+conditionals: 35 files; 58 region sides compiled

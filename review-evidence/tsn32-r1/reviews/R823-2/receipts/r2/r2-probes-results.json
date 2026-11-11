@@ -1,0 +1,80 @@
+{
+  "control-none": {
+    "rc": 0,
+    "failed": [],
+    "messages": []
+  },
+  "sink32-marks-wrong-interface": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "the changed-sink walk makes the full walk's calls, in order"
+    ]
+  },
+  "release-marks-folded-sink": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "the changed-sink walk makes the full walk's calls, in order"
+    ]
+  },
+  "clear-keeps-third-interface": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "a completed entry leaves no interface marked"
+    ]
+  },
+  "test-no-poll-first": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "at 33 sinks the second mark word's sink sends an owed probe its timer waits for"
+    ]
+  },
+  "test-no-poll-first-with-probe-left-second-word-plant": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "at 33 sinks the second mark word's sink sends an owed probe its timer waits for"
+    ]
+  },
+  "test-sink32-on-interface-0-with-probe-left-second-word-plant": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "the changed-sink walk makes the full walk's calls, in order"
+    ]
+  },
+  "test-room-always-at-33": {
+    "rc": 1,
+    "failed": [
+      "AcmpWalk.ThirtyThreeSinksMatchTheFullWalk"
+    ],
+    "messages": [
+      "at 33 sinks the second mark word's sink sends an owed probe its timer waits for",
+      "the random entries owe a sink's response"
+    ]
+  },
+  "test-no-clear-assertions-with-never-cleared-plant": {
+    "rc": 0,
+    "failed": [],
+    "messages": []
+  },
+  "control-static-assert-removed": {
+    "rc": 1,
+    "last": "RuntimeError: interface control at 33 interfaces with g++: rc 0"
+  }
+}
