@@ -1,0 +1,22 @@
+endpoint route-1x1: <scratch>/viv/w/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.334   0.017  <scratch>/viv/w/ax7101/gateware
+  AltSpreadLogic_high        0.162   0.039  <scratch>/viv/w/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.218   0.036  <scratch>/viv/w/ax7101-ExtraTimingOpt
+directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.334 ns
+figure        baseline   candidate     delta  verdict
+LUT              53461       53461         0  ok
+FF               54971       54971         0  ok
+SLICE            15849       15849         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 15          15         0  ok
+WNS_ns           0.334       0.334       0.0  ok
+WHS_ns           0.017       0.017       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.334  WHS_ns    0.045
+  Slow_85C  WNS_ns    0.334  WHS_ns    0.045
+  Fast_0C   WNS_ns     1.35  WHS_ns    0.017
+  Fast_85C  WNS_ns     1.35  WHS_ns    0.017
+route status: complete, no unrouted net and no routing error
+RESULT: PASS

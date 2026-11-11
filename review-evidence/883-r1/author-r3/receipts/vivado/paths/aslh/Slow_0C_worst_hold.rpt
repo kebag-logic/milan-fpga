@@ -1,0 +1,85 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov 11 16:24:07 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -delay_type min -max_paths 1 -nworst 1 -sort_by slack -input_pins -file <scratch>/viv/paths/aslh/Slow_0C_worst_hold.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.104ns  (arrival time - required time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_notify/wr_row_r_reg[62]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/RAMD/I
+                            (rising edge-triggered cell RAMS32 clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Hold (Min at Slow Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout1 rise@0.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        0.424ns  (logic 0.304ns (71.652%)  route 0.120ns (28.348%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.024ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    7.031ns
+    Source Clock Delay      (SCD):    6.606ns
+    Clock Pessimism Removal (CPR):    0.400ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     0.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     2.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     2.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319     3.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073     3.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371     5.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5                                                     r  BUFG_1/I
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077     5.358 r  BUFG_1/O
+                         net (fo=53261, routed)       1.248     6.606    milan_datapath/pp_shadow/u_pp/u_notify/out
+    SLICE_X51Y148        FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_notify/wr_row_r_reg[62]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X51Y148        FDRE (Prop_fdre_C_Q)         0.304     6.910 r  milan_datapath/pp_shadow/u_pp/u_notify/wr_row_r_reg[62]/Q
+                         net (fo=4, routed)           0.120     7.031    milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/DID0
+    SLICE_X50Y148        RAMS32                                       r  milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/RAMD/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                                                                r  IBUFDS/I
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7                                                     r  IBUFDS_n_0_BUFG_inst/I
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1                                                    r  PLLE2_ADV/CLKIN1
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5                                                     r  BUFG_1/I
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=53261, routed)       1.360     7.031    milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/WCLK
+    SLICE_X50Y148        RAMS32                                       r  milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/RAMD/CLK
+                         clock pessimism             -0.400     6.630    <hidden>
+    SLICE_X50Y148        RAMS32 (Hold_rams32_CLK_I)
+                                                      0.296     6.926    milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_62_63/RAMD
+  -------------------------------------------------------------------
+                         required time                         -6.926    <hidden>
+                         arrival time                           7.031    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.104    <hidden>
+
+
+
+
