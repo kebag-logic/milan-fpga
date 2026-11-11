@@ -12,6 +12,10 @@ does, and its mutants include MUTANTS, whose targets are PROPERTIES. The arm gra
   - milan_soc.exact_cpu_decode, on a stand-in VexiiRiscv that finalizes as LiteX's does, hands the CPU's
     naming step the pieces, before the name. It refuses one whose finalize never names its netlist, and
     leaves a CPU that is not a VexiiRiscv as it is;
+  - it also refuses each SHAPES finalize a re-pinned LiteX could have that leaves the generator a region list
+    other than the naming step's pieces: collected again after naming, or kept on the instance, under the
+    name the generator reads today or another. And it refuses a naming step whose pieces are not aligned
+    powers of two;
   - `export_check`: the split export through milan_soc.main() hands the generator rom and sram as their
     pieces, and every row it hands it is an aligned power of two.
 
@@ -43,6 +47,8 @@ PROPERTIES = {
     "decode pieces": "decode_pieces gives a region as aligned power-of-two pieces, exactly the region (#791)",
     "exact decode": "the split CPU's generator is handed each region's pieces before it names its netlist (#791)",
     "decode guard": "a split CPU whose finalize never names its netlist is refused (#791)",
+    "region list guard": "a split CPU whose generator may read a region list other than the naming step's "
+                         "aligned power-of-two pieces is refused (#791)",
 }
 _HANDED = ("VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)\n"
            "        named.append(VexiiRiscv.memory_regions)\n        VexiiRiscv.generate_netlist_name()")
@@ -60,7 +66,19 @@ MUTANTS = (
     ("naming guard off", "decode guard", "milan_soc", "exact_cpu_decode", "if not named:", "if False:", "decode"),
     ("decode hookup removed", "exact decode", "milan_soc", "add_ctrl_memory", "exact_cpu_decode(soc.cpu)", "None",
      "soc"),
+    ("region list check off", "region list guard", "milan_soc", "exact_cpu_decode", "if stray or not all(",
+     "if not all(", "decode"),
+    ("unaligned pieces let through", "region list guard", "milan_soc", "exact_cpu_decode",
+     "size & (size - 1) == 0 and origin % size == 0", "True", "decode"),
+    ("the pieces themselves refused", "region list guard", "milan_soc", "exact_cpu_decode", "if rows != pieces)",
+     "if True)", "decode"),
+    ("the instance not searched", "region list guard", "milan_soc", "cpu_region_lists",
+     ', ("the instance", cpu)]', "]", "decode"),
+    ("the classes not searched", "region list guard", "milan_soc", "cpu_region_lists",
+     "*((owner.__name__, owner) for owner in type(cpu).__mro__), ", "", "decode"),
 )
+#: The finalize shapes a re-pinned LiteX could have that each leave the generator a list other than the pieces.
+SHAPES = ("re-collected after naming", "kept on the instance", "kept on the instance under another name")
 
 
 def check(problems: list[str], ok: bool, what: str) -> None:
@@ -92,9 +110,11 @@ def exact(origin: int, size: int, pieces: tuple[tuple[int, int], ...]) -> str | 
     return None if at == origin + size else f"the pieces end at 0x{at:x}, the region at 0x{origin + size:x}"
 
 
-def standin(names: bool) -> Any:
-    """A VexiiRiscv that finalizes as LiteX's does: collect the split SoC's rows, then name the netlist from
-    them through its own naming step, or, when `names` is false, never name it."""
+def standin(shape: str = "pinned") -> Any:
+    """A VexiiRiscv that finalizes as LiteX's does at the pin: collect the split SoC's rows, then name the
+    netlist from them through its own naming step. Or, for "never names", never name it; for a SHAPES row,
+    name it and leave the generator the whole rows: collected again after naming, or kept on the instance
+    as `memory_regions` (which the instance reads before its class) or as `generator_regions`."""
     from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
 
     class StandIn(VexiiRiscv):
@@ -104,10 +124,16 @@ def standin(names: bool) -> Any:
             """Skip LiteX's construction: nothing the hookup wraps reads a platform."""
 
         def do_finalize(self) -> None:
-            """LiteX's order: the region list, then the naming step."""
+            """LiteX's order: the region list, then the naming step, then the shape's own list if it has one."""
             VexiiRiscv.memory_regions = list(SPLIT_ROWS)
-            if names:
+            if shape == "kept on the instance":
+                self.memory_regions = list(SPLIT_ROWS)
+            if shape == "kept on the instance under another name":
+                self.generator_regions = list(SPLIT_ROWS)
+            if shape != "never names":
                 self.generate_netlist_name()
+            if shape == "re-collected after naming":
+                VexiiRiscv.memory_regions = list(SPLIT_ROWS)
     return StandIn()
 
 
@@ -145,12 +171,23 @@ def arms(problems: list[str]) -> None:
     check(problems, rows == SPLIT_PIECES,
           f"cpu_regions hands the split SoC's list over as rom's and sram's pieces, each in its row's mode and on "
           f"its bus, and every aligned power-of-two row as itself ({rows})")
-    seen, refusal = finalized(standin(names=True))
+    seen, refusal = finalized(standin())
     check(problems, seen == [SPLIT_PIECES] and refusal is None,
           f"exact_cpu_decode hands the CPU's naming step the pieces, before it names the netlist ({seen}, {refusal})")
-    seen, refusal = finalized(standin(names=False))
-    check(problems, seen == [] and refusal is not None and "#791" in refusal,
-          f"exact_cpu_decode refuses a CPU whose finalize never names its netlist ({refusal})")
+    seen, refusal = finalized(standin("never names"))
+    check(problems, seen == [] and refusal is not None and "no longer names it through generate_netlist_name" in
+          refusal and "#791" in refusal, f"exact_cpu_decode refuses a CPU whose finalize never names its netlist "
+                                         f"({refusal})")
+    for shape in SHAPES:
+        seen, refusal = finalized(standin(shape))
+        held = refusal is not None and "region list other than the pieces" in refusal and "#791" in refusal
+        check(problems, seen == [SPLIT_PIECES] and held,
+              f"exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: {shape} "
+              f"({refusal})")
+    with patch.object(ctrl_memory, "cpu_regions", list):
+        seen, refusal = finalized(standin())
+    check(problems, seen == [SPLIT_ROWS] and refusal is not None and "not aligned powers of two" in refusal,
+          f"exact_cpu_decode refuses a CPU whose naming step's list is not aligned powers of two ({refusal})")
     other = types.SimpleNamespace()
     milan_soc.exact_cpu_decode(other)
     check(problems, vars(other) == {},

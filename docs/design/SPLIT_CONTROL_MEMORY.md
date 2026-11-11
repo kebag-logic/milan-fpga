@@ -48,7 +48,11 @@ Each piece keeps its region's mode and bus, and a region that is already an alig
 The SoC's own bus regions, its decoder, `csr.csv` and `regions.ld` keep the whole regions.
 `CtrlMemory`'s banks are unchanged.
 The split is made in the CPU's own netlist-naming step, so the netlist's name and its decode both follow the pieces.
-A LiteX whose VexiiRiscv stops calling that step fails the build by name instead of building the single-mask decode.
+After LiteX's finalize the build is refused by name, instead of building a decode other than the pieces, in two re-pinned LiteX shapes.
+One is a LiteX whose VexiiRiscv stops calling that step.
+The other leaves the generator a region list other than that step's aligned power-of-two pieces, on the CPU or its classes: a list collected again after naming, say, or kept on the instance.
+The pinned LiteX runs the generator inside that finalize, so the second refusal names the netlist the build may have cached under the pieces' name, for removal.
+At a LiteX or generator re-pin, run the two checks the [re-pin procedure](../../sw/litex/patches/README.md) names, since no workflow runs the region-decode simulation.
 No generator patch is carried. The all-fabric SoC does not call `add_ctrl_memory`, so its regions, which are powers of two, and its CPU netlist are unchanged.
 
 [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) grades the pieces against a search over every aligned split, and the hookup on a stand-in CPU.

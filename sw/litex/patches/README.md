@@ -35,6 +35,21 @@ If an upstream revision changes a patched hunk, `apply.sh` stops at that patch.
 Refresh the diff against the newly pinned source tree, then rerun the builder's
 toolchain-patch gate before committing it.
 
+At any re-pin of LiteX or of the VexiiRiscv generator, also run the split
+CPU's region-decode checks (#791), from the repository root, with the
+prerequisites in `tb/verilator/ctrl_region_decode/README.md`. The split SoC's
+exact fetch and load decode depends on LiteX's VexiiRiscv naming its netlist
+through its own naming step and generating it from the region list that step
+leaves, which `sw/litex/test_ctrl_memory.py` grades on a stand-in CPU and on
+the split export. `tb/verilator/ctrl_region_decode` runs the generated CPU at
+each region's edges and reads its decode at every address; no workflow runs
+it:
+
+```sh
+python3 sw/litex/test_ctrl_memory.py
+python3 -B tb/verilator/ctrl_region_decode/run.py --build-dir /tmp/region-decode-self --self-test
+```
+
 If the series text changes without an upstream change - `0005` had a
 comment-only rewrite on 2026-08-30 - a tree patched with the previous text can
 neither reverse the new patch nor take it again, and gate 23h reports that tree
