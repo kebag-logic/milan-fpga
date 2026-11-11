@@ -15,7 +15,7 @@ them from its own generator. Every link is raised before the boot, so MAAP
 acquires on interface 0 while the draws run (IEEE 1722-2016 B.3) and ADP
 advertises (Milan v1.2 5.6.3.5).
 
-THE LOAD (#868, the round 2 ruling): the CPU budget harness's composed load
+THE LOAD (#868): the CPU budget harness's composed load
 (scenario.composed_load), every receive channel's admitted burst at once but
 the measured path's own, alternating the interfaces as it does. It is offered
 right before each bind (ACMP's path) and each AEM command (AECP's), and a
@@ -26,10 +26,13 @@ parts differ from that harness's, each stated:
     restarts this entity's advertise cycle at every burst (Milan v1.2
     5.6.3.5.4), so no advertise period would ever complete under load; the
     frame, its channel and its parse to the target check are the same;
-  - its MAAP records echo interface 0's last ANNOUNCE as a conflicting PROBE,
-    as that harness's do, so before the first ANNOUNCE they are skipped (the
-    LOAD line counts them): a conflicting PROBE while probing restarts the
-    acquisition (B.3.6.5) whose intervals are measured;
+  - its MAAP records echo their interface's last ANNOUNCE as a conflicting
+    PROBE, as that harness's do; wire_main.cpp keeps each echo's newest
+    match, so the ANNOUNCE is found whenever one has been sent, and only
+    before an interface's first ANNOUNCE are its echoes skipped (the LOAD
+    line counts them per interface, and the grader finds a skip after it): a
+    conflicting PROBE while probing restarts the acquisition (B.3.6.5) whose
+    intervals are measured;
   - a deadline's burst leaves out the ACMP and AECP records, the channels
     whose received records the draws measure (DRAW_CHANNELS). That harness
     never loads a measured path's own channel, and a deadline's burst can land
@@ -95,16 +98,25 @@ CAMPAIGN_ANNOUNCES = 2
 #: A campaign unit's draws: enough to keep the stimulus running past the latest second ANNOUNCE the firmware can
 #: draw (the first by about 2 s of boot and acquisition, then at most 31,989 ms, maap/README.md:44).
 CAMPAIGN_DRAWS = 342
+#: AECP status SUCCESS (IEEE 1722.1-2021 Table 7-170); ACMP's SUCCESS is the same value (Table 8-3).
+SUCCESS = 0
 #: The AEM commands each draw sends, in turn (IEEE 1722.1-2021 7.4; Milan v1.2 5.4.3): the CPU budget harness's
-#: aecp_groups rows, each command_type with its payload. MVU is Milan's vendor-unique GET_MILAN_INFO.
+#: aecp_groups rows, each command_type with its payload and the status its final response must carry (the grader
+#: finds any other). MVU is Milan's vendor-unique GET_MILAN_INFO. GET_AVB_INFO is 0x0027 on AVB_INTERFACE 0
+#: (descriptor_type 9), its 7.4.40.1 command a descriptor_type and a descriptor_index (#868).
 AECP_COMMANDS = (
-    ('read_descriptor_entity', 0x0004, f.be(0, 2) + bytes(2) + f.be(0, 2) + f.be(0, 2)),
-    ('get_configuration', 0x0007, bytes(4)),
-    ('get_counters', 0x0029, f.be(9, 2) + f.be(0, 2)),
-    ('get_avb_info', 0x0028, f.be(9, 2) + f.be(0, 2) + bytes(16)),
-    ('get_name', 0x0011, bytes(8)),
-    ('mvu_get_milan_info', None, bytes(2)),
+    ('read_descriptor_entity', 0x0004, f.be(0, 2) + bytes(2) + f.be(0, 2) + f.be(0, 2), SUCCESS),
+    ('get_configuration', 0x0007, bytes(4), SUCCESS),
+    ('get_counters', 0x0029, f.be(9, 2) + f.be(0, 2), SUCCESS),
+    ('get_avb_info', 0x0027, f.be(9, 2) + f.be(0, 2), SUCCESS),
+    ('get_name', 0x0011, bytes(8), SUCCESS),
+    ('mvu_get_milan_info', None, bytes(2), SUCCESS),
 )
+
+
+def aecp_statuses() -> dict[str, int]:
+    """Each graded AEM command's name and the status its final response must carry (AECP_COMMANDS)."""
+    return {name: status for name, _, _, status in AECP_COMMANDS}
 #: The MAAP and ADP slots of interface 0 (ctrl_app.h): ADP's run of MBX_N_IF slots from 0, then ACMP's, then MAAP's.
 ADP_SLOT = 0
 MAAP_FIRST_SLOT_IFS = 2
@@ -145,7 +157,7 @@ def probe_reply(turnaround_cycles: int) -> str:
 
 def aecp_command(p: budget.Point, k: int, seq: int) -> tuple[str, bytes]:
     """Draw k's AEM command: its name and frame, from CTL1."""
-    name, command_type, payload = AECP_COMMANDS[k % len(AECP_COMMANDS)]
+    name, command_type, payload, _ = AECP_COMMANDS[k % len(AECP_COMMANDS)]
     to = f.Aem(p.entity_id, budget.CTL1, budget.CTL_MAC, p.mac, seq)
     frame = f.mvu_command(to, 0x0000, payload) if command_type is None else f.aem_command(to, command_type, payload)
     return name, frame
