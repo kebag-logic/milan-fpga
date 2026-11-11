@@ -1,0 +1,17 @@
+[ok] axil-rdata-follows-port: rc=1 60 failed; first: [FAIL] F1 record LEN                            got=1 exp=82
+[ok] top-own-mac-hi-read-from-lo: rc=1 1 failed; first: [FAIL] R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+[ok] rx-mismatch-counts-identity-refusals: rc=1 29 failed; first: [FAIL] Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it got=1 exp=0
+[ok] top-bound-read-en-decoded-as-eid: rc=1 1 failed; first: [FAIL] R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ok] top-bound-read-en-decoded-as-eid-axil: rc=1 1 failed; first: [FAIL] R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ok] top-bound-unwritten-word-read-raw: rc=1 2 failed; first: [FAIL] Q17 after a reset every entry of every interface's table reads 0 again
+[ok] top-pub-read-hole-aliases-a-register: rc=1 2 failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] top-pub-read-hole-aliases-a-register-axil: rc=1 2 failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] top-pub-read-interface-unchecked: rc=1 3 failed; first: [FAIL] P4 every hole of every interface block, and every word of an interface the build does not have, reads 0 after a write
+[ok] top-pub-read-interface-unchecked-axil: rc=1 3 failed; first: [FAIL] P4 every hole of every interface block, and every word of an interface the build does not have, reads 0 after a write
+[ok] top-face-read-interface-unchecked: rc=1 1 failed; first: [FAIL] F7 every hole of every face block, and every word of an interface the build lacks, reads 0 after a write
+[ok] top-face-read-interface-unchecked-axil: rc=1 1 failed; first: [FAIL] F7 every hole of every face block, and every word of an interface the build lacks, reads 0 after a write
+arms: 12 of 12 caught
+
+real	11m4.673s
+user	8m48.692s
+sys	0m59.523s
