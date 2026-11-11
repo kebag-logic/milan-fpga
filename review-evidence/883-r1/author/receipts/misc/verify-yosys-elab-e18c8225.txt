@@ -1,0 +1,13 @@
+# verify_wf.py <clone> <logs> rtl-fast, the yosys-elaboration job's lines (the only rtl-fast job re-run at e18c8225)
+rc 0	rtl-fast__yosys-elaboration__ci_step_1
+rc 0	rtl-fast__yosys-elaboration__ci_step_2
+NOT RUN	rtl-fast__yosys-elaboration__ci_step_4	sudo installs the cached Yosys into /opt; the host's Yosys 0.66 is on PATH
+NOT RUN	rtl-fast__yosys-elaboration__ci_step_6	sudo installs sv2v into /usr/local/bin; /usr/local/bin/sv2v is already the pinned v0.0.12
+rc 0	rtl-fast__yosys-elaboration__ci_step_7
+rc 0	rtl-fast__yosys-elaboration__ci_step_8
+rc 0	rtl-fast__yosys-elaboration__ci_step_9
+rc 0	rtl-fast__yosys-elaboration__ci_step_10
+rc 0	rtl-fast__yosys-elaboration__ci_step_11
+NOT RUN	rtl-fast__yosys-elaboration__ci_record	records GitHub's own job and step results into a hosted artifact; needs the hosted step context
+      3 NOT RUN
+      7 rc 0

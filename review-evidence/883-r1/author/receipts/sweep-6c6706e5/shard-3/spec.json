@@ -1,0 +1,24 @@
+{
+ "cwd": "<lanes>/883-a768-sweep-shard3",
+ "head": "6c6706e56fcf70e895b3783c3fb73d0ff3fd4341",
+ "base": "46c971fa",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<scratch-root>/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<mgmt>/tools/tsn-gen-deca300c",
+   "PKG_CONFIG_PATH=<tools>/gtest-1.14.0/lib/pkgconfig",
+   "LD_LIBRARY_PATH=<tools>/gtest-1.14.0/lib",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "PYTHONHASHSEED=0",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-6c6706e5/shard-3/logs",
+   "--wait",
+   "--shard",
+   "3/4"
+  ]
+ ]
+}

@@ -1,0 +1,77 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Wed Nov 11 16:25:26 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source paths.tcl -notrace
+Command: open_checkpoint <scratch>/viv/w/ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 1448.285 ; gain = 7.938 ; free physical = 9891 ; free virtual = 66111
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.47 ; elapsed = 00:00:00.52 . Memory (MB): peak = 1987.598 ; gain = 0.000 ; free physical = 5707 ; free virtual = 62043
+INFO: [Netlist 29-17] Analyzing 6254 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.24 ; elapsed = 00:00:00.5 . Memory (MB): peak = 2148.691 ; gain = 0.000 ; free physical = 5220 ; free virtual = 61907
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.23 ; elapsed = 00:00:00.25 . Memory (MB): peak = 2839.340 ; gain = 0.000 ; free physical = 7153 ; free virtual = 64224
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2840.340 ; gain = 1.000 ; free physical = 7135 ; free virtual = 64209
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2840.340 ; gain = 0.000 ; free physical = 7135 ; free virtual = 64209
+Read placeStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2919.629 ; gain = 79.289 ; free physical = 6310 ; free virtual = 63811
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2919.629 ; gain = 0.000 ; free physical = 6294 ; free virtual = 63795
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2946.629 ; gain = 27.000 ; free physical = 6209 ; free virtual = 63874
+Read Physdb Files: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2946.629 ; gain = 107.289 ; free physical = 6152 ; free virtual = 63818
+Restored from archive | CPU: 6.420000 secs | Memory: 88.539131 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2946.629 ; gain = 107.289 ; free physical = 6138 ; free virtual = 63804
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 2978.684 ; gain = 0.000 ; free physical = 6944 ; free virtual = 64760
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1319 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 70 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 713 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 33 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 27 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:45 ; elapsed = 00:00:51 . Memory (MB): peak = 2986.719 ; gain = 1552.340 ; free physical = 7703 ; free virtual = 65459
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+report_timing: Time (s): cpu = 00:00:55 ; elapsed = 00:00:27 . Memory (MB): peak = 3206.379 ; gain = 219.660 ; free physical = 3391 ; free virtual = 60276
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+report_timing: Time (s): cpu = 00:00:47 ; elapsed = 00:00:17 . Memory (MB): peak = 3221.379 ; gain = 15.000 ; free physical = 1544 ; free virtual = 57965
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+report_timing: Time (s): cpu = 00:00:48 ; elapsed = 00:00:20 . Memory (MB): peak = 3229.379 ; gain = 8.000 ; free physical = 9612 ; free virtual = 66594
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type max -sort_by slack.
+report_timing: Time (s): cpu = 00:00:51 ; elapsed = 00:00:21 . Memory (MB): peak = 3229.379 ; gain = 0.000 ; free physical = 5913 ; free virtual = 63505
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 1 -nworst 1 -delay_type min -sort_by slack.
+INFO: [Common 17-206] Exiting Vivado at Wed Nov 11 16:28:04 2026...

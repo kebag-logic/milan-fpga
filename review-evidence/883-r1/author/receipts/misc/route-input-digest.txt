@@ -1,0 +1,23 @@
+route-1x1 input digest, the seventeenth record (syn/ooc/pp_resource_baseline.json): 0c7a1ee8d60c1b65223007fbba16c917792054075d34d668c6b6a90c1261bb9e
+Export A: the measured export at a89802c8 (gptp a64be73d). Export B: an export at f746d659 (gptp 1616fc8f, same processor 801ef228).
+gate inputs() digest, export A: 0c7a1ee8d60c1b65223007fbba16c917792054075d34d668c6b6a90c1261bb9e
+gate inputs() digest, export B: 805d2a0c6ce4fd4aeaf70415d9e541dade79452e353da4ff990989f2da2b913d
+files read: A 131, B 131
+files whose normalised sha256 differs: ['alinx_ax7101.v']
+generics equal: True (0 generics)
+baseline_images.json entries equal: True (6 images)
+alinx_ax7101.v: first /* */ block is lines 76-922 of export A
+  delete A 324-324 B 324-323 inside the block: True
+  insert A 452-451 B 451-451 inside the block: True
+  replace A 714-714 B 714-714 inside the block: True
+  replace A 716-716 B 716-716 inside the block: True
+  insert A 894-893 B 894-894 inside the block: True
+  delete A 899-899 B 900-899 inside the block: True
+  replace A 916-917 B 916-917 inside the block: True
+  the block holds byte-identical lines in both, only reordered: False
+  ... with the last-child and middle-child tree glyphs treated alike: True
+  outside the block the file is identical: True
+VERDICT: the synthesis inputs are identical; the digests part only in the exporter's hierarchy comment
+rc=0
+
+Why the comment reorders: the LiteX exporter sorts black-box instances by str(x) (litex/gen/fhdl/hierarchy.py:48); migen's Instance defines no __str__ or __repr__, so the key is the default '<... object at 0x...>' and the order follows heap addresses from run to run.

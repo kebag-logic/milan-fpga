@@ -1,0 +1,10 @@
+# milan_dp_render inputs: make -C ../milan_dp_render tdm8render-build
+-rw-r--r-- 1 <user> <user>  6138 Nov 11 17:26 ../milan_dp_render/ltn_rom.hex
+-rw-r--r-- 1 <user> <user>  7512 Nov 11 17:26 ../milan_dp_render/tdm8r_aemi.bin
+-rw-r--r-- 1 <user> <user> 26624 Nov 11 17:26 ../milan_dp_render/ucode.hex
+# python3 dynmap_mutants.py 36
+[PASS] the unmutated gateware still passes the listener leg
+[PASS] mutant caught: an empty reset, under the listener's end-to-end check - breaks "T18 POWER-ON: with no map command since the reset, the lane renders injected events" (its tallies report 8 failure(s) across 261 checks)
+
+2 checks: 2 PASS, 0 FAIL
+WALL_S=1126

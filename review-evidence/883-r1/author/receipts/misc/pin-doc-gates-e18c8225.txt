@@ -1,0 +1,31 @@
+# clean clone at e18c822536ebeaf1cb0f42abea74513501aa26c7, gptp-processor 1616fc8f062fbf58c35ad31674b5b233207bbdb8, protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041
+$ python3 scripts/check_submodule_docs.py
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+$ python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+rc=0
+$ python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+$ python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (152 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+$ python3 scripts/check_em_dash.py --base 46c971fa0a09e2c8ca21acb95769defdc06c3068
+check_em_dash: 0 finding(s) over 301 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [46c971fa..HEAD]
+rc=0
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 215 md files + 1703 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (1631 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc=0
+$ python3 scripts/docs_inventory.py --check
+documentation inventory: OK (533 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+$ python3 syn/ooc/pp_resource_gate.py check-baseline
+baseline PASS: 3 endpoints
+rc=0
