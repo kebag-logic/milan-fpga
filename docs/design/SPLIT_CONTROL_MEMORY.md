@@ -36,14 +36,17 @@ Both shipped shapes elaborate the same CPU netlist.
 
 ### The CPU's region decode
 
-The VexiiRiscv generator checks each fetch and load against each region it is handed with one mask compare, `(address & ~(size - 1)) == origin`.
-That compare is exactly the region only when the size is a power of two and the origin a multiple of it.
-Handed the 224 KiB `rom`, it decoded `(address & 0xfffc8000) == 0`, which leaves out every address with bit 15 set.
+The pinned VexiiRiscv generator checks each fetch and load against each region it is handed through SpinalHDL's `AddressMapping.terms`.
+That splits a region into aligned power-of-two terms, one mask compare each.
+A region based at 0 is the exception: it is taken whole, as the one term `(address & ~(size - 1)) == 0`, which is exactly the region only when the size is a power of two.
+So the 224 KiB `rom` at 0 became `(address & 0xfffc8000) == 0`, which leaves out every address with bit 15 set.
+The 224 KiB `sram` at 0x1000_0000 was already exact, as terms of 128, 64 and 32 KiB.
 So no split image could boot: the first fetch or load above 0x8000 took an access fault and the core restarted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
 
 `add_ctrl_memory` therefore hands the generator each region as its aligned power-of-two pieces (`milan_soc.exact_cpu_decode`, `ctrl_memory.cpu_regions`).
 Both `rom` and `sram` become 128 KiB at the origin, 64 KiB at origin + 0x2_0000 and 32 KiB at origin + 0x3_0000 (`ctrl_memory.decode_pieces`).
-Each piece's compare is exact, and together the pieces are exactly [origin, origin + 224 KiB).
+Each piece is an aligned power of two, which one mask compare decodes exactly, at 0 as anywhere else, and together the pieces are exactly [origin, origin + 224 KiB).
+So handing the generator aligned pieces makes every region exact, without depending on how it decomposes a region.
 Each piece keeps its region's mode and bus, and a region that is already an aligned power of two is handed over as itself.
 The SoC's own bus regions, its decoder, `csr.csv` and `regions.ld` keep the whole regions.
 `CtrlMemory`'s banks are unchanged.
@@ -390,7 +393,7 @@ Every executable region is cacheable: `rom`, `sram`, the flash window and, while
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
-The non-power-of-two `rom` and `sram` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) was therefore the same with and without the cache.
+The non-power-of-two `rom` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) was therefore the same with and without the cache.
 Its fix, the region pieces of [section 1](#the-cpus-region-decode), is the generator's region list, which the cache does not change.
 The table below was measured on the CPU netlist before that fix; the fix changes only the region compare terms, and has not been mapped out of context.
 

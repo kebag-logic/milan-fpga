@@ -136,13 +136,17 @@ RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)
 def decode_pieces(origin: int, size: int) -> tuple[tuple[int, int], ...]:
     """[origin, origin + size) as the fewest aligned power-of-two pieces, lowest first (#791).
 
-    The VexiiRiscv generator checks a fetch or a load against each region it
-    is handed as one mask compare, (address & ~(size - 1)) == origin. That is
-    exactly the region only when the size is a power of two and the origin a
-    multiple of it. For `rom`, 224 KiB at 0, it is (address & 0xfffc8000) == 0,
-    which leaves out every address with bit 15 set. Each piece here is such a
-    region, and together the pieces are exactly [origin, origin + size). So
-    224 KiB at 0 is 128 KiB at 0, 64 KiB at 0x20000 and 32 KiB at 0x30000.
+    The pinned VexiiRiscv generator splits each region it is handed into
+    aligned power-of-two terms (SpinalHDL AddressMapping.terms), one mask
+    compare each. A region based at 0 is the exception: it is taken whole, as
+    the one term (address & ~(size - 1)) == 0, so `rom`, 224 KiB at 0, became
+    (address & 0xfffc8000) == 0, which leaves out every address with bit 15
+    set, while `sram`, 224 KiB at 0x1000_0000, was already exact. Each piece
+    here is an aligned power of two, which one mask compare decodes exactly,
+    at 0 as anywhere else, and together the pieces are exactly
+    [origin, origin + size). So handing the generator the pieces makes every
+    region exact without depending on how it decomposes a region. 224 KiB at 0
+    is 128 KiB at 0, 64 KiB at 0x20000 and 32 KiB at 0x30000.
     """
     if origin < 0 or size <= 0:
         raise ValueError(f"no region of {size} bytes at {origin:#x}")

@@ -4,7 +4,7 @@
 This simulation runs the split CPU the split SoC generates and probes the edges of its two control regions, `rom` and `sram`.
 It is [#791](https://github.com/kebag-logic/milan-fpga/issues/791)'s test.
 Each probe fetches or loads at the last word of a region, at each seam between the region's decode pieces, and one word past the region's end.
-The probe also reads the CPU netlist's own fetch and load decode at every 32-bit address against the SoC's regions.
+The run also reads the CPU netlist's own fetch and load decode at every 32-bit address against the SoC's regions (`decode.py`).
 The fix it tests is in the [split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-cpus-region-decode).
 
 ## Contents
@@ -98,4 +98,4 @@ The netlist's `sram` terms are exact, as `decode.py` shows.
 
 - The test SoC's banks are not the shipping plan's: the CPU's decode is generated from the region list and does not depend on them.
 - Stores, and transfers other than a word, are not graded.
-- No firmware of the product runs here; the [split boot simulation](../ctrl_split_boot/README.md) boots it on the same CPU.
+- No firmware of the product runs here; the [split boot simulation](../ctrl_split_boot/README.md) boots it on a CPU generated from the same `rom` and `sram` pieces (its region list places the mailbox where the boot SoC does).
