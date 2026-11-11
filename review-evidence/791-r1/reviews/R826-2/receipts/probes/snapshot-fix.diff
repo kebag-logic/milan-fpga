@@ -1,0 +1,13 @@
+diff --git a<clone>/sw/litex/milan_soc.py b<packet>/scratch/snapfix/sw/litex/milan_soc.py
+index ef1c20d060..67a2019035 100644
+--- a<clone>/sw/litex/milan_soc.py
++++ b<packet>/scratch/snapfix/sw/litex/milan_soc.py
+@@ -3265,7 +3265,7 @@ def exact_cpu_decode(cpu: object) -> None:
+     def generate_netlist_name() -> None:
+         """This CPU's naming step: the pieces first, then LiteX's own naming from them."""
+         VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)
+-        named.append(VexiiRiscv.memory_regions)
++        named.append(list(VexiiRiscv.memory_regions))
+         VexiiRiscv.generate_netlist_name()
+ 
+     def do_finalize() -> None:
