@@ -1,0 +1,11 @@
+--- <clone>/sw/litex/milan_soc.py	2026-11-11 22:14:36.046963784 +0100
++++ <reverted-copy>/sw/litex/milan_soc.py	2026-11-11 22:18:38.529947295 +0100
+@@ -3268,7 +3268,7 @@
+         """This CPU's naming step: the pieces first, then LiteX's own naming from them. The refusal compares
+         against a copy of the list as named, which no later change in place to the class's list alters."""
+         VexiiRiscv.memory_regions = ctrl_memory.cpu_regions(VexiiRiscv.memory_regions)
+-        named.append(list(VexiiRiscv.memory_regions))
++        named.append(VexiiRiscv.memory_regions)
+         VexiiRiscv.generate_netlist_name()
+ 
+     def do_finalize() -> None:
