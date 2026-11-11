@@ -1,0 +1,47 @@
+diff --git a/sw/firmware/ctrl/acmp/acmp_mbx.c b/sw/firmware/ctrl/acmp/acmp_mbx.c
+index 229511cc6b..2330a67781 100644
+--- a/sw/firmware/ctrl/acmp/acmp_mbx.c
++++ b/sw/firmware/ctrl/acmp/acmp_mbx.c
+@@ -161,7 +161,7 @@ static bool on_poll(void *ctx)
+ 	    acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {
+ 		m->kept.len = 0u;
+ 	}
+-	return m->acmp.owed_count != 0u;
++	return owed > 1u;
+ }
+ 
+ // Each ADP record to the module that acts on it: an ENTITY_AVAILABLE or
+diff --git a/sw/firmware/ctrl/test/test_acmp_mbx.cpp b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+index 9a98bfc044..ef7436eb27 100644
+--- a/sw/firmware/ctrl/test/test_acmp_mbx.cpp
++++ b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+@@ -1088,6 +1088,29 @@ TEST_F(AcmpMailbox, E1AnOwedResponseLeavesFirstAndItsChangeAfterIt) {
+     mbx_model_bind(&model, nullptr, nullptr);
+ }
+ 
++TEST_F(AcmpMailbox, ReviewerOneOwedFrameKeepsTheLoopAwake) {
++    waits = waiter{};
++    mbx_model_bind(&model, wait_for_irq, &waits);
++    fill_acmp_tx();
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0)));
++    for (unsigned k = 0; k < 8u; ++k) {
++        ctrl_loop_step(&app.loop);
++    }
++    EXPECT_TRUE(core()->owed_count == 1u && waits.waits == 0u)
++        << "REVIEWER one owed frame behind a held egress: the loop does not sleep";
++    bool found = false;
++    bool owes = false;
++    for (unsigned i = 0; i < app.loop.n_polls; ++i) {
++        if (app.loop.polls[i].ctx == static_cast<void*>(&app.acmp)) {
++            found = true;
++            owes = app.loop.polls[i].fn(app.loop.polls[i].ctx);
++        }
++    }
++    EXPECT_TRUE(found && core()->owed_count == 1u && owes)
++        << "REVIEWER one owed frame behind a held egress: the ACMP poll reports it still owes";
++    mbx_model_bind(&model, nullptr, nullptr);
++}
++
+ TEST_F(AcmpMailbox, E2AnOwedResponseIsCommittedInPassKPlus1) {
+     for (unsigned k : {0u, 3u, ACMP_OWED_MAX - 1u}) {
+         SetUp();

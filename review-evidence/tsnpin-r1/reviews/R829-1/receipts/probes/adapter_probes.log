@@ -1,0 +1,15 @@
+[ok] mutant p1-offer-before-send (acmp, acmpif2): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+[ok] mutant p2-gate-on-core-ready (acmp, acmpif2): 18 check(s) failed
+    first: [FAIL] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1:     Which is: 8
+[ok] mutant p3-kept-copied-short (acmp, acmpif2): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ok] mutant p4-offer-only-when-drained (acmp, acmpif2): 12 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ok] mutant p5-kept-length-stale (acmp, acmpif2): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ESCAPED] mutant p6-poll-ignores-owed-after-offer (acmp, acmpif2): 0 check(s) failed, none named acmp: its check on ''; acmpif2: its check on ''
+[ok] mutant p7-stale-kept-replayed (acmp, acmpif2): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the owed frames, then the kept commands, in arrival order
+mutants: 6 of 7 caught
+adapter_probes: some probe ESCAPED

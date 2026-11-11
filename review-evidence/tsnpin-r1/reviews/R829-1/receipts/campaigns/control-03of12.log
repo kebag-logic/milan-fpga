@@ -1,0 +1,103 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+control slice 3/12: 48 of 579
+[ok] mutant departing-keeps-index (walk): 2 check(s) failed
+    first: [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+[ok] mutant coalesced-departing-uncounted (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant draw-kinds-merged (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+[ok] mutant events-halved (adp, acmp): 3 check(s) failed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+[ok] mutant model-rate-unlimited (model): 6 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 a burst of the bucket's depth passes
+[ok] mutant seed-left-at-zero (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 an entity id whose words cancel the seed constant starts the generator at 1
+[ok] mutant whole-field-loses-its-top-bit (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D10LanesAndFieldsAtTheirBounds: D10 and reads whole
+[ok] mutant model-own-mac-of-interface-0 (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 another interface's own MAC, or one on an index with no interface, reaches no ring
+[ok] mutant mismatch-read-from-bus-err (unit, port): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 FILTER_MISMATCH is read as its COUNT field
+[ok] mutant acmp-header-valid-time-in-seconds (acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+[ok] mutant acmp-rebind-not-persisted (acmpnvm, acmp): 28 check(s) failed
+    first: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+[ok] mutant acmp-not-authorized-is-13 (acmp, acmpwalk): 8 check(s) failed
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+[ok] mutant acmp-guard-talker-dropped (acmp, acmpwalk): 12 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-second-timeout-keeps-status-0 (acmp, acmp, acmpwalk): 12 check(s) failed
+    first: [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 the second: no frame, LISTENER_TALKER_TIMEOUT, TMR_RETRY 4 s (5.5.3.5.23)
+[ok] mutant acmp-kind-not-notified (acmp, acmpwalk): 5 check(s) failed
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once
+[ok] mutant acmp-probe-tx-reports-asking-failed (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+[ok] mutant acmp-short-pdu-read (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 a frame shorter than the Milan ACMPDU, another EtherType or subtype, or an unknown interface is counted and not read (5.5.2.2)
+[ok] mutant acmp-departing-keeps-aging (acmp, acmpwalk): 4 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+[ok] mutant acmp-seed-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 4 is guarded
+[ok] mutant acmp-roll-back-keeps-the-bindings (acmp, acmpnvm): 5 check(s) failed
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+[ok] mutant acmp-tap-takes-discover (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+[ok] mutant acmp-unbind-reads-the-clock (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.CommandPortBudgets: UNBIND needs no clock
+[ok] mutant acmp-retry-samples-the-grandmaster (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer expiry never samples the grandmaster in PRB_W_RETRY
+[ok] mutant acmp-adp-subtype-unchecked (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-nvm-model-always-ready (acmpnvm): 1 check(s) failed
+    first: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 the model's readiness is the other owners'
+[ok] mutant acmp-kept-after-it-is-taken (acmp): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the command kept behind it in pass n + 1 + f, f = 1: the response ahead of it
+[ok] mutant acmp-owed-probe-sequence-unchecked (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 the old probe leaving starts no timer for the new one
+[ok] mutant acmp-slots-one-short (acmp): 2 check(s) failed
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 the last slot range that fits is taken
+[ok] mutant acmp-retry-deadline-saturates (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it
+[ok] mutant app-acmp-never-opened (acmp, acmp): 20 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+[ok] mutant model-bound-table-of-interface-0 (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing
+[ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+[ok] mutant maap-initial-send-absent (maap): 20 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: initial PROBE is immediate
+[ok] mutant maap-zero-seed-sticks (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.ConstantsStrictTimersAndSeed: zero sum cannot lock generator
+[ok] mutant maap-malformed-reserved-zero (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-port-up-keeps-claim (maap): 9 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: loss of PortOperational invalidates the acquired address
+[ok] mutant maap-fabric-owner-kept (maap): 1 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate: fabric MAAP disabled without touching seed
+[ok] mutant maap-app-channel-closed (maap): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: Expected: true
+[ok] mutant maap-table-b7-9 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+[ok] mutant maap-restart-reuses-range (maap): 4 check(s) failed
+    first: [FAIL] MaapCore.RestartDrawsNewRange: fixed seed Restart draws a new range
+[ok] mutant plat-policy-writes-reordered (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-dec-leading-zeros (plat): 4 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-adp-not-held (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+wrote <packet>/scratch/camp/control-03of12/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/camp/control-03of12/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/camp/control-03of12/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant plat-window-interface-ignored (platboot2): 3 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+[ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+[ok] mutant pub-sink-binding-drops-sid-valid (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+[ok] mutant model-face-holdoff-never-rolls (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+[ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+mutants: 48 of 48 caught
+phase_slice control 3/12: PASS

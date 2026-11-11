@@ -1,0 +1,100 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+control slice 4/12: 48 of 579
+[ok] mutant departing-sends-zero (adp): 17 check(s) failed
+    first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+[ok] mutant coalesce-drops-queued-departing (adp): 6 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant foreign-discover-answered (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+[ok] mutant rx-before-events (adp): 1 check(s) failed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F1 events first: no event-ring access follows a receive-ring access in a pass
+[ok] mutant seq-not-stamped (port): 1 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+[ok] mutant enable-not-idempotent (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+[ok] mutant slots-past-the-bank (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused: B2 slots past the fabric's timer bank are refused
+[ok] mutant model-own-mac-hi-dropped (model): 34 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+[ok] mutant own-mac-after-the-channels-open (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L1OpenOrder: L1 every interface's OWN_MAC is written before any channel opens
+[ok] mutant acmp-header-listener-unknown-is-2 (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 LISTENER_UNKNOWN_ID, the command's fields echoed (Table 5.27)
+[ok] mutant acmp-streaming-wait-ignored (acmp): 8 check(s) failed
+    first: [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 the binding parameters are the command's; STREAMING_WAIT binds it stopped
+[ok] mutant acmp-lock-ignored (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 one response
+[ok] mutant acmp-guard-unique-id-dropped (acmp, acmpwalk): 11 check(s) failed
+    first: [FAIL] AcmpCore.A7EachGuardTermIsChecked: A7 a response with another controller, talker, talker_unique_id or sequence_id is ignored (5.5.3.5.18 step 1)
+[ok] mutant acmp-no-duplicate (acmp, acmpwalk): 67 check(s) failed
+    first: [FAIL] AcmpCore.A8SuccessSettles: A8 SUCCESS: SETTLED_NO_RSV, PROBING_COMPLETED, state 4
+[ok] mutant acmp-kind-any-state (acmp): 15 check(s) failed
+    first: [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind refuses non-settled state
+[ok] mutant acmp-probe-tx-echoes-every-flag (acmpwalk): 1 check(s) failed
+    first: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED forced 0, the source's stream (F05.11; Milan v1.2 Table 5.43)
+[ok] mutant acmp-longer-pdu-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A21MalformedFramesAreCounted: A21 the longer IEEE 1722.1-2021 PDU is accepted (5.5.2.2)
+[ok] mutant acmp-no-aging (acmp, acmpwalk): 9 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED (5.6.4.5.4)
+[ok] mutant acmp-lock-port-unflagged (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 5 is guarded
+[ok] mutant acmp-unbound-record-not-zero (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the cleared binding is saved, unless there was none, in state 0
+[ok] mutant acmp-tap-drops-the-rest (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+[ok] mutant acmp-talker-reads-the-clock (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.CommandPortBudgets: talker response needs no clock
+[ok] mutant acmp-delay-reads-the-clock-again (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+[ok] mutant acmp-adp-discover-taken (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A22OtherAdpFramesAreIgnored: A22 a short ADPDU, a DISCOVER, another subtype or EtherType, or an unknown interface is not discovery's
+[ok] mutant acmp-response-passes-an-owed-frame (acmp): 139 check(s) failed
+    first: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+[ok] mutant acmp-kept-offered-on-a-refused-poll (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+[ok] mutant acmp-owed-probe-unnamed (acmp): 24 check(s) failed
+    first: [FAIL] AcmpCore.A19AProbeInTheSlotOfAnEarlierResponseHoldsNoSink: A19 sink 3's probe is owed in the slot that held the last sink's response
+[ok] mutant acmp-one-slot-for-all-interfaces (acmpif2): 22 check(s) failed
+    first: [FAIL] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot: B3 TMR_NO_RESP is armed on interface 1's ACMP slot at NOW_MS + 200 (Table 5.26)
+[ok] mutant acmp-no-tk-deadline-saturates (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap: A28 TMR_NO_TK armed 4999 ms before the wrap ends 5 s after it
+[ok] mutant acmp-mbx-admit-on-entry-0 (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 and writes the bound-talker entry of the binding restored between compose and open, only that one
+[ok] mutant model-bound-term-any-type (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpBoundTalkers: Q12 no other message_type of a bound talker passes on its entity_id, ENTITY_DISCOVER included
+[ok] mutant app-maap-range-past-the-pool (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+[ok] mutant maap-retransmit-count (maap): 27 check(s) failed
+    first: [FAIL] MaapCore.InitialAndThreeRetransmissions: three retransmissions remain
+[ok] mutant maap-biased-random-bucket (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.UniformDrawRejectsIncompleteBucket: incomplete random bucket rejected
+[ok] mutant maap-malformed-reserved-high (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.MalformedAndVersionCompatibility: malformed input is rejected
+[ok] mutant maap-release-keeps-enable (maap): 2 check(s) failed
+    first: [FAIL] MaapCore.ReleaseLossAndRetry: Expected: false
+[ok] mutant maap-loss-keeps-crf (maap): 24 check(s) failed
+    first: [FAIL] MaapCsr.EveryStreamAddressAndLossGate:     Which is: 2
+[ok] mutant maap-callback-work-overrun (maap): 18 check(s) failed
+    first: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: callback work bound
+[ok] mutant maap-table-b7-10 (maap): 2 check(s) failed
+    first: [FAIL] AllStates/MaapCell.TableB7/10: Table B.7 conflict decision
+[ok] mutant maap-reverse-five-octets (maap): 1 check(s) failed
+    first: [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+[ok] mutant plat-policy-word-wrong (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-hex-seven-digits (plat): 3 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant app-adp-hold-ignored (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-licence-sticky (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a revocation clears it
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pub-talker-decl-in-the-licence (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 LICENCE.ACTIVE holds the licences
+[ok] mutant model-pub-src-sid-a-hole (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 each source's entry reads back the stream_id written to it, at its own interface, and only that
+[ok] mutant pub-acmp-started-from-bound (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+mutants: 48 of 48 caught
+phase_slice control 4/12: PASS

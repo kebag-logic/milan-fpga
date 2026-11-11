@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<clone>/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "<clone>/scripts/ci_rv32_sdk.py", line 183, in main
+    verify(args.destination)
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "<clone>/scripts/ci_rv32_sdk.py", line 107, in verify
+    raise ValueError("missing regular SDK provenance receipt; incomplete install")
+ValueError: missing regular SDK provenance receipt; incomplete install
+rc=1
