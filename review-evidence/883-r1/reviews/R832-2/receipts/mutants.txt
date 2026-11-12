@@ -1,0 +1,13 @@
+== mutant one-level-brace: rc=1 83 checks: 80 PASS, 3 FAIL
+   [FAIL] two declarators beside a brace initialiser are a finding: int m[2][2] = {{1, 2}, {3, 4}}, b = 0;
+   [FAIL] two declarators beside a brace initialiser are a finding: int n = 1, m[2][2] = {{0, 0}, {0, 0}};
+   [FAIL] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+   verdict: KILLED
+== mutant two-level-brace: rc=1 83 checks: 82 PASS, 1 FAIL
+   [FAIL] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+   verdict: KILLED
+== mutant base-no-brace: rc=1 83 checks: 80 PASS, 3 FAIL
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): int m[2][2] = {{1, 2}, {3, 4}};
+   [FAIL] a brace initialiser's commas separate elements, not declarators (#495): int c[1][1][2] = {{{1, 2}}};
+   verdict: KILLED

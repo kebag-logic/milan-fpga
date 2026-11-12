@@ -1,0 +1,27 @@
+real head  verdict  line
+   2    1  ok       int a{}, b{};
+   2    1  ok       int a[2] = {}, b = 0;
+   2    1  ok       char s[] = {"a,b"}, t = 0;
+   1    0  ok       const char *s[2] = {"a,b", "c,d"};
+   1    0  ok       static const uint8_t t[2][3] = {{1, 2, 3}, {4, 5, 6}};
+   2    1  ok         uint32_t m[2][2] = {{0, 0}, {0, 0}}, n = 1;  
+   1    0  ok       int a[2] = {f(1, 2), 3};
+   2    1  ok       int a[2] = {f(1, 2), 3}, b = 0;
+   2    1  ok       int c[1][1][2] = {{{1, 2}}}, d[1][1][2] = {{{3, 4}}};
+   3    1  ok       int x = {1}, y = {2}, z = {3};
+   2    1  ok       WData w[2] = {0, 0}, v = 0;
+   2    0  ok       for (int i = 0, j = 1; i < j; ++i) {
+   0    0  ok       g(a, b);
+   1    0  ok       int d[1][1][1][2] = {{{{1, 2}}}};
+   2    0  LIMIT    int d[1][1][1][2] = {{{{1, 2}}}}, e = 0;
+   1    0  ok       int a[2] = {0,
+in-scope wrong verdicts: 0
+timing n=200   len=605           1.8 ms  'int a, x, x, x, x, x, x,'
+timing n=200   len=3608          8.5 ms  'int a = {1, {2, {3, 4}}}'
+timing n=200   len=609           0.0 ms  'int a = {1, 1, 1, 1, 1, '
+timing n=2000  len=6005        155.2 ms  'int a, x, x, x, x, x, x,'
+timing n=2000  len=36008       829.5 ms  'int a = {1, {2, {3, 4}}}'
+timing n=2000  len=6009          0.3 ms  'int a = {1, 1, 1, 1, 1, '
+timing n=5000  len=15005      1039.8 ms  'int a, x, x, x, x, x, x,'
+timing n=5000  len=90008      4911.7 ms  'int a = {1, {2, {3, 4}}}'
+timing n=5000  len=15009         0.5 ms  'int a = {1, 1, 1, 1, 1, '

@@ -1,0 +1,75 @@
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index b1e46db9a0..05e39eb3ec 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -354,7 +354,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #645/#647 settle recentre, sixteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
+ | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
+ | #447/#657 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | Manager merge bank; authors and reviewers changing `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header, `sim_tdm8_render.cpp` or this campaign |
+-| #530 streaming licence, the three gate mutants, the #774 per-source TSpec control on the 1x1 and 8x8 shapes, the #851 encoder control for processor #214's one value per MRPDU (since #883 it removes both layers, the intake taking every push twice as well), and #883's five processor controls for processor #216 (the Domain and a VID's first join sending one New, every VID Join encoded JoinIn, an MVRP drain that needs a pending VID, an MSRP leavealltimer whose expiry is lost), caught by `[MRPAPP]` and `[MVRPLA]` | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`), the per-source TSpec (`pp_src_maxf_w`, `tctx_maxf_w`, `KL_crf_tx`'s `tspec_max_frame_o`, `KL_pp_shadow`'s `cfg_tspec_max_frame_i`), `sim_crf_licence.cpp`, or a processor pin that changes `KL_srp_encoder.sv`, `KL_srp_domain.sv` or `KL_srp_vlan.sv` |
++| #530 streaming licence, the six gate mutants, the #774 per-source TSpec control on the 1x1 and 8x8 shapes, the #851 encoder control for processor #214's one value per MRPDU (since #883 it removes both layers, the intake taking every push twice as well), and #883's five processor controls for processor #216 (the Domain and a VID's first join sending one New, every VID Join encoded JoinIn, an MVRP drain that needs a pending VID, an MSRP leavealltimer whose expiry is lost), caught by `[MRPAPP]` and `[MVRPLA]` | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`), the per-source TSpec (`pp_src_maxf_w`, `tctx_maxf_w`, `KL_crf_tx`'s `tspec_max_frame_o`, `KL_pp_shadow`'s `cfg_tspec_max_frame_i`), `sim_crf_licence.cpp`, or a processor pin that changes `KL_srp_encoder.sv`, `KL_srp_domain.sv` or `KL_srp_vlan.sv` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants, the #632 SET_STREAM_INFO push gate compared with the readback (caught on the CRF output, whose readback is applied in whole periods), and GET_STREAM_INFO's offset word reading the CRF output's row as set or every output's row rounded (#632), planted in a copy of the processor's microcode and run on the clean build with its own ROM; and #790's three arms in the processor copy, which pass an unsettled input's stream_id, destination MAC and their Table 5.9 flags through, whole or per selector, caught by `[GSI]` G11's PROBING_PASSIVE case with the stale ID; and #883's four arms for processor #217's ENTITY available_index (the microcode copying the image's descriptor whole, the AECP gather answering 0, ADP serving the next index, ADP keeping the index across ENTITY_DEPARTING), caught by `[AIDX]` | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather or SET_STREAM_INFO program, the GET_STREAM_INFO answer block of `milan_datapath.sv`, the `[GSI]` section, `[NOTIFY]` SET_STREAM_INFO case or `[AIDX]` section of `sim_nxn.cpp`, or a processor pin that changes `KL_adp_engine.sv`, the ENTITY program of `gen_ucode.py` or the AECP engine's index gather |
+ | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
+ | #839 station MAC from reset, twelve controls on the `bootsa` leg: the defect as shipped (no hold, no stamp), the hold alone, the stamp alone, `MAC_ADDR_LO` or `MAC_ADDR_HI` alone completing the pair, the stamp on the destination octets, the stamp's beat position kept across a frame's end or wrapping past the source address (caught by the leg's comparison of every control-lane octet outside 6 to 11 with the same octet entering the stamp), and the hold taken from MAAP, the AAF talkers and the CRF talker together or from each alone (caught by the leg's early-enable boots, which enable those three at reset release, before the station MAC is written) | `make -C tb/verilator/milan_dp bootsa-mutants` | the change's own validation, and every reviewer of a change that touches the pair's sequencing (`mac_addr_seq`), the transmit gate (`tx_sa_ok_w`) or the control-lane stamp (`ctl_sa_position`, `ctl_sa_stamp`) in `milan_datapath.sv`, the CSR write handshake in `milan_csr.sv`, `configure_fabric()`, `entity_advertise()` or `milan_init()`'s order in the firmware, `gen_boot_fw.py` or `sim_boot_sa.cpp` |
+diff --git a/scripts/check_cpp_idiom.py b/scripts/check_cpp_idiom.py
+index ce7df5cd21..4de2cf2dd6 100644
+--- a/scripts/check_cpp_idiom.py
++++ b/scripts/check_cpp_idiom.py
+@@ -266,8 +266,8 @@ _DECL_TYPE = (
+     r"(?:static\s+|const\s+|constexpr\s+|volatile\s+|unsigned\s+|signed\s+|register\s+)*"
+     r"(?:u?int(?:8|16|32|64|ptr|max)_t|long\s+long|size_t|ssize_t|bool|char|short"
+     r"|int|long|float|double|auto|[IQCS]Data|WData)")
+-#: A declarator's text: a whole `{...}` initialiser is one, its commas its elements' (#495).
+-_DECL_TEXT = r"(?:[^;(){}\n]|\{[^{}\n]*\})*"
++#: A declarator's text: a balanced one-line `{...}` initialiser up to three braces deep is one declarator (#495).
++_DECL_TEXT = r"(?:[^;(){}\n]|\{(?:[^{}\n]|\{(?:[^{}\n]|\{[^{}\n]*\})*\})*\})*"
+ MULTI_DECL_RE = re.compile(rf"^[ \t]*{_DECL_TYPE}[ \t]+\**[A-Za-z_]\w*{_DECL_TEXT},{_DECL_TEXT};[ \t]*$", re.M)
+ 
+ #: A file-scope definition of a mutable variable. Applied only to lines at
+@@ -697,17 +697,19 @@ def _selftest_ratchets(ck: _Tally) -> None:
+     ck("a named enum is not a finding",
+        scan("enum class Reg { id = 0 };")["unnamed enum block"] == 0)
+     ck("a multi-declarator declaration is a finding",
+-       scan("static long fails = 0, checks = 0;\n")
+-       ["multi-declarator declaration"] == 1)
++       scan("static long fails = 0, checks = 0;\n")["multi-declarator declaration"] == 1)
+     ck("a single declaration is not a finding",
+        scan("static long fails = 0;\n")["multi-declarator declaration"] == 0)
+     ck("a call with two arguments is not a declaration",
+        scan("void f(){ g(a, b); }\n")["multi-declarator declaration"] == 0)
+-    ck("a brace initialiser's commas separate elements, not declarators (#495)",
+-       scan("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};\n")["multi-declarator declaration"] == 0)
+-    for two in ("uint32_t a[2] = {0, 0}, b = 1;\n", "int a{1}, b{2};\n"):
+-        ck(f"two declarators beside a brace initialiser are a finding: {two.strip()}",
+-           scan(two)["multi-declarator declaration"] == 1)
++    for one in ("uint32_t adp_last_aidx[4] = {0, 0, 0, 0};", "int m[2][2] = {{1, 2}, {3, 4}};",
++                "int c[1][1][2] = {{{1, 2}}};"):
++        ck(f"a brace initialiser's commas separate elements, not declarators (#495): {one}",
++           scan(one + "\n")["multi-declarator declaration"] == 0)
++    for two in ("uint32_t a[2] = {0, 0}, b = 1;", "int a{1}, b{2};", "int m[2][2] = {{1, 2}, {3, 4}}, b = 0;",
++                "int n = 1, m[2][2] = {{0, 0}, {0, 0}};", "int c[1][1][2] = {{{1, 2}}}, d = 0;"):
++        ck(f"two declarators beside a brace initialiser are a finding: {two}",
++           scan(two + "\n")["multi-declarator declaration"] == 1)
+     ck("a function over the line limit is a finding",
+        scan(_long_body())["long function"] == 1)
+     ck("a short function is not a finding",
+@@ -722,8 +724,7 @@ def _selftest_ratchets(ck: _Tally) -> None:
+        scan(long_member)["long function"] == 1,
+        "a member opens indented; the ratchet must still see it")
+     ck("a long out-of-line member definition is a finding",
+-       scan("void H::run() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n")
+-       ["long function"] == 1)
++       scan("void H::run() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n")["long function"] == 1)
+     ck("a long lambda body is not counted as its own function",
+        scan("void f() {\n  auto g = [&](int n) {\n"
+             + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "  };\n}\n")
+@@ -734,8 +735,7 @@ def _selftest_ratchets(ck: _Tally) -> None:
+             + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "  }\n}\n")
+        ["long function"] == 1)
+     ck("a class head is not a function",
+-       scan("class H {\n" + " int x_ = 0;\n" * (LONG_FUNCTION_LINES + 5) + "};\n")
+-       ["long function"] == 0)
++       scan("class H {\n" + " int x_ = 0;\n" * (LONG_FUNCTION_LINES + 5) + "};\n")["long function"] == 0)
+     ck("a brace-initialiser is not a function",
+        scan("void f() {\n  Foo x{1, 2};\n  x++;\n}\n")["long function"] == 0)
+ 
