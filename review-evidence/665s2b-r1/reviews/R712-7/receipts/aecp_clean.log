@@ -1,0 +1,22 @@
+wrote $REVIEWS/665s2b-r712-7-packet/scratch/aecp_clean/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s2b-r712-7-packet/scratch/aecp_clean/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s2b-r712-7-packet/scratch/aecp_clean/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.ANoticeIsAddressedToEachRecipientAlone
+[       OK ] Core.ANoticeIsAddressedToEachRecipientAlone (0 ms)
+[ RUN      ] Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain
+[       OK ] Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain (0 ms)
+[----------] 2 tests from Core (0 ms total)
+[----------] 3 tests from Mailbox
+[ RUN      ] Mailbox.ANoticeWithNoRoomStaysOwed
+[       OK ] Mailbox.ANoticeWithNoRoomStaysOwed (0 ms)
+[ RUN      ] Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone
+[       OK ] Mailbox.ANoticeThroughTheFanPortIsAddressedToEachRecipientAlone (0 ms)
+[ RUN      ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse
+[       OK ] Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse (0 ms)
+[----------] 3 tests from Mailbox (1 ms total)
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 5 tests.

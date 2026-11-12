@@ -1,0 +1,19 @@
+== 1x1/1if
+   rows_grade.py: {'R4': 73.02, 'R5': 37.19, 'R6': 32.69}
+   V0 the model as stated (rows_grade.py), re-implemented: R4 73.02 ms, passes 36: srp 16.50, others 10.96, item.retained 9.00, item.aecp 7.56, passes 6.48, ticks 3.76, own 3.28, rounds 3.23, timers 3.19, steps 2.92, item.acmp 2.34, item.reclaim 1.80, builds 0.90, item.mrpdu 0.81, item.walk 0.18, gm 0.10
+   V0 the model as stated (rows_grade.py), re-implemented: R4 73.02  R5 37.19  R6 32.69
+   V1 SRP arrivals over the whole window: R4 73.52 ms, passes 36: srp 17.00, others 10.96, item.retained 9.00, item.aecp 7.56, passes 6.48, ticks 3.76, own 3.28, rounds 3.23, timers 3.19, steps 2.92, item.acmp 2.34, item.reclaim 1.80, builds 0.90, item.mrpdu 0.81, item.walk 0.18, gm 0.10
+   V1 SRP arrivals over the whole window: R4 73.52  R5 37.19  R6 32.69
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 58.94 ms, passes 32: srp 15.25, others 9.82, item.aecp 6.72, passes 5.76, own 3.28, rounds 3.23, timers 2.96, ticks 2.82, item.acmp 2.08, steps 1.95, item.reclaim 1.60, item.retained 1.50, builds 0.90, item.mrpdu 0.81, item.walk 0.14, gm 0.10
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 58.94  R5 34.94  R6 28.55
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 58.94 ms, passes 32: srp 15.25, others 9.82, item.aecp 6.72, passes 5.76, own 3.28, rounds 3.23, timers 2.96, ticks 2.82, item.acmp 2.08, steps 1.95, item.reclaim 1.60, item.retained 1.50, builds 0.90, item.mrpdu 0.81, item.walk 0.14, gm 0.10
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 58.94  R5 34.94  R6 28.55
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 67.1 ms, passes 34: srp 16.25, others 10.58, rounds 7.22, item.aecp 6.72, passes 6.12, ticks 3.29, own 3.28, timers 3.08, steps 2.92, item.acmp 2.21, item.retained 1.75, item.reclaim 1.70, builds 0.90, item.mrpdu 0.81, item.walk 0.16, gm 0.10
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 67.1  R5 34.94  R6 28.55
+== 8x8/2if
+   rows_grade.py: {'R4': 489.97, 'R5': 162.96, 'R6': 149.57}
+   V0 the model as stated (rows_grade.py), re-implemented: R4 489.97  R5 162.96  R6 149.57
+   V1 SRP arrivals over the whole window: R4 498.88  R5 162.96  R6 149.57
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 344.74  R5 154.43  R6 144.12
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 289.4  R5 154.43  R6 144.12
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 308.64  R5 154.43  R6 144.12

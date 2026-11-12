@@ -1,0 +1,19 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[ok] mutant portable-attribute-in-the-srp-adapter (portable): 1 check(s) failed
+    first: [FAIL] Portable.CompilerExtensionsOnlyInThePlatformHeader: srp/srp_mbx.c:62 a compiler extension outside plat/ctrl_cc.h
+[ok] mutant portable-fallback-link-unwritten (portable): 1 check(s) failed
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+[ok] mutant pool-link-unwritten (port): 1 check(s) failed
+    first: [FAIL] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes: P10 then the one freed before it, through the link its free wrote
+[ok] mutant mover-commit-judges-every-record (unit): 6 check(s) failed
+    first: [FAIL] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError: T4 a frame off a word sent after a failed move is committed
+[ok] mutant mover-move-not-held-its-own (unit): 15 check(s) failed
+    first: [FAIL] MbxDma.T1AFrameOnAWordIsMovedAndCommitted: T1 the mover is started once, 60 bytes
+[ok] mutant mover-lost-record-reported-as-bad (unit, unit): 4 check(s) failed
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a begin that finds the record before it ended in ERR reports it lost
+[ok] mutant mover-fan-lost-reported-as-refused (unit): 1 check(s) failed
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 the fan after a frame whose move failed reports that frame lost
+[ok] mutant mover-fan-end-commit-discarded (unit): 3 check(s) failed
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 fan_end reports a last frame whose move failed lost
+mutants: 8 of 8 caught

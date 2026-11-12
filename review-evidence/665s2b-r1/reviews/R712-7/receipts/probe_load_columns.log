@@ -1,0 +1,11 @@
+pin rise (record.aecp=3000 at the pin):
+    1x1/1if: the graded column states record.aecp at 205 us, below the pin's 3000, and tsn-c-stack#32 does not move it
+    1x1/1if: the load 1.022 at the pin is over its ceiling 0.70
+donor rise (record.acmp=3000 with #32):
+    1x1/1if: the load 0.997 with tsn-c-stack#32 is over its ceiling 0.70
+boundary record.srp=723: pin load 0.69961, refused=False
+boundary record.srp=724: pin load 0.70011, refused=True
+mutant donor-only COLUMNS: escaped controls = ['a rise at the pin alone']
+mutant names swapped (informational, a SUGGESTION if empty): escaped controls = []
+   its HELD lines: ['HELD 1x1/1if at the pin: the load 0.450, its ceiling 0.70', 'HELD 1x1/1if with tsn-c-stack#32: the load 0.463, its ceiling 0.70']
+RESULT PASS
