@@ -1424,6 +1424,41 @@ TEST_F(AcmpMailbox, K7TheRedeliveryTakesAFullRingInThePassThatSends) {
         << "K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends";
 }
 
+// The redelivery stops at the record acmp_rx declines (tsn-c-stack PORTING "ACMP owed bound"): a
+// command it declines while another waits behind it is kept, and the one behind stays in the ring.
+TEST_F(AcmpMailbox, K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext) {
+    fill_owed();
+    const unsigned i = acfg.sink_interface[1];
+    const std::vector<std::uint16_t> commands = {0x7901, 0x7902, 0x7903};
+    const std::uint32_t taken = app.loop.stats.rx_records;
+    for (std::uint16_t seq : commands) {
+        ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, seq), spec::MULTICAST_MAC, i));
+    }
+    for (unsigned p = 0; p < 20u; ++p) {
+        static_cast<void>(pass());
+    }
+    ASSERT_TRUE(core()->busy_declined == 1u && app.acmp.kept.len != 0u && app.loop.stats.rx_records == taken + 1u)
+        << "K8 the first command declined and kept, the two behind it left in the ring";
+    mbx_model_tx_pause(&model, false);
+    std::uint32_t base = model.tx_sent;
+    std::vector<std::uint16_t> order;
+    for (unsigned p = 1; p <= ACMP_MBX_KEPT_PASSES + 5u; ++p) {
+        static_cast<void>(pass());
+        for (std::uint32_t j = base; j < model.tx_sent; ++j) {
+            order.push_back(wire(j).seq);
+        }
+        base = model.tx_sent;
+    }
+    std::vector<std::uint16_t> expected;
+    for (unsigned j = 0; j < ACMP_OWED_MAX; ++j) {
+        expected.push_back(static_cast<std::uint16_t>(0x6000u + j));
+    }
+    expected.insert(expected.end(), commands.begin(), commands.end());
+    EXPECT_EQ(order, expected) << "K8 the owed frames, then each command answered once, in arrival order";
+    EXPECT_TRUE(core()->busy_declined == commands.size() && app.acmp.kept.len == 0u && core()->owed_count == 0u)
+        << "K8 each command declined once, and nothing kept or owed after";
+}
+
 // ---- F: the bound with full backlogs (ctrl_loop.h A1 to A4) ------------------------------
 
 TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
