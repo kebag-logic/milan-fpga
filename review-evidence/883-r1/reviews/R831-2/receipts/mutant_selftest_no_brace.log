@@ -1,0 +1,85 @@
+[PASS] a naked new is a finding
+[PASS] a naked delete is a finding
+[PASS] a placement new is not a finding
+[PASS] a deleted function is not a finding
+[PASS] goto is a finding
+[PASS] strcpy is a finding
+[PASS] atoi is a finding
+[PASS] memcpy is deliberately not a finding
+[PASS] a C-style cast is a finding
+[PASS] a static_cast is not a finding
+[PASS] a parameter list is not a cast
+[PASS] a discarding (void) cast is deliberately not a finding
+[PASS] a parenthesised condition is not a cast
+[PASS] a file-scope mutable is a finding
+[PASS] a file-scope const is not a finding
+[PASS] a file-scope constexpr is not a finding
+[PASS] a local is not a file-scope mutable
+[PASS] a static const list is not a file-scope mutable
+[PASS] a macro constant is a finding
+[PASS] an include guard is not a macro constant
+[PASS] a function-like macro is not a macro constant
+[PASS] an unnamed enum block is a finding
+[PASS] a named enum is not a finding
+[PASS] a multi-declarator declaration is a finding
+[PASS] a single declaration is not a finding
+[PASS] a call with two arguments is not a declaration
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int m[2][2] = {{1, 2}, {3, 4}};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int c[1][1][2] = {{{1, 2}}};
+[PASS] two declarators beside a brace initialiser are a finding: uint32_t a[2] = {0, 0}, b = 1;
+[PASS] two declarators beside a brace initialiser are a finding: int a{1}, b{2};
+[PASS] two declarators beside a brace initialiser are a finding: int m[2][2] = {{1, 2}, {3, 4}}, b = 0;
+[PASS] two declarators beside a brace initialiser are a finding: int n = 1, m[2][2] = {{0, 0}, {0, 0}};
+[PASS] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+[PASS] a function over the line limit is a finding
+[PASS] a short function is not a finding
+[PASS] a long member function is a finding
+[PASS] a long out-of-line member definition is a finding
+[PASS] a long lambda body is not counted as its own function
+[PASS] an else-if continuation is not a function
+[PASS] a class head is not a function
+[PASS] a brace-initialiser is not a function
+[PASS] a construct in a line comment is not counted
+[PASS] a construct in a block comment is not counted
+[PASS] a construct in a string is not counted
+[PASS] a digit separator does not open a character literal
+[PASS] a digit separator leaves brace counting intact
+[PASS] a character literal is still blanked
+[PASS] a goto inside a character literal is not a finding
+[PASS] blanking preserves line numbers
+[PASS] a C-style cast in C is not a finding
+[PASS] a macro constant in C is not a finding
+[PASS] goto in C is still a finding
+[PASS] a long function in C is still a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] an absent budget file is an empty budget
+[PASS] a comment is stripped from a budget line
+Traceback (most recent call last):
+  File "<packet>/scratch/no_brace/scripts/check_cpp_idiom.py", line 1000, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/no_brace/scripts/check_cpp_idiom.py", line 937, in main
+    return selftest()
+  File "<packet>/scratch/no_brace/scripts/check_cpp_idiom.py", line 919, in selftest
+    paths = sources()
+  File "<packet>/scratch/no_brace/scripts/check_cpp_idiom.py", line 363, in sources
+    return sorted(p for p in tracked(*(f"*{s}" for s in SCANNED_SUFFIXES))
+                             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/no_brace/scripts/code_quality_scope.py", line 79, in tracked
+    return tracked_exact(*scoped_pathspecs(*patterns))
+  File "<packet>/scratch/no_brace/scripts/code_quality_scope.py", line 86, in tracked_exact
+    _assert_pinned_submodules()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/no_brace/scripts/code_quality_scope.py", line 35, in _assert_pinned_submodules
+    run = subprocess.run(
+        ["git", "submodule", "status", "--", *PROJECT_SUBMODULES],
+        cwd=REPO, capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit status 128.
