@@ -1,0 +1,15 @@
+# head ac5ee5293d0524c426d0e5ac2accc7d69030f5d2 tree d5cf412b54aa3e0c87781495eb5c289ac6d76649
+# elf sha256 53dbabb025a277dab1f0d6f25b2ae32fb6d9ec6fa3dd4b7aa9340bbe0a1dc4b3 (platform image, 8x8 two interfaces, linked by tb/verilator/ctrl_split_boot/run.py at this composition)
+# cmd python3 -B sw/litex/ctrl_memory.py plan <elf> --stage-bytes 13594 
+REFUSED allocation over budget: 59 RAMB36 (rom 125760 bytes in 126976, sram 114512 bytes in 114688) exceeds the 56-RAMB36 budget
+# rc=2
+# cmd python3 -B sw/litex/ctrl_memory.py plan <elf> --stage-bytes 13594 --ledgered-point platform-8x8-two-interfaces
+    "bytes": 125760,
+    "banks": [
+    "bytes": 114512,
+    "banks": [
+  "tiles": 59.0,
+  "budget_tiles": 56,
+  "ledgered": "platform-8x8-two-interfaces",
+  "ledgered_tiles": 59.0
+# rc=0
