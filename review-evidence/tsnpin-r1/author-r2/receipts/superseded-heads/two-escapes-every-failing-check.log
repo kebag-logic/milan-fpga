@@ -1,0 +1,37 @@
+unnamed tests (whole table): []
+   FAILLINE [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 a change that leaves an interface's earliest deadline keeps its timer
+   FAILLINE [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+   FAILLINE [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 setting it again changes nothing
+[ESCAPED] mutant acmp-timer-port-called-every-time (acmp): 3 check(s) failed, none named acmp: AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline on 'A17 the port is called only when the earliest deadline moves'
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 a change that leaves an interface's earliest deadline keeps its timer
+   FAILLINE [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+   FAILLINE [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 setting it again changes nothing
+   FAILLINE [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to the same talker, from any controller or source, admits nothing
+   FAILLINE [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 re-binding emits one admission
+   FAILLINE [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0
+   FAILLINE [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0
+   FAILLINE [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+   FAILLINE [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+   FAILLINE [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 setting it again changes nothing
+   FAILLINE [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 a re-bind to the same talker, from any controller or source, admits nothing
+   FAILLINE [FAIL] AcmpCore.A29TheAdmitPortFollowsEachSinksBoundTalker: A29 re-binding emits one admission
+   FAILLINE [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C7 TMR_RETRY -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry: C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0
+   FAILLINE [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0
+   FAILLINE [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0
+   FAILLINE [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0
+[ESCAPED] mutant acmp-admit-on-every-entry (acmp, acmp): 28 check(s) failed, none named acmp: AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem on 'C1 GET_RX_STATE -> response'
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+mutants: 0 of 2 caught

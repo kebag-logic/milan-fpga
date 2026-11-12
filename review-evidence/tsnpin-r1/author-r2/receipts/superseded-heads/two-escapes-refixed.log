@@ -1,0 +1,6 @@
+unnamed tests (whole table): []
+[ok] mutant acmp-timer-port-called-every-time (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 a change that leaves an interface's earliest deadline keeps its timer
+[ok] mutant acmp-admit-on-every-entry (acmp, acmp): 28 check(s) failed
+    first: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+mutants: 2 of 2 caught

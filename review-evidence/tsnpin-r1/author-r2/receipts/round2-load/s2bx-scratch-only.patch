@@ -1,0 +1,50 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index b227934569..5564c16959 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -107,7 +107,6 @@ SECTIONS
+ 		*-acmp.o(.text.respond)
+ 		*-acmp.o(.text.build)
+ 		*-acmp.o(.text.wire_put_be)
+-		*libcompiler_rt.a:lshrdi3.o(.text.__lshrdi3)
+ 		*-acmp.o(.text.transmit)
+ 		*-acmp.o(.text.publish)
+ 		*-acmp.o(.text.p_send)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 4e4dcf2800..526c52b854 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -111,7 +111,6 @@ ctrl_mem forward
+ acmp respond
+ acmp build
+ acmp wire_put_be
+-libcompiler_rt.a:lshrdi3 __lshrdi3
+ acmp transmit
+ acmp publish
+ acmp p_send
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 292dbe15c5..9ad765287f 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -211,7 +211,7 @@ class Ledgered:
+ #: every other point stays within 56.
+ LEDGERED: dict[str, Ledgered] = {
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+-                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
++                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                          "6425357821)"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+                                             ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 19_968)), 59.0,
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index c442fc863b..0f52865289 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -632,7 +632,7 @@ STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
+ #: RETRY's round (#665, round_grade.py), a pass's first and last firmware poll and the polls'
+ #: heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
+ SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS,
+-                *poll_items.PART_SPANS)
++                *poll_items.PART_SPANS, 'acmp_poll', 'acmp_rx')
+ #: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
+ #: static function) pair: the state port's owners as the boot walks apply and the write path
+ #: latches, the flash port's calls, a round's attempts and the notices it builds (#665), and the

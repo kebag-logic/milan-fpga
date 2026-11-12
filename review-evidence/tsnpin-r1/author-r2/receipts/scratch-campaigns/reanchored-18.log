@@ -1,0 +1,39 @@
+# 2026-11-11T11:32:27+01:00 in <scratch>/snap/s1: python3 -B ../../tools/mut_subset.py . ../../mut2 acmp-unbind-echoes-the-talker,acmp-unbind-keeps-srp,acmp-unbind-srp-after-response,acmp-unbind-change-before-response,acmp-registered-keeps-no-tk,acmp-unregistered-keeps-srp,acmp-expiry-not-consumed,acmp-change-not-held-for-its-response,acmp-full-queue-acts,acmp-first-owed-releases-every-change,acmp-no-aging,acmp-roll-back-keeps-the-bindings,acmp-expiry-reads-the-clock-twice,acmp-owed-probe-never-starts,acmp-owed-probe-no-resp-2s,acmp-expiry-due-at-its-first-read,acmp-stop-keeps-the-hold,pub-acmp-started-after-the-report
+unnamed tests (whole table): []
+[ok] mutant acmp-unbind-echoes-the-talker (acmp, acmpwalk): 17 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+[ok] mutant acmp-unbind-keeps-srp (acmp, acmpwalk): 6 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+[ok] mutant acmp-unbind-srp-after-response (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 a settled sink stops SRP before the response (5.5.3.5.39, .45)
+[ok] mutant acmp-unbind-change-before-response (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A3UnbindInEveryState: A3 the change is reported after the response (#653), in state 1
+[ok] mutant acmp-registered-keeps-no-tk (acmp, acmpwalk): 18 check(s) failed
+    first: [FAIL] AcmpCore.A14RegisteredSettlesTheReservation: A14 EVT_TK_REGISTERED: TMR_NO_TK cleared, SETTLED_RSV_OK (5.5.3.5.42)
+[ok] mutant acmp-unregistered-keeps-srp (acmp, acmpwalk): 3 check(s) failed
+    first: [FAIL] AcmpCore.A15UnregisteredReprobes: A15 EVT_TK_UNREGISTERED, talker not discovered: SRP stopped, PRB_W_AVAIL (5.5.3.5.48 steps 1, 2)
+[ok] mutant acmp-expiry-not-consumed (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an expiry with nothing due changes nothing and re-arms the timer it consumed
+[ok] mutant acmp-change-not-held-for-its-response (acmp, acmp): 14 check(s) failed
+    first: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+[ok] mutant acmp-full-queue-acts (acmp, acmp): 190 check(s) failed
+    first: [FAIL] AcmpCore.A19AFullQueueDeclinesTheCommandBeforeItActs: A19 a full queue declines a BIND_RX to its caller
+[ok] mutant acmp-first-owed-releases-every-change (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 the bind's response left but the unbind's is still owed: the sink's change still waits
+[ok] mutant acmp-no-aging (acmp, acmpwalk): 9 check(s) failed
+    first: [FAIL] AcmpCore.A22DepartingAndAging: A22 TMR_NO_ADP: TK_NOT_DISCOVERED and EVT_TK_DEPARTED (5.6.4.5.4)
+[ok] mutant acmp-roll-back-keeps-the-bindings (acmp, acmpnvm): 5 check(s) failed
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+[ok] mutant acmp-expiry-reads-the-clock-twice (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.TimerPortBudgets: timer clock budget for state PRB_W_DELAY
+[ok] mutant acmp-owed-probe-never-starts (acmp, acmp): 46 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-owed-probe-no-resp-2s (acmp): 22 check(s) failed
+    first: [FAIL] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves: A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send
+[ok] mutant acmp-expiry-due-at-its-first-read (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry: A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry
+[ok] mutant acmp-stop-keeps-the-hold (acmp): 2 check(s) failed
+    first: [FAIL] AcmpCore.A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing: A27 an UNBIND_RX while the probe is owed stops its timer
+[ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+mutants: 18 of 18 caught
