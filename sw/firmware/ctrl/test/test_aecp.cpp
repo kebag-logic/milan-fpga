@@ -1425,7 +1425,8 @@ struct FanModel {
     std::vector<std::pair<unsigned,Bytes>> *sent=nullptr;
     std::vector<uint32_t> *completions=nullptr;
     unsigned lose=~0u, refuse=~0u, started=0, number=0, interface=0, kept=0;
-    bool held=false, refuse_end=false;
+    bool held=false;
+    bool refuse_end=false;
     Bytes frame;
     aecp_fan commit() {
         if(!held)return AECP_FAN_TAKEN;

@@ -184,7 +184,7 @@ def rule_controls(root: Path) -> list[str]:
     if not refused:
         escaped.append('a retained retry in an SRP row')
     # the tree's retry rule itself: a poll that retries every pass a change allows states no centisecond's rule
-    path = 'sw/firmware/ctrl/srp/srp_mbx.c'
+    path = load_grade.RETRY_RULE["a centisecond's retry"][0]
     text = (root / path).read_text()
     old = '                m->retry_spent = true;\n'
     if text.count(old) != 1 or not any("rule not the tree's" in f for f in rows_grade.rule_findings(
