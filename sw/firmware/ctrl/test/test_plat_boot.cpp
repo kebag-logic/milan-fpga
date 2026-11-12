@@ -32,9 +32,6 @@
 //   B10 a controller's bind after READY is written back to the flash by the
 //       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
 //       acmp_nvm.h's boot order)
-//   B11 MAAP's allocation reaches SRP's Talker declarations (#895): the
-//       reporting interface's sources, base + n each while the range is valid,
-//       none past the count or after a loss, owed on every interface
 
 #include <gtest/gtest.h>
 
@@ -376,47 +373,6 @@ TEST_F(Boot, B9SrpSourcesCarryTheGeneratedStreams) {
         EXPECT_EQ(ctrl_plat.srp_config.mac[i], mac) << "B9 the entity MAC on every interface";
     }
     EXPECT_EQ(ctrl_plat.srp_config.link_rate_bps, CTRL_PLAT_LINK_BPS) << "B9 the generated link rate";
-}
-
-TEST_F(Boot, B11AllocationReachesSrpsTalkerDeclarations) {
-    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
-    std::uint32_t own[MBX_N_IF] = {};
-    for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) own[ctrl_plat.acmp.source_interface[n]] |= 1u << n;
-    // what SRP holds for source n on interface i: its destination, 0 while it has none
-    auto dest = [](unsigned i, unsigned n) {
-        std::uint64_t d = 0;
-        for (unsigned b = 0; b < 6; ++b) d = d << 8 | ctrl_plat.srp.ifs[i].sources[n].value.dest_mac[b];
-        return ctrl_plat.srp.ifs[i].sources[n].allocated ? d : 0u;
-    };
-    const std::uint64_t base = 0x91e0f000fe00ull;
-    ctrl_plat.config.maap_allocation(ctrl_plat.config.maap_ctx, 0, base, CTRL_SRP_SOURCES, true);
-    for (unsigned i = 0; i < MBX_N_IF; ++i) {
-        EXPECT_EQ(ctrl_plat.srp.ifs[i].readdressed, own[0]) << "B11 the report moves the reporting interface's sources";
-        EXPECT_TRUE(ctrl_plat.srp.ifs[i].sources_owed) << "B11 every interface owes the declarations it carries";
-        for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-            if ((own[0] >> n & 1u) != 0u) {
-                EXPECT_EQ(dest(i, n), base + n) << "B11 SRP's source n takes base + n on every interface";
-            }
-        }
-    }
-    ctrl_plat.config.maap_allocation(ctrl_plat.config.maap_ctx, 0, base, 1, true);
-    for (unsigned n = 1; n < CTRL_SRP_SOURCES; ++n) {
-        if ((own[0] >> n & 1u) != 0u) {
-            EXPECT_EQ(dest(0, n), 0u) << "B11 a source past the reported count has none";
-        }
-    }
-    ctrl_plat.config.maap_allocation(ctrl_plat.config.maap_ctx, 0, base, CTRL_SRP_SOURCES, false);
-    EXPECT_EQ(dest(0, 0), 0u) << "B11 a loss leaves its sources no destination";
-#if MBX_N_IF > 1
-    for (unsigned i = 0; i < MBX_N_IF; ++i) ctrl_plat.srp.ifs[i].readdressed = 0u;
-    ctrl_plat.config.maap_allocation(ctrl_plat.config.maap_ctx, 1, base + 0x100u, CTRL_SRP_SOURCES, true);
-    EXPECT_EQ(ctrl_plat.srp.ifs[0].readdressed, own[1]) << "B11 interface 1's report moves its own sources";
-    for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-        if ((own[1] >> n & 1u) != 0u) {
-            EXPECT_EQ(dest(0, n), base + 0x100u + n) << "B11 its sources take its own range";
-        }
-    }
-#endif
 }
 
 TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {

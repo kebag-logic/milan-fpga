@@ -72,13 +72,13 @@ struct srp_interface {
     // An Applicant or Registrar of its participants changed since its retained
     // receive's last refusal (moved), which a retry waits for (#665).
     bool moved;
-    // The Talker declarations (#895), bit s source s: declared (TALKER_DECL),
-    // and its destination moved since (srp_mbx_allocation); held_cs[s] the
-    // centiseconds a withdrawn source waits before it declares again
-    // (declare_sources); sources_owed while a change waits for THE TRANSMIT.
+    // The Talker declarations (#895), bit s source s: its SRP parameters valid
+    // on this interface (srp_mbx_gate), declared (TALKER_DECL), and its
+    // destination changed since it was last declared; sources_owed while a
+    // change waits for THE TRANSMIT (declare_sources).
+    uint32_t gate;
     uint32_t talkers;
     uint32_t readdressed;
-    uint16_t held_cs[CTRL_SRP_SOURCES];
     bool sources_owed;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
@@ -88,6 +88,10 @@ struct srp_mbx_config {
     uint32_t link_rate_bps;
     srp_licence_fn licence;
     void *ctx;
+    // Every source's SRP parameters valid from init, for a composition with no
+    // MAAP DA gate; a composition with one leaves it false and drives
+    // srp_mbx_gate (#895).
+    bool sources_valid;
 };
 struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
@@ -116,6 +120,9 @@ struct srp_mbx {
     // and whether a retry was made since the last centisecond (tick).
     uint32_t pending_freed;
     bool retry_spent;
+    // The centiseconds each source's withdrawal still holds a changed
+    // destination back (#895, declare_sources).
+    uint16_t held_cs[CTRL_SRP_SOURCES];
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
@@ -139,14 +146,16 @@ void srp_mbx_destroy(struct srp_mbx *m);
 // Null identity unbinds.
 bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid);
-// MAAP-facing port (#895): the allocation MAAP reported for the sources in
-// the mask (bit s, source s; IEEE 1722-2016 Annex B). On every interface each
-// such source's destination is base + s while valid and s < count (Milan v1.2
-// 5.5.4.1, as ACMP reports it), and none otherwise. It records the change,
+// MAAP-facing port (#895): the sources of interface whose SRP parameters are
+// valid (bit s, source s), Milan v1.2 4.3.3.1: MAAP allocated the destination
+// with no conflict, and a PROBE_TX_COMMAND for the output arrived in the last
+// 15 s or a matching Listener is registered (the MAAP adapter's DA gate), and
+// the range base it allocated. Each valid source's destination is base + s
+// (Milan v1.2 5.5.4.1), declared while it stays valid. It records the change,
 // which THE TRANSMIT declares; it calls no lwSRP function and makes no mailbox
-// access, so an allocation port may call it. False before attach, after
-// destroy and on reentry, when nothing changes.
-bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint16_t count, bool valid);
+// access. False before attach, after destroy, for an interface out of range
+// and on reentry, when nothing is recorded.
+bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_t base);
 #ifdef __cplusplus
 }
 #endif

@@ -61,6 +61,8 @@ protected:
         shlan_port_bind_pool(&pool);
         ctrl_loop_init(&loop);
         config.licence=Licence::call; config.ctx=&licence; config.link_rate_bps=1000000000;
+        // no MAAP DA gate here: every source's SRP parameters valid from init (#895)
+        config.sources_valid=true;
         for (unsigned i=0;i<MBX_N_IF;++i) {
             config.mac[i]=0x020304050600ull+i;
             config.sources[i]=sources[i];

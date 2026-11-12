@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// SRP's Talker declarations follow MAAP's allocation (#895): srp_mbx_allocation
-// records each source's destination and THE TRANSMIT declares it. A source
-// allocated and admitted declares Talker Advertise with base + n and its TSpec,
-// and Talker Failed otherwise, code 2 without an allocation and 1 when its
-// bandwidth does not fit (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). MSRP does
-// not support a changed FirstValue on a StreamID (35.2.2.8): a declared source
-// whose destination moves (an allocation, a change, a loss) or whose type its
-// admission changes withdraws, its TALKER_DECL bit cleared before the Leave
-// leaves, and declares again no sooner than two LeaveAllTime periods after the
-// Leave (Table 10-7). A reset of the participants holds a moved source as its
-// Leave would. Run at 1x1/1if and 8x8/2if (test_ctrl_firmware.py).
+// SRP's Talker declarations follow the validity of each source's SRP parameters (#895; Milan v1.2 4.3.3.1 and
+// 5.3.7.4): srp_mbx_gate reports the sources whose destination MAAP allocated with no conflict and that a probe of the
+// last 15 s or a registered Listener asks for (the MAAP adapter's DA gate). A valid source declares at once, Talker
+// Advertise with base + n and its TSpec, or Talker Failed, code 1, when its bandwidth does not fit (IEEE 802.1Q-2018
+// 35.2.2.8.7, Table 35-6); a source not valid declares nothing; a lapse withdraws, its licence and TALKER_DECL bit
+// first. MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): an unchanged destination may be declared
+// again at once, a changed one no sooner than two LeaveAllTime periods after the Leave (Table 10-7), a type swaps in
+// place, and a reset holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
 #include <algorithm>
 FW_TALLY_LABEL("ctrl SRP Talker declarations");
@@ -48,8 +45,9 @@ void pub_writes(void*, bool write, uint32_t off, uint32_t value) {
 
 // One source admitted at 1 Gb/s: (224 + 22 + 20) bytes, 8 bits, 8000 frames/s (srp_mbx.c's admission).
 constexpr uint32_t kAdmittedBps=17024000u;
-// The fixture's configured destination of source n (srp_fixture.hpp).
-constexpr uint64_t kConfigured=0x91e0f0000000ull;
+// Two ranges MAAP may hold (IEEE 1722-2016 Table B.9's pool), base + n each source's destination.
+constexpr uint64_t kBaseA=0x91e0f000aa00ull;
+constexpr uint64_t kBaseB=0x91e0f000bb00ull;
 // The withdrawal's hold-off in ms: two LeaveAllTime periods (Table 10-7, 1000 cs each), and the hold-off as
 // srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's bound added.
 constexpr uint32_t kTwoLeaveAllMs=20000u;
@@ -59,6 +57,25 @@ bool declares(unsigned event) { return event==0u || event==1u || event==3u; }
 
 class Talker : public Srp {
 protected:
+    // A composition's start (#895): no source valid and none allocated, so nothing is declared until srp_mbx_gate
+    // reports a source's parameters valid.
+    void SetUp() override {
+        Srp::SetUp();
+        srp_mbx_destroy(&adapter);
+        config.sources_valid=false;
+        for (unsigned i=0;i<MBX_N_IF;++i) {
+            for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) {
+                sources[i][n].allocated=false;
+                std::fill(sources[i][n].value.dest_mac,sources[i][n].value.dest_mac+6,0);
+            }
+        }
+        ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+        ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+    }
+    // Every interface's gate: the sources in `valid` valid, at base.
+    void gate(uint32_t valid, uint64_t base) {
+        for (unsigned i=0;i<MBX_N_IF;++i) ASSERT_TRUE(srp_mbx_gate(&adapter,i,valid,base));
+    }
     // Every SRP frame's declarations since the test began, decoded before the model's capture drops them.
     std::vector<Declaration> seen;
     uint32_t collected=0;
@@ -110,70 +127,67 @@ protected:
 
 }  // namespace
 
-// Allocate: a source declaring Talker Failed for want of a destination withdraws it once MAAP allocates one, and
-// declares Talker Advertise with base + n and its TSpec no sooner than two LeaveAllTime periods after the Leave. No
-// Talker of that StreamID is declared in between, and a source whose destination did not move is not declared again.
-TEST_F(Talker, AllocationWithdrawsTheFailedThenAdvertisesTheDestination) {
-    settle(); advance(400);
-    const unsigned n=CTRL_SRP_SOURCES-1u;
-    const uint64_t base=0x91e0f000aa00ull;
-    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
+// Allocate: a source whose SRP parameters are not valid declares nothing; once they are (MAAP's allocation and a probe
+// or a Listener: the DA gate), it declares Talker Advertise at once, with base + n and its TSpec, TALKER_DECL and
+// IDLE_SLOPE published before it leaves. A source whose parameters did not change is not declared again.
+TEST_F(Talker, ValidSourceDeclaresAtOnceAndNothingBefore) {
+    settle(); advance(1200);
     trace();
-    const uint32_t first=model.tx_sent;
+    uint32_t first=0;
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) {
+            const auto ds=talker(i,n,0);
+            EXPECT_EQ(declared(ds,1),nullptr) << "a source whose SRP parameters are not valid declares nothing";
+            EXPECT_EQ(declared(ds,2),nullptr) << "a source whose SRP parameters are not valid declares nothing";
+        }
+        EXPECT_EQ(pub_of(model,i).talker_decl,0u) << "TALKER_DECL holds no undeclared source";
+    }
+    first=model.tx_sent;
     const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u<<n,base,CTRL_SRP_SOURCES,true));
+    gate(1u,kBaseA);
     advance(400);
-    uint32_t withdrawn[MBX_N_IF]{};
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        const auto ds=talker(i,n,first);
-        const auto *lv=leave(ds,2);
-        ASSERT_NE(lv,nullptr) << "an allocation withdraws the source's Talker Failed";
-        EXPECT_LE(lv->time_ms,at+220u) << "an allocation withdraws the source's Talker Failed within a JoinTime";
-        ASSERT_NE(commit_of(lv->frame),nullptr);
-        EXPECT_EQ(commit_of(lv->frame)->pub[i].talker_decl,all&~(1u<<n))
-            << "TALKER_DECL clears the withdrawn source before its Leave leaves";
-        withdrawn[i]=lv->time_ms;
-        const auto zero=talker(i,0,first);
-        EXPECT_EQ(newly(zero,1),nullptr) << "a Talker whose destination did not move is not declared again";
-    }
-    advance_to(at+kTwoLeaveAllMs);
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        const auto ds=talker(i,n,first);
-        EXPECT_EQ(declared(ds,1),nullptr) << "no Talker of a moved destination is declared before the hold-off ends";
-        EXPECT_EQ(declared(ds,2),nullptr) << "no Talker of a moved destination is declared before the hold-off ends";
-        EXPECT_EQ(pub_of(model,i).talker_decl,all&~(1u<<n)) << "TALKER_DECL holds the source withdrawn while it waits";
-    }
-    advance_to(at+kHoldOffMs+400u);
+    gate(1u,kBaseA);
+    const unsigned n=CTRL_SRP_SOURCES-1u;
+    gate(1u|1u<<n,kBaseA);
+    advance(400);
     untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
-        const auto ds=talker(i,n,first);
+        const auto ds=talker(i,0,first);
         const auto *adv=declared(ds,1);
-        ASSERT_NE(adv,nullptr) << "declares Talker Advertise with the allocated destination once the hold-off ends";
-        EXPECT_EQ(adv->event,0u) << "declares Talker Advertise with the allocated destination once the hold-off ends";
-        EXPECT_EQ(dest(*adv),base+n) << "declares Talker Advertise with the allocated destination once the hold-off ends";
+        ASSERT_NE(adv,nullptr) << "a valid source declares Talker Advertise at once";
+        EXPECT_EQ(adv->event,0u) << "a valid source declares Talker Advertise at once";
+        EXPECT_LE(adv->time_ms,at+220u) << "a valid source declares Talker Advertise at once";
+        EXPECT_EQ(dest(*adv),kBaseA) << "the Advertise carries base + n";
         EXPECT_EQ(wire_be16(adv->value.data()+14),2u) << "the Advertise carries the Domain's VID";
         EXPECT_EQ(wire_be16(adv->value.data()+16),224u) << "the Advertise carries the source's TSpec";
         EXPECT_EQ(wire_be16(adv->value.data()+18),1u) << "the Advertise carries the source's TSpec";
-        EXPECT_GE(adv->time_ms,withdrawn[i]+kTwoLeaveAllMs)
-            << "the Advertise comes no sooner than two LeaveAllTime periods after the Leave";
-        EXPECT_EQ(declared(ds,2,withdrawn[i]),nullptr) << "and no Talker Failed is declared again";
         ASSERT_NE(commit_of(adv->frame),nullptr);
-        EXPECT_EQ(commit_of(adv->frame)->pub[i].talker_decl,all) << "TALKER_DECL is set before the Advertise leaves";
-        EXPECT_EQ(commit_of(adv->frame)->pub[i].idle_slope_bps,2u*kAdmittedBps)
+        EXPECT_EQ(commit_of(adv->frame)->pub[i].talker_decl&1u,1u) << "TALKER_DECL is set before the Advertise leaves";
+        EXPECT_EQ(commit_of(adv->frame)->pub[i].idle_slope_bps,kAdmittedBps)
             << "IDLE_SLOPE admits the source before its Advertise leaves";
+        // MRP sends a new declaration's New twice (its Applicant's VN and AN states, IEEE 802.1Q-2018 Table 10-3)
+        unsigned news=0;
+        for (const auto &d:ds) news+=d.type==1 && d.event==0u;
+        EXPECT_LE(news,2u) << "a Talker whose parameters did not change is not declared again";
+        if (n!=0u) {
+            const auto others=talker(i,n,first);
+            const auto *other=declared(others,1);
+            ASSERT_NE(other,nullptr) << "a valid source declares Talker Advertise at once";
+            EXPECT_EQ(dest(*other),kBaseA+n) << "the Advertise carries base + n";
+        }
+        EXPECT_EQ(pub_of(model,i).talker_decl,n!=0u ? 1u|1u<<n : 1u) << "TALKER_DECL holds the valid sources";
     }
 }
 
-// Lose: an advertised source whose allocation is lost closes its licence, then withdraws its Advertise, TALKER_DECL
-// and IDLE_SLOPE dropping it before the Leave leaves; no Advertise of it is declared again, LeaveAll included, and
-// once the hold-off ends it declares Talker Failed, code 2, with no destination and the interface's MAC.
-TEST_F(Talker, LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff) {
-    settle(); advance(400);
+// Withdrawal: a source whose parameters lapse (no probe for 15 s and no Listener, or the allocation lost) closes its
+// licence, then withdraws its Advertise, TALKER_DECL and IDLE_SLOPE dropping it before the Leave leaves; nothing of it
+// is declared while its parameters are not valid, LeaveAll included: no stale Talker Advertise remains.
+TEST_F(Talker, LapseWithdrawsTheAdvertiseAndDeclaresNothing) {
+    settle(); gate(1u,kBaseA); advance(400);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
     }
     ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
-    const uint32_t all=(1u<<CTRL_SRP_SOURCES)-1u;
     for (unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_CALL(licence,Change(i,0,false));
     }
@@ -184,7 +198,7 @@ TEST_F(Talker, LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff) {
     },nullptr);
     const uint32_t first=model.tx_sent;
     const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,kConfigured,CTRL_SRP_SOURCES,false));
+    gate(0u,kBaseA);
     advance(400);
     uint32_t withdrawn[MBX_N_IF]{};
     for (unsigned i=0;i<MBX_N_IF;++i) {
@@ -196,234 +210,235 @@ TEST_F(Talker, LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff) {
             if (w.first==block+MBX_PUB_REG_TALKER_DECL && (w.second&1u)==0u && undeclared==SIZE_MAX) undeclared=k;
         }
         EXPECT_TRUE(closed!=SIZE_MAX && undeclared!=SIZE_MAX && closed<undeclared)
-            << "a loss closes LICENCE before TALKER_DECL drops the source";
+            << "a lapse closes LICENCE before TALKER_DECL drops the source";
         const auto ds=talker(i,0,first);
         const auto *lv=leave(ds,1);
-        ASSERT_NE(lv,nullptr) << "a loss withdraws the source's Talker Advertise";
+        ASSERT_NE(lv,nullptr) << "a source whose parameters lapse withdraws its Talker";
+        EXPECT_LE(lv->time_ms,at+220u) << "a source whose parameters lapse withdraws its Talker";
         ASSERT_NE(commit_of(lv->frame),nullptr);
-        EXPECT_EQ(commit_of(lv->frame)->pub[i].talker_decl,all&~1u)
-            << "TALKER_DECL clears the lost source before its Leave leaves";
+        EXPECT_EQ(commit_of(lv->frame)->pub[i].talker_decl,0u)
+            << "TALKER_DECL clears the withdrawn source before its Leave leaves";
         EXPECT_EQ(commit_of(lv->frame)->pub[i].idle_slope_bps,0u)
-            << "IDLE_SLOPE drops the lost source before its Leave leaves";
+            << "IDLE_SLOPE drops the withdrawn source before its Leave leaves";
         withdrawn[i]=lv->time_ms;
     }
-    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence)) << "a loss closes the source's licence";
-    advance_to(at+kHoldOffMs+400u);
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence)) << "a lapse closes the source's licence";
+    advance_to(at+25000u);
     untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
-        EXPECT_EQ(declared(ds,1,withdrawn[i]),nullptr) << "no stale Talker Advertise remains after a loss";
-        const auto *failed=declared(ds,2);
-        ASSERT_NE(failed,nullptr) << "a lost source declares Talker Failed once the hold-off ends";
-        EXPECT_GE(failed->time_ms,withdrawn[i]+kTwoLeaveAllMs)
-            << "the Failed comes no sooner than two LeaveAllTime periods after the Leave";
-        EXPECT_EQ(dest(*failed),0u) << "a lost source's Talker Failed carries no destination";
-        ASSERT_EQ(failed->value.size(),34u);
-        EXPECT_EQ(failed->value[33],2u) << "a lost source's Talker Failed carries code 2";
-        uint64_t system=0;
-        for (unsigned b=25;b<33;++b) system=system<<8|failed->value[b];
-        EXPECT_EQ(system,config.mac[i]) << "the Talker Failed names the interface's MAC";
-        EXPECT_EQ(pub_of(model,i).talker_decl,all) << "TALKER_DECL holds the Failed declaration";
+        EXPECT_EQ(declared(ds,1,withdrawn[i]),nullptr) << "no stale Talker Advertise remains after a lapse";
+        EXPECT_EQ(declared(ds,2),nullptr) << "a source whose parameters lapse declares no Talker Failed";
+        EXPECT_EQ(pub_of(model,i).talker_decl,0u) << "TALKER_DECL holds the source withdrawn";
     }
 }
 
-// Change: an advertised source whose destination changes withdraws the old destination's Advertise and advertises the
-// new one only once the hold-off ends; no Advertise carries the old destination after its Leave.
-TEST_F(Talker, ChangeWithdrawsTheOldDestinationAndAdvertisesTheNew) {
-    settle(); advance(400);
-    const uint64_t base=0x91e0f000bb00ull;
+// Re-declaration: a source whose parameters are valid again with an unchanged destination declares at once (35.2.2.8:
+// the same FirstValue may come back immediately).
+TEST_F(Talker, UnchangedDestinationIsDeclaredAgainAtOnce) {
+    settle(); gate(1u,kBaseA); advance(400);
+    trace();
+    const uint32_t first=model.tx_sent;
+    gate(0u,kBaseA); advance(1000);
+    const uint32_t again=model.now_ms;
+    gate(1u,kBaseA); advance(400);
+    untrace();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,0,first);
+        const auto *lv=leave(ds,1);
+        ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
+        const auto *adv=declared(ds,1,lv->time_ms+1u);
+        ASSERT_NE(adv,nullptr) << "an unchanged destination is declared again at once";
+        EXPECT_LE(adv->time_ms,again+220u) << "an unchanged destination is declared again at once";
+        EXPECT_EQ(dest(*adv),kBaseA) << "an unchanged destination is declared again at once";
+    }
+}
+
+// Change and re-allocation: a source valid again at another destination (MAAP's new range after a conflict) declares
+// it no sooner than two LeaveAllTime periods after its Leave, and nothing in between; once that has passed, a further
+// change is declared at once.
+TEST_F(Talker, ChangedDestinationWaitsTwoLeaveAllTimePeriods) {
+    settle(); gate(1u,kBaseA); advance(400);
     trace();
     const uint32_t first=model.tx_sent;
     const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,base,CTRL_SRP_SOURCES,true));
+    gate(0u,kBaseA); advance(2000);
+    gate(1u,kBaseB);
+    advance_to(at+kTwoLeaveAllMs);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,0,first);
+        const auto *lv=leave(ds,1);
+        ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
+        EXPECT_EQ(declared(ds,1,lv->time_ms+1u),nullptr)
+            << "no Talker of a changed destination is declared before the hold-off ends";
+    }
     advance_to(at+kHoldOffMs+400u);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,0,first);
+        const auto *lv=leave(ds,1);
+        ASSERT_NE(lv,nullptr);
+        const auto *adv=declared(ds,1,lv->time_ms+1u);
+        ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
+        EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
+        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
+            << "the changed destination comes no sooner than two LeaveAllTime periods after the Leave";
+    }
+    // a lapse, then a re-allocation more than two LeaveAllTime periods later: declared at once
+    gate(0u,kBaseB); advance_to(model.now_ms+21000u);
+    const uint32_t later=model.now_ms;
+    const uint32_t next=model.tx_sent;
+    gate(1u,kBaseA); advance(400);
+    untrace();
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,0,next);
+        const auto *adv=declared(ds,1);
+        ASSERT_NE(adv,nullptr) << "a re-allocation after the hold-off is declared at once";
+        EXPECT_LE(adv->time_ms,later+220u) << "a re-allocation after the hold-off is declared at once";
+        EXPECT_EQ(dest(*adv),kBaseA) << "a re-allocation after the hold-off is declared at once";
+    }
+}
+
+// A destination that changes while the source stays valid withdraws the old destination's Advertise and declares the
+// new one only once the hold-off ends; no Talker carries the old destination after its Leave.
+TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
+    settle(); gate(1u,kBaseA); advance(400);
+    trace();
+    const uint32_t first=model.tx_sent;
+    gate(1u,kBaseB);
+    advance_to(model.now_ms+kHoldOffMs+400u);
     untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
         const auto *lv=leave(ds,1);
         ASSERT_NE(lv,nullptr) << "a changed destination withdraws the old destination's Advertise";
-        EXPECT_EQ(dest(*lv),kConfigured) << "a changed destination withdraws the old destination's Advertise";
-        const auto *adv=declared(ds,1,lv->time_ms);
-        ASSERT_NE(adv,nullptr) << "a changed destination is advertised once the hold-off ends";
-        EXPECT_EQ(dest(*adv),base) << "a changed destination is advertised once the hold-off ends";
+        EXPECT_EQ(dest(*lv),kBaseA) << "a changed destination withdraws the old destination's Advertise";
+        const auto *adv=declared(ds,1,lv->time_ms+1u);
+        ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
+        EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
         EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
             << "the new destination comes no sooner than two LeaveAllTime periods after the Leave";
         for (const auto &d:ds) {
             if (d.time_ms>lv->time_ms && declares(d.event)) {
-                EXPECT_EQ(dest(d),base) << "no Talker carries the old destination after its Leave";
+                EXPECT_EQ(dest(d),kBaseB) << "no Talker carries the old destination after its Leave";
             }
         }
     }
 }
 
-// Re-allocate: a source allocated again while it waits declares the newest destination, still when the hold-off that
-// began at its withdrawal ends: a report in the meantime neither declares nor restarts it.
-TEST_F(Talker, ReallocationDuringTheHoldOffAdvertisesTheLatest) {
-    settle(); advance(400);
-    const uint64_t base=0x91e0f000cc00ull;
-    trace();
-    const uint32_t first=model.tx_sent;
-    const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,kConfigured,CTRL_SRP_SOURCES,false));
-    advance(5000);
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,base,CTRL_SRP_SOURCES,true));
-    advance_to(at+kHoldOffMs+400u);
-    untrace();
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        const auto ds=talker(i,0,first);
-        const auto *lv=leave(ds,1);
-        ASSERT_NE(lv,nullptr) << "the loss withdraws the Advertise";
-        EXPECT_EQ(declared(ds,2),nullptr) << "a source allocated again while it waits declares no Talker Failed";
-        const auto *adv=declared(ds,1,lv->time_ms);
-        ASSERT_NE(adv,nullptr) << "a re-allocated source advertises its newest destination when the hold-off ends";
-        EXPECT_EQ(dest(*adv),base) << "a re-allocated source advertises its newest destination when the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
-            << "the re-allocated destination comes no sooner than two LeaveAllTime periods after the Leave";
-        EXPECT_LT(adv->time_ms,at+kHoldOffMs+400u)
-            << "the hold-off runs from the withdrawal, not from the re-allocation";
-    }
-}
-
-// Admission: an allocated source whose bandwidth does not fit declares Talker Failed, code 1, with its destination. A
-// loss before it frees the bandwidth: its type would change, so it withdraws too and advertises once the hold-off
-// ends, while the lost source declares Talker Failed, code 2.
-TEST_F(Talker, AdmissionChangeWithdrawsAndAdvertisesAfterTheHoldOff) {
+// Admission: an allocated source whose bandwidth does not fit declares Talker Failed, code 1, with its destination; a
+// lapse before it frees the bandwidth, and its type swaps in place at once: Advertise joined, then Failed left, so a
+// refused join keeps the Failed declared; no hold-off (its FirstValue's Talker part is unchanged).
+TEST_F(Talker, AdmissionChangeSwapsTheTypeInPlace) {
+    if (CTRL_SRP_SOURCES<2u) GTEST_SKIP();
     srp_mbx_destroy(&adapter);
     // three quarters of 30 Mb/s admit one source
     config.link_rate_bps=30000000u;
-    for (unsigned i=0;i<MBX_N_IF;++i) sources[i][1].allocated=true;
     ASSERT_TRUE(srp_mbx_init(&adapter,&config));
     ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
-    settle(); advance(400);
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "one source fits three quarters of the link";
-    }
-    trace();
-    const uint32_t at=model.now_ms;
-    advance(1100);
+    settle(); gate(3u,kBaseA); advance(400);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,1,0);
         const auto *failed=declared(ds,2);
         ASSERT_NE(failed,nullptr) << "an allocated source whose bandwidth does not fit declares Talker Failed, code 1";
-        EXPECT_EQ(failed->value[33],1u) << "an allocated source whose bandwidth does not fit declares Talker Failed, code 1";
-        EXPECT_EQ(dest(*failed),kConfigured+1u) << "its Talker Failed carries its destination";
+        EXPECT_EQ(failed->value[33],1u)
+            << "an allocated source whose bandwidth does not fit declares Talker Failed, code 1";
+        EXPECT_EQ(dest(*failed),kBaseA+1u) << "its Talker Failed carries its destination";
+        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "one source fits three quarters of the link";
     }
+    trace();
     const uint32_t first=model.tx_sent;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,kConfigured,CTRL_SRP_SOURCES,false));
-    advance_to(at+1100u+kHoldOffMs+400u);
+    const uint32_t at=model.now_ms;
+    // the swap's join refused (no storage): the declared type stays until the join succeeds
+    calloc_before_failure=0;
+    gate(2u,kBaseA);
+    advance(20);
+    calloc_before_failure=-1;
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,2u) << "a swap whose join is refused keeps the declared type";
+    }
+    advance(400);
     untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,1,first);
-        const auto *lv=leave(ds,2);
-        ASSERT_NE(lv,nullptr) << "a source whose admission changes withdraws its Talker Failed";
         const auto *adv=declared(ds,1);
-        ASSERT_NE(adv,nullptr) << "and advertises its destination once the hold-off ends";
-        EXPECT_EQ(dest(*adv),kConfigured+1u) << "and advertises its destination once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLeaveAllMs)
-            << "the admitted source comes no sooner than two LeaveAllTime periods after its Leave";
-        const auto zero=talker(i,0,first);
-        const auto *lost=declared(zero,2);
-        ASSERT_NE(lost,nullptr) << "the lost source declares Talker Failed, code 2";
-        EXPECT_EQ(lost->value[33],2u) << "the lost source declares Talker Failed, code 2";
-        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "IDLE_SLOPE admits the source the loss made room for";
+        ASSERT_NE(adv,nullptr) << "an admission change swaps the type in place at once";
+        EXPECT_LE(adv->time_ms,at+640u) << "an admission change swaps the type in place at once";
+        EXPECT_EQ(dest(*adv),kBaseA+1u) << "an admission change swaps the type in place at once";
+        EXPECT_NE(leave(ds,2),nullptr) << "the Failed leaves as the Advertise joins";
+        EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps)
+            << "IDLE_SLOPE admits the source the lapse made room for";
+        EXPECT_EQ(pub_of(model,i).talker_decl,2u) << "TALKER_DECL holds the swapped source";
     }
 }
 
-// A reset after a move: the participants are destroyed with no Leave sent, and the new ones hold the moved source
-// for the hold-off as its Leave would; a source whose destination did not move declares again at once.
-TEST_F(Talker, MoveBeforeAResetIsHeldByTheNewParticipants) {
-    settle(); advance(400);
+// A reset destroys the participants with no Leave sent. An unchanged source declares again at once on the new ones; a
+// source whose destination changed before the reset is held as its Leave would hold it.
+TEST_F(Talker, ResetKeepsAnUnchangedSourceAndHoldsAMovedOne) {
+    settle(); gate(1u,kBaseA); advance(400);
     const unsigned last=MBX_N_IF-1u;
-    const uint64_t base=0x91e0f000dd00ull;
-    trace();
+    uint32_t first=model.tx_sent;
+    mbx_model_set_link(&model,last,false); settle();
+    mbx_model_set_link(&model,last,true); settle();
+    advance(400);
+    EXPECT_NE(newly(talker(last,0,first),1),nullptr) << "an unchanged source declares again at once after a reset";
     mbx_model_set_link(&model,last,false);
     ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[last].msrp,nullptr) << "the link change reset the participants";
     const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,base,CTRL_SRP_SOURCES,true));
+    ASSERT_TRUE(srp_mbx_gate(&adapter,last,1u,kBaseB));
     settle();
     mbx_model_set_link(&model,last,true); settle();
-    const uint32_t first=model.tx_sent;
-    advance(1000);
-    if (CTRL_SRP_SOURCES>1u) {
-        EXPECT_NE(declared(talker(last,1,first),2),nullptr) << "an unmoved source declares again at once after a reset";
-    }
+    first=model.tx_sent;
     advance_to(at+kTwoLeaveAllMs);
-    EXPECT_EQ(declared(talker(last,0,first),1),nullptr) << "the new participants hold a source that moved before the reset";
+    EXPECT_EQ(declared(talker(last,0,first),1),nullptr)
+        << "the new participants hold a source that moved before the reset";
     EXPECT_EQ(pub_of(model,last).talker_decl&1u,0u) << "TALKER_DECL holds it withdrawn while it waits";
     advance_to(at+kHoldOffMs+400u);
-    untrace();
     const auto held=talker(last,0,first);
     const auto *adv=declared(held,1);
-    ASSERT_NE(adv,nullptr) << "and advertise it once the hold-off ends";
-    EXPECT_EQ(dest(*adv),base) << "and advertise it once the hold-off ends";
+    ASSERT_NE(adv,nullptr) << "and declare it once the hold-off ends";
+    EXPECT_EQ(dest(*adv),kBaseB) << "and declare it once the hold-off ends";
 }
 
-// The entry: a repeated report changes no declaration, a source past the reported count has no destination, a mask
-// bit past the sources is no source, and before attach, after destroy and on reentry it refuses and changes nothing.
-TEST_F(Talker, AllocationEntryRecordsOnlyWhatChanged) {
-    settle(); advance(400);
-    trace();
-    uint32_t first=model.tx_sent;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,kConfigured,CTRL_SRP_SOURCES,true));
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,~0u<<CTRL_SRP_SOURCES,0x91e0f000ee00ull,CTRL_SRP_SOURCES,true));
-    advance(400);
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        EXPECT_EQ(leave(talker(i,0,first),1),nullptr) << "a repeated allocation changes no declaration";
-        EXPECT_EQ(adapter.ifs[i].readdressed,0u) << "a mask bit past the sources is no source";
-    }
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,3u,0x91e0f000ee00ull,1,true));
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        EXPECT_TRUE(adapter.ifs[i].sources[0].allocated) << "a source within the reported count holds base + n";
-        uint64_t d=0;
-        for (unsigned b=0;b<6;++b) d=d<<8|adapter.ifs[i].sources[0].value.dest_mac[b];
-        EXPECT_EQ(d,0x91e0f000ee00ull) << "a source within the reported count holds base + n";
-        if (CTRL_SRP_SOURCES>1u) {
-            EXPECT_FALSE(adapter.ifs[i].sources[1].allocated) << "a source past the reported count has no destination";
-            for (unsigned b=0;b<6;++b) {
-                EXPECT_EQ(adapter.ifs[i].sources[1].value.dest_mac[b],0u)
-                    << "a source past the reported count has no destination";
-            }
-        }
-    }
-    untrace();
+// The entry: a mask bit past the sources is no source, and before attach, after destroy, for an interface out of
+// range and on reentry it refuses and records nothing.
+TEST_F(Talker, GateEntryRecordsOnlyWhatChanged) {
+    settle();
+    ASSERT_TRUE(srp_mbx_gate(&adapter,0,~0u<<CTRL_SRP_SOURCES,kBaseA));
+    EXPECT_FALSE(adapter.ifs[0].sources_owed) << "a mask bit past the sources is no source";
+    EXPECT_FALSE(srp_mbx_gate(&adapter,MBX_N_IF,1u,kBaseA)) << "an interface out of range is refused";
     adapter.busy=true;
     const uint32_t reentries=adapter.reentries;
-    EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "reentry is refused";
+    EXPECT_FALSE(srp_mbx_gate(&adapter,0,1u,kBaseA)) << "reentry is refused";
     EXPECT_EQ(adapter.reentries,reentries+1u) << "reentry is refused and counted";
     adapter.busy=false;
-    EXPECT_EQ(adapter.ifs[0].sources[0].value.dest_mac[4],0xeeu) << "a refused report changes nothing";
+    EXPECT_EQ(adapter.ifs[0].gate,0u) << "a refused report records nothing";
     srp_mbx_destroy(&adapter);
-    EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "refused after destroy";
+    EXPECT_FALSE(srp_mbx_gate(&adapter,0,1u,kBaseA)) << "refused after destroy";
     ASSERT_TRUE(srp_mbx_init(&adapter,&config));
-    EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "refused before attach";
-    EXPECT_EQ(adapter.ifs[0].readdressed,0u) << "refused before attach, and nothing changes";
+    EXPECT_FALSE(srp_mbx_gate(&adapter,0,1u,kBaseA)) << "refused before attach";
+    EXPECT_EQ(adapter.ifs[0].gate,0u) << "refused before attach, and nothing is recorded";
 }
 
-// A refused join of a source whose hold-off ended (no storage) is counted and declared again with THE TRANSMIT's
-// next declarations, at the JoinTime's rate.
-TEST_F(Talker, RefusedRedeclarationIsDeclaredAgain) {
+// A refused join (no storage) is counted and declared again with THE TRANSMIT's next declarations, at the JoinTime's
+// rate.
+TEST_F(Talker, RefusedDeclarationIsDeclaredAgain) {
     settle(); advance(400);
-    const unsigned n=CTRL_SRP_SOURCES-1u;
-    const uint32_t at=model.now_ms;
-    ASSERT_TRUE(srp_mbx_allocation(&adapter,1u<<n,0x91e0f000aa00ull,CTRL_SRP_SOURCES,true));
-    advance(400);
-    ASSERT_NE(adapter.ifs[0].held_cs[n],0u) << "the allocation withdrew the source";
-    while (adapter.ifs[0].held_cs[n]>1u) advance(1);
-    collected=model.tx_sent;
     const unsigned refused=adapter.refused;
     calloc_before_failure=0;
+    gate(1u,kBaseA);
     advance(20);
     calloc_before_failure=-1;
-    EXPECT_GT(adapter.refused,refused) << "a refused re-declaration is counted";
-    EXPECT_EQ(pub_of(model,0).talker_decl>>n&1u,0u) << "a refused re-declaration declares nothing";
+    EXPECT_GT(adapter.refused,refused) << "a refused declaration is counted";
+    EXPECT_EQ(pub_of(model,0).talker_decl&1u,0u) << "a refused declaration declares nothing";
     trace();
     const uint32_t first=model.tx_sent;
+    const uint32_t at=model.now_ms;
     advance(600);
     untrace();
-    const auto again=talker(0,n,first);
+    const auto again=talker(0,0,first);
     const auto *adv=declared(again,1);
-    ASSERT_NE(adv,nullptr) << "a refused re-declaration is declared again";
-    EXPECT_LT(adv->time_ms,at+kHoldOffMs+1200u) << "a refused re-declaration is declared again at the JoinTime's rate";
-    EXPECT_EQ(pub_of(model,0).talker_decl>>n&1u,1u) << "and TALKER_DECL holds it";
+    ASSERT_NE(adv,nullptr) << "a refused declaration is declared again";
+    EXPECT_LT(adv->time_ms,at+600u) << "a refused declaration is declared again at the JoinTime's rate";
+    EXPECT_EQ(pub_of(model,0).talker_decl&1u,1u) << "and TALKER_DECL holds it";
 }

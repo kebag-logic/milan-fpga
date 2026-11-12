@@ -198,24 +198,32 @@ system identifier (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). A registered Ready
 or ReadyFailed Listener can enable an admitted output only after the applicable
 MVRP Join commits (Milan 4.3.2).
 
-MAAP's allocation reaches the declarations through `srp_mbx_allocation` (#895):
-the allocation port names the reporting interface's sources, and each takes
-base + n while the range is valid and n is under its count, or no destination.
-The entry records the report and owes THE TRANSMIT's declarations on every
-interface; it calls no lwSRP function and makes no mailbox access. There, an
-allocated, admitted source declares Talker Advertise with its destination and
-TSpec. MSRP does not support a changed FirstValue on a StreamID (IEEE
-802.1Q-2018 35.2.2.8), so a declared source whose destination moves
-(allocated, changed or lost), or whose type its admission changes, withdraws:
+A source declares a Talker attribute only while its SRP parameters are valid
+(#895; Milan v1.2 4.3.3.1, 5.3.7.4): MAAP holds its interface's range with no
+conflict, and a PROBE_TX_COMMAND for the output was answered in the last 15 s
+or a matching Listener is registered. That is the MAAP adapter's DA gate
+(`maap_mbx.c`, ACMP's `acmp_declaring`), which the composition's delivery poll
+(`ctrl_app_srp.c`) passes each pass to `srp_mbx_gate` with the range's base; the
+source's destination is base + n, on its own interface. The entry records a
+change and owes THE TRANSMIT's declarations; it calls no lwSRP function and
+makes no mailbox access. A composition with no gate (the unit fixture) sets
+`sources_valid` and declares every source from creation.
+
+A valid source declares at once: Talker Advertise with its destination and
+TSpec once admitted, or Talker Failed, code 1, when its bandwidth does not fit.
+A source not valid declares nothing. When its parameters lapse, it withdraws:
 its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
-Leave is sent, and it declares again, Advertise or Failed by its state then, no
-sooner than `SRP_REDECLARE_CS` after the Leave's request: two LeaveAllTime
-periods (Table 10-7), a JoinTime and THE TRANSMIT's bound. A report during the
-hold-off neither declares nor restarts it. A link reset destroys the
-participants with no Leave sent, so the new ones hold a source that moved
-before it as its Leave would; an unmoved source declares again at once. A
-source whose declaration does not change is not joined again. A refused join is
-declared again with THE TRANSMIT's next declarations.
+Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
+802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
+declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
+the Leave's request (two LeaveAllTime periods, Table 10-7, with a JoinTime and
+THE TRANSMIT's bound); a destination that changes while valid withdraws the old
+one first. An admission change swaps the type in place, the new type joined
+before the old leaves, so a refused join keeps the old. A link reset destroys
+the participants with no Leave sent, so the new ones hold a source whose
+destination changed before it as its Leave would; an unchanged source declares
+again at once. A refused join is declared again with THE TRANSMIT's next
+declarations.
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
@@ -399,14 +407,12 @@ each interface's publication block of the mailbox (lane F-INT; the
   adopted one, with ADOPTED set, before the declarations that carry it.
 - `TALKER_DECL`: bit s while source s's Talker Advertise or Talker Failed is
   declared, written once every source joined, before those declarations are
-  sent (participant creation, Domain adoption and a moved destination's
+  sent (participant creation, Domain adoption and a validity change's
   declarations), cleared for a withdrawn source before its Leave is sent, and
   cleared before a reset or destroy removes the participants holding them. The
   datapath's CRF talker tags its frames only while its bit is set (802.1Q
-  35.1.2). Every source is declared from participant creation, as a Talker
-  Failed until MAAP allocates its address, then withdrawn and advertised after
-  the hold-off above; the processor declares a source only once its DA gate
-  opens (the design page's choices).
+  35.1.2). A source is declared only while its DA gate is open, as the
+  processor declares it (the design page's choices; #895).
 
 The tests read the block as the fabric held it at each SRP record's commit, so
 an MRPDU that left before its Domain, slope or declarations were published
@@ -445,7 +451,7 @@ plus deferred per-sink SRP registration feedback to ACMP. Neither direction
 needs target wiring; the remaining items below do.
 Target integration still supplies live stream configuration.
 It also connects the existing fabric licence output.
-The [target platform](../plat/README.md#the-ports) configures every source at boot from the generated stream table, records each licence, and passes each MAAP report to `srp_mbx_allocation` (#895).
+The [target platform](../plat/README.md#the-ports) configures every source at boot from the generated stream table and records each licence; the composition passes MAAP's DA gate to `srp_mbx_gate` (#895).
 The desk callback proves output ordering, not a connected target licence register.
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.

@@ -62,23 +62,12 @@ static void window_write(void *ctx, unsigned interface, uint32_t offset, uint32_
 }
 
 // maap_allocation_fn: the window first, then the allocation ACMP's source
-// port reports and SRP's Talker declarations carry for the reporting
-// interface's sources, so no source reports or declares an address the window
-// does not hold. SRP records each destination, which THE TRANSMIT declares
-// (#895). Before SRP attaches its entry refuses: MAAP allocates only as a
-// probe timer ends in the loop's dispatch (IEEE 1722-2016 Table B.7), after
-// SRP attaches, so a report before then withdraws, the unallocated state SRP's
-// sources start in
+// port reports, so no source reports an address the window does not hold
 static void allocation(void *ctx, unsigned interface, uint64_t base, uint16_t count, bool valid)
 {
 	struct ctrl_plat *p = ctx;
-	uint32_t sources = 0;
 	maap_csr_allocation(&p->maap_csr, interface, base, count, valid);
 	p->allocation[interface] = (struct ctrl_plat_allocation){base, count, valid};
-	for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-		sources |= (p->acmp.source_interface[n] == interface ? 1u : 0u) << n;
-	}
-	(void)srp_mbx_allocation(&p->srp, sources, base, count, valid);
 }
 
 // ---- the platform's ACMP owner (the innermost acmp_env) --------------------

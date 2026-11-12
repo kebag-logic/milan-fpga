@@ -456,9 +456,9 @@ DEFECTS = (
         name='shape-last-output-missing',
         test='EveryGeneratedOutputIsDeclaredAndEverySinkFits',
         old='unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {\n        const uint32_t bit = 1u << n;\n'
-            '        struct msrp_talker_failed',
+            '        // admitted[n] is the declared type',
         new='unsigned n = 0; n + 1 < CTRL_SRP_SOURCES; ++n) {\n        const uint32_t bit = 1u << n;\n'
-            '        struct msrp_talker_failed',
+            '        // admitted[n] is the declared type',
         needle='outputs',
         suite='srp_shape.cpp',
     ),

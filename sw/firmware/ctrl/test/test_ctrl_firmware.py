@@ -72,7 +72,7 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            with its src/ unmodified, or the arm refuses.
   srp      per-interface MSRP/MVRP, static entity shapes, service latency,
            debug reentry guards and processor-derived wire stimuli; the
-           Talker declarations as MAAP's allocation moves them (#895,
+           Talker declarations as their validity moves them (#895,
            srp_talker.cpp) at 1x1/1if and 8x8/2if;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch

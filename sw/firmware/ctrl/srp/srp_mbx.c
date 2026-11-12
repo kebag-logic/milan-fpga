@@ -44,7 +44,7 @@ static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
 static void snapshot(struct srp_interface *i);
 static void capture(struct srp_sink *s, uint8_t previous);
-static void count_held(struct srp_interface *i);
+static void count_held(struct srp_mbx *m);
 
 static bool enter(struct srp_mbx *m)
 {
@@ -108,8 +108,8 @@ static void tick(void)
         if (m->ifs[n].msrp) {
             snapshot(&m->ifs[n]);
         }
-        count_held(&m->ifs[n]);
     }
+    count_held(m);
     m->busy = false;
 }
 
@@ -125,13 +125,19 @@ static void hold(struct srp_interface *i)
 }
 
 // Each withdrawn source's hold-off, a centisecond at a time (tick): at its end
-// the source may declare again, which THE TRANSMIT does (#895).
-static void count_held(struct srp_interface *i)
+// a valid source whose destination changed may declare it, which THE TRANSMIT
+// does (#895, declare_sources).
+static void count_held(struct srp_mbx *m)
 {
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
-        if (i->held_cs[n] != 0u && --i->held_cs[n] == 0u) {
-            i->sources_owed = true;
-            hold(i);
+        if (m->held_cs[n] != 0u && --m->held_cs[n] == 0u) {
+            for (unsigned k = 0; k < MBX_N_IF; ++k) {
+                struct srp_interface *i = &m->ifs[k];
+                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {
+                    i->sources_owed = true;
+                    hold(i);
+                }
+            }
         }
     }
 }
@@ -234,20 +240,23 @@ static void domain(struct msrp_ctx *ctx, uint8_t port, const struct msrp_domain 
     }
 }
 
-// What declare_sources joins (#895): the sources not declared, every one again
-// (an adopted Domain's VID), or every one of new participants, which publish
-// nothing if one is refused (withdraw_declared).
+// What declare_sources joins (#895): the valid sources not declared and those
+// whose type changes, every valid one again (an adopted Domain's VID), or
+// every valid one of new participants, which publish nothing if one is refused
+// (withdraw_declared).
 #define SRP_DECLARE_CHANGED 0u
 #define SRP_DECLARE_EVERY 1u
 #define SRP_DECLARE_NEW 2u
 
-// The interface's Talker declarations (#895), each source's from its TSpec, the Domain and its destination: Talker
-// Advertise once it is allocated and its bandwidth fits three quarters of the link after the sources before it, else
-// Talker Failed with the interface's MAC as system identifier, code 1 if it is allocated and 2 if not (IEEE
-// 802.1Q-2018 35.2.2.8.7, Table 35-6). MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): a declared
-// source whose destination moved, or whose type its admission changes, withdraws and waits SRP_REDECLARE_CS before it
-// declares again. talkers holds what the participants declared, and at a creation after a reset what the destroyed
-// ones did, whose declarations left with no Leave: the rule holds across a reset too.
+// The interface's Talker declarations (#895). A source declares only while its SRP parameters are valid (gate,
+// Milan v1.2 4.3.3.1 and 5.3.7.4), at once: Talker Advertise once it is allocated and its bandwidth fits three
+// quarters of the link after the sources before it, else Talker Failed with the interface's MAC as system identifier,
+// code 1 if it is allocated and 2 if not (IEEE 802.1Q-2018 35.2.2.8.7, Table 35-6). A declared source withdraws when
+// its parameters lapse or its destination changes. MSRP does not support a changed FirstValue on a StreamID
+// (35.2.2.8): a changed destination waits SRP_REDECLARE_CS after the Leave, an unchanged one may be declared again at
+// once, and a type its admission changes swaps in place, the new one joined before the old leaves. talkers holds what
+// the participants declared, and at a creation after a reset what the destroyed ones did, whose declarations left
+// with no Leave: the rules hold across a reset too.
 static bool declare_sources(struct srp_interface *i, unsigned how)
 {
     struct srp_mbx *m = i->owner;
@@ -257,6 +266,9 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     i->stale = true;
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         const uint32_t bit = 1u << n;
+        // admitted[n] is the declared type: Advertise when set
+        const bool was = i->admitted[n];
+        const bool valid = (i->gate & bit) != 0u;
         struct msrp_talker_failed value = {.talker=i->sources[n].value};
         value.talker.vlan_id = i->domain.vid;
         value.talker.priority_and_rank = (uint8_t)((value.talker.priority_and_rank & 0x10u) | (i->domain.priority << 5));
@@ -267,7 +279,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
         uint64_t slope = (size + 20u) * value.talker.max_interval_frames * 64000u;
         bool admitted = i->sources[n].allocated && value.talker.max_interval_frames > 0 &&
                         used + slope <= (uint64_t)m->config.link_rate_bps * 3u / 4u;
-        if ((i->talkers & bit) != 0u && ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {
+        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed & bit) != 0u)) {
             // the licence closes before TALKER_DECL drops the source, so the stream gate never trails it
             if (i->active[n]) {
                 i->active[n] = false;
@@ -275,18 +287,19 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
                 publish_licence(i);
                 m->config.licence(m->config.ctx,i->index,n,false);
             }
-            // admitted[n] is the declared type; lwSRP finds a Talker by its type and StreamID
-            (void)mrp_mad_leave(i->msrp,0,i->admitted[n] ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
-                                &value);
+            // lwSRP finds a Talker by its type and StreamID
+            (void)mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value);
             i->talkers &= ~bit;
-            i->held_cs[n] = SRP_REDECLARE_CS;
+            m->held_cs[n] = SRP_REDECLARE_CS;
         }
-        i->readdressed &= ~bit;
         if (!admitted) {
             wire_put_be(value.failure_info + 2,i->mac,6);
             value.failure_info[8] = i->sources[n].allocated ? 1 : 2;
         }
-        if (i->held_cs[n] == 0u && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u)) {
+        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;
+        // the type declared after this call: the old one unless a join succeeds
+        bool advertised = was;
+        if (valid && !waits && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u || admitted != was)) {
             if (mrp_mad_join(i->msrp,0,admitted ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
                              &value,true) != 0) {
                 if (how == SRP_DECLARE_NEW) {
@@ -294,10 +307,16 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
                 }
                 done = false;
             } else {
+                if ((i->talkers & bit) != 0u && admitted != was) {
+                    (void)mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
+                                        &value);
+                }
                 i->talkers |= bit;
+                i->readdressed &= ~bit;
+                advertised = admitted;
             }
         }
-        i->admitted[n] = admitted && (i->talkers & bit) != 0u;
+        i->admitted[n] = advertised && (i->talkers & bit) != 0u;
         if (i->admitted[n]) {
             used += slope;
         }
@@ -447,6 +466,8 @@ bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config)
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         struct srp_interface *i = &m->ifs[n];
         i->owner = m; i->index = n; i->mac = config->mac[n];
+        // a composition with no MAAP DA gate declares every source from creation (#895, srp_mbx_gate)
+        i->gate = config->sources_valid ? (1u << CTRL_SRP_SOURCES) - 1u : 0u;
         if (!config->sources[n]) {
             srp_mbx_destroy(m);
             return false;
@@ -607,30 +628,39 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
     return true;
 }
 
-bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint16_t count, bool valid)
+bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_t base)
 {
     if (!enter(m)) {
         return false;
     }
-    const bool ok = m->loop != NULL;
-    for (unsigned n = 0; ok && n < CTRL_SRP_SOURCES; ++n) {
-        const bool allocated = valid && n < count;
-        for (unsigned k = 0; (sources >> n & 1u) != 0u && k < MBX_N_IF; ++k) {
-            struct srp_interface *i = &m->ifs[k];
+    const bool ok = m->loop != NULL && interface < MBX_N_IF;
+    if (ok) {
+        struct srp_interface *i = &m->ifs[interface];
+        // CTRL_SRP_SOURCES is at most MBX_N_PUB_SOURCES, under 32: a bit past the sources is no source
+        valid &= (1u << CTRL_SRP_SOURCES) - 1u;
+        bool changed = valid != i->gate;
+        for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+            if ((valid >> n & 1u) == 0u) {
+                continue;
+            }
+            // a valid source's destination, base + n: one that differs from the last declared changes the FirstValue
             struct srp_source *s = &i->sources[n];
-            uint64_t dest = allocated ? base + n : 0u;
-            bool moved = s->allocated != allocated;
+            uint64_t dest = base + n;
+            bool moved = !s->allocated;
             for (unsigned b = 6u; b-- != 0u; dest >>= 8) {
                 moved = moved || s->value.dest_mac[b] != (uint8_t)dest;
                 s->value.dest_mac[b] = (uint8_t)dest;
             }
             if (moved) {
-                // THE TRANSMIT withdraws the Talker, its licence first (declare_sources)
-                s->allocated = allocated;
+                s->allocated = true;
                 i->readdressed |= 1u << n;
-                i->sources_owed = true;
-                hold(i);
+                changed = true;
             }
+        }
+        if (changed) {
+            i->gate = valid;
+            i->sources_owed = true;
+            hold(i);
         }
     }
     m->busy = false;
@@ -860,7 +890,7 @@ static void snapshot(struct srp_interface *i)
 static bool change_domain(struct srp_interface *i)
 {
     if (!i->domain_owed) {
-        // what a destination's move or a hold-off's end owes (#895: srp_mbx_allocation, count_held)
+        // what a validity change or a hold-off's end owes (#895: srp_mbx_gate, count_held)
         return !i->sources_owed || declare_sources(i,SRP_DECLARE_CHANGED);
     }
     // Reserve the only new local storage before withdrawing either old

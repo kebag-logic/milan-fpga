@@ -188,12 +188,4 @@ def boot_mutants(mutant: type) -> tuple:
           "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a revocation clears it"),
         m("plat-source-vid", PLAT, "\t\t\tv->vlan_id = (uint16_t)p->env->policy->sr_vid;\n", "",
           "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
-        # #895: MAAP's allocation reaches SRP's Talker declarations, the reporting interface's sources only
-        m("plat-allocation-not-declared", PLAT, "\t(void)srp_mbx_allocation(&p->srp, sources, base, count, valid);\n",
-          "\t(void)sources;\n",
-          "platboot1", "Boot.B11AllocationReachesSrpsTalkerDeclarations",
-          "B11 the report moves the reporting interface's sources"),
-        m("plat-allocation-every-source", PLAT, "(p->acmp.source_interface[n] == interface ? 1u : 0u) << n", "1u << n",
-          "platboot2", "Boot.B11AllocationReachesSrpsTalkerDeclarations",
-          "B11 the report moves the reporting interface's sources"),
     )

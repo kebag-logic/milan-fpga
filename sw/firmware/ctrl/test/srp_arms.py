@@ -87,9 +87,12 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
 
 
 def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
-    """The Talker declarations as MAAP's allocation moves them (#895, srp_talker.cpp), at 1x1/1if and 8x8/2if."""
+    """The Talker declarations as their validity moves them (#895): srp_talker.cpp at 1x1/1if and 8x8/2if, and the
+    composition's (test_acmp_mbx.cpp's SrpGate, which its own arms run at the 1x1 entity) at 8x8/2if."""
     return [arm_srp(tree, lwsrp, 1, test="srp_talker.cpp"),
-            arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
+            arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml"),
+            arm_srp(tree, lwsrp, 2, test=("test_acmp_mbx.cpp", "SrpGate.*"),
+                    config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
 
 
 def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,

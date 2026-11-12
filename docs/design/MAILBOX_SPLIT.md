@@ -1136,16 +1136,16 @@ them:
   ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
   the processor's F10.2 rule: set by the first received Domain that differs
   from the declared one, cleared by a link restart.
-- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
-  every source from participant creation, as a Talker Failed until MAAP
-  allocates its address (`declare_sources`), then withdraws it, its bit
-  cleared before the Leave is sent, and declares its Talker Advertise two
-  LeaveAllTime periods later (#895; IEEE 802.1Q-2018 35.2.2.8). The processor declares a source
-  only once its DA gate opens (`KL_srp_talker_fsm.sv`, the record
-  capture). The CRF talker's C-TAG reads this level. Its frames leave under
-  the licence, which needs a declaration in both placements, unless policing
-  is off (the AAF bypass or lwSRP disabled): then the split build tags CRF
-  frames that the processor build sends untagged until its DA gate opens.
+- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares a
+  source only while its DA gate is open (#895; Milan v1.2 4.3.3.1, 5.3.7.4:
+  `srp_mbx_gate`, fed by the composition from the MAAP adapter's gate), and
+  withdraws it, its bit cleared before the Leave is sent, when the gate closes,
+  as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A
+  changed destination is declared two LeaveAllTime periods after the Leave
+  (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
+  frames leave under the licence, which needs a declaration in both
+  placements; with policing off (the AAF bypass or lwSRP disabled) both
+  placements tag them only while the gate is open.
 
 Every publication is counted in its path's bound. ACMP: a BIND_RX or an
 UNBIND_RX writes `BINDING` once, its started level included (77 and 50), a

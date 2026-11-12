@@ -116,6 +116,8 @@ The probe window is 15 seconds (Milan v1.2 4.3.3.1).
 Its final millisecond is 14999; 15000 is expired.
 Listener Asking Failed counts as demand, separately from `LICENCE`.
 
+SRP's Talker declarations follow the same gate: the composition's delivery poll
+passes each interface's gate and range base to `srp_mbx_gate` (#895).
 The composition binds its ACMP instance through `maap_mbx_bind_acmp`.
 Without that owner, every declaration gate stays closed.
 Each configured source publishes only on its own interface.
