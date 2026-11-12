@@ -243,16 +243,19 @@ class Ledgered:
 #: that struct refuses the override until the size is measured again here.
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
-#: 58.5, the platform's at 60.5, the caps the owner's decision of 2026-11-12 sets for the flip (#665). The
+#: 59.0, its entry at the 58.5 cap the owner's decision of 2026-11-12 sets for the flip, and the platform's at
+#: 60.5, that decision's cap (#665). The
 #: platform's image is linked at every point with the override its point takes, against this ledger, by
 #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
 #: where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   58.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
-                                         "+112 to 120 B an image, with tsn-c-stack 715589c, held there for the "
-                                         "flip by the owner's decision of 2026-11-12, at most 58.5 (#665)"),
+                                         "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
+                                         "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
+                                         "granule: ROM debt owed to S14 on top of the 58.0 allowance, one half "
+                                         "tile, 528 B of sram past 55 granules (#665)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

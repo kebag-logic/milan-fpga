@@ -107,8 +107,8 @@ An image on the stand-in `generated/csr.h` alone boots to ready and passes the s
 The refusal reads that both headers are there, not what they say.
 Only the [boundary gate](../test/ctrl_runs.py)'s compile takes no map. Its archives do not exist, so it stops at its link and makes no ELF.
 
-At 8x8 with two interfaces the image plans 58.5 RAMB36.
-The owner's ruling (#665, 6505997821) ledgers that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
+At 8x8 with two interfaces the image plans 59.5 RAMB36, within the 60.0 its entry ledgers (`ctrl_memory.LEDGERED`).
+The owner's ruling (#665, 6505997821), and since 2026-11-12 the owner's flip decision, ledger that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
 Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
 ## Tests and evidence
