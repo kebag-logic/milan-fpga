@@ -23,10 +23,14 @@ static const struct acmp_env image_env = {NULL,locked,source,stream,notice,notic
 static struct srp_source image_sources[MBX_N_IF][CTRL_SRP_SOURCES];
 static volatile bool image_licences[MBX_N_IF][CTRL_SRP_SOURCES];
 static volatile uint64_t image_allocation[MBX_N_IF];
+// The allocation reaches SRP's Talker declarations on every interface for the
+// reporting interface's sources (#895), as the platform's port does.
 static void allocation(void *ctx, unsigned interface, uint64_t base, uint16_t count, bool valid)
 {
-    (void)ctx; (void)count;
+    (void)ctx;
     image_allocation[interface] = valid ? base : 0;
+    // source n's interface is n % MBX_N_IF (main)
+    (void)srp_mbx_allocation(&image_srp,MBX_N_IF == 1u ? ~0u : 0x55555555u << interface,base,count,valid);
 }
 _Alignas(max_align_t) static unsigned char image_arena[SRP_POOL_ARENA_BYTES];
 static void licence(void *ctx, unsigned interface, unsigned source, bool active)
@@ -78,7 +82,7 @@ int main(void)
             s->value.max_frame_size=224;
             s->value.max_interval_frames=1;
             s->value.priority_and_rank=0x60;
-            // Live allocation-to-stream updates remain target integration.
+            // MAAP's first report allocates it (allocation)
             s->allocated=false;
         }
     }

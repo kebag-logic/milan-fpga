@@ -72,6 +72,14 @@ struct srp_interface {
     // An Applicant or Registrar of its participants changed since its retained
     // receive's last refusal (moved), which a retry waits for (#665).
     bool moved;
+    // The Talker declarations (#895), bit s source s: declared (TALKER_DECL),
+    // and its destination moved since (srp_mbx_allocation); held_cs[s] the
+    // centiseconds a withdrawn source waits before it declares again
+    // (declare_sources); sources_owed while a change waits for THE TRANSMIT.
+    uint32_t talkers;
+    uint32_t readdressed;
+    uint16_t held_cs[CTRL_SRP_SOURCES];
+    bool sources_owed;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
@@ -131,6 +139,14 @@ void srp_mbx_destroy(struct srp_mbx *m);
 // Null identity unbinds.
 bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid);
+// MAAP-facing port (#895): the allocation MAAP reported for the sources in
+// the mask (bit s, source s; IEEE 1722-2016 Annex B). On every interface each
+// such source's destination is base + s while valid and s < count (Milan v1.2
+// 5.5.4.1, as ACMP reports it), and none otherwise. It records the change,
+// which THE TRANSMIT declares; it calls no lwSRP function and makes no mailbox
+// access, so an allocation port may call it. False before attach, after
+// destroy and on reentry, when nothing changes.
+bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint16_t count, bool valid);
 #ifdef __cplusplus
 }
 #endif

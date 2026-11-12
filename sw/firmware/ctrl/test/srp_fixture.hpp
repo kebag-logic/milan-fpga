@@ -86,9 +86,10 @@ protected:
         shlan_port_bind_pool(nullptr);
     }
     std::vector<Declaration> declarations;
-    void capture() {
+    // The SRP frames sent from frame `from` on (the model keeps the last MBX_MODEL_TX_CAPTURE).
+    void capture(uint32_t from=0) {
         declarations.clear();
-        for (unsigned k=0;k<model.tx_sent;++k) {
+        for (unsigned k=from;k<model.tx_sent;++k) {
             const auto *f=mbx_model_tx_frame(&model,k);
             ASSERT_NE(f,nullptr);
             ASSERT_EQ(f->channel,MBX_CH_SRP);

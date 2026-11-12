@@ -26,6 +26,12 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 
 // The JoinTime every participant is configured with, in centiseconds (create_participants).
 #define SRP_JOIN_CS 20u
+// A withdrawn Talker's hold-off, in centiseconds, before its StreamID declares another FirstValue (#895). MSRP does not
+// support a changed FirstValue on a StreamID: at least two LeaveAllTime periods pass between the Leave and the new
+// declaration (IEEE 802.1Q-2018 35.2.2.8; Table 10-7, the 1000 cs create_participants configures). The count starts
+// at the Leave's request, which leaves at most a JoinTime and THE TRANSMIT's bound later (hold, CTRL_LOOP_TX_MS), so
+// it adds both.
+#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
 // A participant's slot: MSRP then MVRP of each interface.
 #define SRP_SLOTS (2u * MBX_N_IF)
 
@@ -38,6 +44,7 @@ static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
 static void snapshot(struct srp_interface *i);
 static void capture(struct srp_sink *s, uint8_t previous);
+static void count_held(struct srp_interface *i);
 
 static bool enter(struct srp_mbx *m)
 {
@@ -101,6 +108,7 @@ static void tick(void)
         if (m->ifs[n].msrp) {
             snapshot(&m->ifs[n]);
         }
+        count_held(&m->ifs[n]);
     }
     m->busy = false;
 }
@@ -113,6 +121,18 @@ static void hold(struct srp_interface *i)
     struct srp_mbx *m = i->owner;
     if (m->join_left[2u * i->index] == 0u || !m->loop->retry_queued) {
         m->tx_due |= (uint8_t)(1u << i->index);
+    }
+}
+
+// Each withdrawn source's hold-off, a centisecond at a time (tick): at its end
+// the source may declare again, which THE TRANSMIT does (#895).
+static void count_held(struct srp_interface *i)
+{
+    for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+        if (i->held_cs[n] != 0u && --i->held_cs[n] == 0u) {
+            i->sources_owed = true;
+            hold(i);
+        }
     }
 }
 
@@ -214,14 +234,29 @@ static void domain(struct msrp_ctx *ctx, uint8_t port, const struct msrp_domain 
     }
 }
 
-static bool declare_sources(struct srp_interface *i)
+// What declare_sources joins (#895): the sources not declared, every one again
+// (an adopted Domain's VID), or every one of new participants, which publish
+// nothing if one is refused (withdraw_declared).
+#define SRP_DECLARE_CHANGED 0u
+#define SRP_DECLARE_EVERY 1u
+#define SRP_DECLARE_NEW 2u
+
+// The interface's Talker declarations (#895), each source's from its TSpec, the Domain and its destination: Talker
+// Advertise once it is allocated and its bandwidth fits three quarters of the link after the sources before it, else
+// Talker Failed with the interface's MAC as system identifier, code 1 if it is allocated and 2 if not (IEEE
+// 802.1Q-2018 35.2.2.8.7, Table 35-6). MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): a declared
+// source whose destination moved, or whose type its admission changes, withdraws and waits SRP_REDECLARE_CS before it
+// declares again. talkers holds what the participants declared, and at a creation after a reset what the destroyed
+// ones did, whose declarations left with no Leave: the rule holds across a reset too.
+static bool declare_sources(struct srp_interface *i, unsigned how)
 {
     struct srp_mbx *m = i->owner;
     uint64_t used = 0;
-    uint32_t declared = 0;
+    bool done = true;
     // A join rewrites the value of the attribute a registration shares (#665).
     i->stale = true;
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
+        const uint32_t bit = 1u << n;
         struct msrp_talker_failed value = {.talker=i->sources[n].value};
         value.talker.vlan_id = i->domain.vid;
         value.talker.priority_and_rank = (uint8_t)((value.talker.priority_and_rank & 0x10u) | (i->domain.priority << 5));
@@ -232,25 +267,50 @@ static bool declare_sources(struct srp_interface *i)
         uint64_t slope = (size + 20u) * value.talker.max_interval_frames * 64000u;
         bool admitted = i->sources[n].allocated && value.talker.max_interval_frames > 0 &&
                         used + slope <= (uint64_t)m->config.link_rate_bps * 3u / 4u;
-        i->admitted[n] = admitted;
-        if (admitted) {
-            used += slope;
-        } else {
+        if ((i->talkers & bit) != 0u && ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {
+            // the licence closes before TALKER_DECL drops the source, so the stream gate never trails it
+            if (i->active[n]) {
+                i->active[n] = false;
+                ++m->stops;
+                publish_licence(i);
+                m->config.licence(m->config.ctx,i->index,n,false);
+            }
+            // lwSRP finds a Talker by its type and StreamID: the one declared leaves
+            (void)mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_TALKER_ADV,&value);
+            (void)mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_TALKER_FAILED,&value);
+            i->talkers &= ~bit;
+            i->held_cs[n] = SRP_REDECLARE_CS;
+        }
+        i->readdressed &= ~bit;
+        if (!admitted) {
             wire_put_be(value.failure_info + 2,i->mac,6);
             value.failure_info[8] = i->sources[n].allocated ? 1 : 2;
         }
-        if (mrp_mad_join(i->msrp,0,admitted ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
-                         &value,true) != 0) {
-            return false;
+        if (i->held_cs[n] == 0u && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u)) {
+            if (mrp_mad_join(i->msrp,0,admitted ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
+                             &value,true) != 0) {
+                if (how == SRP_DECLARE_NEW) {
+                    return false;
+                }
+                done = false;
+            } else {
+                i->talkers |= bit;
+            }
         }
-        declared |= 1u << n;
+        i->admitted[n] = admitted && (i->talkers & bit) != 0u;
+        if (i->admitted[n]) {
+            used += slope;
+        }
     }
     // The admitted bandwidth (IDLE_SLOPE) and the declared sources
-    // (TALKER_DECL), before these declarations are sent. used is at most
-    // three quarters of a 32-bit link rate.
+    // (TALKER_DECL), after the requests and before the build that sends them:
+    // a withdrawn source's bit is clear before its Leave leaves. used is at
+    // most three quarters of a 32-bit link rate.
     (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
-    (void)mbx_pub_talker_decl(i->index,declared);
-    return true;
+    (void)mbx_pub_talker_decl(i->index,i->talkers);
+    // a refused join is tried again with THE TRANSMIT's next declarations
+    i->sources_owed = !done;
+    return done;
 }
 
 static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *value)
@@ -355,7 +415,7 @@ static bool create_participants(struct srp_interface *i)
         mvrp_declare(i->mvrp,0,2) != 0) {
         return false;
     }
-    return declare_sources(i);
+    return declare_sources(i,SRP_DECLARE_NEW);
 }
 
 static bool open_interface(struct srp_interface *i)
@@ -545,6 +605,37 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
     }
     m->busy = false;
     return true;
+}
+
+bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint16_t count, bool valid)
+{
+    if (!enter(m)) {
+        return false;
+    }
+    const bool ok = m->loop != NULL;
+    for (unsigned n = 0; ok && n < CTRL_SRP_SOURCES; ++n) {
+        const bool allocated = valid && n < count;
+        for (unsigned k = 0; (sources >> n & 1u) != 0u && k < MBX_N_IF; ++k) {
+            struct srp_interface *i = &m->ifs[k];
+            struct srp_source *s = &i->sources[n];
+            uint64_t dest = allocated ? base + n : 0u;
+            bool moved = s->allocated != allocated;
+            for (unsigned b = 6u; b-- != 0u; dest >>= 8) {
+                moved = moved || s->value.dest_mac[b] != (uint8_t)dest;
+                s->value.dest_mac[b] = (uint8_t)dest;
+            }
+            if (moved) {
+                // the licence closes at the next poll or as THE TRANSMIT withdraws the Talker, whichever is first
+                s->allocated = allocated;
+                i->readdressed |= 1u << n;
+                i->admitted[n] = false;
+                i->sources_owed = true;
+                hold(i);
+            }
+        }
+    }
+    m->busy = false;
+    return ok;
 }
 
 // Older output, and the events posted before the record: THE DRAIN's order (ctrl_loop.h) keeps the ring's
@@ -770,7 +861,8 @@ static void snapshot(struct srp_interface *i)
 static bool change_domain(struct srp_interface *i)
 {
     if (!i->domain_owed) {
-        return true;
+        // what a destination's move or a hold-off's end owes (#895: srp_mbx_allocation, count_held)
+        return !i->sources_owed || declare_sources(i,SRP_DECLARE_CHANGED);
     }
     // Reserve the only new local storage before withdrawing either old
     // declaration. The received Domain and startup Talkers already exist.
@@ -789,7 +881,7 @@ static bool change_domain(struct srp_interface *i)
     // The adopted Domain, before the declarations that carry it (SR_DOMAIN).
     (void)mbx_pub_domain(i->index,true,i->domain.priority,i->domain.vid);
     (void)mrp_mad_join(i->msrp,0,MSRP_ATTR_TYPE_DOMAIN,&i->domain,true);
-    (void)declare_sources(i);
+    (void)declare_sources(i,SRP_DECLARE_EVERY);
     i->domain_owed = false;
     return true;
 }
