@@ -1,0 +1,150 @@
+Note: Google Test filter = Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3134: Failure
+Value of: face.ports.path(&face,i,index,v.data(),v.size(),&n)
+  Actual: true
+Expected: false
+a count past the bound fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a count past the bound fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3135: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 65
+  1u
+    Which is: 1
+no entry is read past the bound
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the bound
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3136: Failure
+Expected equality of these values:
+  n
+    Which is: 64
+  7u
+    Which is: 7
+a failed port reports no count
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3134: Failure
+Value of: face.ports.path(&face,i,index,v.data(),v.size(),&n)
+  Actual: true
+Expected: false
+a count past the bound fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a count past the bound fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3135: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 65
+  1u
+    Which is: 1
+no entry is read past the bound
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the bound
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3136: Failure
+Expected equality of these values:
+  n
+    Which is: 64
+  7u
+    Which is: 7
+a failed port reports no count
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3145: Failure
+Value of: face.ports.path(&face,i,index,small.data(),small.size(),&n)
+  Actual: true
+Expected: false
+one past the capacity fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: one past the capacity fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3146: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 4
+  1u
+    Which is: 1
+no entry is read past the capacity
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the capacity
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3134: Failure
+Value of: face.ports.path(&face,i,index,v.data(),v.size(),&n)
+  Actual: true
+Expected: false
+a count past the bound fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a count past the bound fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3135: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 65
+  1u
+    Which is: 1
+no entry is read past the bound
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the bound
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3136: Failure
+Expected equality of these values:
+  n
+    Which is: 64
+  7u
+    Which is: 7
+a failed port reports no count
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3134: Failure
+Value of: face.ports.path(&face,i,index,v.data(),v.size(),&n)
+  Actual: true
+Expected: false
+a count past the bound fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a count past the bound fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3135: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 65
+  1u
+    Which is: 1
+no entry is read past the bound
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the bound
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3136: Failure
+Expected equality of these values:
+  n
+    Which is: 64
+  7u
+    Which is: 7
+a failed port reports no count
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3145: Failure
+Value of: face.ports.path(&face,i,index,small.data(),small.size(),&n)
+  Actual: true
+Expected: false
+one past the capacity fails the port
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: one past the capacity fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3146: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 4
+  1u
+    Which is: 1
+no entry is read past the capacity
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: no entry is read past the capacity
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt (1 ms)
+[----------] 1 test from Face (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,261 @@
+{
+  "clean": {
+    "app-if1": {
+      "rc": 0,
+      "passed_line": [
+        "[  PASSED  ] 129 tests.",
+        "  verdict: PASS (129 tests, 0 failures, exit 0)"
+      ]
+    },
+    "app-if2": {
+      "rc": 0,
+      "passed_line": [
+        "[  PASSED  ] 129 tests.",
+        "  verdict: PASS (129 tests, 0 failures, exit 0)"
+      ]
+    },
+    "platboot1": {
+      "rc": 0,
+      "passed_line": [
+        "[  PASSED  ] 11 tests.",
+        "  verdict: PASS (11 tests, 0 failures, exit 0)"
+      ]
+    },
+    "platboot2": {
+      "rc": 0,
+      "passed_line": [
+        "[  PASSED  ] 11 tests.",
+        "  verdict: PASS (11 tests, 0 failures, exit 0)"
+      ]
+    }
+  },
+  "author_aecp": [
+    {
+      "name": "face-as-path-count-read-as-avb-info",
+      "checks": [
+        [
+          "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+          "the count, then each entry once"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-entries-at-one-ordinal",
+      "checks": [
+        [
+          "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+          "at selector 8, by its ordinal"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-through-the-first-interface",
+      "checks": [
+        [
+          "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+          "read through its own interface's window"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-truncated-at-its-bound",
+      "checks": [
+        [
+          "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+          "a count past the bound fails the port"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-bound-off-by-one",
+      "checks": [
+        [
+          "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+          "AECP_PATH_ITEMS entries are carried"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-count-unanswered-ignored",
+      "checks": [
+        [
+          "Face.AnUnansweredAsPathWordFailsItsPortThere",
+          "the count unanswered fails the port"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-entry-unanswered-ignored",
+      "checks": [
+        [
+          "Face.AnUnansweredAsPathWordFailsItsPortThere",
+          "an entry unanswered fails the port"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-change-notifies-avb-info",
+      "checks": [
+        [
+          "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+          "an AS_PATH change notifies GET_AS_PATH"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    },
+    {
+      "name": "face-as-path-change-on-the-first-interface",
+      "checks": [
+        [
+          "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+          "an AS_PATH change notifies GET_AS_PATH"
+        ]
+      ],
+      "rc": 1,
+      "caught": true
+    }
+  ],
+  "author_plat": [
+    {
+      "name": "plat-as-path-unavailable",
+      "kills": [
+        [
+          "platboot1",
+          "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+          "B11 GET_AS_PATH answers SUCCESS"
+        ],
+        [
+          "platboot2",
+          "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+          "B11 GET_AS_PATH answers SUCCESS"
+        ]
+      ],
+      "missed": []
+    }
+  ],
+  "reviewer": [
+    {
+      "name": "r-entry-selector-9",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 9u, k, 0u, &out[k])) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-count-selector-1",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 1u, 0u, 0u, &n) || n > capacity) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-count-low-16-bits",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || (n &= 0xFFFFu, n > capacity)) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt"
+      ]
+    },
+    {
+      "name": "r-entries-into-slot-0",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[0])) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-count-not-reported",
+      "old": "\t*count = (size_t)n;\n",
+      "new": "\t(void)count;\n",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-count-type-stream-input",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+      "new": "if (!gsi(f, interface, 2u, 5u, index, 0u, 0u, 0u, &n) || n > capacity) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-entry-index-0",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, 0u, 8u, k, 0u, &out[k])) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-entry-ordinal-plus-1",
+      "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+      "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k + 1u, 0u, &out[k])) {",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    },
+    {
+      "name": "r-last-entry-skipped",
+      "old": "\tfor (unsigned k = 0; k < (unsigned)n; ++k) {\n",
+      "new": "\tfor (unsigned k = 0; k + 1u < (unsigned)n; ++k) {\n",
+      "rc": 1,
+      "caught": true,
+      "failed_tests": [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+Note: Google Test filter = Face.*:AppFace.*
+[==========] Running 23 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 17 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (4 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 94455657992096
+  path[k]
+    Which is: 7817527639933184
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3104: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 1
+  1u+n
+    Which is: 2
+the count, then each entry once
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, then each entry once
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (0 ms)
+[ RUN      ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 16047566784282434816
+  path[k]
+    Which is: 144396654462631999
+entry 63
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 63
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 16047566784282434816
+  path[k]
+    Which is: 144396654462697535
+entry 63
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 63
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt (0 ms)
+[ RUN      ] Face.AnUnansweredAsPathWordFailsItsPortThere
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3176: Failure
+Value of: ok
+  Actual: true
+Expected: false
+an entry unanswered fails the port
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: an entry unanswered fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3177: Failure
+Expected equality of these values:
+  s.calls
+    Which is: 3
+  answered+1u
+    Which is: 4
+nothing is read after the word with no answer
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: nothing is read after the word with no answer
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3178: Failure
+Expected equality of these values:
+  face.unanswered-before
+    Which is: 0
+  1u
+    Which is: 1
+the read is counted unanswered
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: the read is counted unanswered
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3179: Failure
+Expected equality of these values:
+  n
+    Which is: 3
+  9u
+    Which is: 9
+a failed port reports no count
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  v[2]
+    Which is: 0
+  0x0123456789abcdefull
+    Which is: 81985529216486895
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 81985529216486895
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  s.calls
+    Which is: 3
+  4u
+    Which is: 4
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 4
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3176: Failure
+Value of: ok
+  Actual: true
+Expected: false
+an entry unanswered fails the port
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: an entry unanswered fails the port
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3177: Failure
+Expected equality of these values:
+  s.calls
+    Which is: 3
+  answered+1u
+    Which is: 4
+nothing is read after the word with no answer
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: nothing is read after the word with no answer
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3178: Failure
+Expected equality of these values:
+  face.unanswered-before
+    Which is: 0
+  1u
+    Which is: 1
+the read is counted unanswered
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: the read is counted unanswered
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3179: Failure
+Expected equality of these values:
+  n
+    Which is: 3
+  9u
+    Which is: 9
+a failed port reports no count
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere: a failed port reports no count
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  v[2]
+    Which is: 0
+  0x0123456789abcdefull
+    Which is: 81985529216486895
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 81985529216486895
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  s.calls
+    Which is: 3
+  4u
+    Which is: 4
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 4
+[  FAILED  ] Face.AnUnansweredAsPathWordFailsItsPortThere (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (4 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (4 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 17 tests from Face (17 ms total)
+
+[----------] 6 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (2 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (0 ms)
+[ RUN      ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 0
+  path[e]
+    Which is: 7817527641047073
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 6085319024871830639
+  path[e]
+    Which is: 7817527641047090
+entry 2
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 2
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 5649035031384441704
+  path[e]
+    Which is: 7817527641051169
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 6085319024871830639
+  path[e]
+    Which is: 7817527641051186
+entry 2
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 2
+[  FAILED  ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence (0 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 6 tests from AppFace (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 2 test suites ran. (22 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+[  FAILED  ] Face.AnUnansweredAsPathWordFailsItsPortThere
+[  FAILED  ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+
+ 4 FAILED TESTS
+== AECP core: checks: 23   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 23 checks, exit 1)

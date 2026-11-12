@@ -1,0 +1,18 @@
+== base 7f50ee6a90a85554d8601f45fa4eaf3c6adabfbb
+FAIL: multi-declarator declaration 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+cpp rc=1
+usage: check_cpp_idiom.py [-h] [--list] [--write-budget] [--selftest]
+
+Gate: first-party C and C++ uses the construct the C++ Core Guidelines name.
+== headcopy 5e6fef3ee74dcf6766ac3923349ae83524bc0e7b
+FAIL: multi-declarator declaration 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+cpp rc=1
+usage: check_cpp_idiom.py [-h] [--list] [--write-budget] [--selftest]
+
+Gate: first-party C and C++ uses the construct the C++ Core Guidelines name.
+== base
+FAIL: multi-declarator declaration 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+sw/firmware/ctrl/test/test_aecp.cpp                    multi-declarator declaration=1
+== headcopy
+FAIL: multi-declarator declaration 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+sw/firmware/ctrl/test/test_aecp.cpp                    multi-declarator declaration=1

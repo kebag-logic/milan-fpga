@@ -1,0 +1,1524 @@
+Note: Google Test filter = Face.*:AppFace.*
+[==========] Running 23 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 17 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (4 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7817527639933698
+  path[k]
+    Which is: 7817527639933696
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581528480
+  path[k]
+    Which is: 7817527639933697
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581528480
+  path[k]
+    Which is: 7817527639933698
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7817527639934983
+  path[k]
+    Which is: 7817527639934976
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 80
+  path[k]
+    Which is: 7817527639934977
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 81205526486056962
+  path[k]
+    Which is: 7817527639934978
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 7817527639934979
+entry 3 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 3 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866083588263
+  path[k]
+    Which is: 7817527639934980
+entry 4 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 4 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124096
+  path[k]
+    Which is: 7817527639934981
+entry 5 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 5 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123744
+  path[k]
+    Which is: 7817527639934982
+entry 6 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 6 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835239366
+  path[k]
+    Which is: 7817527639934983
+entry 7 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 7 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7817527639999234
+  path[k]
+    Which is: 7817527639999232
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 80
+  path[k]
+    Which is: 7817527639999233
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 81205526486056962
+  path[k]
+    Which is: 7817527639999234
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7817527640000519
+  path[k]
+    Which is: 7817527640000512
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 80
+  path[k]
+    Which is: 7817527640000513
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 81205526486056962
+  path[k]
+    Which is: 7817527640000514
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 7817527640000515
+entry 3 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 3 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866083588263
+  path[k]
+    Which is: 7817527640000516
+entry 4 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 4 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124096
+  path[k]
+    Which is: 7817527640000517
+entry 5 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 5 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123744
+  path[k]
+    Which is: 7817527640000518
+entry 6 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 6 in order
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835239366
+  path[k]
+    Which is: 7817527640000519
+entry 7 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 7 in order
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (0 ms)
+[ RUN      ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 144396654462631999
+  path[k]
+    Which is: 144396654462631936
+entry 0
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840409522
+  path[k]
+    Which is: 144396654462631937
+entry 1
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634842007728
+  path[k]
+    Which is: 144396654462631938
+entry 2
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 2
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123040
+  path[k]
+    Which is: 144396654462631939
+entry 3
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 3
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 81205526486056962
+  path[k]
+    Which is: 144396654462631940
+entry 4
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 4
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634409144322
+  path[k]
+    Which is: 144396654462631941
+entry 5
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 5
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 13317771008
+  path[k]
+    Which is: 144396654462631942
+entry 6
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 6
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462631943
+entry 7
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 7
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581459104
+  path[k]
+    Which is: 144396654462631944
+entry 8
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 8
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634839801861
+  path[k]
+    Which is: 144396654462631945
+entry 9
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 9
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123168
+  path[k]
+    Which is: 144396654462631946
+entry 10
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 10
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 156
+  path[k]
+    Which is: 144396654462631947
+entry 11
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 11
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123280
+  path[k]
+    Which is: 144396654462631948
+entry 12
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 12
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634842675282
+  path[k]
+    Which is: 144396654462631949
+entry 13
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 13
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123296
+  path[k]
+    Which is: 144396654462631950
+entry 14
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 14
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634839801861
+  path[k]
+    Which is: 144396654462631951
+entry 15
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 15
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 3
+  path[k]
+    Which is: 144396654462631952
+entry 16
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 16
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123312
+  path[k]
+    Which is: 144396654462631953
+entry 17
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 17
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123280
+  path[k]
+    Which is: 144396654462631954
+entry 18
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 18
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840500195
+  path[k]
+    Which is: 144396654462631955
+entry 19
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 19
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123264
+  path[k]
+    Which is: 144396654462631956
+entry 20
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 20
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 512
+  path[k]
+    Which is: 144396654462631957
+entry 21
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 21
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123312
+  path[k]
+    Which is: 144396654462631958
+entry 22
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 22
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840506988
+  path[k]
+    Which is: 144396654462631959
+entry 23
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 23
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581528480
+  path[k]
+    Which is: 144396654462631960
+entry 24
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 24
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123640
+  path[k]
+    Which is: 144396654462631961
+entry 25
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 25
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123376
+  path[k]
+    Which is: 144396654462631962
+entry 26
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 26
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840508125
+  path[k]
+    Which is: 144396654462631963
+entry 27
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 27
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123344
+  path[k]
+    Which is: 144396654462631964
+entry 28
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 28
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123728
+  path[k]
+    Which is: 144396654462631965
+entry 29
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 29
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123328
+  path[k]
+    Which is: 144396654462631966
+entry 30
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 30
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462631967
+entry 31
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 31
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 559
+  path[k]
+    Which is: 144396654462631968
+entry 32
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 32
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124272
+  path[k]
+    Which is: 144396654462631969
+entry 33
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 33
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123552
+  path[k]
+    Which is: 144396654462631970
+entry 34
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 34
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462631971
+entry 35
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 35
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 15
+  path[k]
+    Which is: 144396654462631972
+entry 36
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 36
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123640
+  path[k]
+    Which is: 144396654462631973
+entry 37
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 37
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123440
+  path[k]
+    Which is: 144396654462631974
+entry 38
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 38
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840549404
+  path[k]
+    Which is: 144396654462631975
+entry 39
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 39
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581532064
+  path[k]
+    Which is: 144396654462631976
+entry 40
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 40
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123632
+  path[k]
+    Which is: 144396654462631977
+entry 41
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 41
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124272
+  path[k]
+    Which is: 144396654462631978
+entry 42
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 42
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634842876945
+  path[k]
+    Which is: 144396654462631979
+entry 43
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 43
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 31
+  path[k]
+    Which is: 144396654462631980
+entry 44
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 44
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 143
+  path[k]
+    Which is: 144396654462631981
+entry 45
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 45
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123552
+  path[k]
+    Which is: 144396654462631982
+entry 46
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 46
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840477724
+  path[k]
+    Which is: 144396654462631983
+entry 47
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 47
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123472
+  path[k]
+    Which is: 144396654462631984
+entry 48
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 48
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634840473102
+  path[k]
+    Which is: 144396654462631985
+entry 49
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 49
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123488
+  path[k]
+    Which is: 144396654462631986
+entry 50
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 50
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462631987
+entry 51
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 51
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462631988
+entry 52
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 52
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123744
+  path[k]
+    Which is: 144396654462631989
+entry 53
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 53
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462631990
+entry 54
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 54
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 25628
+  path[k]
+    Which is: 144396654462631991
+entry 55
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 55
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581856408
+  path[k]
+    Which is: 144396654462631992
+entry 56
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 56
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634839995583
+  path[k]
+    Which is: 144396654462631993
+entry 57
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 57
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 115
+  path[k]
+    Which is: 144396654462631994
+entry 58
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 58
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634841976768
+  path[k]
+    Which is: 144396654462631995
+entry 59
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 59
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124064
+  path[k]
+    Which is: 144396654462631996
+entry 60
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 60
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866082567445
+  path[k]
+    Which is: 144396654462631997
+entry 61
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 61
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 144396654462631998
+entry 62
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 62
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462631999
+entry 63
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 63
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 144396654462697535
+  path[k]
+    Which is: 144396654462697472
+entry 0
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 71
+  path[k]
+    Which is: 144396654462697473
+entry 1
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 81205526486056962
+  path[k]
+    Which is: 144396654462697474
+entry 2
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 2
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 144396654462697475
+entry 3
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 3
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866083588263
+  path[k]
+    Which is: 144396654462697476
+entry 4
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 4
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123520
+  path[k]
+    Which is: 144396654462697477
+entry 5
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 5
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123168
+  path[k]
+    Which is: 144396654462697478
+entry 6
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 6
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835239366
+  path[k]
+    Which is: 144396654462697479
+entry 7
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 7
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123488
+  path[k]
+    Which is: 144396654462697480
+entry 8
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 8
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462697481
+entry 9
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 9
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123264
+  path[k]
+    Which is: 144396654462697482
+entry 10
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 10
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 71
+  path[k]
+    Which is: 144396654462697483
+entry 11
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 11
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123200
+  path[k]
+    Which is: 144396654462697484
+entry 12
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 12
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835239596
+  path[k]
+    Which is: 144396654462697485
+entry 13
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 13
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462697486
+entry 14
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 14
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123264
+  path[k]
+    Which is: 144396654462697487
+entry 15
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 15
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123504
+  path[k]
+    Which is: 144396654462697488
+entry 16
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 16
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835286961
+  path[k]
+    Which is: 144396654462697489
+entry 17
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 17
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123328
+  path[k]
+    Which is: 144396654462697490
+entry 18
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 18
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634842675245
+  path[k]
+    Which is: 144396654462697491
+entry 19
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 19
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123296
+  path[k]
+    Which is: 144396654462697492
+entry 20
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 20
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462697493
+entry 21
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 21
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 233
+  path[k]
+    Which is: 144396654462697494
+entry 22
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 22
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 144396654462697495
+entry 23
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 23
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123312
+  path[k]
+    Which is: 144396654462697496
+entry 24
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 24
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123312
+  path[k]
+    Which is: 144396654462697497
+entry 25
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 25
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123440
+  path[k]
+    Which is: 144396654462697498
+entry 26
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 26
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 71
+  path[k]
+    Which is: 144396654462697499
+entry 27
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 27
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 4
+  path[k]
+    Which is: 144396654462697500
+entry 28
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 28
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 144396654462697501
+entry 29
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 29
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 6722828888459386912
+  path[k]
+    Which is: 144396654462697502
+entry 30
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 30
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8304970200841799200
+  path[k]
+    Which is: 144396654462697503
+entry 31
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 31
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8246760809811960144
+  path[k]
+    Which is: 144396654462697504
+entry 32
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 32
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7518605046204032361
+  path[k]
+    Which is: 144396654462697505
+entry 33
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 33
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7236850771946728559
+  path[k]
+    Which is: 144396654462697506
+entry 34
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 34
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8317138478360194625
+  path[k]
+    Which is: 144396654462697507
+entry 35
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 35
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7012232637581312833
+  path[k]
+    Which is: 144396654462697508
+entry 36
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 36
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7954799752251012211
+  path[k]
+    Which is: 144396654462697509
+entry 37
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 37
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 2871057333187188
+  path[k]
+    Which is: 144396654462697510
+entry 38
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 38
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581541088
+  path[k]
+    Which is: 144396654462697511
+entry 39
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 39
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581539680
+  path[k]
+    Which is: 144396654462697512
+entry 40
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 40
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 233
+  path[k]
+    Which is: 144396654462697513
+entry 41
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 41
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123456
+  path[k]
+    Which is: 144396654462697514
+entry 42
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 42
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634835452205
+  path[k]
+    Which is: 144396654462697515
+entry 43
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 43
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 144396654462697516
+entry 44
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 44
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067267
+  path[k]
+    Which is: 144396654462697517
+entry 45
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 45
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866083882208
+  path[k]
+    Which is: 144396654462697518
+entry 46
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 46
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462697519
+entry 47
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 47
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123504
+  path[k]
+    Which is: 144396654462697520
+entry 48
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 48
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581537732
+  path[k]
+    Which is: 144396654462697521
+entry 49
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 49
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123920
+  path[k]
+    Which is: 144396654462697522
+entry 50
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 50
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581459904
+  path[k]
+    Which is: 144396654462697523
+entry 51
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 51
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852124016
+  path[k]
+    Which is: 144396654462697524
+entry 52
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 52
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140634837067136
+  path[k]
+    Which is: 144396654462697525
+entry 53
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 53
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123728
+  path[k]
+    Which is: 144396654462697526
+entry 54
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 54
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 25628
+  path[k]
+    Which is: 144396654462697527
+entry 55
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 55
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866581856408
+  path[k]
+    Which is: 144396654462697528
+entry 56
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 56
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123744
+  path[k]
+    Which is: 144396654462697529
+entry 57
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 57
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 140734852123552
+  path[k]
+    Which is: 144396654462697530
+entry 58
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 58
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462697531
+entry 59
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 59
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 233
+  path[k]
+    Which is: 144396654462697532
+entry 60
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 60
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866082567445
+  path[k]
+    Which is: 144396654462697533
+entry 61
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 61
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 93866083587861
+  path[k]
+    Which is: 144396654462697534
+entry 62
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 62
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3128: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 7310957265505598464
+  path[k]
+    Which is: 144396654462697535
+entry 63
+
+  [FAIL] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt: entry 63
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt (1 ms)
+[ RUN      ] Face.AnUnansweredAsPathWordFailsItsPortThere
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  v[2]
+    Which is: 0
+  0x0123456789abcdefull
+    Which is: 81985529216486895
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 81985529216486895
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3173: Failure
+Expected equality of these values:
+  v[2]
+    Which is: 0
+  0x0123456789abcdefull
+    Which is: 81985529216486895
+
+  [FAIL] Face.AnUnansweredAsPathWordFailsItsPortThere:     Which is: 81985529216486895
+[  FAILED  ] Face.AnUnansweredAsPathWordFailsItsPortThere (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (4 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (4 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 17 tests from Face (19 ms total)
+
+[----------] 6 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (14 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (1 ms)
+[ RUN      ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 7817527641047073
+  path[e]
+    Which is: 7817527641047072
+entry 0
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 0
+  path[e]
+    Which is: 7817527641047073
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 7817527641047090
+  path[e]
+    Which is: 7817527641047088
+entry 0
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 5649035031384441704
+  path[e]
+    Which is: 7817527641047089
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 6085319024871830639
+  path[e]
+    Which is: 7817527641047090
+entry 2
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 2
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 7817527641051169
+  path[e]
+    Which is: 7817527641051168
+entry 0
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 5649035031384441704
+  path[e]
+    Which is: 7817527641051169
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 7817527641051186
+  path[e]
+    Which is: 7817527641051184
+entry 0
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 0
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 5649035031384441704
+  path[e]
+    Which is: 7817527641051185
+entry 1
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 1
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3686: Failure
+Expected equality of these values:
+  get(p->bytes+42+8*e,8)
+    Which is: 6085319024871830639
+  path[e]
+    Which is: 7817527641051186
+entry 2
+
+  [FAIL] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence: entry 2
+[  FAILED  ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence (0 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 6 tests from AppFace (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 2 test suites ran. (37 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+[  FAILED  ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+[  FAILED  ] Face.AnUnansweredAsPathWordFailsItsPortThere
+[  FAILED  ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+
+ 4 FAILED TESTS
+== AECP core: checks: 23   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 23 checks, exit 1)

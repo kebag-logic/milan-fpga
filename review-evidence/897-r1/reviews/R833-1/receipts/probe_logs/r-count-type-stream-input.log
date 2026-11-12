@@ -1,0 +1,137 @@
+Note: Google Test filter = Face.*:AppFace.*
+[==========] Running 23 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 17 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (5 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 5
+  9u|(i<<16)
+    Which is: 9
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 5
+  9u|(i<<16)
+    Which is: 9
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 5
+  9u|(i<<16)
+    Which is: 9
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 5
+  9u|(i<<16)
+    Which is: 9
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 65541
+  9u|(i<<16)
+    Which is: 65545
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 65541
+  9u|(i<<16)
+    Which is: 65545
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 65541
+  9u|(i<<16)
+    Which is: 65545
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3107: Failure
+Expected equality of these values:
+  q[1]
+    Which is: 65541
+  9u|(i<<16)
+    Which is: 65545
+of its AVB_INTERFACE
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: of its AVB_INTERFACE
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (0 ms)
+[ RUN      ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt
+[       OK ] Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt (0 ms)
+[ RUN      ] Face.AnUnansweredAsPathWordFailsItsPortThere
+[       OK ] Face.AnUnansweredAsPathWordFailsItsPortThere (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (4 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (4 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 17 tests from Face (19 ms total)
+
+[----------] 6 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (2 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (0 ms)
+[ RUN      ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence
+[       OK ] AppFace.AnAsPathChangeNotifiesTheDatapathsSequence (0 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 6 tests from AppFace (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 2 test suites ran. (24 ms total)
+[  PASSED  ] 22 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+
+ 1 FAILED TEST
+== AECP core: checks: 23   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 23 checks, exit 1)

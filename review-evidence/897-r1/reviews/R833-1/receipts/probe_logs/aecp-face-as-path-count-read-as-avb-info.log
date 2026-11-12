@@ -1,0 +1,36 @@
+Note: Google Test filter = Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:2903: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 10
+  status
+    Which is: 0
+status for command 40
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: status for command 40
+$REVIEWS/r833-1-897/sw/firmware/ctrl/test/test_aecp.cpp:3104: Failure
+Expected equality of these values:
+  far.asked.size()
+    Which is: 0
+  1u+n
+    Which is: 1
+the count, then each entry once
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, then each entry once
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
