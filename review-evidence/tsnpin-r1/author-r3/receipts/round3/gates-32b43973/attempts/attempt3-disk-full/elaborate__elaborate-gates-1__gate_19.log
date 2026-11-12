@@ -1,0 +1,36 @@
+# head 32b43973069ee2742f86c4f92adb5eb9ca6bdfb3 workflow elaborate.yml job elaborate-gates-1 step gate_19: Standalone LiteX simulation aggregate
+# clone <scratch>/gates/wf6/elaborate__elaborate-gates-1/wt
+# venv <litex-env>/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+# env override: LITEX_SIM_TIMEOUT=3600: the LiteX simulation runner's documented per-script wall clock (default 900 s); this host ran at load ~80 to 105 of 128 CPUs, where two members were killed by the 900 s clock (result UNKNOWN, not a failure; the runner asks for a re-run uncontended)
+  [ok]   green control: a sandbox where everything passes exits 0
+  [ok]   a planted failing simulation turns the aggregate red, named
+  [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+  [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+  [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+  [ok]   no usable interpreter: every member a declared skip, exit 90
+  [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+  [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+  [ok]   a member-declared skip is not counted as a pass
+  [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+
+run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+RESULT: PASS
+PASS     test_cpu_memory_port_cdc
+FAIL     test_ctrl_memory
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_gmii_rx_capture.log: No space left on device
+FAIL     test_gmii_rx_capture
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_gptp_tx_timestamp.log: No space left on device
+FAIL     test_gptp_tx_timestamp
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_pp_boot_bus_freeze.log: No space left on device
+FAIL     test_pp_boot_bus_freeze
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_pp_mem_bridge.log: No space left on device
+FAIL     test_pp_mem_bridge
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_retained_cdc_storage.log: No space left on device
+FAIL     test_retained_cdc_storage
+scripts/run_litex_sims.sh: line 200: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs/test_soc_timing_cuts.log: No space left on device
+FAIL     test_soc_timing_cuts
+----------------------------------------------------------------
+simulations: 8   passed: 1   failed: 7   skipped: 0   timed out: 0
+failing: test_ctrl_memory test_gmii_rx_capture test_gptp_tx_timestamp test_pp_boot_bus_freeze test_pp_mem_bridge test_retained_cdc_storage test_soc_timing_cuts
+logs: <scratch>/gates/wf6/elaborate__elaborate-gates-1/runner_temp/litex-sim-logs

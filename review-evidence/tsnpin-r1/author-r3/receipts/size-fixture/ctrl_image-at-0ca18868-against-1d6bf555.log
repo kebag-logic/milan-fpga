@@ -1,0 +1,43 @@
+compiler: <rv32-sdk>/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0; libgcc.a sha256 faef00acffa378a84c98c04cb6e548ed3881d7f90048f998f2efaf02c5cb280a (not linked)
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+shape endstation_ax7101_1x1_tdm8: 2 STREAM_INPUTs, 2 STREAM_OUTPUTs
+  section         head      base     delta
+  text          35,784    35,132      +652
+  rodata           780       780        +0
+  data               0         0        +0
+  bss           13,552    13,408      +144
+  total         50,116    49,320      +796
+  load image (text + rodata + data) 36,564; with bss 50,116 of the 131,072-byte budget (38.2 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,946 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 452 bytes (__muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        9,032
+    nvm_stage                  3,344
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    nvm_payload                  136
+    acmp_cfg                      96
+  struct ctrl_app, by part (sizeof): app 9,032, acmp 5,272, loop 1,768, maap 1,112, pool 204, adp 124
+shape endstation_ax7101_8x8: 9 STREAM_INPUTs, 9 STREAM_OUTPUTs
+  section         head      base     delta
+  text          35,788    35,136      +652
+  rodata           780       780        +0
+  data               0         0        +0
+  bss           23,920    23,760      +160
+  total         60,488    59,676      +812
+  load image (text + rodata + data) 36,568; with bss 60,488 of the 131,072-byte budget (46.1 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,947 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 452 bytes (__muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    nvm_stage                 13,264
+    app                        9,032
+    nvm_payload                  576
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      96
+  struct ctrl_app, by part (sizeof): app 9,032, acmp 5,272, loop 1,768, maap 1,112, pool 204, adp 124
+base: 1d6bf5556a

@@ -1,0 +1,13 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] arm platrv32
+    38 objects; runtime dependencies: ['__muldi3', '__mulsi3', '__udivdi3', '__udivsi3', '__umoddi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    largest static frame: 1600 bytes (not a call-chain bound)
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm rv32
+    riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 15 objects
+    size (text data bss dec): 39720 0 178 39898
+    largest static frame: 272 bytes (not a call-chain bound)
+    undefined: __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+    RESULT: PASS

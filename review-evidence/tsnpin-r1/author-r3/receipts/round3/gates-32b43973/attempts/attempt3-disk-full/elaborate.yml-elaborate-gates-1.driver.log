@@ -1,0 +1,17 @@
+elaborate__elaborate-gates-1__ci_step_1	rc=0
+elaborate__elaborate-gates-1__scope	rc=0
+elaborate__elaborate-gates-1__ci_step_4	rc=0
+elaborate__elaborate-gates-1__ci_step_17	rc=0
+elaborate__elaborate-gates-1__gate_15_1	rc=1
+elaborate__elaborate-gates-1__ci_step_23	rc=0
+Traceback (most recent call last):
+  File "<scratch>/gates/tools2/run_wf_tmo.py", line 129, in <module>
+    (logs / f"{tag}.rc").write_text(f"{rc}\n")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device: '<scratch>/gates/wf6/logs/elaborate__elaborate-gates-1__gate_19.rc'

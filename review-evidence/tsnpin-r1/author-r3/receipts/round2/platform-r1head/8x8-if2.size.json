@@ -1,0 +1,101 @@
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 98600,
+    ".rodata": 26254,
+    ".data": 504,
+    ".bss": 105372,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 48064
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 13264
+    },
+    {
+      "symbol": "values",
+      "bytes": 11753
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 10208
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 5896
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 10208,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 576,
+    "srp": 5896,
+    "srp_config": 40,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 125360,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 114080,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "platform-8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "91ebfe906fca60549b7089ddb0a75c5ae9f12501f9a5350149161aec34fdd2b1"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "4544ee3b718b6204126f6384c9556ca374ddb9bcac1e2933ef74fa733dbb9e25"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 157444,
+      "sha256": "5d13eabf764388ebfea4d8147bbd0bc0a2025d2dc6a1a6666f719ccb3f914d89"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 137163,
+      "sha256": "1d53f093a53ff32feae3abe52bfc96ba1d313ae0683c4ec2d8731b8cd75ce27f"
+    }
+  ]
+}

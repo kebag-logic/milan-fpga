@@ -1,0 +1,679 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index f29ed259a9..2e9fed82a4 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -581,9 +581,10 @@ A change of a sink's Table 5.22 items is reported through the env's
+ been taken by the transmit ring (#653). A response that finds no room is
+ owed, in order (at most eight frames), and its change waits with it. A
+ command that arrives with all eight owed is declined, not dropped: the
+-adapter keeps it, takes no later acmp record, and offers it again after the
+-next poll that sends an owed frame (tsn-c-stack ACMP-12; the adapter's
+-header states the passes). The
++adapter keeps it and takes no later acmp record. After each poll that sends
++an owed frame it offers the kept command again, then the records waiting in
++the acmp ring, until the core declines one or none is left (tsn-c-stack
++ACMP-12, its redelivery rule; the adapter's header states the passes). The
+ F5 application bridge queues the corresponding AECP notification from that port. Every port call is
+ bracketed by a flag, and an entry while it is set does nothing but count
+ (#678); the host tests' build also reports it to the test.
+@@ -672,14 +673,17 @@ The H-DISC rows are measured from the record the model's filter commits (its
+ RX_HEAD), through the bound-talker term, at one interface and, in the
+ `acmpif2` arm, at each of two.
+ 
+-A pass of the composition costs at most 1,030 accesses (`ACMP_MBX_PASS_MAX`;
+-1,012 before the publication block). That covers 8 events at 6 + 31 + 4,
+-sixteen sinks' due timers at one probe each, the clock read after it and one
+-`BINDING` write (24), 2 adp records at 36 + 7, 2 acmp records at 36 + 52 (a
+-BIND's `BINDING` write included), ADP's poll at 31 and one owed ACMP frame at
+-25 (a probe's: the clock and its TMR_NO_RESP). ADP's records and events are
+-served by the same passes, so the ADP figures above (407 a pass) hold for ADP
+-alone. With ACMP composed, ADP's figures take the same pass count at 1,030.
++A pass of the composition costs at most 2,754 accesses (`ACMP_MBX_PASS_MAX`;
++1,030 before the kept command's redelivery, 1,012 before the publication
++block). That covers 8 events at 6 + 31 + 4, sixteen sinks' due timers at one
++probe each, the clock read after it and one `BINDING` write (24), 2 adp
++records at 36 + 7, 2 acmp records at 36 + 52 (a BIND's `BINDING` write
++included), ADP's poll at 31, one owed ACMP frame at 25 (a probe's: the clock
++and its TMR_NO_RESP) and, after it, the redelivery at 1,724: the kept
++command's handler (52) and a full ring of 19 records at 36 + 52
++(`ACMP_MBX_REDELIVER_MAX`). ADP's records and events are served by the same
++passes, so the ADP figures above (407 a pass) hold for ADP alone. With ACMP
++composed, ADP's figures take the same pass count at 2,754.
+ 
+ The bound with a backlog counts from a pass already running when the input
+ arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
+@@ -690,29 +694,32 @@ The access times are the bound's time over its accesses, rounded down.
+ 
+ | Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
+ |---|---:|---:|---:|---:|---|
+-| an event behind 15 others | 2 | 3,090 | 3.23 us | 6.47 us | every event by pass 2; worst pass 193 accesses |
+-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 0.88 us | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.44 us | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 1.07 us | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
++| an event behind 15 others | 2 | 8,262 | 1.21 us | 2.42 us | every event by pass 2; worst pass 193 accesses |
++| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 30,294 | 0.33 us | 0.66 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
++| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 60,588 | 0.16 us | 0.33 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
++| a response with 7 frames owed ahead of it | 8, after the room returns | 24,786 | 0.40 us | 0.80 us | pass k + 1 for k = 0, 3 and 7: 26, 104 and 208 accesses |
+ 
+ The access time is not measured (A4). At F0's assumed 1 us per access every
+-path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
+-The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
+-that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
+-9,270 accesses (8,865 before round 2 added the probe's timer to a poll,
+-8,964 before round 4 added the clock read after each probe sent at once, and
+-9,108 before the publication block), fits T_svc at that figure: 9.27 ms, the
+-time waiting for room excluded. The
++path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc
++(8.26 ms). The bounds behind a full acmp ring or a full adp ring do not fit
++T_svc at that figure, and both exceed the ceiling. The owed-frame bound,
++24,786 accesses (9,270 before the kept command's redelivery, 8,865 before
++round 2 added the probe's timer to a poll, 8,964 before round 4 added the
++clock read after each probe sent at once, and 9,108 before the publication
++block), no longer fits T_svc at that figure: 24.79 ms, over the ceiling too,
++the time waiting for room excluded. Each poll that sends now also reads the
++acmp ring's RX_HEAD once for the redelivery, so the measured owed paths take
++one access more a pass. The
+ bounds charge every pass with every term at its maximum at once (sixteen
+-sinks each probing, eight events each at ADP's costliest action), which the
+-measured backlogs stay far below. Whether these paths meet T_svc on the
++sinks each probing, eight events each at ADP's costliest action, a full ring
++redelivered after every poll), which the measured backlogs stay far below. Whether these paths meet T_svc on the
+ shipping core is open until the access time is measured (see
+ [Open items](#open-items)). Meeting it may need a tighter per-pass
+ composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
+ with margin) needs the datapath tap and is not measured here.
+ 
+ With MAAP and F3b freshness publication composed as well, a pass costs at most
+-1,783 accesses (`CTRL_APP_THREE_PASS_MAX`; 1,879 at two interfaces).
++3,507 accesses (`CTRL_APP_THREE_PASS_MAX`; 3,603 at two interfaces).
+ MAAP adds each of eight event callbacks at 65 accesses, two records at
+ 20 + 64, and each interface's poll at 65. These bounds fund up to sixteen
+ source freshness reads in the dispatch path, outside every MAAP callback.
+@@ -720,23 +727,22 @@ Each input has the same pass count as above.
+ 
+ | Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
+ |---|---:|---:|---:|---:|
+-| an event behind 15 others | 2 | 5,349 | 1.86 us | 3.73 us |
+-| an ACMP command behind a full acmp ring | 10 | 19,613 | 0.50 us | 1.01 us |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.25 us | 0.50 us |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 0.62 us | 1.24 us |
++| an event behind 15 others | 2 | 10,521 | 0.95 us | 1.90 us |
++| an ACMP command behind a full acmp ring | 10 | 38,577 | 0.25 us | 0.51 us |
++| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 77,154 | 0.12 us | 0.25 us |
++| a response with 7 frames owed ahead of it | 8, after the room returns | 31,563 | 0.31 us | 0.63 us |
+ 
+ On the model, 15 events, 12 acmp records and 7 maap records behind them
+ take a worst pass of 231 accesses (233 at two interfaces), every record and
+ event within 10 passes (`test_acmp_mbx.cpp` F6).
+ 
+-At F0's assumed 1 us per access, only the event bound still fits T_svc
+-(5.35 ms). The owed-frame bound, which fits it without MAAP, no longer does
+-(16.05 ms, under the ceiling); the bound behind a full acmp ring stays
+-under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
+-(39.23 ms).
++At F0's assumed 1 us per access no bound fits T_svc. The event bound
++(10.52 ms) is under the ceiling; the owed-frame bound (31.56 ms), the bound
++behind a full acmp ring (38.58 ms) and the one behind a full adp ring
++(77.15 ms) exceed it.
+ 
+-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
+-accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
++With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 5,247
++accesses at one interface and 6,153 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+ includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
+ sets of event-record reads: the eight shared records are each read once.
+ Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
+@@ -764,12 +770,12 @@ Target calibration must include both costs; this table bounds mailbox accesses o
+ 
+ | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
+ |---|---:|---:|---:|
+-| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
+-| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
+-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
+-| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
++| an event behind 15 others | 2 | 15,741 / 18,459 | 0.63 / 0.54 us |
++| an ACMP command behind a full acmp ring | 10 | 57,717 / 67,683 | 0.17 / 0.14 us |
++| an ENTITY_AVAILABLE behind a full adp ring | 21 | 115,434 / 135,366 | 0.08 / 0.07 us |
++| a response with 7 frames owed ahead of it | 8, after room returns | 47,223 / 55,377 | 0.21 / 0.18 us |
+ 
+-At 1 us per access, event envelopes are 10.569 / 13.287 ms.
++At 1 us per access, event envelopes are 15.741 / 18.459 ms.
+ Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
+ ceiling still covers both event envelopes, but none of the other rows.
+ The firmware gate compiles these header bounds at both interface counts.
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index a985f378fb..bc8566200e 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -387,11 +387,11 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
+   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
+   its end. A refusal stops the composition before the later modules attach.
+ - **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
+-  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,030 at
++  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 2,754 at
+   one interface) plus MAAP's share of 753, its costliest action on each of
+   the 8 events (65, freshness queries included), its 2 maap records
+-  (20 + 64) and its poll on each interface (65). That is 1,783 at one
+-  interface and 1,879 at two. It is also the two modules' own pass bounds
++  (20 + 64) and its poll on each interface (65). That is 3,507 at one
++  interface and 3,603 at two. It is also the two modules' own pass bounds
+   less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (801 at
+   one interface, 866 at two) less the 6 accesses of each of the 8 event
+   records. Every pass
+@@ -439,7 +439,7 @@ Registration and withdrawal can each stop or re-arm a timer.
+ Withdrawal can also read the clock and initial random seed, and publishes
+ the sink's binding without its stream.
+ The static maximum of 16 sinks contributes 112 accesses.
+-The result is 3,523 accesses at one interface and 4,429 at two. The SRP bound counts one maximum-size frame per
++The result is 5,247 accesses at one interface and 6,153 at two. The SRP bound counts one maximum-size frame per
+ library transmit call, at most two calls per interface, receive readiness and
+ retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+ The feedback allowance covers the same poll's ACMP registration entries.
+diff --git a/sw/firmware/ctrl/acmp/acmp_mbx.c b/sw/firmware/ctrl/acmp/acmp_mbx.c
+index 229511cc6b..3aa0acd5e9 100644
+--- a/sw/firmware/ctrl/acmp/acmp_mbx.c
++++ b/sw/firmware/ctrl/acmp/acmp_mbx.c
+@@ -148,18 +148,43 @@ static void on_event(void *ctx, const struct mbx_event *ev)
+ 	}
+ }
+ 
+-// One owed frame sent when the egress has room; a kept command is offered again
+-// once that send freed a slot, in this pass, so before the next pass's timer
+-// service (tsn-c-stack ACMP-12). True while a frame is still owed, so the loop
+-// does not sleep on it; a kept command is declined only behind owed frames.
++// THE KEPT COMMAND's redelivery (acmp_mbx.h): the kept record first, then the
++// records waiting in the acmp ring in arrival order, each to acmp_rx until it
++// declines one, which is kept, or none is left; at most
++// ACMP_MBX_REDELIVER_RECORDS taken, in the loop's buffer and counted as the
++// loop counts its own. A record the driver refuses resynchronises the ring
++// (mbx_rx_take), so none is left after it.
++static void redeliver(struct acmp_mbx *m)
++{
++	if (m->kept.len != 0u) {
++		if (!acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {
++			return;
++		}
++		m->kept.len = 0u;
++	}
++	struct ctrl_loop *l = m->loop;
++	for (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u; ++k) {
++		const enum mbx_status st = mbx_rx_take(MBX_CH_ACMP, &l->frame);
++		if (st != MBX_STATUS_OK) {
++			l->stats.rx_bad += st == MBX_STATUS_BAD;
++			return;
++		}
++		l->stats.rx_records++;
++		on_frame(m, &l->frame);
++	}
++}
++
++// One owed frame sent when the egress has room; once that send freed a slot
++// the redelivery runs, in this pass, so before the next pass's timer service
++// (tsn-c-stack ACMP-12). True while a frame is still owed, so the loop does
++// not sleep on it; a kept command is declined only behind owed frames.
+ static bool on_poll(void *ctx)
+ {
+ 	struct acmp_mbx *m = ctx;
+ 	const unsigned owed = m->acmp.owed_count;
+ 	(void)acmp_poll(&m->acmp);
+-	if (m->kept.len != 0u && m->acmp.owed_count < owed &&
+-	    acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {
+-		m->kept.len = 0u;
++	if (m->acmp.owed_count < owed) {
++		redeliver(m);
+ 	}
+ 	return m->acmp.owed_count != 0u;
+ }
+@@ -191,6 +216,7 @@ bool acmp_mbx_attach(struct acmp_mbx *m, struct ctrl_loop *l)
+ 		return false;
+ 	}
+ 	m->adp_next = l->rx[MBX_CH_ADP];
++	m->loop = l;
+ 	// a channel bind refuses only a channel past MBX_N_CH or no function:
+ 	// neither here
+ 	(void)ctrl_loop_bind_rx(l, MBX_CH_ACMP, on_frame, m);
+diff --git a/sw/firmware/ctrl/acmp/acmp_mbx.h b/sw/firmware/ctrl/acmp/acmp_mbx.h
+index f9a8493c3b..3b7f4017b2 100644
+--- a/sw/firmware/ctrl/acmp/acmp_mbx.h
++++ b/sw/firmware/ctrl/acmp/acmp_mbx.h
+@@ -34,21 +34,21 @@
+ // port that gates on it gives the core no sign of the waiting command. The
+ // adapter keeps the declined record (one, MBX_CH_ACMP_MAX_FRAME_BYTES) and
+ // takes no later record of the acmp ring while it holds it, so the commands
+-// keep their arrival order. It offers the kept record again after each poll
+-// that sent an owed frame, in that poll, so before the next pass's timer
+-// service; a poll that sent nothing offers nothing, so each refused pass costs
+-// no decline. The records behind it are offered by the receive service of the
+-// passes that follow, after their timer service: where the kept command
+-// leaves a slot free (a BIND_RX that is only answered), a timer probe owed at
+-// that service can take it and delay the next kept command one pass, as the
+-// port contract says of a port that offers fewer frames after an accepting
+-// poll. Otherwise a kept command's response leaves in pass n + 1 + f + r after
++// keep their arrival order. After each poll that sent an owed frame, in that
++// poll, so before the next pass's timer service, it keeps the contract's
++// redelivery rule: it offers the kept record, then the records waiting in the
++// acmp ring in arrival order, each until acmp_rx declines one, which it keeps,
++// or none is left. A poll that sent nothing offers nothing, so each refused
++// pass costs no decline. The redelivery takes at most
++// ACMP_MBX_REDELIVER_RECORDS records, a full ring of the smallest record the
++// filter passes, so under A1 it reaches every record waiting when the poll
++// starts. So no timer probe is owed ahead of a waiting command, a frame that
++// needs no answer or a BIND_RX that is only answered between them included,
++// and a kept or waiting command's response leaves in pass n + 1 + f + r after
+ // the room returns: n the frames owed then (ACMP_OWED_MAX, or one less for a
+-// BIND_RX declined with one slot free), f the frames the kept commands ahead
+-// of it owe, r the refused polls. The first leaves by ACMP_MBX_KEPT_PASSES.
+-// A declined offer reads and writes no mailbox register, so a pass that
+-// declines a record and offers a kept one again stays within
+-// ACMP_MBX_PASS_MAX's two records and two handlers.
++// BIND_RX declined with one slot free), f the frames the commands ahead of it
++// owe, r the refused polls. The first leaves by ACMP_MBX_KEPT_PASSES. The
++// redelivery's work, ACMP_MBX_REDELIVER_MAX, is a term of ACMP_MBX_PASS_MAX.
+ //
+ // THE ADP CHANNEL'S AVAILABLE AND DEPARTING (Milan v1.2 5.6.4.1). The listener's
+ // discovery machine needs every ENTITY_AVAILABLE and ENTITY_DEPARTING of a bound
+@@ -114,11 +114,17 @@
+ //                                new talker admitted)
+ //   polls   31 + 25              ADP's (adp_mbx.h) and one owed ACMP frame (a
+ //                                probe's: the clock and its TMR_NO_RESP armed)
++//   redelivery 52 + 19 x (36 + 52)  after a poll that sent: the kept record's
++//                                handler, then a full ring of records, each
++//                                read and handled (THE KEPT COMMAND)
+ //
+ // The smallest ACMP record the filter passes is 13 words (a frame that reaches
+-// the end of talker_entity_id, byte 42), so a full acmp ring holds 19 and its
+-// record is taken by pass ACMP_MBX_RX_PASSES (10), counted from the first pass
+-// that starts after the fabric posted it; an event by pass 2. With the pass
++// the end of talker_entity_id, byte 42), so a full acmp ring holds 19 and,
++// while no command is kept, its record is taken by pass ACMP_MBX_RX_PASSES
++// (10), counted from the first pass that starts after the fabric posted it;
++// an event by pass 2. While a command is kept the ring is held: its records
++// wait for the room (A3) and are taken by the redelivery after each poll that
++// sends an owed frame, in arrival order (THE KEPT COMMAND). With the pass
+ // already running when the input arrived, and under A3, a response is
+ // committed within ACMP_MBX_RX_ACCESSES and an event's action within
+ // ACMP_MBX_EVT_ACCESSES. An adp record is taken by pass
+@@ -174,15 +180,19 @@ extern "C" {
+ #define ACMP_MBX_POLL_MAX 25u           // one owed frame, a probe's: 22 + the clock 1 + its TMR_NO_RESP 2
+ #define ACMP_MBX_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + MBX_CH_ACMP_MAX_FRAME_BYTES / 4u)
+ #define ACMP_MBX_ADP_HANDLER_MAX (ADP_MBX_HANDLER_MAX > ACMP_MBX_DISC_MAX ? ADP_MBX_HANDLER_MAX : ACMP_MBX_DISC_MAX)
++// A1 for the acmp ring: its smallest record is a frame through talker_entity_id.
++#define ACMP_MBX_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + (MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES + 3u) / 4u)
++#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS)
++// THE KEPT COMMAND's redelivery: a full ring of records, and the kept record's handler.
++#define ACMP_MBX_REDELIVER_RECORDS ACMP_MBX_RX_BACKLOG
++#define ACMP_MBX_REDELIVER_MAX                                                                                     \
++	(ACMP_MBX_HANDLER_MAX + ACMP_MBX_REDELIVER_RECORDS * (ACMP_MBX_RX_RECORD_MAX + ACMP_MBX_HANDLER_MAX))
+ #define ACMP_MBX_PASS_MAX                                                                                          \
+ 	(CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u + ADP_MBX_SINK_MAX + ACMP_MBX_EVENT_MAX) +                 \
+ 	 ACMP_MAX_SINKS * ACMP_MBX_SINK_WORK +                                                                     \
+ 	 CTRL_LOOP_RX_PER_PASS * (ADP_MBX_RX_RECORD_MAX + (ACMP_MBX_ADP_HANDLER_MAX)) +                            \
+ 	 CTRL_LOOP_RX_PER_PASS * (ACMP_MBX_RX_RECORD_MAX + ACMP_MBX_HANDLER_MAX) + MBX_N_IF * ADP_MBX_POLL_MAX +    \
+-	 ACMP_MBX_POLL_MAX)
+-// A1 for the acmp ring: its smallest record is a frame through talker_entity_id.
+-#define ACMP_MBX_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + (MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES + 3u) / 4u)
+-#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS)
++	 ACMP_MBX_POLL_MAX + ACMP_MBX_REDELIVER_MAX)
+ #define ACMP_MBX_RX_PASSES ((ACMP_MBX_RX_BACKLOG + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
+ #define ACMP_MBX_EVT_ACCESSES ((CTRL_LOOP_EVT_PASSES + 1u) * ACMP_MBX_PASS_MAX)
+ #define ACMP_MBX_RX_ACCESSES ((ACMP_MBX_RX_PASSES + 1u) * ACMP_MBX_PASS_MAX)
+@@ -214,6 +224,7 @@ struct acmp_mbx {
+ 	struct acmp_mbx_if ifs[MBX_N_IF];
+ 	struct acmp_ports ports;
+ 	struct ctrl_loop_rx adp_next;   // the adp channel's handler the tap stands in front of
++	struct ctrl_loop *loop;         // the loop attached to, whose buffer and counts the redelivery uses
+ 	struct acmp_mbx_kept kept;
+ };
+ 
+diff --git a/sw/firmware/ctrl/maap/README.md b/sw/firmware/ctrl/maap/README.md
+index adee610ea5..f07f3a23f8 100644
+--- a/sw/firmware/ctrl/maap/README.md
++++ b/sw/firmware/ctrl/maap/README.md
+@@ -162,7 +162,7 @@ A standalone MAAP loop pass costs at most
+ 8*(6+65) + 2*(20+64) + interfaces*65 accesses: 801 for one interface, 866 for two.
+ The receive bound includes the channel's maximum 64-byte record.
+ Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
+-1,783 accesses for one interface, 1,879 for two.
++3,507 accesses for one interface, 3,603 for two.
+ 
+ Tests include event and receive backlog, timer wrap, stale tags, link loss,
+ short TX stalls and an 11 ms stall that must fail the original bound after recovery.
+diff --git a/sw/firmware/ctrl/test/acmp_owed_mutants.py b/sw/firmware/ctrl/test/acmp_owed_mutants.py
+index 30349bbfd7..4bc1ea4a20 100644
+--- a/sw/firmware/ctrl/test/acmp_owed_mutants.py
++++ b/sw/firmware/ctrl/test/acmp_owed_mutants.py
+@@ -1,12 +1,13 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""acmp_owed_mutants.py - lane F3's planted defects of the ACMP owed frames (#665).
++"""acmp_owed_mutants.py - the planted defects of the ACMP owed frames (#665).
+ 
+-The owed frames and their changes (#653: A19, E1, E2), the core's owed bound,
++The owed frames and their changes (#653: A19, E1 to E3), the core's owed bound,
+ which declines a command it cannot answer yet (tsn-c-stack#26, ACMP-12), and
+-the mailbox adapter's kept command (K), which offers that command again after
+-the next poll that sends an owed frame. acmp_mutants.py appends this table to
+-its own.
++the mailbox adapter's kept command (K), which after each poll that sends an
++owed frame offers that command again and then the records waiting behind it,
++until the core declines one or none is left. acmp_mutants.py appends this
++table to its own.
+ """
+ 
+ from __future__ import annotations
+@@ -60,6 +61,10 @@ MUTANTS = (
+     Mutant("acmp-poll-owes-nothing", "acmp/acmp_mbx.c", "\treturn m->acmp.owed_count != 0u;", "\treturn false;",
+            "acmp", "AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt",
+            "E1 nothing reported yet, and the loop does not sleep"),
++    Mutant("acmp-poll-owes-nothing-at-one", "acmp/acmp_mbx.c", "\treturn m->acmp.owed_count != 0u;",
++           "\treturn m->acmp.owed_count > 1u;",
++           "acmp", "AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake",
++           "E3 the ACMP poll says it still owes its one frame behind the held egress"),
+     # THE KEPT COMMAND (K, tsn-c-stack ACMP-12): a command the core declines at its owed bound
+     Mutant("acmp-kept-dropped", "acmp/acmp_mbx.c",
+            "\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n\t\treturn;",
+@@ -72,17 +77,17 @@ MUTANTS = (
+            "acmp", "AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder",
+            "the second left in the ring"),
+     Mutant("acmp-kept-never-offered", "acmp/acmp_mbx.c",
+-           "\tif (m->kept.len != 0u && m->acmp.owed_count < owed &&",
+-           "\tif (m->kept.len != 0u && m->acmp.owed_count < owed && false &&",
++           "\t\tif (!acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {\n\t\t\treturn;",
++           "\t\tif (true) {\n\t\t\treturn;",
+            "acmp", "AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder",
+            "K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns"),
+-    Mutant("acmp-kept-after-it-is-taken", "acmp/acmp_mbx.c", "\t\tm->kept.len = 0u;\n\t}\n\treturn m->acmp",
+-           "\t}\n\treturn m->acmp",
++    Mutant("acmp-kept-after-it-is-taken", "acmp/acmp_mbx.c", "\t\tm->kept.len = 0u;\n\t}\n\tstruct ctrl_loop",
++           "\t}\n\tstruct ctrl_loop",
+            "acmp", "AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder",
+            "K1 the command kept behind it in pass n + 1 + f"),
+     Mutant("acmp-kept-offered-on-a-refused-poll", "acmp/acmp_mbx.c",
+-           "\tif (m->kept.len != 0u && m->acmp.owed_count < owed &&",
+-           "\tif (m->kept.len != 0u && (m->acmp.owed_count < owed || true) &&",
++           "\tif (m->acmp.owed_count < owed) {\n\t\tredeliver(m);",
++           "\tif (m->acmp.owed_count <= owed) {\n\t\tredeliver(m);",
+            "acmp", "AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder",
+            "K1 the first command behind the full owed set is declined once and kept"),
+     Mutant("acmp-kept-on-interface-zero", "acmp/acmp_mbx.c", "\tm->kept.interface = f->interface;",
+@@ -92,12 +97,35 @@ MUTANTS = (
+            (("acmpif2", "AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe",
+              "K2 the BIND_RX is answered SUCCESS in pass n + 1 after the room returns, on its interface"),)),
+     Mutant("acmp-kept-dropped-when-declined-again", "acmp/acmp_mbx.c",
+-           "\t    acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {\n\t\tm->kept.len = 0u;",
+-           "\t    true) {\n\t\t(void)acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len);\n"
+-           "\t\tm->kept.len = 0u;",
++           ("\t\tif (!acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {\n\t\t\treturn;\n"
++            "\t\t}\n\t\tm->kept.len = 0u;"),
++           "\t\t(void)acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len);\n\t\tm->kept.len = 0u;",
+            "acmp", "AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe",
+            "K2 offered again after the first send, one slot free: declined again and still kept"),
+     Mutant("acmp-kept-survives-a-start", "acmp/acmp_mbx.c", "\tmemset(m, 0, sizeof *m);",
+            "\tmemset(m, 0, sizeof *m - sizeof m->kept);",
+            "acmp", "AcmpMailbox.K3AStartDropsTheKeptCommand", "K3 a start keeps no command from the run before"),
++    # the redelivery (tsn-c-stack PORTING "ACMP owed bound"): the waiting records after the kept one
++    Mutant("acmp-redelivery-takes-no-waiting-record", "acmp/acmp_mbx.c",
++           "\tfor (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u; ++k) {",
++           "\tfor (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u && false; ++k) {",
++           "acmp", "AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass",
++           "K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1"),
++    Mutant("acmp-redelivery-only-behind-a-kept-command", "acmp/acmp_mbx.c",
++           "\tif (m->acmp.owed_count < owed) {\n\t\tredeliver(m);",
++           "\tif (m->acmp.owed_count < owed && m->kept.len != 0u) {\n\t\tredeliver(m);",
++           "acmp", "AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend",
++           "K5 a command the receive service left waiting is offered after the first send"),
++    Mutant("acmp-redelivery-refusal-uncounted", "acmp/acmp_mbx.c",
++           "\t\t\tl->stats.rx_bad += st == MBX_STATUS_BAD;", "\t\t\t(void)st;",
++           "acmp", "AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted",
++           "K6 the kept command taken, the refused record counted in rx_bad"),
++    Mutant("acmp-redelivery-records-uncounted", "acmp/acmp_mbx.c", "\t\tl->stats.rx_records++;\n", "",
++           "acmp", "AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends",
++           "K7 the kept command and the full ring behind it are taken, and counted"),
++    Mutant("acmp-redelivery-short-of-a-full-ring", "acmp/acmp_mbx.c",
++           "\tfor (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS &&",
++           "\tfor (unsigned k = 0; k + 1u < ACMP_MBX_REDELIVER_RECORDS &&",
++           "acmp", "AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends",
++           "K7 the kept command and the full ring behind it are taken"),
+ )
+diff --git a/sw/firmware/ctrl/test/test_acmp_mbx.cpp b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+index 9a98bfc044..731ab2ef97 100644
+--- a/sw/firmware/ctrl/test/test_acmp_mbx.cpp
++++ b/sw/firmware/ctrl/test/test_acmp_mbx.cpp
+@@ -1118,6 +1118,43 @@ TEST_F(AcmpMailbox, E2AnOwedResponseIsCommittedInPassKPlus1) {
+     }
+ }
+ 
++// With one frame owed behind a held egress, and no other module owing, the
++// ACMP poll still says it owes, so the loop does not sleep (ctrl_loop.h THE
++// PASS: a returning TX room raises no interrupt).
++TEST_F(AcmpMailbox, E3OneOwedFrameAloneKeepsTheLoopAwake) {
++    fill_acmp_tx();
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0, kCtl2, 0x7401)));
++    for (unsigned p = 0; p < 4u; ++p) {
++        static_cast<void>(pass());
++    }
++    ASSERT_EQ(core()->owed_count, 1u);
++    unsigned found = 0;
++    bool acmp_owes = false;
++    bool others_owe = false;
++    for (unsigned i = 0; i < app.loop.n_polls; ++i) {
++        const ctrl_loop_poll& poll = app.loop.polls[i];
++        const bool owes = poll.fn(poll.ctx);
++        if (poll.ctx == &app.acmp) {
++            acmp_owes = owes;
++            ++found;
++        } else {
++            others_owe = others_owe || owes;
++        }
++    }
++    ASSERT_TRUE(found == 1u && !others_owe) << "E3 the ACMP poll alone owes";
++    EXPECT_TRUE(acmp_owes) << "E3 the ACMP poll says it still owes its one frame behind the held egress";
++    waits = waiter{};
++    mbx_model_bind(&model, wait_for_irq, &waits);
++    for (unsigned k = 0; k < 4u; ++k) {
++        ctrl_loop_step(&app.loop);
++    }
++    mbx_model_bind(&model, nullptr, nullptr);
++    EXPECT_EQ(waits.waits, 0u) << "E3 and the loop does not sleep while that one frame is owed";
++    mbx_model_tx_pause(&model, false);
++    settle();
++    EXPECT_EQ(core()->owed_count, 0u) << "E3 the frame leaves once the room returns";
++}
++
+ // ---- K: THE KEPT COMMAND (acmp_mbx.h; tsn-c-stack ACMP-12) ---------------------------------
+ 
+ // Every one of the core's ACMP_OWED_MAX frames owed with the egress held: a GET_RX_STATE
+@@ -1247,6 +1284,146 @@ TEST_F(AcmpMailbox, K3AStartDropsTheKeptCommand) {
+         << "K3 and the ring is taken again: the next command is answered at once";
+ }
+ 
++// A PROBE_TX_RESPONSE for an unbound sink: a frame the core takes and does not answer.
++Pdu no_answer(unsigned sink, std::uint16_t seq) {
++    Pdu p;
++    p.msg = spec::MSG_PROBE_TX_RESPONSE;
++    p.status = spec::STATUS_SUCCESS;
++    p.controller = kCtl1;
++    p.talker = kTkA;
++    p.listener = kOwn;
++    p.talker_uid = 1;
++    p.listener_uid = static_cast<std::uint16_t>(sink);
++    p.seq = seq;
++    return p;
++}
++
++// The pass, counted from the room's return, in which each of `seqs` left as a
++// GET_RX_STATE_RESPONSE; interface i's ACMP timer is run to its deadline just
++// before pass `due`.
++std::vector<unsigned> answer_passes(std::initializer_list<std::uint16_t> seqs, unsigned due, unsigned i) {
++    std::vector<unsigned> at(seqs.size(), 0u);
++    mbx_model_tx_pause(&model, false);
++    std::uint32_t base = model.tx_sent;
++    for (unsigned p = 1; p <= ACMP_MBX_KEPT_PASSES + 4u; ++p) {
++        if (p == due) {
++            const mbx_model_timer& t = model.timers[slot(i)];
++            EXPECT_TRUE(t.armed) << "the ACMP slot of interface " << i << " is armed";
++            mbx_model_advance_ms(&model, t.deadline_ms - model.now_ms);
++        }
++        static_cast<void>(pass());
++        for (std::uint32_t j = base; j < model.tx_sent; ++j) {
++            const Pdu w = wire(j);
++            unsigned n = 0;
++            for (std::uint16_t seq : seqs) {
++                if (w.msg == spec::MSG_GET_RX_STATE_RESPONSE && w.seq == seq && at[n] == 0u) {
++                    at[n] = p;
++                }
++                ++n;
++            }
++        }
++        base = model.tx_sent;
++    }
++    return at;
++}
++
++// A record in the acmp receive ring that the driver refuses (another kind), as
++// the fabric would post one, with RX_HEAD past it.
++void post_refused_acmp_record() {
++    mbx_model_channel* ch = &model.ch[MBX_CH_ACMP];
++    auto word = [](std::uint32_t index) -> std::uint32_t& {
++        return model.window[(MBX_CH_ACMP_RX_BASE + 4u * (index & (MBX_CH_ACMP_RX_WORDS - 1u))) / 4u];
++    };
++    const std::uint32_t len = 70u;
++    word(ch->rx_head) = mbx_place(len, MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH) |
++                        mbx_place(MBX_RX_KIND ^ 1u, MBX_RXREC_W0_KIND_LSB, MBX_RXREC_W0_KIND_WIDTH);
++    word(static_cast<std::uint32_t>(ch->rx_head) + 1u) = model.now_ms;
++    ch->rx_head = static_cast<std::uint16_t>(ch->rx_head + MBX_RX_HDR_WORDS + (len + 3u) / 4u);
++}
++
++TEST_F(AcmpMailbox, K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass) {
++    bind(0);
++    ASSERT_EQ(core()->sinks[0].state, ACMP_PRB_W_RESP);
++    fill_owed();
++    const unsigned i = acfg.sink_interface[1];
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7501), spec::MULTICAST_MAC, i));
++    ASSERT_TRUE(offer(no_answer(1, 0x7511), spec::MULTICAST_MAC, i));
++    ASSERT_TRUE(offer(no_answer(1, 0x7512), spec::MULTICAST_MAC, i));
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7502), spec::MULTICAST_MAC, i));
++    for (unsigned p = 0; p < 5u; ++p) {
++        static_cast<void>(pass());
++    }
++    ASSERT_NE(app.acmp.kept.len, 0u);
++    const std::vector<unsigned> at = answer_passes({0x7501, 0x7502}, 3u, acfg.sink_interface[0]);
++    EXPECT_EQ(at[0], ACMP_MBX_KEPT_PASSES) << "K4 the kept command is answered in pass n + 1";
++    EXPECT_EQ(at[1], ACMP_MBX_KEPT_PASSES + 1u)
++        << "K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe "
++           "that falls due in the third pass";
++}
++
++TEST_F(AcmpMailbox, K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend) {
++    bind(0);
++    fill_owed();
++    for (unsigned p = 0; p < 3u; ++p) {
++        static_cast<void>(pass());
++    }
++    ASSERT_EQ(app.acmp.kept.len, 0u);
++    const unsigned i = acfg.sink_interface[1];
++    ASSERT_TRUE(offer(no_answer(1, 0x7611), spec::MULTICAST_MAC, i));
++    ASSERT_TRUE(offer(no_answer(1, 0x7612), spec::MULTICAST_MAC, i));
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7601), spec::MULTICAST_MAC, i));
++    const std::vector<unsigned> at = answer_passes({0x7601}, 2u, acfg.sink_interface[0]);
++    EXPECT_EQ(at[0], ACMP_MBX_KEPT_PASSES)
++        << "K5 a command the receive service left waiting is offered after the first send and answered in pass "
++           "n + 1, ahead of the timer probe that falls due in the second pass";
++}
++
++TEST_F(AcmpMailbox, K6ARecordTheDriverRefusesEndsTheRedeliveryCounted) {
++    fill_owed();
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7701), spec::MULTICAST_MAC,
++                      acfg.sink_interface[1]));
++    for (unsigned p = 0; p < 3u; ++p) {
++        static_cast<void>(pass());
++    }
++    ASSERT_NE(app.acmp.kept.len, 0u);
++    post_refused_acmp_record();
++    const std::uint32_t bad = app.loop.stats.rx_bad;
++    mbx_model_tx_pause(&model, false);
++    static_cast<void>(pass());
++    mbx_frame f{};
++    EXPECT_TRUE(app.acmp.kept.len == 0u && app.loop.stats.rx_bad == bad + 1u &&
++                mbx_rx_take(MBX_CH_ACMP, &f) == MBX_STATUS_EMPTY)
++        << "K6 the kept command taken, the refused record counted in rx_bad and the ring left empty";
++}
++
++TEST_F(AcmpMailbox, K7TheRedeliveryTakesAFullRingInThePassThatSends) {
++    fill_owed();
++    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 1, kCtl1, 0x7801), spec::MULTICAST_MAC,
++                      acfg.sink_interface[1]));
++    for (unsigned p = 0; p < 3u; ++p) {
++        static_cast<void>(pass());
++    }
++    ASSERT_NE(app.acmp.kept.len, 0u);
++    auto f = acmpdu(talker_command(spec::MSG_GET_TX_STATE_COMMAND));
++    const std::size_t smallest = MBX_CH_ACMP_T0_OFFSET + MBX_TERM_FIELD_BYTES;
++    unsigned stored = 0;
++    for (unsigned j = 0; j < 100000u && model.ch[MBX_CH_ACMP].rx_drop == 0u; ++j) {
++        if (mbx_model_rx(&model, f.data(), smallest, 0)) {
++            stored++;
++        } else if (model.ch[MBX_CH_ACMP].rx_drop == 0u) {
++            mbx_model_advance_ms(&model, 1);
++        }
++    }
++    ASSERT_EQ(stored, ACMP_MBX_REDELIVER_RECORDS);
++    const std::uint32_t malformed = core()->rx_malformed;
++    const std::uint32_t records = app.loop.stats.rx_records;
++    mbx_model_tx_pause(&model, false);
++    static_cast<void>(pass());
++    EXPECT_TRUE(app.acmp.kept.len == 0u && core()->rx_malformed == malformed + stored &&
++                app.loop.stats.rx_records == records + stored)
++        << "K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends";
++}
++
+ // ---- F: the bound with full backlogs (ctrl_loop.h A1 to A4) ------------------------------
+ 
+ TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 4b57b84d92..2a8ca319a6 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -550,10 +550,11 @@ Every window committed exactly its defined load (the run refuses one that did no
+   The mailbox posts a TICK every 10 ms, so a pass longer than 10 ms always leaves one pending, and SRP takes nothing.
+   In arm A's `backlog-adp` and `backlog-adp-refill`, after the bind, every pass is over 10 ms: none of SRP's 32 records is released in windows of 568 to 659 ms, at both points.
+   Where SRP is served its first record waits 66 to 144 ms and its 32nd up to 341 ms, against MRP's 18 ms ceiling, in both arms.
+-- **The ACMP core drops the commands it cannot owe.**
+-  The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; `room()` counts a busy drop).
+-  With the egress held and eight responses owed, the core takes the commands behind and never answers them.
+-  At 1x1 none of the four commands behind the owed input is ever answered, in either arm; at 8x8 two of the four are, after 176.52 and 188.27 ms, and two are not. Their controller sees no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expires.
++- **At tsn-c-stack `70936b77` the ACMP core dropped the commands it could not owe.**
++  The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; at `70936b77` `room()` counted a busy drop).
++  With the egress held and eight responses owed, the core at that pin took the commands behind and never answered them.
++  At 1x1 none of the four commands behind the owed input was ever answered, in either arm; at 8x8 two of the four were, after 176.52 and 188.27 ms, and two were not. Their controller saw no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expired.
++  Since `715589c` the core declines those commands instead (tsn-c-stack#26, ACMP-12), and the ACMP adapter keeps each and offers it again once a frame leaves (`acmp_mbx.h`, THE KEPT COMMAND): S2_KEPT_RECORD
+ - **Notification fan-out costs a recipient 11,786 to 22,030 CPU cycles** (11,818 to 20,486 in arm A), so 16 registrations take 7.77 to 14.80 ms at 1x1 (7.77 to 11.33 in arm A) and 32 take 12.39 to 32.78 ms at 8x8 (12.39 to 22.98 in arm A).
+   SET_NAME misses T_svc at both points, and at 1x1 so do arm B's SET_STREAM_INFO (11.68 ms) and BIND_RX's GET_STREAM_INFO notice (14.80 ms).
+   Every fan-out misses it at 8x8, and there BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
+@@ -572,7 +573,7 @@ Every window committed exactly its defined load (the run refuses one that did no
+     Each record ahead of an input therefore costs up to a whole pass, and the last record of every loaded channel misses T_svc (the load's service).
+   - So a smaller ring or bucket removes whole passes from the ring rows, but no row fits T_svc while one pass can exceed it.
+     The refill leg shows the other side: its input arrives behind 4 records instead of 7, but during the longest passes, and takes 88.33 ms against 67.93.
+-  - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference is dropped.
++  - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference was dropped at tsn-c-stack `70936b77`; since `715589c` it is declined and kept (THE KEPT COMMAND).
+ - **The fixture's AECP retried every millisecond.**
+   For each pending change notice, `aecp.c:535-569` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
+   The fixture's ports always reported unavailable (firmware `e76a755a`), so after a bind every pass rebuilt the notices: up to 1.57 M cycles, 31 ms, at 1x1.
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index 6d39607397..d419157f7a 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -824,8 +824,11 @@ def owed_group(p: Point) -> Group:
+                   owed=tuple(0x7380 + n for n in range(OWED_AHEAD)))
+     g.probe(probe, f'frame 0 {get(0x7380 + OWED_AHEAD).hex()}', wait=f'drained within {10 * MS}', settle='')
+     g.load['acmp'] += 1
+-    # Each command behind the input is a path too: the core owes at most ACMP_OWED_MAX
+-    # responses (tsn-c-stack acmp.h), so one it takes beyond them may never be answered.
++    # Each command behind the input is a path too. The core owes at most ACMP_OWED_MAX
++    # responses (tsn-c-stack acmp.h): at tsn-c-stack 70936b77 it dropped a command beyond
++    # them, never answered; since 715589c it declines it and the ACMP adapter keeps and
++    # answers it (tsn-c-stack#26). may_drop reports a response that never comes as a
++    # measured finding, not a refusal, at either pin.
+     for n in range(behind):
+         name = f'backlog.owed_behind{n}.if0'
+         g.probes.append(Probe(name, 'an ACMP command behind the owed input', 'acmp', f'rxc:{acmp}',

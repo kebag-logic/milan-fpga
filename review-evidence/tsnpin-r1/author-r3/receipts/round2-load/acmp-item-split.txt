@@ -1,0 +1,3 @@
+# acmp_item_split.py: each ACMP poll less the acmp_mbx:on_frame spans nested in it (the redelivered records' handlers). It does not remove the kept record's direct acmp_rx call; acmp-item-parts-8x8.txt cuts the poll by acmp_rx and acmp_poll and gives the 6,302 cycles behind 0.730 (load-split-8x8.txt).
+s2/x1d/results/backlog-owed.log: 24715 polls, 3 with nested record handlers; heaviest 10,974 CPU cycles, heaviest less its nested handlers 9,683
+s2/x8/results-d/backlog-owed.log: 14843 polls, 3 with nested record handlers; heaviest 15,550 CPU cycles, heaviest less its nested handlers 14,291

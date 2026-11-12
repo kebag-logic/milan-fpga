@@ -1,0 +1,8 @@
+unnamed tests (whole table): []
+[ok] mutant acmp-redelivery-takes-no-waiting-record (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass: K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe that falls due in the third pass
+[ok] mutant acmp-redelivery-past-a-decline (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+[ok] mutant acmp-redelivery-short-of-a-full-ring (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+mutants: 3 of 3 caught

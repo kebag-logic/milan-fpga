@@ -1,0 +1,341 @@
+{
+ "logs": 19,
+ "least_cycles": {
+  "polls": 6177
+ },
+ "parts": {
+  "centisecond_consumers": {
+   "most_cycles": 11153,
+   "stated_us": 120,
+   "instances": 5268,
+   "where": [
+    "x1d/acmp-disc.log",
+    102211303
+   ]
+  },
+  "events": {
+   "most_cycles": 14627,
+   "stated_us": 155,
+   "instances": 7674,
+   "where": [
+    "x1d/backlog.log",
+    267578108
+   ]
+  },
+  "events.taken0": {
+   "most_cycles": 2074,
+   "stated_us": 25,
+   "instances": 2042,
+   "where": [
+    "x1d/backlog.log",
+    267651090
+   ]
+  },
+  "events.taken1": {
+   "most_cycles": 14178,
+   "stated_us": 150,
+   "instances": 7654,
+   "where": [
+    "x1d/fixture.log",
+    20799496
+   ]
+  },
+  "events.taken2": {
+   "most_cycles": 9044,
+   "stated_us": 95,
+   "instances": 12,
+   "where": [
+    "x1d/acmp-notk.log",
+    863309803
+   ]
+  },
+  "events.taken8": {
+   "most_cycles": 14627,
+   "stated_us": 155,
+   "instances": 8,
+   "where": [
+    "x1d/backlog.log",
+    267578108
+   ]
+  },
+  "events_none": {
+   "most_cycles": 2074,
+   "stated_us": 25,
+   "instances": 2042,
+   "where": [
+    "x1d/backlog.log",
+    267651090
+   ]
+  },
+  "poll.acmp_mbx:on_poll": {
+   "most_cycles": 10974,
+   "stated_us": 120,
+   "instances": 460358,
+   "where": [
+    "x1d/backlog-owed.log",
+    278902223
+   ]
+  },
+  "poll.adp_mbx:on_poll": {
+   "most_cycles": 297,
+   "stated_us": 5,
+   "instances": 460358,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76932257
+   ]
+  },
+  "poll.aecp_idle": {
+   "most_cycles": 2912,
+   "stated_us": 35,
+   "instances": 460343,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76971423
+   ]
+  },
+  "poll.aecp_mbx:poll": {
+   "most_cycles": 20783,
+   "stated_us": 220,
+   "instances": 460358,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76935052
+   ]
+  },
+  "poll.aecp_one_frame": {
+   "most_cycles": 5180,
+   "stated_us": 55,
+   "instances": 2,
+   "where": [
+    "x1d/save.log",
+    67422460
+   ]
+  },
+  "poll.aecp_sending": {
+   "most_cycles": 20783,
+   "stated_us": 220,
+   "instances": 15,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76935052
+   ]
+  },
+  "poll.ctrl_app_aecp:deliver": {
+   "most_cycles": 5210,
+   "stated_us": 55,
+   "instances": 460358,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76955868
+   ]
+  },
+  "poll.ctrl_app_srp:deliver": {
+   "most_cycles": 4411,
+   "stated_us": 50,
+   "instances": 460358,
+   "where": [
+    "x1d/acmp-notk.log",
+    1067532537
+   ]
+  },
+  "poll.maap_mbx:poll": {
+   "most_cycles": 2650,
+   "stated_us": 30,
+   "instances": 460358,
+   "where": [
+    "x1d/acmp-cmd.log",
+    2358207
+   ]
+  },
+  "poll.srp_mbx:poll": {
+   "most_cycles": 28987,
+   "stated_us": 305,
+   "instances": 460358,
+   "where": [
+    "x1d/backlog.log",
+    267701859
+   ]
+  },
+  "poll_idle.acmp_mbx:on_poll": {
+   "most_cycles": 1612,
+   "stated_us": 20,
+   "instances": 460346,
+   "where": [
+    "x1d/backlog-owed.log",
+    273018611
+   ]
+  },
+  "poll_idle.adp_mbx:on_poll": {
+   "most_cycles": 297,
+   "stated_us": 5,
+   "instances": 460358,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76932257
+   ]
+  },
+  "poll_idle.aecp_mbx:poll": {
+   "most_cycles": 2912,
+   "stated_us": 35,
+   "instances": 460343,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76971423
+   ]
+  },
+  "poll_idle.ctrl_app_aecp:deliver": {
+   "most_cycles": 5210,
+   "stated_us": 55,
+   "instances": 460358,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76955868
+   ]
+  },
+  "poll_idle.ctrl_app_srp:deliver": {
+   "most_cycles": 4411,
+   "stated_us": 50,
+   "instances": 460358,
+   "where": [
+    "x1d/acmp-notk.log",
+    1067532537
+   ]
+  },
+  "poll_idle.maap_mbx:poll": {
+   "most_cycles": 2650,
+   "stated_us": 30,
+   "instances": 460358,
+   "where": [
+    "x1d/acmp-cmd.log",
+    2358207
+   ]
+  },
+  "poll_idle.srp_mbx:poll": {
+   "most_cycles": 7730,
+   "stated_us": 85,
+   "instances": 460355,
+   "where": [
+    "x1d/backlog.log",
+    267568417
+   ]
+  },
+  "poll_rebuilding.srp_mbx:poll": {
+   "most_cycles": 28987,
+   "stated_us": 305,
+   "instances": 3,
+   "where": [
+    "x1d/backlog.log",
+    267701859
+   ]
+  },
+  "poll_sending.acmp_mbx:on_poll": {
+   "most_cycles": 10974,
+   "stated_us": 120,
+   "instances": 12,
+   "where": [
+    "x1d/backlog-owed.log",
+    278902223
+   ]
+  },
+  "poll_sending.aecp_mbx:poll": {
+   "most_cycles": 20783,
+   "stated_us": 220,
+   "instances": 15,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76935052
+   ]
+  },
+  "polls": {
+   "most_cycles": 32420,
+   "stated_us": 345,
+   "instances": 9716,
+   "where": [
+    "x1d/aecp-fanout.log",
+    76910911
+   ]
+  },
+  "polls_idle": {
+   "most_cycles": 16161,
+   "stated_us": 170,
+   "instances": 9687,
+   "where": [
+    "x1d/backlog.log",
+    267421551
+   ]
+  },
+  "polls_less_aecp": {
+   "most_cycles": 18590,
+   "stated_us": 200,
+   "instances": 9716,
+   "where": [
+    "x1d/backlog-owed.log",
+    278763642
+   ]
+  },
+  "rebuild": {
+   "most_cycles": 27878,
+   "stated_us": 295,
+   "instances": 22,
+   "where": [
+    "x1d/acmp-cmd.log",
+    2295882
+   ]
+  },
+  "record.acmp": {
+   "most_cycles": 19110,
+   "stated_us": 205,
+   "instances": 77,
+   "where": [
+    "x1d/fixture.log",
+    20895151
+   ]
+  },
+  "record.adp": {
+   "most_cycles": 7787,
+   "stated_us": 85,
+   "instances": 50,
+   "where": [
+    "x1d/backlog-adp-refill.log",
+    276653800
+   ]
+  },
+  "record.aecp": {
+   "most_cycles": 17098,
+   "stated_us": 180,
+   "instances": 118,
+   "where": [
+    "x1d/save.log",
+    67402028
+   ]
+  },
+  "record.maap": {
+   "most_cycles": 6274,
+   "stated_us": 70,
+   "instances": 30,
+   "where": [
+    "x1d/backlog-owed.log",
+    272791303
+   ]
+  },
+  "record.srp": {
+   "most_cycles": 24535,
+   "stated_us": 260,
+   "instances": 133,
+   "where": [
+    "x1d/backlog-adp-refill.log",
+    272801821
+   ]
+  },
+  "round": {
+   "most_cycles": 8602,
+   "stated_us": 95,
+   "instances": 452985,
+   "where": [
+    "x1d/acmp-cmd.log",
+    67446345
+   ]
+  }
+ }
+}

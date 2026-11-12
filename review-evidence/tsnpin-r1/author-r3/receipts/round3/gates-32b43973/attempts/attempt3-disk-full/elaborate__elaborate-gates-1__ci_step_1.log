@@ -1,0 +1,5 @@
+# head 32b43973069ee2742f86c4f92adb5eb9ca6bdfb3 workflow elaborate.yml job elaborate-gates-1 step ci_step_1: Set CPU-derived job budgets
+# clone <scratch>/gates/wf6/elaborate__elaborate-gates-1/wt
+# venv <litex-env>/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+# env override: LITEX_SIM_TIMEOUT=3600: the LiteX simulation runner's documented per-script wall clock (default 900 s); this host ran at load ~80 to 105 of 128 CPUs, where two members were killed by the 900 s clock (result UNKNOWN, not a failure; the runner asks for a re-run uncontended)

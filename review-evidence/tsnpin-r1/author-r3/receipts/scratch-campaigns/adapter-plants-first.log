@@ -1,0 +1,22 @@
+unnamed tests (whole table): []
+[ok] mutant acmp-poll-owes-nothing (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+[ok] mutant acmp-kept-dropped (acmp, acmp): 28 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the first command behind the full owed set is declined once and kept, the second left in the ring
+[ESCAPED] mutant acmp-kept-passed (acmp): 0 check(s) failed, none named acmp: AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder on 'the second left in the ring'
+[ok] mutant acmp-kept-never-offered (acmp): 12 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ok] mutant acmp-kept-after-it-is-taken (acmp): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the command kept behind it in pass n + 1 + f, f = 1: the response ahead of it
+[ESCAPED] mutant acmp-kept-offered-on-a-refused-poll (acmp): 0 check(s) failed, none named acmp: AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder on 'K1 the first command behind the full owed set is declined once and kept'
+[ok] mutant acmp-kept-on-interface-zero (acmpif2, acmpif2): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 on the interface it arrived on
+[ok] mutant acmp-kept-dropped-when-declined-again (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K2ABindDeclinedAtTheFullSetWaitsForTwoSlotsAndLosesNoProbe: K2 offered again after the first send, one slot free: declined again and still kept
+[ok] mutant acmp-kept-survives-a-start (acmp): 7 check(s) failed
+    first: [FAIL] AcmpMailbox.K3AStartDropsTheKeptCommand: K3 a start keeps no command from the run before
+mutants: 7 of 9 caught
+
+real	1m14.604s
+user	1m11.622s
+sys	0m6.836s

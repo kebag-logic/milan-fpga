@@ -1,0 +1,32 @@
+# 2026-11-12T01:03:30+01:00 in <scratch>: tools/s2bleg_d.sh <scratch>/snaps/s2bx 8x8 <scratch>/s2/x8 acmp-cmd,acmp-disc,acmp-noresp,acmp-notk,adp-advertise,adp-discover,adp-gm,adp-link,aecp,aecp-fanout,backlog,backlog-adp,backlog-adp-refill,backlog-owed,control,maap,save,srp
+HEAD e7e2b7444a9859b058deff0d9edb575f2fb1946f tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376 acmp delta  2 files changed, 108 insertions(+), 10 deletions(-)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/acmp-notk.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/adp-advertise.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/maap.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/acmp-noresp.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/save.txt -
+COMMANDCOMMAND  <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/backlog-adp.txt -<scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/backlog.txt -
+
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/srp.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/backlog-adp-refill.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/backlog-owed.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/acmp-disc.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/adp-link.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/adp-gm.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/adp-discover.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/control.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/aecp-fanout.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/acmp-cmd.txt -
+COMMAND <scratch>/s2/x8/native/Vsim <scratch>/s2/x8/results-d/aecp.txt -
+BUDGET backlog.owed.if0: 63.680 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.900 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 64.118 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 64.338 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 64.557 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.539 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 61.878 ms over its budget 20 ms
+STEPS 5435 passes carry the store's step; the longest 109,513 CPU cycles (1.095 ms), acmp-notk; the longest step 79,154 (0.792 ms), acmp-notk
+SAVE save: durable 4697.362 ms after its change (stated worst case 12,110 ms, 370 steps, longest gap between flash steps 13.451 ms) within
+18 groups graded, 0 refusals, 7 budget misses (7 of 182 probe instances, 4 of 129 paths), 0 of 12896 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
