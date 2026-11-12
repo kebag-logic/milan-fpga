@@ -12,8 +12,12 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from behave import given, then, when  # pylint: disable=no-name-in-module
+
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
 
 ROOT = Path(__file__).resolve().parents[2]
 AECP_C = ROOT / "sw/firmware/ctrl/aecp/aecp.c"
@@ -39,6 +43,7 @@ class OwedModel:
     """The queue's rules, played: frames on the wire as (kind, command, recipient, sequence_id)."""
 
     def __init__(self, depth: int, slot_bytes: int, controllers: list[str]) -> None:
+        """A queue of `depth` slots of `slot_bytes`, the controllers registered, each at its first sequence_id."""
         self.depth, self.slot_bytes = depth, slot_bytes
         self.controllers = controllers
         self.sequence = {c: 0x100 for c in controllers}
@@ -48,9 +53,11 @@ class OwedModel:
         self.wire: list[tuple[str, str, str, int]] = []
 
     def ready(self) -> bool:
+        """Whether AECP takes the next command: no response owed, no notice held, the queue with a slot."""
         return self.held is None and self.response_owed is None and (not self.queue or len(self.queue) < self.depth)
 
     def command(self, name: str, requester: str, notice_bytes: int) -> bool:
+        """A state-changing command taken, if AECP is ready: whether it was."""
         if not self.ready():
             return False
         if notice_bytes <= self.slot_bytes and len(self.queue) < self.depth:
@@ -68,6 +75,7 @@ class OwedModel:
                 self.sequence[c] += 1
 
     def poll(self) -> None:
+        """One poll: the response owed, then the queue's oldest notice, else the one the response buffer holds."""
         if self.response_owed is not None:
             self.wire.append(("response", *self.response_owed, 0))
             self.response_owed = None
@@ -78,12 +86,14 @@ class OwedModel:
             self.held = None
 
     def drain(self) -> None:
+        """Polls until nothing is owed."""
         for _ in range(64):
             self.poll()
 
 
 @given("AECP's owed-notice rules read from the shipped firmware")
-def step_rules(context) -> None:
+def step_rules(context: Context) -> None:
+    """Given: AECP's owed-notice rules read from the shipped firmware."""
     missing = [rule for rule, (path, text) in RULES.items() if text not in path.read_text(encoding="utf-8")]
     assert not missing, f"the firmware no longer states: {missing}"
     burst = re.search(r"- name: aecp\b.*?burst: (\d+)", (ROOT / "sw/mailbox/mailbox.yaml").read_text(encoding="utf-8"),
@@ -93,12 +103,14 @@ def step_rules(context) -> None:
 
 
 @given("controllers A, B and C registered for unsolicited notifications")
-def step_controllers(context) -> None:
+def step_controllers(context: Context) -> None:
+    """Given: controllers A, B and C registered for unsolicited notifications."""
     context.model = OwedModel(context.depth, context.slot, ["A", "B", "C"])
 
 
 @when("A sends a state-changing command and B sends one before any notice leaves")
-def step_back_to_back(context) -> None:
+def step_back_to_back(context: Context) -> None:
+    """When: A sends a state-changing command and B sends one before any notice leaves."""
     m = context.model
     assert m.command("set-A", "A", 110)
     assert m.ready(), "(c) a command's notice owed in the queue does not hold the next command"
@@ -107,47 +119,54 @@ def step_back_to_back(context) -> None:
 
 
 @then("the wire carries A's response, then B's response, then the notices")
-def step_order(context) -> None:
+def step_order(context: Context) -> None:
+    """Then: the wire carries A's response, then B's response, then the notices."""
     wire = context.model.wire
     assert wire[0][:3] == ("response", "set-A", "A") and wire[1][:3] == ("response", "set-B", "B"), wire[:2]
     assert all(kind == "notice" for kind, *_ in wire[2:]), "(b) only notices follow the responses"
 
 
 @then("C receives A's notice before B's, at consecutive sequence_ids")
-def step_fifo(context) -> None:
+def step_fifo(context: Context) -> None:
+    """Then: C receives A's notice before B's, at consecutive sequence_ids."""
     to_c = [(name, seq) for kind, name, who, seq in context.model.wire if kind == "notice" and who == "C"]
     assert [name for name, _ in to_c] == ["set-A", "set-B"], to_c
     assert to_c[1][1] == to_c[0][1] + 1, to_c
 
 
 @then("A receives only B's notice and B only A's")
-def step_requester(context) -> None:
+def step_requester(context: Context) -> None:
+    """Then: A receives only B's notice and B only A's."""
     wire = context.model.wire
     assert [n for k, n, who, _ in wire if k == "notice" and who == "A"] == ["set-B"]
     assert [n for k, n, who, _ in wire if k == "notice" and who == "B"] == ["set-A"]
 
 
 @when("commands fill the owed-notice queue at its depth")
-def step_fill(context) -> None:
+def step_fill(context: Context) -> None:
+    """When: commands fill the owed-notice queue at its depth."""
     m = context.model
     for n in range(m.depth):
         assert m.command(f"set-{n}", "AB"[n % 2], 110), n
 
 
 @then("AECP is not ready for the next command")
-def step_full(context) -> None:
+def step_full(context: Context) -> None:
+    """Then: AECP is not ready for the next command."""
     assert not context.model.ready()
     assert not context.model.command("one-more", "A", 110)
 
 
 @then("one notice sent frees one slot and AECP is ready again")
-def step_freed(context) -> None:
+def step_freed(context: Context) -> None:
+    """Then: one notice sent frees one slot and AECP is ready again."""
     context.model.poll()
     assert len(context.model.queue) == context.model.depth - 1 and context.model.ready()
 
 
 @when("A sends a state-changing command and B sends one whose notice is longer than a slot")
-def step_long(context) -> None:
+def step_long(context: Context) -> None:
+    """When: A sends a state-changing command and B sends one whose notice is longer than a slot."""
     m = context.model
     assert m.command("set-A", "A", 110)
     assert m.command("map-B", "B", context.slot + 14)
@@ -157,7 +176,8 @@ def step_long(context) -> None:
 
 
 @then("B's response is held until the poll and precedes B's notice")
-def step_long_response(context) -> None:
+def step_long_response(context: Context) -> None:
+    """Then: B's response is held until the poll and precedes B's notice."""
     assert [w[:3] for w in context.before_poll] == [("response", "set-A", "A")]
     wire = context.model.wire
     response = wire.index(next(w for w in wire if w[:2] == ("response", "map-B")))
@@ -165,6 +185,7 @@ def step_long_response(context) -> None:
 
 
 @then("C receives A's notice before B's")
-def step_long_fifo(context) -> None:
+def step_long_fifo(context: Context) -> None:
+    """Then: C receives A's notice before B's."""
     to_c = [name for kind, name, who, _ in context.model.wire if kind == "notice" and who == "C"]
     assert to_c == ["set-A", "map-B"], to_c

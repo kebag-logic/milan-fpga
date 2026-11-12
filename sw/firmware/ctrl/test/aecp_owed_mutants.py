@@ -8,6 +8,9 @@ QA = 'Queued.BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder'
 QC = 'Queued.TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull'
 QL = 'Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue'
 QR = 'Queued.AQueuedNoticeResumesAtItsRecipient'
+QD = 'Queued.AQueueTooDeepOrWithNoStorageIsRefused'
+QF = 'Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame'
+ROUND = 'Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse'
 NONE = 'Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice'
 FIRST = 'Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone'
 TRANSMIT = 'return respond(a) || notices(a, drains);'
@@ -15,6 +18,21 @@ HEAD = '\t\t\tstruct aecp_owed *o = &a->cfg.owed[a->owed_head];\n'
 READY = '(a->owed_count == 0u || a->owed_count < a->cfg.owed_slots)'
 
 ROWS = (
+    # the queue's storage: its tail wraps past the head's slot, its depth and storage are the integrator's, checked
+    ('owed-tail-overwrites-the-head', 'aecp.c', 'tail < a->cfg.owed_slots ? tail : tail - a->cfg.owed_slots]',
+     'tail < a->cfg.owed_slots ? tail : a->owed_head]',
+     (QC, "the queue's tail wraps to its freed first slot, its notices in their order")),
+    ('owed-depth-unbounded', 'aecp.c', 'cfg->owed_slots > 0xffu ||', '',
+     (QD, '(c) a queue deeper than its 8-bit counts')),
+    ('owed-slots-without-storage', 'aecp.c', '(cfg->owed_slots != 0u && cfg->owed == NULL) ||', '',
+     (QD, '(c) slots with no storage')),
+    # THE RETRY waits on the queue as on every other notice owed, and the queue's fan-out leaves a held notice whole
+    ('owed-round-beside-the-queue', 'aecp.c',
+     'return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;',
+     'return a->response_owed || a->notify || a->waiting || a->start_pending;',
+     (ROUND, 'the round waits while the owed-notice queue holds a notice')),
+    ('owed-fan-over-the-held-notice', 'aecp.c', 'a->notify ? NULL : a->response)', 'a->response)',
+     (QF, "the queue's frame by frame, the long notice's two through the fan port")),
     # (a) per-controller order FIFO, each recipient its notice once at its next sequence_id
     ('owed-newest-first', 'aecp.c', HEAD, HEAD.replace('a->owed_head]', 'a->owed_head + a->owed_count - 1u]'),
      (QA, '(a) in the order their commands were taken')),

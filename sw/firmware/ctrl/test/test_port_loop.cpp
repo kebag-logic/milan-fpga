@@ -1355,6 +1355,19 @@ TEST_F(Loop, L22PassesGivenWholeStandApartAsInputWaits) {
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));   // a tier-1 record (ADP's) posted during it
     EXPECT_FALSE(whole()) << "L22 and none follows another while a tier-1 record is held (THE TIERS)";
     EXPECT_TRUE(whole()) << "L22 the next after the ordinary pass that took it";
+    // a tier-1 record whose module is not ready is not held: a pass given whole follows another past it
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_AECP, probe_rx_aecp, nullptr));
+    ctrl_loop_set_rx_ready(&loop_, MBX_CH_AECP, probe_aecp_ready);
+    model.filter_en |= 1u << MBX_CH_AECP;   // bound past the open, which opens the filter of what was bound by then
+    std::uint8_t c[64];
+    build_frame(c, sizeof c, 0x22F0, 0xFB, 0);   // an AEM_COMMAND to the entity and the interface the loop opened as
+    wire_put_be(c, kOwn.mac[0], 6);
+    probe.aecp_busy = true;
+    ASSERT_TRUE(mbx_model_rx(&model, c, sizeof c, 0));
+    EXPECT_TRUE(whole()) << "L22 a tier-1 record whose module is not ready holds none back (THE TIERS)";
+    probe.aecp_busy = false;
+    EXPECT_FALSE(whole()) << "L22 and once its module is ready it holds the next";
+    EXPECT_TRUE(whole()) << "L22 the next after the ordinary pass that took it";
     loop_.drain_ch = MBX_CH_ADP + 1u;
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     EXPECT_FALSE(whole()) << "L22 and none follows another while a record of THE DRAIN's channel waits";

@@ -122,9 +122,9 @@ class Plant:
 SPIN = '\tfor (volatile uint32_t n = 0; n < 120000u; ++n) {\n\t}\n'
 
 
-#: The notification loop of aecp.c's fan_out, which transmit calls while a notice is owed; the late plant spins once
-#: before a fan-out's first recipient.
-NOTIFY_LOOP = '\tunsigned k = a->recipient;\n\twhile (!owed && k < total) {'
+#: The notification loop of aecp.c's fan_out, which transmit calls while a notice is owed, its cursor `at` (the
+#: owed-notice queue's or the response buffer's, #894); the late plant spins once before a fan-out's first recipient.
+NOTIFY_LOOP = '\tunsigned k = *at;\n\twhile (!owed && k < total) {'
 
 
 def late(path: str, anchor: str, group: str, hook: str, probe: str) -> Plant:
@@ -209,21 +209,11 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'the successful command\'s response is committed before any of its notifications (Milan v1.2 5.4.5.2; '
          'IEEE 1722.1-2021 7.5.2; FR_NFR.md 3.4.1)',
          'response_before_notice',
-         Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (a->recipient == 0u) {\n' + SPIN.replace('\t', '\t\t')
+         Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (*at == 0u) {\n' + SPIN.replace('\t', '\t\t')
                  + '\t}\n' + NOTIFY_LOOP),), 'hooks-late-notify', 'LATE H-NOTIFY',
                probe='hooks-late-notify.set_name.if0'),
-         Plant((('aecp/aecp.c', 'static bool transmit(struct aecp *a)\n{\n\tif (a->response_owed) {\n',
-                 'static bool transmit(struct aecp *a)\n{\n\tstatic uint8_t solicited[AECP_FRAME_BYTES];\n'
-                 '\tstatic size_t solicited_bytes;\n\tstatic unsigned solicited_interface;\n\tstatic bool reorder;\n'
-                 '\tif (a->response_owed && a->notify && !reorder) {\n'
-                 '\t\tmemcpy(solicited, a->response, a->response_bytes);\n'
-                 '\t\tsolicited_bytes = a->response_bytes;\n\t\tsolicited_interface = a->response_interface;\n'
-                 '\t\treorder = true;\n\t}\n\tif (a->response_owed && !reorder) {\n'),
-                ('aecp/aecp.c', '\treturn a->notify && fan_out(a);\n}',
-                 '\tif (a->notify && fan_out(a)) {\n\t\treturn true;\n\t}\n\tif (reorder) {\n'
-                 '\t\tmemcpy(a->response, solicited, solicited_bytes);\n\t\ta->response_bytes = solicited_bytes;\n'
-                 '\t\ta->response_interface = solicited_interface;\n\t\tif (!send(a)) {\n\t\t\treturn true;\n\t\t}\n'
-                 '\t\treorder = false;\n\t\ta->response_owed = false;\n\t}\n\treturn false;\n}')),
+         Plant((('aecp/aecp.c', 'return respond(a) || notices(a, drains);',
+                 'return notices(a, drains) || respond(a);'),),
                'aecp-fanout', 'ORDER H-NOTIFY')),
     Hook('H-COUNTERS', ('notify',), 'Milan v1.2 5.4.5.2, Table 5.22; 5.3.7.7, 5.3.8.10',
          'a descriptor\'s counter pushes to one recipient leave at least 1 s apart at the wire, and a change '

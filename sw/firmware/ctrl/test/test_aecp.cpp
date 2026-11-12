@@ -780,12 +780,24 @@ TEST_F(Queued, TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull)
     EXPECT_TRUE(notice(sent[2].second)&&sent[2].second[46]==0x41&&get(sent[2].second,26,8)==CTLR+1)
         <<"the oldest first";
     EXPECT_EQ(a.owed_count,1u);EXPECT_TRUE(aecp_ready(&a))<<"(c) its slot free, AECP is ready again";
-    drain();EXPECT_EQ(a.owed_count,0u);
-    // the queue wraps: two more, their notices in their order
-    sent.clear();set_name(CTLR,0x44);set_name(CTLR+1,0x45);drain();
+    // the head has moved past the first slot: the next notice's tail wraps to it, and goes after the one ahead of it
+    set_name(CTLR,0x44);
+    ASSERT_EQ(a.owed_count,2u);
+    sent.clear();drain();
     std::vector<uint8_t> names;
     for(auto &s:sent) if(notice(s.second)) names.push_back(s.second[46]);
-    EXPECT_EQ(names,(std::vector<uint8_t>{0x44,0x45}))<<"the queue's slots reused in their order once it wraps";
+    EXPECT_EQ(names,(std::vector<uint8_t>{0x42,0x44}))
+        <<"the queue's tail wraps to its freed first slot, its notices in their order";
+    EXPECT_EQ(a.owed_count,0u);
+}
+
+// (c): an integrator's queue deeper than the queue's 8-bit counts, or slots given with no storage, is refused.
+TEST_F(Queued, AQueueTooDeepOrWithNoStorageIsRefused)
+{
+    aecp b{};auto c=cfg;
+    c.owed_slots=256u;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) a queue deeper than its 8-bit counts";
+    c.owed_slots=slots.size();c.owed=nullptr;EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"(c) slots with no storage";
+    c.owed=slots.data();EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the fixture's queue is taken";
 }
 
 // (a), (b): a notice longer than a slot stays in the response buffer, its response and its notice sent by the poll as
@@ -1619,6 +1631,28 @@ TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
     ports.fan=nullptr;ports.fan_end=nullptr;
 }
 
+// (a), #894: with the fan port, a queued notice beside a longer one in the response buffer goes frame by frame, since
+// the fan port's frames alternate with that buffer, which holds the longer notice; that one goes through the fan port
+// after it, to each recipient in order.
+TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    Bytes rows=target(14,0,8+12*8);put(rows,4,12,2);
+    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
+    auto b=command(44,rows,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
+    ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
+    ports.fan_end=[](void*,uint32_t c){return fan_model.end(c);};
+    drain();
+    std::vector<unsigned> order;
+    for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
+    EXPECT_EQ(order,(std::vector<unsigned>{16u,16u,44u,44u}))<<"(a) the queue's notice to each recipient, then the long one";
+    EXPECT_EQ(fan_model.started,2u)<<"the queue's frame by frame, the long notice's two through the fan port";
+    ports.fan=nullptr;ports.fan_end=nullptr;
+}
+
 TEST_F(Core, StartIsDeferredAndHasFailureDeadline)
 {
     auto b=command(34,target(5,0));
@@ -1864,7 +1898,9 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
     a.waiting=false;a.start_pending=true;
     EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
-    a.start_pending=false;
+    a.start_pending=false;a.owed_count=1u;
+    EXPECT_TRUE(aecp_retry(&a,1u,0u));EXPECT_EQ(reads,first)<<"the round waits while the owed-notice queue holds a notice";
+    a.owed_count=0u;
     EXPECT_FALSE(aecp_retry(&a,1u,0u));EXPECT_GT(reads,first)<<"and tries the retry once none is";
     EXPECT_EQ(timer_at,3u)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";

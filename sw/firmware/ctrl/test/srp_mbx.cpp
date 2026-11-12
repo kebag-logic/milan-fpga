@@ -1289,8 +1289,13 @@ TEST_F(Srp, RefusedPeerDomainDoesNotSurviveLinkRestart) {
     ASSERT_GE(held.size(),2u);
     ctrl_loop_service(&loop);
     ASSERT_TRUE(adapter.ifs[0].domain_owed);
+    // the old link's reset discards the owed Domain: once it is taken neither owed nor adopted, whatever build ran
+    // before it, a build resumed across slices included (#894)
+    mbx_model_set_link(&model,0,false); settle();
+    EXPECT_TRUE(!adapter.ifs[0].domain_owed && adapter.ifs[0].domain.vid == 2u)
+        <<"old link's refused Domain must be discarded at its reset";
     for(void *p:held) ctrl_pool_free(&pool,p);
-    mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true); settle(); advance(400);
+    mbx_model_set_link(&model,0,true); settle(); advance(400);
     EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"old link's refused Domain must be discarded";
     EXPECT_EQ(adapter.ifs[0].domain.priority,3u);
 }

@@ -60,7 +60,7 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "    m->loop->rx_held = rebuilds;\n", "    m->loop->rx_held = m->loop->rx_held || rebuilds;\n",
              "and the rebuild ends the hold"),
         kind("transmit-built-by-the-poll", WAITS, POLL_END,
-             "    m->busy = false;\n    transmit(m);\n    return owed || m->tx_due != 0u;\n}\n",
+             "    m->busy = false;\n    transmit(m, CTRL_LOOP_BUILD_MOST);\n    return owed || m->tx_due != 0u;\n}\n",
              "and no poll builds it"),
         kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_due != 0u;\n", "",
              "an owed MRPDU is reported owed"),

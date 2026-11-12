@@ -147,7 +147,8 @@ def datapath_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: 
     posted = {kind: script.count(f'datapath {kind} ') for kind in ('avb', 'asp', 'amap')}
     printed = 'std::printf("DATAPATH %llu %s %u\\n", ull(sys_), kinds[kind], i);' in \
         (scenario.ROOT / 'tb/verilator/ctrl_service_budget/sim_main.cpp').read_text()
+    graded = printed and pads == [('DATAPATH-avb', 1), ('DATAPATH-amap', 0)]
     return [("a datapath change pulse's line, as the testbench prints it, is graded as a pad of its kind and "
-             "interface, not refused", printed and pads == [('DATAPATH-avb', 1), ('DATAPATH-amap', 0)], str((printed, pads))),
+             "interface, not refused", graded, str((printed, pads))),
             ('the datapath-events group posts each kind on every interface eight times',
              posted == {'avb': 16, 'asp': 16, 'amap': 16}, str(posted))]
