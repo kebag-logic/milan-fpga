@@ -363,7 +363,7 @@ The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` wi
 The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
 The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
 
-On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
+On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
 Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
@@ -377,7 +377,7 @@ Two plans move against `0fb66211`.
 The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
 The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
 Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
-The tightest point is now the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
+The smallest margins at the merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override holds.
 
 The owner's decision of 2026-11-12 (#665, 6824896581) supersedes, for the flip only, the requirement above that the flip (S13) needs 56 RAMB36 or fewer at every point with S14 merged.
 The two 8x8 points with two interfaces are held as named ROM debt owed to S14: the target platform's image may plan 60.0 RAMB36, at most 60.5, and the size fixture's 58.0, at most 58.5.
