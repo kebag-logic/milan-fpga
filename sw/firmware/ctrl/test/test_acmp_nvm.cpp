@@ -63,7 +63,7 @@ class AcmpStore : public ::testing::Test {
  protected:
     void SetUp() override {
         nvm_fmodel_blank();
-        boot(MILAN_NVM_N_STREAM_IN);
+        boot(MILAN_NVM3_N_STREAM_IN);
     }
 
     // A power cycle: the media keeps its bytes, the core and the store start afresh.
@@ -120,7 +120,7 @@ TEST_F(AcmpStore, N1ABindSurvivesAPowerCycleAndFastConnects) {
     unsigned ok = nvm_store_status()->commits_ok;
     serve();
     ASSERT_EQ(nvm_store_status()->commits_ok, ok + 1u) << "N1 the store commits it";
-    boot(MILAN_NVM_N_STREAM_IN);
+    boot(MILAN_NVM3_N_STREAM_IN);
     EXPECT_EQ(nvm_store_status()->terminal, NVM_T_COMPLETE) << "N1 the next boot restores the container";
     const acmp_sink& s = a.sinks[0];
     EXPECT_TRUE(s.bound && s.binding.talker_entity_id == kTkA && s.binding.talker_unique_id == 1u &&
@@ -145,12 +145,12 @@ TEST_F(AcmpStore, N1ABindSurvivesAPowerCycleAndFastConnects) {
 TEST_F(AcmpStore, N2AnUnbindIsSavedAsAnUnboundRecord) {
     command(spec::MSG_BIND_RX_COMMAND, 0, kTkA);
     serve();
-    boot(MILAN_NVM_N_STREAM_IN);
+    boot(MILAN_NVM3_N_STREAM_IN);
     ASSERT_TRUE(a.sinks[0].bound);
     command(spec::MSG_UNBIND_RX_COMMAND, 0, kTkA);
     ASSERT_EQ(persists, 1u) << "N2 the unbind marks the record (5.5.3.5.8 step 3)";
     serve();
-    boot(MILAN_NVM_N_STREAM_IN);
+    boot(MILAN_NVM3_N_STREAM_IN);
     EXPECT_TRUE(!a.sinks[0].bound && a.sinks[0].state == ACMP_UNBOUND && nvm_store_status()->terminal == NVM_T_COMPLETE)
         << "N2 the next boot finds the sink unbound";
 }
@@ -163,7 +163,7 @@ TEST_F(AcmpStore, N3EachSinksStartedStateIsSaved) {
     ASSERT_TRUE(acmp_set_started(&a, 1, false)) << "N3 STOP_STREAMING of sink 1";
     serve();
     EXPECT_EQ(nvm_store_status()->commits_ok, ok + 1u) << "N3 the started state alone is a change the store commits";
-    boot(MILAN_NVM_N_STREAM_IN);
+    boot(MILAN_NVM3_N_STREAM_IN);
     EXPECT_TRUE(a.sinks[0].bound && !a.sinks[0].started && a.sinks[0].binding.streaming_wait && a.sinks[1].bound &&
                 !a.sinks[1].started && !a.sinks[1].binding.streaming_wait && a.sinks[1].binding.talker_entity_id == kTkB)
         << "N3 each sink's started state and STREAMING_WAIT come back (5.3.8.7)";
@@ -198,15 +198,15 @@ TEST_F(AcmpStore, N4AnUnreadSlotRefusesPersistence) {
     EXPECT_TRUE(nvm_store_status()->commits_ok == ok && nvm_store_status()->phase == NVM_P_HELD &&
                 nvm_store_status()->dirty)
         << "N4 but nothing is written while the writer is held: persistence is refused";
-    boot(MILAN_NVM_N_STREAM_IN);
+    boot(MILAN_NVM3_N_STREAM_IN);
     EXPECT_TRUE(a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA)
         << "N4 a clean boot brings back the binding that was saved, not the refused one";
 }
 
 TEST_F(AcmpStore, N5ARecordTheCoreRefusesKeepsItsDefault) {
-    command(spec::MSG_BIND_RX_COMMAND, MILAN_NVM_N_STREAM_IN - 1u, kTkA);
+    command(spec::MSG_BIND_RX_COMMAND, MILAN_NVM3_N_STREAM_IN - 1u, kTkA);
     serve();
-    boot(MILAN_NVM_N_STREAM_IN - 1u);
+    boot(MILAN_NVM3_N_STREAM_IN - 1u);
     EXPECT_TRUE(nvm_store_status()->terminal == NVM_T_COMPLETE && nvm_store_status()->refused >= 1u)
         << "N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on";
 }
@@ -224,7 +224,7 @@ TEST_F(AcmpStore, N6TheRollBackAndEveryOtherGroup) {
     EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, 0, payload, sizeof payload - 1u), 0)
         << "N6 a latch of another length gives nothing";
     EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, 0, payload, sizeof payload), 1) << "N6 the record's does";
-    EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, MILAN_NVM_N_STREAM_IN, payload, sizeof payload), 0)
+    EXPECT_EQ(glue.port.latch(glue.port.ctx, NVM_G_BIND, MILAN_NVM3_N_STREAM_IN, payload, sizeof payload), 0)
         << "N6 a latch of a sink the configuration lacks gives nothing: the staged bytes stand";
     nvm_smodel_ready(0);
     EXPECT_EQ(glue.port.model_ready(glue.port.ctx), 0) << "N6 the model's readiness is the other owners'";

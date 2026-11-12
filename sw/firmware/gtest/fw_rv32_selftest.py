@@ -113,7 +113,7 @@ def runtime_cases(cc: str, work: Path) -> int:
     cfg = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     inputs = nvm_bench.shape_inputs(cfg, work / "inputs")
     gen = work / "gen"
-    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs), inputs.clock_hz)
     nvm = work / "nvm"
     shutil.copytree(nvm_bench.TREE, nvm)
     findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)

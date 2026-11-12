@@ -22,8 +22,8 @@
  *     byte, or bit 3 of the byte at `at`, counting only the reads that cover
  *     it); that returns the byte at `at` wrong in a different way each time
  *     (XOR 0x08, then 0x10, then 0x20: unstable cells); or that answers
- *     from the neighbouring erase block (address bit 16 stuck: slot A reads
- *     slot B, and B reads A);
+ *     from the same place in the other slot (a stuck address line: slot A
+ *     reads slot B, and B reads A; the slots are nvm_fmodel_slots');
  *   - a bit flipped at rest (nvm_fmodel_flip).
  * Each fault is armed for `count` operations of its kind, after the next
  * `skip` of them pass untouched.
@@ -72,6 +72,7 @@ struct nvm_fmodel_count {
 	unsigned int protected_hit; /* into the protected slot: refused */
 	unsigned int descending;    /* a page program below the one before it */
 	uint64_t erase_start_us[16];/* the first sixteen erase starts */
+	uint32_t erase_addr[16];    /* the block each of them erased */
 };
 
 extern uint8_t nvm_fmodel_mem[NVM_FMODEL_BYTES];
@@ -82,8 +83,10 @@ void nvm_fmodel_power_on(void);
 void nvm_fmodel_blank(void);
 /* The window erase and program may touch, [lo, hi). */
 void nvm_fmodel_window(uint32_t lo, uint32_t hi);
-/* A slot nothing may erase or program: [lo, lo + NVM_FMODEL_BLOCK); 0 none. */
-void nvm_fmodel_protect(uint32_t lo);
+/* A slot nothing may erase or program: [lo, lo + len); lo 0 none. */
+void nvm_fmodel_protect(uint32_t lo, uint32_t len);
+/* The two slots, [a, a + span) and the span after it, a read-alias swaps. */
+void nvm_fmodel_slots(uint32_t a, uint32_t span);
 void nvm_fmodel_times(uint64_t erase_us, uint64_t program_us);
 void nvm_fmodel_fault(enum nvm_fault fault, unsigned int count, unsigned int skip);
 /* Where erase-stuck, read-fail-at, read-flip-at and read-vary-at act (see

@@ -12,7 +12,7 @@
 // One test per check of the hand-rolled suite this replaces
 // (nvm_checks_write.py until #665 FT), under the check's own name. Where that
 // suite decoded a slot to find one changed value, the test compares the whole
-// slot with the container nvm_klj2.py assembles for the same records.
+// slot with the container nvm_klj3.py assembles for the same records.
 
 #include <gtest/gtest.h>
 
@@ -64,7 +64,7 @@ bool all_at_least(const std::vector<long long>& v, long long floor) {
 }
 
 // A console commit on a blank board writes slot A with the all-erased
-// container at sequence 1, byte for byte as nvm_klj2.py writes it, in one
+// container at sequence 1, byte for byte as nvm_klj3.py writes it, in one
 // erase and one program per page.
 TEST_P(NvmBoth, first_commit_bytes) {
     Files f;
@@ -72,7 +72,7 @@ TEST_P(NvmBoth, first_commit_bytes) {
     EXPECT_TRUE(r.at("ok") == 1 && r.at("seq") == 1 && r.at("auth") == 0 && r.at("erases") == 1 &&
                 r.at("programs") == pages())
         << "first commit: " << r.text();
-    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj2.py's";
+    EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("erased@1"))) << "the first container differs from nvm_klj3.py's";
     if (port() == Port::Litespi) {
         EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages() && r.at("ls_wren") == r.at("ls_se") + r.at("ls_pp"))
             << "LiteSPI command sequence: " << r.text();
@@ -80,7 +80,7 @@ TEST_P(NvmBoth, first_commit_bytes) {
 }
 
 // A change to the first record of every group commits into the slot that is
-// not authoritative, at the next sequence, byte for byte as nvm_klj2.py writes
+// not authoritative, at the next sequence, byte for byte as nvm_klj3.py writes
 // the same records; the authoritative slot is untouched; and a boot from the
 // result applies exactly the changed values (the round trip).
 TEST_P(NvmBoth, change_commit_bytes) {
@@ -95,7 +95,7 @@ TEST_P(NvmBoth, change_commit_bytes) {
                 r.at("pending") == 0)
         << "change commit: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("changed5c@6")))
-        << "the committed container differs from nvm_klj2.py's for the same records";
+        << "the committed container differs from nvm_klj3.py's for the same records";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("golden@5"))) << "the authoritative slot changed";
     if (port() == Port::Litespi) {
         EXPECT_TRUE(r.at("ls_se") == 1 && r.at("ls_pp") == pages()) << "LiteSPI command sequence: " << r.text();
@@ -147,6 +147,31 @@ TEST_P(NvmBoth, debounce) {
     EXPECT_TRUE(r.at("ok") == 2 && in(after_mark(r, 1), 1000 * kMs, 1050 * kMs))
         << "a change after the capture: erase " << after_mark(r, 1) << " us after it, want 1,000 to 1,050 ms: "
         << r.text();
+}
+
+// #823 decision 6: the open bits carry their count. Two changes to one record
+// and one to another open two records; the capture moves both into flight,
+// and the verified commit closes them, each count following its bits.
+TEST_P(NvmBoth, open_count) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const unsigned a = rids().front();
+    const unsigned b = rids().back();
+    const std::vector<std::string> marks = {"--slot-b", "g.bin", "--boot", "--set", set_word(a, value(a, 1)),
+                                            "--set", set_word(a, value(a, 2)), "--set", set_word(b, value(b, 3))};
+    Result r = go(port(), f, marks);
+    EXPECT_TRUE(r.at("n_dirty") == 2 && r.at("n_inflight") == 0 && r.at("dirty") == 1 && r.at("pending") == 0)
+        << "two records changed, one twice: " << r.text();
+    std::vector<std::string> words = marks;
+    words.insert(words.end(), {"--until-phase", num(NVM_P_SEAL)});
+    r = go(port(), f, words);
+    EXPECT_TRUE(r.at("n_dirty") == 0 && r.at("n_inflight") == 2 && r.at("dirty") == 0 && r.at("pending") == 1)
+        << "both captured: " << r.text();
+    words = marks;
+    words.insert(words.end(), {"--until-idle"});
+    r = go(port(), f, words);
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("n_dirty") == 0 && r.at("n_inflight") == 0 && r.at("dirty") == 0 &&
+                r.at("pending") == 0)
+        << "committed: " << r.text();
 }
 
 // DR2b: a change that leaves every persisted value as the verified slot holds
@@ -639,7 +664,7 @@ TEST_P(NvmBoth, refused_slot_kept) {
         << "refused slot A: " << r.text();
     EXPECT_TRUE(slot_holds(f.blobs["a.bin"], fx().blob("golden@5/foreign"))) << "the refused image was erased";
     EXPECT_TRUE(slot_holds(f.blobs["b.bin"], fx().blob("erased_one7@1")))
-        << "slot B is not the container nvm_klj2.py assembles for the change";
+        << "slot B is not the container nvm_klj3.py assembles for the change";
 }
 
 // Every service step is bounded and returns: no step touches more than one
@@ -650,7 +675,9 @@ TEST_P(NvmBoth, service_bound) {
     Files f = fx().files({{"g.bin", "golden@5"}});
     const Result r = go(port(), f, {"--slot-b", "g.bin", "--boot", "--times", "3000:1000", "--set-pattern", "1",
                                  "--until-idle"});
-    const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + 6);
+    // one latched record: its copy, and its crc16 over the reference's header
+    // less the crc16's own two bytes, then the payload
+    const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + fx().num("rec_hdr") - 2);
     EXPECT_TRUE(r.at("ok") == 1 && r.at("step_max") == want && want == r.at("step_bound"))
         << "step bytes " << r.at("step_max") << ", want " << want << " (bound " << r.at("step_bound") << ")";
     EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
@@ -680,11 +707,12 @@ TEST_P(NvmBoth, powercut) {
     }
 }
 
-// The LiteSPI port refuses to program or erase outside the journal.
+// The LiteSPI port refuses to program or erase outside the journal, today's
+// KLJ2 journal above it included.
 TEST_F(NvmLitespi, port_guard) {
     Files f;
     const Result r = go(port(), f, {"--port-guard"});
-    EXPECT_EQ(r.guard, 0) << "the port took " << r.guard << " of 4 writes outside the journal";
+    EXPECT_EQ(r.guard, 0) << "the port took " << r.guard << " of 6 writes outside the journal";
 }
 
 }  // namespace
