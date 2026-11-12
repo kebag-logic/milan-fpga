@@ -54,11 +54,13 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: makes, stated at the SRP record's cost (250 and 365 us), and an owed MRPDU is a part of a build of one, stated at
 #: that pass's cost (CTRL_LOOP_BUILD_ONE_PASS_US, 405 and 1,215 us). The SRP record's and AECP's item (a notice to the
 #: registered controllers) are measured on the image whose notice is built once and addressed per recipient and whose
-#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms.
-STATED_US = {1: dict(base=155, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
+#: SRP comparisons are same()'s (#665: the notice and SRP record cuts), over every group of both arms. Measured again on
+#: the image under THE TIERS (#894), each the larger of that and this table's: the base 160 us at 1x1/1if (155), and
+#: ACMP's owed frame 195 (185) and a notice 275 (270) at 8x8/2if.
+STATED_US = {1: dict(base=160, withdraw=90, rebuild=290, walk=20, reclaim=25, retained=250, mrpdu=405, acmp=65,
                     aecp=210),
-             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=185,
-                    aecp=270)}
+             2: dict(base=280, withdraw=245, rebuild=630, walk=60, reclaim=35, retained=365, mrpdu=1215, acmp=195,
+                    aecp=275)}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.

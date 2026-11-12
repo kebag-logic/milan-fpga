@@ -71,8 +71,9 @@ behind every tier-2 unit that arrives in its window."""
 DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AMAP_LIVE_WRITE': 'entity'}
 #: Each datapath event's stated cost in us, its take and every sink's work: the most the CPU budget harness measured
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
-#: 5 %, rounded up to 5 us, as every stated cost (#894: the datapath events' sink cost, measured).
-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 20},
+#: 5 %, rounded up to 5 us, as every stated cost, the larger of each image's measurement and the one before it (#894:
+#: the datapath events' sink cost, measured, and measured again on the image under THE TIERS).
+DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 25},
                '8x8/2if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 25}}
 #: The tier-1 channels: the response channels (#665 round 23: AECP, ACMP and ADP) and MAAP, which the ruling names in
 #: neither tier and which is counted with tier 1, the side that lengthens R4.
@@ -757,7 +758,7 @@ def tree_controls(root: Path) -> list[str]:
     # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
     # header whose slice is another is refused
     loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
-    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1050u : 1300u)'
+    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1200u : 1300u)'
     other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1250u : 1300u)')
     tree = built_constants(root, 1)[0]
     if slice_choice(root)[0] != tree or built_constants(root, 1, {loop: other})[0] == tree or \
