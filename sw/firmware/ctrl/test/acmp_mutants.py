@@ -780,7 +780,9 @@ MUTANTS = (
             "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
            ("\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
             "\t(void)a->ports->now_ms(a->ports->ctx);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
-           "acmp", "AcmpCore.TimerPortBudgets", "timer clock budget for state PRB_W_DELAY"),
+           "acmp", "AcmpCore.TimerPortBudgets", "timer clock budget for state PRB_W_DELAY",
+           (("acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry",
+             "C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed"),)),
     Mutant("acmp-available-reads-the-clock-twice", ACMP_C, "\ts->adp_deadline = now(a) + valid_ms;",
            "\ts->adp_deadline = now(a) + valid_ms + 0u * a->ports->now_ms(a->ports->ctx);",
            "acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
