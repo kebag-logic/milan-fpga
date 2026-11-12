@@ -28,7 +28,7 @@ import plat_arms
 import plat_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
-from ctrl_mutant import ACMP_C, ADP_C, Mutant
+from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -273,6 +273,14 @@ MUTANTS = (
            "\treturn __builtin_malloc(size);", "port", "Pool.P4ShlanFunctionsDrawOnTheBoundPool",
            "P4 shlan_malloc and shlan_calloc draw on the bound pool",
            (("rv32", "", "symbols outside the C library"),)),
+    # tsn-c-stack#27: the per-byte form, a variable 64-bit shift for every byte
+    Mutant("wire-put-be-shifts-64-bits", WIRE_H,
+           ("\tuint32_t high = (uint32_t)(value >> 32);\n\tuint32_t low = (uint32_t)value;\n"
+            "\tfor (unsigned i = bytes; i > 0u; --i) {\n\t\tp[i - 1u] = (uint8_t)low;\n"
+            "\t\tlow = (low >> 8) | (high << 24);\n\t\thigh >>= 8;\n\t}\n"),
+           ("\tfor (unsigned i = 0; i < bytes; ++i) {\n"
+            "\t\tp[i] = (uint8_t)(value >> (8u * (bytes - 1u - i)));\n\t}\n"),
+           "platrv32", "", "the 64-bit shift helper (tsn-c-stack#27)"),
     Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
            "\tif (ch->tokens == 0u && false) {",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 the frames past it count in RATE_DROP"),
@@ -597,12 +605,15 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
 ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
+               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
                "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
                "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
                "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
                "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
                "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
-               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n}")
+               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n")
+#: The walk's marks are cleared last (tsn-c-stack#32), so a publication moved behind the report still sees them.
+ACMP_FINISH_CLEAR = "\tmemset(a->dirty, 0, sizeof a->dirty);\n\ta->dirty_if = 0u;\n}"
 ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
 A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
 B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
@@ -752,8 +763,8 @@ MUTANTS += (
     Mutant("pub-acmp-started-after-the-response", ACMP_C, ACMP_REBIND,
            "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
            "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
-    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH,
-           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
+    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH + ACMP_FINISH_CLEAR,
+           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);") + "\tpublish(a);\n" + ACMP_FINISH_CLEAR,
            "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
     Mutant("pub-acmp-started-from-bound", ACMP_C,
            "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",
@@ -895,7 +906,8 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
-            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2)}
+            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
+            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True)}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()

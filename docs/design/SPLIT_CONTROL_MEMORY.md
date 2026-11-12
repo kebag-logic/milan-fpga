@@ -121,13 +121,13 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821).
+Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821, and the owner's decision 6824896581).
 Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,240 B | 59.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,392 B | 59.0 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -345,6 +345,45 @@ M8a-2's route weighs that share against at most 1.0 tile.
 The firmware of `ce10328c`, on dev `ac2c5e77`, planned 35.0 / 38.0 / 48.5 / 54.5 and mapped 34.0 / 37.5 / 47.0 / 53.0 tiles at the same points.
 Dev `c6bd08c6` added 1,792 B of `.text` and 264 B of `.bss` at the largest point, and its `rom` gained a fifth bank.
 
+The tsn-c-stack pin move from `70936b77` to `715589c` (#665) brings tsn-c-stack PRs 29, 28, 33 and 34 and the ACMP adapter's kept command and its redelivery.
+Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1d6bf555` and with the move, each pin's image built by the pinned RV32 SDK (`scripts/ci_rv32_sdk.py`) and linked with one runtime:
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 104,984 (+528) / 46,416 (+144) | 37.5 | 110,048 (+488) / 47,328 (+160) | 39.0 | 18,584 (+152) |
+| 1x1, two interfaces | 106,552 (+512) / 57,808 (+160) | 41.0 (was 40.5) | 111,640 (+440) / 58,736 (+144) | 42.0 | 20,080 (+152) |
+| 8x8, one interface | 118,696 (+520) / 86,992 (+144) | 50.5 | 123,800 (+496) / 87,904 (+144) | 52.0 | 19,240 (+152) |
+| 8x8, two interfaces (largest) | 120,352 (+520) / 113,152 (+144) | 57.5, ledgered | 125,504 (+456) / 114,096 (+160) | 59.0, ledgered | 21,392 (+152) |
+
+One plan moves: the fixture's 1x1 with two interfaces needs 56 B of `rom` past its three banks (106,496 B), so it takes a fourth of 2,048 B and plans 41.0, accepted (#665 issuecomment-6807277620; the owner's firmware block-RAM limit, 224 KB, covers it).
+Every other bank of both images is the one it was at `70936b77`; the platform image keeps 42.0 at that point.
+The `rom` growth past the kept command is its redelivery, the ACMP adapter's poll taking the records waiting behind it (`acmp_mbx.h`, THE KEPT COMMAND).
+The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the adapter's pointer to the loop it attached to (the redelivery takes records in that loop's buffer), and the core's walk marks and owed-bound state.
+`__lshrdi3` leaves every image (tsn-c-stack#27).
+The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
+The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+
+On dev-soft-core `0fb66211`, which carries #874 (lane S7's lwSRP transmit path), #880 (the saved-state format for shapes up to 32x32, with the split's KLJ3 stage, #823), #889 (the split image's identity gate) and #888 (the split CPU's region decode), the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
+Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 105,696 (+528) / 46,784 (+160) | 37.5 | 110,760 (+488) / 47,680 (+144) | 39.5 (was 39.0) | 18,584 (+152) |
+| 1x1, two interfaces | 107,264 (+512) / 58,160 (+144) | 41.0 | 112,352 (+440) / 59,104 (+160) | 42.0 | 20,080 (+152) |
+| 8x8, one interface | 119,400 (+520) / 87,568 (+144) | 51.0 | 124,504 (+488) / 88,480 (+144) | 52.5 | 19,240 (+152) |
+| 8x8, two interfaces (largest) | 121,064 (+520) / 113,728 (+144) | 58.0 (was 57.5), ledgered | 126,208 (+448) / 114,672 (+160) | 59.0, ledgered | 21,392 (+152) |
+
+Two plans move against `0fb66211`.
+The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
+The smallest margins at the merge are 288 B of `rom`, at the platform's 1x1 with two interfaces, and 16 B of `sram`, at the platform's 8x8 with two interfaces, whose next granule would plan 59.5 against the 59.0 its override holds.
+
+The owner's decision of 2026-11-12 (#665, 6824896581) supersedes, for the flip only, the requirement above that the flip (S13) needs 56 RAMB36 or fewer at every point with S14 merged.
+The two 8x8 points with two interfaces are held as named ROM debt owed to S14: the target platform's image may plan 60.0 RAMB36, at most 60.5, and the size fixture's 58.0, at most 58.5.
+Every other point, every 1x1 one-interface point among them, stays at or under 56.
+`ctrl_memory.LEDGERED` holds the fixture's point at 58.0 and the platform's at 59.0, the tiles each plans.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
@@ -362,7 +401,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
+Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):

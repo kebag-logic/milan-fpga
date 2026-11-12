@@ -245,10 +245,10 @@ class Ledgered:
 #: every other point stays within 56.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
-                                         "6425357821)"),
+                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                         "6425357821; the owner's 6824896581: 58.0, at most 58.5)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_240)), 59.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_392)), 59.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image)"),

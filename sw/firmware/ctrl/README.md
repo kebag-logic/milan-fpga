@@ -62,10 +62,10 @@ core-only unit tests:
 
 | Header | What it is |
 |---|---|
-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
-| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
-| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/wire.h) | the big-endian wire layer |
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/wire.h) | the big-endian wire layer |
 
 The stack depends on nothing in this repository.
 It includes only its own headers and the C library.
@@ -83,7 +83,7 @@ The composed `DA_GATE` requires valid destination state and either an answered
 probe younger than 15 seconds or a registered Listener, including Asking Failed.
 The SRP licence remains separate. Idle service ticks refresh probe expiry.
 Its callback and timing obligations are in its
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/docs/PORTING.md).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/docs/PORTING.md).
 
 [`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions, in the builders' own compiles.
 It judges exactly the sources a capture of the builders' compiler invocations recorded as compiled; it lists no source of its own.
@@ -302,7 +302,7 @@ The gate [below](#the-host-test) builds the stack's own core tests into the
 `adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
 The coverage gate measures the stack's sources, and the campaign plants core defects into a copy of them.
 The stack's own suite runs from the submodule, as its
-[CI](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/.github/workflows/quality.yml)
+[CI](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/.github/workflows/quality.yml)
 runs it, with GoogleTest and GoogleMock 1.14.0:
 
 ```sh
@@ -311,7 +311,7 @@ cmake --build <build directory> -j16
 ctest --test-dir <build directory> --output-on-failure -j16
 ```
 
-The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/LICENSE) (Kebag Logic).
+The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/LICENSE) (Kebag Logic).
 Its files keep their MIT identifiers inside this platform.
 The platform's own files stay [CERN-OHL-W-2.0](../../../LICENSE).
 lwSRP stays a separate Apache-2.0 component.
@@ -324,8 +324,8 @@ machine), in three units, each stating its clauses in its header:
 
 | Unit | What it is |
 |---|---|
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
-| [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, and the service-latency figures per path |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
+| [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, a command the core declines at its owed bound kept and offered again after the next accepting poll, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
 The protocol state is keyed per AVB interface: a sink's probes leave on its
@@ -387,11 +387,11 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
   its end. A refusal stops the composition before the later modules attach.
 - **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
-  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,030 at
+  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 2,754 at
   one interface) plus MAAP's share of 753, its costliest action on each of
   the 8 events (65, freshness queries included), its 2 maap records
-  (20 + 64) and its poll on each interface (65). That is 1,783 at one
-  interface and 1,879 at two. It is also the two modules' own pass bounds
+  (20 + 64) and its poll on each interface (65). That is 3,507 at one
+  interface and 3,603 at two. It is also the two modules' own pass bounds
   less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (801 at
   one interface, 866 at two) less the 6 accesses of each of the 8 event
   records. Every pass
@@ -439,7 +439,7 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,523 accesses at one interface and 4,429 at two. The SRP bound counts one maximum-size frame per
+The result is 5,247 accesses at one interface and 6,153 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.
@@ -687,10 +687,10 @@ helper the `rv32` arm admits (none is a floating-point one), each a
 shift-and-add or shift-and-subtract loop that must be a leaf. A helpers
 object that leaves a symbol open or calls a helper is refused, since GCC
 lowers a `*` inside `__mulsi3` into a call to `__mulsi3`. In the SoC image
-LiteX's `libcompiler_rt` supplies them. They are reported apart: 508 bytes,
-`__lshrdi3`, `__muldi3`, `__mulsi3`, `__udivdi3`, `__umoddi3` and
-`__umodsi3` (the only ones the composition reaches; MAAP's code brings
-`__umodsi3`) and their two divide loops.
+LiteX's `libcompiler_rt` supplies them. They are reported apart: 452 bytes,
+`__muldi3`, `__mulsi3`, `__udivdi3`, `__umoddi3` and `__umodsi3` (the only
+ones the composition reaches; MAAP's code brings `__umodsi3`, and since
+tsn-c-stack#27 no field write reaches `__lshrdi3`) and their two divide loops.
 
 Before any figure is read, the linked ELF is audited, and any finding
 refuses the measurement:
