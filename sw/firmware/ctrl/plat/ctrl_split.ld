@@ -83,7 +83,6 @@ SECTIONS
 		*-nvm_store.o(.text.nvm_store_service)
 		*-nvm_store.o(.text.nvm_now)
 		*-nvm_flash_litespi.o(.text.ls_now_us)
-		*-nvm_store.o(.text.nvm_any)
 		*-nvm_store.o(.text.nvm_publish)
 		*-adp_mbx.o(.text.on_event)
 		*-acmp_mbx.o(.text.on_event)

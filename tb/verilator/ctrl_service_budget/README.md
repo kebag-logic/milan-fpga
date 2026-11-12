@@ -280,10 +280,12 @@ The figures in [Results](#results) and [The instruction cache](#the-instruction-
 Each reaches the same kind of device over the same peripheral bus in both maps, and the flash through the product's PHY stage, so the address does not change an access's cost.
 `--ctrl-mailbox` leaves the CSR map unchanged ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
 
-The CPU generator is handed each region at its power-of-two cover (256 KiB for `rom` and `sram`).
-Generated from the 224 KiB regions, its region check excludes every `rom` address with bit 15 set, and the image faults ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
-The two netlists differ only in address-decode lines, so the cover changes no timing.
-`--cpu-regions as-built` builds the regions unchanged and reproduces the fault.
+Generated from the 224 KiB regions, the CPU's region check excluded every `rom` address with bit 15 set, and the image faulted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
+The split SoC now hands the generator each region as its aligned power-of-two pieces, which decode exactly ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-cpus-region-decode)).
+The default `--cpu-regions cover` builds that shipping list and refuses one that is not its own power-of-two cover, instead of widening it.
+Until the fix, the harness handed the generator each region at its power-of-two cover (256 KiB for `rom` and `sram`), and the figures below were measured on that CPU.
+The cover and the pieces differ only in address-decode lines, so neither changes timing.
+`--cpu-regions as-built` builds the SoC without the region-decode hookup, whose refusals would stop it, so the generator is handed the whole regions: the single-mask decode, which reproduces the fault.
 
 The TSN stack boundary gate finds six of this harness's files by text, because they name the firmware's tree.
 Each is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) with its reason.
@@ -420,7 +422,8 @@ T_svc misses, counted per path and per probe instance (a path several groups mea
 | 8x8 | 9.49 | 1.68 | 9 / 9 | 9.13 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.5 mean (138-303) | 11,396 / 43,060 B |
 
 Every access is timed at the CPU, command to response, in CPU cycles at 50 MHz.
-A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answers in one bus cycle, and the rest is the clock crossing and the bus.
+A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answered in one bus cycle at that head, and the rest is the clock crossing and the bus.
+Since #870 a register read waits one more mailbox clock (a write and a ring read do not), so this harness's `host_cycles` reads 1 to 2 where the fixture's reads 1.
 A fetch waits behind a slow flash read, hence the 303-cycle maximum.
 Instruction fetches are 85 to 89 % of the CPU's bus transactions in every taking pass.
 Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch is outstanding on average: the cacheless core is fetch-bound.
@@ -1445,7 +1448,7 @@ The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this co
 The controls are the cacheless core's.
 Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.322 ms, SHUTDOWN 17.411 ms), which fits the budget.
 No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
-`as-built` hands the generator the SoC's regions unchanged.
+`as-built` hands the generator the SoC's regions unchanged, without the split SoC's pieces.
 The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.

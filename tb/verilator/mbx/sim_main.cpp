@@ -13,7 +13,9 @@
 // `make run-if2` builds this file again against the two-interface variant of
 // the contract (lane FC), for the per-interface own-MAC checks. The
 // bound-talker table's timing checks (lane F3 round 3) run on every build
-// here and never on the model, whose frames arrive whole.
+// here and never on the model, whose frames arrive whole, and so do the
+// receive side's and the register read's (#870), last, over every clock the
+// checks before them ran.
 
 #include <cstdio>
 
@@ -42,6 +44,7 @@ int main(int argc, char** argv) {
     suite.run();
     suite.run_bound_timing();
     suite.run_face_timing();
+    suite.run_read_timing();
     if (host == 1) {
         mbx_tb::AxilChecks axil(bench, check);
         axil.run();

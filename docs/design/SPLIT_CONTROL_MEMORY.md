@@ -11,10 +11,10 @@ No BIOS ROM or BIOS SRAM is built there.
 
 ## Contents
 
-- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
+- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, why each region spans the whole budget, and how the CPU decodes them exactly.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
 - **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the two ledgered images' named overrides, and the three planted controls.
-- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
+- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and why it builds no DDR3 and no processor memory bridge.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points for the size fixture and the target platform, the platform's added bytes by part, mapped out of context, and the ledger rows, with the largest point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
@@ -35,12 +35,45 @@ No BIOS ROM or BIOS SRAM is built there.
 
 Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
 `add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
-Every other region keeps its origin and size: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+The other regions are `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`, as in the all-fabric image.
+The split image has no `main_ram`: it builds no DDR3 and no integrated main RAM (decision D4, [section 4](#4-boot-console-and-diagnostics)).
 The split CPU sees `spiflash` uncached and not executable ([section 9](#9-the-cpus-data-cache)).
 
 Each region spans the whole 224 KiB budget.
 The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
 Both shipped shapes elaborate the same CPU netlist.
+
+### The CPU's region decode
+
+The pinned VexiiRiscv generator checks each fetch and load against each region it is handed through SpinalHDL's `AddressMapping.terms`.
+That splits a region into aligned power-of-two terms, one mask compare each.
+A region based at 0 is the exception: it is taken whole, as the one term `(address & ~(size - 1)) == 0`, which is exactly the region only when the size is a power of two.
+So the 224 KiB `rom` at 0 became `(address & 0xfffc8000) == 0`, which leaves out every address with bit 15 set.
+The 224 KiB `sram` at 0x1000_0000 was already exact, as terms of 128, 64 and 32 KiB.
+So no split image could boot: the first fetch or load above 0x8000 took an access fault and the core restarted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
+
+`add_ctrl_memory` therefore hands the generator each region as its aligned power-of-two pieces (`milan_soc.exact_cpu_decode`, `ctrl_memory.cpu_regions`).
+Both `rom` and `sram` become 128 KiB at the origin, 64 KiB at origin + 0x2_0000 and 32 KiB at origin + 0x3_0000 (`ctrl_memory.decode_pieces`).
+Each piece is an aligned power of two, which one mask compare decodes exactly, at 0 as anywhere else, and together the pieces are exactly [origin, origin + 224 KiB).
+So handing the generator aligned pieces makes every region exact, without depending on how it decomposes a region.
+Each piece keeps its region's mode and bus, and a region that is already an aligned power of two is handed over as itself.
+The SoC's own bus regions, its decoder, `csr.csv` and `regions.ld` keep the whole regions.
+`CtrlMemory`'s banks are unchanged.
+The split is made in the CPU's own netlist-naming step, so the netlist's name and its decode both follow the pieces.
+After LiteX's finalize the build is refused by name, instead of building a decode other than the pieces, in two re-pinned LiteX shapes.
+One is a LiteX whose VexiiRiscv stops calling that step.
+The other leaves the generator a region list other than that step's aligned power-of-two pieces, on the CPU or its classes: a list collected again after naming, say, or kept on the instance.
+The pinned LiteX runs the generator inside that finalize, so the second refusal names the netlist the build may have cached under the pieces' name, for removal.
+At a LiteX or generator re-pin, run the two checks the [re-pin procedure](../../sw/litex/patches/README.md) names, since no workflow runs the region-decode simulation.
+No generator patch is carried. The all-fabric SoC does not call `add_ctrl_memory`, so its regions, which are powers of two, and its CPU netlist are unchanged.
+
+[`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) grades the pieces against a search over every aligned split, and the hookup on a stand-in CPU.
+It also requires the split export to hand the generator the pieces.
+The [region-decode simulation](../../tb/verilator/ctrl_region_decode/README.md) runs the generated CPU.
+It fetches and loads at the last word of each region and at each seam between pieces.
+It also fetches and loads one word past each region's end, where the access must fault before the bus.
+It reads the netlist's own fetch and load decode at every 32-bit address against the SoC's regions.
+Each of its two planted decodes, the single mask and the power-of-two cover, fails checks it names.
 
 [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld) links the firmware into these regions.
 It includes `regions.ld`, which `ctrl_memory.py regions` writes.
@@ -91,7 +124,7 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
 | `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
-| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
+| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ3 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
@@ -101,8 +134,8 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,288 B | 60.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,288 B | 60.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -156,6 +189,9 @@ The same three controls, on the firmware linked at `c20ed894`, were also run onc
 - a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
 - a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
 
+That run printed KLJ2 stage sizes, as `c20ed894` linked them.
+Section 5 gives both formats' stage sizes.
+
 ## 4. Boot console and diagnostics
 
 The split image loses:
@@ -165,24 +201,27 @@ The split image loses:
 - the shipping firmware's UART commands, because `libmilan_baremetal` is not linked.
 
 It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
-It also keeps the `ppmem` observer and every Milan CSR.
+It also keeps every Milan CSR.
 Any console in the split image is the control firmware's.
 The [target platform](../../sw/firmware/ctrl/plat/README.md#the-console) brings one, under decision D6 (#665): `milan_status` and `milan_gettime` in `milan_baremetal.c`'s lines, and one boot banner.
 It also writes the CSR initialisation `milan_baremetal.c` writes for the same shape ([the CSR window](../../sw/firmware/ctrl/plat/README.md#the-csr-window)).
 
-The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
-Only the `rom` and `sram` region sizes differ.
+The split builds no DDR3 (#665 S9, decision D4).
+The placement switch removed `KL_pp_shadow` from the split datapath, so no processor memory master remains.
+`--ctrl-mailbox` therefore builds neither DDR3 nor integrated main RAM, nor the three processor memory bridges and their `ppmem` observer.
+The bridges' window still binds the datapath's `PP_DESC_BASE_P` and `PP_RESP_BASE_P`, which the split datapath does not read, and places the build's descriptor image.
+`--full` builds the MAC and the flash there, and `--ctrl-mailbox --with-dram` is refused.
+The all-fabric build is unchanged: its 21 export files are byte for byte the base's, apart from the run's timestamps, the checkout and output paths, and LiteX's comment-only hierarchy tree.
 
-DDR3 stays instantiated under `--ctrl-mailbox` at this base.
-`KL_pp_shadow` is still instantiated, and its three processor memory masters reach the window in `main_ram`.
-With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
-Those masters are therefore refused safely, as before DDR3 training.
-The placement switch (#665) removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
+The CSR map loses the `ddrphy`, `sdram` and `ppmem` banks, so the banks LiteX allocates after `ddrphy` move down.
+The flash map the platform image links against is generated from the split export's `csr.csv` ([section 6](#6-reproduce)), so it follows them.
+The identity gate refuses a split image that carries a `main_ram` region, a `ddrphy` or `sdram` bank or `ddram` pads ([the split image's identity](MAILBOX_SPLIT.md#the-split-images-identity)).
 
 ## 5. Fit
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
-It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
+It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` and the lwSRP pool.
+The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
 It links the firmware of `e493dccd` against its base `e76a755a`, with one runtime for both:
@@ -245,6 +284,20 @@ It links the merged firmware of `51fa5f18` against the branch before the merge, 
 The merge adds 6,264 to 6,376 B of `rom` and 336 B of `sram` at each point, the face writer's.
 Each point plans half a tile under S1's own ledger above, and the largest a whole tile, because the branch's compactions (sections 11 to 13) are in both.
 These figures are planned, not mapped.
+
+**The split's KLJ3 format (#823).** The size fixture was linked again at its base `a9d69c77` and with KLJ3, one runtime for both:
+
+| Point | Base `rom` / `sram`, B | KLJ3 `rom` / `sram`, B | Delta, B | RAMB36, base to KLJ3 |
+|---|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 104,448 / 46,272 | 105,160 / 46,624 | +712 / +352 | 37.0 to 37.5 |
+| 1x1, two interfaces | 106,032 / 57,648 | 106,744 / 58,016 | +712 / +368 | 40.5 to 41.0 |
+| 8x8, one interface | 118,168 / 86,848 | 118,872 / 87,424 | +704 / +576 | 50.5 to 51.0 |
+| 8x8, two interfaces (largest) | 119,824 / 113,008 | 120,536 / 113,584 | +712 / +576 | 57.5 to 57.5 |
+
+The `sram` delta is the stage's two bytes a record and the store's open bits, 36 words per array.
+Every point stays within 56 RAMB36, and the ledgered point within its 57.5, with 296 B of `rom` left before 58.0.
+The target platform's image was not linked again; its `ctrl_plat` is unchanged.
+
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
 Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
 
@@ -279,7 +332,7 @@ THE STEP (`ctrl_loop.h`, section 13) and SRP's one build a pass add 336 to 424 B
 THE STEP's age limit, SRP's turn read before the poll's visits and the store's walk-free mark add 152 to 224 B of `rom` and up to 16 B of `sram` at each point (#665, 2026-11-03); only the platform's 1x1 two-interface image takes half a tile more, 41.5, its `rom` 216 B past the 110,592 B, 54 banks of 2 KiB, that it filled exactly.
 `ctrl_plat` is 20,288 B at the largest point and 20,096 B before this branch's merge of the tsn-c-stack pin move (its 152 B in `app`, the struct padded to its 64-byte alignment); the ledger last named 19,968 B, a size the struct had already outgrown at round 27's head (20,096 B measured there), and 19,960 B before the age limit's two fields, 19,944 B before THE STEP's four fields and 21,240 B when the ledger above named it, so the ledger names the new size, as it requires when that struct changes. Its size at each point is measured in the composed build by `ctrl_plat_image.py`: 17,472, 19,008, 18,112 and 20,288 B (`ctrl_memory_ledger.py`).
 
-At this branch's head, the merge of the pin move (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
+At round 29's head (`b2d39235`), the merge of the pin move's round 2 head (tsn-c-stack `715589c`) with the record commits of #665, planned by `ctrl_memory.plan` from both images built alike, one runtime and one split SoC export a shape:
 
 | Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
 |---|---:|---:|---:|---:|---:|
@@ -380,10 +433,38 @@ Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1
 One plan moves: the fixture's 1x1 with two interfaces needs 56 B of `rom` past its three banks (106,496 B), so it takes a fourth of 2,048 B and plans 41.0, accepted (#665 issuecomment-6807277620; the owner's firmware block-RAM limit, 224 KB, covers it).
 Every other bank of both images is the one it was at `70936b77`; the platform image keeps 42.0 at that point.
 The `rom` growth past the kept command is its redelivery, the ACMP adapter's poll taking the records waiting behind it (`acmp_mbx.h`, THE KEPT COMMAND).
-The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the loop the redelivery serves, and the core's walk marks and owed-bound state.
+The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the adapter's pointer to the loop it attached to (the redelivery takes records in that loop's buffer), and the core's walk marks and owed-bound state.
 `__lshrdi3` leaves every image (tsn-c-stack#27).
 The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
 The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+
+On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's branch merged it (its round 4 head, `8bc1dfc0`) and planned both images again at all four points, at `0fb66211` and with that merge, without this branch's record commits:
+Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 105,696 (+528) / 46,784 (+160) | 37.5 | 110,760 (+488) / 47,680 (+144) | 39.5 (was 39.0) | 18,584 (+152) |
+| 1x1, two interfaces | 107,264 (+512) / 58,160 (+144) | 41.0 | 112,352 (+440) / 59,104 (+160) | 42.0 | 20,080 (+152) |
+| 8x8, one interface | 119,400 (+520) / 87,568 (+144) | 51.0 | 124,504 (+488) / 88,480 (+144) | 52.5 | 19,240 (+152) |
+| 8x8, two interfaces (largest) | 121,064 (+520) / 113,728 (+144) | 58.0 (was 57.5), ledgered | 126,208 (+448) / 114,672 (+160) | 59.0, ledgered | 21,392 (+152) |
+
+Two plans move against `0fb66211`.
+The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
+The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
+On that branch both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and its own `ctrl_plat`, 21,392 B at the largest point; its tightest point is the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
+
+**At this branch's head, the merge of the pin move's round 4 head `8bc1dfc0` into this branch** (round 30), planned the same way from both images built alike at the four points, the platform's by [`plat_ledger.py`](../../tb/verilator/ctrl_split_boot/plat_ledger.py) against each shape's own split export, one runtime for both:
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 108,600 / 45,920 | 38.5 | 113,672 / 46,880 | 39.5 | 17,472 |
+| 1x1, two interfaces | 110,304 / 57,312 | 41.0 | 115,400 / 58,336 | 43.0 | 19,008 |
+| 8x8, one interface | 122,136 / 87,008 | 51.5 | 127,256 / 87,984 | 53.0 | 18,112 |
+| 8x8, two interfaces (largest) | 123,808 / 113,168 | **58.5, over its 58.0** | 128,960 / 114,160 | 59.5, within its 60.0 | 20,288 |
+
+Both images carry the KLJ3 stage, so both overrides are keyed on `nvm_stage` of 13,594 B, and `ctrl_plat` is this branch's struct, unchanged by the merge at every point (`ctrl_memory_ledger.py`).
+The KLJ3 hot path's `nvm_any` is a count the compiler inlines, so it leaves the split link script's hot list, in both its copies (`ctrl_split_hot.txt`, `ctrl_split.ld`): a hot-list name with no section refuses the link.
+**The size fixture's 8x8 image with two interfaces plans 58.5 RAMB36 against the 58.0 its entry ledgers** (the owner's decision of 2026-11-12 caps it at 58.5, refused): its `rom` needs 123,808 B in 124,928, as at round 29's head (123,112 B in the same banks), and its `sram` 113,168 B, 528 B past the 112,640 B of the 55 granules round 29's 112,576 B filled, so `sram` takes a 56th granule. The KLJ3 stage and the store's open bits add the `sram` (#823's own table: +576 B at that point); neither side plans past 58.0 alone, the pin move's branch because its `rom` (121,064 B) takes one granule fewer. Returning to 58.0 needs 928 B of `rom` or 528 B of `sram`; the entry stays 58.0 and the image is refused at its tiles, by name, which waits for a decision. Every other point of both images is within its ledger, the platform's largest within its 60.0 and every other point within 56.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
@@ -397,12 +478,13 @@ Link the image with the fixture, then plan it:
 python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
   --interfaces 2 --with-aecp --layout split --ledgered-point 8x8-two-interfaces --output "$OUT" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
-python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
+python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
   --ledgered-point 8x8-two-interfaces
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
+Without `--ledgered-point`, both refuse it, past the 56-RAMB36 budget.
+At this branch's head the image plans 58.5 RAMB36, and both refuse it under its override too, past the 58.0 its entry ledgers ([section 5](#5-fit)).
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
@@ -429,10 +511,14 @@ It prints a `POINT` line for each point, a `CONTROL` line for each planted ledge
 Map the regions out of context with the LiteX interpreter and Vivado:
 
 ```sh
-python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf"
+python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf" --ledgered s8i2=platform-8x8-two-interfaces
 cd "$MAP"
 vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
 ```
+
+The mapper refuses an image past 56 RAMB36, as the SoC build does.
+`--ledgered TAG=POINT` plans the image named by its tag at that ledgered point's tiles, so the ledger can map the target platform's largest point (#665 S9).
+It is refused on any other image, and on a tag that names no image.
 
 Build a split SoC by adding `--ctrl-mailbox --ctrl-firmware "$OUT/ctrl_app.elf"` to a shipping export.
 
@@ -457,12 +543,14 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
 | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
 | Data cache | none when this cache was chosen; [section 9](#9-the-cpus-data-cache) adds one | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost was mostly byte-loop stores to `sram`, which the firmware removed first. |
 
-Every executable region is cacheable: `rom`, `sram` and, while DDR3 is built, `main_ram`.
-The flash window was too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
+Every executable region is cacheable: `rom` and `sram`. The split builds no `main_ram`.
+The flash window was cacheable too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
-The non-power-of-two `rom` and `sram` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) is therefore the same with and without the cache, and stays #791's.
+The non-power-of-two `rom` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) was therefore the same with and without the cache.
+Its fix, the region pieces of [section 1](#the-cpus-region-decode), is the generator's region list, which the cache does not change.
+The table below was measured on the CPU netlist before that fix; the fix changes only the region compare terms, and has not been mapped out of context.
 
 Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads:
 
@@ -2200,7 +2288,7 @@ The costs at 1x1/1if and 8x8/2if are measured on the gate's own legs (round 26),
 
 **Portable C** (item 5). The AECP response buffer is aligned by C11's `_Alignas(64)`, and the firmware's two GNU attributes, `noinline` for SRP's `same`, `reclaim` and `build_mrpdu` and `may_alias` for the pool's link, sit behind `CTRL_CC_GNU` in [`plat/ctrl_cc.h`](../../sw/firmware/ctrl/plat/ctrl_cc.h), with a portable fallback (no `noinline`, `memcpy` for the link). The change alone builds 8x8/2if arm A's three images byte-identical to round 27's and replays its `control` group byte for byte, so it moves no cost.
 
-**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image against their stated costs: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). `srp-compared-by-memcmp` escaped its stated cost here: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. So it is held to this image's own unplanted record instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2; `poll_items.REFERENCE_CONTROLS`), with no stated cost lowered: one run measures the group on the planted build and on the unplanted image, and the plant must make the heaviest SRP record more than 5 % dearer. On the image of round 30's `ef913ca4`, whose firmware is this merge's, it is caught: 35,908 cycles planted against 32,866 unplanted, 9.3 % dearer (`CONTROL srp-compared-by-memcmp caught`).
+**The re-grade on the composed image** (#665: the merge of the pin move). Each leg ran at `2cc852fa` on a fresh build: every group of arm A and of the `answering-every-port` arm at 1x1/1if and 8x8/2if, and arm B's `aecp` group at both points; the pin carries tsn-c-stack #32 here, so the same legs measure both columns. 0 refusals; 7 misses of 996 probe instances (4 of 136 paths) at 8x8/2if and of 945 (4 of 87) at 1x1/1if: round 28's six egress-held instances and the ACMP command behind the owed input, which the adapter's redelivery now answers, at 62.57 and 62.14 ms (unanswered before), the three rows tsn-c-stack #26 holds; the arm 0 of 736 and 0 of 280; arm B 0 of 39 and 0 of 25; no work pass over the share (274,456 at 8x8/2if, 169,480 at 1x1/1if). Every save is durable within its stated worst case (8x8/2if `save-second` 22,110 ms of 22,150, `save-starved` 12,089 of 12,110; 1x1/1if 6,030 of 6,070 and 4,048 of 4,070). By the gate's rule, each cost the larger of this measurement and the committed table's: at 1x1/1if an SRP record and its retained retry 250 to 260 us and a centisecond's consumers 125 to 130, in both columns, and ACMP's owed frame 65 to 120 (above); at 8x8/2if AECP's timer slot 95 to 100, in both columns, and with #32 ACMP's owed frame 40 to 165 and the polls' base 245 to 285. Three of the four cost controls are refused on this image against their stated costs: `notice-fan-out-as-it-was` (an AECP item of 31,747 cycles against its stated 27,000), `polls-rebuild-in-the-base` (a polls base of 70,031 against 28,000) and `polls-rebuild-twice` (a rebuild item of 100,273 against 63,000). `srp-compared-by-memcmp` escaped its stated cost here: the old comparisons give `notice-every-2` an SRP record of 35,908 cycles, under the 36,500 its stated 365 us allows, where this image's unplanted record there is 32,866 (on round 28's image the plant's 37,494 was refused); the image made the record some 1,500 cycles cheaper and the table rule keeps round 26's stated cost. So it is held to this image's own unplanted record instead (the [round 29 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6828629878), item 2; `poll_items.REFERENCE_CONTROLS`), with no stated cost lowered: one run measures the group on the planted build and on the unplanted image, and the plant must make the heaviest SRP record more than 5 % dearer. On round 29's composed image, at round 30's `ef913ca4`, whose firmware is round 29's, it is caught: 35,908 cycles planted against 32,866 unplanted, 9.3 % dearer (`CONTROL srp-compared-by-memcmp caught`). At this branch's head, the merge of the pin move's round 4 head, the 8x8 size fixture with two interfaces plans 58.5 RAMB36 against its 58.0 ([section 5](#5-fit)), so its 8x8/2if builds, this control's and the legs' among them, are refused; the costs above are round 29's.
 
 At this head (`load_grade.py --check` and `flip_grade.py --check`; the stated costs and their sources are the gate's two columns, with `poll_grade.STATED_US`'s and `ctrl_loop.h`'s where a column states none):
 

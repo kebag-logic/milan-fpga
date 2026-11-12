@@ -127,7 +127,7 @@ def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, ou
         results.append(tg.step_control(obs, cpu_hz))
     journals = cases.journals(saved, bench, slot)
     applied = bench.decode(saved[:int.from_bytes(saved[16:20], 'little')])[1]
-    applies = tg.expected_applies(applied, bench.expect, bench.donor.base)
+    applies = tg.expected_applies(applied, bench.expect)
 
     def one(case: cases.Case) -> dict:
         """Boot and grade one case on its journal."""
