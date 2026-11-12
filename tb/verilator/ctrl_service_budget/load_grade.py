@@ -514,9 +514,9 @@ def binding_controls(root: Path) -> list[str]:
     control's name if any escapes."""
     escaped = []
     me = sys.modules[__name__]
-    swapped = tuple((name, table) for (name, _), (_, table) in zip(COLUMNS, reversed(COLUMNS)))
+    pin, donor = (BOUND[0][0], STATED_US), (BOUND[1][0], STATED_US_DONOR)
     refused = []
-    for planted in (swapped, COLUMNS[:1], (COLUMNS[0], (COLUMNS[1][0], dict(COLUMNS[1][1])))):
+    for planted in (((pin[0], donor[1]), (donor[0], pin[1])), (pin,), (pin, (donor[0], dict(donor[1])))):
         saved, me.COLUMNS = me.COLUMNS, planted
         try:
             refused.append(any("a column's name bound to the other's table" in f for f in findings(root)))
