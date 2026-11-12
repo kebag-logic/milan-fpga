@@ -11,6 +11,7 @@ Its contract is S3's acceptance on [#665](https://github.com/kebag-logic/milan-f
 - **[The SoC and the testbench](#the-soc-and-the-testbench)** -- What is the CPU budget harness's, what this simulation adds, and what the testbench answers.
 - **[What is graded](#what-is-graded)** -- The model's own verdict, the boot, the trace, each UART duty, the smoke grader's own checks, and the controls of each.
 - **[Results](#results)** -- The two shapes' boot times, traces and UART duties, and the grader's verdicts.
+- **[The platform image against the ledger](#the-platform-image-against-the-ledger)** -- The platform image linked at every point and graded against the memory ledger, and its planted ledgers.
 - **[Limits](#limits)** -- What a simulation without the datapath cannot show.
 
 ## Run
@@ -106,7 +107,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 58.5 RAMB36, within the 59.0 the owner's ruling (#665, 6505997821) ledgers by name, owed to lane S14.
+The 8x8 image with two interfaces plans 59.5 RAMB36, within the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers by name for the flip, owed to lane S14.
 This simulation names no override, so it builds no SoC for that point ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
 
 The smoke grader's verdicts on the simulated UART:
@@ -118,6 +119,27 @@ The smoke grader's verdicts on the simulated UART:
 | `fabric-enabled` | FAIL | **the listed difference**: the split never sets `ADP_CTRL[0]` or `PP_CTRL[0]`, so a split image fails this check on any board |
 | `id-miln`, `version-gptp-publication` | PASS | not evidence: the testbench answers the datapath's reset values |
 | `gptp-identities`, `gptp-path`, `gptp-pdelay`, `clkv-fabric-owner`, `gptp-locked` | PASS or FAIL | not evidence: the stand-in register file's words; they need the datapath and a gPTP peer |
+
+## The platform image against the ledger
+
+[`plat_ledger.py`](plat_ledger.py) links the platform image at the ledger's four points, 1x1 and 8x8 each with one and two interfaces, and grades each against `ctrl_memory.LEDGERED` ([SPLIT_CONTROL_MEMORY.md section 5](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+Each shape's `csr.csv` and flash map are its split SoC export's, from the CPU budget harness's `build.flash_map`, and the runtime archives are this simulation's.
+The 8x8 image with two interfaces is linked with `--ledgered-point platform-8x8-two-interfaces`, and every other image with no override.
+Each image is graded on four checks, each apart, so that one finding does not hide another:
+
+- `LINK`: `ctrl_plat_image.py` exits 0, and the image's plan with its point's override is accepted;
+- `KEY`: the image's `ctrl_plat` is the size `ctrl_memory_ledger.py` records for its point, and at the override's point the image carries every symbol of that override at its listed size;
+- `TILES`: the plan, read with no budget, is within its override's tiles, or the 56-RAMB36 budget;
+- `LEDGER`: every override of the platform's image is linked at a point.
+
+A stale `ctrl_plat` key refused that image by its key for three rounds of #665, and hid that its plan had passed the tiles its override then held.
+So `--self-test` grades seven planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 8x8 one-interface plan (`TILES` there), the override not taken (`LINK`, `TILES`, `LEDGER`) and an override no point links (`LEDGER`).
+
+```sh
+python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir /tmp/plat-ledger --self-test
+```
+
+Exit 0 when every point passes and every planted ledger is graded as it requires; 1 for a finding; 2 when a build step is refused.
 
 ## Limits
 
