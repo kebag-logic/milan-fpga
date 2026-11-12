@@ -18,7 +18,7 @@ block RAM the SoC builds from them. This file grades seven things:
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
      size fixture's and the platform's 8x8 images with two interfaces) plans
-     its 58.0 or 59.0 by name and is refused without its override, through
+     its 58.0 or 60.0 by name and is refused without its override, through
      add_ctrl_memory and half a tile past; each override is refused on every
      other point, on the other's image and on an image with one of its two
      symbols. Six planted ledgers, each widening an entry to another point or
@@ -227,11 +227,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with a tile of .text more and of .bss less, still 56 RAMB36, then a
-    granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 60.0."""
+    """A ledger case written: the good image with two tiles of .text more and of .bss less, still 56 RAMB36, then
+    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 61.0, half a tile past the
+    platform's 60.5."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 2 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 2) * GRANULE))
+                                  text=GOOD.text + 4 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 4) * GRANULE))
 
 
 def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
@@ -327,7 +328,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 58.0 and 59.0 ({held})")
+                                          f"platform's 8x8 images with two interfaces at 58.0 and 60.0 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     good = ctrl_memory.plan(image(tmp, GOOD)).summary()

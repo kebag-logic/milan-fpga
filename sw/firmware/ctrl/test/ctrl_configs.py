@@ -176,6 +176,11 @@ OUTSIDE = {
                                            "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
                                            "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "
                                            "its own compiles build the boot SoC's Verilator model",
+    "tb/verilator/ctrl_split_boot/plat_ledger.py": "the platform image's ledger gate (#665), which no hosted job can "
+                                                   "run (the CPU budget harness's prerequisites): build.flash_map "
+                                                   "delegates map images to ctrl_srp_image.py; it delegates every "
+                                                   "platform compile of the firmware to ctrl_plat_image.py, unchanged, "
+                                                   "and the runtime to runtime_ssp.py; it compiles nothing itself",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
