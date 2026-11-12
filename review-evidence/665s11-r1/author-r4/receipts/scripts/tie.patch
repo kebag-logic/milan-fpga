@@ -1,0 +1,14 @@
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index 0b4ba6f660..3efb3df92d 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -889,6 +889,9 @@ def add_milan_datapath(host: Module, platform: object,
+         # and a REBOOT's egress wait runs to its bound (#787)
+         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+         i_i_ethtxend_tgl = 0,
++        # the split's REBOOT request (#871), unread by the all-fabric datapath
++        # and tied 0 as its port states; the split binds the reset port below
++        i_i_reboot_req = 0,
+         # No MAC, so no launch observer: the plane receives no record, keeps
+         # every ledger entry it allocates, delivers no timestamp and says so
+         # through its counters. A tie that MANUFACTURED records would be the
