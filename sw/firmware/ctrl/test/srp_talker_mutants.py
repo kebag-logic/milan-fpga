@@ -29,7 +29,7 @@ RESET = "Talker.MoveBeforeAResetIsHeldByTheNewParticipants"
 ENTRY = "Talker.AllocationEntryRecordsOnlyWhatChanged"
 REFUSED = "Talker.RefusedRedeclarationIsDeclaredAgain"
 #: declare_sources's withdrawal condition and its licence closure, as srp_mbx.c holds them.
-WITHDRAWS = "        if ((i->talkers & bit) != 0u && (moved || admitted != i->admitted[n])) {\n"
+WITHDRAWS = "        if ((i->talkers & bit) != 0u && ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {\n"
 LICENCE = ("            if (i->active[n]) {\n                i->active[n] = false;\n                ++m->stops;\n"
            "                publish_licence(i);\n                m->config.licence(m->config.ctx,i->index,n,false);\n"
            "            }\n")
@@ -40,6 +40,7 @@ ENTRY_GUARD = ("bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uin
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every Talker declaration defect, built with srp_mutants.Defect."""
     def d(name: str, test: str, old: str, new: str, needle: str) -> T:
+        """One defect of srp_talker.cpp's suite, planted at 8x8/2if by the two-interface campaign."""
         return kind(name, test, old, new, needle, suite=SUITE, entity=ENTITY)
     return (
         d("talker-moved-not-withdrawn", CHANGE, WITHDRAWS,
@@ -57,11 +58,12 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "        if (i->held_cs[n] != 0u && --i->held_cs[n] == 0u) {\n",
           "declares Talker Advertise with the allocated destination once the hold-off ends"),
         d("talker-hold-off-restarted-by-a-report", REALLOCATE, WITHDRAWS,
-          "        if (((i->talkers & bit) != 0u || i->held_cs[n] != 0u) && (moved || admitted != i->admitted[n])) {\n",
+          "        if (((i->talkers & bit) != 0u || i->held_cs[n] != 0u) &&\n"
+          "            ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {\n",
           "a re-allocated source advertises its newest destination when the hold-off ends"),
         d("talker-reset-forgets-the-move", RESET, WITHDRAWS,
-          "        if ((i->talkers & bit) != 0u && how != SRP_DECLARE_NEW && "
-          "(moved || admitted != i->admitted[n])) {\n",
+          "        if ((i->talkers & bit) != 0u && how != SRP_DECLARE_NEW &&\n"
+          "            ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {\n",
           "the new participants hold a source that moved before the reset"),
         d("talker-decl-kept-at-the-withdrawal", ALLOCATE,
           "            i->talkers &= ~bit;\n            i->held_cs[n] = SRP_REDECLARE_CS;\n",
@@ -82,10 +84,11 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "(how != SRP_DECLARE_CHANGED || (i->talkers & bit) != 0u || (i->talkers & bit) == 0u)",
           "a Talker whose destination did not move is not declared again"),
         d("talker-admission-change-kept", ADMIT, WITHDRAWS,
-          "        if ((i->talkers & bit) != 0u && moved) {\n",
+          "        if ((i->talkers & bit) != 0u && (i->readdressed & bit) != 0u) {\n",
           "a source whose admission changes withdraws its Talker Failed"),
         d("talker-allocated-unfit-declares-code-2", ADMIT,
-          "            value.failure_info[8] = s->allocated ? 1 : 2;\n", "            value.failure_info[8] = 2;\n",
+          "            value.failure_info[8] = i->sources[n].allocated ? 1 : 2;\n",
+          "            value.failure_info[8] = 2;\n",
           "an allocated source whose bandwidth does not fit declares Talker Failed, code 1"),
         d("talker-refused-declaration-forgotten", REFUSED, "    i->sources_owed = !done;\n",
           "    i->sources_owed = false;\n", "a refused re-declaration is declared again"),
