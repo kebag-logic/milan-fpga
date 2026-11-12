@@ -1,0 +1,21 @@
+Archive commit c621aff3cb0f336512d999142b20bfa8bd55dbe5 (git signature status: N, unsigned); packet integrity is the MANIFEST.json hash list only.
+
+author-r4/receipts/round4/fw_coverage-write-at-0fb66211-diff.txt (verbatim):
+ sw/firmware/gtest/coverage.ratchet | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+(empty: the generator at 0fb66211 writes dev's committed ratchet unchanged)
+
+author-r4/receipts/round4/fw_coverage-write-at-0fb66211.log lines 2, 34, 51:
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+sw/firmware/ctrl/app/ctrl_app_aecp.c             165/165     124/124     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 459/459     269/278     lines 100.00 %  branches 100.00 %
+
+committed ratchet at 0fb66211 (git show 0fb66211:sw/firmware/gtest/coverage.ratchet):
+sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 164/164  branches 124/124
+sw/firmware/ctrl_nvm/nvm_store.c  lines 458/458  branches 269/269
+
+hosted firmware-unit job 130955656991 at 55cb2491 (tree identical to 0fb66211: git diff --name-only 55cb2491 0fb66211 is empty), fw_coverage --check lines:
+2026-11-12T03:55:19.6846006Z sw/firmware/ctrl/app/ctrl_app_aecp.c             165/165     126/126     lines 100.00 %  branches 100.00 %
+2026-11-12T03:55:19.6864110Z sw/firmware/ctrl_nvm/nvm_store.c                 459/459     269/278     lines 100.00 %  branches 100.00 %
+2026-11-12T03:55:19.6870147Z firmware coverage: PASS (35 files)
+2026-11-12T03:55:19.6821009Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.

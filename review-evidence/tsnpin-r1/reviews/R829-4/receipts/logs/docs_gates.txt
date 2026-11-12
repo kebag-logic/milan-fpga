@@ -1,0 +1,11 @@
+rc=0 python3 scripts/docs_check.py
+rc=0 python3 scripts/check_feature_status.py
+rc=0 python3 scripts/check_doc_style.py
+rc=0 python3 scripts/check_gptp_docs.py
+rc=0 python3 docs/DOC_MAP.gen.py --check
+rc=0 python3 scripts/check_solution_docs.py
+rc=0 python3 docs/diagrams/submodule_boundaries.gen.py --check
+rc=0 python3 scripts/check_submodule_docs.py
+rc=0 python3 scripts/check_nvm_klj3.py
+rc=0 python3 scripts/check_nvm_format_32x32.py
+rc=0 python3 scripts/check_wire_accountability.py

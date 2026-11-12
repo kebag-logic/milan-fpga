@@ -1,0 +1,172 @@
+commit 8bc1dfc0bbaa0d7a541a2e75951eff6d12fa6ea3
+Merge: 32b4397306 0fb66211b7
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Thu Nov 12 14:42:26 2026 +0100
+
+    Merge dev-soft-core 0fb66211 into the tsn-c-stack pin move, with the ledger keys and plans measured on the merge (#665)
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index a7519f8e26..fc8d9b1175 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -121,18 +121,13 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
+ The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
+ An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+ 
+-Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821).
++Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821, and the owner's decision 6824896581).
+ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-<<<<<<< 32b4397306 (Name the BIND_RX case of the kept command and the adapter's loop pointer in the split pages (#665))
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,392 B | 59.0 |
+-=======
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 57.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,240 B | 59.0 |
+->>>>>>> 0fb66211b7 (Merge PR #888: Decode the split CPU's control regions exactly, as power-of-two pieces (#791))
++| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 58.0 |
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,392 B | 59.0 |
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -368,6 +363,27 @@ The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` wi
+ The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
+ The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
+ 
++On dev-soft-core `0fb66211`, which carries the split's KLJ3 stage (#823) and #888 and #889, the pin move's head was merged and both images planned again at all four points, at `0fb66211` and with the merge.
++Each image was built by the pinned RV32 SDK and linked with one runtime; the platform's against the `csr.csv` and flash map of the merge's own split export (`gen_flash_port.py`):
++
++| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
++|---|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 105,696 (+528) / 46,784 (+160) | 37.5 | 110,760 (+488) / 47,680 (+144) | 39.5 (was 39.0) | 18,584 (+152) |
++| 1x1, two interfaces | 107,264 (+512) / 58,160 (+144) | 41.0 | 112,352 (+440) / 59,104 (+160) | 42.0 | 20,080 (+152) |
++| 8x8, one interface | 119,400 (+520) / 87,568 (+144) | 51.0 | 124,504 (+488) / 88,480 (+144) | 52.5 | 19,240 (+152) |
++| 8x8, two interfaces (largest) | 121,064 (+520) / 113,728 (+144) | 58.0 (was 57.5), ledgered | 126,208 (+448) / 114,672 (+160) | 59.0, ledgered | 21,392 (+152) |
++
++Two plans move against `0fb66211`.
++The fixture's 8x8 with two interfaces had 288 B of `rom` left at 57.5; it needs 232 B past its five banks (120,832 B) and plans 58.0, its `rom` in four banks of 122,880 B.
++The platform's 1x1 with one interface had 320 B left at 39.0; it needs 168 B past its four banks (110,592 B), takes a fifth of 2,048 B and plans 39.5.
++Both images carry the KLJ3 stage, `nvm_stage` of 3,454 / 13,594 B, and the move's `ctrl_plat`, so the platform's override is keyed on 13,594 and 21,392 B.
++The tightest point is now the platform's 1x1 with two interfaces, 288 B of `rom` before its next granule.
++
++The owner's decision of 2026-11-12 (#665, 6824896581) supersedes, for the flip only, the requirement above that the flip (S13) needs 56 RAMB36 or fewer at every point with S14 merged.
++The two 8x8 points with two interfaces are held as named ROM debt owed to S14: the target platform's image may plan 60.0 RAMB36, at most 60.5, and the size fixture's 58.0, at most 58.5.
++Every other point, every 1x1 one-interface point among them, stays at or under 56.
++`ctrl_memory.LEDGERED` holds the fixture's point at 58.0 and the platform's at 59.0, the tiles each plans.
++
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+ The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
+@@ -385,7 +401,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
+ ```
+ 
+ This is the ledgered point, so both commands name its override.
+-Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
++Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
+ Every other point takes no override, and refuses one.
+ 
+ Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index 9244267741..1fec7d0b90 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -31,7 +31,7 @@ sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 60/60
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+ sw/firmware/ctrl/srp/srp_mbx.c  lines 543/543  branches 486/486
+ sw/firmware/ctrl_nvm/nvm_klj2.c  lines 203/203  branches 110/110
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 458/458  branches 269/269
++sw/firmware/ctrl_nvm/nvm_store.c  lines 459/459  branches 269/269
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+ third_party/tsn-c-stack/include/wire.h  lines 14/14  branches 2/2
+ third_party/tsn-c-stack/src/acmp.c  lines 847/847  branches 436/436
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index 8c9e9e9a3c..538005c110 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -245,14 +245,10 @@ class Ledgered:
+ #: every other point stays within 56.
+ LEDGERED: dict[str, Ledgered] = {
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+-                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+-                                         "6425357821)"),
++                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
++                                         "6425357821; the owner's 6824896581: 58.0, at most 58.5)"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-<<<<<<< 32b4397306 (Name the BIND_RX case of the kept command and the adapter's loop pointer in the split pages (#665))
+-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 21_392)), 59.0,
+-=======
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_240)), 59.0,
+->>>>>>> 0fb66211b7 (Merge PR #888: Decode the split CPU's control regions exactly, as power-of-two pieces (#791))
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_392)), 59.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image)"),
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+index a33be88ea2..4ab836cc49 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -4,7 +4,7 @@
+ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+-only by its own name, under #665's documented memory exceptions: the size fixture's at 57.5 RAMB36 and the target
++only by its own name, under #665's documented memory exceptions: the size fixture's at 58.0 RAMB36 and the target
+ platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+ writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
+ syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+@@ -45,21 +45,21 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 57.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 59.0)}
++OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 58.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 59.0)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 57.5),
++HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 58.0),
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 59.0)}
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+ REFUSED = (
+-    ("its own image at 58.0 RAMB36, half a tile past its 57.5", FIXTURE, OWN[FIXTURE]._replace(tiles=58.0)),
+-    ("the size fixture's 1x1 one-interface image at 57.5", FIXTURE, Case(STAGE_1X1, 1, None, 57.5)),
+-    ("the size fixture's 1x1 two-interface image at 57.5", FIXTURE, Case(STAGE_1X1, 2, None, 57.5)),
+-    ("the size fixture's 8x8 one-interface image at 57.5", FIXTURE, Case(STAGE_8X8, 1, None, 57.5)),
+-    ("an 8x8 image with no image_allocation at 57.5", FIXTURE, Case(STAGE_8X8, None, None, 57.5)),
++    ("its own image at 58.5 RAMB36, half a tile past its 58.0", FIXTURE, OWN[FIXTURE]._replace(tiles=58.5)),
++    ("the size fixture's 1x1 one-interface image at 58.0", FIXTURE, Case(STAGE_1X1, 1, None, 58.0)),
++    ("the size fixture's 1x1 two-interface image at 58.0", FIXTURE, Case(STAGE_1X1, 2, None, 58.0)),
++    ("the size fixture's 8x8 one-interface image at 58.0", FIXTURE, Case(STAGE_8X8, 1, None, 58.0)),
++    ("an 8x8 image with no image_allocation at 58.0", FIXTURE, Case(STAGE_8X8, None, None, 58.0)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+-    ("the platform's 8x8 two-interface image at 57.5", FIXTURE, OWN[PLATFORM]._replace(tiles=57.5)),
++    ("the platform's 8x8 two-interface image at 58.0", FIXTURE, OWN[PLATFORM]._replace(tiles=58.0)),
+     ("its own image at 59.5 RAMB36, half a tile past its 59.0", PLATFORM, OWN[PLATFORM]._replace(tiles=59.5)),
+     ("the platform's 1x1 one-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 59.0)),
+     ("the platform's 1x1 two-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 59.0)),
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index 2c571564ce..756f8e5406 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -18,7 +18,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces) plans
+-     its 57.5 or 59.0 by name and is refused without its override, through
++     its 58.0 or 59.0 by name and is refused without its override, through
+      add_ctrl_memory and half a tile past; each override is refused on every
+      other point, on the other's image and on an image with one of its two
+      symbols. Six planted ledgers, each widening an entry to another point or
+@@ -330,7 +330,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-                                          f"platform's 8x8 images with two interfaces at 57.5 and 59.0 ({held})")
++                                          f"platform's 8x8 images with two interfaces at 58.0 and 59.0 ({held})")
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
