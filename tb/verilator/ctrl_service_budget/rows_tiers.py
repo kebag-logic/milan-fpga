@@ -28,7 +28,7 @@ import math
 import re
 import sys
 from pathlib import Path
-from typing import NamedTuple
+from typing import Callable, NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
@@ -341,7 +341,8 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     return out
 
 
-def solve(row: str, i: Inputs, model, dropped: str | None = None) -> tuple[float | None, dict[str, float]]:
+def solve(row: str, i: Inputs, model: Fix | Design,
+          dropped: str | None = None) -> tuple[float | None, dict[str, float]]:
     """The row's W in ms, in steps of 0.01, with its terms in microseconds, by `model` (a Fix or a Design); None if
     none under 2,000 ms. Under the tiers the queued notices' W opens AECP_RETRY_MAX_MS (spacing) before their window;
     by the corrected model they are the tree's derived bounds, as rows_grade reads them. `dropped` is left out."""
@@ -362,7 +363,7 @@ def solve(row: str, i: Inputs, model, dropped: str | None = None) -> tuple[float
     return None, d
 
 
-def rows(root: Path, point: str, model, i: Inputs | None = None,
+def rows(root: Path, point: str, model: Fix | Design, i: Inputs | None = None,
          dropped: str | None = None) -> dict[str, tuple[float | None, dict[str, float]]]:
     """Each row's W in ms by `model`, with its terms in ms."""
     i = i or point_inputs(root, point)
@@ -373,7 +374,8 @@ def rows(root: Path, point: str, model, i: Inputs | None = None,
     return out
 
 
-def findings(root: Path, model, points: tuple[str, ...] = POINTS, bounds: dict | None = None) -> list[str]:
+def findings(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS,
+             bounds: dict | None = None) -> list[str]:
     """Each row over its tier's bound by `model` at each point, with its largest term."""
     out = []
     for point in points:
@@ -387,7 +389,7 @@ def findings(root: Path, model, points: tuple[str, ...] = POINTS, bounds: dict |
     return out
 
 
-def label(model) -> str:
+def label(model: Fix | Design) -> str:
     """A model as the tables name it."""
     if isinstance(model, Design):
         return f'under the tiers ({model.label()})'
@@ -395,7 +397,7 @@ def label(model) -> str:
     return 'as built' if not on else f'corrected ({", ".join(on)})'
 
 
-def broken(root: Path, model, points: tuple[str, ...] = POINTS) -> list[str]:
+def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) -> list[str]:
     """Each way a model breaks its own rules: a term with no source, a retained retry past one a centisecond, SRP's
     window cut by more than the row's record, an uncounted datapath source; and under the tiers a slice under the
     smallest the code could take, a tier-2 term in a tier-1 row, a row without its one slice at the slice's length, a
@@ -442,7 +444,7 @@ def broken(root: Path, model, points: tuple[str, ...] = POINTS) -> list[str]:
     return out
 
 
-def report(root: Path, model, points: tuple[str, ...] = POINTS, every: bool = False) -> list[str]:
+def report(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS, every: bool = False) -> list[str]:
     """Each row at each point by `model`: its W, bound, residual, ordinary passes and its largest (or every) term."""
     lines = [f'Model: {label(model)}', '',
              '| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | ' +
@@ -490,10 +492,9 @@ def control_names(root: Path) -> tuple[str, ...]:
     return (*names, *CONTROLS)
 
 
-def controls(root: Path) -> list[str]:
-    """Each planted defect that is not refused: the planted names that escaped."""
-    from unittest import mock
-    me = sys.modules[__name__]
+def row_controls(root: Path) -> list[str]:
+    """Each held row's planted defects not refused: its bound a hundredth under W and over it, and each source left
+    out, which must shorten W."""
     escaped = []
     for tag, model in HELD:
         for point in POINTS:
@@ -508,57 +509,88 @@ def controls(root: Path) -> list[str]:
                     escaped.append(f'{tag} {point} {row} over its bound')
                 if w is not None and any(f.startswith(name) for f in findings(root, model, (point,), over)):
                     escaped.append(f'{tag} {point} {row} within its bound')
-                # each source the model counts lengthens the row: one left out must shorten it
                 for term in (k for k, v in terms.items() if v > 0 and w is not None):
                     if not solve(row, i, model, dropped=term)[0] < w:
                         escaped.append(f'{tag} {point} {row}: the source {term} not counted')
         if broken(root, model):
             escaped.append(f'the {tag} model breaks its own rules at this tree')
-    # the as-built derivation is rows_grade's own: every solved row's terms equal demand()'s at its W, and a copy that
-    # drifts (here the grandmaster events left out) is refused
-    def drift(original):
-        """Each solved row whose as-built terms differ from rows_grade.demand's."""
-        out = []
-        for point in POINTS:
-            i = point_inputs(root, point)
-            for row in rows_grade.SOLVED:
-                w, _ = rows_grade.solve(row, rows_grade.Inputs(*i[:5]))
-                if built(row, i, w, AS_BUILT) != rows_grade.demand(row, rows_grade.Inputs(*i[:5]), w):
-                    out.append(f'{point} {row}')
-        return out
-    if drift(built):
+    return escaped
+
+
+def drift(root: Path) -> list[str]:
+    """Each solved row whose as-built terms (built() with every correction off) differ from rows_grade.demand's at the
+    W rows_grade solves."""
+    out = []
+    for point in POINTS:
+        i = point_inputs(root, point)
+        base = rows_grade.Inputs(*i[:5])
+        for row in rows_grade.SOLVED:
+            w, _ = rows_grade.solve(row, base)
+            if built(row, i, w, AS_BUILT) != rows_grade.demand(row, base, w):
+                out.append(f'{point} {row}')
+    return out
+
+
+def default_holds(root: Path) -> list[str]:
+    """Each way rows_grade.rows() at its defaults is not the as-built model: a tier or correction term in a default
+    row, or a solved row's W other than rows_grade.solve's."""
+    out = []
+    for point in POINTS:
+        i = rows_grade.point_inputs(root, point)
+        held = rows_grade.rows(root, point, inputs=i)
+        out += [f'{point} {row}' for row, (_, terms) in held.items() for k in ('slice', 'notice', 'datapath')
+                if k in terms]
+        out += [f'{point} {row}' for row in rows_grade.SOLVED if held[row][0] != rows_grade.solve(row, i)[0]]
+    return out
+
+
+#: Each planted change of a model's terms, by the control it is, with the model it is planted in: change(row, inputs,
+#: w, model, terms) returns the planted terms.
+PLANTS: dict[str, tuple[Fix | Design, Callable]] = {
+    'the retained retry counted once a pass': (CORRECTED, lambda row, i, w, m, t: dict(
+        t, **{'item.retained': max(t['item.retained'], round(t['passes'] / (i.c['events_none'] + i.c['base'])) *
+                                   i.c['item.retained'])})),
+    "SRP's window cut by the AECP burst's whole work": (CORRECTED, lambda row, i, w, m, t: dict(
+        t, srp=(i.rate['srp'][0] + math.floor(max(0.0, w - t['aecp'] / 1000) / i.rate['srp'][1])) *
+        i.c['record.srp']) if row == 'R4' else t),
+    'a datapath source left out': (REFERENCE, lambda row, i, w, m, t: dict(t, datapath=t['datapath'] * 2 / 3)),
+    'a tier-2 term in a tier-1 row': (REFERENCE, lambda row, i, w, m, t: dict(
+        t, srp=i.rate['srp'][0] * i.c['record.srp']) if row == 'R4' else t),
+    'a row without its slice': (REFERENCE, lambda row, i, w, m, t: {k: v for k, v in t.items() if k != 'slice'}),
+    'a slice charged at other than its length': (REFERENCE, lambda row, i, w, m, t: dict(t, slice=2000.0)),
+    'a term without a source': (REFERENCE, lambda row, i, w, m, t: dict(t, margin=100.0)),
+    'the first queued notice left out of R4': (REFERENCE, lambda row, i, w, m, t: {
+        k: v for k, v in t.items() if row != 'R4' or k != 'notice'}),
+}
+
+
+def plant_controls(root: Path) -> list[str]:
+    """Each planted change of a model's terms (PLANTS) its own rules do not refuse."""
+    from unittest import mock
+    me = sys.modules[__name__]
+    escaped = []
+    for name, (model, change) in PLANTS.items():
+        fn = 'built' if isinstance(model, Fix) else 'tiered'
+        first = getattr(me, fn)
+        with mock.patch.object(me, fn, lambda row, i, w, m, f=first, g=change: g(row, i, w, m, f(row, i, w, m))):
+            if not broken(root, model):
+                escaped.append(name)
+    return escaped
+
+
+def tree_controls(root: Path) -> list[str]:
+    """The planted defects of what the models read: the as-built derivation, the slice, the orders, rows_grade's
+    default and the retry rule in the tree, each that is not refused."""
+    from unittest import mock
+    me = sys.modules[__name__]
+    escaped = []
+    if drift(root):
         escaped.append('the as-built derivation differs from rows_grade.demand at this tree')
     original = me.built
     with mock.patch.object(me, 'built', lambda row, i, w, f: {k: v for k, v in original(row, i, w, f).items()
                                                                if k != 'gm'}):
-        if not drift(me.built):
+        if not drift(root):
             escaped.append('the as-built model not rows_grade.demand')
-
-    def planted(model, change) -> list[str]:
-        """The model's own rules with its terms changed by `change(row, inputs, w, model, terms)`."""
-        fn = 'built' if isinstance(model, Fix) else 'tiered'
-        first = getattr(me, fn)
-        with mock.patch.object(me, fn, lambda row, i, w, m: change(row, i, w, m, first(row, i, w, m))):
-            return broken(root, model)
-    plants = {
-        'the retained retry counted once a pass': (CORRECTED, lambda row, i, w, m, t: dict(
-            t, **{'item.retained': max(t['item.retained'], round(t['passes'] / (i.c['events_none'] + i.c['base'])) *
-                                       i.c['item.retained'])})),
-        "SRP's window cut by the AECP burst's whole work": (CORRECTED, lambda row, i, w, m, t: dict(
-            t, srp=(i.rate['srp'][0] + math.floor(max(0.0, w - t['aecp'] / 1000) / i.rate['srp'][1])) *
-            i.c['record.srp']) if row == 'R4' else t),
-        'a datapath source left out': (REFERENCE, lambda row, i, w, m, t: dict(t, datapath=t['datapath'] * 2 / 3)),
-        'a tier-2 term in a tier-1 row': (REFERENCE, lambda row, i, w, m, t: dict(
-            t, srp=i.rate['srp'][0] * i.c['record.srp']) if row == 'R4' else t),
-        'a row without its slice': (REFERENCE, lambda row, i, w, m, t: {k: v for k, v in t.items() if k != 'slice'}),
-        'a slice charged at other than its length': (REFERENCE, lambda row, i, w, m, t: dict(t, slice=2000.0)),
-        'a term without a source': (REFERENCE, lambda row, i, w, m, t: dict(t, margin=100.0)),
-        'the first queued notice left out of R4': (REFERENCE, lambda row, i, w, m, t: {
-            k: v for k, v in t.items() if row != 'R4' or k != 'notice'}),
-    }
-    for name, (model, change) in plants.items():
-        if not planted(model, change):
-            escaped.append(name)
     small = Design(smallest_slice(point_inputs(root, '1x1/1if')))
     if not broken(root, small._replace(slice_us=small.slice_us - 1), ('1x1/1if',)):
         escaped.append('a slice under the smallest the code could take')
@@ -568,22 +600,10 @@ def controls(root: Path) -> list[str]:
             escaped.append('a unit dearer than the slice charged one slice')
     if not broken(root, REFERENCE._replace(tier1='aecp-last')):
         escaped.append('an order TIERS does not state')
-    # rows_grade's default stays the as-built model: a default row carrying a tier term, or another W, is refused
-    def default_holds() -> list[str]:
-        """Each way rows_grade.rows() at its defaults is not the as-built model."""
-        out = []
-        for point in POINTS:
-            i = rows_grade.point_inputs(root, point)
-            held = rows_grade.rows(root, point, inputs=i)
-            out += [f'{point} {row}' for row, (_, terms) in held.items() for k in ('slice', 'notice', 'datapath')
-                    if k in terms]
-            out += [f'{point} {row}' for row in rows_grade.SOLVED if held[row][0] != rows_grade.solve(row, i)[0]]
-        return out
-    if default_holds():
+    if default_holds(root):
         escaped.append("rows_grade's default is not the as-built model at this tree")
-    with mock.patch.object(rows_grade, 'demand', lambda row, inputs, w: tiered(
-            row, Inputs(*inputs, 8), w, REFERENCE)):
-        if not default_holds():
+    with mock.patch.object(rows_grade, 'demand', lambda row, inputs, w: tiered(row, Inputs(*inputs, 8), w, REFERENCE)):
+        if not default_holds(root):
             escaped.append("rows_grade's default not the as-built model")
     # the slice read: R4 at the smallest slice is shorter than at the reference's, and a model that charges the
     # reference's slice whatever the design is refused by its own rule
@@ -593,7 +613,7 @@ def controls(root: Path) -> list[str]:
     with mock.patch.object(me, 'tiered', lambda row, i, w, d: first(row, i, w, REFERENCE)):
         if not broken(root, small, ('1x1/1if',)):
             escaped.append('the slice length not read')
-    # the retained retry's rule is read from the tree: a copy of srp_mbx.c that retries every pass is refused
+    # the retained retry's rule is read from the tree: a copy of srp_mbx.c whose centisecond never gives it back
     path = 'sw/firmware/ctrl/srp/srp_mbx.c'
     text = (root / path).read_text()
     with mock.patch.object(load_grade, 'retry_unbounded', lambda r, texts=None, f=load_grade.retry_unbounded: f(
@@ -601,6 +621,11 @@ def controls(root: Path) -> list[str]:
         if 'm->retry_spent = false;' not in text or not broken(root, CORRECTED, ('1x1/1if',)):
             escaped.append('the retry rule not read from the tree')
     return escaped
+
+
+def controls(root: Path) -> list[str]:
+    """Each planted defect that is not refused: the planted names that escaped."""
+    return row_controls(root) + plant_controls(root) + tree_controls(root)
 
 
 def main() -> int:
