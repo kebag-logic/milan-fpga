@@ -8,12 +8,13 @@ build.py's valid-destinations variant (a scratch copy of the size fixture, never
 ACMP source port report each source's destination as the target platform's does, valid once MAAP holds its interface's
 range, at base + n (Milan v1.2 5.5.4.1). So a PROBE_TX for a source is answered SUCCESS, its DA gate opens, and the
 composition hands the gate to SRP, which declares the source's Talker Advertise at once, in a pass given whole to THE
-TRANSMIT. Each probe's row runs from the command's commit to SRP's next frame, the declaration. With no Listener, the
-15 s probe window then closes every gate and SRP withdraws every Talker in its own passes. The second group probes
-the same way, then makes each interface lose its range: a peer ANNOUNCEs it from a MAC for which compare_MAC is FALSE
-(IEEE 1722-2016 Table B.7, B.3.6.4), MAAP restarts on a new range, its DA gate closes, and SRP withdraws the interface's
-Talkers; the row runs from the ANNOUNCE's commit to MAAP's new PROBE and SRP's Leave. whole_grade.py holds each such
-pass to THE TRANSMIT's stated build cost and share.py to the per-pass share, as for every group.
+TRANSMIT. Each probe's row runs from the command's commit to SRP's next frame, the declaration, with a JoinTime's wait
+for its transmit opportunity (JOIN_MS). With no Listener, the 15 s probe window then closes every gate and SRP
+withdraws every Talker in its own passes. The second group probes the same way, then makes each interface lose its
+range: a peer ANNOUNCEs it from a MAC for which compare_MAC is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), MAAP restarts
+on a new range, its DA gate closes, and SRP withdraws the interface's Talkers; the row runs from the ANNOUNCE's commit
+to MAAP's new PROBE and SRP's Leave, with the same wait. whole_grade.py holds each such pass to THE TRANSMIT's stated
+build cost and share.py to the per-pass share, as for every group.
 """
 from __future__ import annotations
 
@@ -44,6 +45,9 @@ WINDOW_MS = 16000
 #: The wait for each restarted range's PROBEs and ANNOUNCE (B.3.4.2, Table B.8: 3 x 500 ms), and the loss group's time.
 RANGE_MS = 2500
 LOSS_MS = 9000
+#: The JoinTime a declaration or a Leave may wait for its transmit opportunity (IEEE 802.1Q-2018 10.7.4.1, Table 10-7;
+#: Milan v1.2 Table 4.3; srp_mbx.c's SRP_JOIN_CS): each row's normative wait, as the srp group's Domain row states it.
+JOIN_MS = 200.0
 #: The peer that takes each range: a unicast MAC whose octet-wise reverse, 0x0e, is below that of any MAC with a nonzero
 #: octet past its first, so compare_MAC is FALSE on every interface and the core restarts (IEEE 1722-2016 B.3.6.4).
 PEER_MAC = 0x0E0000000000
@@ -62,8 +66,8 @@ def declared(g: scenario.Group, p: scenario.Point) -> None:
     seq = 0x5300
     for n in range(p.sources):
         i = n % p.interfaces
-        g.probe(scenario.Probe(f'srp.talker_declare.s{n}.if{i}', 'PROBE_TX -> Talker Advertise (DA gate opens)',
-                               'srp', f'rxc:{acmp}', [f'resp:{acmp}:{seq:x}', f'tx:{srp}'],
+        g.probe(scenario.Probe(f'srp.talker_declare.s{n}.if{i}', 'PROBE_TX -> Talker Advertise (JoinTime wait)',
+                               'srp', f'rxc:{acmp}', [f'resp:{acmp}:{seq:x}', f'tx:{srp}'], wait_ms=JOIN_MS,
                                expect=answers.acmp('PROBE_TX_RESPONSE', 'SUCCESS')),
                 f'frame {i} {scenario.talker_cmd(p, "PROBE_TX", n, seq).hex()}', wait=f'tx {srp} 1 within {300 * ms}')
         seq += 1
@@ -80,8 +84,9 @@ def groups(p: scenario.Point) -> list[scenario.Group]:
     loss = scenario.Group('srp-talker-loss', sim_ms=LOSS_MS + 1000 * p.interfaces)
     declared(loss, p)
     for i in range(p.interfaces):
-        loss.probe(scenario.Probe(f'srp.talker_loss.if{i}', 'range lost (ANNOUNCE conflict) -> Talker Leave', 'srp',
-                                  f'rxc:{maap}', [f'tx:{maap}', f'tx:{srp}'], expect=f'maap_type:{f.MAAP_PROBE}'),
+        loss.probe(scenario.Probe(f'srp.talker_loss.if{i}', 'range lost -> Talker Leave (JoinTime wait)', 'srp',
+                                  f'rxc:{maap}', [f'tx:{maap}', f'tx:{srp}'], wait_ms=JOIN_MS,
+                                  expect=f'maap_type:{f.MAAP_PROBE}'),
                    f'reply {i} {maap} 15:{f.MAAP_ANNOUNCE:02x} on={i} 6={PEER_MAC:012x}',
                    wait=f'tx {srp} 1 within {300 * ms}')
     loss.add(f'wait cycles {RANGE_MS * ms}', 'wait quiet 3 within 2000000')
