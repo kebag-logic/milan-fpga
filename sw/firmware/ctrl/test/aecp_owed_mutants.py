@@ -10,7 +10,7 @@ QL = 'Queued.ALongerNoticeWaitsInTheResponseBufferBehindTheQueue'
 QR = 'Queued.AQueuedNoticeResumesAtItsRecipient'
 NONE = 'Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice'
 FIRST = 'Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone'
-TRANSMIT = 'return respond(a) || notices(a, false);'
+TRANSMIT = 'return respond(a) || notices(a, drains);'
 HEAD = '\t\t\tstruct aecp_owed *o = &a->cfg.owed[a->owed_head];\n'
 READY = '(a->owed_count == 0u || a->owed_count < a->cfg.owed_slots)'
 
@@ -27,9 +27,9 @@ ROWS = (
      '\tif (a->owed_count != 0u && !a->notify) {\n\t\tif (drains) {',
      (QL, "(a) the queue's notice first, then the long one")),
     # (b) a command's response before the notices it causes, and no notice in a record's turn
-    ('owed-notice-before-its-response', 'aecp.c', TRANSMIT, 'return notices(a, true) || respond(a);',
+    ('owed-notice-before-its-response', 'aecp.c', TRANSMIT, 'return notices(a, drains) || respond(a);',
      (QA, "(b) each response is committed in its record's turn, and no notice yet")),
-    ('owed-drained-in-the-records-turn', 'aecp.c', TRANSMIT, 'return respond(a) || notices(a, true);',
+    ('owed-drained-in-the-records-turn', 'aecp.c', '\t\t(void)transmit(a, false);\n', '\t\t(void)transmit(a, true);\n',
      (QA, "(b) each response is committed in its record's turn, and no notice yet")),
     # (c) bounded, AECP not ready while it is full, a slot freed as its notice ends, a long notice not queued
     ('owed-ready-while-full', 'aecp.c', READY, 'true', (QC, '(c) AECP is not ready while the queue is full')),

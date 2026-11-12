@@ -2040,8 +2040,8 @@ Before the tiers, a search of the loop's choices (`ctrl_retry_search.py`) held t
 
 | Bound | 1x1/1if | 8x8/2if |
 |---|---:|---:|
-| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.78 ms by every source, held to 20 | 20.82 ms by every source, stated 22 |
-| every notice queued behind it (`AECP_QUEUED_MS`) | 87.95 ms by every source, held to 125 | no W under 2,000 ms by every source, stated 62, ceiling 70 |
+| the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.33 ms by every source, held to 20 | 20.20 ms by every source, stated 22 |
+| every notice queued behind it (`AECP_QUEUED_MS`) | 86.91 ms by every source, held to 125 | 627.12 ms by every source, stated 62, ceiling 70 |
 
 At 1x1/1if both are decision D's tier bounds ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)); at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), an owner question on #894 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 
@@ -2167,19 +2167,21 @@ The load gate holds 1x1/1if in both columns: at the pin 0.463, 0.237 under its c
 #894 builds the [round 23 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)'s two tiers in the control loop (`ctrl_loop.h`, THE TIERS), the design #894's round 1 found to fit every row at 1x1/1if, as its ruling decided it:
 
 - **Tier 1**, the response channels and a queue's first notice: AECP's records first, past `CTRL_LOOP_RX_PER_PASS` while the pass has spent at most `CTRL_LOOP_DRAIN_US`, then ACMP's, ADP's and MAAP's, each only once the channel before it left no record it would take.
-- **Tier 2**, only once tier 1's takes left none: SRP's records in a slice ending `CTRL_LOOP_SLICE_US`, 1,300 us, after the pass started; THE TRANSMIT's build and THE RETRY's rounds each a slice of a pass given whole, after a pass that served tier 1, the rounds only once SRP's records are served too. A build a slice cannot hold makes `CTRL_LOOP_BUILD_MOST` MRPDUs and resumes at the next participant with the same frames (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole` compares them); a round resumes at its next notice. THE STEP's aged pass stands as built.
+- **Tier 2**, only once tier 1's takes left none: SRP's records in a slice ending `CTRL_LOOP_SLICE_US` after the pass started, 1,050 us at 1x1/1if and 1,300 us at 8x8/2if; THE TRANSMIT's build and THE RETRY's rounds each a slice of a pass given whole, after a pass that served tier 1, the rounds only once SRP's records are served too. A build a slice cannot hold makes `CTRL_LOOP_BUILD_MOST` MRPDUs and resumes at the next participant with the same frames (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole` compares them); a round resumes at its next notice. THE STEP's aged pass stands as built.
 - **AECP's owed-notice queue**: a command's notice owed in the queue does not hold its next record (`aecp_ready`), under the ruling's conditions: per-controller order FIFO with each recipient's sequence_id one on per notice, each response before the notices it causes, the queue bounded (`AECP_MBX_OWED_SLOTS`, the AECP burst at 1x1/1if) and AECP not ready while it is full; `Queued.*` in `test_aecp.cpp` and `tests/features/aecp_owed_notices.feature` cover two controllers' back-to-back commands. 8x8/2if's sram has no room for the queue's slots ([section 5](#5-fit)), so AECP keeps its rule before the queue there.
 
-The slice is the one with the largest least relative margin over the five rows at 1x1/1if, on round 1's 50 us grid: 1,300 us, 0.261 (the first queued notice binding, 14.78 of 20 ms). The rows by every source at it (`rows_tiers.py`, the built design):
+The three coalesced datapath events, AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE, are each charged at their sinks' measured cost, the take and every sink's work, the most the CPU budget harness's `datapath-events` group measured plus 5 % and rounded up to 5 us (`rows_tiers.DATAPATH_US`): 30, 30 and 20 us at 1x1/1if (27.08, 26.10 and 15.41 measured) and 35, 35 and 25 us at 8x8/2if (33.13, 30.32 and 20.54). Before they were measured, the rows charged each at `event.AECP`'s cost, 60 and 95 us.
 
-| Point | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms) |
-|---|---:|---:|---:|---:|---:|
-| 1x1/1if | 12.74 | 54.73 | 52.83 | 14.78 | 87.95 |
-| 8x8/2if | 47.32 | 226.10 | 209.84 | 20.82 | no W under 2,000 |
+The slice at 1x1/1if is the one with the largest least relative margin over the five rows there, on the 50 us grid of the tier model's first sweep, at those costs: 1,050 us, 0.2835, the first queued notice binding at 14.33 of 20 ms (1,300 us gives 0.271). One slice at both points could not take it: an MRPDU's build at 8x8/2if is 1,215 us (`CTRL_LOOP_BUILD_ONE_PASS_US`) and cannot be divided. The ruling chooses no slice at 8x8/2if, whose rows miss at every slice, and it keeps 1,300 us. The rows by every source (`rows_tiers.py`, the built design):
 
-An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 29.01 ms at 1x1/1if (`rows_tiers.tx_row`, reported), over the 20 ms the loop before the tiers held it to by construction, within SRP's 90 ms and JoinTime's 240 ms; which bound holds it under the tiers is an open decision on #894.
+| Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| 1x1/1if | 1,050 us | 11.94 | 52.95 | 49.23 | 14.33 | 86.91 |
+| 8x8/2if | 1,300 us | 42.05 | 186.54 | 176.90 | 20.20 | 627.12 |
 
-The built image is 1,248 B larger at both points: at 8x8/2if the size fixture's image is 808 B of rom over its 57.5-RAMB36 ledger ([section 5](#5-fit)), so its CPU budget runs used a plan of 58.0 RAMB36 for measurement only.
+An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 27.21 ms at 1x1/1if and 88.16 ms at 8x8/2if (`rows_tiers.tx_row`, reported). That is over the 20 ms the loop before the tiers held it to by construction, and within SRP's 90 ms and the 200 ms JoinTime at 1x1/1if; which bound holds it under the tiers is an open decision on #894.
+
+The built image is about 1,250 B larger at both points. At 8x8/2if the size fixture's image is 808 B of rom over its 57.5-RAMB36 ledger ([section 5](#5-fit)), so its CPU budget runs used a plan of 58.0 RAMB36 for measurement only.
 
 ### What is left
 

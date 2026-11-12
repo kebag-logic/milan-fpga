@@ -344,9 +344,9 @@ flowchart TB
   (THE TIERS, `ctrl_loop.h`): tier 1, AECP's records first, past two while
   the pass has spent at most `CTRL_LOOP_DRAIN_US`, then ACMP's, ADP's and
   MAAP's; tier 2 only once tier 1 left no record to take: SRP's records in a
-  1.3 ms slice from the pass's start, and THE TRANSMIT's build and THE
-  RETRY's round each a slice of a pass given whole, the build resumed in the
-  next slice where one cannot hold it.
+  slice from the pass's start (1.05 ms at 1x1/1if, 1.3 ms at 8x8/2if), and
+  THE TRANSMIT's build and THE RETRY's round each a slice of a pass given
+  whole, the build resumed in the next slice where one cannot hold it.
   A pass that dispatches a centisecond takes one record of a channel, not
   two (THE TICK's cap): the centisecond's consumers cost about 43,000 CPU
   cycles at 8x8/2if, and beside two records a channel that pass was the

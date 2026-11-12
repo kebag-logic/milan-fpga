@@ -381,7 +381,7 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 	finish(a, status, body);
 }
 
-static bool transmit(struct aecp *a);
+static bool transmit(struct aecp *a, bool drains);
 
 // A command's notice, as its response is about to be sent, into the owed-notice queue's tail when a slot holds it, so
 // AECP takes its next record while the notice is owed; true when it is queued (#894).
@@ -507,7 +507,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 	// notice the owed-notice queue takes: its response first, its notice to the poll, after every notice owed before it
 	// (#894; Milan v1.2 5.4.5.1 and 5.4.5.2)
 	if (!a->waiting && !a->start_pending && (!a->notify || owe(a))) {
-		(void)transmit(a);
+		(void)transmit(a, false);
 	}
 	arm(a);
 }
@@ -735,10 +735,11 @@ static bool notices(struct aecp *a, bool drains)
 	return a->notify;
 }
 
-// The response owed, then the notices, none of the owed-notice queue's: a record's turn or THE RETRY's round.
-static bool transmit(struct aecp *a)
+// AECP's send: the response owed, then the notices, the owed-notice queue's oldest only where it drains, from the
+// poll; none of the queue's in a record's turn or THE RETRY's round (#894).
+static bool transmit(struct aecp *a, bool drains)
 {
-	return respond(a) || notices(a, false);
+	return respond(a) || notices(a, drains);
 }
 
 static bool scan(struct aecp *a);
@@ -885,8 +886,7 @@ bool aecp_poll(struct aecp *a)
 		}
 		aecp_start_done(a, false, false);
 	}
-	// the response owed, then a waiting command, whose final response goes before the notices owed (#894)
-	if (respond(a)) {
+	if (transmit(a, true)) {
 		return true;
 	}
 	if (a->waiting) {
@@ -912,9 +912,6 @@ bool aecp_poll(struct aecp *a)
 		if (!taken) {
 			refuse(a, AECP_ENTITY_MISBEHAVING);
 		}
-		return true;
-	}
-	if (notices(a, true)) {
 		return true;
 	}
 	bool pending = asynchronous(a);
@@ -943,7 +940,7 @@ bool aecp_retry(struct aecp *a, unsigned notices, int32_t left_us)
 	// every attempt starts with a notice's time left, and a refused one is charged to the round (scan)
 	for (unsigned n = 0; n < notices && !owed && scan(a); ++n) {
 		a->round_us -= a->notice_us;
-		owed = transmit(a);
+		owed = transmit(a, false);
 	}
 	arm(a);
 	return owed || a->retry_held;
