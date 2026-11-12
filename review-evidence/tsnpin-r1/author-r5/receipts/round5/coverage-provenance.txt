@@ -1,0 +1,16 @@
+coverage.ratchet at the merge (#665, round 5, R829-4 F3): the provenance of its two one-line differences from dev-soft-core 0fb66211.
+
+1. At 0fb66211 itself (a clean clone, nothing of this PR), fw_coverage.py --write on this host measures:
+     sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 165/165  branches 124/124   (0fb66211's committed ratchet: 164/164)
+     sw/firmware/ctrl_nvm/nvm_store.c      lines 459/459  branches 269/269   (0fb66211's committed ratchet: 458/458)
+   (round4/fw_coverage-write-at-0fb66211.log; the diff: round4/fw_coverage-write-at-0fb66211-diff.txt, corrected).
+   R829-4 reports hosted CI's fw_coverage --check measuring the same 459/459 and 165/165 on 0fb66211's tree with GCC 13.3.
+2. So 0fb66211's committed ratchet records one line fewer than its own measurement in each of those two files. Both are
+   100 %, and --check compares fractions, so neither is a drop.
+3. The merge's fw_coverage.py --write (round4/fw_coverage-write-at-merge.log) records that same current measurement:
+   nvm_store.c 459/459 (the auto-merge had carried dev's 458/458) and ctrl_app_aecp.c 165/165 (this PR's ratchet already
+   held 165/165 since round 1, where the base measured 165 too). Nothing in the pin move or the composition changes the
+   instrumentation of either file.
+4. Round 4's REVIEW READY (#665 issuecomment-6829628610) and its HANDOFF note said the generator at 0fb66211 writes
+   dev's ratchet byte for byte, and called the extra nvm_store.c line the composed builds' instrumentation. That was
+   wrong: the check that produced it filtered a compact diff format and saw no lines. Points 1 to 3 replace it.
