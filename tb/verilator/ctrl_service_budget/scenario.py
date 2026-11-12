@@ -654,8 +654,8 @@ def srp_groups(p: Point) -> list[Group]:
     for i in range(p.interfaces):
         sid = (p.mac << 16) | 0
         ready_listener = f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])
-        # The fixture's sources stay unallocated (ctrl_aecp_image.c), so they are declared as
-        # Talker Failed and no licence follows: the path ends at the record's release.
+        # The fixture's sources have no valid destination (ctrl_aecp_image.c), so they declare
+        # nothing (#895) and no licence follows: the path ends at the record's release.
         g.probe(Probe(f'srp.listener_ready.if{i}', 'Listener Ready RX (registrar)', 'srp', f'rxc:{srp}',
                       [f'pass_end:{srp}']),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [ready_listener]).hex()}', wait=f'cycles {30 * MS}')
@@ -667,6 +667,28 @@ def srp_groups(p: Point) -> list[Group]:
         g.probe(Probe(f'srp.domain.if{i}', 'Domain RX -> declarations (JoinTime wait)', 'srp', f'rxc:{srp}',
                       [f'pub:{pub_word(i, "SR_DOMAIN")}', f'tx:{srp}'], wait_ms=200.0),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
+    return [g]
+
+
+def talker_groups(p: Point) -> list[Group]:
+    """The valid-destinations arm's group (#895): once MAAP holds every interface's range, a PROBE_TX for each source,
+    answered SUCCESS, opens its DA gate (Milan v1.2 4.3.3.1), and SRP declares its Talker Advertise at once, in a pass
+    given whole to THE TRANSMIT: each probe's row runs from the command's commit to SRP's next frame. Then no probe for
+    15 s closes every gate, and SRP withdraws every Talker in its own passes; whole_grade.py holds each such pass to
+    THE TRANSMIT's stated build cost, and share.py to the per-pass share."""
+    srp, acmp = CH['srp'], CH['acmp']
+    g = Group('srp-talker', sim_ms=21000)
+    ready(g, p)
+    g.add(f'wait cycles {2600 * MS}', 'wait quiet 3 within 2000000')
+    seq = 0x5300
+    for n in range(p.sources):
+        i = n % p.interfaces
+        g.probe(Probe(f'srp.talker_declare.s{n}', 'PROBE_TX -> Talker Advertise (DA gate opens)', 'srp', f'rxc:{acmp}',
+                      [f'resp:{acmp}:{seq:x}', f'tx:{srp}'], expect=answers.acmp('PROBE_TX_RESPONSE', 'SUCCESS')),
+                f'frame {i} {talker_cmd(p, "PROBE_TX", n, seq).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
+        seq += 1
+    # the probe window ends (Milan v1.2 4.3.3.1, 15 s) with no Listener: every gate closes and SRP withdraws
+    g.add(f'wait cycles {16000 * MS}', 'wait quiet 3 within 2000000')
     return [g]
 
 

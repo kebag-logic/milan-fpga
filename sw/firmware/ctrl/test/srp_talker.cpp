@@ -345,6 +345,17 @@ TEST_F(Talker, AdmissionChangeSwapsTheTypeInPlace) {
         EXPECT_EQ(dest(*failed),kBaseA+1u) << "its Talker Failed carries its destination";
         EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps) << "one source fits three quarters of the link";
     }
+    // a lapse withdraws a Talker Failed too, and its unchanged destination comes back at once
+    uint32_t mark=model.tx_sent;
+    gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_NE(leave(talker(i,1,mark),2),nullptr) << "a lapse withdraws a Talker Failed too";
+        EXPECT_EQ(pub_of(model,i).talker_decl,1u) << "a lapse withdraws a Talker Failed too";
+    }
+    gate(3u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl,3u) << "a Talker Failed with an unchanged destination comes back at once";
+    }
     trace();
     const uint32_t first=model.tx_sent;
     const uint32_t at=model.now_ms;
@@ -368,6 +379,17 @@ TEST_F(Talker, AdmissionChangeSwapsTheTypeInPlace) {
         EXPECT_EQ(pub_of(model,i).idle_slope_bps,kAdmittedBps)
             << "IDLE_SLOPE admits the source the lapse made room for";
         EXPECT_EQ(pub_of(model,i).talker_decl,2u) << "TALKER_DECL holds the swapped source";
+    }
+    // the source before it valid again takes the bandwidth: the Advertise swaps to Talker Failed, code 1, in place
+    mark=model.tx_sent;
+    gate(3u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const auto ds=talker(i,1,mark);
+        const auto *failed=declared(ds,2);
+        ASSERT_NE(failed,nullptr) << "an admission lost swaps the Advertise to Talker Failed in place";
+        EXPECT_EQ(failed->value[33],1u) << "an admission lost swaps the Advertise to Talker Failed in place";
+        EXPECT_NE(leave(ds,1),nullptr) << "an admission lost swaps the Advertise to Talker Failed in place";
+        EXPECT_EQ(pub_of(model,i).talker_decl,3u) << "an admission lost swaps the Advertise to Talker Failed in place";
     }
 }
 

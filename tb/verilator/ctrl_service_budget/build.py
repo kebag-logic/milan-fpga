@@ -129,7 +129,8 @@ POLL_CONTROLS = poll_items.CONTROLS
 #: face block's stream observation stays unanswered, as with the unmodified fixture, until the first attempt at or
 #: after NOW_MS notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench
 #: reports (ENTRY), and every later one answers zeroed values, so the port answers just after a retry failed: the
-#: retried notice's row (notice_window.py) starts there.
+#: retried notice's row (notice_window.py) starts there. valid-destinations (#895): the fixture's ACMP source port
+#: reports destinations as the platform's does, so its group's probes open DA gates and SRP declares Talkers.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
@@ -228,6 +229,23 @@ VARIANTS = {
          '    ctrl_loop_run(&image_app.loop);'),
     ],
 }
+VARIANTS['valid-destinations'] = [
+    # #895: the fixture's ACMP source port reports each source's destination as the target platform's does, valid
+    # once MAAP holds its interface's range, at base + n (Milan v1.2 5.5.4.1), so a PROBE_TX answered SUCCESS opens
+    # the source's DA gate and SRP declares its Talker; the arm's group (scenario.talker_groups) measures those passes.
+    ('static void source(void *ctx, unsigned n, struct acmp_source_state *out)\n'
+     '{ (void)ctx; (void)n; out->dest_mac_valid=false; }\n',
+     'static void source(void *ctx, unsigned n, struct acmp_source_state *out);\n'),
+    ('    (void)ctx; (void)count;\n    image_allocation[interface] = valid ? base : 0;\n}\n',
+     '    (void)ctx;\n    image_allocation[interface] = valid ? base : 0;\n    image_count[interface] = valid ? count : 0u;\n}\n'
+     'static void source(void *ctx, unsigned n, struct acmp_source_state *out)\n'
+     '{\n    (void)ctx;\n    const unsigned i = n % MBX_N_IF;\n'
+     '    out->dest_mac_valid = image_allocation[i] != 0u && n < image_count[i];\n'
+     '    out->stream = (struct acmp_stream){image_entity.mac << 16 | n, image_allocation[i] + n, 2u};\n'
+     '    out->asking_failed = false;\n}\n'),
+    ('static volatile uint64_t image_allocation[MBX_N_IF];\n',
+     'static volatile uint64_t image_allocation[MBX_N_IF];\nstatic volatile uint16_t image_count[MBX_N_IF];\n'),
+]
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
 VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 

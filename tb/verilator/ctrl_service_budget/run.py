@@ -409,7 +409,8 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
                         help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
                         "block's stream, avb and counters and the fixture's path), shutdown-entry (the SHUTDOWN "
                         "path's test-only input) or answering-later (the face block's stream observation answers "
-                        "from NOW_MS notice_window.ANSWER_MS: the retried notice's row)")
+                        "from NOW_MS notice_window.ANSWER_MS: the retried notice's row) or valid-destinations (the fixture's ACMP "
+                        "source port valid once MAAP holds the range: SRP's Talker declarations, #895)")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')
@@ -596,6 +597,8 @@ def all_groups(point: object, spec: dict) -> list:
     import scenario
     if spec.get('variant') == 'answering-every-port':
         return notice_window.every_groups(point, spec)
+    if spec.get('variant') == 'valid-destinations':
+        return scenario.talker_groups(point)
     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 
