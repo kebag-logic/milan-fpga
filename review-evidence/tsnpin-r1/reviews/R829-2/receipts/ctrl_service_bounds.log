@@ -1,0 +1,13 @@
+| an event behind 15 others | 2 | 15,741 / 18,459 | 0.63 / 0.54 us |
+| an ACMP command behind a full acmp ring | 10 | 57,717 / 67,683 | 0.17 / 0.14 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 115,434 / 135,366 | 0.08 / 0.07 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 47,223 / 55,377 | 0.21 / 0.18 us |
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 5,247
+accesses at one interface and 6,153 at two, including the F3b freshness queries.
+At 1 us per access, event envelopes are 15.741 / 18.459 ms.
+Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
+ceiling still covers both event envelopes, but none of the other rows.
+service bounds: 38/38 planted controls caught
+== ctrl service bounds: checks: 47   failures: 0 ==
+RESULT: PASS
+rc 0

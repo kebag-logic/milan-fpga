@@ -1,0 +1,26 @@
+[ok] mutant acmp-poll-owes-nothing-at-one (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.E3OneOwedFrameAloneKeepsTheLoopAwake: E3 the ACMP poll says it still owes its one frame behind the held egress
+[ok] mutant acmp-redelivery-takes-no-waiting-record (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass: K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe that falls due in the third pass
+[ok] mutant acmp-redelivery-only-behind-a-kept-command (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K5RecordsBehindTheReceiveBudgetAreOfferedAfterTheSend: K5 a command the receive service left waiting is offered after the first send and answered in pass n + 1, ahead of the timer probe that falls due in the second pass
+[ok] mutant acmp-redelivery-refusal-uncounted (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted: K6 the kept command taken, the refused record counted in rx_bad and the ring left empty
+[ok] mutant acmp-redelivery-records-uncounted (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+[ok] mutant acmp-redelivery-short-of-a-full-ring (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+[ESCAPED] mutant rv-continue-after-decline (acmp): 0 check(s) failed, none named acmp: its check on ''
+[ESCAPED] mutant rv-bad-continues (acmp): 0 check(s) failed, none named acmp: its check on ''
+[ok] mutant rv-ring-before-kept (acmp): 16 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ok] mutant rv-one-record (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+[ok] mutant rv-only-when-drained (acmp): 9 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the kept command is answered in pass ACMP_OWED_MAX + 1 after the room returns
+[ok] mutant rv-decline-dropped (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.K1ACommandDeclinedAtTheOwedBoundIsKeptAndAnsweredInArrivalOrder: K1 the command kept behind it in pass n + 1 + f, f = 1: the response ahead of it
+[ok] mutant rv-bound-short-in-header (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends:     Which is: 18
+mutants: 11 of 13 caught
+probe: some escaped
