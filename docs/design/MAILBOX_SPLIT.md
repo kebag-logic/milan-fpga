@@ -304,7 +304,11 @@ and order the driver's word loop uses, and adds nothing to the contract
 either: its control registers are a CSR bank of their own
 (`milan_soc.CTRL_MBX_DMA_REGISTERS`), the header words, counters and
 doorbells stay the driver's, and while a move runs an access of the CPU's
-waits for it. [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
+waits for it. On the host port it keeps `KL_mbx`'s rule: one request, none
+until its answer, which comes one cycle after the request or two for a
+register read (#870); the mover holds the port for a CPU request from its
+issue to its answer, however long that takes, and routes the answer to the
+CPU (`cpu_wait_r`). [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
 gives its measurement.
 
 Every AXI4-Lite output is a register or a function of registers only: no

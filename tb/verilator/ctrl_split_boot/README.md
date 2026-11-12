@@ -11,6 +11,7 @@ Its contract is S3's acceptance on [#665](https://github.com/kebag-logic/milan-f
 - **[The SoC and the testbench](#the-soc-and-the-testbench)** -- What is the CPU budget harness's, what this simulation adds, and what the testbench answers.
 - **[What is graded](#what-is-graded)** -- The model's own verdict, the boot, the trace, each UART duty, the smoke grader's own checks, and the controls of each.
 - **[Results](#results)** -- The two shapes' boot times, traces and UART duties, and the grader's verdicts.
+- **[A gate at every sync](#a-gate-at-every-sync)** -- The boot at both points before any leg at every sync, and why.
 - **[The platform image against the ledger](#the-platform-image-against-the-ledger)** -- The platform image linked at every point and graded against the memory ledger, and its planted ledgers.
 - **[Limits](#limits)** -- What a simulation without the datapath cannot show.
 
@@ -109,7 +110,7 @@ Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
 The 8x8 image with two interfaces plans 59.5 RAMB36, within the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers by name for the flip, owed to lane S14.
-This simulation names no override, so it builds no SoC for that point ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
+At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
 
 The smoke grader's verdicts on the simulated UART:
 
@@ -120,6 +121,20 @@ The smoke grader's verdicts on the simulated UART:
 | `fabric-enabled` | FAIL | **the listed difference**: the split never sets `ADP_CTRL[0]` or `PP_CTRL[0]`, so a split image fails this check on any board |
 | `id-miln`, `version-gptp-publication` | PASS | not evidence: the testbench answers the datapath's reset values |
 | `gptp-identities`, `gptp-path`, `gptp-pdelay`, `clkv-fabric-owner`, `gptp-locked` | PASS or FAIL | not evidence: the stand-in register file's words; they need the datapath and a gPTP peer |
+
+## A gate at every sync
+
+The boot runs at both of the lane's points, 1x1 with one interface and 8x8 with two, and at 8x8 with one, on every sync of the S2b branch onto its base (#665: the ruling on round 30's second STOP), before any harness leg starts:
+
+```sh
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/boot-1x1
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/boot-8x8 --shape endstation_ax7101_8x8
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/boot-8x8-if2 --shape endstation_ax7101_8x8 --interfaces 2
+```
+
+The merge of `dev-soft-core` `0fb66211` built and linked at every point and passed the firmware's own gates, but its firmware stopped at boot with "mailbox contract mismatch; entity disabled": the record mover still answered a CPU request the cycle after it, and the mailbox now answers a register read two cycles after (#870).
+At 8x8 with two interfaces the platform image is the ledgered point: its link names `--ledgered-point platform-8x8-two-interfaces` and the boot SoC plans it to that override's tiles (`boot_soc.PLATFORM_LEDGERED`), and every other point takes no override.
+At this branch's head each boot reaches ready, at 26.370 ms (1x1, one interface), 66.017 ms (8x8, one) and 68.371 ms (8x8, two), within the 20 s ADP valid time.
 
 ## The platform image against the ledger
 

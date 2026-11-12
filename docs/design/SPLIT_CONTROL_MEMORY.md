@@ -1131,6 +1131,8 @@ The host suite's every-alignment tests cover each new step, and six planted defe
 ### The record mover
 
 [`KL_mbx_dma`](../../hdl/milan/mailbox/KL_mbx_dma.sv) sits on the mailbox's host port between `KL_mbx_wb` and `KL_mbx` and masters the CPU's coherent DMA port.
+It keeps that port's rule, one request and none until its answer, and holds the port for a CPU request from its issue to its answer, which `KL_mbx` gives one cycle after the request or, for a register read, two (#870, `dev-soft-core` `3ba76ae7`); its own requests are ring reads and writes, answered the cycle after.
+Until round 30 it took a CPU request's answer to be the next cycle's, so at the merge of `0fb66211` the CPU's mailbox ID and CAPS reads were never answered and the firmware stopped at boot ("mailbox contract mismatch"); the mover's bench now answers register reads two cycles late (D11) and plants the one-cycle routing (`cpu-answer-one-cycle`).
 - A receive move reads a chunk of ring words into a 16-word buffer, then writes it to memory as one AXI4 burst.
 - A transmit move reads a burst from memory and writes each beat to the ring.
 - A burst never crosses a 64-byte line.
