@@ -24,7 +24,7 @@
  *     LS_CALL_US of timer0 time fails as well, chip select released. The
  *     check runs every LS_LATE_EVERY status reads that find the master not
  *     ready, counted over the whole call;
- *   - program and erase are refused outside the reserved journal;
+ *   - program and erase are refused outside the store's reserved journal;
  *   - time is timer0, not the PHC.
  *
  * TIME. The shipping writer reads the fabric PHC, which a gPTP step moves
@@ -174,12 +174,13 @@ static void ls_command(uint8_t *cmd, uint8_t op, uint32_t addr)
 	cmd[3] = (uint8_t)addr;
 }
 
-/* Program and erase stay inside the reserved journal. */
+/* Program and erase stay inside the store's reserved journal, journal_klj3
+ * (nvm_shape.h); today's KLJ2 journal is outside it, and so never written. */
 static int ls_in_journal(uint32_t addr, uint32_t len)
 {
-	return addr >= MILAN_FLASH_JOURNAL_OFFSET &&
-	       len <= MILAN_FLASH_JOURNAL_SIZE &&
-	       addr - MILAN_FLASH_JOURNAL_OFFSET <= MILAN_FLASH_JOURNAL_SIZE - len;
+	return addr >= NVM_JOURNAL_OFFSET &&
+	       len <= NVM_JOURNAL_SIZE &&
+	       addr - NVM_JOURNAL_OFFSET <= NVM_JOURNAL_SIZE - len;
 }
 
 static int ls_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)

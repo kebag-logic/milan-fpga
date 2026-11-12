@@ -14,10 +14,10 @@ case boots blank flash with every record of the shape marked changed, renames
 the entity and binds sink 0 through AECP and ACMP, and lets the store commit:
 the capture it measures latches the whole container from its owners. Its
 journal is then the `valid` case's, and the reference codec
-(scripts/nvm_klj2.py) derives the `torn` journal (a newer container renaming
-the entity, its last page never programmed, beside the committed one) and the
-`version` one (the committed container under another major version, the other
-slot blank).
+(scripts/nvm_klj3.py, the split placement's KLJ3 of #823) derives the `torn`
+journal (a newer container renaming the entity, its last page never
+programmed, beside the committed one) and the `version` one (the committed
+container under the next major version, the other slot blank).
 """
 from __future__ import annotations
 
@@ -35,8 +35,8 @@ for path in (BUDGET, ROOT / 'scripts', ROOT / 'sw/firmware/ctrl_nvm/test'):
 import build  # noqa: E402  the service-budget harness's build, read only
 import frames as f  # noqa: E402
 import scenario  # noqa: E402
-from nvm_contract import KLJ2_FMT_VER, Key  # noqa: E402
-from nvm_klj2 import erased_record, frame_record, rid_of_key  # noqa: E402
+from nvm_contract import Key  # noqa: E402
+from nvm_klj3 import KLJ3_FMT_VER, erased_record3, frame_record3, rid_of_key3  # noqa: E402
 
 MS = scenario.MS
 SAVED_NAME = b'saved by the target'.ljust(64, b'\0')
@@ -64,9 +64,9 @@ GUARD_PROBE = build.Variant('nvm-guard-probe', ((
     '        // The guard: every program and erase outside the journal refused, one inside taken (#665).\n'
     '        static const uint8_t page[NVM_FLASH_PAGE];\n'
     '        const struct nvm_flash *p = &nvm_flash_litespi;\n'
-    '        const uint32_t j = MILAN_FLASH_JOURNAL_OFFSET, end = j + MILAN_FLASH_JOURNAL_SIZE;\n'
+    '        const uint32_t j = NVM_JOURNAL_OFFSET, end = j + NVM_JOURNAL_SIZE;\n'
     '        if (!p->erase(p->ctx, 0u) || !p->erase(p->ctx, j - 1u) || !p->erase(p->ctx, end) ||\n'
-    '            !p->erase(p->ctx, end + MILAN_FLASH_JOURNAL_SIZE) ||\n'
+    '            !p->erase(p->ctx, end + NVM_JOURNAL_SIZE) ||\n'
     '            !p->program(p->ctx, j - NVM_FLASH_PAGE, page, NVM_FLASH_PAGE) ||\n'
     '            !p->program(p->ctx, end, page, 1u) || !p->program(p->ctx, 0u, page, 1u) ||\n'
     '            p->erase(p->ctx, j)) return 9;\n'
@@ -104,9 +104,9 @@ PLANTS = {
     # The port's guard passes every address.
     'guard-removed': build.Plant(
         'guard-removed', 'ctrl_nvm/plat/nvm_flash_litespi.c',
-        '\treturn addr >= MILAN_FLASH_JOURNAL_OFFSET &&\n'
-        '\t       len <= MILAN_FLASH_JOURNAL_SIZE &&\n'
-        '\t       addr - MILAN_FLASH_JOURNAL_OFFSET <= MILAN_FLASH_JOURNAL_SIZE - len;\n',
+        '\treturn addr >= NVM_JOURNAL_OFFSET &&\n'
+        '\t       len <= NVM_JOURNAL_SIZE &&\n'
+        '\t       addr - NVM_JOURNAL_OFFSET <= NVM_JOURNAL_SIZE - len;\n',
         '\t(void)addr;\n\t(void)len;\n\treturn 1;\n'),
 }
 
@@ -204,15 +204,15 @@ def shape_bench(shape: str, work: Path) -> tuple[object, int, int]:
 
 def payload_lengths(bench: object) -> tuple[int, ...]:
     """Each record's payload length, the shape's records in ascending id: the order a capture walks them."""
-    ordered = sorted(bench.expect.items(), key=lambda kv: rid_of_key(kv[0], bench.donor.base))
+    ordered = sorted(bench.expect.items(), key=lambda kv: rid_of_key3(kv[0]))
     return tuple(plen for _key, plen in ordered)
 
 
-def frames_of(applied: dict[Key, bytes], expect: dict[Key, int], donor: object) -> dict[int, bytes]:
+def frames_of(applied: dict[Key, bytes], expect: dict[Key, int]) -> dict[int, bytes]:
     """Every record of a decoded container framed again by the reference codec: an applied record's
     payload, an erased record's span."""
-    return {rid_of_key(key, donor.base): frame_record(rid_of_key(key, donor.base), applied[key], donor.layout)
-            if key in applied else erased_record(plen) for key, plen in expect.items()}
+    return {rid_of_key3(key): frame_record3(rid_of_key3(key), applied[key])
+            if key in applied else erased_record3(plen) for key, plen in expect.items()}
 
 
 def journals(saved: bytes, bench: object, slot: int) -> dict[str, bytes]:
@@ -227,11 +227,11 @@ def journals(saved: bytes, bench: object, slot: int) -> dict[str, bytes]:
     if len(named) != 1:
         raise RuntimeError(f'the committed journal holds the saved name in {named}, not in one NAME record')
     seq = struct.unpack_from('<I', saved, 8)[0]
-    newer = bench.assemble(frames_of({**applied, named[0]: NEWER_NAME}, bench.expect, bench.donor), seq + 1)
+    newer = bench.assemble(frames_of({**applied, named[0]: NEWER_NAME}, bench.expect), seq + 1)
     torn = newer[:len(newer) - (len(newer) % PAGE or PAGE)].ljust(len(newer), b'\xff')
     blank = b'\xff' * slot
     container = saved[:slot]
     wrong = bytearray(container)
-    struct.pack_into('<I', wrong, 4, KLJ2_FMT_VER + 0x1_0000)
+    struct.pack_into('<I', wrong, 4, KLJ3_FMT_VER + 0x1_0000)
     return {'saved': saved, 'torn': container + torn.ljust(slot, b'\xff'),
             'version': bytes(wrong) + blank, 'blank': blank + blank}

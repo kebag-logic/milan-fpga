@@ -25,7 +25,7 @@ namespace {
 // NVM_STAGE_BYTES of a container longer than the stage, as nvm_slot_read
 // asks it after streaming the CRC.
 long long codec_verdict(const Bytes& blob, bool staged) {
-    if (blob.size() < NVM_KLJ2_HDR) {
+    if (blob.size() < NVM_KLJ_HDR) {
         return -1;
     }
     if (staged) {
@@ -88,17 +88,17 @@ TEST(NvmCodec, codec_loaded_prefix) {
     std::vector<std::uint8_t> blank(NVM_IMG_LEN);
     nvm_klj2_blank(blank.data());
     ASSERT_EQ(nvm_klj2_check(blank.data(), NVM_IMG_LEN), NVM_VD_OK) << "the blank container is CRC-closed";
-    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ2_HDR), NVM_VD_REC)
+    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ_HDR), NVM_VD_REC)
         << "a prefix of the container header alone is refused VD_REC";
-    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ2_HDR + NVM_REC_HDR - 1u), NVM_VD_REC)
+    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ_HDR + NVM_REC_HDR - 1u), NVM_VD_REC)
         << "a prefix one byte short of the first record header is refused VD_REC";
     const Bytes& frames = fx().blob("golden@5");
     const auto len = static_cast<std::uint32_t>(frames.size());
-    const std::uint32_t end = len - NVM_KLJ2_TRAILER;
+    const std::uint32_t end = len - NVM_KLJ_TRAILER;
     ASSERT_EQ(nvm_klj2_check(frames.data(), len), NVM_VD_OK) << "the container of frames is CRC-closed";
     std::uint32_t payload_end = 0;
     for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
-        const std::uint32_t header = NVM_KLJ2_HDR + r.off;
+        const std::uint32_t header = NVM_KLJ_HDR + r.off;
         EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
             << "a prefix one byte short of record " << unsigned{r.id} << "'s header is refused VD_REC";
         if (r.plen != 0u) {
@@ -108,8 +108,8 @@ TEST(NvmCodec, codec_loaded_prefix) {
         Bytes overrun = frames;
         const std::uint32_t claim = end + 1u - header - NVM_REC_HDR;
         ASSERT_LE(claim, 0xFFFFu) << "a payload length one byte past the end fits the header's 16 bits";
-        overrun[header + 4u] = static_cast<std::uint8_t>(claim >> 8);
-        overrun[header + 5u] = static_cast<std::uint8_t>(claim);
+        overrun[header + 6u] = static_cast<std::uint8_t>(claim >> 8);
+        overrun[header + 7u] = static_cast<std::uint8_t>(claim);
         nvm_wr32le(overrun.data() + end, ~nvm_crc32_update(0xFFFFFFFFu, overrun.data(), end));
         ASSERT_EQ(nvm_klj2_check(overrun.data(), len), NVM_VD_LEN)
             << "resealed, record " << unsigned{r.id} << "'s header claiming a payload past the end: CRC-closed, VD_LEN";
@@ -131,8 +131,9 @@ TEST(NvmCodec, codec_loaded_prefix) {
 TEST(NvmCodec, codec_lookups) {
     EXPECT_EQ(nvm_rec_of(NVM_G_COUNT, 0).ok, 0u) << "no record of a group past the last";
     EXPECT_EQ(nvm_rec_of(NVM_G_CFG, 1).ok, 0u) << "no record past a group's count";
-    EXPECT_EQ(nvm_rec_by_id(0xFFu).ok, 0u) << "no record of an id the shape does not use";
-    EXPECT_EQ(nvm_rec_after(0xFF).ok, 0u) << "no record after the last id";
+    EXPECT_EQ(nvm_rec_by_id(NVM_ID_NAME + MILAN_NVM3_N_NAME).ok, 0u) << "no record of an id the shape does not use";
+    EXPECT_EQ(nvm_rec_by_id(NVM_ID_SPACE).ok, 0u) << "no record one past the layout 3 space";
+    EXPECT_EQ(nvm_rec_after(static_cast<int>(NVM_ID_SPACE) - 1).ok, 0u) << "no record after the last id";
     const nvm_rec first = nvm_rec_first();
     EXPECT_TRUE(first.ok && nvm_rec_of(first.group, first.index).id == first.id)
         << "and the first record is found by its group and index";

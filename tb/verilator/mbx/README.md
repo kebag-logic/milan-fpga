@@ -5,7 +5,8 @@
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
-   table's timing checks, which need a stream that can stall;
+   table's timing checks, which need a stream that can stall, and last the
+   receive side's and the register read's (#870), over every clock before;
 2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
@@ -64,8 +65,9 @@ it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`
 sets how many copies elaborate at once (2).
 
 `make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
-its table; the default `make` runs six of them (one per leaf, one in the
-filter's tuple and one in the publication block, `--quick`).
+its table; the default `make` runs twelve of them (one per leaf, one in the
+skeleton, one in the filter's tuple, one in the publication block, one in the
+face block and one per timing cut of #870, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -75,12 +77,12 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; six run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; twelve run in the default make.
 - **[Run](#run)** -- The make targets.
 
 ## The top and the bench
 
-[`tb_mbx_top.sv`](tb_mbx_top.sv) is wiring only: one `KL_mbx` and the one
+[`tb_mbx_top.sv`](tb_mbx_top.sv) is wiring: one `KL_mbx` and the one
 adapter `HOST_P` selects; the other adapter's outputs are driven to zero, so
 a check cannot pass through the wrong one. [`bench.hpp`](bench.hpp) drives it
 a clock at a time: every host access is a Wishbone or AXI4-Lite transaction
@@ -91,6 +93,34 @@ On the AXI4-Lite build every clock is also a structural probe: before the
 edge, each AXI input is moved in turn with the clock held (every VALID and
 READY flipped, addresses, data and strobes scrambled) and every AXI output
 must stay where it was (AMBA AXI, IHI0022H, A3.1.1 and A3.2.1).
+
+On every build every clock also carries two receive-side checks (#870).
+They are wired into `tb_mbx_top` only under `BENCH_P=1`, which the
+Makefile's recipe sets; the default, 0, is the SoC's wiring, which the
+mailbox's out-of-context area recipe synthesizes
+([Measured area](../../../docs/design/MAILBOX_SPLIT.md#measured-area)). A build
+without it fails U0, since it then sees no ring word written:
+
+- **The host port outside a request.** Between the adapter and `KL_mbx`,
+  the address, direction, data and strobes carry the bench's noise in every
+  cycle `host_req_i` is low (a 64-bit LCG, the same run to run). `KL_mbx`
+  reads the port with `host_req_i` only. A mailbox that decoded the bus of
+  any cycle but its request's would answer from the noise. The adapters hold
+  their request, so without the noise that defect would pass.
+- **The head before its data.** The top probes the receive ring write port
+  that the rings take, and the heads and tails `KL_mbx`'s registers read.
+  Before each edge the bench counts a ring word written while the head of
+  that cycle already covers it, under `RX_HEAD` and at or past `RX_TAIL`. A
+  read in that cycle would take the stale word. That is a head published
+  before the data it covers, which no access through the host port can see
+  by a cycle.
+- **What the cuts leave on the port (#870, the next cut).** The top also
+  probes the ring write port's word, the receive verdict's two cycles (taken,
+  then acting) and the register read multiplexer's selects in the cycle it is
+  sampled. The bench records the port's address and word in each cycle it
+  writes nothing (W0), the byte offered in each verdict cycle and every
+  frame's gap from its last byte to the next byte taken (V0, V1), and every
+  register read two selects answer (S0).
 
 ## What the checks expect
 
@@ -127,6 +157,11 @@ filter table. Register offsets and field positions are the generated
 | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
+| G1 | on the RTL only (#870): GM_LO's word and its GM_HI snapshot are one identity whichever cycle the identity changes in, the change landing after edge 0 to 7 of the GM_LO read, which must see both identities over the sweep |
+| W0 | on the RTL only (#870): with the adp ring full to its last whole record, a frame the free space cannot hold counts in RX_DROP and each word the ring does not take still reaches the write port at its slot (head + 2 + its index), unwritten: only the port's enable carries the write decision |
+| V0, V1 | on the RTL only (#870): twelve frames queued back to back, every verdict among them (committed, RX_DROP for max_frame_bytes, FILTER_MISMATCH, refused by its identity term, RATE_DROP): a verdict for each, the next frame's first byte offered in both cycles of every verdict before it, each counter moved once and each committed record once, byte for byte and in order (V0); the next frame's first byte taken 6 clocks after a committed frame's last byte and 4 after any other's, one more than an unregistered verdict (V1) |
+| S0 | on the RTL only (#870): every word of the host window read, none setting two selects of the read multiplexer, its registers one and its holes none; and, last, over every register read of every check, none set two |
+| U0 | on the RTL only, last, over every clock of every check before it (#870): no receive ring word is written while the head the core sees that cycle covers it, and the checks did write ring words and move heads |
 | P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.4, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
 | F0 to F10 | the face block (contract 2.3, #665 comments 6409739310 and 6410169666): every register, port, request and commit 0 after reset; each setting, request and entry register keeps its own fields only, per interface and entry; each field on its own `fw_*_o` or window port, for its own interface; `F_COMMIT.GO` raises `fw_send_o` and `F_STATUS.BUSY` on its interface only, every setting write and a second commit refused and counted while `BUSY`, the settings held, and only that interface's acknowledgement taking it; each window's `GO` opening its request with the next tag, a request write and a second `GO` refused while it is open, an answer under another tag, another interface's or with none open discarded, the answer under its tag closing it as `DONE`, the wait bound closing it as `TIMEOUT` and a late answer discarded, no window moving another; a hole and an interface the build lacks reading 0; a partial strobe refused; each face event posting its record with `COUNT` and `NOW_MS`, a full ring coalescing each source, the counter change once per descriptor per holdoff epoch, an unknown descriptor as `ALL`; a reset clearing every face register, port, open request, commit and pending event |
 | T0 to T2 | the face block's timing, on the RTL only: each window's unanswered request holds for exactly its `wait_cycles` clocks, then closes as `TIMEOUT`; an answer on the bound's last cycle is taken, one a cycle later discarded; answer data and tag without the pulse close nothing, and the pulse takes the data it carries; a commit holds `fw_send_o` and its settings for as long as the acknowledgement takes, and drops `fw_send_o` on the cycle after it |
@@ -222,7 +257,7 @@ controls too.
 | `axil-write-ignores-b-slot` | a write issued while its B waits | A4, one B per write |
 | `axil-b-dropped-without-bready` | BVALID lasts one clock | A4, BVALID holds |
 | `axil-r-dropped-without-rready` | RVALID lasts one clock | A5, RVALID holds |
-| `axil-rdata-follows-port` | RDATA is the mailbox's live port | A5, RDATA holds |
+| `axil-rdata-follows-port` | RDATA is the mailbox's live port | F1, a ring word read stale (the mailbox holds a register read's answer, #870, so A5's held register read no longer shows it) |
 | `axil-read-before-write` | a read and a write issued together | A3, the read's own data |
 | `axil-reset-keeps-aw` | a reset keeps a half-taken AW | A6, the AW is forgotten |
 | `axil-wready-while-issuing` | WREADY also on the cycle the W slot drains, which then drops the beat | A7, each write's data at its own address |
@@ -322,7 +357,7 @@ are in `ctrl_mutants.py`'s table:
 | `top-pub-bound-from-sid-valid` | `pub_bound_o` takes SID_VALID | P3, BOUND alone on its output |
 | `top-pub-domain-unmasked` | SR_DOMAIN keeps the bits between its fields | P1, each register's fields only |
 | `top-pub-sink-index-dropped` | every sink's BINDING lands in sink 0's | P1, each entry its own |
-| `top-pub-hole-aliases-a-register` | an interface block's holes alias its registers | P4, every hole reads 0 |
+| `top-pub-hole-aliases-a-register` | an interface block's holes alias its registers, in the write side's decode | P4, nothing moved |
 | `top-pub-interface-unchecked` (two interfaces) | an interface index past the build aliases another's block | P4, nothing moved |
 | `top-pub-partial-strobe-accepted` | a partial strobe writes the block | P4, the partial strobe refused |
 | `top-pub-licence-kept-through-reset` | LICENCE not reset | P5, a reset clears the block |
@@ -341,6 +376,42 @@ adapters. The host model's twins are `model-pub-src-sid-a-hole` and
 | `top-pub-src-base-ignored` | the interface registers decode as source entries | P1, each register's fields only |
 | `top-pub-src-sid-halves-swapped` | `pub_src_sid_o` joins SRC_SID_LO above SRC_SID_HI | P2, each source's stream_id on `pub_src_sid_o` |
 | `top-pub-src-sid-kept-through-reset` | SRC_SID_HI not reset | P5, a reset clears the block |
+
+The timing cuts of #870 add eighteen, most through both adapters. The read
+multiplexer decodes a registered copy of the read's offset, with its own copy
+of the window decodes, and the receive ring write and the published head are
+registered. Each cut is undone or misplaced one way, and each read-side
+decode carries a twin of a write-side arm:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `top-read-mux-on-the-bus` | the read multiplexer decodes the bus in its answer cycle | R0, through the noise between requests |
+| `top-register-read-answered-early` | a register read acknowledged a cycle before its value | R0, ID |
+| `top-gm-snapshot-at-the-request` | GM_HI's snapshot taken at the request, a cycle before GM_LO's word | G1, one identity |
+| `rx-bound-read-back-at-the-request` | the read-back memory read at the request, a cycle before it is sampled | R1, each entry at its own address |
+| `rx-bound-copy-ignores-the-host-read` | the copier steps in the cycle the host's registered read holds the read-back memory | Q20, the entry copied meanwhile |
+| `rx-head-published-one-cycle-early` | the head published at the commit, a cycle before its last header word is in the ring | U0, no ring word written under the head |
+| `top-bound-read-en-decoded-as-eid` | the read side decodes BOUND_EN as a BOUND_EID word | R1, BOUND_EN keeps EN only |
+| `top-pub-read-hole-aliases-a-register` | the read side's decode aliases a hole to its register | P1 and P4, every hole reads 0 |
+| `top-pub-read-interface-unchecked` (two interfaces) | the read side's decode aliases an interface index past the build | P4, every word of an absent interface reads 0 |
+| `top-face-read-interface-unchecked` (two interfaces) | the same in the face block | F7, every word of an absent interface reads 0 |
+
+The next cut of #870 adds six, each undoing or breaking one cut. Four
+existing fixtures follow the regenerated text with their defects unchanged:
+`top-own-mac-hi-read-from-lo`, `top-bound-en-read-from-eid` and
+`top-bound-unwritten-word-read-raw` plant into the AND-OR's term and select
+lines, and `rx-mismatch-counts-identity-refusals` into the registered
+verdict. A read multiplexer turned back into a priority chain reads the same
+values while the selects are one-hot, so that arm is the generator's
+(`gen_mailbox.py --selftest`, "skeleton read multiplexer a priority chain
+again"), with the windows it lays over one another:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `rx-ring-port-zeroed-by-the-decision` (+`-axil`) | the port's address and word zeroed by the write decision again | W0, only (no other check fails) |
+| `rx-verdict-acts-unregistered` (+`-axil`) | the verdict acting in the cycle it is taken | V0, both verdict cycles offered, and V1, one clock early |
+| `top-read-select-overlaps-another` | CAPS's select also set at ID's offset | S0, and R0 (ID reads ID OR CAPS) |
+| `top-read-window-overlaps-another` (AXI4-Lite) | DA_GATE's select also set at the face block's first word | S0 |
 
 ## Run
 

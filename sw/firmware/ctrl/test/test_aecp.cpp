@@ -203,7 +203,7 @@ struct Nvm : Core {
 
 TEST_F(Nvm, ShapePoolsAndNameOrdinalsMatchSavedRecords)
 {
-    ASSERT_EQ(AECP_ENTITY_NAMES,MILAN_NVM_N_NAME);
+    ASSERT_EQ(AECP_ENTITY_NAMES,MILAN_NVM3_N_NAME);
     for(auto &m:pools){
         auto r=nvm_rec_of(m.type==14?NVM_G_MAPI:NVM_G_MAPO,m.index);
         ASSERT_TRUE(r.ok);EXPECT_EQ(r.plen,m.capacity*8);EXPECT_LE(m.count,8u);
@@ -254,7 +254,7 @@ TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
     auto latency=latch(NVM_G_PTOF,0,4);EXPECT_EQ(get(latency,0,4),1500000u);
     for(unsigned group:{NVM_G_SUID,NVM_G_MCR}){
         auto r=nvm_rec_of(group,0);ASSERT_TRUE(r.ok);
-        EXPECT_TRUE(nvm_all_erased(nvm_store_stage()+NVM_KLJ2_HDR+r.off,NVM_REC_HDR+r.plen))<<"DR5 reserved span";
+        EXPECT_TRUE(nvm_all_erased(nvm_store_stage()+NVM_KLJ_HDR+r.off,NVM_REC_HDR+r.plen))<<"DR5 reserved span";
     }
 }
 
@@ -284,7 +284,7 @@ TEST_F(Nvm, EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle)
         auto kept=latch(other,0,o->capacity*8);
         save();
         auto r=nvm_rec_of(empty,0);ASSERT_TRUE(r.ok);
-        const uint8_t *rec=nvm_store_stage()+NVM_KLJ2_HDR+r.off;
+        const uint8_t *rec=nvm_store_stage()+NVM_KLJ_HDR+r.off;
         EXPECT_EQ(get(rec,2),0x1722u)<<"the empty set is a framed record, not an erased one";
         EXPECT_TRUE(nvm_all_erased(rec+NVM_REC_HDR,r.plen))<<"every entry of the empty set is UNUSED";
         a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(e->count,e->default_count);

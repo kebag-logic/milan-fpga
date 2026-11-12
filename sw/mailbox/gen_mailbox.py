@@ -20,9 +20,11 @@ TWO CHECKS, BECAUSE THEY CATCH DIFFERENT THINGS.
                 the header and the page's constant table) the way a reader
                 would, by name, and requires every name to carry the
                 contract's value in all three, every run-time table to list
-                the channels in id order, and the skeleton to name every
-                register the contract defines. This is the check that sees a
-                FIELD MISMATCH between outputs, whatever produced it.
+                the channels in id order, the skeleton to name every
+                register the contract defines, and its register read
+                multiplexer to be the AND-OR of the contract's one-hot
+                selects (#870). This is the check that sees a FIELD MISMATCH
+                between outputs, whatever produced it.
 
 ``--selftest`` proves both can fail: it plants a field mismatch into a copy of
 each output and requires the cross-check to name the planted constant, and it
@@ -35,7 +37,14 @@ the subtype, a bound-talker table that spills its interface stride or runs into
 the channel registers, a publication block that runs into a ring, spills its
 interface stride, puts its source entries over its registers or its sink
 entries, or carries a field the skeleton does not wire) and requires each to
-be refused. A clean run of the tracked outputs is the positive control.
+be refused. It turns the skeleton's register read multiplexer back into a
+priority chain, and drops one of its selects, each of which the cross-check
+must name, and lays a window over another past the contract's own block
+checks (the face block over the publication block, the bound-talker table over
+the channel registers, the channel registers over the global ones), each of
+which the generator's proof that the read multiplexer's selects are one-hot
+must refuse, naming both registers (#870). A clean run of the tracked outputs
+is the positive control.
 
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
@@ -55,6 +64,7 @@ Exit 0 = clean; 1 = drift, a mismatch, or a self-test arm that did not bite;
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import re
 import sys
 import tempfile
@@ -66,7 +76,7 @@ sys.path.insert(0, str(HERE))
 
 from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
 from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces  # noqa: E402
-from mailbox_skeleton import emit_sv_top  # noqa: E402
+from mailbox_skeleton import emit_sv_top, read_mux_findings  # noqa: E402
 
 REPO = HERE.parent.parent
 
@@ -136,6 +146,7 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
             findings.append(f"skeleton: register {reg.name} is never decoded")
     findings += [f"skeleton: decodes {n}, which the contract does not define"
                  for n in sorted(named - {r.name for r in every})]
+    findings += read_mux_findings(contract, top)
     return findings
 
 
@@ -204,6 +215,37 @@ def _plant_all(texts: dict[str, str], path: str, old: str, new: str) -> dict[str
     planted = dict(texts)
     planted[path] = texts[path].replace(old, new)
     return planted
+
+
+#: One term of the skeleton's AND-OR read multiplexer: its select and its word.
+READ_OR_TERM = re.compile(r"^    (?:reg_rdata_w = |            \| )\(\{32\{(rd_hit_w\[\d+\])\}\} & (32'\(.*\))\);?$")
+
+
+def _priority_chain(texts: dict[str, str]) -> dict[str, str]:
+    """A copy of the outputs whose register read multiplexer is a priority
+    chain over the same selects again, the form #870's AND-OR replaced."""
+    path = "hdl/milan/mailbox/KL_mbx.sv"
+    head, rest = texts[path].split("  always_comb begin : reg_read\n", 1)
+    body, tail = rest.split("\n  end : reg_read\n", 1)
+    lines = body.split("\n")
+    terms = [m for m in (READ_OR_TERM.match(ln) for ln in lines) if m]
+    if not terms:
+        raise AssertionError("self-test fixture: the skeleton's read multiplexer has no AND-OR term")
+    chain = ([ln for ln in lines if ln.startswith("    rd_hit_w[")] + ["    reg_rdata_w = '0;"]
+             + [f"    if ({m[1]}) reg_rdata_w = {m[2]};" for m in terms])
+    planted = dict(texts)
+    planted[path] = head + "  always_comb begin : reg_read\n" + "\n".join(chain) + "\n  end : reg_read\n" + tail
+    return planted
+
+
+#: Windows laid over one another past load()'s own block checks, each of which
+#: the read multiplexer's one-hot proof must refuse (#870): (arm, the contract's
+#: field, the field whose value it takes).
+OVERLAP_ARMS = (
+    ("face block laid over the publication block", "face_base", "pub_base"),
+    ("bound-talker table laid over the channel registers", "bnd_base", "ch_base"),
+    ("channel registers laid over the global registers", "ch_base", "if_base"),
+)
 
 
 def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
@@ -293,6 +335,13 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
                                           "MBX_PUB_SRC_BASE_C = 32'h00000040"), "MBX_PUB_SRC_BASE"),
         ("skeleton source register dropped", _plant_all(base, top, "MBX_PUB_SRC_REG_SRC_SID_HI_C",
                                                         "MBX_PUB_SRC_REG_SRC_SID_LO_C"), "SRC_SID_HI"),
+        # #870: the register read multiplexer is the AND-OR of its one-hot selects
+        ("skeleton read multiplexer a priority chain again", _priority_chain(base),
+         "is not the AND-OR of the contract's"),
+        ("skeleton read multiplexer missing a select", _plant(base, top,
+                                                              "    rd_hit_w[1] = rd_off_w == AW2_C'(MBX_REG_CAPS_C);"
+                                                              "   // CAPS\n", ""),
+         "is not the AND-OR of the contract's"),
     ]
 
 
@@ -421,6 +470,17 @@ def selftest() -> int:
                 failures += 1
             except ContractError as exc:
                 print(f"[ok] contract arm {arm}: refused ({exc})")
+        # Windows laid over one another past load(): the read multiplexer's
+        # one-hot proof refuses each, naming both registers (#870).
+        for arm, field, other in OVERLAP_ARMS:
+            try:
+                generate(dataclasses.replace(contract, **{field: getattr(contract, other)}))
+                print(f"[FAIL] overlap arm {arm}: accepted")
+                failures += 1
+            except ContractError as exc:
+                bit = "both select offset" in str(exc)
+                print(f"[{'ok' if bit else 'FAIL'}] overlap arm {arm}: refused ({exc})")
+                failures += not bit
         # The two-interface variant the suite builds cross-checks clean; one
         # whose interface blocks run into the global registers is refused.
         found = write_variant(contract, 2, Path(tmp) / "if2")

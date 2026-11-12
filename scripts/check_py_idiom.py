@@ -191,10 +191,11 @@ DYNAMIC_EXEC_INVENTORY = {
         "copy of the arithmetic. Guarded by `ast.walk` of the extracted definitions "
         "against `_REBOOT_MAC_NODES` (literals, names, integer arithmetic, one "
         "conditional), with `__builtins__` emptied.",
-    "sw/litex/test_ctrl_memory.py":
+    "sw/litex/ctrl_memory_mutant.py":
         "rebuilds one function or class of ctrl_memory.py or milan_soc.py, both "
         "already imported, from its own `inspect.getsource` text with one edit "
-        "from the test's mutant table, for the standing mutation check. Guarded "
+        "from test_ctrl_memory.py's mutant table, for that test's standing "
+        "mutation check. Guarded "
         "by the edit matching exactly once and by `ast.parse` of the result being "
         "exactly one definition of that name; it runs in that module's namespace.",
     "sw/trace/test_trace_roundtrip.py":

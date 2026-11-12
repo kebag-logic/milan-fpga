@@ -25,11 +25,17 @@
  * because a commit could restart the sequence below a container that
  * survives it.
  *
+ * THE FORMAT is the split placement's KLJ3 in journal_klj3 (#823, nvm_shape.h).
+ * Today's journal is the all-fabric placement's KLJ2: the boot reads its two
+ * headers and records a KLJ2 one in `legacy`, and nothing here writes it, so
+ * an all-fabric image rolled back to finds its saved state (decision 2).
+ *
  * THE WRITE PATH. A change marks its record dirty. After the 1,000 ms
  * first-dirty window (DR2a) a capture latches the dirty records from their
  * owners into the stage, ONE RECORD PER STEP; the stage is sealed under the
- * next sequence, NVM_STEP_BYTES of CRC per step; the slot that is NOT
- * authoritative is erased, checked blank, programmed page by page in
+ * next sequence, NVM_STEP_BYTES of CRC per step; the erase blocks the
+ * container spans in the slot that is NOT authoritative are erased one by
+ * one, checked blank, programmed page by page in
  * ascending order (the header page first, the trailer that closes the CRC
  * last) and read back. Only a verified read-back moves the authority. The
  * authoritative slot is never erased, so at every instant of the sequence
@@ -51,14 +57,23 @@
 
 #define NVM_US(ms) ((uint64_t)(ms) * 1000u)
 #define NVM_NONE (-1)
-#define NVM_WORDS (NVM_ID_SPACE / 32u)
+#define NVM_WORDS ((NVM_ID_SPACE + 31u) / 32u)
+
+/* The open bits (#823 decision 6): one bit per record id of the layout 3
+ * space, in a word array of the store's static RAM, with the count of the
+ * bits set. Whether any record is open is then a compare, not a scan of the
+ * NVM_WORDS words on every service step. */
+struct nvm_open {
+	uint32_t bit[NVM_WORDS];
+	unsigned int count;
+};
 
 struct nvm_store {
 	const struct nvm_flash *flash;
 	const struct nvm_state *state;
 	struct nvm_status st;
-	uint32_t dirty[NVM_WORDS];      /* changed, not yet captured */
-	uint32_t inflight[NVM_WORDS];   /* captured, not yet in a verified slot */
+	struct nvm_open dirty;          /* changed, not yet captured */
+	struct nvm_open inflight;       /* captured, not yet in a verified slot */
 	struct nvm_rec cursor;          /* the capture's next record */
 	uint64_t now_us;                /* this step's time */
 	uint64_t dirty_since_us;
@@ -67,6 +82,7 @@ struct nvm_store {
 	uint32_t pos;                   /* seal, blank-check, program, verify */
 	uint32_t crc;
 	uint32_t len;                   /* the page program in flight */
+	uint32_t block;                 /* the erase block being erased */
 	uint32_t next_seq;
 	uint32_t step_bytes;
 	int target;                     /* the slot being written: 0 A, 1 B */
@@ -101,25 +117,47 @@ static uint32_t nvm_min(uint32_t a, uint32_t b)
 	return (a < b) ? a : b;
 }
 
-static int nvm_bit(const uint32_t *v, unsigned int id)
+static int nvm_bit(const struct nvm_open *v, unsigned int id)
 {
-	return (v[id >> 5] >> (id & 31u)) & 1u;
+	return (v->bit[id >> 5] >> (id & 31u)) & 1u;
 }
 
-static int nvm_any(const uint32_t *v)
+/* Open record id; the count follows only a bit that was clear. */
+static void nvm_open_set(struct nvm_open *v, unsigned int id)
+{
+	if (nvm_bit(v, id))
+		return;
+	v->bit[id >> 5] |= 1u << (id & 31u);
+	v->count++;
+}
+
+/* Close record id, whose bit the caller found set. */
+static void nvm_open_take(struct nvm_open *v, unsigned int id)
+{
+	v->bit[id >> 5] &= ~(1u << (id & 31u));
+	v->count--;
+}
+
+static void nvm_open_clear(struct nvm_open *v)
 {
 	unsigned int i;
 
 	for (i = 0; i < NVM_WORDS; ++i)
-		if (v[i])
-			return 1;
-	return 0;
+		v->bit[i] = 0;
+	v->count = 0;
+}
+
+static int nvm_any(const struct nvm_open *v)
+{
+	return v->count != 0u;
 }
 
 static void nvm_publish(void)
 {
-	nvm.st.dirty = nvm_any(nvm.dirty);
-	nvm.st.pending = nvm_any(nvm.inflight);
+	nvm.st.dirty = nvm_any(&nvm.dirty);
+	nvm.st.pending = nvm_any(&nvm.inflight);
+	nvm.st.n_dirty = nvm.dirty.count;
+	nvm.st.n_inflight = nvm.inflight.count;
 }
 
 /* ---- the boot path ------------------------------------------------------- */
@@ -159,12 +197,12 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *
 	uint32_t img_len = 0;
 	uint32_t crc = 0xffffffffu;
 	uint32_t pos = 0;
-	uint8_t trailer[NVM_KLJ2_TRAILER];
+	uint8_t trailer[NVM_KLJ_TRAILER];
 	enum nvm_verdict vd;
 
 	rd->digest = 0xffffffffu;
 	rd->bytes = 0;
-	if (nvm_take(rd, addr, nvm_stage, NVM_KLJ2_HDR))
+	if (nvm_take(rd, addr, nvm_stage, NVM_KLJ_HDR))
 		return NVM_UNREAD;
 	vd = nvm_klj2_check_head(nvm_stage, &img_len);
 	if (vd != NVM_VD_OK)
@@ -177,15 +215,15 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *
 			*seq = nvm_klj2_seq(nvm_stage);
 		return vd;
 	}
-	while (pos < img_len - NVM_KLJ2_TRAILER) {
-		uint32_t n = nvm_min(NVM_STAGE_BYTES, img_len - NVM_KLJ2_TRAILER - pos);
+	while (pos < img_len - NVM_KLJ_TRAILER) {
+		uint32_t n = nvm_min(NVM_STAGE_BYTES, img_len - NVM_KLJ_TRAILER - pos);
 
 		if (nvm_take(rd, addr + pos, nvm_stage, n))
 			return NVM_UNREAD;
 		crc = nvm_crc32_update(crc, nvm_stage, n);
 		pos += n;
 	}
-	if (nvm_take(rd, addr + pos, trailer, NVM_KLJ2_TRAILER))
+	if (nvm_take(rd, addr + pos, trailer, NVM_KLJ_TRAILER))
 		return NVM_UNREAD;
 	if (~crc != nvm_rd32le(trailer))
 		return NVM_VD_CRC;
@@ -292,7 +330,7 @@ static int nvm_stage_slot(int slot)
 static int nvm_apply_faults(struct nvm_rec r)
 {
 	const struct nvm_state *s = nvm.state;
-	const uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
+	const uint8_t *rec = nvm_stage + NVM_KLJ_HDR + r.off;
 	enum nvm_apply res;
 
 	if (nvm_all_erased(rec, NVM_REC_HDR)) {
@@ -362,6 +400,23 @@ static enum nvm_terminal nvm_walk_d3(void)
 	return NVM_T_COMPLETE;
 }
 
+/* Today's journal is the all-fabric placement's KLJ2 (#823 decision 2): a
+ * KLJ2 header in either of its slots is recorded, one read of each header,
+ * and nothing of it is applied or written. A read the port fails records
+ * nothing: the journal is the other placement's, never this store's
+ * authority. */
+static void nvm_legacy_check(void)
+{
+	const struct nvm_flash *f = nvm.flash;
+	const uint32_t slot = NVM_LEGACY_B - NVM_LEGACY_A;
+	unsigned int i;
+
+	for (i = 0; i < 2u; ++i)
+		if (f->read(f->ctx, NVM_LEGACY_A + i * slot, nvm_chunk, NVM_KLJ_HDR) == 0 &&
+		    nvm_rd32le(nvm_chunk) == NVM_KLJ2_MAGIC)
+			nvm.st.legacy |= 1u << i;
+}
+
 /* Judge both slots and stage the one to offer: the newer accepted one, then
  * the other when it does not read back as it was judged (section 7), each
  * re-staged and judged again. NVM_NONE for blank media or two refusals,
@@ -407,9 +462,14 @@ static void nvm_restore(void)
 {
 	int chosen = nvm_choose();
 
+	nvm_legacy_check();
 	if (chosen == NVM_NONE) {
 		nvm.st.last_verdict = (nvm.st.verdict_a != NVM_VD_BLANK) ?
 				      nvm.st.verdict_a : nvm.st.verdict_b;
+		/* blank because the saved state is in the previous format: the
+		 * boot's verdict names it (#823 decision 2) */
+		if (nvm.st.last_verdict == NVM_VD_BLANK && nvm.st.legacy)
+			nvm.st.last_verdict = NVM_VD_VER;
 		nvm.st.bind_terminal = NVM_T_BLANK;
 		nvm.st.terminal = NVM_T_BLANK;
 	} else {
@@ -476,9 +536,9 @@ static void nvm_idle(void)
 
 	if (nvm.retry_armed && nvm.now_us < nvm.retry_at_us)
 		return;
-	due = nvm.dirty_armed && nvm_any(nvm.dirty) &&
+	due = nvm.dirty_armed && nvm_any(&nvm.dirty) &&
 	      nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS);
-	if (due || (nvm_any(nvm.inflight) && !nvm.st.exhausted))
+	if (due || (nvm_any(&nvm.inflight) && !nvm.st.exhausted))
 		nvm_capture_begin();
 }
 
@@ -487,15 +547,16 @@ static void nvm_idle(void)
 static int nvm_framed_as(const uint8_t *rec, struct nvm_rec r)
 {
 	return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8) && rec[1] == (uint8_t)NVM_REC_MAGIC &&
-	       rec[2] == (uint8_t)MILAN_NVM_REC_LAYOUT && rec[3] == r.id &&
-	       rec[4] == (uint8_t)(r.plen >> 8) && rec[5] == (uint8_t)r.plen;
+	       rec[2] == (uint8_t)NVM3_LAYOUT && rec[3] == 0u &&
+	       rec[4] == (uint8_t)(r.id >> 8) && rec[5] == (uint8_t)r.id &&
+	       rec[6] == (uint8_t)(r.plen >> 8) && rec[7] == (uint8_t)r.plen;
 }
 
 /* Latch one record from its owner into the stage. */
 static void nvm_latch(struct nvm_rec r)
 {
 	const struct nvm_state *s = nvm.state;
-	uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
+	uint8_t *rec = nvm_stage + NVM_KLJ_HDR + r.off;
 	int same;
 	unsigned int i;
 
@@ -511,7 +572,9 @@ static void nvm_latch(struct nvm_rec r)
 	if (same)
 		return;
 	nvm_rec_frame(rec, r);
-	nvm.step_bytes += 6u + r.plen;
+	/* the crc16 runs over the header before its own two bytes, then the
+	 * payload (nvm_rec_frame) */
+	nvm.step_bytes += (NVM_REC_HDR - 2u) + r.plen;
 	nvm.stage_changed = 1;
 	nvm.stage_durable = 0;
 }
@@ -520,15 +583,13 @@ static void nvm_latch(struct nvm_rec r)
  * (FASTCONNECT section 9.2): it clears the state, not just the view. */
 static void nvm_heal(void)
 {
-	if (!nvm_any(nvm.dirty))
+	if (!nvm_any(&nvm.dirty))
 		nvm.st.stale = 0;
 }
 
 /* The capture is over: decide whether its work set is written. */
 static void nvm_seal_begin(void)
 {
-	unsigned int i;
-
 	if (nvm.stage_changed) {
 		/* a changed staged byte is a new work set: its own attempts */
 		nvm.st.attempts = 0;
@@ -542,8 +603,7 @@ static void nvm_seal_begin(void)
 		return;
 	} else if (nvm.stage_durable && !nvm.force) {
 		/* DR2b: the verified container already holds every value */
-		for (i = 0; i < NVM_WORDS; ++i)
-			nvm.inflight[i] = 0;
+		nvm_open_clear(&nvm.inflight);
 		nvm.st.commits_skipped++;
 		nvm_heal();
 		nvm.st.phase = NVM_P_IDLE;
@@ -561,7 +621,7 @@ static void nvm_capture_step(void)
 {
 	struct nvm_rec r = nvm.cursor;
 
-	while (r.ok && !nvm_bit(nvm.dirty, r.id))
+	while (r.ok && !nvm_bit(&nvm.dirty, r.id))
 		r = nvm_rec_next(r);
 	if (!r.ok) {
 		nvm.cursor = r;
@@ -569,14 +629,14 @@ static void nvm_capture_step(void)
 		return;
 	}
 	nvm.cursor = nvm_rec_next(r);
-	nvm.dirty[r.id >> 5] &= ~(1u << (r.id & 31u));
-	nvm.inflight[r.id >> 5] |= 1u << (r.id & 31u);
+	nvm_open_take(&nvm.dirty, r.id);
+	nvm_open_set(&nvm.inflight, r.id);
 	nvm_latch(r);
 }
 
 static void nvm_seal_step(void)
 {
-	uint32_t end = NVM_IMG_LEN - NVM_KLJ2_TRAILER;
+	uint32_t end = NVM_IMG_LEN - NVM_KLJ_TRAILER;
 	uint32_t n = nvm_min(NVM_STEP_BYTES, end - nvm.pos);
 
 	nvm.crc = nvm_crc32_update(nvm.crc, nvm_stage + nvm.pos, n);
@@ -585,6 +645,7 @@ static void nvm_seal_step(void)
 	if (nvm.pos < end)
 		return;
 	nvm_wr32le(nvm_stage + end, ~nvm.crc);
+	nvm.block = 0;
 	nvm.st.phase = NVM_P_ERASE;
 }
 
@@ -619,12 +680,16 @@ static int nvm_target_slot(void)
 	return nvm.st.verdict_a != NVM_VD_BLANK && nvm.st.verdict_b == NVM_VD_BLANK;
 }
 
+/* One erase block of the target slot: the container spans NVM_ERASE_BLOCKS
+ * of them from the slot's first, and the blank check reads the container's
+ * span of them. */
 static void nvm_erase_start(void)
 {
 	const struct nvm_flash *f = nvm.flash;
 
 	nvm.target = nvm_target_slot();
-	if (nvm.target == nvm.st.auth || f->erase(f->ctx, nvm_slot_addr(nvm.target))) {
+	if (nvm.target == nvm.st.auth ||
+	    f->erase(f->ctx, nvm_slot_addr(nvm.target) + nvm.block * NVM_ERASE_BLOCK)) {
 		nvm_fail(NVM_VD_ERASE);
 		return;
 	}
@@ -691,10 +756,7 @@ static void nvm_program_step(void)
 /* The authority moves; nothing clears the abandoned-set record (DR2c). */
 static void nvm_commit_done(void)
 {
-	unsigned int i;
-
-	for (i = 0; i < NVM_WORDS; ++i)
-		nvm.inflight[i] = 0;
+	nvm_open_clear(&nvm.inflight);
 	nvm.st.auth = nvm.target;
 	nvm.st.seq = nvm.next_seq;
 	nvm.stage_durable = 1;
@@ -745,7 +807,7 @@ static void nvm_step(void)
 	case NVM_P_ERASE_WAIT:
 		if (nvm_wait(NVM_US(MILAN_NVM_ERASE_TIMEOUT_MS), NVM_VD_ERASE)) {
 			nvm.pos = 0;
-			nvm.st.phase = NVM_P_BLANKCHECK;
+			nvm.st.phase = (++nvm.block < NVM_ERASE_BLOCKS) ? NVM_P_ERASE : NVM_P_BLANKCHECK;
 		}
 		break;
 	case NVM_P_BLANKCHECK:
@@ -793,7 +855,7 @@ void nvm_store_changed(unsigned int group, unsigned int index)
 	/* the running capture has yet to reach r: it takes this change, and
 	 * leaves no window open behind it (DR2a) */
 	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
-	nvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);
+	nvm_open_set(&nvm.dirty, r.id);
 	if (!taken && !nvm.dirty_armed) {
 		nvm.dirty_armed = 1;
 		nvm.dirty_since_us = nvm_now();

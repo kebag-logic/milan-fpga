@@ -118,7 +118,7 @@ def arm_acmpnvm(tree: Tree) -> Outcome:
             raise Refusal(str(exc)) from exc
     inputs = _NVM_INPUTS[NVM_SHAPE]
     gen = work / "gen"
-    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs), inputs.clock_hz)
     nvm_inc = (f"-I{gen}", f"-I{NVM_DIR / 'host'}")
     store = compile_c(tree, [NVM_DIR / n for n in NVM_STORE], "acmpnvm/store", nvm_inc, measured=False)
     objs = (firmware(tree, PORTABLE, "acmpnvm") + store +

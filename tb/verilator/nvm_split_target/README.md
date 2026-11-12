@@ -76,15 +76,17 @@ At both points they are:
 | `spiflash_master_cs` to `_status` | `0xf000_2810` to `0xf000_281c` | `0xf000_3000` to `0xf000_300c` |
 | `timer0_load` to `_value` | `0xf000_3000` to `0xf000_3010` | `0xf000_3800` to `0xf000_3810` |
 | flash window | `0x0100_0000`, 16 MiB | `0x2000_0000`, 16 MiB |
-| journal (`milan_flash_journal_*`) | `0x00ee_0000`, 128 KiB | (the store's build constants, the same) |
+| journal (`milan_flash_journal_klj3_*`) | `0x00e4_0000`, 640 KiB | (the store's build constants, the same) |
+| today's journal (`milan_flash_journal_*`) | `0x00ee_0000`, 128 KiB, read only | (the store's build constants, the same) |
 
 The mailbox stays at the fixture's placeholder (`ctrl_build.py`, `CTRL_MBX_BASE`); the target platform firmware owns that address.
 
 The generator's rules are its docstring's.
-The journal it accepts is `milan_soc.py`'s `FLASHBOOT_RESERVED` journal, which the store is built with (`nvm_bench.py` reads the same literal).
-It is two slots, each one 64 KiB erase block: the A/B geometry `scripts/check_nvm_record_space.py` sizes every container against (its check 5).
-It must be aligned, inside the device, and clear of every image slot (`FLASHBOOT_LAYOUT`: the bitstream and the AEM), the user slot, and every image the SoC publishes.
-The port's own guard (`ls_in_journal`) refuses a program or an erase outside `MILAN_FLASH_JOURNAL_OFFSET` and `_SIZE`, so these rules bind that guard to the journal of the SoC the image runs on.
+The journal it accepts is `milan_soc.py`'s `FLASHBOOT_RESERVED` `journal_klj3`, the split placement's KLJ3 journal of #823, which the store is built with (`nvm_bench.py` reads the same literal).
+It is two slots of whole 64 KiB erase blocks, five each.
+It must be aligned, inside the device, and clear of every image slot (`FLASHBOOT_LAYOUT`: the bitstream and the AEM), every other reserved slot, and every image the SoC publishes.
+Today's journal, the all-fabric placement's KLJ2, must be published as `milan_soc.py` reserves it: the store reads its two headers at boot and never writes it.
+The port's own guard (`ls_in_journal`) refuses a program or an erase outside `MILAN_FLASH_JOURNAL_KLJ3_OFFSET` and `_SIZE`, so these rules bind that guard to the journal of the SoC the image runs on.
 
 ## The cases
 
@@ -170,6 +172,7 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm
 
 Measured after merging `a68536fa`, at `93c6e9a5`.
 Both runs exit 0: every case passes, no step is over T_svc, and every control is caught.
+These figures predate the split's KLJ3 format (#823): its ten-byte record headers add two bytes a record, and they were not measured again.
 
 ### The capture
 

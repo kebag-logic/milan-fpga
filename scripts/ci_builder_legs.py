@@ -46,7 +46,7 @@ REQUIRED = {
         "test_gptp_plane_instance_gate_bites", "test_optional_blocks_reach_the_instance",
         "test_optional_block_instance_gate_bites", "test_clock_plan_reaches_the_instance",
         "test_clock_plan_instance_gate_bites", "test_datapath_params_match_the_instance",
-        "test_datapath_params_gate_bites", "test_every_recipe_elaborates",
+        "test_datapath_params_gate_bites", "test_image_identity_gate", "test_every_recipe_elaborates",
         "test_recipe_smoke_gate_bites", "test_toolchain_patches_are_applied",
         "test_toolchain_patch_gate_bites"),
     "--require-rv32": ("test_baremetal_profile_contract",),

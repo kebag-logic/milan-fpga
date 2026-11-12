@@ -48,7 +48,8 @@ Exit 0 is a pass, 1 a finding and 2 a refusal.
 - `KL_mbx` behind `KL_mbx_wb`, its datapath on pads, each face commit acknowledged at the contract's bound;
 - LiteSPI, its PHY staged as MilanSoC stages it (`milan_soc.stage_spi_phy`, #814), and `timer0` where F1's port addresses them.
 
-The CPU generator is given each region's power-of-two cover, as that harness gives it (the decode of #791).
+The CPU generator is given the shipping split region list, each region as its aligned power-of-two pieces ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)), and that harness refuses a list that is not its own power-of-two cover.
+The results below were measured when the harness still widened each region to its cover.
 This SoC adds the two devices the platform reaches beyond the mailbox:
 
 - the Milan CSR window, a Wishbone slave at `milan_soc.MILAN_CSR_BASE` named `milan_csr`, whose bus the testbench answers;
