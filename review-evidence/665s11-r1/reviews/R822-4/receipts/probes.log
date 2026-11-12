@@ -1,0 +1,89 @@
+[ok] mutant plat-reboot-transmits-after-the-departing (platboot1, platboot1, platboot1, platboot1): 88 check(s) failed
+    first: [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+[ok] mutant plat-reboot-takes-aecp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+mutants: 2 of 2 caught
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] reboot-serves-after-its-success: Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s11-r822-4-packet/scratch/probes/aecp/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] reboot-probes-after-its-success: Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete
+{
+  "plat_unnamed_tests_full_table": [],
+  "aecp_controls_full_table": "ok",
+  "present": {
+    "plat-reboot-transmits-after-the-departing": true,
+    "plat-reboot-takes-aecp-frames-after-the-success": true,
+    "reboot-serves-after-its-success": true,
+    "reboot-probes-after-its-success": true
+  },
+  "plat_campaign_escaped": false,
+  "aecp_campaign_escaped": false,
+  "aecp_results": [
+    {
+      "name": "reboot-serves-after-its-success",
+      "path": "aecp/aecp.c",
+      "old": " && !a->notify && a->reboot == 0u;",
+      "new": " && !a->notify;",
+      "checks": [
+        [
+          "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+          "no command is taken after a REBOOT's SUCCESS"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "reboot-probes-after-its-success",
+      "path": "aecp/aecp.c",
+      "old": "\t\t\ta->reboot = 2u;\n\t\t}\n\t\treturn false;\n\t}\n",
+      "new": "\t\t\ta->reboot = 2u;\n\t\t}\n\t}\n",
+      "checks": [
+        [
+          "Core.RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete",
+          "no probe or notification is started after a REBOOT's SUCCESS"
+        ]
+      ],
+      "caught": true
+    }
+  ],
+  "b20_loop_on_alone": {
+    "rc": 1,
+    "b20_fail_lines": 22,
+    "b20_aecp_caught": false,
+    "b20_words_failed": [
+      "B20 no ACMP transmission starts after ENTITY_DEPARTING",
+      "B20 no MAAP transmission starts after ENTITY_DEPARTING",
+      "B20 no SRP transmission starts after ENTITY_DEPARTING",
+      "B20 no frame but ADP's leaves after ENTITY_DEPARTING",
+      "B20 no other channel starts a transmission after ENTITY_DEPARTING"
+    ]
+  },
+  "b20_loop_on_and_probes": {
+    "rc": 1,
+    "b20_fail_lines": 22,
+    "b20_aecp_caught": false,
+    "b20_words_failed": [
+      "B20 no ACMP transmission starts after ENTITY_DEPARTING",
+      "B20 no MAAP transmission starts after ENTITY_DEPARTING",
+      "B20 no SRP transmission starts after ENTITY_DEPARTING",
+      "B20 no frame but ADP's leaves after ENTITY_DEPARTING",
+      "B20 no other channel starts a transmission after ENTITY_DEPARTING"
+    ]
+  },
+  "b20_loop_on_and_serves": {
+    "rc": 1,
+    "b20_fail_lines": 22,
+    "b20_aecp_caught": false,
+    "b20_words_failed": [
+      "B20 no ACMP transmission starts after ENTITY_DEPARTING",
+      "B20 no MAAP transmission starts after ENTITY_DEPARTING",
+      "B20 no SRP transmission starts after ENTITY_DEPARTING",
+      "B20 no frame but ADP's leaves after ENTITY_DEPARTING",
+      "B20 no other channel starts a transmission after ENTITY_DEPARTING"
+    ]
+  }
+}
