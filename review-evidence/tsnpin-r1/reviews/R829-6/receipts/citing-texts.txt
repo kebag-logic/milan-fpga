@@ -1,0 +1,15 @@
+# The three round-5 texts that cite the corrected receipt (archive b3523a6a; author-r5 texts byte-identical to c0e0f810)
+author-r4 and author-r5 files changed c0e0f810..b3523a6a: review-evidence/tsnpin-r1/author-r4/receipts/round4/fw_coverage-write-at-0fb66211-diff.txt review-evidence/tsnpin-r1/author-r5/receipts/round5/fw_coverage-write-at-0fb66211-diff.txt 
+b47ec49c commit: b47ec49c1cc34466dc4bd802250674ccf01adedb Publish the corrected round 4 coverage receipt (R829-5 F3-R)
+
+1) author-r5/receipts/round5/coverage-provenance.txt:6
+   (round4/fw_coverage-write-at-0fb66211.log; the diff: round4/fw_coverage-write-at-0fb66211-diff.txt, corrected).
+   -> names author-r4/receipts/round4/fw_coverage-write-at-0fb66211-diff.txt: exists, carries correction header + real diff
+
+2) author-r5/HANDOFF.md:16
+| F3 | no tree change. receipts/round5/coverage-provenance.txt states the real provenance; round 4's `fw_coverage-write-at-0fb66211-diff.txt` carries the real diff under a correction header; round 4's note below is marked corrected | the diff at `0fb66211`: `ctrl_app_aecp.c` 164 -> 165, `nvm_store.c` 458 -> 459, matching `fw_coverage-write-at-0fb66211.log` |
+   -> round 4's file now carries the real diff under a correction header
+
+3) REVIEW READY #665 issuecomment-6832030626 (live == R829-5 capture), line 16
+  - The corrected receipt (the real diff, under a correction header) and a provenance account are in the round-5 packet. Round 4's HANDOFF note is marked corrected.
+   -> author-r5/receipts/round5/fw_coverage-write-at-0fb66211-diff.txt exists (copy, identical bytes), listed in MANIFEST.json
