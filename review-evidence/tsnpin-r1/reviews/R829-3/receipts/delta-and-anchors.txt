@@ -1,0 +1,37 @@
+# delta bfe7a9d6..32b43973
+ docs/design/MAILBOX_SPLIT.md               |  5 +++--
+ docs/design/SPLIT_CONTROL_MEMORY.md        |  2 +-
+ sw/firmware/ctrl/test/acmp_owed_mutants.py |  5 +++++
+ sw/firmware/ctrl/test/test_acmp_mbx.cpp    | 35 ++++++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+), 3 deletions(-)
+
+# commit messages (raw, full)
+32b43973069ee2742f86c4f92adb5eb9ca6bdfb3
+Name the BIND_RX case of the kept command and the adapter's loop pointer in the split pages (#665)
+--
+91224a0df7af830e9d1798c52b4b656804fa061c
+Pin the ACMP redelivery's stop at a declined command with a record waiting behind it, and plant the stop's removal (#665)
+--
+# acmp_mbx.c unchanged since bfe7a9d6: yes
+# tsn-c-stack gitlink at bfe7a9d6: 715589c1db7cf67e2f3259fd7083ebc7f0923376
+# acmp_mbx.c:166
+	for (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u; ++k) {
+# BIND_RX authority
+#define OWED_BY_BIND 2u                                         // Milan v1.2 5.5.3.5.3
+		if (listener && !room(a, cmd.msg == ACMP_MSG_BIND_RX_COMMAND ? OWED_BY_BIND : 1u)) {
+A BIND_RX needs two free owed slots: one for its response and one for the first PROBE_TX of the binding it starts ([Milan v1.2 5.5.3.5](https://avnu.org/resource/milan-specification/), 5.5.3.5.3).
+With fewer free, `acmp_rx` declines a BIND_RX in the same way, so a deferred binding loses no probe and needs no TMR_NO_RESP retry.
+After each `acmp_poll` that accepts an owed frame, the port offers its waiting ACMP frames in arrival order, the kept one first, until `acmp_rx` declines one or none is left, and only then services `acmp_timer_expired`.
+# loop pointer
+227:	struct ctrl_loop *loop;         // the loop attached to, whose buffer and counts the redelivery uses
+# ci_scope selftest readers
+.github/workflows/rtl.yml:85:          python3 scripts/ci_scope.py --selftest
+.github/workflows/rtl-fast.yml:48:          python3 scripts/ci_scope.py --selftest
+.github/workflows/elaborate.yml:60:          python3 scripts/ci_scope.py --selftest
+.github/workflows/elaborate.yml:295:          python3 scripts/ci_scope.py --selftest
+GATED_ROOTS = ("tests", "tb", "syn", "sw", "hdl", "avdecc")
+GATED_SUFFIXES = (".py", ".sh", ".mk")
+# LITEX_SIM_TIMEOUT
+#   LITEX_SIM_TIMEOUT    per-script wall clock in seconds (default 900)
+TMO="${LITEX_SIM_TIMEOUT:-900}"
+workflows setting it: 0

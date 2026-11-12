@@ -1,0 +1,48 @@
+[clean] arm acmp: rc=0 fails=0
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [       OK ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+     verdict: PASS (165 tests, 0 failures, exit 0)
+[clean] arm acmpif2: rc=0 fails=0
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [       OK ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+     verdict: PASS (38 tests, 0 failures, exit 0)
+[acmp-redelivery-past-a-decline] arm acmp: rc=1 fails=1
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+     verdict: FAIL (its tallies report 1 failure(s) across 165 checks, exit 1)
+    named catch (K8 on its words): True
+[acmp-redelivery-past-a-decline] arm acmpif2: rc=1 fails=1
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+     verdict: FAIL (its tallies report 1 failure(s) across 38 checks, exit 1)
+    named catch (K8 on its words): True
+[rv-stop-after-take] arm acmp: rc=1 fails=2
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 each command declined once, and nothing kept or owed after
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 each command declined once, and nothing kept or owed after
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (3 ms)
+     verdict: FAIL (its tallies report 1 failure(s) across 165 checks, exit 1)
+    named catch (K8 on its words): True
+[rv-stop-after-take] arm acmpif2: rc=1 fails=2
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    FAIL [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 each command declined once, and nothing kept or owed after
+    K8   [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+    K8   [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 each command declined once, and nothing kept or owed after
+    K8   [  FAILED  ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+     verdict: FAIL (its tallies report 1 failure(s) across 38 checks, exit 1)
+    named catch (K8 on its words): True
+probe rc 0
+
+real	4m41.089s
+user	2m21.443s
+sys	0m6.927s
+rc=0
