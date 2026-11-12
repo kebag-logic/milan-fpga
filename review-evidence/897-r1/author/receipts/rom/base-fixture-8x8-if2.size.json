@@ -1,0 +1,93 @@
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 97240,
+    ".rodata": 25422,
+    ".data": 448,
+    ".bss": 103936,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3520,
+    "image_aecp_bridge": 140,
+    "image_allocation": 16,
+    "image_app": 10336,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2976,
+    "image_face": 96,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_platform": 64,
+    "image_sources": 576,
+    "image_srp": 4408,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "baf4f5c03bd0670cc73088e4c4082e925260a33c4588fb0eca6650d362a6788a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "f876d010cc21f99bc5dcd0bbef2bf7c885924390cb6bb4a89619e8c8f5af6ab0"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 153112,
+      "sha256": "d4cbc8787074dc3f1ea25cd83977341ee5cc182971f49551677afe69fb55e089"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 129933,
+      "sha256": "98cd4cbc38c4846da0794d667482ee6ca64278522ff0b937af17ba36a696ea92"
+    }
+  ],
+  "ram_sections": 235238,
+  "split": {
+    "rom": {
+      "bytes": 123112,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 112576,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        4096,
+        2048
+      ],
+      "RAMB36": 27,
+      "RAMB18": 1
+    },
+    "tiles": 58.0,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 58.0
+  }
+}
