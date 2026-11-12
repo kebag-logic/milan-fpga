@@ -215,10 +215,11 @@ LEDGERED: dict[str, Ledgered] = {
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c (#665)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_288)), 59.0,
+                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_352)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
-                                            "image)"),
+                                            "image); 60.0, cap 60.5, with SRP's Talker declarations (#895, ruling "
+                                            "6824623445): S14 owes 60.0 - 56 = 4.0 RAMB36, 16,384 B of cold code"),
 }
 
 

@@ -102,7 +102,9 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,288 B | 59.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,352 B | 60.0 |
+
+The platform's entry is 60.0 RAMB36, cap 60.5, since SRP's Talker declarations follow each source's validity (#895, the ruling of 2026-11-12, issuecomment-6824623445, maintainer-delegated): it is the same named point owed to lane S14, which owes 60.0 - 56 = 4.0 RAMB36, 16,384 B of cold code moved to flash ([section 5](#5-fit)).
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 
@@ -128,8 +130,8 @@ It requires `budget` to refuse that image in three cases: without the override, 
 It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 Six planted ledgers each widen one entry to another point or image, or past its tiles.
-The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 59.5.
-The fixture's loses `image_allocation`, or plans 59.0.
+The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 60.5.
+The fixture's loses `image_allocation`, or plans 60.0.
 Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
@@ -277,7 +279,18 @@ At this branch's head, the merge of the pin move (tsn-c-stack `715589c`) with th
 | 8x8, one interface | 121,440 / 86,416 | 51.5 | 126,560 / 87,392 | 52.5 | 18,112 |
 | 8x8, two interfaces (largest) | 123,112 / 112,576 | 58.0, ledgered | 128,264 / 113,568 | **59.5, over its 59.0** | 20,288 |
 
-The size fixture's 8x8 image with two interfaces holds 123,112 B of `rom` in 124,928, 58.0 tiles, 1,816 B before its next granule, within the 58.0 its entry now ledgers ([section 3](#3-named-refusals)).
+With SRP's Talker declarations following each source's validity (#895: a source declares only while MAAP holds its destination and a probe of the last 15 s or a registered Listener asks for it, withdraws when that lapses, and holds a changed destination two LeaveAllTime periods), at the merge of #810's round 29 head, planned the same way:
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 108,872 / 45,568 | 38.5 | 113,936 / 46,576 | 39.5 | 17,536 |
+| 1x1, two interfaces | 110,664 / 56,976 | 41.5 | 115,760 / 58,032 | 43.0 | 19,072 |
+| 8x8, one interface | 122,400 / 86,464 | 51.5 | 127,504 / 87,456 | 53.0 | 18,176 |
+| 8x8, two interfaces (largest) | 124,136 / 112,624 | 58.0, ledgered | 129,288 / 113,632 | 60.0, ledgered | 20,352 |
+
+The declarations add 800 to 1,040 B of `rom` and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, within its 58.0 with 16 B of `sram` to spare. The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
+
+Before #895, the size fixture's 8x8 image with two interfaces held 123,112 B of `rom` in 124,928, 58.0 tiles, 1,816 B before its next granule, within the 58.0 its entry now ledgers ([section 3](#3-named-refusals)).
 **The platform's image at that point plans 59.5 tiles against the 59.0 its entry ledgers** (ruling 6505997821): its `rom` needs 128,264 B, 1,288 B past the 126,976 of its banks at 59.0, and so does this branch's head before the merge (127,664 B) and round 27's (127,544 B). Every link of that image since round 27 was refused first by a stale `ctrl_plat` size, so its tiles were not read, and no gate links the platform image with its override. The ledger stays 59.0 until a ruling names another; the image is refused at its tiles, by name.
 The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture with a test port that answers every notice ([section 13](#the-polls-by-source)), is the image nearest its ledger: its build was refused once its `rom` passed 122,880 B, the granule past which the plan would take 58.0 tiles against the 57.5 then ledgered ([section 3](#3-named-refusals)) (#665, the [round 25 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6751196896), item 5). With the entry at 58.0 the granule is 124,928 B.
 
