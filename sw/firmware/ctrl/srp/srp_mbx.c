@@ -257,20 +257,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     i->stale = true;
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         const uint32_t bit = 1u << n;
-        struct srp_source *s = &i->sources[n];
-        bool moved = false;
-        if ((m->reported & bit) != 0u) {
-            // the destination MAAP last reported (srp_mbx_allocation), or none
-            const bool allocated = (m->allocated & bit) != 0u;
-            uint64_t dest = allocated ? m->dest[n] : 0u;
-            moved = s->allocated != allocated;
-            for (unsigned b = 6u; b-- != 0u; dest >>= 8) {
-                moved = moved || s->value.dest_mac[b] != (uint8_t)dest;
-                s->value.dest_mac[b] = (uint8_t)dest;
-            }
-            s->allocated = allocated;
-        }
-        struct msrp_talker_failed value = {.talker=s->value};
+        struct msrp_talker_failed value = {.talker=i->sources[n].value};
         value.talker.vlan_id = i->domain.vid;
         value.talker.priority_and_rank = (uint8_t)((value.talker.priority_and_rank & 0x10u) | (i->domain.priority << 5));
         uint64_t size = (uint64_t)value.talker.max_frame_size + 22u;
@@ -278,9 +265,9 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
             size = 68u;
         }
         uint64_t slope = (size + 20u) * value.talker.max_interval_frames * 64000u;
-        bool admitted = s->allocated && value.talker.max_interval_frames > 0 &&
+        bool admitted = i->sources[n].allocated && value.talker.max_interval_frames > 0 &&
                         used + slope <= (uint64_t)m->config.link_rate_bps * 3u / 4u;
-        if ((i->talkers & bit) != 0u && (moved || admitted != i->admitted[n])) {
+        if ((i->talkers & bit) != 0u && ((i->readdressed & bit) != 0u || admitted != i->admitted[n])) {
             // the licence closes before TALKER_DECL drops the source, so the stream gate never trails it
             if (i->active[n]) {
                 i->active[n] = false;
@@ -294,9 +281,10 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
             i->talkers &= ~bit;
             i->held_cs[n] = SRP_REDECLARE_CS;
         }
+        i->readdressed &= ~bit;
         if (!admitted) {
             wire_put_be(value.failure_info + 2,i->mac,6);
-            value.failure_info[8] = s->allocated ? 1 : 2;
+            value.failure_info[8] = i->sources[n].allocated ? 1 : 2;
         }
         if (i->held_cs[n] == 0u && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u)) {
             if (mrp_mad_join(i->msrp,0,admitted ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,
@@ -626,16 +614,24 @@ bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint
     }
     const bool ok = m->loop != NULL;
     for (unsigned n = 0; ok && n < CTRL_SRP_SOURCES; ++n) {
-        const uint32_t bit = 1u << n;
-        if ((sources & bit) != 0u) {
-            m->reported |= bit;
-            m->allocated = valid && n < count ? m->allocated | bit : m->allocated & ~bit;
-            m->dest[n] = base + n;
+        const bool allocated = valid && n < count;
+        for (unsigned k = 0; (sources >> n & 1u) != 0u && k < MBX_N_IF; ++k) {
+            struct srp_interface *i = &m->ifs[k];
+            struct srp_source *s = &i->sources[n];
+            uint64_t dest = allocated ? base + n : 0u;
+            bool moved = s->allocated != allocated;
+            for (unsigned b = 6u; b-- != 0u; dest >>= 8) {
+                moved = moved || s->value.dest_mac[b] != (uint8_t)dest;
+                s->value.dest_mac[b] = (uint8_t)dest;
+            }
+            if (moved) {
+                // THE TRANSMIT withdraws the Talker, its licence first (declare_sources)
+                s->allocated = allocated;
+                i->readdressed |= 1u << n;
+                i->sources_owed = true;
+                hold(i);
+            }
         }
-    }
-    for (unsigned k = 0; ok && k < MBX_N_IF; ++k) {
-        m->ifs[k].sources_owed = true;
-        hold(&m->ifs[k]);
     }
     m->busy = false;
     return ok;

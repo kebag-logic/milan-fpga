@@ -192,8 +192,8 @@ def boot_mutants(mutant: type) -> tuple:
         m("plat-allocation-not-declared", PLAT, "\t(void)srp_mbx_allocation(&p->srp, sources, base, count, valid);\n",
           "\t(void)sources;\n",
           "platboot1", "Boot.B11AllocationReachesSrpsTalkerDeclarations",
-          "B11 the report names the reporting interface's sources"),
+          "B11 the report moves the reporting interface's sources"),
         m("plat-allocation-every-source", PLAT, "(p->acmp.source_interface[n] == interface ? 1u : 0u) << n", "1u << n",
           "platboot2", "Boot.B11AllocationReachesSrpsTalkerDeclarations",
-          "B11 the report names the reporting interface's sources"),
+          "B11 the report moves the reporting interface's sources"),
     )

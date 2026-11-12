@@ -360,22 +360,19 @@ TEST_F(Talker, MoveBeforeAResetIsHeldByTheNewParticipants) {
 }
 
 // The entry: a repeated report changes no declaration, a source past the reported count has no destination, a mask
-// bit past the sources is no source, and before attach, after destroy and on reentry it refuses and records nothing.
+// bit past the sources is no source, and before attach, after destroy and on reentry it refuses and changes nothing.
 TEST_F(Talker, AllocationEntryRecordsOnlyWhatChanged) {
     settle(); advance(400);
     trace();
-    const uint32_t first=model.tx_sent;
+    uint32_t first=model.tx_sent;
     ASSERT_TRUE(srp_mbx_allocation(&adapter,1u,kConfigured,CTRL_SRP_SOURCES,true));
     ASSERT_TRUE(srp_mbx_allocation(&adapter,~0u<<CTRL_SRP_SOURCES,0x91e0f000ee00ull,CTRL_SRP_SOURCES,true));
-    EXPECT_EQ(adapter.reported,1u) << "a mask bit past the sources is no source";
     advance(400);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_EQ(leave(talker(i,0,first),1),nullptr) << "a repeated allocation changes no declaration";
+        EXPECT_EQ(adapter.ifs[i].readdressed,0u) << "a mask bit past the sources is no source";
     }
     ASSERT_TRUE(srp_mbx_allocation(&adapter,3u,0x91e0f000ee00ull,1,true));
-    EXPECT_EQ(adapter.allocated&3u,1u) << "a source past the reported count has no destination";
-    settle();
-    untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
         EXPECT_TRUE(adapter.ifs[i].sources[0].allocated) << "a source within the reported count holds base + n";
         uint64_t d=0;
@@ -389,18 +386,18 @@ TEST_F(Talker, AllocationEntryRecordsOnlyWhatChanged) {
             }
         }
     }
+    untrace();
     adapter.busy=true;
     const uint32_t reentries=adapter.reentries;
     EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "reentry is refused";
     EXPECT_EQ(adapter.reentries,reentries+1u) << "reentry is refused and counted";
     adapter.busy=false;
-    EXPECT_EQ(adapter.dest[0],0x91e0f000ee00ull) << "a refused report records nothing";
+    EXPECT_EQ(adapter.ifs[0].sources[0].value.dest_mac[4],0xeeu) << "a refused report changes nothing";
     srp_mbx_destroy(&adapter);
     EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "refused after destroy";
-    EXPECT_EQ(adapter.dest[0],0x91e0f000ee00ull) << "refused after destroy, and nothing is recorded";
     ASSERT_TRUE(srp_mbx_init(&adapter,&config));
     EXPECT_FALSE(srp_mbx_allocation(&adapter,1u,0x91e0f000ff00ull,CTRL_SRP_SOURCES,true)) << "refused before attach";
-    EXPECT_EQ(adapter.reported,0u) << "refused before attach, and nothing is recorded";
+    EXPECT_EQ(adapter.ifs[0].readdressed,0u) << "refused before attach, and nothing changes";
 }
 
 // A refused join of a source whose hold-off ended (no storage) is counted and declared again with THE TRANSMIT's
