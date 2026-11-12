@@ -1682,11 +1682,21 @@ TEST_F(Loop, L27TierTwoRoundsComeAfterTheDrainInSlices) {
     probe.retry_aged = false;
     EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - CTRL_LOOP_SHARE_MARGIN_US)
         << "L27 a round in a pass given whole has a slice from the pass's start";
+    // the pass's start, the slice's start and the round's read, a step apart: a slice from the round's own start, and
+    // one that would end past the pass's deadline ends at it
     drain(&loop_);
-    probe.now_step = 800u;   // the pass's start, the slice's start and the round's read, 800 us apart
+    probe.now_step = 100u;
     static_cast<void>(ctrl_loop_service(&loop_));
     probe.now_step = 0u;
-    EXPECT_EQ(probe.round_left, 800u + CTRL_LOOP_SHARE_US - 3u * 800u - CTRL_LOOP_SHARE_MARGIN_US)
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - 100u - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L27 a round in a pass that took nothing has a slice from its own start";
+    constexpr std::uint32_t late = CTRL_LOOP_SHARE_US - CTRL_LOOP_SLICE_US + 10u;
+    static_assert(2u * late + CTRL_LOOP_SHARE_MARGIN_US < CTRL_LOOP_SHARE_US, "a round has time left at the deadline");
+    drain(&loop_);
+    probe.now_step = late;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SHARE_US - 2u * late - CTRL_LOOP_SHARE_MARGIN_US)
         << "L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline";
     drain(&loop_);
 }
