@@ -32,14 +32,14 @@ import re
 import frames as f
 import save_window
 import scenario
-import share
 
 #: NOW_MS from which the variant's stream observation answers, after the attempt there or next fails.
 ANSWER_MS = 3150
 #: NOW_MS of the SET_NAME, the first BIND_RX (notice-retried-0) and the load's start.
 SET_MS, BIND_MS, LOAD_MS = 1700, 3000, 3010
-#: How long the load runs past ANSWER_MS, in ms: the longest bound by construction, with room for the row to show it.
-RUN_MS = 80
+#: How long the load runs past ANSWER_MS, in ms: the longest queued bound (AECP_QUEUED_MS), with room for the row to
+#: show it.
+RUN_MS = 130
 #: The groups, one a millisecond across the retry's 8 ms spacing.
 PHASES = 8
 #: The row's path: run.notice_misses holds every instance of it to its bound.
@@ -57,12 +57,11 @@ def names() -> list[str]:
 
 
 def queued_ms(interfaces: int) -> int:
-    """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h, aecp.h, ctrl_loop.h): the bound every queued notice meets."""
-    ctrl = scenario.ROOT / 'sw/firmware/ctrl'
-    mailbox = (ctrl / 'aecp/aecp_mbx.h').read_text()
-    one, two = re.search(r'#define AECP_QUEUED_PASSES \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', mailbox).groups()
-    spacing = int(re.search(r'#define AECP_RETRY_MAX_MS (\d+)u', (ctrl / 'aecp/aecp.h').read_text()).group(1))
-    return spacing + int(one if interfaces == 1 else two) * int(share.share_ms())
+    """AECP_QUEUED_MS at that many interfaces (aecp_mbx.h): the bound every queued notice meets, the last queued
+    notice's tier bound at one interface (#894, #665 decision D) and the stated 62 ms at two."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/aecp/aecp_mbx.h').read_text()
+    one, two = re.search(r'#define AECP_QUEUED_MS \(MBX_N_IF == 1u \? (\d+)u : (\d+)u\)', text).groups()
+    return int(one if interfaces == 1 else two)
 
 
 def queued_first_ms(interfaces: int) -> int:

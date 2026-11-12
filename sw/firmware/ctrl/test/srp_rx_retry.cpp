@@ -149,7 +149,7 @@ TEST_F(SrpRetry, AnAttributeChangeAloneAllowsTheRetry) {
     ASSERT_FALSE(adapter.ifs[0].moved);
     for(unsigned n=0;n<300 && !adapter.ifs[0].moved;++n) {
         loop.ticks[0]();
-        if(adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx);
+        if(adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     }
     ASSERT_TRUE(adapter.ifs[0].moved) << "every Applicant or Registrar change lwSRP reports is marked";
     ASSERT_EQ(ctrl_pool_returned,returned) << "no block returned";

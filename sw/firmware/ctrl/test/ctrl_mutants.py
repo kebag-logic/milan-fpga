@@ -243,11 +243,10 @@ MUTANTS = (
     # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
     # CTRL_LOOP_RX_PER_PASS records (#665)
     Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
-           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL || l->rx_held ||\n"
-           "\t\t    (int32_t)(deadline - l->clock(l->clock_ctx)) < "
-           "(int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {\n"
+           "for (unsigned k = 0; k < most; ++k) {\n\t\tif (k >= l->rx_cap && (l->clock == NULL || l->rx_held || "
+           "(int32_t)(stop - l->clock(l->clock_ctx)) < 0)) {\n"
            "\t\t\tbreak;\n\t\t}\n",
-           "(void)most;\n\t(void)deadline;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound",
+           "(void)most;\n\t(void)stop;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound",
            "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",

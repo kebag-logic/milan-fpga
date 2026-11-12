@@ -440,8 +440,9 @@ TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     wire_put_be(filler.data()+12,0x22ea,2);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
     // THE TRANSMIT builds in the first pass that takes at most one event (ctrl_loop.h): at two interfaces the
-    // first pass takes both LINK records
-    for(unsigned n=0;n<4u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    // first pass takes both LINK records; a slice holds CTRL_LOOP_BUILD_MOST of an interface's two MRPDUs, so its
+    // startup build takes 2 / CTRL_LOOP_BUILD_MOST passes (THE TIERS)
+    for(unsigned n=0;n<4u*2u/CTRL_LOOP_BUILD_MOST && !adapter.owed_len;++n) ctrl_loop_service(&loop);
     ASSERT_GT(adapter.owed_len,0u);
     EXPECT_FALSE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
     std::vector<uint8_t> owed(adapter.owed_frame,adapter.owed_frame+adapter.owed_len);
@@ -485,7 +486,7 @@ TEST_F(Srp, ReentryFromOutputIsRefusedAndCounted) {
         mbx_frame f{}; f.len=17; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         f.len=0; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         EXPECT_FALSE(loop.polls[loop.n_polls-1].fn(&adapter));
-        loop.transmit(loop.transmit_ctx);
+        loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
         loop.ticks[loop.n_ticks-1]();
         EXPECT_FALSE(srp_mbx_init(&adapter,&config));
         EXPECT_EQ(adapter.reentries,before+10);
@@ -547,7 +548,7 @@ TEST_F(Srp, AttachmentFailureIsAtomicAndDetachesAfterLoopReset) {
     ctrl_loop_init(&loop); ctrl_loop_bind_rx(&loop,MBX_CH_SRP,[](void*,const mbx_frame*){},nullptr);
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop));
     ctrl_loop_init(&loop);
-    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*){},[](void*){return false;},nullptr));
+    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*,unsigned){},[](void*){return false;},nullptr));
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop))<<"a loop whose THE TRANSMIT client is bound is refused";
     EXPECT_EQ(loop.n_polls,0u);
     ctrl_loop_init(&loop);
@@ -1530,7 +1531,8 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     EXPECT_NE(ctrl_loop_service(&loop),0u);
     EXPECT_EQ(loop.stats.transmit_passes,passes+1u)<<"the pass goes to the build";
     EXPECT_EQ(loop.stats.rx_records,rx)<<"it takes no record";
-    EXPECT_EQ(adapter.transmitted,sent+2u)<<"and sends both participants' MRPDUs of the first interface that owes";
+    EXPECT_EQ(adapter.transmitted,sent+CTRL_LOOP_BUILD_MOST)
+        <<"and sends the MRPDUs its slice holds of the first interface that owes, both where it holds them";
     settle();
     EXPECT_EQ(adapter.transmitted,sent+2u*MBX_N_IF)<<"the next such pass the next interface's";
     EXPECT_EQ(loop.stats.rx_records,rx+1u)<<"and the pass after them takes the record";
@@ -1555,6 +1557,69 @@ TEST_F(Srp, AnOwedMrpduTakesAPassOfItsOwn) {
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
     EXPECT_NE(adapter.tx_due,0u)<<"an unbinding that withdraws a declaration owes the MRPDU that sends it";
     settle();
+}
+
+namespace {
+ctrl_transmit_fn whole_transmit;
+unsigned slice_most;   // the MRPDUs the test's slices hold
+unsigned slice_calls, slice_frames, slice_widest;
+mbx_model *slice_model;
+void sliced_transmit(void *ctx, unsigned) {
+    const unsigned before = slice_model->tx_sent;
+    whole_transmit(ctx, slice_most);
+    ++slice_calls;
+    slice_frames = slice_model->tx_sent - before;
+    slice_widest = slice_frames > slice_widest ? slice_frames : slice_widest;
+}
+}
+
+// THE TRANSMIT's build resumes across slices (THE TIERS; #665 round 23, item 2): the same SRP frames, in the same order,
+// as the build made whole, each call making at most the MRPDUs its slice holds; a reset between two slices leaves the
+// new participants a whole build.
+TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
+    const auto frames = [&](unsigned most) {
+        TearDown();
+        SetUp();
+        whole_transmit = loop.transmit;
+        slice_model = &model;
+        slice_most = most;
+        slice_calls = slice_widest = 0u;
+        loop.transmit = sliced_transmit;
+        settle();
+        msrp_stream_id sid{{2,1,2,3,4,5,6,7}}; uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+        EXPECT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,2));
+        offer(frame(4,{6,5,0,3},0));   // a Domain to adopt
+        for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+        settle();
+        std::vector<std::vector<uint8_t>> out;
+        for (unsigned k=0;k<model.tx_sent;++k) {
+            const auto *f=mbx_model_tx_frame(&model,k);
+            out.emplace_back(f->bytes,f->bytes+f->len);
+        }
+        loop.transmit = whole_transmit;
+        return std::make_pair(out, slice_calls);
+    };
+    const auto whole = frames(2u);
+    const auto sliced = frames(1u);
+    EXPECT_GT(whole.first.size(),2u*MBX_N_IF)<<"(the scenario builds every participant's MRPDUs)";
+    EXPECT_LE(slice_widest,1u)<<"a slice that holds one MRPDU makes one";
+    EXPECT_GT(sliced.second,whole.second)<<"so the build takes more slices";
+    EXPECT_EQ(sliced.first,whole.first)<<"a build resumed across slices sends the frames of the build made whole";
+    // a reset between two slices: the resumed participant's interface builds its new participants whole
+    TearDown();
+    SetUp();
+    whole_transmit = loop.transmit;
+    slice_model = &model;
+    slice_most = 1u;
+    loop.transmit = sliced_transmit;
+    settle();
+    adapter.tx_due = 1u;
+    loop.transmit(loop.transmit_ctx, 1u);
+    ASSERT_NE(adapter.tx_resume,0u)<<"(a build resuming at its next participant)";
+    mbx_model_set_link(&model,0,false);
+    settle();
+    EXPECT_EQ(adapter.tx_resume,0u)<<"a reset ends the build it was resuming";
+    loop.transmit = whole_transmit;
 }
 
 // A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a

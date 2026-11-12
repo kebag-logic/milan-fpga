@@ -181,8 +181,6 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
-_Static_assert(AECP_QUEUED_MS <= AECP_QUEUED_CEILING_MS, "every queued notice must keep its ceiling");
-
 // THE RETRY's client (ctrl_loop.h, #665): what the pass has left holds the round, and fewer notices while records wait.
 static bool retry(void *ctx, unsigned left_us)
 {
@@ -190,12 +188,15 @@ static bool retry(void *ctx, unsigned left_us)
 	struct ctrl_loop *l = m->loop;
 	const uint32_t sent = m->core.tx_cookie;
 	const unsigned yield = l->retry_firm ? AECP_ROUND_FIRM_NOTICES : AECP_ROUND_YIELD_NOTICES;
-	const unsigned most = l->backlog ? yield : AECP_NOTICES_MOST;
+	// beside tier-1 records or THE DRAIN's, the round is a queue's first notice alone, tier 1's (THE TIERS, #894)
+	const unsigned most = l->round_one ? 1u : l->backlog ? yield : AECP_NOTICES_MOST;
 	bool owed = aecp_retry(&m->core, most, (int32_t)left_us - (int32_t)AECP_ROUND_COLD_US);
 	// a round that built beside records spends a yield, and a queue served to its end starts the next with them all
 	m->yields = owed ? m->yields + (l->backlog && m->core.tx_cookie != sent ? 1u : 0u) : 0u;
 	l->retry_firm = m->yields + 1u > AECP_ROUND_YIELDS;
 	l->retry_queued = owed;
+	// the next notice is a queue's first once the queue is served to its end, until a round sends one
+	l->retry_first = !owed || (l->retry_first && m->core.tx_cookie == sent);
 	return owed;
 }
 
@@ -217,6 +218,9 @@ bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 	m->core.retry_hold = true;
 	m->core.notice_us = AECP_NOTICE_US;
 	l->retry_firm = AECP_ROUND_YIELDS == 0u;
+	l->retry_first = true;
+	// AECP's records are tier 1's first (THE TIERS, #894)
+	l->first_ch = MBX_CH_AECP + 1u;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_AECP, frame, m);

@@ -32,7 +32,7 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 static struct srp_mbx *timer_owner;
 static void tick(void);
 static bool poll(void *ctx);
-static void transmit(void *ctx);
+static void transmit(void *ctx, unsigned most);
 static bool transmit_aged(void *ctx);
 static void receive(void *ctx, const struct mbx_frame *frame);
 static void on_event(void *ctx, const struct mbx_event *event);
@@ -891,6 +891,8 @@ static void reset_interface(struct srp_interface *i)
     m->join_left[2u * i->index] = 0u;
     m->join_left[2u * i->index + 1u] = 0u;
     m->tx_due &= (uint8_t)~(1u << i->index);
+    // a build resuming at one of its participants ends with them: the new ones build whole (THE TIERS)
+    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         uint8_t previous = i->sinks[k].desired;
         i->sinks[k].desired = 0; i->sinks[k].declared = 0;
@@ -1083,29 +1085,46 @@ static bool poll(void *ctx)
     return owed;
 }
 
-// THE TRANSMIT's client (ctrl_loop.h, #665), called in a pass given whole to what an interface owes: every interface's
-// declarations, then both participants' MRPDUs of the first interface that owes one, and the next such pass takes the
-// rest; then that interface's declarations again, for what a first VLAN send licensed. A Domain adopted here is sent in
-// this call, so no poll sees its VID unlicensed between them (Milan 4.3.2). No declaration is made while a retained
-// receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again when the join
-// count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay what THE
-// RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.
-static void transmit(void *ctx)
+// THE TRANSMIT's client (ctrl_loop.h, #665), called in a pass given whole to what an interface owes, a slice of tier 2
+// (THE TIERS): every interface's declarations, then both participants' MRPDUs of the first interface that owes one,
+// and the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send
+// licensed. A slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes
+// at the next participant, its declarations already made, then makes that interface's declarations: the frames of the
+// build made whole, with a slice between two (#894; #665 round 23, item 2). A Domain adopted here is sent in this call, so no
+// poll sees its VID unlicensed between them (Milan 4.3.2). No declaration is made while a retained receive waits, so
+// none takes the room it waits for. A refused or waiting declaration is tried again when the join count ends, at the
+// JoinTime's rate and not every pass given whole, so the passes this client takes stay what THE RETRY's bound counts.
+// A frame the ring refuses stays the poll's (A3) and the interface stays due.
+static void transmit(void *ctx, unsigned most)
 {
     struct srp_mbx *m = ctx;
     if (!enter(m)) {
         return;
     }
-    const unsigned first = (m->tx_due & 1u) != 0u ? 0u : 1u;
-    for (unsigned k = 0; k <= MBX_N_IF; ++k) {
+    const unsigned resume = m->tx_resume;
+    const unsigned first = resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
+    for (unsigned k = resume != 0u ? MBX_N_IF : 0u; k <= MBX_N_IF; ++k) {
         const unsigned n = k < MBX_N_IF ? k : first;
         struct srp_interface *i = &m->ifs[n];
         if (k == MBX_N_IF) {
-            for (unsigned slot = 2u * n; i->msrp && slot < 2u * n + 2u && !m->owed_len; ++slot) {
+            m->tx_resume = 0u;
+            unsigned built = 0u;
+            for (unsigned slot = resume != 0u ? resume - 1u : 2u * n; i->msrp && slot < 2u * n + 2u && !m->owed_len;
+                 ++slot) {
+                if (built++ == most) {
+                    // the reclaim the next participant's build would make, so a record taken between the two slices
+                    // finds the room the build whole leaves it (#665, THE TRANSMIT's declarations)
+                    reclaim(i);
+                    m->tx_resume = (uint8_t)(slot + 1u);
+                    break;
+                }
                 reclaim(i);
                 if (i->link) {
                     (void)build_mrpdu(m,i,slot);
                 }
+            }
+            if (m->tx_resume != 0u) {
+                break;
             }
             if (!m->owed_len) {
                 m->tx_due &= (uint8_t)~(1u << n);

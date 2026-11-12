@@ -243,6 +243,15 @@ struct aecp_run {
 	uint16_t first;
 	uint16_t count;
 };
+// A command's notice owed to its recipients while AECP takes its next record (#894, the ruling of 2026-11-12): the
+// frame its response was, which fan_out addresses to each recipient, and the controller its recipients leave out
+// (Milan v1.2 5.4.5.1). A notice longer than a slot stays in the response buffer, as every notice did before.
+#define AECP_OWED_BYTES 128u
+struct aecp_owed {
+	AECP_LINE uint8_t frame[AECP_OWED_BYTES];
+	uint64_t requester;
+	uint16_t bytes;
+};
 struct aecp_config {
 	uint64_t entity_id;
 	uint64_t mac[AECP_INTERFACES];
@@ -252,6 +261,10 @@ struct aecp_config {
 	size_t map_count;
 	struct aecp_event *events; // model->count entries
 	uint32_t *latency; // one entry per STREAM_OUTPUT descriptor
+	// The owed-notice queue (#894): owed_slots entries, supplied by the integrator; none keeps the next record waiting
+	// for every notice, as before.
+	struct aecp_owed *owed;
+	unsigned owed_slots;
 };
 struct aecp {
 	struct aecp_config cfg;
@@ -295,6 +308,10 @@ struct aecp {
 	unsigned recipient;
 	bool response_owed;
 	bool notify;
+	// The owed-notice queue (#894): its oldest entry, its count and how far the oldest's walk of the recipients is.
+	uint8_t owed_head;
+	uint8_t owed_count;
+	unsigned owed_recipient;
 	int probe_recipient;
 	size_t counter_event;
 	uint32_t start_deadline;

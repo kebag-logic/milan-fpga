@@ -104,6 +104,7 @@ struct srp_mbx {
     uint32_t walks;        // registrar walks snapshot made (#665)
     uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
     uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
+    uint8_t tx_resume;     // the participant + 1 a build resumes at in the next slice, 0 none (THE TIERS)
     // The retained receive's retry (#665): the blocks the pools had returned at its last refusal (ctrl_pool_returned),
     // and whether a retry was made since the last centisecond (tick).
     uint32_t pending_freed;

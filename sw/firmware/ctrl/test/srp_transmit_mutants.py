@@ -3,7 +3,8 @@
 """Planted defects of the SRP adapter's side of THE TRANSMIT (#665, ctrl_loop.h): the MRPDU build, and the
 declarations it sends, out of the poll and into a pass given whole; what owes that pass, a join count's end, a LeaveAll
 with no join timer running, a declaration or an Applicant moved with its own join timer idle, each reported owed; the
-count, restarted by what a build sent; a frame owed ahead of a build; both of an interface's MRPDUs a pass.
+count, restarted by what a build sent; a frame owed ahead of a build; both of an interface's MRPDUs a pass, or
+what its slice holds, resumed with the same frames (THE TIERS, #894).
 
 srp_mutants.py plants them with the rest of its table: each must fail its named observable, never only a build.
 """
@@ -30,7 +31,23 @@ SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the adapter's side of THE TRANSMIT, built with srp_mutants.Defect."""
+    sliced = "ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole"
+    boundary = ("                    reclaim(i);\n                    m->tx_resume = (uint8_t)(slot + 1u);\n")
     return (
+        # THE TIERS (#894; #665 round 23, item 2): a build that stops at a slice boundary resumes at the next
+        # participant with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the
+        # next build would, and a reset ends the build it was resuming
+        kind("build-resumed-from-the-first-participant", sliced,
+             "for (unsigned slot = resume != 0u ? resume - 1u : 2u * n;", "for (unsigned slot = 2u * n;",
+             "a build resumed across slices sends the frames of the build made whole"),
+        kind("build-whole-in-any-slice", sliced, "if (built++ == most) {", "if (built++ == 2u) {",
+             "a slice that holds one MRPDU makes one"),
+        kind("build-reclaim-left-to-the-next-slice", RETAINED, boundary,
+             "                    m->tx_resume = (uint8_t)(slot + 1u);\n", "adapter.received",
+             suite="srp_rx_retry.cpp"),
+        kind("build-resumed-past-a-reset", sliced,
+             "    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;\n", "",
+             "a reset ends the build it was resuming"),
         kind("rebuild-holds-no-record", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",
              "    m->loop->rx_held = rebuilds;\n", "    (void)rebuilds;\n", "a reset owes its interface's rebuild"),
         kind("rebuild-holds-for-good", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",
@@ -63,11 +80,11 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "        } else {\n            hold(i);\n        }\n        i->link_seen = true;\n",
              "        }\n        i->link_seen = true;\n", "adapter.transmitted"),
         kind("transmit-reentry-unguarded", "ReentryFromOutputIsRefusedAndCounted",
-             "    if (!enter(m)) {\n        return;\n    }\n    const unsigned first =",
-             "    const unsigned first =",
+             "    if (!enter(m)) {\n        return;\n    }\n    const unsigned resume =",
+             "    const unsigned resume =",
              "adapter.reentries"),
-        kind("transmit-second-interface-starved", WAITS, "const unsigned first = (m->tx_due & 1u) != 0u ? 0u : 1u;",
-             "const unsigned first = 0u;", "the next such pass the next interface's"),
+        kind("transmit-second-interface-starved", WAITS, ": (m->tx_due & 1u) != 0u ? 0u : 1u;",
+             ": 0u;", "the next such pass the next interface's"),
         kind("transmit-not-bound", WAITS, "        (void)ctrl_loop_set_transmit(loop,transmit,transmit_aged,m);\n",
              "        (void)transmit; (void)transmit_aged;\n", "the pass goes to the build"),
         kind("transmit-attaches-over-a-bound-client", "AttachmentFailureIsAtomicAndDetachesAfterLoopReset",

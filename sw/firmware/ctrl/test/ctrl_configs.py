@@ -218,7 +218,7 @@ OUTSIDE = {
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
     "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
-                                                         "AECP_QUEUED_PASSES, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
+                                                         "AECP_QUEUED_MS, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
                                                          "and AECP_NOTICES_MOST from the headers; it compiles nothing",
     "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads THE RETRY search's stated costs "
                                                        "from ctrl_loop.h; it compiles nothing",

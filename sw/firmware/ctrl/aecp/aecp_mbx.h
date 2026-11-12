@@ -31,21 +31,20 @@ extern "C" {
 #define AECP_ROUND_YIELD_NOTICES 1u
 #define AECP_ROUND_FIRM_NOTICES (MBX_N_IF == 1u ? AECP_NOTICES_MOST : 4u)
 #define AECP_ROUND_YIELDS (3u * (MBX_N_IF - 1u))
-// The bound of FR_NFR.md 3.4.1 on notices queued behind one another (the owner's ruling of 2026-11-06, #665), every
-// constant above in it. The first notice of a queue commits within AECP_QUEUED_FIRST_MS of its port's answer: 18 ms by
-// the search at 1x1/1if, held to T_svc, and 22 ms at 8x8/2if, the bound the maintainer's decision of 2026-11-08
-// allows it there. Every notice queued behind it commits within AECP_QUEUED_MS: the 8 ms spacing, then
-// AECP_QUEUED_PASSES passes of THE SHARE for AECP_NOTICES_MOST notices at the point's own recipient count, 62 ms at
-// 8x8/2if and 22 ms at 1x1/1if, within the ceilings of 70 and 25 ms (#665, amended 2026-11-07 with a 10 % margin over
-// the search). The passes come from a search of what the loop may be made to do (ctrl_retry_search.py, a gate): each
-// pass charged all of THE SHARE, at most THE DRAIN's passes, an interface's builds, the aged steps, a retry's due time
-// anywhere in the spacing and every count of refusing ports a queue admits, AECP_ROUND_PORTS - 1 at most since a port
-// answers for every notice it serves or for none, charged to every round. aecp_mbx.c holds AECP_QUEUED_MS to its
-// ceiling.
+// The bound of FR_NFR.md 3.4.1 on notices queued behind one another, under THE TIERS (ctrl_loop.h; #894, #665 round 23
+// and decision D). A queue's first notice is tier 1's and commits within AECP_QUEUED_FIRST_MS of its port's answer,
+// 20 ms at 1x1/1if; every notice queued behind it is tier 2's, its rounds a slice each behind tier 1 and SRP's records,
+// and commits within AECP_QUEUED_MS, the last queued notice's 125 ms, half of the 250 ms a controller waits on an AECP
+// command (IEEE 1722.1-2021 9.3.2.6). The rows by every source hold both at the built design's slice
+// (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the CPU budget harness holds every
+// measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every source do not fit, an owner
+// question (#894).
 #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
-#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 7u : 27u)
-#define AECP_QUEUED_MS (AECP_RETRY_MAX_MS + AECP_QUEUED_PASSES * CTRL_LOOP_SHARE_US / 1000u)
-#define AECP_QUEUED_CEILING_MS (MBX_N_IF == 1u ? 25u : 70u)
+#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 125u : 62u)
+// The owed-notice queue's slots an integrator gives AECP (aecp_config.owed, #894): the AECP channel's burst at one
+// interface, so its last record never waits on a full queue; none at two, whose ledger has no room for them
+// (docs/design/SPLIT_CONTROL_MEMORY.md section 5), so there the next record waits for every notice, as before.
+#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? MBX_CH_AECP_RATE_BURST : 0u)
 struct aecp_mbx_completion {
 	uint32_t cookie;
 	uint16_t end;

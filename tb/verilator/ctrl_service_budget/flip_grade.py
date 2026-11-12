@@ -126,11 +126,11 @@ def row_controls(root: Path) -> list[str]:
     pin = load_grade.stated(root, '8x8/2if', load_grade.STATED_US)
     if any(rows_grade.costs(root, '8x8/2if')[k] != pin[k] for k in pin):
         escaped.append('the rows read on the column graded with tsn-c-stack#32')
-    # the queued notices are the tree's derived bounds: a derivation past its bound is refused
+    # the queued notices are the tree's stated bounds: a statement past its bound is refused
     path = load_grade.ROW_HEADERS[2]
     text = (root / path).read_text()
-    old = '#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 7u : 27u)'
-    planted = {path: text.replace(old, '#define AECP_QUEUED_PASSES (MBX_N_IF == 1u ? 70u : 27u)')}
+    old = '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 125u : 62u)'
+    planted = {path: text.replace(old, '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 1250u : 62u)')}
     if text.count(old) != 1 or not any(f.startswith('1x1/1if last:') for f in
                                        rows_grade.findings(root, ('1x1/1if',), texts=planted)):
         escaped.append('the last queued notice past its bound')

@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <array>
+#include <map>
 #include <vector>
 #include <algorithm>
 #include <cstring>
@@ -144,7 +145,8 @@ struct Core : testing::Test {
             v->valid=0xf3f;for(unsigned n=0;n<32;++n)v->value[n]=0x10203000+n;return observations;});
         maps[0]={14,0,0,8,input.data(),0,input.size(),nullptr,0};
         maps[1]={15,0,0,8,output.data(),0,output.size(),nullptr,0};
-        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data()};
+        cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data(),
+             nullptr,0u};
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     aecp_descriptor& desc(unsigned type,unsigned index=0) {
@@ -705,6 +707,150 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
 }
 #endif
+
+namespace {
+// The owed-notice queue (#894, the ruling of 2026-11-12 on aecp_ready): slots given, so AECP takes its next record
+// while a command's notice is owed, under its conditions (a) to (d).
+struct Queued : Core {
+    std::array<aecp_owed,2> slots{};
+    void SetUp() override {
+        Core::SetUp();
+        cfg.owed=slots.data();cfg.owed_slots=slots.size();
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+    // A SET_NAME of the entity's name by `controller`, its bytes `fill`, taken in a record's turn with no poll after it.
+    void set_name(uint64_t controller,uint8_t fill) {
+        Bytes name=target(0,0,72);std::fill(name.begin()+8,name.end(),fill);
+        auto b=command(16,name,controller);aecp_rx(&a,0,b.data(),b.size());
+    }
+    static bool notice(const Bytes& f) { return (get(f,36,2)&0x8000u)!=0u; }
+};
+}
+
+// (a), (b), (d): two controllers' back-to-back SET_NAMEs, the second taken while the first's notice is owed. Each
+// response is committed in its record's turn and precedes its own notices; every recipient has the notices in the order
+// their commands were taken, one each, its sequence_id one on per notice; no requester has its own (Milan v1.2 5.4.5.1
+// and 5.4.5.2; IEEE 1722.1-2021 7.5.2 and 9.3.5.2.6).
+TEST_F(Queued, BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    EXPECT_TRUE(aecp_ready(&a))<<"(c) a command's notice owed in the queue does not hold the next record";
+    set_name(CTLR+1,0x42);
+    ASSERT_EQ(sent.size(),2u)<<"(b) each response is committed in its record's turn, and no notice yet";
+    EXPECT_TRUE(!notice(sent[0].second)&&get(sent[0].second,26,8)==CTLR&&sent[0].second[46]==0x41)
+        <<"(b) the first controller's response first";
+    EXPECT_TRUE(!notice(sent[1].second)&&get(sent[1].second,26,8)==CTLR+1&&sent[1].second[46]==0x42)
+        <<"(b) then the second's, taken while the first's notice is owed";
+    EXPECT_EQ(a.owed_count,2u)<<"(c) both notices owed in the queue";
+    drain();
+    std::map<uint64_t,std::vector<std::pair<uint8_t,unsigned>>> to;   // each recipient's notices: name, sequence_id
+    for(size_t k=2;k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f))<<"(b) only notices follow the responses";
+        EXPECT_EQ(get(f,36,2)&0x7fffu,16u)<<"a SET_NAME notice";
+        to[get(f,26,8)].emplace_back(f[46],unsigned(get(f,34,2)));
+    }
+    ASSERT_EQ(sent.size(),2u+4u)<<"(a) two notices, each to the two registered controllers not its requester";
+    EXPECT_EQ(to[CTLR].size(),1u);EXPECT_EQ(to[CTLR].front().first,0x42u)<<"(a) the first requester has the second's";
+    EXPECT_EQ(to[CTLR+1].size(),1u);EXPECT_EQ(to[CTLR+1].front().first,0x41u)<<"(a) the second requester the first's";
+    ASSERT_EQ(to[CTLR+2].size(),2u)<<"(a) the third controller has both";
+    EXPECT_TRUE(to[CTLR+2][0].first==0x41u&&to[CTLR+2][1].first==0x42u)<<"(a) in the order their commands were taken";
+    EXPECT_EQ(to[CTLR+2][1].second,to[CTLR+2][0].second+1u)<<"(a) its sequence_id one on per notice";
+    EXPECT_EQ(a.owed_count,0u);EXPECT_TRUE(aecp_ready(&a));
+}
+
+// (c): the queue is bounded, AECP is not ready while it is full and a record taken anyway is dropped; a poll sends the
+// oldest notice and frees its slot, one a poll.
+TEST_F(Queued, TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull)
+{
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    set_name(CTLR,0x41);set_name(CTLR+1,0x42);
+    ASSERT_EQ(a.owed_count,slots.size());
+    EXPECT_FALSE(aecp_ready(&a))<<"(c) AECP is not ready while the queue is full";
+    const uint32_t drops=a.busy_drops;
+    set_name(CTLR,0x43);
+    EXPECT_EQ(a.busy_drops,drops+1u)<<"(c) a record taken anyway is dropped, not answered";
+    EXPECT_EQ(sent.size(),2u);
+    EXPECT_TRUE(aecp_poll(&a))<<"a poll sends the oldest notice, and more are owed";
+    EXPECT_EQ(sent.size(),3u)<<"one notice a poll";
+    EXPECT_TRUE(notice(sent[2].second)&&sent[2].second[46]==0x41&&get(sent[2].second,26,8)==CTLR+1)
+        <<"the oldest first";
+    EXPECT_EQ(a.owed_count,1u);EXPECT_TRUE(aecp_ready(&a))<<"(c) its slot free, AECP is ready again";
+    drain();EXPECT_EQ(a.owed_count,0u);
+    // the queue wraps: two more, their notices in their order
+    sent.clear();set_name(CTLR,0x44);set_name(CTLR+1,0x45);drain();
+    std::vector<uint8_t> names;
+    for(auto &s:sent) if(notice(s.second)) names.push_back(s.second[46]);
+    EXPECT_EQ(names,(std::vector<uint8_t>{0x44,0x45}))<<"the queue's slots reused in their order once it wraps";
+}
+
+// (a), (b): a notice longer than a slot stays in the response buffer, its response and its notice sent by the poll as
+// before, after every notice owed in the queue ahead of it; the queue's walk meanwhile sends frame by frame.
+TEST_F(Queued, ALongerNoticeWaitsInTheResponseBufferBehindTheQueue)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    sent.clear();
+    set_name(CTLR,0x41);
+    Bytes rows=target(14,0,8+12*8);put(rows,4,12,2);
+    for(size_t at=8;at<rows.size();at+=8){put(rows,at,0,2);put(rows,at+2,1,2);put(rows,at+4,1,2);put(rows,at+6,0,2);}
+    auto b=command(44,rows,CTLR+1);aecp_rx(&a,0,b.data(),b.size());
+    ASSERT_GT(38u+rows.size(),AECP_OWED_BYTES)<<"(the mappings' notice is longer than a slot)";
+    EXPECT_EQ(sent.size(),1u)<<"its response waits for the poll, as every notice's did";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record with it";
+    drain();
+    ASSERT_GE(sent.size(),2u);
+    EXPECT_TRUE(!notice(sent[1].second)&&get(sent[1].second,26,8)==CTLR+1)<<"(b) the mappings' response first";
+    std::map<uint64_t,std::vector<unsigned>> to;   // each recipient's notices, by command
+    for(size_t k=2;k<sent.size();++k){
+        const Bytes& f=sent[k].second;
+        ASSERT_TRUE(notice(f));
+        to[get(f,26,8)].push_back(unsigned(get(f,36,2)&0x7fffu));
+        if((get(f,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(f.begin()+38,f.end()),Bytes(sent[1].second.begin()+38,sent[1].second.end()))
+                <<"the long notice is its response's every byte";
+        }
+    }
+    EXPECT_EQ(to[CTLR+2],(std::vector<unsigned>{16u,44u}))<<"(a) the queue's notice first, then the long one";
+    EXPECT_EQ(to[CTLR],(std::vector<unsigned>{44u}));EXPECT_EQ(to[CTLR+1],(std::vector<unsigned>{16u}));
+    EXPECT_TRUE(aecp_ready(&a));
+}
+
+// (a): a queued notice whose ring refuses a frame resumes at that recipient, each recipient sent it once, at its own
+// next sequence_id.
+TEST_F(Queued, AQueuedNoticeResumesAtItsRecipient)
+{
+    for(uint64_t c=0;c<4u;++c) register_controller(CTLR+c);
+    sent.clear();
+    set_name(CTLR,0x41);
+    unsigned budget=1u;
+    ON_CALL(mock,Send).WillByDefault([this,&budget](unsigned i,const uint8_t*p,size_t n,uint32_t c){
+        if(budget==0u) return false;
+        --budget;sent.emplace_back(i,Bytes(p,p+n));completions.push_back(c);return true;});
+    EXPECT_TRUE(aecp_poll(&a))<<"a refused frame leaves the queued notice owed";
+    EXPECT_EQ(sent.size(),2u);
+    budget=100u;drain();
+    std::map<uint64_t,unsigned> seen;
+    for(auto &s:sent) if(notice(s.second)) ++seen[get(s.second,26,8)];
+    EXPECT_EQ(seen,(std::map<uint64_t,unsigned>{{CTLR+1,1u},{CTLR+2,1u},{CTLR+3,1u}}))
+        <<"(a) the walk resumes at the recipient it stopped at: each has the notice once";
+    EXPECT_EQ(a.owed_count,0u);
+}
+
+// No slots: every notice stays in the response buffer and the next record waits for it, as before (#894: the
+// integrator's depth, none at a point whose ledger has no room for it).
+TEST_F(Core, WithNoOwedSlotsTheNextRecordWaitsForTheNotice)
+{
+    register_controller(CTLR);register_controller(CTLR+1);
+    sent.clear();
+    Bytes name=target(0,0,72);std::fill(name.begin()+8,name.end(),0x41);
+    auto b=command(16,name,CTLR);aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(sent.empty())<<"the response waits for the poll, with its notice";
+    EXPECT_FALSE(aecp_ready(&a))<<"and the next record for both";
+    drain();ASSERT_EQ(sent.size(),2u);EXPECT_TRUE(aecp_ready(&a));
+}
 
 TEST_F(Core, EveryDescriptorAndReadFailures)
 {
@@ -2610,6 +2756,40 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_NE(first,0u);
     EXPECT_LE(first,AECP_QUEUED_FIRST_MS)<<"the first queued notice within its own bound";
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
+}
+
+// THE TIERS (#894): beside held tier-1 or THE DRAIN's work, THE RETRY's round is a queue's first notice alone, tier
+// 1's, and only the first: once a round sends one, the queue's next is tier 2's until the queue is served to its end.
+TEST_F(Mailbox, ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone)
+{
+    EXPECT_TRUE(loop.retry_first)<<"a queue's first notice is tier 1's from the attach";
+    bool answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return answers;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return answers;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return answers;});
+    receive(0);service();
+    for(const auto &d:descriptors)aecp_changed(&adapter.core,d.type,d.index,15u);
+    for(unsigned k=0;k<16u;++k){mbx_model_advance_ms(&fabric,2);service();}
+    const auto pending=[&]{
+        unsigned n=0;
+        for(const auto &e:events)n+=static_cast<unsigned>(__builtin_popcount(e.pending));
+        return n;
+    };
+    answers=true;
+    mbx_model_advance_ms(&fabric,AECP_RETRY_MAX_MS);
+    const unsigned before=pending();
+    ASSERT_GT(before,2u)<<"(a queue of notices)";
+    loop.round_one=true;loop.retry_first=true;
+    (void)loop.retry(loop.retry_ctx,CTRL_LOOP_SLICE_US-CTRL_LOOP_SHARE_MARGIN_US);
+    EXPECT_EQ(pending(),before-1u)<<"a round beside held work builds a queue's first notice alone";
+    EXPECT_FALSE(loop.retry_first)<<"and the queue's next is no longer its first";
+    loop.round_one=false;
+    (void)loop.retry(loop.retry_ctx,CTRL_LOOP_SLICE_US-CTRL_LOOP_SHARE_MARGIN_US);
+    EXPECT_GT(before-1u-pending(),1u)<<"a round beside nothing builds what its slice holds";
+    for(unsigned k=0;k<64u&&pending()!=0u;++k){mbx_model_advance_ms(&fabric,2);service();}
+    EXPECT_EQ(pending(),0u);
+    EXPECT_TRUE(loop.retry_first)<<"a queue served to its end leaves its next notice a queue's first";
 }
 
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)

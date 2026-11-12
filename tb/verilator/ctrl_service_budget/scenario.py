@@ -991,10 +991,26 @@ def fixture_groups(p: Point) -> list[Group]:
     return [g]
 
 
+def datapath_groups(p: Point) -> list[Group]:
+    """The datapath's three coalesced change events (mailbox.yaml event types 6 to 8: AVB_INFO_CHANGED and
+    AS_PATH_CHANGED an interface each, AMAP_LIVE_WRITE the live map), each pulsed alone on every interface 2 ms after
+    the last, so each is a pass's one event, eight times each: their sinks' cost, which the rows by every source charge
+    each source an ordinary pass (#894; rows_tiers.DATAPATH)."""
+    g = Group('datapath-events', sim_ms=900)
+    ready(g, p)
+    for n in range(8):
+        for kind in ('avb', 'asp', 'amap'):
+            for i in range(p.interfaces):
+                g.add(f'datapath {kind} {i}', f'wait cycles {2 * MS}')
+    g.add('wait quiet 3 within 2000000')
+    return [g]
+
+
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build)]
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
+              *datapath_groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

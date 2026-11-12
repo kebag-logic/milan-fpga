@@ -3,7 +3,8 @@
 """Planted defects of the loop's step (#665, THE STEP in ctrl_loop.h): its binding, its place last in the pass with
 the deadline read as the pass starts, its pass that takes no input, and its age limit; of THE RETRY: its binding, its
 call only in a pass that took no input and dispatched no centisecond or in a pass given whole, and what it is told of
-the pass; of THE TRANSMIT: its binding and its pass given whole; of the row those passes stand in, and of THE DRAIN.
+the pass; of THE TRANSMIT: its binding and its pass given whole; of the row those passes stand in, of THE DRAIN, and of THE
+TIERS (#894).
 ctrl_mutants.py plants them with the rest of the control table; each must fail its named test on its own words.
 """
 from __future__ import annotations
@@ -19,12 +20,13 @@ STEP_CALL = ("\t// THE STEP, only in a pass that took no input: no input's servi
              "\t\tl->step_age = waits ? l->step_age : 0u;\n\t\towed = waits || owed;\n\t}\n")
 #: THE RETRY's call in a pass that takes nothing, between the polls and THE STEP (ctrl_loop.c).
 RETRY_CALL = ("\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, "
-              "whose\n\t// deadline counts its time\n"
+              "whose\n\t// deadline counts its time: a slice of its own, from its start (THE TIERS)\n"
               "\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n"
-              "\t\towed = round_of(l, deadline) || owed;\n\t}\n")
+              "\t\tl->round_one = false;\n"
+              "\t\towed = round_of(l, slice_end(l, deadline)) || owed;\n\t}\n")
 #: The pass given whole: a build first, then an aged step, then THE RETRY's round, which the other two carry.
-BUILD = ("\t\tif (l->transmit != NULL && l->transmit_aged(l->transmit_ctx)) {\n"
-         "\t\t\tl->transmit(l->transmit_ctx);\n\t\t\tl->stats.transmit_passes++;\n")
+BUILD = ("\t\tif (tier2 && l->transmit != NULL && l->transmit_aged(l->transmit_ctx)) {\n"
+         "\t\t\tl->transmit(l->transmit_ctx, CTRL_LOOP_BUILD_MOST);\n\t\t\tl->stats.transmit_passes++;\n")
 STEP_AGED = ("stepping) {\n\t\t\tl->step_age = 0u;\n\t\t\t(void)l->step(l->step_ctx, deadline);\n"
              "\t\t\tl->stats.aged_passes++;\n")
 COUNTED = "\tl->stats.retry_passes++;\n"
@@ -37,7 +39,7 @@ ROW = ("\treturn l->whole < CTRL_LOOP_WHOLE_RUN && (!l->backlog || l->retry_firm
 def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the step, of THE RETRY and of THE TRANSMIT, built with ctrl_mutant.Mutant."""
     return (*step_mutants(kind), *retry_mutants(kind), *transmit_mutants(kind), *tick_mutants(kind),
-            *row_mutants(kind))
+            *row_mutants(kind), *tier_mutants(kind))
 
 
 def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -130,14 +132,17 @@ def retry_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 after its polls"),
         kind("retry-after-the-step", "loop/ctrl_loop.c", RETRY_CALL + STEP_CALL, STEP_CALL + RETRY_CALL,
              "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 and before THE STEP"),
-        kind("retry-owed-lets-it-sleep", "loop/ctrl_loop.c", "\t\towed = round_of(l, deadline) || owed;\n",
-             "\t\t(void)round_of(l, deadline);\n", "port",
+        kind("retry-owed-lets-it-sleep", "loop/ctrl_loop.c",
+             "\t\towed = round_of(l, slice_end(l, deadline)) || owed;\n",
+             "\t\t(void)round_of(l, slice_end(l, deadline));\n", "port",
              "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 a retry still owed asks for the next pass at once"),
         kind("retry-pass-uncounted", "loop/ctrl_loop.c", COUNTED, "", "port",
              "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 the pass is counted as one that called the retry"),
         # THE RETRY's pass given whole (#665): at its client's pace, beside an aged step or a build, or of its own
-        kind("retry-age-ignored", "loop/ctrl_loop.c", "l->retry != NULL && l->retry_aged(l->retry_ctx)",
-             "l->retry != NULL && l->retry_aged == NULL", "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+        kind("retry-age-ignored", "loop/ctrl_loop.c",
+             "(!l->round_one || l->retry_first) && l->retry_aged(l->retry_ctx)",
+             "(!l->round_one || l->retry_first) && l->retry_aged == NULL", "port",
+             "Loop.L17AnAgedRetryIsAPassOfItsOwn",
              "L17 the next pass calls the retry though input waits"),
         kind("retry-aged-pass-takes-input", "loop/ctrl_loop.c", GIVEN, GIVEN.replace("\t\t\treturn 1u;\n", ""),
              "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn", "L17 and takes nothing else"),
@@ -148,12 +153,12 @@ def retry_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("retry-not-after-an-aged-step", "loop/ctrl_loop.c", "\t\tif (round) {\n",
              "\t\tif (round && !stepping) {\n", "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
              "L17 an aged step's pass takes the round after the step"),
-        kind("retry-told-all-of-the-pass", "loop/ctrl_loop.c", "(int32_t)(deadline - l->clock(l->clock_ctx)) : ",
-             "(int32_t)(deadline - l->clock(l->clock_ctx) * 0u) * 0 + (int32_t)CTRL_LOOP_SHARE_US : ", "port",
+        kind("retry-told-all-of-the-pass", "loop/ctrl_loop.c", "(int32_t)(end - l->clock(l->clock_ctx)) : ",
+             "(int32_t)(end - l->clock(l->clock_ctx) * 0u) * 0 + (int32_t)CTRL_LOOP_SHARE_US : ", "port",
              "Loop.L17AnAgedRetryIsAPassOfItsOwn", "L17 a round beside a step has what the step left of the pass"),
         kind("retry-told-past-the-margin", "loop/ctrl_loop.c", "\t\t\t     (int32_t)CTRL_LOOP_SHARE_MARGIN_US;\n",
              "\t\t\t     0;\n", "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
-             "L17 a round in a pass of its own has all of it under the margin, with no clock"),
+             "L17 a round in a pass of its own has a whole slice under the margin, with no clock"),
     )
 
 
@@ -183,12 +188,11 @@ def transmit_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "\t\tif (round && l->transmit == NULL) {\n", port, l20,
              "L20 the next pass calls the transmit though input waits, then an aged round"),
         kind("transmit-after-an-aged-step", "loop/ctrl_loop.c", BUILD,
-             BUILD.replace("l->transmit != NULL && l->transmit_aged(l->transmit_ctx)",
-                           "!stepping && l->transmit != NULL && l->transmit_aged(l->transmit_ctx)"), port, l20,
+             BUILD.replace("tier2 && l->transmit != NULL", "!stepping && tier2 && l->transmit != NULL"), port, l20,
              "L20 a build owed comes before an aged step"),
         kind("transmit-in-the-aged-steps-pass", "loop/ctrl_loop.c", "\t\t\t(void)l->step(l->step_ctx, deadline);\n",
              "\t\t\t(void)l->step(l->step_ctx, deadline);\n\t\t\tif (l->transmit != NULL) {\n"
-             "\t\t\t\tl->transmit(l->transmit_ctx);\n\t\t\t}\n", port, l20,
+             "\t\t\t\tl->transmit(l->transmit_ctx, CTRL_LOOP_BUILD_MOST);\n\t\t\t}\n", port, l20,
              "L20 the aged step's pass may follow it, the second in a row"),
     )
 
@@ -213,9 +217,10 @@ def tick_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
 def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     """The row passes given whole stand in, what marks it short, and THE DRAIN's defects (#665)."""
     port, l22, l23, l24 = ("port", "Loop.L22PassesGivenWholeStandApartAsInputWaits",
-                           "Loop.L23TheDrainTakesItsChannelFirstWhileThePassHasRoom",
+                           "Loop.L23TheDrainIsTierTwoInASlice",
                            "Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt")
-    limit = "(int32_t)(deadline - l->clock(l->clock_ctx)) < (int32_t)(CTRL_LOOP_SHARE_US - CTRL_LOOP_DRAIN_US))) {"
+    limit = "start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US);"
+    drain = "work += service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,"
     l23s = "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting"
     return (
         kind("whole-row-unlimited", "loop/ctrl_loop.c", ROW, ROW.replace("l->whole < CTRL_LOOP_WHOLE_RUN && ", ""),
@@ -235,12 +240,11 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "L22 a pass that leaves a record marks the backlog"),
         kind("backlog-never-cleared", "loop/ctrl_loop.c", "\tl->backlog = false;\n", "", port, l22,
              "L22 the ring taken, the backlog is gone"),
-        kind("drain-past-its-time", "loop/ctrl_loop.c", limit, "(int32_t)(deadline - l->clock(l->clock_ctx)) < 0)) {",
-             port, l23, "L23 and stops once the pass has spent CTRL_LOOP_DRAIN_US"),
-        kind("drain-to-the-cap-alone", "loop/ctrl_loop.c",
-             "service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, deadline)",
-             "service_rx(l, l->drain_ch - 1u, l->rx_cap, deadline)", port, l23,
-             "L23 with a clock it goes past CTRL_LOOP_RX_PER_PASS"),
+        kind("drain-past-its-time", "loop/ctrl_loop.c", limit, "start + CTRL_LOOP_SLICE_US);",
+             port, l23, "L23 and starts none once its slice has no room for a record's stated cost"),
+        kind("drain-to-the-cap-alone", "loop/ctrl_loop.c", drain,
+             drain.replace("CTRL_LOOP_DRAIN_RECORDS", "CTRL_LOOP_RX_PER_PASS"), port, l23,
+             "L23 with a clock it goes past its cap while the slice has room"),
         kind("spare-records-beside-no-centisecond", "loop/ctrl_loop.c", "if (l->rx_cap != 0u && !l->backlog) {",
              "if (l->rx_cap != 0u && (l->rx_cap != CTRL_LOOP_RX_PER_PASS || !l->backlog)) {", port, l23s,
              "L23 a pass that dispatches a centisecond takes them too"),
@@ -248,9 +252,8 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              port, l23s, "L23 what a pass has left goes to the records still waiting"),
         kind("spare-records-channel-by-channel", "loop/ctrl_loop.c", "most = 1u) {",
              "most = CTRL_LOOP_DRAIN_RECORDS) {", port, l23s, "L23 one a channel in turn"),
-        kind("drain-past-its-records", "loop/ctrl_loop.c",
-             "service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, deadline)",
-             "service_rx(l, l->drain_ch - 1u, 2u * CTRL_LOOP_DRAIN_RECORDS, deadline)", port, l23,
+        kind("drain-past-its-records", "loop/ctrl_loop.c", drain,
+             drain.replace("CTRL_LOOP_DRAIN_RECORDS", "2u * CTRL_LOOP_DRAIN_RECORDS"), port, l23,
              "L23 and stops at CTRL_LOOP_DRAIN_RECORDS"),
         kind("rx-held-ignored", "loop/ctrl_loop.c", "(l->clock == NULL || l->rx_held ||", "(l->clock == NULL ||", port,
              "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting",
@@ -268,4 +271,63 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "L24 the mark is read before the events"),
         kind("order-moved-past-events-left", "loop/ctrl_loop.c", "\tif (!l->events_left) {\n", "\tif (true) {\n", port,
              l24, "L24 a pass that leaves events keeps the order where it was"),
+    )
+
+
+def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE TIERS' defects (#894; #665 round 23): tier 1's first channel and its others, tier 2 only once tier 1 holds no
+    record, a pass given whole only after a pass that served tier 1, SRP first, a queue's first notice tier 1's, and
+    the slices a round and THE DRAIN's records are given."""
+    port = "port"
+    l20, l22, l23 = ("Loop.L20AnOwedBuildIsAPassOfItsOwn", "Loop.L22PassesGivenWholeStandApartAsInputWaits",
+                     "Loop.L23TheDrainIsTierTwoInASlice")
+    l26, l27 = "Loop.L26TierOnesFirstChannelGoesFirst", "Loop.L27TierTwoRoundsComeAfterTheDrainInSlices"
+    sweep = "sweep = l->rx_left == 0u;"
+    first = "service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US)"
+    held = "\t\t\tl->rx_left &= ~(1u << ch);\n\t\t\tbreak;\n\t\t}\n\t\tenum mbx_status st"
+    empty = "\t\tif (st == MBX_STATUS_EMPTY) {\n\t\t\tl->rx_left &= ~(1u << ch);\n"
+    gate = "(l->retry == NULL && l->transmit == NULL) || !tier1_holds(l);"
+    one = "l->round_one = !(l->run != 0u ? l->drained : tier2);"
+    drained = "l->drained = l->tier1_done && l->rx_left == 0u;"
+    return (
+        kind("tier1-others-beside-the-first", "loop/ctrl_loop.c", sweep, "sweep = 1u;", port, l26,
+             "L26 and no other tier-1 channel's record while it holds one it would take"),
+        kind("tier1-first-to-its-cap", "loop/ctrl_loop.c", first, first.replace("CTRL_LOOP_DRAIN_RECORDS", "l->rx_cap"),
+             port, l26, "L26 with a clock it goes past its cap while the pass has room"),
+        kind("tier1-first-past-its-time", "loop/ctrl_loop.c", first,
+             first.replace("start + CTRL_LOOP_DRAIN_US", "start + CTRL_LOOP_SHARE_US"), port, l26,
+             "L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US"),
+        kind("tier1-held-by-a-module-not-ready", "loop/ctrl_loop.c", held, held.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
+             port, l26, "L26 a first channel whose module is not ready holds the others back no longer"),
+        kind("tier1-held-by-an-empty-ring", "loop/ctrl_loop.c", empty, empty.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
+             port, l20, "L20 the next pass calls the transmit though input waits, then an aged round"),
+        kind("tier2-beside-tier1", "loop/ctrl_loop.c", "\tl->tier1_done = l->rx_left == 0u;\n",
+             "\tl->tier1_done = true;\n", port, l23, "L23 tier 2 takes nothing while tier 1 holds a record",
+             ((port, l20, "L20 the pass that takes its cap leaves a record in tier 1"),)),
+        kind("whole-beside-tier1", "loop/ctrl_loop.c", "const bool tier2 = l->run != 0u ? l->tier1_done :",
+             "const bool tier2 = l->run != 0u ? true :", port, l20,
+             "L20 and the pass after it serves tier 1, not the build"),
+        kind("whole-row-beside-tier1", "loop/ctrl_loop.c", gate, "true;", port,
+             l20, "L20 after a pass given whole, none while tier 1 holds a record"),
+        kind("round-before-the-drain", "loop/ctrl_loop.c", one, "l->round_one = !tier2;", port, l27,
+             "L27 a round waits while THE DRAIN's channel was left a record (SRP first)"),
+        kind("drained-beside-the-drain", "loop/ctrl_loop.c", drained, "l->drained = l->tier1_done;", port, l27,
+             "L27 a pass that takes THE DRAIN's cap leaves a record of its channel"),
+        kind("first-notice-not-tier1", "loop/ctrl_loop.c",
+             "(!l->round_one || l->retry_first) && l->retry_aged(l->retry_ctx)",
+             "!l->round_one && l->retry_aged(l->retry_ctx)", port, l22,
+             "L22 a queue's first notice after that pass, though a record waits"),
+        kind("round-one-never-told", "loop/ctrl_loop.c", one, one.replace("!(", "false && !("), port, l22,
+             "L22 told it stands beside held tier-1 work"),
+        kind("round-slice-is-the-share", "loop/ctrl_loop.c",
+             "uint32_t end = deadline - CTRL_LOOP_SHARE_US + CTRL_LOOP_SLICE_US;", "uint32_t end = deadline;", port, l27,
+             "L27 a round in a pass given whole has a slice from the pass's start"),
+        kind("slice-end-past-the-deadline", "loop/ctrl_loop.c",
+             "return (int32_t)(deadline - end) < 0 ? deadline : end;", "return end;", port, l27,
+             "L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline"),
+        kind("slice-starts-at-the-cap", "loop/ctrl_loop.c", "\t\tl->rx_cap = l->clock != NULL ? 0u : l->rx_cap;\n", "",
+             port, l23, "L23 and starts none once its slice has no room for a record's stated cost"),
+        kind("transmit-told-a-whole-build", "loop/ctrl_loop.c", "l->transmit(l->transmit_ctx, CTRL_LOOP_BUILD_MOST);",
+             "l->transmit(l->transmit_ctx, CTRL_LOOP_BUILD_MOST + 1u);", port, l20,
+             "L20 told the MRPDUs its slice holds"),
     )

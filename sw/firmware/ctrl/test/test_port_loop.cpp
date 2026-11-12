@@ -535,6 +535,8 @@ TEST_F(Driver, D12OwnMacAndMismatchOnTheModel) {
 struct LoopProbe {
     unsigned rx;
     unsigned rx_acmp;          // the records of ACMP's channel, where a test binds it
+    unsigned rx_aecp;          // the records of AECP's channel, where a test binds it
+    bool aecp_busy;            // what the AECP channel's ready reports, inverted: true holds its records
     unsigned events;
     unsigned polls;
     unsigned ticks_a;
@@ -559,6 +561,7 @@ struct LoopProbe {
     unsigned aged_reads;       // THE RETRY's age reads
     unsigned rx_at_aged;       // the records taken when the age was last read
     unsigned transmits;        // THE TRANSMIT's client calls
+    unsigned transmit_most;    // the MRPDUs the last call was told its slice holds
     unsigned polls_at_transmit;  // the polls run when the transmit was last called
     bool transmit_aged;        // what the probe's transmit age reports
     unsigned transmit_aged_reads;  // THE TRANSMIT's age reads
@@ -603,6 +606,14 @@ void probe_rx_acmp(void*, const mbx_frame*) {
     probe.rx_acmp++;
 }
 
+void probe_rx_aecp(void*, const mbx_frame*) {
+    probe.rx_aecp++;
+}
+
+bool probe_aecp_ready(void*) {
+    return !probe.aecp_busy;
+}
+
 bool probe_retry(void*, unsigned left_us) {
     probe.round_left = left_us;
     probe.retries++;
@@ -619,7 +630,8 @@ bool probe_retry_aged(void*) {
     return probe.retry_aged;
 }
 
-void probe_transmit(void*) {
+void probe_transmit(void*, unsigned most) {
+    probe.transmit_most = most;
     probe.transmits++;
     probe.polls_at_transmit = probe.polls;
     probe.now += probe.poll_us;
@@ -1117,7 +1129,9 @@ TEST_F(Loop, L16TheRetryOnlyInAPassThatTakesNothing) {
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     const unsigned aged_polls = probe.polls;
     probe.retry_aged = true;
+    loop_.retry_first = true;   // beside the record that waits, only a queue's first notice, tier 1's (THE TIERS)
     EXPECT_NE(ctrl_loop_service(&loop_), 0u);
+    loop_.retry_first = false;
     probe.retry_aged = false;
     ASSERT_EQ(loop_.stats.aged_passes, aged + 1u);
     EXPECT_TRUE(probe.retries == retries + 2u && probe.steps_at_retry == aged_steps + 1u && probe.polls == aged_polls)
@@ -1138,6 +1152,7 @@ TEST_F(Loop, L16TheRetryOnlyInAPassThatTakesNothing) {
 TEST_F(Loop, L17AnAgedRetryIsAPassOfItsOwn) {
     drain(&loop_);
     ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, probe_retry_aged, nullptr));
+    loop_.retry_first = true;   // beside the records that wait, a queue's first notice, tier 1's (THE TIERS)
     std::uint8_t f[82];
     build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
@@ -1160,8 +1175,8 @@ TEST_F(Loop, L17AnAgedRetryIsAPassOfItsOwn) {
     EXPECT_TRUE(probe.rx == rx && probe.events == events && probe.polls == polls && loop_.stats.ticks == ticks)
         << "L17 and takes nothing else: no event, no record, no poll, no centisecond";
     EXPECT_EQ(loop_.stats.retry_passes, passes + 1u) << "L17 the pass is counted as one that called the retry";
-    EXPECT_EQ(probe.round_left, CTRL_LOOP_SHARE_US - CTRL_LOOP_SHARE_MARGIN_US)
-        << "L17 a round in a pass of its own has all of it under the margin, with no clock";
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L17 a round in a pass of its own has a whole slice under the margin, with no clock";
     probe.retry_aged = false;
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_TRUE(probe.rx == rx + 1u && probe.events > events && loop_.stats.ticks == ticks + 1u)
@@ -1190,9 +1205,10 @@ TEST_F(Loop, L17AnAgedRetryIsAPassOfItsOwn) {
     EXPECT_TRUE(probe.steps == steps + 1u && probe.retries == retries + 1u && probe.steps_at_retry == steps + 1u)
         << "L17 an aged step's pass takes the round after the step";
     EXPECT_EQ(probe.aged_reads, aged_reads + 1u) << "L17 the age is read once, as the pass starts";
-    EXPECT_LT(probe.round_left, CTRL_LOOP_SHARE_US - CTRL_LOOP_SHARE_MARGIN_US)
-        << "L17 a round beside a step has what the step left of the pass";
+    EXPECT_LT(probe.round_left, CTRL_LOOP_SLICE_US - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L17 a round beside a step has what the step left of the pass, a slice at most";
     probe.retry_aged = false;
+    loop_.retry_first = false;
     drain(&loop_);
 }
 
@@ -1227,18 +1243,40 @@ TEST_F(Loop, L20AnOwedBuildIsAPassOfItsOwn) {
     probe.order_of.clear();
     EXPECT_NE(ctrl_loop_service(&loop_), 0u) << "L20 the build's pass asks for the next pass at once";
     probe.retry_aged = false;
-    EXPECT_EQ(probe.order_of, "TR") << "L20 the next pass calls the transmit though input waits, then an aged round";
-    EXPECT_EQ(probe.round_left, CTRL_LOOP_SHARE_US - CTRL_LOOP_SHARE_MARGIN_US)
-        << "L20 a round beside a build has what it left, all with no clock";
+    EXPECT_EQ(probe.order_of, "TR")
+        << "L20 the next pass calls the transmit though input waits, then an aged round: its ordinary pass before it "
+           "left tier 1 holding nothing, so one slice, then tier 1 (THE TIERS)";
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L20 a round beside a build has what it left of the slice, all of it with no clock";
     EXPECT_TRUE(probe.rx == rx && probe.events == events && probe.polls == polls && loop_.stats.ticks == ticks)
         << "L20 and takes nothing else: no event, no record, no poll, no centisecond";
     EXPECT_EQ(loop_.stats.transmit_passes, passes + 1u) << "L20 the pass is counted as the transmit's";
-    probe.transmit_aged = false;
+    EXPECT_EQ(probe.transmit_most, CTRL_LOOP_BUILD_MOST) << "L20 told the MRPDUs its slice holds (THE TIERS)";
     probe.order_of.clear();
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_TRUE(probe.rx == rx + 1u && probe.events > events && loop_.stats.ticks == ticks + 1u)
         << "L20 the next pass takes the input it held off";
-    EXPECT_EQ(probe.order_of, "") << "L20 and calls no transmit beside its record";
+    EXPECT_EQ(probe.order_of, "") << "L20 and calls no transmit beside its record, though the build is still owed";
+    EXPECT_FALSE(loop_.tier1_done) << "L20 a take that stops at its cap may leave a record: tier 1 is not done";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(loop_.tier1_done) << "L20 a take that finds its ring empty leaves tier 1 holding nothing";
+    probe.order_of.clear();
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u);
+    EXPECT_EQ(probe.order_of, "T") << "L20 the build again once tier 1 is served";
+    // records left in tier 1 by the ordinary pass before it: the build waits for the pass that serves them
+    for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS + 1u; ++k) {
+        ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    }
+    probe.order_of.clear();
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.order_of, "") << "L20 after a pass given whole, none while tier 1 holds a record";
+    EXPECT_FALSE(loop_.tier1_done) << "L20 the pass that takes its cap leaves a record in tier 1";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.order_of, "") << "L20 and the pass after it serves tier 1, not the build";
+    EXPECT_TRUE(loop_.tier1_done) << "L20 which leaves tier 1 holding nothing";
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u);
+    EXPECT_EQ(probe.order_of, "T") << "L20 then the build";
+    probe.transmit_aged = false;
     drain(&loop_);
     // with THE STEP aged too, the build's pass comes first, and the step's next
     ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
@@ -1251,7 +1289,6 @@ TEST_F(Loop, L20AnOwedBuildIsAPassOfItsOwn) {
     for (unsigned k = 0; k <= CTRL_LOOP_STEP_AGE; ++k) {
         busy_pass();
     }
-    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     probe.transmit_aged = true;
     probe.order_of.clear();
     loop_.retry_firm = true;
@@ -1260,6 +1297,7 @@ TEST_F(Loop, L20AnOwedBuildIsAPassOfItsOwn) {
     probe.transmit_aged = false;
     EXPECT_NE(ctrl_loop_service(&loop_), 0u);
     EXPECT_EQ(probe.order_of, "TS") << "L20 the aged step's pass may follow it, the second in a row";
+    probe.transmit_aged = false;
     loop_.retry_firm = false;
     drain(&loop_);
 }
@@ -1320,7 +1358,8 @@ TEST_F(Loop, L22PassesGivenWholeStandApartAsInputWaits) {
     loop_.drain_ch = 0u;
     probe.retry_aged = false;
     drain(&loop_);
-    // records left in a ring, the client yielding: the pass after one given whole is ordinary
+    // records left in a ring, the client yielding: a round only for a queue's first notice, tier 1's, and no second
+    // pass given whole after it while records wait (THE TIERS)
     for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS + 1u; ++k) {
         ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     }
@@ -1328,18 +1367,21 @@ TEST_F(Loop, L22PassesGivenWholeStandApartAsInputWaits) {
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_TRUE(loop_.backlog) << "L22 a pass that leaves a record marks the backlog";
     probe.retry_aged = true;
-    EXPECT_TRUE(whole()) << "L22 a round after that pass";
+    loop_.retry_first = true;
+    EXPECT_TRUE(whole()) << "L22 a queue's first notice after that pass, though a record waits";
+    EXPECT_TRUE(loop_.round_one) << "L22 told it stands beside held tier-1 work";
     EXPECT_FALSE(whole()) << "L22 and no second while records wait and the client yields";
     EXPECT_FALSE(loop_.backlog) << "L22 the ring taken, the backlog is gone";
+    loop_.retry_first = false;
     probe.retry_aged = false;
     loop_.retry_firm = true;
     drain(&loop_);
 }
 
-// THE DRAIN (#665): its channel's records go first, past CTRL_LOOP_RX_PER_PASS while the pass has spent less than
-// CTRL_LOOP_DRAIN_US, CTRL_LOOP_DRAIN_RECORDS at most, and a pass that took more than CTRL_LOOP_RX_PER_PASS of them
-// takes no other channel's. With no clock bound it is any channel.
-TEST_F(Loop, L23TheDrainTakesItsChannelFirstWhileThePassHasRoom) {
+// THE DRAIN (#665) under THE TIERS (#894): its channel is tier 2, taken only while tier 1 holds no record, in a slice
+// that ends CTRL_LOOP_SLICE_US after the pass started, each record started only while the slice holds its stated cost,
+// CTRL_LOOP_SRP_UNIT_US, CTRL_LOOP_DRAIN_RECORDS at most. With no clock bound it takes its cap.
+TEST_F(Loop, L23TheDrainIsTierTwoInASlice) {
     drain(&loop_);
     std::uint8_t f[82];
     build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
@@ -1354,45 +1396,72 @@ TEST_F(Loop, L23TheDrainTakesItsChannelFirstWhileThePassHasRoom) {
     static_cast<void>(ctrl_loop_service(&loop_));   // reads the ring's mark, which the next pass's order is
     unsigned rx = probe.rx;
     static_cast<void>(ctrl_loop_service(&loop_));
-    EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 with no clock bound it takes as any channel";
+    EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 with no clock bound it takes its cap";
     EXPECT_TRUE(loop_.backlog) << "L23 a channel that took all it may marks the backlog";
     drain(&loop_);
     EXPECT_FALSE(loop_.backlog) << "L23 until one takes less";
     ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
     drain(&loop_);
-    mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
-    drain(&loop_);
-    fill();
-    rx = probe.rx;
+    const auto refill = [&]() {
+        mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
+        drain(&loop_);
+        fill();
+        rx = probe.rx;
+    };
+    refill();
     static_cast<void>(ctrl_loop_service(&loop_));
-    EXPECT_GT(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 with a clock it goes past CTRL_LOOP_RX_PER_PASS";
+    EXPECT_GT(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 with a clock it goes past its cap while the slice has room";
     drain(&loop_);
-    mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
-    drain(&loop_);
-    fill();
-    rx = probe.rx;
-    probe.now_step = CTRL_LOOP_DRAIN_US + 1u;   // the first read past the pass's own finds it past its time
+    refill();
+    probe.now_step = CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US + 1u;   // the first read past the pass's own: no room
     static_cast<void>(ctrl_loop_service(&loop_));
     probe.now_step = 0u;
-    EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L23 and stops once the pass has spent CTRL_LOOP_DRAIN_US";
+    EXPECT_EQ(probe.rx, rx) << "L23 and starts none once its slice has no room for a record's stated cost";
     drain(&loop_);
-    // a burst longer than the limit: ACMP's, bound past the open, which opens the filter of what was bound by then
-    static_assert(MBX_CH_ACMP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS + CTRL_LOOP_RX_PER_PASS, "the test passes the limit");
+    refill();
+    probe.now_step = (CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US) / 2u;   // room for two, then none
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.rx, rx + 2u) << "L23 each record starts only while the slice holds its stated cost";
+    drain(&loop_);
+    // tier 1 first: ACMP's records, bound past the open, which opens the filter of what was bound by then
     ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
     model.filter_en |= 1u << MBX_CH_ACMP;
     std::uint8_t a[48];   // short enough that the ring holds the whole burst
     build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
     std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    refill();
     unsigned message = 0;
     while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
         a[15] = static_cast<std::uint8_t>(++message);
     }
     ASSERT_LT(message, 16u) << "(a message the channel takes)";
+    static_assert(MBX_CH_ACMP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS + CTRL_LOOP_RX_PER_PASS, "the test passes the limit");
     for (unsigned k = 1; k < MBX_CH_ACMP_RATE_BURST; ++k) {
         ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
     }
+    unsigned acmp = probe.rx_acmp;
+    probe.now_step = CTRL_LOOP_DRAIN_US / 4u;   // tier 1 runs out of time with ACMP's records still waiting
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_TRUE(probe.rx_acmp > acmp && probe.rx == rx) << "L23 tier 2 takes nothing while tier 1 holds a record";
+    for (unsigned passes = 0; passes < 100u && mbx_rx_waiting(MBX_CH_ACMP, mbx_rx_mark(MBX_CH_ACMP)); ++passes) {
+        static_cast<void>(ctrl_loop_service(&loop_));
+    }
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_GT(probe.rx, rx) << "L23 and its slice once tier 1 holds none";
+    drain(&loop_);
+    // its records at most CTRL_LOOP_DRAIN_RECORDS a pass: ACMP's burst as THE DRAIN's, ADP's channel empty
+    mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS * MBX_CH_ACMP_RATE_BURST);
+    drain(&loop_);
     loop_.drain_ch = MBX_CH_ACMP + 1u;
-    const unsigned acmp = probe.rx_acmp;
+    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
+        a[15] = static_cast<std::uint8_t>(++message);
+    }
+    for (unsigned k = 1; k < MBX_CH_ACMP_RATE_BURST; ++k) {
+        ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
+    }
+    acmp = probe.rx_acmp;
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.rx_acmp, acmp + CTRL_LOOP_DRAIN_RECORDS) << "L23 and stops at CTRL_LOOP_DRAIN_RECORDS";
     drain(&loop_);
@@ -1485,6 +1554,113 @@ TEST_F(Loop, L25WhatAPassHasLeftGoesToTheRecordsStillWaiting) {
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.rx, rx + CTRL_LOOP_RX_PER_PASS) << "L25 a pass whose poll owes a heavy step stops at its cap";
     loop_.rx_held = false;
+    drain(&loop_);
+}
+
+// THE TIERS (#894), tier 1's first channel: AECP's records go first, past CTRL_LOOP_RX_PER_PASS to
+// CTRL_LOOP_DRAIN_RECORDS while the pass has spent at most CTRL_LOOP_DRAIN_US, and no other tier-1 channel's record is
+// taken while it holds one its module would take; a module not ready holds the others back no longer.
+TEST_F(Loop, L26TierOnesFirstChannelGoesFirst) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_AECP, probe_rx_aecp, nullptr));
+    ctrl_loop_set_rx_ready(&loop_, MBX_CH_AECP, probe_aecp_ready);
+    model.filter_en |= 1u << MBX_CH_AECP;   // bound past the open, which opens the filter of what was bound by then
+    loop_.first_ch = MBX_CH_AECP + 1u;
+    std::uint8_t a[64];
+    build_frame(a, sizeof a, 0x22F0, 0xFB, 0);   // an AEM_COMMAND to the entity and the interface the loop opened as
+    wire_put_be(a, kOwn.mac[0], 6);
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    const auto post = [&](unsigned aecp, unsigned adp) {
+        mbx_model_advance_ms(&model, MBX_CH_AECP_RATE_REFILL_MS * MBX_CH_AECP_RATE_BURST);
+        drain(&loop_);
+        for (unsigned k = 0; k < aecp; ++k) {
+            ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
+        }
+        for (unsigned k = 0; k < adp; ++k) {
+            ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        }
+    };
+    static_assert(MBX_CH_AECP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS / 2u, "the test passes the first channel's cap");
+    post(CTRL_LOOP_RX_PER_PASS + 1u, CTRL_LOOP_RX_PER_PASS);
+    unsigned aecp = probe.rx_aecp, adp = probe.rx;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx_aecp, aecp + CTRL_LOOP_RX_PER_PASS) << "L26 with no clock bound the first channel takes its cap";
+    EXPECT_EQ(probe.rx, adp) << "L26 and no other tier-1 channel's record while it holds one it would take";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_aecp == aecp + CTRL_LOOP_RX_PER_PASS + 1u && probe.rx == adp + CTRL_LOOP_RX_PER_PASS)
+        << "L26 the others once it holds none, in the same pass";
+    drain(&loop_);
+    post(CTRL_LOOP_RX_PER_PASS, CTRL_LOOP_RX_PER_PASS);
+    aecp = probe.rx_aecp;
+    adp = probe.rx;
+    probe.aecp_busy = true;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_aecp == aecp && probe.rx == adp + CTRL_LOOP_RX_PER_PASS)
+        << "L26 a first channel whose module is not ready holds the others back no longer";
+    probe.aecp_busy = false;
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    const unsigned many = CTRL_LOOP_DRAIN_RECORDS / 2u + 2u;
+    post(many, 0u);
+    aecp = probe.rx_aecp;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.rx_aecp, aecp + many) << "L26 with a clock it goes past its cap while the pass has room";
+    drain(&loop_);
+    post(many, 0u);
+    aecp = probe.rx_aecp;
+    probe.now_step = CTRL_LOOP_DRAIN_US / 2u + 1u;   // room for the cap and one more, then the pass has spent its time
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.rx_aecp, aecp + CTRL_LOOP_RX_PER_PASS + 1u)
+        << "L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US";
+    drain(&loop_);
+    loop_.first_ch = 0u;
+}
+
+// THE TIERS (#894), tier 2's order and slices: THE RETRY's round waits while the ordinary pass before it left THE
+// DRAIN's channel holding a record (SRP first); a round in a pass given whole has a slice from the pass's start, and one
+// in a pass that took nothing a slice from its own start, never past the pass's deadline.
+TEST_F(Loop, L27TierTwoRoundsComeAfterTheDrainInSlices) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, probe_retry_aged, nullptr));
+    drain(&loop_);
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    loop_.drain_ch = MBX_CH_ADP + 1u;
+    for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS + 1u; ++k) {
+        ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    }
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_FALSE(loop_.drained) << "L27 a pass that takes THE DRAIN's cap leaves a record of its channel";
+    probe.retry_aged = true;
+    const unsigned retries = probe.retries;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.retries, retries) << "L27 a round waits while THE DRAIN's channel was left a record (SRP first)";
+    EXPECT_TRUE(loop_.drained) << "L27 and the pass serves it";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.retries, retries + 1u) << "L27 then the round";
+    EXPECT_FALSE(loop_.round_one) << "L27 a whole round, nothing held beside it";
+    probe.retry_aged = false;
+    loop_.drain_ch = 0u;
+    drain(&loop_);
+    // with a clock: a slice from the pass's start in a pass given whole, from the round's own in one that took nothing
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.retry_aged = true;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.retry_aged = false;
+    EXPECT_EQ(probe.round_left, CTRL_LOOP_SLICE_US - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L27 a round in a pass given whole has a slice from the pass's start";
+    drain(&loop_);
+    probe.now_step = 800u;   // the pass's start, the slice's start and the round's read, 800 us apart
+    static_cast<void>(ctrl_loop_service(&loop_));
+    probe.now_step = 0u;
+    EXPECT_EQ(probe.round_left, 800u + CTRL_LOOP_SHARE_US - 3u * 800u - CTRL_LOOP_SHARE_MARGIN_US)
+        << "L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline";
     drain(&loop_);
 }
 
