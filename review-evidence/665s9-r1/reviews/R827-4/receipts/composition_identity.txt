@@ -1,0 +1,18 @@
+composed candidate 95c4fc5764302c8b0d864687e18bddb4922e28cb tree d5cf412b54aa3e0c87781495eb5c289ac6d76649; parents 8b1bdfaf1dcb9411ce5064f2b4207536e0bb7f32 2155eb9666693c0404aadb34ac4dad10a2466e24
+merge-tree 8b1bdfaf + a69fc0f5 (prior candidate) -> 63b2a1605248b1804de5d22e4cdf134fa41981e7
+diff prior composed tree -> new composed tree:
+ sw/builder/test_builder.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 506cc3cdb6..c01beb010d 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -23850,7 +23850,7 @@ def test_control_placement_key() -> None:
+ 
+ #: The shape artifacts a placement must not touch, by build() path label.
+ RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
+-                          "platform_shape", "aem_rom_svh", "gptp_ucode")
++                          "platform_shape", "aem_rom_svh", "gptp_ucode", "nvm_split")
+ 
+ 
+ def _tracked_generated():

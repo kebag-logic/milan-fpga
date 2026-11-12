@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index fd389bd431..2017418235 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -23850,7 +23850,7 @@ def test_control_placement_key() -> None:
+ 
+ #: The shape artifacts a placement must not touch, by build() path label.
+ RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
+-                          "platform_shape", "aem_rom_svh", "gptp_ucode")
++                          "platform_shape", "aem_rom_svh", "gptp_ucode", "nvm_split")
+ 
+ 
+ def _tracked_generated():

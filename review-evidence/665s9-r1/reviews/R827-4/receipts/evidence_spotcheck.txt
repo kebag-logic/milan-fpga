@@ -1,0 +1,15 @@
+Published evidence spot-check (tree 460db965ea6517b4c14fc7c6801613417d337e9c:review-evidence/665s9-r1)
+file author-r4/receipts/r4/gates/test-builder.log
+fetched sha256 daff52bc10156180a4adaee2a0b00fa6a2085975e34568bec7b0573a2fa24c15
+MANIFEST.json published_sha256 daff52bc10156180a4adaee2a0b00fa6a2085975e34568bec7b0573a2fa24c15 path_redacted True
+MANIFEST.json entries 4995
+receipt header:
+head a69fc0f597355a0a200ec5be6bb134b897e97ff5
+command: python3 sw/builder/test_builder.py --require-rv32 (clean clone, the pinned SDK under the gate's HOME)
+gate 23o line:
+[gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 8 shape artifacts byte for 
+verdict lines:
+ALL GATES PASS EXCEPT 2 NOT RUN
+rc=0
+
+Head 2155eb96 publication: no author or manager execution receipt for 2155eb96 exists on issue #870, PR #889 or in the evidence tree (its commit 460db965 is dated 2026-11-11T15:09:11Z, before 2155eb96).
