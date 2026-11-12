@@ -1,0 +1,13 @@
+head: R4 1x1/1if 66.12 rule_findings []
+REFUSED | retries one fewer (no retry before the first centisecond) | R4 1x1/1if 65.86 | 12 findings | 1x1/1if R4: 1 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | retries one more | R4 1x1/1if 66.64 | 12 findings | 1x1/1if R4: 3 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | retries once a pass (round-28 rule) | R4 1x1/1if 78.16 | 12 findings | 1x1/1if R4: 19 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+ESCAPED | retries not capped by passes | R4 1x1/1if 66.12 | 0 findings | 
+REFUSED | retries zero | R4 1x1/1if 59.81 | 12 findings | 1x1/1if R4: 0 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | SRP window the whole W | R4 1x1/1if 66.38 | 6 findings | 1x1/1if R4: 42 SRP records ahead in 20 ms, not the 41 that arrive before the row's record is taken
+ESCAPED | SRP window less two records | R4 1x1/1if 66.12 | 0 findings | 
+REFUSED | SRP window less the AECP burst (round-28 rule) | R4 1x1/1if 65.86 | 12 findings | 1x1/1if R4: 32 SRP records ahead in 5 ms, not the 34 that arrive before the row's record is taken
+REFUSED | retries also in R5 | R4 1x1/1if 66.12 | 12 findings | 1x1/1if R5: a retained record's retry counted in an SRP row
+REFUSED | retries in no row | R4 1x1/1if 59.81 | 12 findings | 1x1/1if R4: 0 retained retries in 5 ms, not the retry's rule's 2 (one a centisecond, one before the first, one a pass)
+REFUSED | COUNTERS_CHANGED dropped from EXCLUDED | ["the contract's event COUNTERS_CHANGED neither counted nor excluded"]
+REFUSED | TICK both counted and excluded | ['the event TICK both counted and excluded']
