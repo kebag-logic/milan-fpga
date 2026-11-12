@@ -1,0 +1,33 @@
+executable_sha256 77cc94a795bad2bbd8427a85f8c5a8b2bf98b1cec6ed6a0020d70b3228370567
+variant valid-destinations
+inputs {
+ "build:image/ctrl_app.elf": "f72df9a2b6f3ee90d9fb212540945737def0a9679b2908c6ec45c6bbba81f4fd",
+ "build:split-soc/flash-map/generated/csr.h": "fd38ae3e8e89820bc5a960fbc9e303e415b5cd3a5de0022d96f6b01825c0f9aa",
+ "build:split-soc/flash-map/generated/mem.h": "a8d504a7309a08ae77fc6dcde987381c96a5338242783ea2e8d2736379bc5635",
+ "build:split-soc/flash-map/flash_port.json": "87b90f35ae633daa104868ec860dace7d0e55f2f09593d9e74662dd353960de0",
+ "build:runtime/libc.a": "ce45d5c356c9ddec740867db0204253169aac5fcd63c211750dde894469ebe87",
+ "build:runtime/libcompiler_rt.a": "8e7ac86dc608566208432e545bc8887766f9c21fa21cb5f7fb8b7bf9baf28317",
+ "build:gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+ "build:gateware/sim_rom_bank0.init": "c1ae21b7b46dd1595a5dee364da027ba064a524830cbbbf67307b2cb0f6f7b56",
+ "build:gateware/sim_rom_bank1.init": "08009c0eff9e5d601385eb0fba1c32e1b7330f6b8fff5726cc9336841d40fe2c",
+ "build:gateware/sim_rom_bank2.init": "932dd2c44fb7f404686fd16b4c9b1cf26254b390fa9c630f81cf13971aaefbde",
+ "build:gateware/sim_rom_bank3.init": "0d573c751e7450c9c189528368c1580a2b97f4556ca48cdf26730dad901ab8aa",
+ "build:budget_config.hpp": "84a9c4cc09a761efe58813723544c88ec70b908e6ea35017d5907b947810c717",
+ "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "ac34c33f95253c4dc0597a7ae343d1c16d1a83fcde83c6757781986babbc6989",
+ "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "89b76b6ea7be045ff352fb5d205caefab89d63e59a98fcbe0eb679d44adfb139",
+ "checkout:tb/verilator/fw_service_budget/flash.hpp": "1f1e6582ea00b417b0f2386af429cb1a786e024407a85171924da13f4ea7cfa3",
+ "checkout:hdl/milan/mailbox/KL_mbx_pkg.sv": "492c5030b65a68c1f8fb11f68d788d2fc279cf45d6a47f6b4e05cae4cc66f2ba",
+ "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+ "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+ "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+ "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "8e25fb3fb873a8a7dd1f6b187332ee4da2ee5d6207286412b90bb5d8c7150d58",
+ "checkout:hdl/milan/mailbox/KL_mbx.sv": "235486a0ff193af202d56a24184a87fcea755cfee4d39771ea32d0d0a659e470",
+ "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+ "checkout:hdl/milan/mailbox/KL_mbx_dma.sv": "d578a8bc00ef13bfe4514e2b36cc8800b498ab6613aa1dd96852bc03c160245a",
+ "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+ "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+ "external:<home>/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_0b3a8b7a33cc0fb1f3c00358428ae432.v": "bb9e806a6b1ae399cbe55cb9830f5765f935ca39639d3e1bc8011105c63774e9",
+ "build:gateware/sim.v": "48a61779a9c881d4a906b391584d3b5fe4c74892dd189fecc8c4c25eb12fed9f",
+ "tree:firmware": "8ecdc722703ee4a75047be028a4681390903424c17bb90a496df17ed52d2a81c",
+ "tree:config": "8dedebc4cbc513d7b36d416d5240acbb365b4991e1a744ad4b6717cd139ed79a"
+}

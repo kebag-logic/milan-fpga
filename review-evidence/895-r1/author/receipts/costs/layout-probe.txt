@@ -1,0 +1,22 @@
+# sizeof/offsetof at 8x8/2if, the RV32 compiler on the point's generated headers (scripts/costs: layout probe in scratch)
+#include <stddef.h>
+#include "srp_mbx.h"
+#define AT(name, expr) char name[(expr) + 1]
+AT(p_if_size, sizeof(struct srp_interface));
+AT(p_if_gate, offsetof(struct srp_interface, gate));
+AT(p_if_owed, offsetof(struct srp_interface, sources_owed));
+AT(p_cfg_size, sizeof(struct srp_mbx_config));
+AT(p_cfg_valid, offsetof(struct srp_mbx_config, sources_valid));
+AT(p_m_size, sizeof(struct srp_mbx));
+AT(p_m_held, offsetof(struct srp_mbx, held_cs));
+AT(p_m_align, _Alignof(struct srp_mbx));
+AT(p_if_align, _Alignof(struct srp_interface));
+p_cfg_size 40
+p_cfg_valid 36
+p_if_align 8
+p_if_gate 624
+p_if_owed 636
+p_if_size 640
+p_m_align 8
+p_m_held 1398
+p_m_size 4456

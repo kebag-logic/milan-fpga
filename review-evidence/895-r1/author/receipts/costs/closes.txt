@@ -1,0 +1,18 @@
+# at fe96abfa (the committed tables)
+load 0.7673
+an SRP record 365 -> 253 us (-30.7 %)
+srp refill 2 -> 2.87 ms (500 to 349 records a second)
+aecp refill 5 -> 13.49 ms (200 to 74 records a second)
+acmp refill 5 -> 17.62 ms (200 to 57 records a second)
+adp refill alone cannot
+maap refill alone cannot
+compute 1.10x
+# at f44f0b6e
+load 0.7683
+an SRP record 365 -> 251 us (-31.2 %)
+srp refill 2 -> 2.89 ms (500 to 346 records a second)
+aecp refill 5 -> 13.83 ms (200 to 72 records a second)
+acmp refill 5 -> 18.31 ms (200 to 55 records a second)
+adp refill alone cannot
+maap refill alone cannot
+compute 1.10x

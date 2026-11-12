@@ -1,0 +1,65 @@
+# CPU budget harness, valid-destinations arm, 8x8/2if, group srp-talker-loss, head 8a407ed5 (the arm's scripts unchanged since); decoded by scripts/wire_talkers.py from the log's WIRE lines
+    62.816 ms MARK booted
+   713.808 ms MARK settled
+  1722.146 ms if0 MAAP ANNOUNCE start 91e0f000d1a4 count 9
+  1722.286 ms if1 MAAP ANNOUNCE start 91e0f000d1a4 count 9
+  3314.240 ms MARK srp.talker_declare.s0.if0
+  3315.759 ms MARK srp.talker_declare.s1.if1
+  3317.224 ms MARK srp.talker_declare.s2.if0
+  3512.632 ms MARK srp.talker_declare.s3.if1
+  3712.671 ms MARK srp.talker_declare.s4.if0
+  3912.877 ms MARK srp.talker_declare.s5.if1
+  4062.962 ms MARK srp.talker_declare.s6.if0
+  4112.978 ms MARK srp.talker_declare.s7.if1
+  4312.900 ms MARK srp.talker_declare.s8.if0
+  4512.816 ms MARK srp.talker_loss.if0
+  4712.949 ms MARK srp.talker_loss.if1
+  6136.286 ms if0 MAAP ANNOUNCE start 91e0f0004dae count 9
+  6337.337 ms if1 MAAP ANNOUNCE start 91e0f0004dae count 9
+  3314.942 ms if0 TalkerAdvertise stream 0200000000010000 DA 91e0f000d1a4 New
+  3316.434 ms if1 TalkerAdvertise stream 0200000000010001 DA 91e0f000d1a5 New
+  3511.556 ms if0 TalkerAdvertise stream 0200000000010002 DA 91e0f000d1a6 New
+  3711.544 ms if0 TalkerAdvertise stream 0200000000010000 DA 91e0f000d1a4 JoinMt
+  3711.865 ms if1 TalkerAdvertise stream 0200000000010001 DA 91e0f000d1a5 JoinMt
+  3711.865 ms if1 TalkerAdvertise stream 0200000000010003 DA 91e0f000d1a7 New
+  3911.769 ms if0 TalkerAdvertise stream 0200000000010002 DA 91e0f000d1a6 JoinMt
+  3911.769 ms if0 TalkerAdvertise stream 0200000000010004 DA 91e0f000d1a8 New
+  4111.752 ms if0 TalkerAdvertise stream 0200000000010006 DA 91e0f000d1aa New
+  4112.135 ms if1 TalkerAdvertise stream 0200000000010003 DA 91e0f000d1a7 JoinMt
+  4112.135 ms if1 TalkerAdvertise stream 0200000000010005 DA 91e0f000d1a9 New
+  4311.712 ms if0 TalkerAdvertise stream 0200000000010004 DA 91e0f000d1a8 JoinMt
+  4312.042 ms if1 TalkerAdvertise stream 0200000000010007 DA 91e0f000d1ab New
+  4511.611 ms if0 TalkerAdvertise stream 0200000000010006 DA 91e0f000d1aa JoinMt
+  4511.611 ms if0 TalkerAdvertise stream 0200000000010008 DA 91e0f000d1ac New
+  4511.949 ms if1 TalkerAdvertise stream 0200000000010005 DA 91e0f000d1a9 JoinMt
+  4711.753 ms if0 TalkerAdvertise stream 0200000000010000 DA 91e0f000d1a4 Lv
+  4711.753 ms if0 TalkerAdvertise stream 0200000000010002 DA 91e0f000d1a6 Lv
+  4711.753 ms if0 TalkerAdvertise stream 0200000000010004 DA 91e0f000d1a8 Lv
+  4711.753 ms if0 TalkerAdvertise stream 0200000000010006 DA 91e0f000d1aa Lv
+  4711.753 ms if0 TalkerAdvertise stream 0200000000010008 DA 91e0f000d1ac Lv
+  4712.114 ms if1 TalkerAdvertise stream 0200000000010007 DA 91e0f000d1ab JoinMt
+  4911.712 ms if1 TalkerAdvertise stream 0200000000010001 DA 91e0f000d1a5 Lv
+  4911.712 ms if1 TalkerAdvertise stream 0200000000010003 DA 91e0f000d1a7 Lv
+  4911.712 ms if1 TalkerAdvertise stream 0200000000010005 DA 91e0f000d1a9 Lv
+  4911.712 ms if1 TalkerAdvertise stream 0200000000010007 DA 91e0f000d1ab Lv
+PASS s0: first Advertise at 3314.942 ms on if0, DA 91e0f000d1a4, MAAP start 91e0f000d1a4 + 0
+PASS s0: Leave at 4711.753 ms, 1396.811 ms after its first Advertise; 0 Advertise declarations after it
+PASS s1: first Advertise at 3316.434 ms on if1, DA 91e0f000d1a5, MAAP start 91e0f000d1a4 + 1
+PASS s1: Leave at 4911.712 ms, 1595.278 ms after its first Advertise; 0 Advertise declarations after it
+PASS s2: first Advertise at 3511.556 ms on if0, DA 91e0f000d1a6, MAAP start 91e0f000d1a4 + 2
+PASS s2: Leave at 4711.753 ms, 1200.197 ms after its first Advertise; 0 Advertise declarations after it
+PASS s3: first Advertise at 3711.865 ms on if1, DA 91e0f000d1a7, MAAP start 91e0f000d1a4 + 3
+PASS s3: Leave at 4911.712 ms, 1199.847 ms after its first Advertise; 0 Advertise declarations after it
+PASS s4: first Advertise at 3911.769 ms on if0, DA 91e0f000d1a8, MAAP start 91e0f000d1a4 + 4
+PASS s4: Leave at 4711.753 ms, 799.984 ms after its first Advertise; 0 Advertise declarations after it
+PASS s5: first Advertise at 4112.135 ms on if1, DA 91e0f000d1a9, MAAP start 91e0f000d1a4 + 5
+PASS s5: Leave at 4911.712 ms, 799.577 ms after its first Advertise; 0 Advertise declarations after it
+PASS s6: first Advertise at 4111.752 ms on if0, DA 91e0f000d1aa, MAAP start 91e0f000d1a4 + 6
+PASS s6: Leave at 4711.753 ms, 600.002 ms after its first Advertise; 0 Advertise declarations after it
+PASS s7: first Advertise at 4312.042 ms on if1, DA 91e0f000d1ab, MAAP start 91e0f000d1a4 + 7
+PASS s7: Leave at 4911.712 ms, 599.670 ms after its first Advertise; 0 Advertise declarations after it
+PASS s8: first Advertise at 4511.611 ms on if0, DA 91e0f000d1ac, MAAP start 91e0f000d1a4 + 8
+PASS s8: Leave at 4711.753 ms, 200.142 ms after its first Advertise; 0 Advertise declarations after it
+PASS no Talker attribute before the first probe (0 seen; first probe at 3314.240 ms)
+PASS no Talker Failed on the wire (0 seen)
+failures: 0

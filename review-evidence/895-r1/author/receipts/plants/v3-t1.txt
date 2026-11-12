@@ -1,0 +1,45 @@
+== talker-admission-change-kept
+  [FAIL] Talker.AdmissionChangeWithdrawsAndAdvertisesAfterTheHoldOff: a source whose admission changes withdraws its Talker Failed
+== talker-allocated-unfit-declares-code-2
+  [FAIL] Talker.AdmissionChangeWithdrawsAndAdvertisesAfterTheHoldOff: an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+== talker-decl-kept-at-the-withdrawal
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: TALKER_DECL clears the withdrawn source before its Leave leaves
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: TALKER_DECL holds the source withdrawn while it waits
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: declares Talker Advertise with the allocated destination once the hold-off ends
+== talker-entry-before-attach
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: refused before attach
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: refused before attach, and nothing changes
+== talker-entry-reentered
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: reentry is refused
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: reentry is refused and counted
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: a refused report changes nothing
+== talker-hold-off-never-ends
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: declares Talker Advertise with the allocated destination once the hold-off ends
+== talker-hold-off-one-leaveall
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: no Talker of a moved destination is declared before the hold-off ends
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: TALKER_DECL holds the source withdrawn while it waits
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: the Advertise comes no sooner than two LeaveAllTime periods after the Leave
+== talker-hold-off-restarted-by-a-report
+  [FAIL] Talker.ReallocationDuringTheHoldOffAdvertisesTheLatest: a re-allocated source advertises its newest destination when the hold-off ends
+== talker-hold-off-skipped
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: TALKER_DECL clears the withdrawn source before its Leave leaves
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: no Talker of a moved destination is declared before the hold-off ends
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: TALKER_DECL holds the source withdrawn while it waits
+== talker-licence-closed-after-the-withdrawal
+  [FAIL] Talker.LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff: a loss closes LICENCE before TALKER_DECL drops the source
+== talker-loss-kept-allocated
+  [FAIL] Talker.LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff: a loss closes LICENCE before TALKER_DECL drops the source
+  [FAIL] Talker.LossWithdrawsTheAdvertiseAndDeclaresFailedAfterTheHoldOff: a loss withdraws the source's Talker Advertise
+== talker-moved-not-withdrawn
+  [FAIL] Talker.ChangeWithdrawsTheOldDestinationAndAdvertisesTheNew: a changed destination withdraws the old destination's Advertise
+== talker-past-the-count-allocated
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: a source past the reported count has no destination
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: a source past the reported count has no destination
+  [FAIL] Talker.AllocationEntryRecordsOnlyWhatChanged: a source past the reported count has no destination
+== talker-refused-declaration-forgotten
+  [FAIL] Talker.RefusedRedeclarationIsDeclaredAgain: a refused re-declaration is declared again
+== talker-reset-forgets-the-move
+  [FAIL] Talker.MoveBeforeAResetIsHeldByTheNewParticipants: the new participants hold a source that moved before the reset
+  [FAIL] Talker.MoveBeforeAResetIsHeldByTheNewParticipants: TALKER_DECL holds it withdrawn while it waits
+== talker-unchanged-declared-again
+  [FAIL] Talker.AllocationWithdrawsTheFailedThenAdvertisesTheDestination: a Talker whose destination did not move is not declared again

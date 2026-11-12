@@ -1,0 +1,14 @@
+# head f44f0b6ee9fc9765013e38cad7668af1b77d03d6 workflow rtl-fast.yml job firmware-boundary step ci_step_9: Hold the TSN stack boundary over the firmware builders' compiles
+# clone <scratch>/gates/wf/rtl-fast__firmware-boundary/wt
+# venv <home>/litex-milan/venv/bin
+# env not applied: PIP_CONSTRAINT: its pins are CPython 3.12 x86_64 wheel downloads; this host runs CPython 3.14, the venv carrying the same releases
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (459 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (88 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (323 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (26 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (27 s)
+REFUSED: sw/firmware/ctrl/test/srp_talker_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)

@@ -1,0 +1,48 @@
+== own-talker-declaration-not-copied
+  [FAIL] Srp.OwnDeclarationsThatRewriteARegisteredValueAreCopied: the adopted Domain's Talker declaration rewrote the registered Talker: interface 0 holds what a walk copies
+  [FAIL] Srp.OwnDeclarationsThatRewriteARegisteredValueAreCopied:     Which is: 0
+== pub-declared-after-the-declarations
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB and publishes it again as they declare
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again
+== pub-declared-as-each-source-joins
+  [FAIL] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails: PUB a re-creation refused at allocation 9 publishes no Talker declaration
+  [FAIL] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails: PUB TALKER_DECL holds 0 after a re-creation refused at allocation 9
+== pub-declared-before-the-joins
+  [FAIL] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails: PUB a re-creation refused at allocation 8 publishes no Talker declaration
+  [FAIL] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails: PUB TALKER_DECL holds 0 after a re-creation refused at allocation 8
+  [FAIL] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails: PUB a re-creation refused at allocation 9 publishes no Talker declaration
+== pub-declared-dropped-at-adoption
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB TALKER_DECL holds every declared source after the adoption
+== pub-declared-in-the-licence
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB and is not the licence: no Listener is registered
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+== pub-declared-skipped-at-adoption
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB TALKER_DECL holds every declared source after the adoption
+== pub-declared-skipped
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB and publishes it again as they declare
+== pub-declared-withdrawn-after-the-adoption
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+  [FAIL] Srp.PubTalkerDeclHoldsAcrossADomainAdoption: PUB TALKER_DECL holds every declared source after the adoption
+== pub-declared-wrong-bit
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB TALKER_DECL holds every declared source from startup
+  [FAIL] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst: PUB and publishes it again as they declare
+== pub-domain-adoption-after-the-declarations
+  [FAIL] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt: PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+  [FAIL] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt: PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it
+== pub-domain-default-after-the-declarations
+  [FAIL] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt: PUB after a link restart, the default Domain is published before it is declared again
+== pub-slope-after-the-declarations
+  [FAIL] Srp.PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits: PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again
+== shape-last-output-missing
+  [FAIL] Srp.EveryGeneratedOutputIsDeclaredAndEverySinkFits: every generated output has a startup declaration
+  [FAIL] Srp.EveryGeneratedOutputIsDeclaredAndEverySinkFits: every generated output has a startup declaration
