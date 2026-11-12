@@ -1,0 +1,7 @@
+# head bfe7a9d676e53ff9b3c45c068b9c31da7893dbfb tree 32d7e5283d01e6ea541527d31974db62ee7c64b8 cmd: python3 -I <packet>/scripts/adapter_mutants.py <packet>/scratch/tree4 <packet>/scratch/probe-out-p2 control-no-plant,redelivery-past-a-decline,empty-kept-offered
+2026-11-12T04:01:12Z
+control-no-plant: PASS (control); probes passed; arm rc 0
+empty-kept-offered: ESCAPED; probes passed; arm rc 0
+redelivery-past-a-decline: CAUGHT by 1; probes FAILED: AcmpMailbox.ProbeP2RedeliveryStopsAtTheDeclineAndLosesNoCommand; arm rc 1
+restored <packet>/scratch/tree4/sw/firmware/ctrl/acmp/acmp_mbx.c
+2026-11-12T04:02:00Z

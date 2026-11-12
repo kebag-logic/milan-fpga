@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/acmp/acmp_mbx.c b/sw/firmware/ctrl/acmp/acmp_mbx.c
+index 3aa0acd5e9..86fc12e110 100644
+--- a/sw/firmware/ctrl/acmp/acmp_mbx.c
++++ b/sw/firmware/ctrl/acmp/acmp_mbx.c
+@@ -163,7 +163,7 @@ static void redeliver(struct acmp_mbx *m)
+ 		m->kept.len = 0u;
+ 	}
+ 	struct ctrl_loop *l = m->loop;
+-	for (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u; ++k) {
++	for (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS; ++k) {
+ 		const enum mbx_status st = mbx_rx_take(MBX_CH_ACMP, &l->frame);
+ 		if (st != MBX_STATUS_OK) {
+ 			l->stats.rx_bad += st == MBX_STATUS_BAD;
