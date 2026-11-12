@@ -1,0 +1,8 @@
+# GA8 save-second's log (round 29's first run, results-save-second), its line 3,304,660 (0-based), cut while /data-2 was full; and the grade's refusal
+PASS 130882 2507534987 2507534923 18867 instr=4694 fetch_rom=39/3120 load_mbx=14 store_mbx=1 wait_mbx=188 load_csr=1 store_csr=1 wait_csr=14 code_words=15072 mods=aecp_mbSPAN 2507687291 2507687227 356 0000047c maap_mbx:event
+
+    modules = {m.split(':')[0]: int(m.split(':')[1]) for m in fields.pop('mods', '').split(',') if m}
+                                    ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+rc=1
+the cut log, removed from the build after this record: 218440435 bytes, sha256 5f4b738ccb28923820e5fd7f383c655a451a589e7eb332e6ff04f849aa75c73a

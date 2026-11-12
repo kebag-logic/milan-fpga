@@ -1,0 +1,13 @@
+image/ctrl_app.elf objcopy -O binary identical: old a07111a9f36af60daeab6a34e436ee730f76441b79e00d0651ef6763428e2d19 new a07111a9f36af60daeab6a34e436ee730f76441b79e00d0651ef6763428e2d19, 108204 B
+image/ctrl_app.elf elf identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary identical: old bff12f94e0a77d44fb1fd99c3a388584588c69a2e190bd7c1aa84d1c3f89d3fc new bff12f94e0a77d44fb1fd99c3a388584588c69a2e190bd7c1aa84d1c3f89d3fc, 107896 B
+split-soc/mapped/image/ctrl_app.elf elf identical
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary identical: old fcffc9c54d6ff6ba54e00b607ba204e32b0e37763db3052a1fd059b3bb1849dc new fcffc9c54d6ff6ba54e00b607ba204e32b0e37763db3052a1fd059b3bb1849dc, 107904 B
+split-soc/stand-ins/image/ctrl_app.elf elf identical
+input differs: build:gateware/sim.v
+input differs: build:runtime/libc.a
+input differs: build:runtime/libcompiler_rt.a
+input differs: build:split-soc/flash-map/flash_port.json
+input differs: tree:firmware
+inputs compared: 29, identical: 24
+sample notice-burst-0 log identical: recorded 01df6995a317bc720e73b9e768fbb01885b71adef3b347429f93eeaf419b7de3 new 01df6995a317bc720e73b9e768fbb01885b71adef3b347429f93eeaf419b7de3, 21404997 bytes

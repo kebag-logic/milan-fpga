@@ -1,0 +1,10 @@
+[ok] mutant mover-lost-record-reported-as-bad (unit, unit): 6 check(s) failed
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a begin that finds the record before it ended in ERR reports it lost
+[ok] mutant mover-fan-lost-reported-as-refused (unit): 2 check(s) failed
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 the fan after a frame whose move failed reports that frame lost
+[ok] mutant mover-fan-end-commit-discarded (unit): 3 check(s) failed
+    first: [FAIL] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself: T5 fan_end reports a last frame whose move failed lost
+[ok] mutant mover-fan-end-keeps-a-completion-for-a-walk-left-owed (unit): 2 check(s) failed
+    first: [FAIL] MbxDma.T6AWalkLeftOwedKeepsNoCompletion: T6 fan_end of a walk left owed after a mid-walk loss keeps no completion
+mutants: 4 of 4 caught
+elapsed=34s
