@@ -1,0 +1,56 @@
+header {'CTRL_LOOP_DRAIN_US': 1300, 'CTRL_LOOP_RX_PER_PASS': 2, 'CTRL_LOOP_STEP_AGE': 2, 'CTRL_LOOP_STEP_PASS_US': 975, 'CTRL_LOOP_BUILD_PASS_US': 900, 'CTRL_LOOP_BUILD_ONE_PASS_US': 405, 'CTRL_LOOP_SHARE_US': 2000, 'CTRL_LOOP_SHARE_MARGIN_US': 65, 'CTRL_LOOP_TICK_US': 430, 'AECP_NOTICE_US': 255, 'AECP_ROUND_COLD_US': 85, 'AECP_ROUND_PACE_MS': 2, 'AECP_ROUND_YIELD_PACE_MS': 4, 'AECP_ROUND_YIELD_NOTICES': 1, 'AECP_ROUND_YIELDS': 0, 'AECP_ROUND_FIRM_NOTICES': 12, 'AECP_NOTICES_MOST': 12, 'AECP_QUEUED_FIRST_MS': 20, 'AECP_QUEUED_MS': 22}
+costs {'base': 155, 'build': 900, 'build_one': 405, 'centisecond': 125, 'event.ACMP': 185, 'event.ADP': 110, 'event.AECP': 60, 'event.GM': 35, 'event.LINK': 150, 'event.MAAP': 165, 'event.TICK': 40, 'events_none': 25, 'item.acmp': 65, 'item.aecp': 210, 'item.aecp.notice': 210, 'item.aecp.probe': 60, 'item.aecp.response': 60, 'item.mrpdu': 405, 'item.rebuild': 290, 'item.reclaim': 25, 'item.retained': 250, 'item.walk': 20, 'item.withdraw': 90, 'record.acmp': 280, 'record.adp': 105, 'record.aecp': 205, 'record.maap': 90, 'record.srp': 250, 'step': 975}
+counts {'n_if': 1, 'sinks_per_if': 2, 'registrations': 16, 'counter_descriptors': 6, 'notices': 12}
+rate {'adp': (8, 10), 'acmp': (16, 5), 'aecp': (16, 5), 'maap': (8, 20), 'srp': (32, 2)} tick_ms 10
+R4 W 73.02 total_ms 73.02
+   srp              16.500 ms
+   others           10.965 ms
+   item.retained     9.000 ms
+   item.aecp         7.560 ms
+   passes            6.480 ms
+   ticks             3.760 ms
+   aecp              3.280 ms
+   rounds            3.230 ms
+   timers            3.185 ms
+   steps             2.925 ms
+   item.acmp         2.340 ms
+   item.reclaim      1.800 ms
+   builds            0.900 ms
+   item.mrpdu        0.810 ms
+   item.walk         0.180 ms
+   gm                0.105 ms
+R5 W 37.19 total_ms 37.19
+   srp               8.000 ms
+   others            7.785 ms
+   item.retained     3.250 ms
+   rounds            3.230 ms
+   item.aecp         2.730 ms
+   passes            2.340 ms
+   timers            2.085 ms
+   steps             1.950 ms
+   ticks             1.880 ms
+   builds            0.900 ms
+   item.acmp         0.845 ms
+   item.mrpdu        0.810 ms
+   item.reclaim      0.650 ms
+   item.rebuild      0.290 ms
+   links             0.150 ms
+   gm                0.105 ms
+   item.walk         0.100 ms
+   item.withdraw     0.090 ms
+R6 W 32.69 total_ms 32.685
+   srp               8.000 ms
+   others            5.440 ms
+   rounds            3.230 ms
+   item.retained     2.750 ms
+   item.aecp         2.310 ms
+   passes            1.980 ms
+   timers            1.965 ms
+   steps             1.950 ms
+   ticks             1.880 ms
+   builds            0.900 ms
+   item.mrpdu        0.810 ms
+   item.acmp         0.715 ms
+   item.reclaim      0.550 ms
+   gm                0.105 ms
+   item.walk         0.100 ms
