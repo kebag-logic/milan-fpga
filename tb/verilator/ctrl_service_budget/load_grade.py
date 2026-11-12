@@ -485,6 +485,11 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
+    # each column's name bound to its own table: the pin's name to this tree's pin's table, the donor's to the donor's
+    # (a swap prints each HELD line with the other column's load, and holds neither by its name)
+    if [(name, table is want) for (name, table), want in zip(COLUMNS, (STATED_US, STATED_US_DONOR))] != \
+            [('at the pin', True), ('with tsn-c-stack#32', True)] or len(COLUMNS) != 2:
+        escaped.append("a column's name bound to the other's table")
     return escaped
 
 
@@ -543,7 +548,8 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'the retained retry counted once a record',
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
-            'the graded column below the pin where tsn-c-stack#32 moves nothing')
+            'the graded column below the pin where tsn-c-stack#32 moves nothing',
+            "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
