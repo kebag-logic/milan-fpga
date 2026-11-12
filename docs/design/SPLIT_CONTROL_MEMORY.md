@@ -101,8 +101,10 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,288 B | 59.0 |
+
+The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -376,7 +378,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
+Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
