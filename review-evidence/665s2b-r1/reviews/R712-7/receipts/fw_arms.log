@@ -1,0 +1,23 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+== arm unit: rc 0
+[  PASSED  ] 26 tests.
+[  PASSED  ] 2 tests.
+[  PASSED  ] 1 test.
+[ RUN      ] MbxDma.T2AMoveEndingInErrorIsNotCommitted
+[       OK ] MbxDma.T2AMoveEndingInErrorIsNotCommitted (0 ms)
+[ RUN      ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError
+[       OK ] MbxDma.T4ARecordTheWordLoopWroteInheritsNoEarlierMovesError (0 ms)
+[ RUN      ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself
+[       OK ] MbxDma.T5TheNoticeFanPortReportsALostFrameForItself (0 ms)
+[  PASSED  ] 7 tests.
+[  PASSED  ] 5 tests.
+== arm port: rc 0
+[ RUN      ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes
+[       OK ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes (0 ms)
+[  PASSED  ] 48 tests.
+== arm portable: rc 0
+  Portable.CompilerExtensionsOnlyInThePlatformHeader: 0 finding(s)
+[ RUN      ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes
+[       OK ] Pool.P10AFreedBlocksLinkIsWrittenOverItsClientsBytes (0 ms)
+[  PASSED  ] 48 tests.

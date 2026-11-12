@@ -1,0 +1,18 @@
+// Inserted temporarily before the last "}  // namespace" of sw/firmware/ctrl/test/test_mbx_dma_driver.cpp, run through
+// the unit arm (scripts/unit_probe.py), then the file restored byte for byte (receipts/restore_check.txt).
+TEST_F(MbxDma, ReviewProbeFanEndAfterAMidWalkLoss) {
+    open(0, 100);
+    static aecp_mbx m;
+    static const aecp_ports environment{};
+    aecp_config cfg{};
+    cfg.interfaces = 1;
+    ASSERT_TRUE(aecp_mbx_init(&m, &cfg, &environment, 0));
+    alignas(4) static std::uint8_t first[64], second[64];
+    mover.memory = {{first, sizeof first}, {second, sizeof second}};
+    mover.fail = true;
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN);
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_LOST);
+    const aecp_fan end = m.ports.fan_end(&m, 7);
+    std::printf("PROBE fan_end after a mid-walk loss: %d (0 TAKEN, 1 REFUSED, 2 LOST), completions kept %u\n",
+                (int)end, (unsigned)m.completion_count);
+}

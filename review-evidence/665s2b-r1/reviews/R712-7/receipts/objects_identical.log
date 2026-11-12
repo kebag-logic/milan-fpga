@@ -1,0 +1,33 @@
+compiler: riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+SAME ./acmp/acmp_mbx.c
+SAME ./acmp/acmp_nvm.c
+SAME ./adp/adp_mbx.c
+SAME ./aecp/aecp.c
+SAME ./aecp/aecp_commands.c
+SAME ./aecp/aecp_face.c
+SAME ./aecp/aecp_image.c
+SAME ./aecp/aecp_maps.c
+SAME ./aecp/aecp_mbx.c
+SKIP ./aecp/aecp_nvm.c (nocompile at e7e2b7444a9859b058deff0d9edb575f2fb1946f)
+SAME ./aecp/aecp_state.c
+SKIP ./app/ctrl_app_aecp.c (nocompile at e7e2b7444a9859b058deff0d9edb575f2fb1946f)
+SAME ./app/ctrl_app.c
+SAME ./app/ctrl_app_srp.c
+SAME ./host/mbx_model.c
+SAME ./host/mbx_plat_host.c
+SAME ./loop/ctrl_loop.c
+SAME ./maap/maap_csr.c
+SAME ./maap/maap_mbx.c
+SAME ./mbx/mbx.c
+SAME ./plat/ctrl_mem.c
+SKIP ./plat/ctrl_plat.c (nocompile at e7e2b7444a9859b058deff0d9edb575f2fb1946f)
+SAME ./plat/ctrl_plat_console.c
+SAME ./plat/ctrl_plat_csr.c
+SKIP ./plat/ctrl_plat_main.c (nocompile at e7e2b7444a9859b058deff0d9edb575f2fb1946f)
+SAME ./plat/ctrl_plat_mmio.c
+SAME ./plat/mbx_plat_mmio.c
+SKIP ./port/ctrl_debug.c (nocompile at e7e2b7444a9859b058deff0d9edb575f2fb1946f)
+SAME ./port/ctrl_pool.c
+SAME ./port/shlan_port.c
+SAME ./srp/srp_mbx.c
+identical 26, different 0, not compiled 5
