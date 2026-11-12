@@ -228,6 +228,8 @@ OUTSIDE = {
                                                       "CTRL_LOOP_SLICE_US from ctrl_loop.h, AECP_MBX_OWED_SLOTS from "
                                                       "aecp_mbx.h and AECP_RETRY_MAX_MS from aecp.h; it compiles "
                                                       "nothing",
+    "tb/verilator/ctrl_service_budget/slice_grade.py": "grades a run's log and reads CTRL_LOOP_SLICE_US from "
+                                                       "ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
                                                       "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
                                                       "and the TSN stack's headers; it compiles nothing",
@@ -255,6 +257,8 @@ OUTSIDE = {
                                              "twin_decode.py; it compiles nothing",
     "tb/verilator/milan_dp/twin_decode.py": "decodes the two-placement simulation's captures (#665), MSRP through "
                                             "srp_wire_compare.py; it compiles nothing",
+    "tests/steps/aecp_owed_notice_steps.py": "the owed-notice feature's steps (#894): pins its model's rules to the "
+                                             "text of aecp.c, aecp.h and aecp_mbx.h; it compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
