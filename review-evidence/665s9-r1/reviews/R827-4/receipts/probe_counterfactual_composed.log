@@ -1,0 +1,16 @@
+A arty_current all-fabric: absent gate labels []
+A arty_current split: absent gate labels []
+A arty_4x4 all-fabric: absent gate labels []
+A arty_4x4 split: absent gate labels []
+A arty_8ch all-fabric: absent gate labels []
+A arty_8ch split: absent gate labels []
+A ax7101_8x8 all-fabric: absent gate labels []
+A ax7101_8x8 split: absent gate labels []
+A ax7101_1x1_tdm8 all-fabric: absent gate labels []
+A ax7101_1x1_tdm8 split: absent gate labels []
+  [gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 8 shape artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes refused
+B prior-head labels, split nvm_split changed: gate 23o PASSED (not caught)
+C head labels, split nvm_split changed: gate 23o FAILED (caught): arty_current: the recipe's nvm_split is not the all-fabric build's
+D head labels, split writes no nvm_split path: gate 23o FAILED (caught): arty_current: the recipe's nvm_split is not the all-fabric build's
+  [gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 9 shape artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes refused
+E head labels, unplanted: gate 23o PASSED (not caught)

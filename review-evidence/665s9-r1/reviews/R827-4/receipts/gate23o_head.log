@@ -1,0 +1,7 @@
+labels gate 23o compares: aem_overlay, lwsrp_table, lwsrp_svh, csr_defaults_svh, adp_shape_svh, platform_shape, aem_rom_svh, gptp_ucode, nvm_split
+ax7101_1x1_tdm8 placement=all-fabric: labels written ['adp_shape_svh', 'aem_overlay', 'aem_rom_svh', 'build_plan', 'cfg_adp_shape_svh', 'csr_defaults_svh', 'gptp_ucode', 'lwsrp_svh', 'lwsrp_table', 'platform_shape', 'soc_params', 'sweep_opts']
+  gate labels present: 8; absent: ['nvm_split']
+ax7101_1x1_tdm8 placement=split: labels written ['adp_shape_svh', 'aem_overlay', 'aem_rom_svh', 'build_plan', 'cfg_adp_shape_svh', 'csr_defaults_svh', 'gptp_ucode', 'lwsrp_svh', 'lwsrp_table', 'platform_shape', 'soc_params', 'sweep_opts']
+  gate labels present: 8; absent: ['nvm_split']
+  [gate 23o] 5 configs: the split recipe loads to the config stating control.placement: split, writes the all-fabric build's 9 shape artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes refused
+GATE 23o PASSED
