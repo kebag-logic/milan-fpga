@@ -1,0 +1,25 @@
+mutant table size: 586
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[clean acmp] rc=0
+    [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    [       OK ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+    [==========] 165 tests from 6 test suites ran. (14 ms total)
+    [  PASSED  ] 165 tests.
+[clean acmpif2] rc=0
+    [ RUN      ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext
+    [       OK ] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext (0 ms)
+    [==========] 38 tests from 2 test suites ran. (27 ms total)
+    [  PASSED  ] 38 tests.
+[ok] mutant acmp-redelivery-past-a-decline (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+[ok] mutant acmp-redelivery-takes-no-waiting-record (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.K4ACommandBehindFramesThatNeedNoAnswerKeepsItsPass: K4 the command behind two frames that need no answer in pass n + 1 + f, f = 1, ahead of the timer probe that falls due in the third pass
+[ok] mutant acmp-redelivery-short-of-a-full-ring (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K7TheRedeliveryTakesAFullRingInThePassThatSends: K7 the kept command and the full ring behind it are taken, and counted, in the pass that sends
+[ok] mutant rv-stop-checked-after-take (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+[ESCAPED] mutant rv-past-decline-drops-later (acmp): 0 check(s) failed, none named acmp: AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext on 'K8 the owed frames, then each command answered once, in arrival order'
+[ok] mutant rv-past-decline-and-drop (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.K8ACommandTheRedeliveryDeclinesKeepsItsPlaceAheadOfTheNext: K8 the owed frames, then each command answered once, in arrival order
+mutants: 5 of 6 caught
+probe campaign escaped=True
