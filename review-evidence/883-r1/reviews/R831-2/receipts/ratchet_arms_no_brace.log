@@ -1,0 +1,35 @@
+[PASS] a C-style cast is a finding
+[PASS] a static_cast is not a finding
+[PASS] a parameter list is not a cast
+[PASS] a discarding (void) cast is deliberately not a finding
+[PASS] a parenthesised condition is not a cast
+[PASS] a file-scope mutable is a finding
+[PASS] a file-scope const is not a finding
+[PASS] a file-scope constexpr is not a finding
+[PASS] a local is not a file-scope mutable
+[PASS] a static const list is not a file-scope mutable
+[PASS] a macro constant is a finding
+[PASS] an include guard is not a macro constant
+[PASS] a function-like macro is not a macro constant
+[PASS] an unnamed enum block is a finding
+[PASS] a named enum is not a finding
+[PASS] a multi-declarator declaration is a finding
+[PASS] a single declaration is not a finding
+[PASS] a call with two arguments is not a declaration
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): uint32_t adp_last_aidx[4] = {0, 0, 0, 0};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int m[2][2] = {{1, 2}, {3, 4}};
+[FAIL] a brace initialiser's commas separate elements, not declarators (#495): int c[1][1][2] = {{{1, 2}}};
+[PASS] two declarators beside a brace initialiser are a finding: uint32_t a[2] = {0, 0}, b = 1;
+[PASS] two declarators beside a brace initialiser are a finding: int a{1}, b{2};
+[PASS] two declarators beside a brace initialiser are a finding: int m[2][2] = {{1, 2}, {3, 4}}, b = 0;
+[PASS] two declarators beside a brace initialiser are a finding: int n = 1, m[2][2] = {{0, 0}, {0, 0}};
+[PASS] two declarators beside a brace initialiser are a finding: int c[1][1][2] = {{{1, 2}}}, d = 0;
+[PASS] a function over the line limit is a finding
+[PASS] a short function is not a finding
+[PASS] a long member function is a finding
+[PASS] a long out-of-line member definition is a finding
+[PASS] a long lambda body is not counted as its own function
+[PASS] an else-if continuation is not a function
+[PASS] a class head is not a function
+[PASS] a brace-initialiser is not a function
+ratchet group: 34 checks: 31 PASS, 3 FAIL
