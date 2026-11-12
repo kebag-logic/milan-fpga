@@ -1,0 +1,10 @@
+# Each leg's image rom (ctrl_memory.py's figure, the image log's "rom": {"bytes": N}), this round (71e905fb) against round 27's (e7e2b744)
+GA8: 122328 -> 122440 B (+112)
+GA1: 107112 -> 107232 B (+120)
+GN8: 122636 -> 122748 B (+112)
+GN1: 107420 -> 107540 B (+120)
+GB8: 122488 -> 122608 B (+120)
+GB1: 107280 -> 107392 B (+112)
+D1: 107568 -> 107680 B (+112)
+D8 (8x8/2if arm A with tsn-c-stack#32): round 27 122776 B; this round refused by the ledger (D8-image.log):
+REFUSED: allocation over budget: 58 RAMB36 (rom 122896 bytes in 124928, sram 112432 bytes in 112640) exceeds the 57.5-RAMB36 budget ledgered for 8x8, two interfaces

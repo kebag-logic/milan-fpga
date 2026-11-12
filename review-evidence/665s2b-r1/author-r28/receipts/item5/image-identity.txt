@@ -1,0 +1,5 @@
+# item 5 alone: e7e2b744 with only the portable C change (aecp.h's _Alignas, plat/ctrl_cc.h, ctrl_pool.c, srp_mbx.c), 8x8/2if arm A, against round 27's GA8 build (e5baac61's, byte-identical to e7e2b744's)
+image/ctrl_app.elf objcopy -O binary: round 27 5b2317d871b373cc981c69e8b66754307168060e0a81c038db644a91225cf330, item 5 alone 5b2317d871b373cc981c69e8b66754307168060e0a81c038db644a91225cf330, 122328 B: identical
+split-soc/mapped/image/ctrl_app.elf objcopy -O binary: round 27 be42e7c948f11eabffbf1f7f320fb8845177ef683db8803b17df36e6efb56843, item 5 alone be42e7c948f11eabffbf1f7f320fb8845177ef683db8803b17df36e6efb56843, 120656 B: identical
+split-soc/stand-ins/image/ctrl_app.elf objcopy -O binary: round 27 57b60044c2dcbc160066ec53ef3e2bf6ea6447d649931a5d00aed91684b78ffe, item 5 alone 57b60044c2dcbc160066ec53ef3e2bf6ea6447d649931a5d00aed91684b78ffe, 120656 B: identical
+group control log: round 27 6d06a3ef8e8ba31ec710056f3d17227f7cb05a7909d794264c5695fa74cd59fc, item 5 alone 6d06a3ef8e8ba31ec710056f3d17227f7cb05a7909d794264c5695fa74cd59fc, 3310619 B: identical

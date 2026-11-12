@@ -1,0 +1,18 @@
+# head 66f713267f201d1a00d7f711e04b3a996d804dee gate flip_check_8x8_exits_1: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 8x8/2if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/2if | 0.815 | 0.70 | 1.16x | srp 0.219, rec.acmp 0.088, item.acmp 0.070, timers 0.068, item.aecp 0.062, ticks 0.055, rec.aecp 0.053, item.mrpdu 0.049, item.reclaim 0.036, steps 0.034, builds 0.024, rec.adp 0.024, item.walk 0.013, notices 0.011, rec.maap 0.006, gm 0.001 |
+
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 8x8/2if | R4 | 489.97 | 20 | +469.97 | srp 100.01, others 67.32, item.retained 63.88 |
+| 8x8/2if | R5 | 162.96 | 90 | +72.96 | others 41.68, rounds 16.75, timers 15.31 |
+| 8x8/2if | R6 | 149.57 | 90 | +59.57 | others 38.95, rounds 16.75, timers 14.45 |
+| 8x8/2if | first | 22.00 | 20 | +2.00 | AECP_QUEUED_FIRST_MS 22.00 |
+| 8x8/2if | last | 62.00 | 125 | -63.00 | AECP_QUEUED_MS 62.00 |
+OVER 8x8/2if: the load 0.815 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: by every source 489.97 ms, over its bound 20 ms; the largest term srp 100.01 ms
+OVER 8x8/2if R5: by every source 162.96 ms, over its bound 90 ms; the largest term others 41.68 ms
+OVER 8x8/2if R6: by every source 149.57 ms, over its bound 90 ms; the largest term others 38.95 ms
+OVER 8x8/2if first: by every source 22.00 ms, over its bound 20 ms; the largest term AECP_QUEUED_FIRST_MS 22.00 ms
+RESULT: FAIL

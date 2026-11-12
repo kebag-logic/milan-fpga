@@ -1,0 +1,30 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/acmp-notk.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/adp-advertise.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/acmp-noresp.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/save.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/srp.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/backlog.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/backlog-adp.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/backlog-owed.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/acmp-disc.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/maap.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/adp-link.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/adp-gm.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/adp-discover.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/aecp-fanout.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/acmp-cmd.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/aecp.txt -
+COMMAND <scratch>/builds/D1/native/Vsim <scratch>/builds/D1/results-rest/fixture.txt -
+BUDGET backlog.owed.if0: 62.392 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.217 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.217 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.216 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.215 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.718 ms over its budget 20 ms
+STEPS 5218 passes carry the store's step; the longest 91,816 CPU cycles (0.918 ms), acmp-notk; the longest step 78,028 (0.780 ms), acmp-notk
+SAVE save: durable 2018.440 ms after its change (stated worst case 4,070 ms, 102 steps, longest gap between flash steps 10.839 ms) within
+18 groups graded, 0 refusals, 6 budget misses (6 of 138 probe instances, 3 of 81 paths), 0 of 10162 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+rc=0
