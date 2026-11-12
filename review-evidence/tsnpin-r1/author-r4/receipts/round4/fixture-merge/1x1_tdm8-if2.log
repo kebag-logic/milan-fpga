@@ -1,0 +1,92 @@
+wrote <scratch>/ledger5/m6/1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/ledger5/m6/1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/ledger5/m6/1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 94668,
+    ".rodata": 12534,
+    ".data": 56,
+    ".bss": 49900,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 16,
+    "image_app": 10216,
+    "image_arena": 19840,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_face": 88,
+    "image_latency": 8,
+    "image_licences": 4,
+    "image_map_pools": 56,
+    "image_maps": 200,
+    "image_map_scratch": 136,
+    "image_model": 12,
+    "image_names": 468,
+    "image_platform": 56,
+    "image_sources": 128,
+    "image_srp": 5032,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "a4e56f0bbe6f82444fa65dcab9a751670b9fa2f0f849a71da575d942083caf59"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "1f694cd5b567dde6f10c7a04497806fc4babda0d806375cd72f344e33f305ecd"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 139632,
+      "sha256": "c3f5856693210eff4327110c85eeb0acc9ab24d236212739f7f4a3051de3481b"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 133518,
+      "sha256": "2bed7d4e32e68c50a7754e4f8c266ce4ad2b0e35ad71a73112aec9bb44d76227"
+    }
+  ],
+  "ram_sections": 165350,
+  "split": {
+    "rom": {
+      "bytes": 107264,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        2048
+      ],
+      "RAMB36": 26,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 58160,
+      "banks": [
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 14,
+      "RAMB18": 1
+    },
+    "tiles": 41.0,
+    "budget_tiles": 56
+  }
+}
