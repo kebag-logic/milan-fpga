@@ -1,0 +1,18 @@
+# clean clone of 6eacd76d (scratch/clean), submodules gptp-processor, protocol-processor, lwSRP, tsn-c-stack at the head's gitlinks
+rc=0 docs_docs_diagrams_submodule_boundaries.gen.py_--check
+rc=0 docs_docs_DOC_MAP.gen.py_--check
+rc=0 docs_scripts_check_doc_style.py
+rc=0 docs_scripts_check_feature_status.py
+rc=0 docs_scripts_check_gptp_docs.py
+rc=0 docs_scripts_check_nvm_format_32x32.py
+rc=0 docs_scripts_check_nvm_klj3.py
+rc=0 docs_scripts_check_solution_docs.py
+rc=0 docs_scripts_check_submodule_docs.py
+rc=0 docs_scripts_check_wire_accountability.py
+rc=0 docs_scripts_docs_check.py
+# earlier attempts before the submodules were initialised (environment, not a defect):
+rc=1 docs_scripts_check_nvm_format_32x32.py.no-pp-submodule
+rc=1 docs_scripts_check_nvm_format_32x32.py.no-submodule
+rc=2 docs_scripts_check_nvm_klj3.py.no-pp-submodule
+rc=2 docs_scripts_check_nvm_klj3.py.no-submodule
+rc=1 docs_scripts_check_wire_accountability.py.no-submodule

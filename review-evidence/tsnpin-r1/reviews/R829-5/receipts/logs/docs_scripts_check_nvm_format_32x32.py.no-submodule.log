@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/check_nvm_format_32x32.py", line 243, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/check_nvm_format_32x32.py", line 232, in main
+    r = compute()
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/check_nvm_format_32x32.py", line 133, in compute
+    return fmt.compute(Path(tmp))
+           ~~~~~~~~~~~^^^^^^^^^^^
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/nvm_format_32x32.py", line 486, in compute
+    built, rule = build_all(out)
+                  ~~~~~~~~~^^^^^
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/nvm_format_32x32.py", line 212, in build_all
+    built[p.key] = build_point(cfg, out, p.lifted)
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/nvm_format_32x32.py", line 186, in build_point
+    lifts = run_builder(cfg, out, lifted)
+  File "$REVIEWS/tsnpin-r829-5-packet/scratch/clean/scripts/nvm_format_32x32.py", line 170, in run_builder
+    raise RuntimeError(f"{cfg.name}: the builder refused: "
+                       f"{(res.stderr or res.stdout).strip().splitlines()[-1]}")
+RuntimeError: endstation_ax7101_1x1_tdm8.yaml: the builder refused: CONFIG ERROR: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config

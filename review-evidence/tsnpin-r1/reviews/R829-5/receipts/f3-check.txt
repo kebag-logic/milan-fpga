@@ -1,0 +1,29 @@
+## published receipt author-r4/receipts/round4/fw_coverage-write-at-0fb66211-diff.txt (archive c0e0f810; blob identical at c621aff3, 1e33fa18, c0e0f810: 71248a0d5aabf024f88cd5a8be35768949c13373)
+ sw/firmware/gtest/coverage.ratchet | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+(empty: the generator at 0fb66211 writes dev's committed ratchet unchanged)
+## round-5 packet files
+./HANDOFF.md
+./PR-BODY.md
+./receipts/round5/coverage-provenance.txt
+./receipts/round5/diff-check.log
+./receipts/round5/diff-check.rc
+./receipts/round5/headroom.txt
+./receipts/round5/INDEX.md
+./receipts/round5/PR-BODY-round4.md
+./receipts/round5/review-ready-comment.md
+./receipts/round5/tools/headroom.py
+## claims of a corrected receipt
+$REVIEWS/tsnpin-r829-5-packet/scratch/pkt/review-evidence/tsnpin-r1/author-r5/HANDOFF.md:16:| F3 | no tree change. receipts/round5/coverage-provenance.txt states the real provenance; round 4's `fw_coverage-write-at-0fb66211-diff.txt` carries the real diff under a correction header; round 4's note below is marked corrected | the diff at `0fb66211`: `ctrl_app_aecp.c` 164 -> 165, `nvm_store.c` 458 -> 459, matching `fw_coverage-write-at-0fb66211.log` |
+$REVIEWS/tsnpin-r829-5-packet/scratch/pkt/review-evidence/tsnpin-r1/author-r5/receipts/round5/coverage-provenance.txt:6:   (round4/fw_coverage-write-at-0fb66211.log; the diff: round4/fw_coverage-write-at-0fb66211-diff.txt, corrected).
+$REVIEWS/tsnpin-r829-5-packet/scratch/pkt/review-evidence/tsnpin-r1/author-r5/receipts/round5/review-ready-comment.md:16:  - The corrected receipt (the real diff, under a correction header) and a provenance account are in the round-5 packet. Round 4's HANDOFF note is marked corrected.
+## dev's committed ratchet at 0fb66211 vs merge head
+0fb66211:
+sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 164/164  branches 124/124
+sw/firmware/ctrl_nvm/nvm_store.c  lines 458/458  branches 269/269
+6eacd76d:
+sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 165/165  branches 124/124
+sw/firmware/ctrl_nvm/nvm_store.c  lines 459/459  branches 269/269
+## the generator's measurement at 0fb66211 (author-r4 log)
+34:sw/firmware/ctrl/app/ctrl_app_aecp.c             165/165     124/124     lines 100.00 %  branches 100.00 %
+51:sw/firmware/ctrl_nvm/nvm_store.c                 459/459     269/278     lines 100.00 %  branches 100.00 %

@@ -1,0 +1,37 @@
+## git grep -n '57\.5' README at head
+HEAD:tb/verilator/ctrl_service_budget/README.md:791:| MAAP record released under the composed load, last | 0 | 103.71 **over ceiling** | 57.56 **over ceiling** | 2,877,773 |
+## LEDGERED / ledgered_plan anchors
+HEAD:sw/litex/ctrl_memory.py:22:  bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
+HEAD:sw/litex/ctrl_memory.py:201:    ledgered: str | None = None         # the LEDGERED point it was planned as, if any
+HEAD:sw/litex/ctrl_memory.py:246:LEDGERED: dict[str, Ledgered] = {
+HEAD:sw/litex/ctrl_memory.py:259:    """The tiles LEDGERED[name] may plan, refused for any image that is not its point."""
+HEAD:sw/litex/ctrl_memory.py:260:    point = LEDGERED.get(name)
+#: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+#: every other point stays within 56.
+LEDGERED: dict[str, Ledgered] = {
+    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                         "6425357821; the owner's 6824896581: 58.0, at most 58.5)"),
+    "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_392)), 59.0,
+                                            "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                            "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                            "image)"),
+}
+
+fatal: unable to resolve revision: -A8
+## README :40-46, :110-116
+```
+
+`1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
+`8x8` is `endstation_ax7101_8x8` with two.
+`8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan past the 56-RAMB36 budget to the tiles `ctrl_memory.LEDGERED` holds for it ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
+The planner refuses the override on any other image, and the product SoC build names none.
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
+  It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
+  The DMA port the shipping image has is kept, idle.
+- **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
+  At `8x8` its plan is held to the ledgered point's tiles in `ctrl_memory.LEDGERED` (`split_soc.ledgered_plan`).
+- **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+  Its receive and transmit streams, link levels and grandmaster are on pads that [`sim_main.cpp`](sim_main.cpp) drives.
