@@ -1,0 +1,88 @@
+defect plat-reboot-transmits-after-the-departing in plat/ctrl_plat.c; kills: (('platboot1', 'Boot.B20NoOtherChannelTransmitsAfterTheDeparting', 'B20 no other channel starts a transmission after ENTITY_DEPARTING'), ('platboot1', 'Boot.B20NoOtherChannelTransmitsAfterTheDeparting', 'B20 no ACMP transmission starts after ENTITY_DEPARTING'), ('platboot1', 'Boot.B20NoOtherChannelTransmitsAfterTheDeparting', 'B20 no MAAP transmission starts after ENTITY_DEPARTING'), ('platboot1', 'Boot.B20NoOtherChannelTransmitsAfterTheDeparting', 'B20 no SRP transmission starts after ENTITY_DEPARTING'))
+defect plat-reboot-takes-aecp-frames-after-the-success in plat/ctrl_plat.c; kills: (('platboot1', 'Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess', "B19 no AECP frame is taken after the REBOOT's SUCCESS"), ('platboot1', 'Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver', "B23 no AECP frame is taken while the REBOOT's SUCCESS waits to be handed over"))
+[ESCAPED] no defect names the test AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[ESCAPED] no defect names the test AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[ESCAPED] no defect names the test AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[ESCAPED] no defect names the test AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[ESCAPED] no defect names the test AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[ESCAPED] no defect names the test AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake
+[ESCAPED] no defect names the test AcmpMailbox.F3bListenerRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.F3bProbeRequiresSourceDestination
+[ESCAPED] no defect names the test AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[ESCAPED] no defect names the test AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[ESCAPED] no defect names the test AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[ESCAPED] no defect names the test AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[ESCAPED] no defect names the test AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse
+[ESCAPED] no defect names the test AcmpMailbox.B11RestoredBindingsArePublishedAtOpen
+[ESCAPED] no defect names the test AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream
+[ESCAPED] no defect names the test AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream
+[ESCAPED] no defect names the test AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+[ESCAPED] no defect names the test AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+[ESCAPED] no defect names the test AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+[ESCAPED] no defect names the test AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[ESCAPED] no defect names the test AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+[ESCAPED] no defect names the test AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[ESCAPED] no defect names the test AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+[ESCAPED] no defect names the test AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+[ESCAPED] no defect names the test AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[ESCAPED] no defect names the test AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[ESCAPED] no defect names the test AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[ESCAPED] no defect names the test ListenerWalk.Graded
+[ESCAPED] no defect names the test ListenerScenario.LD3TheLockRefusalStatus
+[ESCAPED] no defect names the test ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[ESCAPED] no defect names the test DiscoveryWalk.Graded
+[ESCAPED] no defect names the test TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[ESCAPED] no defect names the test TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[ESCAPED] no defect names the test TalkerWalk.TW3DisconnectAndGetTxConnection
+[ESCAPED] no defect names the test TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[ESCAPED] no defect names the test AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[ESCAPED] no defect names the test AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[ESCAPED] no defect names the test AcmpStore.N3EachSinksStartedStateIsSaved
+[ESCAPED] no defect names the test AcmpStore.N4AnUnreadSlotRefusesPersistence
+[ESCAPED] no defect names the test AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[ESCAPED] no defect names the test AcmpStore.N6TheRollBackAndEveryOtherGroup
+[ESCAPED] no defect names the test AcmpStore.N7AD3RollBackKeepsTheBindings
+[ESCAPED] no defect names the test Plat.C1IdentityIsMilnAndReadsVersion
+[ESCAPED] no defect names the test Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[ESCAPED] no defect names the test Plat.C3StatusIsReadInMilanStatusOrder
+[ESCAPED] no defect names the test Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[ESCAPED] no defect names the test Plat.K1MilanStatusAnswersTheGradersLines
+[ESCAPED] no defect names the test Plat.K2MilanGettimeAnswersTaiNs
+[ESCAPED] no defect names the test Plat.K3LinesEndOnceAndOthersAreRefused
+[ESCAPED] no defect names the test Plat.K4EachPassIsBounded
+[ESCAPED] no defect names the test Plat.K5TextPastTheRingIsDroppedAndCounted
+[ESCAPED] no defect names the test Plat.K6NumbersAtTheirEdges
+[ESCAPED] no defect names the test PlatMmio.I1ReadIsTheWordAtTheAddress
+[ESCAPED] no defect names the test PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[ESCAPED] no defect names the test Boot.B1ReachesReadyInStepOrder
+[ESCAPED] no defect names the test Boot.B2ForeignWindowStopsAtIdentity
+[ESCAPED] no defect names the test Boot.B3RefusedImageStopsAtImage
+[ESCAPED] no defect names the test Boot.B4RefusedStreamCountStopsAfterThePolicy
+[ESCAPED] no defect names the test Boot.B5OtherContractStopsAtMailbox
+[ESCAPED] no defect names the test Boot.B6UnacknowledgedFaceStopsAtAecp
+[ESCAPED] no defect names the test Boot.B7OnlyAReadyBootServicesTheLoop
+[ESCAPED] no defect names the test Boot.B8PlatformPortsAnswerAsDocumented
+[ESCAPED] no defect names the test Boot.B9SrpSourcesCarryTheGeneratedStreams
+[ESCAPED] no defect names the test Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[ESCAPED] no defect names the test Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[ESCAPED] no defect names the test Boot.B12TheResetWaitsForTheResponseToLeave
+[ESCAPED] no defect names the test Boot.B13RefusalsLeaveTheEntityInService
+[ESCAPED] no defect names the test Boot.B14WithoutAResetPortRebootIsNotImplemented
+[ESCAPED] no defect names the test Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[ESCAPED] no defect names the test Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[ESCAPED] no defect names the test Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[ESCAPED] no defect names the test Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[ESCAPED] no defect names the test Boot.B21TheDepartingWaitsForEveryOtherRing
+[ESCAPED] no defect names the test Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[ESCAPED] mutant reviewer-baseline-unplanted (platboot1): 0 check(s) failed, none named platboot1: Boot.B20NoOtherChannelTransmitsAfterTheDeparting on 'B20 no other channel starts a transmission after ENTITY_DEPARTING'
+[ok] mutant plat-reboot-transmits-after-the-departing (platboot1, platboot1, platboot1, platboot1): 88 check(s) failed
+    first: [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+[ok] mutant plat-reboot-takes-aecp-frames-after-the-success (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess: B19 no AECP frame is taken after the REBOOT's SUCCESS
+combined: also planted reboot-probes-after-its-success in aecp/aecp.c
+[ESCAPED] mutant reviewer-loop-on-plus-aecp-probes (platboot1): 22 check(s) failed, none named platboot1: Boot.B20NoOtherChannelTransmitsAfterTheDeparting on 'B20 no AECP transmission starts after ENTITY_DEPARTING'
+    first: [FAIL] Boot.B20NoOtherChannelTransmitsAfterTheDeparting: B20 no other channel starts a transmission after ENTITY_DEPARTING
+mutants: 2 of 4 caught; 76 test(s) named by no defect
+plat probe campaign escaped=True
