@@ -1,0 +1,5 @@
+# head 66f713267f201d1a00d7f711e04b3a996d804dee gate probe_r712_pin_1x1: python3 -I <management>/2026-09-23/665s2b-r712-6/scripts/probe_pin_1x1.py $PWD
+head: 1x1/1if pin 0.463 graded 0.450 findings []
+plant pin 1x1/1if record.acmp=2000: pin load 0.807 (> 0.70: True); merge gate findings: ['1x1/1if: the load 0.807 at the pin is over its ceiling 0.70']; held
+plant pin 1x1/1if event.ACMP=20000: pin load 0.661 (> 0.70: False); merge gate findings: []; held
+plant pin 1x1/1if base=400: pin load 0.463 (> 0.70: False); merge gate findings: []; held

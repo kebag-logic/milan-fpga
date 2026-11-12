@@ -1,0 +1,10 @@
+# head 66f713267f201d1a00d7f711e04b3a996d804dee gate flip_check_1x1_exits_1: python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+| Point | Row | By every source, ms | Bound, ms | Residual, ms | Largest terms, ms |
+|---|---|---:|---:|---:|---|
+| 1x1/1if | R4 | 73.02 | 20 | +53.02 | srp 16.50, others 10.96, item.retained 9.00 |
+| 1x1/1if | R5 | 37.19 | 90 | -52.81 | srp 8.00, others 7.79, item.retained 3.25 |
+| 1x1/1if | R6 | 32.69 | 90 | -57.31 | srp 8.00, others 5.44, rounds 3.23 |
+| 1x1/1if | first | 20.00 | 20 | +0.00 | AECP_QUEUED_FIRST_MS 20.00 |
+| 1x1/1if | last | 22.00 | 125 | -103.00 | AECP_QUEUED_MS 22.00 |
+OVER 1x1/1if R4: by every source 73.02 ms, over its bound 20 ms; the largest term srp 16.50 ms
+RESULT: FAIL

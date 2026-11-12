@@ -1,0 +1,106 @@
+diff --git a/sw/firmware/ctrl/aecp/aecp.h b/sw/firmware/ctrl/aecp/aecp.h
+index c7a5c3119a..f98895dc31 100644
+--- a/sw/firmware/ctrl/aecp/aecp.h
++++ b/sw/firmware/ctrl/aecp/aecp.h
+@@ -47,6 +47,13 @@ extern "C" {
+ #define AECP_RETRY_MAX_MS 8u
+ // The longest frame the fan port takes: every notice's but a long GET_AS_PATH's.
+ #define AECP_FAN_BYTES 256u
++// The response buffer's alignment, a line of the data cache: C11's _Alignas, and C++'s alignas where a test reads this
++// header as C++.
++#ifdef __cplusplus
++#define AECP_LINE alignas(64)
++#else
++#define AECP_LINE _Alignas(64)
++#endif
+ // What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
+ // CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
+ // is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+@@ -274,7 +281,7 @@ struct aecp {
+ 	uint16_t awaited; // the events whose snapshot awaits its frame's completion, the list aecp_tx_complete walks
+ 	// On a line of the data cache: what a recipient changes of a frame stays in one, which the record mover's read
+ 	// takes back from the cache each frame (#665).
+-	uint8_t response[AECP_FRAME_BYTES] __attribute__((aligned(64)));
++	AECP_LINE uint8_t response[AECP_FRAME_BYTES];
+ 	size_t response_bytes;
+ 	unsigned response_interface;
+ 	unsigned recipient;
+diff --git a/sw/firmware/ctrl/port/ctrl_pool.c b/sw/firmware/ctrl/port/ctrl_pool.c
+index 754f257527..495bdc110c 100644
+--- a/sw/firmware/ctrl/port/ctrl_pool.c
++++ b/sw/firmware/ctrl/port/ctrl_pool.c
+@@ -14,12 +14,13 @@
+ 
+ #include <string.h>
+ 
++#include "../plat/ctrl_cc.h"
++
+ uint32_t ctrl_pool_returned;
+ 
+-// A free block's first bytes, read and written as the pointer they hold: a block is on CTRL_POOL_ALIGN, and
+-// may_alias keeps the access defined on the arena's bytes (#665: through memcpy, a call each, they were a third of an
+-// SRP record's allocation).
+-typedef void *__attribute__((may_alias)) ctrl_pool_link;
++// A free block's first bytes hold the next free block, read and written in place as the pointer they are: a block is
++// on CTRL_POOL_ALIGN (ctrl_cc.h's ctrl_cc_ptr_load and _store; #665: through memcpy, a call each, they were a third
++// of an SRP record's allocation).
+ 
+ static size_t round_up(size_t value, size_t to)
+ {
+@@ -121,7 +122,7 @@ bool ctrl_pool_init(struct ctrl_pool *pool, void *arena, size_t arena_bytes,
+ static void *bin_take(struct ctrl_pool_bin *bin)
+ {
+ 	void *block = bin->free_head;
+-	bin->free_head = *(ctrl_pool_link *)block;
++	bin->free_head = ctrl_cc_ptr_load(block);
+ 	bin->free_count--;
+ 	size_t within;
+ 	bin->used[block_index(bin, (size_t)((uint8_t *)block - bin->base), &within)] = 1u;
+@@ -189,7 +190,7 @@ void ctrl_pool_free(struct ctrl_pool *pool, void *ptr)
+ 			return;
+ 		}
+ 		bin->used[index] = 0u;
+-		*(ctrl_pool_link *)ptr = bin->free_head;
++		ctrl_cc_ptr_store(ptr, bin->free_head);
+ 		bin->free_head = ptr;
+ 		bin->free_count++;
+ 		ctrl_pool_returned++;
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index c666215de7..20a8bbc8b9 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -3,6 +3,7 @@
+ #include "srp_mbx.h"
+ #include <string.h>
+ #include "srp_bounds.h"
++#include "../plat/ctrl_cc.h"
+ #ifndef NDEBUG
+ #include <assert.h>
+ #endif
+@@ -58,7 +59,7 @@ static bool enter(struct srp_mbx *m)
+ // 170 cycles. This one stops at the first byte that differs, from the last:
+ // one talker's StreamIDs differ in their unique ID, the last two bytes (IEEE
+ // 802.1Q-2018 35.2.2.8.2), and one talker's MACs in their last bytes.
+-static __attribute__((noinline)) bool same(const uint8_t *a, const uint8_t *b, unsigned n)
++static CTRL_CC_NOINLINE bool same(const uint8_t *a, const uint8_t *b, unsigned n)
+ {
+     while (n != 0u) {
+         --n;
+@@ -939,7 +940,7 @@ static bool turn_builds(const struct srp_mbx *m, const bool link[MBX_N_IF])
+ // A participant may hold an attribute mrp_reclaim frees (#665). lwSRP reclaims
+ // nothing on a participant holding a prepared PDU: while a frame is owed, its
+ // interface's reclaim is owed after it.
+-static __attribute__((noinline)) void reclaim(struct srp_interface *i)
++static CTRL_CC_NOINLINE void reclaim(struct srp_interface *i)
+ {
+     if (i->reclaim) {
+         (void)mrp_reclaim(i->msrp,0);
+@@ -949,7 +950,7 @@ static __attribute__((noinline)) void reclaim(struct srp_interface *i)
+ }
+ 
+ // One participant's MRPDU: lwSRP's result, with its join timer's shadow (tick) restarted by what it sent.
+-static __attribute__((noinline)) int build_mrpdu(struct srp_mbx *m, struct srp_interface *i, unsigned slot)
++static CTRL_CC_NOINLINE int build_mrpdu(struct srp_mbx *m, struct srp_interface *i, unsigned slot)
+ {
+     struct send_context send = {i,participant(i,slot)};
+     int result = mrp_transmit(send.app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);
