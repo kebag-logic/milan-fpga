@@ -1,0 +1,8 @@
+unplanted: rc 0, failed []
+fan-end-refused-taken-as-lost: rc 1, failed ['Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain']
+refused-mid-fan-after-a-taken-frame-taken-as-lost: rc 1, failed ['Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain']
+notice-completion-kept-for-a-walk-left-owed: rc 1, failed ['Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain']
+reviewer-refused-recipient-skipped: rc 1, failed ['Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease', 'Core.ANoticeIsAddressedToEachRecipientAlone', 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain', 'Core.NotificationBackpressureAndLatestCompletion', 'Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin']
+reviewer-completion-refusal-taken-as-done: rc 1, failed ['Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain', 'Mailbox.ANoticeWithNoRoomStaysOwed']
+reviewer-whole-only-when-nothing-lost: rc 1, failed ['Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain']
+reviewer-adapter-whole-ignored-after-room-check: rc 0, failed []

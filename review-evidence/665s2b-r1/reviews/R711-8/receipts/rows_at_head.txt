@@ -1,0 +1,20 @@
+1x1/1if h {'CTRL_LOOP_DRAIN_US': 1300, 'CTRL_LOOP_RX_PER_PASS': 2, 'CTRL_LOOP_TICK_US': 430, 'CTRL_LOOP_STEP_AGE': 2, 'CTRL_LOOP_STEP_PASS_US': 975}
+ rate {'adp': (8, 10), 'acmp': (16, 5), 'aecp': (16, 5), 'maap': (8, 20), 'srp': (32, 2)} tick 10
+ s {'n_if': 1, 'sinks_per_if': 2, 'registrations': 16, 'counter_descriptors': 6, 'notices': 12}
+ c {'base': 155, 'build': 900, 'build_one': 405, 'centisecond': 130, 'event.ACMP': 185, 'event.ADP': 110, 'event.AECP': 60, 'event.GM': 35, 'event.LINK': 150, 'event.MAAP': 165, 'event.TICK': 40, 'events_none': 25, 'item.acmp': 120, 'item.aecp': 210, 'item.aecp.notice': 210, 'item.aecp.probe': 60, 'item.aecp.response': 60, 'item.mrpdu': 405, 'item.rebuild': 290, 'item.reclaim': 25, 'item.retained': 260, 'item.walk': 20, 'item.withdraw': 90, 'record.acmp': 280, 'record.adp': 105, 'record.aecp': 205, 'record.maap': 90, 'record.srp': 260, 'step': 975}
+  R4 66.12 {'ticks': 3.29, 'aecp': 3.28, 'srp': 16.64, 'timers': 3.075, 'others': 10.58, 'gm': 0.105, 'builds': 0.9, 'steps': 2.925, 'item.walk': 0.16, 'item.reclaim': 1.7, 'item.retained': 2.08, 'item.mrpdu': 0.81, 'item.acmp': 4.08, 'item.aecp': 7.14, 'passes': 6.12, 'rounds': 3.23}
+  R5 35.95 {'ticks': 1.88, 'srp': 8.32, 'timers': 2.085, 'others': 8.755, 'gm': 0.105, 'builds': 0.9, 'steps': 1.95, 'item.walk': 0.1, 'item.reclaim': 0.65, 'item.mrpdu': 0.81, 'item.acmp': 1.56, 'item.aecp': 2.73, 'item.withdraw': 0.09, 'item.rebuild': 0.29, 'links': 0.15, 'passes': 2.34, 'rounds': 3.23}
+  R6 28.67 {'ticks': 1.41, 'srp': 8.32, 'timers': 1.795, 'others': 5.44, 'gm': 0.105, 'builds': 0.9, 'steps': 0.975, 'item.walk': 0.08, 'item.reclaim': 0.5, 'item.mrpdu': 0.81, 'item.acmp': 1.2, 'item.aecp': 2.1, 'passes': 1.8, 'rounds': 3.23}
+  first 20.0 {'AECP_QUEUED_FIRST_MS': 20.0}
+  last 22.0 {'AECP_QUEUED_MS': 22.0}
+8x8/2if h {'CTRL_LOOP_DRAIN_US': 1300, 'CTRL_LOOP_RX_PER_PASS': 2, 'CTRL_LOOP_TICK_US': 430, 'CTRL_LOOP_STEP_AGE': 2, 'CTRL_LOOP_STEP_PASS_US': 1030}
+ rate {'adp': (8, 10), 'acmp': (16, 5), 'aecp': (16, 5), 'maap': (8, 20), 'srp': (32, 2)} tick 10
+ s {'n_if': 2, 'sinks_per_if': 8, 'registrations': 16, 'counter_descriptors': 20, 'notices': 40}
+ c {'base': 280, 'build': 1995, 'build_one': 1215, 'centisecond': 510, 'event.ACMP': 350, 'event.ADP': 120, 'event.AECP': 100, 'event.GM': 320, 'event.LINK': 300, 'event.MAAP': 215, 'event.TICK': 40, 'events_none': 30, 'item.acmp': 185, 'item.aecp': 270, 'item.aecp.notice': 270, 'item.aecp.probe': 65, 'item.aecp.response': 65, 'item.mrpdu': 1215, 'item.rebuild': 630, 'item.reclaim': 35, 'item.retained': 365, 'item.walk': 60, 'item.withdraw': 245, 'record.acmp': 440, 'record.adp': 240, 'record.aecp': 265, 'record.maap': 130, 'record.srp': 365, 'step': 1030}
+  R4 346.15 {'ticks': 19.25, 'aecp': 4.24, 'srp': 74.46, 'timers': 21.99, 'others': 50.73, 'gm': 1.92, 'builds': 4.86, 'steps': 12.36, 'item.walk': 4.68, 'item.reclaim': 14.63, 'item.retained': 13.14, 'item.mrpdu': 9.72, 'item.acmp': 24.605, 'item.aecp': 31.59, 'passes': 41.23, 'rounds': 16.745}
+  R5 144.15 {'ticks': 8.25, 'srp': 11.68, 'timers': 14.89, 'others': 38.25, 'gm': 1.92, 'builds': 4.86, 'steps': 5.15, 'item.walk': 2.28, 'item.reclaim': 4.34, 'item.mrpdu': 9.72, 'item.acmp': 5.735, 'item.aecp': 8.37, 'item.withdraw': 0.49, 'item.rebuild': 1.26, 'links': 0.6, 'passes': 9.61, 'rounds': 16.745}
+  R6 135.8 {'ticks': 7.7, 'srp': 11.68, 'timers': 14.25, 'others': 37.175, 'gm': 1.92, 'builds': 4.86, 'steps': 5.15, 'item.walk': 2.16, 'item.reclaim': 3.78, 'item.mrpdu': 9.72, 'item.acmp': 4.995, 'item.aecp': 7.29, 'passes': 8.37, 'rounds': 16.745}
+  first 22.0 {'AECP_QUEUED_FIRST_MS': 22.0}
+  last 62.0 {'AECP_QUEUED_MS': 62.0}
+[]
+[]
