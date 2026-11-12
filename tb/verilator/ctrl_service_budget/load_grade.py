@@ -170,6 +170,8 @@ GRADED = STATED_US_DONOR
 #: tree's pin, the image that merges, and the donor's (#665: 1x1/1if at the pin and with tsn-c-stack#32, each at most
 #: 0.70).
 COLUMNS = (('at the pin', STATED_US), ('with tsn-c-stack#32', STATED_US_DONOR))
+#: Each column's name and the table it must read, by identity: unbound() refuses any other binding (#665).
+BOUND = (('at the pin', 'STATED_US'), ('with tsn-c-stack#32', 'STATED_US_DONOR'))
 #: The costs whose work runs the ACMP core's completion walk, which tsn-c-stack#32 changes: the donor column may state
 #: these below the pin's, and no other (a cost #32 does not touch measured lower there is the measurement's spread).
 WALK = ('record.acmp', 'record.adp', 'event.ACMP', 'item.acmp', 'base')
@@ -339,13 +341,27 @@ def below_pin(root: Path, table: dict | None = None, pin_table: dict | None = No
     return out
 
 
+def unbound() -> list[str]:
+    """COLUMNS not bound as BOUND says, each column's name to its own table and no column more or fewer, as one
+    finding naming the table each name reads (#665: a swap prints each HELD line with the other column's load and holds
+    neither by its name, so --check itself refuses it)."""
+    tables = {'STATED_US': STATED_US, 'STATED_US_DONOR': STATED_US_DONOR}
+    if len(COLUMNS) == len(BOUND) and all(name == want and table is tables[source]
+                                          for (name, table), (want, source) in zip(COLUMNS, BOUND)):
+        return []
+    read = [(name, next((n for n, t in tables.items() if table is t), 'another table')) for name, table in COLUMNS]
+    return [f"a column's name bound to the other's table, or a column not the gate's: {read}, not {list(BOUND)}"]
+
+
 def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
              texts: dict[str, str] | None = None, pin: dict | None = None) -> list[str]:
     """Each point over its ceiling in either column the gate holds it at (COLUMNS: at the pin, and with
     tsn-c-stack#32; `pin` and `table` stand in for them), each named; each point whose table lacks a cost the load
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
-    that bounds them), and a graded cost below the pin's that tsn-c-stack#32 does not move."""
-    out = [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
+    that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
+    table than its name's (unbound)."""
+    out = unbound()
+    out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
     for point, top in (ceiling or CEILING).items():
@@ -489,10 +505,24 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    # each column's name bound to its own table: the pin's name to this tree's pin's table, the donor's to the donor's
-    # (a swap prints each HELD line with the other column's load, and holds neither by its name)
-    if [(name, table is want) for (name, table), want in zip(COLUMNS, (STATED_US, STATED_US_DONOR))] != \
-            [('at the pin', True), ('with tsn-c-stack#32', True)] or len(COLUMNS) != 2:
+    return escaped + binding_controls(root)
+
+
+def binding_controls(root: Path) -> list[str]:
+    """Each column's name bound to its own table, refused by --check itself (findings): the head's own binding holds,
+    and the tables swapped, a column dropped and an equal copy that is not the donor's table are each refused; the
+    control's name if any escapes."""
+    escaped = []
+    me = sys.modules[__name__]
+    swapped = tuple((name, table) for (name, _), (_, table) in zip(COLUMNS, reversed(COLUMNS)))
+    refused = []
+    for planted in (swapped, COLUMNS[:1], (COLUMNS[0], (COLUMNS[1][0], dict(COLUMNS[1][1])))):
+        saved, me.COLUMNS = me.COLUMNS, planted
+        try:
+            refused.append(any("a column's name bound to the other's table" in f for f in findings(root)))
+        finally:
+            me.COLUMNS = saved
+    if unbound() or not all(refused):
         escaped.append("a column's name bound to the other's table")
     return escaped
 
