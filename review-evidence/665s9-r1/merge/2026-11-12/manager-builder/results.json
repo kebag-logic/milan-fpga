@@ -1,0 +1,619 @@
+{
+  "head": "7b3b346732eeea7a7d4f25c82b415ad79620edce",
+  "base": "8b1bdfaf1dcb9411ce5064f2b4207536e0bb7f32",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.066,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.298,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 17.16,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 2.362,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.678,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/05.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 20.544,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/06.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 188.614,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/07.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.768,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/08.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.222,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/09.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.53,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/10.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.985,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/11.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.8,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/12.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 8.142,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/13.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.055,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/14.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.036,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/15.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.133,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/16.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.082,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/17.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.462,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/18.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit_code": 0,
+      "seconds": 4.016,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/19.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.172,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/20.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.448,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/21.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.219,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/22.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.491,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/23.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.218,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/24.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.745,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/25.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.127,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/26.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.573,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/27.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.061,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/28.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 27.963,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/29.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 5.482,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/30.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 301.843,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/31.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 11.998,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/32.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 158.288,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/33.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.113,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/34.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.052,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/35.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "8b1bdfaf1dcb9411ce5064f2b4207536e0bb7f32"
+      ],
+      "exit_code": 0,
+      "seconds": 2.614,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/36.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.017,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/37.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 9.216,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/38.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.532,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/39.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 9.214,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/40.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.802,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/41.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_em_dash.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 2.559,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/42.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.171,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/43.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "git",
+        "diff",
+        "--check",
+        "8b1bdfaf1dcb9411ce5064f2b4207536e0bb7f32",
+        "7b3b346732eeea7a7d4f25c82b415ad79620edce"
+      ],
+      "exit_code": 0,
+      "seconds": 0.032,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/44.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_wire_accountability.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.235,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/45.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 69.787,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/46.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.39,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/47.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/665s9-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "python3",
+        "-u",
+        "$VALIDATION_STORAGE/665s9-candidate-0923/full-builder-sdk.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1532.431,
+      "log": "$VALIDATION_STORAGE/665s9-candidate-0923/manager-builder/48.log"
+    }
+  ]
+}
