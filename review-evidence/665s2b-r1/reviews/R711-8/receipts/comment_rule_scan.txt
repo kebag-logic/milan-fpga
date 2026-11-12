@@ -1,0 +1,23 @@
+132:+                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+133:+                                         "6425357821); 58.0 since a TX record's commit judges its own move, "
+159:+    1x1/1if's R4 the way the defect does: the planted names that escaped."""
+164:+    held = rows_grade.rows(root, '1x1/1if')['R4'][0]
+167:+    # less AECP's whole burst; the first lengthens R4, the second shortens it
+175:+            w = rows_grade.rows(root, '1x1/1if')['R4'][0]
+182:+    saved = planted_rule('RETAINED_ROWS', ('R4', 'R5', 'R6'))
+243:+             record behind the row's in its own ring does not precede it. In R4 SRP's records are THE DRAIN's first:
+248:+             centisecond and one after each, and one an ordinary pass (retained_retries; R4 alone, below); an owed
+249:+             MRPDU two a build; ACMP's and AECP's owed frames one a pass and no more than their sources; R5's
+254:+not the CPU's service. So SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage, and count
+255:+neither that hold nor the retry; R4's record, AECP's, is held by no SRP record, and a refusal of SRP's costs it the
+256:+retries, which it counts (RETAINED_ROWS). With the hold counted, each of SRP's 31 records ahead of R5's or R6's
+266:+#: The rows that count a retained record's retries: R4 alone, SRP's own rows being solved with no record of theirs
+268:+RETAINED_ROWS = ('R4',)
+280:+    """The part of R4's window over which an SRP record that arrives is taken ahead of the row's: W less the row's own
+294:+    (load_grade.RETRY_RULE), its retries in R4 at that rule and in no SRP row, SRP's arrivals ahead of R4's record over
+301:+            d = demand('R4', inputs, w)
+305:+                out.append(f'{point} R4: {got} retained retries in {w:g} ms, not the retry\'s rule\'s {rule} '
+310:+                out.append(f'{point} R4: {got} SRP records ahead in {w:g} ms, not the {rule} that arrive before the '
+312:+            out += [f'{point} {row}: a retained record\'s retry counted in an SRP row' for row in ('R5', 'R6')
+325:+    "rows: SRP's arrivals ahead of R4's record cut by AECP's whole burst (earlier rule)": lambda: [patch.object(
+328:+        rows_grade, 'RETAINED_ROWS', ('R4', 'R5', 'R6'))],

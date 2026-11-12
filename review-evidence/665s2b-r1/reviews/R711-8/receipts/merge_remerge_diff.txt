@@ -1,0 +1,291 @@
+e96b91202baadead2ffde2595abcb21cc19c5f0a
+
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+remerge CONFLICT (content): Merge conflict in docs/design/MAILBOX_SPLIT.md
+index f30553d538..8733049678 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -731,48 +731,27 @@ input's resulting ACMP action
+ So every row's bound is 20 ms. The access times are that bound over the
+ row's accesses, rounded down.
+ 
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+ | Input | Taken by pass | Bound, accesses | Access time for the 20 ms bound | Measured on the model |
+ |---|---:|---:|---:|---|
+-| an event behind 15 others | 2 | 3,090 | 6.47 us | every event by pass 2; worst pass 193 accesses |
+-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
++| an event behind 15 others | 2 | 8,262 | 2.42 us | every event by pass 2; worst pass 193 accesses |
++| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 30,294 | 0.66 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
++| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 60,588 | 0.33 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
++| a response with 7 frames owed ahead of it | 8, after the room returns | 24,786 | 0.80 us | pass k + 1 for k = 0, 3 and 7: 26, 104 and 208 accesses |
+ 
+ The access time is not measured (A4). At F0's assumed 1 us per access every
+-path's own figure is under 0.1 ms. The event's backlog bound (3.09 ms), the
+-bound behind a full acmp ring (11.33 ms) and the owed-frame bound fit the
+-20 ms bound at that figure; the bound behind a full adp ring (22.66 ms) does
+-not. The owed-frame bound, 9,270 accesses (8,865 before round 2 added the
+-probe's timer to a poll, 8,964 before round 4 added the clock read after each
+-probe sent at once, and 9,108 before the publication block), is 9.27 ms at
+-that figure, the time waiting for room excluded. The
+-bounds charge every pass with every term at its maximum at once (sixteen
+-sinks each probing, eight events each at ADP's costliest action), which the
+-measured backlogs stay far below. Whether these paths meet their bound on the
+-=======
+-| Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
+-|---|---:|---:|---:|---:|---|
+-| an event behind 15 others | 2 | 8,262 | 1.21 us | 2.42 us | every event by pass 2; worst pass 193 accesses |
+-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 30,294 | 0.33 us | 0.66 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 60,588 | 0.16 us | 0.33 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 24,786 | 0.40 us | 0.80 us | pass k + 1 for k = 0, 3 and 7: 26, 104 and 208 accesses |
+-
+-The access time is not measured (A4). At F0's assumed 1 us per access every
+-path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc
+-(8.26 ms). The bounds behind a full acmp ring or a full adp ring do not fit
+-T_svc at that figure, and both exceed the ceiling. The owed-frame bound,
+-24,786 accesses (9,270 before the kept command's redelivery, 8,865 before
+-round 2 added the probe's timer to a poll, 8,964 before round 4 added the
+-clock read after each probe sent at once, and 9,108 before the publication
+-block), no longer fits T_svc at that figure: 24.79 ms, over the ceiling too,
+-the time waiting for room excluded. Each poll that sends now also reads the
+-acmp ring's RX_HEAD once for the redelivery, so the measured owed paths take
+-one access more a pass. The
++path's own figure is under 0.1 ms, and the event's backlog bound (8.26 ms)
++fits the 20 ms bound. The bound behind a full acmp ring (30.29 ms), the bound
++behind a full adp ring (60.59 ms) and the owed-frame bound do not. The
++owed-frame bound, 24,786 accesses (9,270 before the kept command's
++redelivery, 8,865 before round 2 added the probe's timer to a poll, 8,964
++before round 4 added the clock read after each probe sent at once, and 9,108
++before the publication block), is 24.79 ms at that figure, the time waiting
++for room excluded. Each poll that sends now also reads the acmp ring's
++RX_HEAD once for the redelivery, so the measured owed paths take one access
++more a pass. The
+ bounds charge every pass with every term at its maximum at once (sixteen
+ sinks each probing, eight events each at ADP's costliest action, a full ring
+-redelivered after every poll), which the measured backlogs stay far below. Whether these paths meet T_svc on the
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++redelivered after every poll), which the measured backlogs stay far below. Whether these paths meet their bound on the
+ shipping core is open until the access time is measured (see
+ [Open items](#open-items)). Meeting it may need a tighter per-pass
+ composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
+@@ -785,42 +764,23 @@ MAAP adds each of eight event callbacks at 65 accesses, two records at
+ source freshness reads in the dispatch path, outside every MAAP callback.
+ Each input has the same pass count as above.
+ 
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+ | Input | Taken by pass | Bound with MAAP, accesses | Access time for the 20 ms bound |
+ |---|---:|---:|---:|
+-| an event behind 15 others | 2 | 5,349 | 3.73 us |
+-| an ACMP command behind a full acmp ring | 10 | 19,613 | 1.01 us |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.50 us |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 1.24 us |
+-=======
+-| Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
+-|---|---:|---:|---:|---:|
+-| an event behind 15 others | 2 | 10,521 | 0.95 us | 1.90 us |
+-| an ACMP command behind a full acmp ring | 10 | 38,577 | 0.25 us | 0.51 us |
+-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 77,154 | 0.12 us | 0.25 us |
+-| a response with 7 frames owed ahead of it | 8, after the room returns | 31,563 | 0.31 us | 0.63 us |
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++| an event behind 15 others | 2 | 10,521 | 1.90 us |
++| an ACMP command behind a full acmp ring | 10 | 38,577 | 0.51 us |
++| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 77,154 | 0.25 us |
++| a response with 7 frames owed ahead of it | 8, after the room returns | 31,563 | 0.63 us |
+ 
+ On the model, 15 events, 12 acmp records and 7 maap records behind them
+ take a worst pass of 231 accesses (233 at two interfaces), every record and
+ event within 10 passes (`test_acmp_mbx.cpp` F6).
+ 
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-At F0's assumed 1 us per access, the event bound (5.35 ms), the owed-frame
+-bound (16.05 ms) and the bound behind a full acmp ring (19.61 ms) still fit
+-the 20 ms bound; the one behind a full adp ring exceeds it (39.23 ms).
+-
+-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,116
+-accesses at one interface and 3,256 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+-=======
+-At F0's assumed 1 us per access no bound fits T_svc. The event bound
+-(10.52 ms) is under the ceiling; the owed-frame bound (31.56 ms), the bound
+-behind a full acmp ring (38.58 ms) and the one behind a full adp ring
+-(77.15 ms) exceed it.
+-
+-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 5,247
+-accesses at one interface and 6,153 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++At F0's assumed 1 us per access the event bound (10.52 ms) still fits the
++20 ms bound; the owed-frame bound (31.56 ms), the bound behind a full acmp
++ring (38.58 ms) and the one behind a full adp ring (77.15 ms) exceed it.
++
++With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 4,840
++accesses at one interface and 4,980 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+ includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
+ sets of event-record reads: the eight shared records are each read once.
+ Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
+@@ -848,25 +808,14 @@ Target calibration must include both costs; this table bounds mailbox accesses o
+ 
+ | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for the 20 ms bound, IF=1 / IF=2 |
+ |---|---:|---:|---:|
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-| an event behind 15 others | 2 | 9,348 / 9,768 | 2.13 / 2.04 us |
+-| an ACMP command behind a full acmp ring | 10 | 34,276 / 35,816 | 0.58 / 0.55 us |
+-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 68,552 / 71,632 | 0.29 / 0.27 us |
+-| a response with 7 frames owed ahead of it | 8, after room returns | 28,044 / 29,304 | 0.71 / 0.68 us |
++| an event behind 15 others | 2 | 14,520 / 14,940 | 1.37 / 1.33 us |
++| an ACMP command behind a full acmp ring | 10 | 53,240 / 54,780 | 0.37 / 0.36 us |
++| an ENTITY_AVAILABLE behind a full adp ring | 21 | 106,480 / 109,560 | 0.18 / 0.18 us |
++| a response with 7 frames owed ahead of it | 8, after room returns | 43,560 / 44,820 | 0.45 / 0.44 us |
+ 
+-At 1 us per access, event envelopes are 9.348 / 9.768 ms.
++At 1 us per access, event envelopes are 14.520 / 14.940 ms.
+ Both fit the 20 ms bound, T_svc and the ACMP ceiling alike; none of the
+ other rows does.
+-=======
+-| an event behind 15 others | 2 | 15,741 / 18,459 | 0.63 / 0.54 us |
+-| an ACMP command behind a full acmp ring | 10 | 57,717 / 67,683 | 0.17 / 0.14 us |
+-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 115,434 / 135,366 | 0.08 / 0.07 us |
+-| a response with 7 frames owed ahead of it | 8, after room returns | 47,223 / 55,377 | 0.21 / 0.18 us |
+-
+-At 1 us per access, event envelopes are 15.741 / 18.459 ms.
+-Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
+-ceiling still covers both event envelopes, but none of the other rows.
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
+ The firmware gate compiles these header bounds at both interface counts.
+ It checks each product and conservatively rounded access-time threshold.
+ Its controls spoil each table cell and the event-time conclusion.
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 97eb2f37b2..ccc3afbdc6 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -102,11 +102,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+ | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 19,968 B | 59.0 |
+-=======
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,392 B | 59.0 |
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,288 B | 59.0 |
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/README.md
+index e445a3beb7..ee05089e99 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -441,16 +441,10 @@ Registration and withdrawal can each stop or re-arm a timer.
+ Withdrawal can also read the clock and initial random seed, and publishes
+ the sink's binding without its stream.
+ The static maximum of 16 sinks contributes 112 accesses.
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-The result is 3,116 accesses at one interface and 3,256 at two. The SRP bound counts one maximum-size frame per
++The result is 4,840 accesses at one interface and 4,980 at two. The SRP bound counts one maximum-size frame per
+ library transmit call, at most one sending call a poll over every interface
+ (#665: `SRP_MBX_POLL_FRAMES`, the next participant's on the next poll), receive
+ readiness and retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+-=======
+-The result is 5,247 accesses at one interface and 6,153 at two. The SRP bound counts one maximum-size frame per
+-library transmit call, at most two calls per interface, receive readiness and
+-retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
+ The feedback allowance covers the same poll's ACMP registration entries.
+ It excludes CPU work and external ports.
+ The SRP arm also builds U6/F6 with all four modules at each interface count:
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 4e4dcf2800..526c52b854 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -111,7 +111,6 @@ ctrl_mem forward
+ acmp respond
+ acmp build
+ acmp wire_put_be
+-libcompiler_rt.a:lshrdi3 __lshrdi3
+ acmp transmit
+ acmp publish
+ acmp p_send
+diff --git a/sw/firmware/ctrl/test/acmp_mutants.py b/sw/firmware/ctrl/test/acmp_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/acmp_mutants.py
+index 7095e8cb3c..61929795e4 100644
+--- a/sw/firmware/ctrl/test/acmp_mutants.py
++++ b/sw/firmware/ctrl/test/acmp_mutants.py
+@@ -778,14 +778,9 @@ MUTANTS = (
+     Mutant("acmp-expiry-reads-the-clock-twice", ACMP_C,
+            ("\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
+             "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-           "acmp", "AcmpCore.TimerPortBudgets", "timer clock budget for state PRB_W_DELAY"),
+-=======
+            ("\ta->timer_armed[interface] = false;\n\ta->dirty_if |= 1u << interface;\n"
+             "\t(void)a->ports->now_ms(a->ports->ctx);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"),
+-           "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry",
+-           "C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP"),
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++           "acmp", "AcmpCore.TimerPortBudgets", "timer clock budget for state PRB_W_DELAY"),
+     Mutant("acmp-available-reads-the-clock-twice", ACMP_C, "\ts->adp_deadline = now(a) + valid_ms;",
+            "\ts->adp_deadline = now(a) + valid_ms + 0u * a->ports->now_ms(a->ports->ctx);",
+            "acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index 2909d3b05e..d1e4ecc2bc 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -33,20 +33,11 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 8/8  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 114/114  branches 68/68
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+ sw/firmware/ctrl/srp/srp_mbx.c  lines 663/663  branches 577/577
+ sw/firmware/ctrl_nvm/nvm_klj2.c  lines 207/207  branches 116/116
+ sw/firmware/ctrl_nvm/nvm_store.c  lines 456/456  branches 265/265
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 108/108  branches 63/63
+-third_party/tsn-c-stack/include/wire.h  lines 10/10  branches 2/2
+-third_party/tsn-c-stack/src/acmp.c  lines 792/792  branches 392/392
+-=======
+-sw/firmware/ctrl/srp/srp_mbx.c  lines 543/543  branches 486/486
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 198/198  branches 106/106
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259
+-sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+ third_party/tsn-c-stack/include/wire.h  lines 14/14  branches 2/2
+ third_party/tsn-c-stack/src/acmp.c  lines 847/847  branches 436/436
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
+ third_party/tsn-c-stack/src/adp.c  lines 206/206  branches 99/99
+ third_party/tsn-c-stack/src/maap.c  lines 209/209  branches 140/140
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index 150a5b9f2f..e1cea75493 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -214,11 +214,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                    57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                          "6425357821)"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 19_968)), 59.0,
+-=======
+-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 21_392)), 59.0,
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_288)), 59.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image)"),
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index 0a859ac015..a1836c8e33 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -23,11 +23,7 @@ STAGE_1X1, STAGE_8X8 = 3344, 13264
+ FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
+ #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+ #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+-<<<<<<< 66f713267f (Restate two of 1x1/1if's costs with tsn-c-stack#32 from this round's legs, and state in section 13 the re-grade on this image, both columns held, the rows by every source the flip check holds and round 16's margin at 8x8/2if deferred to #890 (#665))
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_168, 18_672, 17_816, 19_968
+-=======
+-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_584, 20_080, 19_240, 21_392
+->>>>>>> bfe7a9d676 (Hold S2's scenario module at the Python gate's module length, its kept-command comment in two lines (#665))
++PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_472, 19_008, 18_112, 20_288
+ 
+ 
+ class Case(NamedTuple):
