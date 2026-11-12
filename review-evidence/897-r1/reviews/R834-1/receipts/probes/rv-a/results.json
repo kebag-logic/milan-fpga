@@ -1,0 +1,67 @@
+[
+  {
+    "name": "rv-count-never-reported",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "the count, the datapath's"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-caller-capacity-ignored",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "one past the capacity fails the port"
+      ]
+    ],
+    "rc": 2,
+    "caught": false
+  },
+  {
+    "name": "rv-entry-ordinal-plus-one",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "in order"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-last-entry-not-read",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "the count, then each entry once"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-entry-byte-order-swapped",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "in order"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  }
+]

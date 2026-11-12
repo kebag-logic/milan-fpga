@@ -1,0 +1,342 @@
+Note: Google Test filter = Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 1
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 24
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 7817527639933184
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 3
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 40
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 7817527639933696
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 12544
+  path[k]
+    Which is: 7817527639933697
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 34068
+  path[k]
+    Which is: 7817527639933698
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 8
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 80
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 142945101545472
+  path[k]
+    Which is: 7817527639934976
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8448
+  path[k]
+    Which is: 7817527639934977
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 25419
+  path[k]
+    Which is: 7817527639934978
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 17301384275639162271
+  path[k]
+    Which is: 7817527639934979
+entry 3 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 3 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 18403127374032732160
+  path[k]
+    Which is: 7817527639934980
+entry 4 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 4 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8448
+  path[k]
+    Which is: 7817527639934981
+entry 5 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 5 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 32891
+  path[k]
+    Which is: 7817527639934982
+entry 6 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 6 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 1838685253288382490
+  path[k]
+    Which is: 7817527639934983
+entry 7 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 7 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 1
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 24
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 142945101545472
+  path[k]
+    Which is: 7817527639998720
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 3
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 40
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 0
+  path[k]
+    Which is: 7817527639999232
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 12544
+  path[k]
+    Which is: 7817527639999233
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 1355
+  path[k]
+    Which is: 7817527639999234
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3100: Failure
+Expected equality of these values:
+  get(out,40,2)
+    Which is: 0
+  n
+    Which is: 8
+the count, the datapath's
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: the count, the datapath's
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3101: Failure
+Expected equality of these values:
+  get(out,16,2)&0x7ffu
+    Which is: 16
+  16u+8u*n
+    Which is: 80
+control_data_length 16 + 8 a ClockIdentity
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: control_data_length 16 + 8 a ClockIdentity
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 142945101545472
+  path[k]
+    Which is: 7817527640000512
+entry 0 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 0 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 8448
+  path[k]
+    Which is: 7817527640000513
+entry 1 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 1 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 49996
+  path[k]
+    Which is: 7817527640000514
+entry 2 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 2 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 17301384275639162271
+  path[k]
+    Which is: 7817527640000515
+entry 3 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 3 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 18403127374032745010
+  path[k]
+    Which is: 7817527640000516
+entry 4 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 4 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 3544333753302130944
+  path[k]
+    Which is: 7817527640000517
+entry 5 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 5 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 32891
+  path[k]
+    Which is: 7817527640000518
+entry 6 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 6 in order
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:3102: Failure
+Expected equality of these values:
+  get(out,42+8*k,8)
+    Which is: 1838685253288382490
+  path[k]
+    Which is: 7817527640000519
+entry 7 in order
+
+  [FAIL] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow: entry 7 in order
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow (1 ms)
+[----------] 1 test from Face (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

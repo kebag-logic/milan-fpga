@@ -1,0 +1,54 @@
+[
+  {
+    "name": "face-as-path-count-unanswered-ignored",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "the count unanswered fails the port"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-entry-unanswered-ignored",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "an entry unanswered fails the port"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-change-notifies-avb-info",
+    "origin": "author",
+    "file": "app/ctrl_app_aecp.c",
+    "checks": [
+      [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "an AS_PATH change notifies GET_AS_PATH"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-change-on-the-first-interface",
+    "origin": "author",
+    "file": "app/ctrl_app_aecp.c",
+    "checks": [
+      [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "an AS_PATH change notifies GET_AS_PATH"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  }
+]

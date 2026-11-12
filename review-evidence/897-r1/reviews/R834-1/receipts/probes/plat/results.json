@@ -1,0 +1,40 @@
+[
+  {
+    "name": "plat-as-path-unavailable",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "kills": [
+      [
+        "platboot1",
+        "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+        "B11 GET_AS_PATH answers SUCCESS"
+      ],
+      [
+        "platboot2",
+        "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+        "B11 GET_AS_PATH answers SUCCESS"
+      ]
+    ],
+    "caught": true,
+    "missed": []
+  },
+  {
+    "name": "rv-plat-entries-dropped",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "kills": [
+      [
+        "platboot1",
+        "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+        "B11 the count the datapath serves"
+      ],
+      [
+        "platboot2",
+        "Boot.B11GetAsPathAnswersTheDatapathsSequence",
+        "B11 the count the datapath serves"
+      ]
+    ],
+    "caught": true,
+    "missed": []
+  }
+]

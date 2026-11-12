@@ -1,0 +1,5 @@
+refused: aecp_face.c does not compile:
+<packet>/scratch/runs/rv-b/work-rv-path-not-in-face-ports/ctrl/aecp/aecp_face.c:254:13: error: ‘path’ defined but not used [-Werror=unused-function]
+  254 | static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *out, size_t capacity, size_t *count)
+      |             ^~~~
+cc1: all warnings being treated as errors

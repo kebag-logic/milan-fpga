@@ -1,0 +1,6 @@
+refused: aecp_face.c does not compile:
+<packet>/scratch/runs/rv-a/work-rv-caller-capacity-ignored/ctrl/aecp/aecp_face.c: In function ‘path’:
+<packet>/scratch/runs/rv-a/work-rv-caller-capacity-ignored/ctrl/aecp/aecp_face.c:254:87: error: unused parameter ‘capacity’ [-Werror=unused-parameter]
+  254 | static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *out, size_t capacity, size_t *count)
+      |                                                                                ~~~~~~~^~~~~~~~
+cc1: all warnings being treated as errors

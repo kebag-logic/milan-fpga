@@ -1,0 +1,67 @@
+[
+  {
+    "name": "rv-entry-index-zero",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "of its AVB_INTERFACE"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-count-type-zero",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "of its AVB_INTERFACE"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-entry-through-first-window",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "read through its own interface's window"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-as-path-event-dropped",
+    "origin": "reviewer",
+    "file": "app/ctrl_app_aecp.c",
+    "checks": [
+      [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "an AS_PATH change notifies GET_AS_PATH"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "rv-path-not-in-face-ports",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "its descriptor_index"
+      ]
+    ],
+    "rc": 2,
+    "caught": false
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "rv-caller-capacity-ignored",
+    "origin": "reviewer",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "one past the capacity fails the port"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  }
+]

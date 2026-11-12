@@ -1,0 +1,47 @@
+# reviewer receipt: aecp_face.c compiled for the split hart (RV32IM, ctrl_build.SPLIT_RV32_FLAGS' -march/-Os/-DNDEBUG, one section per function), base 7f50ee6a vs head 5e6fef3e
+# compiler: riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0
+## base
+.text                                0
+.text.random_value                  16
+.text.path                          16
+.text.applied                      132
+.text.counters                     244
+.text.stream                       400
+.text.interface_of.isra.0           76
+.text.current.isra.0                20
+.text.write_stream                 452
+.text.publish                      580
+.text.changed                      336
+.text.format                       220
+.text.avb                          344
+.text.aecp_face_init               184
+.text.aecp_face_attach               8
+.text.aecp_face_status             152
+.text.aecp_face_poll               144
+.text.aecp_face_open                60
+TOTAL .text                       3384
+## head
+.text                                0
+.text.random_value                  16
+.text.applied                      132
+.text.gsi                          136
+.text.path                         280
+.text.avb                          324
+.text.counters                     244
+.text.stream                       360
+.text.interface_of.isra.0           76
+.text.current.isra.0                20
+.text.format                       208
+.text.write_stream                 452
+.text.publish                      580
+.text.changed                      336
+.text.aecp_face_init               184
+.text.aecp_face_attach               8
+.text.aecp_face_status             152
+.text.aecp_face_poll               144
+.text.aecp_face_open                60
+TOTAL .text                       3712
+## author's linked-image rom (receipts rom/images-*.md): head - base per point (1x1-if1, 1x1-if2, 8x8-if1, 8x8-if2)
+fixture [328, 328, 328, 328]
+platform [312, 312, 312, 312]
+## granule arithmetic: fixture 8x8-if2 to 124928 = 1488 ; platform 8x8-if2 past 126976 = 1600 ; every-port arm 124928-123756 = 1172

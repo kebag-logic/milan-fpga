@@ -1,0 +1,67 @@
+[
+  {
+    "name": "face-as-path-count-read-as-avb-info",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "the count, then each entry once"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-entries-at-one-ordinal",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "at selector 8, by its ordinal"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-through-the-first-interface",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "read through its own interface's window"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-truncated-at-its-bound",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "a count past the bound fails the port"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  },
+  {
+    "name": "face-as-path-bound-off-by-one",
+    "origin": "author",
+    "file": "aecp/aecp_face.c",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "AECP_PATH_ITEMS entries are carried"
+      ]
+    ],
+    "rc": 1,
+    "caught": true
+  }
+]

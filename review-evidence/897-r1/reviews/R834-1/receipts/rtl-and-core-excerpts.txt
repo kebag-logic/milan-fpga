@@ -1,0 +1,151 @@
+# reviewer receipt: the RTL the face's kind 2 read depends on, at head 5e6fef3e (unchanged by the delta)
+## git diff 7f50ee6a..HEAD -- hdl/ (empty = no RTL change):
+## hdl/milan/milan_datapath.sv:2459,2477
+  wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_count_w /* verilator public_flat_rd */;
+  wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
+  localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
+  //! milan_csr owner-selects o_asp_*: entries 1..7 of the engine's complete
+  //! committed pathTrace in product mode and structural zero in option-off
+  //! mode. Entry 0 takes the same owner selection here. The conditional
+  //! head below is the exact entry-zero value GET_AS_PATH serves and the
+  //! Table 5.22 comparator observes: the received head, which need not be
+  //! the grandmaster (#88), or thisClock.
+  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w : 4'd0;
+  wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w
+                                                 : 64'd0;
+  wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
+      : asp_owner_count_w;
+  wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
+      : asp_path_w;
+  wire [63:0] asp_live_head_w = (|asp_live_count_w) ? asp_owner_head_w
+      : 64'd0;
+## hdl/milan/milan_datapath.sv:6297,6307
+  wire asp_resp_capture_w /* verilator public_flat_rd */ =
+       pp_gsi_req_w && !gsi_req_q_r && (pp_gsi_kind_w == 2'd2)
+       && (pp_gsi_sel_w == 4'd0);
+  wire gsi_avb_capture_w = pp_gsi_req_w && !gsi_req_q_r
+       && (pp_gsi_kind_w == 2'd1) && (pp_gsi_sel_w == 4'd0);
+  //! The harness watches this independently of TX backpressure. Its in-flight
+  //! cut must complete PUBLISH after the count snapshot but before the first
+  //! path-entry request, otherwise an all-old response would be a false-green
+  //! consequence of publishing after the gather had already finished.
+  wire asp_resp_entry_w /* verilator public_flat_rd */ =
+       pp_gsi_req_w && (pp_gsi_kind_w == 2'd2) && (pp_gsi_sel_w == 4'd8);
+## hdl/milan/milan_datapath.sv:6337,6343
+      gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
+      gsi_data_r   <= gsi_ans_raw_w;
+      if (asp_resp_capture_w) begin
+        asp_resp_head_r  <= asp_live_head_w;
+        asp_resp_count_r <= asp_live_count_w;
+        asp_resp_path_r  <= asp_live_path_w;
+      end
+## hdl/milan/milan_datapath.sv:6570,6581
+  wire [3:0] asp_served_count_w = asp_resp_count_r;
+  logic [63:0] asp_served_entry_w;
+  always_comb begin : asp_entry_pick
+    asp_served_entry_w = 64'd0;
+    if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;
+      else
+        for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
+          if (32'(gsiq_ord_r) == k)
+            asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];
+    end
+  end : asp_entry_pick
+## hdl/milan/milan_datapath.sv:6665,6671
+      end
+      default: begin                         // ---- GET_AS_PATH ----
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = {60'd0, asp_served_count_w};
+          4'd8: gsi_ans_raw_w = asp_served_entry_w;
+          default: gsi_ans_raw_w = 64'd0;
+        endcase
+## hdl/milan/milan_datapath.sv:10062,10071
+    assign pp_gsi_req_w          = i_ctl_gsi_req;
+    assign pp_gsi_kind_w         = i_ctl_gsi_kind;
+    assign pp_gsi_desc_type_w    = i_ctl_gsi_type;
+    assign pp_gsi_desc_index_w   = i_ctl_gsi_index;
+    assign pp_gsi_sel_w          = i_ctl_gsi_sel;
+    assign pp_gsi_ord_w          = i_ctl_gsi_ord;
+    assign pp_gsi_prop_fmt_w     = i_ctl_gsi_prop;
+    assign o_ctl_gsi_data        = pp_gsi_data_w;
+    assign o_ctl_gsi_wait        = pp_gsi_wait_w;
+
+## hdl/milan/mailbox/KL_mbx.sv:636,652
+        if (gsi_busy_r[i]) begin
+          if (gsi_ans_p_i[i] && gsi_ans_tag_i[MBX_GSI_STATUS_TAG_WIDTH_C*i +: MBX_GSI_STATUS_TAG_WIDTH_C] == gsi_tag_r[i]) begin
+            gsi_busy_r[i] <= 1'b0;
+            gsi_done_r[i] <= 1'b1;
+            gsi_data_r[i] <= gsi_ans_data_i[64*i +: 64];
+          end else if (32'(gsi_wait_r[i]) + 32'd1 >= MBX_WIN_GSI_WAIT_CYCLES_C) begin
+            gsi_busy_r[i] <= 1'b0;
+            gsi_tmo_r[i]  <= 1'b1;
+          end
+          gsi_wait_r[i] <= gsi_wait_r[i] + 16'd1;
+        end
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_CMD_C) && mbx_field_f(host_wdata_i, MBX_GSI_CMD_GO_LSB_C, MBX_GSI_CMD_GO_WIDTH_C) != 0) begin
+        gsi_busy_r[face_if_w] <= 1'b1;
+        gsi_done_r[face_if_w] <= 1'b0;
+        gsi_tmo_r[face_if_w]  <= 1'b0;
+        gsi_tag_r[face_if_w]  <= gsi_tag_r[face_if_w] + MBX_GSI_STATUS_TAG_WIDTH_C'(1);
+## hdl/milan/mailbox/KL_mbx.sv:714,714
+      gsi_req_o[i] = gsi_busy_r[i];
+## sw/firmware/ctrl/mbx/mbx_contract.h GSI_SEL fields
+/* The word asked for: KIND 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH; SEL the word within the kind (kind 0 selector 15 is SET_STREAM_FORMAT's verdict on GSI_PROP); ORD an array ordinal. */
+#define MBX_FACE_REG_GSI_SEL 0xC4u
+/* GSI_SEL: the command family */
+#define MBX_GSI_SEL_KIND_LSB 0u
+/* GSI_SEL: the command family */
+#define MBX_GSI_SEL_KIND_WIDTH 2u
+/* GSI_SEL: the word selector */
+#define MBX_GSI_SEL_SEL_LSB 4u
+/* GSI_SEL: the word selector */
+#define MBX_GSI_SEL_SEL_WIDTH 4u
+/* GSI_SEL: the array ordinal */
+#define MBX_GSI_SEL_ORD_LSB 8u
+/* GSI_SEL: the array ordinal */
+#define MBX_GSI_SEL_ORD_WIDTH 8u
+#define MBX_WIN_GSI_WAIT_CYCLES 64u
+## protocol-processor docs/architecture/06_aecp_engine.md 6.10 word table
+| kind | sel | word | lands at |
+|---|---|---|---|
+| 1 AVB | 0 | gptp_grandmaster_id (qword) | @28 |
+| 1 AVB | 1 | {propagation_delay[31:0], domain[7:0], flags[7:0], msrp_mappings_count[15:0]} | @36..@43 |
+| 1 AVB | 8 | msrp_mapping[`gsi_ord`] {traffic_class, priority, vlan_id} (dword) | @44 + 4k |
+| 2 ASP | 0 | {48'0, path count} | @26 |
+| 2 ASP | 8 | path_sequence[`gsi_ord`] ClockIdentity (qword) | @28 + 8k |
+
+## sw/firmware/ctrl/aecp/aecp_commands.c:453-483 (the core's GET_AS_PATH, unchanged)
+static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
+{
+	body(out, bytes, path ? 4u : 20u);
+	if (len < 4u) {
+		return AECP_BAD_ARGUMENTS;
+	}
+	memcpy(out, in, path ? 2u : 4u);
+	if (!path && wire_be16(in) != 9u) {
+		return AECP_NOT_SUPPORTED;
+	}
+	uint16_t index = (uint16_t)wire_be16(in + (path ? 0u : 2u));
+	if (aecp_find(a, a->configuration, 9u, index) == NULL) {
+		return AECP_NO_SUCH_DESCRIPTOR;
+	}
+	if (index >= a->cfg.interfaces) {
+		return AECP_ENTITY_MISBEHAVING;
+	}
+	if (path) {
+		uint64_t sequence[AECP_PATH_ITEMS];
+		size_t count = 0;
+		aecp_port_begin(a);
+		bool ok = a->ports->path(a->ports->ctx, index, index, sequence, AECP_PATH_ITEMS, &count);
+		aecp_port_end(a);
+		if (!ok || count > AECP_PATH_ITEMS) {
+			return AECP_ENTITY_MISBEHAVING;
+		}
+		aecp_put16(out + 2, count);
+		for (size_t n = 0; n < count; ++n) {
+			aecp_put64(out + 4u + 8u * n, sequence[n]);
+		}
+		*bytes += 8u * count;
