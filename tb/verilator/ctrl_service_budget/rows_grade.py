@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The rows by every source (#665: decision D's tier bounds, which bind each point's flip, #890): R4, R5 and R6 as
 response-time bounds from each source's stated cost and arrival bound, at 1x1/1if and 8x8/2if, and the queued notices
-at their derived bounds; flip_grade.py holds them.
+at the bounds the loop search holds; flip_grade.py holds them.
 
 A row's bound is the smallest W (ms) at which the record's own work, plus every source's arrival bound in a window of
 length W, each at its stated cost, fits in W: the every-source count, never a measurement (#665: no row is held by
@@ -16,7 +16,7 @@ The rows, each with its tier's bound (#665: tier 1 20 ms, SRP 90 ms, the last qu
   R4      the AECP channel's last record of its burst, beside the composed burst, with every notice queued: tier 1
   R5      SRP's last record of its burst, with a link change on every interface inside the window: SRP
   R6      SRP's last record of the composed burst (every channel's burst at once), with every notice queued: SRP
-  first   the first queued notice, AECP_QUEUED_FIRST_MS (aecp_mbx.h): tier 1
+  first   the first queued notice, AECP_QUEUED_FIRST_MS (aecp_mbx.h, which the loop search holds the loop to): tier 1
   last    every notice queued behind it, AECP_QUEUED_MS (aecp_mbx.h, derived from the loop's constants and held by the
           loop search, ctrl_retry_search.py): the last queued notice's
 

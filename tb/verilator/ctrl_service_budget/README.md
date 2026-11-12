@@ -146,7 +146,7 @@ python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check
 The flip check holds each point's flip as well to decision D's tier bounds, which bind the flip and not the merge (#665): the rows by every source, [`rows_grade.py`](rows_grade.py), at 1x1/1if and at 8x8/2if.
 Each of R4 (the AECP channel's last record of its burst beside the composed burst, every notice queued), R5 (SRP's last record of its burst, a link change on every interface) and R6 (SRP's last record of the composed burst, every notice queued) is the smallest window W in which the record's own work and every source's arrival bound, each at its stated cost, fit: the records at their contract rates, the TICK's consumers, the timer slots and the grandmaster event at their protocol timers, every ordinary pass's base and the polls' items by their own sources, THE RETRY's rounds, THE TRANSMIT's builds and THE STEP's aged steps.
 The costs are the flip's, the load gate's column at this tree's pin with the polls' items and a LINK event's (`rows_grade.ROW_COSTS`); what precedes the row's record is THE DRAIN as `ctrl_loop.h` states it.
-R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s derived `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`.
+R4 is held to tier 1's 20 ms, R5 and R6 to SRP's 90 ms, the first queued notice to 20 ms and the last to 125 ms, these two at `aecp_mbx.h`'s `AECP_QUEUED_FIRST_MS` and `AECP_QUEUED_MS`, which the loop search holds the loop to.
 The flip at 1x1/1if must pass the check at that point; at this head it fails there at R4 ([section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#the-long-window-load)), and 8x8/2if's flip waits on #890:
 
 ```sh
