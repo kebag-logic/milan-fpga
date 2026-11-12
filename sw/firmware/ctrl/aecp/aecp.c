@@ -656,8 +656,9 @@ static bool fan_out(struct aecp *a)
 	}
 	if (fan) {
 		// a queue with no room for its completion leaves the notice owed, past its last recipient; a last frame lost
-		// leaves it owed at that frame's
-		const enum aecp_fan end = a->ports->fan_end(a->ports->ctx, a->tx_cookie);
+		// leaves it owed at that frame's. A walk left owed at a recipient keeps no completion: its notice is not
+		// delivered until the resumed walk ends
+		const enum aecp_fan end = a->ports->fan_end(a->ports->ctx, a->tx_cookie, !owed);
 		lost = lost || end == AECP_FAN_LOST;
 		owed = end != AECP_FAN_TAKEN || owed;
 		if (!owed) {

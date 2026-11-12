@@ -8,8 +8,9 @@
 extern "C" {
 #endif
 
-// A notice's last frame keeps a completion (aecp_ports.fan_end), and a notice
-// waits while the queue is full; a power of two, so its wrap is a mask.
+// A notice's last frame keeps a completion (aecp_ports.fan_end, for a walk
+// that reached its last recipient), and a notice waits while the queue is
+// full; a power of two, so its wrap is a mask.
 #define AECP_MBX_COMPLETIONS 32u
 // THE RETRY's notices (ctrl_loop.h, #665), each to every registration of every interface, at what a round spends of its
 // pass: a notice, 365 us to 32 recipients and 255 us to 16, and once a round AECP_ROUND_COLD_US, what its first attempt
