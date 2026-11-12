@@ -1606,8 +1606,8 @@ The store owes a step each centisecond, and the loop takes one at least every th
 
 after its change.
 1,000 ms is DR2a's first-dirty window; S is its steps from the first after that window to durable: the step that starts the capture, one for each changed record and one that finds none left, the seal's 256-byte stretches of the container less its trailer, the erase and its wait, the blank check's 128-byte read-backs, each page's issue and its wait, and the verify's read-backs; 10 ms covers the change's own pass and the passes between a tick and the aged step it triggers.
-A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of the descriptor it names), so at 8x8/2if, a 13,256-byte container, S = 1 + 3 + 52 + 2 + 104 + 104 + 104 = 370 and T ≤ 12,110 ms; at 1x1, 3,336 bytes, S = 102 and T ≤ 4,070 ms; each further changed record adds one step, 30 ms (`nvm_store.h`, `save_window.bound_ms`).
-A change marked while a save is in flight, once its capture has passed the change's record, waits for the rest of that save first, so a change's worst case is longer: 22,150 ms at 8x8/2if and 6,070 ms at 1x1 ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
+A SET_NAME of the entity marks both its names (`aecp_nvm.c` marks every name of the descriptor it names), so at 8x8/2if, KLJ3's 13,584-byte container since the merge of `dev-soft-core` `0fb66211` (13,256 bytes in KLJ2), S = 1 + 3 + 54 + 2 + 107 + 108 + 107 = 382 and T ≤ 12,470 ms; at 1x1, 3,444 bytes (3,336 in KLJ2), S = 102 and T ≤ 4,070 ms; each further changed record adds one step, 30 ms (`nvm_store.h`, `save_window.bound_ms`).
+A change marked while a save is in flight, once its capture has passed the change's record, waits for the rest of that save first, so a change's worst case is longer: 22,870 ms at 8x8/2if and 6,070 ms at 1x1 ([the next subsection](#aged-windows-a-change-while-a-save-is-in-flight-and-the-retry)).
 That is on the harness's flash model, which has no busy time: a part's erase adds at most its erase time, and each page program at most its program time (the next subsection gives the product part's figure).
 The owner's 0.5 s ([#823](https://github.com/kebag-logic/milan-fpga/issues/823)) applies to the firmware writer of the append-only design through this same step; this image states its own worst case and does not meet 0.5 s.
 
@@ -1819,7 +1819,7 @@ The worst is a change marked just after the capture took the first record it nam
 
 > T ≤ max(1,000 ms, (S<sub>f</sub> - 2) × 3 × 10 ms) + S × 3 × 10 ms + 10 ms
 
-after it. For a SET_NAME of the entity beside another's save in flight, S<sub>f</sub> = S = 370 at 8x8/2if and T ≤ 22,150 ms; 102 at 1x1 and T ≤ 6,070 ms; each further record of either save adds 30 ms (`nvm_store.h`, `save_window.bound_ms`).
+after it. For a SET_NAME of the entity beside another's save in flight, S<sub>f</sub> = S = 382 at 8x8/2if and T ≤ 22,870 ms; 102 at 1x1 and T ≤ 6,070 ms; each further record of either save adds 30 ms (`nvm_store.h`, `save_window.bound_ms`).
 `save-second` stages it: under a grandmaster change as every pass starts, a SET_NAME just after a step, then 1,035 ms later and one step on, once the capture has started and taken the entity's first name, a SET_NAME of the entity to another value.
 `save_grade.save_time` times the second from its mark to durable in the save after the first, and refuses it unless it came after the first's first-dirty window and before the first save's erase:
 
