@@ -153,6 +153,16 @@ The flip at 1x1/1if must pass the check at that point; at this head it fails the
 python3 -B tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
 ```
 
+[`rows_tiers.py`](rows_tiers.py) is #894's model step, beside `rows_grade.py` and holding nothing: the flip check reads only `rows_grade.py`.
+It solves the same rows by two other models. The corrected model is THE DRAIN as built with each count at its source's own rule: the retained retry at most once a centisecond, SRP's window less only the row's own record, and the three coalesced datapath events (AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE) at one record a source an ordinary pass.
+The tier model is the round 23 ruling's two tiers (#665), at a stated slice length and orders (`rows_tiers.TIERS`), with the queued notices solved as well.
+Its self-test plants a defect in each path, including its as-built derivation held equal to `rows_grade.demand`:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --slice 600 --tier1 aecp-first --aecp cap --terms
+python3 -B tb/verilator/ctrl_service_budget/rows_tiers.py --selftest
+```
+
 
 [`mrpdu_grade.py`](mrpdu_grade.py) adds a row to every group that holds its load: each MRPDU a join, periodic or LeaveAll timer owes, from the TICK that ran the timer out to the commit of the frames of the builds after it, against T_svc; a timer that ends with nothing to send has a build that sends no frame, and no row.
 A `notice-retried-<k>` group with no such row fails the run, since its load starts before both points' periodic timers end.
