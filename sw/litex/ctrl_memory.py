@@ -211,9 +211,11 @@ class Ledgered:
 #: every other point stays within 56.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
-                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   58.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
-                                         "+112 to 120 B an image, with tsn-c-stack 715589c (#665)"),
+                                         "+112 to 120 B an image, with tsn-c-stack 715589c (#665); 58.5, its cap, "
+                                         "with SRP's Talker declarations (#895, ruling 6824623445): the image "
+                                         "plans 58.0, the CPU budget harness's answering-every-port arm 58.5"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_352)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

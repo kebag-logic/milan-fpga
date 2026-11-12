@@ -101,12 +101,12 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 58.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 20,352 B | 60.0 |
 
 The platform's entry is 60.0 RAMB36, cap 60.5, since SRP's Talker declarations follow each source's validity (#895, the ruling of 2026-11-12, issuecomment-6824623445, maintainer-delegated): it is the same named point owed to lane S14, which owes 60.0 - 56 = 4.0 RAMB36, 16,384 B of cold code moved to flash ([section 5](#5-fit)).
 
-The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+The size fixture's entry is 58.5 RAMB36, its cap under the same ruling (#895, issuecomment-6824623445): the fixture's image there plans 58.0, and the CPU budget harness's `answering-every-port` arm, that image with its test port, plans 58.5, 48 B of `sram` past the 112,640 B that 58.0 holds ([section 5](#5-fit)). It was 58.0 before, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -286,9 +286,9 @@ With SRP's Talker declarations following each source's validity (#895: a source 
 | 1x1, one interface (shipping) | 108,872 / 45,568 | 38.5 | 113,936 / 46,576 | 39.5 | 17,536 |
 | 1x1, two interfaces | 110,664 / 56,976 | 41.5 | 115,760 / 58,032 | 43.0 | 19,072 |
 | 8x8, one interface | 122,400 / 86,464 | 51.5 | 127,504 / 87,456 | 53.0 | 18,176 |
-| 8x8, two interfaces (largest) | 124,136 / 112,624 | 58.0, ledgered | 129,288 / 113,632 | 60.0, ledgered | 20,352 |
+| 8x8, two interfaces (largest) | 124,136 / 112,624 | 58.0, ledgered 58.5 | 129,288 / 113,632 | 60.0, ledgered | 20,352 |
 
-The declarations add 800 to 1,040 B of `rom` and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, within its 58.0 with 16 B of `sram` to spare. The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
+The declarations add 800 to 1,040 B of `rom` and 16 to 64 B of `sram` an image; `ctrl_plat` grows 64 B at every point. The size fixture's 8x8 image with two interfaces holds 124,136 B of `rom` in 124,928 and 112,624 B of `sram` in 112,640, 58.0 tiles, with 16 B of `sram` to spare; its `answering-every-port` arm holds 124,444 B of `rom` and 112,688 B of `sram`, 58.5 tiles, within the 58.5 its entry now ledgers (below). The platform's image at that point plans 60.0 tiles, `rom` 129,288 B in 131,072, within the 60.0 its entry now ledgers (cap 60.5); lane S14 owes 4.0 RAMB36, 16,384 B of cold code, to bring it to 56.
 
 Before #895, the size fixture's 8x8 image with two interfaces held 123,112 B of `rom` in 124,928, 58.0 tiles, 1,816 B before its next granule, within the 58.0 its entry now ledgers ([section 3](#3-named-refusals)).
 **The platform's image at that point plans 59.5 tiles against the 59.0 its entry ledgers** (ruling 6505997821): its `rom` needs 128,264 B, 1,288 B past the 126,976 of its banks at 59.0, and so does this branch's head before the merge (127,664 B) and round 27's (127,544 B). Every link of that image since round 27 was refused first by a stale `ctrl_plat` size, so its tiles were not read, and no gate links the platform image with its override. The ledger stays 59.0 until a ruling names another; the image is refused at its tiles, by name.
@@ -302,6 +302,9 @@ The CPU budget harness's 8x8/2if `answering-every-port` arm, the size fixture wi
 | This head (a notice addressed in place, SRP's comparisons by `same`) | 122,636 | 244 |
 | This head with tsn-c-stack #32 at the pin (a scratch build, refused by the ledger) | 123,084 | 204 over |
 | The merge of the pin move (tsn-c-stack `715589c`, which carries #32), the entry at 58.0 | 123,420 | 1,508 under 124,928 |
+| SRP's Talker declarations (#895), the entry at 58.0 | 124,444 | 484 under 124,928, but its `sram`, 112,688 B, is 48 B past 112,640: refused at 58.0, 58.5 tiles |
+
+With SRP's Talker declarations the arm's `sram` passes its granule. SRP's adapter holds three source masks and an owed flag an interface (16 B each in its 8-byte-aligned interface struct), a hold-off counter a source and the unit fixture's flag: 48 B at 8x8/2if, and the arm's test port 64 B more. The cuts the ruling names, the masks 16 bits wide outside the interface struct, one hold-off counter an interface and no flag, recover about 30 B of the 48, so the entry is 58.5, its cap (#895, issuecomment-6824623445, item 2).
 
 The retry's rule added about 104 B of code, and with the two 1.5 KB buffers last every other field of the adapter is within a load's reach of its address, which takes 348 B of address arithmetic off `srp_mbx.o` (11,916 to 11,568 B of `.text`). The other arms at `3a1d14c2`: `answering-later` 122,400 B, `answering-ports` 122,416 B, arm A 122,248 B. Round 26's cuts ([section 13](#the-long-window-load)) add 80 B to arm A (122,328 B at this head) and to the arm: the notice's addressing in place, `same` and its calls, less the pool's two `memcpy` calls. tsn-c-stack #32 grows the core's `acmp.o` from 12,748 to 13,300 B of `.text`, so the pin move that carries it owes this arm 204 B of `rom`, or its next granule.
 
@@ -404,7 +407,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 58.0 RAMB36.
+Without `--ledgered-point`, both refuse it past 56 RAMB36.
 Every other point takes no override, and refuses one.
 
 Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`) and the [flash map](../../sw/firmware/ctrl/plat/README.md#generated-inputs) `gen_flash_port.py` writes from that export (`$FLASH_MAP`):
