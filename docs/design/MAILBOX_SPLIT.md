@@ -580,8 +580,9 @@ A change of a sink's Table 5.22 items is reported through the env's
 `changed` port only after the response of the command that caused it has
 been taken by the transmit ring (#653). A response that finds no room is
 owed, in order (at most eight frames), and its change waits with it. A
-command that arrives with all eight owed is declined, not dropped: the
-adapter keeps it and takes no later acmp record. After each poll that sends
+command that arrives with all eight owed, or a BIND_RX that arrives with
+fewer than two owed slots free, is declined, not dropped: the adapter keeps
+it and takes no later acmp record. After each poll that sends
 an owed frame it offers the kept command again, then the records waiting in
 the acmp ring, until the core declines one or none is left (tsn-c-stack
 ACMP-12, its redelivery rule; the adapter's header states the passes). The

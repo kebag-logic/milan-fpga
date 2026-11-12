@@ -306,7 +306,7 @@ Planned by `ctrl_memory.plan` from both images at both pins, on dev-soft-core `1
 One plan moves: the fixture's 1x1 with two interfaces needs 56 B of `rom` past its three banks (106,496 B), so it takes a fourth of 2,048 B and plans 41.0, accepted (#665 issuecomment-6807277620; the owner's firmware block-RAM limit, 224 KB, covers it).
 Every other bank of both images is the one it was at `70936b77`; the platform image keeps 42.0 at that point.
 The `rom` growth past the kept command is its redelivery, the ACMP adapter's poll taking the records waiting behind it (`acmp_mbx.h`, THE KEPT COMMAND).
-The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the loop the redelivery serves, and the core's walk marks and owed-bound state.
+The `sram` growth is the adapter's kept record (`MBX_CH_ACMP_MAX_FRAME_BYTES` with its length and interface), the adapter's pointer to the loop it attached to (the redelivery takes records in that loop's buffer), and the core's walk marks and owed-bound state.
 `__lshrdi3` leaves every image (tsn-c-stack#27).
 The platform's override is re-measured at `ctrl_plat`'s new size ([section 3](#3-named-refusals)); at the old size `ctrl_plat_image.py` refuses the image by name.
 The tightest point is the fixture's 8x8 with one interface, 88 B of `rom` before its next granule.
