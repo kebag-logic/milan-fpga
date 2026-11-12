@@ -1127,7 +1127,9 @@ them:
   from the declared one, cleared by a link restart.
 - `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
   every source from participant creation, as a Talker Failed until MAAP
-  allocates its address (`declare_sources`). The processor declares a source
+  allocates its address (`declare_sources`), then withdraws it, its bit
+  cleared before the Leave is sent, and declares its Talker Advertise two
+  LeaveAllTime periods later (#895; IEEE 802.1Q-2018 35.2.2.8). The processor declares a source
   only once its DA gate opens (`KL_srp_talker_fsm.sv`, the record
   capture). The CRF talker's C-TAG reads this level. Its frames leave under
   the licence, which needs a declaration in both placements, unless policing

@@ -86,6 +86,12 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
     return Outcome(name,0 if ok else 1,log)
 
 
+def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """The Talker declarations as MAAP's allocation moves them (#895, srp_talker.cpp), at 1x1/1if and 8x8/2if."""
+    return [arm_srp(tree, lwsrp, 1, test="srp_talker.cpp"),
+            arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
+
+
 def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
                   config: Path = DEFAULT_ENTITY) -> Outcome:
     """Freestanding object identity, runtime closure and static frame check."""

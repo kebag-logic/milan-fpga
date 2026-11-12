@@ -18,14 +18,14 @@ T = TypeVar("T")
 REVOCATIONS_PUBLISHED = ('    publish_licence(i);\n    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {\n'
                          '        if (revoked[k]) {\n            ++m->stops;\n'
                          '            m->config.licence(m->config.ctx,i->index,k,false);\n        }\n    }\n')
-DECLARE_SOURCES = 'static bool declare_sources(struct srp_interface *i)\n{'
+DECLARE_SOURCES = 'static bool declare_sources(struct srp_interface *i, unsigned how)\n{'
 SEND_COMMITTED = '    m->owed_len = 0;\n    ++m->transmitted;\n    return 0;\n}'
 #: The close of the branch of poll in which a reset's new participants are refused.
 REOPEN_REFUSED = '                    expire_receive(m);\n                }\n                continue;\n            }\n'
 
 #: What a held-back publish keeps until it is let go: the slope or the set of
 #: declared sources declare_sources computed, by the name of its storage.
-KEPT = {"slope": ("planted_slope", "(uint32_t)used"), "declared": ("planted_declared", "declared")}
+KEPT = {"slope": ("planted_slope", "(uint32_t)used"), "declared": ("planted_declared", "i->talkers")}
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -133,16 +133,17 @@ def _declarations(Defect: Callable[..., T], held_back: Callable[..., T]) -> tupl
         # until the first MSRP frame has left. Withdrawn: skipped at a reset and at
         # destroy, and moved after the reset's new declarations.
         Defect('pub-declared-skipped','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
-               '    (void)mbx_pub_talker_decl(i->index,declared);\n', '    (void)declared;\n',
+               DECLARED_PUBLISHED, '    (void)i->talkers;\n',
                'PUB TALKER_DECL holds every declared source from startup'),
         Defect('pub-declared-in-the-licence','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
-               '(void)mbx_pub_talker_decl(i->index,declared);', '(void)mbx_pub_licence(i->index,declared);',
+               '(void)mbx_pub_talker_decl(i->index,i->talkers);', '(void)mbx_pub_licence(i->index,i->talkers);',
                'PUB TALKER_DECL holds every declared source from startup'),
         Defect('pub-declared-wrong-bit','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
-               '        declared |= 1u << n;', '        declared |= 1u << (n + 1u);',
+               '(void)mbx_pub_talker_decl(i->index,i->talkers);',
+               '(void)mbx_pub_talker_decl(i->index,i->talkers << 1u);',
                'PUB TALKER_DECL holds every declared source from startup'),
         held_back('pub-declared-after-the-declarations','PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst',
-                  '    (void)mbx_pub_talker_decl(i->index,declared);\n',
+                  DECLARED_PUBLISHED,
                   '(void)mbx_pub_talker_decl(s->interface->index,planted_declared[s->interface->index]);',
                   'PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again',
                   keep='declared'),
@@ -163,8 +164,10 @@ def _declarations(Defect: Callable[..., T], held_back: Callable[..., T]) -> tupl
 #: The round-5 TALKER_DECL defects, which the gate plants at one interface too.
 ROUND5 = ('pub-declared-dropped-at-adoption', 'pub-declared-withdrawn-after-the-adoption',
           'pub-declared-skipped-at-adoption', 'pub-declared-before-the-joins', 'pub-declared-as-each-source-joins')
-DECLARED_PUBLISHED = '    (void)mbx_pub_talker_decl(i->index,declared);\n'
-ADOPTION_DECLARED = '    (void)declare_sources(i);\n    i->domain_owed = false;\n'
+DECLARED_PUBLISHED = '    (void)mbx_pub_talker_decl(i->index,i->talkers);\n'
+ADOPTION_DECLARED = '    (void)declare_sources(i,SRP_DECLARE_EVERY);\n    i->domain_owed = false;\n'
+#: The comment after the last publication of declare_sources (#895).
+REFUSAL_OWED = "    // a refused join is tried again with THE TRANSMIT's next declarations\n"
 
 
 def _adoption_and_failure(Defect: Callable[..., T]) -> tuple[T, ...]:
@@ -177,22 +180,23 @@ def _adoption_and_failure(Defect: Callable[..., T]) -> tuple[T, ...]:
         # the adoption: zero published while it is owed (no extra write), a
         # withdrawal after its declarations, the publication skipped
         Defect('pub-declared-dropped-at-adoption', adopted, DECLARED_PUBLISHED,
-               '    (void)mbx_pub_talker_decl(i->index,i->domain_owed ? 0u : declared);\n',
+               '    (void)mbx_pub_talker_decl(i->index,i->domain_owed ? 0u : i->talkers);\n',
                'PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again'),
         Defect('pub-declared-withdrawn-after-the-adoption', adopted, ADOPTION_DECLARED,
-               '    (void)declare_sources(i);\n    withdraw_declared(i->index);\n    i->domain_owed = false;\n',
+               '    (void)declare_sources(i,SRP_DECLARE_EVERY);\n    withdraw_declared(i->index);\n'
+               '    i->domain_owed = false;\n',
                'PUB TALKER_DECL holds every declared source after the adoption'),
         Defect('pub-declared-skipped-at-adoption', adopted, DECLARED_PUBLISHED,
-               '    if (!i->domain_owed) {\n        (void)mbx_pub_talker_decl(i->index,declared);\n    }\n',
+               '    if (!i->domain_owed) {\n        (void)mbx_pub_talker_decl(i->index,i->talkers);\n    }\n',
                'PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again'),
         # the failed creation: every source published before the joins (no
         # extra write), each source published as it joins
-        Defect('pub-declared-before-the-joins', failed, '    uint64_t used = 0;\n    uint32_t declared = 0;\n',
-               '    uint64_t used = 0;\n    uint32_t declared = 0;\n'
+        Defect('pub-declared-before-the-joins', failed, '    uint64_t used = 0;\n    bool done = true;\n',
+               '    uint64_t used = 0;\n    bool done = true;\n'
                '    (void)mbx_pub_talker_decl(i->index,(1u << CTRL_SRP_SOURCES) - 1u);\n',
-               'publishes no Talker declaration', also=((DECLARED_PUBLISHED, '    (void)declared;\n'),)),
-        Defect('pub-declared-as-each-source-joins', failed, '        declared |= 1u << n;\n',
-               '        declared |= 1u << n;\n        (void)mbx_pub_talker_decl(i->index,declared);\n',
+               'publishes no Talker declaration', also=((DECLARED_PUBLISHED, '    (void)i->talkers;\n'),)),
+        Defect('pub-declared-as-each-source-joins', failed, '                i->talkers |= bit;\n',
+               '                i->talkers |= bit;\n                (void)mbx_pub_talker_decl(i->index,i->talkers);\n',
                'publishes no Talker declaration',
-               also=((DECLARED_PUBLISHED + '    return true;\n}', '    return true;\n}'),)),
+               also=((DECLARED_PUBLISHED + REFUSAL_OWED, REFUSAL_OWED),)),
     )

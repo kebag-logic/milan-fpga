@@ -72,12 +72,11 @@ struct srp_interface {
     // An Applicant or Registrar of its participants changed since its retained
     // receive's last refusal (moved), which a retry waits for (#665).
     bool moved;
-    // The Talker declarations (#895), bit s source s: declared (TALKER_DECL),
-    // and its destination moved since (srp_mbx_allocation); held_cs[s] the
-    // centiseconds a withdrawn source waits before it declares again
-    // (declare_sources); sources_owed while a change waits for THE TRANSMIT.
+    // The Talker declarations (#895): talkers, bit s source s declared
+    // (TALKER_DECL); held_cs[s] the centiseconds a withdrawn source waits before
+    // it declares again (declare_sources); sources_owed while a report or a
+    // hold-off's end waits for THE TRANSMIT.
     uint32_t talkers;
-    uint32_t readdressed;
     uint16_t held_cs[CTRL_SRP_SOURCES];
     bool sources_owed;
 };
@@ -116,6 +115,12 @@ struct srp_mbx {
     // and whether a retry was made since the last centisecond (tick).
     uint32_t pending_freed;
     bool retry_spent;
+    // MAAP's last report for each source (#895, srp_mbx_allocation): bit s of
+    // reported once a report named source s, of allocated while it has a
+    // destination, dest[s] that destination; declare_sources applies it.
+    uint32_t reported;
+    uint32_t allocated;
+    uint64_t dest[CTRL_SRP_SOURCES];
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
@@ -142,10 +147,10 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
 // MAAP-facing port (#895): the allocation MAAP reported for the sources in
 // the mask (bit s, source s; IEEE 1722-2016 Annex B). On every interface each
 // such source's destination is base + s while valid and s < count (Milan v1.2
-// 5.5.4.1, as ACMP reports it), and none otherwise. It records the change,
+// 5.5.4.1, as ACMP reports it), and none otherwise. It records the report,
 // which THE TRANSMIT declares; it calls no lwSRP function and makes no mailbox
 // access, so an allocation port may call it. False before attach, after
-// destroy and on reentry, when nothing changes.
+// destroy and on reentry, when nothing is recorded.
 bool srp_mbx_allocation(struct srp_mbx *m, uint32_t sources, uint64_t base, uint16_t count, bool valid);
 #ifdef __cplusplus
 }

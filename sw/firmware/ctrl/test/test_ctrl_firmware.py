@@ -71,7 +71,9 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
            with its src/ unmodified, or the arm refuses.
   srp      per-interface MSRP/MVRP, static entity shapes, service latency,
-           debug reentry guards and processor-derived wire stimuli;
+           debug reentry guards and processor-derived wire stimuli; the
+           Talker declarations as MAAP's allocation moves them (#895,
+           srp_talker.cpp) at 1x1/1if and 8x8/2if;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
@@ -190,6 +192,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
             for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
                           "srp_latency.cpp", "srp_walk.cpp"):
                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+        outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
     outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))
@@ -207,7 +210,7 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                   if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
                                                         "p11-", "srp-bound-", "srp-term-",
-                                                        "srp-poll-extra", "srp-send-extra",
+                                                        "srp-poll-extra", "srp-send-extra", "talker-",
                                                         *srp_pub_mutants.ROUND5)))
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
     finally:
@@ -254,6 +257,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
             for suite in ("srp_mbx.cpp", "srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
                           "srp_latency.cpp", "srp_walk.cpp"):
                 outcomes.append(srp_arms.arm_srp(tree, lwsrp.resolve(), i, test=suite))
+        outcomes.extend(srp_arms.talker_arms(tree, lwsrp.resolve()))
         outcomes.extend(aecp_arms.all_arms(tree))
         outcomes.extend(plat_arms.coverage_arms(tree))
     except Refusal as exc:

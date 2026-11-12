@@ -77,7 +77,7 @@ A command's name is compared only as far as its terminator, so a received NUL (a
 - **MAAP.** `maap_csr_allocation` ([MAAP](../maap/README.md#integration)) runs on interface 0's CSR window. The datapath has one window, so another interface's writes are dropped and counted. The platform records each report after the window has it.
   The image draws its first range at random. Only a simulation defines `CTRL_PLAT_MAAP_PREFERRED` to pin it: the two-placement simulation in `tb/verilator/milan_dp` pins both placements at one range.
 - **ACMP's talker sources.** Source *n*'s stream is the entity's MAC and its STREAM_OUTPUT's unique ID (IEEE 1722.1-2021 7.2.3), on the SR class VID, at address base + *n* once MAAP holds its interface's range (Milan v1.2 5.5.4.1).
-- **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
+- **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. MAAP's allocation port passes each report to SRP for the reporting interface's sources (`srp_mbx_allocation`, #895): a source then declares Talker Advertise at base + n, after it withdraws its earlier declaration and waits two LeaveAllTime periods (IEEE 802.1Q-2018 35.2.2.8; [SRP](../srp/README.md)). The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
 - **AECP.** `random` is the loop's millisecond clock. GET_AS_PATH has no split source at this base and answers unavailable.
 
 ## Generated inputs
@@ -131,7 +131,6 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
 
 ## Not yet done
 
-- **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
 - **The largest point's block RAM.** At 8x8 with two interfaces the image plans 58.5 RAMB36, within the 59.0 ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
