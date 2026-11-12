@@ -154,9 +154,10 @@ run-if2: if2-gen | stack-pin
 	./$(IF2)/Vmbx_model
 
 # The record mover (#665, owner decision 2026-10-29) is its own top: the bench
-# answers its host port and its DMA port with models, so no mailbox is built.
+# answers its host port and its DMA port with models, so no mailbox is built,
+# and tb_mbx_top's BENCH_P is no parameter of its.
 DMA_RTL    = $(RTL_DIR)/KL_mbx_pkg.sv $(RTL_DIR)/KL_mbx_dma.sv
-DMA_VFLAGS = $(subst --top-module $(TOP),--top-module KL_mbx_dma,$(VFLAGS))
+DMA_VFLAGS = $(subst -GBENCH_P=1,,$(subst --top-module $(TOP),--top-module KL_mbx_dma,$(VFLAGS)))
 
 run-dma:
 	$(VERILATOR) $(DMA_VFLAGS) --Mdir obj_dma $(DMA_RTL) dma_main.cpp -o Vmbx_dma

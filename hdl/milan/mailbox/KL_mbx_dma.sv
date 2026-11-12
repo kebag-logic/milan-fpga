@@ -75,7 +75,7 @@ module KL_mbx_dma
   output logic [MBX_ADDR_W_C-1:0]  host_addr_o,      //! word address inside the window
   output logic [31:0]              host_wdata_o,     //! write data
   output logic [3:0]               host_be_o,        //! byte strobes
-  input  wire                      host_ack_i,       //! the request of the cycle before completed
+  input  wire                      host_ack_i,       //! the request in flight completed: KL_mbx answers one cycle after it, two for a register read
   input  wire  [31:0]              host_rdata_i,     //! read data, valid with host_ack_i
 
   // ---- the DMA port: write address ------------------------------------------
@@ -155,7 +155,7 @@ module KL_mbx_dma
   logic [MBX_ADDR_W_C-1:0]   pend_addr_r;
   logic [31:0]               pend_wdata_r;
   logic [3:0]                pend_be_r;
-  logic                      ack_cpu_r;    //! the host port's request last cycle was the CPU's
+  logic                      cpu_wait_r;   //! a CPU request is with KL_mbx: issued, its answer not yet taken
 
   // ---- a transfer's shape -----------------------------------------------------------
   // A chunk is the transfer's next words up to the end of the 64-byte line
@@ -185,16 +185,20 @@ module KL_mbx_dma
   // ---- the ring side: one request, then its answer, as KL_mbx_wb presents them -----------
   // A request's address, direction and data hold through the cycle of its
   // answer, so an observer that reads the port's fields at the answer sees
-  // the request's (index_r moves only at the answer). The cycle a CPU
-  // request is answered is the CPU's too: the mover waits it out.
+  // the request's (index_r moves only at the answer). The mover's own
+  // requests are ring reads and writes, which KL_mbx answers the cycle after
+  // them. A CPU request holds the port from its issue to its answer, which
+  // KL_mbx gives one cycle after it or, for a register read, two (#870): the
+  // mover waits for that answer, whenever it comes, and its cycle, and the
+  // answer is the CPU's (cpu_wait_r).
   logic                      fill_req_w;       //! a ring read this cycle (receive)
   logic                      beat_w;           //! a read beat is taken this cycle (transmit)
   logic                      ring_wr_w;        //! that beat is written to the ring this cycle
   logic                      last_word_w;      //! this W beat, or this read beat, is the transfer's last word
   logic [31:0]               lanes_w;          //! the transfer's last word's lanes kept, the rest zero
   logic [31:0]               beat_data_w;      //! a read beat as the ring takes it
-  assign fill_req_w  = (state_r == FILL_S) && !hold_r && !ack_cpu_r && (count_r != chunk_r);
-  assign beat_w      = (state_r == R_S) && !hold_r && !ack_cpu_r && axi_rvalid_i;
+  assign fill_req_w  = (state_r == FILL_S) && !hold_r && !cpu_wait_r && (count_r != chunk_r);
+  assign beat_w      = (state_r == R_S) && !hold_r && !cpu_wait_r && axi_rvalid_i;
   assign ring_wr_w   = beat_w && !rerr_r && (axi_rresp_i[1] == 1'b0);
   assign last_word_w = last_chunk_w && (count_r + 5'd1 == chunk_r);
   assign lanes_w     = {{8{tail_be_r[3]}}, {8{tail_be_r[2]}}, {8{tail_be_r[1]}}, {8{tail_be_r[0]}}};
@@ -205,7 +209,7 @@ module KL_mbx_dma
   logic                      mover_w;          //! the port's fields are the mover's this cycle
   logic                      cpu_issue_w;      //! the CPU's request (held or new) goes to KL_mbx this cycle
   assign own_w       = (state_r != IDLE_S);
-  assign mover_w     = own_w && !ack_cpu_r;
+  assign mover_w     = own_w && !cpu_wait_r;
   assign cpu_issue_w = !own_w && (pend_r || cpu_req_i);
 
   always_comb begin : host_mux
@@ -233,7 +237,7 @@ module KL_mbx_dma
     end
   end : host_mux
 
-  assign cpu_ack_o   = host_ack_i && ack_cpu_r;
+  assign cpu_ack_o   = host_ack_i && cpu_wait_r;
   assign cpu_rdata_o = host_rdata_i;
   assign busy_o      = own_w;
   assign err_o       = err_r;
@@ -264,7 +268,7 @@ module KL_mbx_dma
   assign axi_arcache_o = 4'b0000;
   assign axi_arprot_o  = 3'b000;
   assign axi_arqos_o   = 4'b0000;
-  assign axi_rready_o  = (state_r == R_S) && !hold_r && !ack_cpu_r;
+  assign axi_rready_o  = (state_r == R_S) && !hold_r && !cpu_wait_r;
 
   // ---- the transfer ---------------------------------------------------------------------
   // The current chunk is done: step to the next one, or end.
@@ -397,9 +401,10 @@ module KL_mbx_dma
       pend_addr_r  <= '0;
       pend_wdata_r <= '0;
       pend_be_r    <= '0;
-      ack_cpu_r    <= 1'b0;
+      cpu_wait_r   <= 1'b0;
     end else begin
-      ack_cpu_r <= cpu_issue_w;
+      // a CPU request waits from its issue to its answer, however many cycles KL_mbx takes
+      cpu_wait_r <= cpu_issue_w || (cpu_wait_r && !host_ack_i);
       if (own_w && cpu_req_i) begin
         pend_r       <= 1'b1;
         pend_we_r    <= cpu_we_i;

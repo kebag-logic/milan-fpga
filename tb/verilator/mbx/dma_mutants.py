@@ -57,7 +57,7 @@ ARMS = (
         "assign axi_wlast_o   = (count_r + 5'd2 == chunk_r);", "D3 WLAST marks a burst's last beat only"),
     Arm("cpu-request-dropped", "      if (own_w && cpu_req_i) begin\n", "      if (1'b0) begin\n",
         "D4 a CPU access is answered"),
-    Arm("ack-misrouted", "assign cpu_ack_o   = host_ack_i && ack_cpu_r;", "assign cpu_ack_o   = host_ack_i;",
+    Arm("ack-misrouted", "assign cpu_ack_o   = host_ack_i && cpu_wait_r;", "assign cpu_ack_o   = host_ack_i;",
         "D4 a CPU access held for a transfer completes after it"),
     Arm("misaligned-accepted", "if (mem_addr_i[1:0] != 2'b00) begin", "if (1'b0) begin",
         "D5 a start off a word sets ERR"),
@@ -84,11 +84,23 @@ ARMS = (
     Arm("error-burst-continues", "if (last_chunk_w || rerr_r || (beat_w && axi_rresp_i[1])) begin",
         "if (last_chunk_w || (beat_w && axi_rresp_i[1])) begin", "D6 no read burst is issued after an errored beat"),
     Arm("fill-during-cpu-answer",
-        "assign fill_req_w  = (state_r == FILL_S) && !hold_r && !ack_cpu_r && (count_r != chunk_r);",
+        "assign fill_req_w  = (state_r == FILL_S) && !hold_r && !cpu_wait_r && (count_r != chunk_r);",
         "assign fill_req_w  = (state_r == FILL_S) && !hold_r && (count_r != chunk_r);",
         "D4 a transfer started in the cycle of a CPU access moves its own bytes"),
     Arm("held-partial-write-widened", "        pend_be_r    <= cpu_be_i;\n", "        pend_be_r    <= 4'hF;\n",
         "D4 a held CPU write keeps its byte strobes: a partial one is still refused"),
+    # the one-cycle answer routing KL_mbx's two-cycle register read broke (#870): the CPU's request is counted
+    # answered the cycle after its issue, so a register read's answer two cycles after reaches no one
+    Arm("cpu-answer-one-cycle", "      cpu_wait_r <= cpu_issue_w || (cpu_wait_r && !host_ack_i);\n",
+        "      cpu_wait_r <= cpu_issue_w;\n",
+        "D11 a CPU register read is answered two cycles after its request, with its own word"),
+    # a transmit beat taken while a CPU request awaits its answer: the port is not the mover's, so the beat is lost
+    Arm("beat-during-cpu-answer", "assign beat_w      = (state_r == R_S) && !hold_r && !cpu_wait_r && axi_rvalid_i;",
+        "assign beat_w      = (state_r == R_S) && !hold_r && axi_rvalid_i;",
+        "D11 a transfer started in the cycle of a CPU register read moves its own bytes"),
+    # the mover takes the port's fields while a CPU request awaits its answer: the CPU's address moves under it
+    Arm("mover-during-cpu-answer", "assign mover_w     = own_w && !cpu_wait_r;", "assign mover_w     = own_w;",
+        "D9 a request's address holds through its answer"),
 )
 
 
