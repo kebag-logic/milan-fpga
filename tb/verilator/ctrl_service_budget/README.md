@@ -207,8 +207,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 
 - `answering-ports` (arm B) makes the four observation ports answer zeroed values.
   Its `aecp` group, where GET_AVB_INFO and GET_COUNTERS answer SUCCESS, is one of the load gate's legs at both points (#882).
-  Three are contract 2.3's face block, `stream`, `avb` and `counters` (`aecp_face.c`): the arm replaces them in the face's ports before the core takes them, so it reads no window.
-  The fourth is the fixture's own `path` port, which answers an empty sequence.
+  All four are contract 2.3's face block, `stream`, `avb`, `path` and `counters` (`aecp_face.c`; `path` since #897): the arm replaces them in the face's ports before the core takes them, so it reads no window, and `path` answers an empty sequence.
   Run with `--groups` naming three backlog rows, as S2's runs did, its composed maximum is partial; the 100 MHz runs of section 13 take all four.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.

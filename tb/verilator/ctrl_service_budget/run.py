@@ -407,7 +407,7 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
                         help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
-                        "block's stream, avb and counters and the fixture's path), shutdown-entry (the SHUTDOWN "
+                        "block's stream, avb, path and counters), shutdown-entry (the SHUTDOWN "
                         "path's test-only input) or answering-later (the face block's stream observation answers "
                         "from NOW_MS notice_window.ANSWER_MS: the retried notice's row)")
     parser.add_argument('--regrade', action='store_true',
