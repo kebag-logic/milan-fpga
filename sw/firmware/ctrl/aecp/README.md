@@ -332,7 +332,7 @@ call-chain stack bounds and physical timing remain integration obligations.
 F0-F5/F1 composition at shipping/largest shapes and one/two interfaces. The
 fixture retains saved-state restore and application service, and since
 contract 2.3 answers the physical observation and apply ports through the
-face (`aecp_face.c`); GET_AS_PATH stays an explicit unavailable observation.
+face (`aecp_face.c`), GET_AS_PATH's through the GSI window too (#897).
 It is a size/ABI fixture, not a board image. The revised F5 budget is 224 KB
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916)).
 The later default flip still requires routed memory fit and the owner's reserve.

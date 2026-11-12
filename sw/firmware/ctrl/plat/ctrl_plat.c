@@ -115,23 +115,12 @@ static void notice(void *ctx, unsigned n)
 
 // ---- AECP's platform observations -----------------------------------------
 
-// the loop's millisecond clock, which every module's timers already read
+// the loop's millisecond clock, which every module's timers already read.
+// GET_AS_PATH is the face's, through the datapath's GSI window (aecp_face.h; #897)
 static uint32_t random_value(void *ctx)
 {
 	(void)ctx;
 	return mbx_now_ms();
-}
-
-// GET_AS_PATH has no split source at this base: an explicit unavailable answer
-static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *v, size_t cap, size_t *count)
-{
-	(void)ctx;
-	(void)interface;
-	(void)index;
-	(void)v;
-	(void)cap;
-	(void)count;
-	return false;
 }
 
 // ---- SRP -------------------------------------------------------------------
@@ -224,7 +213,7 @@ static bool compose(struct ctrl_plat *p)
 	p->aecp_config.map_count = AECP_ENTITY_MAPS;
 	p->aecp_config.events = events;
 	p->aecp_config.latency = latency;
-	p->aecp_platform = (struct aecp_ports){.random = random_value, .path = path};
+	p->aecp_platform = (struct aecp_ports){.random = random_value};
 	aecp_face_init(&p->face, &p->aecp_platform);
 	return ctrl_app_compose(&p->app, &p->config) &&
 	       ctrl_app_compose_aecp(&p->app, &p->bridge, &p->aecp, &p->aecp_config, &p->face.ports, &p->state) &&

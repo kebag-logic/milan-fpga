@@ -2811,8 +2811,20 @@ struct Far {
     std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
     std::vector<uint64_t> taken_at;                                   // the trace clock at each
     unsigned requests[MBX_WINDOWS]{};
+    std::array<std::vector<uint64_t>,MBX_N_IF> asp{};   // the path sequence each interface's datapath serves
+    uint64_t asp_count=~0ull;                           // a count word other than the sequence's length, when set
+    std::vector<std::array<uint32_t,3>> asked;          // each GSI kind 2 request: interface, GSI_REQ, GSI_SEL
     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
-        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);return f.reply;
+        auto &f=*static_cast<Far*>(p);++f.requests[w];
+        if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
+        *d=word(i,w,r,f.verdict);return f.reply;
+    }
+    //! GET_AS_PATH's words (kind 2), the processor face's layout: selector 0 the count, 8 the entry at the ordinal.
+    uint64_t path(unsigned i,uint32_t sel) const {
+        const unsigned word_sel=(sel>>4)&15u;
+        const unsigned ord=(sel>>8)&255u;
+        if(word_sel==0u)return asp_count!=~0ull?asp_count:asp.at(i).size();
+        return word_sel==8u&&ord<asp.at(i).size()?asp.at(i)[ord]:0u;
     }
     static bool commit(void *p,unsigned i,const uint32_t *b) {
         auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
@@ -3045,6 +3057,128 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
         mbx_model_far_bind(&fabric,&side);
     }
     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+}
+
+namespace {
+//! A GET_AS_PATH command (IEEE 1722.1-2021 7.4.41.1): descriptor_index, then reserved.
+Bytes as_path(unsigned index) { Bytes b(4);put(b,0,index,2);return b; }
+//! AVB_INTERFACE i on core: the model's own, else its AVB_INTERFACE 0 rekeyed to i (the shipping 1x1 model holds one,
+//! so a second interface's is the first's, rekeyed, as a second AVB interface would be), its own key back at the end.
+struct AvbInterface {
+    aecp &core;
+    aecp_descriptor *moved=nullptr;
+    AvbInterface(const AvbInterface&)=delete;
+    AvbInterface &operator=(const AvbInterface&)=delete;
+    explicit AvbInterface(aecp &c):core(c) {}
+    ~AvbInterface() { if(moved!=nullptr){moved->index=0;aecp_index(&core);} }
+    void serve(unsigned i) {
+        const auto index=static_cast<uint16_t>(i);
+        if(moved==nullptr){
+            if(aecp_find(&core,core.configuration,9,index)!=nullptr)return;
+            moved=aecp_find(&core,core.configuration,9,0);
+        }
+        moved->index=index;aecp_index(&core);
+    }
+};
+}
+
+// GET_AS_PATH (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897) is the datapath's sequence: the count, then each
+// ClockIdentity by its ordinal, through the GSI window (kind 2) of the AVB interface's own interface. The response is
+// SUCCESS at every count, its count and path_sequence the datapath's in order, control_data_length 16 + 8 an entry.
+TEST_F(Face, AsPathIsTheDatapathsSequenceThroughItsOwnWindow)
+{
+    AvbInterface avb(adapter.core);
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        avb.serve(i);
+        for(unsigned n:{0u,1u,3u,8u}){
+            std::vector<uint64_t> path;
+            for(unsigned k=0;k<n;++k)path.push_back(0x001bc5fffe000000ull|(uint64_t{i}<<16)|(uint64_t{n}<<8)|k);
+            far.asp.at(i)=path;far.asked.clear();
+            auto out=receive(40,as_path(i),0,CTLR,i);
+            EXPECT_EQ(get(out,36,2),0x28u)<<"a GET_AS_PATH response";
+            EXPECT_EQ(get(out,38,2),i)<<"its descriptor_index";
+            EXPECT_EQ(get(out,40,2),n)<<"the count, the datapath's";
+            EXPECT_EQ(get(out,16,2)&0x7ffu,16u+8u*n)<<"control_data_length 16 + 8 a ClockIdentity";
+            for(unsigned k=0;k<n;++k)EXPECT_EQ(get(out,42+8*k,8),path[k])<<"entry "<<k<<" in order";
+            for(const auto &q:far.asked)EXPECT_EQ(q[0],i)<<"read through its own interface's window";
+            ASSERT_EQ(far.asked.size(),1u+n)<<"the count, then each entry once";
+            for(unsigned k=0;k<=n;++k){
+                const auto &q=far.asked[k];
+                EXPECT_EQ(q[1],9u|(i<<16))<<"of its AVB_INTERFACE";
+                if(k==0){EXPECT_EQ(q[2],2u)<<"the count first, kind 2 selector 0";}
+                else{EXPECT_EQ(q[2],2u|(8u<<4)|((k-1u)<<8))<<"entry "<<k-1u<<" at selector 8, by its ordinal";}
+            }
+        }
+    }
+    EXPECT_EQ(face.unanswered,0u);
+}
+
+// The bound (AECP_PATH_ITEMS, the core's capacity): a count at it is carried whole; a count past it fails the port at
+// the count, reading no entry, for the response could not carry the pathSequence (IEEE 1722.1-2021 7.4.41.2).
+TEST_F(Face, AsPathCarriesItsWholeBoundAndFailsACountPastIt)
+{
+    AvbInterface avb(adapter.core);
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        avb.serve(i);
+        std::vector<uint64_t> path(AECP_PATH_ITEMS);
+        for(unsigned k=0;k<AECP_PATH_ITEMS;++k)path[k]=0x0200fffe00000000ull|(uint64_t{i}<<16)|k;
+        far.asp.at(i)=path;
+        auto out=receive(40,as_path(i),0,CTLR,i);
+        EXPECT_EQ(get(out,40,2),AECP_PATH_ITEMS)<<"AECP_PATH_ITEMS entries are carried";
+        for(unsigned k=0;k<AECP_PATH_ITEMS;++k)EXPECT_EQ(get(out,42+8*k,8),path[k])<<"entry "<<k;
+        const auto index=static_cast<uint16_t>(i);
+        for(uint64_t count:{uint64_t{AECP_PATH_ITEMS}+1u,uint64_t{1}<<32}){
+            far.asp_count=count;far.asked.clear();
+            std::array<uint64_t,AECP_PATH_ITEMS> v{};
+            size_t n=7;
+            EXPECT_FALSE(face.ports.path(&face,i,index,v.data(),v.size(),&n))<<"a count past the bound fails the port";
+            EXPECT_EQ(far.asked.size(),1u)<<"no entry is read past the bound";
+            EXPECT_EQ(n,7u)<<"a failed port reports no count";
+        }
+        far.asp_count=~0ull;
+        std::array<uint64_t,3> small{};
+        size_t n=0;
+        far.asp.at(i).resize(small.size());
+        EXPECT_TRUE(face.ports.path(&face,i,index,small.data(),small.size(),&n))<<"a count at the capacity is carried";
+        EXPECT_EQ(n,small.size());
+        far.asp.at(i).resize(small.size()+1u);far.asked.clear();
+        EXPECT_FALSE(face.ports.path(&face,i,index,small.data(),small.size(),&n))<<"one past the capacity fails the port";
+        EXPECT_EQ(far.asked.size(),1u)<<"no entry is read past the capacity";
+    }
+    EXPECT_EQ(face.unanswered,0u)<<"a refused count is an answered read";
+}
+
+// A window that does not answer, at the count or at any entry, fails the port at that word: nothing after it is read,
+// and the read is counted unanswered (mbx_win_read's bound), as for GET_AVB_INFO's.
+TEST_F(Face, AnUnansweredAsPathWordFailsItsPortThere)
+{
+    struct Partial {Far *far;unsigned left;unsigned calls;};
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        far.asp.at(i)={0x0011223344556677ull,0x8899aabbccddeeffull,0x0123456789abcdefull};
+        const auto index=static_cast<uint16_t>(i);
+        for(unsigned answered=0;answered<=4u;++answered){
+            Partial s{&far,answered,0};
+            mbx_model_far partial{&s,[](void *p,unsigned w_i,unsigned w,const uint32_t *r,uint64_t *d){
+                auto &q=*static_cast<Partial*>(p);++q.calls;
+                if(q.left==0){*d=0;return MBX_MODEL_SILENT;}
+                --q.left;return Far::answer(q.far,w_i,w,r,d);},nullptr};
+            mbx_model_far_bind(&fabric,&partial);
+            std::array<uint64_t,AECP_PATH_ITEMS> v{};
+            size_t n=9;
+            const uint32_t before=face.unanswered;
+            const bool ok=face.ports.path(&face,i,index,v.data(),v.size(),&n);
+            mbx_model_far_bind(&fabric,&side);
+            if(answered==4u){
+                EXPECT_TRUE(ok)<<"every word answered";EXPECT_EQ(n,3u);
+                EXPECT_EQ(v[2],0x0123456789abcdefull);EXPECT_EQ(s.calls,4u);
+                continue;
+            }
+            EXPECT_FALSE(ok)<<(answered==0?"the count unanswered fails the port":"an entry unanswered fails the port");
+            EXPECT_EQ(s.calls,answered+1u)<<"nothing is read after the word with no answer";
+            EXPECT_EQ(face.unanswered-before,1u)<<"the read is counted unanswered";
+            EXPECT_EQ(n,9u)<<"a failed port reports no count";
+        }
+    }
 }
 
 // A commit the datapath does not acknowledge within the bound. The change
@@ -3523,6 +3657,38 @@ TEST_F(AppFace, FaceEventsDriveTheirTable522Notifications)
     mbx_event e{};e.type=MBX_EV_TYPE_TIMER;
     for(unsigned n=0;n<application.loop.n_sinks;++n)application.loop.sinks[n].fn(application.loop.sinks[n].ctx,&e);
     EXPECT_EQ(bridge.live_map_writes,1u)<<"another event is not the face's";
+}
+
+// AS_PATH_CHANGED (Milan v1.2 Table 5.22; #897): the unsolicited GET_AS_PATH response to the registered controller is
+// SUCCESS and carries the sequence the datapath serves as it is built, read through the changed interface's own
+// window, and each later change its later sequence.
+TEST_F(AppFace, AnAsPathChangeNotifiesTheDatapathsSequence)
+{
+    aem(36);
+    AvbInterface avb(adapter.core);
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        avb.serve(i);
+        for(unsigned n:{2u,3u,0u}){
+            std::vector<uint64_t> path;
+            for(unsigned k=0;k<n;++k)path.push_back(0x001bc5fffe110000ull|(uint64_t{i}<<12)|(uint64_t{n}<<4)|k);
+            far.asp.at(i)=path;far.asked.clear();
+            const unsigned before=fabric.tx_sent;
+            mbx_model_face_event(&fabric,i,MBX_MODEL_EV_ASP,0,0);service();
+            ASSERT_EQ(frames(before,0x8028),1u)<<"an AS_PATH change notifies GET_AS_PATH";
+            for(unsigned k=before;k<fabric.tx_sent;++k){
+                auto p=mbx_model_tx_frame(&fabric,k);
+                if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x8028)continue;
+                EXPECT_EQ(p->bytes[15]&0xfu,1u)<<"an AEM_RESPONSE";
+                EXPECT_EQ(get(p->bytes+16,2)>>11,0u)<<"the notice is SUCCESS";
+                EXPECT_EQ(get(p->bytes+26,8),CTLR)<<"to the registered controller";
+                EXPECT_EQ(get(p->bytes+38,2),i)<<"of the AVB interface that changed";
+                EXPECT_EQ(get(p->bytes+40,2),n)<<"the sequence the datapath serves at the notice";
+                for(unsigned e=0;e<n;++e)EXPECT_EQ(get(p->bytes+42+8*e,8),path[e])<<"entry "<<e;
+            }
+            ASSERT_FALSE(far.asked.empty())<<"the notice reads the window";
+            for(const auto &q:far.asked)EXPECT_EQ(q[0],i)<<"through the changed interface's window";
+        }
+    }
 }
 
 TEST_F(AppFace, AttachRefusesAFullLoop)

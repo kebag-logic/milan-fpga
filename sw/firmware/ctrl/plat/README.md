@@ -78,7 +78,10 @@ A command's name is compared only as far as its terminator, so a received NUL (a
   The image draws its first range at random. Only a simulation defines `CTRL_PLAT_MAAP_PREFERRED` to pin it: the two-placement simulation in `tb/verilator/milan_dp` pins both placements at one range.
 - **ACMP's talker sources.** Source *n*'s stream is the entity's MAC and its STREAM_OUTPUT's unique ID (IEEE 1722.1-2021 7.2.3), on the SR class VID, at address base + *n* once MAAP holds its interface's range (Milan v1.2 5.5.4.1).
 - **SRP.** Every interface declares every source, with its generated TSpec and class, unallocated at boot. The licences reach the fabric through the publication block (`srp_mbx.c`), and the platform records each.
-- **AECP.** `random` is the loop's millisecond clock. GET_AS_PATH has no split source at this base and answers unavailable.
+- **AECP.** `random` is the loop's millisecond clock. Every observation is the face's ([`aecp_face.c`](../aecp/aecp_face.c)), the platform's only `random`.
+  GET_AS_PATH reads its AVB interface's GSI window, kind 2: the count, then each ClockIdentity of the path sequence by its ordinal, at most `AECP_PATH_ITEMS`, so it answers SUCCESS with the sequence the datapath serves (IEEE 1722.1-2021 7.4.41; Milan v1.2 5.4.2.24; #897).
+  A window that does not answer, or a count past `AECP_PATH_ITEMS`, fails that port, and the core answers as for GET_AVB_INFO's.
+  AS_PATH_CHANGED leads to the unsolicited GET_AS_PATH response, which reads the window again (Milan v1.2 Table 5.22).
 
 ## Generated inputs
 
@@ -116,11 +119,11 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
 `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
 
 - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick;
+- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick; and GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B11, #897);
 - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
 - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
 
-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 40 defects, each caught by a named test on its own words.
+The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 42 defects, each caught by a named test on its own words.
 They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
 
 The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
@@ -135,5 +138,4 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
 - **The largest point's block RAM.** At 8x8 with two interfaces the image plans 58.5 RAMB36, within the 59.0 ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
-- **GET_AS_PATH** answers unavailable.
 - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.

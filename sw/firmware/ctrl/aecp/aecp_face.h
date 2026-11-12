@@ -26,9 +26,13 @@
 //   stream    GET_STREAM_INFO's words through the GSI window (kind 0), and an
 //             output's streaming level from the SRP owner's LICENCE
 //   avb       GET_AVB_INFO's words through the GSI window (kind 1)
+//   path      GET_AS_PATH's count, then each path_sequence ClockIdentity by its
+//             ordinal, through the GSI window (kind 2), at most the core's
+//             capacity (AECP_PATH_ITEMS): a count past it fails the port
+//             (IEEE 1722.1-2021 7.4.41.2; #897)
 //   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
 // Every window read is bounded (mbx_win_read); a read that finds no answer
-// fails its port. random and path are the platform's, forwarded.
+// fails its port. random is the platform's, forwarded.
 #ifndef CTRL_AECP_FACE_H
 #define CTRL_AECP_FACE_H
 #include "aecp.h"
@@ -40,7 +44,7 @@ extern "C" {
 
 struct aecp_face {
 	struct aecp_ports ports;                // the environment ports this face answers
-	const struct aecp_ports *platform;      // random and path
+	const struct aecp_ports *platform;      // random
 	struct aecp *core;                      // the values the settings carry
 	bool owed[MBX_N_IF];                    // a commit the datapath has not taken: publish again
 	bool ready;                             // F_CTRL.READY
@@ -52,7 +56,7 @@ struct aecp_face {
 	uint32_t unanswered;                    // window reads with no answer within the bound
 };
 
-// Does not touch the mailbox. platform supplies random and path.
+// Does not touch the mailbox. platform supplies random.
 void aecp_face_init(struct aecp_face *, const struct aecp_ports *platform);
 // The core whose settings the face publishes, once composed (before open).
 void aecp_face_attach(struct aecp_face *, struct aecp *core);

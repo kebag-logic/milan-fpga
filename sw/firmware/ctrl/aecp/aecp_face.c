@@ -245,10 +245,26 @@ static uint32_t random_value(void *ctx)
 	return f->platform->random(f->platform->ctx);
 }
 
+// GET_AS_PATH's words (kind 2): 0 {48'0, count}, 8 path_sequence[ordinal], a
+// ClockIdentity. The datapath answers the entries from the path it held at
+// the count's read, so they are one sequence. A count past capacity fails the
+// port: the response could not carry the pathSequence whole (IEEE 1722.1-2021
+// 7.4.41.2; Milan v1.2 5.4.2.24).
+_Static_assert(AECP_PATH_ITEMS <= 1u << MBX_GSI_SEL_ORD_WIDTH, "every carried entry has an ordinal");
 static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *out, size_t capacity, size_t *count)
 {
 	struct aecp_face *f = ctx;
-	return f->platform->path(f->platform->ctx, interface, index, out, capacity, count);
+	uint64_t n = 0;
+	if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {
+		return false;
+	}
+	for (unsigned k = 0; k < (unsigned)n; ++k) {
+		if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {
+			return false;
+		}
+	}
+	*count = (size_t)n;
+	return true;
 }
 
 void aecp_face_init(struct aecp_face *f, const struct aecp_ports *platform)
