@@ -220,10 +220,14 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/notice_window.py": "writes the stimulus of the notice groups and reads "
                                                          "AECP_QUEUED_MS, AECP_QUEUED_FIRST_MS, AECP_RETRY_MAX_MS "
                                                          "and AECP_NOTICES_MOST from the headers; it compiles nothing",
-    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads THE RETRY search's stated costs "
-                                                       "from ctrl_loop.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/whole_grade.py": "grades a run's log and reads a pass given whole's stated "
+                                                       "costs from ctrl_loop.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/round_grade.py": "grades a run's log and reads a round's stated costs from "
                                                        "aecp.h and aecp_mbx.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/rows_tiers.py": "solves the rows by every source under the tiers and reads "
+                                                      "CTRL_LOOP_SLICE_US from ctrl_loop.h, AECP_MBX_OWED_SLOTS from "
+                                                      "aecp_mbx.h and AECP_RETRY_MAX_MS from aecp.h; it compiles "
+                                                      "nothing",
     "tb/verilator/ctrl_service_budget/load_grade.py": "computes the long-window load from the contract's rates and "
                                                       "reads the timers it cites from ctrl_loop.h, srp_mbx.c, aecp.c "
                                                       "and the TSN stack's headers; it compiles nothing",

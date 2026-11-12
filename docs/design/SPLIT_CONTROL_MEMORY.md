@@ -2181,7 +2181,7 @@ The slice at 1x1/1if is the one with the largest least relative margin over the 
 
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 27.21 ms at 1x1/1if and 88.16 ms at 8x8/2if (`rows_tiers.tx_row`, reported). That is over the 20 ms the loop before the tiers held it to by construction, and within SRP's 90 ms and the 200 ms JoinTime at 1x1/1if; which bound holds it under the tiers is an open decision on #894.
 
-The built image is about 1,250 B larger at both points. At 8x8/2if the size fixture's image is 808 B of rom over its 57.5-RAMB36 ledger ([section 5](#5-fit)), so its CPU budget runs used a plan of 58.0 RAMB36 for measurement only.
+At 8x8/2if the size fixture's image is 1,104 B of rom larger than before the tiers (122,440 to 123,544 B), 664 B over its 57.5-RAMB36 ledger ([section 5](#5-fit)): the CPU budget harness's 8x8/2if build refuses it, and its runs used a plan of 58.0 RAMB36 for measurement only, an owner question on #894. At 1x1/1if the image is 108,336 B of rom and 48,480 B of sram.
 
 ### What is left
 
