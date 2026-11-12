@@ -3,15 +3,22 @@
 """The self-test's checks of the polls by source (poll_grade.py; #665): every pass's base,
 its polls less the heavy items inside them, and every heavy item held to its stated cost at its point, an ACMP or AECP
 call that committed no frame the base's, and a base or an item over its cost failing the run whatever findings it
-records."""
+records; and a control held to this image's own unplanted measurement (a reference control) caught only past
+its margin."""
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
+import tempfile
 from collections.abc import Callable
+from pathlib import Path
+from unittest.mock import patch
 
 import build
 import grade
 import poll_grade
+import poll_items
 import run
 import scenario
 
@@ -122,4 +129,63 @@ def polls_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
                               record_share_findings=True)
     out.append(("a pass's base over its stated cost fails a run whatever findings it records",
                 run.verdict(args, [scenario.Group('g')], [], [], [], named[:1]) == 1, ''))
+    return out + reference_checks()
+
+
+def reference_checks() -> list[Check]:
+    """A reference control (build.REFERENCE_CONTROLS, #665) is caught only where its group's planted heaviest
+    instance of its kind is more than the stated margin dearer than this image's unplanted one, measured on this
+    point's unplanted build in the same run, with no refusal in either run."""
+    name = 'srp-compared-by-memcmp'
+    kind, group = build.REFERENCE_CONTROLS.get(name), build.MUTATIONS[name][3]
+    args = argparse.Namespace(mutation=name)
+
+    def grades(cycles: int | None) -> list[dict]:
+        """One run's grade of the control's group with that heaviest instance, none for None."""
+        return [] if cycles is None else [dict(group=group, passes=dict(polls=dict(heaviest={kind: cycles})))]
+
+    def verdict(planted: int | None, unplanted: int | None = 20_000, refused: tuple = (),
+                unrefused: tuple = ()) -> int:
+        """The control's exit status on those two runs, its CONTROL line kept off the self-test's output."""
+        with contextlib.redirect_stdout(io.StringIO()):
+            return run.reference_verdict(args, grades(planted), list(refused), (grades(unplanted), list(unrefused)))
+    edge = 21_000
+    out = [("the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with "
+            'a margin of 5 %', kind == poll_grade.RECORD and name not in build.POLL_CONTROLS and
+            poll_items.REFERENCE_MARGIN_PERCENT == 5, str((kind, sorted(build.POLL_CONTROLS))))]
+    if kind is None:
+        return out
+    margins = tuple(verdict(c) for c in (edge + 1, edge, 20_000, 19_000))
+    out.append(('a reference control is caught by a planted record more than its margin dearer than the unplanted '
+                'one, and escapes at the margin, at the same cost and cheaper', margins == (0, 1, 1, 1), str(margins)))
+    refusals = (verdict(edge + 1, refused=('r',)), verdict(edge + 1, unrefused=('r',)), verdict(edge + 1, None),
+                verdict(None))
+    out.append(('a reference control escapes with a refusal in either run, or without its group in either',
+                refusals == (1, 1, 1, 1), str(refusals)))
+    out.append(reference_run_check(name))
     return out
+
+
+def reference_run_check(name: str) -> Check:
+    """run.reference_run builds this point's unplanted image at the control's variant and core in <build-dir>/reference
+    and runs the control's group alone there."""
+    calls: list = []
+    planted = argparse.Namespace(mutation=name, variant=build.MUTATIONS[name][4], point='8x8', cpu_regions='cover',
+                                 fetch_l1='split', xip=False, reuse_build=False, regrade=False)
+    groups = [scenario.Group(build.MUTATIONS[name][3]), scenario.Group('other')]
+    spec = dict(flash_image='-')
+    with tempfile.TemporaryDirectory() as tmp, \
+            patch.object(build, 'build', lambda where, shape, n_if, **kw: calls.append(
+                ('build', where, shape, n_if, kw)) or spec), \
+            patch.object(run, 'all_groups', lambda point, s: groups), \
+            patch.object(scenario, 'point', lambda label, s: label), \
+            patch.object(run, 'run_group', lambda where, out, g, flash: calls.append(('run', where, g.name)) or out), \
+            patch.object(run, 'graded', lambda gs, logs, s, out: ([dict(group=g.name) for g in gs], ['x'], [])):
+        planted_dir = Path(tmp) / 'b'
+        results, refusals = run.reference_run(planted, planted_dir, 'endstation_ax7101_8x8', 2)
+    want = [('build', planted_dir / 'reference', 'endstation_ax7101_8x8', 2,
+             dict(mutation='none', variant=planted.variant, core=build.Core('cover', 'split', False))),
+            ('run', planted_dir / 'reference', build.MUTATIONS[name][3])]
+    return ("a reference control's other run is its group alone on this point's unplanted image, at its variant and "
+            'core, in the build directory\'s reference', calls == want and results == [dict(group=groups[0].name)]
+            and refusals == ['x'], str(calls))
