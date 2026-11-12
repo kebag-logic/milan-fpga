@@ -108,6 +108,10 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
     return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))
 
 
+#: The compiler's 64-bit logical shift, which no field write of the split platform calls (tsn-c-stack#27).
+SHIFT_HELPER = "__lshrdi3"
+
+
 def arm_platrv32(tree: Tree, require: bool) -> Outcome:
     """The platform and its composition, cross-compiled freestanding for RV32I at the shipping shape: ABI,
     instruction set and runtime closure, as the SRP arm checks its own (srp_arms.arm_srp_rv32). main() is the
@@ -150,6 +154,9 @@ def arm_platrv32(tree: Tree, require: bool) -> Outcome:
     stray = open_symbols - RV32_LIBC - {"memcmp", "memmove"} - fw_rv32.HELPERS
     if stray:
         findings.append(f"unexpected runtime dependencies: {sorted(stray)}")
+    # tsn-c-stack#27: wire_put_be packs its value in two 32-bit halves, so no field write shifts 64 bits
+    if SHIFT_HELPER in open_symbols:
+        findings.append(f"the split platform calls {SHIFT_HELPER}, the 64-bit shift helper (tsn-c-stack#27)")
     log = "\n".join([f"  {len(objects)} objects; runtime dependencies: {sorted(open_symbols)}",
                      f"  largest static frame: {fw_rv32.stack_frames(objects)} bytes (not a call-chain bound)",
                      *[f"  [FAIL] {f}" for f in findings],

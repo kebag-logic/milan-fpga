@@ -15,6 +15,7 @@ ACMP_C = "tsn-c-stack/src/acmp.c"
 ACMP_H = "tsn-c-stack/include/acmp.h"
 MAAP_C = "tsn-c-stack/src/maap.c"
 MAAP_H = "tsn-c-stack/include/maap.h"
+WIRE_H = "tsn-c-stack/include/wire.h"
 
 
 @dataclass(frozen=True)
