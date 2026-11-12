@@ -1,0 +1,3 @@
+# head b2d39235ab9bba85d7e560b5f5f78fb4be528960 gate attribute_grep: git grep -n __attribute__ -- sw/firmware/ctrl ':!*/test/*'
+sw/firmware/ctrl/plat/ctrl_cc.h:31:#define CTRL_CC_NOINLINE __attribute__((noinline))
+sw/firmware/ctrl/plat/ctrl_cc.h:32:typedef void *__attribute__((may_alias)) ctrl_cc_ptr;

@@ -1,0 +1,20 @@
+# head b2d39235ab9bba85d7e560b5f5f78fb4be528960 gate probe_r712_rows: python3 -I <management>/2026-09-23/665s2b-r712-7/scripts/rederive_rows.py $PWD
+== 1x1/1if
+   rows_grade.py: {'R4': 66.12, 'R5': 35.95, 'R6': 28.67}
+   V0 the model as stated (rows_grade.py), re-implemented: R4 76.82 ms, passes 36: srp 17.68, others 11.24, item.retained 9.36, item.aecp 7.56, passes 6.48, item.acmp 4.32, ticks 3.76, own 3.28, rounds 3.23, timers 3.19, steps 2.92, item.reclaim 1.80, builds 0.90, item.mrpdu 0.81, item.walk 0.18, gm 0.10
+   V0 the model as stated (rows_grade.py), re-implemented: R4 76.82  R5 39.33  R6 33.72
+   V1 SRP arrivals over the whole window: R4 78.42 ms, passes 37: srp 18.46, others 11.24, item.retained 9.62, item.aecp 7.77, passes 6.66, item.acmp 4.44, ticks 3.76, own 3.28, rounds 3.23, timers 3.19, steps 2.92, item.reclaim 1.85, builds 0.90, item.mrpdu 0.81, item.walk 0.18, gm 0.10
+   V1 SRP arrivals over the whole window: R4 78.42  R5 39.33  R6 33.72
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 65.86 ms, passes 34: srp 16.64, others 10.58, item.aecp 7.14, passes 6.12, item.acmp 4.08, ticks 3.29, own 3.28, rounds 3.23, timers 3.08, steps 2.92, item.retained 1.82, item.reclaim 1.70, builds 0.90, item.mrpdu 0.81, item.walk 0.16, gm 0.10
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 65.86  R5 36.99  R6 29.45
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 65.44 ms, passes 34: srp 16.64, others 10.58, item.aecp 6.72, passes 6.12, item.acmp 4.08, ticks 3.29, own 3.28, rounds 3.23, timers 3.08, steps 2.92, item.retained 1.82, item.reclaim 1.70, builds 0.90, item.mrpdu 0.81, item.walk 0.16, gm 0.10
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 65.44  R5 36.99  R6 29.45
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 72.42 ms, passes 36: srp 17.68, others 10.96, rounds 7.22, item.aecp 6.72, passes 6.48, item.acmp 4.32, ticks 3.76, own 3.28, timers 3.19, steps 2.92, item.retained 2.08, item.reclaim 1.80, builds 0.90, item.mrpdu 0.81, item.walk 0.18, gm 0.10
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 72.42  R5 36.99  R6 29.45
+== 8x8/2if
+   rows_grade.py: {'R4': 346.15, 'R5': 144.15, 'R6': 135.8}
+   V0 the model as stated (rows_grade.py), re-implemented: R4 497.13  R5 164.49  R6 149.71
+   V1 SRP arrivals over the whole window: R4 499.15  R5 164.49  R6 149.71
+   V2 V1 + retained retries at one a centisecond (srp_mbx.c tick/retry_spent): R4 345.72  R5 154.59  R6 144.26
+   V3 V2 + AECP owed frames only from the records ahead of the row and the probes: R4 289.67  R5 154.59  R6 144.26
+   V4 V3 + the 15 records ahead each queueing a notice THE RETRY sends (sensitivity): R4 308.92  R5 154.59  R6 144.26

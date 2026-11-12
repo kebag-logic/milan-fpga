@@ -1,0 +1,21 @@
+# tools/rederive_rows.py at the head (this round's costs), R4 at both points, with each count rule:
+## retries floor(W/10)+2, SRP's window less-own
+1x1/1if R4: 66.12 ms, 34 passes; srp 16.64, others 10.58, item.aecp 7.14, passes 6.12
+8x8/2if R4: 346.15 ms, 133 passes; srp 74.46, others 50.73, passes 41.23, item.aecp 31.59
+## retries floor(W/10)+1, SRP's window less-own
+1x1/1if R4: 65.86 ms, 34 passes; srp 16.64, others 10.58, item.aecp 7.14, passes 6.12
+8x8/2if R4: 345.72 ms, 133 passes; srp 74.46, others 50.73, passes 41.23, item.aecp 31.59
+## retries floor(W/10)+1, SRP's window whole
+1x1/1if R4: 65.86 ms, 34 passes; srp 16.64, others 10.58, item.aecp 7.14, passes 6.12
+8x8/2if R4: 345.72 ms, 133 passes; srp 74.46, others 50.73, passes 41.23, item.aecp 31.59
+## retries floor(W/10)+2, SRP's window whole
+1x1/1if R4: 66.38 ms, 34 passes; srp 16.90, others 10.58, item.aecp 7.14, passes 6.12
+8x8/2if R4: 347.01 ms, 134 passes; srp 74.83, others 50.73, passes 41.54, item.aecp 31.59
+
+# on round 28's costs (the tree before this round's tables, 446d3310):
+## retries floor(W/10)+2, SRP's window less-own
+1x1/1if R4: 59.19 ms, 32 passes; srp 15.25, others 9.82, item.aecp 6.72, passes 5.76
+## retries floor(W/10)+1, SRP's window less-own
+1x1/1if R4: 58.18 ms, 31 passes; srp 15.00, others 9.82, item.aecp 6.51, passes 5.58
+## retries floor(W/10)+1, SRP's window whole
+1x1/1if R4: 58.94 ms, 32 passes; srp 15.25, others 9.82, item.aecp 6.72, passes 5.76

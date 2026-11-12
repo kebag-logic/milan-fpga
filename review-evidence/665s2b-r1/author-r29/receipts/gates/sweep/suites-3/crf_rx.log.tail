@@ -1,0 +1,201 @@
+# the last 200 lines of crf_rx.log: 171354 bytes, sha256 444c11f3c96d9f0ee950535d3708b3f04da3ecf3e898080ffd5494a148e09175
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] reject stream precondition: sink is locked
+  [ ok ] reject stream precondition: one lock event got=1 exp=1
+  [ ok ] reject stream precondition: no unlock event got=0 exp=0
+  [ ok ] reject stream retains lock before 100 ms
+  [ ok ] reject stream before timeout adds no unlock got=0 exp=0
+  [ ok ] reject stream cannot refresh the 100 ms timeout
+  [ ok ] reject stream timeout counts one unlock  got=1 exp=1
+  [ ok ] continued reject stream stays unlocked
+  [ ok ] continued reject stream never recounts the unlock got=1 exp=1
+  [ ok ] reject stream never adds a lock event    got=1 exp=1
+  [ ok ] reject stream counts validation errors
+== crf_rx discontinuity: checks: 2201   failures: 0 ==
+RESULT: PASS
+g++    sim_talker_step.o verilated.o verilated_dpi.o verilated_threads.o Vcrf_talker_wrap__ALL.a    -pthread -lpthread -latomic   -o Vtalker_step
+rm Vcrf_talker_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.355 MB sources in 6 modules, into 0.362 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 13.071 s (elab=0.005, cvt=0.029, bld=13.020); cpu 0.057 s on 4 threads; allocated 350.059 MB
+./obj_talker/Vtalker_step
+[PASS] clean: rc=0
+[PASS] validation_error_unlocks: rc=1
+  named rejection: validation error preserves established lock
+[PASS] validation_error_refreshes_timeout: rc=1
+  named rejection: reject stream cannot refresh the 100 ms timeout
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] unit_clean: rc=0
+[PASS] silence_not_interrupted: rc=1
+  named rejection: [762-a] silence: STREAM_INTERRUPTED counts the silence once
+[PASS] gap_not_interrupted: rc=1
+  named rejection: [5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)
+[PASS] unbind_interrupts: rc=1
+  named rejection: [UNB-a6] STREAM_INTERRUPTED does not count the unbind
+[PASS] unbind_edge_timeout_interrupts: rc=1
+  named rejection: [UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)
+[PASS] stopped_silence_interrupts: rc=1
+  named rejection: [762-ST-b2] stopped silence: no STREAM_INTERRUPTED
+[PASS] aaf_ignored: rc=1
+  named rejection: [FMT-b3] ...and counts UNSUPPORTED_FORMAT once
+[PASS] aaf_accepted: rc=1
+  named rejection: [FMT-b1] an AAF PDU on the CRF stream_id is not accepted
+[PASS] crf_rejected: rc=1
+  named rejection: [FMT-a1] a matching CRF PDU is accepted
+[PASS] offformat_no_advance: rc=1
+  named rejection: [SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence
+[PASS] offformat_seeds_sequence: rc=1
+  named rejection: [SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH
+[PASS] stopped_gap_interrupts: rc=1
+  named rejection: [762-SG-b1] stopped gap: no STREAM_INTERRUPTED
+[PASS] sticky_stop_gap: rc=1
+  named rejection: [762-SG-c1] after START a gap counts STREAM_INTERRUPTED again
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+[PASS] servo_never_resumes: rc=1
+  named rejection: [U13] valid offset resumes PI trim
+== crf_rx mutants: checks: 23   failures: 0 ==
+  [ ok ] receiver-to-servo loop locks at production scale
+  [ ok ] steady receiver rate is valid
+  [ ok ] steady rate matches the source interval sum
+steady integrator 30.723 ppm
+  [ ok ] quiet: post-edge artifact was exercised
+  [ ok ] quiet: sampled validity never satisfies withhold check
+  [ ok ] quiet: no invalid servo boundaries       got=0 exp=0
+  [ ok ] quiet: servo stays LOCKED
+quiet: post-edge artifacts 550, sampled invalid 0
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_pos: step 150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_neg: step -150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_pos: step 150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_neg: step -150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_pos: step 150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_neg: step -150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+== crf_rx talker_step: checks: 69   failures: 0 ==
+RESULT: PASS

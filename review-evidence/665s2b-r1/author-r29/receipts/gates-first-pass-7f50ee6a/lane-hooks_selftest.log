@@ -1,0 +1,30 @@
+# head 7f50ee6a90a85554d8601f45fa4eaf3c6adabfbb gate hooks_selftest: python3 -B tb/verilator/ctrl_service_hooks/run.py --self-test
+PASS bounds pinned
+PASS an SRP path is held to T_svc
+PASS the exact bound fits and W adds
+PASS the hooks map
+PASS the clock labels
+FAIL the plants apply: RuntimeError: plant: an anchor occurs 0 times in acmp/acmp_mbx.c: '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}'
+PASS the testbench additions apply
+PASS own lines are split off
+PASS H-ADP ordering
+PASS H-DISC ordering
+PASS H-ACMP ordering
+PASS H-AECP ordering
+PASS H-NOTIFY ordering
+PASS H-COUNTERS spacing
+PASS the held push
+PASS H-MAAP ordering
+PASS H-SRP ordering
+PASS findings by hook
+PASS a fit under the layout swing is a finding
+PASS a refusal is superseded only by its own path
+PASS the aging window opens after the arm
+PASS a composed row opens on full buckets
+PASS a plant is caught only by its own finding
+PASS the held push's grade
+PASS a held push never sent
+PASS the worst path and the counts
+PASS the ALL push both ways
+PASS the amended column grades nothing
+ctrl_service_hooks self-test: 27 of 28 checks pass; 96 of 96 mutants caught

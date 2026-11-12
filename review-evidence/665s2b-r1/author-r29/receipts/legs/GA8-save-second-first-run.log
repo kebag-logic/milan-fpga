@@ -1,0 +1,17 @@
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+Traceback (most recent call last):
+  File "<scratch>/L-GA8/tb/verilator/ctrl_service_budget/run.py", line 712, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<scratch>/L-GA8/tb/verilator/ctrl_service_budget/run.py", line 656, in main
+    results, refusals, misses = graded(groups, logs, spec, out)
+                                ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/L-GA8/tb/verilator/ctrl_service_budget/run.py", line 472, in graded
+    result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
+  File "<scratch>/L-GA8/tb/verilator/ctrl_service_budget/grade.py", line 909, in grade
+    log = parse(text, sys_hz, cpu_hz)
+  File "<scratch>/L-GA8/tb/verilator/ctrl_service_budget/grade.py", line 208, in parse
+    modules = {m.split(':')[0]: int(m.split(':')[1]) for m in fields.pop('mods', '').split(',') if m}
+                                    ~~~~~~~~~~~~^^^
+IndexError: list index out of range
+rc=1

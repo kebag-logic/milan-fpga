@@ -1,0 +1,12 @@
+# head b2d39235ab9bba85d7e560b5f5f78fb4be528960 gate probe_r712_load_columns: python3 -I <management>/2026-09-23/665s2b-r712-7/scripts/probe_load_columns.py $PWD
+pin rise (record.aecp=3000 at the pin):
+    1x1/1if: the graded column states record.aecp at 205 us, below the pin's 3000, and tsn-c-stack#32 does not move it
+    1x1/1if: the load 1.045 at the pin is over its ceiling 0.70
+donor rise (record.acmp=3000 with #32):
+    1x1/1if: the load 1.030 with tsn-c-stack#32 is over its ceiling 0.70
+boundary record.srp=687: pin load 0.69966, refused=False
+boundary record.srp=688: pin load 0.70016, refused=True
+mutant donor-only COLUMNS: escaped controls = ['a rise at the pin alone', "a column's name bound to the other's table"]
+mutant names swapped (informational, a SUGGESTION if empty): escaped controls = ["a column's name bound to the other's table"]
+   its HELD lines: ['HELD 1x1/1if at the pin: the load 0.483, its ceiling 0.70', 'HELD 1x1/1if with tsn-c-stack#32: the load 0.486, its ceiling 0.70']
+RESULT PASS
