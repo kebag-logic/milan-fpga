@@ -670,28 +670,6 @@ def srp_groups(p: Point) -> list[Group]:
     return [g]
 
 
-def talker_groups(p: Point) -> list[Group]:
-    """The valid-destinations arm's group (#895): once MAAP holds every interface's range, a PROBE_TX for each source,
-    answered SUCCESS, opens its DA gate (Milan v1.2 4.3.3.1), and SRP declares its Talker Advertise at once, in a pass
-    given whole to THE TRANSMIT: each probe's row runs from the command's commit to SRP's next frame. Then no probe for
-    15 s closes every gate, and SRP withdraws every Talker in its own passes; whole_grade.py holds each such pass to
-    THE TRANSMIT's stated build cost, and share.py to the per-pass share."""
-    srp, acmp = CH['srp'], CH['acmp']
-    g = Group('srp-talker', sim_ms=21000)
-    ready(g, p)
-    g.add(f'wait cycles {2600 * MS}', 'wait quiet 3 within 2000000')
-    seq = 0x5300
-    for n in range(p.sources):
-        i = n % p.interfaces
-        g.probe(Probe(f'srp.talker_declare.s{n}', 'PROBE_TX -> Talker Advertise (DA gate opens)', 'srp', f'rxc:{acmp}',
-                      [f'resp:{acmp}:{seq:x}', f'tx:{srp}'], expect=answers.acmp('PROBE_TX_RESPONSE', 'SUCCESS')),
-                f'frame {i} {talker_cmd(p, "PROBE_TX", n, seq).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
-        seq += 1
-    # the probe window ends (Milan v1.2 4.3.3.1, 15 s) with no Listener: every gate closes and SRP withdraws
-    g.add(f'wait cycles {16000 * MS}', 'wait quiet 3 within 2000000')
-    return [g]
-
-
 def admission(channel: str, frame: bytes) -> dict:
     """What KL_mbx_rx admits of a channel's records of this frame's size.
 

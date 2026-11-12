@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 import notice_window
+import talker_window
 import poll_items
 import save_window
 
@@ -229,23 +230,7 @@ VARIANTS = {
          '    ctrl_loop_run(&image_app.loop);'),
     ],
 }
-VARIANTS['valid-destinations'] = [
-    # #895: the fixture's ACMP source port reports each source's destination as the target platform's does, valid
-    # once MAAP holds its interface's range, at base + n (Milan v1.2 5.5.4.1), so a PROBE_TX answered SUCCESS opens
-    # the source's DA gate and SRP declares its Talker; the arm's group (scenario.talker_groups) measures those passes.
-    ('static void source(void *ctx, unsigned n, struct acmp_source_state *out)\n'
-     '{ (void)ctx; (void)n; out->dest_mac_valid=false; }\n',
-     'static void source(void *ctx, unsigned n, struct acmp_source_state *out);\n'),
-    ('    (void)ctx; (void)count;\n    image_allocation[interface] = valid ? base : 0;\n}\n',
-     '    (void)ctx;\n    image_allocation[interface] = valid ? base : 0;\n    image_count[interface] = valid ? count : 0u;\n}\n'
-     'static void source(void *ctx, unsigned n, struct acmp_source_state *out)\n'
-     '{\n    (void)ctx;\n    const unsigned i = n % MBX_N_IF;\n'
-     '    out->dest_mac_valid = image_allocation[i] != 0u && n < image_count[i];\n'
-     '    out->stream = (struct acmp_stream){image_entity.mac << 16 | n, image_allocation[i] + n, 2u};\n'
-     '    out->asking_failed = false;\n}\n'),
-    ('static volatile uint64_t image_allocation[MBX_N_IF];\n',
-     'static volatile uint64_t image_allocation[MBX_N_IF];\nstatic volatile uint16_t image_count[MBX_N_IF];\n'),
-]
+VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
 VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
 

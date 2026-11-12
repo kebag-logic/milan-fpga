@@ -216,6 +216,9 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   It runs the `notice-retried-<k>` groups only.
 - `answering-every-port` holds every observation port unanswered until the first attempt at or after NOW_MS 3,150 fails, marks every notice the model holds as the first waits, then answers on all of them.
   It runs the `notice-every-<k>` and `notice-burst-<k>` groups only.
+- `valid-destinations` (#895) makes the fixture's ACMP source port report each source's destination as the target platform's does: valid once MAAP holds its interface's range, at base + n (Milan v1.2 5.5.4.1).
+  Its one group, `srp-talker` ([`talker_window.py`](talker_window.py)), sends a PROBE_TX for every source once MAAP holds the ranges: each is answered SUCCESS, its DA gate opens, and SRP declares its Talker Advertise at once, the row `srp.talker_declare.s<n>` from the command's commit to SRP's next frame. With no Listener the 15 s probe window then closes every gate, and SRP withdraws every Talker.
+  Those declaration and withdrawal passes are given whole to THE TRANSMIT, so `whole_grade.py` holds them to its stated build cost and `share.py` to the share; arm A's fixture reports no destination, so no arm A group declares a Talker.
 
 As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
 With `--fetch-l1 none` they are S2's arms in [Results](#results).
