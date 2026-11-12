@@ -2041,7 +2041,7 @@ Before the tiers, a search of the loop's choices (`ctrl_retry_search.py`) held t
 | Bound | 1x1/1if | 8x8/2if |
 |---|---:|---:|
 | the first notice of a queue, from its port's answer (`AECP_QUEUED_FIRST_MS`) | 14.33 ms by every source, held to 20 | 20.20 ms by every source, stated 22 |
-| every notice queued behind it (`AECP_QUEUED_MS`) | 86.91 ms by every source, held to 125 | 627.12 ms by every source, stated 62, ceiling 70 |
+| every notice queued behind it (`AECP_QUEUED_MS`) | 86.96 ms by every source, held to 125 | 627.12 ms by every source, stated 62, ceiling 70 |
 
 At 1x1/1if both are decision D's tier bounds ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6759183115)); at 8x8/2if the stated figures stand, the 22 ms the [maintainer's decision of 2026-11-08](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6718341163) allows and the ceiling of [2026-11-07](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6707464945), an owner question on #894 ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 
@@ -2176,10 +2176,10 @@ The slice at 1x1/1if is the one with the largest least relative margin over the 
 
 | Point | Slice | R4 (20 ms) | R5 (90 ms) | R6 (90 ms) | First queued notice (20 ms) | Last queued notice (125 ms) |
 |---|---:|---:|---:|---:|---:|---:|
-| 1x1/1if | 1,050 us | 11.94 | 52.95 | 49.23 | 14.33 | 86.91 |
+| 1x1/1if | 1,050 us | 11.94 | 53.01 | 49.28 | 14.33 | 86.96 |
 | 8x8/2if | 1,300 us | 42.05 | 186.54 | 176.90 | 20.20 | 627.12 |
 
-An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 27.21 ms at 1x1/1if and 88.16 ms at 8x8/2if (`rows_tiers.tx_row`, reported). That is over the 20 ms the loop before the tiers held it to by construction, and within SRP's 90 ms and the 200 ms JoinTime at 1x1/1if; which bound holds it under the tiers is an open decision on #894.
+An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records: by every source 27.26 ms at 1x1/1if and 88.16 ms at 8x8/2if (`rows_tiers.tx_row`, reported). That is over the 20 ms the loop before the tiers held it to by construction, and within SRP's 90 ms and the 200 ms JoinTime at 1x1/1if; which bound holds it under the tiers is an open decision on #894.
 
 At 8x8/2if the size fixture's image is 1,104 B of rom larger than before the tiers (122,440 to 123,544 B), 664 B over its 57.5-RAMB36 ledger ([section 5](#5-fit)): the CPU budget harness's 8x8/2if build refuses it, and its runs used a plan of 58.0 RAMB36 for measurement only, an owner question on #894. At 1x1/1if the image is 108,336 B of rom and 48,480 B of sram.
 

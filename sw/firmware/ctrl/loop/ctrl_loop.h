@@ -301,9 +301,11 @@ extern "C" {
 // of both is SRP's declarations of every stream after a link comes up (the
 // srp group): at 8x8/2if it leaves THE RETRY's round no room for a notice. And
 // a centisecond's consumers at 8x8/2if, the heavier point, which the rows by
-// every source charge each centisecond at least (rows_grade.py).
+// every source charge each centisecond at least (rows_grade.py). At 1x1/1if the
+// build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
+// a pass given whole it carries (#894).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 900u : 1995u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 955u : 1995u)
 #define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 405u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
