@@ -64,6 +64,33 @@ int main() {
         write_enable(device, 0);
         program(device, journal - 1, 1, 0);
     }));
+    {
+        // A journal set elsewhere (the split placement's KLJ3 span, #823) takes writes to its last page and
+        // refuses the default journal's first byte, the byte after its end.
+        Flash device;
+        device.journal(0xe40000, 0xa0000);
+        check.that("last page of a set journal taken", !refused([&device] {
+            write_enable(device, 0);
+            program(device, 0xedff00, 1, 0);
+        }));
+        check.hex("last page of a set journal programmed", device.byte(0xedff00), 0xa5);
+    }
+    check.that("write past a set journal refused", refused([] {
+        Flash device;
+        device.journal(0xe40000, 0xa0000);
+        write_enable(device, 0);
+        program(device, journal, 1, 0);
+    }));
+    check.that("write before a set journal refused", refused([] {
+        Flash device;
+        device.journal(0xe40000, 0xa0000);
+        write_enable(device, 0);
+        program(device, 0xe3ffff, 1, 0);
+    }));
+    check.that("journal span off an erase block refused", refused([] {
+        Flash device;
+        device.journal(0xe40100, 0x10000);
+    }));
     check.that("program while busy refused", refused([] {
         Flash device(0, 20);
         write_enable(device, 0);

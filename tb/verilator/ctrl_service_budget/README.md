@@ -111,6 +111,7 @@ The capture in flight takes the second name, and the first waits for the next sa
 Its worst case is the rest of the save in flight, all its steps but the two that started its capture and took that name, or its own first-dirty window where that is longer, then its own save's steps, at the same pace, and 10 ms: 22,150 ms at 8x8 (368 and 370 steps) and 6,070 ms at 1x1 (100 and 102).
 `save_grade.save_time` refuses it unless that change came after the first's first-dirty window and before the first save's erase.
 [`save_grade.py`](save_grade.py) reads a save's flash steps off the log, `FLASHOP` with its address and bytes, `FLASHPOLL` and a `FLASHRD` line for each run of journal reads, and times it to the read-back that completes its verify.
+The journal is the flash map's, `flash_port.json`'s `journal` as `build.py` writes it into `budget_config.hpp`: the split placement's KLJ3 journal, 640 KiB at `0xe40000` (#823). The flash device refuses any write outside it (`flash.hpp`'s `journal()`, "flash write escaped the journal"), and a `FLASHRD` run is a run of reads inside it.
 A save not durable within its worst case fails the run, whatever the options record, and the run prints a `SAVE` line for each save it timed.
 A held group whose receive channels did not commit every record its load offered is refused, and each channel's longest record is its row, from its receive commit to the end of the pass that released it.
 A save's window is refused too if it opens after its read-backs have read back every programmed byte.
