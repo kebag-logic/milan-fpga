@@ -26,7 +26,9 @@ import mrpdu_grade
 import notice_window
 import poll_grade
 import round_grade
+import slice_grade
 import rows_grade
+import rows_tiers
 import run
 import save_grade
 import save_window
@@ -471,6 +473,8 @@ MUTANTS: dict[str, Patches] = {
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
         load_grade, 'COLUMNS', load_grade.COLUMNS[1:])],
     'rows: the rows by every source not held': lambda: [patch.object(rows_grade, 'findings', lambda *a, **k: [])],
+    "rows: the built design's rows by every source not held": lambda: [patch.object(
+        rows_tiers, 'findings', lambda *a, **k: [])],
     "rows: SRP's rows held to T_svc's 20 ms": lambda: [patch.object(
         rows_grade, 'BOUNDS', dict(rows_grade.BOUNDS, R5=20, R6=20))],
     "rows: the grandmaster events left out of a row's window": lambda: [patch.object(
@@ -758,6 +762,20 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],
     'round: in bus cycles, not CPU time': lambda: [patch.object(
         round_grade, 'held', lambda log, n, f=round_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    'slice: no slice is held to its length': lambda: [patch.object(
+        slice_grade, 'held', lambda log, n, f=slice_grade.held: dict(f(log, n), over=[]))],
+    'slice: the stated length doubled': lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: 2 * f(interfaces))],
+    "slice: one point's length at both": lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(2))],
+    "slice: SRP's records are not a slice": lambda: [patch.object(slice_grade, 'RECORD', 'srp_mbx:none')],
+    "slice: SRP's slice from its first record": lambda: [patch.object(
+        slice_grade, 'origin', lambda p, records: min(cpu for cpu, _ in records))],
+    'slice: a build pass is not a slice': lambda: [patch.object(slice_grade, 'BUILD', 'build_none')],
+    "slice: a build pass's round a slice of its own": lambda: [patch.object(
+        slice_grade, 'claimed', lambda inside: set())],
+    'slice: in bus cycles, not CPU time': lambda: [patch.object(
+        slice_grade, 'held', lambda log, n, f=slice_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
     'polls: no base is held to its cost': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != 'base']))(f(log, n)))],

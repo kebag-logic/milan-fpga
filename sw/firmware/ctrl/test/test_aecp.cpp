@@ -752,11 +752,12 @@ TEST_F(Queued, BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder)
         EXPECT_EQ(get(f,36,2)&0x7fffu,16u)<<"a SET_NAME notice";
         to[get(f,26,8)].emplace_back(f[46],unsigned(get(f,34,2)));
     }
+    const auto names=[&](uint64_t c){std::vector<uint8_t> v;for(auto &n:to[c])v.push_back(n.first);return v;};
+    EXPECT_EQ(names(CTLR+2),(std::vector<uint8_t>{0x41,0x42}))<<"(a) in the order their commands were taken";
+    EXPECT_EQ(names(CTLR),(std::vector<uint8_t>{0x42}))<<"(a) the first requester has the second's alone";
+    EXPECT_EQ(names(CTLR+1),(std::vector<uint8_t>{0x41}))<<"(a) the second requester the first's alone";
     ASSERT_EQ(sent.size(),2u+4u)<<"(a) two notices, each to the two registered controllers not its requester";
-    EXPECT_EQ(to[CTLR].size(),1u);EXPECT_EQ(to[CTLR].front().first,0x42u)<<"(a) the first requester has the second's";
-    EXPECT_EQ(to[CTLR+1].size(),1u);EXPECT_EQ(to[CTLR+1].front().first,0x41u)<<"(a) the second requester the first's";
-    ASSERT_EQ(to[CTLR+2].size(),2u)<<"(a) the third controller has both";
-    EXPECT_TRUE(to[CTLR+2][0].first==0x41u&&to[CTLR+2][1].first==0x42u)<<"(a) in the order their commands were taken";
+    ASSERT_EQ(to[CTLR+2].size(),2u);
     EXPECT_EQ(to[CTLR+2][1].second,to[CTLR+2][0].second+1u)<<"(a) its sequence_id one on per notice";
     EXPECT_EQ(a.owed_count,0u);EXPECT_TRUE(aecp_ready(&a));
 }

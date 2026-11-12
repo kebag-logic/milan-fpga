@@ -54,7 +54,7 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      (CORE, COUNTED)),
     ('notice-to-the-one-that-asked', 'aecp.c',
      'if ((slots & 1u) == 0u || r->controller == requester) {',
-     'if ((slots & 1u) == 0u) {',
+     'if ((slots & 1u) == 0u || r->controller == ~requester) {',
      (CORE, COUNTED)),
     # a frame the fan port reports lost (#665): the walk resumes past it, as it did before the port reported one
     ('notice-lost-frame-skipped', 'aecp.c',

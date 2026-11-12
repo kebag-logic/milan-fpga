@@ -43,6 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import answers
+import datapath_window
 import frames as f
 import save_window
 
@@ -919,8 +920,7 @@ def shutdown_groups(p: Point) -> list[Group]:
         ready(g, p)
         g.together([(Probe(f'{prefix}.shutdown.if{i}', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
                            [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing',
-                           path='adp.shutdown'), []) for i in ifs],
-                   [f'ms {SHUTDOWN_MS + 50}'])
+                           path='adp.shutdown'), []) for i in ifs], [f'ms {SHUTDOWN_MS + 50}'])
         out.append(g)
     return out
 
@@ -951,8 +951,7 @@ def fixture_groups(p: Point) -> list[Group]:
     bad = bytearray(f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])]))
     bad[29] = 216
     g.probe(Probe('fixture.malformed.if0', 'malformed MRPDU discard', 'srp', f'rxc:{srp}', [f'pass_end:{srp}'],
-                  path='srp.malformed'),
-            f'frame 0 {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
+                  path='srp.malformed'), f'frame 0 {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
     g.add(f'frame 0 {f.aem_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, 0x6100), 0x0024, bytes(4)).hex()}',
           f'wait tx {aecp} 1 within {50 * MS}', 'wait quiet 3 within 2000000')
     # A short composed window: one record on every receive channel and two GM events, so the
@@ -991,26 +990,11 @@ def fixture_groups(p: Point) -> list[Group]:
     return [g]
 
 
-def datapath_groups(p: Point) -> list[Group]:
-    """The datapath's three coalesced change events (mailbox.yaml event types 6 to 8: AVB_INFO_CHANGED and
-    AS_PATH_CHANGED an interface each, AMAP_LIVE_WRITE the live map), each pulsed alone on every interface 2 ms after
-    the last, so each is a pass's one event, eight times each: their sinks' cost, which the rows by every source charge
-    each source an ordinary pass (#894; rows_tiers.DATAPATH)."""
-    g = Group('datapath-events', sim_ms=900)
-    ready(g, p)
-    for n in range(8):
-        for kind in ('avb', 'asp', 'amap'):
-            for i in range(p.interfaces):
-                g.add(f'datapath {kind} {i}', f'wait cycles {2 * MS}')
-    g.add('wait quiet 3 within 2000000')
-    return [g]
-
-
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build),
-              *datapath_groups(p)]
+              *datapath_window.groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

@@ -140,9 +140,10 @@ def share_misses(results: list[dict]) -> list[str]:
 
 
 def stated_misses(results: list[dict]) -> list[str]:
-    """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost THE RETRY's
-    search counts from (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy items
-    dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held)."""
+    """Each pass given whole to a build or an aged step, and each round of THE RETRY, dearer than the cost the rows by
+    every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
+    items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); and
+    each tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS)."""
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -154,7 +155,24 @@ def stated_misses(results: list[dict]) -> list[str]:
                                   "an SRP record's apply of " if o['kind'] == poll_grade.RECORD else
                                   f"a {o['kind']} item of ")
              + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
-             for g in results for o in g['passes'].get('polls', {}).get('over', [])])
+             for g in results for o in g['passes'].get('polls', {}).get('over', [])] +
+            [f"{g['group']}: a tier-2 slice of {SLICE_KINDS[o['kind']]} of {o['cycles']:,} CPU cycles, over the "
+             f"stated slice {g['passes']['slices']['limit']:,}"
+             for g in results for o in g['passes'].get('slices', {}).get('over', [])])
+
+
+#: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
+SLICE_KINDS = {'srp': "SRP's records", 'build': "THE TRANSMIT's build", 'round': "THE RETRY's round"}
+
+
+def print_slices(results: list[dict]) -> None:
+    """The SLICES line: how many tier-2 slices the groups hold and each kind's longest, against the stated slice."""
+    sliced = [g['passes']['slices'] for g in results if g['passes'].get('slices', {}).get('slices')]
+    if sliced:
+        longest = {kind: max(s['longest'][kind] for s in sliced) for kind in SLICE_KINDS}
+        print(f"SLICES {sum(s['slices'] for s in sliced)} tier-2 slices; the longest "
+              + ', '.join(f"{SLICE_KINDS[kind]} {cycles:,}" for kind, cycles in longest.items())
+              + f" CPU cycles, against the stated slice {sliced[0]['limit']:,} (THE TIERS)")
 
 
 def saves(results: list[dict]) -> list[dict]:
@@ -674,6 +692,7 @@ def main() -> int:
         print(f"STEPS {sum(s['passes'] for _, s in stepped)} passes carry the store's step; the longest "
               f"{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), {group}; the longest step {store['store_cycles']:,} "
               f"({store['store_ms']:.3f} ms), {where}")
+    print_slices(results)
     opened = aged(results)
     if opened:
         least = min(opened, key=lambda a: a['margin_ms'])

@@ -597,7 +597,7 @@ private:
             } else if (s.op == "datapath") {
                 // datapath <avb|asp|amap> <if>: a one-cycle pulse of the face block's change input (#894), which the
                 // mailbox posts as AVB_INFO_CHANGED, AS_PATH_CHANGED or AMAP_LIVE_WRITE
-                static const char *const kinds[3] = {"avb", "asp", "amap"};
+                static constexpr std::array<const char*, 3> kinds = {"avb", "asp", "amap"};
                 unsigned kind = 3;
                 for (unsigned k = 0; k < 3; ++k) if (s.args.at(0) == kinds[k]) kind = k;
                 if (kind == 3) throw std::runtime_error("unknown datapath change " + s.args.at(0));

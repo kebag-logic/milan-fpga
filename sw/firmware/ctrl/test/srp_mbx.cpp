@@ -1605,7 +1605,8 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
     EXPECT_LE(slice_widest,1u)<<"a slice that holds one MRPDU makes one";
     EXPECT_GT(sliced.second,whole.second)<<"so the build takes more slices";
     EXPECT_EQ(sliced.first,whole.first)<<"a build resumed across slices sends the frames of the build made whole";
-    // a reset between two slices: the resumed participant's interface builds its new participants whole
+    // a reset between two slices: the interface's new participants build whole, MSRP's first, not from where the
+    // build it was resuming stopped
     TearDown();
     SetUp();
     whole_transmit = loop.transmit;
@@ -1617,8 +1618,21 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
     loop.transmit(loop.transmit_ctx, 1u);
     ASSERT_NE(adapter.tx_resume,0u)<<"(a build resuming at its next participant)";
     mbx_model_set_link(&model,0,false);
+    mbx_model_set_link(&model,0,true);
+    // the reset and the rebuild before THE TRANSMIT's next slice (one held off, as by tier 1's records)
+    loop.transmit = [](void*,unsigned){};
+    for (unsigned n=0;n<64u;++n) static_cast<void>(ctrl_loop_service(&loop));
+    ASSERT_NE(adapter.ifs[0].msrp,nullptr)<<"(the interface rebuilt)";
+    loop.transmit = sliced_transmit;
+    adapter.tx_due |= 1u;
+    const unsigned before = model.tx_sent;
     settle();
-    EXPECT_EQ(adapter.tx_resume,0u)<<"a reset ends the build it was resuming";
+    unsigned first = 0u;
+    for (unsigned k=before;k<model.tx_sent && first==0u;++k) {
+        const auto *f=mbx_model_tx_frame(&model,k);
+        if (f->interface==0u) first=wire_be16(f->bytes+12);
+    }
+    EXPECT_EQ(first,0x22eau)<<"a reset ends the build it was resuming: its new participants build whole, MSRP first";
     loop.transmit = whole_transmit;
 }
 

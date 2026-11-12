@@ -3,8 +3,8 @@
 """Planted defects of the loop's step (#665, THE STEP in ctrl_loop.h): its binding, its place last in the pass with
 the deadline read as the pass starts, its pass that takes no input, and its age limit; of THE RETRY: its binding, its
 call only in a pass that took no input and dispatched no centisecond or in a pass given whole, and what it is told of
-the pass; of THE TRANSMIT: its binding and its pass given whole; of the row those passes stand in, of THE DRAIN, and of THE
-TIERS (#894).
+the pass; of THE TRANSMIT: its binding and its pass given whole; of the row those passes stand in, of THE DRAIN, and
+of THE TIERS (#894).
 ctrl_mutants.py plants them with the rest of the control table; each must fail its named test on its own words.
 """
 from __future__ import annotations
@@ -297,18 +297,21 @@ def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("tier1-first-past-its-time", "loop/ctrl_loop.c", first,
              first.replace("start + CTRL_LOOP_DRAIN_US", "start + CTRL_LOOP_SHARE_US"), port, l26,
              "L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US"),
-        kind("tier1-held-by-a-module-not-ready", "loop/ctrl_loop.c", held, held.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
+        kind("tier1-held-by-a-module-not-ready", "loop/ctrl_loop.c", held,
+             held.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
              port, l26, "L26 a first channel whose module is not ready holds the others back no longer"),
-        kind("tier1-held-by-an-empty-ring", "loop/ctrl_loop.c", empty, empty.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
+        kind("tier1-held-by-an-empty-ring", "loop/ctrl_loop.c", empty,
+             empty.replace("\t\t\tl->rx_left &= ~(1u << ch);\n", ""),
              port, l20, "L20 the next pass calls the transmit though input waits, then an aged round"),
         kind("tier2-beside-tier1", "loop/ctrl_loop.c", "\tl->tier1_done = l->rx_left == 0u;\n",
-             "\tl->tier1_done = true;\n", port, l23, "L23 tier 2 takes nothing while tier 1 holds a record",
+             "\tl->tier1_done = true;\n", port, l26,
+             "L26 tier 2 takes nothing while the first channel's take stopped at its limit",
              ((port, l20, "L20 the pass that takes its cap leaves a record in tier 1"),)),
         kind("whole-beside-tier1", "loop/ctrl_loop.c", "const bool tier2 = l->run != 0u ? l->tier1_done :",
              "const bool tier2 = l->run != 0u ? true :", port, l20,
              "L20 and the pass after it serves tier 1, not the build"),
-        kind("whole-row-beside-tier1", "loop/ctrl_loop.c", gate, "true;", port,
-             l20, "L20 after a pass given whole, none while tier 1 holds a record"),
+        kind("whole-row-beside-tier1", "loop/ctrl_loop.c", gate, gate.replace(") ||", ") || true ||"), port,
+             l22, "L22 and none follows another while a tier-1 record is held"),
         kind("round-before-the-drain", "loop/ctrl_loop.c", one, "l->round_one = !tier2;", port, l27,
              "L27 a round waits while THE DRAIN's channel was left a record (SRP first)"),
         kind("drained-beside-the-drain", "loop/ctrl_loop.c", drained, "l->drained = l->tier1_done;", port, l27,
@@ -320,7 +323,8 @@ def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("round-one-never-told", "loop/ctrl_loop.c", one, one.replace("!(", "false && !("), port, l22,
              "L22 told it stands beside held tier-1 work"),
         kind("round-slice-is-the-share", "loop/ctrl_loop.c",
-             "uint32_t end = deadline - CTRL_LOOP_SHARE_US + CTRL_LOOP_SLICE_US;", "uint32_t end = deadline;", port, l27,
+             "uint32_t end = deadline - CTRL_LOOP_SHARE_US + CTRL_LOOP_SLICE_US;", "uint32_t end = deadline;",
+             port, l27,
              "L27 a round in a pass given whole has a slice from the pass's start"),
         kind("slice-end-past-the-deadline", "loop/ctrl_loop.c",
              "return (int32_t)(deadline - end) < 0 ? deadline : end;", "return end;", port, l27,

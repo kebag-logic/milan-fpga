@@ -29,25 +29,31 @@ DECLARE = ("        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarati
 SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\n"
 
 
-def defects(kind: Callable[..., T]) -> tuple[T, ...]:
-    """Every defect of the adapter's side of THE TRANSMIT, built with srp_mutants.Defect."""
+def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE TIERS (#894; #665 round 23, item 2): a build that stops at a slice boundary resumes at the next participant
+    with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the next build
+    would, and a reset ends the build it was resuming."""
     sliced = "ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole"
     boundary = ("                    reclaim(i);\n                    m->tx_resume = (uint8_t)(slot + 1u);\n")
     return (
-        # THE TIERS (#894; #665 round 23, item 2): a build that stops at a slice boundary resumes at the next
-        # participant with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the
-        # next build would, and a reset ends the build it was resuming
         kind("build-resumed-from-the-first-participant", sliced,
              "for (unsigned slot = resume != 0u ? resume - 1u : 2u * n;", "for (unsigned slot = 2u * n;",
              "a build resumed across slices sends the frames of the build made whole"),
-        kind("build-whole-in-any-slice", sliced, "if (built++ == most) {", "if (built++ == 2u) {",
+        kind("build-whole-in-any-slice", sliced, "if (built++ == most) {", "if (built++ == most + 1u) {",
              "a slice that holds one MRPDU makes one"),
         kind("build-reclaim-left-to-the-next-slice", RETAINED, boundary,
              "                    m->tx_resume = (uint8_t)(slot + 1u);\n", "adapter.received",
              suite="srp_rx_retry.cpp"),
         kind("build-resumed-past-a-reset", sliced,
              "    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;\n", "",
-             "a reset ends the build it was resuming"),
+             "a reset ends the build it was resuming: its new participants build whole, MSRP first"),
+    )
+
+
+def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """Every defect of the adapter's side of THE TRANSMIT, built with srp_mutants.Defect."""
+    return (
+        *sliced_defects(kind),
         kind("rebuild-holds-no-record", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",
              "    m->loop->rx_held = rebuilds;\n", "    (void)rebuilds;\n", "a reset owes its interface's rebuild"),
         kind("rebuild-holds-for-good", "ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt",

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""aecp_owed_mutants.py - the AECP campaign's planted defects in the owed-notice queue (#894, the ruling of 2026-11-12 on
-aecp_ready, its conditions (a) to (d)) and in THE RETRY's client's first notice (THE TIERS, ctrl_loop.h). aecp_mutants.py
-plants each row; every named check must fail on its own words."""
+"""aecp_owed_mutants.py - the AECP campaign's planted defects in the owed-notice queue (#894, the ruling of
+2026-11-12 on aecp_ready, its conditions (a) to (d)) and in THE RETRY's client's first notice (THE TIERS,
+ctrl_loop.h). aecp_mutants.py plants each row; every named check must fail on its own words."""
 
 QA = 'Queued.BackToBackCommandsOfTwoControllersOweTheirNoticesInOrder'
 QC = 'Queued.TheOwedQueueIsBoundedAndHoldsTheNextRecordWhileFull'
@@ -19,7 +19,7 @@ ROWS = (
     ('owed-newest-first', 'aecp.c', HEAD, HEAD.replace('a->owed_head]', 'a->owed_head + a->owed_count - 1u]'),
      (QA, '(a) in the order their commands were taken')),
     ('owed-requester-forgotten', 'aecp.c', '\to->requester = a->requester;\n', '\to->requester = 0u;\n',
-     (QA, "(a) the first requester has the second's")),
+     (QA, '(a) two notices, each to the two registered controllers not its requester')),
     ('owed-walk-restarts', 'aecp.c', '\t\t\tif (!fan_out(a, o->frame,',
      '\t\t\ta->owed_recipient = 0u;\n\t\t\tif (!fan_out(a, o->frame,',
      (QR, '(a) the walk resumes at the recipient it stopped at')),
@@ -39,7 +39,7 @@ ROWS = (
      (QC, '(c) its slot free, AECP is ready again')),
     ('owed-long-notice-queued', 'aecp.c', ' || a->response_bytes > AECP_OWED_BYTES) {', ') {',
      (QL, "its response waits for the poll, as every notice's did")),
-    ('owed-not-queued', 'aecp.c', "(!a->notify || owe(a))", "!a->notify",
+    ('owed-not-queued', 'aecp.c', "(!a->notify || owe(a))", "(!a->notify || (false && owe(a)))",
      (QA, '(c) a command\'s notice owed in the queue does not hold the next record')),
     # THE TIERS: a queue's first notice alone beside held work, and only the first
     ('retry-first-never-cleared', 'aecp_mbx.c',

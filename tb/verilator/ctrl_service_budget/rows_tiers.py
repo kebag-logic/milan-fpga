@@ -1,22 +1,25 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The rows by every source under priority tiers (#894, scope item 1, the model step; #665, the round 23 ruling,
-option B): two models beside rows_grade.py's as-built one, which stays the flip check's and which this module does not
-change. It holds nothing: it reports, and its self-test plants a defect in each of its paths.
+"""The rows by every source under priority tiers (#894; #665, the round 23 ruling, option B), beside rows_grade.py's
+rows of the loop before the tiers, which this module does not change. The built design (BUILT, the tier model at the
+tree's slice and orders, read from ctrl_loop.h, and AECP's owed-notice queue at each point's depth) is the flip check's
+(flip_grade.py, --design built); its self-test plants a defect in each of its paths.
 
-  corrected  THE DRAIN as built (rows_grade.demand, re-derived here and held equal to it with every correction off),
-             with each count at its source's own rule: the retained retry at most once a centisecond and no more than
-             SRP's records (srp_mbx.c, retry_spent, given back by the centisecond's consumer; load_grade.RETRY_RULE);
-             SRP's records ahead of AECP's last one counted over the window less only that record; and the three
-             coalesced datapath events counted (DATAPATH). Optionally the AECP passes at one record a pass (NOTIFY).
+  built      THE TIERS as ctrl_loop.c builds them: BUILT, the default.
+  corrected  THE DRAIN as built before the tiers (rows_grade.demand, re-derived here and held equal to it with every
+             correction off), with each count at its source's own rule: the retained retry at most once a centisecond
+             and no more than SRP's records (srp_mbx.c, retry_spent, given back by the centisecond's consumer;
+             load_grade.RETRY_RULE); SRP's records ahead of AECP's last one counted over the window less only that
+             record; and the three coalesced datapath events counted (DATAPATH). Optionally the AECP passes at one
+             record a pass (NOTIFY).
   tiers      TIERS below, at a Design: tier 2's slice length and the orders.
 
 Every bound, cost and arrival rule not named here is rows_grade.py's (its docstring's source list). The bounds are
 decision D's (rows_grade.BOUNDS): tier 1 20 ms, SRP 90 ms, the last queued notice 125 ms.
 
-usage: python3 -I rows_tiers.py [--model {corrected,tiers}] [--slice US ...] [--tier1 ORDER] [--tier2 ORDER]
+usage: python3 -I rows_tiers.py [--model {built,corrected,tiers}] [--slice US ...] [--tier1 ORDER] [--tier2 ORDER]
                                 [--aecp RULE] [--no-datapath] [--point POINT] [--terms] [--selftest]
-  --model        corrected (THE DRAIN as built, each count at its source's rule) or tiers (the default)
+  --model        built (the default), corrected (THE DRAIN before the tiers, each count at its source's rule) or tiers
   --slice        tier 2's slice length in microseconds, repeated for a sweep (default REFERENCE's)
   --no-datapath  leave the three coalesced datapath events out, to show what they add (never a bound)
   --terms        print every term of every row, not only the three largest
@@ -64,10 +67,13 @@ behind every tier-2 unit that arrives in its window."""
 #: The coalesced datapath events (mailbox.yaml event_types 6 to 8; its event rule: a source that fires again before
 #: its record is posted posts once), and each one's sources: AVB_INFO_CHANGED and AS_PATH_CHANGED an interface each
 #: (the record's IF), AMAP_LIVE_WRITE the one live audio map. None has a contract rate, so a window bounds each source
-#: by its coalescing, one an ordinary pass. Each is stated at event.AECP: the AECP application's sink takes all three
-#: (ctrl_app_aecp.c:174-179), the first two with the ctrl_app_aecp_changed call COUNTERS_CHANGED makes, whose events
-#: event.AECP states, the third with one addition. No group stages them, so the build round measures them.
+#: by its coalescing, one an ordinary pass. The AECP application's sink takes all three (ctrl_app_aecp.c:174-179).
 DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AMAP_LIVE_WRITE': 'entity'}
+#: Each datapath event's stated cost in us, its take and every sink's work: the most the CPU budget harness measured
+#: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
+#: 5 %, rounded up to 5 us, as every stated cost (#894: the datapath events' sink cost, measured).
+DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 30, 'AS_PATH_CHANGED': 30, 'AMAP_LIVE_WRITE': 20},
+               '8x8/2if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 25}}
 #: The tier-1 channels: the response channels (#665 round 23: AECP, ACMP and ADP) and MAAP, which the ruling names in
 #: neither tier and which is counted with tier 1, the side that lengthens R4.
 TIER1 = ('aecp', 'acmp', 'adp', 'maap')
@@ -75,7 +81,7 @@ TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
 TIER1_ROWS = ('R4', 'first')
 TIER1_ORDERS = ('turn', 'aecp-first')
 TIER2_ORDERS = ('srp-first', 'turn')
-AECP_RULES = ('notify', 'cap')
+AECP_RULES = ('notify', 'cap', 'queue')
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -84,8 +90,9 @@ SOURCES = {**rows_grade.SOURCES, 'datapath': ('datapath',), 'tier 1: the first q
 
 
 class Inputs(NamedTuple):
-    """A point's inputs: rows_grade's (header constants, stated costs, counts, rates, TICK period) and the retry
-    spacing, AECP_RETRY_MAX_MS (aecp.h)."""
+    """A point's inputs: rows_grade's (header constants, stated costs, counts, rates, TICK period), the retry spacing,
+    AECP_RETRY_MAX_MS (aecp.h), and the built design's: its slice, CTRL_LOOP_SLICE_US (ctrl_loop.h), and the owed-notice
+    queue's depth an integrator gives AECP at the point, AECP_MBX_OWED_SLOTS (aecp_mbx.h)."""
 
     h: dict
     c: dict
@@ -93,17 +100,53 @@ class Inputs(NamedTuple):
     rate: dict
     tick_ms: int
     spacing_ms: int
+    slice_us: int = 0
+    owed: int = 0
 
 
-def point_inputs(root: Path, point: str) -> Inputs:
-    """A point's inputs, rows_grade's read from the tree and the retry spacing beside them."""
+#: The built design's constants and where each is read: the slice, and the owed-notice queue's depth at each point.
+BUILT_NAMES = {'CTRL_LOOP_SLICE_US': 'sw/firmware/ctrl/loop/ctrl_loop.h',
+               'AECP_MBX_OWED_SLOTS': 'sw/firmware/ctrl/aecp/aecp_mbx.h'}
+
+
+def built_constants(root: Path, n_if: int, texts: dict[str, str] | None = None) -> tuple[int, int]:
+    """CTRL_LOOP_SLICE_US and AECP_MBX_OWED_SLOTS at that many interfaces, each `(MBX_N_IF == 1u ? a : b)` or a
+    number, the burst a name of the mailbox contract (MBX_CH_AECP_RATE_BURST, mailbox.yaml)."""
+    burst = rows_grade.contract(root)[0]['aecp'][0]
+    out = []
+    for name, path in BUILT_NAMES.items():
+        text = (texts or {}).get(path) or (root / path).read_text()
+        body = re.search(rf'^#define {name} (.+)$', text, re.M)[1].split('//')[0].strip()
+        body = re.sub(r'(\d+)u\b', r'\1', body).replace('MBX_CH_AECP_RATE_BURST', str(burst))
+        pick = re.fullmatch(r'\(MBX_N_IF == 1 \? (\d+) : (\d+)\)', body)
+        out.append(int(pick[1] if n_if == 1 else pick[2]) if pick else int(body))
+    return out[0], out[1]
+
+
+def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) -> Inputs:
+    """A point's inputs, rows_grade's read from the tree, the retry spacing and the built design's constants."""
     spacing = re.search(r'^#define AECP_RETRY_MAX_MS (\d+)u', (root / 'sw/firmware/ctrl/aecp/aecp.h').read_text(), re.M)
-    return Inputs(*rows_grade.point_inputs(root, point), int(spacing[1]))
+    base = rows_grade.point_inputs(root, point)
+    costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()}}
+    return Inputs(base.h, costs, *base[2:], int(spacing[1]), *built_constants(root, base.s['n_if'], texts))
+
+
+def as_tiers(base: rows_grade.Inputs) -> Inputs:
+    """rows_grade's inputs as these models read them: the datapath events' stated costs at the point of their
+    interfaces, the retry spacing of aecp.h's AECP_RETRY_MAX_MS (8 ms) and no built constants."""
+    point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if'])
+    costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()}}
+    return Inputs(base.h, costs, *base[2:], 8)
 
 
 def datapath_sources(s: dict) -> int:
     """The coalesced datapath sources at a point: two an interface and the live audio map."""
     return sum(s['n_if'] if kind == 'interface' else 1 for kind in DATAPATH.values())
+
+
+def datapath_pass_us(c: dict, s: dict) -> float:
+    """What the datapath events cost an ordinary pass at most: each source once, at its event's stated cost."""
+    return sum((s['n_if'] if where == 'interface' else 1) * c[f'event.{kind}'] for kind, where in DATAPATH.items())
 
 
 class Fix(NamedTuple):
@@ -121,7 +164,7 @@ AS_BUILT = Fix(False, False, False, False)
 
 def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
     """rows_grade.demand's terms (THE DRAIN as built) with the corrections `fix` turns on, in microseconds."""
-    h, c, s, rate, tick_ms, _ = i
+    h, c, s, rate, tick_ms = i[:5]
     out = {}
     n_if, cap = s['n_if'], h['CTRL_LOOP_RX_PER_PASS']
 
@@ -179,13 +222,14 @@ def built(row: str, i: Inputs, w_ms: float, fix: Fix) -> dict[str, float]:
     out['passes'] = passes * (c['events_none'] + c['base'])
     out['rounds'] = rows_grade.rounds_us(h, w_ms)[0]
     if fix.datapath:
-        out['datapath'] = passes * datapath_sources(s) * c['event.AECP']
+        out['datapath'] = passes * datapath_pass_us(c, s)
     return out
 
 
 class Design(NamedTuple):
-    """A tier design (TIERS): tier 2's slice in microseconds, tier 1's and tier 2's order, AECP's rule, and whether the
-    datapath events are counted (a report's choice, to show what they add; every bound counts them)."""
+    """A tier design (TIERS): tier 2's slice in microseconds (0: the tree's at each point, CTRL_LOOP_SLICE_US, resolved
+    by at_point), tier 1's and tier 2's order, AECP's rule, and whether the datapath events are counted (a report's
+    choice, to show what they add; every bound counts them)."""
 
     slice_us: int
     tier1: str = 'turn'
@@ -195,8 +239,14 @@ class Design(NamedTuple):
 
     def label(self) -> str:
         """The design as the tables name it."""
-        return (f'slice {self.slice_us} us, tier 1 {self.tier1}, tier 2 {self.tier2}, AECP {self.aecp}' +
+        shown = f'{self.slice_us} us' if self.slice_us else 'CTRL_LOOP_SLICE_US'
+        return (f'slice {shown}, tier 1 {self.tier1}, tier 2 {self.tier2}, AECP {self.aecp}' +
                 ('' if self.datapath else ', datapath events left out'))
+
+
+def at_point(model: Fix | Design, i: Inputs) -> Fix | Design:
+    """The model with the point's slice where it takes the tree's (a Design whose slice_us is 0)."""
+    return model._replace(slice_us=i.slice_us) if isinstance(model, Design) and not model.slice_us else model
 
 
 def smallest_slice(i: Inputs) -> int:
@@ -228,20 +278,73 @@ def slices(n: int, unit_us: float, slice_us: int) -> int:
 
 def round_slices(h: dict, notices: int, slice_us: int) -> tuple[float, int]:
     """THE RETRY's rounds for that many notices, a round a slice, each its cold start and as many notices as the slice
-    holds (one resumed across slices where it holds none): their cost and their slices."""
+    holds under CTRL_LOOP_SHARE_MARGIN_US, what round_of tells the client (one resumed across slices where it holds
+    none): their cost and their slices."""
     cold, each = h['AECP_ROUND_COLD_US'], h['AECP_NOTICE_US']
+    room = slice_us - h['CTRL_LOOP_SHARE_MARGIN_US']
     if notices <= 0:
         return 0.0, 0
-    per = math.floor((slice_us - cold) / each) if slice_us >= cold + each else 0
+    per = math.floor((room - cold) / each) if room >= cold + each else 0
     if per == 0:
         return notices * (cold + each), notices * math.ceil((cold + each) / slice_us)
     rounds = math.ceil(notices / per)
     return rounds * cold + notices * each, rounds
 
 
+def queue_passes(i: Inputs, burst: int, first_us: float) -> int:
+    """The passes AECP-first takes a burst of state-changing commands in under the owed-notice queue (#894, the ruling's
+    condition (c)): each pass its records while tier 1 has spent at most CTRL_LOOP_DRAIN_US, the first pass after the
+    queue's first notice, and only while the queue has a slot of its depth (i.owed); each pass's poll sends one queued
+    notice and frees its slot (aecp.c, notices)."""
+    record, drain = i.c['record.aecp'], i.h['CTRL_LOOP_DRAIN_US']
+    left, queued, passes, ahead = burst, 0, 0, first_us
+    while left > 0:
+        taken = min(left, i.owed - queued, max(1, math.floor((drain - ahead) / record) + 1))
+        left -= taken
+        queued = max(0, queued + taken - 1)
+        passes += 1
+        ahead = 0.0
+    return passes
+
+
+def aecp_passes(i: Inputs, d: Design, ticks: int, notice: float) -> int:
+    """AECP's passes for its burst: one record a pass under the tree's notify rule, else its cap (past it,
+    aecp-first), and under the queue the depth too (queue_passes)."""
+    h, c, _, rate, _ = i[:5]
+    aecp, cap = rate['aecp'][0], h['CTRL_LOOP_RX_PER_PASS']
+    if d.aecp == 'notify' or (d.aecp == 'queue' and i.owed == 0):
+        return aecp
+    if d.tier1 == 'turn':
+        return math.ceil(aecp / cap) + ticks
+    if d.aecp == 'queue':
+        return queue_passes(i, aecp, notice) + 1
+    return math.ceil((aecp * c['record.aecp'] + notice) / h['CTRL_LOOP_DRAIN_US']) + 1
+
+
+def tier1_records(row: str, i: Inputs, d: Design, passes: int, arrive: Callable[[str], int]) -> dict[str, float]:
+    """The tier-1 records ahead of the row's work in its window, and for R4 AECP's own burst and for the MRPDU row its
+    build."""
+    h, c = i[0], i[1]
+    cap = h['CTRL_LOOP_RX_PER_PASS']
+    if row == 'R4':
+        # `turn`: each other channel its cap in each of AECP's passes; `aecp-first`: only the pass running as the burst
+        # arrives, whose tier-1 records may still be in hand
+        reach = (passes - 1) * cap if d.tier1 == 'turn' else cap
+        return {'aecp': i[3]['aecp'][0] * c['record.aecp'],
+                'others': sum(min(arrive(o), reach) * c[f'record.{o}'] for o in TIER1 if o != 'aecp')}
+    if row == 'first':
+        # the pass running as the retry falls due: its tier-1 records, each channel's cap
+        return {'others': sum(min(arrive(o), cap) * c[f'record.{o}'] for o in TIER1)}
+    if row == 'tx':
+        whole = d.slice_us >= h['CTRL_LOOP_BUILD_PASS_US']
+        build = 'CTRL_LOOP_BUILD_PASS_US' if whole else 'CTRL_LOOP_BUILD_ONE_PASS_US'
+        return {'others': sum(arrive(o) * c[f'record.{o}'] for o in TIER1), 'builds': h[build]}
+    return {'others': sum(min(arrive(o), passes * cap) * c[f'record.{o}'] for o in TIER1)}
+
+
 def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     """Each source's work in microseconds in a window of w_ms before the row's work is done, under the tiers."""
-    h, c, s, rate, tick_ms, _ = i
+    h, c, s, rate, tick_ms = i[:5]
     n_if, cap, slice_us = s['n_if'], h['CTRL_LOOP_RX_PER_PASS'], d.slice_us
 
     def arrive(ch: str) -> int:
@@ -257,16 +360,11 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
     out['slice'] = slice_us
     cost_b, count_b = rows_grade.builds(h, s)
     srp_in = arrive('srp')
-    per_slice = max(1, math.floor(slice_us / c['record.srp']))
+    # an ordinary pass's SRP slice ends CTRL_LOOP_SLICE_US after the pass started, its events' fixed part first, and
+    # starts a record only while it has the record's stated cost left (ctrl_loop.c)
+    per_slice = max(1, math.floor((slice_us - c['events_none']) / c['record.srp']))
     burst1 = max(rate[o][0] for o in TIER1)
-    aecp = rate['aecp'][0]
-    # AECP's passes for its burst: one record a pass under the tree's notify rule, else its cap (past it, aecp-first)
-    if d.aecp == 'notify':
-        p_aecp = aecp
-    elif d.tier1 == 'turn':
-        p_aecp = math.ceil(aecp / cap) + ticks
-    else:
-        p_aecp = math.ceil((aecp * c['record.aecp'] + notice) / h['CTRL_LOOP_DRAIN_US']) + 1
+    p_aecp = aecp_passes(i, d, ticks, notice)
     passes, timers, tier2 = 1, 0.0, {}
     for _ in range(80):
         timers = rows_grade.timer_us(s, c, w_ms, passes, rate)
@@ -275,12 +373,16 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             n = p_aecp + 1
         elif row == 'first':
             n = 2
+        elif row == 'tx':
+            # THE TRANSMIT's build waits for every tier-1 record arriving in its window, then is tier 2's first unit
+            n = math.ceil((sum(arrive(o) * c[f'record.{o}'] for o in TIER1) + notice) / h['CTRL_LOOP_DRAIN_US']) + \
+                ticks + 2
         else:
             # tier 2 ahead of the row's last unit: SRP's rows their own burst; the last notice every unit arriving
             retained = min(passes, ticks, srp_in)
             records = rate['srp'][0] if row != 'last' else srp_in
             mrpdu = min(passes, 2 * count_b)
-            srp_slices = slices(records + retained, c['record.srp'], slice_us)
+            srp_slices = slices(records + retained, c['record.srp'], slice_us - c['events_none'])
             n2 = slices(count_b, cost_b / count_b, slice_us) + slices(mrpdu, c['item.mrpdu'], slice_us) + srp_slices
             tier2 = {'srp': records * c['record.srp'], 'item.retained': retained * c['item.retained'],
                      'builds': cost_b, 'item.mrpdu': mrpdu * c['item.mrpdu']}
@@ -309,22 +411,13 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
             break
         passes = n
     out['timers'] = timers
-    if row == 'R4':
-        out['aecp'] = aecp * c['record.aecp']
-        # `turn`: each other channel its cap in each of AECP's passes; `aecp-first`: only the pass running as the burst
-        # arrives, whose tier-1 records may still be in hand
-        reach = (passes - 1) * cap if d.tier1 == 'turn' else cap
-        out['others'] = sum(min(arrive(o), reach) * c[f'record.{o}'] for o in TIER1 if o != 'aecp')
-    elif row == 'first':
-        # the pass running as the retry falls due: its tier-1 records, each channel's cap
-        out['others'] = sum(min(arrive(o), cap) * c[f'record.{o}'] for o in TIER1)
-    else:
-        out['others'] = sum(min(arrive(o), passes * cap) * c[f'record.{o}'] for o in TIER1)
+    out.update(tier1_records(row, i, d, passes, arrive))
+    if row not in (*TIER1_ROWS, 'tx'):
         out.update(tier2)
     gm = sum(math.floor(w_ms / ms) + 1 for ms in load_grade.GM_INTERVALS_MS)
     out['gm'] = n_if * min(passes, gm) * c['event.GM']
     out['steps'] = (math.floor(w_ms / (10 * (h['CTRL_LOOP_STEP_AGE'] + 1))) + 1) * h['CTRL_LOOP_STEP_PASS_US']
-    if row in TIER1_ROWS:
+    if row in (*TIER1_ROWS, 'tx'):
         # SRP's walk and reclaim, by their sources in the window: lwSRP's centiseconds and the slice's records
         out['item.walk'] = min(passes * n_if, n_if * ticks) * c['item.walk']
         out['item.reclaim'] = min(2 * n_if * passes, 2 * per_slice) * c['item.reclaim']
@@ -337,7 +430,7 @@ def tiered(row: str, i: Inputs, w_ms: float, d: Design) -> dict[str, float]:
         out['links'] = n_if * c['event.LINK']
     out['passes'] = passes * (c['events_none'] + c['base'])
     if d.datapath:
-        out['datapath'] = passes * datapath_sources(s) * c['event.AECP']
+        out['datapath'] = passes * datapath_pass_us(c, s)
     return out
 
 
@@ -349,6 +442,7 @@ def solve(row: str, i: Inputs, model: Fix | Design,
     if isinstance(model, Fix) and row in ('first', 'last'):
         name = 'AECP_QUEUED_FIRST_MS' if row == 'first' else 'AECP_QUEUED_MS'
         return float(i.h[name]), {name: i.h[name] * 1000.0}
+    model = at_point(model, i)
     spacing = i.spacing_ms if row in ('first', 'last') and dropped != 'spacing' else 0
     w, d = 0.01, {}
     while w < 2000:
@@ -361,6 +455,18 @@ def solve(row: str, i: Inputs, model: Fix | Design,
             return w + spacing, d
         w = max(w + 0.01, math.ceil((total - spacing) * 100) / 100)
     return None, d
+
+
+#: An MRPDU a join, periodic or LeaveAll timer owes, from the centisecond that owes it to its build (THE TRANSMIT, tier
+#: 2's first unit), reported beside the rows against T_svc (FR_NFR.md 3.4.1's SRP/MRP row): the bound the loop before
+#: the tiers held by construction (#894).
+TX_BOUND_MS = 20
+
+
+def tx_row(root: Path, point: str, model: Design, i: Inputs | None = None) -> tuple[float | None, dict[str, float]]:
+    """The MRPDU row by every source under the tiers, its W in ms and its terms in ms."""
+    w, d = solve('tx', i or point_inputs(root, point), model)
+    return w, {k: v / 1000 for k, v in d.items()}
 
 
 def rows(root: Path, point: str, model: Fix | Design, i: Inputs | None = None,
@@ -384,7 +490,8 @@ def findings(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS,
             b = (bounds or BOUNDS)[row]
             if w is None or w > b:
                 shown = 'no W under 2,000 ms' if w is None else f'{w:.2f} ms'
-                out.append(f'{point} {row}: {label(model)} {shown}, over its bound {b} ms; the largest term {top} '
+                out.append(f'{point} {row}: {label(at_point(model, point_inputs(root, point)))} {shown}, over its '
+                           f'bound {b} ms; the largest term {top} '
                            f'{terms[top]:.2f} ms')
     return out
 
@@ -409,8 +516,10 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
         if [slices(1, 1215, 405), slices(5, 250, 1300), slices(0, 365, 365), slices(13, 365, 1300)] != [3, 1, 0, 5]:
             out.append('the slices a unit takes are not counted as TIERS states')
     known = {k for keys in SOURCES.values() for k in keys} | {'AECP_QUEUED_FIRST_MS', 'AECP_QUEUED_MS'}
+    whole = model
     for point in points:
         i = point_inputs(root, point)
+        model = at_point(whole, i)
         if isinstance(model, Design) and model.slice_us < smallest_slice(i):
             out.append(f'{point}: a slice of {model.slice_us} us is under the smallest the code could take, '
                        f'{smallest_slice(i)} us')
@@ -424,8 +533,7 @@ def broken(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS) ->
                     terms.get('item.retained', 0.0) * 1000 > ticks * i.c['item.retained'] + 1e-6:
                 out.append(f'{point} {row}: the retained retry counted past one a centisecond')
             passes = round(terms['passes'] * 1000 / (i.c['events_none'] + i.c['base']))
-            if model.datapath and abs(terms.get('datapath', 0.0) * 1000 - passes * datapath_sources(i.s) *
-                                      i.c['event.AECP']) > 1e-6:
+            if model.datapath and abs(terms.get('datapath', 0.0) * 1000 - passes * datapath_pass_us(i.c, i.s)) > 1e-6:
                 out.append(f'{point} {row}: a datapath source not counted at one a pass')
             if isinstance(model, Fix) and model.window and row == 'R4':
                 draining = (w or 2000) - i.c['record.aecp'] / 1000
@@ -457,7 +565,15 @@ def report(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS, ev
             shown, residual = ('none under 2,000', '') if w is None else (f'{w:.2f}', f'{w - BOUNDS[row]:+.2f}')
             passes = round(terms.get('passes', 0.0) * 1000 / (i.c['events_none'] + i.c['base']))
             lines.append(f'| {point} | {row} | {shown} | {BOUNDS[row]} | {residual} | {passes or ""} | {top} |')
-        more = resumed(i, model.slice_us) if isinstance(model, Design) else []
+        if isinstance(model, Design):
+            w, terms = tx_row(root, point, model, i)
+            ranked = sorted(terms.items(), key=lambda t: -t[1])
+            top = ', '.join(f'{k} {v:.3f}' for k, v in (ranked if every else ranked[:3]))
+            shown = 'none under 2,000' if w is None else f'{w:.2f}'
+            residual = '' if w is None else f'{w - TX_BOUND_MS:+.2f}'
+            passes = round(terms.get('passes', 0.0) * 1000 / (i.c['events_none'] + i.c['base']))
+            lines.append(f'| {point} | tx (reported) | {shown} | {TX_BOUND_MS} | {residual} | {passes} | {top} |')
+        more = resumed(i, at_point(model, i).slice_us) if isinstance(model, Design) else []
         if more:
             lines.append(f'| {point} | | units resumed across slices: {"; ".join(more)} | | | | |')
     return lines
@@ -465,8 +581,32 @@ def report(root: Path, model: Fix | Design, points: tuple[str, ...] = POINTS, ev
 
 #: The design the controls plant against: the ruling's own orders at the current per-pass cap, CTRL_LOOP_DRAIN_US.
 REFERENCE = Design(1300)
+#: The built design (#894; ctrl_loop.h, THE TIERS): AECP first in tier 1, SRP first in tier 2, AECP's owed-notice
+#: queue at each point's depth, at the tree's slice, CTRL_LOOP_SLICE_US. The flip check's design (flip_grade.py).
+BUILT = Design(0, 'aecp-first', 'srp-first', 'queue')
+#: The grid the slice is chosen on, in us: the tier model's first sweep's (#894, the ruling of 2026-11-12: the slice
+#: with the largest least relative margin over the five rows at 1x1/1if).
+SLICE_GRID_US = 50
 #: The models whose rows the controls hold, each named in the controls.
-HELD = (('corrected', CORRECTED), ('tiers', REFERENCE))
+HELD = (('corrected', CORRECTED), ('tiers', REFERENCE), ('built', BUILT))
+
+
+def least_margin(rows_at: dict[str, tuple[float | None, dict]]) -> float:
+    """The least of a point's rows' margins relative to their bounds, (bound - W) / bound; -1 for a row with no W."""
+    return min((BOUNDS[row] - w) / BOUNDS[row] if w is not None else -1.0 for row, (w, _) in rows_at.items())
+
+
+def slice_choice(root: Path, point: str = '1x1/1if') -> tuple[int, float]:
+    """The slice of the built design's orders and rule with the largest least relative margin at the point, on
+    SLICE_GRID_US from the smallest the code could take to CTRL_LOOP_DRAIN_US, and that margin; the shorter on a tie."""
+    i = point_inputs(root, point)
+    first = math.ceil(smallest_slice(i) / SLICE_GRID_US) * SLICE_GRID_US
+    best = None
+    for us in range(first, i.h['CTRL_LOOP_DRAIN_US'] + 1, SLICE_GRID_US):
+        m = least_margin(rows(root, point, BUILT._replace(slice_us=us), i))
+        if best is None or m > best[1]:
+            best = (us, m)
+    return best
 #: The planted defects controls() plants beside each row's, in its order.
 CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry counted once a pass',
             "SRP's window cut by the AECP burst's whole work", 'a datapath source left out',
@@ -474,7 +614,8 @@ CONTROLS = ('the as-built model not rows_grade.demand', 'the retained retry coun
             'a slice under the smallest the code could take', 'a term without a source',
             'the first queued notice left out of R4', 'a unit dearer than the slice charged one slice',
             'an order TIERS does not state', "rows_grade's default not the as-built model",
-            'the slice length not read', 'the retry rule not read from the tree')
+            'the slice length not read', 'the retry rule not read from the tree',
+            "the built design's slice not the rule's", "the owed-notice queue's depth not counted")
 
 
 def control_names(root: Path) -> tuple[str, ...]:
@@ -602,7 +743,7 @@ def tree_controls(root: Path) -> list[str]:
         escaped.append('an order TIERS does not state')
     if default_holds(root):
         escaped.append("rows_grade's default is not the as-built model at this tree")
-    with mock.patch.object(rows_grade, 'demand', lambda row, inputs, w: tiered(row, Inputs(*inputs, 8), w, REFERENCE)):
+    with mock.patch.object(rows_grade, 'demand', lambda row, inputs, w: tiered(row, as_tiers(inputs), w, REFERENCE)):
         if not default_holds(root):
             escaped.append("rows_grade's default not the as-built model")
     # the slice read: R4 at the smallest slice is shorter than at the reference's, and a model that charges the
@@ -613,6 +754,29 @@ def tree_controls(root: Path) -> list[str]:
     with mock.patch.object(me, 'tiered', lambda row, i, w, d: first(row, i, w, REFERENCE)):
         if not broken(root, small, ('1x1/1if',)):
             escaped.append('the slice length not read')
+    # the built design's slice is the rule's (the largest least relative margin at 1x1/1if), read from ctrl_loop.h: a
+    # header whose slice is another is refused
+    loop = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+    stated = '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1050u : 1300u)'
+    other = (root / loop).read_text().replace(stated, '#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1250u : 1300u)')
+    tree = built_constants(root, 1)[0]
+    if slice_choice(root)[0] != tree or built_constants(root, 1, {loop: other})[0] == tree or \
+            stated not in (root / loop).read_text():
+        escaped.append("the built design's slice not the rule's")
+    # condition (c): the model counts the owed-notice queue's depth, read from aecp_mbx.h: a shallower queue lengthens
+    # R4, and none is the tree's rule before it (notify)
+    mailbox = 'sw/firmware/ctrl/aecp/aecp_mbx.h'
+    text = (root / mailbox).read_text()
+    depth = '#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? MBX_CH_AECP_RATE_BURST : 0u)'
+    def at(d: str) -> float:
+        """R4 at 1x1/1if with the queue's depth stated as d."""
+        return rows(root, '1x1/1if', BUILT, point_inputs(root, '1x1/1if', {mailbox: text.replace(depth, d)}))['R4'][0]
+    deep = rows(root, '1x1/1if', BUILT)['R4'][0]
+    shallow = at('#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? 4u : 0u)')
+    none = at('#define AECP_MBX_OWED_SLOTS (MBX_N_IF == 1u ? 0u : 0u)')
+    notify = rows(root, '1x1/1if', BUILT._replace(aecp='notify'))['R4'][0]
+    if text.count(depth) != 1 or not deep < shallow < none or none != notify:
+        escaped.append("the owed-notice queue's depth not counted")
     # the retained retry's rule is read from the tree: a copy of srp_mbx.c whose centisecond never gives it back
     path = 'sw/firmware/ctrl/srp/srp_mbx.c'
     text = (root / path).read_text()
@@ -632,7 +796,7 @@ def main() -> int:
     """Print the rows by a model, or plant each control and refuse an escape."""
     import argparse
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    ap.add_argument('--model', choices=('corrected', 'tiers'), default='tiers')
+    ap.add_argument('--model', choices=('built', 'corrected', 'tiers'), default='built')
     ap.add_argument('--slice', type=int, action='append', dest='slices')
     ap.add_argument('--tier1', choices=TIER1_ORDERS, default=TIER1_ORDERS[0])
     ap.add_argument('--tier2', choices=TIER2_ORDERS, default=TIER2_ORDERS[0])
@@ -652,6 +816,8 @@ def main() -> int:
         return 1 if escaped else 0
     models = [CORRECTED._replace(datapath=not args.no_datapath, notify=args.aecp == 'notify')] \
         if args.model == 'corrected' else \
+        [BUILT._replace(slice_us=us, datapath=not args.no_datapath) for us in args.slices or [BUILT.slice_us]] \
+        if args.model == 'built' else \
         [Design(us, args.tier1, args.tier2, args.aecp, not args.no_datapath) for us in args.slices or
          [REFERENCE.slice_us]]
     rc = 0

@@ -1352,6 +1352,9 @@ TEST_F(Loop, L22PassesGivenWholeStandApartAsInputWaits) {
     loop_.events_left = true;
     EXPECT_FALSE(whole()) << "L22 none follows another while events wait";
     EXPECT_TRUE(whole()) << "L22 the next after an ordinary pass";
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));   // a tier-1 record (ADP's) posted during it
+    EXPECT_FALSE(whole()) << "L22 and none follows another while a tier-1 record is held (THE TIERS)";
+    EXPECT_TRUE(whole()) << "L22 the next after the ordinary pass that took it";
     loop_.drain_ch = MBX_CH_ADP + 1u;
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
     EXPECT_FALSE(whole()) << "L22 and none follows another while a record of THE DRAIN's channel waits";
@@ -1400,6 +1403,32 @@ TEST_F(Loop, L23TheDrainIsTierTwoInASlice) {
     EXPECT_TRUE(loop_.backlog) << "L23 a channel that took all it may marks the backlog";
     drain(&loop_);
     EXPECT_FALSE(loop_.backlog) << "L23 until one takes less";
+    // tier 1 first: ACMP's records, bound past the open, which opens the filter of what was bound by then
+    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
+    model.filter_en |= 1u << MBX_CH_ACMP;
+    std::uint8_t a[48];   // short enough that the ring holds the whole burst
+    build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
+    std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    mbx_model_advance_ms(&model, MBX_CH_ADP_RATE_REFILL_MS * MBX_CH_ADP_RATE_BURST);
+    drain(&loop_);   // the centiseconds that took, so the next pass takes each channel's whole cap
+    unsigned message = 0;
+    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
+        a[15] = static_cast<std::uint8_t>(++message);
+    }
+    ASSERT_LT(message, 16u) << "(a message the channel takes)";
+    for (unsigned k = 1; k < CTRL_LOOP_RX_PER_PASS + 1u; ++k) {
+        ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
+    }
+    fill();
+    unsigned acmp = probe.rx_acmp;
+    rx = probe.rx;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_acmp == acmp + CTRL_LOOP_RX_PER_PASS && probe.rx == rx)
+        << "L23 tier 2 takes nothing while tier 1 holds a record: ACMP's take stopped at its cap";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_acmp == acmp + CTRL_LOOP_RX_PER_PASS + 1u && probe.rx == rx + CTRL_LOOP_RX_PER_PASS)
+        << "L23 and its slice once tier 1 holds none, in the pass that empties it";
+    drain(&loop_);
     ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
     drain(&loop_);
     const auto refill = [&]() {
@@ -1424,32 +1453,18 @@ TEST_F(Loop, L23TheDrainIsTierTwoInASlice) {
     probe.now_step = 0u;
     EXPECT_EQ(probe.rx, rx + 2u) << "L23 each record starts only while the slice holds its stated cost";
     drain(&loop_);
-    // tier 1 first: ACMP's records, bound past the open, which opens the filter of what was bound by then
-    ASSERT_TRUE(ctrl_loop_bind_rx(&loop_, MBX_CH_ACMP, probe_rx_acmp, nullptr));
-    model.filter_en |= 1u << MBX_CH_ACMP;
-    std::uint8_t a[48];   // short enough that the ring holds the whole burst
-    build_frame(a, sizeof a, 0x22F0, 0xFC, 2);
-    std::memset(a + 16, 0, sizeof a - 16u);   // the entity the loop opened as, which the filter's terms name
+    // tier 1 with a clock: ACMP's take stopped by the pass's time leaves records, and tier 2 takes none of its own
+    mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS * MBX_CH_ACMP_RATE_BURST);
     refill();
-    unsigned message = 0;
-    while (message < 16u && !mbx_model_rx(&model, a, sizeof a, 0)) {
-        a[15] = static_cast<std::uint8_t>(++message);
-    }
-    ASSERT_LT(message, 16u) << "(a message the channel takes)";
-    static_assert(MBX_CH_ACMP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS + CTRL_LOOP_RX_PER_PASS, "the test passes the limit");
-    for (unsigned k = 1; k < MBX_CH_ACMP_RATE_BURST; ++k) {
+    for (unsigned k = 0; k < MBX_CH_ACMP_RATE_BURST; ++k) {
         ASSERT_TRUE(mbx_model_rx(&model, a, sizeof a, 0));
     }
-    unsigned acmp = probe.rx_acmp;
+    static_assert(MBX_CH_ACMP_RATE_BURST > CTRL_LOOP_DRAIN_RECORDS + CTRL_LOOP_RX_PER_PASS, "the test passes the limit");
+    acmp = probe.rx_acmp;
     probe.now_step = CTRL_LOOP_DRAIN_US / 4u;   // tier 1 runs out of time with ACMP's records still waiting
     static_cast<void>(ctrl_loop_service(&loop_));
     probe.now_step = 0u;
-    EXPECT_TRUE(probe.rx_acmp > acmp && probe.rx == rx) << "L23 tier 2 takes nothing while tier 1 holds a record";
-    for (unsigned passes = 0; passes < 100u && mbx_rx_waiting(MBX_CH_ACMP, mbx_rx_mark(MBX_CH_ACMP)); ++passes) {
-        static_cast<void>(ctrl_loop_service(&loop_));
-    }
-    static_cast<void>(ctrl_loop_service(&loop_));
-    EXPECT_GT(probe.rx, rx) << "L23 and its slice once tier 1 holds none";
+    EXPECT_TRUE(probe.rx_acmp > acmp && probe.rx == rx) << "L23 a take stopped by the pass's time holds tier 2 off too";
     drain(&loop_);
     // its records at most CTRL_LOOP_DRAIN_RECORDS a pass: ACMP's burst as THE DRAIN's, ADP's channel empty
     mbx_model_advance_ms(&model, MBX_CH_ACMP_RATE_REFILL_MS * MBX_CH_ACMP_RATE_BURST);
@@ -1616,6 +1631,18 @@ TEST_F(Loop, L26TierOnesFirstChannelGoesFirst) {
     EXPECT_EQ(probe.rx_aecp, aecp + CTRL_LOOP_RX_PER_PASS + 1u)
         << "L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US";
     drain(&loop_);
+    // a first channel whose take stopped at CTRL_LOOP_DRAIN_RECORDS, the pass's time left: THE DRAIN's channel (here
+    // ADP's) takes nothing in that pass, tier 1 holding records
+    loop_.drain_ch = MBX_CH_ADP + 1u;
+    static_assert(MBX_CH_AECP_RATE_BURST >= CTRL_LOOP_DRAIN_RECORDS + 2u, "the test passes the first channel's limit");
+    post(CTRL_LOOP_DRAIN_RECORDS + 2u, CTRL_LOOP_RX_PER_PASS);
+    aecp = probe.rx_aecp;
+    adp = probe.rx;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx_aecp == aecp + CTRL_LOOP_DRAIN_RECORDS && probe.rx == adp)
+        << "L26 tier 2 takes nothing while the first channel's take stopped at its limit";
+    drain(&loop_);
+    loop_.drain_ch = 0u;
     loop_.first_ch = 0u;
 }
 

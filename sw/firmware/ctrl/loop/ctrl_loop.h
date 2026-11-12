@@ -258,11 +258,14 @@ extern "C" {
 // to take another past CTRL_LOOP_RX_PER_PASS.
 #define CTRL_LOOP_DRAIN_RECORDS 12u
 #define CTRL_LOOP_DRAIN_US 1300u
-// THE TIERS: tier 2's slice, in microseconds (#894; #665 round 23). Of the slices
-// from one SRP record's to 1,300 us, the one whose rows by every source at
-// 1x1/1if have the largest least margin relative to their bounds (rows_tiers.py,
-// the built design; #894's ruling of 2026-11-12).
-#define CTRL_LOOP_SLICE_US 1300u
+// THE TIERS: tier 2's slice, in microseconds (#894; #665 round 23). At 1x1/1if,
+// of the slices from one SRP record's to CTRL_LOOP_DRAIN_US on a 50 us grid, the
+// one whose rows by every source have the largest least margin relative to their
+// bounds (#894's ruling of 2026-11-12; rows_tiers.py, slice_choice): 1,050 us,
+// the first queued notice binding, with each datapath event at its measured
+// cost. The ruling chooses no slice at 8x8/2if, whose rows miss at every slice:
+// 1,300 us there, which also holds one MRPDU's build, CTRL_LOOP_BUILD_ONE_PASS_US.
+#define CTRL_LOOP_SLICE_US (MBX_N_IF == 1u ? 1050u : 1300u)
 // An SRP record's stated cost, the load gate's record.srp (load_grade.py): the
 // slice starts a record only while it has this left.
 #define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)
