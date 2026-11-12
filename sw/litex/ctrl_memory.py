@@ -133,6 +133,40 @@ ROM = Region("rom", 0x0000_0000, BUDGET_BYTES)
 RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)
 
 
+def decode_pieces(origin: int, size: int) -> tuple[tuple[int, int], ...]:
+    """[origin, origin + size) as the fewest aligned power-of-two pieces, lowest first (#791).
+
+    The pinned VexiiRiscv generator splits each region it is handed into
+    aligned power-of-two terms (SpinalHDL AddressMapping.terms), one mask
+    compare each. A region based at 0 is the exception: it is taken whole, as
+    the one term (address & ~(size - 1)) == 0, so `rom`, 224 KiB at 0, became
+    (address & 0xfffc8000) == 0, which leaves out every address with bit 15
+    set, while `sram`, 224 KiB at 0x1000_0000, was already exact. Each piece
+    here is an aligned power of two, which one mask compare decodes exactly,
+    at 0 as anywhere else, and together the pieces are exactly
+    [origin, origin + size). So handing the generator the pieces makes every
+    region exact without depending on how it decomposes a region. 224 KiB at 0
+    is 128 KiB at 0, 64 KiB at 0x20000 and 32 KiB at 0x30000.
+    """
+    if origin < 0 or size <= 0:
+        raise ValueError(f"no region of {size} bytes at {origin:#x}")
+    pieces = []
+    while size:
+        fits = 1 << (size.bit_length() - 1)               # the largest power of two within size
+        piece = min(fits, origin & -origin) if origin else fits   # and that origin is a multiple of
+        pieces.append((origin, piece))
+        origin, size = origin + piece, size - piece
+    return tuple(pieces)
+
+
+def cpu_regions(regions: list[tuple]) -> list[tuple]:
+    """The region list the split CPU's generator is handed (#791): each (origin, size, mode, bus) row
+    of LiteX's list as its decode_pieces, each in the row's mode and on its bus. A row that is
+    already an aligned power of two is one piece, the row itself."""
+    return [(start, piece, mode, bus) for origin, size, mode, bus in regions
+            for start, piece in decode_pieces(origin, size)]
+
+
 @dataclass(frozen=True)
 class Section:
     """One allocated section of a linked image."""

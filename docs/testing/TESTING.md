@@ -789,9 +789,13 @@ That arm refuses LiteX's firmware data packages, which the `elaborate` job does
 not install, so it grades the same in any interpreter.
 It requires the
 [split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
-rule table to equal `ctrl_memory.RULES`. Its forty-seven mutants each rebuild one
+rule table to equal `ctrl_memory.RULES`. Its fifty-nine mutants each rebuild one
 function or class with a rule or property removed or weakened, and each must
 turn its arm red by name; an arm that fails unmutated grades no mutant.
+Twelve of them are its CPU decode arm's (#791,
+[`ctrl_memory_decode.py`](../../sw/litex/ctrl_memory_decode.py)), which grades the
+aligned power-of-two pieces the split CPU's generator is handed and the refusals
+of a CPU whose generator may read any other region list.
 Its mapper arm runs [`ctrl_memory_ooc.py`](../../syn/ooc/ctrl_memory_ooc.py)'s
 `main()`: the target platform's ledgered point is refused without
 `--ledgered`, and mapped at 59.0 RAMB36 with it. The override is refused on

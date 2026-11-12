@@ -11,7 +11,7 @@ No BIOS ROM or BIOS SRAM is built there.
 
 ## Contents
 
-- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
+- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, why each region spans the whole budget, and how the CPU decodes them exactly.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
 - **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the two ledgered images' named overrides, and the three planted controls.
 - **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and why it builds no DDR3 and no processor memory bridge.
@@ -34,6 +34,38 @@ The split image has no `main_ram`: it builds no DDR3 and no integrated main RAM 
 Each region spans the whole 224 KiB budget.
 The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
 Both shipped shapes elaborate the same CPU netlist.
+
+### The CPU's region decode
+
+The pinned VexiiRiscv generator checks each fetch and load against each region it is handed through SpinalHDL's `AddressMapping.terms`.
+That splits a region into aligned power-of-two terms, one mask compare each.
+A region based at 0 is the exception: it is taken whole, as the one term `(address & ~(size - 1)) == 0`, which is exactly the region only when the size is a power of two.
+So the 224 KiB `rom` at 0 became `(address & 0xfffc8000) == 0`, which leaves out every address with bit 15 set.
+The 224 KiB `sram` at 0x1000_0000 was already exact, as terms of 128, 64 and 32 KiB.
+So no split image could boot: the first fetch or load above 0x8000 took an access fault and the core restarted ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
+
+`add_ctrl_memory` therefore hands the generator each region as its aligned power-of-two pieces (`milan_soc.exact_cpu_decode`, `ctrl_memory.cpu_regions`).
+Both `rom` and `sram` become 128 KiB at the origin, 64 KiB at origin + 0x2_0000 and 32 KiB at origin + 0x3_0000 (`ctrl_memory.decode_pieces`).
+Each piece is an aligned power of two, which one mask compare decodes exactly, at 0 as anywhere else, and together the pieces are exactly [origin, origin + 224 KiB).
+So handing the generator aligned pieces makes every region exact, without depending on how it decomposes a region.
+Each piece keeps its region's mode and bus, and a region that is already an aligned power of two is handed over as itself.
+The SoC's own bus regions, its decoder, `csr.csv` and `regions.ld` keep the whole regions.
+`CtrlMemory`'s banks are unchanged.
+The split is made in the CPU's own netlist-naming step, so the netlist's name and its decode both follow the pieces.
+After LiteX's finalize the build is refused by name, instead of building a decode other than the pieces, in two re-pinned LiteX shapes.
+One is a LiteX whose VexiiRiscv stops calling that step.
+The other leaves the generator a region list other than that step's aligned power-of-two pieces, on the CPU or its classes: a list collected again after naming, say, or kept on the instance.
+The pinned LiteX runs the generator inside that finalize, so the second refusal names the netlist the build may have cached under the pieces' name, for removal.
+At a LiteX or generator re-pin, run the two checks the [re-pin procedure](../../sw/litex/patches/README.md) names, since no workflow runs the region-decode simulation.
+No generator patch is carried. The all-fabric SoC does not call `add_ctrl_memory`, so its regions, which are powers of two, and its CPU netlist are unchanged.
+
+[`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) grades the pieces against a search over every aligned split, and the hookup on a stand-in CPU.
+It also requires the split export to hand the generator the pieces.
+The [region-decode simulation](../../tb/verilator/ctrl_region_decode/README.md) runs the generated CPU.
+It fetches and loads at the last word of each region and at each seam between pieces.
+It also fetches and loads one word past each region's end, where the access must fault before the bus.
+It reads the netlist's own fetch and load decode at every 32-bit address against the SoC's regions.
+Each of its two planted decodes, the single mask and the power-of-two cover, fails checks it names.
 
 [`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld) links the firmware into these regions.
 It includes `regions.ld`, which `ctrl_memory.py regions` writes.
@@ -385,7 +417,9 @@ Every executable region is cacheable: `rom`, `sram` and the flash window. The sp
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
-The non-power-of-two `rom` and `sram` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) is therefore the same with and without the cache, and stays #791's.
+The non-power-of-two `rom` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) was therefore the same with and without the cache.
+Its fix, the region pieces of [section 1](#the-cpus-region-decode), is the generator's region list, which the cache does not change.
+The table below was measured on the CPU netlist before that fix; the fix changes only the region compare terms, and has not been mapped out of context.
 
 Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads:
 
