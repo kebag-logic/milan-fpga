@@ -4,13 +4,13 @@
 
 srp_mutants.py plants each into a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on
 its own words: srp_talker.cpp's (SRP alone) or test_acmp_mbx.cpp's SrpGate (the composition: ACMP's probe and its 15 s
-window, SRP's Listener registration and MAAP's DA gate). The two-interface campaign plants them at 8x8/2if (ENTITY),
-the one-interface campaign at 1x1/1if (test_ctrl_firmware.run_srp_mutants selects them by name). One defect a rule: a
-source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) and at once; a lapse withdraws, its licence and
-TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two LeaveAllTime
-periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, Table 10-7), held across a reset; an admission change swaps in
-place; a refused declaration is declared again; the entry refuses before attach and on reentry; and the composition
-feeds each interface's DA gate and range.
+window, SRP's Listener registration, MAAP's DA gate and a range MAAP loses). The two-interface campaign plants them at
+8x8/2if (ENTITY), the one-interface campaign at 1x1/1if (test_ctrl_firmware.run_srp_mutants selects them by name). One
+defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) and at once; a lapse withdraws, its
+licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two
+LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, Table 10-7), whether it changed while declared or
+while lapsed, and held across a reset; an admission change swaps in place; a refused declaration is declared again;
+the entry refuses before attach and on reentry; and the composition feeds each interface's DA gate and range.
 """
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ ENTRY = "Talker.GateEntryRecordsOnlyWhatChanged"
 REFUSED = "Talker.RefusedDeclarationIsDeclaredAgain"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
 LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
+LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
 #: declare_sources's withdrawal and declaration conditions and its licence closure, as srp_mbx.c holds them.
 WITHDRAWS = "        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed & bit) != 0u)) {\n"
 WAITS = "        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;\n"
@@ -70,6 +71,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-hold-off-skipped", CHANGED, "            m->held_cs[n] = SRP_REDECLARE_CS;\n",
           "            m->held_cs[n] = 1u;\n",
           "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-lapse-starts-no-hold-off", LOST, "            m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "            m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
+          "a changed destination waits two LeaveAllTime periods after the Leave"),
         d("talker-hold-off-one-leaveall", CHANGED, "#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS",
           "#define SRP_REDECLARE_CS (1000u + SRP_JOIN_CS",
           "no Talker of a changed destination is declared before the hold-off ends"),

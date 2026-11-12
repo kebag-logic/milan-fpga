@@ -2,7 +2,8 @@
 // SRP's Talker declarations follow the MAAP adapter's DA gate through the composition (#895; Milan v1.2 4.3.3.1 and
 // 5.3.7.4): a source declares nothing until MAAP holds its range and a PROBE_TX_COMMAND for it was answered in the last
 // 15 s or a matching Listener is registered; then at once, on its own interface, at MAAP's base + n; it withdraws when
-// neither holds, and a re-probe with the same destination declares it again at once.
+// neither holds or MAAP loses the range, a re-probe with the same destination declares it again at once, and the new
+// range's destination waits two LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8).
 namespace {
 
 class SrpGate : public AcmpMailbox {
@@ -63,6 +64,18 @@ protected:
         ASSERT_TRUE(mbx_model_rx(&model, frame.data(), frame.size(), interface));
         settle();
     }
+    // A peer ANNOUNCEs the interface's range from a MAC whose octet-wise reverse is below this entity's, so compare_MAC
+    // is FALSE and MAAP restarts on a new range (IEEE 1722-2016 Table B.7, B.3.6.4).
+    void conflict() {
+        std::array<std::uint8_t, 60> frame{};
+        wire_put_be(frame.data(), MAAP_MULTICAST, 6);
+        wire_put_be(frame.data() + 6, 0x0e0000000000ull, 6);
+        frame[12] = 0x22; frame[13] = 0xf0; frame[14] = 0xfe; frame[15] = 3; frame[16] = 8; frame[17] = 16;
+        wire_put_be(frame.data() + 26, app.maap.ifs[interface].core.base, 6);
+        wire_put_be(frame.data() + 32, app.maap.ifs[interface].core.count, 2);
+        ASSERT_TRUE(mbx_model_rx(&model, frame.data(), frame.size(), interface));
+        settle();
+    }
 };
 
 TEST_F(SrpGate, F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt) {
@@ -104,6 +117,33 @@ TEST_F(SrpGate, F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow) {
     listener(5u);
     run(300u);
     EXPECT_FALSE(declared(interface)) << "with neither a probe nor a Listener, the Talker withdraws";
+    EXPECT_EQ(core()->reentries, 0u);
+}
+
+TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
+    compose();
+    probe();
+    run(300u);
+    listener(1u);
+    ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";
+    const std::uint64_t first = app.maap.ifs[interface].core.base;
+    conflict();
+    EXPECT_NE(app.maap.ifs[interface].core.base, first) << "MAAP restarts on a new range";
+    EXPECT_FALSE(declared(interface)) << "a range lost withdraws the Talker";
+    EXPECT_EQ(talker_decl(interface) >> source & 1u, 0u) << "a range lost withdraws the Talker";
+    // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1)
+    for (unsigned s = 0; s < 19u; ++s) {
+        run(1000u);
+        listener(1u);
+    }
+    EXPECT_TRUE(app.maap.ifs[interface].core.valid) << "MAAP holds the new range";
+    EXPECT_FALSE(declared(interface)) << "a changed destination waits two LeaveAllTime periods after the Leave";
+    for (unsigned s = 0; s < 2u; ++s) {
+        run(1000u);
+        listener(1u);
+    }
+    EXPECT_TRUE(declared(interface)) << "the new range's destination is declared once the hold-off ends";
+    EXPECT_EQ(destination(), app.maap.ifs[interface].core.base + source) << "with the new range's base + n";
     EXPECT_EQ(core()->reentries, 0u);
 }
 

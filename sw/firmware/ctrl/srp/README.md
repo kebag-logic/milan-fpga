@@ -418,7 +418,11 @@ The tests read the block as the fabric held it at each SRP record's commit, so
 an MRPDU that left before its Domain, slope or declarations were published
 fails a named test, a Domain adoption's and a withdrawal's included
 (`srp_talker.cpp`, at 1x1/1if and 8x8/2if, with `srp_talker_mutants.py`'s
-planted defects, one a rule). A named test refuses each
+planted defects, one a rule). Through the composition, `test_acmp_mbx.cpp`'s
+`SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
+and the 15 s expiry withdraws it, a registered Listener keeps it declared past
+the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
+range's destination declared only after the hold-off. A named test refuses each
 allocation of a link restart's re-creation in turn, a source's join among
 them, so a creation that fails part way and still shows a declaration fails
 it too.
