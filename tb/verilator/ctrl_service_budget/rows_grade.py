@@ -22,7 +22,9 @@ The rows, each with its tier's bound (#665: tier 1 20 ms, SRP 90 ms, the last qu
 
 Sources, and their arrival bound in a window of W ms:
   records    channel c: its burst + floor(W / refill_c) (mailbox.yaml `rate`, the fabric's limiter, per channel). A
-             record behind the row's in its own ring does not precede it.
+             record behind the row's in its own ring does not precede it. In R4 SRP's records are THE DRAIN's first:
+             every one that arrives before the row's record is taken precedes it, so they are counted over W less
+             that record's own work alone (srp_window), not less the burst's work ahead of it.
   ticks      floor(W / tick_ms) + 1 TICK records (mailbox.yaml tick_ms), each a centisecond to its consumers at the
              larger of their stated cost and CTRL_LOOP_TICK_US.
   timers     coalesced, one record a slot until taken, so at most one an ordinary pass, and no more than the slot's
@@ -38,14 +40,31 @@ Sources, and their arrival bound in a window of W ms:
   passes     every ordinary pass, at the polls' base and the pass's events' fixed part.
   items      the polls' heavy items, each by its own source: the walk at most one an interface a pass and no more than
              a centisecond's or a build's; the reclaim two an interface a pass and no more than SRP's records and the
-             builds; a retained record one a pass and no more than SRP's records; an owed MRPDU two a build; ACMP's
-             and AECP's owed frames one a pass and no more than their sources; R5's withdrawal and rebuild one an
-             interface.
+             builds; a retained record's retry at the retry's own rule, at most one a centisecond (srp_mbx.c: the
+             poll spends retry_spent, the centisecond's consumer gives it back), so one before the window's first
+             centisecond and one after each, and one an ordinary pass (retained_retries; R4 alone, below); an owed
+             MRPDU two a build; ACMP's and AECP's owed frames one a pass and no more than their sources; R5's
+             withdrawal and rebuild one an interface.
   rounds     THE RETRY: one a pace past the last (aecp_mbx.h), yielding rounds first, then firm ones, each at
              AECP_ROUND_COLD_US and AECP_NOTICE_US a notice, at most the point's queue of notices.
   builds     THE TRANSMIT: one a JoinTime a participant (IEEE 802.1Q-2018 10.7.4.1, Table 10-7; Milan v1.2 Table 4.3):
              every interface's build of both MRPDUs or twice as many of one, whichever costs more.
   steps      THE STEP: floor(W / (10 (CTRL_LOOP_STEP_AGE + 1))) + 1 aged steps at CTRL_LOOP_STEP_PASS_US.
+
+A record lwSRP's pool refuses for storage is retained and retried (srp_mbx.c, apply_receive), and while it waits no
+other SRP record is taken, each such record up to SRP_RX_RETRY_MS (1,000 ms) before it expires: SRP's storage rule,
+not the CPU's service. So SRP's own rows, R5 and R6, are solved with no record of theirs refused for storage, and count
+neither that hold nor the retry; R4's record, AECP's, is held by no SRP record, and a refusal of SRP's costs it the
+retries, which it counts (RETAINED_ROWS). With the hold counted, each of SRP's 31 records ahead of R5's or R6's
+refused in turn would hold it 1,000 ms, no W under 2,000 ms.
+
+The fabric's datapath change records are not counted (EXCLUDED, against the contract's event types): COUNTERS_CHANGED
+(once a holdoff_ms a descriptor, mailbox.yaml counters_changed), AVB_INFO_CHANGED and AS_PATH_CHANGED (each coalesced
+an interface, and changed only by the grandmaster event's sources, IEEE 802.1AS-2011 10.7.2.2, 11.5.2.2 and 10.7.3.2)
+and AMAP_LIVE_WRITE (one an AECP command that edits a live map). No group stages them, so no cost of theirs is stated,
+and the method charges stated costs alone; each record's consumer only marks a descriptor's notice owed or adds a
+count (ctrl_app_aecp.c), and the notices it marks are counted, in THE RETRY's rounds at the queue's bound and the
+counters' holdoff in the timers. Their dispatch is #894's to stage and state.
 """
 from __future__ import annotations
 
@@ -79,6 +98,13 @@ SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': 
            'rounds': ('rounds',), 'builds': ('builds',), 'steps': ('steps',)}
 #: The other channels a row's window carries beside SRP's.
 OTHERS = ('aecp', 'acmp', 'adp', 'maap')
+#: The rows that count a retained record's retries: R4 alone, SRP's own rows being solved with no record of theirs
+#: refused for storage (the docstring).
+RETAINED_ROWS = ('R4',)
+#: The contract's event types (mailbox.yaml event_types) the rows count, each by its source, and those they do not,
+#: the datapath change records no group stages (the docstring).
+EVENTS = {'TIMER': 'timers', 'LINK': 'links', 'GM': 'gm', 'TICK': 'ticks'}
+EXCLUDED = ('COUNTERS_CHANGED', 'AVB_INFO_CHANGED', 'AS_PATH_CHANGED', 'AMAP_LIVE_WRITE')
 #: The constants the method reads from the loop's and AECP's headers.
 NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'CTRL_LOOP_STEP_PASS_US',
          'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SHARE_US', 'CTRL_LOOP_SHARE_MARGIN_US',
@@ -171,6 +197,18 @@ def builds(h: dict, s: dict) -> tuple[float, int]:
     return (both, s['n_if']) if both >= one else (one, 2 * s['n_if'])
 
 
+def retained_retries(w_ms: float, passes: int, tick_ms: int) -> int:
+    """A retained record's retries in a window of w_ms: at most one a centisecond (srp_mbx.c), so one after each of
+    the floor(W / tick_ms) + 1 centiseconds the window holds and one before the first, and no more than its passes."""
+    return min(passes, math.floor(w_ms / tick_ms) + 2)
+
+
+def srp_window(w_ms: float, inputs: 'Inputs') -> float:
+    """The part of R4's window over which an SRP record that arrives is taken ahead of the row's: W less the row's own
+    record, during which nothing it precedes arrives."""
+    return max(0.0, w_ms - inputs.c['record.aecp'] / 1000)
+
+
 class Inputs(NamedTuple):
     """A point's inputs to the method: its header constants, stated costs, counts, channel rates and TICK period."""
 
@@ -196,8 +234,7 @@ def demand(row: str, inputs: Inputs, w_ms: float) -> dict[str, float]:
         out['aecp'] = rate['aecp'][0] * c['record.aecp']
         # AECP takes its cap a pass, THE DRAIN's channel first: SRP's backlog, refilled while it drains, all ahead
         aecp_passes = math.ceil(rate['aecp'][0] / cap) + ticks
-        draining = max(0.0, w_ms - out['aecp'] / 1000)
-        out['srp'] = (burst + math.floor(draining / rate['srp'][1])) * c['record.srp']
+        out['srp'] = (burst + math.floor(srp_window(w_ms, inputs) / rate['srp'][1])) * c['record.srp']
     else:
         out['srp'] = burst * c['record.srp']
     cost_b, count_b = builds(h, s)
@@ -224,7 +261,8 @@ def demand(row: str, inputs: Inputs, w_ms: float) -> dict[str, float]:
     srp_in = arrive('srp')
     out['item.walk'] = min(passes * n_if, n_if * (ticks + count_b)) * c['item.walk']
     out['item.reclaim'] = min(2 * n_if * passes, 2 * (srp_in + count_b)) * c['item.reclaim']
-    out['item.retained'] = min(passes, srp_in) * c['item.retained']
+    if row in RETAINED_ROWS:
+        out['item.retained'] = retained_retries(w_ms, passes, tick_ms) * c['item.retained']
     out['item.mrpdu'] = min(passes, 2 * count_b) * c['item.mrpdu']
     out['item.acmp'] = min(passes, arrive('acmp') + arrive('adp') + n_if * s['sinks_per_if']) * c['item.acmp']
     out['item.aecp'] = min(passes, arrive('aecp') + n_if * s['registrations']) * c['item.aecp']
@@ -294,6 +332,41 @@ def unsourced(root: Path, points: tuple[str, ...] = POINTS) -> list[str]:
             out += [f'{point} {row}: the term {k} has no source' for k in terms
                     if not any(k in keys for keys in SOURCES.values()) and k not in ('AECP_QUEUED_FIRST_MS',
                                                                                     'AECP_QUEUED_MS')]
+    return out
+
+
+#: The windows, in ms, at which rule_findings holds the method's arrival rules: under, at and over each row's bound.
+RULE_WINDOWS = (5.0, 20.0, 58.0, 90.0, 125.0, 345.0)
+
+
+def rule_findings(root: Path, points: tuple[str, ...] = POINTS, texts: dict | None = None) -> list[str]:
+    """Each arrival rule of the tree's the method does not hold: the retained retry's rule as srp_mbx.c states it
+    (load_grade.RETRY_RULE), its retries in R4 at that rule and in no SRP row, SRP's arrivals ahead of R4's record over
+    the window less that record alone, and each of the contract's event types counted or excluded."""
+    out = [f'the retained retry\'s rule not the tree\'s: {name}' for name in load_grade.retry_unbounded(root, texts)]
+    for point in points:
+        inputs = point_inputs(root, point)
+        c, rate, tick = inputs.c, inputs.rate, inputs.tick_ms
+        for w in RULE_WINDOWS:
+            d = demand('R4', inputs, w)
+            passes = round(d['passes'] / (c['events_none'] + c['base']))
+            got, rule = round(d.get('item.retained', 0) / c['item.retained']), min(passes, math.floor(w / tick) + 2)
+            if got != rule:
+                out.append(f'{point} R4: {got} retained retries in {w:g} ms, not the retry\'s rule\'s {rule} '
+                           f'(one a centisecond, one before the first, one a pass)')
+            got = round(d['srp'] / c['record.srp'])
+            rule = rate['srp'][0] + math.floor((w - c['record.aecp'] / 1000) / rate['srp'][1])
+            if got != rule:
+                out.append(f'{point} R4: {got} SRP records ahead in {w:g} ms, not the {rule} that arrive before the '
+                           f'row\'s record is taken')
+            out += [f'{point} {row}: a retained record\'s retry counted in an SRP row' for row in ('R5', 'R6')
+                    if demand(row, inputs, w).get('item.retained', 0) > 0]
+    named = {e['name'] for e in load_grade.parsed((root / 'sw/mailbox/mailbox.yaml').read_text())['event_types']}
+    out += [f'the contract\'s event {name} neither counted nor excluded' for name in sorted(named - set(EVENTS) -
+                                                                                        set(EXCLUDED))]
+    out += [f'the event {name} both counted and excluded' for name in sorted(set(EVENTS) & set(EXCLUDED))]
+    out += [f'the event {name} counted by {src}, which no term makes up' for name, src in EVENTS.items()
+            if src not in SOURCES]
     return out
 
 

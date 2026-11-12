@@ -476,6 +476,18 @@ MUTANTS: dict[str, Patches] = {
     "rows: the grandmaster events left out of a row's window": lambda: [patch.object(
         rows_grade, 'demand', lambda row, inputs, w, f=rows_grade.demand: {
             k: v for k, v in f(row, inputs, w).items() if k != 'gm'})],
+    'rows: a retained record retried once a pass (earlier rule)': lambda: [patch.object(
+        rows_grade, 'retained_retries', lambda w, passes, tick: passes)],
+    "rows: SRP's arrivals ahead of R4's record cut by AECP's whole burst (earlier rule)": lambda: [patch.object(
+        rows_grade, 'srp_window', lambda w, inputs: max(0.0, w - 16 * inputs.c['record.aecp'] / 1000))],
+    "rows: a retained record's retry counted in SRP's own rows": lambda: [patch.object(
+        rows_grade, 'RETAINED_ROWS', ('R4', 'R5', 'R6'))],
+    'rows: the arrival rules not held': lambda: [patch.object(rows_grade, 'rule_findings', lambda *a, **k: [])],
+    'rows: a datapath event neither counted nor excluded': lambda: [patch.object(
+        rows_grade, 'EXCLUDED', rows_grade.EXCLUDED[:-1])],
+    "load: the pin's name bound to the donor's table": lambda: [patch.object(
+        load_grade, 'COLUMNS', (('at the pin', load_grade.STATED_US_DONOR),
+                                ('with tsn-c-stack#32', load_grade.STATED_US)))],
     'rows: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         rows_grade, 'costs', lambda root, point, table=None, f=rows_grade.costs: f(
             root, point, table or load_grade.STATED_US_DONOR))],

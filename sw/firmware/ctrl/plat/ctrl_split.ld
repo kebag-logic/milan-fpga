@@ -107,7 +107,6 @@ SECTIONS
 		*-acmp.o(.text.respond)
 		*-acmp.o(.text.build)
 		*-acmp.o(.text.wire_put_be)
-		*libcompiler_rt.a:lshrdi3.o(.text.__lshrdi3)
 		*-acmp.o(.text.transmit)
 		*-acmp.o(.text.publish)
 		*-acmp.o(.text.p_send)

@@ -48,6 +48,11 @@ MUTANTS = (
            "\tif (!mbx_tx_commit(MBX_CH_AECP)) {\n\t\treturn AECP_FAN_LOST;\n\t}\n",
            "\t(void)mbx_tx_commit(MBX_CH_AECP);\n", "unit", "MbxDma.T5TheNoticeFanPortReportsALostFrameForItself",
            "T5 fan_end reports a last frame whose move failed lost"),
+    # a walk left owed at a recipient keeps no completion (#665): the earlier rule kept one for every walk's end
+    Mutant("mover-fan-end-keeps-a-completion-for-a-walk-left-owed", AECP_MBX_C,
+           "\tif (!whole) {\n\t\treturn AECP_FAN_TAKEN;\n\t}\n", "\t(void)whole;\n",
+           "unit", "MbxDma.T6AWalkLeftOwedKeepsNoCompletion",
+           "T6 fan_end of a walk left owed after a mid-walk loss keeps no completion"),
     Mutant("mover-transmit-frame-off-a-word-moved", MBX_C, "\tif (((uintptr_t)frame & 3u) == 0u) {\n" + TX_MOVE,
            "\tif (true) {\n" + TX_MOVE,
            "unit", "MbxDma.T3AFrameOffAWordTakesTheWordLoop", "T3 a frame off a word takes the word loop"),

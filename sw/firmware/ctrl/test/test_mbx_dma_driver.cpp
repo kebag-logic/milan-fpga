@@ -38,9 +38,12 @@
 //   T5  the notice's fan port (aecp_mbx.c's fan and fan_end) reports a frame
 //       its move failed for that frame: the next fan is AECP_FAN_LOST and
 //       starts nothing, a lost last frame makes fan_end AECP_FAN_LOST with no
-//       completion kept, and the frame sent again goes.
+//       completion kept, and the frame sent again goes;
+//   T6  fan_end keeps a completion only for a walk that reached its last
+//       recipient: after a frame lost mid-walk, the walk's fan_end keeps
+//       none, and the resumed walk's end keeps the notice's one.
 //
-// T5 links the adapter alone, over this driver and the window's HAL
+// T5 and T6 link the adapter alone, over this driver and the window's HAL
 // (mbx_plat_mmio.c): the AECP core and the loop it calls are stubs below,
 // since only its fan port is under test.
 
@@ -397,13 +400,39 @@ TEST_F(MbxDma, T5TheNoticeFanPortReportsALostFrameForItself) {
     ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T5 the lost frame is started again";
     ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T5 and the next";
     mover.fail = true;   // the model starts the move at the driver's next access to the mover
-    EXPECT_EQ(m.ports.fan_end(&m, 7), AECP_FAN_LOST) << "T5 fan_end reports a last frame whose move failed lost";
+    EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_LOST) << "T5 fan_end reports a last frame whose move failed lost";
     EXPECT_TRUE(committed() == head + record && m.completion_count == 0u)
         << "T5 and keeps no completion for it, the frame before it committed";
     ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T5 the lost last frame is started again";
-    EXPECT_EQ(m.ports.fan_end(&m, 7), AECP_FAN_TAKEN) << "T5 and fan_end ends the notice";
+    EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_TAKEN) << "T5 and fan_end ends the notice";
     EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == 1u && m.completions[0].cookie == 7u)
         << "T5 with both frames committed and the notice's completion kept";
+}
+
+TEST_F(MbxDma, T6AWalkLeftOwedKeepsNoCompletion) {
+    const std::uint16_t head = 100;
+    const std::uint32_t record = MBX_TX_HDR_WORDS + 15u;   // a 60-byte frame
+    open(0, head);
+    static aecp_mbx m;
+    static const aecp_ports environment{};
+    aecp_config cfg{};
+    cfg.interfaces = 1;
+    ASSERT_TRUE(aecp_mbx_init(&m, &cfg, &environment, 0));
+    alignas(4) static std::uint8_t first[64], second[64];
+    for (std::uint32_t i = 0; i < sizeof first; ++i) first[i] = pattern(i), second[i] = pattern(i + 9u);
+    mover.memory = {{first, sizeof first}, {second, sizeof second}};
+    const auto committed = [] { return at(unit::ch_reg(kCh, MBX_CH_REG_TX_HEAD)); };
+    mover.fail = true;
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T6 a notice's frame is started";
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_LOST) << "T6 the fan after it reports it lost";
+    EXPECT_EQ(m.ports.fan_end(&m, 7, false), AECP_FAN_TAKEN) << "T6 the walk left owed ends";
+    EXPECT_TRUE(committed() == head && m.completion_count == 0u)
+        << "T6 fan_end of a walk left owed after a mid-walk loss keeps no completion";
+    ASSERT_EQ(m.ports.fan(&m, 0, first, 60), AECP_FAN_TAKEN) << "T6 the resumed walk starts the lost frame again";
+    ASSERT_EQ(m.ports.fan(&m, 0, second, 60), AECP_FAN_TAKEN) << "T6 and the next";
+    EXPECT_EQ(m.ports.fan_end(&m, 7, true), AECP_FAN_TAKEN) << "T6 and the resumed walk ends at its last recipient";
+    EXPECT_TRUE(committed() == head + 2u * record && m.completion_count == 1u && m.completions[0].cookie == 7u)
+        << "T6 keeping exactly one completion, the notice's, once the resumed walk ends";
 }
 
 }  // namespace

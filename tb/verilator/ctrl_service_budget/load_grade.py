@@ -111,19 +111,21 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: SRP comparisons same()'s (#665: the notice and SRP record cuts), whose measurement alone states the three
 #: costs those cuts move, an SRP record, its retained retry and a notice (section 13, the long-window load), measured
 #: again with every row's response stated and the aecp group in arm A and arm B (#882), which moved no cost, and
-#: again on the image whose record commits judge their own move (#665), which moved none of this column's. 32x32/2if
+#: again on the image whose record commits judge their own move (#665), which moved none of this column's, and again
+#: on the merge of the TSN stack pin move to 715589c (#665), each cost the larger of that measurement and this
+#: table's (the polls' and AECP's own at poll_grade.py's, which the redelivery's ACMP item restates). 32x32/2if
 #: is measured on the 32x32 simulation shape (#859), arm A's groups but the save groups, each cost the larger of
 #: a30c9986's image's and this tree's. No group stages a retained record's retry, an owed MRPDU or a registration's
 #: probe at any point, so they are stated at this table's SRP record cost, at a build of one's (poll_grade.py's at
 #: 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE STEP's pass is stated there at
 #: ctrl_loop.h's two-interface cost.
 STATED_US = {
-    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 260, 'record.aecp': 205, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 90,
                 'event.ADP': 110, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.retained': 250, 'item.aecp.notice': 210,
+                'event.GM': 35, 'centisecond': 130, 'events_none': 25, 'item.retained': 260, 'item.aecp.notice': 210,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 130,
-                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 40,
+                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 215, 'event.AECP': 100, 'event.TICK': 40,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.retained': 365, 'item.aecp.notice': 270,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
@@ -141,19 +143,21 @@ STATED_US = {
 #: for the three the cuts move, which are this tree's. The answering-every-port arm does not fit the 8x8/2if ledger with
 #: the donor (section 5), so the costs only that arm stages are STATED_US's. On the image whose record commits judge
 #: their own move (#665), 1x1/1if is measured again, each cost the larger of that and this table's (ACMP's timer slot
-#: 170 us, THE TRANSMIT's build 920); arm A's 8x8/2if image with the donor is over that point's ledger there, so the
-#: 8x8/2if column is the one measured before it.
+#: 170 us, THE TRANSMIT's build 920); arm A's 8x8/2if image with the donor was over that point's ledger there. On the
+#: merge of the pin move, whose pin 715589c carries tsn-c-stack#32 (its src/ and include/ the donor's 9043b926), both
+#: points are measured on the pin's own legs, each cost the larger of that, this column's and, for a cost the walk does
+#: not move, the pin's column.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 250, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
+    '1x1/1if': {'record.srp': 260, 'record.aecp': 205, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 90,
                 'event.ADP': 110, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 60, 'event.TICK': 40,
-                'event.GM': 35, 'centisecond': 125, 'events_none': 25, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155, 'item.reclaim': 25, 'item.retained': 250,
-                'item.mrpdu': 405, 'item.acmp': 35, 'item.walk': 20, 'build': 920, 'build_one': 405, 'step': 975},
+                'event.GM': 35, 'centisecond': 130, 'events_none': 25, 'item.aecp.notice': 210,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 155, 'item.reclaim': 25, 'item.retained': 260,
+                'item.mrpdu': 405, 'item.acmp': 120, 'item.walk': 20, 'build': 920, 'build_one': 405, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 130,
-                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 95, 'event.TICK': 75,
+                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 215, 'event.AECP': 100, 'event.TICK': 75,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 30, 'item.aecp.notice': 270,
-                'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 245, 'item.reclaim': 40, 'item.retained': 365,
-                'item.mrpdu': 1215, 'item.acmp': 40, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
+                'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 285, 'item.reclaim': 40, 'item.retained': 365,
+                'item.mrpdu': 1215, 'item.acmp': 165, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 330, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
                   'event.GM': 30, 'centisecond': 960, 'events_none': 20, 'base': 570, 'item.reclaim': 105,
@@ -485,6 +489,11 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
+    # each column's name bound to its own table: the pin's name to this tree's pin's table, the donor's to the donor's
+    # (a swap prints each HELD line with the other column's load, and holds neither by its name)
+    if [(name, table is want) for (name, table), want in zip(COLUMNS, (STATED_US, STATED_US_DONOR))] != \
+            [('at the pin', True), ('with tsn-c-stack#32', True)] or len(COLUMNS) != 2:
+        escaped.append("a column's name bound to the other's table")
     return escaped
 
 
@@ -543,7 +552,8 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'the retained retry counted once a record',
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
-            'the graded column below the pin where tsn-c-stack#32 moves nothing')
+            'the graded column below the pin where tsn-c-stack#32 moves nothing',
+            "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:
