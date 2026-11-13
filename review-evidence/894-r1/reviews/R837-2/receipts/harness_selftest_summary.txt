@@ -1,0 +1,13 @@
+# python3 -B run.py --self-test (tb/verilator/ctrl_service_budget) at 8a3791e44533d6b1cc26d486d0b18e7d83470dc1, exit 0: summary of the full log (sha256 a528979b37d396b8b60861bd5bb84c22a4f948661ae65a7131e7b365d7bd50c5, 4766 lines, kept unpublished for size)
+PASS lines: 819; FAIL lines: 0; MUTANT caught: 239; MUTANT escaped: 0
+PASS: a slice over the stated length is named, with what it held and the length it passed
+PASS: a slice over the stated length fails a run whatever findings it records
+PASS: the flip check refuses built 1x1/1if R4L: the source pace not counted
+PASS: the flip check refuses built 8x8/2if R4L: the source pace not counted
+PASS: a join interval is two MRPDUs of one participant, the second one a join timer released: 180 and 240 ms hold
+PASS: a join interval under 180.0 ms or over 240.0 ms is named with its participant
+PASS: a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no join timer, between them are none
+PASS: a join timer that runs out with nothing to send, its build sending no frame, releases nothing, and the MRPDU a later request sends ends no join interval
+PASS: a join interval outside its range fails a run whatever findings it records
+PASS: a queued notice's bound is the constants', the last queued notice's 130 ms at one interface (#894's amendment issuecomment-6862465874 to decision D's 125) and 62 ms at two
+self-test: 0 failures

@@ -1,0 +1,18 @@
+# lines PR #902 adds (git diff cec88385..8a3791e4, *.c *.h *.py *.cpp *.hpp *.sv) that carry an issue-comment ID; sw/litex/ctrl_memory.py:253 is pre-existing text (only its number changed)
+sw/firmware/ctrl/aecp/aecp_mbx.h:44: // contingent ruling issuecomment-6858269025, item 3) 6 ms does (#894, #908). The gate reads the core's clock, which
+sw/firmware/ctrl/aecp/aecp_mbx.h:58: // issuecomment-6862465874 to its contingent ruling, item 2, the built design's row after #908's cuts rounded up to the
+sw/firmware/ctrl/loop/ctrl_loop.h:265: // AECP_PACE_MS (#894's contingent ruling issuecomment-6858269025, item 3): 900 us.
+sw/firmware/ctrl/loop/ctrl_loop.h:330: // lets an implementation modify (#894's contingent ruling issuecomment-6858269025,
+sw/litex/ctrl_memory.py:253:                                    59.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+sw/litex/ctrl_memory.py:260:                                          "fallback of #894's ruling 6844175391, item 2: the cap raised to 59.0 as "
+tb/verilator/ctrl_service_budget/flip_grade.py:174:     # issuecomment-6858269025, item 3)
+tb/verilator/ctrl_service_budget/join_grade.py:3: """The join intervals (#894's contingent ruling issuecomment-6858269025, item 4): with the join timer armed at
+tb/verilator/ctrl_service_budget/load_grade.py:235:         ctrl_loop.h's CTRL_LOOP_JOIN_CS, #894's contingent ruling issuecomment-6858269025, item 3)."""
+tb/verilator/ctrl_service_budget/notice_window.py:61:     notice's tier bound at one interface (#665 decision D's 125 ms, 130 by #894's amendment issuecomment-6862465874,
+tb/verilator/ctrl_service_budget/queued_bound.py:3: """The last queued notice's bound at one interface (#894's contingent ruling issuecomment-6858269025, item 2, as its
+tb/verilator/ctrl_service_budget/queued_bound.py:4: amendment issuecomment-6862465874 states it): decision D's 125 ms (rows_grade.BOUNDS) while the built design's row
+tb/verilator/ctrl_service_budget/rows_tiers.py:106: #: #894's contingent ruling issuecomment-6858269025, item 3: 19 cs, so 50 ms).
+tb/verilator/ctrl_service_budget/run.py:184:     ruling issuecomment-6858269025, item 4)."""
+tb/verilator/ctrl_service_budget/selftest_notice.py:88:              "amendment issuecomment-6862465874 to decision D's 125) and 62 ms at two", got == (130, 62), str(got)),
+tb/verilator/ctrl_service_budget/selftest_polls.py:242:     240.0 ms is named and fails the run (#894's contingent ruling issuecomment-6858269025, item 4)."""
+tb/verilator/ctrl_service_budget/tier1_rows.py:179:     from the join time, `(240u - 10u * CTRL_LOOP_JOIN_CS)` (#894's contingent ruling issuecomment-6858269025,

@@ -1,0 +1,18 @@
+# python3 -B rows_tiers.py --point 1x1/1if --terms (tb/verilator/ctrl_service_budget) at 8a3791e44533d6b1cc26d486d0b18e7d83470dc1, exit 0
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 12.82 | 20 | -7.18 | 5 | aecp 3.760, timers 1.435, passes 1.175, item.aecp 1.050, steps 0.975, ticks 0.950, others 0.950, slice 0.900, datapath 0.475, notice 0.340, item.acmp 0.250, item.acmp_declined 0.220, item.reclaim 0.150, gm 0.120, item.walk 0.070 |
+| 1x1/1if | R5 | 72.71 | 90 | -17.29 | 39 | others 18.015, passes 9.165, srp 8.960, item.aecp 8.190, ticks 3.800, datapath 3.705, timers 3.360, steps 2.925, item.mrpdu 2.900, item.retained 2.520, item.reclaim 1.950, item.acmp 1.950, item.acmp_declined 1.580, builds 1.450, slice 0.900, item.walk 0.350, notice 0.340, item.rebuild 0.290, links 0.150, gm 0.120, item.withdraw 0.090 |
+| 1x1/1if | R6 | 68.62 | 90 | -21.38 | 36 | others 17.395, srp 8.960, passes 8.460, item.aecp 7.560, datapath 3.420, ticks 3.325, timers 3.245, steps 2.925, item.mrpdu 2.900, item.retained 2.240, item.reclaim 1.800, item.acmp 1.800, item.acmp_declined 1.460, builds 1.450, slice 0.900, notice 0.340, item.walk 0.315, gm 0.120 |
+| 1x1/1if | first | 14.50 | 20 | -5.50 | 2 | spacing 8.000, others 1.420, steps 0.975, slice 0.900, timers 0.895, ticks 0.475, passes 0.470, item.aecp 0.420, notice 0.340, datapath 0.190, item.reclaim 0.100, item.acmp 0.100, item.acmp_declined 0.100, gm 0.080, item.walk 0.035 |
+| 1x1/1if | last | 125.84 | 130 | -4.16 | 68 | srp 25.200, others 23.250, passes 15.980, item.aecp 11.550, spacing 8.000, datapath 6.460, ticks 5.700, steps 3.900, timers 3.820, item.retained 3.640, item.reclaim 3.400, rounds 3.315, item.acmp 3.000, item.mrpdu 2.900, item.acmp_declined 2.420, builds 1.450, slice 0.900, item.walk 0.490, notice 0.340, gm 0.120 |
+| 1x1/1if | R4L | 158.34 | 240 | -81.66 | 3 | pace 150.000, item.aecp 1.095, timers 1.075, steps 0.975, others 0.950, aecp 0.940, slice 0.900, passes 0.705, ticks 0.475, notice 0.340, datapath 0.285, item.reclaim 0.150, item.acmp 0.150, item.acmp_declined 0.140, gm 0.120, item.walk 0.035 |
+| 1x1/1if | ACMP | 28.35 | 30 | -1.65 | 17 | aecp 4.935, own 4.480, passes 3.995, item.aecp 3.570, timers 2.330, others 1.860, datapath 1.615, ticks 1.425, steps 0.975, slice 0.900, item.acmp 0.850, item.acmp_declined 0.700, notice 0.340, item.reclaim 0.150, gm 0.120, item.walk 0.105 |
+| 1x1/1if | ADP | 26.76 | 30 | -3.24 | 13 | others 6.690, aecp 4.935, passes 3.055, item.aecp 2.730, timers 2.070, ticks 1.425, datapath 1.235, steps 0.975, slice 0.900, own 0.840, item.acmp 0.650, item.acmp_declined 0.540, notice 0.340, item.reclaim 0.150, gm 0.120, item.walk 0.105 |
+| 1x1/1if | MAAP | 26.88 | 30 | -3.12 | 13 | others 6.930, aecp 4.935, passes 3.055, item.aecp 2.730, timers 2.070, ticks 1.425, datapath 1.235, steps 0.975, slice 0.900, own 0.720, item.acmp 0.650, item.acmp_declined 0.540, notice 0.340, item.reclaim 0.150, gm 0.120, item.walk 0.105 |
+| 1x1/1if | tx | 29.78 | 50 | -20.22 | 16 | others 12.675, passes 3.760, item.aecp 3.360, timers 2.265, datapath 1.520, ticks 1.425, steps 0.975, slice 0.900, item.acmp 0.800, builds 0.725, item.acmp_declined 0.660, notice 0.340, item.reclaim 0.150, gm 0.120, item.walk 0.105 |
+| 1x1/1if | txL | 49.99 | 50 | -0.01 | 24 | others 21.380, item.aecp 8.760, passes 5.640, timers 3.015, ticks 2.375, datapath 2.280, steps 1.950, item.acmp 1.200, item.acmp_declined 0.980, slice 0.900, builds 0.725, notice 0.340, item.walk 0.175, item.reclaim 0.150, gm 0.120 |
+every row within its bound
+
