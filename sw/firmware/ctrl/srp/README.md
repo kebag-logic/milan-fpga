@@ -482,9 +482,10 @@ transmit opportunity within JoinTime and T_svc, and a full ring that loses
 nothing and keeps the order. It also covers the #608 stop and the `LICENCE`
 at the policer, the last two only under that check's fixture, which gives
 source 0 its allocation at creation. Until the entry above re-declares a
-source MAAP has allocated, no split source holds a licence. `SRC_SID` is
-written by no firmware, so a split talker's stream frames would carry
-stream_id 0.
+source MAAP has allocated, no split source holds a licence. Each source's
+`SRC_SID` is the MAAP adapter's, written before its DA gate opens (#905,
+[maap README](../maap/README.md)), and that check's `[SID]` holds a split
+talker's stream frames to the stream_id its Talker Advertise declares.
 
 The lwSRP pin is public `main` at `08ee86e8`.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).

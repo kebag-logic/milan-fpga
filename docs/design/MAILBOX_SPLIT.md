@@ -934,7 +934,7 @@ the split datapath and reads every port.
 | Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
 | idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
 | SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
-| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | none yet: the split firmware's talker owner (#665) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
+| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | MAAP adapter, `DA_GATE`'s owner: at its start, and again before each reopening, from the declaration owner's source port (#905) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
 
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads

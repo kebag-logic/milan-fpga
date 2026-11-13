@@ -108,7 +108,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
 - **[The split placement's control path (obj_split, #665)](#the-split-placements-control-path-obj_split-665)** -- KL_mbx through KL_mbx_cdc to the CTRL_SPLIT_P = 1 datapath, end to end, with its twenty-six planted defects and its make -j8 gate from a clean tree
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, twenty plants and what it finds
-- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop and the licence at the policer, with the egress error per MRP timer, twenty-six plants, four controls, two off-grid controls and twelve code mutants
+- **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1558,6 +1558,7 @@ case is held in the split build only under the fixture.
 | `[TX]` | every MRPDU the adapter accepted left the MAC, byte for byte, in the order accepted, and nothing else did; while the MAC was held, the adapter refused an MRPDU with the ring too full for its record, and the MRPDU it refused was the next one it sent | #867 item 4; the adapter's retention ([SRP README](../../../sw/firmware/ctrl/srp/README.md#protocol-commitments)) |
 | `[608]` | the talker held its licence before the peer's LeaveAll, and stopped at the LeaveTime deadline that LeaveAll started, within T_svc, not at one the withdrawal restarted; no stream frame left after the gate closed | #608; IEEE 802.1Q-2018 Table 10-4 (LV/rLv! is no transition); Milan v1.2 4.2.7.2.2 (only IN/rLv! changes) |
 | `[LIC]` | at every millisecond, the policer's ACTIVE, admitted and stream gate equal the `LICENCE` the firmware last wrote; the AAF talker's gate opens only under source 0's licence; the CRF source's term reads the top gate bit; no stream frame leaves while no source holds a licence | #867 item 6; Milan v1.2 5.3.7.3 |
+| `[SID]` | the licence scenario: a stream leaves, and every stream frame's AVTPDU stream_id is one a Talker Advertise the split declared on the wire carries: the datapath stamps `SRC_SID_HI:SRC_SID_LO`, which the MAAP adapter writes before the source's `DA_GATE` bit opens | #905; [`KL_mbx_pkg.sv`](../../../hdl/milan/mailbox/KL_mbx_pkg.sv) `SRC_SID_LO`; IEEE 1722-2016 4.4.4.8; Milan v1.2 5.3.7.5 |
 | `[BENCH]` | the bench's own assumptions: each modeled millisecond under 1 ms of RTL time, and lwSRP's port timers where the bench finds them | `srptx.hpp` |
 
 **A Join timer's frame is what lwSRP did, not a time window.** lwSRP's Join
@@ -1596,7 +1597,14 @@ per bit, for every talker of the shape.
 
 ### What it finds at this head
 
-Every scenario and off-grid control grades with no finding.
+At #867's head every scenario and off-grid control graded with no finding, as the tables below record.
+At this branch's head (#895 and #905 on #810's `084cf7a8`) `[SID]` grades clean: the licence scenario's 119
+stream frames each carry `0200000000010000`, the stream_id its Talker Advertise declares, where #810's head
+sends 0 on every one. Two findings predate #905, each for its own issue. Every scenario reports `[TIME]`
+findings, a requested transmit opportunity at each whole second 400 to 800 ms after lwSRP's last idle poll:
+47 on the licence scenario at #810's head, 45 here. And since SRP's Talker declarations (#895) dropped the
+boot-time Talker Failed, the hold scenario's MAC hold no longer fills the SRP transmit ring, so `[TX]`
+reports that the adapter never saw it full (#810's head refuses a 30-word record at 507 of 512 words).
 
 | Scenario | MRPDUs | Measured |
 |---|---|---|
@@ -1641,10 +1649,12 @@ widened on each side. A frame delayed within T_svc shortens the interval after
 it: one 219 ms after the frame before leaves the next 179.99 ms later. A bound
 of 200 ms less T_svc, 180 ms, would refuse that frame, which item 3 allows.
 
-Found, not held here: the split's AAF frames carry stream_id 0. No firmware
-writes the publication block's `SRC_SID`, so the datapath's framer reads 0
-once a talker streams. That cannot happen in the production composition until
-the allocation entry above lands.
+The split's AAF frames carried stream_id 0 until #905: no firmware wrote the
+publication block's `SRC_SID`, so the datapath's framer read 0 once a talker
+streamed. The MAAP adapter now writes each source's before its `DA_GATE` bit
+opens ([maap README](../../../sw/firmware/ctrl/maap/README.md)), and `[SID]`
+holds every stream frame's stream_id to the one the split's own Talker
+Advertise declares.
 
 ### The plants and the mutants
 
@@ -1683,6 +1693,7 @@ fails them.
 | `gate-not-licence` | licence | `the policer reads active 0x1, admitted 0x1, gate 0x0, and the firmware's LICENCE is 0x1` |
 | `aaf-without-licence` | licence | `AAF talker's gate is open without` |
 | `stream-without-licence` | licence | `while no source holds its licence` |
+| `stream-id-unwritten` | licence | `which no Talker Advertise the split declared carries` |
 
 Each control makes the same move to 1 ms inside the bound, and must grade
 with no finding. Together with its plant, it holds the grade's bound to the
@@ -1703,9 +1714,9 @@ Join timer's. A stimulus that no longer reaches the case fails
 
 `make srptx-mutants` plants the defect in the code itself
 ([`srptx_mutants.py`](srptx_mutants.py)). Each arm plants one line in a copy
-of lwSRP, the adapter or the datapath, and builds the split half through its
-own recipe: `twin_fw.py --replace` for a firmware unit, `DP_SRC` for the
-datapath. It then runs the arm's scenario, and the grade must report the arm's
+of lwSRP, the SRP adapter, the MAAP adapter or the datapath, and builds the
+split half through its own recipe: `twin_fw.py --replace` for a firmware
+unit, `DP_SRC` for the datapath. It then runs the arm's scenario, and the grade must report the arm's
 words. A clean control first builds the tracked sources the same way, and
 each scenario an arm runs must grade with no finding. A build failure is never
 a catch.
@@ -1724,6 +1735,7 @@ a catch.
 | a withdrawal in LV that restarts LeaveTime (#608) | lwSRP's Registrar table | licence | `[608] the talker stopped at ms` |
 | a field before lwSRP's Join timer | lwSRP's port state | wire, 3 s | `[BENCH] a Join timer arm outside its participant's state` |
 | the split's ACTIVE term held open | `milan_datapath.sv` | licence | `[LIC] at ms 1 the policer reads active 0x3, admitted 0x0` |
+| no source's `SRC_SID` written (#905): the MAAP adapter's start writes none | `maap_mbx.c` | licence | `which no Talker Advertise the split declared carries` |
 
 ```sh
 make -C tb/verilator/milan_dp srptx
