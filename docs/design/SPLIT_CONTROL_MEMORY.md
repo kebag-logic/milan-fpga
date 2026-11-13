@@ -19,7 +19,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
 - **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
-- **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
+- **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, where the stack falls in it, its area against the ledger, and the requirement amended for it.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, what a larger fetch L1 would save by the model, and, with the CPU on `sys` at 100 MHz, a save in a composed window, its worst case, aged windows, THE RETRY, and THE TRANSMIT with every pass class.
@@ -483,6 +483,24 @@ Both images carry the KLJ3 stage, so both overrides are keyed on `nvm_stage` of 
 The KLJ3 hot path's `nvm_any` is a count the compiler inlines, so it leaves the split link script's hot list, in both its copies (`ctrl_split_hot.txt`, `ctrl_split.ld`): a hot-list name with no section refuses the link.
 **The size fixture's 8x8 image with two interfaces plans 58.5 RAMB36, the cap of the owner's decision, and its entry ledgers 58.5** (the [ruling of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6831583372) on round 30's STOP): its `rom` needs 123,808 B in 124,928, as at round 29's head (123,112 B in the same banks), and its `sram` 113,168 B, 528 B past the 112,640 B of the 55 granules round 29's 112,576 B filled, so `sram` takes a 56th granule. The KLJ3 stage and the store's open bits add the `sram` (#823's own table: +576 B at that point); neither side plans past 58.0 alone, the pin move's branch because its `rom` (121,064 B) takes one granule fewer. The half tile is ROM debt owed to S14 on top of the 58.0 allowance: 528 B of `sram` past 55 granules, which a firmware cut (928 B of `rom` or 528 B of `sram`) would recover, a design change outside a sync round. The cap is now fully used: any further growth at that point, a granule of either region, is a STOP. Every other point of both images is within its ledger, the platform's largest within its 60.0 and every other point within 56; S14, the first lane after the flip, owes both 8x8 points with two interfaces.
 
+**At this branch's head, #895 on #810's head `084cf7a8`**, planned the same way (`plat_ledger.py` builds each shape's split export and runtime; the fixture and the CPU budget harness's two 8x8/2if variant arms are linked on them by `ctrl_srp_image.py`):
+
+| Point | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B |
+|---|---:|---:|---:|---:|---:|
+| 1x1, one interface (shipping) | 109,984 / 45,952 | 38.5 | 115,056 / 46,944 | 40.0 | 17,536 |
+| 1x1, two interfaces | 111,920 / 57,360 | 42.0 | 117,024 / 58,400 | 43.5 | 19,072 |
+| 8x8, one interface | 122,688 / 87,056 | 51.5 | 127,800 / 88,048 | 53.0 | 18,176 |
+| 8x8, two interfaces (largest) | 124,568 / 113,216 | 58.5, its ledger's cap | 129,728 / 114,224 | 60.0, within its 60.0 | 20,352 |
+
+Three changes move these images against `084cf7a8`'s, each image linked at each commit from the same inputs.
+SRP's Talker declarations (#895) add 944 to 1,064 B of `rom` and 16 to 64 B of `sram` an image, and 64 B to `ctrl_plat` at every point.
+Each source's stream_id published to `SRC_SID` (#905, `maap_mbx.c`) adds 640 to 792 B of `rom` and up to 16 B of `sram`; its 8 B fit `ctrl_plat`'s padding.
+#894's names patch, carried here unchanged by the [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391) as [applied to #895](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6857334948), holds the writable names as their runs and takes 224 to 240 B of `rom` from the 1x1 images and 1,048 to 1,056 B from the 8x8 ones.
+In all, 544 to 1,624 B of `rom` an image.
+The size fixture's 8x8 image with two interfaces holds 124,568 B of `rom` in 124,928, 360 B to spare, within the 58.5 its entry ledgers; the harness's `answering-every-port` arm, that image with its test port, holds 124,876 B (52 B to spare) and 113,280 B of `sram`, and its `valid-destinations` arm 124,728 B (200 B to spare), each 58.5.
+Without the names patch both arms planned 59.0, past the cap, at #895's merge of `084cf7a8` already (125,140 and 124,992 B), and with #905 the fixture did too (125,576 B).
+No entry or cap moves: every other point of both images is within 56, and the platform's largest plans 60.0 with 1,344 B of `rom` to spare in 131,072.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
@@ -688,6 +706,18 @@ Among them were back-to-back AECP and ACMP commands and an ENTITY_DEPARTING of a
 The same decision keeps this cache at 8 KiB with today's bursts.
 There it takes 10 to 22 % off the composed rows that the CPU's work decides, and leaves the rest to the CPU clock ([section 10](#10-the-cpu-clock-the-composed-rows-need)).
 The harness observes this CPU's loads and stores at its data cache's IO bus, which carries every mailbox access; cached accesses never reach a bus it observes.
+
+### Where the stack falls in it
+
+The stack is the 8 KiB after `.bss` ([`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), aligned to 16 bytes), the cache's own size, so every frame's set is the end of `.bss` plus its depth, modulo 8 KiB.
+A change to `.bss` moves every frame against every static object by the same bytes, and a frame that lands on the set of an object a loop reads between two of its own accesses costs two refills an iteration.
+The harness measured two such moves on #895 (committed-PC traces of the same pass on both images: the same instructions and instruction refills, the extra cycles in waits at loads and stores):
+
+- #905's state, at 24 bytes of `struct maap_mbx`, put `acmp_declaring`'s saved registers on the set of the size fixture's `image_aecp_bridge.acmp_owner`, which `ctrl_app_aecp`'s source port loads once a source, in every 8x8/2if image.
+  `refresh_demand` asks it of every source on each MAAP poll: about 2,300 CPU cycles a poll, and the `answering-every-port` arm's polls' base reached 32,597 cycles over its stated 32,500.
+  At 8 bytes, one source's `SRC_SID` words in flight at a time ([maap README](../../sw/firmware/ctrl/maap/README.md)), the frame keeps the set #810's image measured.
+- #810's merge into #895 (`nvm_stage` 110 bytes larger, and the saved-state store's 552-byte `nvm`) moved the 1x1/1if stack 368 bytes against SRP's objects, which stay where they were.
+  In the `valid-destinations` arm, a pass given whole to a build of one MRPDU went from 35,270 to 45,339 CPU cycles at the same 6,799 instructions, over the 43,000 `CTRL_LOOP_BUILD_ONE_PASS_US` states at 1x1/1if; the extra waits are spread over SRP's and MRP's functions.
 
 ### Area
 

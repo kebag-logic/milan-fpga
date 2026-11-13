@@ -1600,11 +1600,11 @@ per bit, for every talker of the shape.
 At #867's head every scenario and off-grid control graded with no finding, as the tables below record.
 At this branch's head (#895 and #905 on #810's `084cf7a8`) `[SID]` grades clean: the licence scenario's 119
 stream frames each carry `0200000000010000`, the stream_id its Talker Advertise declares, where #810's head
-sends 0 on every one. Two findings predate #905, each for its own issue. Every scenario reports `[TIME]`
+sends 0 on every one. Two findings predate #905, each its own issue. Every scenario reports `[TIME]`
 findings, a requested transmit opportunity at each whole second 400 to 800 ms after lwSRP's last idle poll:
-47 on the licence scenario at #810's head, 45 here. And since SRP's Talker declarations (#895) dropped the
-boot-time Talker Failed, the hold scenario's MAC hold no longer fills the SRP transmit ring, so `[TX]`
-reports that the adapter never saw it full (#810's head refuses a 30-word record at 507 of 512 words).
+47 on the licence scenario at #810's head, 45 here (#906). And since SRP's Talker declarations (#895) dropped
+the boot-time Talker Failed, the hold scenario's MAC hold no longer fills the SRP transmit ring, so `[TX]`
+reports that the adapter never saw it full (#810's head refuses a 30-word record at 507 of 512 words; #907).
 
 | Scenario | MRPDUs | Measured |
 |---|---|---|
