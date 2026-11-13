@@ -11,6 +11,7 @@ QR = 'Queued.AQueuedNoticeResumesAtItsRecipient'
 QD = 'Queued.AQueueTooDeepOrWithNoStorageIsRefused'
 QF = 'Queued.BesideALongerNoticeTheQueuesGoesFrameByFrame'
 QB = 'QueuedBurst.ABurstOfTheLargestLegalNoticesIsQueued'
+QS = 'Queued.AfterTheQueuesLastNoticeTheLongerOneIsStillOwed'
 ROUND = 'Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse'
 NONE = 'Core.WithNoOwedSlotsTheNextRecordWaitsForTheNotice'
 FIRST = 'Mailbox.ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone'
@@ -44,6 +45,8 @@ ROWS = (
     ('owed-walk-restarts', 'aecp.c', '\tif (!fan_out(a, o->frame,',
      '\ta->owed_recipient = 0u;\n\tif (!fan_out(a, o->frame,',
      (QR, '(a) the walk resumes at the recipient it stopped at')),
+    ('owed-poll-forgets-the-longer-notice', 'aecp.c', '\t\treturn a->owed_count != 0u || a->notify;\n',
+     '\t\treturn a->owed_count != 0u;\n', (QS, 'and runs no lock expiry beside it')),
     ('owed-long-notice-before-the-queue', 'aecp.c', '\tif (a->owed_count != 0u) {\n\t\tif (drains) {',
      '\tif (a->owed_count != 0u && !a->notify) {\n\t\tif (drains) {',
      (QL, "(a) the queue's notice first, then the long one")),

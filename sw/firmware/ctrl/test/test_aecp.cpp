@@ -1707,6 +1707,39 @@ TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
     ports.fan=nullptr;ports.fan_end=nullptr;
 }
 
+// (a), #894: a notice longer than a slot waits in the response buffer behind the queue. The poll that sends the queue's
+// last notice reports the longer one still owed, so the loop does not sleep on it and that poll runs nothing after its
+// send: a lock expiry falling due then, which would clear the owed notice and rewrite the response buffer, waits until
+// the longer notice is sent, whole.
+TEST_F(Queued, AfterTheQueuesLastNoticeTheLongerOneIsStillOwed)
+{
+    register_controller(CTLR);register_controller(CTLR+1);register_controller(CTLR+2);
+    ask(1,Bytes(16),0,CTLR);ASSERT_TRUE(a.locked)<<"(the lock's expiry falls due at sixty seconds)";
+    sent.clear();
+    set_name(CTLR,0x41);
+    auto b=command(44,mappings(64),CTLR);aecp_rx(&a,0,b.data(),b.size());
+    ASSERT_TRUE(a.notify&&a.owed_count==1u)<<"(the mappings' notice waits in the response buffer behind the queue)";
+    ms=60000;
+    EXPECT_TRUE(aecp_poll(&a))<<"the poll that sends the queue's last notice reports the longer one still owed";
+    EXPECT_EQ(a.owed_count,0u);
+    EXPECT_TRUE(a.locked&&a.notify)<<"and runs no lock expiry beside it";
+    drain();
+    std::vector<unsigned> order;
+    for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
+    EXPECT_EQ(order,(std::vector<unsigned>{16u,16u,44u,44u,1u,1u,1u}))
+        <<"the queue's notice, the longer one, then the lock's expiry to every controller";
+    const auto response=std::find_if(sent.begin(),sent.end(),
+                                     [](auto &s){return !notice(s.second)&&get(s.second,36,2)==44u;});
+    ASSERT_NE(response,sent.end());
+    for(auto &s:sent){
+        if(notice(s.second)&&(get(s.second,36,2)&0x7fffu)==44u){
+            EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),
+                      Bytes(response->second.begin()+38,response->second.end()))<<"the longer notice whole";
+        }
+    }
+    EXPECT_FALSE(a.locked);
+}
+
 // (a), #894: with the fan port, a queued notice beside a longer one in the response buffer goes frame by frame, since
 // the fan port's frames alternate with that buffer, which holds the longer notice; that one, past a slot and so past
 // AECP_FAN_BYTES, goes frame by frame after it, to each recipient in order, its bytes whole.
