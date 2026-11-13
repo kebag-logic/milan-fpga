@@ -1,0 +1,18 @@
+    23.393 ms MARK booted
+   674.001 ms MARK settled
+  1683.141 ms if0 MAAP ANNOUNCE start 91e0f000a134 count 2
+  3274.368 ms MARK srp.talker_declare.s0.if0
+  3275.447 ms MARK srp.talker_declare.s1.if0
+  3473.074 ms MARK srp.talker_loss.if0
+  5162.258 ms if0 MAAP ANNOUNCE start 91e0f0001ba5 count 2
+  3274.926 ms if0 TalkerAdvertise stream 0200000000010000 DA 91e0f000a134 New
+  3472.536 ms if0 TalkerAdvertise stream 0200000000010001 DA 91e0f000a135 New
+  3672.474 ms if0 TalkerAdvertise stream 0200000000010000 DA 91e0f000a134 Lv
+  3672.474 ms if0 TalkerAdvertise stream 0200000000010001 DA 91e0f000a135 Lv
+PASS s0: first Advertise at 3274.926 ms on if0, DA 91e0f000a134, MAAP start 91e0f000a134 + 0
+PASS s0: Leave at 3672.474 ms, 397.548 ms after its first Advertise; 0 Advertise declarations after it
+PASS s1: first Advertise at 3472.536 ms on if0, DA 91e0f000a135, MAAP start 91e0f000a134 + 1
+PASS s1: Leave at 3672.474 ms, 199.938 ms after its first Advertise; 0 Advertise declarations after it
+PASS no Talker attribute before the first probe (0 seen; first probe at 3274.368 ms)
+PASS no Talker Failed on the wire (0 seen)
+failures: 0

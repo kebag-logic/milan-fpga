@@ -1,0 +1,65 @@
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (0 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (3 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (0 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods (5 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[       OK ] Talker.DestinationChangeWhileValidWithdrawsTheOld (2 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (0 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+[       OK ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (2 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[ RUN      ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin
+[       OK ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin (0 ms)
+[ RUN      ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+[       OK ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt (0 ms)
+[ RUN      ] Talker.ProbeDomainLeaveAndJoinOnTheRefusedPath
+[       OK ] Talker.ProbeDomainLeaveAndJoinOnTheRefusedPath (3 ms)
+[----------] 12 tests from Talker (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (18 ms total)
+[  PASSED  ] 12 tests.
+== ctrl SRP Talker declarations: checks: 12   failures: 0 ==
+RESULT: PASS
+PROBE domain t=801 prio=3 vid=2 event=3 la=0
+PROBE domain t=1000 prio=3 vid=2 event=3 la=0
+PROBE domain t=2000 prio=3 vid=2 event=3 la=0
+PROBE domain t=3000 prio=3 vid=2 event=3 la=0
+PROBE domain t=4000 prio=3 vid=2 event=3 la=0
+PROBE domain t=5000 prio=3 vid=2 event=3 la=0
+PROBE domain t=6000 prio=3 vid=2 event=3 la=0
+PROBE domain t=7000 prio=3 vid=2 event=3 la=0
+PROBE domain t=8000 prio=3 vid=2 event=3 la=0
+PROBE domain t=9000 prio=3 vid=2 event=3 la=0
+PROBE domain t=10000 prio=3 vid=2 event=3 la=0
+PROBE domain t=11000 prio=3 vid=2 event=3 la=0
+PROBE domain t=12000 prio=3 vid=2 event=3 la=0
+PROBE domain t=12690 prio=3 vid=2 event=3 la=0
+PROBE domain t=12890 prio=3 vid=2 event=3 la=0
+PROBE domain t=12890 prio=4 vid=3 event=4 la=0
+PROBE domain t=13090 prio=3 vid=2 event=3 la=0
+PROBE domain t=14000 prio=3 vid=2 event=3 la=0
+PROBE domain t=15000 prio=3 vid=2 event=3 la=0
+PROBE domain t=16000 prio=3 vid=2 event=3 la=0
+PROBE domain t=17000 prio=3 vid=2 event=3 la=0
+PROBE domain t=18000 prio=3 vid=2 event=3 la=0
+PROBE domain t=19000 prio=3 vid=2 event=3 la=0
+PROBE domain t=20000 prio=3 vid=2 event=3 la=0
+PROBE domain t=21000 prio=3 vid=2 event=3 la=0
+PROBE domain t=22000 prio=3 vid=2 event=3 la=0
+PROBE domain t=23000 prio=3 vid=2 event=3 la=0
+PROBE domain t=24000 prio=3 vid=2 event=3 la=0
+PROBE domain t=25000 prio=3 vid=2 event=3 la=0
+PROBE summary from t=800 to 25800: vid2 declared 28 (last 25000) left 0; vid3 declared 0 left 0; adapter domain vid 3 owed 0
+  verdict: PASS (12 tests, 0 failures, exit 0)

@@ -1,0 +1,31 @@
+planting 29 SRP defects at 1 interface(s)
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two LeaveAllTime periods after the Leave
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods / a changed destination is declared once the hold-off ends
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+RESULT PASS
