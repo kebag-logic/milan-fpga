@@ -13,8 +13,8 @@ while lapsed, and held across a reset; an admission change swaps in place; a ref
 a withdrawal lwSRP refuses keeps the source declared and owed until lwSRP takes its Leave; THE TRANSMIT's call publishes
 within srp_bounds.h's terms; the entry refuses before attach and on reentry; and the composition feeds each interface's
 DA gate and range. The source's frames carry the stream_id its Talker declares (#905): the MAAP adapter writes each
-source's SRC_SID before its DA_GATE bit first opens, each word in its own register, again after each closing and when
-the source port reports another, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO).
+source's SRC_SID before its DA_GATE bit first opens, each word in its own register, again before each reopening,
+read from the source port, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO).
 """
 from __future__ import annotations
 
@@ -44,11 +44,12 @@ LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
 SID_OPENS = "SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens"
 SID_CHANGED = "SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens"
 SID_AGAIN = "SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain"
-SID_LOST = "SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain"
 MAAP = "maap/maap_mbx.c"
 #: the start's two SRC_SID words of each source, as maap_mbx.c writes them (#905).
 SID_START = ("\t\t\t(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);\n"
              "\t\t\t(void)mbx_pub_src_sid(k, s, true, (uint32_t)(id >> 32));\n")
+#: the poll's low word of a waiting source's SRC_SID, read from its port, as maap_mbx.c writes it (#905).
+SID_LOW = "\tuint64_t id = stream_of(m, s);\n\t(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);\n"
 #: declare_sources's withdrawal and declaration conditions and its licence closure, as srp_mbx.c holds them.
 WITHDRAWS = "        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed & bit) != 0u)) {\n"
 WAITS = "        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;\n"
@@ -162,21 +163,18 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-listener-demand-not-forwarded", LISTENER,
           "app->srp->ifs[interface].listener_present[source]", "false",
           "a registered Listener keeps the Talker past the probe window", path=APP),
-        d("talker-sid-unwritten-at-start", SID_OPENS, SID_START, "\t\t\t(void)k;\n",
+        d("talker-sid-unwritten-at-start", SID_OPENS, SID_START, "\t\t\t(void)id;\n",
           "SRC_SID holds the source's stream_id when its DA_GATE bit opens", path=MAAP),
         d("talker-sid-words-swapped", SID_OPENS,
           "(high ? MBX_PUB_SRC_REG_SRC_SID_HI : MBX_PUB_SRC_REG_SRC_SID_LO)",
           "(high ? MBX_PUB_SRC_REG_SRC_SID_LO : MBX_PUB_SRC_REG_SRC_SID_HI)",
           "SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word", path="mbx/mbx.c"),
-        d("talker-sid-change-unseen", SID_CHANGED, "stream_of(m, s) != m->sid[s]",
-          "false && stream_of(m, s) != m->sid[s]",
-          "SRC_SID holds the source's stream_id when its DA_GATE bit opens", path=MAAP),
-        d("talker-sid-gate-not-held", SID_AGAIN, "\treturn gate & ~m->sid_owed[interface];\n", "\treturn gate;\n",
+        d("talker-sid-never-held", SID_CHANGED,
+          "\tuint32_t may = gate & (m->published_gate[interface] | m->sid_written[interface]);\n",
+          "\tuint32_t may = gate;\n", "SRC_SID holds the source's stream_id when its DA_GATE bit opens", path=MAAP),
+        d("talker-sid-opens-before-its-high-word", SID_AGAIN, SID_LOW,
+          SID_LOW + "\tm->sid_written[k] |= UINT32_C(1) << s;\n",
           "SRC_SID is written only while the source's DA_GATE bit is clear", path=MAAP),
-        d("talker-sid-closing-owes-nothing", SID_AGAIN, "\t\t\tm->sid_owed[k] |= m->published_gate[k] & ~gate;\n",
-          "", "both SRC_SID words are written again between the bit's closing and its reopening", path=MAAP),
-        d("talker-sid-loss-owes-nothing", SID_LOST,
-          "\tm->sid_owed[interface] |= was & ~m->published_gate[interface];\n", "\t(void)was;\n",
-          "both SRC_SID words are written again between the bit's closing and its reopening",
-          path=MAAP),
+        d("talker-sid-written-mark-kept", SID_AGAIN, "\tm->sid_written[interface] &= ~may;\n", "",
+          "both SRC_SID words are written again between the bit's closing and its reopening", path=MAAP),
     )

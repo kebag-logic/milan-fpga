@@ -132,17 +132,14 @@ and the gate's owner writes both while the source's `DA_GATE` bit is clear (#905
 `maap_mbx_start` writes every source's, before any pass runs and any bit opens.
 The stream_id is the one the declaration owner's source port reports,
 which its Talker declares and ACMP answers with (Milan v1.2 5.3.7.5).
-Each bit a gate write closes owes its source's stream_id again, read from that port.
-So does a source about to open whose port reports another stream_id than its `SRC_SID` holds:
-the poll compares them, outside MAAP's callbacks, where the port may be read.
-The poll writes an owed stream_id one word a poll, the low word first, in a poll that writes no gate,
-and an owed source stays closed until both words are written.
-So a source's frames carry the stream_id its port reported when the poll last opened its gate.
-A gate the allocation report opens is not compared, inside MAAP's callback:
-its sources carry the stream_id written at the start or at their last closing.
-The platform's open only in the poll, since its destinations are valid only from the report on (`ctrl_plat.c`).
-A stream_id the port changes while the gate stays open is written at the gate's next closing;
-the platform's never changes, the entity's MAC and the output's unique ID.
+A closed source opens only once its stream_id is written since it last opened:
+by the start for its first opening, and then by the poll, read from that port.
+The gate holds the source closed meanwhile, and the poll writes it one word a poll,
+the low word first, in a poll that writes no gate.
+So a source's frames carry the stream_id its port reported just before its gate opened,
+except at its first opening, which carries the start's.
+A stream_id the port changes while the gate stays open is written before the gate next reopens;
+the platform's never changes, the entity's MAC and the output's unique ID (`ctrl_plat.c`).
 
 The dispatch path caches each `acmp_declaring` answer before entering MAAP.
 Each answer includes the source owner's destination validity and demand.
@@ -174,7 +171,7 @@ one cancel, allocation publication, and up to 16 freshness clock reads.
 Receive has a conservative 64-access bound.
 A per-interface poll allows 65 accesses: the existing 48, up to
 16 source queries before entering MAAP, and one publication write,
-a changed gate or else one word of an owed `SRC_SID` (#905).
+a changed gate or else one word of the `SRC_SID` of a source its gate holds closed for it (#905).
 Start writes two words a source before the first pass, outside every pass bound.
 A query without an answered probe needs no freshness clock read.
 This excludes the allocation callback's separate datapath CSR accesses;

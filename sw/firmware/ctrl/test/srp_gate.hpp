@@ -5,8 +5,8 @@
 // neither holds or MAAP loses the range, a re-probe with the same destination declares it again at once, and the new
 // range's destination waits two LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8). The source's frames
 // carry the stream_id its Talker declares (#905): the MAAP adapter, the DA gate's owner, writes each source's
-// SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, before the bit opens, and again after each closing and whenever
-// the source port reports another (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
+// SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, at its start before the bit first opens, and again before each
+// reopening, read from the source port (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
 namespace {
 
 // The publication block's writes from the model's reset, in order (#905).
@@ -210,8 +210,8 @@ TEST_F(SrpGate, F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens) {
     EXPECT_EQ(core()->reentries, 0u);
 }
 
-// #905: a stream_id the source port changes while the gate is closed, after the closing's own rewrite, is written
-// before the gate reopens, both its words changed, so the source's frames never carry the stale one.
+// #905: a stream_id the source port changes while the gate is closed is written before the gate reopens, both its
+// words changed, so the source's frames never carry the stale one.
 TEST_F(SrpGate, F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens) {
     compose();
     probe();
