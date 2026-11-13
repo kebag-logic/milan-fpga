@@ -2360,6 +2360,7 @@ The built design is the option's, at the slice ruling's 800 us: AECP first, and 
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | The merge | 12.80 | 188.26 | 28.69 | 26.98 | 27.10 | 14.44 | 74.80 | 69.91 | **137.79** | 29.80 | **47.25** |
 | Before it | 12.26 | 187.91 | 26.81 | 24.41 | 24.53 | 14.20 | 57.73 | 55.99 | 102.71 | 28.00 | 39.61 |
+| #908's lever a | 12.67 | 188.19 | 28.20 | 26.61 | 26.73 | 14.40 | 73.50 | 68.72 | **135.64** | 29.34 | **46.58** |
 
 So at the merged costs the flip check refuses 1x1/1if: the last queued notice and txL are over their bounds, and `tier_grid.py` holds no design (420 candidates solved, 126 refused by their own rules, none holding every row and the load). The lane stopped for the owner (#894).
 
@@ -2368,7 +2369,7 @@ The largest legal notice's costs are measured: the CPU budget harness's `aecp-la
 - **The notice.** The heaviest AECP poll item that commits it is 34,359 CPU cycles at 1x1/1if (61,935 on the 8x8 shape) at the merge of #810's `084cf7a8`, 33,815 (61,578) before it, and each notice went out in one poll. So its stated cost is 365 us (655 us), 360 (650) before the merge, not the 665 us stated before (`poll_grade.STATED_US`, `aecp_long`; `rows_tiers.LONG_NOTICE_US` reads it). At that cost alone every row holds at every slice from 550 to 1,300 us, and the six rows' rule picks 800 us, txL binding at 33.37 ms.
 - **The command, before #904.** Its record handler (`aecp_mbx.c`, `frame`) was 742,470 CPU cycles for the ADD and 539,214 for the REMOVE at 1x1/1if (959,647 and 740,401 on the 8x8 shape), its pass 792,042 cycles against THE SHARE's 200,000, and `aecp_maps.c` 703,686 of it: the pairwise duplicate and conflict checks and a scan of the map for each mapping. At that cost R4L and txL missed at every slice, and the lane stopped for the owner (#894).
 - **The command, under #904.** Each mapping is decoded once and each check is one pass ([#904](https://github.com/kebag-logic/milan-fpga/issues/904); `aecp_maps.c`): the record is 89,126 cycles for the REMOVE and 82,318 for the ADD at 1x1/1if at the merge of #810's `084cf7a8` (87,372 and 81,038 before it), stated at 940 us (`rows_tiers.LONG_RECORD_US`; 920 before), its longest pass 147,381 cycles, within THE SHARE. On the 8x8 shape the output port's stream observation, six datapath window reads a mapping as before, is most of the record: 144,293 cycles at the merge (147,843 before it), stated at 1,555 us, its pass 242,517, over THE SHARE.
-- **THE PACE.** Every checked edit holds AECP's next record in its ring until `AECP_PACE_MS` after it (`aecp_mbx.h`), so R4L and txL take at most one a pace ([`paced_rows.py`](../../tb/verilator/ctrl_service_budget/paced_rows.py)). The pace is 8 ms, the smallest that held txL before the merge of #810's `084cf7a8`: txL was 39.61 ms there, and R4L, its sixteen commands fifteen paces apart, 187.91 ms within the 240 ms response time its bound now is ([#894's ruling of 2026-11-13 on round 5](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6848507008)). At the merged costs no pace up to the ruling's 13 ms holds txL: 47.96 ms at 7 ms, 47.25 at 8 and 9, 45.67 at 10, and 43.57 from 11 to 13, where R4L passes 240 ms from 12 (248.26). So `paced_rows.choice` finds none, `paced_rows.statements` names that, and the flip check refuses the tree on txL's row. The load is 0.508 at the pin and 0.680 with every notice the largest legal one, within 0.70 (0.470 and 0.637 before the merge).
+- **THE PACE.** Every checked edit holds AECP's next record in its ring until `AECP_PACE_MS` after it (`aecp_mbx.h`), so R4L and txL take at most one a pace ([`paced_rows.py`](../../tb/verilator/ctrl_service_budget/paced_rows.py)). The pace is 8 ms, the smallest that held txL before the merge of #810's `084cf7a8`: txL was 39.61 ms there, and R4L, its sixteen commands fifteen paces apart, 187.91 ms within the 240 ms response time its bound now is ([#894's ruling of 2026-11-13 on round 5](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6848507008)). At the merged costs no pace up to the ruling's 13 ms holds txL: 47.96 ms at 7 ms, 47.25 at 8 and 9, 45.67 at 10, and 43.57 from 11 to 13, where R4L passes 240 ms from 12 (248.26). With ACMP's item itemised (#908, below) none does either: 47.29 at 7, 46.58 at 8, 44.51 at 9 and 10, and 42.96 from 11 to 13. So `paced_rows.choice` finds none, `paced_rows.statements` names that, and the flip check refuses the tree on txL's row. The load is 0.508 at the pin and 0.680 with every notice the largest legal one, within 0.70 (0.470 and 0.637 before the merge).
 
 At 8x8/2if the size fixture's image, at the merge of #810's `084cf7a8`, is 125,200 B of rom, 59.0 RAMB36, and the platform's 60.0: the ledger names both there, the fixture's at the 59.0 of the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2, and the platform's within its cap of 60.5 ([section 5](#5-fit)). The owed-notice queue is compiled out where `AECP_MBX_OWED_SLOTS` is 0. At 1x1/1if the size fixture's image is 110,400 B of rom and 55,152 B of sram, 40.5 RAMB36, its 552 B slots included.
 
@@ -2407,7 +2408,24 @@ On this branch's head before the cut, `ccb47e39`, that pass is 18,881 cycles, an
 - **The rest is the data cache's.** The pass commits the same instructions at `2cc852fa` and `da1869a3` (2,034 and 1,991) and 8 more fetch refills.
   - The store's own functions grew 1,440 cycles: `nvm_mark`, `nvm_publish`, the new `nvm_open_set` and `ctrl_app_aecp_store_words`.
   - The rest is SRP's bind on unchanged instruction counts: the sink's copy (`forward`) by 1,100 cycles on 131 instructions, `deliver` by 863 on 367, `srp_mbx_bind` by 523, `snapshot` by 399.
-- **The mechanism** is where the data cache ([section 9](#9-the-cpus-data-cache): 8 KiB, direct-mapped, 64-byte lines) puts the store's state. KLJ3 grew it, `nvm_store.c`'s `nvm`, from 296 to 552 B. On both images after the merge its nine lines fall on the sets of SRP's state's first nine, its interfaces' own state, which every pass's polls read beside the store's status: sets 68 to 76 at `da1869a3`, 84 to 92 at `ccb47e39`. At `2cc852fa` they shared three.
+- **The mechanism** is where the data cache ([section 9](#9-the-cpus-data-cache): 8 KiB, direct-mapped, 64-byte lines) puts the store's state. KLJ3 grew it, `nvm_store.c`'s `nvm`, from 296 to 552 B. On both images after the merge its nine lines fall on the sets of SRP's state's first nine: sets 68 to 76 at `da1869a3`, 84 to 92 at `ccb47e39`. At `2cc852fa` they shared three. Those lines hold what every pass's polls read beside the store's status: SRP's interface and its fields ahead of its two frame buffers, its first 300 B at one interface.
+
+**The cut, tried** (#908, lever c).
+Since the growth is the data cache's, the cut tried was where the cache puts the store's state: addresses alone, so no behaviour changes.
+On `acmp-cmd`, the heaviest leg, and on the groups each placement moved:
+
+| Placement | Heaviest base, cycles | What else it moved |
+|---|---:|---|
+| None (the head) | 18,881 (200 us) | |
+| SRP's state, then the store's, first in `.bss` | 14,514 (155 us) | THE RETRY's rounds over their stated cost: of two notices up to 69,678 cycles against 59,500, of one up to 37,788 against 34,000; AECP's item up to 21,530 against 21,000 |
+| The store's state alone first | 14,545 (155 us) | AECP's item up to 21,634 against 21,000, where the head's most is 17,913 |
+| No object moved; the store's per-pass fields last in its state | 17,878 (190 us) | |
+
+- **Moving the store's state first moves AECP's data, and the conflict goes with it.** The loop schedules THE RETRY by `AECP_ROUND_COLD_US` and `AECP_NOTICE_US` (`aecp_mbx.c`), so restating them would change what a pass admits, a behaviour change. At an AECP item of 230 us the last queued notice is 125.87 ms even at a base of 155 us.
+- **Moving only the store's fields** keeps every other address, but the bind still finds the store's dirty set on SRP's lines.
+- None of the three is taken. The first was committed and is reverted.
+
+So at 1x1/1if the rows are lever (a)'s: txL 46.58 ms at the 8 ms pace and over 40 at every pace to 13 ms (42.96 at 11), and the last queued notice 135.64 ms. Both are over their bounds, and the flip check refuses 1x1/1if (#894).
 
 ### What is left
 
