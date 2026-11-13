@@ -176,8 +176,20 @@ OUTSIDE = {
                                            "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
                                            "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "
                                            "its own compiles build the boot SoC's Verilator model",
+    "tb/verilator/ctrl_split_boot/plat_ledger.py": "the platform image's ledger gate (#665), which no hosted job can "
+                                                   "run (the CPU budget harness's prerequisites): build.flash_map "
+                                                   "delegates map images to ctrl_srp_image.py; it delegates every "
+                                                   "platform compile of the firmware to ctrl_plat_image.py, unchanged, "
+                                                   "and the runtime to runtime_ssp.py; it compiles nothing itself",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
+    "scripts/nvm_layout3.py": "reads the split placement's record space from the F1 store's nvm_layout3.h (#823); "
+                              "it compiles nothing",
+    "scripts/nvm_klj3.py": "the split placement's KLJ3 reference codec (#823), whose bytes the F1 store's host "
+                           "suite compares; it compiles nothing",
+    "scripts/check_nvm_klj3.py": "grades the KLJ3 reference codec against its rules (#823); it compiles nothing",
+    "scripts/nvm_format_32x32_tables.py": "the 32x32 format page's tables and the file:line anchors it cites in the "
+                                          "F1 store (#823); it compiles nothing",
     "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
                                                    "SoC's csr.csv (#665); its self-test compiles a probe of the "
                                                    "headers it writes with the host compiler, no firmware or stack "
@@ -269,6 +281,9 @@ OUTSIDE = {
                                             "srp_wire_compare.py; it compiles nothing",
     "tests/steps/aecp_owed_notice_steps.py": "the owed-notice feature's steps (#894): pins its model's rules to the "
                                              "text of aecp.c, aecp.h and aecp_mbx.h; it compiles nothing",
+    # the split build's SRP transmit path (#867, make -C tb/verilator/milan_dp srptx): its grader
+    "tb/verilator/milan_dp/srptx_grade.py": "grades the split half's SRP transmit captures (#867), MSRP through "
+                                            "srp_wire_compare.py; it compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
@@ -296,6 +311,11 @@ SUITES = {
     "tb/verilator/milan_dp/twin_fw.py": "the two-placement simulation's split firmware (#665, make -C "
                                         "tb/verilator/milan_dp twin): the platform composition plat_arms.arm_platboot "
                                         "lists, and lwSRP, compiled for the host with CTRL_PLAT_MAAP_PREFERRED defined",
+    "tb/verilator/milan_dp/srptx_mutants.py": "the SRP transmit path's planted defects (#867, make -C "
+                                              "tb/verilator/milan_dp srptx-mutants): twin_fw.py's composition with "
+                                              "one copy of srp_mbx.c or lwSRP's mrp_mad.c planted (--replace), or "
+                                              "the split half with milan_datapath.sv planted, in a scratch "
+                                              "directory it removes",
 }
 
 

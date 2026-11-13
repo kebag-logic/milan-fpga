@@ -311,8 +311,8 @@ extern "C" {
 // build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
 // a pass given whole it carries (#894).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
-#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 955u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 405u : 1215u)
+#define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 430u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.

@@ -8,7 +8,8 @@ static uint16_t tx_count(uint32_t reg)
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
 }
 
-// A completion is kept for a notice's last frame alone (fan_end): only a counter notice waits on one.
+// A completion is kept for a notice's last frame alone, of a walk that reached its last recipient (fan_end): only a
+// counter notice waits on one.
 static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len, uint32_t cookie)
 {
 	(void)ctx;
@@ -24,12 +25,16 @@ static enum aecp_fan fan(void *ctx, unsigned interface, const uint8_t *frame, si
 	return status == MBX_STATUS_OK ? AECP_FAN_TAKEN : status == MBX_STATUS_LOST ? AECP_FAN_LOST : AECP_FAN_REFUSED;
 }
 
-// What the last fan call started, and the completion of the notice it ended: none for a last frame not committed.
-static enum aecp_fan fan_end(void *ctx, uint32_t cookie)
+// What the last fan call started, and the completion of the notice it ended: none for a last frame not committed,
+// and none for a walk left owed at a recipient, whose notice is not yet delivered (#665; Milan v1.2 5.4.5.2).
+static enum aecp_fan fan_end(void *ctx, uint32_t cookie, bool whole)
 {
 	struct aecp_mbx *m = ctx;
 	if (!mbx_tx_commit(MBX_CH_AECP)) {
 		return AECP_FAN_LOST;
+	}
+	if (!whole) {
+		return AECP_FAN_TAKEN;
 	}
 	if (m->completion_count == AECP_MBX_COMPLETIONS) {
 		return AECP_FAN_REFUSED;

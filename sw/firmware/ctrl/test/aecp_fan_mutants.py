@@ -3,8 +3,9 @@
 """aecp_fan_mutants.py - the AECP campaign's planted defects in a notice's fan-out (#665, aecp.c's fan_out and address):
 the notice built once, each recipient's frame addressed to it alone (its MAC, its interface's, its entity ID and its
 own sequence_id), the used registrations walked by their mask from the recipient a stopped notice resumes at, the
-one that asked left out, and a frame the fan port reports lost sent again to its recipient at the sequence_id it did
-not have (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1). aecp_mutants.py appends this table to its own,
+one that asked left out, a frame the fan port reports lost sent again to its recipient at the sequence_id it did
+not have, a refused one sent to its own recipient and no other again, and no completion kept for a walk left owed
+(IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1, 5.4.5.2). aecp_mutants.py appends this table to its own,
 each row its defect()'s arguments: the name, the file in aecp/, the text, its replacement, and each test that must
 refuse it with its words.
 """
@@ -18,6 +19,9 @@ RESUMED = 'the notice stopped partway is sent whole once it resumes'
 LOST = 'Core.ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain'
 ONCE = 'was lost is delivered once to each recipient, in order'
 AGAIN = 'was lost carries its recipient\'s addresses and sequence'
+KEPT = 'keeps no completion for the walk left owed and one when its resumed walk ends'
+REFUSED = 'Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain'
+REFUSED_ONCE = 'is delivered once to each recipient, in order'
 #: The walk of an interface's used registrations.
 SLOTS = 'for (unsigned slots = (unsigned)a->used[i] >> (k % AECP_REGISTRATIONS); slots != 0u;'
 
@@ -73,4 +77,19 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      '\t\t\t\theld = k;\n',
      '\t\t\t\theld = k + 1u;\n',
      (LOST, ONCE)),
+    # a refusal is not a loss (#665): the frame before it was delivered, so resuming at its recipient sends it the
+    # notice twice at one sequence_id; for a completion the queue had no room for, and for a ring full mid-walk
+    ('fan-end-refused-taken-as-lost', 'aecp.c',
+     '\t\tlost = lost || end == AECP_FAN_LOST;\n',
+     '\t\tlost = lost || end != AECP_FAN_TAKEN;\n',
+     (REFUSED, REFUSED_ONCE)),
+    ('refused-mid-fan-after-a-taken-frame-taken-as-lost', 'aecp.c',
+     '\t\t\t\tlost = taken == AECP_FAN_LOST;\n',
+     '\t\t\t\tlost = taken == AECP_FAN_LOST || held_r != NULL;\n',
+     (REFUSED, REFUSED_ONCE)),
+    # a walk left owed at a recipient keeps no completion (#665; Milan v1.2 5.4.5.2): the earlier rule kept one
+    ('notice-completion-kept-for-a-walk-left-owed', 'aecp.c',
+     'a->ports->fan_end(a->ports->ctx, a->tx_cookie, !owed);',
+     'a->ports->fan_end(a->ports->ctx, a->tx_cookie, true);',
+     (LOST, KEPT)),
 )

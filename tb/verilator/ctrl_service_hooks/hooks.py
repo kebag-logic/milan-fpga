@@ -183,14 +183,15 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'the commands of one controller are answered in their arrival order, the owed responses first in first out '
          '(MAILBOX_SPLIT.md, ACMP service latency)',
          'acmp_order',
-         late('acmp/acmp_mbx.c', '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}', 'hooks-late-acmp',
+         late('acmp/acmp_mbx.c', '\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n', 'hooks-late-acmp',
               'H-ACMP', 'hooks-late-acmp.get_rx_state.if0'),
          Plant((('acmp/acmp_mbx.c',
-                 '\tstruct acmp_mbx *m = ctx;\n\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n}',
+                 '\tstruct acmp_mbx *m = ctx;\n\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n'
+                 '\t\treturn;\n\t}\n',
                  '\tstruct acmp_mbx *m = ctx;\n\tstatic struct mbx_frame held;\n\tstatic bool holding;\n'
                  '\tif (!holding) {\n\t\theld = *f;\n\t\tholding = true;\n\t\treturn;\n\t}\n'
-                 '\tacmp_rx(&m->acmp, f->interface, f->bytes, f->len);\n\tholding = false;\n'
-                 '\tacmp_rx(&m->acmp, held.interface, held.bytes, held.len);\n}'),),
+                 '\tholding = false;\n\tif (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {\n'
+                 '\t\t(void)acmp_rx(&m->acmp, held.interface, held.bytes, held.len);\n\t\treturn;\n\t}\n'),),
                'hooks-order-acmp', 'ORDER H-ACMP')),
     Hook('H-AECP', ('aecp',), 'IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4',
          'every face value a response promises is committed before that response (ARCHITECTURE_HW_SW_SPLIT.md '

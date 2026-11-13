@@ -611,6 +611,61 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
     return 1 if misses and not args.record_budget_findings else 0
 
 
+def reference_run(args: argparse.Namespace, build_dir: Path, shape: str, n_if: int) -> tuple[list, list]:
+    """A reference control's other measurement (build.REFERENCE_CONTROLS): its group on this tree's unplanted image, at
+    the same point, variant and core, built in <build-dir>/reference (reused there with --reuse-build, its recorded
+    log graded again with --regrade); that run's results and refusals, a reused build that is not that image one."""
+    import build as builder
+    import scenario
+    where = build_dir / 'reference'
+    if args.reuse_build or args.regrade:
+        try:
+            spec = builder.reused(where)
+        except (RuntimeError, OSError, KeyError, ValueError) as error:
+            return [], [f'the reference build: {error}']
+        if built_as(spec) != (shape, n_if, args.cpu_regions, 'none', args.variant, args.fetch_l1, args.xip):
+            return [], ["the reference build is not this point's unplanted image"]
+    else:
+        spec = builder.build(where, shape, n_if, mutation='none', variant=args.variant,
+                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+    control = builder.MUTATIONS[args.mutation][3]
+    groups = [g for g in all_groups(scenario.point(args.point, spec), spec) if g.name == control]
+    out = where / 'results'
+    out.mkdir(parents=True, exist_ok=True)
+    absent: list[str] = []
+    if args.regrade:
+        groups, logs, absent = recorded(groups, out)
+    else:
+        logs = [run_group(where, out, g, spec.get('flash_image') or '-') for g in groups]
+    results, refusals, _ = graded(groups, logs, spec, out)
+    return results, absent + refusals
+
+
+def reference_verdict(args: argparse.Namespace, results: list[dict], refusals: list,
+                      reference: tuple[list, list]) -> int:
+    """A reference control's exit status (build.REFERENCE_CONTROLS): caught where its group's heaviest instance of
+    its kind on the planted image is dearer than on this tree's unplanted image (reference: that run's results and
+    refusals) by more than poll_items.REFERENCE_MARGIN_PERCENT, with no refusal in either run."""
+    import build as builder
+    import poll_items
+    kind, group = builder.REFERENCE_CONTROLS[args.mutation], builder.MUTATIONS[args.mutation][3]
+
+    def heaviest(graded_: list[dict]) -> int | None:
+        """The group's heaviest instance of the kind in one run's results, or None without exactly one grade."""
+        found = [r['passes']['polls']['heaviest'][kind] for r in graded_ if r['group'] == group]
+        return found[0] if len(found) == 1 else None
+    planted, unplanted = heaviest(results), heaviest(reference[0])
+    margin = poll_items.REFERENCE_MARGIN_PERCENT
+    over = planted is not None and unplanted is not None and planted * 100 > unplanted * (100 + margin)
+    caught = over and not refusals and not reference[1]
+    print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {group}\'s heaviest {kind} '
+          f'{"none" if planted is None else f"{planted:,}"} CPU cycles planted against '
+          f'{"none" if unplanted is None else f"{unplanted:,}"} on this image unplanted, '
+          f'{"more" if over else "not more"} than {margin} % dearer; {len(refusals)} refusal(s) planted, '
+          f'{len(reference[1])} unplanted')
+    return 0 if caught else 1
+
+
 def all_groups(point: object, spec: dict) -> list:
     """Every group of a point's build; the answering-later variant has only the retried notice's (notice_window)."""
     import notice_window
@@ -725,6 +780,8 @@ def main() -> int:
     for line in stated:
         print('STATED', line)
     import build as builder
+    if args.mutation in builder.REFERENCE_CONTROLS:
+        return reference_verdict(args, results, refusals, reference_run(args, build_dir, shape, n_if))
     return verdict(args, groups, refusals, misses, shares,
                    late + notice_misses(results, n_if)
                    + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))

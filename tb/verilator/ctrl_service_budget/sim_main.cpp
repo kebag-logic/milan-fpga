@@ -83,6 +83,9 @@ struct Step { std::string op; std::vector<std::string> args; };
 class Bench {
 public:
     Bench(const char* script, const char* flash_image) : flash_(0, 0) {
+        // The store's journal is the flash map's (budget_config.hpp), the KLJ3 journal at the split placement
+        // (#823): the device refuses a write outside it, and its reads are the FLASHRD runs below.
+        flash_.journal(journal_offset, journal_size);
         if (flash_image[0] != '-') flash_.load(flash_image, 0);
         if (const char* journal = std::getenv("BUDGET_JOURNAL_IN")) flash_.load(journal, journal_offset);
         std::ifstream input(script);
@@ -268,7 +271,8 @@ private:
         const auto command = flash_.command();
         const auto address = flash_.address();
         if (command == 0x05) std::printf("FLASHPOLL %llu\n", ull(sys_));
-        if ((command != 0x03 && command != 0x0b) || address < journal_base || address >= journal_end) return;
+        if ((command != 0x03 && command != 0x0b) || address < journal_offset || address >= journal_offset + journal_size)
+            return;
         if (address < read_start_ || address > read_next_ || sys_ - read_last_ > read_gap) {
             flush_reads();
             read_first_ = sys_;
@@ -642,7 +646,6 @@ private:
     std::uint64_t flash_write_at_ = 0;  // the last program or erase the device took
     // The journal's run of reads in progress (flash_closed): its first and last read, its first byte and the
     // byte after its last.
-    static constexpr std::uint32_t journal_base = 0xee0000, journal_end = 0xf00000;
     static constexpr std::uint64_t read_gap = sys_hz / 1000;
     mutable std::uint64_t read_first_ = 0, read_last_ = 0;
     mutable std::uint32_t read_start_ = 0, read_next_ = 0;

@@ -7,9 +7,11 @@
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
-#                    six planted RTL defects (one per leaf, one in the
-#                    filter's tuple and one in the publication block), each
-#                    of which must redden the check it names (mutants.py --quick)
+#                    twelve planted RTL defects (one per leaf, one in the
+#                    skeleton, one in the filter's tuple, one in the
+#                    publication block, one in the face block and one per
+#                    timing cut of #870), each of which must redden the check
+#                    it names (mutants.py --quick)
 #   make census    - the publication census over milan_datapath as the pinned
 #                    sv2v and Yosys elaborate it (both on PATH, or named by
 #                    $SV2V and $YOSYS) in every shape the builder builds, its
@@ -42,7 +44,9 @@ CONTRACT_INC := $(abspath $(ROOT))/sw/firmware/ctrl/mbx
 
 # -Werror-USERERROR: an elaboration $error is a failed build, never a warning.
 # -Werror-PINMISSING / -Werror-UNDRIVEN: a dropped binding is refused by name.
-VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
+# -GBENCH_P=1: tb_mbx_top's noise on the host port between requests and its
+# receive-side probes (#870); the out-of-context area recipe builds it without
+VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) -GBENCH_P=1 \
          -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
          -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CONTRACT_INC)"
@@ -150,9 +154,10 @@ run-if2: if2-gen | stack-pin
 	./$(IF2)/Vmbx_model
 
 # The record mover (#665, owner decision 2026-10-29) is its own top: the bench
-# answers its host port and its DMA port with models, so no mailbox is built.
+# answers its host port and its DMA port with models, so no mailbox is built,
+# and tb_mbx_top's BENCH_P is no parameter of its.
 DMA_RTL    = $(RTL_DIR)/KL_mbx_pkg.sv $(RTL_DIR)/KL_mbx_dma.sv
-DMA_VFLAGS = $(subst --top-module $(TOP),--top-module KL_mbx_dma,$(VFLAGS))
+DMA_VFLAGS = $(subst -GBENCH_P=1,,$(subst --top-module $(TOP),--top-module KL_mbx_dma,$(VFLAGS)))
 
 run-dma:
 	$(VERILATOR) $(DMA_VFLAGS) --Mdir obj_dma $(DMA_RTL) dma_main.cpp -o Vmbx_dma

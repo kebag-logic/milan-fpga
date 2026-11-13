@@ -87,7 +87,6 @@ timer shlan_timer_tick
 nvm_store nvm_store_service
 nvm_store nvm_now
 nvm_flash_litespi ls_now_us
-nvm_store nvm_any
 nvm_store nvm_publish
 adp_mbx on_event
 acmp_mbx on_event
@@ -111,7 +110,6 @@ ctrl_mem forward
 acmp respond
 acmp build
 acmp wire_put_be
-libcompiler_rt.a:lshrdi3 __lshrdi3
 acmp transmit
 acmp publish
 acmp p_send

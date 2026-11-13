@@ -5,9 +5,13 @@
 For one shape, every container the tests load or compare a slot with, every
 payload set a restore must leave, and the shape's facts, written into a
 directory the test binary reads (nvm_suite.hpp, "the fixture"). Every byte
-comes from scripts/nvm_klj2.py (klj2_assemble, frame_record, klj2_decode),
-the refusal table of the shipping writer's suite and the recorded vectors of
-tb/verilator/nvm_backend, never from the C store.
+comes from scripts/nvm_klj3.py (klj3_assemble, frame_record3, klj3_decode):
+the split placement's KLJ3 and layout 3 (#823). The refusal table is the
+shipping writer's suite's, rule for rule, in that framing, with the rules
+layout 3 adds. The all-fabric placement's KLJ2 container for the shape, the
+one the store must refuse, comes from scripts/nvm_klj2.py; the recorded
+vectors' records and offsets from tb/verilator/nvm_backend. None of it comes
+from the C store.
 
 An image is named by a recipe, which the tests spell:
 
@@ -34,14 +38,17 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "sw/firmware/nvm_hosttest"))
 
-from nvm_contract import KLJ2_HDR, REC_HDR, VD_LEN, VD_OK               # noqa: E402
-from nvm_klj2 import crc16_ccitt, erased_record, frame_record, rid_of_key  # noqa: E402
-from nvm_shape import inventory                                         # noqa: E402
-import test_nvm_firmware as hosttest                                    # noqa: E402
+from nvm_contract import KLJ2_HDR, VD_LEN, VD_OK, Donor, Ident          # noqa: E402
+from nvm_klj2 import crc16_ccitt, frame_record, key_of_id, klj2_assemble, payload_bytes  # noqa: E402
+from nvm_klj3 import (LAYOUT, REC_HDR3, erased_record3, frame_record3,  # noqa: E402
+                      inventory3, rid_of_key3)
+from nvm_shape import binding_base, inventory, layout_version          # noqa: E402
 
-from nvm_bench import SLOT, Bench                                       # noqa: E402
+from nvm_bench import JOURNAL, LEGACY, LEGACY_SLOT, SLOT, Bench        # noqa: E402
+from flash_map import literal                                           # noqa: E402
+
+REC_HDR = REC_HDR3
 
 TABLE_DIR = ROOT / "tb/verilator/nvm_backend"
 #: Sequences the authority checks meet the restart at (test_nvm_write.cpp kAuthSeqs).
@@ -71,7 +78,7 @@ def value(b: Bench, rid: int, seed: int) -> bytes:
 
 def _rows(b: Bench) -> list[tuple]:
     """The shape's inventory rows with an id."""
-    return [row for row in inventory(b.shape, b.donor.base) if row[2] is not None]
+    return [row for row in inventory3(b.shape) if row[2] is not None]
 
 
 def changed_frames(b: Bench, seed: int) -> tuple[dict[int, bytes], dict[int, bytes]]:
@@ -82,7 +89,7 @@ def changed_frames(b: Bench, seed: int) -> tuple[dict[int, bytes], dict[int, byt
             seen.add(g)
             firsts[rid] = bytes((rid * 29 + j * 5 + seed) & 0xFF for j in range(plen))
     frames = dict(b.frames)
-    frames.update({rid: frame_record(rid, p, b.donor.layout) for rid, p in firsts.items()})
+    frames.update({rid: frame_record3(rid, p) for rid, p in firsts.items()})
     return frames, firsts
 
 
@@ -105,7 +112,7 @@ def frameset(b: Bench, name: str, seed: int | None) -> dict[int, bytes]:
         return changed_frames(b, seed)[0]
     if name in ("one", "erased_one") and seed is not None:
         frames = b.erased_frames() if name == "erased_one" else dict(b.frames)
-        frames[last] = frame_record(last, value(b, last, seed), b.donor.layout)
+        frames[last] = frame_record3(last, value(b, last, seed))
         return frames
     raise ValueError(f"no record set {name!r}")
 
@@ -130,6 +137,87 @@ def image(b: Bench, recipe: str) -> bytes:
     return blob
 
 
+def klj2_container(b: Bench, seq: int) -> bytes:
+    """The all-fabric placement's KLJ2 container of this shape and identity,
+    as the shipping writer would leave it (scripts/nvm_klj2.py, the donor's
+    binding base and layout read from the processor RTL)."""
+    donor = Donor(base=binding_base(), layout=layout_version())
+    frames = {r: frame_record(r, payload_bytes(g, i, r, p), donor.layout)
+              for g, i, r, p, _b in inventory(b.shape, donor.base) if r is not None}
+    return klj2_assemble(frames, donor, Ident(seq=seq, entity_id=b.ident.entity_id,
+                                              model_id=b.ident.model_id))[0]
+
+
+def parity_cases(b: Bench) -> list[tuple[str, bytes]]:
+    """Every refusal of section 6.2 and the erased-record rule, as bytes: the
+    shipping writer suite's table (sw/firmware/nvm_hosttest/test_nvm_firmware.py
+    parity_cases) rule for rule in KLJ3 and layout 3, then the rules #823 adds:
+    a KLJ2 container is the previous format, the reserved header byte is zero,
+    and no id lies past the layout 3 space."""
+    full = b.assemble(b.frames, 3)
+    rids = sorted(b.frames)
+    first, last = rids[0], rids[-1]
+    offs = b.offsets()
+    plen_last = len(b.frames[last]) - REC_HDR
+
+    def with_frames(frames: dict[int, bytes], nrec: int | None = None) -> bytes:
+        """The container for `frames`, its N_REC word overridden when asked."""
+        blob = b.assemble(frames, 3)
+        return patched(blob, 12, struct.pack("<I", nrec)) if nrec is not None else blob
+
+    def id_rewritten(rid: int, new_rid: int) -> dict[int, bytes]:
+        """The golden frames with record `rid` re-framed under `new_rid`, its
+        crc16 recomputed so only the id is wrong."""
+        fr = b.frames[rid]
+        hdr = fr[:4] + struct.pack(">H", new_rid) + fr[6:8]
+        frames = dict(b.frames)
+        frames[rid] = hdr + struct.pack(">H", crc16_ccitt(hdr + fr[REC_HDR:])) + fr[REC_HDR:]
+        return frames
+
+    def reserved_set() -> bytes:
+        """The first record with its reserved header byte set, its crc16 closing."""
+        fr = b.frames[first]
+        hdr = fr[:3] + b"\x01" + fr[4:8]
+        frames = dict(b.frames)
+        frames[first] = hdr + struct.pack(">H", crc16_ccitt(hdr + fr[REC_HDR:])) + fr[REC_HDR:]
+        return b.assemble(frames, 3)
+
+    erased = b.erased_frames()
+    half = dict(b.frames)
+    for rid in rids[::2]:
+        half[rid] = erased[rid]
+    torn_erased = dict(b.frames)
+    torn_erased[last] = erased_record3(plen_last)[:-1] + b"\x00"
+    trunc = dict(b.frames)
+    del trunc[last]
+    return [
+        ("full image", full),
+        ("every record erased", b.assemble(erased, 3)),
+        ("every other record erased", b.assemble(half, 3)),
+        ("bad magic", patched(full, 0, b"KLJ1")),
+        ("major version 2", patched(full, 4, struct.pack("<I", 0x0002_0000))),
+        ("IMG_LEN 43", patched(full, 16, struct.pack("<I", 43))),
+        (f"IMG_LEN {SLOT + 1}", patched(full, 16, struct.pack("<I", SLOT + 1))),
+        ("bad CRC", patched(full, KLJ2_HDR + 1, bytes([full[KLJ2_HDR + 1] ^ 1]), False)),
+        ("foreign entity", patched(full, 20, struct.pack("<I", 0xDEAD_0001))),
+        ("foreign model", patched(full, 28, struct.pack("<I", 0xDEAD_0002))),
+        ("record layout off", patched(full, 36, struct.pack("<I", LAYOUT.layout + 1))),
+        ("record magic", patched(full, KLJ2_HDR + offs[first], b"\x17\x23")),
+        ("unknown record id", with_frames(id_rewritten(last, last + 1))),
+        ("duplicate record id", with_frames(id_rewritten(last, last - 1))),
+        ("truncated by one record", with_frames(trunc)),
+        ("N_REC one too many", with_frames(b.frames, len(rids) + 1)),
+        ("N_REC one too few", with_frames(b.frames, len(rids) - 1)),
+        ("erased header, live payload", b.assemble(torn_erased, 3)),
+        ("erased span short by one", with_frames({r: erased[r] for r in rids[:-1]})),
+        ("the shipping writer's KLJ2 container", klj2_container(b, 3)),
+        ("a KLJ2 magic over KLJ3 bytes", patched(full, 0, b"KLJ2")),
+        ("the reserved header byte set", reserved_set()),
+        (f"record id {LAYOUT.id_space}, past the layout 3 space",
+         with_frames(id_rewritten(last, LAYOUT.id_space))),
+    ]
+
+
 def parity_extra(b: Bench) -> list[tuple[str, bytes]]:
     """Refusals the shipping suite's table does not carry: a framed record
     whose length runs past the record area, an extra record past the shape's
@@ -138,10 +226,10 @@ def parity_extra(b: Bench) -> list[tuple[str, bytes]]:
     last = max(b.frames)
     off = KLJ2_HDR + b.offsets()[last]
     fr = b.frames[last]
-    hdr = fr[:4] + struct.pack(">H", 0x4000)
-    over = full[:off] + hdr + struct.pack(">H", crc16_ccitt(hdr + fr[REC_HDR:])) + full[off + 8:]
+    hdr = fr[:6] + struct.pack(">H", 0x4000)
+    over = full[:off] + hdr + struct.pack(">H", crc16_ccitt(hdr + fr[REC_HDR:])) + full[off + REC_HDR:]
     extra = dict(b.frames)
-    extra[0xFF] = frame_record(0xFF, b"\x01\x02\x03\x04", b.donor.layout)
+    extra[last + 1] = frame_record3(last + 1, b"\x01\x02\x03\x04")
     body = full[KLJ2_HDR:-4] + bytes(100)
     head = full[:16] + struct.pack("<I", KLJ2_HDR + len(body) + 4) + full[20:KLJ2_HDR]
     return [("framed record overruns the area", reseal(over)),
@@ -149,9 +237,11 @@ def parity_extra(b: Bench) -> list[tuple[str, bytes]]:
             ("longer than the stage, CRC closing", reseal(head + body + bytes(4)))]
 
 
-def patched(blob: bytes, at: int, new: bytes) -> bytes:
-    """`blob` with `new` written at `at`, its trailer recomputed."""
-    return reseal(blob[:at] + new + blob[at + len(new):])
+def patched(blob: bytes, at: int, new: bytes, seal: bool = True) -> bytes:
+    """`blob` with `new` written at `at`, its trailer recomputed unless the
+    corruption under test is the trailer itself."""
+    out = blob[:at] + new + blob[at + len(new):]
+    return reseal(out) if seal else out
 
 
 def long_container(b: Bench) -> bytes:
@@ -170,16 +260,16 @@ def codec_cases(b: Bench) -> list[tuple[str, bytes, bool]]:
     offs = b.offsets()
     erased = b.erased_frames()
     beyond = dict(b.frames)
-    beyond[0xFE] = erased_record(0)
+    beyond[last + 1] = erased_record3(0)
     cut = b.assemble({**b.frames, last: erased[last]}, 3)
     cut_body = cut[KLJ2_HDR:-4][:-8]
     cut = reseal(cut[:16] + struct.pack("<I", KLJ2_HDR + len(cut_body) + 4) + cut[20:KLJ2_HDR] + cut_body + bytes(4))
     at_first = KLJ2_HDR + offs[first]
-    short = {**b.frames, last: frame_record(last, b.frames[last][REC_HDR:-1], b.donor.layout)}
+    short = {**b.frames, last: frame_record3(last, b.frames[last][REC_HDR:-1])}
     long = long_container(b)
     at_last = KLJ2_HDR + offs[last]
     stage = len(full) + REC_HDR
-    overrun = long[:at_last + 4] + struct.pack(">H", stage + 8 - (at_last + REC_HDR)) + long[at_last + 6:]
+    overrun = long[:at_last + 6] + struct.pack(">H", stage + 8 - (at_last + REC_HDR)) + long[at_last + 8:]
     return [("an erased header past the shape's last record", b.assemble(beyond, 3), False),
             ("the last record erased, its span cut short of its payload", cut, False),
             ("a record of another layout_version", patched(full, at_first + 2, bytes([full[at_first + 2] ^ 1])), False),
@@ -193,19 +283,19 @@ def codec_cases(b: Bench) -> list[tuple[str, bytes, bool]]:
 
 
 def parity(b: Bench) -> list[tuple[str, bytes]]:
-    """The verdict-parity table: the shipping writer suite's refusals and parity_extra."""
-    return hosttest.parity_cases(b) + parity_extra(b)
+    """The verdict-parity table: the shipping writer suite's refusals in KLJ3, and parity_extra."""
+    return parity_cases(b) + parity_extra(b)
 
 
 def verdict(b: Bench, blob: bytes) -> int:
-    """klj2_decode's verdict on a slot holding `blob`: VD_LEN for one no slot can hold."""
+    """klj3_decode's verdict on a slot holding `blob`: VD_LEN for one no slot can hold."""
     return b.decode(blob)[0] if len(blob) <= SLOT else VD_LEN
 
 
 def rid_payloads(b: Bench, blob: bytes) -> dict[int, bytes]:
-    """record id -> payload of every FRAMED record klj2_decode applies."""
+    """record id -> payload of every FRAMED record klj3_decode applies."""
     vd, applied = b.decode(blob)
-    return {rid_of_key(k, b.donor.base): v for k, v in applied.items()} if vd == VD_OK else {}
+    return {rid_of_key3(k): v for k, v in applied.items()} if vd == VD_OK else {}
 
 
 def payload_set(b: Bench, name: str) -> dict[int, bytes]:
@@ -218,7 +308,7 @@ def payload_set(b: Bench, name: str) -> dict[int, bytes]:
 def main_images() -> list[str]:
     """Every image test_nvm_boot.cpp and test_nvm_write.cpp load or compare with."""
     names = ["erased@0", "golden@5", "golden@6", "half@3", "golden@9", "golden@a~43", "golden@9~49", "golden@3",
-             "golden@4/major1", "golden@4/major3", "changed41@4", "erased@1", "changed5c@6", "golden@5/foreign",
+             "golden@4/major2", "golden@4/major4", "changed41@4", "erased@1", "changed5c@6", "golden@5/foreign",
              "erased_one7@1", "changed21@6"]
     names += [f"golden@{a:x}" for a, _ in NEWER_WINS] + [f"changed2b@{b:x}" for _, b in NEWER_WINS]
     names += [f"golden@{a:x}" for a, _ in FLIP_PAIRS] + [f"changed37@{b:x}" for _, b in FLIP_PAIRS]
@@ -272,9 +362,9 @@ class Writer:
         self.lines.append(f"blob {name} {file}")
 
     def payloads(self, name: str, payloads: dict[int, bytes]) -> None:
-        """record id -> payload, as [id u8][length u16 LE][payload] records."""
+        """record id -> payload, as [id u16 LE][length u16 LE][payload] records."""
         file = f"p{len(self.lines):04d}.bin"
-        (self.out / file).write_bytes(b"".join(bytes([rid]) + struct.pack("<H", len(p)) + p
+        (self.out / file).write_bytes(b"".join(struct.pack("<HH", rid, len(p)) + p
                                                for rid, p in sorted(payloads.items())))
         self.lines.append(f"payloads {name} {file}")
 
@@ -284,15 +374,30 @@ class Writer:
 
 
 def facts(w: Writer, b: Bench) -> None:
-    """What every test reads about the shape."""
+    """What every test reads about the shape, and the NAME block's ends under
+    layout 3 as the reference reads them from nvm_layout3.h."""
     rids = sorted(b.frames)
+    names = sorted(rid for g, _i, rid, _p, _b in _rows(b) if g == "NAME")
     w.list("rids", rids)
     w.list("plens", [len(b.frames[r]) - REC_HDR for r in rids])
     w.list("binding_ids", binding_ids(b))
     w.list("d3_ids", sorted(set(rids) - set(binding_ids(b))))
     w.num("img_len", len(b.assemble(b.frames, 0)))
     w.num("max_plen", max(len(fr) for fr in b.frames.values()) - REC_HDR)
+    w.num("rec_hdr", REC_HDR)
     w.num("clock_hz", b.clock_hz)
+    w.num("n_names", len(names))
+    w.list("name_ids", names[:1] + names[-1:])
+    w.num("name_block_first", LAYOUT.block("NAME").base)
+    w.num("name_block_last", LAYOUT.block("NAME").last)
+    w.num("id_space", LAYOUT.id_space)
+    # the flash map as the SoC source holds it (FLASHBOOT_RESERVED), not as the
+    # store's macros derive it: today's two slots and the store's own
+    w.num("legacy_a", LEGACY["offset"])
+    w.num("legacy_b", LEGACY["offset"] + LEGACY_SLOT)
+    w.num("journal_a", JOURNAL["offset"])
+    w.num("journal_b", JOURNAL["offset"] + SLOT)
+    w.num("erase_block", literal("FLASH_ERASE_BLOCK"))
 
 
 def write_fixture(b: Bench, out: Path) -> Path:
@@ -318,12 +423,41 @@ def write_fixture(b: Bench, out: Path) -> Path:
     w.num("long_crc_verdict", verdict(b, codec[7][1]))
     for name in PAYLOAD_SETS + ("changed5c_firsts",):
         w.payloads(name, payload_set(b, name))
+    # today's journal: the shipping writer's KLJ2 container, refused VD_VER
+    # wherever the store meets it (#823 decision 2)
+    w.blob("klj2@5", klj2_container(b, 5))
+    w.num("klj2_verdict", verdict(b, klj2_container(b, 5)))
+    w.close()
+    return out
+
+
+def write_capacity_fixture(b: Bench, out: Path) -> Path:
+    """The fixture of test_nvm_capacity.cpp: the shape built with the layout 3
+    NAME block full, so its last name is the block's last id; its committed
+    container, and the same container with one record past the block."""
+    w = Writer(out)
+    facts(w, b)
+    golden = image(b, "golden@1")
+    w.blob("golden@1", golden)
+    w.blob("golden@3", image(b, "golden@3"))
+    w.payloads("golden", rid_payloads(b, golden))
+    last = max(b.frames)
+    past = dict(b.frames)
+    past[last + 1] = frame_record3(last + 1, bytes(64))
+    w.blob("one_past@1", b.assemble(past, 1))
+    w.num("one_past_verdict", verdict(b, b.assemble(past, 1)))
     w.close()
     return out
 
 
 def write_vector_fixture(vb: Bench, out: Path) -> Path:
-    """The fixture of test_nvm_vector.cpp: the vector bench's images and the recorded table."""
+    """The fixture of test_nvm_vector.cpp: the vector bench's images and the
+    recorded vector's record set in layout 3. tb/verilator/nvm_backend records
+    the all-fabric RTL's KLJ2 container of the shape, and this store writes
+    KLJ3 (#823), so the test holds the store to the same records with the same
+    payload lengths: each recorded layout 2 id is read as its group and index
+    (the donor's allocation) and given its layout 3 id. The offsets and the
+    CRC-32 are the reference's KLJ3 container's."""
     tab = table(vb.stem)
     if tab is None:
         raise ValueError(f"{vb.stem}: tb/verilator/nvm_backend records no vector")
@@ -334,13 +468,16 @@ def write_vector_fixture(vb: Bench, out: Path) -> Path:
     w.blob("frames@7", want)
     w.payloads("frames", rid_payloads(vb, want))
     head, rows = tab["head"], tab["rows"]
-    w.num("vector_imglen", int(head["imglen"]))
+    base = binding_base()
+    plen3 = {rid_of_key3(key_of_id(rid, base)): rows[rid][2] for rid in rows}
+    ids = sorted(plen3)
+    offs = vb.offsets()
+    w.num("vector_imglen", len(want))
     w.num("vector_nrec", int(head["nrec"]))
-    w.num("vector_crc32", int(head["crc32"], 16))
-    ids = sorted(rows)
+    w.num("vector_crc32", zlib.crc32(want[:-4]) & 0xFFFF_FFFF)
     w.list("vector_rows_rid", ids)
-    w.list("vector_rows_off", [rows[r][0] for r in ids])
-    w.list("vector_rows_flen", [rows[r][1] for r in ids])
-    w.list("vector_rows_plen", [rows[r][2] for r in ids])
+    w.list("vector_rows_off", [offs.get(r, -1) for r in ids])
+    w.list("vector_rows_flen", [REC_HDR + plen3[r] for r in ids])
+    w.list("vector_rows_plen", [plen3[r] for r in ids])
     w.close()
     return out

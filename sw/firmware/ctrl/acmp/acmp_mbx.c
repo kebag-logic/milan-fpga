@@ -105,10 +105,26 @@ bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const stru
 	return acmp_init(&m->acmp, &config, &m->ports, env);
 }
 
+// THE KEPT COMMAND (acmp_mbx.h). A record the core declines is kept whole: the
+// driver refuses a record longer than the channel's MBX_CH_ACMP_MAX_FRAME_BYTES
+// (mbx_rx_take), which is the buffer's size.
 static void on_frame(void *ctx, const struct mbx_frame *f)
 {
 	struct acmp_mbx *m = ctx;
-	acmp_rx(&m->acmp, f->interface, f->bytes, f->len);
+	if (acmp_rx(&m->acmp, f->interface, f->bytes, f->len)) {
+		return;
+	}
+	memcpy(m->kept.frame, f->bytes, f->len);
+	m->kept.len = f->len;
+	m->kept.interface = f->interface;
+}
+
+// While a command is kept no later record of the acmp ring is taken, so the
+// commands keep their arrival order (tsn-c-stack ACMP-12).
+static bool on_rx_ready(void *ctx)
+{
+	const struct acmp_mbx *m = ctx;
+	return m->kept.len == 0u;
 }
 
 static void on_event(void *ctx, const struct mbx_event *ev)
@@ -132,11 +148,45 @@ static void on_event(void *ctx, const struct mbx_event *ev)
 	}
 }
 
-// True while a frame is still owed, so the loop does not sleep on it.
+// THE KEPT COMMAND's redelivery (acmp_mbx.h): the kept record first, then the
+// records waiting in the acmp ring in arrival order, each to acmp_rx until it
+// declines one, which is kept, or none is left; at most
+// ACMP_MBX_REDELIVER_RECORDS taken, in the loop's buffer and counted as the
+// loop counts its own. A record the driver refuses resynchronises the ring
+// (mbx_rx_take), so none is left after it.
+static void redeliver(struct acmp_mbx *m)
+{
+	if (m->kept.len != 0u) {
+		if (!acmp_rx(&m->acmp, m->kept.interface, m->kept.frame, m->kept.len)) {
+			return;
+		}
+		m->kept.len = 0u;
+	}
+	struct ctrl_loop *l = m->loop;
+	for (unsigned k = 0; k < ACMP_MBX_REDELIVER_RECORDS && m->kept.len == 0u; ++k) {
+		const enum mbx_status st = mbx_rx_take(MBX_CH_ACMP, &l->frame);
+		if (st != MBX_STATUS_OK) {
+			l->stats.rx_bad += st == MBX_STATUS_BAD;
+			return;
+		}
+		l->stats.rx_records++;
+		on_frame(m, &l->frame);
+	}
+}
+
+// One owed frame sent when the egress has room; once that send freed a slot
+// the redelivery runs, in this pass, so before the next pass's timer service
+// (tsn-c-stack ACMP-12). True while a frame is still owed, so the loop does
+// not sleep on it; a kept command is declined only behind owed frames.
 static bool on_poll(void *ctx)
 {
 	struct acmp_mbx *m = ctx;
-	return acmp_poll(&m->acmp);
+	const unsigned owed = m->acmp.owed_count;
+	(void)acmp_poll(&m->acmp);
+	if (m->acmp.owed_count < owed) {
+		redeliver(m);
+	}
+	return m->acmp.owed_count != 0u;
 }
 
 // Each ADP record to the module that acts on it: an ENTITY_AVAILABLE or
@@ -166,9 +216,11 @@ bool acmp_mbx_attach(struct acmp_mbx *m, struct ctrl_loop *l)
 		return false;
 	}
 	m->adp_next = l->rx[MBX_CH_ADP];
+	m->loop = l;
 	// a channel bind refuses only a channel past MBX_N_CH or no function:
 	// neither here
 	(void)ctrl_loop_bind_rx(l, MBX_CH_ACMP, on_frame, m);
+	ctrl_loop_set_rx_ready(l, MBX_CH_ACMP, on_rx_ready);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_ADP, on_adp_frame, m);
 	return true;
 }

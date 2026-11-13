@@ -249,6 +249,68 @@ def row_controls(root: Path) -> list[str]:
     if rows_grade.BOUNDS != {'R4': 20, 'R5': 90, 'R6': 90, 'first': 20, 'last': 125} or \
             rows_grade.POINTS != ('1x1/1if', '8x8/2if'):
         escaped.append('the tier bounds or the points not decision D\'s')
+    return escaped + rule_controls(root)
+
+
+def planted_rule(name: str, value: object) -> object:
+    """Set rows_grade's `name` to a planted `value`, returning what it was."""
+    held = getattr(rows_grade, name)
+    setattr(rows_grade, name, value)
+    return held
+
+
+def rule_controls(root: Path) -> list[str]:
+    """Each earlier or wrong arrival rule planted in the rows, which the check must refuse by name and which must move
+    1x1/1if's R4 the way the defect does: the planted names that escaped."""
+    escaped = []
+    # the head's own rows hold every rule: no rule finding at this tree
+    if rows_grade.rule_findings(root):
+        escaped.append('the arrival rules not held at this head')
+    held = rows_grade.rows(root, '1x1/1if')['R4'][0]
+    burst = rows_grade.contract(root)[0]['aecp'][0]
+    # the earlier rules (#665): a retained record retried once a pass, and SRP's arrivals counted over the window
+    # less AECP's whole burst; the first lengthens R4, the second shortens it; and SRP's arrivals counted over the
+    # window less two records of AECP, an error of one record, which moves no row at this head (None) and which only a
+    # window off SRP's refill grid sees (rows_grade.rule_windows)
+    for name, attr, value, longer, words in (
+            ('the retained retry counted once a pass', 'retained_retries', lambda w, passes, tick: passes, True,
+             "retained retries in"),
+            ("SRP's arrivals cut by AECP's whole burst", 'srp_window',
+             lambda w, inputs: max(0.0, w - burst * inputs.c['record.aecp'] / 1000), False, 'SRP records ahead'),
+            ("SRP's arrivals cut by two records of AECP", 'srp_window',
+             lambda w, inputs: max(0.0, w - 2 * inputs.c['record.aecp'] / 1000), None, 'SRP records ahead')):
+        saved = planted_rule(attr, value)
+        try:
+            w = rows_grade.rows(root, '1x1/1if')['R4'][0]
+            refused = any(words in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
+        finally:
+            planted_rule(attr, saved)
+        moved = longer is None or (w is not None and held is not None and (w > held if longer else w < held))
+        if not refused or not moved:
+            escaped.append(name)
+    # a retained record's retry counted in SRP's own rows, which are solved with no record refused for storage
+    saved = planted_rule('RETAINED_ROWS', ('R4', 'R5', 'R6'))
+    try:
+        refused = any('retry counted in an SRP row' in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
+    finally:
+        planted_rule('RETAINED_ROWS', saved)
+    if not refused:
+        escaped.append('a retained retry in an SRP row')
+    # the tree's retry rule itself: a poll that retries every pass a change allows states no centisecond's rule
+    path = load_grade.RETRY_RULE["a centisecond's retry"][0]
+    text = (root / path).read_text()
+    old = '                m->retry_spent = true;\n'
+    if text.count(old) != 1 or not any("rule not the tree's" in f for f in rows_grade.rule_findings(
+            root, ('1x1/1if',), texts={path: text.replace(old, '')})):
+        escaped.append('a retry rule the tree does not state')
+    # an event type of the contract neither counted nor excluded: one dropped from the excluded list
+    saved = planted_rule('EXCLUDED', rows_grade.EXCLUDED[1:])
+    try:
+        refused = any('neither counted nor excluded' in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
+    finally:
+        planted_rule('EXCLUDED', saved)
+    if not refused:
+        escaped.append('a datapath event neither counted nor excluded')
     return escaped
 
 
@@ -272,7 +334,14 @@ def row_control_names(root: Path) -> tuple[str, ...]:
                       if v > 0 and w is not None]
     return (*names, 'a stated cost not read', 'the rows read on the column graded with tsn-c-stack#32',
             'the last queued notice past its bound',
-            'a source the rows do not count', "the tier bounds or the points not decision D's")
+            'a source the rows do not count', "the tier bounds or the points not decision D's", *RULE_CONTROLS)
+
+
+#: The arrival rules' controls rule_controls() plants, in its order.
+RULE_CONTROLS = ('the arrival rules not held at this head', 'the retained retry counted once a pass',
+                 "SRP's arrivals cut by AECP's whole burst", "SRP's arrivals cut by two records of AECP",
+                 'a retained retry in an SRP row', 'a retry rule the tree does not state',
+                 'a datapath event neither counted nor excluded')
 
 
 def flip_checks() -> list[tuple[str, bool, str]]:
@@ -302,7 +371,8 @@ def main() -> int:
     if args.check or not args.selftest:
         load = {p: c for p, c in FLIP.items() if p in points}
         print('\n'.join((report(ROOT, points) + [''] if load else []) + row_report(ROOT, points, args.design)))
-        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, points, args.design)
+        found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, points, args.design) + \
+            rows_grade.rule_findings(ROOT, points)
         for line in found:
             print('OVER', line)
         print('RESULT: FAIL' if found else 'RESULT: PASS')

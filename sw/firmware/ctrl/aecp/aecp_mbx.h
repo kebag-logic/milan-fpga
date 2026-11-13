@@ -8,8 +8,9 @@
 extern "C" {
 #endif
 
-// A notice's last frame keeps a completion (aecp_ports.fan_end), and a notice
-// waits while the queue is full; a power of two, so its wrap is a mask.
+// A notice's last frame keeps a completion (aecp_ports.fan_end, for a walk
+// that reached its last recipient), and a notice waits while the queue is
+// full; a power of two, so its wrap is a mask.
 #define AECP_MBX_COMPLETIONS 32u
 // THE RETRY's notices (ctrl_loop.h, #665), each to every registration of every interface, at what a round spends of its
 // pass: a notice, 365 us to 32 recipients and 255 us to 16, and once a round AECP_ROUND_COLD_US, what its first attempt
@@ -17,8 +18,15 @@ extern "C" {
 // (#665: a stated cost is an upper bound, and the harness fails a round over C + n x W + k x AECP_ATTEMPT_US,
 // round_grade.py). A round takes as many as what its pass has left holds (aecp.c, scan): four in a pass of its own at
 // 8x8/2if, seven at 1x1/1if, and fewer beside refused attempts, each charged AECP_ATTEMPT_US.
+// The one exception to the 5 %: the cold cost at 8x8/2if is 185 us, 2.7 % over the most measured, 180.16 us (a round
+// of no notice beside two refused attempts, on the image that merged dev-soft-core 0fb66211), because 185 us is the
+// most THE RETRY's search holds the first notice to AECP_QUEUED_FIRST_MS at: 186 us already fails it, since its binding
+// pass, a build of one (1,215 us) carrying a round's cold start, five refused attempts and a notice beside THE SHARE's
+// margin, is then over THE SHARE, which at 185 us it fills exactly: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665,
+// decided 2026-11-13; FR_NFR.md 3.4.1). It expires at the 8x8/2if flip: #890 closes only with a measured cold cost of
+// at most 176.1 us, or on a new owner decision.
 #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
-#define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 165u)
+#define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 185u)
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
 // While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
 // composed burst holds have the CPU those passes leave. Each round that builds beside records spends a yield, whatever

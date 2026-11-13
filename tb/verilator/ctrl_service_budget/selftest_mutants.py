@@ -9,6 +9,7 @@ mutant is a function returning the patches it applies.
 """
 from __future__ import annotations
 
+import argparse
 import dataclasses
 import hashlib
 import json
@@ -26,6 +27,7 @@ import long_notice
 import mrpdu_grade
 import notice_window
 import poll_grade
+import poll_items
 import round_grade
 import slice_grade
 import rows_grade
@@ -481,6 +483,18 @@ MUTANTS: dict[str, Patches] = {
     "rows: the grandmaster events left out of a row's window": lambda: [patch.object(
         rows_grade, 'demand', lambda row, inputs, w, f=rows_grade.demand: {
             k: v for k, v in f(row, inputs, w).items() if k != 'gm'})],
+    'rows: a retained record retried once a pass (earlier rule)': lambda: [patch.object(
+        rows_grade, 'retained_retries', lambda w, passes, tick: passes)],
+    "rows: SRP's arrivals ahead of R4's record cut by AECP's whole burst (earlier rule)": lambda: [patch.object(
+        rows_grade, 'srp_window', lambda w, inputs: max(0.0, w - 16 * inputs.c['record.aecp'] / 1000))],
+    "rows: a retained record's retry counted in SRP's own rows": lambda: [patch.object(
+        rows_grade, 'RETAINED_ROWS', ('R4', 'R5', 'R6'))],
+    'rows: the arrival rules not held': lambda: [patch.object(rows_grade, 'rule_findings', lambda *a, **k: [])],
+    'rows: a datapath event neither counted nor excluded': lambda: [patch.object(
+        rows_grade, 'EXCLUDED', rows_grade.EXCLUDED[:-1])],
+    "load: the pin's name bound to the donor's table": lambda: [patch.object(
+        load_grade, 'COLUMNS', (('at the pin', load_grade.STATED_US_DONOR),
+                                ('with tsn-c-stack#32', load_grade.STATED_US)))],
     'rows: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         rows_grade, 'costs', lambda root, point, table=None, f=rows_grade.costs: f(
             root, point, table or load_grade.STATED_US_DONOR))],
@@ -807,6 +821,21 @@ MUTANTS: dict[str, Patches] = {
         poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(2))],
     'polls: in bus cycles, not CPU time': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    'polls: a reference control held to no margin': lambda: [patch.object(poll_items, 'REFERENCE_MARGIN_PERCENT', 0)],
+    'polls: a reference control read against its own planted run': lambda: [patch.object(
+        run, 'reference_verdict', lambda args, results, refusals, reference, f=run.reference_verdict: f(
+            args, results, refusals, (results, reference[1])))],
+    "polls: a reference control's refusals ignored": lambda: [patch.object(
+        run, 'reference_verdict', lambda args, results, refusals, reference, f=run.reference_verdict: f(
+            args, results, [], (reference[0], [])))],
+    "polls: a reference control's other run without its variant": lambda: [patch.object(
+        run, 'reference_run', lambda args, where, shape, n, f=run.reference_run: f(
+            argparse.Namespace(**{**vars(args), 'variant': 'none'}), where, shape, n))],
+    "polls: a reference control's other run in the planted build's place": lambda: [patch.object(
+        run, 'reference_run', lambda args, where, shape, n, f=run.reference_run: f(args, where.parent, shape, n))],
+    "polls: the SRP record cut's control held to its stated cost": lambda: [
+        patch.dict(build.REFERENCE_CONTROLS, clear=True),
+        patch.dict(build.POLL_CONTROLS, {'srp-compared-by-memcmp': "an SRP record's apply of"})],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],

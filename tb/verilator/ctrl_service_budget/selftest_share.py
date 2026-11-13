@@ -391,7 +391,10 @@ def bound_checks() -> list[Check]:
     got = (save_window.step_age(), save_window.CHANGED, save_window.steps(13_256, 2), save_window.bound_ms(13_256, 2),
            save_window.steps(3_336, 2), save_window.bound_ms(3_336, 2))
     flight = tuple(save_window.bound_ms(image, 2, flight=2) for image in (13_256, 3_336, 768))
-    return [("a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three "
+    return [("a save's container is its stage, nvm_stage, less the record header of look-ahead the store's format "
+             "names, read from ctrl_nvm: KLJ3's 10 bytes (nvm_layout3.h, #823), so a save is held to the bytes it "
+             "programs", save_window.rec_hdr() == 10, str(save_window.rec_hdr())),
+            ("a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three "
              "ticks after the one before (THE STEP's age limit, two centiseconds, plus one), and 10 ms: for a SET_NAME "
              "of the entity, which marks its two names, 12,110 ms at 8x8/2if (370 steps of a 13,256-byte container) "
              "and 4,070 ms at 1x1 (102 of 3,336 bytes)", got == (2, 2, 370, 12_110, 102, 4_070), str(got)),

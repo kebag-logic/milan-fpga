@@ -15,7 +15,7 @@
 // the slots, stage and state a script asked to keep.
 //
 // The rig takes no verdict. Every one is taken by the tests against the
-// fixture scripts/nvm_klj2.py wrote for the shape (nvm_fixture.hpp), never
+// fixture scripts/nvm_klj3.py wrote for the shape (nvm_fixture.hpp), never
 // against the store's own idea of the bytes.
 
 #ifndef NVM_RIG_HPP
@@ -55,6 +55,7 @@ struct Result {
     std::map<std::string, long long> powercut;   //!< effects, cases, old, new, bad
     long long guard = -1;                        //!< writes outside the journal the port took
     std::vector<std::uint64_t> erases;           //!< model time of the first sixteen erases
+    std::vector<std::uint32_t> erase_at;         //!< the block each of them erased
     std::vector<std::uint64_t> fail_at;          //!< failed attempts and verified commits
     std::vector<std::uint64_t> ok_at;
     std::vector<std::uint64_t> marks;            //!< each --mark

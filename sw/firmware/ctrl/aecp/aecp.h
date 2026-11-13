@@ -141,8 +141,9 @@ enum aecp_change {
 };
 // What a call of the fan port did (aecp_ports.fan and fan_end, #665).
 enum aecp_fan {
-	AECP_FAN_TAKEN,   // fan: its frame started; fan_end: the last frame delivered and its completion kept
-	AECP_FAN_REFUSED, // no room: for fan's frame, or for fan_end's completion; the frame before it delivered
+	AECP_FAN_TAKEN,   // fan: its frame started; fan_end: the frame before it delivered, and for a whole walk its
+	                  // completion kept
+	AECP_FAN_REFUSED, // no room: for fan's frame, or for a whole walk's completion; the frame before it delivered
 	AECP_FAN_LOST,    // the frame before it was not delivered, and nothing is started or kept
 };
 // All ports are required. They return without delivering ANY protocol input.
@@ -184,12 +185,15 @@ struct aecp_ports {
 	bool (*applied)(void *);
 	// A notice's frame with no completion of its own, or NULL, when send takes
 	// every frame: the same delivery, committed by the next fan or by fan_end at
-	// the latest, which gives the notice's last frame cookie's completion
-	// (#665). Each call reports a frame that was not delivered for that frame:
-	// AECP_FAN_LOST from the call after it, so the notice resumes at the
-	// recipient whose frame it was, at the sequence_id it has not had.
+	// the latest, which gives the notice's last frame cookie's completion only
+	// when whole, the walk having reached its last recipient: a walk that ends
+	// owed at a recipient keeps none, since the notice is not yet delivered
+	// (#665; Milan v1.2 5.4.5.2). Each call reports a frame that was not
+	// delivered for that frame: AECP_FAN_LOST from the call after it, so the
+	// notice resumes at the recipient whose frame it was, at the sequence_id it
+	// has not had.
 	enum aecp_fan (*fan)(void *, unsigned, const uint8_t *, size_t);
-	enum aecp_fan (*fan_end)(void *, uint32_t cookie);
+	enum aecp_fan (*fan_end)(void *, uint32_t cookie, bool whole);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
 // SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and

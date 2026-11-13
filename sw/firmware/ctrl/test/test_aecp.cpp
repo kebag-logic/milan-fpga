@@ -253,7 +253,7 @@ struct Nvm : Core {
 
 TEST_F(Nvm, ShapePoolsAndNameOrdinalsMatchSavedRecords)
 {
-    ASSERT_EQ(AECP_ENTITY_NAMES,MILAN_NVM_N_NAME);
+    ASSERT_EQ(AECP_ENTITY_NAMES,MILAN_NVM3_N_NAME);
     for(auto &m:pools){
         auto r=nvm_rec_of(m.type==14?NVM_G_MAPI:NVM_G_MAPO,m.index);
         ASSERT_TRUE(r.ok);EXPECT_EQ(r.plen,m.capacity*8);EXPECT_LE(m.count,8u);
@@ -304,7 +304,7 @@ TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
     auto latency=latch(NVM_G_PTOF,0,4);EXPECT_EQ(get(latency,0,4),1500000u);
     for(unsigned group:{NVM_G_SUID,NVM_G_MCR}){
         auto r=nvm_rec_of(group,0);ASSERT_TRUE(r.ok);
-        EXPECT_TRUE(nvm_all_erased(nvm_store_stage()+NVM_KLJ2_HDR+r.off,NVM_REC_HDR+r.plen))<<"DR5 reserved span";
+        EXPECT_TRUE(nvm_all_erased(nvm_store_stage()+NVM_KLJ_HDR+r.off,NVM_REC_HDR+r.plen))<<"DR5 reserved span";
     }
 }
 
@@ -334,7 +334,7 @@ TEST_F(Nvm, EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle)
         auto kept=latch(other,0,o->capacity*8);
         save();
         auto r=nvm_rec_of(empty,0);ASSERT_TRUE(r.ok);
-        const uint8_t *rec=nvm_store_stage()+NVM_KLJ2_HDR+r.off;
+        const uint8_t *rec=nvm_store_stage()+NVM_KLJ_HDR+r.off;
         EXPECT_EQ(get(rec,2),0x1722u)<<"the empty set is a framed record, not an erased one";
         EXPECT_TRUE(nvm_all_erased(rec+NVM_REC_HDR,r.plen))<<"every entry of the empty set is UNUSED";
         a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(e->count,e->default_count);
@@ -1653,11 +1653,15 @@ TEST_F(Core, ANoticeIsAddressedToEachRecipientAlone)
 namespace {
 // A fan port as the mailbox gives one (aecp_mbx.c, #665): a frame is delivered when the call after it commits it, and
 // the frame numbered `lose`, counting every frame started, is lost once, which that call reports (AECP_FAN_LOST).
+// The frame numbered `refuse` finds no room once, after the one before it is delivered, and with `refuse_end` the
+// queue has no room for one completion (each AECP_FAN_REFUSED); `kept` counts the completions kept, one only for a
+// walk that reached its last recipient (whole).
 struct FanModel {
     std::vector<std::pair<unsigned,Bytes>> *sent=nullptr;
     std::vector<uint32_t> *completions=nullptr;
-    unsigned lose=~0u, started=0, number=0, interface=0;
+    unsigned lose=~0u, refuse=~0u, started=0, number=0, interface=0, kept=0;
     bool held=false;
+    bool refuse_end=false;
     Bytes frame;
     aecp_fan commit() {
         if(!held)return AECP_FAN_TAKEN;
@@ -1668,11 +1672,14 @@ struct FanModel {
     aecp_fan fan(unsigned i,const uint8_t *p,size_t n) {
         const aecp_fan before=commit();
         if(before!=AECP_FAN_TAKEN)return before;
+        if(started==refuse){refuse=~0u;return AECP_FAN_REFUSED;}
         held=true;interface=i;frame.assign(p,p+n);number=started++;return AECP_FAN_TAKEN;
     }
-    aecp_fan end(uint32_t cookie) {
+    aecp_fan end(uint32_t cookie,bool whole) {
         const aecp_fan last=commit();
-        if(last==AECP_FAN_TAKEN)completions->push_back(cookie);
+        if(last!=AECP_FAN_TAKEN||!whole)return last;
+        if(refuse_end){refuse_end=false;return AECP_FAN_REFUSED;}
+        completions->push_back(cookie);++kept;
         return last;
     }
 };
@@ -1689,15 +1696,17 @@ TEST_F(Core, ANoticeWhoseFrameWasLostSendsItToItsRecipientAgain)
     for(auto &r:order){auto b=command(36,{},r.id,r.interface);put(b,6,r.mac,6);aecp_rx(&a,r.interface,b.data(),b.size());drain();}
     fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
     ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
-    ports.fan_end=[](void*,uint32_t c){return fan_model.end(c);};
+    ports.fan_end=[](void*,uint32_t c,bool whole){return fan_model.end(c,whole);};
     // a lock's notice with its second frame lost, which the third's fan reports, then the unlock's with its last,
     // which fan_end reports
     Bytes unlock(16);put(unlock,0,1,4);
     for(unsigned lose:{1u,2u}){
-        fan_model.started=0;fan_model.lose=lose;
+        fan_model.started=0;fan_model.kept=0;fan_model.lose=lose;
         ask(1,lose==1u?Bytes(16):unlock);
         ASSERT_EQ(sent.size(),1u+expected.size())
             <<"the notice whose frame "<<lose<<" was lost is delivered once to each recipient, in order";
+        EXPECT_EQ(fan_model.kept,1u)<<"the notice whose frame "<<lose<<" was lost keeps no completion for the walk "
+            "left owed and one when its resumed walk ends";
         for(size_t k=0;k<expected.size();++k){
             EXPECT_TRUE(sent[1+k].first==expected[k].interface&&addressed(sent[1+k].second,expected[k]))
                 <<"notice "<<k<<" after frame "<<lose<<" was lost carries its recipient's addresses and sequence";
@@ -1751,7 +1760,7 @@ TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
     auto b=command(44,mappings(64),CTLR+1);aecp_rx(&a,0,b.data(),b.size());
     fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
     ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
-    ports.fan_end=[](void*,uint32_t c){return fan_model.end(c);};
+    ports.fan_end=[](void*,uint32_t c,bool whole){return fan_model.end(c,whole);};
     drain();
     std::vector<unsigned> order;
     for(auto &s:sent) if(notice(s.second)) order.push_back(unsigned(get(s.second,36,2)&0x7fffu));
@@ -1766,6 +1775,37 @@ TEST_F(Queued, BesideALongerNoticeTheQueuesGoesFrameByFrame)
             EXPECT_EQ(Bytes(s.second.begin()+38,s.second.end()),
                       Bytes(response->second.begin()+38,response->second.end()))<<"the held notice's bytes whole";
         }
+    }
+    ports.fan=nullptr;ports.fan_end=nullptr;
+}
+
+// #665 (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.1): a refusal is not a loss. AECP_FAN_REFUSED means the frame before
+// it was delivered: a ring with no room for a frame resumes the notice at that frame's recipient, and a queue with no
+// room for the completion leaves it owed past its last recipient, so no recipient has the notice twice, each at its
+// own sequence_id, and the notice keeps one completion.
+TEST_F(Core, ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain)
+{
+    std::vector<Recipient> expected{{CTLR+1,CMAC+1,0,0},{CTLR+2,CMAC+2,0,0},{CTLR+5,CMAC+5,0,0}};
+    std::vector<Recipient> order{expected[0],{CTLR,CMAC,0,0},expected[1],expected[2]};
+    for(auto &r:order){auto b=command(36,{},r.id,r.interface);put(b,6,r.mac,6);aecp_rx(&a,r.interface,b.data(),b.size());drain();}
+    fan_model=FanModel{};fan_model.sent=&sent;fan_model.completions=&completions;
+    ports.fan=[](void*,unsigned i,const uint8_t*p,size_t n){return fan_model.fan(i,p,n);};
+    ports.fan_end=[](void*,uint32_t c,bool whole){return fan_model.end(c,whole);};
+    // a lock's notice whose second frame finds no room after the first was delivered, then the unlock's whose
+    // completion finds the queue full after its last frame was delivered
+    Bytes unlock(16);put(unlock,0,1,4);
+    for(const bool at_end:{false,true}){
+        const char *what=at_end?"a full completion queue":"a ring full at its second frame";
+        fan_model.started=0;fan_model.kept=0;fan_model.refuse=at_end?~0u:1u;fan_model.refuse_end=at_end;
+        ask(1,at_end?unlock:Bytes(16));
+        ASSERT_EQ(sent.size(),1u+expected.size())<<"the notice refused by "<<what<<" is delivered once to each "
+            "recipient, in order";
+        for(size_t k=0;k<expected.size();++k){
+            EXPECT_TRUE(sent[1+k].first==expected[k].interface&&addressed(sent[1+k].second,expected[k]))
+                <<"notice "<<k<<" refused by "<<what<<" carries its recipient's addresses and sequence";
+            ++expected[k].sequence;
+        }
+        EXPECT_EQ(fan_model.kept,1u)<<"the notice refused by "<<what<<" keeps one completion";
     }
     ports.fan=nullptr;ports.fan_end=nullptr;
 }
@@ -2865,7 +2905,10 @@ TEST_F(Mailbox, ARoundFillsWhatItsPassHasLeft)
     loop.retry_firm=true;
     EXPECT_EQ(built(AECP_ROUND_COLD_US+2u*AECP_NOTICE_US),2u)<<"firm, it fills its pass beside records too";
     if(AECP_ROUND_FIRM_NOTICES<AECP_NOTICES_MOST){
-        EXPECT_EQ(built(CTRL_LOOP_SHARE_US),AECP_ROUND_FIRM_NOTICES)<<"firm, it stops at its cap beside records";
+        // room for one notice past the cap, whatever the stated costs: at 8x8/2if a share's room is 4.97 notices at a
+        // 185 us cold start (#665), so CTRL_LOOP_SHARE_US alone no longer tells the cap from the pass's room
+        EXPECT_EQ(built(AECP_ROUND_COLD_US+(AECP_ROUND_FIRM_NOTICES+1u)*AECP_NOTICE_US),AECP_ROUND_FIRM_NOTICES)
+            <<"firm, it stops at its cap beside records";
     }
     loop.backlog=false;loop.retry_firm=true;
     for(unsigned n=0;n<AECP_NOTICES_MOST&&built(CTRL_LOOP_SHARE_US)!=0u;++n){}
@@ -2971,7 +3014,7 @@ TEST_F(Mailbox, ANoticeWithNoRoomStaysOwed)
     EXPECT_FALSE(adapter.core.notify)<<"and goes when it has";
     for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n){
         ASSERT_TRUE(adapter.ports.fan(&adapter,0,filler.data(),filler.size())==AECP_FAN_TAKEN&&
-                    adapter.ports.fan_end(&adapter,n)==AECP_FAN_TAKEN);
+                    adapter.ports.fan_end(&adapter,n,true)==AECP_FAN_TAKEN);
     }
     aecp_changed(&adapter.core,5,0,1);
     EXPECT_TRUE(loop.retry(loop.retry_ctx,AECP_ROUND_COLD_US+AECP_NOTICE_US))<<"a notice with no room for its completion stays owed";
@@ -3124,7 +3167,7 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
     const auto notice=[&](uint32_t cookie){
         return adapter.ports.fan(&adapter,0,filler.data(),filler.size())==AECP_FAN_TAKEN&&
-               adapter.ports.fan_end(&adapter,cookie)==AECP_FAN_TAKEN;
+               adapter.ports.fan_end(&adapter,cookie,true)==AECP_FAN_TAKEN;
     };
     for(unsigned n=0;n<5;++n)ASSERT_TRUE(notice(200+n));
     service(100);ASSERT_EQ(adapter.completion_count,0u);
