@@ -17,6 +17,9 @@ One simulation-only setting is compiled in: CTRL_PLAT_MAAP_PREFERRED, MAAP's
 first range, which the two-placement comparison pins in both placements
 (#665), so MAAP's frames compare as raw bytes. The image never defines it.
 
+srptx_mutants.py (#867) builds a planted firmware through this same list:
+--replace ORIGINAL=COPY compiles COPY in ORIGINAL's place, each named file once.
+
 Output, under --out: libtwinfw.a, and cflags, the include and define flags a
 C++ unit that includes the platform's headers needs, on one line. The C units
 force-include the generated srp_entity_gen.h, as SRP requires; a C++ unit
@@ -84,13 +87,21 @@ def compile_one(flags: list[str], src: Path, obj: Path) -> str:
     return "" if result.returncode == 0 else f"{src}:\n{result.stdout}{result.stderr}"
 
 
-def build(config: Path, out: Path, preferred: int, jobs: int) -> int:
-    """Generate the headers, compile every unit and archive them; 0, or 1 with each failing unit named."""
+def build(config: Path, out: Path, preferred: int, jobs: int, replace: dict[Path, Path] | None = None) -> int:
+    """Generate the headers, compile every unit and archive them; 0, or 1 with each failing unit named.
+    replace maps a source to the planted copy compiled in its place."""
     out.mkdir(parents=True, exist_ok=True)
     inc = include_flags(config, out)
     pin = [f"-DCTRL_PLAT_MAAP_PREFERRED={preferred:#x}ULL"]
     units = [(list(C_FLAGS) + inc + pin, s) for s in firmware_sources()]
     units += [(list(LWSRP_FLAGS) + inc, LWSRP / "src" / n) for n in LWSRP_SOURCES]
+    replace = replace or {}
+    named = [s.resolve() for _, s in units]
+    for original in replace:
+        if named.count(original) != 1:
+            print(f"twin_fw: --replace names {original}, which is not one of the firmware's units", file=sys.stderr)
+            return 1
+    units = [(flags, replace.get(s.resolve(), s)) for flags, s in units]
     objs = [out / "obj" / f"{k:02d}_{s.stem}.o" for k, (_, s) in enumerate(units)]
     (out / "obj").mkdir(exist_ok=True)
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
@@ -115,8 +126,11 @@ def main() -> int:
     parser.add_argument("--maap-preferred", type=lambda v: int(v, 0), required=True,
                         help="MAAP's pinned first range, a MAC address in the IEEE 1722-2016 B.4 pool")
     parser.add_argument("--jobs", type=int, default=8)
+    parser.add_argument("--replace", action="append", default=[], metavar="ORIGINAL=COPY",
+                        help="compile COPY in ORIGINAL's place (srptx_mutants.py)")
     args = parser.parse_args()
-    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs)
+    replace = {Path(o).resolve(): Path(c).resolve() for o, c in (r.split("=", 1) for r in args.replace)}
+    return build(args.config.resolve(), args.out.resolve(), args.maap_preferred, args.jobs, replace)
 
 
 if __name__ == "__main__":

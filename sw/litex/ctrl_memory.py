@@ -95,7 +95,7 @@ RULES: dict[str, Rule] = {
                                              "more than a ledgered point's tiles; that point's override on any "
                                              "other image"),
     "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
-    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
+    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ3 "
                                          "container plus one record header"),
 }
 
@@ -131,6 +131,40 @@ class Region:
 #: The VexiiRiscv origins LiteX gives `rom` (the reset address) and `sram`.
 ROM = Region("rom", 0x0000_0000, BUDGET_BYTES)
 RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)
+
+
+def decode_pieces(origin: int, size: int) -> tuple[tuple[int, int], ...]:
+    """[origin, origin + size) as the fewest aligned power-of-two pieces, lowest first (#791).
+
+    The pinned VexiiRiscv generator splits each region it is handed into
+    aligned power-of-two terms (SpinalHDL AddressMapping.terms), one mask
+    compare each. A region based at 0 is the exception: it is taken whole, as
+    the one term (address & ~(size - 1)) == 0, so `rom`, 224 KiB at 0, became
+    (address & 0xfffc8000) == 0, which leaves out every address with bit 15
+    set, while `sram`, 224 KiB at 0x1000_0000, was already exact. Each piece
+    here is an aligned power of two, which one mask compare decodes exactly,
+    at 0 as anywhere else, and together the pieces are exactly
+    [origin, origin + size). So handing the generator the pieces makes every
+    region exact without depending on how it decomposes a region. 224 KiB at 0
+    is 128 KiB at 0, 64 KiB at 0x20000 and 32 KiB at 0x30000.
+    """
+    if origin < 0 or size <= 0:
+        raise ValueError(f"no region of {size} bytes at {origin:#x}")
+    pieces = []
+    while size:
+        fits = 1 << (size.bit_length() - 1)               # the largest power of two within size
+        piece = min(fits, origin & -origin) if origin else fits   # and that origin is a multiple of
+        pieces.append((origin, piece))
+        origin, size = origin + piece, size - piece
+    return tuple(pieces)
+
+
+def cpu_regions(regions: list[tuple]) -> list[tuple]:
+    """The region list the split CPU's generator is handed (#791): each (origin, size, mode, bus) row
+    of LiteX's list as its decode_pieces, each in the row's mode and on its bus. A row that is
+    already an aligned power of two is one piece, the row itself."""
+    return [(start, piece, mode, bus) for origin, size, mode, bus in regions
+            for start, piece in decode_pieces(origin, size)]
 
 
 @dataclass(frozen=True)
@@ -208,17 +242,28 @@ class Ledgered:
 #: MBX_N_IF and the shape's streams) at its size in that image, so a change to
 #: that struct refuses the override until the size is measured again here.
 #: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
-#: every other point stays within 56.
+#: every other point stays within 56. Each refuses its image half a tile past its tiles: the size fixture's at
+#: 59.0, its entry at the 58.5 cap the owner's decision of 2026-11-12 sets for the flip, and the platform's at
+#: 60.5, that decision's cap (#665). The
+#: platform's image is linked at every point with the override its point takes, against this ledger, by
+#: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+#: where it happens.
 LEDGERED: dict[str, Ledgered] = {
-    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
-                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+                                   58.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
-                                         "+112 to 120 B an image, with tsn-c-stack 715589c (#665)"),
+                                         "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
+                                         "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
+                                         "granule: ROM debt owed to the hybrid XIP work (#665 decision D3) on top "
+                                         "of the 58.0 allowance, one half tile, 528 B of sram past 55 granules "
+                                         "(#665)"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_288)), 59.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
-                                            "image)"),
+                                            "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+                                            "for the flip: ROM debt of 4.0 RAMB36 owed to the hybrid XIP work "
+                                            "(#665 decision D3)"),
 }
 
 
@@ -382,22 +427,18 @@ def rom_words(image: Image, rom: Region = ROM) -> list[int]:
     return list(struct.unpack(f"<{len(contents) // 4}I", contents))
 
 
-def stage_bytes(shape: object, donor: object) -> int:
+def stage_bytes(shape: object) -> int:
     """The F1 store's stage for `shape`: its container plus one record header.
 
-    The container is `scripts/nvm_klj2.py`'s own, over the shape's record
-    inventory, so this reads the derivation the store's host tests grade
-    against `nvm_shape.h` (NVM_STAGE_BYTES) rather than restating it.
+    The container is `scripts/nvm_klj3.py`'s own, the split placement's KLJ3
+    over the shape's layout 3 record inventory (#823), so this reads the
+    derivation the store's host tests grade against `nvm_shape.h`
+    (NVM_STAGE_BYTES) rather than restating it.
     """
     if str(SCRIPTS) not in sys.path:
         sys.path.insert(0, str(SCRIPTS))
-    from nvm_contract import REC_HDR, Ident
-    from nvm_klj2 import erased_record, klj2_assemble
-    from nvm_shape import inventory
-    frames = {rid: erased_record(plen)
-              for _, _, rid, plen, _ in inventory(shape, donor.base) if rid is not None}
-    container, _ = klj2_assemble(frames, donor, Ident(seq=0, entity_id=0, model_id=0))
-    return len(container) + REC_HDR
+    from nvm_klj3 import stage_bytes as klj3_stage
+    return klj3_stage(shape)
 
 
 def check_stage(image: Image, stage: int, shape: str) -> None:

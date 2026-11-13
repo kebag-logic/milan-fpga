@@ -114,6 +114,9 @@ NOTICE_CONTROLS = ('retry-ageless',)
 SRP_CONTROLS = ('transmit-aged',)
 #: The controls whose finding is a pass's polls base or a heavy item over its stated cost, by its STATED words.
 POLL_CONTROLS = poll_items.CONTROLS
+#: The controls whose finding is their group's heaviest instance of a kind dearer than on this tree's unplanted image,
+#: measured in the same run, by more than a stated margin (poll_items.REFERENCE_CONTROLS).
+REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never

@@ -161,19 +161,24 @@ def rule_controls(root: Path) -> list[str]:
     held = rows_grade.rows(root, '1x1/1if')['R4'][0]
     burst = rows_grade.contract(root)[0]['aecp'][0]
     # the earlier rules (#665): a retained record retried once a pass, and SRP's arrivals counted over the window
-    # less AECP's whole burst; the first lengthens R4, the second shortens it
+    # less AECP's whole burst; the first lengthens R4, the second shortens it; and SRP's arrivals counted over the
+    # window less two records of AECP, an error of one record, which moves no row at this head (None) and which only a
+    # window off SRP's refill grid sees (rows_grade.rule_windows)
     for name, attr, value, longer, words in (
             ('the retained retry counted once a pass', 'retained_retries', lambda w, passes, tick: passes, True,
              "retained retries in"),
             ("SRP's arrivals cut by AECP's whole burst", 'srp_window',
-             lambda w, inputs: max(0.0, w - burst * inputs.c['record.aecp'] / 1000), False, 'SRP records ahead')):
+             lambda w, inputs: max(0.0, w - burst * inputs.c['record.aecp'] / 1000), False, 'SRP records ahead'),
+            ("SRP's arrivals cut by two records of AECP", 'srp_window',
+             lambda w, inputs: max(0.0, w - 2 * inputs.c['record.aecp'] / 1000), None, 'SRP records ahead')):
         saved = planted_rule(attr, value)
         try:
             w = rows_grade.rows(root, '1x1/1if')['R4'][0]
             refused = any(words in f for f in rows_grade.rule_findings(root, ('1x1/1if',)))
         finally:
             planted_rule(attr, saved)
-        if not refused or w is None or held is None or not (w > held if longer else w < held):
+        moved = longer is None or (w is not None and held is not None and (w > held if longer else w < held))
+        if not refused or not moved:
             escaped.append(name)
     # a retained record's retry counted in SRP's own rows, which are solved with no record refused for storage
     saved = planted_rule('RETAINED_ROWS', ('R4', 'R5', 'R6'))
@@ -184,7 +189,7 @@ def rule_controls(root: Path) -> list[str]:
     if not refused:
         escaped.append('a retained retry in an SRP row')
     # the tree's retry rule itself: a poll that retries every pass a change allows states no centisecond's rule
-    path = 'sw/firmware/ctrl/srp/srp_mbx.c'
+    path = load_grade.RETRY_RULE["a centisecond's retry"][0]
     text = (root / path).read_text()
     old = '                m->retry_spent = true;\n'
     if text.count(old) != 1 or not any("rule not the tree's" in f for f in rows_grade.rule_findings(
@@ -226,7 +231,7 @@ def row_control_names(root: Path) -> tuple[str, ...]:
 
 #: The arrival rules' controls rule_controls() plants, in its order.
 RULE_CONTROLS = ('the arrival rules not held at this head', 'the retained retry counted once a pass',
-                 "SRP's arrivals cut by AECP's whole burst",
+                 "SRP's arrivals cut by AECP's whole burst", "SRP's arrivals cut by two records of AECP",
                  'a retained retry in an SRP row', 'a retry rule the tree does not state',
                  'a datapath event neither counted nor excluded')
 
