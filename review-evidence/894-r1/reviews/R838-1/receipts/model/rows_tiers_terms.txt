@@ -1,0 +1,23 @@
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 12.71 | 20 | -7.29 | 5 | aecp 3.760, timers 1.410, slice 1.200, item.aecp 1.050, steps 0.975, ticks 0.950, others 0.950, passes 0.950, datapath 0.450, notice 0.340, item.acmp 0.325, item.reclaim 0.200, gm 0.105, item.walk 0.040 |
+| 1x1/1if | R5 | 54.59 | 90 | -35.41 | 29 | others 15.655, srp 8.000, item.aecp 6.090, passes 5.510, timers 3.010, ticks 2.850, datapath 2.610, steps 1.950, item.acmp 1.885, item.retained 1.500, item.reclaim 1.450, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.rebuild 0.290, links 0.150, item.walk 0.140, gm 0.105, item.withdraw 0.090 |
+| 1x1/1if | R6 | 52.85 | 90 | -37.15 | 27 | others 15.655, srp 8.000, item.aecp 5.670, passes 5.130, timers 3.010, ticks 2.850, datapath 2.430, steps 1.950, item.acmp 1.755, item.retained 1.500, item.reclaim 1.350, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.walk 0.140, gm 0.105 |
+| 1x1/1if | first | 14.60 | 20 | -5.40 | 2 | spacing 8.000, others 1.420, slice 1.200, steps 0.975, timers 0.885, ticks 0.475, item.aecp 0.420, passes 0.380, notice 0.340, datapath 0.180, item.acmp 0.130, item.reclaim 0.100, gm 0.070, item.walk 0.020 |
+| 1x1/1if | last | 91.59 | 125 | -33.41 | 44 | others 19.240, srp 18.250, item.aecp 9.240, passes 8.360, spacing 8.000, ticks 4.275, datapath 3.960, timers 3.355, rounds 3.060, steps 2.925, item.acmp 2.860, item.retained 2.250, item.reclaim 2.200, slice 1.200, builds 0.955, item.mrpdu 0.810, notice 0.340, item.walk 0.200, gm 0.105 |
+| 1x1/1if | tx (reported) | 29.00 | 20 | +9.00 | 16 | others 12.675, item.aecp 3.360, passes 3.040, timers 2.185, datapath 1.440, ticks 1.425, slice 1.200, item.acmp 1.040, steps 0.975, builds 0.955, notice 0.340, item.reclaim 0.200, gm 0.105, item.walk 0.060 |
+| 8x8/2if | R4 | 42.47 | 20 | +22.47 | 17 | timers 11.175, passes 5.270, item.aecp 4.675, aecp 4.240, item.acmp 3.315, datapath 2.805, ticks 2.750, steps 2.060, gm 1.920, others 1.620, slice 1.300, item.walk 0.600, notice 0.530, item.reclaim 0.210 |
+| 8x8/2if | R5 | 187.97 | 90 | +97.97 | 59 | others 45.815, timers 18.420, passes 18.290, item.aecp 16.225, srp 11.680, item.acmp 11.505, ticks 10.450, datapath 9.735, item.mrpdu 9.720, item.reclaim 8.260, steps 7.210, item.retained 6.935, builds 4.860, item.walk 2.760, gm 1.920, slice 1.300, item.rebuild 1.260, links 0.600, notice 0.530, item.withdraw 0.490 |
+| 8x8/2if | R6 | 178.28 | 90 | +88.28 | 56 | others 44.035, timers 18.180, passes 17.360, item.aecp 15.400, srp 11.680, item.acmp 10.920, ticks 9.900, item.mrpdu 9.720, datapath 9.240, item.reclaim 7.840, item.retained 6.570, steps 6.180, builds 4.860, item.walk 2.640, gm 1.920, slice 1.300, notice 0.530 |
+| 8x8/2if | first | 20.25 | 20 | +0.25 | 2 | spacing 8.000, timers 2.520, others 2.150, slice 1.300, gm 1.280, ticks 1.100, steps 1.030, passes 0.620, item.aecp 0.550, notice 0.530, item.acmp 0.390, datapath 0.330, item.walk 0.240, item.reclaim 0.210 |
+| 8x8/2if | last | 647.23 | 125 | +522.23 | 244 | srp 128.115, others 122.925, passes 75.640, item.aecp 48.125, item.acmp 44.850, datapath 40.260, ticks 35.200, timers 29.220, item.reclaim 24.850, item.retained 23.360, steps 22.660, rounds 17.535, item.mrpdu 9.720, item.walk 8.160, spacing 8.000, builds 4.860, gm 1.920, slice 1.300, notice 0.530 |
+| 8x8/2if | tx (reported) | 89.01 | 20 | +69.01 | 34 | others 28.665, timers 13.920, passes 10.540, item.aecp 9.350, item.acmp 6.630, datapath 5.610, ticks 4.950, steps 3.090, gm 1.920, slice 1.300, builds 1.215, item.walk 1.080, notice 0.530, item.reclaim 0.210 |
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 42.47 ms, over its bound 20 ms; the largest term timers 11.18 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 187.97 ms, over its bound 90 ms; the largest term others 45.81 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 178.28 ms, over its bound 90 ms; the largest term others 44.03 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 20.25 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 647.23 ms, over its bound 125 ms; the largest term srp 128.12 ms
+
+rc=1

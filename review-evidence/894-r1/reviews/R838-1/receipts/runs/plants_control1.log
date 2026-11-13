@@ -1,0 +1,33 @@
+subset: 30 control plants, shard [1, 2]
+[ok] mutant retry-before-the-polls (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 after its polls
+[ok] mutant retry-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a retry still owed asks for the next pass at once
+[ok] mutant retry-told-all-of-the-pass (port): 4 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round beside a step has what the step left of the pass, a slice at most
+[ok] mutant transmit-pass-uncounted (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the pass is counted as the transmit's
+[ok] mutant transmit-in-the-aged-steps-pass (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the aged step's pass may follow it, the second in a row
+[ok] mutant drain-to-the-cap-alone (port): 2 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 with a clock it goes past its cap while the slice has room
+[ok] mutant tier1-others-beside-the-first (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and no other tier-1 channel's record while it holds one it would take
+[ok] mutant tier1-first-past-its-time (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US
+[ok] mutant tier1-held-by-an-empty-ring (port): 33 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+[ok] mutant whole-beside-tier1 (port): 8 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that finds its ring empty leaves tier 1 holding nothing
+[ok] mutant whole-row-beside-tier1 (port): 7 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass takes the input it held off
+[ok] mutant drained-beside-the-drain (port): 2 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a pass that takes THE DRAIN's cap leaves a record of its channel
+[ok] mutant round-one-never-told (port): 6 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a tier-1 record is held (THE TIERS)
+[ok] mutant slice-end-past-the-deadline (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+[ok] mutant transmit-told-a-whole-build (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 told the MRPDUs its slice holds (THE TIERS)
+mutants: 15 of 15 caught
+plant_subset control: every plant caught

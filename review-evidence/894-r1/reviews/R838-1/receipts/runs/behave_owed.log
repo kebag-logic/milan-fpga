@@ -1,0 +1,51 @@
+USING RUNNER: behave.runner:Runner
+@aecp @firmware
+Feature: back-to-back state-changing commands from two controllers, with AECP's owed-notice queue # features/aecp_owed_notices.feature:5
+  The split firmware's AECP takes its next command while an earlier command's
+  unsolicited notification is still owed (#894; the ruling of 2026-11-12 on
+  aecp_ready). No clause orders a notification ahead of the next command or its
+  response: IEEE 1722.1-2021 9.3.5.4 (Figure 9-3 gives the WAITING state's
+  doUnsolicited and rcvdAEMCommand guards no priority) and 7.5.2; Milan v1.2
+  5.4.5.2 ("sent asynchronously of any command", "immediately"). It holds under
+  four conditions, and these scenarios state them on the wire:
+  (a) every recipient receives the notifications in the order their commands
+  were taken, each at its own next sequence_id (Milan v1.2 5.4.5.1;
+  IEEE 1722.1-2021 9.3.5.2.6), and a requester never receives its own;
+  (b) a command's own response precedes the notifications it causes (Milan
+  v1.2 5.4.5.2);
+  (c) the queue is bounded: AECP takes no command while it is full;
+  (d) this feature and the firmware's unit tests (test_aecp.cpp, Queued) cover
+  two controllers' back-to-back commands.
+  WHAT THIS LAYER IS. An offline model of the queue's rules, in the manner of
+  the rest of the suite, each rule pinned to the shipped source that makes it
+  (sw/firmware/ctrl/aecp/aecp.c and aecp_mbx.h): a source change that drops a
+  rule fails the scenario that states it. The unit tests run the firmware.
+  @aecp @firmware
+  Feature: back-to-back state-changing commands from two controllers, with AECP's owed-notice queue  # features/aecp_owed_notices.feature:5
+
+  Scenario: A's and B's commands back to back, the second taken while the first's notice is owed  # features/aecp_owed_notices.feature:31
+    Given AECP's owed-notice rules read from the shipped firmware                                 # steps/aecp_owed_notice_steps.py:94
+    And controllers A, B and C registered for unsolicited notifications                           # steps/aecp_owed_notice_steps.py:105
+    When A sends a state-changing command and B sends one before any notice leaves                # steps/aecp_owed_notice_steps.py:111
+    Then the wire carries A's response, then B's response, then the notices                       # steps/aecp_owed_notice_steps.py:121
+    And C receives A's notice before B's, at consecutive sequence_ids                             # steps/aecp_owed_notice_steps.py:129
+    And A receives only B's notice and B only A's                                                 # steps/aecp_owed_notice_steps.py:137
+
+  Scenario: the queue is bounded and AECP takes no command while it is full  # features/aecp_owed_notices.feature:37
+    Given AECP's owed-notice rules read from the shipped firmware            # steps/aecp_owed_notice_steps.py:94
+    And controllers A, B and C registered for unsolicited notifications      # steps/aecp_owed_notice_steps.py:105
+    When commands fill the owed-notice queue at its depth                    # steps/aecp_owed_notice_steps.py:145
+    Then AECP is not ready for the next command                              # steps/aecp_owed_notice_steps.py:153
+    And one notice sent frees one slot and AECP is ready again               # steps/aecp_owed_notice_steps.py:160
+
+  Scenario: a notification longer than a slot waits behind the queue, its response first     # features/aecp_owed_notices.feature:42
+    Given AECP's owed-notice rules read from the shipped firmware                            # steps/aecp_owed_notice_steps.py:94
+    And controllers A, B and C registered for unsolicited notifications                      # steps/aecp_owed_notice_steps.py:105
+    When A sends a state-changing command and B sends one whose notice is longer than a slot # steps/aecp_owed_notice_steps.py:167
+    Then B's response is held until the poll and precedes B's notice                         # steps/aecp_owed_notice_steps.py:178
+    And C receives A's notice before B's                                                     # steps/aecp_owed_notice_steps.py:187
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+16 steps passed, 0 failed, 0 skipped
+Took 0min 0.003s

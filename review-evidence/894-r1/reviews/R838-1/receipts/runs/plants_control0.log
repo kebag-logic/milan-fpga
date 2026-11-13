@@ -1,0 +1,33 @@
+subset: 30 control plants, shard [0, 2]
+[ok] mutant step-before-the-polls (port): 2 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+[ok] mutant retry-after-the-step (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 and before THE STEP
+[ok] mutant retry-age-ignored (port): 20 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass given whole to an aged step calls it after the step, once it is aged
+[ok] mutant retry-told-past-the-margin (port): 5 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round in a pass of its own has a whole slice under the margin, with no clock
+[ok] mutant transmit-after-an-aged-step (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant drain-past-its-time (port): 1 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+[ok] mutant drain-past-its-records (port): 1 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and stops at CTRL_LOOP_DRAIN_RECORDS
+[ok] mutant tier1-first-to-its-cap (port): 3 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 with a clock it goes past its cap while the pass has room
+[ok] mutant tier1-held-by-a-module-not-ready (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+[ok] mutant tier2-beside-tier1 (port, port): 16 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+[ok] mutant holds-a-module-not-ready (port): 4 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+[ok] mutant round-before-the-drain (port): 2 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round waits while THE DRAIN's channel was left a record (SRP first)
+[ok] mutant first-notice-not-tier1 (port): 2 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+[ok] mutant round-slice-is-the-share (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass given whole has a slice from the pass's start
+[ok] mutant slice-starts-at-the-cap (port): 2 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+mutants: 15 of 15 caught
+plant_subset control: every plant caught
