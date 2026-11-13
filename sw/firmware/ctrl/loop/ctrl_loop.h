@@ -311,10 +311,15 @@ extern "C" {
 // a centisecond's consumers at 8x8/2if, the heavier point, which the rows by
 // every source charge each centisecond at least (rows_grade.py). At 1x1/1if the
 // build of both is 90,543 cycles under THE TIERS, whose check of tier 1 before
-// a pass given whole it carries (#894).
+// a pass given whole it carries (#894). A slice that holds one MRPDU's build
+// makes the declarations in the first: the srp group's after its Listener
+// Ready is 68,951 cycles at 1x1/1if, so a build of one is 725 us there (#894,
+// #908). At 8x8/2if it measured 147,613, 1,550 us by the rule and over the
+// 1,300 us slice it must fit (ctrl_loop.c), so 8x8/2if's 1,215 us stands,
+// refuted, with its rows (#894, owed to #872).
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
 #define CTRL_LOOP_BUILD_PASS_US (MBX_N_IF == 1u ? 1010u : 1995u)
-#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 430u : 1215u)
+#define CTRL_LOOP_BUILD_ONE_PASS_US (MBX_N_IF == 1u ? 725u : 1215u)
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.
