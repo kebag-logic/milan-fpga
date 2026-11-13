@@ -121,11 +121,10 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
 #: the formal measurement. answering-ports: the four observation ports answer zeroed values
-#: instead of 'unavailable'. All four are contract 2.3's face block (aecp_face.c: stream, avb,
-#: path and counters, each a bounded window read that the datapath, held idle here, never
-#: answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the
-#: core takes them, path with an empty sequence. With the unmodified fixture, AECP retries
-#: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
+#: instead of 'unavailable'. All four are contract 2.3's face block (aecp_face.c: stream, avb, path and counters, each a
+#: bounded window read that the datapath, held idle here, never answers; GET_AS_PATH's since #897); the arm replaces
+#: them in the face's ports, before the core takes them, path with an empty sequence. With the unmodified fixture, AECP
+#: retries each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
 #: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the
