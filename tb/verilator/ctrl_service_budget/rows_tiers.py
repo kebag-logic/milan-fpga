@@ -22,8 +22,8 @@ flip check's (flip_grade.py, --design built); its self-test plants a defect in e
 
 Every bound, cost and arrival rule not named here is rows_grade.py's (its docstring's source list). The bounds are
 decision D's (rows_grade.BOUNDS): tier 1 20 ms, SRP 90 ms, the last queued notice 125 ms; the tier-1 channel rows'
-FR_NFR.md 3.4.1's (CHANNEL_BOUNDS: R4L 20 ms, ACMP, ADP and MAAP 30 ms by the owner's decision of 2026-11-13, option
-A); THE TRANSMIT's the MRP timer budget's 40 ms (bounds_at).
+FR_NFR.md 3.4.1's (CHANNEL_BOUNDS: R4L 20 ms, 240 ms paced, paced_rows.bounds; ACMP, ADP and MAAP 30 ms by the
+owner's decision of 2026-11-13, option A); THE TRANSMIT's the MRP timer budget's 40 ms (bounds_at).
 
 usage: python3 -I rows_tiers.py [--model {built,corrected,tiers}] [--slice US ...] [--tier1 ORDER] [--tier2 ORDER]
                                 [--aecp RULE] [--cap N] [--quota A/B/C/D] [--long RULE] [--no-datapath]
@@ -201,7 +201,7 @@ def as_tiers(base: rows_grade.Inputs) -> Inputs:
 
 def bounds_at(i: Inputs) -> dict[str, float]:
     """Every row's bound in ms at a point: decision D's, the channel rows' and THE TRANSMIT's, the header's."""
-    return {**BOUNDS, **CHANNEL_BOUNDS, **dict.fromkeys(TX_ROWS, i.tx_bound)}
+    return {**BOUNDS, **CHANNEL_BOUNDS, **dict.fromkeys(TX_ROWS, i.tx_bound), **paced_rows.bounds(i)}
 
 
 def served(root: Path, texts: dict[str, str] | None = None) -> tuple[tuple[str, ...], str]:

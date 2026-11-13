@@ -228,7 +228,8 @@ OUTSIDE = {
                                                       "CTRL_LOOP_SLICE_US, CTRL_LOOP_TX_BOUND_MS and CTRL_LOOP_TX_MS "
                                                       "from ctrl_loop.h, AECP_MBX_OWED_SLOTS and AECP_PACE_MS from "
                                                       "aecp_mbx.h, AECP_RETRY_MAX_MS and AECP_OWED_BYTES from "
-                                                      "aecp.h, the loop's channel bindings from the firmware's sources and the "
+                                                      "aecp.h, the loop's channel bindings from the firmware's "
+                                                      "sources and the "
                                                       "polls' stated costs from poll_grade.py; it compiles nothing",
     "tb/verilator/ctrl_service_budget/paced_rows.py": "THE PACE in the tier model, and its controls plant "
                                                       "aecp_mbx.h's AECP_PACE_MS in memory; it compiles nothing",

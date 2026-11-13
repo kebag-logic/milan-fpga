@@ -18,6 +18,7 @@ does not). A module of the model alone: rows_tiers reads the tree and solves the
 from __future__ import annotations
 
 import math
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
@@ -31,6 +32,9 @@ PACE_MOST_MS = 13
 TAKE_PASSES = 2
 #: The response time a paced edit is answered within, in ms (IEEE 1722.1-2021 9.3.2.6; Milan v1.2 5.4.3.4).
 RESPONSE_MS = 240
+#: R4L's bound under the pace, in ms (the ruling of 2026-11-13 on round 5, item 1): its commands are paced edits, each
+#: answered within the response time; AECP's ordinary rows keep tier 1's 20 ms.
+PACED_BOUNDS = {'R4L': RESPONSE_MS}
 #: AECP_PACE_MS's statement in aecp_mbx.h, which controls plants.
 HEADER = 'sw/firmware/ctrl/aecp/aecp_mbx.h'
 
@@ -45,6 +49,11 @@ def record(row: str, i: Inputs, w_ms: float) -> float:
     arrivals = i.rate['aecp'][0] + math.floor(w_ms / i.rate['aecp'][1])
     paced = min(arrivals, 1 + math.floor(w_ms / i.pace_ms))
     return (paced * long + (arrivals - paced) * short) / arrivals
+
+
+def bounds(i: Inputs) -> dict[str, int]:
+    """The bounds the pace restates: PACED_BOUNDS under a pace, none without one."""
+    return dict(PACED_BOUNDS) if i.pace_ms else {}
 
 
 def one(i: Inputs) -> Inputs:
@@ -111,13 +120,7 @@ def controls(root: Path) -> list[str]:
     alone = rt.solve('R4L', one(i), rt.BUILT)[0]
     if w is None or alone is None or w < alone + waits_ms(i) - 0.01 or not terms.get('pace'):
         escaped.append("R4L's burst without its paces")
-    with mock.patch.object(sys_module(), 'waits_ms', lambda inputs: 0.0):
+    with mock.patch.object(sys.modules[__name__], 'waits_ms', lambda inputs: 0.0):
         if not rt.broken(root, rt.BUILT, ('1x1/1if',)):
             escaped.append("R4L's burst without its paces")
     return escaped
-
-
-def sys_module():
-    """This module, for a control that plants in it."""
-    import sys
-    return sys.modules[__name__]

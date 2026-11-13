@@ -37,6 +37,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
+import paced_rows  # noqa: E402
 import rows_tiers  # noqa: E402
 
 ROOT = load_grade.ROOT
@@ -173,15 +174,20 @@ def channel_controls(root: Path) -> list[str]:
                            f(r, p, under)):
         if text.count(figure) != 1 or not any('CTRL_LOOP_TX_MS states 27 ms' in f for f in row_findings(root, one)):
             escaped.append(CHANNEL_CONTROLS[1])
-    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40:
+    if rows_tiers.CHANNEL_BOUNDS != {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30} or rows_tiers.TX_BUDGET_MS != 40 or \
+            paced_rows.PACED_BOUNDS != {'R4L': 240}:
         escaped.append(CHANNEL_CONTROLS[2])
     aecp = 'sw/firmware/ctrl/aecp/aecp.h'
     text, slot = (root / aecp).read_text(), '#define AECP_OWED_BYTES 552u'
     narrow = {aecp: text.replace(slot, '#define AECP_OWED_BYTES 548u')}
-    with mock.patch.object(rows_tiers, 'built_constants', lambda r, n, texts=None, f=rows_tiers.built_constants:
-                           f(r, n, narrow)):
-        if text.count(slot) != 1 or not any(f.startswith('1x1/1if R4L:') for f in row_findings(root, one)):
-            escaped.append(CHANNEL_CONTROLS[3])
+
+    def unpaced(texts: dict[str, str] | None) -> float:
+        """R4L at 1x1/1if with no pace, its notices waiting where the slot puts them (THE PACE makes R4L's burst one
+        command at a time, which no slot slows)."""
+        i = rows_tiers.point_inputs(root, '1x1/1if', texts)._replace(pace_ms=0)
+        return rows_tiers.solve('R4L', i, rows_tiers.BUILT)[0] or 2000.0
+    if text.count(slot) != 1 or not unpaced(narrow) > unpaced(None):
+        escaped.append(CHANNEL_CONTROLS[3])
     return escaped
 
 

@@ -27,7 +27,8 @@ LONG_NOTICE_BYTES = 550
 #: the owner's decision of 2026-11-13, option A; FR_NFR.md 3.4.1): ACMP's, ADP's and MAAP's 30 ms by every source, 15 %
 #: of ACMP's 200 ms command timeout (Milan v1.2 5.5.2.3, Table 5.26), where neither ADP (a random 0 to 4 s delay before
 #: AVAILABLE, Milan v1.2 5.6.3.5.4) nor MAAP (500 to 600 ms between probes, IEEE 1722-2016 B.3.4.2) has a response
-#: deadline; and tier 1's 20 ms for AECP's with its largest legal notice, the one row that counts it.
+#: deadline; and tier 1's 20 ms for AECP's with its largest legal notice, the one row that counts it, which THE PACE
+#: restates at the 240 ms response time (paced_rows.PACED_BOUNDS, #894's ruling of 2026-11-13 on round 5).
 CHANNEL_BOUNDS = {'R4L': 20, 'ACMP': 30, 'ADP': 30, 'MAAP': 30}
 #: THE TRANSMIT's MRPDU rows: tx, and txL with every AECP notice the largest legal one (#894's ruling of 2026-11-13 on
 #: option A: the MRPDU's 40 ms is the specs', so the largest legal notice is one of its sources).
