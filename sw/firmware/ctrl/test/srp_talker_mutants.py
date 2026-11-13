@@ -10,7 +10,9 @@ defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) 
 licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two
 LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, Table 10-7), whether it changed while declared or
 while lapsed, and held across a reset; an admission change swaps in place; a refused declaration is declared again;
-the entry refuses before attach and on reentry; and the composition feeds each interface's DA gate and range.
+a withdrawal lwSRP refuses keeps the source declared and owed until lwSRP takes its Leave; THE TRANSMIT's call publishes
+within srp_bounds.h's terms; the entry refuses before attach and on reentry; and the composition feeds each interface's
+DA gate and range.
 """
 from __future__ import annotations
 
@@ -32,6 +34,8 @@ ADMIT = "Talker.AdmissionChangeSwapsTheTypeInPlace"
 RESET = "Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne"
 ENTRY = "Talker.GateEntryRecordsOnlyWhatChanged"
 REFUSED = "Talker.RefusedDeclarationIsDeclaredAgain"
+TERMS = "Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin"
+WITHDRAWN = "Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
 LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
 LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
@@ -48,6 +52,10 @@ SWAP_LEAVE = ("                if ((i->talkers & bit) != 0u && admitted != was) 
               "MSRP_ATTR_TYPE_TALKER_FAILED,\n                                        &value);\n                }\n")
 ENTRY_GUARD = ("bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_t base)\n"
                "{\n    if (!enter(m)) {\n        return false;\n    }\n")
+#: the withdrawal's Leave and what lwSRP's answer makes of the source, as srp_mbx.c holds them.
+LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value) "
+         "!= 0) {\n                done = false;\n            } else {\n                i->talkers &= ~bit;\n"
+         "                m->held_cs[n] = SRP_REDECLARE_CS;\n            }\n")
 FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],"
         "app->maap.ifs[interface].core.base);\n")
 
@@ -68,11 +76,11 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "        bool changed = (valid & ~i->gate) != 0u;\n", "the probe's 15 s expiry withdraws the Talker"),
         d("talker-unchanged-held", AGAIN, WAITS,
           "        const bool waits = m->held_cs[n] != 0u;\n", "an unchanged destination is declared again at once"),
-        d("talker-hold-off-skipped", CHANGED, "            m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "            m->held_cs[n] = 1u;\n",
+        d("talker-hold-off-skipped", CHANGED, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = 1u;\n",
           "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-lapse-starts-no-hold-off", LOST, "            m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "            m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
+        d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
           "a changed destination waits two LeaveAllTime periods after the Leave"),
         d("talker-hold-off-one-leaveall", CHANGED, "#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS",
           "#define SRP_REDECLARE_CS (1000u + SRP_JOIN_CS",
@@ -90,8 +98,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "            (!valid || (i->readdressed & bit) != 0u)) {\n",
           "the new participants hold a source that moved before the reset"),
         d("talker-decl-kept-at-the-withdrawal", LAPSE,
-          "            i->talkers &= ~bit;\n            m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "            m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                i->talkers &= ~bit;\n                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
           "TALKER_DECL clears the withdrawn source before its Leave leaves"),
         d("talker-licence-closed-after-the-withdrawal", LAPSE, LICENCE, "",
           "a lapse closes LICENCE before TALKER_DECL drops the source"),
@@ -107,9 +115,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
                              "MSRP_ATTR_TYPE_TALKER_FAILED"),
           "an admission lost swaps the Advertise to Talker Failed in place"),
         d("talker-withdrawal-leaves-an-advertise-only", ADMIT,
-          "            (void)mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : "
-          "MSRP_ATTR_TYPE_TALKER_FAILED,&value);\n",
-          "            (void)mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_TALKER_ADV,&value);\n",
+          "            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value) "
+          "!= 0) {\n",
+          "            if (mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_TALKER_ADV,&value) != 0) {\n",
           "a lapse withdraws a Talker Failed too"),
         d("talker-refused-swap-takes-the-new-type", ADMIT,
           "        i->admitted[n] = advertised && (i->talkers & bit) != 0u;\n",
@@ -121,6 +129,15 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "an allocated source whose bandwidth does not fit declares Talker Failed, code 1"),
         d("talker-refused-declaration-forgotten", REFUSED, "    i->sources_owed = !done;\n",
           "    i->sources_owed = false;\n", "a refused declaration is declared again"),
+        d("talker-refused-withdrawal-forgotten", WITHDRAWN, LEAVE,
+          "            (void)mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,"
+          "&value);\n            i->talkers &= ~bit;\n            m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "a withdrawal lwSRP refused keeps the source declared"),
+        d("talker-refused-withdrawal-not-owed", WITHDRAWN, LEAVE, LEAVE.replace("                done = false;\n", ""),
+          "the refused withdrawal's Leave leaves once lwSRP takes it"),
+        d("talker-transmit-publishes-past-its-terms", TERMS, "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
+          "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
+          "THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass"),
         d("talker-gate-before-attach", ENTRY, "    const bool ok = m->loop != NULL && interface < MBX_N_IF;\n",
           "    const bool ok = (m->loop != NULL || m->initialized) && interface < MBX_N_IF;\n",
           "refused before attach"),

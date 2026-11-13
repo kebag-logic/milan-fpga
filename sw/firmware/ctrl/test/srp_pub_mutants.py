@@ -167,7 +167,7 @@ ROUND5 = ('pub-declared-dropped-at-adoption', 'pub-declared-withdrawn-after-the-
 DECLARED_PUBLISHED = '    (void)mbx_pub_talker_decl(i->index,i->talkers);\n'
 ADOPTION_DECLARED = '    (void)declare_sources(i,SRP_DECLARE_EVERY);\n    i->domain_owed = false;\n'
 #: The comment after the last publication of declare_sources (#895).
-REFUSAL_OWED = "    // a refused join is tried again with THE TRANSMIT's next declarations\n"
+REFUSAL_OWED = "    // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations\n"
 
 
 def _adoption_and_failure(Defect: Callable[..., T]) -> tuple[T, ...]:

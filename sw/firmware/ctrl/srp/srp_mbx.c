@@ -287,10 +287,17 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
                 publish_licence(i);
                 m->config.licence(m->config.ctx,i->index,n,false);
             }
-            // lwSRP finds a Talker by its type and StreamID
-            (void)mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value);
-            i->talkers &= ~bit;
-            m->held_cs[n] = SRP_REDECLARE_CS;
+            // lwSRP finds a Talker by its type and StreamID, and refuses a Leave while the participant holds an MRPDU
+            // the ring refused (mrp_mad.c), which the declarations after THE TRANSMIT's build may meet. The source
+            // then stays declared, in TALKER_DECL too, and its withdrawal is owed with THE TRANSMIT's next
+            // declarations, whose first pass meets no frame owed (transmit_aged): lwSRP takes it there, and the
+            // hold-off starts at the Leave it took (#895)
+            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_ADV : MSRP_ATTR_TYPE_TALKER_FAILED,&value) != 0) {
+                done = false;
+            } else {
+                i->talkers &= ~bit;
+                m->held_cs[n] = SRP_REDECLARE_CS;
+            }
         }
         if (!admitted) {
             wire_put_be(value.failure_info + 2,i->mac,6);
@@ -327,7 +334,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     // most three quarters of a 32-bit link rate.
     (void)mbx_pub_idle_slope(i->index,(uint32_t)used);
     (void)mbx_pub_talker_decl(i->index,i->talkers);
-    // a refused join is tried again with THE TRANSMIT's next declarations
+    // a refused join or withdrawal is tried again with THE TRANSMIT's next declarations
     i->sources_owed = !done;
     return done;
 }

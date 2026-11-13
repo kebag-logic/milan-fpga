@@ -48,9 +48,14 @@
 // reset's term, and that poll reports no licence change on the interface (its
 // VLAN is not yet sent again), so the term funds it. THE TRANSMIT's call, with
 // no poll beside it, publishes an interface's declarations within the same
-// terms (#895): IDLE_SLOPE and TALKER_DECL once, an adoption's or a validity
-// change's, never both, and LICENCE once for each licence a withdrawal closes,
-// one per source.
+// terms (#895). Each of its declarations passes publishes IDLE_SLOPE and
+// TALKER_DECL at most once, and the interface whose MRPDUs it builds has two,
+// before the build and after it, the second making what the first could not
+// (a join or a withdrawal lwSRP refused, an adoption refused for storage): at
+// most twice each. SR_DOMAIN once, for an adoption, in either pass; LICENCE
+// once for each licence a withdrawal closes, one per source, a closed licence
+// closing no more. So at most 5 + MBX_N_PUB_SOURCES writes an interface,
+// within the reset's and an adoption's terms and the licences'.
 #define SRP_MBX_PUB_POLL_MAX (SRP_MBX_PUB_RESET + 3u + 2u * MBX_N_PUB_SOURCES)
 #define SRP_MBX_POLL_MAX (MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)
 // The loop's own reads of SRP's ring a pass: the mark it reads as it takes its

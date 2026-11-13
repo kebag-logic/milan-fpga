@@ -123,6 +123,35 @@ protected:
             if (model.now_ms%100u==0u) collect();
         }
     }
+    // An MSRP frame of two Domain messages, each one value (IEEE 802.1Q-2018 10.8), the first with a LeaveAll if `la`.
+    std::vector<uint8_t> domains(const std::vector<uint8_t> &a, unsigned ea, bool la,
+                                 const std::vector<uint8_t> &b, unsigned eb) {
+        auto f=frame(4,a,ea,0,la);
+        const auto g=frame(4,b,eb);
+        f.resize(f.size()-2);
+        f.insert(f.end(),g.begin()+15,g.end());
+        return f;
+    }
+    // SRP's transmit ring paused and filled with empty MRPDUs of interface 0, so the next frame it is given is
+    // refused; how many it took.
+    unsigned fill_ring() {
+        mbx_model_tx_pause(&model,true);
+        unsigned taken=0;
+        for (unsigned len : {200u, 60u, 18u}) {
+            std::vector<uint8_t> f(len);
+            wire_put_be(f.data(),0x0180c200000eull,6);
+            wire_put_be(f.data()+6,config.mac[0],6);
+            wire_put_be(f.data()+12,0x22ea,2);
+            while (mbx_tx_send(MBX_CH_SRP,0,f.data(),f.size())==MBX_STATUS_OK) ++taken;
+        }
+        return taken;
+    }
+    // Each interface's writes of one publication register in pub_trace.
+    unsigned writes(unsigned i, uint32_t reg) const {
+        unsigned n=0;
+        for (const auto &w:pub_trace) n+=w.first==MBX_PUB_BASE+MBX_PUB_STRIDE*i+reg;
+        return n;
+    }
 };
 
 }  // namespace
@@ -463,4 +492,100 @@ TEST_F(Talker, RefusedDeclarationIsDeclaredAgain) {
     ASSERT_NE(adv,nullptr) << "a refused declaration is declared again";
     EXPECT_LT(adv->time_ms,at+600u) << "a refused declaration is declared again at the JoinTime's rate";
     EXPECT_EQ(pub_of(model,0).talker_decl&1u,1u) << "and TALKER_DECL holds it";
+}
+
+// THE TRANSMIT's call publishes an interface's declarations within srp_bounds.h's terms (#895): IDLE_SLOPE and
+// TALKER_DECL at most once a declarations pass, so twice on the interface whose MRPDUs the call builds, whose
+// declarations after the build repeat a join lwSRP refused, and once on each other; LICENCE once for the licence a
+// withdrawal closes; SR_DOMAIN only for an adoption.
+TEST_F(Talker, TransmitPublishesWithinItsTermsAfterARefusedJoin) {
+    if (CTRL_SRP_SOURCES<2u) GTEST_SKIP();
+    settle(); gate(1u,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,false));
+    }
+    // source 0 lapses with its licence open, and source 1 is valid, its join refused (no storage)
+    calloc_before_failure=0;
+    gate(2u,kBaseA);
+    ASSERT_TRUE(loop.transmit_aged(loop.transmit_ctx)) << "the declarations owe THE TRANSMIT's call";
+    const unsigned built=(adapter.tx_due&1u)!=0u ? 0u : 1u;
+    pub_trace.clear();
+    mbx_host_trace(pub_writes,nullptr);
+    loop.transmit(loop.transmit_ctx);
+    untrace();
+    calloc_before_failure=-1;
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence)) << "the withdrawal closes the licence";
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        const unsigned passes=i==built ? 2u : 1u;
+        EXPECT_EQ(writes(i,MBX_PUB_REG_TALKER_DECL),passes)
+            << "THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass, twice on the interface "
+               "it builds";
+        EXPECT_EQ(writes(i,MBX_PUB_REG_IDLE_SLOPE),passes)
+            << "THE TRANSMIT's call publishes IDLE_SLOPE at most once a declarations pass, twice on the interface "
+               "it builds";
+        EXPECT_EQ(writes(i,MBX_PUB_REG_LICENCE),1u) << "LICENCE once for the licence the withdrawal closes";
+        EXPECT_EQ(writes(i,MBX_PUB_REG_SR_DOMAIN),0u) << "SR_DOMAIN only for an adoption";
+        EXPECT_LE(writes(i,MBX_PUB_REG_TALKER_DECL)+writes(i,MBX_PUB_REG_IDLE_SLOPE)+writes(i,MBX_PUB_REG_LICENCE)+
+                  writes(i,MBX_PUB_REG_SR_DOMAIN)+writes(i,MBX_PUB_REG_DA_GATE),5u+MBX_N_PUB_SOURCES)
+            << "THE TRANSMIT's call publishes at most 5 + MBX_N_PUB_SOURCES writes an interface";
+        EXPECT_EQ(pub_of(model,i).talker_decl,0u) << "a refused join declares nothing";
+        EXPECT_TRUE(adapter.ifs[i].sources_owed) << "a refused join is owed again";
+    }
+}
+
+// A withdrawal's Leave lwSRP refuses keeps the source declared and owed (#895). lwSRP refuses a Leave while its
+// participant holds the MRPDU the ring refused, which THE TRANSMIT's declarations after its build meet when a Domain
+// adoption refused for storage before the build is made after it, the reclaim before the build having freed the room
+// (srp_mbx.c, transmit). TALKER_DECL holds the source until lwSRP takes the Leave, with THE TRANSMIT's next
+// declarations once the frame has gone, and the Leave goes on the wire.
+TEST_F(Talker, RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt) {
+    settle(); gate(1u,kBaseA); advance(400);
+    // interface 0's MSRP join timer idle and nothing owed, so THE TRANSMIT's build makes the MRPDU the LeaveAll owes
+    for (unsigned k=0;k<2000u && (adapter.join_left[0]!=0u || adapter.tx_due!=0u);++k) advance(1);
+    ASSERT_EQ(adapter.join_left[0],0u);
+    collect();
+    const uint32_t first=model.tx_sent;
+    // a peer's Domain, VID 3, owes interface 0 an adoption, and its LeaveAll owes the participant an MRPDU; a Domain
+    // it declares empty leaves an attribute mrp_reclaim frees
+    receive_before_poll(domains({6,4,0,3},1,true,{6,4,0,5},4));
+    ASSERT_TRUE(adapter.ifs[0].domain_owed);
+    ASSERT_TRUE(srp_mbx_gate(&adapter,0,0u,kBaseA));
+    // every block taken, and given back however the test ends
+    struct Held {
+        ctrl_pool *pool;
+        std::vector<void*> blocks;
+        void give() { for (void *p:blocks) ctrl_pool_free(pool,p); blocks.clear(); }
+        ~Held() { give(); }
+    } held{&pool,{}};
+    while (void *p=ctrl_pool_alloc(&pool,1)) held.blocks.push_back(p);
+    const unsigned fillers=fill_ring();
+    ASSERT_LT(fillers,MBX_MODEL_TX_CAPTURE/2u);
+    ASSERT_TRUE(loop.transmit_aged(loop.transmit_ctx));
+    ASSERT_EQ(adapter.tx_due&1u,1u) << "THE TRANSMIT's call builds interface 0's MRPDUs";
+    trace();
+    loop.transmit(loop.transmit_ctx);
+    ASSERT_NE(adapter.owed_len,0u) << "the ring refused the MRPDU built";
+    ASSERT_EQ(adapter.ifs[0].domain.vid,3u) << "the adoption refused before the build is made after it";
+    EXPECT_EQ(pub_of(model,0).talker_decl&1u,1u) << "a withdrawal lwSRP refused keeps the source declared";
+    EXPECT_TRUE(adapter.ifs[0].sources_owed) << "a withdrawal lwSRP refused is owed again";
+    EXPECT_EQ(adapter.held_cs[0],0u) << "no hold-off starts at a Leave lwSRP refused";
+    held.give();
+    mbx_model_tx_pause(&model,false);
+    collect();
+    advance(1000);
+    untrace();
+    const auto ds=talker(0,0,first);
+    const auto *lv=leave(ds,1);
+    ASSERT_NE(lv,nullptr) << "the refused withdrawal's Leave leaves once lwSRP takes it";
+    ASSERT_NE(commit_of(lv->frame),nullptr);
+    EXPECT_EQ(commit_of(lv->frame)->pub[0].talker_decl&1u,0u)
+        << "TALKER_DECL clears the withdrawn source before its Leave leaves";
+    EXPECT_EQ(declared(ds,1,lv->time_ms+1u),nullptr) << "no stale Talker Advertise remains after the Leave";
+    EXPECT_EQ(pub_of(model,0).talker_decl&1u,0u) << "TALKER_DECL holds the source withdrawn";
+    EXPECT_NE(adapter.held_cs[0],0u) << "the hold-off starts at the Leave lwSRP took";
+    EXPECT_FALSE(adapter.ifs[0].sources_owed) << "nothing is owed once lwSRP takes the Leave";
 }
