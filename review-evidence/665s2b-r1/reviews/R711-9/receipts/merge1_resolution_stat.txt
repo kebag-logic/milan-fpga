@@ -1,0 +1,16 @@
+replayed merge-tree of 70e30d7b + 8bc1dfc0 -> d2fe81bfe3d3807b35a45a5854434d0cf24c018f (conflicts listed in merge1_replay.txt)
+recorded 187eeed8 vs replay, per file:
+ docs/design/SPLIT_CONTROL_MEMORY.md           | 59 +++++++++++----------------
+ sw/firmware/ctrl/plat/ctrl_split.ld           |  1 -
+ sw/firmware/ctrl/plat/ctrl_split_hot.txt      |  1 -
+ sw/firmware/ctrl_nvm/README.md                |  7 +---
+ sw/firmware/ctrl_nvm/nvm_store.c              |  9 +---
+ sw/firmware/ctrl_nvm/test/nvm_mutants.py      |  9 +---
+ sw/firmware/gtest/README.md                   |  9 +---
+ sw/firmware/gtest/coverage.ratchet            | 11 +----
+ sw/litex/ctrl_memory.py                       | 15 ++-----
+ sw/litex/ctrl_memory_ledger.py                | 22 ----------
+ sw/litex/test_ctrl_memory.py                  |  8 ----
+ tb/verilator/ctrl_service_budget/README.md    |  9 ----
+ tb/verilator/ctrl_service_budget/split_soc.py | 27 +++++-------
+ 13 files changed, 45 insertions(+), 142 deletions(-)

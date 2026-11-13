@@ -1,0 +1,250 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index 5564c16959..22146feb8f 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -83,7 +83,6 @@ SECTIONS
+ 		*-nvm_store.o(.text.nvm_store_service)
+ 		*-nvm_store.o(.text.nvm_now)
+ 		*-nvm_flash_litespi.o(.text.ls_now_us)
+-		*-nvm_store.o(.text.nvm_any)
+ 		*-nvm_store.o(.text.nvm_publish)
+ 		*-adp_mbx.o(.text.on_event)
+ 		*-acmp_mbx.o(.text.on_event)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 526c52b854..3f6d39cdeb 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -87,7 +87,6 @@ timer shlan_timer_tick
+ nvm_store nvm_store_service
+ nvm_store nvm_now
+ nvm_flash_litespi ls_now_us
+-nvm_store nvm_any
+ nvm_store nvm_publish
+ adp_mbx on_event
+ acmp_mbx on_event
+diff --git a/sw/firmware/ctrl_nvm/nvm_store.c b/sw/firmware/ctrl_nvm/nvm_store.c
+index b36391e822..837e28eea8 100644
+--- a/sw/firmware/ctrl_nvm/nvm_store.c
++++ b/sw/firmware/ctrl_nvm/nvm_store.c
+@@ -884,17 +884,10 @@ static void nvm_mark(unsigned int id)
+ 
+ 	if (nvm.st.phase == NVM_P_OFF)
+ 		return;
+-<<<<<<< 70e30d7b92
+ 	/* the running capture has yet to reach the record: it takes this change,
+ 	 * and leaves no window open behind it (DR2a) */
+ 	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;
+-	nvm.dirty[id >> 5] |= 1u << (id & 31u);
+-=======
+-	/* the running capture has yet to reach r: it takes this change, and
+-	 * leaves no window open behind it (DR2a) */
+-	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
+-	nvm_open_set(&nvm.dirty, r.id);
+->>>>>>> 8bc1dfc0bb
++	nvm_open_set(&nvm.dirty, id);
+ 	if (!taken && !nvm.dirty_armed) {
+ 		nvm.dirty_armed = 1;
+ 		nvm.dirty_since_us = nvm_now();
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_mutants.py b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+index e254c3aa20..930a990b5a 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_mutants.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+@@ -393,13 +393,8 @@ MUTANTS = (
+        "\tif (0) {", "media_failures"),
+     # every change call opens a new budget, changed or not
+     _m("budget_rearmed_by_change", STORE,
+-<<<<<<< 70e30d7b92
+-       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tif (!taken",
+-       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tnvm.st.attempts = 0;\n"
+-=======
+-       "\tnvm_open_set(&nvm.dirty, r.id);\n\tif (!taken",
+-       "\tnvm_open_set(&nvm.dirty, r.id);\n\tnvm.st.attempts = 0;\n"
+->>>>>>> 8bc1dfc0bb
++       "\tnvm_open_set(&nvm.dirty, id);\n\tif (!taken",
++       "\tnvm_open_set(&nvm.dirty, id);\n\tnvm.st.attempts = 0;\n"
+        "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
+     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
+        "dr2c_unchanged_set"),
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index 0be702ebe5..248ca9d436 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -33,17 +33,10 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 8/8  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 114/114  branches 68/68
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+-<<<<<<< 70e30d7b92
+ sw/firmware/ctrl/srp/srp_mbx.c  lines 663/663  branches 577/577
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 207/207  branches 116/116
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 456/456  branches 265/265
++sw/firmware/ctrl_nvm/nvm_klj2.c  lines 212/212  branches 120/120
++sw/firmware/ctrl_nvm/nvm_store.c  lines 481/481  branches 275/275
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 108/108  branches 63/63
+-=======
+-sw/firmware/ctrl/srp/srp_mbx.c  lines 543/543  branches 486/486
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 203/203  branches 110/110
+-sw/firmware/ctrl_nvm/nvm_store.c  lines 459/459  branches 269/269
+-sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+->>>>>>> 8bc1dfc0bb
+ third_party/tsn-c-stack/include/wire.h  lines 14/14  branches 2/2
+ third_party/tsn-c-stack/src/acmp.c  lines 847/847  branches 436/436
+ third_party/tsn-c-stack/src/adp.c  lines 206/206  branches 99/99
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 20535201cf..1e391851aa 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -248,20 +248,13 @@ class Ledgered:
+ #: tb/verilator/ctrl_split_boot/plat_ledger.py, so a stale ctrl_plat size or a plan past its tiles is refused
+ #: where it happens.
+ LEDGERED: dict[str, Ledgered] = {
+-<<<<<<< 70e30d7b92
+-    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+-                                   58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+-                                         "6425357821); 58.0 since a TX record's commit judges its own move, "
+-                                         "+112 to 120 B an image, with tsn-c-stack 715589c (#665)"),
+-    "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 20_288)), 60.0,
+-=======
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
+                                    58.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+-                                         "6425357821; the owner's 6824896581: 58.0, at most 58.5)"),
++                                         "6425357821); 58.0 since a TX record's commit judges its own move, "
++                                         "+112 to 120 B an image, with tsn-c-stack 715589c, held there for the "
++                                         "flip by the owner's decision of 2026-11-12, at most 58.5 (#665)"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_392)), 59.0,
+->>>>>>> 8bc1dfc0bb
++                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_288)), 60.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+index 7fdbedaf3c..bf55e83a61 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -5,16 +5,11 @@ planted ledgers that widen one, and the out-of-context mapper's override.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+ only by its own name, under #665's documented memory exceptions: the size fixture's at 58.0 RAMB36 and the target
+-<<<<<<< 70e30d7b92
+ platform's at 60.0 (the owner's decision of 2026-11-12), each refused half a tile past. A `Case` here is what the
+ ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+ here takes, and grades what these return.
+-=======
+-platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+-writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
+ syn/ooc/ctrl_memory_ooc.py maps the platform's point only through `--ledgered`, so the ledger can map it
+ (#665 S9); `mapper_arms` grades that override and plants three defects in it.
+->>>>>>> 8bc1dfc0bb
+ """
+ 
+ from __future__ import annotations
+@@ -51,17 +46,10 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-<<<<<<< 70e30d7b92
+ OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 58.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 60.0)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 58.0),
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 60.0)}
+-=======
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 58.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 59.0)}
+-#: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 58.0),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 59.0)}
+->>>>>>> 8bc1dfc0bb
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+@@ -73,7 +61,6 @@ REFUSED = (
+     ("an 8x8 image with no image_allocation at 58.0", FIXTURE, Case(STAGE_8X8, None, None, 58.0)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+     ("the platform's 8x8 two-interface image at 58.0", FIXTURE, OWN[PLATFORM]._replace(tiles=58.0)),
+-<<<<<<< 70e30d7b92
+     ("its own image at 60.5 RAMB36, half a tile past its 60.0", PLATFORM, OWN[PLATFORM]._replace(tiles=60.5)),
+     ("the platform's 1x1 one-interface image at 60.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 60.0)),
+     ("the platform's 1x1 two-interface image at 60.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 60.0)),
+@@ -81,15 +68,6 @@ REFUSED = (
+     ("an image with the point's ctrl_plat and the 1x1 stage at 60.0", PLATFORM,
+      Case(STAGE_1X1, None, PLAT_8X8_2, 60.0)),
+     ("an 8x8 image with no ctrl_plat at 60.0", PLATFORM, Case(STAGE_8X8, None, None, 60.0)),
+-=======
+-    ("its own image at 59.5 RAMB36, half a tile past its 59.0", PLATFORM, OWN[PLATFORM]._replace(tiles=59.5)),
+-    ("the platform's 1x1 one-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 59.0)),
+-    ("the platform's 1x1 two-interface image at 59.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 59.0)),
+-    ("the platform's 8x8 one-interface image at 59.0", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 59.0)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 59.0", PLATFORM,
+-     Case(STAGE_1X1, None, PLAT_8X8_2, 59.0)),
+-    ("an 8x8 image with no ctrl_plat at 59.0", PLATFORM, Case(STAGE_8X8, None, None, 59.0)),
+->>>>>>> 8bc1dfc0bb
+     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
+     ("the size fixture's 8x8 two-interface image at 60.0", PLATFORM, OWN[FIXTURE]._replace(tiles=60.0)),
+     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+index e1e15d3531..fdb4a4cf1f 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -18,11 +18,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+      Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
+      size fixture's and the platform's 8x8 images with two interfaces) plans
+-<<<<<<< 70e30d7b92
+      its 58.0 or 60.0 by name and is refused without its override, through
+-=======
+-     its 58.0 or 59.0 by name and is refused without its override, through
+->>>>>>> 8bc1dfc0bb
+      add_ctrl_memory and half a tile past; each override is refused on every
+      other point, on the other's image and on an image with one of its two
+      symbols. Six planted ledgers, each widening an entry to another point or
+@@ -335,11 +331,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-<<<<<<< 70e30d7b92
+                                           f"platform's 8x8 images with two interfaces at 58.0 and 60.0 ({held})")
+-=======
+-                                          f"platform's 8x8 images with two interfaces at 58.0 and 59.0 ({held})")
+->>>>>>> 8bc1dfc0bb
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 4e6602216b..897e61c48a 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -479,24 +479,17 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
+ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:
+     """Export the test SoC's Verilog and return the native build's inputs.
+ 
+-<<<<<<< 70e30d7b92
+     core is the selection (build.Core). Its cpu_regions 'cover' gives the CPU
+-    generator each region at its power-of-two cover; 'as-built' gives it the
+-    SoC's regions unchanged, which reproduces the generator's rom decode
+-    defect (a control). Its fetch_l1 selects the CPU's instruction cache
+-    (fetch_l1_geometry). Its cpu_cd is the split CPU's clock domain, MilanSoC's
+-    ctrl_cpu_cd, None for the split placement's own (milan_soc.CTRL_CPU_CD,
+-    sys): MilanSoC refuses any other, the Milan clock among them (#665, owner
+-    decision 2026-10-30). The CPU's clock, cpu_hz, is the one MilanSoC derives
+-    from that domain (cpu_clk_freq), never the point's milan_clk_hz, which is
+-    the datapath's and is recorded only as milan_hz.
+-=======
+-    cpu_regions 'cover' gives the CPU generator the shipping split's
+-    regions, each its own power-of-two cover (#791); 'as-built' gives it the
+-    SoC's regions without that split, which reproduces the generator's
+-    single-mask rom decode (a control).
+-    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+->>>>>>> 8bc1dfc0bb
++    generator the shipping split's regions, each its own power-of-two cover
++    (#791); 'as-built' gives it the SoC's regions without that split, which
++    reproduces the generator's single-mask rom decode (a control). Its
++    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry). Its
++    cpu_cd is the split CPU's clock domain, MilanSoC's ctrl_cpu_cd, None for
++    the split placement's own (milan_soc.CTRL_CPU_CD, sys): MilanSoC refuses
++    any other, the Milan clock among them (#665, owner decision 2026-10-30).
++    The CPU's clock, cpu_hz, is the one MilanSoC derives from that domain
++    (cpu_clk_freq), never the point's milan_clk_hz, which is the datapath's
++    and is recorded only as milan_hz.
+     """
+     addresses = fixture_addresses(build_dir / FLASH_MAP)
+     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
