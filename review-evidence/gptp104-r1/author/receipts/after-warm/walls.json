@@ -1,0 +1,122 @@
+[
+ {
+  "step": "target `contract`",
+  "start": 0.0,
+  "end": 0.03,
+  "wall_s": 0.03
+ },
+ {
+  "step": "target `tb`",
+  "start": 0.03,
+  "end": 2795.7,
+  "wall_s": 2795.67
+ },
+ {
+  "step": "sub-make `tb/verilator/ucpu`",
+  "start": 0.03,
+  "end": 5.27,
+  "wall_s": 5.24
+ },
+ {
+  "step": "sub-make `tb/verilator/parser`",
+  "start": 5.27,
+  "end": 204.19,
+  "wall_s": 198.92
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 5.27,
+  "end": 11.44,
+  "wall_s": 6.17
+ },
+ {
+  "step": "driver `tb/verilator/parser/mutants.py`",
+  "start": 11.44,
+  "end": 204.19,
+  "wall_s": 192.75
+ },
+ {
+  "step": "sub-make `tb/verilator/engine`",
+  "start": 204.19,
+  "end": 2717.62,
+  "wall_s": 2513.43
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 204.19,
+  "end": 511.77,
+  "wall_s": 307.58
+ },
+ {
+  "step": "driver `tb/verilator/engine/mutants.py`",
+  "start": 511.77,
+  "end": 2717.62,
+  "wall_s": 2205.85
+ },
+ {
+  "step": "sub-make `tb/verilator/gaskets`",
+  "start": 2717.63,
+  "end": 2753.13,
+  "wall_s": 35.5
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 2717.63,
+  "end": 2723.39,
+  "wall_s": 5.76
+ },
+ {
+  "step": "driver `tb/verilator/gaskets/mutants.py`",
+  "start": 2723.39,
+  "end": 2753.13,
+  "wall_s": 29.74
+ },
+ {
+  "step": "sub-make `tb/tsngen`",
+  "start": 2753.14,
+  "end": 2791.4,
+  "wall_s": 38.26
+ },
+ {
+  "step": "suite (build + run)",
+  "start": 2753.14,
+  "end": 2760.99,
+  "wall_s": 7.85
+ },
+ {
+  "step": "driver `tb/tsngen/mutants.py`",
+  "start": 2760.99,
+  "end": 2791.4,
+  "wall_s": 30.41
+ },
+ {
+  "step": "sub-make `bench/arty`",
+  "start": 2791.41,
+  "end": 2795.7,
+  "wall_s": 4.29
+ },
+ {
+  "step": "target `lint`",
+  "start": 2795.7,
+  "end": 2795.96,
+  "wall_s": 0.26
+ },
+ {
+  "step": "sub-make `bench/arty`",
+  "start": 2795.83,
+  "end": 2795.96,
+  "wall_s": 0.13
+ },
+ {
+  "step": "target `docs`",
+  "start": 2795.96,
+  "end": 2797.06,
+  "wall_s": 1.1
+ },
+ {
+  "step": "whole `make all` (rc 0)",
+  "start": 0,
+  "end": 2797.06,
+  "wall_s": 2797.06
+ }
+]

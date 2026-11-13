@@ -1,0 +1,52 @@
+      0.01 make: Entering directory '/data-2/milan/tmp/gptp104-a777/head/eq/tb/verilator/engine'
+      0.01 python3 ../../mutation_jobs_test.py mutants.py
+  20909.73 INFO jobs1-cold: ccache cache_miss 74, cache_size_kibibyte 2880, direct_cache_hit 210, direct_cache_miss 74, files_in_cache 78, local_storage_hit 210, local_storage_miss 74, local_storage_read_hit 490, local_storage_read_miss 78, local_storage_write 148, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 74
+  20909.73 INFO jobs8-cold: ccache cache_miss 74, cache_size_kibibyte 2880, direct_cache_hit 210, direct_cache_miss 74, files_in_cache 78, local_storage_hit 210, local_storage_miss 74, local_storage_read_hit 490, local_storage_read_miss 78, local_storage_write 148, max_cache_size_kibibyte 5242880, preprocessed_cache_miss 74
+  20909.73 INFO jobs1-warm: ccache cache_size_kibibyte 2880, direct_cache_hit 273, direct_cache_miss 11, files_in_cache 78, local_storage_hit 284, local_storage_read_hit 568, local_storage_write 11, max_cache_size_kibibyte 5242880, preprocessed_cache_hit 11
+  20909.73 INFO jobs8-warm: ccache cache_size_kibibyte 2880, direct_cache_hit 273, direct_cache_miss 11, files_in_cache 78, local_storage_hit 284, local_storage_read_hit 568, local_storage_write 11, max_cache_size_kibibyte 5242880, preprocessed_cache_hit 11
+  20909.88 INFO jobs1-off: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 19412 s
+  20909.88 INFO jobs8-off: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 3020 s
+  20909.88 INFO jobs1-cold: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 18955 s
+  20909.88 INFO jobs8-cold: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 2721 s
+  20909.88 INFO jobs1-warm: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 18188 s
+  20909.88 INFO jobs8-warm: exit 0, 77458 bytes, sha256 9fb353df86cecf91cd2d782904f7543f809a5e8d649ae2c068c69c8d1ccc74b2, 160 verdicts, 2975 s
+  20909.89 PASS jobs1-off: ccache wrote nothing (0 files)
+  20909.89 PASS jobs8-off: ccache wrote nothing (0 files)
+  20909.89 PASS jobs1-cold: 284 compilations, 74 into the empty cache (got 284, 74)
+  20909.89 PASS jobs8-cold: 284 compilations, 74 into the empty cache (got 284, 74)
+  20909.89 PASS jobs1-warm: all 284 compilations from the warm cache (got 284 hits, 0 misses)
+  20909.89 PASS jobs8-warm: all 284 compilations from the warm cache (got 284 hits, 0 misses)
+  20909.89 PASS jobs1-off: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs1-off: tallies 160 checks (got 160)
+  20909.89 PASS jobs8-off: the exit status is jobs1-off's (0 and 0)
+  20909.89 PASS jobs8-off: the verdict list is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-off: stdout is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-off: stderr is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-off: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs8-off: tallies 160 checks (got 160)
+  20909.89 PASS jobs1-cold: the exit status is jobs1-off's (0 and 0)
+  20909.89 PASS jobs1-cold: the verdict list is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-cold: stdout is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-cold: stderr is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-cold: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs1-cold: tallies 160 checks (got 160)
+  20909.89 PASS jobs8-cold: the exit status is jobs1-off's (0 and 0)
+  20909.89 PASS jobs8-cold: the verdict list is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-cold: stdout is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-cold: stderr is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-cold: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs8-cold: tallies 160 checks (got 160)
+  20909.89 PASS jobs1-warm: the exit status is jobs1-off's (0 and 0)
+  20909.89 PASS jobs1-warm: the verdict list is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-warm: stdout is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-warm: stderr is jobs1-off's, byte for byte
+  20909.89 PASS jobs1-warm: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs1-warm: tallies 160 checks (got 160)
+  20909.89 PASS jobs8-warm: the exit status is jobs1-off's (0 and 0)
+  20909.89 PASS jobs8-warm: the verdict list is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-warm: stdout is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-warm: stderr is jobs1-off's, byte for byte
+  20909.89 PASS jobs8-warm: prints 160 verdict lines (got 160)
+  20909.89 PASS jobs8-warm: tallies 160 checks (got 160)
+  20909.89 38 checks: 38 PASS, 0 FAIL
+  20909.90 make: Leaving directory '/data-2/milan/tmp/gptp104-a777/head/eq/tb/verilator/engine'
