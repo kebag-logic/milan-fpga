@@ -6,6 +6,10 @@
 
 #include "../plat/ctrl_cc.h"
 
+// sid_written and sid_wait hold a bit per source the publication block holds;
+// a gate opens no other source, since its count never exceeds them (#905).
+_Static_assert(MBX_N_PUB_SOURCES <= 16u, "a source's SRC_SID mark needs its bit");
+
 static bool send_frame(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
 {
 	(void)ctx;
@@ -64,9 +68,9 @@ static uint32_t declaring(struct maap_mbx *m, unsigned interface, uint16_t count
 			}
 		}
 	}
-	uint32_t may = gate & (m->published_gate[interface] | m->sid_written[interface]);
-	m->sid_wait[interface] = gate & ~may;
-	m->sid_written[interface] &= ~may;
+	uint32_t may = gate & (m->published_gate[interface] | m->sid_written);
+	m->sid_wait[interface] = (uint16_t)(gate & ~may);
+	m->sid_written &= (uint16_t)~may;
 	return may;
 }
 
@@ -82,19 +86,29 @@ static uint64_t stream_of(const struct maap_mbx *m, unsigned s)
 	return st.stream.stream_id;
 }
 
-// One word of the lowest waiting source's SRC_SID, read from its port, the low
-// word first, in a poll that writes no DA_GATE: the poll's one publication
-// write (maap_mbx.h). The source's DA_GATE bit stays clear until both are
-// written, so no frame carries a half-written stream_id, and none a stream_id
-// its port no longer reports (KL_mbx_pkg.sv SRC_SID_LO; #905).
+// Whether interface k's poll owes a SRC_SID word: one source's are in flight
+// at a time, so the high word owed, when its source is k's, or else, with none
+// owed, the low word of a source k's gate holds (#905).
+static bool sid_owed(const struct maap_mbx *m, unsigned k)
+{
+	unsigned s = m->sid_half;
+	return s != 0u ? m->acmp->cfg.source_interface[s - 1u] == k : m->sid_wait[k] != 0u;
+}
+
+// One word of a waiting source's SRC_SID, read from its port, the low word
+// first, in an interface's poll that writes no DA_GATE: its one publication
+// write (maap_mbx.h), on the source's own interface. The source's DA_GATE bit
+// stays clear until both are written, so no frame carries a half-written
+// stream_id, and none a stream_id its port no longer reports (KL_mbx_pkg.sv
+// SRC_SID_LO; #905).
 static CTRL_CC_NOINLINE void publish_sid(struct maap_mbx *m, unsigned k)
 {
-	unsigned s = m->sid_half[k];
+	unsigned s = m->sid_half;
 	if (s != 0u) {
 		--s;
-		(void)mbx_pub_src_sid(k, s, true, m->sid_high[k]);
-		m->sid_written[k] |= UINT32_C(1) << s;
-		m->sid_half[k] = 0u;
+		(void)mbx_pub_src_sid(k, s, true, m->sid_high);
+		m->sid_written |= (uint16_t)(UINT32_C(1) << s);
+		m->sid_half = 0u;
 		return;
 	}
 	while ((m->sid_wait[k] >> s & 1u) == 0u) {
@@ -102,8 +116,8 @@ static CTRL_CC_NOINLINE void publish_sid(struct maap_mbx *m, unsigned k)
 	}
 	uint64_t id = stream_of(m, s);
 	(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);
-	m->sid_high[k] = (uint32_t)(id >> 32);
-	m->sid_half[k] = (uint8_t)(s + 1u);
+	m->sid_high = (uint32_t)(id >> 32);
+	m->sid_half = (uint8_t)(s + 1u);
 }
 
 void maap_mbx_bind_acmp(struct maap_mbx *m, struct acmp *acmp)
@@ -217,7 +231,7 @@ static bool poll(void *ctx)
 		if (gate != m->published_gate[k]) {
 			m->published_gate[k] = gate;
 			(void)mbx_pub_da_gate(k, gate);
-		} else if ((m->sid_wait[k] | m->sid_half[k]) != 0u) {
+		} else if (sid_owed(m, k)) {
 			// A waiting SRC_SID is work owed: the next passes write it,
 			// and the one after its last word opens the gate (#905)
 			publish_sid(m, k);
@@ -251,7 +265,7 @@ bool maap_mbx_start(struct maap_mbx *m, uint64_t preferred)
 			unsigned k = m->acmp->cfg.source_interface[s];
 			(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);
 			(void)mbx_pub_src_sid(k, s, true, (uint32_t)(id >> 32));
-			m->sid_written[k] |= UINT32_C(1) << s;
+			m->sid_written |= (uint16_t)(UINT32_C(1) << s);
 		}
 	}
 	bool ok = true;

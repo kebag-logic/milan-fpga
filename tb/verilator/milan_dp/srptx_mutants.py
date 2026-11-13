@@ -81,7 +81,7 @@ ARMS = (
     ("no source's SRC_SID written (#905)", MAAP,
      "\t\t\t(void)mbx_pub_src_sid(k, s, false, (uint32_t)id);\n"
      "\t\t\t(void)mbx_pub_src_sid(k, s, true, (uint32_t)(id >> 32));",
-     "\t\t\t(void)id;",
+     "\t\t\t(void)id;\n\t\t\t(void)k;",
      "licence", 0, "which no Talker Advertise the split declared carries"),
 )
 

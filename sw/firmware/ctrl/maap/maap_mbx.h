@@ -16,7 +16,7 @@ extern "C" {
 // allocation reported writes the range filter (3) and DA_GATE (1).
 // F3b dispatch queries may read the clock once per source. Poll also
 // allows one publication write: a changed declaration gate, or else one
-// word of the SRC_SID of a source its gate holds closed for it (#905).
+// word of the SRC_SID of a source a gate holds closed for it (#905).
 #define MAAP_MBX_EVENT_MAX (49u + ACMP_MAX_SOURCES)
 #define MAAP_MBX_RX_MAX (48u + ACMP_MAX_SOURCES)
 #define MAAP_MBX_POLL_MAX (49u + ACMP_MAX_SOURCES)
@@ -44,14 +44,15 @@ struct maap_mbx {
 	struct acmp *acmp;
 	uint32_t published_gate[MBX_N_IF];
 	uint32_t demand; // Cached acmp_declaring answers, including source DA validity.
-	// Each source's SRC_SID (#905), bit s source s: written since its DA_GATE
-	// bit last opened, so the bit may open; held closed until the poll writes
-	// it; the source whose low word the poll wrote (+ 1, 0 for none) and the
-	// high word it owes next.
-	uint32_t sid_written[MBX_N_IF];
-	uint32_t sid_wait[MBX_N_IF];
-	uint32_t sid_high[MBX_N_IF];
-	uint8_t sid_half[MBX_N_IF];
+	// Each source's SRC_SID (#905), one source's at a time: the high word the
+	// poll owes next, of the source whose low word it wrote (sid_half, + 1, 0
+	// for none); bit s source s, written since its DA_GATE bit last opened, so
+	// the bit may open; and, per interface, held closed until the poll writes
+	// it. Sixteen bits hold the publication block's sources (maap_mbx.c).
+	uint32_t sid_high;
+	uint16_t sid_written;
+	uint16_t sid_wait[MBX_N_IF];
+	uint8_t sid_half;
 };
 
 // Bind the declaration owner before attaching the adapter. No owner means

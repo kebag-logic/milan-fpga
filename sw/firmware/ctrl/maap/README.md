@@ -135,7 +135,10 @@ which its Talker declares and ACMP answers with (Milan v1.2 5.3.7.5).
 A closed source opens only once its stream_id is written since it last opened:
 by the start for its first opening, and then by the poll, read from that port.
 The gate holds the source closed meanwhile, and the poll writes it one word a poll,
-the low word first, in a poll that writes no gate.
+the low word first, in a poll that writes no gate, one source's words at a time
+across the interfaces: the high word owed comes first, on its source's own interface.
+`struct maap_mbx` grows 8 bytes for it: a 16-bit mask of the sources written, one per
+interface of those held, and the one high word owed with its source.
 So a source's frames carry the stream_id its port reported just before its gate opened,
 except at its first opening, which carries the start's.
 A stream_id the port changes while the gate stays open is written before the gate next reopens;
@@ -171,7 +174,7 @@ one cancel, allocation publication, and up to 16 freshness clock reads.
 Receive has a conservative 64-access bound.
 A per-interface poll allows 65 accesses: the existing 48, up to
 16 source queries before entering MAAP, and one publication write,
-a changed gate or else one word of the `SRC_SID` of a source its gate holds closed for it (#905).
+a changed gate or else one word of the `SRC_SID` of a source a gate holds closed for it (#905).
 Start writes two words a source before the first pass, outside every pass bound.
 A query without an answered probe needs no freshness clock read.
 This excludes the allocation callback's separate datapath CSR accesses;
