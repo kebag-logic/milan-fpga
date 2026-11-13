@@ -40,6 +40,7 @@ import load_grade  # noqa: E402
 import rows_grade  # noqa: E402
 import paced_rows  # noqa: E402
 import rows_tiers  # noqa: E402
+import queued_bound  # noqa: E402
 
 ROOT = load_grade.ROOT
 #: The point the flip check holds, and its ceiling.
@@ -55,7 +56,7 @@ def row_findings(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) 
     if design == 'as-built':
         return rows_grade.findings(root, points)
     return rows_tiers.findings(root, rows_tiers.BUILT, points) + rows_tiers.unrowed(root, rows_tiers.BUILT, points) + \
-        rows_tiers.tx_statements(root, points)
+        rows_tiers.tx_statements(root, points) + (queued_bound.statements(root) if queued_bound.POINT in points else [])
 
 
 def row_report(root: Path, points: tuple[str, ...], design: str = DESIGNS[0]) -> list[str]:
@@ -240,11 +241,12 @@ def row_controls(root: Path) -> list[str]:
     # the queued notices are the tree's stated bounds: a statement past its bound is refused
     path = load_grade.ROW_HEADERS[2]
     text = (root / path).read_text()
-    old = '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 125u : 62u)'
+    old = f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {queued_bound.stated(root)}u : 62u)'
     planted = {path: text.replace(old, '#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 1250u : 62u)')}
     if text.count(old) != 1 or not any(f.startswith('1x1/1if last:') for f in
                                        rows_grade.findings(root, ('1x1/1if',), texts=planted)):
         escaped.append('the last queued notice past its bound')
+    escaped += queued_bound.controls(root)
     # every source the method's docstring names is counted in every solved row, and every term it counts has one
     if rows_grade.unsourced(root):
         escaped.append('a source the rows do not count')

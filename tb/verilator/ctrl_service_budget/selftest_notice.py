@@ -83,9 +83,9 @@ def queue_checks() -> list[Check]:
              within_budget=last <= bound)])]
     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
                      ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
-                      (19.5, 126.0, 1)))
-    return [("a queued notice's bound is the constants', the last queued notice's 125 ms at one interface (#894, #665 "
-             "decision D) and 62 ms at two", got == (125, 62), str(got)),
+                      (19.5, 131.0, 1)))
+    return [("a queued notice's bound is the constants', the last queued notice's 130 ms at one interface (#894's "
+             "amendment issuecomment-6862465874 to decision D's 125) and 62 ms at two", got == (130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
              first == (20, 22), str(first)),
             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",

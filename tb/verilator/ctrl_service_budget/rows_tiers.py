@@ -198,8 +198,9 @@ def as_tiers(base: rows_grade.Inputs) -> Inputs:
 
 
 def bounds_at(i: Inputs) -> dict[str, float]:
-    """Every row's bound in ms at a point: decision D's, the channel rows' and THE TRANSMIT's, the header's."""
-    return {**BOUNDS, **CHANNEL_BOUNDS, **dict.fromkeys(TX_ROWS, i.tx_bound), **paced_rows.bounds(i)}
+    """Each row's bound in ms: decision D's, at one interface the last's AECP_QUEUED_MS (queued_bound.py), the rest."""
+    last = {'last': i.h['AECP_QUEUED_MS']} if i.s['n_if'] == 1 else {}
+    return {**BOUNDS, **last, **CHANNEL_BOUNDS, **dict.fromkeys(TX_ROWS, i.tx_bound), **paced_rows.bounds(i)}
 
 
 def served(root: Path, texts: dict[str, str] | None = None) -> tuple[tuple[str, ...], str]:
